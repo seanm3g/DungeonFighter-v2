@@ -1,0 +1,238 @@
+[
+  {
+    "name": "Entrance",
+    "description": "A large, imposing entrance to the dungeon. The air is thick with anticipation.",
+    "theme": "Generic",
+    "isHostile": false,
+    "actions": [
+      {
+        "name": "Magical Barrier",
+        "weight": 1.0
+      }
+    ]
+  },
+  {
+    "name": "Treasure Room",
+    "description": "A room filled with glittering gold and precious artifacts. But is it too good to be true?",
+    "theme": "Generic",
+    "isHostile": true,
+    "actions": [
+      {
+        "name": "Treasure Guardian",
+        "weight": 0.8
+      },
+      {
+        "name": "Trap Spring",
+        "weight": 0.2
+      }
+    ]
+  },
+  {
+    "name": "Guard Post",
+    "description": "A well-fortified position, manned by vigilant guards.",
+    "theme": "Generic",
+    "isHostile": true,
+    "actions": [
+      {
+        "name": "Trap Spring",
+        "weight": 0.6
+      },
+      {
+        "name": "Poisonous Gas",
+        "weight": 0.4
+      }
+    ]
+  },
+  {
+    "name": "Trap Room",
+    "description": "The floor is suspiciously clean, and the walls have strange markings.",
+    "theme": "Generic",
+    "isHostile": true,
+    "actions": [
+      {
+        "name": "Trap Spring",
+        "weight": 0.8
+      },
+      {
+        "name": "Poisonous Gas",
+        "weight": 0.2
+      }
+    ]
+  },
+  {
+    "name": "Puzzle Chamber",
+    "description": "Ancient mechanisms and cryptic symbols cover the walls.",
+    "theme": "Generic",
+    "isHostile": false,
+    "actions": [
+      {
+        "name": "Ancient Curse",
+        "weight": 0.7
+      },
+      {
+        "name": "Magical Barrier",
+        "weight": 0.3
+      }
+    ]
+  },
+  {
+    "name": "Rest Area",
+    "description": "A surprisingly peaceful area, with comfortable furnishings.",
+    "theme": "Generic",
+    "isHostile": false,
+    "actions": [
+      {
+        "name": "Magical Barrier",
+        "weight": 0.8
+      },
+      {
+        "name": "Forest Spirits",
+        "weight": 0.2
+      }
+    ]
+  },
+  {
+    "name": "Storage Room",
+    "description": "Shelves and crates line the walls, filled with supplies.",
+    "theme": "Generic",
+    "isHostile": false,
+    "actions": [
+      {
+        "name": "Magical Barrier",
+        "weight": 0.6
+      },
+      {
+        "name": "Ancient Curse",
+        "weight": 0.4
+      }
+    ]
+  },
+  {
+    "name": "Library",
+    "description": "Rows of ancient tomes and scrolls fill this room.",
+    "theme": "Generic",
+    "isHostile": false,
+    "actions": [
+      {
+        "name": "Ancient Curse",
+        "weight": 0.5
+      },
+      {
+        "name": "Magical Barrier",
+        "weight": 0.5
+      }
+    ]
+  },
+  {
+    "name": "Armory",
+    "description": "Weapons and armor are displayed on racks and stands.",
+    "theme": "Generic",
+    "isHostile": false,
+    "actions": [
+      {
+        "name": "Treasure Guardian",
+        "weight": 0.7
+      },
+      {
+        "name": "Magical Barrier",
+        "weight": 0.3
+      }
+    ]
+  },
+  {
+    "name": "Kitchen",
+    "description": "A large cooking area, with pots and pans hanging from the ceiling.",
+    "theme": "Generic",
+    "isHostile": false,
+    "actions": [
+      {
+        "name": "Poisonous Gas",
+        "weight": 0.6
+      },
+      {
+        "name": "Trap Spring",
+        "weight": 0.4
+      }
+    ]
+  },
+  {
+    "name": "Dining Hall",
+    "description": "A long table set for a feast, though the food looks... questionable.",
+    "theme": "Generic",
+    "isHostile": false,
+    "actions": [
+      {
+        "name": "Poisonous Gas",
+        "weight": 0.5
+      },
+      {
+        "name": "Ancient Curse",
+        "weight": 0.5
+      }
+    ]
+  },
+  {
+    "name": "Boss Chamber",
+    "description": "A grand chamber, clearly the domain of a powerful being. The walls are adorned with trophies of past conquests.",
+    "theme": "Generic",
+    "isHostile": true,
+    "actions": [
+      {
+        "name": "Boss Rage",
+        "weight": 0.8
+      },
+      {
+        "name": "Ancient Curse",
+        "weight": 0.2
+      }
+    ]
+  },
+  {
+    "name": "Forest Clearing",
+    "description": "A peaceful clearing in the woods, dappled with sunlight.",
+    "theme": "Forest",
+    "isHostile": false,
+    "actions": [
+      {
+        "name": "Forest Spirits",
+        "weight": 0.8
+      },
+      {
+        "name": "Magical Barrier",
+        "weight": 0.2
+      }
+    ]
+  },
+  {
+    "name": "Lava Chamber",
+    "description": "Molten rock flows through channels in the floor, creating an oppressive heat.",
+    "theme": "Lava",
+    "isHostile": true,
+    "actions": [
+      {
+        "name": "Lava Surge",
+        "weight": 0.8
+      },
+      {
+        "name": "Falling Rocks",
+        "weight": 0.2
+      }
+    ]
+  },
+  {
+    "name": "Crypt Passage",
+    "description": "Ancient stone walls lined with burial niches, the air thick with dust and decay.",
+    "theme": "Crypt",
+    "isHostile": true,
+    "actions": [
+      {
+        "name": "Rising Dead",
+        "weight": 0.7
+      },
+      {
+        "name": "Ancient Curse",
+        "weight": 0.3
+      }
+    ]
+  }
+] 
