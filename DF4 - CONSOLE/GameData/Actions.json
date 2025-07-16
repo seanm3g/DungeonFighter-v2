@@ -1,0 +1,7 @@
+[
+  { "name": "Taunt", "type": "Buff", "comboBonusAmount": 2, "comboBonusDuration": 2, "damageMultiplier": 0, "length": 2.0 },
+  { "name": "Jab", "type": "Attack", "damageMultiplier": 0.5, "length": 0.5 },
+  { "name": "Stun", "type": "Attack", "damageMultiplier": 1.5, "length": 4.0, "causesWeaken": true },
+  { "name": "Crit", "type": "Attack", "damageMultiplier": 2.0, "length": 2.0, "causesBleed": true },
+  { "name": "Basic Attack", "type": "Attack", "damageMultiplier": 1.0, "length": 1.0 }
+] 

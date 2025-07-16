@@ -1,0 +1,5 @@
+[
+  { "name": "Goblin", "level": 1, "strength": 8, "agility": 6, "technique": 4, "actions": ["Jab", "Basic Attack"] },
+  { "name": "Wraith", "level": 3, "strength": 12, "agility": 10, "technique": 14, "actions": ["Haunting Wail", "Basic Attack"] },
+  { "name": "Spider", "level": 2, "strength": 7, "agility": 12, "technique": 5, "actions": ["Poison Bite", "Jab"] }
+] 

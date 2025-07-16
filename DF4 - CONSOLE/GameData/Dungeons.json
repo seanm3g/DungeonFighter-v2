@@ -1,0 +1,5 @@
+[
+  { "name": "Ancient Forest", "theme": "Forest", "minLevel": 1, "maxLevel": 3, "possibleEnemies": ["Goblin", "Spider"] },
+  { "name": "Lava Caves", "theme": "Lava", "minLevel": 2, "maxLevel": 5, "possibleEnemies": ["Wraith", "Slime", "Bat"] },
+  { "name": "Haunted Crypt", "theme": "Crypt", "minLevel": 3, "maxLevel": 6, "possibleEnemies": ["Skeleton", "Zombie", "Wraith"] }
+] 

@@ -1,0 +1,12 @@
+{
+  "weapons": [
+    { "name": "Starter Sword", "damage": 12, "weight": 2.0 },
+    { "name": "Starter Axe", "damage": 15, "weight": 3.0 },
+    { "name": "Starter Dagger", "damage": 8, "weight": 1.0 }
+  ],
+  "armor": [
+    { "slot": "Head", "name": "Leather Helmet", "armor": 5, "weight": 1.0 },
+    { "slot": "Chest", "name": "Leather Armor", "armor": 8, "weight": 3.0 },
+    { "slot": "Feet", "name": "Leather Boots", "armor": 3, "weight": 1.0 }
+  ]
+} 

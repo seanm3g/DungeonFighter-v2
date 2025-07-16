@@ -1,0 +1,5 @@
+[
+  { "name": "Iron Sword", "damage": 8, "weight": 2.5 },
+  { "name": "War Axe", "damage": 12, "weight": 4.0 },
+  { "name": "Crystal Dagger", "damage": 6, "weight": 0.8 }
+] 
