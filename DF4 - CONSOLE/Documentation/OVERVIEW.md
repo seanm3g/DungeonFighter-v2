@@ -53,26 +53,67 @@ The GUI will be implemented using WinForms or WPF and will be connected to the c
 
 The game features a dynamic Action Combo System, inspired by classic RPGs and fighting games. This system allows players to chain together a sequence of actions during combat, with each successful action amplifying the next.
 
-### Actions
-- **Taunt**: No damage, increases chance for combos, and applies a debuff to the enemy.
-- **Jab**: Moderate damage, interrupts enemy combos.
-- **Stun**: High damage, stuns and weakens the enemy.
-- **Crit**: Massive damage, applies bleed.
+### Action Sources
+All actions come from equipped gear - there are no core class actions that every character automatically gets. Actions are obtained from:
 
-Each action has:
-- **Damage**: Expressed as a percentage (e.g., 150%).
-- **Length**: Duration or speed modifier (e.g., 0.5x, 2x).
-- **Description**: Special effects or mechanics (e.g., weaken, bleed, speed up next action).
+- **Weapon Actions**: Each weapon type provides specific actions (e.g., Sword provides PARRY and SWORD SLASH)
+- **Armor Actions**: Armor pieces have a chance to provide actions based on their tier and rarity
+- **All Weapons**: Always provide their weapon-specific actions (100% chance for both starter and loot weapons)
+- **Starter Armor**: Never provide actions (0% chance)
+
+Each action is defined with:
+- **Damage Multiplier**: Expressed as a decimal (e.g., 3.0 = 300%)
+- **Length**: Duration or speed modifier (e.g., 0.5, 2.0)
+- **Description**: Special effects or mechanics
+- **Combo Order**: Position in the combo sequence
+- **Special Effects**: Such as causesWeaken, causesBleed, stat bonuses, etc.
 
 ### Performing Actions
-- On your turn, you attempt the next action in the combo sequence (Taunt → Jab → Stun → Crit).
+- On your turn, you attempt the next action in your combo sequence (player-selected actions from your Action Pool).
 - Roll `1d20 + x` (where `x` is your bonus from loot or effects) with new mechanics:
   - **1-5**: Fail at attack (combo resets)
   - **6-15**: Normal attack (continues combo)
   - **16-20**: Combo attack (triggers combo mode)
 - Once combo mode is triggered, subsequent rolls use **11+** threshold to continue the sequence.
 - Each successful combo action amplifies the damage by **1.85x** (per step).
-- If you fail, the sequence resets to Taunt and combo mode deactivates.
+- If you fail, the sequence resets to the first action in your combo and combo mode deactivates.
+
+### Action System Architecture
+
+The game features a two-tier action system:
+
+#### **Action Pool**
+Contains ALL available actions from two sources (all defined in `Actions.json`):
+1. **Weapon Actions**: 
+   - **All Weapons**: Guaranteed to have actions (e.g., PARRY, SWORD SLASH)
+   - **Both starter and loot weapons**: Always provide their weapon-specific actions
+2. **Armor Actions**: Chance-based actions from equipped armor pieces (e.g., HEADBUTT, CHEST BASH)
+   - **Note**: Starter armor never has actions - only loot armor has a chance
+
+**Action Pool Properties**: 
+- No ordering - just a list of available actions
+- Actions show `[IN COMBO]` indicator if they're currently selected for the combo
+- Actions have no combo order when in the pool
+
+#### **Combo Sequence**
+A subset of actions selected from the Action Pool for the current combo. Players can:
+- **Add actions** from Action Pool to Combo Sequence
+- **Remove actions** from Combo Sequence back to Action Pool
+- **Reorder actions** within the Combo Sequence (swap positions)
+- Combo Sequence actions are numbered 1, 2, 3, 4... based on player selection
+
+**Combo Sequence Properties**:
+- Sequential ordering (1, 2, 3, 4...)
+- Only actions in the combo sequence have combo orders
+- Actions removed from combo get their order reset to 0
+
+**Default Setup**: New characters start with an empty Combo Sequence and must select actions from their Action Pool (which initially contains only actions from their starter weapon).
+
+**Combo Management UI**: Accessible through the inventory screen, players can:
+1. **Add Action to Combo**: Select from available actions in Action Pool
+2. **Remove Action from Combo**: Remove actions from current Combo Sequence
+3. **Swap Combo Actions**: Reorder actions within the Combo Sequence
+4. **Reset Combo Step**: Reset to the first action in the sequence
 
 ### Loot and Bonuses
 - Players can acquire loot that grants bonuses to their action rolls (e.g., +1 to the roll).
@@ -125,12 +166,19 @@ Each enemy type has a primary attribute that determines their specialization:
 - **Cultist**: High technique, moderate other stats - Magic users
 - **Wraith**: High technique and agility, moderate health - Spectral casters
 
-### Action Damage Scaling
-Enemy actions scale damage based on their stats and level:
+### Damage Calculation System
+All damage follows a unified formula:
 
-- **Basic Attack**: 8 + Level + (Strength / 4)
-- **Jab**: 5 + Level + (Agility / 3)
-- **Special Attack**: 12 + Level + (Technique / 2) - Available to Level 5+ enemies
+**Base Damage = STR + (Highest Attribute) + Weapon Damage**
+- **STR**: Character's Strength stat
+- **Highest Attribute**: The highest of STR, AGI, TEC, or INT
+- **Weapon Damage**: Damage from equipped weapon
+
+**Final Damage = Base Damage - Target's Armor**
+- **Armor**: Sum of all equipped armor pieces
+- **Minimum Damage**: 1 (damage cannot be reduced below 1)
+
+**Action Multipliers**: Actions can multiply the base damage (e.g., 2.5x for critical hits)
 
 ### Accuracy Scaling
 Higher level enemies have better accuracy:

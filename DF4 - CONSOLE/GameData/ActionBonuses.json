@@ -1,0 +1,7 @@
+[
+  { "name": "JAB", "description": "Quick attack that resets enemy combo", "weight": 20 },
+  { "name": "SWIPE", "description": "Wide attack that hits multiple enemies", "weight": 20 },
+  { "name": "TAUNT", "description": "Reduces enemy action length", "weight": 20 },
+  { "name": "STUN", "description": "Stuns enemy for one turn", "weight": 20 },
+  { "name": "EVISERATE", "description": "High damage attack with bleeding effect", "weight": 20 }
+]

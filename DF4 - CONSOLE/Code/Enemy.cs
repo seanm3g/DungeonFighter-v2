@@ -12,8 +12,9 @@ namespace RPGGame
         public int GoldReward { get; private set; }
         public int XPReward { get; private set; }
         public PrimaryAttribute PrimaryAttribute { get; private set; }
+        public int Armor { get; private set; }
 
-        public Enemy(string? name = null, int level = 1, int maxHealth = 50, int strength = 8, int agility = 6, int technique = 4, PrimaryAttribute primaryAttribute = PrimaryAttribute.Strength)
+        public Enemy(string? name = null, int level = 1, int maxHealth = 50, int strength = 8, int agility = 6, int technique = 4, int armor = 0, PrimaryAttribute primaryAttribute = PrimaryAttribute.Strength)
             : base(name ?? FlavorText.GenerateEnemyName())
         {
             Level = level;
@@ -27,6 +28,9 @@ namespace RPGGame
             Strength = strength + (level * 2);
             Agility = agility + (level * 2);
             Technique = technique + (level * 2);
+            
+            // Scale armor based on level (+1 armor per level)
+            Armor = armor + level;
             
             // Primary attribute gets +1 extra per level
             switch (PrimaryAttribute)

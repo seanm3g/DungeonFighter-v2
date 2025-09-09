@@ -19,8 +19,8 @@ namespace RPGGame
             if (probability < 0 || probability > 1)
                 throw new ArgumentException("Probability must be between 0 and 1", nameof(probability));
 
-            // Remove any existing action with the same name and combo order
-            ActionPool.RemoveAll(a => a.action.Name == action.Name && a.action.ComboOrder == action.ComboOrder);
+            // Remove any existing action with the same name
+            ActionPool.RemoveAll(a => a.action.Name == action.Name);
             ActionPool.Add((action, probability));
         }
 

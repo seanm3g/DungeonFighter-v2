@@ -1,5 +1,8 @@
+
 [
-  { "name": "Ancient Forest", "theme": "Forest", "minLevel": 1, "maxLevel": 3, "possibleEnemies": ["Goblin", "Spider"] },
-  { "name": "Lava Caves", "theme": "Lava", "minLevel": 2, "maxLevel": 5, "possibleEnemies": ["Wraith", "Slime", "Bat"] },
-  { "name": "Haunted Crypt", "theme": "Crypt", "minLevel": 3, "maxLevel": 6, "possibleEnemies": ["Skeleton", "Zombie", "Wraith"] }
+  { "name": "Ancient Forest", "theme": "Forest", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Goblin", "Spider"] },
+  { "name": "Lava Caves", "theme": "Lava", "minLevel": 2, "maxLevel": 100, "possibleEnemies": ["Wraith", "Slime", "Bat"] },
+  { "name": "Haunted Crypt", "theme": "Crypt", "minLevel": 3, "maxLevel": 100, "possibleEnemies": ["Skeleton", "Zombie", "Wraith"] },
+  { "name": "Crystal Caverns", "theme": "Crystal", "minLevel": 4, "maxLevel": 100, "possibleEnemies": ["Crystal Golem", "Prism Spider", "Shard Beast"] },
+  { "name": "Abandoned Temple", "theme": "Temple", "minLevel": 5, "maxLevel": 100, "possibleEnemies": ["Stone Guardian", "Temple Warden", "Ancient Sentinel"] }
 ] 

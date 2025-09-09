@@ -1,5 +1,81 @@
 [
-  { "name": "Iron Sword", "damage": 8, "weight": 2.5 },
-  { "name": "War Axe", "damage": 12, "weight": 4.0 },
-  { "name": "Crystal Dagger", "damage": 6, "weight": 0.8 }
-] 
+  { "Type": "Sword", "Name": "Rusty Sword", "BaseDamage": 8, "AttackSpeed": 1.0, "Tier": 1 },
+  { "Type": "Sword", "Name": "Iron Sword", "BaseDamage": 10, "AttackSpeed": 1.0, "Tier": 1 },
+  { "Type": "Sword", "Name": "Steel Sword", "BaseDamage": 12, "AttackSpeed": 1.0, "Tier": 1 },
+  
+  { "Type": "Dagger", "Name": "Rusty Dagger", "BaseDamage": 6, "AttackSpeed": 1.5, "Tier": 1 },
+  { "Type": "Dagger", "Name": "Iron Dagger", "BaseDamage": 8, "AttackSpeed": 1.5, "Tier": 1 },
+  { "Type": "Dagger", "Name": "Steel Dagger", "BaseDamage": 10, "AttackSpeed": 1.5, "Tier": 1 },
+  
+  { "Type": "Mace", "Name": "Rusty Mace", "BaseDamage": 10, "AttackSpeed": 0.8, "Tier": 1 },
+  { "Type": "Mace", "Name": "Iron Mace", "BaseDamage": 12, "AttackSpeed": 0.8, "Tier": 1 },
+  { "Type": "Mace", "Name": "Steel Mace", "BaseDamage": 14, "AttackSpeed": 0.8, "Tier": 1 },
+  
+  { "Type": "Wand", "Name": "Wooden Wand", "BaseDamage": 7, "AttackSpeed": 1.2, "Tier": 1 },
+  { "Type": "Wand", "Name": "Oak Wand", "BaseDamage": 9, "AttackSpeed": 1.2, "Tier": 1 },
+  { "Type": "Wand", "Name": "Ash Wand", "BaseDamage": 11, "AttackSpeed": 1.2, "Tier": 1 },
+  
+  { "Type": "Sword", "Name": "Silver Sword", "BaseDamage": 14, "AttackSpeed": 1.0, "Tier": 2 },
+  { "Type": "Sword", "Name": "Battle Sword", "BaseDamage": 16, "AttackSpeed": 1.0, "Tier": 2 },
+  { "Type": "Sword", "Name": "War Sword", "BaseDamage": 18, "AttackSpeed": 1.0, "Tier": 2 },
+  
+  { "Type": "Dagger", "Name": "Silver Dagger", "BaseDamage": 12, "AttackSpeed": 1.5, "Tier": 2 },
+  { "Type": "Dagger", "Name": "Assassin's Blade", "BaseDamage": 14, "AttackSpeed": 1.5, "Tier": 2 },
+  { "Type": "Dagger", "Name": "Shadow Blade", "BaseDamage": 16, "AttackSpeed": 1.5, "Tier": 2 },
+  
+  { "Type": "Mace", "Name": "Silver Mace", "BaseDamage": 16, "AttackSpeed": 0.8, "Tier": 2 },
+  { "Type": "Mace", "Name": "War Hammer", "BaseDamage": 18, "AttackSpeed": 0.8, "Tier": 2 },
+  { "Type": "Mace", "Name": "Battle Mace", "BaseDamage": 20, "AttackSpeed": 0.8, "Tier": 2 },
+  
+  { "Type": "Wand", "Name": "Silver Wand", "BaseDamage": 13, "AttackSpeed": 1.2, "Tier": 2 },
+  { "Type": "Wand", "Name": "Mystic Wand", "BaseDamage": 15, "AttackSpeed": 1.2, "Tier": 2 },
+  { "Type": "Wand", "Name": "Arcane Wand", "BaseDamage": 17, "AttackSpeed": 1.2, "Tier": 2 },
+  
+  { "Type": "Sword", "Name": "Mithril Sword", "BaseDamage": 20, "AttackSpeed": 1.0, "Tier": 3 },
+  { "Type": "Sword", "Name": "Knight's Blade", "BaseDamage": 22, "AttackSpeed": 1.0, "Tier": 3 },
+  { "Type": "Sword", "Name": "Guardian Sword", "BaseDamage": 24, "AttackSpeed": 1.0, "Tier": 3 },
+  
+  { "Type": "Dagger", "Name": "Mithril Dagger", "BaseDamage": 18, "AttackSpeed": 1.5, "Tier": 3 },
+  { "Type": "Dagger", "Name": "Venom Blade", "BaseDamage": 20, "AttackSpeed": 1.5, "Tier": 3 },
+  { "Type": "Dagger", "Name": "Soul Ripper", "BaseDamage": 22, "AttackSpeed": 1.5, "Tier": 3 },
+  
+  { "Type": "Mace", "Name": "Mithril Mace", "BaseDamage": 22, "AttackSpeed": 0.8, "Tier": 3 },
+  { "Type": "Mace", "Name": "Crusher", "BaseDamage": 24, "AttackSpeed": 0.8, "Tier": 3 },
+  { "Type": "Mace", "Name": "Bone Breaker", "BaseDamage": 26, "AttackSpeed": 0.8, "Tier": 3 },
+  
+  { "Type": "Wand", "Name": "Mithril Wand", "BaseDamage": 19, "AttackSpeed": 1.2, "Tier": 3 },
+  { "Type": "Wand", "Name": "Enchanted Wand", "BaseDamage": 21, "AttackSpeed": 1.2, "Tier": 3 },
+  { "Type": "Wand", "Name": "Spellweaver", "BaseDamage": 23, "AttackSpeed": 1.2, "Tier": 3 },
+  
+  { "Type": "Sword", "Name": "Adamantine Sword", "BaseDamage": 26, "AttackSpeed": 1.0, "Tier": 4 },
+  { "Type": "Sword", "Name": "Dragon Slayer", "BaseDamage": 28, "AttackSpeed": 1.0, "Tier": 4 },
+  { "Type": "Sword", "Name": "Void Blade", "BaseDamage": 30, "AttackSpeed": 1.0, "Tier": 4 },
+  
+  { "Type": "Dagger", "Name": "Adamantine Dagger", "BaseDamage": 24, "AttackSpeed": 1.5, "Tier": 4 },
+  { "Type": "Dagger", "Name": "Death's Kiss", "BaseDamage": 26, "AttackSpeed": 1.5, "Tier": 4 },
+  { "Type": "Dagger", "Name": "Void Stiletto", "BaseDamage": 28, "AttackSpeed": 1.5, "Tier": 4 },
+  
+  { "Type": "Mace", "Name": "Adamantine Mace", "BaseDamage": 28, "AttackSpeed": 0.8, "Tier": 4 },
+  { "Type": "Mace", "Name": "Titan Crusher", "BaseDamage": 30, "AttackSpeed": 0.8, "Tier": 4 },
+  { "Type": "Mace", "Name": "Void Hammer", "BaseDamage": 32, "AttackSpeed": 0.8, "Tier": 4 },
+  
+  { "Type": "Wand", "Name": "Adamantine Wand", "BaseDamage": 25, "AttackSpeed": 1.2, "Tier": 4 },
+  { "Type": "Wand", "Name": "Dragon's Breath", "BaseDamage": 27, "AttackSpeed": 1.2, "Tier": 4 },
+  { "Type": "Wand", "Name": "Void Channeler", "BaseDamage": 29, "AttackSpeed": 1.2, "Tier": 4 },
+  
+  { "Type": "Sword", "Name": "Excalibur", "BaseDamage": 32, "AttackSpeed": 1.0, "Tier": 5 },
+  { "Type": "Sword", "Name": "Blade of the Eternal King", "BaseDamage": 34, "AttackSpeed": 1.0, "Tier": 5 },
+  { "Type": "Sword", "Name": "Sword of the Void Lord", "BaseDamage": 36, "AttackSpeed": 1.0, "Tier": 5 },
+  
+  { "Type": "Dagger", "Name": "Assassin's Bane", "BaseDamage": 30, "AttackSpeed": 1.5, "Tier": 5 },
+  { "Type": "Dagger", "Name": "Shadow of Death", "BaseDamage": 32, "AttackSpeed": 1.5, "Tier": 5 },
+  { "Type": "Dagger", "Name": "Void Ripper", "BaseDamage": 34, "AttackSpeed": 1.5, "Tier": 5 },
+  
+  { "Type": "Mace", "Name": "Hammer of the Gods", "BaseDamage": 34, "AttackSpeed": 0.8, "Tier": 5 },
+  { "Type": "Mace", "Name": "World Breaker", "BaseDamage": 36, "AttackSpeed": 0.8, "Tier": 5 },
+  { "Type": "Mace", "Name": "Void Crusher", "BaseDamage": 38, "AttackSpeed": 0.8, "Tier": 5 },
+  
+  { "Type": "Wand", "Name": "Staff of Power", "BaseDamage": 31, "AttackSpeed": 1.2, "Tier": 5 },
+  { "Type": "Wand", "Name": "Wand of the Archmage", "BaseDamage": 33, "AttackSpeed": 1.2, "Tier": 5 },
+  { "Type": "Wand", "Name": "Void Master's Focus", "BaseDamage": 35, "AttackSpeed": 1.2, "Tier": 5 }
+]

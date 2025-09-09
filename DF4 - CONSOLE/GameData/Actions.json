@@ -1,7 +1,718 @@
 [
-  { "name": "Taunt", "type": "Buff", "comboBonusAmount": 2, "comboBonusDuration": 2, "damageMultiplier": 0, "length": 2.0 },
-  { "name": "Jab", "type": "Attack", "damageMultiplier": 0.5, "length": 0.5 },
-  { "name": "Stun", "type": "Attack", "damageMultiplier": 1.5, "length": 4.0, "causesWeaken": true },
-  { "name": "Crit", "type": "Attack", "damageMultiplier": 2.0, "length": 2.0, "causesBleed": true },
-  { "name": "Basic Attack", "type": "Attack", "damageMultiplier": 1.0, "length": 1.0 }
+  {
+    "name": "JAB",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 2.0,
+    "description": "reset enemy combo",
+    "comboOrder": 2,
+    "isComboAction": true
+  },
+  {
+    "name": "TAUNT",
+    "type": "Debuff",
+    "damageMultiplier": 0,
+    "length": 3.0,
+    "description": "50% length for next 2 actions. *higher combo chance",
+    "comboOrder": 1,
+    "isComboAction": true,
+    "comboBonusAmount": 2,
+    "comboBonusDuration": 2
+  },
+  {
+    "name": "STUN",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 4.0,
+    "description": "Stuns the enemy for 5s and weaken",
+    "comboOrder": 3,
+    "isComboAction": true,
+    "causesWeaken": true
+  },
+  {
+    "name": "CRIT",
+    "type": "Attack",
+    "damageMultiplier": 3.0,
+    "length": 2.0,
+    "description": "Do 300% damage",
+    "comboOrder": 4,
+    "isComboAction": true
+  },
+  {
+    "name": "FLURRY",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 2.0,
+    "description": "add 1 attack to next action",
+    "comboOrder": 4,
+    "isComboAction": true,
+    "rollBonus": 1
+  },
+  {
+    "name": "PRECISION STRIKE",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 2.0,
+    "description": "+1 attack to next action",
+    "comboOrder": 5,
+    "isComboAction": true,
+    "rollBonus": 1
+  },
+  {
+    "name": "MOMENTUM BASH",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 2.0,
+    "description": "Gain 1 STR for the duration of this dungeon",
+    "comboOrder": 6,
+    "isComboAction": true,
+    "statBonus": 1,
+    "statBonusType": "STR",
+    "statBonusDuration": -1
+  },
+  {
+    "name": "LUCKY STRIKE",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 2.0,
+    "description": "ADD +1 to next roll",
+    "comboOrder": 7,
+    "isComboAction": true,
+    "rollBonus": 1
+  },
+  {
+    "name": "CLEAVE",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 2.0,
+    "description": "3x35%",
+    "comboOrder": 8,
+    "isComboAction": true,
+    "multiHitCount": 3,
+    "multiHitDamagePercent": 0.35
+  },
+  {
+    "name": "DRUNKEN BRAWLER",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 2.0,
+    "description": "-5 to your next roll -5 to enemies next roll",
+    "comboOrder": 9,
+    "isComboAction": true,
+    "rollBonus": -5
+  },
+  {
+    "name": "OVERKILL",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 2.0,
+    "description": "add 50% damage to next action",
+    "comboOrder": 10,
+    "isComboAction": true,
+    "rollBonus": 2
+  },
+  {
+    "name": "DANCE",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 2.0,
+    "description": "Gain 1 AGI for the duration of this dungeon",
+    "comboOrder": 11,
+    "isComboAction": true,
+    "statBonus": 1,
+    "statBonusType": "AGI",
+    "statBonusDuration": -1
+  },
+  {
+    "name": "SHIELD BASH",
+    "type": "Attack",
+    "damageMultiplier": 2.5,
+    "length": 2.0,
+    "description": "double STR if below 25% health.",
+    "comboOrder": 12,
+    "isComboAction": true
+  },
+  {
+    "name": "OPENING VOLLEY",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 2.0,
+    "description": "DEAL 10 extra damage, -1 per turn",
+    "comboOrder": 13,
+    "isComboAction": true
+  },
+  {
+    "name": "FOCUS",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 2.0,
+    "description": "Gain 1 Technique for the duration of this dungeon",
+    "comboOrder": 14,
+    "isComboAction": true,
+    "statBonus": 1,
+    "statBonusType": "TEC",
+    "statBonusDuration": -1
+  },
+  {
+    "name": "READ BOOK",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 2.0,
+    "description": "Gain 1 INT for the duration of this dungeon",
+    "comboOrder": 15,
+    "isComboAction": true,
+    "statBonus": 1,
+    "statBonusType": "INT",
+    "statBonusDuration": -1
+  },
+  {
+    "name": "SHARP EDGE",
+    "type": "Attack",
+    "damageMultiplier": 2.5,
+    "length": 2.0,
+    "description": "reduce damage by 50% each turn",
+    "comboOrder": 16,
+    "isComboAction": true
+  },
+  {
+    "name": "BLOOD FRENZY",
+    "type": "Attack",
+    "damageMultiplier": 2.5,
+    "length": 2.0,
+    "description": "Deal double damage if health is below 25%",
+    "comboOrder": 17,
+    "isComboAction": true
+  },
+  {
+    "name": "DEAL WITH THE DEVIL",
+    "type": "Attack",
+    "damageMultiplier": 2.5,
+    "length": 2.0,
+    "description": "do 5% damage to yourself",
+    "comboOrder": 18,
+    "isComboAction": true,
+    "selfDamagePercent": 5
+  },
+  {
+    "name": "BERZERK",
+    "type": "Attack",
+    "damageMultiplier": 2.5,
+    "length": 2.0,
+    "description": "double STR if below 25% health.",
+    "comboOrder": 19,
+    "isComboAction": true
+  },
+  {
+    "name": "SWING FOR THE FENCES",
+    "type": "Attack",
+    "damageMultiplier": 2.5,
+    "length": 2.0,
+    "description": "50% chance to attack yourself",
+    "comboOrder": 20,
+    "isComboAction": true
+  },
+  {
+    "name": "TRUE STRIKE",
+    "type": "Attack",
+    "damageMultiplier": 2.5,
+    "length": 2.0,
+    "description": "skip turn, but guarantee next action is successful",
+    "comboOrder": 21,
+    "isComboAction": true,
+    "skipNextTurn": true
+  },
+  {
+    "name": "LAST GRASP",
+    "type": "Attack",
+    "damageMultiplier": 2.5,
+    "length": 2.0,
+    "description": "+10 to roll if health is below 5%",
+    "comboOrder": 22,
+    "isComboAction": true,
+    "rollBonus": 10
+  },
+  {
+    "name": "SECOND WIND",
+    "type": "Attack",
+    "damageMultiplier": 2.5,
+    "length": 2.0,
+    "description": "If 2nd slot, heal for 5 health.",
+    "comboOrder": 23,
+    "isComboAction": true
+  },
+  {
+    "name": "QUICK REFLEXES",
+    "type": "Attack",
+    "damageMultiplier": 2.5,
+    "length": 2.0,
+    "description": "if your action fails, -5 to next enemies roll.",
+    "comboOrder": 24,
+    "isComboAction": true,
+    "rollBonus": 1
+  },
+  {
+    "name": "DEJA VU",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 2.0,
+    "description": "Repeat the previous action",
+    "comboOrder": 25,
+    "isComboAction": true,
+    "repeatLastAction": true
+  },
+  {
+    "name": "FIRST BLOOD",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 2.0,
+    "description": "double damage if enemy is at full health.",
+    "comboOrder": 26,
+    "isComboAction": true
+  },
+  {
+    "name": "POWER OVERWHELMING",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 2.0,
+    "description": "STR ≥ 10: deal double damage",
+    "comboOrder": 27,
+    "isComboAction": true
+  },
+  {
+    "name": "PRETTY BOY SWAG",
+    "type": "Attack",
+    "damageMultiplier": 2.5,
+    "length": 2.0,
+    "description": "If full health, double combo AMP",
+    "comboOrder": 28,
+    "isComboAction": true
+  },
+  {
+    "name": "DIRTY BOY SWAG",
+    "type": "Attack",
+    "damageMultiplier": 2.5,
+    "length": 2.0,
+    "description": "If 1 health, quadrable damage",
+    "comboOrder": 29,
+    "isComboAction": true
+  },
+  {
+    "name": "FALLING BRANCH",
+    "type": "Attack",
+    "damageMultiplier": 1.5,
+    "length": 3.0,
+    "description": "A heavy branch falls from above",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["environment", "forest"]
+  },
+  {
+    "name": "THORN VINES",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 2.0,
+    "description": "Thorny vines entangle and scratch",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["environment", "forest"],
+    "causesBleed": true
+  },
+  {
+    "name": "LAVA SPLASH",
+    "type": "Attack",
+    "damageMultiplier": 2.0,
+    "length": 4.0,
+    "description": "Molten lava splashes from the ground",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["environment", "lava"]
+  },
+  {
+    "name": "STEAM BURST",
+    "type": "Attack",
+    "damageMultiplier": 1.2,
+    "length": 2.0,
+    "description": "Scalding steam erupts from cracks",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["environment", "lava"]
+  },
+  {
+    "name": "CURSE OF THE CRYPT",
+    "type": "Debuff",
+    "damageMultiplier": 0,
+    "length": 5.0,
+    "description": "Ancient curse weakens all who enter",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["environment", "crypt"],
+    "causesWeaken": true
+  },
+  {
+    "name": "GHOSTLY WHISPER",
+    "type": "Attack",
+    "damageMultiplier": 1.8,
+    "length": 3.0,
+    "description": "Ethereal voices drain your life force",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["environment", "crypt"]
+  },
+  {
+    "name": "SPIDER WEB",
+    "type": "Debuff",
+    "damageMultiplier": 0,
+    "length": 3.0,
+    "description": "Sticky webs slow your movements",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["environment", "forest"]
+  },
+  {
+    "name": "BAT SWARM",
+    "type": "Attack",
+    "damageMultiplier": 1.3,
+    "length": 2.0,
+    "description": "A swarm of bats attacks from above",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["environment", "lava"]
+  },
+  {
+    "name": "SKELETON HAND",
+    "type": "Attack",
+    "damageMultiplier": 1.6,
+    "length": 3.0,
+    "description": "Bony hands reach up from the ground",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["environment", "crypt"]
+  },
+  {
+    "name": "PARRY",
+    "type": "Attack",
+    "damageMultiplier": 0.8,
+    "length": 1.0,
+    "description": "Defensive sword technique that blocks and counters",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "rollBonus": 1,
+    "tags": ["weapon", "sword"]
+  },
+  {
+    "name": "SWORD SLASH",
+    "type": "Attack",
+    "damageMultiplier": 1.2,
+    "length": 1.5,
+    "description": "A swift horizontal slash with a sword",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "tags": ["weapon", "sword"]
+  },
+  {
+    "name": "CRUSHING BLOW",
+    "type": "Attack",
+    "damageMultiplier": 1.5,
+    "length": 2.0,
+    "description": "A devastating overhead strike with a mace",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "tags": ["weapon", "mace"]
+  },
+  {
+    "name": "SHIELD BREAK",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 1.5,
+    "description": "A focused strike designed to break through defenses",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "tags": ["weapon", "mace"]
+  },
+  {
+    "name": "QUICK STAB",
+    "type": "Attack",
+    "damageMultiplier": 1.1,
+    "length": 0.8,
+    "description": "A rapid thrust with a dagger",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "rollBonus": 2,
+    "tags": ["weapon", "dagger"]
+  },
+  {
+    "name": "POISON BLADE",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 1.2,
+    "description": "A dagger strike that applies poison",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "causesBleed": true,
+    "tags": ["weapon", "dagger"]
+  },
+  {
+    "name": "MAGIC MISSILE",
+    "type": "Spell",
+    "damageMultiplier": 1.3,
+    "length": 1.0,
+    "description": "A guaranteed hit magical projectile",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "rollBonus": 3,
+    "tags": ["weapon", "wand"]
+  },
+  {
+    "name": "ARCANE SHIELD",
+    "type": "Buff",
+    "damageMultiplier": 0.0,
+    "length": 1.0,
+    "description": "Creates a protective magical barrier",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "tags": ["weapon", "wand"]
+  },
+  {
+    "name": "HEADBUTT",
+    "type": "Attack",
+    "damageMultiplier": 0.9,
+    "length": 1.0,
+    "description": "A powerful head strike using your helmet",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "tags": ["armor", "head"]
+  },
+  {
+    "name": "CHEST BASH",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 1.2,
+    "description": "A body slam using your chest armor",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "tags": ["armor", "chest"]
+  },
+  {
+    "name": "KICK",
+    "type": "Attack",
+    "damageMultiplier": 0.8,
+    "length": 0.8,
+    "description": "A swift kick with your boots",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "tags": ["armor", "feet"]
+  },
+  {
+    "name": "Acid Spit",
+    "type": "Attack",
+    "damageMultiplier": 1.2,
+    "length": 2.0,
+    "description": "Spits corrosive acid that burns over time",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "causesBleed": true,
+    "tags": ["enemy", "slime"]
+  },
+  {
+    "name": "Swoop Attack",
+    "type": "Attack",
+    "damageMultiplier": 0.9,
+    "length": 1.0,
+    "description": "Fast aerial attack with high accuracy",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "rollBonus": 3,
+    "tags": ["enemy", "bat"]
+  },
+  {
+    "name": "Bone Strike",
+    "type": "Attack",
+    "damageMultiplier": 1.3,
+    "length": 1.8,
+    "description": "Strikes with ancient bone weapons",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["enemy", "skeleton"]
+  },
+  {
+    "name": "Shamble Attack",
+    "type": "Attack",
+    "damageMultiplier": 1.5,
+    "length": 3.0,
+    "description": "Slow but devastating zombie attack",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["enemy", "zombie"]
+  },
+  {
+    "name": "Crystal Slam",
+    "type": "Attack",
+    "damageMultiplier": 2.0,
+    "length": 2.5,
+    "description": "Powerful slam with crystalline fists",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["enemy", "crystal", "golem"]
+  },
+  {
+    "name": "Prism Beam",
+    "type": "Spell",
+    "damageMultiplier": 1.8,
+    "length": 2.0,
+    "description": "Focused light beam through crystal body",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["enemy", "crystal", "golem"]
+  },
+  {
+    "name": "Light Refraction",
+    "type": "Debuff",
+    "damageMultiplier": 1.0,
+    "length": 1.5,
+    "description": "Bends light to confuse and disorient",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "rollBonus": -2,
+    "tags": ["enemy", "crystal", "spider"]
+  },
+  {
+    "name": "Web Trap",
+    "type": "Debuff",
+    "damageMultiplier": 0.5,
+    "length": 2.0,
+    "description": "Creates crystalline web that slows movement",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["enemy", "crystal", "spider"]
+  },
+  {
+    "name": "Shard Volley",
+    "type": "Attack",
+    "damageMultiplier": 1.4,
+    "length": 2.2,
+    "description": "Launches multiple crystal shards",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "multiHitCount": 3,
+    "multiHitDamagePercent": 0.47,
+    "tags": ["enemy", "crystal", "beast"]
+  },
+  {
+    "name": "Crystal Charge",
+    "type": "Attack",
+    "damageMultiplier": 1.8,
+    "length": 2.8,
+    "description": "Charges forward with crystal spikes",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["enemy", "crystal", "beast"]
+  },
+  {
+    "name": "Guardian Strike",
+    "type": "Attack",
+    "damageMultiplier": 2.2,
+    "length": 3.0,
+    "description": "Ancient guardian's protective strike",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["enemy", "temple", "guardian"]
+  },
+  {
+    "name": "Stone Shield",
+    "type": "Buff",
+    "damageMultiplier": 0.0,
+    "length": 2.0,
+    "description": "Raises stone barrier for protection",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["enemy", "temple", "guardian"]
+  },
+  {
+    "name": "Ancient Curse",
+    "type": "Debuff",
+    "damageMultiplier": 1.2,
+    "length": 3.5,
+    "description": "Invokes ancient curse that weakens enemies",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "causesWeaken": true,
+    "tags": ["enemy", "temple", "warden"]
+  },
+  {
+    "name": "Sacred Bolt",
+    "type": "Spell",
+    "damageMultiplier": 1.6,
+    "length": 2.2,
+    "description": "Divine energy bolt from the temple",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["enemy", "temple", "warden"]
+  },
+  {
+    "name": "Sentinel Beam",
+    "type": "Spell",
+    "damageMultiplier": 2.5,
+    "length": 4.0,
+    "description": "Devastating beam from ancient sentinel",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["enemy", "temple", "sentinel"]
+  },
+  {
+    "name": "Divine Wrath",
+    "type": "Attack",
+    "damageMultiplier": 3.0,
+    "length": 5.0,
+    "description": "Ultimate attack channeling divine power",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["enemy", "temple", "sentinel"]
+  },
+  {
+    "name": "SWORDMASTER STRIKE",
+    "type": "Attack",
+    "damageMultiplier": 2.5,
+    "length": 2.0,
+    "description": "Precise sword technique that deals massive damage and has a chance to crit",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "rollBonus": 2,
+    "tags": ["weapon", "sword", "unique"]
+  },
+  {
+    "name": "CRUSHING MOMENTUM",
+    "type": "Attack",
+    "damageMultiplier": 2.0,
+    "length": 3.0,
+    "description": "Heavy mace attack that builds momentum, increasing damage for next action",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "statBonus": 1,
+    "statBonusType": "Damage",
+    "statBonusDuration": 1,
+    "tags": ["weapon", "mace", "unique"]
+  },
+  {
+    "name": "VENOMOUS ASSASSIN",
+    "type": "Attack",
+    "damageMultiplier": 1.5,
+    "length": 1.0,
+    "description": "Swift dagger strike that applies poison and causes bleeding",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "causesBleed": true,
+    "tags": ["weapon", "dagger", "unique"]
+  },
+  {
+    "name": "ARCANE FURY",
+    "type": "Spell",
+    "damageMultiplier": 2.2,
+    "length": 2.5,
+    "description": "Powerful magical attack that scales with intelligence and can chain to nearby enemies",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "multiHitCount": 2,
+    "multiHitDamagePercent": 75,
+    "tags": ["weapon", "wand", "unique"]
+  }
 ] 

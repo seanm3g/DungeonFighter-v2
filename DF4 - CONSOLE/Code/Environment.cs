@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 
 namespace RPGGame
 {
@@ -37,61 +38,97 @@ namespace RPGGame
 
         private void InitializeActions()
         {
-            bool hasAction = false;
-            // Theme-specific passive/active effects and actions
-            switch (Theme)
+            LoadEnvironmentalActionsFromJson();
+        }
+
+        private void LoadEnvironmentalActionsFromJson()
+        {
+            try
             {
-                case "Forest":
-                    var poisonSpores = new Action(
-                        name: "Poison Spores",
-                        description: "Clouds of toxic spores fill the air!",
-                        type: ActionType.Debuff,
-                        targetType: TargetType.AreaOfEffect,
-                        baseValue: 4,
-                        cooldown: 3
-                    );
-                    AddAction(poisonSpores, 0.7);
-                    hasAction = true;
-                    break;
-                case "Lava":
-                    var lavaOverflow = new Action(
-                        name: "Lava Overflow",
-                        description: "Lava surges, burning all combatants!",
-                        type: ActionType.Attack,
-                        targetType: TargetType.AreaOfEffect,
-                        baseValue: 10,
-                        cooldown: 3
-                    );
-                    AddAction(lavaOverflow, 0.7);
-                    hasAction = true;
-                    break;
-                case "Crypt":
-                    var hauntingWail = new Action(
-                        name: "Haunting Wail",
-                        description: "A ghostly wail chills you to the bone!",
-                        type: ActionType.Debuff,
-                        targetType: TargetType.AreaOfEffect,
-                        baseValue: 5,
-                        cooldown: 3
-                    );
-                    AddAction(hauntingWail, 0.7);
-                    hasAction = true;
-                    break;
-                // Add more themes as needed
+                string jsonPath = Path.Combine("GameData", "Actions.json");
+                if (File.Exists(jsonPath))
+                {
+                    string jsonContent = File.ReadAllText(jsonPath);
+                    var allActions = System.Text.Json.JsonSerializer.Deserialize<List<ActionData>>(jsonContent);
+                    
+                    if (allActions != null)
+                    {
+                        // Filter actions by environment tag and theme
+                        var environmentalActions = allActions.Where(action => 
+                            action.tags != null && 
+                            action.tags.Contains("environment") && 
+                            action.tags.Contains(Theme.ToLower())
+                        ).ToList();
+                        
+                        if (environmentalActions.Any())
+                        {
+                            // Add all matching environmental actions
+                            foreach (var actionData in environmentalActions)
+                            {
+                                var action = CreateActionFromData(actionData);
+                                AddAction(action, 0.7); // 70% probability for environmental actions
+                            }
+                        }
+                        else
+                        {
+                            // Fallback to default environmental action
+                            AddDefaultEnvironmentalAction();
+                        }
+                    }
+                    else
+                    {
+                        AddDefaultEnvironmentalAction();
+                    }
+                }
+                else
+                {
+                    AddDefaultEnvironmentalAction();
+                }
             }
-            // Fallback to default if no theme action
-            if (!hasAction)
+            catch (Exception ex)
             {
-                var defaultAction = new Action(
-                    name: "Environmental Hazard",
-                    description: "The environment itself poses a threat!",
-                    type: ActionType.Attack,
-                    targetType: TargetType.AreaOfEffect,
-                    baseValue: 5,
-                    cooldown: 2
-                );
-                AddAction(defaultAction, 1.0);
+                Console.WriteLine($"Error loading environmental actions from JSON: {ex.Message}");
+                AddDefaultEnvironmentalAction();
             }
+        }
+
+        private void AddDefaultEnvironmentalAction()
+        {
+            var defaultAction = new Action(
+                name: "Environmental Hazard",
+                description: "The environment itself poses a threat!",
+                type: ActionType.Attack,
+                targetType: TargetType.AreaOfEffect,
+                baseValue: 5,
+                cooldown: 2
+            );
+            AddAction(defaultAction, 1.0);
+        }
+
+        private Action CreateActionFromData(ActionData data)
+        {
+            var actionType = Enum.TryParse<ActionType>(data.type, true, out var parsedType) ? parsedType : ActionType.Attack;
+            var targetType = TargetType.AreaOfEffect; // Environmental actions are always area of effect
+            
+            var action = new Action(
+                name: data.name,
+                type: actionType,
+                targetType: targetType,
+                baseValue: 0,
+                range: 1,
+                cooldown: 0,
+                description: data.description ?? "",
+                comboOrder: data.comboOrder ?? 0,
+                damageMultiplier: data.damageMultiplier,
+                length: data.length,
+                causesBleed: data.causesBleed ?? false,
+                causesWeaken: data.causesWeaken ?? false,
+                isComboAction: data.isComboAction ?? false,
+                comboBonusAmount: data.comboBonusAmount ?? 0,
+                comboBonusDuration: data.comboBonusDuration ?? 0
+            );
+            
+            return action;
         }
 
         public void GenerateEnemies(int roomLevel)
@@ -99,6 +136,16 @@ namespace RPGGame
             if (!IsHostile) return;
 
             int enemyCount = Math.Max(1, (int)Math.Ceiling(roomLevel / 2.0));
+            
+            // Try to load enemy data from JSON first
+            var jsonEnemies = LoadEnemyDataFromJson();
+            if (jsonEnemies != null && jsonEnemies.Count > 0)
+            {
+                GenerateEnemiesFromJson(roomLevel, enemyCount, jsonEnemies);
+                return;
+            }
+            
+            // Fallback to hardcoded enemies
             var enemyTypes = Theme switch
             {
                 "Forest" => new[] { 
@@ -184,6 +231,7 @@ namespace RPGGame
                     adjustedStrength,
                     adjustedAgility,
                     adjustedTechnique,
+                    0, // Base armor - will be scaled by level in Enemy constructor
                     enemyType.Primary
                 );
                 enemies.Add(enemy);
@@ -238,5 +286,73 @@ namespace RPGGame
                 enemy.TakeDamage(dmg);
             }
         }
+
+        private List<EnemyData>? LoadEnemyDataFromJson()
+        {
+            try
+            {
+                string jsonPath = Path.Combine("..", "GameData", "Enemies.json");
+                if (File.Exists(jsonPath))
+                {
+                    string jsonContent = File.ReadAllText(jsonPath);
+                    var enemies = System.Text.Json.JsonSerializer.Deserialize<List<EnemyData>>(jsonContent);
+                    return enemies;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading enemy data from JSON: {ex.Message}");
+            }
+            return null;
+        }
+
+        private void GenerateEnemiesFromJson(int roomLevel, int enemyCount, List<EnemyData> enemyData)
+        {
+            var settings = GameSettings.Instance;
+            for (int i = 0; i < enemyCount; i++)
+            {
+                int enemyLevel = Math.Max(1, roomLevel + random.Next(-1, 2));
+                var enemyTemplate = enemyData[random.Next(enemyData.Count)];
+                
+                // Apply difficulty multipliers
+                int adjustedHealth = (int)(enemyTemplate.BaseHealth * settings.EnemyHealthMultiplier);
+                int adjustedStrength = (int)(enemyTemplate.BaseStrength * settings.EnemyDamageMultiplier);
+                int adjustedAgility = (int)(enemyTemplate.BaseAgility * settings.EnemyDamageMultiplier);
+                int adjustedTechnique = (int)(enemyTemplate.BaseTechnique * settings.EnemyDamageMultiplier);
+                int adjustedArmor = (int)(enemyTemplate.BaseArmor * settings.EnemyHealthMultiplier);
+                
+                var enemy = new Enemy(
+                    $"{enemyTemplate.Name} Lv{enemyLevel}", 
+                    enemyLevel,
+                    adjustedHealth,
+                    adjustedStrength,
+                    adjustedAgility,
+                    adjustedTechnique,
+                    adjustedArmor,
+                    enemyTemplate.Primary
+                );
+                enemies.Add(enemy);
+            }
+        }
+    }
+
+    // Data class for JSON deserialization
+    public class EnemyData
+    {
+        public string Name { get; set; } = "";
+        public int Level { get; set; }
+        public int Strength { get; set; }
+        public int Agility { get; set; }
+        public int Technique { get; set; }
+        public int Armor { get; set; }
+        public List<string> Actions { get; set; } = new List<string>();
+        
+        // Properties for compatibility with existing system
+        public int BaseHealth => 80 + (Level * 10); // Base health calculation
+        public int BaseStrength => Strength;
+        public int BaseAgility => Agility;
+        public int BaseTechnique => Technique;
+        public int BaseArmor => Armor;
+        public PrimaryAttribute Primary => PrimaryAttribute.Strength; // Default primary attribute
     }
 } 

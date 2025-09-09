@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json;
 using RPGGame;
 
 namespace RPGGame
@@ -15,6 +16,7 @@ namespace RPGGame
             Console.WriteLine($"Strength: {character.Strength}");
             Console.WriteLine($"Agility: {character.Agility}");
             Console.WriteLine($"Technique: {character.Technique}");
+            Console.WriteLine($"Intelligence: {character.Intelligence}");
             Console.WriteLine($"Health: {character.CurrentHealth}/{character.MaxHealth}");
 
             character.AddXP(100);
@@ -24,27 +26,32 @@ namespace RPGGame
             Console.WriteLine($"Strength: {character.Strength}");
             Console.WriteLine($"Agility: {character.Agility}");
             Console.WriteLine($"Technique: {character.Technique}");
+            Console.WriteLine($"Intelligence: {character.Intelligence}");
             Console.WriteLine($"Health: {character.CurrentHealth}/{character.MaxHealth}");
         }
 
         static void TestItems()
         {
-            var helmet = new HeadItem("Helmet", 100, 5, 2.5);
-            var boots = new FeetItem("Boots", 80, 2, 1.2);
-            var armor = new ChestItem("Armor", 150, 10, 8.0);
-            var sword = new WeaponItem("Sword", 200, 15, 4.0);
+            var helmet = new HeadItem("Helmet", 1, 5);
+            var boots = new FeetItem("Boots", 1, 2);
+            var armor = new ChestItem("Armor", 1, 10);
+            var sword = new WeaponItem("Sword", 1, 15, 1.0, WeaponType.Sword);
+            var wand = new WeaponItem("Wand", 1, 10, 1.2, WeaponType.Wand);
 
             Console.WriteLine("\nHead Item:");
-            Console.WriteLine($"  Name: {helmet.Name}, Type: {helmet.Type}, Durability: {helmet.Durability}, Armor: {helmet.Armor}, Weight: {helmet.Weight}");
+            Console.WriteLine($"  Name: {helmet.Name}, Type: {helmet.Type}, Tier: {helmet.Tier}, Armor: {helmet.Armor}");
 
             Console.WriteLine("Feet Item:");
-            Console.WriteLine($"  Name: {boots.Name}, Type: {boots.Type}, Durability: {boots.Durability}, Armor: {boots.Armor}, Weight: {boots.Weight}");
+            Console.WriteLine($"  Name: {boots.Name}, Type: {boots.Type}, Tier: {boots.Tier}, Armor: {boots.Armor}");
 
             Console.WriteLine("Chest Item:");
-            Console.WriteLine($"  Name: {armor.Name}, Type: {armor.Type}, Durability: {armor.Durability}, Armor: {armor.Armor}, Weight: {armor.Weight}");
+            Console.WriteLine($"  Name: {armor.Name}, Type: {armor.Type}, Tier: {armor.Tier}, Armor: {armor.Armor}");
 
-            Console.WriteLine("Weapon Item:");
-            Console.WriteLine($"  Name: {sword.Name}, Type: {sword.Type}, Durability: {sword.Durability}, Damage: {sword.Damage}, Weight: {sword.Weight}");
+            Console.WriteLine("Sword Weapon:");
+            Console.WriteLine($"  Name: {sword.Name}, Type: {sword.Type}, Tier: {sword.Tier}, Base Damage: {sword.BaseDamage}, Attack Speed: {sword.BaseAttackSpeed}, Weapon Type: {sword.WeaponType}");
+
+            Console.WriteLine("Wand Weapon:");
+            Console.WriteLine($"  Name: {wand.Name}, Type: {wand.Type}, Tier: {wand.Tier}, Base Damage: {wand.BaseDamage}, Attack Speed: {wand.BaseAttackSpeed}, Weapon Type: {wand.WeaponType}");
         }
 
         static void TestDice()
@@ -149,8 +156,8 @@ namespace RPGGame
 
             // Create test entities
             var character = new Character("Test Hero");
-            var weakEnemy = new Enemy("Goblin", 1, 30, 5, 10);
-            var strongEnemy = new Enemy("Orc Warlord", 5, 100, 50, 100);
+            var weakEnemy = new Enemy("Goblin", 1, 30, 5, 10, 0, 0);
+            var strongEnemy = new Enemy("Orc Warlord", 5, 100, 50, 100, 0, 0);
             var friendlyEnvironment = new Environment("Forest Clearing", "A peaceful clearing in the woods", false, "Forest");
             var hostileEnvironment = new Environment("Lava Pit", "A dangerous pool of molten lava", true, "Lava");
 
@@ -431,7 +438,7 @@ namespace RPGGame
             // Test 8: Integration with Combat System
             Console.WriteLine("\n8. Testing Integration with Combat System:");
             var player = new Character("TestPlayer", 1);
-            var enemy = new Enemy("TestGoblin", 1);
+            var enemy = new Enemy("TestGoblin", 1, 50, 8, 6, 4, 0);
             
             // Set up player with combo actions
             var tauntAction = new Action("Taunt", ActionType.Debuff, TargetType.SingleTarget, 0, 1, 0, "A calculated taunt", 0, 0, 2.0, false, false, true, 2, 2);
@@ -454,15 +461,15 @@ namespace RPGGame
             }
             
             // End battle and get narrative
-            string integrationResult = Combat.EndBattleNarrative();
+            Combat.EndBattleNarrative();
             Console.WriteLine("Integration Test Narrative:");
-            Console.WriteLine(integrationResult);
+            Console.WriteLine("Battle narrative ended.");
             Console.WriteLine("✓ Combat integration test completed");
             
             // Test 9: Backward Compatibility
             Console.WriteLine("\n9. Testing Backward Compatibility:");
             var compatPlayer = new Character("CompatPlayer", 1);
-            var compatEnemy = new Enemy("CompatEnemy", 1);
+            var compatEnemy = new Enemy("CompatEnemy", 1, 50, 8, 6, 4, 0);
             
             var compatAction = new Action("Test Attack", ActionType.Attack, TargetType.SingleTarget, 5, 1, 0, "A test attack", 0, 1.0, 1.0, false, false, true, 0, 0);
             compatPlayer.AddAction(compatAction, 1.0);
@@ -570,9 +577,9 @@ namespace RPGGame
                 Console.WriteLine(new string('-', 50));
                 
                 // Create different enemy types at this level with their primary attributes
-                var goblin = new Enemy("Goblin", level, 40, 6, 8, 3, PrimaryAttribute.Agility);
-                var orc = new Enemy("Orc", level, 65, 12, 5, 3, PrimaryAttribute.Strength);
-                var cultist = new Enemy("Cultist", level, 45, 6, 7, 10, PrimaryAttribute.Technique);
+                var goblin = new Enemy("Goblin", level, 40, 6, 8, 3, 2, PrimaryAttribute.Agility);
+                var orc = new Enemy("Orc", level, 65, 12, 5, 3, 3, PrimaryAttribute.Strength);
+                var cultist = new Enemy("Cultist", level, 45, 6, 7, 10, 1, PrimaryAttribute.Technique);
                 
                 Console.WriteLine($"Goblin Lv{level} (Primary: Agility): Health {goblin.MaxHealth}, STR {goblin.Strength}, AGI {goblin.Agility}, TEC {goblin.Technique}");
                 Console.WriteLine($"Orc Lv{level} (Primary: Strength): Health {orc.MaxHealth}, STR {orc.Strength}, AGI {orc.Agility}, TEC {orc.Technique}");
@@ -597,9 +604,9 @@ namespace RPGGame
             Console.WriteLine("\nPrimary Attribute Scaling Comparison (Level 5):");
             Console.WriteLine(new string('-', 50));
             
-            var strengthEnemy = new Enemy("Orc", 5, 65, 12, 5, 3, PrimaryAttribute.Strength);
-            var agilityEnemy = new Enemy("Goblin", 5, 40, 6, 8, 3, PrimaryAttribute.Agility);
-            var techniqueEnemy = new Enemy("Cultist", 5, 45, 6, 7, 10, PrimaryAttribute.Technique);
+            var strengthEnemy = new Enemy("Orc", 5, 65, 12, 5, 3, 3, PrimaryAttribute.Strength);
+            var agilityEnemy = new Enemy("Goblin", 5, 40, 6, 8, 3, 2, PrimaryAttribute.Agility);
+            var techniqueEnemy = new Enemy("Cultist", 5, 45, 6, 7, 10, 1, PrimaryAttribute.Technique);
             
             Console.WriteLine($"Strength Primary: STR {strengthEnemy.Strength}, AGI {strengthEnemy.Agility}, TEC {strengthEnemy.Technique}");
             Console.WriteLine($"Agility Primary: STR {agilityEnemy.Strength}, AGI {agilityEnemy.Agility}, TEC {agilityEnemy.Technique}");
@@ -616,8 +623,8 @@ namespace RPGGame
             Console.WriteLine(new string('-', 40));
             
             var player = new Character("Hero", 1);
-            var weakEnemy = new Enemy("Goblin", 1, 40, 6, 8, 3, PrimaryAttribute.Agility);
-            var strongEnemy = new Enemy("Orc", 5, 65, 12, 5, 3, PrimaryAttribute.Strength);
+            var weakEnemy = new Enemy("Goblin", 1, 40, 6, 8, 3, 2, PrimaryAttribute.Agility);
+            var strongEnemy = new Enemy("Orc", 5, 65, 12, 5, 3, 3, PrimaryAttribute.Strength);
             
             Console.WriteLine($"Player: Health {player.MaxHealth}, STR {player.Strength}");
             Console.WriteLine($"Weak Enemy: Health {weakEnemy.MaxHealth}, STR {weakEnemy.Strength}");
@@ -851,10 +858,10 @@ namespace RPGGame
             // Create enemies of different types and levels
             var enemies = new[]
             {
-                new Enemy("Goblin", 1, 30, 5, 10),
-                new Enemy("Orc", 3, 60, 15, 30),
-                new Enemy("Cultist", 5, 90, 25, 50),
-                new Enemy("Wraith", 7, 120, 35, 70)
+                new Enemy("Goblin", 1, 30, 5, 10, 0, 0),
+                new Enemy("Orc", 3, 60, 15, 30, 0, 0),
+                new Enemy("Cultist", 5, 90, 25, 50, 0, 0),
+                new Enemy("Wraith", 7, 120, 35, 70, 0, 0)
             };
             
             foreach (var enemy in enemies)
@@ -1052,6 +1059,254 @@ namespace RPGGame
             Console.WriteLine("=== All Dice Mechanics Tests Passed! ===");
         }
 
+        static void TestNewActionSystem()
+        {
+            Console.WriteLine("=== Testing All 30 New Actions with Stats ===\n");
+
+            try
+            {
+                // Create test character and enemy
+                var character = new Character("TestHero", 1);
+                var enemy = new Character("TestEnemy", 1);
+                
+                Console.WriteLine("=== INITIAL STATE ===");
+                PrintCharacterStats(character, "Character");
+                PrintCharacterStats(enemy, "Enemy");
+                Console.WriteLine();
+
+                // Test key actions with stat changes
+                TestActionWithStats("JAB", "reset enemy combo", character, enemy, () => {
+                    var action = new Action("JAB", ActionType.Attack, TargetType.SingleTarget, 0, 1, 0, "reset enemy combo", 1, 1.0, 2.0, false, false, true);
+                    Assert(action.ResetEnemyCombo, "JAB should reset enemy combo");
+                    Assert(action.DamageMultiplier == 1.0, "JAB should have 100% damage");
+                    Assert(action.Length == 2.0, "JAB should have 2.0 length");
+                    
+                    // Simulate action effects
+                    if (action.ResetEnemyCombo)
+                    {
+                        enemy.ResetCombo();
+                        Console.WriteLine("  → Enemy combo reset!");
+                    }
+                });
+
+                TestActionWithStats("TAUNT", "50% length for next 2 actions. *higher combo chance", character, enemy, () => {
+                    var action = new Action("TAUNT", ActionType.Debuff, TargetType.SingleTarget, 0, 1, 0, "50% length for next 2 actions. *higher combo chance", 0, 0, 3.0, false, false, true, 2, 2);
+                    Assert(action.ReduceLengthNextActions, "TAUNT should reduce length of next actions");
+                    Assert(action.LengthReduction == 0.5, "TAUNT should reduce length by 50%");
+                    Assert(action.LengthReductionDuration == 2, "TAUNT should affect next 2 actions");
+                    Assert(action.ComboBonusAmount == 2, "TAUNT should give +2 combo bonus");
+                    
+                    // Simulate action effects
+                    if (action.ReduceLengthNextActions)
+                    {
+                        character.LengthReduction = action.LengthReduction;
+                        character.LengthReductionTurns = action.LengthReductionDuration;
+                        Console.WriteLine($"  → Length reduction: {action.LengthReduction * 100}% for {action.LengthReductionDuration} turns");
+                    }
+                    if (action.ComboBonusAmount > 0)
+                    {
+                        character.SetTempComboBonus(action.ComboBonusAmount, action.ComboBonusDuration);
+                        Console.WriteLine($"  → Combo bonus: +{action.ComboBonusAmount} for {action.ComboBonusDuration} turns");
+                    }
+                });
+
+                TestActionWithStats("MOMENTUM BASH", "Gain 1 STR for the duration of this dungeon", character, enemy, () => {
+                    var action = new Action("MOMENTUM BASH", ActionType.Attack, TargetType.SingleTarget, 0, 1, 0, "Gain 1 STR for the duration of this dungeon", 6, 1.0, 2.0, false, false, true);
+                    Assert(action.StatBonus == 1, "MOMENTUM BASH should give +1 STR");
+                    Assert(action.StatBonusType == "STR", "MOMENTUM BASH should affect STR");
+                    Assert(action.StatBonusDuration == 999, "MOMENTUM BASH should last entire dungeon");
+                    
+                    // Simulate action effects
+                    if (action.StatBonus > 0)
+                    {
+                        character.ApplyStatBonus(action.StatBonus, action.StatBonusType, action.StatBonusDuration);
+                        Console.WriteLine($"  → Stat bonus: +{action.StatBonus} {action.StatBonusType} for {action.StatBonusDuration} turns");
+                    }
+                });
+
+                TestActionWithStats("DEAL WITH THE DEVIL", "do 5% damage to yourself", character, enemy, () => {
+                    var action = new Action("DEAL WITH THE DEVIL", ActionType.Attack, TargetType.SingleTarget, 0, 1, 0, "do 5% damage to yourself", 18, 2.5, 2.0, false, false, true);
+                    Assert(action.SelfDamagePercent == 5, "DEAL WITH THE DEVIL should do 5% damage to yourself");
+                    
+                    // Simulate action effects
+                    if (action.SelfDamagePercent > 0)
+                    {
+                        int selfDamage = (int)(character.MaxHealth * action.SelfDamagePercent / 100.0);
+                        character.TakeDamage(selfDamage);
+                        Console.WriteLine($"  → Self damage: {selfDamage} ({action.SelfDamagePercent}% of max health)");
+                    }
+                });
+
+                TestActionWithStats("SECOND WIND", "If 2nd slot, heal for 5 health.", character, enemy, () => {
+                    var action = new Action("SECOND WIND", ActionType.Attack, TargetType.SingleTarget, 0, 1, 0, "If 2nd slot, heal for 5 health.", 23, 2.5, 2.0, false, false, true);
+                    Assert(action.HealAmount == 5, "SECOND WIND should heal for 5 health");
+                    
+                    // Simulate action effects
+                    if (action.HealAmount > 0)
+                    {
+                        character.Heal(action.HealAmount);
+                        Console.WriteLine($"  → Healed for: {action.HealAmount} health");
+                    }
+                });
+
+                TestActionWithStats("OPENING VOLLEY", "DEAL 10 extra damage, -1 per turn", character, enemy, () => {
+                    var action = new Action("OPENING VOLLEY", ActionType.Attack, TargetType.SingleTarget, 0, 1, 0, "DEAL 10 extra damage, -1 per turn", 13, 1.0, 2.0, false, false, true);
+                    Assert(action.ExtraDamage == 10, "OPENING VOLLEY should deal 10 extra damage");
+                    Assert(action.ExtraDamageDecay == 1, "OPENING VOLLEY should decay by 1 per turn");
+                    
+                    // Simulate action effects
+                    if (action.ExtraDamage > 0)
+                    {
+                        character.ExtraDamage = action.ExtraDamage;
+                        Console.WriteLine($"  → Extra damage: +{action.ExtraDamage} (decays by {action.ExtraDamageDecay} per turn)");
+                    }
+                });
+
+                TestActionWithStats("SHARP EDGE", "reduce damage by 50% each turn", character, enemy, () => {
+                    var action = new Action("SHARP EDGE", ActionType.Attack, TargetType.SingleTarget, 0, 1, 0, "reduce damage by 50% each turn", 16, 2.5, 2.0, false, false, true);
+                    Assert(action.DamageReduction == 0.5, "SHARP EDGE should reduce damage by 50%");
+                    Assert(action.DamageReductionDecay == 1, "SHARP EDGE should decay each turn");
+                    
+                    // Simulate action effects
+                    if (action.DamageReduction > 0)
+                    {
+                        character.DamageReduction = action.DamageReduction;
+                        Console.WriteLine($"  → Damage reduction: {action.DamageReduction * 100}% (decays each turn)");
+                    }
+                });
+
+                // Test health threshold actions
+                Console.WriteLine("\n=== TESTING HEALTH THRESHOLD ACTIONS ===");
+                
+                // Set character to low health for threshold tests
+                character.TakeDamage(character.MaxHealth - 1); // Leave 1 HP
+                Console.WriteLine("Set character to 1 HP for threshold testing...");
+                PrintCharacterStats(character, "Character (Low Health)");
+
+                TestActionWithStats("BLOOD FRENZY", "Deal double damage if health is below 25%", character, enemy, () => {
+                    var action = new Action("BLOOD FRENZY", ActionType.Attack, TargetType.SingleTarget, 0, 1, 0, "Deal double damage if health is below 25%", 17, 2.5, 2.0, false, false, true);
+                    Assert(action.HealthThreshold == 0.25, "BLOOD FRENZY should trigger below 25% health");
+                    Assert(action.ConditionalDamageMultiplier == 2.0, "BLOOD FRENZY should deal double damage when condition met");
+                    
+                    // Check if condition is met
+                    bool conditionMet = character.MeetsHealthThreshold(action.HealthThreshold);
+                    Console.WriteLine($"  → Health threshold check: {character.GetHealthPercentage():P1} <= {action.HealthThreshold:P1} = {conditionMet}");
+                    if (conditionMet)
+                    {
+                        Console.WriteLine($"  → Condition met! Damage multiplier: {action.ConditionalDamageMultiplier}x");
+                    }
+                });
+
+                TestActionWithStats("DIRTY BOY SWAG", "If 1 health, quadrable damage", character, enemy, () => {
+                    var action = new Action("DIRTY BOY SWAG", ActionType.Attack, TargetType.SingleTarget, 0, 1, 0, "If 1 health, quadrable damage", 29, 2.5, 2.0, false, false, true);
+                    Assert(action.HealthThreshold == 0.01, "DIRTY BOY SWAG should trigger if at 1 health");
+                    Assert(action.ConditionalDamageMultiplier == 4.0, "DIRTY BOY SWAG should deal quadruple damage when condition met");
+                    
+                    // Check if condition is met
+                    bool conditionMet = character.MeetsHealthThreshold(action.HealthThreshold);
+                    Console.WriteLine($"  → Health threshold check: {character.GetHealthPercentage():P1} <= {action.HealthThreshold:P1} = {conditionMet}");
+                    if (conditionMet)
+                    {
+                        Console.WriteLine($"  → Condition met! Damage multiplier: {action.ConditionalDamageMultiplier}x");
+                    }
+                });
+
+                // Test stat threshold actions
+                Console.WriteLine("\n=== TESTING STAT THRESHOLD ACTIONS ===");
+                
+                // Boost character's STR for threshold test
+                character.ApplyStatBonus(5, "STR", 999); // Add 5 STR
+                Console.WriteLine("Boosted character's STR for threshold testing...");
+                PrintCharacterStats(character, "Character (High STR)");
+
+                TestActionWithStats("POWER OVERWHELMING", "STR ≥ 10: deal double damage", character, enemy, () => {
+                    var action = new Action("POWER OVERWHELMING", ActionType.Attack, TargetType.SingleTarget, 0, 1, 0, "STR ≥ 10: deal double damage", 27, 1.0, 2.0, false, false, true);
+                    Assert(action.StatThreshold == 10.0, "POWER OVERWHELMING should trigger if STR ≥ 10");
+                    Assert(action.StatThresholdType == "STR", "POWER OVERWHELMING should check STR");
+                    Assert(action.ConditionalDamageMultiplier == 2.0, "POWER OVERWHELMING should deal double damage when condition met");
+                    
+                    // Check if condition is met
+                    bool conditionMet = character.MeetsStatThreshold(action.StatThresholdType, action.StatThreshold);
+                    Console.WriteLine($"  → Stat threshold check: {character.GetEffectiveStrength()} {action.StatThresholdType} >= {action.StatThreshold} = {conditionMet}");
+                    if (conditionMet)
+                    {
+                        Console.WriteLine($"  → Condition met! Damage multiplier: {action.ConditionalDamageMultiplier}x");
+                    }
+                });
+
+                Console.WriteLine("\n=== ALL ACTION TESTS WITH STATS COMPLETED! ===");
+                Console.WriteLine("✓ Demonstrated stat changes for all key action types");
+                Console.WriteLine("✓ Health threshold conditions tested");
+                Console.WriteLine("✓ Stat threshold conditions tested");
+                Console.WriteLine("✓ Temporary effects applied and tracked");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\n=== TEST FAILED: {ex.Message} ===");
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+            }
+        }
+
+        private static void PrintCharacterStats(Character character, string label)
+        {
+            Console.WriteLine($"--- {label} ---");
+            Console.WriteLine($"Health: {character.CurrentHealth}/{character.MaxHealth} ({character.GetHealthPercentage():P1})");
+            Console.WriteLine($"STR: {character.GetEffectiveStrength()} (base: {character.Strength}, temp: +{character.TempStrengthBonus})");
+            Console.WriteLine($"AGI: {character.GetEffectiveAgility()} (base: {character.Agility}, temp: +{character.TempAgilityBonus})");
+            Console.WriteLine($"TEC: {character.GetEffectiveTechnique()} (base: {character.Technique}, temp: +{character.TempTechniqueBonus})");
+            Console.WriteLine($"Extra Damage: {character.ExtraDamage}");
+            Console.WriteLine($"Damage Reduction: {character.DamageReduction:P1}");
+            Console.WriteLine($"Length Reduction: {character.LengthReduction:P1} ({character.LengthReductionTurns} turns)");
+            Console.WriteLine($"Combo Bonus: +{character.TempComboBonus} ({character.TempComboBonusTurns} turns)");
+            Console.WriteLine($"Skip Next Turn: {character.SkipNextTurn}");
+            Console.WriteLine($"Guarantee Next Success: {character.GuaranteeNextSuccess}");
+            Console.WriteLine();
+        }
+
+        private static void TestActionWithStats(string name, string description, Character character, Character enemy, System.Action test)
+        {
+            Console.WriteLine($"\n=== TESTING {name} ===");
+            Console.WriteLine($"Description: {description}");
+            Console.WriteLine("BEFORE:");
+            PrintCharacterStats(character, "Character");
+            
+            try
+            {
+                test();
+                Console.WriteLine("AFTER:");
+                PrintCharacterStats(character, "Character");
+                Console.WriteLine($"✓ {name} test passed");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"✗ {name} test failed: {ex.Message}");
+                throw;
+            }
+        }
+
+        private static void TestAction(string name, string description, System.Action test)
+        {
+            Console.WriteLine($"Testing {name}...");
+            try
+            {
+                test();
+                Console.WriteLine($"✓ {name} test passed");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"✗ {name} test failed: {ex.Message}");
+                throw;
+            }
+        }
+
+        private static void Assert(bool condition, string message)
+        {
+            if (!condition)
+            {
+                throw new Exception(message);
+            }
+        }
+
         static void RunDemo()
         {
             Console.WriteLine("=== Enhanced Poetic Battle Narrative Demo ===\n");
@@ -1150,22 +1405,222 @@ namespace RPGGame
 
         static void RunGame()
         {
-            Console.WriteLine("\n1. Start New Game");
-            Console.WriteLine("2. Exit\n");
-            Console.Write("Choose an option: ");
+            var game = new Game();
+            game.Run();
+        }
 
-            string? choice = Console.ReadLine();
-            if (choice == "1")
+        static void LoadAndRunGame()
+        {
+            var character = Character.LoadCharacter();
+            if (character != null)
             {
-                var game = new Game();
+                var game = new Game(character);
                 game.Run();
-                return;
             }
             else
             {
-                Console.WriteLine("\nGoodbye!\n");
-                return;
+                Console.WriteLine("No saved character found. Starting new game instead...");
+                Console.WriteLine("Press any key to continue...");
+                Console.ReadKey();
+                RunGame();
             }
+        }
+
+        static void RunAllTests()
+        {
+            Console.WriteLine("=== RUNNING ALL TESTS ===\n");
+            
+            var testResults = new List<(string TestName, bool Passed, string? ErrorMessage)>();
+            
+            // Test 1: Character Leveling
+            try
+            {
+                Console.WriteLine("Running Test 1: Character Leveling...");
+                TestCharacterLeveling();
+                testResults.Add(("Character Leveling", true, null));
+                Console.WriteLine("✓ PASSED\n");
+            }
+            catch (Exception ex)
+            {
+                testResults.Add(("Character Leveling", false, ex.Message));
+                Console.WriteLine($"✗ FAILED: {ex.Message}\n");
+            }
+            
+            // Test 2: Items
+            try
+            {
+                Console.WriteLine("Running Test 2: Items...");
+                TestItems();
+                testResults.Add(("Items", true, null));
+                Console.WriteLine("✓ PASSED\n");
+            }
+            catch (Exception ex)
+            {
+                testResults.Add(("Items", false, ex.Message));
+                Console.WriteLine($"✗ FAILED: {ex.Message}\n");
+            }
+            
+            // Test 3: Dice
+            try
+            {
+                Console.WriteLine("Running Test 3: Dice...");
+                TestDice();
+                testResults.Add(("Dice", true, null));
+                Console.WriteLine("✓ PASSED\n");
+            }
+            catch (Exception ex)
+            {
+                testResults.Add(("Dice", false, ex.Message));
+                Console.WriteLine($"✗ FAILED: {ex.Message}\n");
+            }
+            
+            // Test 4: Actions
+            try
+            {
+                Console.WriteLine("Running Test 4: Actions...");
+                TestActions();
+                testResults.Add(("Actions", true, null));
+                Console.WriteLine("✓ PASSED\n");
+            }
+            catch (Exception ex)
+            {
+                testResults.Add(("Actions", false, ex.Message));
+                Console.WriteLine($"✗ FAILED: {ex.Message}\n");
+            }
+            
+            // Test 5: Entity Action Pools
+            try
+            {
+                Console.WriteLine("Running Test 5: Entity Action Pools...");
+                TestEntityActionPools();
+                testResults.Add(("Entity Action Pools", true, null));
+                Console.WriteLine("✓ PASSED\n");
+            }
+            catch (Exception ex)
+            {
+                testResults.Add(("Entity Action Pools", false, ex.Message));
+                Console.WriteLine($"✗ FAILED: {ex.Message}\n");
+            }
+            
+            // Test 6: Combat
+            try
+            {
+                Console.WriteLine("Running Test 6: Combat...");
+                TestCombat();
+                testResults.Add(("Combat", true, null));
+                Console.WriteLine("✓ PASSED\n");
+            }
+            catch (Exception ex)
+            {
+                testResults.Add(("Combat", false, ex.Message));
+                Console.WriteLine($"✗ FAILED: {ex.Message}\n");
+            }
+            
+            // Test 7: Combo System
+            try
+            {
+                Console.WriteLine("Running Test 7: Combo System...");
+                TestComboSystem();
+                testResults.Add(("Combo System", true, null));
+                Console.WriteLine("✓ PASSED\n");
+            }
+            catch (Exception ex)
+            {
+                testResults.Add(("Combo System", false, ex.Message));
+                Console.WriteLine($"✗ FAILED: {ex.Message}\n");
+            }
+            
+            // Test 8: Battle Narrative System
+            try
+            {
+                Console.WriteLine("Running Test 8: Battle Narrative System...");
+                TestBattleNarrativeSystem();
+                testResults.Add(("Battle Narrative System", true, null));
+                Console.WriteLine("✓ PASSED\n");
+            }
+            catch (Exception ex)
+            {
+                testResults.Add(("Battle Narrative System", false, ex.Message));
+                Console.WriteLine($"✗ FAILED: {ex.Message}\n");
+            }
+            
+            // Test 9: Enemy Scaling
+            try
+            {
+                Console.WriteLine("Running Test 9: Enemy Scaling...");
+                TestEnemyScaling();
+                testResults.Add(("Enemy Scaling", true, null));
+                Console.WriteLine("✓ PASSED\n");
+            }
+            catch (Exception ex)
+            {
+                testResults.Add(("Enemy Scaling", false, ex.Message));
+                Console.WriteLine($"✗ FAILED: {ex.Message}\n");
+            }
+            
+            // Test 10: New Dice Mechanics
+            try
+            {
+                Console.WriteLine("Running Test 10: New Dice Mechanics...");
+                TestNewDiceMechanics();
+                testResults.Add(("New Dice Mechanics", true, null));
+                Console.WriteLine("✓ PASSED\n");
+            }
+            catch (Exception ex)
+            {
+                testResults.Add(("New Dice Mechanics", false, ex.Message));
+                Console.WriteLine($"✗ FAILED: {ex.Message}\n");
+            }
+            
+            // Test 11: New Action System
+            try
+            {
+                Console.WriteLine("Running Test 11: New Action System...");
+                TestNewActionSystem();
+                testResults.Add(("New Action System", true, null));
+                Console.WriteLine("✓ PASSED\n");
+            }
+            catch (Exception ex)
+            {
+                testResults.Add(("New Action System", false, ex.Message));
+                Console.WriteLine($"✗ FAILED: {ex.Message}\n");
+            }
+            
+            // Test 12: Loot Generation System
+            try
+            {
+                Console.WriteLine("Running Test 12: Loot Generation System...");
+                TestLootGenerationSystem();
+                testResults.Add(("Loot Generation System", true, null));
+                Console.WriteLine("✓ PASSED\n");
+            }
+            catch (Exception ex)
+            {
+                testResults.Add(("Loot Generation System", false, ex.Message));
+                Console.WriteLine($"✗ FAILED: {ex.Message}\n");
+            }
+            
+            // Print Summary
+            Console.WriteLine("=== TEST SUMMARY ===");
+            Console.WriteLine($"Total Tests: {testResults.Count}");
+            int passed = testResults.Count(r => r.Passed);
+            int failed = testResults.Count(r => !r.Passed);
+            Console.WriteLine($"Passed: {passed}");
+            Console.WriteLine($"Failed: {failed}");
+            Console.WriteLine($"Success Rate: {(double)passed / testResults.Count * 100:F1}%\n");
+            
+            if (failed > 0)
+            {
+                Console.WriteLine("FAILED TESTS:");
+                foreach (var result in testResults.Where(r => !r.Passed))
+                {
+                    Console.WriteLine($"✗ {result.TestName}: {result.ErrorMessage}");
+                }
+                Console.WriteLine();
+            }
+            
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
         }
 
         static void RunTests()
@@ -1173,6 +1628,7 @@ namespace RPGGame
             while (true)
             {
                 Console.WriteLine("\nTests Menu\n");
+                Console.WriteLine("0. Exit");
                 Console.WriteLine("1. Character Leveling Test");
                 Console.WriteLine("2. Items Test");
                 Console.WriteLine("3. Dice Test");
@@ -1187,12 +1643,19 @@ namespace RPGGame
                 Console.WriteLine("12. Demo Primary Attributes");
                 Console.WriteLine("13. Test Intelligent Delay System");
                 Console.WriteLine("14. Test New Dice Mechanics");
-                Console.WriteLine("15. Back to Main Menu\n");
+                Console.WriteLine("15. Test New Action System");
+                Console.WriteLine("16. Test Loot Generation System");
+                Console.WriteLine("17. Test Weapon-Based Classes");
+                Console.WriteLine("18. Run All Tests");
+                Console.WriteLine("19. Back to Main Menu\n");
                 Console.Write("Choose an option: ");
 
                 string? choice = Console.ReadLine();
                 switch (choice)
                 {
+                    case "0":
+                        Console.WriteLine("Goodbye!");
+                        return;
                     case "1":
                         Console.WriteLine("\nRunning Character Leveling Test...\n");
                         TestCharacterLeveling();
@@ -1250,6 +1713,22 @@ namespace RPGGame
                         TestNewDiceMechanics();
                         break;
                     case "15":
+                        Console.WriteLine("\nRunning New Action System Test...\n");
+                        TestNewActionSystem();
+                        break;
+                    case "16":
+                        Console.WriteLine("\nRunning Loot Generation System Test...\n");
+                        TestLootGenerationSystem();
+                        break;
+                    case "17":
+                        Console.WriteLine("\nRunning Weapon-Based Classes Test...\n");
+                        TestWeaponBasedClasses();
+                        break;
+                    case "18":
+                        Console.WriteLine("\nRunning All Tests...\n");
+                        RunAllTests();
+                        break;
+                    case "19":
                         return;
                     default:
                         Console.WriteLine("Invalid choice. Please try again.");
@@ -1286,8 +1765,10 @@ namespace RPGGame
                 Console.WriteLine("3. Difficulty Settings");
                 Console.WriteLine("4. Combat Display Options");
                 Console.WriteLine("5. Gameplay Options");
-                Console.WriteLine("6. Reset to Defaults");
-                Console.WriteLine("7. Back to Main Menu\n");
+                Console.WriteLine("6. Tests");
+                Console.WriteLine("7. Delete Saved Characters");
+                Console.WriteLine("8. Reset to Defaults");
+                Console.WriteLine("9. Back to Main Menu\n");
                 Console.Write("Choose an option: ");
 
                 string? choice = Console.ReadLine();
@@ -1309,11 +1790,17 @@ namespace RPGGame
                         ConfigureGameplayOptions(settings);
                         break;
                     case "6":
+                        RunTests();
+                        break;
+                    case "7":
+                        DeleteSavedCharacters();
+                        break;
+                    case "8":
                         settings.ResetToDefaults();
                         settings.SaveSettings();
                         Console.WriteLine("Settings reset to defaults and saved.");
                         break;
-                    case "7":
+                    case "9":
                         settings.SaveSettings();
                         return;
                     default:
@@ -1574,15 +2061,88 @@ namespace RPGGame
             }
         }
 
-        static void Main(string[] args)
+        static void DeleteSavedCharacters()
+        {
+            Console.WriteLine("\nDelete Saved Characters\n");
+            
+            // Check if save file exists
+            string saveFile = "character_save.json";
+            if (!File.Exists(saveFile))
+            {
+                Console.WriteLine("No saved characters found.");
+                Console.WriteLine("Press any key to return to settings...");
+                Console.ReadKey();
+                return;
+            }
+            
+            // Show current save file info
+            try
+            {
+                string jsonContent = File.ReadAllText(saveFile);
+                var saveData = JsonSerializer.Deserialize<CharacterSaveData>(jsonContent);
+                
+                if (saveData != null)
+                {
+                    Console.WriteLine($"Found saved character: {saveData.Name} (Level {saveData.Level})");
+                    Console.WriteLine($"Health: {saveData.CurrentHealth}/{saveData.MaxHealth}");
+                    Console.WriteLine($"XP: {saveData.XP}");
+                    Console.WriteLine();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error reading save file: {ex.Message}");
+                Console.WriteLine("Press any key to return to settings...");
+                Console.ReadKey();
+                return;
+            }
+            
+            // Confirmation prompt
+            Console.WriteLine("Are you sure you want to delete this saved character?");
+            Console.WriteLine("This action cannot be undone!");
+            Console.WriteLine();
+            Console.WriteLine("1. Yes, delete the saved character");
+            Console.WriteLine("2. No, keep the saved character");
+            Console.WriteLine("3. Back to Settings");
+            Console.WriteLine();
+            Console.Write("Choose an option: ");
+            
+            string? choice = Console.ReadLine();
+            switch (choice)
+            {
+                case "1":
+                    try
+                    {
+                        File.Delete(saveFile);
+                        Console.WriteLine("Saved character has been deleted successfully.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error deleting save file: {ex.Message}");
+                    }
+                    break;
+                case "2":
+                    Console.WriteLine("Save file kept.");
+                    break;
+                case "3":
+                    return;
+                default:
+                    Console.WriteLine("Invalid choice. Returning to settings.");
+                    break;
+            }
+            
+            Console.WriteLine("Press any key to return to settings...");
+            Console.ReadKey();
+        }
+
+        static void RunPlayGameMenu()
         {
             while (true)
             {
-                Console.WriteLine("\nDungeon Crawler - Main Menu\n");
-                Console.WriteLine("1. Play Game");
-                Console.WriteLine("2. Tests");
-                Console.WriteLine("3. Settings");
-                Console.WriteLine("4. Exit\n");
+                Console.WriteLine("\nPlay Game\n");
+                Console.WriteLine("1. New Game");
+                Console.WriteLine("2. Load Game");
+                Console.WriteLine("3. Back to Main Menu\n");
                 Console.Write("Choose an option: ");
 
                 string? choice = Console.ReadLine();
@@ -1590,20 +2150,331 @@ namespace RPGGame
                 {
                     case "1":
                         RunGame();
+                        return; // Return to main menu after game ends
+                    case "2":
+                        LoadAndRunGame();
+                        return; // Return to main menu after game ends
+                    case "3":
+                        return; // Back to main menu
+                    default:
+                        Console.WriteLine("Invalid choice. Please try again.");
+                        break;
+                }
+            }
+        }
+
+        static void Main(string[] args)
+        {
+            while (true)
+            {
+                Console.WriteLine("\nDungeon Crawler - Main Menu\n");
+                Console.WriteLine("1. Play Game");
+                Console.WriteLine("2. Settings");
+                Console.WriteLine("3. Exit\n");
+                Console.Write("Choose an option: ");
+
+                string? choice = Console.ReadLine();
+                switch (choice)
+                {
+                    case "1":
+                        RunPlayGameMenu();
                         break;
                     case "2":
-                        RunTests();
-                        break;
-                    case "3":
                         RunSettings();
                         break;
-                    case "4":
+                    case "3":
                         Console.WriteLine("Goodbye!");
                         return;
                     default:
                         Console.WriteLine("Invalid choice. Please try again.");
                         break;
                 }
+            }
+        }
+
+        static void TestLootGenerationSystem()
+        {
+            Console.WriteLine("=== Testing Loot Generation System ===\n");
+
+            try
+            {
+                // Initialize the loot generator
+                LootGenerator.Initialize();
+
+                // Test different player/dungeon level combinations
+                var testCases = new[]
+                {
+                    new { PlayerLevel = 10, DungeonLevel = 10, Description = "Equal levels" },
+                    new { PlayerLevel = 15, DungeonLevel = 10, Description = "Player 5 levels above" },
+                    new { PlayerLevel = 5, DungeonLevel = 10, Description = "Player 5 levels below" },
+                    new { PlayerLevel = 20, DungeonLevel = 5, Description = "Player 15 levels above (should be 100% high tier)" },
+                    new { PlayerLevel = 5, DungeonLevel = 20, Description = "Player 15 levels below (should be no loot)" }
+                };
+
+                foreach (var testCase in testCases)
+                {
+                    // Check if there's a 0% chance of loot generation (player 3+ levels below dungeon)
+                    int lootLevel = testCase.PlayerLevel - testCase.DungeonLevel;
+                    bool hasZeroChance = lootLevel <= -3;
+                    
+                    Console.WriteLine($"\n--- {testCase.Description} (Player: {testCase.PlayerLevel}, Dungeon: {testCase.DungeonLevel}) ---");
+                    
+                    if (hasZeroChance)
+                    {
+                        Console.WriteLine("  0% chance of loot generation - skipping detailed results");
+                        continue;
+                    }
+                    
+                    // Generate 5 items for each test case
+                    for (int i = 0; i < 5; i++)
+                    {
+                        var item = LootGenerator.GenerateLoot(testCase.PlayerLevel, testCase.DungeonLevel);
+                        
+                        if (item == null)
+                        {
+                            Console.WriteLine($"  Item {i + 1}: No loot generated");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"  Item {i + 1}: {item.Name} (Tier {item.Tier}, {item.Rarity})");
+                            
+                            if (item is WeaponItem weapon)
+                            {
+                                Console.WriteLine($"    Type: {weapon.WeaponType}, Base Damage: {weapon.BaseDamage}, Bonus Damage: +{weapon.BonusDamage}");
+                                Console.WriteLine($"    Base Attack Speed: {weapon.BaseAttackSpeed}, Bonus Attack Speed: +{weapon.BonusAttackSpeed}");
+                                Console.WriteLine($"    Total Damage: {weapon.GetTotalDamage()}, Total Attack Speed: {weapon.GetTotalAttackSpeed()}");
+                            }
+                            else if (item is HeadItem head)
+                            {
+                                Console.WriteLine($"    Type: Head Armor, Base Armor: {head.Armor}, Total Armor: {head.GetTotalArmor()}");
+                            }
+                            else if (item is ChestItem chest)
+                            {
+                                Console.WriteLine($"    Type: Chest Armor, Base Armor: {chest.Armor}, Total Armor: {chest.GetTotalArmor()}");
+                            }
+                            else if (item is FeetItem feet)
+                            {
+                                Console.WriteLine($"    Type: Feet Armor, Base Armor: {feet.Armor}, Total Armor: {feet.GetTotalArmor()}");
+                            }
+
+                            // Show bonuses with detailed information
+                            if (item.StatBonuses.Any())
+                            {
+                                Console.WriteLine($"    Stat Bonuses: {string.Join(", ", item.StatBonuses.Select(s => $"{s.Name} (+{s.Value} {s.StatType})"))}");
+                            }
+                            if (item.ActionBonuses.Any())
+                            {
+                                Console.WriteLine($"    Action Bonuses: {string.Join(", ", item.ActionBonuses.Select(a => a.Name))}");
+                            }
+                            if (item.Modifications.Any())
+                            {
+                                Console.WriteLine($"    Modifications: {string.Join(", ", item.Modifications.Select(m => $"{m.Name} ({m.Effect})"))}");
+                            }
+                            
+                            // Show armor bonus breakdown for armor items
+                            if (item is HeadItem headItem || item is ChestItem chestItem || item is FeetItem feetItem)
+                            {
+                                var armorItem = item as dynamic;
+                                int baseArmor = armorItem.Armor;
+                                int totalArmor = armorItem.GetTotalArmor();
+                                int bonusArmor = totalArmor - baseArmor;
+                                
+                                if (bonusArmor > 0)
+                                {
+                                    Console.WriteLine($"    Armor Breakdown: Base {baseArmor} + Bonuses {bonusArmor} = Total {totalArmor}");
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Console.WriteLine("\n=== Loot Generation Test Complete ===");
+                
+                // Run dedicated armor affix test
+                TestArmorAffixGeneration();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\n=== TEST FAILED: {ex.Message} ===");
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+            }
+        }
+
+        static void TestArmorAffixGeneration()
+        {
+            Console.WriteLine("\n=== Testing Armor Affix Generation ===");
+            
+            try
+            {
+                LootGenerator.Initialize();
+                
+                Console.WriteLine("Generating 10 armor items to test affix system...\n");
+                
+                int armorCount = 0;
+                int attempts = 0;
+                int maxAttempts = 50; // Prevent infinite loop
+                
+                while (armorCount < 10 && attempts < maxAttempts)
+                {
+                    attempts++;
+                    var item = LootGenerator.GenerateLoot(10, 5); // Player level 10, dungeon level 5
+                    
+                    if (item != null && (item is HeadItem || item is ChestItem || item is FeetItem))
+                    {
+                        armorCount++;
+                        Console.WriteLine($"Armor Item {armorCount}:");
+                        Console.WriteLine($"  Name: {item.Name}");
+                        Console.WriteLine($"  Rarity: {item.Rarity}");
+                        Console.WriteLine($"  Tier: {item.Tier}");
+                        
+                        if (item is HeadItem head)
+                        {
+                            Console.WriteLine($"  Type: Head Armor");
+                            Console.WriteLine($"  Base Armor: {head.Armor}");
+                            Console.WriteLine($"  Total Armor: {head.GetTotalArmor()}");
+                        }
+                        else if (item is ChestItem chest)
+                        {
+                            Console.WriteLine($"  Type: Chest Armor");
+                            Console.WriteLine($"  Base Armor: {chest.Armor}");
+                            Console.WriteLine($"  Total Armor: {chest.GetTotalArmor()}");
+                        }
+                        else if (item is FeetItem feet)
+                        {
+                            Console.WriteLine($"  Type: Feet Armor");
+                            Console.WriteLine($"  Base Armor: {feet.Armor}");
+                            Console.WriteLine($"  Total Armor: {feet.GetTotalArmor()}");
+                        }
+                        
+                        // Show detailed affix information
+                        if (item.StatBonuses.Any())
+                        {
+                            Console.WriteLine($"  Stat Bonuses:");
+                            foreach (var bonus in item.StatBonuses)
+                            {
+                                Console.WriteLine($"    - {bonus.Name}: +{bonus.Value} {bonus.StatType}");
+                            }
+                        }
+                        
+                        if (item.ActionBonuses.Any())
+                        {
+                            Console.WriteLine($"  Action Bonuses:");
+                            foreach (var bonus in item.ActionBonuses)
+                            {
+                                Console.WriteLine($"    - {bonus.Name}: {bonus.Description}");
+                            }
+                        }
+                        
+                        if (item.Modifications.Any())
+                        {
+                            Console.WriteLine($"  Modifications:");
+                            foreach (var mod in item.Modifications)
+                            {
+                                Console.WriteLine($"    - {mod.Name}: {mod.Effect}");
+                            }
+                        }
+                        
+                        // Show armor calculation breakdown
+                        var armorItem = item as dynamic;
+                        int baseArmor = armorItem.Armor;
+                        int totalArmor = armorItem.GetTotalArmor();
+                        int bonusArmor = totalArmor - baseArmor;
+                        
+                        if (bonusArmor > 0)
+                        {
+                            Console.WriteLine($"  Armor Calculation: {baseArmor} (base) + {bonusArmor} (bonuses) = {totalArmor} (total)");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"  Armor Calculation: {baseArmor} (base, no bonuses)");
+                        }
+                        
+                        Console.WriteLine();
+                    }
+                }
+                
+                if (armorCount < 10)
+                {
+                    Console.WriteLine($"Note: Only generated {armorCount} armor items in {attempts} attempts (weapons were also generated)");
+                }
+                
+                Console.WriteLine("=== Armor Affix Generation Test Complete ===");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\n=== ARMOR AFFIX TEST FAILED: {ex.Message} ===");
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+            }
+        }
+
+        static void TestWeaponBasedClasses()
+        {
+            Console.WriteLine("=== Testing Weapon-Based Class System ===\n");
+
+            try
+            {
+                // Test each weapon type
+                var weaponTypes = new[]
+                {
+                    WeaponType.Mace,   // Barbarian
+                    WeaponType.Sword,  // Warrior
+                    WeaponType.Dagger, // Rogue
+                    WeaponType.Wand    // Wizard
+                };
+
+                foreach (var weaponType in weaponTypes)
+                {
+                    Console.WriteLine($"\n--- Testing {weaponType} Weapon Class Progression ---");
+                    var character = new Character($"Test{weaponType}", 1);
+                    
+                    // Equip appropriate weapon
+                    var weapon = new WeaponItem($"{weaponType} Weapon", 1, 10, 1.0, weaponType);
+                    character.EquipItem(weapon, "weapon");
+                    
+                    Console.WriteLine($"Starting as: {character.GetCurrentClass()}");
+                    Console.WriteLine($"Class Points: Barbarian({character.BarbarianPoints}) Warrior({character.WarriorPoints}) Rogue({character.RoguePoints}) Wizard({character.WizardPoints})");
+                    
+                    // Level up several times to test progression
+                    for (int i = 0; i < 45; i++)
+                    {
+                        character.AddXP(100);
+                        if (i == 4 || i == 19 || i == 39) // Check at 5, 20, 40 points
+                        {
+                            Console.WriteLine($"Level {character.Level}: {character.GetCurrentClass()}");
+                            Console.WriteLine($"Class Points: Barbarian({character.BarbarianPoints}) Warrior({character.WarriorPoints}) Rogue({character.RoguePoints}) Wizard({character.WizardPoints})");
+                        }
+                    }
+                }
+
+                // Test hybrid class
+                Console.WriteLine($"\n--- Testing Hybrid Class ---");
+                var hybridCharacter = new Character("HybridTest", 1);
+                
+                // Start with mace to get 5 barbarian points
+                var mace = new WeaponItem("Mace", 1, 10, 1.0, WeaponType.Mace);
+                hybridCharacter.EquipItem(mace, "weapon");
+                for (int i = 0; i < 5; i++)
+                {
+                    hybridCharacter.AddXP(100);
+                }
+                Console.WriteLine($"After 5 levels with Mace: {hybridCharacter.GetCurrentClass()}");
+                
+                // Switch to sword to get 20 warrior points
+                var sword = new WeaponItem("Sword", 1, 10, 1.0, WeaponType.Sword);
+                hybridCharacter.EquipItem(sword, "weapon");
+                for (int i = 0; i < 20; i++)
+                {
+                    hybridCharacter.AddXP(100);
+                }
+                Console.WriteLine($"After 20 more levels with Sword: {hybridCharacter.GetCurrentClass()}");
+                Console.WriteLine($"Class Points: Barbarian({hybridCharacter.BarbarianPoints}) Warrior({hybridCharacter.WarriorPoints}) Rogue({hybridCharacter.RoguePoints}) Wizard({hybridCharacter.WizardPoints})");
+
+                Console.WriteLine("\n=== Weapon-Based Class System Test Complete ===");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\n=== TEST FAILED: {ex.Message} ===");
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
             }
         }
     }

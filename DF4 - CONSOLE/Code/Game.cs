@@ -1,5 +1,6 @@
 namespace RPGGame
 {
+    using System.Collections.Generic;
     using System.Threading;
 
     public class Game
@@ -26,20 +27,38 @@ namespace RPGGame
             InitializeGame();
         }
 
+        public Game(Character existingCharacter)
+        {
+            random = new Random();
+            var settings = GameSettings.Instance;
+            
+            // Use existing character
+            player = existingCharacter;
+            if (settings.PlayerHealthMultiplier != 1.0)
+            {
+                player.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
+            }
+            
+            inventory = new List<Item>();
+            availableDungeons = new List<Dungeon>();
+            InitializeGameForExistingCharacter();
+        }
+
         private void InitializeGame()
         {
             // Prompt player to choose a starter weapon
             Console.WriteLine();
             Console.WriteLine("Choose your starter weapon:");
             Console.WriteLine("1. Sword");
-            Console.WriteLine("2. Axe");
+            Console.WriteLine("2. Mace");
             Console.WriteLine("3. Dagger");
+            Console.WriteLine("4. Wand");
             Console.WriteLine();
             int weaponChoice = 1;
             while (true)
             {
                 Console.Write("Choose an option: ");
-                if (int.TryParse(Console.ReadLine(), out weaponChoice) && weaponChoice >= 1 && weaponChoice <= 3)
+                if (int.TryParse(Console.ReadLine(), out weaponChoice) && weaponChoice >= 1 && weaponChoice <= 4)
                     break;
                 Console.WriteLine("Invalid choice.");
             }
@@ -47,27 +66,45 @@ namespace RPGGame
             switch (weaponChoice)
             {
                 case 1:
-                    starterWeapon = new WeaponItem("Starter Sword", 100, 5, 2.0);
+                    starterWeapon = new WeaponItem("Starter Sword", 1, 5, 2.0, WeaponType.Sword);
                     break;
                 case 2:
-                    starterWeapon = new WeaponItem("Starter Axe", 100, 7, 3.0);
+                    starterWeapon = new WeaponItem("Starter Mace", 1, 7, 3.0, WeaponType.Mace);
                     break;
                 case 3:
-                    starterWeapon = new WeaponItem("Starter Dagger", 100, 3, 1.0);
+                    starterWeapon = new WeaponItem("Starter Dagger", 1, 3, 1.0, WeaponType.Dagger);
+                    break;
+                case 4:
+                    starterWeapon = new WeaponItem("Starter Wand", 1, 4, 1.5, WeaponType.Wand);
                     break;
                 default:
-                    starterWeapon = new WeaponItem("Starter Sword", 100, 5, 2.0);
+                    starterWeapon = new WeaponItem("Starter Sword", 1, 5, 2.0, WeaponType.Sword);
                     break;
             }
-            var leatherHelmet = new HeadItem("Leather Helmet", 100, 2, 1.0);
-            var leatherArmor = new ChestItem("Leather Armor", 100, 4, 3.0);
-            var leatherBoots = new FeetItem("Leather Boots", 100, 1, 1.0);
+            var leatherHelmet = new HeadItem("Starter Leather Helmet", 1, 2);
+            var leatherArmor = new ChestItem("Starter Leather Armor", 1, 4);
+            var leatherBoots = new FeetItem("Starter Leather Boots", 1, 1);
             player.EquipItem(starterWeapon, "weapon");
             player.EquipItem(leatherHelmet, "head");
             player.EquipItem(leatherArmor, "body");
             player.EquipItem(leatherBoots, "feet");
 
             // Themed dungeons
+            availableDungeons.Clear();
+            int playerLevel = player.Level;
+            int[] dungeonLevels = new int[] { Math.Max(1, playerLevel - 1), playerLevel, playerLevel + 1 };
+            string[] themes = new[] { "Forest", "Lava", "Crypt", "Cavern", "Swamp", "Desert", "Ice", "Ruins", "Castle", "Graveyard" };
+            for (int i = 0; i < dungeonLevels.Length; i++)
+            {
+                string theme = themes[random.Next(themes.Length)];
+                string themedName = $"{theme} Dungeon (Level {dungeonLevels[i]})";
+                availableDungeons.Add(new Dungeon(themedName, dungeonLevels[i], dungeonLevels[i], theme));
+            }
+        }
+
+        private void InitializeGameForExistingCharacter()
+        {
+            // For existing characters, just set up dungeons without weapon selection
             availableDungeons.Clear();
             int playerLevel = player.Level;
             int[] dungeonLevels = new int[] { Math.Max(1, playerLevel - 1), playerLevel, playerLevel + 1 };
@@ -92,7 +129,7 @@ namespace RPGGame
                 Console.WriteLine();
                 Console.WriteLine("1. Choose a Dungeon");
                 Console.WriteLine("2. Inventory");
-                Console.WriteLine("3. Exit Game\n");
+                Console.WriteLine("3. Exit Game and save\n");
                 Console.Write("Enter your choice: ");
 
                 if (int.TryParse(Console.ReadLine(), out int initialChoice))
@@ -112,7 +149,9 @@ namespace RPGGame
                             // Fall through to dungeon selection
                             break;
                         case 3:
-                            Console.WriteLine("Thanks for playing!");
+                            Console.WriteLine("Saving game before exit...");
+                            player.SaveCharacter();
+                            Console.WriteLine("Game saved! Thanks for playing!");
                             return;
                         default:
                             Console.WriteLine("Invalid choice. Please enter 1, 2, or 3.");
@@ -155,7 +194,6 @@ namespace RPGGame
                         if (currentEnemy == null) break;
 
                         Console.WriteLine($"\nEncountered {currentEnemy.Name}!");
-                        Console.WriteLine($"Enemy Level: {currentEnemy.Level}");
 
                         // Start battle narrative
                         Combat.StartBattleNarrative(player.Name, currentEnemy.Name, room.Name, player.CurrentHealth, currentEnemy.CurrentHealth);
@@ -221,10 +259,15 @@ namespace RPGGame
                             }
                             
                             // Environment acts
-                            if (room.IsHostile && room.ActionPool.Count > 0)
+                            if (room.IsHostile && room.ActionPool.Count > 0 && room.ShouldEnvironmentAct())
                             {
                                 var envAction = room.ActionPool[0].action;
-                                string result = Combat.ExecuteAction(room, player, room);
+                                
+                                // Create list of all characters in the room (player and current enemy)
+                                var allTargets = new List<Entity> { player, currentEnemy };
+                                
+                                // Use area of effect action to target all characters
+                                string result = Combat.ExecuteAreaOfEffectAction(room, allTargets, room);
                                 bool textDisplayed = !string.IsNullOrEmpty(result);
                                 
                                 // Show individual action messages
@@ -244,12 +287,14 @@ namespace RPGGame
                         }
 
                         // End the battle narrative and display it if narrative balance is high enough
-                        string battleNarrative = Combat.EndBattleNarrative();
+                        Combat.EndBattleNarrative();
                         var narrativeSettings = GameSettings.Instance;
                         
                         if (currentEnemy.IsAlive)
                         {
                             Console.WriteLine("You have been defeated!");
+                            // Delete save file when character dies
+                            Character.DeleteSaveFile();
                             return;
                         }
                         else
@@ -259,9 +304,9 @@ namespace RPGGame
                         }
                         
                         // Display narrative if balance is set to show poetic text
-                        if (narrativeSettings.NarrativeBalance > 0.3 && !string.IsNullOrEmpty(battleNarrative))
+                        if (narrativeSettings.NarrativeBalance > 0.3)
                         {
-                            Console.WriteLine("\n" + battleNarrative);
+                            Console.WriteLine("\nBattle narrative completed.");
                         }
                     }
 
@@ -311,10 +356,10 @@ namespace RPGGame
             ItemType randomType = (ItemType)random.Next(4);
             Item reward = randomType switch
             {
-                ItemType.Weapon => new WeaponItem(damage: random.Next(3, 6) + dungeonLevel * 2),
-                ItemType.Head => new HeadItem(armor: random.Next(1, 3) + dungeonLevel),
-                ItemType.Chest => new ChestItem(armor: random.Next(2, 5) + dungeonLevel * 2),
-                ItemType.Feet => new FeetItem(armor: random.Next(1, 2) + dungeonLevel),
+                ItemType.Weapon => new WeaponItem(tier: 1, baseDamage: random.Next(3, 6) + dungeonLevel * 2, weaponType: (WeaponType)random.Next(4)),
+                ItemType.Head => new HeadItem(tier: 1, armor: random.Next(1, 3) + dungeonLevel),
+                ItemType.Chest => new ChestItem(tier: 1, armor: random.Next(2, 5) + dungeonLevel * 2),
+                ItemType.Feet => new FeetItem(tier: 1, armor: random.Next(1, 2) + dungeonLevel),
                 _ => throw new InvalidOperationException()
             };
 

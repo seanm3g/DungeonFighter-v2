@@ -1,5 +1,15 @@
 [
-  { "name": "Goblin", "level": 1, "strength": 8, "agility": 6, "technique": 4, "actions": ["Jab", "Basic Attack"] },
-  { "name": "Wraith", "level": 3, "strength": 12, "agility": 10, "technique": 14, "actions": ["Haunting Wail", "Basic Attack"] },
-  { "name": "Spider", "level": 2, "strength": 7, "agility": 12, "technique": 5, "actions": ["Poison Bite", "Jab"] }
+  { "name": "Goblin", "level": 1, "strength": 8, "agility": 6, "technique": 4, "armor": 2, "actions": ["Jab", "Basic Attack"] },
+  { "name": "Wraith", "level": 3, "strength": 12, "agility": 10, "technique": 14, "armor": 1, "actions": ["Haunting Wail", "Basic Attack"] },
+  { "name": "Spider", "level": 2, "strength": 7, "agility": 12, "technique": 5, "armor": 1, "actions": ["Poison Bite", "Jab"] },
+  { "name": "Slime", "level": 2, "strength": 6, "agility": 4, "technique": 3, "armor": 0, "actions": ["Acid Spit", "Basic Attack"] },
+  { "name": "Bat", "level": 2, "strength": 5, "agility": 15, "technique": 8, "armor": 0, "actions": ["Swoop Attack", "Basic Attack"] },
+  { "name": "Skeleton", "level": 3, "strength": 10, "agility": 8, "technique": 6, "armor": 3, "actions": ["Bone Strike", "Basic Attack"] },
+  { "name": "Zombie", "level": 3, "strength": 14, "agility": 4, "technique": 5, "armor": 4, "actions": ["Shamble Attack", "Basic Attack"] },
+  { "name": "Crystal Golem", "level": 5, "strength": 18, "agility": 6, "technique": 12, "armor": 8, "actions": ["Crystal Slam", "Prism Beam", "Basic Attack"] },
+  { "name": "Prism Spider", "level": 4, "strength": 10, "agility": 14, "technique": 16, "armor": 3, "actions": ["Light Refraction", "Web Trap", "Basic Attack"] },
+  { "name": "Shard Beast", "level": 4, "strength": 15, "agility": 10, "technique": 8, "armor": 5, "actions": ["Shard Volley", "Crystal Charge", "Basic Attack"] },
+  { "name": "Stone Guardian", "level": 6, "strength": 20, "agility": 8, "technique": 14, "armor": 10, "actions": ["Guardian Strike", "Stone Shield", "Basic Attack"] },
+  { "name": "Temple Warden", "level": 5, "strength": 16, "agility": 12, "technique": 18, "armor": 6, "actions": ["Ancient Curse", "Sacred Bolt", "Basic Attack"] },
+  { "name": "Ancient Sentinel", "level": 7, "strength": 22, "agility": 10, "technique": 20, "armor": 12, "actions": ["Sentinel Beam", "Divine Wrath", "Basic Attack"] }
 ] 
