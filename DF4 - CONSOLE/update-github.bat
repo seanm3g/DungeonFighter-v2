@@ -5,7 +5,7 @@ echo ========================================
 echo.
 
 echo [1/6] Checking current branch...
-git branch --no-pager | findstr "*"
+git branch | findstr "*"
 echo.
 
 echo [2/6] Adding all changes...
@@ -23,12 +23,7 @@ git status --porcelain
 echo.
 
 echo [4/6] Committing changes...
-git commit -m "Update: Latest changes from local development
-
-- Enhanced combat system with new features
-- Updated game mechanics and balance
-- Improved testing and documentation
-- Latest bug fixes and improvements"
+git commit -m "Update: Latest changes from local development - Enhanced combat system with new features - Updated game mechanics and balance - Improved testing and documentation - Latest bug fixes and improvements"
 if %errorlevel% neq 0 (
     echo ERROR: Failed to commit changes
     pause
