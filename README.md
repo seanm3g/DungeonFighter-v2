@@ -217,12 +217,4 @@ This project is open source. Feel free to modify and distribute according to you
 
 ## Future Enhancements
 
-- [ ] Save/Load system
-- [ ] More enemy types
-- [ ] Additional room themes
-- [ ] Sound effects
 - [ ] GUI version
-- [ ] Multiplayer support
-- [ ] More complex combat mechanics
-- [ ] Quest system
-- [ ] Crafting system 

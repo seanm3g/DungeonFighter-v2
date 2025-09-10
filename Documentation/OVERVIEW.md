@@ -1,59 +1,114 @@
-# Game Overview
+# DungeonFighter-v2 Game Overview
 
 ## General Description
-This project is a layer-by-layer, test-driven development of a turn-based RPG game written in C#. The game is designed to be modular, with each core system implemented and tested individually before integration. The architecture is intended to be clear, extensible, and easy to maintain.
+DungeonFighter-v2 is a sophisticated turn-based RPG/dungeon crawler game written in C# using .NET 8.0. The game features advanced combat mechanics with combo systems, intelligent battle narrative generation, and a comprehensive data-driven architecture. Built with modular design principles, each system is implemented and thoroughly tested before integration, creating a robust and extensible game framework.
 
 ## Core Features
-- **Character System:** Players control a character with stats, inventory, and abilities.
-- **Enemy System:** The game features enemies with their own stats and behaviors.
-- **Combat System:** Turn-based combat between characters and enemies, utilizing dice rolls for randomness.
-- **Item System:** Items can be found, equipped, and used by characters and enemies.
-- **Environment System:** Different environments (using the `Environment` class) affect gameplay and encounters.
-- **Dice System:** All randomness (e.g., combat, loot drops) is handled by a dedicated dice class.
-- **Game Loop:** A main game class orchestrates the flow, user input, and system interactions.
-- **Intelligent Delay System:** Delays are only applied when text is being displayed, allowing for fast background calculations in full narrative mode while providing appropriate pacing for action-by-action display.
+
+### Advanced Combat System
+- **Turn-based Combat:** Strategic combat with cooldown-based action timing
+- **Action Combo System:** Chain actions together for increased damage and effects (1.85x damage multiplier per combo step)
+- **Dice-based Mechanics:** 1d20 roll system with thresholds (1-5 fail, 6-15 normal, 16-20 combo trigger)
+- **Environmental Actions:** Room-specific effects that impact combat
+- **Intelligent Delay System:** Optimized pacing that only applies delays when text is displayed
+
+### Character & Progression System
+- **Character Stats:** Strength, Agility, Technique, Intelligence with level-based scaling
+- **XP & Leveling:** Automatic stat increases and health restoration on level up
+- **Equipment System:** Weapons, armor with tier-based stats and special abilities
+- **Action Pool Management:** Dynamic action selection from equipped gear
+
+### Enemy & AI System
+- **18+ Enemy Types:** Each with unique stats, abilities, and specializations
+- **Primary Attribute System:** Enemies specialize in Strength, Agility, or Technique
+- **Level Scaling:** Dynamic stat scaling based on enemy level
+- **Environment-specific Spawning:** Different enemy types appear in themed dungeons
+
+### Dungeon & Environment System
+- **Procedural Generation:** 1-3 rooms per dungeon based on level
+- **10 Themed Dungeons:** Forest, Lava, Crypt, Cavern, Swamp, Desert, Ice, Ruins, Castle, Graveyard
+- **15+ Room Types:** Each with unique environmental actions and effects
+- **Boss Chambers:** Special final rooms with powerful enemies
+
+### Battle Narrative System
+- **Event-driven Narrative:** Poetic descriptions for significant combat moments
+- **Informational Summaries:** Clear, factual combat reporting for regular actions
+- **Significant Event Detection:** First blood, health reversals, near death, combo achievements
+- **Configurable Display:** Balance between narrative and informational modes
+
+### Data-driven Architecture
+- **JSON Configuration:** All game data stored in structured JSON files
+- **Modular Design:** Easy to add new enemies, actions, rooms, and items
+- **Comprehensive Testing:** Built-in test suite with 14+ test categories
+- **Cross-platform:** Runs on Windows, macOS, and Linux
 
 ## Implemented Classes
-- `Character`: Represents the player or other characters, with stats, inventory, and equipment slots.
-- `Enemy`: Represents adversaries in the game, inheriting from Character.
-- `Item`: Represents items that can be used or equipped, with subclasses for weapons and armor.
-- `Dice`: Handles all random number generation and dice rolls.
-- `Combat`: Manages combat logic, turn order, and action execution.
-- `Environment`: Represents different locations or scenarios, including room effects and enemy spawns.
-- `Dungeon`: Procedurally generates a sequence of themed rooms and manages dungeon-level progression.
-- `Game`: Orchestrates the main game loop, player progression, dungeon flow, inventory, and gear management.
-- `Action`: Represents actions (attacks, spells, buffs, etc.) that entities can perform, with support for cooldowns and targeting.
-- `BattleNarrative`: Generates poetic 3-act battle descriptions by analyzing combat events and creating narrative prose.
-- `BattleEvent`: Tracks individual combat events for narrative generation.
-- `Program`: The main entry point for the application, providing test harnesses, launching the game loop, and handling user startup.
 
-## Supporting/Utility Classes
-- `Entity`: Abstract base class for all actors (characters, enemies, environments) with action pools and selection logic.
-- `ManageGear`: Handles gear management UI and logic, allowing players to equip/unequip items and manage inventory.
-- `FlavorText`: Provides procedural generation of names and descriptions for characters, items, environments, and actions.
+### Core Game Classes
+- **`Character`**: Player character with stats, inventory, equipment slots, and action pool management
+- **`Enemy`**: Adversaries with specialized stats, AI behavior, and level-based scaling
+- **`Entity`**: Abstract base class for all actors with action pools and selection logic
+- **`Item`**: Base item system with subclasses for weapons, armor, and equipment
+- **`WeaponItem`**: Weapons with damage, speed, and weapon-specific actions
+- **`ArmorItem`**: Armor pieces with protection values and potential special abilities
+
+### Combat & Action System
+- **`Combat`**: Manages turn-based combat, action execution, and battle flow
+- **`Action`**: Represents all game actions with cooldowns, targeting, and special effects
+- **`ActionLoader`**: Loads and manages action definitions from JSON data
+- **`Dice`**: Handles all random number generation with specialized combo mechanics
+- **`BattleNarrative`**: Generates event-driven battle descriptions and summaries
+- **`BattleEvent`**: Tracks individual combat events for narrative generation
+
+### Environment & Dungeon System
+- **`Environment`**: Represents different room types with environmental actions
+- **`Dungeon`**: Procedurally generates themed room sequences and manages progression
+- **`RoomLoader`**: Loads room definitions and environmental effects from JSON
+- **`EnemyFactory`**: Creates enemies with proper scaling and specialization
+- **`EnemyLoader`**: Loads enemy definitions and configurations from JSON
+
+### Game Management
+- **`Game`**: Main game loop orchestrator, player progression, and system integration
+- **`GameSettings`**: Configuration management for game parameters and settings
+- **`ManageGear`**: Equipment management UI and inventory system
+- **`LootGenerator`**: Procedural loot generation with tier and rarity systems
+- **`FlavorText`**: Procedural generation of names and descriptions
+
+### Utility & Support
+- **`Program`**: Application entry point with comprehensive test suite
+- **`DiceResult`**: Specialized result tracking for combo mechanics
+- **`GameSettings`**: Singleton configuration management
 
 ## Development Approach
-- **Layer-by-layer:** Each system is built and tested before moving to the next.
-- **Test-driven:** Unit tests are planned for each class and function, but currently no active test files are present in the codebase.
-- **Documentation:** All code and systems are documented for clarity and ease of use.
+- **Layer-by-layer Development:** Each system is built and tested before moving to the next layer
+- **Test-driven Development:** Comprehensive test suite with 14+ test categories covering all major systems
+- **Data-driven Design:** All game content is defined in JSON files for easy modification and expansion
+- **Modular Architecture:** Clear separation of concerns with well-defined interfaces between systems
+- **Documentation:** Extensive documentation for all classes, systems, and game mechanics
 
-## Graphical User Interface (GUI)
-A simple desktop GUI is being planned and scaffolded to provide a modern, user-friendly way to interact with the game. The GUI features:
-- **Fighter Stats Panel:** Displays player stats (level, XP, HP, MP, STR, SPD).
-- **Event Log Panel:** Shows a scrollable log of game events.
-- **Equipment Panel:** Allows equipping/unequipping items and shows inventory in a grid.
-- **Dungeons Panel:** Lists available dungeons, their difficulty, and a progress bar for dungeon exploration.
-- **Dark Theme:** Modern look with yellow highlights for headers and a grid-based layout.
+## Current Implementation Status
+- **Core Systems:** ✅ Fully implemented and tested
+- **Combat System:** ✅ Advanced combo mechanics and battle narrative
+- **Character System:** ✅ Complete with progression and equipment
+- **Enemy System:** ✅ 18+ enemy types with AI and scaling
+- **Dungeon System:** ✅ Procedural generation with 10 themed dungeons
+- **Data System:** ✅ Complete JSON-driven content management
+- **Testing Framework:** ✅ Comprehensive test suite integrated
 
-The GUI will be implemented using WinForms or WPF and will be connected to the core game logic. (Currently in planning/scaffolding stage.)
+## Future Development Plans
+- **Unity Integration:** Planning to port core systems to Unity for enhanced graphics and gameplay
+- **GUI Enhancement:** Desktop GUI implementation for improved user experience
+- **Save/Load System:** Persistent character progression and game state
+- **Additional Content:** More enemy types, dungeons, and equipment
+- **Multiplayer Support:** Cooperative and competitive gameplay modes
 
 ---
 
 ## Action Combo System
 
-The game features a dynamic Action Combo System, inspired by classic RPGs and fighting games. This system allows players to chain together a sequence of actions during combat, with each successful action amplifying the next.
+The game features a sophisticated Action Combo System that allows players to chain together sequences of actions during combat, with each successful action amplifying the next. This system creates dynamic, skill-based combat that rewards strategic thinking and proper timing.
 
-### Action Sources
+### Action Sources & Management
 All actions come from equipped gear - there are no core class actions that every character automatically gets. Actions are obtained from:
 
 - **Weapon Actions**: Each weapon type provides specific actions (e.g., Sword provides PARRY and SWORD SLASH)
@@ -61,98 +116,92 @@ All actions come from equipped gear - there are no core class actions that every
 - **All Weapons**: Always provide their weapon-specific actions (100% chance for both starter and loot weapons)
 - **Starter Armor**: Never provide actions (0% chance)
 
-Each action is defined with:
-- **Damage Multiplier**: Expressed as a decimal (e.g., 3.0 = 300%)
-- **Length**: Duration or speed modifier (e.g., 0.5, 2.0)
-- **Description**: Special effects or mechanics
-- **Combo Order**: Position in the combo sequence
-- **Special Effects**: Such as causesWeaken, causesBleed, stat bonuses, etc.
+### Action Pool vs Combo Sequence
+The system features a two-tier action management:
 
-### Performing Actions
-- On your turn, you attempt the next action in your combo sequence (player-selected actions from your Action Pool).
-- Roll `1d20 + x` (where `x` is your bonus from loot or effects) with new mechanics:
-  - **1-5**: Fail at attack (combo resets)
-  - **6-15**: Normal attack (continues combo)
-  - **16-20**: Combo attack (triggers combo mode)
-- Once combo mode is triggered, subsequent rolls use **11+** threshold to continue the sequence.
-- Each successful combo action amplifies the damage by **1.85x** (per step).
-- If you fail, the sequence resets to the first action in your combo and combo mode deactivates.
-
-### Action System Architecture
-
-The game features a two-tier action system:
-
-#### **Action Pool**
-Contains ALL available actions from two sources (all defined in `Actions.json`):
-1. **Weapon Actions**: 
-   - **All Weapons**: Guaranteed to have actions (e.g., PARRY, SWORD SLASH)
-   - **Both starter and loot weapons**: Always provide their weapon-specific actions
-2. **Armor Actions**: Chance-based actions from equipped armor pieces (e.g., HEADBUTT, CHEST BASH)
-   - **Note**: Starter armor never has actions - only loot armor has a chance
-
-**Action Pool Properties**: 
+**Action Pool**: Contains ALL available actions from equipped gear
 - No ordering - just a list of available actions
 - Actions show `[IN COMBO]` indicator if they're currently selected for the combo
 - Actions have no combo order when in the pool
 
-#### **Combo Sequence**
-A subset of actions selected from the Action Pool for the current combo. Players can:
-- **Add actions** from Action Pool to Combo Sequence
-- **Remove actions** from Combo Sequence back to Action Pool
-- **Reorder actions** within the Combo Sequence (swap positions)
-- Combo Sequence actions are numbered 1, 2, 3, 4... based on player selection
-
-**Combo Sequence Properties**:
-- Sequential ordering (1, 2, 3, 4...)
+**Combo Sequence**: A subset of actions selected from the Action Pool for the current combo
+- Sequential ordering (1, 2, 3, 4...) based on player selection
 - Only actions in the combo sequence have combo orders
-- Actions removed from combo get their order reset to 0
+- Players can add, remove, and reorder actions within the sequence
 
-**Default Setup**: New characters start with an empty Combo Sequence and must select actions from their Action Pool (which initially contains only actions from their starter weapon).
+### Advanced Dice Mechanics
+The system uses sophisticated dice mechanics for action resolution:
 
-**Combo Management UI**: Accessible through the inventory screen, players can:
+- **Initial Roll**: `1d20 + bonus` (where bonus comes from loot or effects)
+  - **1-5**: Fail at attack (combo resets to step 1)
+  - **6-15**: Normal attack (continues combo sequence)
+  - **16-20**: Combo attack (triggers combo mode)
+- **Combo Mode**: Once triggered, subsequent rolls use **11+** threshold to continue
+- **Damage Amplification**: Each successful combo step multiplies damage by **1.85x**
+- **Failure Handling**: Failed rolls reset the sequence to the first action and deactivate combo mode
+
+### Combo Management Interface
+Players can manage their combo sequences through the inventory screen:
+
 1. **Add Action to Combo**: Select from available actions in Action Pool
 2. **Remove Action from Combo**: Remove actions from current Combo Sequence
 3. **Swap Combo Actions**: Reorder actions within the Combo Sequence
 4. **Reset Combo Step**: Reset to the first action in the sequence
 
-### Loot and Bonuses
-- Players can acquire loot that grants bonuses to their action rolls (e.g., +1 to the roll).
-- These bonuses increase the chance of successfully chaining combos and triggering combo mode.
+### Action Properties & Effects
+Each action is defined with comprehensive properties:
+- **Damage Multiplier**: Expressed as a decimal (e.g., 3.0 = 300%)
+- **Length**: Duration or speed modifier affecting cooldown timing
+- **Description**: Special effects or mechanics
+- **Combo Order**: Position in the combo sequence
+- **Special Effects**: Such as causesWeaken, causesBleed, stat bonuses, etc.
+- **Target Type**: Self, SingleTarget, AreaOfEffect, Environment
+- **Cooldown**: Turn-based cooldown system
 
-This system adds depth and excitement to combat, rewarding skillful play and strategic use of loot and abilities.
+### Loot and Bonuses
+- Players can acquire loot that grants bonuses to their action rolls (e.g., +1 to the roll)
+- These bonuses increase the chance of successfully chaining combos and triggering combo mode
+- Equipment provides both stat bonuses and potential new actions
+
+This system creates deep, strategic combat that rewards skillful play and proper equipment management.
 
 ---
 
 ## Enemy System
 
-The game features a comprehensive enemy system with proper level scaling and primary attributes that ensures enemies remain challenging and distinct as the player progresses.
+The game features a sophisticated enemy system with proper level scaling, primary attribute specialization, and environment-specific spawning that ensures enemies remain challenging and distinct as the player progresses.
 
-### Enemy Scaling
+### Enemy Scaling & Progression
 Enemies scale their stats and capabilities based on their level:
 
 - **Health Scaling**: +15 health per level (e.g., Level 1 = 55 health, Level 5 = 130 health)
 - **Base Attribute Scaling**: +2 per level for all attributes (Strength, Agility, Technique)
 - **Primary Attribute Bonus**: +1 extra per level for the enemy's primary attribute
 - **Total Scaling**: Primary attribute gets +3 per level, others get +2 per level
+- **Accuracy Scaling**: Higher level enemies have better accuracy (8 + Level/2 difficulty)
+- **Reward Scaling**: Gold and XP rewards scale with enemy level
 
-### Primary Attribute System
-Each enemy type has a primary attribute that determines their specialization:
+### Primary Attribute Specialization
+Each enemy type has a primary attribute that determines their combat specialization:
 
 - **Strength Primary**: Orcs, Skeletons, Zombies, Slimes
   - Specialize in physical damage and tanking
-  - Higher strength scaling for better basic attacks
+  - Higher strength scaling for devastating basic attacks
+  - Focus on high damage output and survivability
 - **Agility Primary**: Goblins, Bandits, Spiders, Bats
   - Specialize in speed and precision
-  - Higher agility scaling for better jabs and dodging
+  - Higher agility scaling for quick jabs and dodging
+  - Focus on fast, accurate attacks and mobility
 - **Technique Primary**: Cultists, Wraiths
   - Specialize in magical and special attacks
-  - Higher technique scaling for better special abilities
+  - Higher technique scaling for powerful special abilities
+  - Focus on unique mechanics and status effects
 
-### Enemy Types and Specializations
+### Enemy Types & Specializations
 
 **Strength Specialists:**
 - **Orc**: High strength and health, low agility - Tanky bruisers
-- **Skeleton**: Balanced stats, strength focus - Undead warriors
+- **Skeleton**: Balanced stats, strength focus - Undead warriors  
 - **Zombie**: High health and strength, very low agility - Slow but tough
 - **Slime**: High health, low agility - Gelatinous tanks
 
@@ -166,33 +215,17 @@ Each enemy type has a primary attribute that determines their specialization:
 - **Cultist**: High technique, moderate other stats - Magic users
 - **Wraith**: High technique and agility, moderate health - Spectral casters
 
-### Damage Calculation System
-All damage follows a unified formula:
+### Advanced Enemy Types
+The game also features higher-level enemies with unique abilities:
 
-**Base Damage = STR + (Highest Attribute) + Weapon Damage**
-- **STR**: Character's Strength stat
-- **Highest Attribute**: The highest of STR, AGI, TEC, or INT
-- **Weapon Damage**: Damage from equipped weapon
+- **Crystal Golem**: Level 5, high strength and technique - Crystal-based attacks
+- **Prism Spider**: Level 4, high agility and technique - Light manipulation
+- **Shard Beast**: Level 4, balanced strength and agility - Crystal shard attacks
+- **Stone Guardian**: Level 6, very high strength and technique - Defensive abilities
+- **Temple Warden**: Level 5, high technique - Ancient magic
+- **Ancient Sentinel**: Level 7, extremely high stats - Boss-level enemy
 
-**Final Damage = Base Damage - Target's Armor**
-- **Armor**: Sum of all equipped armor pieces
-- **Minimum Damage**: 1 (damage cannot be reduced below 1)
-
-**Action Multipliers**: Actions can multiply the base damage (e.g., 2.5x for critical hits)
-
-### Accuracy Scaling
-Higher level enemies have better accuracy:
-- **Difficulty**: 8 + (Level / 2)
-- Level 1 enemies need 8+ to hit
-- Level 5 enemies need 10+ to hit
-- Level 10 enemies need 13+ to hit
-
-### Reward Scaling
-Enemy rewards scale with level:
-- **Gold**: 5 + (Level * 3)
-- **XP**: 10 + (Level * 5)
-
-### Environment-Specific Enemies
+### Environment-Specific Spawning
 Different environments spawn different enemy types with appropriate specializations:
 
 - **Forest**: Goblin (Agility), Bandit (Agility), Spider (Agility)
@@ -206,19 +239,33 @@ Different environments spawn different enemy types with appropriate specializati
 - **Castle**: Bandit (Agility), Cultist (Technique), Wraith (Technique)
 - **Graveyard**: Zombie (Strength), Wraith (Technique), Skeleton (Strength)
 
-This primary attribute system ensures that different enemy types feel distinct and challenging in different ways, creating more strategic combat encounters.
+### Unified Damage System
+All damage follows a consistent formula:
+
+**Base Damage = STR + (Highest Attribute) + Weapon Damage**
+- **STR**: Character's Strength stat
+- **Highest Attribute**: The highest of STR, AGI, TEC, or INT
+- **Weapon Damage**: Damage from equipped weapon
+
+**Final Damage = Base Damage - Target's Armor**
+- **Armor**: Sum of all equipped armor pieces
+- **Minimum Damage**: 1 (damage cannot be reduced below 1)
+
+**Action Multipliers**: Actions can multiply the base damage (e.g., 2.5x for critical hits)
+
+This system ensures that different enemy types feel distinct and challenging while maintaining balanced combat encounters.
 
 ---
 
 ## Battle Narrative System
 
-The game features an event-driven battle narrative system that provides informational summaries for regular combat while triggering poetic narrative for significant moments. This approach ensures that important events are highlighted while maintaining clear, factual information for normal combat actions.
+The game features an innovative event-driven battle narrative system that provides informational summaries for regular combat while triggering poetic narrative for significant moments. This approach ensures that important events are highlighted while maintaining clear, factual information for normal combat actions.
 
 ### How It Works
-- **Event Collection**: All combat actions (player combos, enemy attacks, environmental effects) are recorded as `BattleEvent` objects with timestamps, damage values, and success/failure status.
-- **Significant Event Detection**: The system monitors for specific significant events that warrant narrative attention.
-- **Informational Summary**: Regular combat actions are summarized with factual information (damage dealt, combos executed, etc.).
-- **Narrative Events**: Significant moments trigger poetic narrative descriptions that are added to the summary.
+- **Event Collection**: All combat actions (player combos, enemy attacks, environmental effects) are recorded as `BattleEvent` objects with timestamps, damage values, and success/failure status
+- **Significant Event Detection**: The system monitors for specific significant events that warrant narrative attention
+- **Informational Summary**: Regular combat actions are summarized with factual information (damage dealt, combos executed, etc.)
+- **Narrative Events**: Significant moments trigger poetic narrative descriptions that are added to the summary
 
 ### Significant Events That Trigger Narrative
 
@@ -240,6 +287,7 @@ The game features an event-driven battle narrative system that provides informat
 - **Poetic Highlights**: Significant moments are described with evocative language
 - **Multiple Events**: Multiple significant events can occur in a single battle
 - **Contextual**: Narrative descriptions are tailored to the specific event and combatants
+- **Configurable**: Players can adjust the balance between narrative and informational display
 
 ### Benefits
 - **Clear Information**: Players always get factual combat summaries
@@ -272,7 +320,7 @@ Hero staggers, bloodied and battered, but their spirit refuses to break!
 Fighter defeats Skeleton! Total damage dealt: 45 vs 20 received. Combos executed: 0 vs 0.
 ```
 
-This system transforms mechanical combat into an emotionally resonant narrative experience that emphasizes the human element of conflict.
+This system transforms mechanical combat into an emotionally resonant narrative experience that emphasizes the human element of conflict while maintaining clear gameplay information.
 
 ---
 
@@ -281,28 +329,29 @@ This system transforms mechanical combat into an emotionally resonant narrative 
 The game features an intelligent delay system that optimizes the user experience by only applying delays when text is actually being displayed to the player. This system provides the best of both worlds: fast background calculations for full narrative mode and appropriate pacing for action-by-action display.
 
 ### How It Works
-- **Text Display Detection**: The system tracks whether action messages are actually displayed to the player based on the narrative balance setting.
-- **Conditional Delays**: Delays are only applied when `EnableTextDisplayDelays` is enabled AND text is being displayed.
-- **Action-Length Matching**: When delays are applied, they match the length of the action being performed (e.g., a 2.0 length action gets a longer delay than a 0.5 length action).
-- **Speed Adjustment**: Delays respect the `CombatSpeed` setting, allowing players to adjust the pace of combat.
+- **Text Display Detection**: The system tracks whether action messages are actually displayed to the player based on the narrative balance setting
+- **Conditional Delays**: Delays are only applied when `EnableTextDisplayDelays` is enabled AND text is being displayed
+- **Action-Length Matching**: When delays are applied, they match the length of the action being performed (e.g., a 2.0 length action gets a longer delay than a 0.5 length action)
+- **Speed Adjustment**: Delays respect the `CombatSpeed` setting, allowing players to adjust the pace of combat
 
 ### Benefits
-- **Fast Full Narrative Mode**: When using full narrative mode (NarrativeBalance = 1.0), calculations happen quickly in the background without unnecessary delays.
-- **Appropriate Action Pacing**: When displaying actions individually (NarrativeBalance = 0.0), delays match action length for natural-feeling combat flow.
-- **Configurable**: Players can disable delays entirely for maximum speed or adjust combat speed to their preference.
-- **Consistent**: All combat participants (player, enemies, environment) use the same delay system.
+- **Fast Full Narrative Mode**: When using full narrative mode (NarrativeBalance = 1.0), calculations happen quickly in the background without unnecessary delays
+- **Appropriate Action Pacing**: When displaying actions individually (NarrativeBalance = 0.0), delays match action length for natural-feeling combat flow
+- **Configurable**: Players can disable delays entirely for maximum speed or adjust combat speed to their preference
+- **Consistent**: All combat participants (player, enemies, environment) use the same delay system
 
 ### Settings
 - **EnableTextDisplayDelays**: Controls whether delays are applied when text is displayed (default: true)
 - **CombatSpeed**: Multiplier for combat timing (0.5 = slow, 2.0 = fast, default: 1.0)
+- **NarrativeBalance**: Controls the balance between narrative and informational display (0.0 = action-by-action, 1.0 = full narrative)
 
 ### Example Behavior
 - **Full Narrative Mode**: Combat resolves quickly, then a poetic summary is displayed
 - **Action-by-Action Mode**: Each action displays with a delay proportional to its length
 - **Disabled Delays**: All combat happens at maximum speed regardless of narrative mode
 
-This system ensures that the game feels responsive and engaging regardless of the player's preferred narrative style.
+This system ensures that the game feels responsive and engaging regardless of the player's preferred narrative style while maintaining optimal performance.
 
 ---
 
-*This file will be updated as new features and layers are added.* 
+*This overview will be updated as new features and systems are added to the project.* 
