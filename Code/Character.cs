@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Linq;
 
 namespace RPGGame
 {
@@ -39,6 +40,10 @@ namespace RPGGame
         // Temporary bonus for Taunt
         public int TempComboBonus { get; set; } = 0;
         public int TempComboBonusTurns { get; set; } = 0;
+        
+        // Enemy roll penalty from actions like Arcane Shield
+        public int EnemyRollPenalty { get; set; } = 0;
+        public int EnemyRollPenaltyTurns { get; set; } = 0;
         public int LastComboActionIdx { get; set; } = -1;
         // New combo mode tracking
         public bool ComboModeActive { get; set; } = false;
@@ -62,8 +67,6 @@ namespace RPGGame
         public int StunTurnsRemaining { get; set; } = 0; // Stun duration
         public double LengthReduction { get; set; } = 0.0; // For Taunt
         public int LengthReductionTurns { get; set; } = 0; // Length reduction duration
-        public int EnemyRollPenalty { get; set; } = 0; // For Quick Reflexes
-        public int EnemyRollPenaltyTurns { get; set; } = 0; // Penalty duration
         public double ComboAmplifierMultiplier { get; set; } = 1.0; // For Pretty Boy Swag
         public int ComboAmplifierTurns { get; set; } = 0; // Amplifier duration
 
@@ -77,14 +80,17 @@ namespace RPGGame
             : base(name ?? FlavorText.GenerateCharacterName())
         {
             Level = level;
-            // Initialize attributes - balanced for all classes
-            Strength = 20;
-            Agility = 20;
-            Technique = 20;
-            Intelligence = 20;
+            
+            var tuning = TuningConfig.Instance;
+            
+            // Initialize attributes based on tuning config
+            Strength = tuning.Attributes.PlayerBaseAttributes.Strength + (level - 1) * tuning.Attributes.PlayerAttributesPerLevel;
+            Agility = tuning.Attributes.PlayerBaseAttributes.Agility + (level - 1) * tuning.Attributes.PlayerAttributesPerLevel;
+            Technique = tuning.Attributes.PlayerBaseAttributes.Technique + (level - 1) * tuning.Attributes.PlayerAttributesPerLevel;
+            Intelligence = tuning.Attributes.PlayerBaseAttributes.Intelligence + (level - 1) * tuning.Attributes.PlayerAttributesPerLevel;
 
-            // Initialize health
-            MaxHealth = 100 + level * 3;
+            // Initialize health based on tuning config
+            MaxHealth = tuning.Character.PlayerBaseHealth + (level - 1) * tuning.Character.HealthPerLevel;
             CurrentHealth = MaxHealth;
 
             // Initialize level and XP
@@ -139,7 +145,11 @@ namespace RPGGame
             // Remove existing class actions first
             RemoveClassActions();
             
-            // No core class actions - all actions come from equipped gear
+            // Add class-specific actions based on class points
+            AddBarbarianActions();
+            AddWarriorActions();
+            AddRogueActions();
+            AddWizardActions();
         }
 
         private void LoadClassActionsFromJson(WeaponType weaponType)
@@ -159,7 +169,7 @@ namespace RPGGame
                         
                         foreach (var actionData in allActions)
                         {
-                            if (classActions.Contains(actionData.name))
+                            if (classActions.Contains(actionData.Name))
                             {
                                 var action = CreateActionFromData(actionData);
                                 if (action.IsComboAction)
@@ -222,45 +232,106 @@ namespace RPGGame
 
         private Action CreateActionFromData(ActionData data)
         {
+            // Enhance description with modifiers
+            string enhancedDescription = EnhanceActionDescription(data);
+            
             var action = new Action(
-                name: data.name,
-                type: ParseActionType(data.type),
+                name: data.Name,
+                type: ParseActionType(data.Type),
                 targetType: TargetType.SingleTarget,
-                baseValue: 0,
-                range: 1,
-                cooldown: 0,
-                description: data.description ?? "",
-                comboOrder: data.comboOrder ?? 0,
-                damageMultiplier: data.damageMultiplier,
-                length: data.length,
-                causesBleed: data.causesBleed ?? false,
-                causesWeaken: data.causesWeaken ?? false,
-                isComboAction: data.isComboAction ?? false,
-                comboBonusAmount: data.comboBonusAmount ?? 0,
-                comboBonusDuration: data.comboBonusDuration ?? 0
+                baseValue: data.BaseValue,
+                range: data.Range,
+                cooldown: data.Cooldown,
+                description: enhancedDescription,
+                comboOrder: data.ComboOrder,
+                damageMultiplier: data.DamageMultiplier,
+                length: data.Length,
+                causesBleed: data.CausesBleed,
+                causesWeaken: data.CausesWeaken,
+                isComboAction: data.IsComboAction,
+                comboBonusAmount: data.ComboBonusAmount,
+                comboBonusDuration: data.ComboBonusDuration
             );
             
-            // Set additional properties if they exist in the JSON
-            if (data.statBonus.HasValue)
-                action.StatBonus = data.statBonus.Value;
-            if (!string.IsNullOrEmpty(data.statBonusType))
-                action.StatBonusType = data.statBonusType;
-            if (data.statBonusDuration.HasValue)
-                action.StatBonusDuration = data.statBonusDuration.Value;
-            if (data.multiHitCount.HasValue)
-                action.MultiHitCount = data.multiHitCount.Value;
-            if (data.multiHitDamagePercent.HasValue)
-                action.MultiHitDamagePercent = data.multiHitDamagePercent.Value;
-            if (data.selfDamagePercent.HasValue)
-                action.SelfDamagePercent = data.selfDamagePercent.Value;
-            if (data.rollBonus.HasValue)
-                action.RollBonus = data.rollBonus.Value;
-            if (data.skipNextTurn.HasValue)
-                action.SkipNextTurn = data.skipNextTurn.Value;
-            if (data.repeatLastAction.HasValue)
-                action.RepeatLastAction = data.repeatLastAction.Value;
+            // Set additional properties
+            action.RollBonus = data.RollBonus;
+            action.StatBonus = data.StatBonus;
+            action.StatBonusType = data.StatBonusType;
+            action.StatBonusDuration = data.StatBonusDuration;
+            action.MultiHitCount = data.MultiHitCount;
+            action.MultiHitDamagePercent = data.MultiHitDamagePercent;
+            action.SelfDamagePercent = data.SelfDamagePercent;
+            action.SkipNextTurn = data.SkipNextTurn;
+            action.RepeatLastAction = data.RepeatLastAction;
                 
             return action;
+        }
+
+        private string EnhanceActionDescription(ActionData data)
+        {
+            var modifiers = new List<string>();
+            
+            // Add roll bonus information
+            if (data.RollBonus != 0)
+            {
+                string rollText = data.RollBonus > 0 ? $"+{data.RollBonus}" : data.RollBonus.ToString();
+                modifiers.Add($"Roll: {rollText}");
+            }
+            
+            // Add damage multiplier information
+            if (data.DamageMultiplier != 1.0)
+            {
+                modifiers.Add($"Damage: {data.DamageMultiplier:F1}x");
+            }
+            
+            // Add combo bonus information
+            if (data.ComboBonusAmount > 0 && data.ComboBonusDuration > 0)
+            {
+                modifiers.Add($"Combo: +{data.ComboBonusAmount} for {data.ComboBonusDuration} turns");
+            }
+            
+            // Add status effect information
+            if (data.CausesBleed)
+            {
+                modifiers.Add("Causes Bleed");
+            }
+            
+            if (data.CausesWeaken)
+            {
+                modifiers.Add("Causes Weaken");
+            }
+            
+            // Add multi-hit information
+            if (data.MultiHitCount > 1)
+            {
+                modifiers.Add($"Multi-hit: {data.MultiHitCount} attacks");
+            }
+            
+            // Add self-damage information
+            if (data.SelfDamagePercent > 0)
+            {
+                modifiers.Add($"Self-damage: {data.SelfDamagePercent}%");
+            }
+            
+            // Add special effects
+            if (data.SkipNextTurn)
+            {
+                modifiers.Add("Skips next turn");
+            }
+            
+            if (data.RepeatLastAction)
+            {
+                modifiers.Add("Repeats last action");
+            }
+            
+            // Combine base description with modifiers
+            string result = data.Description;
+            if (modifiers.Count > 0)
+            {
+                result += $" | {string.Join(", ", modifiers)}";
+            }
+            
+            return result;
         }
 
         private ActionType ParseActionType(string type)
@@ -318,6 +389,9 @@ namespace RPGGame
             // Reinitialize combo sequence after equipment change
             InitializeDefaultCombo();
             
+            // Apply roll bonuses from the new item
+            ApplyRollBonusesFromGear(item);
+            
             return previousItem;
         }
 
@@ -351,6 +425,13 @@ namespace RPGGame
                     RemoveArmorActions(unequippedItem);
                     break;
             }
+            
+            // Remove roll bonuses from the unequipped item
+            if (unequippedItem != null)
+            {
+                RemoveRollBonusesFromGear(unequippedItem);
+            }
+            
             return unequippedItem;
         }
 
@@ -368,14 +449,11 @@ namespace RPGGame
         private void LevelUp()
         {
             Level++;
-            MaxHealth += 10;
+            var tuning = TuningConfig.Instance;
+            MaxHealth += tuning.Character.HealthPerLevel;
             CurrentHealth = MaxHealth;
-            Strength += 2;
-            Agility += 2;
-            Technique += 2;
-            Intelligence += 2;
             
-            // Award class point based on equipped weapon
+            // Award class point and stat increases based on equipped weapon
             if (Weapon is WeaponItem weapon)
             {
                 string className = weapon.WeaponType switch
@@ -387,26 +465,93 @@ namespace RPGGame
                     _ => "Unknown"
                 };
                 
+                // Increase stats based on weapon class: +3 for weapon class, +1 for others
+                switch (weapon.WeaponType)
+                {
+                    case WeaponType.Mace: // Barbarian - Strength
+                        Strength += 3;
+                        Agility += 1;
+                        Technique += 1;
+                        Intelligence += 1;
+                        break;
+                    case WeaponType.Sword: // Warrior - Agility
+                        Strength += 1;
+                        Agility += 3;
+                        Technique += 1;
+                        Intelligence += 1;
+                        break;
+                    case WeaponType.Dagger: // Rogue - Technique
+                        Strength += 1;
+                        Agility += 1;
+                        Technique += 3;
+                        Intelligence += 1;
+                        break;
+                    case WeaponType.Wand: // Wizard - Intelligence
+                        Strength += 1;
+                        Agility += 1;
+                        Technique += 1;
+                        Intelligence += 3;
+                        break;
+                    default:
+                        // Fallback: equal increases if unknown weapon type
+                        Strength += 2;
+                        Agility += 2;
+                        Technique += 2;
+                        Intelligence += 2;
+                        break;
+                }
+                
                 AwardClassPoint(weapon.WeaponType);
                 Console.WriteLine($"\n*** LEVEL UP! ***");
                 Console.WriteLine($"You reached level {Level}!");
                 Console.WriteLine($"Gained +1 {className} class point!");
+                Console.WriteLine($"Stats increased: {GetStatIncreaseMessage(weapon.WeaponType)}");
                 Console.WriteLine($"Current class: {GetCurrentClass()}");
-                Console.WriteLine($"Class Points: Barbarian({BarbarianPoints}) Warrior({WarriorPoints}) Rogue({RoguePoints}) Wizard({WizardPoints})");
+                // Show only classes with points > 0
+                var classPointsInfo = new List<string>();
+                if (BarbarianPoints > 0) classPointsInfo.Add($"Barbarian({BarbarianPoints})");
+                if (WarriorPoints > 0) classPointsInfo.Add($"Warrior({WarriorPoints})");
+                if (RoguePoints > 0) classPointsInfo.Add($"Rogue({RoguePoints})");
+                if (WizardPoints > 0) classPointsInfo.Add($"Wizard({WizardPoints})");
+                
+                if (classPointsInfo.Count > 0)
+                {
+                    Console.WriteLine($"Class Points: {string.Join(" ", classPointsInfo)}");
+                    Console.WriteLine($"Next Upgrades: {GetClassUpgradeInfo()}");
+                }
                 Console.WriteLine();
             }
             else
             {
+                // No weapon equipped - equal stat increases
+                Strength += 2;
+                Agility += 2;
+                Technique += 2;
+                Intelligence += 2;
+                
                 Console.WriteLine($"\n*** LEVEL UP! ***");
                 Console.WriteLine($"You reached level {Level}!");
-                Console.WriteLine("No weapon equipped - no class point gained.");
+                Console.WriteLine("No weapon equipped - equal stat increases (+2 all stats)");
                 Console.WriteLine();
             }
         }
 
         private int XPToNextLevel()
         {
-            return 100 * Level;
+            var tuning = TuningConfig.Instance;
+            return (int)(tuning.Progression.BaseXPToLevel2 * Math.Pow(tuning.Progression.XPScalingFactor, Level - 1));
+        }
+
+        private string GetStatIncreaseMessage(WeaponType weaponType)
+        {
+            return weaponType switch
+            {
+                WeaponType.Mace => "+3 STR, +1 AGI, +1 TEC, +1 INT",    // Barbarian - Strength
+                WeaponType.Sword => "+1 STR, +3 AGI, +1 TEC, +1 INT",   // Warrior - Agility
+                WeaponType.Dagger => "+1 STR, +1 AGI, +3 TEC, +1 INT",  // Rogue - Technique
+                WeaponType.Wand => "+1 STR, +1 AGI, +1 TEC, +3 INT",    // Wizard - Intelligence
+                _ => "+2 all stats"
+            };
         }
 
         public void TakeDamage(int amount)
@@ -491,6 +636,15 @@ namespace RPGGame
                 ReorderComboSequence();
             }
         }
+
+        public override void RemoveAction(Action action)
+        {
+            // Remove from action pool (base implementation)
+            base.RemoveAction(action);
+            
+            // Also remove from combo sequence if it's there
+            RemoveFromCombo(action);
+        }
         
         private void ReorderComboSequence()
         {
@@ -505,8 +659,23 @@ namespace RPGGame
         
         private void InitializeDefaultCombo()
         {
-            // No default combo actions - players must select from available actions
-            // Combo sequence starts empty and players add actions from their Action Pool
+            // Clear existing combo sequence
+            ComboSequence.Clear();
+            
+            // Add the two weapon actions to the combo by default
+            if (Weapon is WeaponItem weapon)
+            {
+                var weaponActions = GetGearActions(weapon);
+                foreach (var actionName in weaponActions)
+                {
+                    // Find the action in the action pool and add it to combo
+                    var action = ActionPool.FirstOrDefault(a => a.action.Name == actionName);
+                    if (action.action != null && action.action.IsComboAction)
+                    {
+                        AddToCombo(action.action);
+                    }
+                }
+            }
         }
 
         public void SetTempComboBonus(int bonus, int turns)
@@ -643,27 +812,91 @@ namespace RPGGame
 
         public int GetEffectiveStrength()
         {
-            return Strength + TempStrengthBonus;
+            return Strength + TempStrengthBonus + GetEquipmentStatBonus("STR");
         }
 
         public int GetEffectiveAgility()
         {
-            return Agility + TempAgilityBonus;
+            return Agility + TempAgilityBonus + GetEquipmentStatBonus("AGI");
         }
 
         public int GetEffectiveTechnique()
         {
-            return Technique + TempTechniqueBonus;
+            return Technique + TempTechniqueBonus + GetEquipmentStatBonus("TEC");
         }
 
         public int GetEffectiveIntelligence()
         {
-            return Intelligence + TempIntelligenceBonus;
+            return Intelligence + TempIntelligenceBonus + GetEquipmentStatBonus("INT");
+        }
+
+        /// <summary>
+        /// Gets the total stat bonus from all equipped items for a specific stat type
+        /// </summary>
+        private int GetEquipmentStatBonus(string statType)
+        {
+            int totalBonus = 0;
+            
+            // Check all equipped items
+            var equippedItems = new[] { Head, Body, Weapon, Feet };
+            foreach (var item in equippedItems)
+            {
+                if (item != null)
+                {
+                    foreach (var statBonus in item.StatBonuses)
+                    {
+                        // Check for exact stat type match
+                        if (statBonus.StatType == statType)
+                        {
+                            totalBonus += (int)statBonus.Value;
+                        }
+                        // Check for "ALL" stat type which applies to all stats
+                        else if (statBonus.StatType == "ALL")
+                        {
+                            totalBonus += (int)statBonus.Value;
+                        }
+                    }
+                }
+            }
+            
+            return totalBonus;
+        }
+
+        /// <summary>
+        /// Gets the total damage bonus from all equipped items
+        /// </summary>
+        public int GetEquipmentDamageBonus()
+        {
+            return GetEquipmentStatBonus("Damage");
+        }
+
+        /// <summary>
+        /// Gets the total health bonus from all equipped items
+        /// </summary>
+        public int GetEquipmentHealthBonus()
+        {
+            return GetEquipmentStatBonus("Health");
+        }
+
+        /// <summary>
+        /// Gets the total armor from all equipped items
+        /// </summary>
+        public int GetTotalArmor()
+        {
+            return GetEquipmentStatBonus("Armor");
+        }
+
+        /// <summary>
+        /// Gets the effective max health including equipment bonuses
+        /// </summary>
+        public int GetEffectiveMaxHealth()
+        {
+            return MaxHealth + GetEquipmentHealthBonus();
         }
 
         public double GetHealthPercentage()
         {
-            return (double)CurrentHealth / MaxHealth;
+            return (double)CurrentHealth / GetEffectiveMaxHealth();
         }
 
         public bool MeetsHealthThreshold(double threshold)
@@ -715,98 +948,113 @@ namespace RPGGame
         // Class-specific action methods
         private void AddBarbarianActions()
         {
-            // Basic Barbarian actions (always available)
-            AddAction(new Action("RAGE", ActionType.Buff, TargetType.Self, 0, 1, 0, "Enter a berserker rage, +3 STR for 3 turns", 2, 0.0, 1.0, false, false, true), 0.0);
-            AddAction(new Action("SMASH", ActionType.Attack, TargetType.SingleTarget, 0, 1, 0, "Devastating overhead strike, 200% damage", 3, 2.0, 1.5, false, false, true), 0.0);
-            
+            // Add special Barbarian class action when they have at least 5 points
             if (BarbarianPoints >= 5)
             {
-                // Additional Barbarian actions
+                var berserkerRage = ActionLoader.GetAction("BERSERKER RAGE");
+                if (berserkerRage != null)
+                {
+                    AddAction(berserkerRage, 0.0);
+                }
             }
-            if (BarbarianPoints >= 20)
-            {
-                // Advanced Barbarian actions
-                AddAction(new Action("BERSERKER CHARGE", ActionType.Attack, TargetType.SingleTarget, 0, 1, 0, "Charge forward with unstoppable force, 250% damage", -1, 2.5, 2.0, false, false, true), 0.0);
-                AddAction(new Action("BATTLE FURY", ActionType.Buff, TargetType.Self, 0, 1, 0, "Unleash primal fury, +5 STR for 5 turns", -1, 0.0, 1.0, false, false, true), 0.0);
-            }
-            if (BarbarianPoints >= 40)
-            {
-                // Master Barbarian actions
-                AddAction(new Action("WORLD BREAKER", ActionType.Attack, TargetType.AreaOfEffect, 0, 1, 0, "Shatter the very earth, 400% damage to all enemies", -1, 4.0, 3.0, false, false, true), 0.0);
-                AddAction(new Action("PRIMAL AWAKENING", ActionType.Buff, TargetType.Self, 0, 1, 0, "Channel ancient power, +10 STR for 10 turns", -1, 0.0, 1.0, false, false, true), 0.0);
-            }
+            // Future thresholds: 10, 20, 40, 80, 100 points for additional abilities
         }
 
         private void AddWarriorActions()
         {
-            // Basic Warrior actions (always available)
-            AddAction(new Action("SHIELD BASH", ActionType.Attack, TargetType.SingleTarget, 0, 1, 0, "Strike with shield, stuns enemy for 2 turns", 2, 1.0, 1.0, false, false, true), 0.0);
-            AddAction(new Action("DEFENSIVE STANCE", ActionType.Buff, TargetType.Self, 0, 1, 0, "Adopt defensive posture, +50% damage reduction", 3, 0.0, 1.0, false, false, true), 0.0);
-            
+            // Add special Warrior class action when they have at least 5 points
             if (WarriorPoints >= 5)
             {
-                // Additional Warrior actions
-            }
-            if (WarriorPoints >= 20)
-            {
-                // Advanced Warrior actions
-                AddAction(new Action("KNIGHT'S CHARGE", ActionType.Attack, TargetType.SingleTarget, 0, 1, 0, "Honorable charge attack, 200% damage", -1, 2.0, 1.5, false, false, true), 0.0);
-                AddAction(new Action("BATTLE CRY", ActionType.Buff, TargetType.Self, 0, 1, 0, "Inspire allies, +3 to all stats for 3 turns", -1, 0.0, 1.0, false, false, true), 0.0);
-            }
-            if (WarriorPoints >= 40)
-            {
-                // Master Warrior actions
-                AddAction(new Action("CHAMPION'S STRIKE", ActionType.Attack, TargetType.SingleTarget, 0, 1, 0, "Perfect technique strike, 300% damage", -1, 3.0, 2.0, false, false, true), 0.0);
-                AddAction(new Action("LEGENDARY VALOR", ActionType.Buff, TargetType.Self, 0, 1, 0, "Unbreakable spirit, +5 to all stats for 5 turns", -1, 0.0, 1.0, false, false, true), 0.0);
+                var heroicStrike = ActionLoader.GetAction("HEROIC STRIKE");
+                if (heroicStrike != null)
+                {
+                    AddAction(heroicStrike, 0.0);
+                }
             }
         }
 
         private void AddRogueActions()
         {
-            // Basic Rogue actions (always available)
-            AddAction(new Action("BACKSTAB", ActionType.Attack, TargetType.SingleTarget, 0, 1, 0, "Sneak attack from behind, 250% damage", 2, 2.5, 0.5, false, false, true), 0.0);
-            AddAction(new Action("STEALTH", ActionType.Buff, TargetType.Self, 0, 1, 0, "Become invisible, next attack guaranteed hit", 3, 0.0, 1.0, false, false, true), 0.0);
-            
+            // Add special Rogue class action when they have at least 5 points
             if (RoguePoints >= 5)
             {
-                // Additional Rogue actions
-            }
-            if (RoguePoints >= 20)
-            {
-                // Advanced Rogue actions
-                AddAction(new Action("SHADOW STRIKE", ActionType.Attack, TargetType.SingleTarget, 0, 1, 0, "Attack from the shadows, 300% damage", -1, 3.0, 0.5, false, false, true), 0.0);
-                AddAction(new Action("POISON BLADE", ActionType.Debuff, TargetType.SingleTarget, 0, 1, 0, "Apply deadly poison, 50 damage over 5 turns", -1, 0.0, 1.0, false, false, true), 0.0);
-            }
-            if (RoguePoints >= 40)
-            {
-                // Master Rogue actions
-                AddAction(new Action("ASSASSIN'S MARK", ActionType.Attack, TargetType.SingleTarget, 0, 1, 0, "Mark target for death, 500% damage", -1, 5.0, 1.0, false, false, true), 0.0);
-                AddAction(new Action("SHADOW MASTER", ActionType.Buff, TargetType.Self, 0, 1, 0, "Become one with shadows, +10 AGI for 10 turns", -1, 0.0, 1.0, false, false, true), 0.0);
+                var shadowStrike = ActionLoader.GetAction("SHADOW STRIKE");
+                if (shadowStrike != null)
+                {
+                    AddAction(shadowStrike, 0.0);
+                }
             }
         }
 
         private void AddWizardActions()
         {
-            // Basic Wizard actions (always available)
-            AddAction(new Action("FIREBALL", ActionType.Spell, TargetType.SingleTarget, 0, 1, 0, "Launch a ball of fire, 200% damage", 2, 2.0, 1.5, false, false, true), 0.0);
-            AddAction(new Action("MAGIC MISSILE", ActionType.Spell, TargetType.SingleTarget, 0, 1, 0, "Guaranteed hit spell, 150% damage", 3, 1.5, 1.0, false, false, true), 0.0);
-            
+            // Add special Wizard class action when they have at least 5 points
             if (WizardPoints >= 5)
             {
-                // Additional Wizard actions
+                var meteor = ActionLoader.GetAction("METEOR");
+                if (meteor != null)
+                {
+                    AddAction(meteor, 0.0);
+                }
             }
-            if (WizardPoints >= 20)
+        }
+
+        /// <summary>
+        /// Gets the next class upgrade threshold for a given class
+        /// </summary>
+        public int GetNextClassThreshold(string className)
+        {
+            int currentPoints = className switch
             {
-                // Advanced Wizard actions
-                AddAction(new Action("LIGHTNING BOLT", ActionType.Spell, TargetType.SingleTarget, 0, 1, 0, "Strike with lightning, 250% damage", -1, 2.5, 1.5, false, false, true), 0.0);
-                AddAction(new Action("ARCANE SHIELD", ActionType.Buff, TargetType.Self, 0, 1, 0, "Protective barrier, +75% damage reduction", -1, 0.0, 1.0, false, false, true), 0.0);
-            }
-            if (WizardPoints >= 40)
+                "Barbarian" => BarbarianPoints,
+                "Warrior" => WarriorPoints,
+                "Rogue" => RoguePoints,
+                "Wizard" => WizardPoints,
+                _ => 0
+            };
+
+            // Define upgrade thresholds
+            int[] thresholds = { 5, 10, 20, 40, 80, 100 };
+            
+            foreach (int threshold in thresholds)
             {
-                // Master Wizard actions
-                AddAction(new Action("METEOR", ActionType.Spell, TargetType.AreaOfEffect, 0, 1, 0, "Summon a meteor from the sky, 400% damage", -1, 4.0, 3.0, false, false, true), 0.0);
-                AddAction(new Action("ARCHMAGE'S POWER", ActionType.Buff, TargetType.Self, 0, 1, 0, "Channel ultimate magic, +10 TEC for 10 turns", -1, 0.0, 1.0, false, false, true), 0.0);
+                if (currentPoints < threshold)
+                {
+                    return threshold;
+                }
             }
+            
+            return -1; // Max level reached
+        }
+
+        /// <summary>
+        /// Gets a string showing next class upgrade thresholds
+        /// </summary>
+        public string GetClassUpgradeInfo()
+        {
+            var upgradeInfo = new List<string>();
+            
+            var classes = new[] { ("Barbarian", BarbarianPoints), ("Warrior", WarriorPoints), ("Rogue", RoguePoints), ("Wizard", WizardPoints) };
+            
+            // Filter to only show classes with at least 1 point, then sort by points (highest first) and take top 2
+            var classesWithPoints = classes.Where(c => c.Item2 > 0);
+            var sortedClasses = classesWithPoints.OrderByDescending(c => c.Item2).Take(2);
+            
+            foreach (var (className, points) in sortedClasses)
+            {
+                int nextThreshold = GetNextClassThreshold(className);
+                if (nextThreshold > 0)
+                {
+                    int pointsNeeded = nextThreshold - points;
+                    upgradeInfo.Add($"{className}: {pointsNeeded} to go");
+                }
+                else
+                {
+                    upgradeInfo.Add($"{className}: MAX");
+                }
+            }
+            
+            return string.Join(" | ", upgradeInfo);
         }
 
         // Class progression methods
@@ -906,6 +1154,9 @@ namespace RPGGame
                     // Load gear actions from JSON to ensure they're properly configured
                     LoadGearActionFromJson(actionName);
                 }
+                
+                // Apply roll bonuses from stat bonuses to all actions
+                ApplyRollBonusesFromGear(gear);
             }
         }
 
@@ -915,10 +1166,10 @@ namespace RPGGame
             {
                 return weapon.WeaponType switch
                 {
-                    WeaponType.Sword => new List<string> { "PARRY", "SWORD SLASH", "SWORDMASTER STRIKE" },
-                    WeaponType.Mace => new List<string> { "CRUSHING BLOW", "SHIELD BREAK", "CRUSHING MOMENTUM" },
-                    WeaponType.Dagger => new List<string> { "QUICK STAB", "POISON BLADE", "VENOMOUS ASSASSIN" },
-                    WeaponType.Wand => new List<string> { "MAGIC MISSILE", "ARCANE SHIELD", "ARCANE FURY" },
+                    WeaponType.Sword => new List<string> { "PARRY", "SWORD SLASH" },
+                    WeaponType.Mace => new List<string> { "CRUSHING BLOW", "SHIELD BREAK" },
+                    WeaponType.Dagger => new List<string> { "QUICK STAB", "POISON BLADE" },
+                    WeaponType.Wand => new List<string> { "MAGIC MISSILE", "ARCANE SHIELD" },
                     _ => new List<string>()
                 };
             }
@@ -951,7 +1202,7 @@ namespace RPGGame
                     
                     if (allActions != null)
                     {
-                        var actionData = allActions.FirstOrDefault(a => a.name == actionName);
+                        var actionData = allActions.FirstOrDefault(a => a.Name == actionName);
                         if (actionData != null)
                         {
                             var action = CreateActionFromData(actionData);
@@ -1010,6 +1261,143 @@ namespace RPGGame
         {
             // Add gear-specific actions for armor
             AddGearActions(armor);
+        }
+
+        private void ApplyRollBonusesFromGear(Item gear)
+        {
+            // Find all roll bonus stat bonuses from the gear
+            int totalRollBonus = 0;
+            foreach (var statBonus in gear.StatBonuses)
+            {
+                if (statBonus.StatType == "RollBonus")
+                {
+                    totalRollBonus += (int)statBonus.Value;
+                }
+            }
+            
+            // Apply the roll bonus to all actions in the action pool
+            if (totalRollBonus > 0)
+            {
+                foreach (var actionEntry in ActionPool)
+                {
+                    actionEntry.action.RollBonus += totalRollBonus;
+                }
+            }
+        }
+
+        private void RemoveRollBonusesFromGear(Item gear)
+        {
+            // Find all roll bonus stat bonuses from the gear
+            int totalRollBonus = 0;
+            foreach (var statBonus in gear.StatBonuses)
+            {
+                if (statBonus.StatType == "RollBonus")
+                {
+                    totalRollBonus += (int)statBonus.Value;
+                }
+            }
+            
+            // Remove the roll bonus from all actions in the action pool
+            if (totalRollBonus > 0)
+            {
+                foreach (var actionEntry in ActionPool)
+                {
+                    actionEntry.action.RollBonus -= totalRollBonus;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Calculates the combo amplification multiplier based on Technique
+        /// Formula: Linear scaling from ComboAmplifierAtTech5 (at TEC=5) to ComboAmplifierMax (at TEC=100)
+        /// </summary>
+        public double GetComboAmplifier()
+        {
+            var tuning = TuningConfig.Instance;
+            
+            // Clamp Technique to valid range
+            int clampedTech = Math.Max(1, Math.Min(tuning.ComboSystem.ComboAmplifierMaxTech, GetEffectiveTechnique()));
+            
+            // Linear interpolation between ComboAmplifierAtTech5 and ComboAmplifierMax
+            double techRange = tuning.ComboSystem.ComboAmplifierMaxTech - 5;
+            double ampRange = tuning.ComboSystem.ComboAmplifierMax - tuning.ComboSystem.ComboAmplifierAtTech5;
+            
+            if (clampedTech <= 5)
+            {
+                return tuning.ComboSystem.ComboAmplifierAtTech5;
+            }
+            
+            double techProgress = (clampedTech - 5) / techRange;
+            return tuning.ComboSystem.ComboAmplifierAtTech5 + (ampRange * techProgress);
+        }
+
+        /// <summary>
+        /// Sets Technique for testing purposes
+        /// </summary>
+        public void SetTechniqueForTesting(int value)
+        {
+            Technique = value;
+        }
+
+        /// <summary>
+        /// Gets the current combo amplification for the current combo step
+        /// </summary>
+        public double GetCurrentComboAmplification()
+        {
+            var comboActions = GetComboActions();
+            if (comboActions.Count == 0) return 1.0;
+            
+            int currentStep = ComboStep % comboActions.Count;
+            double baseAmp = GetComboAmplifier();
+            return Math.Pow(baseAmp, currentStep + 1);
+        }
+
+        /// <summary>
+        /// Gets combo information for display
+        /// </summary>
+        public string GetComboInfo()
+        {
+            var comboActions = GetComboActions();
+            if (comboActions.Count == 0) return "No combo actions available";
+            
+            int currentStep = ComboStep % comboActions.Count;
+            double baseAmp = GetComboAmplifier();
+            double currentAmp = Math.Pow(baseAmp, currentStep + 1);
+            
+            return $"Combo Step: {currentStep + 1}/{comboActions.Count} | Amplification: {currentAmp:F2}x";
+        }
+
+        /// <summary>
+        /// Calculates the number of attacks this character can make per turn based on their attack speed
+        /// </summary>
+        /// <returns>Number of attacks (minimum 1)</returns>
+        public int GetAttacksPerTurn()
+        {
+            double attackSpeed = GetTotalAttackSpeed();
+            int attacks = (int)Math.Floor(attackSpeed);
+            return Math.Max(1, attacks); // Always at least 1 attack
+        }
+
+        /// <summary>
+        /// Calculates the total attack speed including weapon and agility bonuses
+        /// </summary>
+        /// <returns>Total attack speed value</returns>
+        public double GetTotalAttackSpeed()
+        {
+            var tuning = TuningConfig.Instance;
+            double weaponAttackSpeed = (Weapon is WeaponItem w) ? w.GetTotalAttackSpeed() : 1.0;
+            double totalSpeed = weaponAttackSpeed + (GetEffectiveAgility() * tuning.Combat.AgilitySpeedBonus);
+            return Math.Max(tuning.Combat.MinimumAttackSpeed, totalSpeed);
+        }
+
+        /// <summary>
+        /// Calculates the Intelligence roll bonus (every 10 INT = +1 to rolls by default)
+        /// </summary>
+        /// <returns>Roll bonus from Intelligence</returns>
+        public int GetIntelligenceRollBonus()
+        {
+            var tuning = TuningConfig.Instance;
+            return GetEffectiveIntelligence() / tuning.Attributes.IntelligenceRollBonusPer; // Every X points of INT gives +1 to rolls
         }
 
         private void RemoveArmorActions(Item? armor)
@@ -1162,7 +1550,6 @@ namespace RPGGame
                 if (File.Exists(filename))
                 {
                     File.Delete(filename);
-                    Console.WriteLine($"Save file {filename} has been deleted.");
                 }
             }
             catch (Exception ex)
@@ -1172,35 +1559,6 @@ namespace RPGGame
         }
     }
 
-    // Data class for JSON deserialization
-    public class ActionData
-    {
-        public string name { get; set; } = "";
-        public string type { get; set; } = "Attack";
-        public double damageMultiplier { get; set; } = 1.0;
-        public double length { get; set; } = 1.0;
-        public string? description { get; set; }
-        public bool? causesBleed { get; set; }
-        public bool? causesWeaken { get; set; }
-        public int? comboBonusAmount { get; set; }
-        public int? comboBonusDuration { get; set; }
-        public int? comboOrder { get; set; }
-        public bool? isComboAction { get; set; }
-        public List<string>? tags { get; set; }
-        
-        // Stat bonus properties
-        public int? statBonus { get; set; }
-        public string? statBonusType { get; set; }
-        public int? statBonusDuration { get; set; }
-        
-        // Other action properties
-        public int? multiHitCount { get; set; }
-        public double? multiHitDamagePercent { get; set; }
-        public int? selfDamagePercent { get; set; }
-        public int? rollBonus { get; set; }
-        public bool? skipNextTurn { get; set; }
-        public bool? repeatLastAction { get; set; }
-    }
 
     // Data class for character save/load
     public class CharacterSaveData

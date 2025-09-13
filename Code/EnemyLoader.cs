@@ -6,36 +6,24 @@ using System.Text.Json.Serialization;
 
 namespace RPGGame
 {
-    public class EnemyActionData
-    {
-        [JsonPropertyName("name")]
-        public string Name { get; set; } = "";
-        [JsonPropertyName("weight")]
-        public double Weight { get; set; }
-    }
-
     public class EnemyData
     {
         [JsonPropertyName("name")]
         public string Name { get; set; } = "";
-        [JsonPropertyName("baseHealth")]
-        public int BaseHealth { get; set; }
-        [JsonPropertyName("healthPerLevel")]
-        public int HealthPerLevel { get; set; }
-        [JsonPropertyName("baseStrength")]
-        public int BaseStrength { get; set; }
-        [JsonPropertyName("strengthPerLevel")]
-        public int StrengthPerLevel { get; set; }
-        [JsonPropertyName("baseAgility")]
-        public int BaseAgility { get; set; }
-        [JsonPropertyName("agilityPerLevel")]
-        public int AgilityPerLevel { get; set; }
-        [JsonPropertyName("baseTechnique")]
-        public int BaseTechnique { get; set; }
-        [JsonPropertyName("techniquePerLevel")]
-        public int TechniquePerLevel { get; set; }
+        [JsonPropertyName("level")]
+        public int Level { get; set; }
+        [JsonPropertyName("strength")]
+        public int Strength { get; set; }
+        [JsonPropertyName("agility")]
+        public int Agility { get; set; }
+        [JsonPropertyName("technique")]
+        public int Technique { get; set; }
+        [JsonPropertyName("intelligence")]
+        public int Intelligence { get; set; } = 4; // Default value if not specified
+        [JsonPropertyName("armor")]
+        public int Armor { get; set; }
         [JsonPropertyName("actions")]
-        public List<EnemyActionData> Actions { get; set; } = new List<EnemyActionData>();
+        public List<string> Actions { get; set; } = new List<string>();
     }
 
     public static class EnemyLoader
@@ -123,22 +111,24 @@ namespace RPGGame
 
         private static Enemy CreateEnemyFromData(EnemyData data, int level)
         {
-            // Calculate stats based on level
-            int health = data.BaseHealth + (data.HealthPerLevel * level);
-            int strength = data.BaseStrength + (data.StrengthPerLevel * level);
-            int agility = data.BaseAgility + (data.AgilityPerLevel * level);
-            int technique = data.BaseTechnique + (data.TechniquePerLevel * level);
+            // Use the stats from the JSON data with tuning config
+            var tuning = TuningConfig.Instance;
+            int health = 80 + (level * tuning.Character.EnemyHealthPerLevel); // Use tuning config for health scaling
+            int strength = data.Strength;
+            int agility = data.Agility;
+            int technique = data.Technique;
+            int intelligence = data.Intelligence;
 
-            var enemy = new Enemy(data.Name, level, health, strength, agility, technique);
+            var enemy = new Enemy(data.Name, level, health, strength, agility, technique, intelligence);
             enemy.ActionPool.Clear();
 
             // Add actions from the data
-            foreach (var actionData in data.Actions)
+            foreach (var actionName in data.Actions)
             {
-                var action = ActionLoader.GetAction(actionData.Name);
+                var action = ActionLoader.GetAction(actionName);
                 if (action != null)
                 {
-                    enemy.AddAction(action, actionData.Weight);
+                    enemy.AddAction(action, 1.0); // Default weight of 1.0
                 }
             }
 

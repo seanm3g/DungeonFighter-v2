@@ -467,9 +467,10 @@
     "type": "Buff",
     "damageMultiplier": 0.0,
     "length": 1.0,
-    "description": "Creates a protective magical barrier",
+    "description": "Creates a protective magical barrier that reduces enemy's next roll by 2",
     "comboOrder": 0,
     "isComboAction": true,
+    "enemyRollPenalty": 2,
     "tags": ["weapon", "wand"]
   },
   {
@@ -714,5 +715,50 @@
     "multiHitCount": 2,
     "multiHitDamagePercent": 75,
     "tags": ["weapon", "wand", "unique"]
+  },
+  {
+    "name": "BERSERKER RAGE",
+    "type": "Attack",
+    "damageMultiplier": 2.5,
+    "length": 3.0,
+    "description": "Enter a berserker rage, dealing massive damage but taking 10% self-damage. Damage scales with combo amplification.",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "selfDamagePercent": 10,
+    "tags": ["class", "barbarian", "unique", "comboAmplificationScaling"]
+  },
+  {
+    "name": "HEROIC STRIKE",
+    "type": "Attack",
+    "damageMultiplier": 2.0,
+    "length": 2.0,
+    "description": "A powerful strike that gains roll bonus based on combo step position",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "rollBonus": 0,
+    "tags": ["class", "warrior", "unique", "comboStepScaling"]
+  },
+  {
+    "name": "SHADOW STRIKE",
+    "type": "Attack",
+    "damageMultiplier": 1.8,
+    "length": 1.0,
+    "description": "A swift strike from the shadows with roll bonus based on combo length and causes bleeding",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "rollBonus": 0,
+    "causesBleed": true,
+    "tags": ["class", "rogue", "unique", "comboScaling"]
+  },
+  {
+    "name": "METEOR",
+    "type": "Spell",
+    "damageMultiplier": 3.0,
+    "length": 4.0,
+    "description": "Summon a devastating meteor that deals massive damage with roll bonus based on combo length",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "rollBonus": 0,
+    "tags": ["class", "wizard", "unique", "comboScaling"]
   }
 ] 

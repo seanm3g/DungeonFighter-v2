@@ -1,6 +1,7 @@
 namespace RPGGame
 {
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
 
     public class Game
@@ -94,12 +95,34 @@ namespace RPGGame
             int playerLevel = player.Level;
             int[] dungeonLevels = new int[] { Math.Max(1, playerLevel - 1), playerLevel, playerLevel + 1 };
             string[] themes = new[] { "Forest", "Lava", "Crypt", "Cavern", "Swamp", "Desert", "Ice", "Ruins", "Castle", "Graveyard" };
-            for (int i = 0; i < dungeonLevels.Length; i++)
+            
+            // Shuffle themes to ensure no repeats
+            var shuffledThemes = themes.OrderBy(x => random.Next()).ToArray();
+            
+            // Create unique dungeon combinations with proper theme selection
+            var usedThemes = new HashSet<string>();
+            int dungeonCount = 0;
+            int themeIndex = 0;
+            
+            // Sort dungeon levels to ensure proper ordering
+            Array.Sort(dungeonLevels);
+            
+            while (dungeonCount < 3 && themeIndex < shuffledThemes.Length)
             {
-                string theme = themes[random.Next(themes.Length)];
-                string themedName = $"{theme} Dungeon (Level {dungeonLevels[i]})";
-                availableDungeons.Add(new Dungeon(themedName, dungeonLevels[i], dungeonLevels[i], theme));
+                string currentTheme = shuffledThemes[themeIndex];
+                if (!usedThemes.Contains(currentTheme))
+                {
+                    usedThemes.Add(currentTheme);
+                    int level = dungeonLevels[dungeonCount % dungeonLevels.Length];
+                    string themedName = $"{currentTheme} Dungeon (Level {level})";
+                    availableDungeons.Add(new Dungeon(themedName, level, level, currentTheme));
+                    dungeonCount++;
+                }
+                themeIndex++;
             }
+            
+            // Sort dungeons by level (lowest to highest)
+            availableDungeons = availableDungeons.OrderBy(d => d.MinLevel).ToList();
         }
 
         private void InitializeGameForExistingCharacter()
@@ -109,12 +132,34 @@ namespace RPGGame
             int playerLevel = player.Level;
             int[] dungeonLevels = new int[] { Math.Max(1, playerLevel - 1), playerLevel, playerLevel + 1 };
             string[] themes = new[] { "Forest", "Lava", "Crypt", "Cavern", "Swamp", "Desert", "Ice", "Ruins", "Castle", "Graveyard" };
-            for (int i = 0; i < dungeonLevels.Length; i++)
+            
+            // Shuffle themes to ensure no repeats
+            var shuffledThemes = themes.OrderBy(x => random.Next()).ToArray();
+            
+            // Create unique dungeon combinations with proper theme selection
+            var usedThemes = new HashSet<string>();
+            int dungeonCount = 0;
+            int themeIndex = 0;
+            
+            // Sort dungeon levels to ensure proper ordering
+            Array.Sort(dungeonLevels);
+            
+            while (dungeonCount < 3 && themeIndex < shuffledThemes.Length)
             {
-                string theme = themes[random.Next(themes.Length)];
-                string themedName = $"{theme} Dungeon (Level {dungeonLevels[i]})";
-                availableDungeons.Add(new Dungeon(themedName, dungeonLevels[i], dungeonLevels[i], theme));
+                string currentTheme = shuffledThemes[themeIndex];
+                if (!usedThemes.Contains(currentTheme))
+                {
+                    usedThemes.Add(currentTheme);
+                    int level = dungeonLevels[dungeonCount % dungeonLevels.Length];
+                    string themedName = $"{currentTheme} Dungeon (Level {level})";
+                    availableDungeons.Add(new Dungeon(themedName, level, level, currentTheme));
+                    dungeonCount++;
+                }
+                themeIndex++;
             }
+            
+            // Sort dungeons by level (lowest to highest)
+            availableDungeons = availableDungeons.OrderBy(d => d.MinLevel).ToList();
         }
 
         public void Run()
@@ -169,12 +214,34 @@ namespace RPGGame
                 int playerLevel = player.Level;
                 int[] dungeonLevels = new int[] { Math.Max(1, playerLevel - 1), playerLevel, playerLevel + 1 };
                 string[] themes = new[] { "Forest", "Lava", "Crypt", "Cavern", "Swamp", "Desert", "Ice", "Ruins", "Castle", "Graveyard" };
-                for (int i = 0; i < dungeonLevels.Length; i++)
+                
+                // Shuffle themes to ensure no repeats
+                var shuffledThemes = themes.OrderBy(x => random.Next()).ToArray();
+                
+                // Create unique dungeon combinations with proper theme selection
+                var usedThemes = new HashSet<string>();
+                int dungeonCount = 0;
+                int themeIndex = 0;
+                
+                // Sort dungeon levels to ensure proper ordering
+                Array.Sort(dungeonLevels);
+                
+                while (dungeonCount < 3 && themeIndex < shuffledThemes.Length)
                 {
-                    string theme = themes[random.Next(themes.Length)];
-                    string themedName = $"{theme} Dungeon (Level {dungeonLevels[i]})";
-                    availableDungeons.Add(new Dungeon(themedName, dungeonLevels[i], dungeonLevels[i], theme));
+                    string currentTheme = shuffledThemes[themeIndex];
+                    if (!usedThemes.Contains(currentTheme))
+                    {
+                        usedThemes.Add(currentTheme);
+                        int level = dungeonLevels[dungeonCount % dungeonLevels.Length];
+                        string themedName = $"{currentTheme} Dungeon (Level {level})";
+                        availableDungeons.Add(new Dungeon(themedName, level, level, currentTheme));
+                        dungeonCount++;
+                    }
+                    themeIndex++;
                 }
+                
+                // Sort dungeons by level (lowest to highest)
+                availableDungeons = availableDungeons.OrderBy(d => d.MinLevel).ToList();
 
                 // Dungeon Selection and Run
                 Dungeon selectedDungeon = ChooseDungeon();
@@ -194,6 +261,10 @@ namespace RPGGame
                         if (currentEnemy == null) break;
 
                         Console.WriteLine($"\nEncountered {currentEnemy.Name}!");
+                        Console.WriteLine(); // Blank line between "Encountered" and stats
+                        Console.WriteLine($"Hero Stats - Health: {player.CurrentHealth}/{player.GetEffectiveMaxHealth()}, Armor: {player.GetTotalArmor()}, Attack: STR {player.GetEffectiveStrength()}, AGI {player.GetEffectiveAgility()}, TEC {player.GetEffectiveTechnique()}, INT {player.GetEffectiveIntelligence()}");
+                        Console.WriteLine($"Enemy Stats - Health: {currentEnemy.CurrentHealth}/{currentEnemy.MaxHealth}, Armor: {currentEnemy.Armor}, Attack: STR {currentEnemy.Strength}, AGI {currentEnemy.Agility}, TEC {currentEnemy.Technique}, INT {currentEnemy.Intelligence}");
+                        Console.WriteLine(); // Line break between stats and action
 
                         // Start battle narrative
                         Combat.StartBattleNarrative(player.Name, currentEnemy.Name, room.Name, player.CurrentHealth, currentEnemy.CurrentHealth);
@@ -214,8 +285,8 @@ namespace RPGGame
                                 // The action that will be attempted this turn
                                 var attemptedAction = comboActions.Count > 0 ? comboActions[actionIdx] : null;
 
-                                // Execute the action and capture the result
-                                string result = Combat.ExecuteAction(player, currentEnemy, room);
+                                // Execute multiple attacks based on attack speed
+                                string result = Combat.ExecuteMultiAttack(player, currentEnemy, room);
                                 bool textDisplayed = !string.IsNullOrEmpty(result);
                                 
                                 // Show individual action messages
@@ -237,8 +308,8 @@ namespace RPGGame
                             // Enemy acts
                             if (currentEnemy.IsAlive)
                             {
-                                // Use the enemy's d20 roll system
-                                var (result, success) = currentEnemy.AttemptAction(player, room);
+                                // Use the enemy's multi-attack system
+                                var (result, success) = currentEnemy.AttemptMultiAction(player, room);
                                 bool textDisplayed = !string.IsNullOrEmpty(result);
                                 
                                 // Show individual action messages
@@ -311,7 +382,10 @@ namespace RPGGame
                     }
 
                     Console.WriteLine("Room cleared!");
-                    Console.WriteLine($"Remaining Health: {player.CurrentHealth}/{player.MaxHealth}");
+                    Console.WriteLine($"Remaining Health: {player.CurrentHealth}/{player.GetEffectiveMaxHealth()}");
+                    
+                    // Reset combo at end of each room
+                    player.ResetCombo();
                 }
 
                 // Dungeon Completion
@@ -344,6 +418,16 @@ namespace RPGGame
         private void AwardLootAndXP()
         {
             Console.WriteLine("\nDungeon completed!");
+            
+            // Heal character back to max health between dungeons
+            int effectiveMaxHealth = player.GetEffectiveMaxHealth();
+            int healthRestored = effectiveMaxHealth - player.CurrentHealth;
+            if (healthRestored > 0)
+            {
+                player.Heal(healthRestored);
+                Console.WriteLine($"You have been fully healed! (+{healthRestored} health)");
+            }
+            
             // Determine current dungeon level
             int dungeonLevel = player.Level;
             if (availableDungeons.Count > 0)
@@ -352,24 +436,42 @@ namespace RPGGame
                 if (lastDungeon != null)
                     dungeonLevel = lastDungeon.MinLevel;
             }
-            // Award random item, stats scale with dungeon level
-            ItemType randomType = (ItemType)random.Next(4);
-            Item reward = randomType switch
+            // Award guaranteed loot for dungeon completion
+            Item? reward = null;
+            int attempts = 0;
+            const int maxAttempts = 10; // Prevent infinite loop
+            
+            // Keep trying until we get loot (guaranteed reward for dungeon completion)
+            while (reward == null && attempts < maxAttempts)
             {
-                ItemType.Weapon => new WeaponItem(tier: 1, baseDamage: random.Next(3, 6) + dungeonLevel * 2, weaponType: (WeaponType)random.Next(4)),
-                ItemType.Head => new HeadItem(tier: 1, armor: random.Next(1, 3) + dungeonLevel),
-                ItemType.Chest => new ChestItem(tier: 1, armor: random.Next(2, 5) + dungeonLevel * 2),
-                ItemType.Feet => new FeetItem(tier: 1, armor: random.Next(1, 2) + dungeonLevel),
-                _ => throw new InvalidOperationException()
-            };
+                reward = LootGenerator.GenerateLoot(player.Level, dungeonLevel);
+                attempts++;
+            }
+            
+            // If still no loot after max attempts, create a basic fallback item
+            if (reward == null)
+            {
+                // Create a basic weapon as guaranteed fallback
+                reward = new WeaponItem("Basic Sword", player.Level, 5 + player.Level, 1.0, WeaponType.Sword);
+                reward.Rarity = "Common";
+            }
 
-            // Add to both inventories
-            player.AddToInventory(reward);
-            inventory.Add(reward);
-            Console.WriteLine($"You found: {reward.Name}");
+            if (reward != null)
+            {
+                // Add to both inventories
+                player.AddToInventory(reward);
+                inventory.Add(reward);
+                Console.WriteLine($"You found: {reward.Name}");
+            }
+            else
+            {
+                // This should never happen with the fallback, but just in case
+                Console.WriteLine("You found no loot this time.");
+            }
 
-            // Award XP (scaled by dungeon level)
-            int xpReward = random.Next(50, 100) * player.Level;
+            // Award XP (scaled by dungeon level using tuning config)
+            var tuning = TuningConfig.Instance;
+            int xpReward = random.Next(tuning.Progression.EnemyXPBase, tuning.Progression.EnemyXPBase + 50) * player.Level;
             player.AddXP(xpReward);
             Console.WriteLine($"Gained {xpReward} XP!");
 

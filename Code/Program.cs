@@ -6,6 +6,261 @@ namespace RPGGame
 {
     class Program
     {
+        static void ReloadTuningConfig()
+        {
+            try
+            {
+                TuningConfig.Instance.Reload();
+                Console.WriteLine("Tuning configuration reloaded successfully!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error reloading tuning configuration: {ex.Message}");
+            }
+        }
+
+        static void TestTuningSystem()
+        {
+            Console.WriteLine("=== TUNING SYSTEM TEST ===");
+            var tuning = TuningConfig.Instance;
+            
+            Console.WriteLine($"Player Base Health: {tuning.Character.PlayerBaseHealth}");
+            Console.WriteLine($"Health Per Level: {tuning.Character.HealthPerLevel}");
+            Console.WriteLine($"Critical Hit Threshold: {tuning.Combat.CriticalHitThreshold}");
+            Console.WriteLine($"Critical Hit Multiplier: {tuning.Combat.CriticalHitMultiplier}");
+            Console.WriteLine($"Loot Chance Base: {tuning.Loot.LootChanceBase:P}");
+            Console.WriteLine($"Enemy Health Multiplier: {tuning.EnemyScaling.EnemyHealthMultiplier}");
+            
+            Console.WriteLine("\nEnemy Scaling Stats:");
+            Console.WriteLine($"Health Per Level: {tuning.Character.EnemyHealthPerLevel}");
+            Console.WriteLine($"Attributes Per Level: {tuning.Attributes.EnemyAttributesPerLevel}");
+            Console.WriteLine($"Primary Attribute Bonus: {tuning.Attributes.EnemyPrimaryAttributeBonus}");
+            Console.WriteLine("Note: Individual enemy attributes are loaded from Enemies.json");
+            
+            Console.WriteLine("\nTesting character creation with tuning values...");
+            var character = new Character("TestChar", 5);
+            Console.WriteLine($"Level 5 Character - Health: {character.MaxHealth}, STR: {character.Strength}, AGI: {character.Agility}, TEC: {character.Technique}, INT: {character.Intelligence}");
+            
+            Console.WriteLine("\nTesting enemy creation with tuning values...");
+            var enemy = new Enemy("TestEnemy", 3, 80, 8, 6, 4, 4, 0, PrimaryAttribute.Strength);
+            Console.WriteLine($"Level 3 Enemy - Health: {enemy.MaxHealth}, STR: {enemy.Strength}, AGI: {enemy.Agility}, TEC: {enemy.Technique}, INT: {enemy.Intelligence}, Armor: {enemy.Armor}");
+        }
+
+        static void TestComboAmplification()
+        {
+            Console.WriteLine("=== COMBO AMPLIFICATION TEST ===");
+            var tuning = TuningConfig.Instance;
+            
+            Console.WriteLine($"Combo Amplifier at TEC=5: {tuning.ComboSystem.ComboAmplifierAtTech5}");
+            Console.WriteLine($"Combo Amplifier Max: {tuning.ComboSystem.ComboAmplifierMax}");
+            Console.WriteLine($"Combo Amplifier Max Tech: {tuning.ComboSystem.ComboAmplifierMaxTech}");
+            
+            Console.WriteLine("\nTesting combo amplification at different Technique levels:");
+            
+            // Test different Technique levels
+            int[] testTechLevels = { 1, 5, 10, 25, 50, 75, 100 };
+            
+            foreach (int tech in testTechLevels)
+            {
+                var testChar = new Character("TestChar", 1);
+                testChar.SetTechniqueForTesting(tech);
+                
+                double baseAmp = testChar.GetComboAmplifier();
+                Console.WriteLine($"TEC={tech}: Base Amplifier = {baseAmp:F3}");
+                
+                // Show exponential scaling for first 5 combo steps
+                Console.WriteLine($"  Combo 1: {Math.Pow(baseAmp, 1):F3}x");
+                Console.WriteLine($"  Combo 2: {Math.Pow(baseAmp, 2):F3}x");
+                Console.WriteLine($"  Combo 3: {Math.Pow(baseAmp, 3):F3}x");
+                Console.WriteLine($"  Combo 4: {Math.Pow(baseAmp, 4):F3}x");
+                Console.WriteLine($"  Combo 5: {Math.Pow(baseAmp, 5):F3}x");
+                Console.WriteLine();
+            }
+            
+            Console.WriteLine("Example: A character with TEC=50 would have:");
+            var exampleChar = new Character("Example", 1);
+            exampleChar.SetTechniqueForTesting(50);
+            double exampleAmp = exampleChar.GetComboAmplifier();
+            Console.WriteLine($"Base Amplifier: {exampleAmp:F3}");
+            Console.WriteLine($"Combo 1: {Math.Pow(exampleAmp, 1):F3}x damage");
+            Console.WriteLine($"Combo 2: {Math.Pow(exampleAmp, 2):F3}x damage");
+            Console.WriteLine($"Combo 3: {Math.Pow(exampleAmp, 3):F3}x damage");
+        }
+
+        static void TestComboUI()
+        {
+            Console.WriteLine("=== COMBO UI TEST ===");
+            
+            // Create a test character with high Technique
+            var testChar = new Character("ComboMaster", 1);
+            testChar.SetTechniqueForTesting(50);
+            
+            Console.WriteLine("Character created with TEC=50");
+            Console.WriteLine($"Combo Info: {testChar.GetComboInfo()}");
+            Console.WriteLine($"Current Combo Amplification: {testChar.GetCurrentComboAmplification():F2}x");
+            
+            Console.WriteLine("\nSimulating combat messages with combo amplification:");
+            
+            // Simulate different combo steps
+            for (int step = 1; step <= 5; step++)
+            {
+                testChar.ComboStep = step - 1; // Set to previous step so next action is step
+                double amp = testChar.GetCurrentComboAmplification();
+                Console.WriteLine($"Combo Step {step}: {amp:F2}x amplification");
+                Console.WriteLine($"  Example: [Player] uses [FIREBALL] on [Goblin]: deals 45 damage. (Rolled 15, combo step {step}, {amp:F2}x amplification)");
+            }
+            
+            Console.WriteLine("\nUI Display Examples:");
+            Console.WriteLine("--- Inventory Display ---");
+            Console.WriteLine($"Combo Step: 3/5 | Amplification: {Math.Pow(testChar.GetComboAmplifier(), 3):F2}x | Base Amp: {testChar.GetComboAmplifier():F3}");
+            Console.WriteLine("\nCombo Sequence (5 selected):");
+            double baseAmp = testChar.GetComboAmplifier();
+            for (int i = 0; i < 5; i++)
+            {
+                double stepAmp = Math.Pow(baseAmp, i + 1);
+                string next = (i == 2) ? " ← NEXT" : "";
+                Console.WriteLine($"  {i + 1}. FIREBALL (Order: {i + 1}) - {stepAmp:F2}x damage{next}");
+            }
+        }
+
+        static void TestEnhancedActionDescriptions()
+        {
+            Console.WriteLine("=== ENHANCED ACTION DESCRIPTIONS TEST ===");
+            
+            // Create a test character to load actions
+            var testChar = new Character("ActionTester", 1);
+            
+            Console.WriteLine("Sample Action Descriptions with Modifiers:");
+            Console.WriteLine("==========================================");
+            
+            // Get some sample actions from the action pool
+            var sampleActions = testChar.ActionPool.Take(10).ToList();
+            
+            foreach (var actionWrapper in sampleActions)
+            {
+                var action = actionWrapper.action;
+                Console.WriteLine($"\n{action.Name}:");
+                Console.WriteLine($"  Description: {action.Description}");
+                if (action.RollBonus != 0)
+                {
+                    Console.WriteLine($"  Roll Bonus: {action.RollBonus:+0;-0;+0}");
+                }
+                if (action.DamageMultiplier != 1.0)
+                {
+                    Console.WriteLine($"  Damage Multiplier: {action.DamageMultiplier:F1}x");
+                }
+                if (action.CausesBleed)
+                {
+                    Console.WriteLine($"  Status Effect: Causes Bleed");
+                }
+                if (action.CausesWeaken)
+                {
+                    Console.WriteLine($"  Status Effect: Causes Weaken");
+                }
+            }
+            
+            Console.WriteLine("\nPress any key to continue...");
+            Console.ReadKey();
+        }
+
+        static void TestEnemyThreshold()
+        {
+            Console.WriteLine("=== ENEMY 14+ THRESHOLD TEST ===");
+            
+            // Create test characters
+            var player = new Character("TestPlayer", 1);
+            var enemy = new Enemy("TestGoblin", 1, 1, 1, 1, 1);
+            
+            Console.WriteLine($"Player: {player.Name} (Health: {player.CurrentHealth}/{player.MaxHealth})");
+            Console.WriteLine($"Enemy: {enemy.Name} (Health: {enemy.CurrentHealth}/{enemy.MaxHealth})");
+            Console.WriteLine();
+            
+            Console.WriteLine("Testing Enemy Attack Thresholds:");
+            Console.WriteLine("=================================");
+            Console.WriteLine("Both player and enemy now use the same 1d20 system:");
+            Console.WriteLine("- Roll 1-5: Miss");
+            Console.WriteLine("- Roll 6-13: Basic attack");
+            Console.WriteLine("- Roll 14-20: Successful attack");
+            Console.WriteLine();
+            
+            // Simulate several enemy attacks
+            Console.WriteLine("Simulating 10 enemy attacks:");
+            for (int i = 1; i <= 10; i++)
+            {
+                string result = Combat.ExecuteAction(enemy, player);
+                Console.WriteLine($"{i}. {result}");
+                Console.WriteLine($"   Player Health: {player.CurrentHealth}/{player.MaxHealth}");
+                
+                // Heal player for next test
+                if (player.CurrentHealth < player.MaxHealth)
+                {
+                    player.Heal(50);
+                }
+            }
+            
+            Console.WriteLine("\nPress any key to continue...");
+            Console.ReadKey();
+        }
+
+        static void TestGuaranteedLoot()
+        {
+            Console.WriteLine("=== GUARANTEED LOOT TEST ===");
+            
+            // Create test character
+            var player = new Character("LootTester", 1);
+            
+            Console.WriteLine($"Player: {player.Name} (Level: {player.Level})");
+            Console.WriteLine($"Initial Inventory Count: {player.Inventory.Count}");
+            Console.WriteLine();
+            
+            Console.WriteLine("Testing Guaranteed Loot Generation:");
+            Console.WriteLine("===================================");
+            Console.WriteLine("Players should now get loot every time they complete a dungeon.");
+            Console.WriteLine("Testing 10 loot generations:");
+            Console.WriteLine();
+            
+            // Simulate dungeon completion loot generation
+            for (int i = 1; i <= 10; i++)
+            {
+                // Simulate the guaranteed loot generation logic
+                Item? reward = null;
+                int attempts = 0;
+                const int maxAttempts = 10;
+                
+                // Keep trying until we get loot (guaranteed reward for dungeon completion)
+                while (reward == null && attempts < maxAttempts)
+                {
+                    reward = LootGenerator.GenerateLoot(player.Level, player.Level);
+                    attempts++;
+                }
+                
+                // If still no loot after max attempts, create a basic fallback item
+                if (reward == null)
+                {
+                    // Create a basic weapon as guaranteed fallback
+                    reward = new WeaponItem("Basic Sword", player.Level, 5 + player.Level, 1.0, WeaponType.Sword);
+                    reward.Rarity = "Common";
+                }
+                
+                if (reward != null)
+                {
+                    player.AddToInventory(reward);
+                    Console.WriteLine($"{i}. Found: {reward.Name} (Rarity: {reward.Rarity})");
+                }
+                else
+                {
+                    Console.WriteLine($"{i}. ERROR: No loot generated!");
+                }
+            }
+            
+            Console.WriteLine();
+            Console.WriteLine($"Final Inventory Count: {player.Inventory.Count}");
+            Console.WriteLine("All dungeon completions should have resulted in loot!");
+            
+            Console.WriteLine("\nPress any key to continue...");
+            Console.ReadKey();
+        }
+
         static void TestCharacterLeveling()
         {
             var character = new Character();
@@ -577,9 +832,9 @@ namespace RPGGame
                 Console.WriteLine(new string('-', 50));
                 
                 // Create different enemy types at this level with their primary attributes
-                var goblin = new Enemy("Goblin", level, 40, 6, 8, 3, 2, PrimaryAttribute.Agility);
-                var orc = new Enemy("Orc", level, 65, 12, 5, 3, 3, PrimaryAttribute.Strength);
-                var cultist = new Enemy("Cultist", level, 45, 6, 7, 10, 1, PrimaryAttribute.Technique);
+                var goblin = new Enemy("Goblin", level, 40, 6, 8, 3, 3, 2, PrimaryAttribute.Agility);
+                var orc = new Enemy("Orc", level, 65, 12, 5, 3, 2, 3, PrimaryAttribute.Strength);
+                var cultist = new Enemy("Cultist", level, 45, 6, 7, 10, 7, 1, PrimaryAttribute.Technique);
                 
                 Console.WriteLine($"Goblin Lv{level} (Primary: Agility): Health {goblin.MaxHealth}, STR {goblin.Strength}, AGI {goblin.Agility}, TEC {goblin.Technique}");
                 Console.WriteLine($"Orc Lv{level} (Primary: Strength): Health {orc.MaxHealth}, STR {orc.Strength}, AGI {orc.Agility}, TEC {orc.Technique}");
@@ -604,9 +859,9 @@ namespace RPGGame
             Console.WriteLine("\nPrimary Attribute Scaling Comparison (Level 5):");
             Console.WriteLine(new string('-', 50));
             
-            var strengthEnemy = new Enemy("Orc", 5, 65, 12, 5, 3, 3, PrimaryAttribute.Strength);
-            var agilityEnemy = new Enemy("Goblin", 5, 40, 6, 8, 3, 2, PrimaryAttribute.Agility);
-            var techniqueEnemy = new Enemy("Cultist", 5, 45, 6, 7, 10, 1, PrimaryAttribute.Technique);
+            var strengthEnemy = new Enemy("Orc", 5, 65, 12, 5, 3, 2, 3, PrimaryAttribute.Strength);
+            var agilityEnemy = new Enemy("Goblin", 5, 40, 6, 8, 3, 3, 2, PrimaryAttribute.Agility);
+            var techniqueEnemy = new Enemy("Cultist", 5, 45, 6, 7, 10, 7, 1, PrimaryAttribute.Technique);
             
             Console.WriteLine($"Strength Primary: STR {strengthEnemy.Strength}, AGI {strengthEnemy.Agility}, TEC {strengthEnemy.Technique}");
             Console.WriteLine($"Agility Primary: STR {agilityEnemy.Strength}, AGI {agilityEnemy.Agility}, TEC {agilityEnemy.Technique}");
@@ -623,8 +878,8 @@ namespace RPGGame
             Console.WriteLine(new string('-', 40));
             
             var player = new Character("Hero", 1);
-            var weakEnemy = new Enemy("Goblin", 1, 40, 6, 8, 3, 2, PrimaryAttribute.Agility);
-            var strongEnemy = new Enemy("Orc", 5, 65, 12, 5, 3, 3, PrimaryAttribute.Strength);
+            var weakEnemy = new Enemy("Goblin", 1, 40, 6, 8, 3, 3, 2, PrimaryAttribute.Agility);
+            var strongEnemy = new Enemy("Orc", 5, 65, 12, 5, 3, 2, 3, PrimaryAttribute.Strength);
             
             Console.WriteLine($"Player: Health {player.MaxHealth}, STR {player.Strength}");
             Console.WriteLine($"Weak Enemy: Health {weakEnemy.MaxHealth}, STR {weakEnemy.Strength}");
@@ -1646,8 +1901,14 @@ namespace RPGGame
                 Console.WriteLine("15. Test New Action System");
                 Console.WriteLine("16. Test Loot Generation System");
                 Console.WriteLine("17. Test Weapon-Based Classes");
-                Console.WriteLine("18. Run All Tests");
-                Console.WriteLine("19. Back to Main Menu\n");
+                Console.WriteLine("18. Test Tuning System");
+                Console.WriteLine("19. Test Combo Amplification");
+                Console.WriteLine("20. Test Combo UI");
+                Console.WriteLine("21. Test Enhanced Action Descriptions");
+                Console.WriteLine("22. Test Enemy 14+ Threshold");
+                Console.WriteLine("23. Test Guaranteed Loot");
+                Console.WriteLine("24. Run All Tests");
+                Console.WriteLine("25. Back to Main Menu\n");
                 Console.Write("Choose an option: ");
 
                 string? choice = Console.ReadLine();
@@ -1725,10 +1986,34 @@ namespace RPGGame
                         TestWeaponBasedClasses();
                         break;
                     case "18":
+                        Console.WriteLine("\nRunning Tuning System Test...\n");
+                        TestTuningSystem();
+                        break;
+                    case "19":
+                        Console.WriteLine("\nRunning Combo Amplification Test...\n");
+                        TestComboAmplification();
+                        break;
+                    case "20":
+                        Console.WriteLine("\nRunning Combo UI Test...\n");
+                        TestComboUI();
+                        break;
+                    case "21":
+                        Console.WriteLine("\nRunning Enhanced Action Descriptions Test...\n");
+                        TestEnhancedActionDescriptions();
+                        break;
+                    case "22":
+                        Console.WriteLine("\nRunning Enemy 14+ Threshold Test...\n");
+                        TestEnemyThreshold();
+                        break;
+                    case "23":
+                        Console.WriteLine("\nRunning Guaranteed Loot Test...\n");
+                        TestGuaranteedLoot();
+                        break;
+                    case "24":
                         Console.WriteLine("\nRunning All Tests...\n");
                         RunAllTests();
                         break;
-                    case "19":
+                    case "25":
                         return;
                     default:
                         Console.WriteLine("Invalid choice. Please try again.");
@@ -2115,6 +2400,9 @@ namespace RPGGame
                     {
                         File.Delete(saveFile);
                         Console.WriteLine("Saved character has been deleted successfully.");
+                        Console.WriteLine("Press any key to return to settings...");
+                        Console.ReadKey();
+                        return;
                     }
                     catch (Exception ex)
                     {
@@ -2309,6 +2597,7 @@ namespace RPGGame
                 LootGenerator.Initialize();
                 
                 Console.WriteLine("Generating 10 armor items to test affix system...\n");
+                Console.WriteLine("Note: Items now use ONLY Armor.json with StatBonuses.json and Modifications.json name modifiers!\n");
                 
                 int armorCount = 0;
                 int attempts = 0;

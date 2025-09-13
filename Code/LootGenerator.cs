@@ -32,6 +32,15 @@ namespace RPGGame
                 Initialize();
             }
 
+            var tuning = TuningConfig.Instance;
+            
+            // Calculate loot chance based on tuning config
+            double lootChance = tuning.Loot.LootChanceBase + (playerLevel * tuning.Loot.LootChancePerLevel);
+            lootChance = Math.Min(lootChance, tuning.Loot.MaximumLootChance);
+            
+            // Roll for loot chance
+            if (_random.NextDouble() > lootChance) return null;
+
             // ROLL 1: Determine loot level (player level - dungeon level)
             int lootLevel = playerLevel - dungeonLevel;
             
@@ -51,11 +60,11 @@ namespace RPGGame
             Item? item = isWeapon ? RollWeapon(tier) : RollArmor(tier);
             if (item == null) return null;
 
-            // ROLL 5b,c: Bonus damage and attack speed
+            // ROLL 5b,c: Bonus damage and attack speed based on tuning config
             if (item is WeaponItem weapon)
             {
-                weapon.BonusDamage = _random.Next(1, 11); // +1-10
-                weapon.BonusAttackSpeed = _random.Next(1, 11); // +1-10
+                weapon.BonusDamage = _random.Next(tuning.Equipment.BonusDamageRange.Min, tuning.Equipment.BonusDamageRange.Max + 1);
+                weapon.BonusAttackSpeed = _random.Next(tuning.Equipment.BonusAttackSpeedRange.Min, tuning.Equipment.BonusAttackSpeedRange.Max + 1);
             }
 
             // ROLL 6: Rarity (determines number of bonuses)

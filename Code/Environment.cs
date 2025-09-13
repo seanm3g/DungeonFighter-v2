@@ -55,9 +55,8 @@ namespace RPGGame
                     {
                         // Filter actions by environment tag and theme
                         var environmentalActions = allActions.Where(action => 
-                            action.tags != null && 
-                            action.tags.Contains("environment") && 
-                            action.tags.Contains(Theme.ToLower())
+                            action.TargetType != null && 
+                            action.TargetType.Contains("environment")
                         ).ToList();
                         
                         if (environmentalActions.Any())
@@ -107,28 +106,98 @@ namespace RPGGame
 
         private Action CreateActionFromData(ActionData data)
         {
-            var actionType = Enum.TryParse<ActionType>(data.type, true, out var parsedType) ? parsedType : ActionType.Attack;
+            var actionType = Enum.TryParse<ActionType>(data.Type, true, out var parsedType) ? parsedType : ActionType.Attack;
             var targetType = TargetType.AreaOfEffect; // Environmental actions are always area of effect
             
+            // Enhance description with modifiers
+            string enhancedDescription = EnhanceActionDescription(data);
+            
             var action = new Action(
-                name: data.name,
+                name: data.Name,
                 type: actionType,
                 targetType: targetType,
-                baseValue: 0,
-                range: 1,
-                cooldown: 0,
-                description: data.description ?? "",
-                comboOrder: data.comboOrder ?? 0,
-                damageMultiplier: data.damageMultiplier,
-                length: data.length,
-                causesBleed: data.causesBleed ?? false,
-                causesWeaken: data.causesWeaken ?? false,
-                isComboAction: data.isComboAction ?? false,
-                comboBonusAmount: data.comboBonusAmount ?? 0,
-                comboBonusDuration: data.comboBonusDuration ?? 0
+                baseValue: data.BaseValue,
+                range: data.Range,
+                cooldown: data.Cooldown,
+                description: enhancedDescription,
+                comboOrder: -1, // Default combo order
+                damageMultiplier: data.DamageMultiplier,
+                length: data.Length,
+                causesBleed: data.CausesBleed,
+                causesWeaken: data.CausesWeaken,
+                isComboAction: false, // Default to false
+                comboBonusAmount: data.ComboBonusAmount,
+                comboBonusDuration: data.ComboBonusDuration
             );
             
             return action;
+        }
+
+        private string EnhanceActionDescription(ActionData data)
+        {
+            var modifiers = new List<string>();
+            
+            // Add roll bonus information
+            if (data.RollBonus != 0)
+            {
+                string rollText = data.RollBonus > 0 ? $"+{data.RollBonus}" : data.RollBonus.ToString();
+                modifiers.Add($"Roll: {rollText}");
+            }
+            
+            // Add damage multiplier information
+            if (data.DamageMultiplier != 1.0)
+            {
+                modifiers.Add($"Damage: {data.DamageMultiplier:F1}x");
+            }
+            
+            // Add combo bonus information
+            if (data.ComboBonusAmount > 0 && data.ComboBonusDuration > 0)
+            {
+                modifiers.Add($"Combo: +{data.ComboBonusAmount} for {data.ComboBonusDuration} turns");
+            }
+            
+            // Add status effect information
+            if (data.CausesBleed)
+            {
+                modifiers.Add("Causes Bleed");
+            }
+            
+            if (data.CausesWeaken)
+            {
+                modifiers.Add("Causes Weaken");
+            }
+            
+            // Add multi-hit information
+            if (data.MultiHitCount > 1)
+            {
+                modifiers.Add($"Multi-hit: {data.MultiHitCount} attacks");
+            }
+            
+            // Add self-damage information
+            if (data.SelfDamagePercent > 0)
+            {
+                modifiers.Add($"Self-damage: {data.SelfDamagePercent}%");
+            }
+            
+            // Add special effects
+            if (data.SkipNextTurn)
+            {
+                modifiers.Add("Skips next turn");
+            }
+            
+            if (data.RepeatLastAction)
+            {
+                modifiers.Add("Repeats last action");
+            }
+            
+            // Combine base description with modifiers
+            string result = data.Description;
+            if (modifiers.Count > 0)
+            {
+                result += $" | {string.Join(", ", modifiers)}";
+            }
+            
+            return result;
         }
 
         public void GenerateEnemies(int roomLevel)
@@ -145,92 +214,33 @@ namespace RPGGame
                 return;
             }
             
-            // Fallback to hardcoded enemies
-            var enemyTypes = Theme switch
-            {
-                "Forest" => new[] { 
-                    new { Name = "Goblin", BaseHealth = 80, BaseStrength = 4, BaseAgility = 6, BaseTechnique = 2, Primary = PrimaryAttribute.Agility },
-                    new { Name = "Bandit", BaseHealth = 85, BaseStrength = 6, BaseAgility = 8, BaseTechnique = 3, Primary = PrimaryAttribute.Agility },
-                    new { Name = "Spider", BaseHealth = 75, BaseStrength = 3, BaseAgility = 10, BaseTechnique = 3, Primary = PrimaryAttribute.Agility }
-                },
-                "Lava" => new[] { 
-                    new { Name = "Wraith", BaseHealth = 85, BaseStrength = 5, BaseAgility = 7, BaseTechnique = 6, Primary = PrimaryAttribute.Technique },
-                    new { Name = "Slime", BaseHealth = 95, BaseStrength = 7, BaseAgility = 3, BaseTechnique = 2, Primary = PrimaryAttribute.Strength },
-                    new { Name = "Bat", BaseHealth = 70, BaseStrength = 3, BaseAgility = 12, BaseTechnique = 4, Primary = PrimaryAttribute.Agility }
-                },
-                "Crypt" => new[] { 
-                    new { Name = "Skeleton", BaseHealth = 85, BaseStrength = 6, BaseAgility = 4, BaseTechnique = 3, Primary = PrimaryAttribute.Strength },
-                    new { Name = "Zombie", BaseHealth = 100, BaseStrength = 8, BaseAgility = 2, BaseTechnique = 1, Primary = PrimaryAttribute.Strength },
-                    new { Name = "Wraith", BaseHealth = 85, BaseStrength = 5, BaseAgility = 7, BaseTechnique = 6, Primary = PrimaryAttribute.Technique }
-                },
-                "Cavern" => new[] { 
-                    new { Name = "Orc", BaseHealth = 95, BaseStrength = 10, BaseAgility = 4, BaseTechnique = 2, Primary = PrimaryAttribute.Strength },
-                    new { Name = "Bat", BaseHealth = 70, BaseStrength = 3, BaseAgility = 12, BaseTechnique = 4, Primary = PrimaryAttribute.Agility },
-                    new { Name = "Slime", BaseHealth = 95, BaseStrength = 7, BaseAgility = 3, BaseTechnique = 2, Primary = PrimaryAttribute.Strength }
-                },
-                "Swamp" => new[] { 
-                    new { Name = "Slime", BaseHealth = 95, BaseStrength = 7, BaseAgility = 3, BaseTechnique = 2, Primary = PrimaryAttribute.Strength },
-                    new { Name = "Spider", BaseHealth = 75, BaseStrength = 3, BaseAgility = 10, BaseTechnique = 3, Primary = PrimaryAttribute.Agility },
-                    new { Name = "Cultist", BaseHealth = 85, BaseStrength = 4, BaseAgility = 5, BaseTechnique = 8, Primary = PrimaryAttribute.Technique }
-                },
-                "Desert" => new[] { 
-                    new { Name = "Bandit", BaseHealth = 85, BaseStrength = 6, BaseAgility = 8, BaseTechnique = 3, Primary = PrimaryAttribute.Agility },
-                    new { Name = "Cultist", BaseHealth = 85, BaseStrength = 4, BaseAgility = 5, BaseTechnique = 8, Primary = PrimaryAttribute.Technique },
-                    new { Name = "Wraith", BaseHealth = 85, BaseStrength = 5, BaseAgility = 7, BaseTechnique = 6, Primary = PrimaryAttribute.Technique }
-                },
-                "Ice" => new[] { 
-                    new { Name = "Wraith", BaseHealth = 85, BaseStrength = 5, BaseAgility = 7, BaseTechnique = 6, Primary = PrimaryAttribute.Technique },
-                    new { Name = "Skeleton", BaseHealth = 85, BaseStrength = 6, BaseAgility = 4, BaseTechnique = 3, Primary = PrimaryAttribute.Strength },
-                    new { Name = "Bat", BaseHealth = 70, BaseStrength = 3, BaseAgility = 12, BaseTechnique = 4, Primary = PrimaryAttribute.Agility }
-                },
-                "Ruins" => new[] { 
-                    new { Name = "Cultist", BaseHealth = 85, BaseStrength = 4, BaseAgility = 5, BaseTechnique = 8, Primary = PrimaryAttribute.Technique },
-                    new { Name = "Skeleton", BaseHealth = 85, BaseStrength = 6, BaseAgility = 4, BaseTechnique = 3, Primary = PrimaryAttribute.Strength },
-                    new { Name = "Bandit", BaseHealth = 85, BaseStrength = 6, BaseAgility = 8, BaseTechnique = 3, Primary = PrimaryAttribute.Agility }
-                },
-                "Castle" => new[] { 
-                    new { Name = "Bandit", BaseHealth = 85, BaseStrength = 6, BaseAgility = 8, BaseTechnique = 3, Primary = PrimaryAttribute.Agility },
-                    new { Name = "Cultist", BaseHealth = 85, BaseStrength = 4, BaseAgility = 5, BaseTechnique = 8, Primary = PrimaryAttribute.Technique },
-                    new { Name = "Wraith", BaseHealth = 85, BaseStrength = 5, BaseAgility = 7, BaseTechnique = 6, Primary = PrimaryAttribute.Technique }
-                },
-                "Graveyard" => new[] { 
-                    new { Name = "Zombie", BaseHealth = 100, BaseStrength = 8, BaseAgility = 2, BaseTechnique = 1, Primary = PrimaryAttribute.Strength },
-                    new { Name = "Wraith", BaseHealth = 85, BaseStrength = 5, BaseAgility = 7, BaseTechnique = 6, Primary = PrimaryAttribute.Technique },
-                    new { Name = "Skeleton", BaseHealth = 85, BaseStrength = 6, BaseAgility = 4, BaseTechnique = 3, Primary = PrimaryAttribute.Strength }
-                },
-                _ => new[] { 
-                    new { Name = "Goblin", BaseHealth = 80, BaseStrength = 4, BaseAgility = 6, BaseTechnique = 2, Primary = PrimaryAttribute.Agility },
-                    new { Name = "Orc", BaseHealth = 95, BaseStrength = 10, BaseAgility = 4, BaseTechnique = 2, Primary = PrimaryAttribute.Strength },
-                    new { Name = "Skeleton", BaseHealth = 85, BaseStrength = 6, BaseAgility = 4, BaseTechnique = 3, Primary = PrimaryAttribute.Strength },
-                    new { Name = "Bandit", BaseHealth = 85, BaseStrength = 6, BaseAgility = 8, BaseTechnique = 3, Primary = PrimaryAttribute.Agility },
-                    new { Name = "Cultist", BaseHealth = 85, BaseStrength = 4, BaseAgility = 5, BaseTechnique = 8, Primary = PrimaryAttribute.Technique },
-                    new { Name = "Spider", BaseHealth = 75, BaseStrength = 3, BaseAgility = 10, BaseTechnique = 3, Primary = PrimaryAttribute.Agility },
-                    new { Name = "Slime", BaseHealth = 95, BaseStrength = 7, BaseAgility = 3, BaseTechnique = 2, Primary = PrimaryAttribute.Strength },
-                    new { Name = "Bat", BaseHealth = 70, BaseStrength = 3, BaseAgility = 12, BaseTechnique = 4, Primary = PrimaryAttribute.Agility },
-                    new { Name = "Zombie", BaseHealth = 100, BaseStrength = 8, BaseAgility = 2, BaseTechnique = 1, Primary = PrimaryAttribute.Strength },
-                    new { Name = "Wraith", BaseHealth = 85, BaseStrength = 5, BaseAgility = 7, BaseTechnique = 6, Primary = PrimaryAttribute.Technique }
-                }
+            // Fallback: Create basic enemies if JSON loading fails
+            Console.WriteLine("Warning: Could not load enemy data from JSON, creating basic enemies");
+            var tuning = TuningConfig.Instance;
+            var basicEnemies = new[] { 
+                new { Name = "Basic Enemy", BaseHealth = 80, BaseStrength = 8, BaseAgility = 6, BaseTechnique = 4, BaseIntelligence = 3, Primary = PrimaryAttribute.Strength }
             };
             
-            var settings = GameSettings.Instance;
             for (int i = 0; i < enemyCount; i++)
             {
-                int enemyLevel = Math.Max(1, roomLevel + random.Next(-1, 2));
-                var enemyType = enemyTypes[random.Next(enemyTypes.Length)];
+                int enemyLevel = Math.Max(1, roomLevel + random.Next(-tuning.EnemyScaling.EnemyLevelVariance, tuning.EnemyScaling.EnemyLevelVariance + 1));
+                var enemyType = basicEnemies[random.Next(basicEnemies.Length)];
                 
-                // Apply difficulty multipliers
-                int adjustedHealth = (int)(enemyType.BaseHealth * settings.EnemyHealthMultiplier);
-                int adjustedStrength = (int)(enemyType.BaseStrength * settings.EnemyDamageMultiplier);
-                int adjustedAgility = (int)(enemyType.BaseAgility * settings.EnemyDamageMultiplier);
-                int adjustedTechnique = (int)(enemyType.BaseTechnique * settings.EnemyDamageMultiplier);
+                // Apply difficulty multipliers from tuning config
+                int adjustedHealth = (int)(enemyType.BaseHealth * tuning.EnemyScaling.EnemyHealthMultiplier);
+                int adjustedStrength = (int)(enemyType.BaseStrength * tuning.EnemyScaling.EnemyDamageMultiplier);
+                int adjustedAgility = (int)(enemyType.BaseAgility * tuning.EnemyScaling.EnemyDamageMultiplier);
+                int adjustedTechnique = (int)(enemyType.BaseTechnique * tuning.EnemyScaling.EnemyDamageMultiplier);
+                int adjustedIntelligence = (int)(enemyType.BaseIntelligence * tuning.EnemyScaling.EnemyDamageMultiplier);
                 
                 var enemy = new Enemy(
-                    $"{enemyType.Name} Lv{enemyLevel}", 
+                    enemyType.Name, 
                     enemyLevel,
                     adjustedHealth,
                     adjustedStrength,
                     adjustedAgility,
                     adjustedTechnique,
+                    adjustedIntelligence,
                     0, // Base armor - will be scaled by level in Enemy constructor
                     enemyType.Primary
                 );
@@ -308,51 +318,33 @@ namespace RPGGame
 
         private void GenerateEnemiesFromJson(int roomLevel, int enemyCount, List<EnemyData> enemyData)
         {
-            var settings = GameSettings.Instance;
+            var tuning = TuningConfig.Instance;
             for (int i = 0; i < enemyCount; i++)
             {
-                int enemyLevel = Math.Max(1, roomLevel + random.Next(-1, 2));
+                int enemyLevel = Math.Max(1, roomLevel + random.Next(-tuning.EnemyScaling.EnemyLevelVariance, tuning.EnemyScaling.EnemyLevelVariance + 1));
                 var enemyTemplate = enemyData[random.Next(enemyData.Count)];
                 
-                // Apply difficulty multipliers
-                int adjustedHealth = (int)(enemyTemplate.BaseHealth * settings.EnemyHealthMultiplier);
-                int adjustedStrength = (int)(enemyTemplate.BaseStrength * settings.EnemyDamageMultiplier);
-                int adjustedAgility = (int)(enemyTemplate.BaseAgility * settings.EnemyDamageMultiplier);
-                int adjustedTechnique = (int)(enemyTemplate.BaseTechnique * settings.EnemyDamageMultiplier);
-                int adjustedArmor = (int)(enemyTemplate.BaseArmor * settings.EnemyHealthMultiplier);
+                // Apply difficulty multipliers from tuning config
+                int adjustedHealth = (int)((80 + (enemyLevel * tuning.Character.EnemyHealthPerLevel)) * tuning.EnemyScaling.EnemyHealthMultiplier);
+                int adjustedStrength = (int)(enemyTemplate.Strength * tuning.EnemyScaling.EnemyDamageMultiplier);
+                int adjustedAgility = (int)(enemyTemplate.Agility * tuning.EnemyScaling.EnemyDamageMultiplier);
+                int adjustedTechnique = (int)(enemyTemplate.Technique * tuning.EnemyScaling.EnemyDamageMultiplier);
+                int adjustedArmor = (int)(enemyTemplate.Armor * tuning.EnemyScaling.EnemyHealthMultiplier);
                 
                 var enemy = new Enemy(
-                    $"{enemyTemplate.Name} Lv{enemyLevel}", 
+                    enemyTemplate.Name, 
                     enemyLevel,
                     adjustedHealth,
                     adjustedStrength,
                     adjustedAgility,
                     adjustedTechnique,
+                    4, // Default Intelligence
                     adjustedArmor,
-                    enemyTemplate.Primary
+                    PrimaryAttribute.Strength // Default primary attribute
                 );
                 enemies.Add(enemy);
             }
         }
     }
 
-    // Data class for JSON deserialization
-    public class EnemyData
-    {
-        public string Name { get; set; } = "";
-        public int Level { get; set; }
-        public int Strength { get; set; }
-        public int Agility { get; set; }
-        public int Technique { get; set; }
-        public int Armor { get; set; }
-        public List<string> Actions { get; set; } = new List<string>();
-        
-        // Properties for compatibility with existing system
-        public int BaseHealth => 80 + (Level * 10); // Base health calculation
-        public int BaseStrength => Strength;
-        public int BaseAgility => Agility;
-        public int BaseTechnique => Technique;
-        public int BaseArmor => Armor;
-        public PrimaryAttribute Primary => PrimaryAttribute.Strength; // Default primary attribute
-    }
 } 

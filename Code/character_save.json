@@ -1,0 +1,1238 @@
+{
+  "Name": "Hero",
+  "Level": 11,
+  "XP": 4316,
+  "CurrentHealth": 130,
+  "MaxHealth": 130,
+  "Strength": 20,
+  "Agility": 22,
+  "Technique": 38,
+  "Intelligence": 20,
+  "BarbarianPoints": 0,
+  "WarriorPoints": 1,
+  "RoguePoints": 9,
+  "WizardPoints": 0,
+  "ComboStep": 0,
+  "ComboBonus": 0,
+  "TempComboBonus": 0,
+  "TempComboBonusTurns": 0,
+  "DamageReduction": 0,
+  "Inventory": [
+    {
+      "Name": "Uncommon Annihilation Cloth Shoes of Strength of the Master",
+      "Type": 1,
+      "Tier": 1,
+      "ComboBonus": 0,
+      "Rarity": "Uncommon",
+      "StatBonuses": [
+        {
+          "Name": "of Strength",
+          "Description": "\u002B2 Strength stat",
+          "Value": 2,
+          "Weight": 15,
+          "StatType": "STR"
+        },
+        {
+          "Name": "of the Master",
+          "Description": "\u002B5 Technique, \u002B5 damage",
+          "Value": 5,
+          "Weight": 3,
+          "StatType": "TEC"
+        }
+      ],
+      "ActionBonuses": [
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        }
+      ],
+      "Modifications": [
+        {
+          "DiceResult": 21,
+          "ItemRank": "Mythic",
+          "Name": "Annihilation",
+          "Description": "Double damage on all attacks",
+          "Effect": "damageMultiplier",
+          "MinValue": 2,
+          "MaxValue": 2
+        }
+      ],
+      "BonusDamage": 0,
+      "BonusAttackSpeed": 0,
+      "IsStarterItem": false
+    },
+    {
+      "Name": "Rare Swift Precise Cloth Shoes of the Grandmaster of Might",
+      "Type": 1,
+      "Tier": 1,
+      "ComboBonus": 0,
+      "Rarity": "Rare",
+      "StatBonuses": [
+        {
+          "Name": "of the Grandmaster",
+          "Description": "\u002B8 Technique, \u002B10 damage",
+          "Value": 8,
+          "Weight": 1,
+          "StatType": "TEC"
+        },
+        {
+          "Name": "of Might",
+          "Description": "\u002B6 base damage",
+          "Value": 6,
+          "Weight": 8,
+          "StatType": "Damage"
+        },
+        {
+          "Name": "of the Hawk",
+          "Description": "\u002B3 Technique, \u002B2 damage",
+          "Value": 3,
+          "Weight": 5,
+          "StatType": "TEC"
+        }
+      ],
+      "ActionBonuses": [
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        },
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        }
+      ],
+      "Modifications": [
+        {
+          "DiceResult": 6,
+          "ItemRank": "Uncommon",
+          "Name": "Swift",
+          "Description": "10% faster attack speed",
+          "Effect": "speedMultiplier",
+          "MinValue": 1.1,
+          "MaxValue": 1.1
+        },
+        {
+          "DiceResult": 7,
+          "ItemRank": "Uncommon",
+          "Name": "Precise",
+          "Description": "\u002B2 to attack rolls",
+          "Effect": "rollBonus",
+          "MinValue": 2,
+          "MaxValue": 2
+        }
+      ],
+      "BonusDamage": 0,
+      "BonusAttackSpeed": 0,
+      "IsStarterItem": false
+    },
+    {
+      "Name": "Uncommon Vampiric Chain Boots of Intelligence of Might",
+      "Type": 1,
+      "Tier": 2,
+      "ComboBonus": 0,
+      "Rarity": "Uncommon",
+      "StatBonuses": [
+        {
+          "Name": "of Intelligence",
+          "Description": "\u002B2 Intelligence stat",
+          "Value": 2,
+          "Weight": 15,
+          "StatType": "INT"
+        },
+        {
+          "Name": "of Might",
+          "Description": "\u002B6 base damage",
+          "Value": 6,
+          "Weight": 8,
+          "StatType": "Damage"
+        }
+      ],
+      "ActionBonuses": [
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        }
+      ],
+      "Modifications": [
+        {
+          "DiceResult": 12,
+          "ItemRank": "Rare",
+          "Name": "Vampiric",
+          "Description": "1-3% lifesteal on hit",
+          "Effect": "lifesteal",
+          "MinValue": 0.01,
+          "MaxValue": 0.03
+        }
+      ],
+      "BonusDamage": 0,
+      "BonusAttackSpeed": 0,
+      "IsStarterItem": false
+    },
+    {
+      "Name": "Rare Enchanted Balanced Leather Cap of the Master of the Storm",
+      "Type": 0,
+      "Tier": 1,
+      "ComboBonus": 0,
+      "Rarity": "Rare",
+      "StatBonuses": [
+        {
+          "Name": "of the Master",
+          "Description": "\u002B5 Technique, \u002B5 damage",
+          "Value": 5,
+          "Weight": 3,
+          "StatType": "TEC"
+        },
+        {
+          "Name": "of the Storm",
+          "Description": "\u002B8 Agility, \u002B0.3 speed",
+          "Value": 8,
+          "Weight": 1,
+          "StatType": "AGI"
+        },
+        {
+          "Name": "of the Hawk",
+          "Description": "\u002B3 Technique, \u002B2 damage",
+          "Value": 3,
+          "Weight": 5,
+          "StatType": "TEC"
+        }
+      ],
+      "ActionBonuses": [
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        },
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        }
+      ],
+      "Modifications": [
+        {
+          "DiceResult": 19,
+          "ItemRank": "Legendary",
+          "Name": "Enchanted",
+          "Description": "5%-15% Unique Action Chance",
+          "Effect": "uniqueActionChance",
+          "MinValue": 0.05,
+          "MaxValue": 0.15
+        },
+        {
+          "DiceResult": 4,
+          "ItemRank": "Common",
+          "Name": "Balanced",
+          "Description": "\u002B1 to attack rolls",
+          "Effect": "rollBonus",
+          "MinValue": 1,
+          "MaxValue": 1
+        }
+      ],
+      "BonusDamage": 0,
+      "BonusAttackSpeed": 0,
+      "IsStarterItem": false
+    },
+    {
+      "Name": "Epic Godlike Precise Steel Dagger of the Owl of Might",
+      "Type": 3,
+      "Tier": 1,
+      "ComboBonus": 0,
+      "Rarity": "Epic",
+      "StatBonuses": [
+        {
+          "Name": "of the Owl",
+          "Description": "\u002B3 Intelligence, \u002B5 health",
+          "Value": 3,
+          "Weight": 5,
+          "StatType": "INT"
+        },
+        {
+          "Name": "of Might",
+          "Description": "\u002B6 base damage",
+          "Value": 6,
+          "Weight": 8,
+          "StatType": "Damage"
+        },
+        {
+          "Name": "of Endurance",
+          "Description": "\u002B30 maximum health",
+          "Value": 30,
+          "Weight": 4,
+          "StatType": "Health"
+        }
+      ],
+      "ActionBonuses": [
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        },
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        }
+      ],
+      "Modifications": [
+        {
+          "DiceResult": 20,
+          "ItemRank": "Legendary",
+          "Name": "Godlike",
+          "Description": "\u002B5 to attack rolls \u0026 \u002B1 STR",
+          "Effect": "godlike",
+          "MinValue": 5,
+          "MaxValue": 5
+        },
+        {
+          "DiceResult": 7,
+          "ItemRank": "Uncommon",
+          "Name": "Precise",
+          "Description": "\u002B2 to attack rolls",
+          "Effect": "rollBonus",
+          "MinValue": 2,
+          "MaxValue": 2
+        }
+      ],
+      "BonusDamage": 6,
+      "BonusAttackSpeed": 6,
+      "IsStarterItem": false
+    },
+    {
+      "Name": "Rare Ethereal Oak Wand of Might of Immortality",
+      "Type": 3,
+      "Tier": 1,
+      "ComboBonus": 0,
+      "Rarity": "Rare",
+      "StatBonuses": [
+        {
+          "Name": "of Might",
+          "Description": "\u002B6 base damage",
+          "Value": 6,
+          "Weight": 8,
+          "StatType": "Damage"
+        },
+        {
+          "Name": "of Immortality",
+          "Description": "\u002B50 maximum health",
+          "Value": 50,
+          "Weight": 2,
+          "StatType": "Health"
+        },
+        {
+          "Name": "of the Wind",
+          "Description": "\u002B5 Agility, \u002B0.2 speed",
+          "Value": 5,
+          "Weight": 3,
+          "StatType": "AGI"
+        }
+      ],
+      "ActionBonuses": [
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        },
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        }
+      ],
+      "Modifications": [
+        {
+          "DiceResult": 2,
+          "ItemRank": "Common",
+          "Name": "Dull",
+          "Description": "5% slower attack speed",
+          "Effect": "speedMultiplier",
+          "MinValue": 0.95,
+          "MaxValue": 0.95
+        },
+        {
+          "DiceResult": 18,
+          "ItemRank": "Legendary",
+          "Name": "Ethereal",
+          "Description": "40% faster attack speed",
+          "Effect": "speedMultiplier",
+          "MinValue": 1.4,
+          "MaxValue": 1.4
+        }
+      ],
+      "BonusDamage": 8,
+      "BonusAttackSpeed": 9,
+      "IsStarterItem": false
+    },
+    {
+      "Name": "Uncommon Oak Wand of the Owl of Warding",
+      "Type": 3,
+      "Tier": 1,
+      "ComboBonus": 0,
+      "Rarity": "Uncommon",
+      "StatBonuses": [
+        {
+          "Name": "of the Owl",
+          "Description": "\u002B3 Intelligence, \u002B5 health",
+          "Value": 3,
+          "Weight": 5,
+          "StatType": "INT"
+        },
+        {
+          "Name": "of Warding",
+          "Description": "\u002B8 armor value",
+          "Value": 8,
+          "Weight": 4,
+          "StatType": "Armor"
+        }
+      ],
+      "ActionBonuses": [
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        }
+      ],
+      "Modifications": [
+        {
+          "DiceResult": 2,
+          "ItemRank": "Common",
+          "Name": "Dull",
+          "Description": "5% slower attack speed",
+          "Effect": "speedMultiplier",
+          "MinValue": 0.95,
+          "MaxValue": 0.95
+        }
+      ],
+      "BonusDamage": 2,
+      "BonusAttackSpeed": 5,
+      "IsStarterItem": false
+    },
+    {
+      "Name": "Oak Wand of the Sage",
+      "Type": 3,
+      "Tier": 1,
+      "ComboBonus": 0,
+      "Rarity": "Common",
+      "StatBonuses": [
+        {
+          "Name": "of the Sage",
+          "Description": "\u002B5 Intelligence, \u002B3 regen",
+          "Value": 5,
+          "Weight": 3,
+          "StatType": "INT"
+        }
+      ],
+      "ActionBonuses": [],
+      "Modifications": [],
+      "BonusDamage": 6,
+      "BonusAttackSpeed": 6,
+      "IsStarterItem": false
+    },
+    {
+      "Name": "Uncommon Agile Ash Wand of the Hawk of the Wind",
+      "Type": 3,
+      "Tier": 1,
+      "ComboBonus": 0,
+      "Rarity": "Uncommon",
+      "StatBonuses": [
+        {
+          "Name": "of the Hawk",
+          "Description": "\u002B3 Technique, \u002B2 damage",
+          "Value": 3,
+          "Weight": 5,
+          "StatType": "TEC"
+        },
+        {
+          "Name": "of the Wind",
+          "Description": "\u002B5 Agility, \u002B0.2 speed",
+          "Value": 5,
+          "Weight": 3,
+          "StatType": "AGI"
+        }
+      ],
+      "ActionBonuses": [
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        }
+      ],
+      "Modifications": [
+        {
+          "DiceResult": 10,
+          "ItemRank": "Rare",
+          "Name": "Agile",
+          "Description": "20% faster attack speed",
+          "Effect": "speedMultiplier",
+          "MinValue": 1.2,
+          "MaxValue": 1.2
+        }
+      ],
+      "BonusDamage": 10,
+      "BonusAttackSpeed": 10,
+      "IsStarterItem": false
+    },
+    {
+      "Name": "Uncommon Annihilation Iron Dagger of Haste of Invulnerability",
+      "Type": 3,
+      "Tier": 1,
+      "ComboBonus": 0,
+      "Rarity": "Uncommon",
+      "StatBonuses": [
+        {
+          "Name": "of Haste",
+          "Description": "\u002B0.3 attack speed",
+          "Value": 0.3,
+          "Weight": 4,
+          "StatType": "AttackSpeed"
+        },
+        {
+          "Name": "of Invulnerability",
+          "Description": "\u002B12 armor value",
+          "Value": 12,
+          "Weight": 2,
+          "StatType": "Armor"
+        }
+      ],
+      "ActionBonuses": [
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        }
+      ],
+      "Modifications": [
+        {
+          "DiceResult": 21,
+          "ItemRank": "Mythic",
+          "Name": "Annihilation",
+          "Description": "Double damage on all attacks",
+          "Effect": "damageMultiplier",
+          "MinValue": 2,
+          "MaxValue": 2
+        }
+      ],
+      "BonusDamage": 9,
+      "BonusAttackSpeed": 5,
+      "IsStarterItem": false
+    },
+    {
+      "Name": "Epic Divine Divine Sturdy Banded Boots of Resilience of Agility",
+      "Type": 1,
+      "Tier": 3,
+      "ComboBonus": 0,
+      "Rarity": "Epic",
+      "StatBonuses": [
+        {
+          "Name": "of Resilience",
+          "Description": "\u002B3 health regeneration",
+          "Value": 3,
+          "Weight": 8,
+          "StatType": "HealthRegen"
+        },
+        {
+          "Name": "of Agility",
+          "Description": "\u002B2 Agility stat",
+          "Value": 2,
+          "Weight": 15,
+          "StatType": "AGI"
+        },
+        {
+          "Name": "of Protection",
+          "Description": "\u002B2 armor value",
+          "Value": 2,
+          "Weight": 15,
+          "StatType": "Armor"
+        }
+      ],
+      "ActionBonuses": [
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        },
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        }
+      ],
+      "Modifications": [
+        {
+          "DiceResult": 24,
+          "ItemRank": "Mythic",
+          "Name": "Divine",
+          "Description": "ADD \u002B3 TO MODS AND REROLL",
+          "Effect": "reroll",
+          "MinValue": 3,
+          "MaxValue": 3
+        },
+        {
+          "DiceResult": 24,
+          "ItemRank": "Mythic",
+          "Name": "Divine",
+          "Description": "ADD \u002B3 TO MODS AND REROLL",
+          "Effect": "reroll",
+          "MinValue": 3,
+          "MaxValue": 3
+        },
+        {
+          "DiceResult": 3,
+          "ItemRank": "Common",
+          "Name": "Sturdy",
+          "Description": "\u002B1 to \u002B2 damage",
+          "Effect": "damage",
+          "MinValue": 1,
+          "MaxValue": 2
+        }
+      ],
+      "BonusDamage": 0,
+      "BonusAttackSpeed": 0,
+      "IsStarterItem": false
+    },
+    {
+      "Name": "Padded Boots of the Hawk",
+      "Type": 1,
+      "Tier": 1,
+      "ComboBonus": 0,
+      "Rarity": "Common",
+      "StatBonuses": [
+        {
+          "Name": "of the Hawk",
+          "Description": "\u002B3 Technique, \u002B2 damage",
+          "Value": 3,
+          "Weight": 5,
+          "StatType": "TEC"
+        }
+      ],
+      "ActionBonuses": [],
+      "Modifications": [],
+      "BonusDamage": 0,
+      "BonusAttackSpeed": 0,
+      "IsStarterItem": false
+    },
+    {
+      "Name": "Uncommon Precise Oak Wand of the Colossus of the Bear",
+      "Type": 3,
+      "Tier": 1,
+      "ComboBonus": 0,
+      "Rarity": "Uncommon",
+      "StatBonuses": [
+        {
+          "Name": "of the Colossus",
+          "Description": "\u002B8 Strength, \u002B25 health",
+          "Value": 8,
+          "Weight": 1,
+          "StatType": "STR"
+        },
+        {
+          "Name": "of the Bear",
+          "Description": "\u002B3 Strength, \u002B1 armor",
+          "Value": 3,
+          "Weight": 5,
+          "StatType": "STR"
+        }
+      ],
+      "ActionBonuses": [
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        }
+      ],
+      "Modifications": [
+        {
+          "DiceResult": 7,
+          "ItemRank": "Uncommon",
+          "Name": "Precise",
+          "Description": "\u002B2 to attack rolls",
+          "Effect": "rollBonus",
+          "MinValue": 2,
+          "MaxValue": 2
+        }
+      ],
+      "BonusDamage": 2,
+      "BonusAttackSpeed": 8,
+      "IsStarterItem": false
+    },
+    {
+      "Name": "Iron Sword of the Owl",
+      "Type": 3,
+      "Tier": 1,
+      "ComboBonus": 0,
+      "Rarity": "Common",
+      "StatBonuses": [
+        {
+          "Name": "of the Owl",
+          "Description": "\u002B3 Intelligence, \u002B5 health",
+          "Value": 3,
+          "Weight": 5,
+          "StatType": "INT"
+        }
+      ],
+      "ActionBonuses": [],
+      "Modifications": [],
+      "BonusDamage": 4,
+      "BonusAttackSpeed": 7,
+      "IsStarterItem": false
+    },
+    {
+      "Name": "Uncommon Venomous Steel Dagger of Vigor of the Hawk",
+      "Type": 3,
+      "Tier": 1,
+      "ComboBonus": 0,
+      "Rarity": "Uncommon",
+      "StatBonuses": [
+        {
+          "Name": "of Vigor",
+          "Description": "\u002B20 maximum health",
+          "Value": 20,
+          "Weight": 8,
+          "StatType": "Health"
+        },
+        {
+          "Name": "of the Hawk",
+          "Description": "\u002B3 Technique, \u002B2 damage",
+          "Value": 3,
+          "Weight": 5,
+          "StatType": "TEC"
+        }
+      ],
+      "ActionBonuses": [
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        }
+      ],
+      "Modifications": [
+        {
+          "DiceResult": 16,
+          "ItemRank": "Epic",
+          "Name": "Venomous",
+          "Description": "50% chance to cause bleeding",
+          "Effect": "bleedChance",
+          "MinValue": 0.5,
+          "MaxValue": 0.5
+        }
+      ],
+      "BonusDamage": 8,
+      "BonusAttackSpeed": 2,
+      "IsStarterItem": false
+    },
+    {
+      "Name": "Rare Ethereal Agile Rusty Sword of the Grandmaster of Endurance",
+      "Type": 3,
+      "Tier": 1,
+      "ComboBonus": 0,
+      "Rarity": "Rare",
+      "StatBonuses": [
+        {
+          "Name": "of the Grandmaster",
+          "Description": "\u002B8 Technique, \u002B10 damage",
+          "Value": 8,
+          "Weight": 1,
+          "StatType": "TEC"
+        },
+        {
+          "Name": "of Endurance",
+          "Description": "\u002B30 maximum health",
+          "Value": 30,
+          "Weight": 4,
+          "StatType": "Health"
+        },
+        {
+          "Name": "of the Gods",
+          "Description": "\u002B10 to all stats",
+          "Value": 10,
+          "Weight": 1,
+          "StatType": "ALL"
+        }
+      ],
+      "ActionBonuses": [
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        },
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        }
+      ],
+      "Modifications": [
+        {
+          "DiceResult": 18,
+          "ItemRank": "Legendary",
+          "Name": "Ethereal",
+          "Description": "40% faster attack speed",
+          "Effect": "speedMultiplier",
+          "MinValue": 1.4,
+          "MaxValue": 1.4
+        },
+        {
+          "DiceResult": 10,
+          "ItemRank": "Rare",
+          "Name": "Agile",
+          "Description": "20% faster attack speed",
+          "Effect": "speedMultiplier",
+          "MinValue": 1.2,
+          "MaxValue": 1.2
+        }
+      ],
+      "BonusDamage": 6,
+      "BonusAttackSpeed": 10,
+      "IsStarterItem": false
+    },
+    {
+      "Name": "Uncommon Divine Agile Rusty Sword of Vitality of the Owl",
+      "Type": 3,
+      "Tier": 1,
+      "ComboBonus": 0,
+      "Rarity": "Uncommon",
+      "StatBonuses": [
+        {
+          "Name": "of Vitality",
+          "Description": "\u002B10 maximum health",
+          "Value": 10,
+          "Weight": 15,
+          "StatType": "Health"
+        },
+        {
+          "Name": "of the Owl",
+          "Description": "\u002B3 Intelligence, \u002B5 health",
+          "Value": 3,
+          "Weight": 5,
+          "StatType": "INT"
+        }
+      ],
+      "ActionBonuses": [
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        }
+      ],
+      "Modifications": [
+        {
+          "DiceResult": 24,
+          "ItemRank": "Mythic",
+          "Name": "Divine",
+          "Description": "ADD \u002B3 TO MODS AND REROLL",
+          "Effect": "reroll",
+          "MinValue": 3,
+          "MaxValue": 3
+        },
+        {
+          "DiceResult": 10,
+          "ItemRank": "Rare",
+          "Name": "Agile",
+          "Description": "20% faster attack speed",
+          "Effect": "speedMultiplier",
+          "MinValue": 1.2,
+          "MaxValue": 1.2
+        }
+      ],
+      "BonusDamage": 7,
+      "BonusAttackSpeed": 10,
+      "IsStarterItem": false
+    },
+    {
+      "Name": "Uncommon Ethereal Cloth Hood of Alacrity of the Gods",
+      "Type": 0,
+      "Tier": 1,
+      "ComboBonus": 0,
+      "Rarity": "Uncommon",
+      "StatBonuses": [
+        {
+          "Name": "of Alacrity",
+          "Description": "\u002B0.2 attack speed",
+          "Value": 0.2,
+          "Weight": 8,
+          "StatType": "AttackSpeed"
+        },
+        {
+          "Name": "of the Gods",
+          "Description": "\u002B10 to all stats",
+          "Value": 10,
+          "Weight": 1,
+          "StatType": "ALL"
+        }
+      ],
+      "ActionBonuses": [
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        }
+      ],
+      "Modifications": [
+        {
+          "DiceResult": 18,
+          "ItemRank": "Legendary",
+          "Name": "Ethereal",
+          "Description": "40% faster attack speed",
+          "Effect": "speedMultiplier",
+          "MinValue": 1.4,
+          "MaxValue": 1.4
+        }
+      ],
+      "BonusDamage": 0,
+      "BonusAttackSpeed": 0,
+      "IsStarterItem": false
+    },
+    {
+      "Name": "Cloth Hood of Endurance",
+      "Type": 0,
+      "Tier": 1,
+      "ComboBonus": 0,
+      "Rarity": "Common",
+      "StatBonuses": [
+        {
+          "Name": "of Endurance",
+          "Description": "\u002B30 maximum health",
+          "Value": 30,
+          "Weight": 4,
+          "StatType": "Health"
+        }
+      ],
+      "ActionBonuses": [],
+      "Modifications": [],
+      "BonusDamage": 0,
+      "BonusAttackSpeed": 0,
+      "IsStarterItem": false
+    },
+    {
+      "Name": "Rare Precise Reinforced Padded Boots of Resilience of Precision",
+      "Type": 1,
+      "Tier": 1,
+      "ComboBonus": 0,
+      "Rarity": "Rare",
+      "StatBonuses": [
+        {
+          "Name": "of Resilience",
+          "Description": "\u002B3 health regeneration",
+          "Value": 3,
+          "Weight": 8,
+          "StatType": "HealthRegen"
+        },
+        {
+          "Name": "of Precision",
+          "Description": "\u002B2 to attack rolls",
+          "Value": 2,
+          "Weight": 12,
+          "StatType": "RollBonus"
+        },
+        {
+          "Name": "of Immortality",
+          "Description": "\u002B50 maximum health",
+          "Value": 50,
+          "Weight": 2,
+          "StatType": "Health"
+        }
+      ],
+      "ActionBonuses": [
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        },
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        }
+      ],
+      "Modifications": [
+        {
+          "DiceResult": 7,
+          "ItemRank": "Uncommon",
+          "Name": "Precise",
+          "Description": "\u002B2 to attack rolls",
+          "Effect": "rollBonus",
+          "MinValue": 2,
+          "MaxValue": 2
+        },
+        {
+          "DiceResult": 8,
+          "ItemRank": "Uncommon",
+          "Name": "Reinforced",
+          "Description": "\u002B5 to \u002B10 durability",
+          "Effect": "durability",
+          "MinValue": 5,
+          "MaxValue": 10
+        }
+      ],
+      "BonusDamage": 0,
+      "BonusAttackSpeed": 0,
+      "IsStarterItem": false
+    },
+    {
+      "Name": "Uncommon Keen Padded Cap of Alacrity of Agility",
+      "Type": 0,
+      "Tier": 1,
+      "ComboBonus": 0,
+      "Rarity": "Uncommon",
+      "StatBonuses": [
+        {
+          "Name": "of Alacrity",
+          "Description": "\u002B0.2 attack speed",
+          "Value": 0.2,
+          "Weight": 8,
+          "StatType": "AttackSpeed"
+        },
+        {
+          "Name": "of Agility",
+          "Description": "\u002B2 Agility stat",
+          "Value": 2,
+          "Weight": 15,
+          "StatType": "AGI"
+        }
+      ],
+      "ActionBonuses": [
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        }
+      ],
+      "Modifications": [
+        {
+          "DiceResult": 9,
+          "ItemRank": "Rare",
+          "Name": "Keen",
+          "Description": "\u002B6 to \u002B8 damage",
+          "Effect": "damage",
+          "MinValue": 6,
+          "MaxValue": 8
+        }
+      ],
+      "BonusDamage": 0,
+      "BonusAttackSpeed": 0,
+      "IsStarterItem": false
+    },
+    {
+      "Name": "Uncommon Divine Reinforced Iron Mace of the Gods of Intelligence",
+      "Type": 3,
+      "Tier": 1,
+      "ComboBonus": 0,
+      "Rarity": "Uncommon",
+      "StatBonuses": [
+        {
+          "Name": "of the Gods",
+          "Description": "\u002B10 to all stats",
+          "Value": 10,
+          "Weight": 1,
+          "StatType": "ALL"
+        },
+        {
+          "Name": "of Intelligence",
+          "Description": "\u002B2 Intelligence stat",
+          "Value": 2,
+          "Weight": 15,
+          "StatType": "INT"
+        }
+      ],
+      "ActionBonuses": [
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        }
+      ],
+      "Modifications": [
+        {
+          "DiceResult": 24,
+          "ItemRank": "Mythic",
+          "Name": "Divine",
+          "Description": "ADD \u002B3 TO MODS AND REROLL",
+          "Effect": "reroll",
+          "MinValue": 3,
+          "MaxValue": 3
+        },
+        {
+          "DiceResult": 8,
+          "ItemRank": "Uncommon",
+          "Name": "Reinforced",
+          "Description": "\u002B5 to \u002B10 durability",
+          "Effect": "durability",
+          "MinValue": 5,
+          "MaxValue": 10
+        }
+      ],
+      "BonusDamage": 9,
+      "BonusAttackSpeed": 9,
+      "IsStarterItem": false
+    }
+  ],
+  "Head": {
+    "Name": "Uncommon Ethereal Cloth Hood of Alacrity of the Gods",
+    "Type": 0,
+    "Tier": 1,
+    "ComboBonus": 0,
+    "Rarity": "Uncommon",
+    "StatBonuses": [
+      {
+        "Name": "of Alacrity",
+        "Description": "\u002B0.2 attack speed",
+        "Value": 0.2,
+        "Weight": 8,
+        "StatType": "AttackSpeed"
+      },
+      {
+        "Name": "of the Gods",
+        "Description": "\u002B10 to all stats",
+        "Value": 10,
+        "Weight": 1,
+        "StatType": "ALL"
+      }
+    ],
+    "ActionBonuses": [
+      {
+        "Name": "",
+        "Description": "",
+        "Weight": 1
+      }
+    ],
+    "Modifications": [
+      {
+        "DiceResult": 18,
+        "ItemRank": "Legendary",
+        "Name": "Ethereal",
+        "Description": "40% faster attack speed",
+        "Effect": "speedMultiplier",
+        "MinValue": 1.4,
+        "MaxValue": 1.4
+      }
+    ],
+    "BonusDamage": 0,
+    "BonusAttackSpeed": 0,
+    "IsStarterItem": false
+  },
+  "Body": {
+    "Name": "Starter Leather Armor",
+    "Type": 2,
+    "Tier": 1,
+    "ComboBonus": 0,
+    "Rarity": "Common",
+    "StatBonuses": [],
+    "ActionBonuses": [],
+    "Modifications": [],
+    "BonusDamage": 0,
+    "BonusAttackSpeed": 0,
+    "IsStarterItem": true
+  },
+  "Weapon": {
+    "Name": "Uncommon Annihilation Iron Dagger of Haste of Invulnerability",
+    "Type": 3,
+    "Tier": 1,
+    "ComboBonus": 0,
+    "Rarity": "Uncommon",
+    "StatBonuses": [
+      {
+        "Name": "of Haste",
+        "Description": "\u002B0.3 attack speed",
+        "Value": 0.3,
+        "Weight": 4,
+        "StatType": "AttackSpeed"
+      },
+      {
+        "Name": "of Invulnerability",
+        "Description": "\u002B12 armor value",
+        "Value": 12,
+        "Weight": 2,
+        "StatType": "Armor"
+      }
+    ],
+    "ActionBonuses": [
+      {
+        "Name": "",
+        "Description": "",
+        "Weight": 1
+      }
+    ],
+    "Modifications": [
+      {
+        "DiceResult": 21,
+        "ItemRank": "Mythic",
+        "Name": "Annihilation",
+        "Description": "Double damage on all attacks",
+        "Effect": "damageMultiplier",
+        "MinValue": 2,
+        "MaxValue": 2
+      }
+    ],
+    "BonusDamage": 9,
+    "BonusAttackSpeed": 5,
+    "IsStarterItem": false
+  },
+  "Feet": {
+    "Name": "Rare Swift Precise Cloth Shoes of the Grandmaster of Might",
+    "Type": 1,
+    "Tier": 1,
+    "ComboBonus": 0,
+    "Rarity": "Rare",
+    "StatBonuses": [
+      {
+        "Name": "of the Grandmaster",
+        "Description": "\u002B8 Technique, \u002B10 damage",
+        "Value": 8,
+        "Weight": 1,
+        "StatType": "TEC"
+      },
+      {
+        "Name": "of Might",
+        "Description": "\u002B6 base damage",
+        "Value": 6,
+        "Weight": 8,
+        "StatType": "Damage"
+      },
+      {
+        "Name": "of the Hawk",
+        "Description": "\u002B3 Technique, \u002B2 damage",
+        "Value": 3,
+        "Weight": 5,
+        "StatType": "TEC"
+      }
+    ],
+    "ActionBonuses": [
+      {
+        "Name": "",
+        "Description": "",
+        "Weight": 1
+      },
+      {
+        "Name": "",
+        "Description": "",
+        "Weight": 1
+      }
+    ],
+    "Modifications": [
+      {
+        "DiceResult": 6,
+        "ItemRank": "Uncommon",
+        "Name": "Swift",
+        "Description": "10% faster attack speed",
+        "Effect": "speedMultiplier",
+        "MinValue": 1.1,
+        "MaxValue": 1.1
+      },
+      {
+        "DiceResult": 7,
+        "ItemRank": "Uncommon",
+        "Name": "Precise",
+        "Description": "\u002B2 to attack rolls",
+        "Effect": "rollBonus",
+        "MinValue": 2,
+        "MaxValue": 2
+      }
+    ],
+    "BonusDamage": 0,
+    "BonusAttackSpeed": 0,
+    "IsStarterItem": false
+  }
+}

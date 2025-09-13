@@ -4,7 +4,8 @@ namespace RPGGame
     {
         Strength,
         Agility,
-        Technique
+        Technique,
+        Intelligence
     }
 
     public class Enemy : Character
@@ -14,41 +15,47 @@ namespace RPGGame
         public PrimaryAttribute PrimaryAttribute { get; private set; }
         public int Armor { get; private set; }
 
-        public Enemy(string? name = null, int level = 1, int maxHealth = 50, int strength = 8, int agility = 6, int technique = 4, int armor = 0, PrimaryAttribute primaryAttribute = PrimaryAttribute.Strength)
+        public Enemy(string? name = null, int level = 1, int maxHealth = 50, int strength = 8, int agility = 6, int technique = 4, int intelligence = 4, int armor = 0, PrimaryAttribute primaryAttribute = PrimaryAttribute.Strength)
             : base(name ?? FlavorText.GenerateEnemyName())
         {
             Level = level;
             PrimaryAttribute = primaryAttribute;
             
-            // Scale health and stats based on level
-            MaxHealth = maxHealth + (level * 3);  // +3 health per level (same as heroes)
+            var tuning = TuningConfig.Instance;
+            
+            // Scale health and stats based on level and tuning config
+            MaxHealth = maxHealth + (level * tuning.Character.EnemyHealthPerLevel);
             CurrentHealth = MaxHealth;
             
-            // Base scaling: +2 per level for all attributes
-            Strength = strength + (level * 2);
-            Agility = agility + (level * 2);
-            Technique = technique + (level * 2);
+            // Base scaling based on tuning config
+            Strength = strength + (level * tuning.Attributes.EnemyAttributesPerLevel);
+            Agility = agility + (level * tuning.Attributes.EnemyAttributesPerLevel);
+            Technique = technique + (level * tuning.Attributes.EnemyAttributesPerLevel);
+            Intelligence = intelligence + (level * tuning.Attributes.EnemyAttributesPerLevel);
             
-            // Scale armor based on level (+1 armor per level)
-            Armor = armor + level;
+            // Scale armor based on tuning config
+            Armor = armor + (level * tuning.Combat.EnemyArmorPerLevel);
             
-            // Primary attribute gets +1 extra per level
+            // Primary attribute gets extra bonus per level based on tuning config
             switch (PrimaryAttribute)
             {
                 case PrimaryAttribute.Strength:
-                    Strength += level;
+                    Strength += level * tuning.Attributes.EnemyPrimaryAttributeBonus;
                     break;
                 case PrimaryAttribute.Agility:
-                    Agility += level;
+                    Agility += level * tuning.Attributes.EnemyPrimaryAttributeBonus;
                     break;
                 case PrimaryAttribute.Technique:
-                    Technique += level;
+                    Technique += level * tuning.Attributes.EnemyPrimaryAttributeBonus;
+                    break;
+                case PrimaryAttribute.Intelligence:
+                    Intelligence += level * tuning.Attributes.EnemyPrimaryAttributeBonus;
                     break;
             }
 
-            // Scale rewards based on level
-            GoldReward = 5 + (level * 3);
-            XPReward = 10 + (level * 5);
+            // Scale rewards based on level and tuning config
+            GoldReward = tuning.Progression.EnemyGoldBase + (level * tuning.Progression.EnemyGoldPerLevel);
+            XPReward = tuning.Progression.EnemyXPBase + (level * tuning.Progression.EnemyXPPerLevel);
 
             ActionPool.Clear();
             AddDefaultActions();
@@ -104,12 +111,36 @@ namespace RPGGame
         public override string GetDescription()
         {
             string primaryAttr = PrimaryAttribute.ToString();
-            return $"Level {Level} Enemy (Health: {CurrentHealth}/{MaxHealth}) (STR: {Strength}, AGI: {Agility}, TEC: {Technique}) Primary: {primaryAttr} (Reward: {GoldReward} gold, {XPReward} XP)";
+            return $"Level {Level} Enemy (Health: {CurrentHealth}/{MaxHealth}) (STR: {Strength}, AGI: {Agility}, TEC: {Technique}, INT: {Intelligence}) Primary: {primaryAttr} (Reward: {GoldReward} gold, {XPReward} XP)";
         }
 
         public override string ToString()
         {
             return base.ToString();
+        }
+
+        /// <summary>
+        /// Attempts multiple actions based on attack speed
+        /// </summary>
+        public (string result, bool success) AttemptMultiAction(Character target, Environment? environment = null)
+        {
+            int attacksPerTurn = GetAttacksPerTurn();
+            var results = new List<string>();
+            bool anySuccess = false;
+            
+            for (int i = 0; i < attacksPerTurn; i++)
+            {
+                if (!target.IsAlive) break; // Stop if target is dead
+                
+                var (result, success) = AttemptAction(target, environment);
+                if (!string.IsNullOrEmpty(result))
+                {
+                    results.Add(result);
+                }
+                if (success) anySuccess = true;
+            }
+            
+            return (string.Join("\n", results), anySuccess);
         }
 
         // Add a method to Enemy to handle action selection with a roll threshold
@@ -137,7 +168,7 @@ namespace RPGGame
                 if (roll >= difficulty)
                 {
                     var settings = GameSettings.Instance;
-                    int finalEffect = Combat.CalculateDamage(this, target, action, 1.0, settings.EnemyDamageMultiplier);
+                    int finalEffect = Combat.CalculateDamage(this, target, action, 1.0, settings.EnemyDamageMultiplier, 0, roll);
                     
                     var evt = new BattleEvent
                     {
@@ -201,7 +232,7 @@ namespace RPGGame
                 if (roll >= difficulty)
                 {
                     var settings = GameSettings.Instance;
-                    int finalEffect = Combat.CalculateDamage(this, target, action, 1.0, settings.EnemyDamageMultiplier);
+                    int finalEffect = Combat.CalculateDamage(this, target, action, 1.0, settings.EnemyDamageMultiplier, 0, roll);
                     if (action.Type == ActionType.Attack)
                     {
                         target.TakeDamage(finalEffect);

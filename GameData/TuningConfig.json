@@ -1,0 +1,66 @@
+{
+  "Character": {
+    "PlayerBaseHealth": 100,
+    "HealthPerLevel": 3,
+    "EnemyHealthPerLevel": 3
+  },
+  "Attributes": {
+    "PlayerBaseAttributes": {
+      "Strength": 10,
+      "Agility": 10,
+      "Technique": 10,
+      "Intelligence": 10
+    },
+    "PlayerAttributesPerLevel": 1,
+    "EnemyAttributesPerLevel": 1,
+    "EnemyPrimaryAttributeBonus": 3,
+    "IntelligenceRollBonusPer": 10
+  },
+  "Combat": {
+    "CriticalHitThreshold": 20,
+    "CriticalHitMultiplier": 2.0,
+    "MinimumDamage": 1,
+    "AgilitySpeedBonus": 0.03,
+    "MinimumAttackSpeed": 0.2,
+    "EnemyArmorPerLevel": 1
+  },
+  "Equipment": {
+    "BonusDamageRange": { "Min": 1, "Max": 10 },
+    "BonusAttackSpeedRange": { "Min": 1, "Max": 10 }
+  },
+  "Progression": {
+    "BaseXPToLevel2": 100,
+    "XPScalingFactor": 1.5,
+    "EnemyXPBase": 10,
+    "EnemyXPPerLevel": 5,
+    "EnemyGoldBase": 5,
+    "EnemyGoldPerLevel": 3
+  },
+  "Loot": {
+    "LootChanceBase": 1.0,
+    "LootChancePerLevel": 0.05,
+    "MaximumLootChance": 0.8
+  },
+  "RollSystem": {
+    "MissThreshold": { "Min": 1, "Max": 5 },
+    "BasicAttackThreshold": { "Min": 6, "Max": 13 },
+    "ComboThreshold": { "Min": 14, "Max": 20 },
+    "CriticalThreshold": 20
+  },
+  "ComboSystem": {
+    "ComboAmplifierAtTech5": 1.05,
+    "ComboAmplifierMax": 2.0,
+    "ComboAmplifierMaxTech": 100
+  },
+  "EnemyScaling": {
+    "EnemyHealthMultiplier": 1.0,
+    "EnemyDamageMultiplier": 1.0,
+    "EnemyLevelVariance": 1
+  },
+  "UI": {
+    "EnableTextDelays": true,
+    "BaseDelayPerAction": 400,
+    "MinimumDelay": 50,
+    "CombatSpeedMultiplier": 1.0
+  }
+}

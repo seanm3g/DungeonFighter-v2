@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace RPGGame
 {
     public enum ActionType
@@ -62,6 +64,7 @@ namespace RPGGame
         public int ExtraDamageDecay { get; set; } = 0;
         public double DamageReduction { get; set; } = 0.0;
         public int DamageReductionDecay { get; set; } = 0;
+        public List<string> Tags { get; set; } = new List<string>();
         public double SelfAttackChance { get; set; } = 0.0;
         public bool ResetEnemyCombo { get; set; } = false;
         public bool StunEnemy { get; set; } = false;

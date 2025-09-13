@@ -24,7 +24,7 @@ namespace RPGGame
             ActionPool.Add((action, probability));
         }
 
-        public void RemoveAction(Action action)
+        public virtual void RemoveAction(Action action)
         {
             ActionPool.RemoveAll(a => a.action.Name == action.Name && a.action.ComboOrder == action.ComboOrder);
         }

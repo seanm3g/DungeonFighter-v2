@@ -34,6 +34,32 @@ namespace RPGGame
         public int ComboBonusAmount { get; set; }
         [JsonPropertyName("comboBonusDuration")]
         public int ComboBonusDuration { get; set; }
+        [JsonPropertyName("comboOrder")]
+        public int ComboOrder { get; set; }
+        [JsonPropertyName("isComboAction")]
+        public bool IsComboAction { get; set; }
+        [JsonPropertyName("rollBonus")]
+        public int RollBonus { get; set; }
+        [JsonPropertyName("statBonus")]
+        public int StatBonus { get; set; }
+        [JsonPropertyName("statBonusType")]
+        public string StatBonusType { get; set; } = "";
+        [JsonPropertyName("statBonusDuration")]
+        public int StatBonusDuration { get; set; }
+        [JsonPropertyName("multiHitCount")]
+        public int MultiHitCount { get; set; }
+        [JsonPropertyName("multiHitDamagePercent")]
+        public double MultiHitDamagePercent { get; set; }
+        [JsonPropertyName("selfDamagePercent")]
+        public int SelfDamagePercent { get; set; }
+        [JsonPropertyName("skipNextTurn")]
+        public bool SkipNextTurn { get; set; }
+        [JsonPropertyName("repeatLastAction")]
+        public bool RepeatLastAction { get; set; }
+        [JsonPropertyName("tags")]
+        public List<string> Tags { get; set; } = new List<string>();
+        [JsonPropertyName("enemyRollPenalty")]
+        public int EnemyRollPenalty { get; set; }
     }
 
     public static class ActionLoader
@@ -138,23 +164,108 @@ namespace RPGGame
             var actionType = ParseActionType(data.Type);
             var targetType = ParseTargetType(data.TargetType);
 
-            return new Action(
+            // Enhance description with modifiers
+            string enhancedDescription = EnhanceActionDescription(data);
+
+            var action = new Action(
                 name: data.Name,
                 type: actionType,
                 targetType: targetType,
                 baseValue: data.BaseValue,
                 range: data.Range,
                 cooldown: data.Cooldown,
-                description: data.Description,
-                comboOrder: -1,
+                description: enhancedDescription,
+                comboOrder: data.ComboOrder,
                 damageMultiplier: data.DamageMultiplier,
                 length: data.Length,
                 causesBleed: data.CausesBleed,
                 causesWeaken: data.CausesWeaken,
-                isComboAction: false,
+                isComboAction: data.IsComboAction,
                 comboBonusAmount: data.ComboBonusAmount,
                 comboBonusDuration: data.ComboBonusDuration
             );
+            
+            // Set additional properties
+            action.RollBonus = data.RollBonus;
+            action.StatBonus = data.StatBonus;
+            action.StatBonusType = data.StatBonusType;
+            action.StatBonusDuration = data.StatBonusDuration;
+            action.MultiHitCount = data.MultiHitCount;
+            action.MultiHitDamagePercent = data.MultiHitDamagePercent;
+            action.SelfDamagePercent = data.SelfDamagePercent;
+            action.SkipNextTurn = data.SkipNextTurn;
+            action.RepeatLastAction = data.RepeatLastAction;
+            action.Tags = data.Tags ?? new List<string>();
+            action.EnemyRollPenalty = data.EnemyRollPenalty;
+            
+            return action;
+        }
+
+        private static string EnhanceActionDescription(ActionData data)
+        {
+            var modifiers = new List<string>();
+            
+            // Add roll bonus information
+            if (data.RollBonus != 0)
+            {
+                string rollText = data.RollBonus > 0 ? $"+{data.RollBonus}" : data.RollBonus.ToString();
+                modifiers.Add($"Roll: {rollText}");
+            }
+            
+            // Add damage multiplier information
+            if (data.DamageMultiplier != 1.0)
+            {
+                modifiers.Add($"Damage: {data.DamageMultiplier:F1}x");
+            }
+            
+            // Add combo bonus information
+            if (data.ComboBonusAmount > 0 && data.ComboBonusDuration > 0)
+            {
+                modifiers.Add($"Combo: +{data.ComboBonusAmount} for {data.ComboBonusDuration} turns");
+            }
+            
+            // Add status effect information
+            if (data.CausesBleed)
+            {
+                modifiers.Add("Causes Bleed");
+            }
+            
+            if (data.CausesWeaken)
+            {
+                modifiers.Add("Causes Weaken");
+            }
+            
+            // Add multi-hit information
+            if (data.MultiHitCount > 1)
+            {
+                modifiers.Add($"Multi-hit: {data.MultiHitCount} attacks");
+            }
+            
+            // Add self-damage information
+            if (data.SelfDamagePercent > 0)
+            {
+                modifiers.Add($"Self-damage: {data.SelfDamagePercent}%");
+            }
+            
+            // Add special effects
+            if (data.SkipNextTurn)
+            {
+                modifiers.Add("Skips next turn");
+            }
+            
+            if (data.RepeatLastAction)
+            {
+                modifiers.Add("Repeats last action");
+            }
+            
+            // Combine base description with modifiers
+            string result = data.Description;
+            if (modifiers.Count > 0)
+            {
+                result += $" | {string.Join(", ", modifiers)}";
+            }
+            
+            return result;
         }
 
         private static ActionType ParseActionType(string type)
