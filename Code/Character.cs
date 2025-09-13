@@ -156,10 +156,27 @@ namespace RPGGame
         {
             try
             {
-                string jsonPath = Path.Combine("..", "GameData", "Actions.json");
-                if (File.Exists(jsonPath))
+                string[] possiblePaths = {
+                    Path.Combine("GameData", "Actions.json"),
+                    Path.Combine("..", "GameData", "Actions.json"),
+                    Path.Combine("..", "..", "GameData", "Actions.json"),
+                    Path.Combine("DF4 - CONSOLE", "GameData", "Actions.json"),
+                    Path.Combine("..", "DF4 - CONSOLE", "GameData", "Actions.json")
+                };
+
+                string? foundPath = null;
+                foreach (string path in possiblePaths)
                 {
-                    string jsonContent = File.ReadAllText(jsonPath);
+                    if (File.Exists(path))
+                    {
+                        foundPath = path;
+                        break;
+                    }
+                }
+
+                if (foundPath != null)
+                {
+                    string jsonContent = File.ReadAllText(foundPath);
                     var allActions = System.Text.Json.JsonSerializer.Deserialize<List<ActionData>>(jsonContent);
                     
                     if (allActions != null)
@@ -197,10 +214,27 @@ namespace RPGGame
         {
             try
             {
-                string jsonPath = Path.Combine("..", "GameData", "Actions.json");
-                if (File.Exists(jsonPath))
+                string[] possiblePaths = {
+                    Path.Combine("GameData", "Actions.json"),
+                    Path.Combine("..", "GameData", "Actions.json"),
+                    Path.Combine("..", "..", "GameData", "Actions.json"),
+                    Path.Combine("DF4 - CONSOLE", "GameData", "Actions.json"),
+                    Path.Combine("..", "DF4 - CONSOLE", "GameData", "Actions.json")
+                };
+
+                string? foundPath = null;
+                foreach (string path in possiblePaths)
                 {
-                    string jsonContent = File.ReadAllText(jsonPath);
+                    if (File.Exists(path))
+                    {
+                        foundPath = path;
+                        break;
+                    }
+                }
+
+                if (foundPath != null)
+                {
+                    string jsonContent = File.ReadAllText(foundPath);
                     var actions = System.Text.Json.JsonSerializer.Deserialize<List<ActionData>>(jsonContent);
                     
                     if (actions != null)
@@ -220,7 +254,7 @@ namespace RPGGame
                 }
                 else
                 {
-                    Console.WriteLine($"Actions.json file not found at {jsonPath}");
+                    Console.WriteLine($"Actions.json file not found. Tried paths: {string.Join(", ", possiblePaths)}");
                 }
             }
             catch (Exception ex)
@@ -1193,11 +1227,27 @@ namespace RPGGame
         {
             try
             {
-                string jsonPath = Path.Combine("..", "GameData", "Actions.json");
-                
-                if (File.Exists(jsonPath))
+                string[] possiblePaths = {
+                    Path.Combine("GameData", "Actions.json"),
+                    Path.Combine("..", "GameData", "Actions.json"),
+                    Path.Combine("..", "..", "GameData", "Actions.json"),
+                    Path.Combine("DF4 - CONSOLE", "GameData", "Actions.json"),
+                    Path.Combine("..", "DF4 - CONSOLE", "GameData", "Actions.json")
+                };
+
+                string? foundPath = null;
+                foreach (string path in possiblePaths)
                 {
-                    string jsonContent = File.ReadAllText(jsonPath);
+                    if (File.Exists(path))
+                    {
+                        foundPath = path;
+                        break;
+                    }
+                }
+                
+                if (foundPath != null)
+                {
+                    string jsonContent = File.ReadAllText(foundPath);
                     var allActions = System.Text.Json.JsonSerializer.Deserialize<List<ActionData>>(jsonContent);
                     
                     if (allActions != null)
@@ -1217,6 +1267,10 @@ namespace RPGGame
                             }
                         }
                     }
+                }
+                else
+                {
+                    Console.WriteLine($"Actions.json not found when loading gear action {actionName}. Tried paths: {string.Join(", ", possiblePaths)}");
                 }
             }
             catch (Exception ex)

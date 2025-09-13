@@ -120,15 +120,28 @@ namespace RPGGame
             int intelligence = data.Intelligence;
 
             var enemy = new Enemy(data.Name, level, health, strength, agility, technique, intelligence);
+            
+            // Clear default actions and add actions from the data
             enemy.ActionPool.Clear();
-
-            // Add actions from the data
             foreach (var actionName in data.Actions)
             {
                 var action = ActionLoader.GetAction(actionName);
                 if (action != null)
                 {
                     enemy.AddAction(action, 1.0); // Default weight of 1.0
+                }
+                else
+                {
+                    // If JSON action fails to load, add a fallback basic attack
+                    var fallbackAction = new Action(
+                        actionName,
+                        ActionType.Attack,
+                        TargetType.SingleTarget,
+                        baseValue: 8,
+                        range: 1,
+                        description: $"A {actionName.ToLower()}"
+                    );
+                    enemy.AddAction(fallbackAction, 1.0);
                 }
             }
 

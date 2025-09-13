@@ -139,7 +139,6 @@ namespace RPGGame
                 }
                 if (success) anySuccess = true;
             }
-            
             return (string.Join("\n", results), anySuccess);
         }
 
@@ -216,14 +215,9 @@ namespace RPGGame
 
                     Combat.AddBattleEvent(evt);
                     
-                    // Check narrative balance setting - if 0, show action messages
-                    var narrativeSettings = GameSettings.Instance;
-                    if (narrativeSettings.NarrativeBalance <= 0.0)
-                    {
-                        string actionResult = $"[{Name}] attempts [{action.Name}] but fails. (Rolled {roll}, need {difficulty}) No action performed.";
-                        return (actionResult, false);
-                    }
-                    return ("", false); // Return empty string in narrative mode, success = false
+                    // Always show failed attacks, regardless of narrative mode
+                    string actionResult = $"[{Name}] attempts [{action.Name}] but fails. (Rolled {roll}, need {difficulty}) No action performed.";
+                    return (actionResult, false);
                 }
             }
             else

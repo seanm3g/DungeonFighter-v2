@@ -269,12 +269,41 @@ namespace RPGGame
             return string.Join(" ", nameComponents);
         }
 
+        private static string? FindGameDataFile(string fileName)
+        {
+            string[] possiblePaths = {
+                Path.Combine("GameData", fileName),
+                Path.Combine("..", "GameData", fileName),
+                Path.Combine("..", "..", "GameData", fileName),
+                Path.Combine("DF4 - CONSOLE", "GameData", fileName),
+                Path.Combine("..", "DF4 - CONSOLE", "GameData", fileName)
+            };
+
+            foreach (string path in possiblePaths)
+            {
+                if (File.Exists(path))
+                {
+                    return path;
+                }
+            }
+            return null;
+        }
+
         private static void LoadTierDistributions()
         {
             try
             {
-                string json = File.ReadAllText("../GameData/TierDistribution.json");
-                _tierDistributions = JsonSerializer.Deserialize<List<TierDistribution>>(json);
+                string? filePath = FindGameDataFile("TierDistribution.json");
+                if (filePath != null)
+                {
+                    string json = File.ReadAllText(filePath);
+                    _tierDistributions = JsonSerializer.Deserialize<List<TierDistribution>>(json);
+                }
+                else
+                {
+                    Console.WriteLine("Error loading tier distributions: TierDistribution.json not found");
+                    _tierDistributions = new List<TierDistribution>();
+                }
             }
             catch (Exception ex)
             {
@@ -287,8 +316,17 @@ namespace RPGGame
         {
             try
             {
-                string json = File.ReadAllText("../GameData/Armor.json");
-                _armorData = JsonSerializer.Deserialize<List<ArmorData>>(json);
+                string? filePath = FindGameDataFile("Armor.json");
+                if (filePath != null)
+                {
+                    string json = File.ReadAllText(filePath);
+                    _armorData = JsonSerializer.Deserialize<List<ArmorData>>(json);
+                }
+                else
+                {
+                    Console.WriteLine("Error loading armor data: Armor.json not found");
+                    _armorData = new List<ArmorData>();
+                }
             }
             catch (Exception ex)
             {
@@ -301,8 +339,17 @@ namespace RPGGame
         {
             try
             {
-                string json = File.ReadAllText("../GameData/Weapons.json");
-                _weaponData = JsonSerializer.Deserialize<List<WeaponData>>(json);
+                string? filePath = FindGameDataFile("Weapons.json");
+                if (filePath != null)
+                {
+                    string json = File.ReadAllText(filePath);
+                    _weaponData = JsonSerializer.Deserialize<List<WeaponData>>(json);
+                }
+                else
+                {
+                    Console.WriteLine("Error loading weapon data: Weapons.json not found");
+                    _weaponData = new List<WeaponData>();
+                }
             }
             catch (Exception ex)
             {
@@ -315,8 +362,17 @@ namespace RPGGame
         {
             try
             {
-                string json = File.ReadAllText("../GameData/StatBonuses.json");
-                _statBonuses = JsonSerializer.Deserialize<List<StatBonus>>(json);
+                string? filePath = FindGameDataFile("StatBonuses.json");
+                if (filePath != null)
+                {
+                    string json = File.ReadAllText(filePath);
+                    _statBonuses = JsonSerializer.Deserialize<List<StatBonus>>(json);
+                }
+                else
+                {
+                    Console.WriteLine("Error loading stat bonuses: StatBonuses.json not found");
+                    _statBonuses = new List<StatBonus>();
+                }
             }
             catch (Exception ex)
             {
@@ -329,9 +385,18 @@ namespace RPGGame
         {
             try
             {
-                string json = File.ReadAllText("../GameData/Actions.json");
-                var actions = JsonSerializer.Deserialize<List<Action>>(json);
-                _actionBonuses = actions?.Select(a => new ActionBonus { Name = a.Name, Description = a.Description, Weight = 1 }).ToList() ?? new List<ActionBonus>();
+                string? filePath = FindGameDataFile("Actions.json");
+                if (filePath != null)
+                {
+                    string json = File.ReadAllText(filePath);
+                    var actions = JsonSerializer.Deserialize<List<Action>>(json);
+                    _actionBonuses = actions?.Select(a => new ActionBonus { Name = a.Name, Description = a.Description, Weight = 1 }).ToList() ?? new List<ActionBonus>();
+                }
+                else
+                {
+                    Console.WriteLine("Error loading action bonuses: Actions.json not found");
+                    _actionBonuses = new List<ActionBonus>();
+                }
             }
             catch (Exception ex)
             {
@@ -344,8 +409,17 @@ namespace RPGGame
         {
             try
             {
-                string json = File.ReadAllText("../GameData/Modifications.json");
-                _modifications = JsonSerializer.Deserialize<List<Modification>>(json);
+                string? filePath = FindGameDataFile("Modifications.json");
+                if (filePath != null)
+                {
+                    string json = File.ReadAllText(filePath);
+                    _modifications = JsonSerializer.Deserialize<List<Modification>>(json);
+                }
+                else
+                {
+                    Console.WriteLine("Error loading modifications: Modifications.json not found");
+                    _modifications = new List<Modification>();
+                }
             }
             catch (Exception ex)
             {
@@ -358,8 +432,17 @@ namespace RPGGame
         {
             try
             {
-                string json = File.ReadAllText("../GameData/RarityTable.json");
-                _rarityData = JsonSerializer.Deserialize<List<RarityData>>(json);
+                string? filePath = FindGameDataFile("RarityTable.json");
+                if (filePath != null)
+                {
+                    string json = File.ReadAllText(filePath);
+                    _rarityData = JsonSerializer.Deserialize<List<RarityData>>(json);
+                }
+                else
+                {
+                    Console.WriteLine("Error loading rarity data: RarityTable.json not found");
+                    _rarityData = new List<RarityData>();
+                }
             }
             catch (Exception ex)
             {

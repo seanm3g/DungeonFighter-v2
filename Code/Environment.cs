@@ -301,12 +301,34 @@ namespace RPGGame
         {
             try
             {
-                string jsonPath = Path.Combine("..", "GameData", "Enemies.json");
-                if (File.Exists(jsonPath))
+                string[] possiblePaths = {
+                    Path.Combine("GameData", "Enemies.json"),
+                    Path.Combine("..", "GameData", "Enemies.json"),
+                    Path.Combine("..", "..", "GameData", "Enemies.json"),
+                    Path.Combine("DF4 - CONSOLE", "GameData", "Enemies.json"),
+                    Path.Combine("..", "DF4 - CONSOLE", "GameData", "Enemies.json")
+                };
+
+                string? foundPath = null;
+                foreach (string path in possiblePaths)
                 {
-                    string jsonContent = File.ReadAllText(jsonPath);
+                    if (File.Exists(path))
+                    {
+                        foundPath = path;
+                        break;
+                    }
+                }
+
+                if (foundPath != null)
+                {
+                    string jsonContent = File.ReadAllText(foundPath);
                     var enemies = System.Text.Json.JsonSerializer.Deserialize<List<EnemyData>>(jsonContent);
+                    Console.WriteLine($"Loaded enemy data from {foundPath}");
                     return enemies;
+                }
+                else
+                {
+                    Console.WriteLine($"Warning: Enemies.json not found. Tried paths: {string.Join(", ", possiblePaths)}");
                 }
             }
             catch (Exception ex)
@@ -324,25 +346,29 @@ namespace RPGGame
                 int enemyLevel = Math.Max(1, roomLevel + random.Next(-tuning.EnemyScaling.EnemyLevelVariance, tuning.EnemyScaling.EnemyLevelVariance + 1));
                 var enemyTemplate = enemyData[random.Next(enemyData.Count)];
                 
-                // Apply difficulty multipliers from tuning config
-                int adjustedHealth = (int)((80 + (enemyLevel * tuning.Character.EnemyHealthPerLevel)) * tuning.EnemyScaling.EnemyHealthMultiplier);
-                int adjustedStrength = (int)(enemyTemplate.Strength * tuning.EnemyScaling.EnemyDamageMultiplier);
-                int adjustedAgility = (int)(enemyTemplate.Agility * tuning.EnemyScaling.EnemyDamageMultiplier);
-                int adjustedTechnique = (int)(enemyTemplate.Technique * tuning.EnemyScaling.EnemyDamageMultiplier);
-                int adjustedArmor = (int)(enemyTemplate.Armor * tuning.EnemyScaling.EnemyHealthMultiplier);
-                
-                var enemy = new Enemy(
-                    enemyTemplate.Name, 
-                    enemyLevel,
-                    adjustedHealth,
-                    adjustedStrength,
-                    adjustedAgility,
-                    adjustedTechnique,
-                    4, // Default Intelligence
-                    adjustedArmor,
-                    PrimaryAttribute.Strength // Default primary attribute
-                );
-                enemies.Add(enemy);
+                // Use EnemyLoader to create the enemy with proper actions loaded
+                var enemy = EnemyLoader.CreateEnemy(enemyTemplate.Name, enemyLevel);
+                if (enemy != null)
+                {
+                    enemies.Add(enemy);
+                }
+                else
+                {
+                    // Fallback: Create basic enemy if EnemyLoader fails
+                    Console.WriteLine($"Warning: Could not create enemy {enemyTemplate.Name} from EnemyLoader, creating basic enemy");
+                    var basicEnemy = new Enemy(
+                        enemyTemplate.Name, 
+                        enemyLevel,
+                        80 + (enemyLevel * tuning.Character.EnemyHealthPerLevel),
+                        enemyTemplate.Strength,
+                        enemyTemplate.Agility,
+                        enemyTemplate.Technique,
+                        enemyTemplate.Intelligence,
+                        enemyTemplate.Armor,
+                        PrimaryAttribute.Strength
+                    );
+                    enemies.Add(basicEnemy);
+                }
             }
         }
     }
