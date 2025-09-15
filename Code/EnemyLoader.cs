@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -54,14 +55,12 @@ namespace RPGGame
                 if (foundPath != null)
                 {
                     string jsonContent = File.ReadAllText(foundPath);
-                    Console.WriteLine($"Reading JSON from {foundPath}, content length: {jsonContent.Length}");
                     
                     var enemyList = JsonSerializer.Deserialize<List<EnemyData>>(jsonContent);
                     
                     _enemies = new Dictionary<string, EnemyData>();
                     if (enemyList != null)
                     {
-                        Console.WriteLine($"Deserialized {enemyList.Count} enemy types from JSON");
                         foreach (var enemy in enemyList)
                         {
                             if (!string.IsNullOrEmpty(enemy.Name))
@@ -78,7 +77,6 @@ namespace RPGGame
                     {
                         Console.WriteLine("Warning: JSON deserialization returned null");
                     }
-                    Console.WriteLine($"Successfully loaded {_enemies.Count} enemy types from {foundPath}");
                 }
                 else
                 {
@@ -101,9 +99,22 @@ namespace RPGGame
                 LoadEnemies();
             }
 
-            if (_enemies != null && _enemies.TryGetValue(enemyType.ToLower(), out var enemyData))
+            if (_enemies != null)
             {
-                return CreateEnemyFromData(enemyData, level);
+                // Try exact match first
+                if (_enemies.TryGetValue(enemyType, out var enemyData))
+                {
+                    return CreateEnemyFromData(enemyData, level);
+                }
+                
+                // Try case-insensitive match
+                var caseInsensitiveMatch = _enemies.FirstOrDefault(kvp => 
+                    string.Equals(kvp.Key, enemyType, StringComparison.OrdinalIgnoreCase));
+                
+                if (caseInsensitiveMatch.Key != null)
+                {
+                    return CreateEnemyFromData(caseInsensitiveMatch.Value, level);
+                }
             }
 
             return null;
@@ -155,7 +166,17 @@ namespace RPGGame
                 LoadEnemies();
             }
 
-            return _enemies?.ContainsKey(enemyType.ToLower()) ?? false;
+            if (_enemies == null) return false;
+            
+            // Try exact match first
+            if (_enemies.ContainsKey(enemyType))
+            {
+                return true;
+            }
+            
+            // Try case-insensitive match
+            return _enemies.Keys.Any(key => 
+                string.Equals(key, enemyType, StringComparison.OrdinalIgnoreCase));
         }
 
         public static List<string> GetAllEnemyTypes()
@@ -175,9 +196,22 @@ namespace RPGGame
                 LoadEnemies();
             }
 
-            if (_enemies != null && _enemies.TryGetValue(enemyType.ToLower(), out var enemyData))
+            if (_enemies != null)
             {
-                return enemyData;
+                // Try exact match first
+                if (_enemies.TryGetValue(enemyType, out var enemyData))
+                {
+                    return enemyData;
+                }
+                
+                // Try case-insensitive match
+                var caseInsensitiveMatch = _enemies.FirstOrDefault(kvp => 
+                    string.Equals(kvp.Key, enemyType, StringComparison.OrdinalIgnoreCase));
+                
+                if (caseInsensitiveMatch.Key != null)
+                {
+                    return caseInsensitiveMatch.Value;
+                }
             }
 
             return null;

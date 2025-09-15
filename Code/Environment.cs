@@ -55,8 +55,9 @@ namespace RPGGame
                     {
                         // Filter actions by environment tag and theme
                         var environmentalActions = allActions.Where(action => 
-                            action.TargetType != null && 
-                            action.TargetType.Contains("environment")
+                            action.Tags != null && 
+                            action.Tags.Contains("environment") &&
+                            (action.Tags.Contains(Theme.ToLower()) || action.Tags.Contains("generic"))
                         ).ToList();
                         
                         if (environmentalActions.Any())
@@ -93,15 +94,52 @@ namespace RPGGame
 
         private void AddDefaultEnvironmentalAction()
         {
-            var defaultAction = new Action(
-                name: "Environmental Hazard",
-                description: "The environment itself poses a threat!",
-                type: ActionType.Attack,
-                targetType: TargetType.AreaOfEffect,
-                baseValue: 5,
-                cooldown: 2
-            );
-            AddAction(defaultAction, 1.0);
+            // Create theme-specific environmental actions instead of generic fallback
+            var themeActions = GetThemeSpecificActions();
+            foreach (var action in themeActions)
+            {
+                AddAction(action, 0.7); // 70% probability for environmental actions
+            }
+        }
+
+        private List<Action> GetThemeSpecificActions()
+        {
+            var actions = new List<Action>();
+            
+            switch (Theme.ToLower())
+            {
+                case "forest":
+                    actions.Add(new Action("Falling Branch", ActionType.Attack, TargetType.AreaOfEffect, 8, 0, 0, "A heavy branch falls from above", -1, 1.5, 3.0, false, false, false, 0, 0));
+                    actions.Add(new Action("Thorn Vines", ActionType.Attack, TargetType.AreaOfEffect, 5, 0, 0, "Thorny vines entangle and scratch", -1, 1.0, 2.0, false, false, false, 0, 0));
+                    break;
+                    
+                case "lava":
+                    actions.Add(new Action("Lava Splash", ActionType.Attack, TargetType.AreaOfEffect, 10, 0, 0, "Molten lava splashes from the ground", -1, 2.0, 4.0, false, false, false, 0, 0));
+                    actions.Add(new Action("Steam Burst", ActionType.Attack, TargetType.AreaOfEffect, 6, 0, 0, "Scalding steam erupts from cracks", -1, 1.2, 2.0, false, false, false, 0, 0));
+                    break;
+                    
+                case "crypt":
+                    actions.Add(new Action("Curse of the Crypt", ActionType.Debuff, TargetType.AreaOfEffect, 0, 0, 0, "Ancient curse weakens all who enter", -1, 0.0, 5.0, false, false, false, 0, 0));
+                    actions.Add(new Action("Ghostly Whisper", ActionType.Attack, TargetType.AreaOfEffect, 9, 0, 0, "Ethereal voices drain your life force", -1, 1.8, 3.0, false, false, false, 0, 0));
+                    break;
+                    
+                case "crystal":
+                    actions.Add(new Action("Crystal Shards", ActionType.Attack, TargetType.AreaOfEffect, 9, 0, 0, "Sharp crystal shards explode from the walls", -1, 1.8, 2.5, false, false, false, 0, 0));
+                    actions.Add(new Action("Prism Refraction", ActionType.Attack, TargetType.AreaOfEffect, 7, 0, 0, "Light refracts through crystals, creating a blinding attack", -1, 1.5, 2.0, false, false, false, 0, 0));
+                    break;
+                    
+                case "temple":
+                    actions.Add(new Action("Divine Wrath", ActionType.Attack, TargetType.AreaOfEffect, 10, 0, 0, "The temple's divine power strikes down the unworthy", -1, 2.0, 3.5, false, false, false, 0, 0));
+                    actions.Add(new Action("Sacred Flames", ActionType.Attack, TargetType.AreaOfEffect, 8, 0, 0, "Holy flames erupt from the temple's sacred braziers", -1, 1.6, 2.5, false, false, false, 0, 0));
+                    break;
+                    
+                default: // Generic theme
+                    actions.Add(new Action("Dungeon Collapse", ActionType.Attack, TargetType.AreaOfEffect, 5, 0, 0, "The unstable dungeon structure causes debris to fall", -1, 1.0, 2.0, false, false, false, 0, 0));
+                    actions.Add(new Action("Poisonous Gas", ActionType.Attack, TargetType.AreaOfEffect, 4, 0, 0, "Toxic fumes fill the air, causing damage over time", -1, 0.8, 1.5, false, false, false, 0, 0));
+                    break;
+            }
+            
+            return actions;
         }
 
         private Action CreateActionFromData(ActionData data)
@@ -323,7 +361,6 @@ namespace RPGGame
                 {
                     string jsonContent = File.ReadAllText(foundPath);
                     var enemies = System.Text.Json.JsonSerializer.Deserialize<List<EnemyData>>(jsonContent);
-                    Console.WriteLine($"Loaded enemy data from {foundPath}");
                     return enemies;
                 }
                 else
@@ -341,10 +378,15 @@ namespace RPGGame
         private void GenerateEnemiesFromJson(int roomLevel, int enemyCount, List<EnemyData> enemyData)
         {
             var tuning = TuningConfig.Instance;
+            
+            // Filter enemies by theme if possible
+            var themeEnemies = GetThemeAppropriateEnemies(enemyData);
+            var availableEnemies = themeEnemies.Count > 0 ? themeEnemies : enemyData;
+            
             for (int i = 0; i < enemyCount; i++)
             {
                 int enemyLevel = Math.Max(1, roomLevel + random.Next(-tuning.EnemyScaling.EnemyLevelVariance, tuning.EnemyScaling.EnemyLevelVariance + 1));
-                var enemyTemplate = enemyData[random.Next(enemyData.Count)];
+                var enemyTemplate = availableEnemies[random.Next(availableEnemies.Count)];
                 
                 // Use EnemyLoader to create the enemy with proper actions loaded
                 var enemy = EnemyLoader.CreateEnemy(enemyTemplate.Name, enemyLevel);
@@ -370,6 +412,28 @@ namespace RPGGame
                     enemies.Add(basicEnemy);
                 }
             }
+        }
+
+        private List<EnemyData> GetThemeAppropriateEnemies(List<EnemyData> allEnemies)
+        {
+            // Map themes to appropriate enemies based on the dungeon enemy lists
+            var themeEnemyMap = new Dictionary<string, string[]>
+            {
+                ["Forest"] = new[] { "Goblin", "Spider", "Wolf", "Bear", "Treant" },
+                ["Lava"] = new[] { "Wraith", "Slime", "Bat", "Fire Elemental", "Lava Golem", "Salamander" },
+                ["Crypt"] = new[] { "Skeleton", "Zombie", "Wraith", "Lich", "Ghoul", "Wight" },
+                ["Crystal"] = new[] { "Crystal Golem", "Prism Spider", "Shard Beast", "Crystal Sprite", "Geode Beast", "Crystal Wyrm" },
+                ["Temple"] = new[] { "Stone Guardian", "Temple Warden", "Ancient Sentinel", "Temple Guard", "Priest", "Paladin" },
+                ["Generic"] = new[] { "Bandit", "Orc", "Troll", "Kobold", "Goblin" }
+            };
+
+            if (themeEnemyMap.TryGetValue(Theme, out var themeEnemyNames))
+            {
+                return allEnemies.Where(e => themeEnemyNames.Contains(e.Name)).ToList();
+            }
+
+            // If theme not found, return all enemies
+            return allEnemies;
         }
     }
 

@@ -90,14 +90,12 @@ namespace RPGGame
                 if (foundPath != null)
                 {
                     string jsonContent = File.ReadAllText(foundPath);
-                    Console.WriteLine($"Reading JSON from {foundPath}, content length: {jsonContent.Length}");
                     
                     var actionList = JsonSerializer.Deserialize<List<ActionData>>(jsonContent);
                     
                     _actions = new Dictionary<string, ActionData>();
                     if (actionList != null)
                     {
-                        Console.WriteLine($"Deserialized {actionList.Count} actions from JSON");
                         foreach (var action in actionList)
                         {
                             if (!string.IsNullOrEmpty(action.Name))
@@ -114,7 +112,6 @@ namespace RPGGame
                     {
                         Console.WriteLine("Warning: JSON deserialization returned null");
                     }
-                    Console.WriteLine($"Successfully loaded {_actions.Count} actions from {foundPath}");
                 }
                 else
                 {

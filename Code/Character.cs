@@ -393,18 +393,33 @@ namespace RPGGame
             {
                 case "head": 
                     previousItem = Head;
+                    // Remove old armor actions before equipping new armor
+                    if (previousItem != null)
+                    {
+                        RemoveArmorActions(previousItem);
+                    }
                     Head = item;
                     // Add armor actions if applicable
                     AddArmorActions(item);
                     break;
                 case "body": 
                     previousItem = Body;
+                    // Remove old armor actions before equipping new armor
+                    if (previousItem != null)
+                    {
+                        RemoveArmorActions(previousItem);
+                    }
                     Body = item;
                     // Add armor actions if applicable
                     AddArmorActions(item);
                     break;
                 case "weapon": 
                     previousItem = Weapon;
+                    // Remove old weapon actions before equipping new weapon
+                    if (previousItem is WeaponItem)
+                    {
+                        RemoveWeaponActions();
+                    }
                     Weapon = item;
                     // Add weapon-specific actions
                     if (item is WeaponItem weapon)
@@ -414,6 +429,11 @@ namespace RPGGame
                     break;
                 case "feet": 
                     previousItem = Feet;
+                    // Remove old armor actions before equipping new armor
+                    if (previousItem != null)
+                    {
+                        RemoveArmorActions(previousItem);
+                    }
                     Feet = item;
                     // Add armor actions if applicable
                     AddArmorActions(item);
@@ -1142,6 +1162,29 @@ namespace RPGGame
             return primaryClass;
         }
 
+        public string GetFullNameWithQualifier()
+        {
+            string currentClass = GetCurrentClass();
+            int primaryClassPoints = GetPrimaryClassPoints();
+            string qualifier = FlavorText.GetClassQualifier(currentClass, primaryClassPoints);
+            return $"{Name} {qualifier}";
+        }
+
+        private int GetPrimaryClassPoints()
+        {
+            var classes = new List<(string name, int points)>
+            {
+                ("Barbarian", BarbarianPoints),
+                ("Warrior", WarriorPoints),
+                ("Rogue", RoguePoints),
+                ("Wizard", WizardPoints)
+            };
+
+            // Sort by points descending and return the highest
+            classes.Sort((a, b) => b.points.CompareTo(a.points));
+            return classes[0].points;
+        }
+
         private string GetClassTier(string baseClass, int points)
         {
             if (points >= 40)
@@ -1198,26 +1241,13 @@ namespace RPGGame
         {
             if (gear is WeaponItem weapon)
             {
-                return weapon.WeaponType switch
-                {
-                    WeaponType.Sword => new List<string> { "PARRY", "SWORD SLASH" },
-                    WeaponType.Mace => new List<string> { "CRUSHING BLOW", "SHIELD BREAK" },
-                    WeaponType.Dagger => new List<string> { "QUICK STAB", "POISON BLADE" },
-                    WeaponType.Wand => new List<string> { "MAGIC MISSILE", "ARCANE SHIELD" },
-                    _ => new List<string>()
-                };
+                // Get weapon actions from Actions.json based on weapon type
+                return GetWeaponActionsFromJson(weapon.WeaponType);
             }
-            else if (gear is HeadItem)
+            else if (gear is HeadItem || gear is ChestItem || gear is FeetItem)
             {
-                return new List<string> { "HEADBUTT" };
-            }
-            else if (gear is ChestItem)
-            {
-                return new List<string> { "CHEST BASH" };
-            }
-            else if (gear is FeetItem)
-            {
-                return new List<string> { "KICK" };
+                // Get random armor action from Actions.json (excluding environmental actions)
+                return GetRandomArmorActionFromJson(gear);
             }
             
             return new List<string>();
@@ -1282,7 +1312,12 @@ namespace RPGGame
         private void RemoveWeaponActions()
         {
             // Remove weapon-specific gear actions
-            var weaponActions = new[] { "SWORD SLASH", "PARRY", "QUICK STAB", "POISON BLADE", "CRUSHING BLOW", "SHIELD BREAK", "MAGIC MISSILE", "ARCANE SHIELD" };
+            var allActions = ActionLoader.GetAllActions();
+            var weaponActions = allActions
+                .Where(action => action.Tags.Contains("weapon"))
+                .Select(action => action.Name)
+                .ToList();
+                
             foreach (var actionName in weaponActions)
             {
                 var actionToRemove = ActionPool.FirstOrDefault(a => a.action.Name == actionName);
@@ -1309,6 +1344,65 @@ namespace RPGGame
                     RemoveAction(actionToRemove.action);
                 }
             }
+        }
+
+        private List<string> GetWeaponActionsFromJson(WeaponType weaponType)
+        {
+            var weaponTag = weaponType.ToString().ToLower();
+            var allActions = ActionLoader.GetAllActions();
+            
+            return allActions
+                .Where(action => action.Tags.Contains("weapon") && 
+                                action.Tags.Contains(weaponTag) &&
+                                !action.Tags.Contains("unique"))
+                .Select(action => action.Name)
+                .ToList();
+        }
+
+        private List<string> GetRandomArmorActionFromJson(Item armor)
+        {
+            var armorSlot = armor switch
+            {
+                HeadItem => "head",
+                ChestItem => "chest", 
+                FeetItem => "feet",
+                _ => ""
+            };
+
+            if (string.IsNullOrEmpty(armorSlot))
+                return new List<string>();
+
+            var allActions = ActionLoader.GetAllActions();
+            
+            // Get armor actions for this slot, excluding environmental actions
+            var armorActions = allActions
+                .Where(action => action.Tags.Contains("armor") && 
+                                action.Tags.Contains(armorSlot) &&
+                                !action.Tags.Contains("environment"))
+                .Select(action => action.Name)
+                .ToList();
+
+            // If no specific armor slot actions found, get any non-environmental combo actions
+            if (armorActions.Count == 0)
+            {
+                armorActions = allActions
+                    .Where(action => action.IsComboAction && 
+                                    !action.Tags.Contains("environment") &&
+                                    !action.Tags.Contains("enemy") &&
+                                    !action.Tags.Contains("weapon"))
+                    .Select(action => action.Name)
+                    .ToList();
+            }
+
+            // Return a random action from the available pool
+            if (armorActions.Count > 0)
+            {
+                var random = new Random();
+                var randomAction = armorActions[random.Next(armorActions.Count)];
+                return new List<string> { randomAction };
+            }
+
+            return new List<string>();
         }
 
         private void AddArmorActions(Item armor)
@@ -1458,23 +1552,26 @@ namespace RPGGame
         {
             if (armor == null) return;
             
-            // Determine which action to remove based on armor type
-            string actionName = "";
-            
-            if (armor is HeadItem)
+            // Determine which armor slot this is
+            string armorSlot = armor switch
             {
-                actionName = "HEADBUTT";
-            }
-            else if (armor is ChestItem)
-            {
-                actionName = "CHEST BASH";
-            }
-            else if (armor is FeetItem)
-            {
-                actionName = "KICK";
-            }
-            
-            if (!string.IsNullOrEmpty(actionName))
+                HeadItem => "head",
+                ChestItem => "chest",
+                FeetItem => "feet",
+                _ => ""
+            };
+
+            if (string.IsNullOrEmpty(armorSlot))
+                return;
+
+            // Remove all armor actions for this slot
+            var allActions = ActionLoader.GetAllActions();
+            var armorActions = allActions
+                .Where(action => action.Tags.Contains("armor") && action.Tags.Contains(armorSlot))
+                .Select(action => action.Name)
+                .ToList();
+
+            foreach (var actionName in armorActions)
             {
                 var actionToRemove = ActionPool.FirstOrDefault(a => a.action.Name == actionName);
                 if (actionToRemove.action != null)

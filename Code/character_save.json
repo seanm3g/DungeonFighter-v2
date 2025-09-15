@@ -1,110 +1,23 @@
 {
   "Name": "Hero",
-  "Level": 2,
-  "XP": 25,
-  "CurrentHealth": 103,
-  "MaxHealth": 103,
-  "Strength": 11,
-  "Agility": 11,
-  "Technique": 11,
-  "Intelligence": 13,
+  "Level": 1,
+  "XP": 0,
+  "CurrentHealth": 100,
+  "MaxHealth": 100,
+  "Strength": 5,
+  "Agility": 5,
+  "Technique": 5,
+  "Intelligence": 5,
   "BarbarianPoints": 0,
   "WarriorPoints": 0,
   "RoguePoints": 0,
-  "WizardPoints": 1,
+  "WizardPoints": 0,
   "ComboStep": 0,
   "ComboBonus": 0,
   "TempComboBonus": 0,
   "TempComboBonusTurns": 0,
   "DamageReduction": 0,
-  "Inventory": [
-    {
-      "Name": "Epic Precise Reinforced Leather Jerkin of Vigor of Resilience",
-      "Type": 2,
-      "Tier": 1,
-      "ComboBonus": 0,
-      "Rarity": "Epic",
-      "StatBonuses": [
-        {
-          "Name": "of Vigor",
-          "Description": "\u002B20 maximum health",
-          "Value": 20,
-          "Weight": 8,
-          "StatType": "Health"
-        },
-        {
-          "Name": "of Resilience",
-          "Description": "\u002B3 health regeneration",
-          "Value": 3,
-          "Weight": 8,
-          "StatType": "HealthRegen"
-        },
-        {
-          "Name": "of the Titan",
-          "Description": "\u002B5 Strength, \u002B15 health",
-          "Value": 5,
-          "Weight": 3,
-          "StatType": "STR"
-        }
-      ],
-      "ActionBonuses": [
-        {
-          "Name": "",
-          "Description": "",
-          "Weight": 1
-        },
-        {
-          "Name": "",
-          "Description": "",
-          "Weight": 1
-        }
-      ],
-      "Modifications": [
-        {
-          "DiceResult": 7,
-          "ItemRank": "Uncommon",
-          "Name": "Precise",
-          "Description": "\u002B2 to attack rolls",
-          "Effect": "rollBonus",
-          "MinValue": 2,
-          "MaxValue": 2
-        },
-        {
-          "DiceResult": 8,
-          "ItemRank": "Uncommon",
-          "Name": "Reinforced",
-          "Description": "\u002B5 to \u002B10 durability",
-          "Effect": "durability",
-          "MinValue": 5,
-          "MaxValue": 10
-        }
-      ],
-      "BonusDamage": 0,
-      "BonusAttackSpeed": 0,
-      "IsStarterItem": false
-    },
-    {
-      "Name": "Cloth Hood of Endurance",
-      "Type": 0,
-      "Tier": 1,
-      "ComboBonus": 0,
-      "Rarity": "Common",
-      "StatBonuses": [
-        {
-          "Name": "of Endurance",
-          "Description": "\u002B30 maximum health",
-          "Value": 30,
-          "Weight": 4,
-          "StatType": "Health"
-        }
-      ],
-      "ActionBonuses": [],
-      "Modifications": [],
-      "BonusDamage": 0,
-      "BonusAttackSpeed": 0,
-      "IsStarterItem": false
-    }
-  ],
+  "Inventory": [],
   "Head": {
     "Name": "Starter Leather Helmet",
     "Type": 0,

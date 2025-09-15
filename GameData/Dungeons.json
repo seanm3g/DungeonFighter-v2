@@ -1,8 +1,9 @@
 
 [
-  { "name": "Ancient Forest", "theme": "Forest", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Goblin", "Spider"] },
-  { "name": "Lava Caves", "theme": "Lava", "minLevel": 2, "maxLevel": 100, "possibleEnemies": ["Wraith", "Slime", "Bat"] },
-  { "name": "Haunted Crypt", "theme": "Crypt", "minLevel": 3, "maxLevel": 100, "possibleEnemies": ["Skeleton", "Zombie", "Wraith"] },
-  { "name": "Crystal Caverns", "theme": "Crystal", "minLevel": 4, "maxLevel": 100, "possibleEnemies": ["Crystal Golem", "Prism Spider", "Shard Beast"] },
-  { "name": "Abandoned Temple", "theme": "Temple", "minLevel": 5, "maxLevel": 100, "possibleEnemies": ["Stone Guardian", "Temple Warden", "Ancient Sentinel"] }
+  { "name": "Ancient Forest", "theme": "Forest", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Goblin", "Spider", "Wolf", "Bear", "Treant"] },
+  { "name": "Lava Caves", "theme": "Lava", "minLevel": 2, "maxLevel": 100, "possibleEnemies": ["Wraith", "Slime", "Bat", "Fire Elemental", "Lava Golem", "Salamander"] },
+  { "name": "Haunted Crypt", "theme": "Crypt", "minLevel": 3, "maxLevel": 100, "possibleEnemies": ["Skeleton", "Zombie", "Wraith", "Lich", "Ghoul", "Wight"] },
+  { "name": "Crystal Caverns", "theme": "Crystal", "minLevel": 4, "maxLevel": 100, "possibleEnemies": ["Crystal Golem", "Prism Spider", "Shard Beast", "Crystal Sprite", "Geode Beast", "Crystal Wyrm"] },
+  { "name": "Abandoned Temple", "theme": "Temple", "minLevel": 5, "maxLevel": 100, "possibleEnemies": ["Stone Guardian", "Temple Warden", "Ancient Sentinel", "Temple Guard", "Priest", "Paladin"] },
+  { "name": "Bandit Hideout", "theme": "Generic", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Bandit", "Orc", "Troll", "Kobold", "Goblin"] }
 ] 
