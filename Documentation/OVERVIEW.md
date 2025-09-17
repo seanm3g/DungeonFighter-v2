@@ -136,8 +136,8 @@ The system uses sophisticated dice mechanics for action resolution:
   - **1-5**: Fail at attack (combo resets to step 1)
   - **6-15**: Normal attack (continues combo sequence)
   - **16-20**: Combo attack (triggers combo mode)
-- **Combo Mode**: Once triggered, subsequent rolls use **11+** threshold to continue
-- **Damage Amplification**: Each successful combo step multiplies damage by **1.85x**
+- **Combo Mode**: Once triggered, subsequent rolls use **14+** threshold to continue
+- **Damage Amplification**: Each successful combo step multiplies damage
 - **Failure Handling**: Failed rolls reset the sequence to the first action and deactivate combo mode
 
 ### Combo Management Interface

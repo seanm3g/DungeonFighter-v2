@@ -20,7 +20,7 @@ namespace RPGGame
                 Console.WriteLine("\n--- Inventory ---");
                 ShowCharacterStats();
                 ShowCurrentEquipment();
-                ShowActionPoolInfo();
+                ShowComboInfo();
                 ShowInventory();
                 ShowOptions();
 
@@ -35,10 +35,10 @@ namespace RPGGame
                             UnequipItem();
                             break;
                         case 3:
-                            ManageComboActions();
+                            DiscardItem();
                             break;
                         case 4:
-                            DiscardItem();
+                            ManageComboActions();
                             break;
                         case 5:
                             return true; // Continue to dungeon
@@ -60,7 +60,8 @@ namespace RPGGame
         {
             int weaponDamage = (player.Weapon is WeaponItem w) ? w.GetTotalDamage() : 0;
             int equipmentDamageBonus = player.GetEquipmentDamageBonus();
-            int damage = player.GetEffectiveStrength() + weaponDamage + equipmentDamageBonus;
+            int modificationDamageBonus = player.GetModificationDamageBonus();
+            int damage = player.GetEffectiveStrength() + weaponDamage + equipmentDamageBonus + modificationDamageBonus;
             double attackSpeed = player.GetTotalAttackSpeed();
             int armor = 0;
             if (player.Head is HeadItem head) armor += head.GetTotalArmor();
@@ -68,7 +69,11 @@ namespace RPGGame
             if (player.Feet is FeetItem feet) armor += feet.GetTotalArmor();
             Console.WriteLine($"{player.Name} (Level {player.Level}) - {player.GetCurrentClass()}");
             Console.WriteLine($"Health: {player.CurrentHealth}/{player.GetEffectiveMaxHealth()}  STR: {player.GetEffectiveStrength()}  AGI: {player.GetEffectiveAgility()}  TEC: {player.GetEffectiveTechnique()}  INT: {player.GetEffectiveIntelligence()}");
-            Console.WriteLine($"Damage: {damage} (STR:{player.GetEffectiveStrength()} + Weapon:{weaponDamage} + Equipment:{equipmentDamageBonus})  Attack Speed: {attackSpeed:0.00} ({player.GetAttacksPerTurn()} attacks/turn)  Roll Bonus: +{player.GetIntelligenceRollBonus()}  Armor: {armor}");
+            int totalRollBonus = player.GetIntelligenceRollBonus() + player.GetModificationRollBonus() + player.GetEquipmentRollBonus();
+            double secondsPerAttack = attackSpeed;
+            // Get current amplification
+            double currentAmplification = player.GetCurrentComboAmplification();
+            Console.WriteLine($"Damage: {damage} (STR:{player.GetEffectiveStrength()} + Weapon:{weaponDamage} + Equipment:{equipmentDamageBonus} + Mods:{modificationDamageBonus})  Attack Speed: {attackSpeed:0.00}s  Amplification: {currentAmplification:F2}x  Roll Bonus: +{totalRollBonus}  Armor: {armor}");
             // Show only classes with points > 0
             var classPointsInfo = new List<string>();
             if (player.BarbarianPoints > 0) classPointsInfo.Add($"Barbarian({player.BarbarianPoints})");
@@ -135,13 +140,18 @@ namespace RPGGame
 
         private void ShowInventory()
         {
-            Console.WriteLine("\nInventory:");
+            // Only show inventory header if there are items
+            if (inventory.Count > 0)
+            {
+                Console.WriteLine("\nInventory:");
+            }
+            
             for (int i = 0; i < inventory.Count; i++)
             {
                 var item = inventory[i];
                 string itemStats = item switch
                 {
-                    WeaponItem weapon => $"Damage: {weapon.GetTotalDamage()}{GetWeaponDiff(weapon, player.Weapon as WeaponItem)}",
+                    WeaponItem weapon => $"Damage: {weapon.GetTotalDamage()}, Attack Speed: {weapon.GetTotalAttackSpeed():F1}{GetWeaponDiff(weapon, player.Weapon as WeaponItem)}",
                     HeadItem head => $"Armor: {head.GetTotalArmor()}{GetArmorDiff(head, player.Head)}",
                     ChestItem chest => $"Armor: {chest.GetTotalArmor()}{GetArmorDiff(chest, player.Body)}",
                     FeetItem feet => $"Armor: {feet.GetTotalArmor()}{GetArmorDiff(feet, player.Feet)}",
@@ -150,8 +160,8 @@ namespace RPGGame
                 string displayType = GetDisplayType(item);
                 string itemActions = GetItemActions(item);
                 
-                // Show item name and type on first line
-                Console.WriteLine($"{i + 1}. {item.Name} ({displayType})");
+                // Show item type and name on first line
+                Console.WriteLine($"{i + 1}. ({displayType}) {item.Name}");
                 
                 // Show stats on indented line
                 if (!string.IsNullOrEmpty(itemStats))
@@ -211,10 +221,32 @@ namespace RPGGame
                 Console.WriteLine($"    Stat Bonuses: {string.Join(", ", item.StatBonuses.Select(sb => $"{sb.Name} (+{sb.Value} {sb.StatType})"))}");
             }
             
-            // Show action bonuses
-            if (item.ActionBonuses.Count > 0)
+            // Show action bonuses (only if they have non-empty names)
+            var actionBonusNames = item.ActionBonuses
+                .Where(ab => !string.IsNullOrEmpty(ab.Name))
+                .Select(ab => ab.Name)
+                .ToList();
+            if (actionBonusNames.Count > 0)
             {
-                Console.WriteLine($"    Action Bonuses: {string.Join(", ", item.ActionBonuses.Select(ab => ab.Name))}");
+                Console.WriteLine($"    Action Bonuses: {string.Join(", ", actionBonusNames)}");
+            }
+            
+            // Show armor statuses
+            if (item.ArmorStatuses.Count > 0)
+            {
+                var armorStatusBonuses = new List<string>();
+                foreach (var status in item.ArmorStatuses)
+                {
+                    if (status.Effect == "armorSpikes")
+                    {
+                        armorStatusBonuses.Add($"Armor Spikes ({status.Value:F1}x damage on contact)");
+                    }
+                    else
+                    {
+                        armorStatusBonuses.Add($"{status.Name} ({status.Description})");
+                    }
+                }
+                Console.WriteLine($"    Armor Statuses: {string.Join(", ", armorStatusBonuses)}");
             }
             
             // Show modifications
@@ -225,7 +257,21 @@ namespace RPGGame
                 {
                     if (!string.IsNullOrEmpty(mod.Effect))
                     {
-                        modificationBonuses.Add($"{mod.Name} ({mod.Effect})");
+                        // Show the actual value for modifications
+                        string valueDisplay = mod.Effect switch
+                        {
+                            "damage" => $"+{mod.MaxValue:F0} Damage",
+                            "speedMultiplier" => $"{mod.MaxValue:F2}x Speed", 
+                            "rollBonus" => $"+{mod.MaxValue:F0} Roll",
+                            "reroll" => "Divine Reroll",
+                            "lifesteal" => $"{(mod.MaxValue * 100):F1}% Lifesteal",
+                            "autoSuccess" => "Auto Success",
+                            "bleedChance" => $"{(mod.MaxValue * 100):F1}% Bleed",
+                            "uniqueActionChance" => $"{(mod.MaxValue * 100):F1}% Unique Action",
+                            "damageMultiplier" => $"{mod.MaxValue:F1}x Damage",
+                            _ => $"({mod.Effect})"
+                        };
+                        modificationBonuses.Add($"{mod.Name} ({valueDisplay})");
                     }
                     else
                     {
@@ -242,21 +288,25 @@ namespace RPGGame
             {
                 return weapon.WeaponType switch
                 {
-                    WeaponType.Sword => "Warrior Weapon",
-                    WeaponType.Dagger => "Rogue Weapon", 
-                    WeaponType.Mace => "Barbarian Weapon",
-                    WeaponType.Wand => "Wizard Weapon",
-                    _ => "Weapon"
+                    WeaponType.Sword => "WARRIOR WEAPON",
+                    WeaponType.Dagger => "ROGUE WEAPON", 
+                    WeaponType.Mace => "BARBARIAN WEAPON",
+                    WeaponType.Wand => "WIZARD WEAPON",
+                    _ => "WEAPON"
                 };
             }
-            return item.Type.ToString();
+            return item.Type switch
+            {
+                ItemType.Head => "HEAD",
+                ItemType.Chest => "BODY",
+                ItemType.Feet => "FEET",
+                ItemType.Weapon => "WEAPON",
+                _ => item.Type.ToString().ToUpper()
+            };
         }
 
         private void ShowActionPoolInfo()
         {
-            // Show Combo Information
-            Console.WriteLine($"\n{player.GetComboInfo()}");
-            
             // Show Action Pool (all available actions)
             var actionPool = player.GetActionPool();
             if (actionPool.Count > 0)
@@ -265,7 +315,7 @@ namespace RPGGame
                 for (int i = 0; i < actionPool.Count; i++)
                 {
                     var action = actionPool[i];
-                    string inCombo = player.ComboSequence.Contains(action) ? " [IN COMBO]" : "";
+                    string inCombo = player.ComboSequence.Any(comboAction => comboAction.Name == action.Name) ? " [IN COMBO]" : "";
                     Console.WriteLine($"  {i + 1}. {action.Name}{inCombo}");
                     
                     string damageInfo = "";
@@ -283,10 +333,11 @@ namespace RPGGame
             }
             
             // Show Combo Sequence (selected actions for combo)
+            var actionPoolCount = player.GetActionPool().Count;
             var comboActions = player.GetComboActions();
             if (comboActions.Count > 0)
             {
-                Console.WriteLine($"\nCombo Sequence ({comboActions.Count} selected):");
+                Console.WriteLine($"\nCombo Sequence ({comboActions.Count} selected, {actionPoolCount} available):");
                 for (int i = 0; i < comboActions.Count; i++)
                 {
                     var action = comboActions[i];
@@ -295,7 +346,72 @@ namespace RPGGame
             }
             else
             {
-                Console.WriteLine("\nNo actions selected for combo sequence.");
+                Console.WriteLine($"\nNo actions selected for combo sequence. ({actionPoolCount} available)");
+            }
+        }
+
+        private void ShowComboManagementInfo()
+        {
+            // Show Action Pool (all available actions)
+            var actionPool = player.GetActionPool();
+            if (actionPool.Count > 0)
+            {
+                Console.WriteLine($"\nAction Pool ({actionPool.Count} available):");
+                for (int i = 0; i < actionPool.Count; i++)
+                {
+                    var action = actionPool[i];
+                    string inCombo = player.ComboSequence.Any(comboAction => comboAction.Name == action.Name) ? " [IN COMBO]" : "";
+                    Console.WriteLine($"  {i + 1}. {action.Name}{inCombo}");
+                    
+                    string damageInfo = "";
+                    if (action.Type == ActionType.Attack && action.DamageMultiplier > 0)
+                    {
+                        damageInfo = $" | Damage: {action.DamageMultiplier:F1}x";
+                    }
+                    
+                    Console.WriteLine($"      {action.Description} | Length: {action.Length:F1}{damageInfo}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("\nNo actions available in action pool.");
+            }
+            
+            // Show Combo Sequence (selected actions for combo) with available count
+            var actionPoolCount = player.GetActionPool().Count;
+            var comboActions = player.GetComboActions();
+            if (comboActions.Count > 0)
+            {
+                Console.WriteLine($"\nCombo Sequence ({comboActions.Count} selected, {actionPoolCount} available):");
+                for (int i = 0; i < comboActions.Count; i++)
+                {
+                    var action = comboActions[i];
+                    Console.WriteLine($"  {i + 1}. {action.Name}");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"\nNo actions selected for combo sequence. ({actionPoolCount} available)");
+            }
+        }
+
+        private void ShowComboInfo()
+        {
+            // Show Combo Sequence (selected actions for combo) with available count
+            var actionPoolCount = player.GetActionPool().Count;
+            var comboActions = player.GetComboActions();
+            if (comboActions.Count > 0)
+            {
+                Console.WriteLine($"\nCombo Sequence ({comboActions.Count} selected, {actionPoolCount} available):");
+                for (int i = 0; i < comboActions.Count; i++)
+                {
+                    var action = comboActions[i];
+                    Console.WriteLine($"  {i + 1}. {action.Name}");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"\nNo actions selected for combo sequence. ({actionPoolCount} available)");
             }
         }
 
@@ -348,46 +464,75 @@ namespace RPGGame
 
         private List<string> GetGearActionsForDisplay(Item gear)
         {
-            var actions = new List<string>();
-            var actionPool = player.GetActionPool();
-            
+            // Use the same logic as Character.cs AddGearActions method
             if (gear is WeaponItem weapon)
             {
-                var weaponActions = weapon.WeaponType switch
-                {
-                    WeaponType.Sword => new[] { "PARRY", "SWORD SLASH" },
-                    WeaponType.Mace => new[] { "CRUSHING BLOW", "SHIELD BREAK" },
-                    WeaponType.Dagger => new[] { "QUICK STAB", "POISON BLADE" },
-                    WeaponType.Wand => new[] { "MAGIC MISSILE", "ARCANE SHIELD" },
-                    _ => new string[0]
-                };
-                
-                // All weapons have their actions, so show them all
-                actions.AddRange(weaponActions);
+                // Get weapon actions from Actions.json based on weapon type
+                return GetWeaponActionsFromJson(weapon.WeaponType);
             }
-            else if (gear is HeadItem)
+            else if (gear is HeadItem || gear is ChestItem || gear is FeetItem)
             {
-                if (actionPool.Any(a => a.Name == "HEADBUTT"))
+                // Only show armor actions if this armor piece should have them
+                // Use the same logic as Character.cs HasSpecialArmorActions
+                if (ShouldArmorHaveActions(gear))
                 {
-                    actions.Add("HEADBUTT");
+                    // Use the gear's assigned action if it has one
+                    if (!string.IsNullOrEmpty(gear.GearAction))
+                    {
+                        return new List<string> { gear.GearAction };
+                    }
+                    else
+                    {
+                        // Fallback to random selection for gear without assigned actions
+                        return GetRandomArmorActionFromJson(gear);
+                    }
                 }
-            }
-            else if (gear is ChestItem)
-            {
-                if (actionPool.Any(a => a.Name == "CHEST BASH"))
+                else
                 {
-                    actions.Add("CHEST BASH");
-                }
-            }
-            else if (gear is FeetItem)
-            {
-                if (actionPool.Any(a => a.Name == "KICK"))
-                {
-                    actions.Add("KICK");
+                    return new List<string>(); // No actions for basic starter gear
                 }
             }
             
-            return actions;
+            return new List<string>();
+        }
+
+        /// <summary>
+        /// Determines if an armor piece should have special actions (same logic as Character.cs)
+        /// Only special armor pieces (looted gear with modifications, stat bonuses, etc.) should have actions
+        /// Default/starter armor should have no actions
+        /// </summary>
+        private bool ShouldArmorHaveActions(Item armor)
+        {
+            // Check if this armor piece has special properties that indicate it should have actions
+            
+            // 1. Check if it has modifications (indicates special gear)
+            if (armor.Modifications.Count > 0)
+            {
+                return true;
+            }
+            
+            // 2. Check if it has stat bonuses (indicates special gear)
+            if (armor.StatBonuses.Count > 0)
+            {
+                return true;
+            }
+            
+            // 3. Check if it has action bonuses (legacy system)
+            if (armor.ActionBonuses.Count > 0)
+            {
+                return true;
+            }
+            
+            // 4. Check if it's not basic starter gear by name
+            string[] basicGearNames = { "Leather Helmet", "Leather Armor", "Leather Boots", "Cloth Hood", "Cloth Robes", "Cloth Shoes" };
+            if (basicGearNames.Contains(armor.Name))
+            {
+                return false; // Basic starter gear should have no actions
+            }
+            
+            // 5. If it has a special name or properties, it might be special gear
+            // For now, assume any non-basic gear might have actions
+            return true;
         }
 
         private void ManageComboActions()
@@ -397,14 +542,14 @@ namespace RPGGame
                 Console.Clear();
                 ShowCharacterStats();
                 ShowCurrentEquipment();
-                ShowActionPoolInfo();
+                ShowComboManagementInfo();
                 
                 Console.WriteLine("\nCombo Management:");
                 Console.WriteLine("1. Add action to combo");
                 Console.WriteLine("2. Remove action from combo");
                 Console.WriteLine("3. Swap two combo actions");
                 Console.WriteLine("4. Back to inventory");
-                Console.Write("Choose an option: ");
+                Console.Write("\nChoose an option: ");
 
                 if (int.TryParse(Console.ReadLine(), out int choice))
                 {
@@ -442,8 +587,8 @@ namespace RPGGame
             var actionPool = player.GetActionPool();
             var comboActions = player.GetComboActions();
             
-            // Filter out actions already in combo
-            var availableActions = actionPool.Where(a => !comboActions.Contains(a)).ToList();
+            // Show all available actions (allow duplicates)
+            var availableActions = actionPool.ToList();
             
             if (availableActions.Count == 0)
             {
@@ -457,7 +602,10 @@ namespace RPGGame
             for (int i = 0; i < availableActions.Count; i++)
             {
                 var action = availableActions[i];
-                Console.WriteLine($"  {i + 1}. {action.Name}");
+                int timesInCombo = comboActions.Count(ca => ca.Name == action.Name);
+                int timesAvailable = actionPool.Count(ap => ap.Name == action.Name);
+                string usageInfo = timesInCombo > 0 ? $" [In combo: {timesInCombo}/{timesAvailable}]" : "";
+                Console.WriteLine($"  {i + 1}. {action.Name}{usageInfo}");
                 Console.WriteLine($"      {action.Description}");
             }
             
@@ -590,8 +738,8 @@ namespace RPGGame
             Console.WriteLine("\nOptions:");
             Console.WriteLine("1. Equip an item");
             Console.WriteLine("2. Unequip an item");
-            Console.WriteLine("3. Manage combo actions");
-            Console.WriteLine("4. Discard an item");
+            Console.WriteLine("3. Discard an item");
+            Console.WriteLine("4. Manage combo actions");
             Console.WriteLine("5. Continue to dungeon");
             Console.WriteLine("6. Exit\n");
             Console.Write("Choose an option: ");
@@ -617,6 +765,9 @@ namespace RPGGame
                 
                 if (confirm == "y" || confirm == "yes")
                 {
+                    // Clean up actions associated with the discarded item
+                    player.RemoveItemActions(itemToDiscard);
+                    
                     inventory.RemoveAt(discardChoice - 1);
                     Console.WriteLine($"{itemToDiscard.Name} has been discarded.");
                 }
@@ -704,6 +855,83 @@ namespace RPGGame
             {
                 Console.WriteLine("Invalid choice.");
             }
+        }
+
+        // Helper methods from Character.cs for data-driven action selection
+        private List<string> GetWeaponActionsFromJson(WeaponType weaponType)
+        {
+            var allActions = ActionLoader.GetAllActions();
+            var weaponActions = new List<string>();
+            
+            // Get actions that match the weapon type and have "weapon" tag, but exclude "unique" actions
+            foreach (var actionData in allActions)
+            {
+                if (actionData.Tags.Contains("weapon") && 
+                    actionData.Tags.Contains(weaponType.ToString().ToLower()) &&
+                    !actionData.Tags.Contains("unique"))
+                {
+                    weaponActions.Add(actionData.Name);
+                }
+            }
+            
+            return weaponActions;
+        }
+
+        private List<string> GetRandomArmorActionFromJson(Item armor)
+        {
+            // Map specific gear types to specific actions
+            if (armor is FeetItem)
+            {
+                // Feet items should provide KICK action
+                return new List<string> { "KICK" };
+            }
+            else if (armor is HeadItem)
+            {
+                // Head items should provide HELMET RAM action
+                return new List<string> { "HELMET RAM" };
+            }
+            else if (armor is ChestItem)
+            {
+                // Chest items should provide CHEST PLATE RAM action
+                return new List<string> { "CHEST PLATE RAM" };
+            }
+            
+            // Fallback to random selection for unknown armor types
+            var allActions = ActionLoader.GetAllActions();
+            var armorActions = new List<string>();
+            
+            // Get all armor actions, excluding environmental actions
+            foreach (var actionData in allActions)
+            {
+                if (actionData.Tags.Contains("armor") && 
+                    !actionData.Tags.Contains("environment"))
+                {
+                    armorActions.Add(actionData.Name);
+                }
+            }
+            
+            // If no armor actions found, get general non-environmental combo actions
+            if (armorActions.Count == 0)
+            {
+                foreach (var actionData in allActions)
+                {
+                    if (actionData.IsComboAction && 
+                        !actionData.Tags.Contains("environment") &&
+                        !actionData.Tags.Contains("unique"))
+                    {
+                        armorActions.Add(actionData.Name);
+                    }
+                }
+            }
+            
+            // Return a random action if any are available
+            if (armorActions.Count > 0)
+            {
+                var randomAction = armorActions[Random.Shared.Next(armorActions.Count)];
+                return new List<string> { randomAction };
+            }
+            
+            return armorActions;
         }
     }
 } 

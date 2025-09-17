@@ -1,166 +1,220 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace RPGGame
 {
+    public class FlavorTextData
+    {
+        [JsonPropertyName("names")]
+        public NamesData Names { get; set; } = new();
+        [JsonPropertyName("items")]
+        public ItemsData Items { get; set; } = new();
+        [JsonPropertyName("environments")]
+        public EnvironmentsData Environments { get; set; } = new();
+        [JsonPropertyName("classQualifiers")]
+        public ClassQualifiersData ClassQualifiers { get; set; } = new();
+    }
+
+    public class NamesData
+    {
+        [JsonPropertyName("characterFirstNames")]
+        public string[] CharacterFirstNames { get; set; } = Array.Empty<string>();
+        [JsonPropertyName("characterLastNames")]
+        public string[] CharacterLastNames { get; set; } = Array.Empty<string>();
+        [JsonPropertyName("bossNames")]
+        public string[] BossNames { get; set; } = Array.Empty<string>();
+    }
+
+    public class ItemsData
+    {
+        [JsonPropertyName("consumableNames")]
+        public string[] ConsumableNames { get; set; } = Array.Empty<string>();
+    }
+
+    public class EnvironmentsData
+    {
+        [JsonPropertyName("locationNames")]
+        public string[] LocationNames { get; set; } = Array.Empty<string>();
+        [JsonPropertyName("locationDescriptions")]
+        public Dictionary<string, string[]> LocationDescriptions { get; set; } = new();
+    }
+
+    public class ClassQualifiersData
+    {
+        [JsonPropertyName("classNames")]
+        public ClassNamesData ClassNames { get; set; } = new();
+        [JsonPropertyName("barbarianQualifiers")]
+        public string[] BarbarianQualifiers { get; set; } = Array.Empty<string>();
+        [JsonPropertyName("warriorQualifiers")]
+        public string[] WarriorQualifiers { get; set; } = Array.Empty<string>();
+        [JsonPropertyName("rogueQualifiers")]
+        public string[] RogueQualifiers { get; set; } = Array.Empty<string>();
+        [JsonPropertyName("wizardQualifiers")]
+        public string[] WizardQualifiers { get; set; } = Array.Empty<string>();
+        [JsonPropertyName("fighterQualifiers")]
+        public string[] FighterQualifiers { get; set; } = Array.Empty<string>();
+    }
+
+    public class ClassNamesData
+    {
+        [JsonPropertyName("barbarian")]
+        public string[] Barbarian { get; set; } = Array.Empty<string>();
+        [JsonPropertyName("warrior")]
+        public string[] Warrior { get; set; } = Array.Empty<string>();
+        [JsonPropertyName("rogue")]
+        public string[] Rogue { get; set; } = Array.Empty<string>();
+        [JsonPropertyName("wizard")]
+        public string[] Wizard { get; set; } = Array.Empty<string>();
+        [JsonPropertyName("fighter")]
+        public string[] Fighter { get; set; } = Array.Empty<string>();
+    }
+
     public static class FlavorText
     {
-        // Character and Enemy Names
-        public static class Names
+        private static FlavorTextData? _data;
+        private static readonly object _lock = new object();
+        private static readonly Random _random = new Random();
+
+        public static FlavorTextData GetData()
         {
-            public static readonly string[] CharacterFirstNames = new[]
+            if (_data == null)
             {
-                "Aric", "Bran", "Cael", "Dain", "Eldrin", "Fenris", "Galen", "Haldir",
-                "Ivar", "Joren", "Kael", "Lorin", "Merek", "Nolan", "Orin", "Pax",
-                "Quinn", "Roran", "Soren", "Taran", "Ulfric", "Varis", "Wren", "Xan",
-                "Yorin", "Zarek"
-            };
-
-            public static readonly string[] CharacterLastNames = new[]
-            {
-                "Stormrider", "Ironheart", "Shadowbane", "Dawnbringer", "Frostborn",
-                "Blackthorn", "Silverwind", "Firebrand", "Stormcaller", "Nightshade",
-                "Brightblade", "Darkwood", "Swiftarrow", "Stoneheart", "Moonwhisper"
-            };
-
-            public static readonly string[] EnemyNames = new[]
-            {
-                "Goblin", "Orc", "Troll", "Skeleton", "Zombie", "Bandit", "Cultist",
-                "Wraith", "Ghoul", "Harpy", "Minotaur", "Gargoyle", "Imp", "Specter",
-                "Wight", "Revenant", "Banshee", "Wendigo", "Chimera", "Basilisk"
-            };
-
-            public static readonly string[] BossNames = new[]
-            {
-                "The Corrupted King", "The Shadow Queen", "The Lich Lord", "The Demon Prince",
-                "The Dragon Tyrant", "The Necromancer", "The Archfiend", "The Void Walker",
-                "The Blood Mage", "The Soul Reaper"
-            };
+                lock (_lock)
+                {
+                    if (_data == null)
+                    {
+                        LoadData();
+                    }
+                }
+            }
+            return _data!;
         }
 
-        // Item Names and Descriptions
-        public static class Items
+        private static void LoadData()
         {
-            public static readonly string[] WeaponPrefixes = new[]
+            try
             {
-                "Sharp", "Deadly", "Mighty", "Ancient", "Cursed", "Blessed", "Flaming",
-                "Frost", "Thundering", "Venomous", "Radiant", "Shadow", "Bloody", "Soul",
-                "Dragon"
-            };
-
-            public static readonly string[] WeaponTypes = new[]
+                // Try multiple possible paths for the JSON file
+                string[] possiblePaths = {
+                    Path.Combine("GameData", "FlavorText.json"),
+                    Path.Combine("..", "GameData", "FlavorText.json"),
+                    Path.Combine("..", "..", "GameData", "FlavorText.json"),
+                    "FlavorText.json"
+                };
+                
+                string? foundPath = null;
+                foreach (string path in possiblePaths)
+                {
+                    if (File.Exists(path))
+                    {
+                        foundPath = path;
+                        break;
+                    }
+                }
+                
+                if (foundPath != null)
+                {
+                    string jsonContent = File.ReadAllText(foundPath);
+                    _data = JsonSerializer.Deserialize<FlavorTextData>(jsonContent);
+                }
+                else
+                {
+                    Console.WriteLine("Warning: FlavorText.json not found in any expected location");
+                    _data = new FlavorTextData();
+                }
+            }
+            catch (Exception ex)
             {
-                "Sword", "Axe", "Mace", "Dagger", "Bow", "Staff", "Wand", "Spear",
-                "Hammer", "Scythe", "Rapier", "Greatsword", "Battleaxe", "Warhammer"
-            };
-
-            public static readonly string[] ArmorPrefixes = new[]
-            {
-                "Sturdy", "Reinforced", "Enchanted", "Ancient", "Cursed", "Blessed",
-                "Dragon", "Demon", "Angelic", "Shadow", "Radiant", "Soul", "Blood",
-                "Frost", "Flame"
-            };
-
-            public static readonly string[] ArmorTypes = new[]
-            {
-                "Helmet", "Chestplate", "Gauntlets", "Greaves", "Boots", "Shield",
-                "Pauldrons", "Bracers", "Belt", "Cloak"
-            };
-
-            public static readonly string[] ConsumableNames = new[]
-            {
-                "Health Potion", "Mana Potion", "Stamina Potion", "Antidote",
-                "Elixir of Strength", "Elixir of Agility", "Elixir of Intelligence",
-                "Scroll of Teleportation", "Scroll of Identification", "Bomb"
-            };
-        }
-
-        // Action Names and Descriptions
-        public static class Actions
-        {
-            public static readonly string[] AttackNames = new[]
-            {
-                "Slash", "Strike", "Thrust", "Cleave", "Smash", "Pierce", "Bash",
-                "Hack", "Chop", "Lunge", "Swipe", "Crush", "Impale", "Rend"
-            };
-
-            public static readonly string[] SpellNames = new[]
-            {
-                "Fireball", "Frostbolt", "Lightning Strike", "Shadow Bolt", "Holy Light",
-                "Arcane Missile", "Poison Cloud", "Healing Wave", "Mana Surge",
-                "Soul Drain"
-            };
-
-            public static readonly string[] BuffNames = new[]
-            {
-                "Strength Boost", "Agility Boost", "Intelligence Boost", "Protection",
-                "Haste", "Regeneration", "Mana Regeneration", "Stamina Regeneration",
-                "Resistance", "Fortitude"
-            };
-
-            public static readonly string[] DebuffNames = new[]
-            {
-                "Weakness", "Slow", "Poison", "Curse", "Bleed", "Burn", "Freeze",
-                "Stun", "Silence", "Blind"
-            };
-        }
-
-        // Environment Descriptions
-        public static class Environments
-        {
-            public static readonly string[] LocationNames = new[]
-            {
-                "Ancient Forest", "Dark Cavern", "Ruined Temple", "Frozen Wastes",
-                "Desert Oasis", "Misty Swamp", "Volcanic Crater", "Crystal Caves",
-                "Haunted Mansion", "Dragon's Lair"
-            };
-
-            public static readonly string[] LocationDescriptions = new[]
-            {
-                "A dense forest with ancient trees that seem to whisper secrets of old.",
-                "A dark and damp cavern filled with the echoes of dripping water.",
-                "A once-great temple now in ruins, its walls covered in mysterious runes.",
-                "A vast expanse of ice and snow where the wind howls endlessly.",
-                "A small oasis in the middle of a scorching desert, a rare sight of life.",
-                "A murky swamp where the air is thick with mist and strange creatures lurk.",
-                "A massive crater filled with bubbling lava and the stench of sulfur.",
-                "Beautiful caves filled with glowing crystals that illuminate the darkness.",
-                "An eerie mansion where shadows seem to move on their own.",
-                "A massive cave filled with treasure and the bones of unfortunate adventurers."
-            };
+                Console.WriteLine($"Warning: Could not load FlavorText.json: {ex.Message}");
+                _data = new FlavorTextData();
+            }
         }
 
         // Helper Methods
         public static string GetRandomName(string[] nameList)
         {
-            return nameList[new Random().Next(nameList.Length)];
-        }
-
-        public static string GenerateWeaponName()
-        {
-            return $"{GetRandomName(Items.WeaponPrefixes)} {GetRandomName(Items.WeaponTypes)}";
-        }
-
-        public static string GenerateArmorName()
-        {
-            return $"{GetRandomName(Items.ArmorPrefixes)} {GetRandomName(Items.ArmorTypes)}";
-        }
-
-        public static string GenerateEnemyName()
-        {
-            return GetRandomName(Names.EnemyNames);
+            if (nameList == null || nameList.Length == 0)
+                return "Unknown";
+            return nameList[_random.Next(nameList.Length)];
         }
 
         public static string GenerateCharacterName()
         {
-            return $"{GetRandomName(Names.CharacterFirstNames)} {GetRandomName(Names.CharacterLastNames)}";
+            var data = GetData();
+            return $"{GetRandomName(data.Names.CharacterFirstNames)} {GetRandomName(data.Names.CharacterLastNames)}";
         }
 
         public static string GenerateLocationName()
         {
-            return GetRandomName(Environments.LocationNames);
+            var data = GetData();
+            return GetRandomName(data.Environments.LocationNames);
         }
 
         public static string GenerateLocationDescription()
         {
-            return GetRandomName(Environments.LocationDescriptions);
+            var data = GetData();
+            // Get a random theme and then a random description from that theme
+            var themes = data.Environments.LocationDescriptions.Keys.ToArray();
+            if (themes.Length == 0) return "A mysterious location.";
+            
+            string randomTheme = GetRandomName(themes);
+            return GenerateLocationDescription(randomTheme);
+        }
+
+        public static string GenerateLocationDescription(string theme)
+        {
+            var data = GetData();
+            if (data.Environments.LocationDescriptions.TryGetValue(theme, out string[]? descriptions) && descriptions.Length > 0)
+            {
+                return GetRandomName(descriptions);
+            }
+            
+            // Fallback to generic descriptions if theme not found
+            if (data.Environments.LocationDescriptions.TryGetValue("Generic", out string[]? genericDescriptions) && genericDescriptions.Length > 0)
+            {
+                return GetRandomName(genericDescriptions);
+            }
+            
+            return "A mysterious location.";
+        }
+
+        public static string GetClassQualifier(string className, int classPoints)
+        {
+            var data = GetData();
+            
+            // Determine which qualifier array to use based on class
+            string[] qualifiers;
+            string lowerClassName = className.ToLower();
+            
+            if (data.ClassQualifiers.ClassNames.Barbarian.Contains(lowerClassName))
+            {
+                qualifiers = data.ClassQualifiers.BarbarianQualifiers;
+            }
+            else if (data.ClassQualifiers.ClassNames.Warrior.Contains(lowerClassName))
+            {
+                qualifiers = data.ClassQualifiers.WarriorQualifiers;
+            }
+            else if (data.ClassQualifiers.ClassNames.Rogue.Contains(lowerClassName))
+            {
+                qualifiers = data.ClassQualifiers.RogueQualifiers;
+            }
+            else if (data.ClassQualifiers.ClassNames.Wizard.Contains(lowerClassName))
+            {
+                qualifiers = data.ClassQualifiers.WizardQualifiers;
+            }
+            else
+            {
+                qualifiers = data.ClassQualifiers.FighterQualifiers;
+            }
+
+            // Select qualifier based on class points for variety
+            if (qualifiers.Length == 0)
+            {
+                return ""; // Return empty string if no qualifiers available
+            }
+            
+            int index = classPoints % qualifiers.Length;
+            return qualifiers[index];
         }
     }
 } 

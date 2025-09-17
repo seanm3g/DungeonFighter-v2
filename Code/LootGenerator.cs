@@ -135,13 +135,21 @@ namespace RPGGame
                 }
             }
 
-            return selectedArmor.Slot switch
+            Item? item = selectedArmor.Slot switch
             {
                 "Head" => new HeadItem(selectedArmor.Name, selectedArmor.Tier, selectedArmor.Armor),
                 "Chest" => new ChestItem(selectedArmor.Name, selectedArmor.Tier, selectedArmor.Armor),
                 "Feet" => new FeetItem(selectedArmor.Name, selectedArmor.Tier, selectedArmor.Armor),
                 _ => null
             };
+
+            // Assign random action for all armor types to provide variety
+            if (item != null)
+            {
+                item.GearAction = GetRandomArmorAction();
+            }
+
+            return item;
         }
 
         private static bool IsHighestItemInTier(WeaponData item, List<WeaponData> itemsInTier)
@@ -152,6 +160,27 @@ namespace RPGGame
         private static bool IsHighestItemInTier(ArmorData item, List<ArmorData> itemsInTier)
         {
             return item.Armor == itemsInTier.Max(a => a.Armor);
+        }
+
+        private static string? GetRandomArmorAction()
+        {
+            // Get ALL combo actions (not just armor-tagged ones) for maximum variety
+            var allActions = ActionLoader.GetAllActions();
+            var availableActions = allActions
+                .Where(action => action.IsComboAction && 
+                               !action.Tags.Contains("environment") &&
+                               !action.Tags.Contains("enemy") &&
+                               !action.Tags.Contains("unique"))
+                .Select(action => action.Name)
+                .ToList();
+
+            // Return completely random action if any are available
+            if (availableActions.Count > 0)
+            {
+                return availableActions[_random.Next(availableActions.Count)];
+            }
+            
+            return null; // No action if none available
         }
 
         private static RarityData RollRarity()
@@ -207,8 +236,80 @@ namespace RPGGame
                 }
             }
 
-            // Update item name to include modifications
-            item.Name = GenerateItemNameWithModifications(item);
+            // Update item name to include modifications and stat bonuses
+            item.Name = GenerateItemNameWithBonuses(item);
+        }
+
+        private static string GenerateItemNameWithBonuses(Item item)
+        {
+            string baseName = GetBaseItemName(item);
+            var nameParts = new List<string>();
+            
+            // Add rarity prefix based on number of bonuses
+            int totalBonuses = item.StatBonuses.Count + item.ActionBonuses.Count + item.Modifications.Count;
+            string rarityPrefix = totalBonuses switch
+            {
+                >= 5 => "Legendary",
+                >= 4 => "Epic", 
+                >= 3 => "Rare",
+                >= 2 => "Uncommon",
+                _ => ""
+            };
+            
+            if (!string.IsNullOrEmpty(rarityPrefix))
+            {
+                nameParts.Add(rarityPrefix);
+            }
+            
+            // Add modification prefixes
+            foreach (var mod in item.Modifications)
+            {
+                if (!string.IsNullOrEmpty(mod.Name))
+                {
+                    nameParts.Add(mod.Name);
+                }
+            }
+            
+            // Add base item name
+            nameParts.Add(baseName);
+            
+            // Add stat bonus suffixes
+            foreach (var statBonus in item.StatBonuses)
+            {
+                if (!string.IsNullOrEmpty(statBonus.Name))
+                {
+                    nameParts.Add(statBonus.Name);
+                }
+            }
+            
+            return string.Join(" ", nameParts);
+        }
+        
+        private static string GetBaseItemName(Item item)
+        {
+            // Extract the base name without any prefixes/suffixes
+            string originalName = item.Name;
+            
+            // Remove common rarity prefixes
+            string[] rarityPrefixes = { "Legendary", "Epic", "Rare", "Uncommon" };
+            foreach (var prefix in rarityPrefixes)
+            {
+                if (originalName.StartsWith(prefix + " "))
+                {
+                    originalName = originalName.Substring(prefix.Length + 1);
+                }
+            }
+            
+            // Remove modification prefixes
+            foreach (var mod in item.Modifications)
+            {
+                if (!string.IsNullOrEmpty(mod.Name) && originalName.StartsWith(mod.Name + " "))
+                {
+                    originalName = originalName.Substring(mod.Name.Length + 1);
+                }
+            }
+            
+            return originalName;
         }
 
         private static Modification? RollModification(int itemTier = 1, int bonus = 0)
@@ -218,56 +319,6 @@ namespace RPGGame
             return _modifications!.FirstOrDefault(m => m.DiceResult == diceRoll);
         }
 
-        private static string GenerateItemNameWithModifications(Item item)
-        {
-            // Get the base name (remove "Starter" prefix if present for cleaner names)
-            string baseName = item.Name;
-            if (baseName.StartsWith("Starter "))
-            {
-                baseName = baseName.Substring(8); // Remove "Starter "
-            }
-
-            // Collect modification names (excluding negative ones for better naming)
-            var modificationNames = new List<string>();
-            foreach (var mod in item.Modifications)
-            {
-                // Skip negative modifications in the name (they're still applied, just not in name)
-                if (mod.Name != "Worn" && mod.Name != "Dull")
-                {
-                    modificationNames.Add(mod.Name);
-                }
-            }
-
-            // Collect stat bonus names (limit to first 2 to avoid overly long names)
-            var statBonusNames = new List<string>();
-            var bonusCount = 0;
-            foreach (var statBonus in item.StatBonuses)
-            {
-                if (bonusCount >= 2) break; // Limit to 2 stat bonuses in name
-                statBonusNames.Add(statBonus.Name);
-                bonusCount++;
-            }
-
-            // Build the full name: [Rarity] [Modifications] [Base Name] [Stat Bonuses]
-            var nameComponents = new List<string>();
-
-            // Add rarity if not Common
-            if (item.Rarity != "Common")
-            {
-                nameComponents.Add(item.Rarity);
-            }
-
-            // Add modifications
-            nameComponents.AddRange(modificationNames);
-
-            // Add base name
-            nameComponents.Add(baseName);
-
-            // Add stat bonuses at the end
-            nameComponents.AddRange(statBonusNames);
-
-            return string.Join(" ", nameComponents);
-        }
 
         private static string? FindGameDataFile(string fileName)
         {

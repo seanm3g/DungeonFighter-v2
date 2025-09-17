@@ -240,6 +240,7 @@ namespace RPGGame
                     // Create a basic weapon as guaranteed fallback
                     reward = new WeaponItem("Basic Sword", player.Level, 5 + player.Level, 1.0, WeaponType.Sword);
                     reward.Rarity = "Common";
+                    // Weapons don't need GearAction assignment as they use weapon-specific actions
                 }
                 
                 if (reward != null)
@@ -696,13 +697,13 @@ namespace RPGGame
             var enemy = new Enemy("TestGoblin", 1, 50, 8, 6, 4, 0);
             
             // Set up player with combo actions
-            var tauntAction = new Action("Taunt", ActionType.Debuff, TargetType.SingleTarget, 0, 1, 0, "A calculated taunt", 0, 0, 2.0, false, false, true, 2, 2);
-            var jabAction = new Action("Jab", ActionType.Attack, TargetType.SingleTarget, 0, 1, 0, "A quick jab", 1, 0.5, 0.5, false, false, true, 0, 0);
+            var tauntAction = new Action("Taunt", ActionType.Debuff, TargetType.SingleTarget, 0, 1, 0, "A calculated taunt", 0, 0, 2.0, false, false, false, false, true, 2, 2);
+            var jabAction = new Action("Jab", ActionType.Attack, TargetType.SingleTarget, 0, 1, 0, "A quick jab", 1, 0.5, 0.5, false, false, false, false, true, 0, 0);
             player.AddAction(tauntAction, 1.0);
             player.AddAction(jabAction, 1.0);
             
             // Set up enemy with basic attack
-            var basicAttack = new Action("Basic Attack", ActionType.Attack, TargetType.SingleTarget, 5, 1, 0, "A basic attack", 0, 1.0, 1.0, false, false, false, 0, 0);
+            var basicAttack = new Action("Basic Attack", ActionType.Attack, TargetType.SingleTarget, 5, 1, 0, "A basic attack", 0, 1.0, 1.0, false, false, false, false, false, 0, 0);
             enemy.AddAction(basicAttack, 1.0);
             
             // Start battle narrative
@@ -726,7 +727,7 @@ namespace RPGGame
             var compatPlayer = new Character("CompatPlayer", 1);
             var compatEnemy = new Enemy("CompatEnemy", 1, 50, 8, 6, 4, 0);
             
-            var compatAction = new Action("Test Attack", ActionType.Attack, TargetType.SingleTarget, 5, 1, 0, "A test attack", 0, 1.0, 1.0, false, false, true, 0, 0);
+            var compatAction = new Action("Test Attack", ActionType.Attack, TargetType.SingleTarget, 5, 1, 0, "A test attack", 0, 1.0, 1.0, false, false, false, false, true, 0, 0);
             compatPlayer.AddAction(compatAction, 1.0);
             
             // Don't start narrative - should use old message format
@@ -1345,7 +1346,7 @@ namespace RPGGame
                 });
 
                 TestActionWithStats("TAUNT", "50% length for next 2 actions. *higher combo chance", character, enemy, () => {
-                    var action = new Action("TAUNT", ActionType.Debuff, TargetType.SingleTarget, 0, 1, 0, "50% length for next 2 actions. *higher combo chance", 0, 0, 3.0, false, false, true, 2, 2);
+                    var action = new Action("TAUNT", ActionType.Debuff, TargetType.SingleTarget, 0, 1, 0, "50% length for next 2 actions. *higher combo chance", 0, 0, 3.0, false, false, false, false, true, 2, 2);
                     Assert(action.ReduceLengthNextActions, "TAUNT should reduce length of next actions");
                     Assert(action.LengthReduction == 0.5, "TAUNT should reduce length by 50%");
                     Assert(action.LengthReductionDuration == 2, "TAUNT should affect next 2 actions");
@@ -1678,6 +1679,31 @@ namespace RPGGame
                 Console.WriteLine("Press any key to continue...");
                 Console.ReadKey();
                 RunGame();
+            }
+        }
+
+        static (string? name, int level) GetSavedCharacterInfo(string filename = "character_save.json")
+        {
+            try
+            {
+                if (!File.Exists(filename))
+                {
+                    return (null, 0);
+                }
+
+                string json = File.ReadAllText(filename);
+                var saveData = System.Text.Json.JsonSerializer.Deserialize<CharacterSaveData>(json);
+                
+                if (saveData == null)
+                {
+                    return (null, 0);
+                }
+
+                return (saveData.Name, saveData.Level);
+            }
+            catch (Exception)
+            {
+                return (null, 0);
             }
         }
 
@@ -2423,14 +2449,28 @@ namespace RPGGame
             Console.ReadKey();
         }
 
-        static void RunPlayGameMenu()
+
+        static void Main(string[] args)
         {
             while (true)
             {
-                Console.WriteLine("\nPlay Game\n");
+                Console.WriteLine("\nDungeon Fighter - Main Menu\n");
+                Thread.Sleep(TuningConfig.Instance.UI.MainMenuDelay);
                 Console.WriteLine("1. New Game");
-                Console.WriteLine("2. Load Game");
-                Console.WriteLine("3. Back to Main Menu\n");
+                
+                // Check if there's a saved character and display info
+                var (characterName, characterLevel) = GetSavedCharacterInfo();
+                if (characterName != null)
+                {
+                    Console.WriteLine($"2. Load Game - {characterName} - Level {characterLevel}");
+                }
+                else
+                {
+                    Console.WriteLine("2. Load Game");
+                }
+                
+                Console.WriteLine("3. Settings");
+                Console.WriteLine("4. Exit\n");
                 Console.Write("Choose an option: ");
 
                 string? choice = Console.ReadLine();
@@ -2438,39 +2478,14 @@ namespace RPGGame
                 {
                     case "1":
                         RunGame();
-                        return; // Return to main menu after game ends
+                        break;
                     case "2":
                         LoadAndRunGame();
-                        return; // Return to main menu after game ends
+                        break;
                     case "3":
-                        return; // Back to main menu
-                    default:
-                        Console.WriteLine("Invalid choice. Please try again.");
-                        break;
-                }
-            }
-        }
-
-        static void Main(string[] args)
-        {
-            while (true)
-            {
-                Console.WriteLine("\nDungeon Crawler - Main Menu\n");
-                Console.WriteLine("1. Play Game");
-                Console.WriteLine("2. Settings");
-                Console.WriteLine("3. Exit\n");
-                Console.Write("Choose an option: ");
-
-                string? choice = Console.ReadLine();
-                switch (choice)
-                {
-                    case "1":
-                        RunPlayGameMenu();
-                        break;
-                    case "2":
                         RunSettings();
                         break;
-                    case "3":
+                    case "4":
                         Console.WriteLine("Goodbye!");
                         return;
                     default:
@@ -2550,13 +2565,41 @@ namespace RPGGame
                             {
                                 Console.WriteLine($"    Stat Bonuses: {string.Join(", ", item.StatBonuses.Select(s => $"{s.Name} (+{s.Value} {s.StatType})"))}");
                             }
-                            if (item.ActionBonuses.Any())
+                            var actionBonusNames = item.ActionBonuses
+                                .Where(a => !string.IsNullOrEmpty(a.Name))
+                                .Select(a => a.Name)
+                                .ToList();
+                            if (actionBonusNames.Any())
                             {
-                                Console.WriteLine($"    Action Bonuses: {string.Join(", ", item.ActionBonuses.Select(a => a.Name))}");
+                                Console.WriteLine($"    Action Bonuses: {string.Join(", ", actionBonusNames)}");
                             }
                             if (item.Modifications.Any())
                             {
-                                Console.WriteLine($"    Modifications: {string.Join(", ", item.Modifications.Select(m => $"{m.Name} ({m.Effect})"))}");
+                                var modificationDetails = item.Modifications.Select(m => 
+                                {
+                                    if (!string.IsNullOrEmpty(m.Effect))
+                                    {
+                                        string valueDisplay = m.Effect switch
+                                        {
+                                            "damage" => $"+{m.MaxValue:F0} Damage",
+                                            "speedMultiplier" => $"{m.MaxValue:F2}x Speed", 
+                                            "rollBonus" => $"+{m.MaxValue:F0} Roll",
+                                            "reroll" => "Divine Reroll",
+                                            "lifesteal" => $"{(m.MaxValue * 100):F1}% Lifesteal",
+                                            "autoSuccess" => "Auto Success",
+                                            "bleedChance" => $"{(m.MaxValue * 100):F1}% Bleed",
+                                            "uniqueActionChance" => $"{(m.MaxValue * 100):F1}% Unique Action",
+                                            "damageMultiplier" => $"{m.MaxValue:F1}x Damage",
+                                            _ => $"({m.Effect})"
+                                        };
+                                        return $"{m.Name} ({valueDisplay})";
+                                    }
+                                    else
+                                    {
+                                        return m.Name;
+                                    }
+                                });
+                                Console.WriteLine($"    Modifications: {string.Join(", ", modificationDetails)}");
                             }
                             
                             // Show armor bonus breakdown for armor items
@@ -2645,10 +2688,13 @@ namespace RPGGame
                             }
                         }
                         
-                        if (item.ActionBonuses.Any())
+                        var validActionBonuses = item.ActionBonuses
+                            .Where(bonus => !string.IsNullOrEmpty(bonus.Name))
+                            .ToList();
+                        if (validActionBonuses.Any())
                         {
                             Console.WriteLine($"  Action Bonuses:");
-                            foreach (var bonus in item.ActionBonuses)
+                            foreach (var bonus in validActionBonuses)
                             {
                                 Console.WriteLine($"    - {bonus.Name}: {bonus.Description}");
                             }
@@ -2659,7 +2705,23 @@ namespace RPGGame
                             Console.WriteLine($"  Modifications:");
                             foreach (var mod in item.Modifications)
                             {
-                                Console.WriteLine($"    - {mod.Name}: {mod.Effect}");
+                                string valueDisplay = "";
+                                if (!string.IsNullOrEmpty(mod.Effect))
+                                {
+                                    valueDisplay = mod.Effect switch
+                                    {
+                                        "damage" => $" (+{mod.MaxValue:F0} Damage)",
+                                        "speedMultiplier" => $" ({mod.MaxValue:F2}x Speed)", 
+                                        "rollBonus" => $" (+{mod.MaxValue:F0} Roll)",
+                                        "reroll" => " (Divine Reroll)",
+                                        "lifesteal" => $" ({(mod.MaxValue * 100):F1}% Lifesteal)",
+                                        "autoSuccess" => " (Auto Success)",
+                                        "bleedChance" => $" ({(mod.MaxValue * 100):F1}% Bleed)",
+                                        "uniqueActionChance" => $" ({(mod.MaxValue * 100):F1}% Unique Action)",
+                                        _ => $" ({mod.Effect})"
+                                    };
+                                }
+                                Console.WriteLine($"    - {mod.Name}: {mod.Effect}{valueDisplay}");
                             }
                         }
                         

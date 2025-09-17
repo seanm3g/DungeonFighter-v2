@@ -1,4 +1,4 @@
-# Dungeon Crawler RPG
+# Dungeon Fighter RPG
 
 A console-based RPG/dungeon crawler game built with .NET 8.0, featuring turn-based combat, character progression, inventory management, and procedurally generated dungeons.
 

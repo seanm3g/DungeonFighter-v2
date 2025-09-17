@@ -1,25 +1,206 @@
 {
-  "Name": "Hero",
-  "Level": 1,
-  "XP": 0,
-  "CurrentHealth": 100,
-  "MaxHealth": 100,
-  "Strength": 5,
-  "Agility": 5,
-  "Technique": 5,
-  "Intelligence": 5,
+  "Name": "Nolan Dawnbringer",
+  "Level": 3,
+  "XP": 65,
+  "CurrentHealth": 106,
+  "MaxHealth": 106,
+  "Strength": 12,
+  "Agility": 12,
+  "Technique": 12,
+  "Intelligence": 16,
   "BarbarianPoints": 0,
   "WarriorPoints": 0,
   "RoguePoints": 0,
-  "WizardPoints": 0,
+  "WizardPoints": 2,
   "ComboStep": 0,
   "ComboBonus": 0,
   "TempComboBonus": 0,
   "TempComboBonusTurns": 0,
   "DamageReduction": 0,
-  "Inventory": [],
+  "Inventory": [
+    {
+      "Name": "Legendary Precise Agile Ash Wand of the Archmage of Might of Resilience",
+      "Type": 3,
+      "Tier": 1,
+      "ComboBonus": 0,
+      "Rarity": "Rare",
+      "StatBonuses": [
+        {
+          "Name": "of the Archmage",
+          "Description": "\u002B8 Intelligence, \u002B8 damage",
+          "Value": 8,
+          "Weight": 1,
+          "StatType": "INT"
+        },
+        {
+          "Name": "of Might",
+          "Description": "\u002B6 base damage",
+          "Value": 6,
+          "Weight": 8,
+          "StatType": "Damage"
+        },
+        {
+          "Name": "of Resilience",
+          "Description": "\u002B3 health regeneration",
+          "Value": 3,
+          "Weight": 8,
+          "StatType": "HealthRegen"
+        }
+      ],
+      "ActionBonuses": [
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        },
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        }
+      ],
+      "Modifications": [
+        {
+          "DiceResult": 7,
+          "ItemRank": "Uncommon",
+          "Name": "Precise",
+          "Description": "\u002B2 to attack rolls",
+          "Effect": "rollBonus",
+          "MinValue": 2,
+          "MaxValue": 2
+        },
+        {
+          "DiceResult": 10,
+          "ItemRank": "Rare",
+          "Name": "Agile",
+          "Description": "20% faster attack speed",
+          "Effect": "speedMultiplier",
+          "MinValue": 1.2,
+          "MaxValue": 1.2
+        }
+      ],
+      "ArmorStatuses": [],
+      "BonusDamage": 1,
+      "BonusAttackSpeed": 10,
+      "GearAction": null,
+      "IsStarterItem": false
+    },
+    {
+      "Name": "Legendary Time Warp Enchanted Silver Sword of the Cat of the Cat of Fortification",
+      "Type": 3,
+      "Tier": 2,
+      "ComboBonus": 0,
+      "Rarity": "Rare",
+      "StatBonuses": [
+        {
+          "Name": "of the Cat",
+          "Description": "\u002B3 Agility, \u002B0.005 speed",
+          "Value": 3,
+          "Weight": 5,
+          "StatType": "AGI"
+        },
+        {
+          "Name": "of the Cat",
+          "Description": "\u002B3 Agility, \u002B0.005 speed",
+          "Value": 3,
+          "Weight": 5,
+          "StatType": "AGI"
+        },
+        {
+          "Name": "of Fortification",
+          "Description": "\u002B5 armor value",
+          "Value": 5,
+          "Weight": 8,
+          "StatType": "Armor"
+        }
+      ],
+      "ActionBonuses": [
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        },
+        {
+          "Name": "",
+          "Description": "",
+          "Weight": 1
+        }
+      ],
+      "Modifications": [
+        {
+          "DiceResult": 22,
+          "ItemRank": "Mythic",
+          "Name": "Time Warp",
+          "Description": "50% faster attack speed",
+          "Effect": "speedMultiplier",
+          "MinValue": 1.5,
+          "MaxValue": 1.5
+        },
+        {
+          "DiceResult": 19,
+          "ItemRank": "Legendary",
+          "Name": "Enchanted",
+          "Description": "5%-15% Unique Action Chance",
+          "Effect": "uniqueActionChance",
+          "MinValue": 0.05,
+          "MaxValue": 0.15
+        }
+      ],
+      "ArmorStatuses": [],
+      "BonusDamage": 7,
+      "BonusAttackSpeed": 5,
+      "GearAction": null,
+      "IsStarterItem": false
+    },
+    {
+      "Name": "Steel Sword of Invulnerability",
+      "Type": 3,
+      "Tier": 1,
+      "ComboBonus": 0,
+      "Rarity": "Common",
+      "StatBonuses": [
+        {
+          "Name": "of Invulnerability",
+          "Description": "\u002B12 armor value",
+          "Value": 12,
+          "Weight": 2,
+          "StatType": "Armor"
+        }
+      ],
+      "ActionBonuses": [],
+      "Modifications": [],
+      "ArmorStatuses": [],
+      "BonusDamage": 7,
+      "BonusAttackSpeed": 1,
+      "GearAction": null,
+      "IsStarterItem": false
+    },
+    {
+      "Name": "Wooden Wand of Power",
+      "Type": 3,
+      "Tier": 1,
+      "ComboBonus": 0,
+      "Rarity": "Common",
+      "StatBonuses": [
+        {
+          "Name": "of Power",
+          "Description": "\u002B3 base damage",
+          "Value": 3,
+          "Weight": 15,
+          "StatType": "Damage"
+        }
+      ],
+      "ActionBonuses": [],
+      "Modifications": [],
+      "ArmorStatuses": [],
+      "BonusDamage": 3,
+      "BonusAttackSpeed": 9,
+      "GearAction": null,
+      "IsStarterItem": false
+    }
+  ],
   "Head": {
-    "Name": "Starter Leather Helmet",
+    "Name": "Leather Helmet",
     "Type": 0,
     "Tier": 1,
     "ComboBonus": 0,
@@ -27,12 +208,14 @@
     "StatBonuses": [],
     "ActionBonuses": [],
     "Modifications": [],
+    "ArmorStatuses": [],
     "BonusDamage": 0,
     "BonusAttackSpeed": 0,
-    "IsStarterItem": true
+    "GearAction": null,
+    "IsStarterItem": false
   },
   "Body": {
-    "Name": "Starter Leather Armor",
+    "Name": "Leather Armor",
     "Type": 2,
     "Tier": 1,
     "ComboBonus": 0,
@@ -40,25 +223,81 @@
     "StatBonuses": [],
     "ActionBonuses": [],
     "Modifications": [],
+    "ArmorStatuses": [],
     "BonusDamage": 0,
     "BonusAttackSpeed": 0,
-    "IsStarterItem": true
+    "GearAction": null,
+    "IsStarterItem": false
   },
   "Weapon": {
-    "Name": "Starter Wand",
+    "Name": "Legendary Precise Agile Ash Wand of the Archmage of Might of Resilience",
     "Type": 3,
     "Tier": 1,
     "ComboBonus": 0,
-    "Rarity": "Common",
-    "StatBonuses": [],
-    "ActionBonuses": [],
-    "Modifications": [],
-    "BonusDamage": 0,
-    "BonusAttackSpeed": 0,
-    "IsStarterItem": true
+    "Rarity": "Rare",
+    "StatBonuses": [
+      {
+        "Name": "of the Archmage",
+        "Description": "\u002B8 Intelligence, \u002B8 damage",
+        "Value": 8,
+        "Weight": 1,
+        "StatType": "INT"
+      },
+      {
+        "Name": "of Might",
+        "Description": "\u002B6 base damage",
+        "Value": 6,
+        "Weight": 8,
+        "StatType": "Damage"
+      },
+      {
+        "Name": "of Resilience",
+        "Description": "\u002B3 health regeneration",
+        "Value": 3,
+        "Weight": 8,
+        "StatType": "HealthRegen"
+      }
+    ],
+    "ActionBonuses": [
+      {
+        "Name": "",
+        "Description": "",
+        "Weight": 1
+      },
+      {
+        "Name": "",
+        "Description": "",
+        "Weight": 1
+      }
+    ],
+    "Modifications": [
+      {
+        "DiceResult": 7,
+        "ItemRank": "Uncommon",
+        "Name": "Precise",
+        "Description": "\u002B2 to attack rolls",
+        "Effect": "rollBonus",
+        "MinValue": 2,
+        "MaxValue": 2
+      },
+      {
+        "DiceResult": 10,
+        "ItemRank": "Rare",
+        "Name": "Agile",
+        "Description": "20% faster attack speed",
+        "Effect": "speedMultiplier",
+        "MinValue": 1.2,
+        "MaxValue": 1.2
+      }
+    ],
+    "ArmorStatuses": [],
+    "BonusDamage": 1,
+    "BonusAttackSpeed": 10,
+    "GearAction": null,
+    "IsStarterItem": false
   },
   "Feet": {
-    "Name": "Starter Leather Boots",
+    "Name": "Leather Boots",
     "Type": 1,
     "Tier": 1,
     "ComboBonus": 0,
@@ -66,8 +305,10 @@
     "StatBonuses": [],
     "ActionBonuses": [],
     "Modifications": [],
+    "ArmorStatuses": [],
     "BonusDamage": 0,
     "BonusAttackSpeed": 0,
-    "IsStarterItem": true
+    "GearAction": null,
+    "IsStarterItem": false
   }
 }

@@ -48,6 +48,14 @@ Enemy Stats - Health: 134/134, Armor: 9, Attack: STR 33, AGI 13, TEC 12, INT 13
 32. ✅ Add 1 line between "Encountered *enemy*" and stats.
 33. ✅ Swap hero and Enemy stats after" Encounter *enemy*"
 34. ✅ Class Points: Barbarian(0) Warrior(0) Rogue(0) Wizard(4) Class points can hide any with 0 points.
-35. Weapons in inventory should show its Attack Speed
-36. Clean out the action pool if a weapon or item is disgarded (either but replacing with a different item, or being disgarded.)
-37. Add more variety of actions to gear.
+35. ✅ Weapons in inventory should show its Attack Speed
+36. ✅ Clean out the action pool if a weapon or item is disgarded (either but replacing with a different item, or being disgarded.)
+37. ✅ Add more variety of actions to gear.
+38. ✅ ARMOR SPIKES
+      Sharp spikes on your armor cause damage on contact | Damage: 0.9x | Length: 1.0 | Damage: 0.9x
+      This should be an armor status, not an action.
+39. ✅ If i put on a piece of gear that increase my health in inventory, I want to start the next dungeon with full health.
+40. Audit the environmental actions to be half good, half bad, and are more appropriate narratively matched.
+41. The way action speed is displayed for actions doesn't make sense.
+42. enemies should maybe be affected inverse or neutral to enviromental actions as the hero
+43. Enemies are weak and need to be balanced around a DPS calculator.

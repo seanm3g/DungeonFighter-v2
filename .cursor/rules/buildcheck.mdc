@@ -1,0 +1,5 @@
+---
+description: Do not build or run code to check it, as it just freezes.
+globs:
+alwaysApply: true
+---

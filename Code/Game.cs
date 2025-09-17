@@ -3,6 +3,29 @@ namespace RPGGame
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
+    using System.Text.Json;
+
+    public class StartingGearData
+    {
+        public List<StartingWeapon> weapons { get; set; } = new();
+        public List<StartingArmor> armor { get; set; } = new();
+    }
+
+    public class StartingWeapon
+    {
+        public string name { get; set; } = "";
+        public int damage { get; set; }
+        public double weight { get; set; }
+        public double attackSpeed { get; set; } = 0.05;
+    }
+
+    public class StartingArmor
+    {
+        public string slot { get; set; } = "";
+        public string name { get; set; } = "";
+        public int armor { get; set; }
+        public double weight { get; set; }
+    }
 
     public class Game
     {
@@ -16,8 +39,9 @@ namespace RPGGame
             random = new Random();
             var settings = GameSettings.Instance;
             
-            // Apply player multipliers
-            player = new Character("Hero", 1);
+            // Create a new character (for "New Game")
+            player = new Character(null, 1); // null will trigger random name generation
+            
             if (settings.PlayerHealthMultiplier != 1.0)
             {
                 player.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
@@ -25,6 +49,10 @@ namespace RPGGame
             
             inventory = new List<Item>();
             availableDungeons = new List<Dungeon>();
+            
+            // Start the game ticker
+            GameTicker.Instance.Start();
+            
             InitializeGame();
         }
 
@@ -42,53 +70,90 @@ namespace RPGGame
             
             inventory = new List<Item>();
             availableDungeons = new List<Dungeon>();
+            
+            // Start the game ticker
+            GameTicker.Instance.Start();
+            
             InitializeGameForExistingCharacter();
+        }
+
+        private StartingGearData LoadStartingGear()
+        {
+            try
+            {
+                string jsonPath = Path.Combine("..", "GameData", "StartingGear.json");
+                string jsonContent = File.ReadAllText(jsonPath);
+                return JsonSerializer.Deserialize<StartingGearData>(jsonContent) ?? new StartingGearData();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading starting gear: {ex.Message}");
+                return new StartingGearData();
+            }
         }
 
         private void InitializeGame()
         {
+            // Load starting gear from JSON
+            var startingGear = LoadStartingGear();
+            
             // Prompt player to choose a starter weapon
             Console.WriteLine();
             Console.WriteLine("Choose your starter weapon:");
-            Console.WriteLine("1. Sword");
-            Console.WriteLine("2. Mace");
-            Console.WriteLine("3. Dagger");
-            Console.WriteLine("4. Wand");
             Console.WriteLine();
+            for (int i = 0; i < startingGear.weapons.Count; i++)
+            {
+                var weapon = startingGear.weapons[i];
+                Console.WriteLine($"{i + 1}. {weapon.name}");
+            }
+            Console.WriteLine();
+            
             int weaponChoice = 1;
             while (true)
             {
                 Console.Write("Choose an option: ");
-                if (int.TryParse(Console.ReadLine(), out weaponChoice) && weaponChoice >= 1 && weaponChoice <= 4)
+                if (int.TryParse(Console.ReadLine(), out weaponChoice) && weaponChoice >= 1 && weaponChoice <= startingGear.weapons.Count)
                     break;
                 Console.WriteLine("Invalid choice.");
             }
-            WeaponItem starterWeapon;
-            switch (weaponChoice)
+            
+            // Create weapon from JSON data
+            var selectedWeaponData = startingGear.weapons[weaponChoice - 1];
+            WeaponType weaponType = selectedWeaponData.name.ToLower() switch
             {
-                case 1:
-                    starterWeapon = new WeaponItem("Starter Sword", 1, 5, 2.0, WeaponType.Sword);
-                    break;
-                case 2:
-                    starterWeapon = new WeaponItem("Starter Mace", 1, 7, 3.0, WeaponType.Mace);
-                    break;
-                case 3:
-                    starterWeapon = new WeaponItem("Starter Dagger", 1, 3, 1.0, WeaponType.Dagger);
-                    break;
-                case 4:
-                    starterWeapon = new WeaponItem("Starter Wand", 1, 4, 1.5, WeaponType.Wand);
-                    break;
-                default:
-                    starterWeapon = new WeaponItem("Starter Sword", 1, 5, 2.0, WeaponType.Sword);
-                    break;
-            }
-            var leatherHelmet = new HeadItem("Starter Leather Helmet", 1, 2);
-            var leatherArmor = new ChestItem("Starter Leather Armor", 1, 4);
-            var leatherBoots = new FeetItem("Starter Leather Boots", 1, 1);
+                var name when name.Contains("sword") => WeaponType.Sword,
+                var name when name.Contains("mace") => WeaponType.Mace,
+                var name when name.Contains("dagger") => WeaponType.Dagger,
+                var name when name.Contains("wand") => WeaponType.Wand,
+                _ => WeaponType.Sword
+            };
+            
+            WeaponItem starterWeapon = new WeaponItem(selectedWeaponData.name, 1, selectedWeaponData.damage, selectedWeaponData.attackSpeed, weaponType);
             player.EquipItem(starterWeapon, "weapon");
-            player.EquipItem(leatherHelmet, "head");
-            player.EquipItem(leatherArmor, "body");
-            player.EquipItem(leatherBoots, "feet");
+            
+            // Equip starting armor from JSON
+            foreach (var armorData in startingGear.armor)
+            {
+                Item armorItem = armorData.slot.ToLower() switch
+                {
+                    "head" => new HeadItem(armorData.name, 1, armorData.armor),
+                    "chest" => new ChestItem(armorData.name, 1, armorData.armor),
+                    "feet" => new FeetItem(armorData.name, 1, armorData.armor),
+                    _ => new HeadItem(armorData.name, 1, armorData.armor)
+                };
+                
+                // Starting gear should NEVER have actions - leave GearAction as null
+                
+                string slot = armorData.slot.ToLower() switch
+                {
+                    "head" => "head",
+                    "chest" => "body", 
+                    "feet" => "feet",
+                    _ => "head"
+                };
+                
+                player.EquipItem(armorItem, slot);
+            }
 
             // Themed dungeons
             availableDungeons.Clear();
@@ -164,8 +229,8 @@ namespace RPGGame
 
         public void Run()
         {
-            Console.WriteLine("\nWelcome to the Dungeon Crawler!\n");
-            Console.WriteLine($"Player: {player.Name} (Level {player.Level})");
+            Console.WriteLine("Welcome to the Dungeon Fighter!\n");
+            Console.WriteLine($"Player: {player.GetFullNameWithQualifier()} (Level {player.Level})");
 
             while (true)
             {
@@ -243,17 +308,26 @@ namespace RPGGame
                 // Sort dungeons by level (lowest to highest)
                 availableDungeons = availableDungeons.OrderBy(d => d.MinLevel).ToList();
 
+                // Declare action speed system variable for use throughout dungeon run
+                ActionSpeedSystem? actionSpeedSystem = null;
+                
                 // Dungeon Selection and Run
                 Dungeon selectedDungeon = ChooseDungeon();
                 selectedDungeon.Generate();
 
                 Console.WriteLine($"\nEntering {selectedDungeon.Name}...");
+                Thread.Sleep(TuningConfig.Instance.UI.DungeonEntryDelay);
 
                 // Room Sequence
                 foreach (Environment room in selectedDungeon.Rooms)
                 {
                     Console.WriteLine($"\nEntering room: {room.Name}");
                     Console.WriteLine(room.Description);
+                    
+                    // Clear all temporary effects when entering a new room
+                    player.ClearAllTempEffects();
+                    
+                    Thread.Sleep(TuningConfig.Instance.UI.RoomEntryDelay);
 
                     while (room.HasLivingEnemies())
                     {
@@ -261,116 +335,279 @@ namespace RPGGame
                         if (currentEnemy == null) break;
 
                         Console.WriteLine($"\nEncountered {currentEnemy.Name}!");
+                        Thread.Sleep(TuningConfig.Instance.UI.EnemyEncounterDelay);
                         Console.WriteLine(); // Blank line between "Encountered" and stats
-                        Console.WriteLine($"Hero Stats - Health: {player.CurrentHealth}/{player.GetEffectiveMaxHealth()}, Armor: {player.GetTotalArmor()}, Attack: STR {player.GetEffectiveStrength()}, AGI {player.GetEffectiveAgility()}, TEC {player.GetEffectiveTechnique()}, INT {player.GetEffectiveIntelligence()}");
-                        Console.WriteLine($"Enemy Stats - Health: {currentEnemy.CurrentHealth}/{currentEnemy.MaxHealth}, Armor: {currentEnemy.Armor}, Attack: STR {currentEnemy.Strength}, AGI {currentEnemy.Agility}, TEC {currentEnemy.Technique}, INT {currentEnemy.Intelligence}");
+                        Console.WriteLine($"Hero Stats - Health: {player.CurrentHealth}/{player.GetEffectiveMaxHealth()}, Armor: {player.GetTotalArmor()}, Attack: STR {player.GetEffectiveStrength()}, AGI {player.GetEffectiveAgility()}, TEC {player.GetEffectiveTechnique()}, INT {player.GetEffectiveIntelligence()}, Speed: {player.GetTotalAttackSpeed():F2}");
+                        Console.WriteLine($"Enemy Stats - Health: {currentEnemy.CurrentHealth}/{currentEnemy.MaxHealth}, Armor: {currentEnemy.Armor}, Attack: STR {currentEnemy.Strength}, AGI {currentEnemy.Agility}, TEC {currentEnemy.Technique}, INT {currentEnemy.Intelligence}, Speed: {currentEnemy.GetTotalAttackSpeed():F2}");
+                        
+                        // Show action speed info
+                        var speedSystem = Combat.GetCurrentActionSpeedSystem();
+                        if (speedSystem != null)
+                        {
+                            Console.WriteLine($"Turn Order: {speedSystem.GetTurnOrderInfo()}");
+                        }
                         Console.WriteLine(); // Line break between stats and action
 
-                        // Start battle narrative
+                        // Clear all temporary effects when starting a new battle (in case there are multiple enemies in the room)
+                        player.ClearAllTempEffects();
+                        
+                        // Reset Divine reroll charges for new combat
+                        player.ResetRerollCharges();
+                        
+                        // Start battle narrative and initialize action speed system
                         Combat.StartBattleNarrative(player.Name, currentEnemy.Name, room.Name, player.CurrentHealth, currentEnemy.CurrentHealth);
+                        Combat.InitializeCombatEntities(player, currentEnemy, room);
+                        
+                        // Reset game time AFTER initializing combat entities to avoid timing conflicts
+                        GameTicker.Instance.Reset();
+                        
+                        // Reset environment action count for new fight
+                        room.ResetForNewFight();
 
-                        // Combat Loop with intelligent delay system
+                        // Combat Loop with action speed system
                         var settings = GameSettings.Instance;
                         
                         while (player.IsAlive && currentEnemy.IsAlive)
                         {
-                            // Player acts
-                            if (player.IsAlive)
+                            // Get the next entity that should act based on action speed
+                            Entity? nextEntity = Combat.GetNextEntityToAct();
+                            
+                            if (nextEntity == null)
                             {
-                                // Always recalculate comboActions and actionIdx after any combo reset
-                                var comboActions = player.GetComboActions();
-                                int actionIdx = 0; // Always start at 0 after a reset
-                                if (comboActions.Count > 0)
-                                    actionIdx = player.ComboStep % comboActions.Count;
-                                // The action that will be attempted this turn
-                                var attemptedAction = comboActions.Count > 0 ? comboActions[actionIdx] : null;
-
-                                // Execute multiple attacks based on attack speed
-                                string result = Combat.ExecuteMultiAttack(player, currentEnemy, room);
-                                bool textDisplayed = !string.IsNullOrEmpty(result);
-                                
-                                // Show individual action messages
-                                if (textDisplayed)
+                                // No entities ready, advance time to the next entity's action time
+                                var currentSpeedSystem = Combat.GetCurrentActionSpeedSystem();
+                                if (currentSpeedSystem != null)
                                 {
-                                    Console.WriteLine(result);
+                                    // Find the next entity that will be ready and advance time to that point
+                                    var nextReadyTime = currentSpeedSystem.GetNextReadyTime();
+                                    if (nextReadyTime > 0)
+                                    {
+                                        double timeToAdvance = nextReadyTime - currentSpeedSystem.GetCurrentTime();
+                                        if (timeToAdvance > 0)
+                                        {
+                                            currentSpeedSystem.AdvanceTime(timeToAdvance);
+                                        }
+                                        else
+                                        {
+                                            // Fallback: advance time slightly
+                                            currentSpeedSystem.AdvanceTime(0.1);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // No entities ready and no next ready time - this shouldn't happen
+                                        Console.WriteLine("ERROR: No entities ready and no next ready time. Breaking combat loop.");
+                                        break;
+                                    }
+                                }
+                                else
+                                {
+                                    // ActionSpeedSystem is null - this shouldn't happen
+                                    break;
+                                }
+                                continue;
+                            }
+
+                            // Player acts
+                            if (nextEntity == player && player.IsAlive)
+                            {
+                                // Check if player is stunned
+                                if (player.IsStunned)
+                                {
+                                    Combat.WriteCombatLog($"[{player.Name}] is stunned and cannot act! ({player.StunTurnsRemaining} turns remaining)");
+                                    // Update temp effects (including reducing stun and weaken turns) even when stunned
+                                    player.UpdateTempEffects(1.0); // 1.0 represents one turn
+                                    // Advance the player's turn in the action speed system based on their action speed
+                                    var currentSpeedSystem = Combat.GetCurrentActionSpeedSystem();
+                                    if (currentSpeedSystem != null)
+                                    {
+                                        // Use the player's actual action speed for turn duration
+                                        double playerActionSpeed = player.GetTotalAttackSpeed();
+                                        currentSpeedSystem.AdvanceEntityTurn(player, playerActionSpeed);
+                                    }
+                                }
+                                else
+                                {
+                                    // Always recalculate comboActions and actionIdx after any combo reset
+                                    var comboActions = player.GetComboActions();
+                                    int actionIdx = 0; // Always start at 0 after a reset
+                                    if (comboActions.Count > 0)
+                                        actionIdx = player.ComboStep % comboActions.Count;
+                                    // The action that will be attempted this turn
+                                    var attemptedAction = comboActions.Count > 0 ? comboActions[actionIdx] : null;
+
+                                    // Execute single action (not multi-attack) with speed tracking
+                                    if (attemptedAction != null)
+                                    {
+                                        string result = Combat.ExecuteActionWithSpeed(player, currentEnemy, attemptedAction, room);
+                                        bool textDisplayed = !string.IsNullOrEmpty(result);
+                                        
+                                        // Show individual action messages with consistent delay
+                                        if (textDisplayed)
+                                        {
+                                            Combat.WriteCombatLog(result);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Player has no actions available - advance their turn to prevent infinite loop
+                                        Combat.WriteCombatLog($"[{player.Name}] has no actions available and cannot act!");
+                                        var currentSpeedSystem = Combat.GetCurrentActionSpeedSystem();
+                                        if (currentSpeedSystem != null)
+                                        {
+                                            double playerActionSpeed = player.GetTotalAttackSpeed();
+                                            currentSpeedSystem.AdvanceEntityTurn(player, playerActionSpeed);
+                                        }
+                                    }
                                 }
                                 
-                                // Apply delay only if text was displayed
-                                double lastActionLength = attemptedAction != null ? attemptedAction.Length : 1.0;
-                                Combat.ApplyTextDisplayDelay(lastActionLength, textDisplayed);
+                                // Process health regeneration for player after they act
+                                int playerHealthRegen = player.GetEquipmentHealthRegenBonus();
+                                if (playerHealthRegen > 0 && player.CurrentHealth < player.GetEffectiveMaxHealth())
+                                {
+                                    int oldHealth = player.CurrentHealth;
+                                    // Use negative damage to heal (TakeDamage with negative value heals)
+                                    player.TakeDamage(-playerHealthRegen);
+                                    // Cap at max health
+                                    if (player.CurrentHealth > player.GetEffectiveMaxHealth())
+                                    {
+                                        player.TakeDamage(player.CurrentHealth - player.GetEffectiveMaxHealth());
+                                    }
+                                    int actualRegen = player.CurrentHealth - oldHealth;
+                                    if (actualRegen > 0)
+                                    {
+                                        Combat.WriteCombatLog($"[{player.Name}] regenerates {actualRegen} health ({player.CurrentHealth}/{player.GetEffectiveMaxHealth()})");
+                                    }
+                                }
                                 
                                 if (!currentEnemy.IsAlive)
                                 {
                                     break;
                                 }
                             }
-                            
                             // Enemy acts
-                            if (currentEnemy.IsAlive)
+                            else if (nextEntity == currentEnemy && currentEnemy.IsAlive)
                             {
-                                // Use the enemy's multi-attack system
-                                var (result, success) = currentEnemy.AttemptMultiAction(player, room);
-                                bool textDisplayed = !string.IsNullOrEmpty(result);
-                                
-                                // Show individual action messages
-                                if (textDisplayed)
+                                // Check if enemy is stunned
+                                if (currentEnemy.IsStunned)
                                 {
-                                    Console.WriteLine(result);
+                                    Combat.WriteCombatLog($"[{currentEnemy.Name}] is stunned and cannot act! ({currentEnemy.StunTurnsRemaining} turns remaining)");
+                                    // Update temp effects (including reducing stun and weaken turns) even when stunned
+                                    currentEnemy.UpdateTempEffects(1.0); // 1.0 represents one turn
+                                    // Advance the enemy's turn in the action speed system based on their action speed
+                                    var currentSpeedSystem = Combat.GetCurrentActionSpeedSystem();
+                                    if (currentSpeedSystem != null)
+                                    {
+                                        // Use the enemy's actual action speed for turn duration
+                                        double enemyActionSpeed = currentEnemy.GetTotalAttackSpeed();
+                                        currentSpeedSystem.AdvanceEntityTurn(currentEnemy, enemyActionSpeed);
+                                    }
                                 }
-                                
-                                // Apply delay only if text was displayed
-                                var enemyAction = currentEnemy.SelectAction();
-                                double enemyActionLength = enemyAction != null ? enemyAction.Length : 1.0;
-                                Combat.ApplyTextDisplayDelay(enemyActionLength, textDisplayed);
+                                else
+                                {
+                                    var enemyAction = currentEnemy.SelectAction();
+                                    if (enemyAction != null)
+                                    {
+                                        string result = Combat.ExecuteActionWithSpeed(currentEnemy, player, enemyAction, room);
+                                        bool textDisplayed = !string.IsNullOrEmpty(result);
+                                        
+                                        // Show individual action messages with consistent delay
+                                        if (textDisplayed)
+                                        {
+                                            Combat.WriteCombatLog(result);
+                                        }
+                                    }
+                                }
                                 
                                 if (!player.IsAlive)
                                 {
                                     break;
+                                }
+                                
+                                // Process poison/bleed damage after enemy's turn
+                                double currentTime = GameTicker.Instance.GetCurrentGameTime();
+                                
+                                // Process poison for player
+                                int playerPoisonDamage = player.ProcessPoison(currentTime);
+                                if (playerPoisonDamage > 0)
+                                {
+                                    string damageType = player.GetDamageTypeText();
+                                    Combat.WriteCombatLog($"[{player.Name}] takes {playerPoisonDamage} {damageType} damage ({damageType}: {player.PoisonStacks} stacks remain)");
+                                }
+                                
+                                // Process poison for enemy (only if living)
+                                if (currentEnemy.IsLiving)
+                                {
+                                    int enemyPoisonDamage = currentEnemy.ProcessPoison(currentTime);
+                                    if (enemyPoisonDamage > 0)
+                                    {
+                                        string damageType = currentEnemy.GetDamageTypeText();
+                                        Combat.WriteCombatLog($"[{currentEnemy.Name}] takes {enemyPoisonDamage} {damageType} damage ({damageType}: {currentEnemy.PoisonStacks} stacks remain)");
+                                    }
                                 }
                             }
-                            
-                            // Environment acts
-                            if (room.IsHostile && room.ActionPool.Count > 0 && room.ShouldEnvironmentAct())
+                            // Environment acts (now handled through action speed system)
+                            else if (nextEntity == room && room.IsHostile && room.ActionPool.Count > 0)
                             {
-                                var envAction = room.ActionPool[0].action;
-                                
-                                // Create list of all characters in the room (player and current enemy)
-                                var allTargets = new List<Entity> { player, currentEnemy };
-                                
-                                // Use area of effect action to target all characters
-                                string result = Combat.ExecuteAreaOfEffectAction(room, allTargets, room);
-                                bool textDisplayed = !string.IsNullOrEmpty(result);
-                                
-                                // Show individual action messages
-                                if (textDisplayed)
+                                if (room.ShouldEnvironmentAct())
                                 {
-                                    Console.WriteLine(result);
+                                    var envAction = room.SelectAction();
+                                    if (envAction != null)
+                                    {
+                                        // Create list of all characters in the room (player and current enemy)
+                                        var allTargets = new List<Entity> { player, currentEnemy };
+                                        
+                                        // Use area of effect action to target all characters
+                                        string result = Combat.ExecuteAreaOfEffectAction(room, allTargets, room, envAction);
+                                        bool textDisplayed = !string.IsNullOrEmpty(result);
+                                        
+                                        // Show individual action messages
+                                        if (textDisplayed)
+                                        {
+                                            Combat.WriteCombatLog(result);
+                                        }
+                                        
+                                        // Update environment's action timing in the action speed system
+                                        actionSpeedSystem = Combat.GetCurrentActionSpeedSystem();
+                                        if (actionSpeedSystem != null)
+                                        {
+                                            actionSpeedSystem.ExecuteAction(room, envAction);
+                                        }
+                                        
+                                        if (!player.IsAlive)
+                                        {
+                                            break;
+                                        }
+                                    }
                                 }
-                                
-                                // Apply delay only if text was displayed
-                                Combat.ApplyTextDisplayDelay(envAction.Length, textDisplayed);
-                                
-                                if (!player.IsAlive)
+                                else
                                 {
-                                    break;
+                                    // Environment doesn't want to act, but we still need to advance its turn
+                                    // to prevent it from getting stuck in the action speed system
+                                    actionSpeedSystem = Combat.GetCurrentActionSpeedSystem();
+                                    if (actionSpeedSystem != null)
+                                    {
+                                        // Advance the environment's turn by a small amount to prevent infinite loops
+                                        actionSpeedSystem.AdvanceEntityTurn(room, 1.0);
+                                    }
                                 }
                             }
                         }
-
+                        
                         // End the battle narrative and display it if narrative balance is high enough
                         Combat.EndBattleNarrative();
                         var narrativeSettings = GameSettings.Instance;
                         
                         if (currentEnemy.IsAlive)
                         {
-                            Console.WriteLine("You have been defeated!");
+                            Combat.WriteCombatLog("You have been defeated!");
                             // Delete save file when character dies
                             Character.DeleteSaveFile();
                             return;
                         }
                         else
                         {
-                            Console.WriteLine($"{currentEnemy.Name} has been defeated!");
+                            Combat.WriteCombatLog($"{currentEnemy.Name} has been defeated!");
                             player.AddXP(currentEnemy.XPReward);
                         }
                         
@@ -399,7 +636,7 @@ namespace RPGGame
             for (int i = 0; i < availableDungeons.Count; i++)
             {
                 var d = availableDungeons[i];
-                Console.WriteLine($"{i + 1}. {d.Name} - Theme: {d.Theme}");
+                Console.WriteLine($"{i + 1}. {d.Name}");
             }
 
             int choice = -1;
@@ -454,6 +691,7 @@ namespace RPGGame
                 // Create a basic weapon as guaranteed fallback
                 reward = new WeaponItem("Basic Sword", player.Level, 5 + player.Level, 1.0, WeaponType.Sword);
                 reward.Rarity = "Common";
+                // Weapons don't need GearAction assignment as they use weapon-specific actions
             }
 
             if (reward != null)
@@ -479,6 +717,9 @@ namespace RPGGame
             {
                 Console.WriteLine($"Level up! You are now level {player.Level}");
             }
+            
+            // Add spacing before returning to main menu
+            Console.WriteLine();
         }
     }
 
@@ -503,7 +744,7 @@ namespace RPGGame
 
         public void Generate()
         {
-            int roomCount = Math.Max(1, (int)Math.Ceiling(MinLevel / 2.0) + 0); // 1 room at level 1, scales up
+            int roomCount = Math.Max(2, (int)Math.Ceiling(MinLevel / 2.0) + 0); // 2 rooms minimum, scales up
             Rooms.Clear();
 
             for (int i = 0; i < roomCount; i++)
@@ -520,7 +761,8 @@ namespace RPGGame
                     name: $"{roomTheme} Room",
                     description: roomDesc,
                     isHostile: isHostile,
-                    theme: Theme
+                    theme: Theme,
+                    roomType: roomTheme
                 );
 
                 // Generate enemies with scaled levels
@@ -531,36 +773,125 @@ namespace RPGGame
 
         private string GetRoomTheme(int roomIndex, int totalRooms)
         {
-            if (roomIndex == 0) return "Entrance";
             if (roomIndex == totalRooms - 1) return "Boss";
 
             string[] themes = new[]
             {
                 "Treasure", "Guard", "Trap", "Puzzle", "Rest",
-                "Storage", "Library", "Armory", "Kitchen", "Dining"
+                "Storage", "Library", "Armory", "Kitchen", "Dining",
+                "Chamber", "Hall", "Vault", "Sanctum", "Grotto",
+                "Catacomb", "Shrine", "Laboratory", "Observatory", "Throne"
             };
 
             return themes[random.Next(themes.Length)];
         }
 
-        private string? GetRoomDescription(string theme, bool isHostile)
+        private string? GetRoomDescription(string roomTheme, bool isHostile)
         {
-            return theme switch
+            // Get theme-specific description from FlavorText
+            string baseDescription = FlavorText.GenerateLocationDescription(Theme);
+            
+            // Add room-specific context based on both dungeon theme and room type
+            string roomContext = GetThemeAwareRoomContext(roomTheme);
+            
+            // Add hostility context
+            string hostilityContext = isHostile ? " Danger lurks in the shadows." : " It seems safe... for now.";
+            
+            return baseDescription + roomContext + hostilityContext;
+        }
+        
+        private string GetThemeAwareRoomContext(string roomTheme)
+        {
+            // Combine dungeon theme with room type for contextual descriptions
+            string dungeonTheme = Theme.ToLower();
+            string roomType = roomTheme.ToLower();
+            
+            return (dungeonTheme, roomType) switch
             {
-                "Entrance" => "A large, imposing entrance to the dungeon. The air is thick with anticipation.",
-                "Boss" => "A grand chamber, clearly the domain of a powerful being. The walls are adorned with trophies of past conquests.",
-                "Treasure" => "A room filled with glittering gold and precious artifacts. But is it too good to be true?",
-                "Guard" => "A well-fortified position, manned by vigilant guards.",
-                "Trap" => "The floor is suspiciously clean, and the walls have strange markings.",
-                "Puzzle" => "Ancient mechanisms and cryptic symbols cover the walls.",
-                "Rest" => "A surprisingly peaceful area, with comfortable furnishings.",
-                "Storage" => "Shelves and crates line the walls, filled with supplies.",
-                "Library" => "Rows of ancient tomes and scrolls fill this room.",
-                "Armory" => "Weapons and armor are displayed on racks and stands.",
-                "Kitchen" => "A large cooking area, with pots and pans hanging from the ceiling.",
-                "Dining" => "A long table set for a feast, though the food looks... questionable.",
-                _ => null
-            } + (isHostile ? " Danger lurks in the shadows." : " It seems safe... for now.");
+                // Forest-themed rooms
+                ("forest", "boss") => " This ancient grove is clearly the domain of a powerful forest guardian.",
+                ("forest", "treasure") => " Glittering treasures are hidden among the roots and branches.",
+                ("forest", "library") => " Ancient druidic knowledge is preserved in living tree bark and moss-covered stones.",
+                ("forest", "armory") => " Weapons made from living wood and enchanted thorns line the walls.",
+                ("forest", "kitchen") => " The scent of wild herbs and forest fruits fills this natural cooking area.",
+                ("forest", "chamber") => " This natural chamber is formed by ancient tree roots and living wood.",
+                ("forest", "sanctum") => " The air here pulses with the life force of the ancient forest.",
+                ("forest", "shrine") => " Sacred grove markers and nature offerings mark this as a place of druidic worship.",
+                
+                // Ice-themed rooms
+                ("ice", "boss") => " This frozen throne room is clearly the domain of an ice lord.",
+                ("ice", "treasure") => " Frozen treasures glisten within walls of solid ice.",
+                ("ice", "library") => " Ancient knowledge is preserved in ice crystals and frozen scrolls.",
+                ("ice", "armory") => " Weapons forged from ice and frost line the frozen walls.",
+                ("ice", "kitchen") => " The cold air carries the scent of preserved meats and frozen provisions.",
+                ("ice", "chamber") => " This chamber is carved entirely from solid ice and permafrost.",
+                ("ice", "sanctum") => " The air here crackles with the power of eternal winter.",
+                ("ice", "shrine") => " Ice crystals and frozen offerings mark this as a place of winter worship.",
+                
+                // Lava-themed rooms
+                ("lava", "boss") => " This molten chamber is clearly the domain of a fire lord.",
+                ("lava", "treasure") => " Treasures forged in fire glow with inner heat within the molten walls.",
+                ("lava", "library") => " Ancient knowledge is preserved in fire-resistant stone tablets.",
+                ("lava", "armory") => " Weapons forged in volcanic fires line the superheated walls.",
+                ("lava", "kitchen") => " The intense heat carries the scent of charred meat and molten metal.",
+                ("lava", "chamber") => " This chamber is carved from volcanic rock and flows with molten lava.",
+                ("lava", "sanctum") => " The air here burns with the power of the earth's molten heart.",
+                ("lava", "shrine") => " Molten offerings and fire crystals mark this as a place of volcanic worship.",
+                
+                // Crypt-themed rooms
+                ("crypt", "boss") => " This ancient tomb is clearly the domain of a powerful undead lord.",
+                ("crypt", "treasure") => " Funerary treasures and grave goods are piled in shadowy corners.",
+                ("crypt", "library") => " Ancient necromantic knowledge is preserved in bone scrolls and death runes.",
+                ("crypt", "armory") => " Weapons of the dead and cursed blades line the tomb walls.",
+                ("crypt", "kitchen") => " The air carries the scent of embalming spices and decay.",
+                ("crypt", "chamber") => " This burial chamber is lined with ancient sarcophagi and death masks.",
+                ("crypt", "sanctum") => " The air here pulses with the dark energy of undeath.",
+                ("crypt", "shrine") => " Death symbols and funerary offerings mark this as a place of necromantic worship.",
+                
+                // Desert-themed rooms
+                ("desert", "boss") => " This sand-swept chamber is clearly the domain of a desert king.",
+                ("desert", "treasure") => " Ancient treasures are buried beneath shifting sands.",
+                ("desert", "library") => " Desert knowledge is preserved in sand-etched tablets and wind-worn stones.",
+                ("desert", "armory") => " Weapons forged in desert heat and sand-blasted steel line the walls.",
+                ("desert", "kitchen") => " The dry air carries the scent of preserved foods and desert spices.",
+                ("desert", "chamber") => " This chamber is carved from sandstone and filled with shifting dunes.",
+                ("desert", "sanctum") => " The air here shimmers with the power of the endless sands.",
+                ("desert", "shrine") => " Sand symbols and desert offerings mark this as a place of sun worship.",
+                
+                // Castle-themed rooms
+                ("castle", "boss") => " This grand throne room is clearly the domain of a powerful lord.",
+                ("castle", "treasure") => " Royal treasures and noble artifacts fill the castle vaults.",
+                ("castle", "library") => " Noble knowledge is preserved in leather-bound tomes and royal scrolls.",
+                ("castle", "armory") => " Noble weapons and armor of the realm line the castle walls.",
+                ("castle", "kitchen") => " The air carries the scent of royal feasts and noble cuisine.",
+                ("castle", "chamber") => " This chamber is built with castle stone and noble architecture.",
+                ("castle", "sanctum") => " The air here resonates with the power of royal authority.",
+                ("castle", "shrine") => " Royal symbols and noble offerings mark this as a place of court worship.",
+                
+                // Generic room contexts (fallback)
+                (_, "boss") => " This grand chamber is clearly the domain of a powerful being.",
+                (_, "treasure") => " Glittering treasures catch your eye, but danger may lurk nearby.",
+                (_, "guard") => " This area appears to be well-fortified and guarded.",
+                (_, "trap") => " Something about this room seems suspicious and dangerous.",
+                (_, "puzzle") => " Ancient mechanisms and cryptic symbols cover the walls here.",
+                (_, "rest") => " This area seems surprisingly peaceful and safe.",
+                (_, "storage") => " Shelves and supplies line the walls of this storage area.",
+                (_, "library") => " Rows of ancient tomes and scrolls fill this scholarly space.",
+                (_, "armory") => " Weapons and armor are displayed on racks throughout this room.",
+                (_, "kitchen") => " The smell of cooking and the sound of clanging pots fills this area.",
+                (_, "dining") => " A long table is set for a feast, though the food looks questionable.",
+                (_, "chamber") => " This chamber has an air of mystery and ancient power.",
+                (_, "hall") => " A long corridor stretches before you, lined with ornate decorations.",
+                (_, "vault") => " Heavy doors and reinforced walls suggest this place holds something valuable.",
+                (_, "sanctum") => " The air here feels charged with mystical energy.",
+                (_, "grotto") => " Natural rock formations create an otherworldly atmosphere.",
+                (_, "catacomb") => " Ancient burial chambers and stone sarcophagi line the walls.",
+                (_, "shrine") => " Sacred symbols and offerings mark this as a place of worship.",
+                (_, "laboratory") => " Strange equipment and bubbling potions fill this alchemical workspace.",
+                (_, "observatory") => " Star charts and celestial instruments suggest this room studies the heavens.",
+                (_, "throne") => " An ornate throne dominates this regal chamber.",
+                _ => ""
+            };
         }
     }
 } 

@@ -300,7 +300,7 @@ namespace RPGGame
         private static void TestTaunt()
         {
             Console.WriteLine("Testing TAUNT...");
-            var action = new Action("TAUNT", ActionType.Debuff, TargetType.SingleTarget, 0, 1, 0, "50% length for next 2 actions. *higher combo chance", 0, 0, 3.0, false, false, true, 2, 2);
+            var action = new Action("TAUNT", ActionType.Debuff, TargetType.SingleTarget, 0, 1, 0, "50% length for next 2 actions. *higher combo chance", 0, 0, 3.0, false, false, false, false, true, 2, 2);
             
             Assert(action.ReduceLengthNextActions, "TAUNT should reduce length of next actions");
             Assert(action.LengthReduction == 0.5, "TAUNT should reduce length by 50%");

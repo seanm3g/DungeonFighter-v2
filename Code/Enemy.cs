@@ -14,12 +14,14 @@ namespace RPGGame
         public int XPReward { get; private set; }
         public PrimaryAttribute PrimaryAttribute { get; private set; }
         public int Armor { get; private set; }
+        public bool IsLiving { get; private set; }
 
-        public Enemy(string? name = null, int level = 1, int maxHealth = 50, int strength = 8, int agility = 6, int technique = 4, int intelligence = 4, int armor = 0, PrimaryAttribute primaryAttribute = PrimaryAttribute.Strength)
-            : base(name ?? FlavorText.GenerateEnemyName())
+        public Enemy(string? name = null, int level = 1, int maxHealth = 50, int strength = 8, int agility = 6, int technique = 4, int intelligence = 4, int armor = 0, PrimaryAttribute primaryAttribute = PrimaryAttribute.Strength, bool isLiving = true)
+            : base(name ?? "Unknown Enemy")
         {
             Level = level;
             PrimaryAttribute = primaryAttribute;
+            IsLiving = isLiving;
             
             var tuning = TuningConfig.Instance;
             
@@ -33,8 +35,8 @@ namespace RPGGame
             Technique = technique + (level * tuning.Attributes.EnemyAttributesPerLevel);
             Intelligence = intelligence + (level * tuning.Attributes.EnemyAttributesPerLevel);
             
-            // Scale armor based on tuning config
-            Armor = armor + (level * tuning.Combat.EnemyArmorPerLevel);
+            // Enemies have no armor - only gear provides armor
+            Armor = 0;
             
             // Primary attribute gets extra bonus per level based on tuning config
             switch (PrimaryAttribute)

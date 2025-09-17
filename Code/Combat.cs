@@ -7,11 +7,13 @@ namespace RPGGame
     {
         private static BattleNarrative? currentBattleNarrative;
         private static Action? lastPlayerAction = null; // Track the last action for DEJA VU
+        private static ActionSpeedSystem? currentActionSpeedSystem = null;
 
         public static void StartBattleNarrative(string playerName, string enemyName, string locationName, int playerHealth, int enemyHealth)
         {
             currentBattleNarrative = new BattleNarrative(playerName, enemyName, locationName, playerHealth, enemyHealth);
             lastPlayerAction = null; // Reset last action for new battle
+            currentActionSpeedSystem = new ActionSpeedSystem();
         }
 
         public static void EndBattleNarrative()
@@ -20,11 +22,38 @@ namespace RPGGame
             {
                 currentBattleNarrative = null;
             }
+            currentActionSpeedSystem = null;
         }
 
         public static BattleNarrative? GetCurrentBattleNarrative()
         {
             return currentBattleNarrative;
+        }
+
+        public static ActionSpeedSystem? GetCurrentActionSpeedSystem()
+        {
+            return currentActionSpeedSystem;
+        }
+
+        public static void InitializeCombatEntities(Character player, Enemy enemy, Environment? environment = null)
+        {
+            if (currentActionSpeedSystem == null) return;
+
+            // New system: Use the attack speed directly as base speed
+            double playerAttackSpeed = player.GetTotalAttackSpeed();
+            double enemyAttackSpeed = enemy.GetTotalAttackSpeed();
+            
+            // For the new system, we use the attack speed directly as the base speed
+            // This will be multiplied by action length in ExecuteAction
+            currentActionSpeedSystem.AddEntity(player, playerAttackSpeed);
+            currentActionSpeedSystem.AddEntity(enemy, enemyAttackSpeed);
+
+            // Add environment to action speed system with a slow base speed (longer cooldowns)
+            if (environment != null && environment.IsHostile)
+            {
+                double environmentBaseSpeed = 15.0; // Very slow - environment acts infrequently
+                currentActionSpeedSystem.AddEntity(environment, environmentBaseSpeed);
+            }
         }
 
         /// <summary>
@@ -69,6 +98,36 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Handles Divine reroll functionality for failed attacks
+        /// </summary>
+        /// <param name="player">The player character</param>
+        /// <param name="baseRoll">The original dice roll</param>
+        /// <param name="totalRollBonus">Total roll bonus</param>
+        /// <returns>New roll result if reroll was used, otherwise original roll</returns>
+        private static (int newRoll, bool rerollUsed) HandleDivineReroll(Character player, int baseRoll, int totalRollBonus)
+        {
+            // Check if player has Divine reroll charges available
+            if (player.GetRemainingRerollCharges() > 0)
+            {
+                // Use a Divine reroll charge
+                if (player.UseRerollCharge())
+                {
+                    // Roll a new d20 and apply bonuses
+                    int newBaseRoll = Dice.Roll(1, 20);
+                    int newAttackRoll = newBaseRoll + totalRollBonus;
+                    int newCappedRoll = Math.Min(newAttackRoll, 20);
+                    
+                    WriteCombatLog($"[{player.Name}] uses Divine Reroll! ({player.GetRemainingRerollCharges()} charges remaining)");
+                    
+                    return (newCappedRoll, true);
+                }
+            }
+            
+            // No reroll available or used
+            return (baseRoll + totalRollBonus, false);
+        }
+
+        /// <summary>
         /// Executes a combat action from the source entity to the target entity.
         /// </summary>
         /// <param name="source">The entity performing the action</param>
@@ -77,13 +136,57 @@ namespace RPGGame
         /// <returns>A string describing the result of the action (or empty if using narrative mode)</returns>
         public static string ExecuteAction(Entity source, Entity target, Environment? environment = null)
         {
+            // Get the selected action for all entities
+            var selectedAction = source.SelectAction();
+            if (selectedAction == null)
+            {
+                return $"[{source.Name}] has no actions available.";
+            }
+            
+            // Initialize results list for all entities
+            var results = new List<string>();
+            
+            // Initialize environment message for all entities
+            string envMsg = "";
+            
+            // Initialize final effect for all entities
+            int finalEffect = 0;
+            
             // Only run combo logic for the player (not for enemies or other entities)
             if (source is Character player && !(player is Enemy))
             {
+                // Check for unique action chance for player characters
+                double uniqueActionChance = player.GetModificationUniqueActionChance();
+                if (uniqueActionChance > 0.0)
+                {
+                    double roll = Dice.Roll(1, 100) / 100.0; // Roll 0.0 to 0.99
+                    if (roll < uniqueActionChance)
+                    {
+                        // Unique action chance triggered - select a unique action
+                        var availableUniqueActions = player.GetAvailableUniqueActions();
+                        if (availableUniqueActions.Count > 0)
+                        {
+                            // Randomly select a unique action
+                            int randomIndex = Dice.Roll(1, availableUniqueActions.Count) - 1;
+                            selectedAction = availableUniqueActions[randomIndex];
+                            WriteCombatLog($"[{player.Name}] channels unique power and uses [{selectedAction.Name}]!");
+                        }
+                    }
+                }
+                
+                // Check if this is a unique action (not part of normal combo system)
+                bool isUniqueAction = selectedAction.Tags.Contains("unique");
+                
                 // Get the current action to check for roll bonuses
                 var comboActions = player.GetComboActions();
                 int actionIndex = comboActions.Count > 0 ? player.ComboStep % comboActions.Count : 0;
                 var currentAction = comboActions.Count > 0 ? comboActions[actionIndex] : null;
+                
+                // For unique actions, use the selected action instead of current combo action
+                if (isUniqueAction)
+                {
+                    currentAction = selectedAction;
+                }
                 
                 // Apply roll bonus from the action and Intelligence
                 int actionRollBonus = currentAction?.RollBonus ?? 0;
@@ -108,8 +211,94 @@ namespace RPGGame
                     }
                 }
                 
+                // For unique actions, don't advance combo step (they're standalone)
+                if (isUniqueAction)
+                {
+                    // Unique actions don't advance the combo system
+                    // They're executed as standalone actions
+                }
+                
                 int intelligenceRollBonus = player.GetIntelligenceRollBonus();
-                int totalRollBonus = actionRollBonus + intelligenceRollBonus;
+                int modificationRollBonus = player.GetModificationRollBonus();
+                int equipmentRollBonus = player.GetEquipmentRollBonus();
+                int totalRollBonus = actionRollBonus + intelligenceRollBonus + modificationRollBonus + equipmentRollBonus;
+                
+                // Apply roll penalty (for effects like Dust Cloud)
+                int rollPenaltyApplied = player.RollPenalty;
+                totalRollBonus -= rollPenaltyApplied;
+                
+                // Handle unique actions separately (they don't use the normal combo system)
+                if (isUniqueAction)
+                {
+                    // Unique actions are executed as standalone actions with their own damage calculation
+                    int uniqueBaseRoll = Dice.Roll(1, 20);
+                    int uniqueAttackRoll = uniqueBaseRoll + totalRollBonus;
+                    int uniqueCappedRoll = Math.Min(uniqueAttackRoll, 20);
+                    
+                    var uniqueRollTuning = TuningConfig.Instance;
+                    
+                    // Check if the unique action hits
+                    if (uniqueCappedRoll >= uniqueRollTuning.RollSystem.BasicAttackThreshold.Min)
+                    {
+                        // Calculate damage for unique action
+                        int uniqueDamage = CalculateDamage(player, target, selectedAction, 1.0, 1.0, totalRollBonus, uniqueAttackRoll);
+                        if (target is Character uniqueTargetChar)
+                        {
+                            uniqueTargetChar.TakeDamage(uniqueDamage);
+                        }
+                        // Check for bleed chance after damage
+                        CheckAndApplyBleedChance(player, target);
+                        
+                        string uniqueRollText = totalRollBonus != 0 ? $"{uniqueBaseRoll} + {totalRollBonus} = {uniqueAttackRoll}" : uniqueAttackRoll.ToString();
+                        return $"[{player.Name}] uses [Unique {selectedAction.Name}] on [{target.Name}]: deals {uniqueDamage} damage. (Rolled {uniqueRollText})";
+                    }
+                    else
+                    {
+                        // Unique action missed
+                        string uniqueMissRollText = totalRollBonus != 0 ? $"{uniqueBaseRoll} + {totalRollBonus} = {uniqueAttackRoll}" : uniqueAttackRoll.ToString();
+                        return $"[{player.Name}] attempts to use [Unique {selectedAction.Name}] but misses. (Rolled {uniqueMissRollText})";
+                    }
+                }
+                
+                // Check for autoSuccess modifications
+                if (player.HasAutoSuccess())
+                {
+                    // Auto success - treat as critical hit
+                    int autoSuccessRoll = 20;
+                    var autoSuccessComboActions = player.GetComboActions();
+                    int autoSuccessActionIndex = autoSuccessComboActions.Count > 0 ? player.ComboStep % autoSuccessComboActions.Count : 0;
+                    var autoSuccessCurrentAction = autoSuccessComboActions.Count > 0 ? autoSuccessComboActions[autoSuccessActionIndex] : null;
+                    
+                    if (autoSuccessComboActions.Count == 0)
+                    {
+                        // No combo actions available, do critical basic attack
+                        int criticalDamage = CalculateDamage(player, target, null, 1.0, 1.0, totalRollBonus, autoSuccessRoll);
+                        if (target is Character criticalTargetChar)
+                        {
+                            criticalTargetChar.TakeDamage(criticalDamage);
+                        }
+                        // Check for bleed chance after damage
+                        CheckAndApplyBleedChance(player, target);
+                        return $"[{player.Name}] uses [Perfect Auto-Success Attack] on [{target.Name}]: deals {criticalDamage} damage. (AUTO-SUCCESS!)";
+                    }
+                    
+                    // Execute critical combo action
+                    var criticalAction = autoSuccessComboActions[autoSuccessActionIndex];
+                    player.ComboStep++;
+                    
+                    // Calculate exponential combo amplification: amp^comboStep
+                    double criticalBaseComboAmp = player.GetComboAmplifier();
+                    double criticalExponentialComboAmp = Math.Pow(criticalBaseComboAmp, autoSuccessActionIndex + 1);
+                    
+                    int criticalComboDamage = CalculateDamage(player, target, criticalAction, criticalExponentialComboAmp, 1.0, totalRollBonus, autoSuccessRoll);
+                    if (target is Character criticalComboTargetChar)
+                    {
+                        criticalComboTargetChar.TakeDamage(criticalComboDamage);
+                    }
+                    // Check for bleed chance after damage
+                    CheckAndApplyBleedChance(player, target);
+                    return $"[{player.Name}] uses [Perfect {criticalAction.Name}] on [{target.Name}]: deals {criticalComboDamage} damage. (AUTO-SUCCESS!, combo step {autoSuccessActionIndex + 1}, {criticalExponentialComboAmp:F2}x amplification)";
+                }
                 
                 // Implement the 1d20 attack system with bonus
                 int baseRoll = Dice.Roll(1, 20);
@@ -122,10 +311,51 @@ namespace RPGGame
                 
                 if (cappedRoll >= rollTuning.RollSystem.MissThreshold.Min && cappedRoll <= rollTuning.RollSystem.MissThreshold.Max)
                 {
-                    // Miss - combo resets
-                    player.ResetCombo();
-                    string rollText = totalRollBonus != 0 ? $"{baseRoll} + {totalRollBonus} = {attackRoll}" : attackRoll.ToString();
-                    return $"[{player.Name}] attempts to attack but misses. (Rolled {rollText})";
+                    // Check for Divine reroll on miss
+                    var (newRoll, rerollUsed) = HandleDivineReroll(player, baseRoll, totalRollBonus);
+                    
+                    if (rerollUsed)
+                    {
+                        // Check if reroll succeeded
+                        if (newRoll >= rollTuning.RollSystem.BasicAttackThreshold.Min)
+                        {
+                            // Reroll succeeded - continue with basic attack
+                            player.ResetCombo();
+                        int basicDamage = CalculateDamage(player, target, null, 1.0, 1.0, totalRollBonus, newRoll);
+                        if (target is Character basicTargetChar)
+                        {
+                            basicTargetChar.TakeDamage(basicDamage);
+                        }
+                        // Check for bleed chance after damage
+                        CheckAndApplyBleedChance(player, target);
+                            string originalRollText = totalRollBonus != 0 ? $"{baseRoll} + {totalRollBonus} = {attackRoll}" : attackRoll.ToString();
+                            string rerollText = totalRollBonus != 0 ? $"{newRoll - totalRollBonus} + {totalRollBonus} = {newRoll}" : newRoll.ToString();
+                            return $"[{player.Name}] attempts to attack but misses, then uses Divine reroll! (Original: {originalRollText}, Reroll: {rerollText}) - deals {basicDamage} damage.";
+                        }
+                        else
+                        {
+                            // Reroll also failed
+                            player.ResetCombo();
+                            string originalRollText = totalRollBonus != 0 ? $"{baseRoll} + {totalRollBonus} = {attackRoll}" : attackRoll.ToString();
+                            string rerollText = totalRollBonus != 0 ? $"{newRoll - totalRollBonus} + {totalRollBonus} = {newRoll}" : newRoll.ToString();
+                            return $"[{player.Name}] attempts to attack but misses, then uses Divine reroll but still fails! (Original: {originalRollText}, Reroll: {rerollText})";
+                        }
+                    }
+                    else
+                    {
+                        // No reroll available - normal miss
+                        player.ResetCombo();
+                        string rollText;
+                        if (rollPenaltyApplied > 0)
+                        {
+                            rollText = totalRollBonus != 0 ? $"{baseRoll} + {totalRollBonus + rollPenaltyApplied} - {rollPenaltyApplied} = {attackRoll}" : $"{baseRoll} - {rollPenaltyApplied} = {attackRoll}";
+                        }
+                        else
+                        {
+                            rollText = totalRollBonus != 0 ? $"{baseRoll} + {totalRollBonus} = {attackRoll}" : attackRoll.ToString();
+                        }
+                        return $"[{player.Name}] attempts to attack but misses. (Rolled {rollText})";
+                    }
                 }
                 else if (cappedRoll >= rollTuning.RollSystem.BasicAttackThreshold.Min && cappedRoll <= rollTuning.RollSystem.BasicAttackThreshold.Max)
                 {
@@ -136,7 +366,17 @@ namespace RPGGame
                     {
                         basicTargetChar.TakeDamage(basicDamage);
                     }
-                    string rollText = totalRollBonus != 0 ? $"{baseRoll} + {totalRollBonus} = {attackRoll}" : attackRoll.ToString();
+                    // Check for bleed chance after damage
+                    CheckAndApplyBleedChance(player, target);
+                    string rollText;
+                    if (rollPenaltyApplied > 0)
+                    {
+                        rollText = totalRollBonus != 0 ? $"{baseRoll} + {totalRollBonus + rollPenaltyApplied} - {rollPenaltyApplied} = {attackRoll}" : $"{baseRoll} - {rollPenaltyApplied} = {attackRoll}";
+                    }
+                    else
+                    {
+                        rollText = totalRollBonus != 0 ? $"{baseRoll} + {totalRollBonus} = {attackRoll}" : attackRoll.ToString();
+                    }
                     return $"[{player.Name}] uses [Basic Attack] on [{target.Name}]: deals {basicDamage} damage. (Rolled {rollText})";
                 }
                 else if (cappedRoll >= rollTuning.RollSystem.ComboThreshold.Min && cappedRoll <= rollTuning.RollSystem.ComboThreshold.Max)
@@ -153,6 +393,8 @@ namespace RPGGame
                             {
                                 criticalTargetChar.TakeDamage(criticalDamage);
                             }
+                            // Check for bleed chance after damage
+                            CheckAndApplyBleedChance(player, target);
                             string criticalRollText = totalRollBonus != 0 ? $"{baseRoll} + {totalRollBonus} = {attackRoll}" : attackRoll.ToString();
                             return $"[{player.Name}] uses [Critical Basic Attack] on [{target.Name}]: deals {criticalDamage} damage. (Rolled {criticalRollText}, CRITICAL HIT!)";
                         }
@@ -170,6 +412,8 @@ namespace RPGGame
                         {
                             criticalComboTargetChar.TakeDamage(criticalComboDamage);
                         }
+                        // Check for bleed chance after damage
+                        CheckAndApplyBleedChance(player, target);
                         string criticalComboRollText = totalRollBonus != 0 ? $"{baseRoll} + {totalRollBonus} = {attackRoll}" : attackRoll.ToString();
                         return $"[{player.Name}] uses [Critical {criticalAction.Name}] on [{target.Name}]: deals {criticalComboDamage} damage. (Rolled {criticalComboRollText}, combo step {actionIndex + 1}, {criticalExponentialComboAmp:F2}x amplification, CRITICAL HIT!)";
                     }
@@ -183,6 +427,8 @@ namespace RPGGame
                         {
                             fallbackTargetChar.TakeDamage(fallbackDamage);
                         }
+                        // Check for bleed chance after damage
+                        CheckAndApplyBleedChance(player, target);
                         string fallbackRollText = totalRollBonus != 0 ? $"{baseRoll} + {totalRollBonus} = {attackRoll}" : attackRoll.ToString();
                         return $"[{player.Name}] uses [Basic Attack] on [{target.Name}]: deals {fallbackDamage} damage. (Rolled {fallbackRollText}, no combo actions available)";
                     }
@@ -206,6 +452,8 @@ namespace RPGGame
                             {
                                 dejaVuTargetChar.TakeDamage(dejaVuDamage);
                             }
+                            // Check for bleed chance after damage
+                            CheckAndApplyBleedChance(player, target);
                             string dejaVuRollText = totalRollBonus != 0 ? $"{baseRoll} + {totalRollBonus} = {attackRoll}" : attackRoll.ToString();
                             return $"[{player.Name}] uses [DEJA VU] to repeat [{lastPlayerAction.Name}] on [{target.Name}]: deals {dejaVuDamage} damage. (Rolled {dejaVuRollText}, combo step {actionIndex + 1}, {dejaVuExponentialAmp:F2}x amplification)";
                         }
@@ -221,6 +469,8 @@ namespace RPGGame
                             {
                                 fallbackTargetChar.TakeDamage(fallbackDamage);
                             }
+                            // Check for bleed chance after damage
+                            CheckAndApplyBleedChance(player, target);
                             string dejaVuFallbackRollText = totalRollBonus != 0 ? $"{baseRoll} + {totalRollBonus} = {attackRoll}" : attackRoll.ToString();
                             return $"[{player.Name}] uses [DEJA VU] but has no previous action to repeat on [{target.Name}]: deals {fallbackDamage} damage. (Rolled {dejaVuFallbackRollText}, combo step {actionIndex + 1}, {fallbackExponentialAmp:F2}x amplification)";
                         }
@@ -240,11 +490,13 @@ namespace RPGGame
                     double baseComboAmp = player.GetComboAmplifier();
                     double exponentialComboAmp = Math.Pow(baseComboAmp, actionIndex + 1);
                     
-                    int comboDamage = CalculateDamage(player, target, action, exponentialComboAmp, 1.0, totalRollBonus, attackRoll);
-                    if (target is Character comboTargetChar)
-                    {
-                        comboTargetChar.TakeDamage(comboDamage);
-                    }
+                        int comboDamage = CalculateDamage(player, target, action, exponentialComboAmp, 1.0, totalRollBonus, attackRoll);
+                        if (target is Character comboTargetChar)
+                        {
+                            comboTargetChar.TakeDamage(comboDamage);
+                        }
+                        // Check for bleed chance after damage
+                        CheckAndApplyBleedChance(player, target);
                     string comboRollText = totalRollBonus != 0 ? $"{baseRoll} + {totalRollBonus} = {attackRoll}" : attackRoll.ToString();
                     return $"[{player.Name}] uses [{action.Name}] on [{target.Name}]: deals {comboDamage} damage. (Rolled {comboRollText}, combo step {actionIndex + 1}, {exponentialComboAmp:F2}x amplification)";
                 }
@@ -254,25 +506,25 @@ namespace RPGGame
             }
             
             // For non-player entities (enemies, etc.), use the same 1d20 system
-            var selectedAction = source.SelectAction();
-            if (selectedAction == null)
-            {
-                return $"[{source.Name}] has no actions available.";
-            }
-
             // Apply roll bonus from the action
             int enemyRollBonus = selectedAction.RollBonus;
+            int originalRollBonus = enemyRollBonus;
+            int penaltyApplied = 0;
             
             // Apply enemy roll penalty from player actions (like Arcane Shield)
             if (target is Character playerTarget && playerTarget.EnemyRollPenaltyTurns > 0)
             {
-                enemyRollBonus -= playerTarget.EnemyRollPenalty;
+                penaltyApplied = playerTarget.EnemyRollPenalty;
+                enemyRollBonus -= penaltyApplied;
                 playerTarget.EnemyRollPenaltyTurns--;
                 if (playerTarget.EnemyRollPenaltyTurns <= 0)
                 {
                     playerTarget.EnemyRollPenalty = 0;
                 }
             }
+            
+            // Apply roll penalty (for effects like Dust Cloud)
+            enemyRollBonus -= source.RollPenalty;
             
             // Implement the 1d20 attack system with bonus (same as player)
             int enemyBaseRoll = Dice.Roll(1, 20);
@@ -286,27 +538,51 @@ namespace RPGGame
             if (enemyCappedRoll >= enemyTuning.RollSystem.MissThreshold.Min && enemyCappedRoll <= enemyTuning.RollSystem.MissThreshold.Max)
             {
                 // Miss
-                string rollText = enemyRollBonus != 0 ? $"{enemyBaseRoll} + {enemyRollBonus} = {enemyAttackRoll}" : enemyAttackRoll.ToString();
+                string rollText;
+                if (penaltyApplied > 0)
+                {
+                    rollText = $"{enemyBaseRoll} + {originalRollBonus} - {penaltyApplied} = {enemyAttackRoll}";
+                }
+                else if (enemyRollBonus != 0)
+                {
+                    rollText = $"{enemyBaseRoll} + {enemyRollBonus} = {enemyAttackRoll}";
+                }
+                else
+                {
+                    rollText = enemyAttackRoll.ToString();
+                }
                 return $"[{source.Name}] attempts to attack but misses. (Rolled {rollText})";
             }
             else if (enemyCappedRoll >= enemyTuning.RollSystem.BasicAttackThreshold.Min && enemyCappedRoll <= enemyTuning.RollSystem.BasicAttackThreshold.Max)
             {
-                // Basic attack
-                int baseEffect = selectedAction.BaseValue > 0 ? selectedAction.BaseValue : 1;
-                double effect = baseEffect * selectedAction.DamageMultiplier;
-                double effectBeforeEnv = effect;
-                string envMsg = "";
+                // Basic attack - use unified damage system
+                finalEffect = CalculateDamage(source, target, selectedAction, 1.0, 1.0, enemyRollBonus, enemyCappedRoll);
+                
                 if (environment != null)
                 {
-                    effect = environment.ApplyPassiveEffect(effect);
-                    if (effect != effectBeforeEnv)
+                    // Apply environment effects to the calculated damage
+                    double effectBeforeEnv = finalEffect;
+                    double effectAfterEnv = environment.ApplyPassiveEffect(effectBeforeEnv);
+                    if (effectAfterEnv != effectBeforeEnv)
                     {
-                        envMsg = $" (Environment modified: {effectBeforeEnv:F1} → {effect:F1})";
+                        finalEffect = (int)Math.Round(effectAfterEnv);
+                        envMsg = $" (Environment modified: {effectBeforeEnv:F1} → {effectAfterEnv:F1})";
                     }
                 }
                 
-                int finalEffect = (int)Math.Round(effect);
-                string rollText = enemyRollBonus != 0 ? $"{enemyBaseRoll} + {enemyRollBonus} = {enemyAttackRoll}" : enemyAttackRoll.ToString();
+                string rollText;
+                if (penaltyApplied > 0)
+                {
+                    rollText = $"{enemyBaseRoll} + {originalRollBonus} - {penaltyApplied} = {enemyAttackRoll}";
+                }
+                else if (enemyRollBonus != 0)
+                {
+                    rollText = $"{enemyBaseRoll} + {enemyRollBonus} = {enemyAttackRoll}";
+                }
+                else
+                {
+                    rollText = enemyAttackRoll.ToString();
+                }
                 
                 // Apply the action effect
                 switch (selectedAction.Type)
@@ -314,7 +590,43 @@ namespace RPGGame
                     case ActionType.Attack:
                         if (target is Character character)
                         {
+                            // Calculate damage with shield reduction
+                            var (actualDamage, shieldReduction, shieldUsed) = character.CalculateDamageWithShield(finalEffect);
+                            
+                            // Apply the damage
                             character.TakeDamage(finalEffect);
+                            
+                            // Show shield reduction message if shield was used
+                            if (shieldUsed)
+                            {
+                                WriteCombatLog($"[{character.Name}]'s Arcane Shield reduces damage by {shieldReduction}!");
+                            }
+                            
+                            // Apply armor spike damage if the target has armor spikes
+                            double armorSpikeDamage = character.GetArmorSpikeDamage();
+                            if (armorSpikeDamage > 0)
+                            {
+                                int spikeDamage = (int)(finalEffect * armorSpikeDamage);
+                                if (spikeDamage > 0)
+                                {
+                                    if (source is Character sourceChar)
+                                    {
+                                        sourceChar.TakeDamage(spikeDamage);
+                                    }
+                                    else if (source is Enemy sourceEnemy)
+                                    {
+                                        sourceEnemy.TakeDamage(spikeDamage);
+                                    }
+                                }
+                            }
+                            
+                            // Apply bleed effect if the action causes bleeding
+                            if (selectedAction.CausesBleed)
+                            {
+                                var poisonConfig = TuningConfig.Instance.Poison;
+                                character.ApplyPoison(poisonConfig.DamagePerTick, 1, true); // 1 stack of bleed, mark as bleeding
+                                WriteCombatLog($"[{character.Name}] is bleeding from {selectedAction.Name}");
+                            }
                         }
                         break;
                     case ActionType.Heal:
@@ -329,22 +641,33 @@ namespace RPGGame
             }
             else if (enemyCappedRoll >= enemyTuning.RollSystem.ComboThreshold.Min && enemyCappedRoll <= enemyTuning.RollSystem.ComboThreshold.Max)
             {
-                // Successful attack (14+ threshold)
-                int baseEffect = selectedAction.BaseValue > 0 ? selectedAction.BaseValue : 1;
-                double effect = baseEffect * selectedAction.DamageMultiplier;
-                double effectBeforeEnv = effect;
-                string envMsg = "";
+                // Successful attack (14+ threshold) - use unified damage system
+                int comboEffect = CalculateDamage(source, target, selectedAction, 1.0, 1.0, enemyRollBonus, enemyCappedRoll);
+                
                 if (environment != null)
                 {
-                    effect = environment.ApplyPassiveEffect(effect);
-                    if (effect != effectBeforeEnv)
+                    // Apply environment effects to the calculated damage
+                    double effectBeforeEnv = comboEffect;
+                    double effectAfterEnv = environment.ApplyPassiveEffect(effectBeforeEnv);
+                    if (effectAfterEnv != effectBeforeEnv)
                     {
-                        envMsg = $" (Environment modified: {effectBeforeEnv:F1} → {effect:F1})";
+                        comboEffect = (int)Math.Round(effectAfterEnv);
+                        envMsg = $" (Environment modified: {effectBeforeEnv:F1} → {effectAfterEnv:F1})";
                     }
                 }
-                
-                int finalEffect = (int)Math.Round(effect);
-                string rollText = enemyRollBonus != 0 ? $"{enemyBaseRoll} + {enemyRollBonus} = {enemyAttackRoll}" : enemyAttackRoll.ToString();
+                string rollText;
+                if (penaltyApplied > 0)
+                {
+                    rollText = $"{enemyBaseRoll} + {originalRollBonus} - {penaltyApplied} = {enemyAttackRoll}";
+                }
+                else if (enemyRollBonus != 0)
+                {
+                    rollText = $"{enemyBaseRoll} + {enemyRollBonus} = {enemyAttackRoll}";
+                }
+                else
+                {
+                    rollText = enemyAttackRoll.ToString();
+                }
                 
                 // Apply the action effect
                 switch (selectedAction.Type)
@@ -352,7 +675,43 @@ namespace RPGGame
                     case ActionType.Attack:
                         if (target is Character character)
                         {
+                            // Calculate damage with shield reduction
+                            var (actualDamage, shieldReduction, shieldUsed) = character.CalculateDamageWithShield(finalEffect);
+                            
+                            // Apply the damage
                             character.TakeDamage(finalEffect);
+                            
+                            // Show shield reduction message if shield was used
+                            if (shieldUsed)
+                            {
+                                WriteCombatLog($"[{character.Name}]'s Arcane Shield reduces damage by {shieldReduction}!");
+                            }
+                            
+                            // Apply armor spike damage if the target has armor spikes
+                            double armorSpikeDamage = character.GetArmorSpikeDamage();
+                            if (armorSpikeDamage > 0)
+                            {
+                                int spikeDamage = (int)(finalEffect * armorSpikeDamage);
+                                if (spikeDamage > 0)
+                                {
+                                    if (source is Character sourceChar)
+                                    {
+                                        sourceChar.TakeDamage(spikeDamage);
+                                    }
+                                    else if (source is Enemy sourceEnemy)
+                                    {
+                                        sourceEnemy.TakeDamage(spikeDamage);
+                                    }
+                                }
+                            }
+                            
+                            // Apply bleed effect if the action causes bleeding
+                            if (selectedAction.CausesBleed)
+                            {
+                                var poisonConfig = TuningConfig.Instance.Poison;
+                                character.ApplyPoison(poisonConfig.DamagePerTick, 1, true); // 1 stack of bleed, mark as bleeding
+                                WriteCombatLog($"[{character.Name}] is bleeding from {selectedAction.Name}");
+                            }
                         }
                         break;
                     case ActionType.Heal:
@@ -362,7 +721,33 @@ namespace RPGGame
                         }
                         break;
                     case ActionType.Buff:
-                        // Buff effects would be implemented here
+                        // Handle specific buff actions
+                        if (selectedAction.Name == "ARCANE SHIELD" && target is Character shieldTarget)
+                        {
+                            shieldTarget.ApplyShield();
+                            WriteCombatLog($"[{source.Name}] applies Arcane Shield to [{target.Name}]");
+                        }
+                        else if (selectedAction.Name == "War Cry")
+                        {
+                            // War Cry buffs the caster and debuffs enemies
+                            if (source is Enemy enemyCaster)
+                            {
+                                // Buff the caster (increase their effectiveness)
+                                enemyCaster.SetTempComboBonus(2, 3); // +2 combo bonus for 3 turns
+                                WriteCombatLog($"[{source.Name}] lets out a mighty War Cry! (+2 combo bonus for 3 turns)");
+                                
+                                // Debuff the target (weaken them)
+                                if (target is Character characterTarget)
+                                {
+                                    characterTarget.ApplyWeaken(3); // Weaken for 3 turns
+                                    WriteCombatLog($"[{target.Name}] is intimidated by the War Cry! (Weakened for 3 turns)");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"[{source.Name}] uses {selectedAction.Name} on [{target.Name}]");
+                        }
                         break;
                     case ActionType.Debuff:
                     // Debuff effects would be implemented here
@@ -378,7 +763,7 @@ namespace RPGGame
                     break;
                 }
                 
-                return $"[{source.Name}] uses [{selectedAction.Name}] on [{target.Name}]: deals {finalEffect} damage{envMsg}. (Rolled {rollText})";
+                return $"[{source.Name}] uses [{selectedAction.Name}] on [{target.Name}]: deals {comboEffect} damage{envMsg}. (Rolled {rollText})";
             }
             
             // This should never be reached with capped roll logic
@@ -417,9 +802,10 @@ namespace RPGGame
             int baseDamage = strength + highestAttribute + weaponDamage;
             
             // Add equipment damage bonuses for characters
-            if (attacker is Character)
+            if (attacker is Character attackerChar)
             {
-                baseDamage += ((Character)attacker).GetEquipmentDamageBonus();
+                baseDamage += attackerChar.GetEquipmentDamageBonus();
+                baseDamage += attackerChar.GetModificationDamageBonus();
             }
             
             // Apply roll bonus to damage (roll bonus affects base damage)
@@ -437,17 +823,37 @@ namespace RPGGame
             // Apply damage multiplier
             baseDamage = (int)(baseDamage * damageMultiplier);
             
-            // Get target's armor
+            // Apply modification damage multiplier for characters
+            if (attacker is Character damageMultiplierChar)
+            {
+                baseDamage = (int)(baseDamage * damageMultiplierChar.GetModificationDamageMultiplier());
+            }
+            
+            // Apply weaken debuff if attacker is weakened (works for both characters and enemies)
+            if (attacker.IsWeakened)
+            {
+                int originalDamage = baseDamage;
+                baseDamage = (int)(baseDamage * attacker.WeakenMultiplier);
+                int damageReduction = originalDamage - baseDamage;
+                if (damageReduction > 0)
+                {
+                    WriteCombatLog($"[{attacker.Name}]'s weakened condition reduces damage by {damageReduction}!");
+                }
+            }
+            
+            // Get target's armor - only from equipped gear
             int armor = 0;
             if (target is Character targetChar)
             {
+                // Only armor from equipped gear counts
                 if (targetChar.Head is HeadItem head) armor += head.GetTotalArmor();
                 if (targetChar.Body is ChestItem chest) armor += chest.GetTotalArmor();
                 if (targetChar.Feet is FeetItem feet) armor += feet.GetTotalArmor();
             }
             else if (target is Enemy targetEnemy)
             {
-                armor = targetEnemy.Armor; // Use enemy's scaled armor value
+                // Enemies have no armor - only gear provides armor
+                armor = 0;
             }
             
             // Calculate final damage with configurable minimum
@@ -458,6 +864,20 @@ namespace RPGGame
             if (roll >= tuning.Combat.CriticalHitThreshold)
             {
                 finalDamage = (int)(finalDamage * tuning.Combat.CriticalHitMultiplier);
+            }
+            
+            // Apply lifesteal for characters
+            if (attacker is Character lifestealChar && finalDamage > 0)
+            {
+                double lifestealPercent = lifestealChar.GetModificationLifesteal();
+                if (lifestealPercent > 0)
+                {
+                    int lifestealAmount = (int)(finalDamage * lifestealPercent);
+                    if (lifestealAmount > 0)
+                    {
+                        lifestealChar.Heal(lifestealAmount);
+                    }
+                }
             }
             
             return finalDamage;
@@ -477,6 +897,57 @@ namespace RPGGame
                 int finalDelayMs = Math.Max(tuning.UI.MinimumDelay, (int)adjustedDelayMs);
                 
                 Thread.Sleep(finalDelayMs);
+            }
+        }
+
+        /// <summary>
+        /// Writes a combat log message with configurable delay
+        /// </summary>
+        public static void WriteCombatLog(string message)
+        {
+            Console.WriteLine(message);
+            
+            var tuning = TuningConfig.Instance;
+            if (tuning.UI.EnableTextDelays)
+            {
+                Thread.Sleep(tuning.UI.CombatLogDelay);
+            }
+        }
+
+
+        /// <summary>
+        /// Checks and applies bleed chance from modifications after damage is dealt
+        /// </summary>
+        public static void CheckAndApplyBleedChance(Character attacker, Entity target)
+        {
+            double bleedChance = attacker.GetModificationBleedChance();
+            if (bleedChance > 0.0)
+            {
+                double roll = Dice.Roll(1, 100) / 100.0; // Roll 0.0 to 0.99
+                if (roll < bleedChance)
+                {
+                    // Apply bleed effect
+                    if (target is Character characterTarget)
+                    {
+                        var poisonConfig = TuningConfig.Instance.Poison;
+                        characterTarget.ApplyPoison(poisonConfig.DamagePerTick, 2, true); // 2 stacks of bleed
+                        WriteCombatLog($"[{target.Name}] is bleeding from {attacker.Name}'s attack (2 stacks, {poisonConfig.DamagePerTick} damage per stack)");
+                    }
+                    else if (target is Enemy enemyTarget)
+                    {
+                        // Only apply bleed to living enemies
+                        if (enemyTarget.IsLiving)
+                        {
+                            var poisonConfig = TuningConfig.Instance.Poison;
+                            enemyTarget.ApplyPoison(poisonConfig.DamagePerTick, 2, true); // 2 stacks of bleed
+                            WriteCombatLog($"[{target.Name}] is bleeding from {attacker.Name}'s attack (2 stacks, {poisonConfig.DamagePerTick} damage per stack)");
+                        }
+                        else
+                        {
+                            WriteCombatLog($"[{target.Name}] cannot be bled (undead)");
+                        }
+                    }
+                }
             }
         }
 
@@ -506,14 +977,22 @@ namespace RPGGame
         /// <param name="source">The entity performing the action</param>
         /// <param name="targets">List of all targets in the room</param>
         /// <param name="environment">The environment affecting the action</param>
+        /// <param name="selectedAction">Optional pre-selected action to use instead of selecting a new one</param>
         /// <returns>A string describing the result of the action</returns>
-        public static string ExecuteAreaOfEffectAction(Entity source, List<Entity> targets, Environment? environment = null)
+        public static string ExecuteAreaOfEffectAction(Entity source, List<Entity> targets, Environment? environment = null, Action? selectedAction = null)
         {
-            var selectedAction = source.SelectAction();
+            if (selectedAction == null)
+            {
+                selectedAction = source.SelectAction();
+            }
+            
             if (selectedAction == null)
             {
                 return $"[{source.Name}] has no actions available.";
             }
+
+            // Initialize results list for area of effect actions
+            var results = new List<string>();
 
             int baseEffect = selectedAction.BaseValue > 0 ? selectedAction.BaseValue : 1;
             double effect = baseEffect * selectedAction.DamageMultiplier;
@@ -529,9 +1008,21 @@ namespace RPGGame
             }
             
             int finalEffect = (int)Math.Round(effect);
-            var results = new List<string>();
 
             // Apply the action effect to all targets
+            // Update temporary effects for both source and targets based on action length BEFORE applying new debuffs
+            if (source is Character sourceCharacter)
+            {
+                sourceCharacter.UpdateTempEffects(selectedAction.Length);
+            }
+            foreach (var target in targets)
+            {
+                if (target is Character targetCharacter)
+                {
+                    targetCharacter.UpdateTempEffects(selectedAction.Length);
+                }
+            }
+
             foreach (var target in targets)
             {
                 // Check if target is alive (only Character and Enemy have IsAlive property)
@@ -543,13 +1034,182 @@ namespace RPGGame
                 
                 if (!isAlive) continue; // Skip dead targets
 
-                switch (selectedAction.Type)
+                // Check for poison effects first, regardless of action type
+                if (selectedAction.CausesPoison)
+                {
+                    // Apply poison debuff using configuration
+                    var poisonConfig = TuningConfig.Instance.Poison;
+                    if (target is Character characterTarget)
+                    {
+                        characterTarget.ApplyPoison(poisonConfig.DamagePerTick, poisonConfig.StacksPerApplication);
+                        results.Add($"[{target.Name}] is poisoned by {selectedAction.Name} (+{poisonConfig.StacksPerApplication} stacks, {poisonConfig.DamagePerTick} damage per stack)");
+                    }
+                    else if (target is Enemy enemyTarget)
+                    {
+                        // Only apply poison to living enemies
+                        if (enemyTarget.IsLiving)
+                        {
+                            enemyTarget.ApplyPoison(poisonConfig.DamagePerTick, poisonConfig.StacksPerApplication);
+                            results.Add($"[{target.Name}] is poisoned by {selectedAction.Name} (+{poisonConfig.StacksPerApplication} stacks, {poisonConfig.DamagePerTick} damage per stack)");
+                        }
+                        else
+                        {
+                            results.Add($"[{target.Name}] cannot be poisoned (undead)");
+                        }
+                    }
+                }
+                else if (selectedAction.CausesWeaken)
+                {
+                    // Apply weaken debuff based on action length
+                    if (target is Character weakenTarget)
+                    {
+                        int weakenTurns = (int)Math.Ceiling(Character.CalculateTurnsFromActionLength(selectedAction.Length));
+                        weakenTarget.ApplyWeaken(weakenTurns);
+                        results.Add($"[{target.Name}] is weakened by {selectedAction.Name} ({weakenTurns} turns)");
+                    }
+                    else if (target is Enemy enemyWeakenTarget)
+                    {
+                        int weakenTurns = (int)Math.Ceiling(Character.CalculateTurnsFromActionLength(selectedAction.Length));
+                        enemyWeakenTarget.ApplyWeaken(weakenTurns);
+                        results.Add($"[{target.Name}] is weakened by {selectedAction.Name} ({weakenTurns} turns)");
+                    }
+                }
+                else if (selectedAction.CausesSlow)
+                {
+                    // Apply slow debuff based on action length
+                    if (target is Character slowTarget)
+                    {
+                        int slowTurns = (int)Math.Ceiling(Character.CalculateTurnsFromActionLength(selectedAction.Length));
+                        slowTarget.ApplySlow(1.5, slowTurns); // 1.5x slower
+                        results.Add($"[{target.Name}] is slowed by {selectedAction.Name} ({slowTurns} turns)");
+                    }
+                    else if (target is Enemy enemySlowTarget)
+                    {
+                        int slowTurns = (int)Math.Ceiling(Character.CalculateTurnsFromActionLength(selectedAction.Length));
+                        enemySlowTarget.ApplySlow(1.5, slowTurns); // 1.5x slower
+                        results.Add($"[{target.Name}] is slowed by {selectedAction.Name} ({slowTurns} turns)");
+                    }
+                }
+                else if (selectedAction.CausesBleed)
+                {
+                    // Apply bleed debuff (using poison system for now)
+                    if (target is Character bleedTarget)
+                    {
+                        var poisonConfig = TuningConfig.Instance.Poison;
+                        bleedTarget.ApplyPoison(poisonConfig.DamagePerTick, 2, true); // 2 stacks of bleed, mark as bleeding
+                        results.Add($"[{target.Name}] is bleeding from {selectedAction.Name}");
+                    }
+                    else if (target is Enemy enemyBleedTarget)
+                    {
+                        // Only apply bleed to living enemies
+                        if (enemyBleedTarget.IsLiving)
+                        {
+                            var poisonConfig = TuningConfig.Instance.Poison;
+                            enemyBleedTarget.ApplyPoison(poisonConfig.DamagePerTick, 2, true); // 2 stacks of bleed, mark as bleeding
+                            results.Add($"[{target.Name}] is bleeding from {selectedAction.Name}");
+                        }
+                        else
+                        {
+                            results.Add($"[{target.Name}] cannot be bled (undead)");
+                        }
+                    }
+                }
+                else if (selectedAction.Name == "Dust Cloud")
+                {
+                    // Apply roll penalty for Dust Cloud
+                    int rollPenaltyTurns = 3; // 3 turns
+                    int rollPenalty = 3; // -3 to rolls
+                    
+                    if (target is Character dustTarget)
+                    {
+                        dustTarget.ApplyRollPenalty(rollPenalty, rollPenaltyTurns);
+                        results.Add($"[{target.Name}] is affected by {selectedAction.Name} (-{rollPenalty} to rolls for {rollPenaltyTurns} turns)");
+                    }
+                    else if (target is Enemy enemyDustTarget)
+                    {
+                        enemyDustTarget.ApplyRollPenalty(rollPenalty, rollPenaltyTurns);
+                        results.Add($"[{target.Name}] is affected by {selectedAction.Name} (-{rollPenalty} to rolls for {rollPenaltyTurns} turns)");
+                    }
+                }
+                else if (selectedAction.CausesStun || selectedAction.Name.Contains("Stun") || selectedAction.Name.Contains("stunning") || 
+                         selectedAction.Name.Contains("Falling Branch") || selectedAction.Name.Contains("Dungeon Collapse"))
+                {
+                    // Only apply stun if the target is not already stunned
+                    if (!target.IsStunned)
+                    {
+                        // Apply stun debuff based on action length
+                        int stunTurns = (int)Math.Ceiling(Character.CalculateTurnsFromActionLength(selectedAction.Length));
+                        if (target is Character stunTarget)
+                        {
+                            stunTarget.IsStunned = true;
+                            stunTarget.StunTurnsRemaining = stunTurns;
+                            results.Add($"[{target.Name}] is stunned by {selectedAction.Name} ({stunTurns} turns)");
+                        }
+                        else if (target is Enemy enemyStunTarget)
+                        {
+                            enemyStunTarget.IsStunned = true;
+                            enemyStunTarget.StunTurnsRemaining = stunTurns;
+                            results.Add($"[{target.Name}] is stunned by {selectedAction.Name} ({stunTurns} turns)");
+                        }
+                    }
+                    else
+                    {
+                        // Target is already stunned, don't apply new stun
+                        results.Add($"[{target.Name}] is already stunned and unaffected by {selectedAction.Name}");
+                    }
+                }
+                else switch (selectedAction.Type)
                 {
                     case ActionType.Attack:
                         if (target is Character attackTarget)
                         {
+                            // Calculate damage with shield reduction
+                            var (actualDamage, shieldReduction, shieldUsed) = attackTarget.CalculateDamageWithShield(finalEffect);
+                            
+                            // Apply the damage
                             attackTarget.TakeDamage(finalEffect);
+                            
+                            // Show shield reduction message if shield was used
+                            if (shieldUsed)
+                            {
+                                results.Add($"[{attackTarget.Name}]'s Arcane Shield reduces damage by {shieldReduction}!");
+                            }
+                            
                             results.Add($"[{target.Name}] takes {finalEffect} damage");
+                            
+                            // Apply armor spike damage if the target has armor spikes
+                            double armorSpikeDamage = attackTarget.GetArmorSpikeDamage();
+                            if (armorSpikeDamage > 0)
+                            {
+                                int spikeDamage = (int)(finalEffect * armorSpikeDamage);
+                                if (spikeDamage > 0)
+                                {
+                                    if (source is Character sourceChar)
+                                    {
+                                        sourceChar.TakeDamage(spikeDamage);
+                                    }
+                                    else if (source is Enemy sourceEnemy)
+                                    {
+                                        sourceEnemy.TakeDamage(spikeDamage);
+                                    }
+                                    results.Add($"[{source.Name}] takes {spikeDamage} damage from armor spikes");
+                                }
+                            }
+                            
+                            // Apply bleed effect if the action causes bleeding
+                            if (selectedAction.CausesBleed)
+                            {
+                                var poisonConfig = TuningConfig.Instance.Poison;
+                                if (attackTarget is Enemy enemyTarget && !enemyTarget.IsLiving)
+                                {
+                                    results.Add($"[{attackTarget.Name}] is immune to bleeding (undead)");
+                                }
+                                else
+                                {
+                                    attackTarget.ApplyPoison(poisonConfig.DamagePerTick, 1, true); // 1 stack of bleed, mark as bleeding
+                                    results.Add($"[{attackTarget.Name}] is bleeding from {selectedAction.Name}");
+                                }
+                            }
                         }
                         break;
                     case ActionType.Heal:
@@ -560,12 +1220,67 @@ namespace RPGGame
                         }
                         break;
                     case ActionType.Debuff:
-                        // Debuff effects would be implemented here
-                        results.Add($"[{target.Name}] is affected by {selectedAction.Name}");
+                        // Handle different debuff types
+                        if (selectedAction.CausesSlow && target is Character slowTarget)
+                        {
+                            // Apply slow debuff based on action length
+                            int slowTurns = (int)Math.Ceiling(Character.CalculateTurnsFromActionLength(selectedAction.Length));
+                            slowTarget.ApplySlow(1.5, slowTurns);
+                            results.Add($"[{target.Name}] is slowed by {selectedAction.Name} ({slowTurns} turns)");
+                        }
+                        else if (selectedAction.CausesSlow && target is Enemy enemySlowTarget)
+                        {
+                            // Apply slow debuff based on action length
+                            int slowTurns = (int)Math.Ceiling(Character.CalculateTurnsFromActionLength(selectedAction.Length));
+                            enemySlowTarget.ApplySlow(1.5, slowTurns);
+                            results.Add($"[{target.Name}] is slowed by {selectedAction.Name} ({slowTurns} turns)");
+                        }
+                        else
+                        {
+                            // Use the action's description to provide more context
+                            string effectDescription = selectedAction.Description.ToLower();
+                            if (effectDescription.Contains("weaken"))
+                                results.Add($"[{target.Name}] is weakened by {selectedAction.Name}");
+                            else if (effectDescription.Contains("slow"))
+                                results.Add($"[{target.Name}] is slowed by {selectedAction.Name}");
+                            else if (effectDescription.Contains("stun"))
+                                results.Add($"[{target.Name}] is stunned by {selectedAction.Name}");
+                            else if (effectDescription.Contains("bleed") || effectDescription.Contains("burn"))
+                                results.Add($"[{target.Name}] is bleeding from {selectedAction.Name}");
+                            else if (effectDescription.Contains("poison"))
+                                results.Add($"[{target.Name}] is poisoned by {selectedAction.Name}");
+                            else
+                                results.Add($"[{target.Name}] is affected by {selectedAction.Name}");
+                        }
                         break;
                     case ActionType.Buff:
-                        // Buff effects would be implemented here
-                        results.Add($"[{target.Name}] is buffed by {selectedAction.Name}");
+                        // Handle specific buff actions
+                        if (selectedAction.Name == "ARCANE SHIELD" && target is Character shieldTarget)
+                        {
+                            shieldTarget.ApplyShield();
+                            results.Add($"[{target.Name}] gains Arcane Shield protection");
+                        }
+                        else if (selectedAction.Name == "War Cry")
+                        {
+                            // War Cry buffs the caster and debuffs enemies
+                            if (source is Enemy enemyCaster)
+                            {
+                                // Buff the caster (increase their effectiveness)
+                                enemyCaster.SetTempComboBonus(2, 3); // +2 combo bonus for 3 turns
+                                results.Add($"[{source.Name}] lets out a mighty War Cry! (+2 combo bonus for 3 turns)");
+                                
+                                // Debuff the target (weaken them)
+                                if (target is Character characterTarget)
+                                {
+                                    characterTarget.ApplyWeaken(3); // Weaken for 3 turns
+                                    results.Add($"[{target.Name}] is intimidated by the War Cry! (Weakened for 3 turns)");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            results.Add($"[{target.Name}] is buffed by {selectedAction.Name}");
+                        }
                         break;
                 }
             }
@@ -576,7 +1291,9 @@ namespace RPGGame
             string result = $"[{source.Name}] uses [{selectedAction.Name}]: ";
             if (results.Count > 0)
             {
-                result += string.Join(", ", results) + envMsg + ".";
+                // Format results with each target on a new indented line
+                string formattedResults = string.Join("\n\t", results);
+                result += $"\n\t{formattedResults}{envMsg}.";
             }
             else
             {
@@ -584,6 +1301,119 @@ namespace RPGGame
             }
             
             return result;
+        }
+
+        /// <summary>
+        /// Executes an action with proper speed tracking
+        /// </summary>
+        /// <param name="source">The entity performing the action</param>
+        /// <param name="target">The entity receiving the action</param>
+        /// <param name="action">The specific action being executed</param>
+        /// <param name="environment">The environment affecting the action</param>
+        /// <param name="rollResult">The roll result to determine if this is a basic attack or combo</param>
+        /// <returns>A string describing the result of the action</returns>
+        public static string ExecuteActionWithSpeed(Entity source, Entity target, Action action, Environment? environment = null)
+        {
+            // Execute the action normally
+            string result = ExecuteAction(source, target, environment);
+            
+            // Track the action speed and get duration
+            double actionDuration = 0.0;
+            if (currentActionSpeedSystem != null)
+            {
+                // Parse roll result from the result string to determine if this is a basic attack
+                int rollResult = ParseRollResultFromString(result);
+                var rollTuning = TuningConfig.Instance;
+                bool isBasicAttack = rollResult >= rollTuning.RollSystem.BasicAttackThreshold.Min && 
+                                   rollResult <= rollTuning.RollSystem.BasicAttackThreshold.Max;
+                
+                actionDuration = currentActionSpeedSystem.ExecuteAction(source, action, isBasicAttack);
+            }
+            
+            // Format the result to move roll details to a separate indented line
+            result = FormatCombatMessage(result, actionDuration);
+            
+            return result;
+        }
+        
+        /// <summary>
+        /// Formats combat messages to separate action from roll details
+        /// </summary>
+        /// <param name="originalMessage">The original combat message</param>
+        /// <param name="actionDuration">The duration of the action</param>
+        /// <returns>Formatted message with roll details on separate line</returns>
+        private static string FormatCombatMessage(string originalMessage, double actionDuration)
+        {
+            // Look for patterns like "(Rolled X, combo step Y, amplification, CRITICAL HIT)"
+            var match = System.Text.RegularExpressions.Regex.Match(originalMessage, @"^(.*?)\s*\((.*)\)$");
+            
+            if (match.Success)
+            {
+                string mainAction = match.Groups[1].Value.Trim();
+                string rollDetails = match.Groups[2].Value.Trim();
+                
+                // Add duration to roll details if present
+                if (actionDuration > 0.0)
+                {
+                    rollDetails += $", Duration: {actionDuration:F2}s";
+                }
+                
+                // Return formatted message with roll details on indented line
+                return $"{mainAction}\n\t({rollDetails})";
+            }
+            else
+            {
+                // If no parentheses found, just add duration if present
+                if (actionDuration > 0.0)
+                {
+                    return $"{originalMessage}\n\t(Duration: {actionDuration:F2}s)";
+                }
+                return originalMessage;
+            }
+        }
+        
+        /// <summary>
+        /// Parses the roll result from a combat result string
+        /// </summary>
+        /// <param name="resultString">The combat result string</param>
+        /// <returns>The roll result, or 0 if not found</returns>
+        private static int ParseRollResultFromString(string resultString)
+        {
+            // Look for patterns like "Rolled 16 + 4 = 20" or "Rolled 5"
+            var match = System.Text.RegularExpressions.Regex.Match(resultString, @"Rolled\s+(\d+)(?:\s*\+\s*\d+\s*=\s*(\d+))?");
+            if (match.Success)
+            {
+                // If there's a total (like "16 + 4 = 20"), use the total
+                if (match.Groups[2].Success)
+                {
+                    return int.Parse(match.Groups[2].Value);
+                }
+                // Otherwise use the base roll
+                else
+                {
+                    return int.Parse(match.Groups[1].Value);
+                }
+            }
+            return 0; // Default to 0 if no roll found
+        }
+
+        /// <summary>
+        /// Gets the next entity that should act based on action speed
+        /// </summary>
+        /// <returns>The next entity to act, or null if none are ready</returns>
+        public static Entity? GetNextEntityToAct()
+        {
+            return currentActionSpeedSystem?.GetNextEntityToAct();
+        }
+
+        /// <summary>
+        /// Checks if an entity is ready to act
+        /// </summary>
+        /// <param name="entity">The entity to check</param>
+        /// <returns>True if the entity is ready to act</returns>
+        public static bool IsEntityReady(Entity entity)
+        {
+            return currentActionSpeedSystem?.IsEntityReady(entity) ?? true;
         }
     }
 }

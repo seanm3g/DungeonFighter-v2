@@ -13,6 +13,7 @@ namespace RPGGame
         public CharacterConfig Character { get; set; } = new();
         public AttributesConfig Attributes { get; set; } = new();
         public CombatConfig Combat { get; set; } = new();
+        public PoisonConfig Poison { get; set; } = new();
         public EquipmentConfig Equipment { get; set; } = new();
         public ProgressionConfig Progression { get; set; } = new();
         public LootConfig Loot { get; set; } = new();
@@ -20,6 +21,7 @@ namespace RPGGame
         public ComboSystemConfig ComboSystem { get; set; } = new();
         public EnemyScalingConfig EnemyScaling { get; set; } = new();
         public UIConfig UI { get; set; } = new();
+        public GameSpeedConfig GameSpeed { get; set; } = new();
 
         public static TuningConfig Instance
         {
@@ -130,9 +132,16 @@ namespace RPGGame
         public int CriticalHitThreshold { get; set; } = 20;
         public double CriticalHitMultiplier { get; set; } = 2.0;
         public int MinimumDamage { get; set; } = 1;
-        public double AgilitySpeedBonus { get; set; } = 0.03;
-        public double MinimumAttackSpeed { get; set; } = 0.2;
-        public int EnemyArmorPerLevel { get; set; } = 1;
+        public double BaseAttackTime { get; set; } = 10.0;
+        public double AgilitySpeedReduction { get; set; } = 0.1;
+        public double MinimumAttackTime { get; set; } = 1.0;
+    }
+
+    public class PoisonConfig
+    {
+        public double TickInterval { get; set; } = 10.0;
+        public int DamagePerTick { get; set; } = 3;
+        public int StacksPerApplication { get; set; } = 3;
     }
 
     public class EquipmentConfig
@@ -192,5 +201,16 @@ namespace RPGGame
         public int BaseDelayPerAction { get; set; } = 400;
         public int MinimumDelay { get; set; } = 50;
         public double CombatSpeedMultiplier { get; set; } = 1.0;
+        public int CombatLogDelay { get; set; } = 500;
+        public int MainMenuDelay { get; set; } = 500;
+        public int DungeonEntryDelay { get; set; } = 1000;
+        public int RoomEntryDelay { get; set; } = 1000;
+        public int EnemyEncounterDelay { get; set; } = 1000;
+    }
+    
+    public class GameSpeedConfig
+    {
+        public double GameTickerInterval { get; set; } = 1.0;
+        public double GameSpeedMultiplier { get; set; } = 1.0;
     }
 }

@@ -30,6 +30,10 @@ namespace RPGGame
         public bool CausesBleed { get; set; }
         [JsonPropertyName("causesWeaken")]
         public bool CausesWeaken { get; set; }
+        [JsonPropertyName("causesSlow")]
+        public bool CausesSlow { get; set; }
+        [JsonPropertyName("causesPoison")]
+        public bool CausesPoison { get; set; }
         [JsonPropertyName("comboBonusAmount")]
         public int ComboBonusAmount { get; set; }
         [JsonPropertyName("comboBonusDuration")]
@@ -182,6 +186,10 @@ namespace RPGGame
                 comboBonusDuration: data.ComboBonusDuration
             );
             
+            // Set the new debuff properties
+            action.CausesSlow = data.CausesSlow;
+            action.CausesPoison = data.CausesPoison;
+            
             // Set additional properties
             action.RollBonus = data.RollBonus;
             action.StatBonus = data.StatBonus;
@@ -230,6 +238,16 @@ namespace RPGGame
             if (data.CausesWeaken)
             {
                 modifiers.Add("Causes Weaken");
+            }
+            
+            if (data.CausesSlow)
+            {
+                modifiers.Add("Causes Slow");
+            }
+            
+            if (data.CausesPoison)
+            {
+                modifiers.Add("Causes Poison");
             }
             
             // Add multi-hit information
@@ -328,6 +346,45 @@ namespace RPGGame
                 }
             }
             return actions;
+        }
+
+        public static string GetRandomActionNameByType(ActionType type)
+        {
+            if (_actions == null)
+            {
+                LoadActions();
+            }
+
+            var actionsOfType = new List<string>();
+            if (_actions != null)
+            {
+                foreach (var actionData in _actions.Values)
+                {
+                    if (actionData.Type.Equals(type.ToString(), StringComparison.OrdinalIgnoreCase))
+                    {
+                        actionsOfType.Add(actionData.Name);
+                    }
+                }
+            }
+
+            if (actionsOfType.Count > 0)
+            {
+                return actionsOfType[Random.Shared.Next(actionsOfType.Count)];
+            }
+
+            // Fallback names if no actions found
+            return type switch
+            {
+                ActionType.Attack => "Attack",
+                ActionType.Heal => "Heal",
+                ActionType.Buff => "Buff",
+                ActionType.Debuff => "Debuff",
+                ActionType.Spell => "Spell",
+                ActionType.Interact => "Interact",
+                ActionType.Move => "Move",
+                ActionType.UseItem => "Use Item",
+                _ => "Unknown Action"
+            };
         }
     }
 } 

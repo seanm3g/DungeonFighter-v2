@@ -2,14 +2,14 @@
   "Character": {
     "PlayerBaseHealth": 100,
     "HealthPerLevel": 3,
-    "EnemyHealthPerLevel": 3
+    "EnemyHealthPerLevel": 8
   },
   "Attributes": {
     "PlayerBaseAttributes": {
-      "Strength": 5,
-      "Agility": 5,
-      "Technique": 5,
-      "Intelligence": 5
+      "Strength": 10,
+      "Agility": 10,
+      "Technique": 10,
+      "Intelligence": 10
     },
     "PlayerAttributesPerLevel": 1,
     "EnemyAttributesPerLevel": 1,
@@ -18,11 +18,16 @@
   },
   "Combat": {
     "CriticalHitThreshold": 20,
-    "CriticalHitMultiplier": 2.0,
+    "CriticalHitMultiplier": 1.5,
     "MinimumDamage": 1,
-    "AgilitySpeedBonus": 0.03,
-    "MinimumAttackSpeed": 0.2,
-    "EnemyArmorPerLevel": 1
+    "BaseAttackTime": 10.0,
+    "AgilitySpeedReduction": 0.1,
+    "MinimumAttackTime": 1.0
+  },
+  "Poison": {
+    "TickInterval": 5.0,
+    "DamagePerTick": 3,
+    "StacksPerApplication": 3
   },
   "Equipment": {
     "BonusDamageRange": { "Min": 1, "Max": 10 },
@@ -53,7 +58,7 @@
     "ComboAmplifierMaxTech": 100
   },
   "EnemyScaling": {
-    "EnemyHealthMultiplier": 1.0,
+    "EnemyHealthMultiplier": 1.5,
     "EnemyDamageMultiplier": 1.0,
     "EnemyLevelVariance": 1
   },
@@ -61,6 +66,15 @@
     "EnableTextDelays": true,
     "BaseDelayPerAction": 400,
     "MinimumDelay": 50,
-    "CombatSpeedMultiplier": 1.0
+    "CombatSpeedMultiplier": 1.0,
+    "CombatLogDelay": 1000,
+    "MainMenuDelay": 100,
+    "DungeonEntryDelay": 1000,
+    "RoomEntryDelay": 1000,
+    "EnemyEncounterDelay": 1000
+  },
+  "GameSpeed": {
+    "GameTickerInterval": 1.0,
+    "GameSpeedMultiplier": 1.0
   }
 }

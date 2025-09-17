@@ -4,3 +4,6 @@
 4. What if when you loot you get to pick from 1 of 3 items (of the same type?)
 5. Attacks are per turn, and length could require (2 actions) to cast.
 6. Make sure that attack speed is on a diminishing returns curve?
+7. Add an action that increases dice for each 1-13 rolled, reset when 14 is rolled higher. | Pity Cuck
+8. Meteor should be amplified by the amount of fire spells you have.  | Meteor is one of 4 actions you get from becoming a wizard.  you pick the action or something?
+9.  When a treant bleeds, it bleeds sap, that slows you.

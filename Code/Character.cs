@@ -44,6 +44,20 @@ namespace RPGGame
         // Enemy roll penalty from actions like Arcane Shield
         public int EnemyRollPenalty { get; set; } = 0;
         public int EnemyRollPenaltyTurns { get; set; } = 0;
+        
+        // Slow debuff from environmental effects
+        public double SlowMultiplier { get; set; } = 1.0;
+        public int SlowTurns { get; set; } = 0;
+        
+        // Poison debuff from environmental effects
+        public int PoisonDamage { get; set; } = 0;
+        public int PoisonStacks { get; set; } = 0; // Number of poison stacks
+        public double LastPoisonTick { get; set; } = 0.0; // Last time poison ticked
+        public bool IsBleeding { get; set; } = false; // Whether the damage is from bleeding (vs poison)
+        
+        // Shield buff from Arcane SHIELD
+        public bool HasShield { get; set; } = false; // Whether character has active shield
+        public int LastShieldReduction { get; set; } = 0; // Amount of damage reduced by last shield use
         public int LastComboActionIdx { get; set; } = -1;
         // New combo mode tracking
         public bool ComboModeActive { get; set; } = false;
@@ -63,12 +77,18 @@ namespace RPGGame
         public int ExtraAttacks { get; set; } = 0; // For Flurry/Precision Strike
         public int ExtraDamage { get; set; } = 0; // For Opening Volley
         public double DamageReduction { get; set; } = 0.0; // For Sharp Edge
-        public bool IsStunned { get; set; } = false; // For Stun effects
-        public int StunTurnsRemaining { get; set; } = 0; // Stun duration
         public double LengthReduction { get; set; } = 0.0; // For Taunt
         public int LengthReductionTurns { get; set; } = 0; // Length reduction duration
         public double ComboAmplifierMultiplier { get; set; } = 1.0; // For Pretty Boy Swag
         public int ComboAmplifierTurns { get; set; } = 0; // Amplifier duration
+        
+        // Divine reroll system
+        public int RerollCharges { get; set; } = 0; // Number of rerolls available
+        public bool UsedRerollThisTurn { get; set; } = false; // Track if reroll was used this turn
+        
+        
+        // Turn system constants
+        public const double DEFAULT_ACTION_LENGTH = 1.0; // Basic attack length defines one turn
 
         // Class points system
         public int BarbarianPoints { get; set; } = 0; // Mace weapon
@@ -388,6 +408,11 @@ namespace RPGGame
         // Methods to equip/unequip items
         public Item? EquipItem(Item item, string slot)
         {
+            
+            // Store current health percentage before equipping
+            double healthPercentage = GetHealthPercentage();
+            int oldMaxHealth = GetEffectiveMaxHealth();
+            
             Item? previousItem = null;
             switch (slot.ToLower())
             {
@@ -440,28 +465,55 @@ namespace RPGGame
                     break;
             }
             
+            // Check if max health increased and adjust current health accordingly
+            int newMaxHealth = GetEffectiveMaxHealth();
+            if (newMaxHealth > oldMaxHealth)
+            {
+                // If max health increased, heal to full health
+                CurrentHealth = newMaxHealth;
+            }
+            else if (newMaxHealth < oldMaxHealth)
+            {
+                // If max health decreased, maintain health percentage but cap at new max
+                int newCurrentHealth = (int)(newMaxHealth * healthPercentage);
+                CurrentHealth = Math.Min(newCurrentHealth, newMaxHealth);
+            }
+            
             // Reinitialize combo sequence after equipment change
             InitializeDefaultCombo();
             
             // Apply roll bonuses from the new item
             ApplyRollBonusesFromGear(item);
             
+            // Update reroll charges from Divine modifications
+            UpdateRerollCharges();
+            
             return previousItem;
         }
 
         public Item? UnequipItem(string slot)
         {
+            // Store current health percentage before unequipping
+            double healthPercentage = GetHealthPercentage();
+            int oldMaxHealth = GetEffectiveMaxHealth();
+            
             Item? unequippedItem = null;
             switch (slot.ToLower())
             {
                 case "head": 
                     unequippedItem = Head;
+                    if (unequippedItem != null)
+                    {
+                    }
                     Head = null;
                     // Remove armor actions if applicable
                     RemoveArmorActions(unequippedItem);
                     break;
                 case "body": 
                     unequippedItem = Body;
+                    if (unequippedItem != null)
+                    {
+                    }
                     Body = null;
                     // Remove armor actions if applicable
                     RemoveArmorActions(unequippedItem);
@@ -474,10 +526,28 @@ namespace RPGGame
                     break;
                 case "feet": 
                     unequippedItem = Feet;
+                    if (unequippedItem != null)
+                    {
+                    }
                     Feet = null;
                     // Remove armor actions if applicable
                     RemoveArmorActions(unequippedItem);
                     break;
+            }
+            
+            // Check if max health changed and adjust current health accordingly
+            int newMaxHealth = GetEffectiveMaxHealth();
+            if (newMaxHealth < oldMaxHealth)
+            {
+                // If max health decreased, maintain health percentage but cap at new max
+                int newCurrentHealth = (int)(newMaxHealth * healthPercentage);
+                CurrentHealth = Math.Min(newCurrentHealth, newMaxHealth);
+            }
+            else if (newMaxHealth > oldMaxHealth)
+            {
+                // If max health increased (unlikely when unequipping), maintain health percentage
+                int newCurrentHealth = (int)(newMaxHealth * healthPercentage);
+                CurrentHealth = Math.Min(newCurrentHealth, newMaxHealth);
             }
             
             // Remove roll bonuses from the unequipped item
@@ -485,6 +555,12 @@ namespace RPGGame
             {
                 RemoveRollBonusesFromGear(unequippedItem);
             }
+            
+            // Update reroll charges from Divine modifications
+            UpdateRerollCharges();
+            
+            // Reinitialize combo sequence after equipment change
+            InitializeDefaultCombo();
             
             return unequippedItem;
         }
@@ -561,6 +637,7 @@ namespace RPGGame
                 Console.WriteLine($"Gained +1 {className} class point!");
                 Console.WriteLine($"Stats increased: {GetStatIncreaseMessage(weapon.WeaponType)}");
                 Console.WriteLine($"Current class: {GetCurrentClass()}");
+                Console.WriteLine($"You are now known as: {GetFullNameWithQualifier()}");
                 // Show only classes with points > 0
                 var classPointsInfo = new List<string>();
                 if (BarbarianPoints > 0) classPointsInfo.Add($"Barbarian({BarbarianPoints})");
@@ -610,12 +687,64 @@ namespace RPGGame
 
         public void TakeDamage(int amount)
         {
+            int originalAmount = amount;
+            bool shieldUsed = false;
+            
+            // Apply shield damage reduction (50% reduction) if shield is active
+            if (HasShield)
+            {
+                int reducedAmount = (int)(amount * 0.5); // Reduce damage by half
+                int shieldReduction = amount - reducedAmount;
+                amount = reducedAmount;
+                HasShield = false; // Consume the shield
+                shieldUsed = true;
+                
+                // Display shield message
+                Console.WriteLine($"[{Name}]'s Arcane Shield reduces damage by {shieldReduction}!");
+            }
+            
             // Apply damage reduction if active
             if (DamageReduction > 0)
             {
                 amount = (int)(amount * (1.0 - DamageReduction));
             }
+            
             CurrentHealth = Math.Max(0, CurrentHealth - amount);
+            
+            // Store shield usage for display purposes
+            if (shieldUsed)
+            {
+                LastShieldReduction = originalAmount - amount;
+            }
+        }
+        
+        /// <summary>
+        /// Calculates damage with shield reduction but doesn't apply it
+        /// </summary>
+        /// <param name="amount">Original damage amount</param>
+        /// <returns>Tuple of (final damage, shield reduction amount, shield was used)</returns>
+        public (int finalDamage, int shieldReduction, bool shieldUsed) CalculateDamageWithShield(int amount)
+        {
+            int originalAmount = amount;
+            bool shieldUsed = false;
+            int shieldReduction = 0;
+            
+            // Apply shield damage reduction (50% reduction) if shield is active
+            if (HasShield)
+            {
+                int reducedAmount = (int)(amount * 0.5); // Reduce damage by half
+                shieldReduction = amount - reducedAmount;
+                amount = reducedAmount;
+                shieldUsed = true;
+            }
+            
+            // Apply damage reduction if active
+            if (DamageReduction > 0)
+            {
+                amount = (int)(amount * (1.0 - DamageReduction));
+            }
+            
+            return (amount, shieldReduction, shieldUsed);
         }
 
         public void Heal(int amount)
@@ -671,7 +800,7 @@ namespace RPGGame
         
         public void AddToCombo(Action action)
         {
-            if (!ComboSequence.Contains(action) && action.IsComboAction)
+            if (action.IsComboAction)
             {
                 ComboSequence.Add(action);
                 // Reassign combo orders to be sequential starting from 1
@@ -681,11 +810,12 @@ namespace RPGGame
         
         public void RemoveFromCombo(Action action)
         {
-            if (ComboSequence.Contains(action))
+            var actionToRemove = ComboSequence.FirstOrDefault(comboAction => comboAction.Name == action.Name);
+            if (actionToRemove != null)
             {
-                ComboSequence.Remove(action);
+                ComboSequence.Remove(actionToRemove);
                 // Reset the action's combo order since it's no longer in the combo
-                action.ComboOrder = 0;
+                actionToRemove.ComboOrder = 0;
                 // Reassign combo orders to be sequential starting from 1
                 ReorderComboSequence();
             }
@@ -804,12 +934,15 @@ namespace RPGGame
             TempStatBonusTurns = duration;
         }
 
-        public void UpdateTempEffects()
+        public void UpdateTempEffects(double actionLength = DEFAULT_ACTION_LENGTH)
         {
+            // Calculate how many turns this action represents
+            double turnsPassed = CalculateTurnsFromActionLength(actionLength);
+            
             // Update temporary stat bonuses
             if (TempStatBonusTurns > 0)
             {
-                TempStatBonusTurns--;
+                TempStatBonusTurns = Math.Max(0, TempStatBonusTurns - (int)Math.Ceiling(turnsPassed));
                 if (TempStatBonusTurns == 0)
                 {
                     TempStrengthBonus = 0;
@@ -822,7 +955,7 @@ namespace RPGGame
             // Update stun
             if (StunTurnsRemaining > 0)
             {
-                StunTurnsRemaining--;
+                StunTurnsRemaining = Math.Max(0, StunTurnsRemaining - (int)Math.Ceiling(turnsPassed));
                 if (StunTurnsRemaining == 0)
                     IsStunned = false;
             }
@@ -830,7 +963,7 @@ namespace RPGGame
             // Update length reduction
             if (LengthReductionTurns > 0)
             {
-                LengthReductionTurns--;
+                LengthReductionTurns = Math.Max(0, LengthReductionTurns - (int)Math.Ceiling(turnsPassed));
                 if (LengthReductionTurns == 0)
                     LengthReduction = 0.0;
             }
@@ -838,35 +971,56 @@ namespace RPGGame
             // Update enemy roll penalty
             if (EnemyRollPenaltyTurns > 0)
             {
-                EnemyRollPenaltyTurns--;
+                EnemyRollPenaltyTurns = Math.Max(0, EnemyRollPenaltyTurns - (int)Math.Ceiling(turnsPassed));
                 if (EnemyRollPenaltyTurns == 0)
                     EnemyRollPenalty = 0;
+            }
+            
+            // Update roll penalty (for effects like Dust Cloud)
+            if (RollPenaltyTurns > 0)
+            {
+                RollPenaltyTurns = Math.Max(0, RollPenaltyTurns - (int)Math.Ceiling(turnsPassed));
+                if (RollPenaltyTurns == 0)
+                    RollPenalty = 0;
             }
 
             // Update combo amplifier multiplier
             if (ComboAmplifierTurns > 0)
             {
-                ComboAmplifierTurns--;
+                ComboAmplifierTurns = Math.Max(0, ComboAmplifierTurns - (int)Math.Ceiling(turnsPassed));
                 if (ComboAmplifierTurns == 0)
                     ComboAmplifierMultiplier = 1.0;
             }
 
-            // Update extra damage decay
+            // Update extra damage decay (per turn, not per action)
             if (ExtraDamage > 0)
             {
-                ExtraDamage = Math.Max(0, ExtraDamage - 1); // Default decay of 1 per turn
+                ExtraDamage = Math.Max(0, ExtraDamage - (int)Math.Ceiling(turnsPassed)); // Decay per turn
             }
 
-            // Update damage reduction decay
+            // Update damage reduction decay (per turn, not per action)
             if (DamageReduction > 0)
             {
-                DamageReduction = Math.Max(0.0, DamageReduction - 0.1); // Default decay of 10% per turn
+                DamageReduction = Math.Max(0.0, DamageReduction - (0.1 * Math.Ceiling(turnsPassed))); // Decay per turn
             }
+
+            // Update weaken debuff
+            if (WeakenTurns > 0)
+            {
+                WeakenTurns = Math.Max(0, WeakenTurns - (int)Math.Ceiling(turnsPassed));
+                if (WeakenTurns == 0)
+                {
+                    IsWeakened = false;
+                }
+            }
+
+            // Reset reroll usage for next turn
+            ResetRerollUsage();
         }
 
         public int GetEffectiveStrength()
         {
-            return Strength + TempStrengthBonus + GetEquipmentStatBonus("STR");
+            return Strength + TempStrengthBonus + GetEquipmentStatBonus("STR") + GetModificationGodlikeBonus();
         }
 
         public int GetEffectiveAgility()
@@ -917,6 +1071,38 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Gets the total stat bonus from all equipped items for a specific stat type (double version)
+        /// </summary>
+        private double GetEquipmentStatBonusDouble(string statType)
+        {
+            double totalBonus = 0.0;
+            
+            // Check all equipped items
+            var equippedItems = new[] { Head, Body, Weapon, Feet };
+            foreach (var item in equippedItems)
+            {
+                if (item != null)
+                {
+                    foreach (var statBonus in item.StatBonuses)
+                    {
+                        // Check for exact stat type match
+                        if (statBonus.StatType == statType)
+                        {
+                            totalBonus += statBonus.Value;
+                        }
+                        // Check for "ALL" stat type which applies to all stats
+                        else if (statBonus.StatType == "ALL")
+                        {
+                            totalBonus += statBonus.Value;
+                        }
+                    }
+                }
+            }
+            
+            return totalBonus;
+        }
+
+        /// <summary>
         /// Gets the total damage bonus from all equipped items
         /// </summary>
         public int GetEquipmentDamageBonus()
@@ -933,11 +1119,503 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Gets the total roll bonus from all equipped items
+        /// </summary>
+        public int GetEquipmentRollBonus()
+        {
+            return GetEquipmentStatBonus("RollBonus");
+        }
+
+        /// <summary>
+        /// Gets the total attack speed bonus from all equipped items
+        /// </summary>
+        public double GetEquipmentAttackSpeedBonus()
+        {
+            return GetEquipmentStatBonusDouble("AttackSpeed");
+        }
+
+        /// <summary>
+        /// Gets the total health regeneration bonus from all equipped items
+        /// </summary>
+        public int GetEquipmentHealthRegenBonus()
+        {
+            return GetEquipmentStatBonus("HealthRegen");
+        }
+
+        /// <summary>
         /// Gets the total armor from all equipped items
         /// </summary>
         public int GetTotalArmor()
         {
-            return GetEquipmentStatBonus("Armor");
+            int totalArmor = 0;
+            
+            // Add armor from equipped items
+            if (Head is HeadItem head) totalArmor += head.GetTotalArmor();
+            if (Body is ChestItem chest) totalArmor += chest.GetTotalArmor();
+            if (Feet is FeetItem feet) totalArmor += feet.GetTotalArmor();
+            
+            // Add any additional armor from stat bonuses on other items
+            totalArmor += GetEquipmentStatBonus("Armor");
+            
+            return totalArmor;
+        }
+
+        /// <summary>
+        /// Gets the total number of reroll charges from Divine modifications
+        /// </summary>
+        public int GetTotalRerollCharges()
+        {
+            int totalRerolls = 0;
+            
+            // Check all equipped items for Divine modifications
+            var equippedItems = new[] { Head, Body, Weapon, Feet };
+            foreach (var item in equippedItems)
+            {
+                if (item != null)
+                {
+                    foreach (var modification in item.Modifications)
+                    {
+                        if (modification.Effect == "reroll")
+                        {
+                            totalRerolls++;
+                        }
+                    }
+                }
+            }
+            
+            return totalRerolls;
+        }
+
+        // Track Divine reroll charges used this combat
+        public int RerollChargesUsed { get; set; } = 0;
+
+        /// <summary>
+        /// Gets the remaining Divine reroll charges for this combat
+        /// </summary>
+        public int GetRemainingRerollCharges()
+        {
+            return Math.Max(0, GetTotalRerollCharges() - RerollChargesUsed);
+        }
+
+        /// <summary>
+        /// Uses one Divine reroll charge if available
+        /// </summary>
+        public bool UseRerollCharge()
+        {
+            if (GetRemainingRerollCharges() > 0)
+            {
+                RerollChargesUsed++;
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Resets Divine reroll charges for a new combat
+        /// </summary>
+        public void ResetRerollCharges()
+        {
+            RerollChargesUsed = 0;
+        }
+
+
+        /// <summary>
+        /// Gets the total roll bonus from modifications on equipped items
+        /// </summary>
+        public int GetModificationRollBonus()
+        {
+            int totalRollBonus = 0;
+            
+            // Check all equipped items for rollBonus modifications
+            var equippedItems = new[] { Head, Body, Weapon, Feet };
+            foreach (var item in equippedItems)
+            {
+                if (item != null)
+                {
+                    foreach (var modification in item.Modifications)
+                    {
+                        if (modification.Effect == "rollBonus")
+                        {
+                            totalRollBonus += (int)modification.MaxValue; // Use MaxValue as the bonus amount
+                        }
+                    }
+                }
+            }
+            
+            return totalRollBonus;
+        }
+
+        /// <summary>
+        /// Gets the total damage bonus from modifications on equipped items
+        /// </summary>
+        public int GetModificationDamageBonus()
+        {
+            int totalDamageBonus = 0;
+            
+            // Check all equipped items for damage modifications
+            var equippedItems = new[] { Head, Body, Weapon, Feet };
+            foreach (var item in equippedItems)
+            {
+                if (item != null)
+                {
+                    foreach (var modification in item.Modifications)
+                    {
+                        if (modification.Effect == "damage")
+                        {
+                            totalDamageBonus += (int)modification.MaxValue; // Use MaxValue as the bonus amount
+                        }
+                    }
+                }
+            }
+            
+            return totalDamageBonus;
+        }
+
+        /// <summary>
+        /// Gets the total speed multiplier from modifications on equipped items
+        /// </summary>
+        public double GetModificationSpeedMultiplier()
+        {
+            double totalSpeedMultiplier = 1.0;
+            
+            // Check all equipped items for speedMultiplier modifications
+            var equippedItems = new[] { Head, Body, Weapon, Feet };
+            foreach (var item in equippedItems)
+            {
+                if (item != null)
+                {
+                    foreach (var modification in item.Modifications)
+                    {
+                        if (modification.Effect == "speedMultiplier")
+                        {
+                            totalSpeedMultiplier *= modification.MaxValue; // Multiply speed multipliers
+                        }
+                    }
+                }
+            }
+            
+            return totalSpeedMultiplier;
+        }
+
+        /// <summary>
+        /// Gets the total damage multiplier from modifications on equipped items
+        /// </summary>
+        public double GetModificationDamageMultiplier()
+        {
+            double totalDamageMultiplier = 1.0;
+            
+            // Check all equipped items for damageMultiplier modifications
+            var equippedItems = new[] { Head, Body, Weapon, Feet };
+            foreach (var item in equippedItems)
+            {
+                if (item != null)
+                {
+                    foreach (var modification in item.Modifications)
+                    {
+                        if (modification.Effect == "damageMultiplier")
+                        {
+                            totalDamageMultiplier *= modification.MaxValue; // Multiply damage multipliers
+                        }
+                    }
+                }
+            }
+            
+            return totalDamageMultiplier;
+        }
+
+        /// <summary>
+        /// Gets the total lifesteal percentage from modifications on equipped items
+        /// </summary>
+        public double GetModificationLifesteal()
+        {
+            double totalLifesteal = 0.0;
+            
+            // Check all equipped items for lifesteal modifications
+            var equippedItems = new[] { Head, Body, Weapon, Feet };
+            foreach (var item in equippedItems)
+            {
+                if (item != null)
+                {
+                    foreach (var modification in item.Modifications)
+                    {
+                        if (modification.Effect == "lifesteal")
+                        {
+                            totalLifesteal += modification.MaxValue; // Add lifesteal percentages
+                        }
+                    }
+                }
+            }
+            
+            return totalLifesteal;
+        }
+
+        /// <summary>
+        /// Gets the total STR bonus from godlike modifications on equipped items
+        /// </summary>
+        public int GetModificationGodlikeBonus()
+        {
+            int totalGodlikeBonus = 0;
+            
+            // Check all equipped items for godlike modifications
+            var equippedItems = new[] { Head, Body, Weapon, Feet };
+            foreach (var item in equippedItems)
+            {
+                if (item != null)
+                {
+                    foreach (var modification in item.Modifications)
+                    {
+                        if (modification.Effect == "godlike")
+                        {
+                            totalGodlikeBonus += (int)modification.MaxValue; // Use MaxValue as the bonus amount
+                        }
+                    }
+                }
+            }
+            
+            return totalGodlikeBonus;
+        }
+
+        /// <summary>
+        /// Gets the total bleed chance from modifications on equipped items
+        /// </summary>
+        public double GetModificationBleedChance()
+        {
+            double totalBleedChance = 0.0;
+            
+            // Check all equipped items for bleedChance modifications
+            var equippedItems = new[] { Head, Body, Weapon, Feet };
+            foreach (var item in equippedItems)
+            {
+                if (item != null)
+                {
+                    foreach (var modification in item.Modifications)
+                    {
+                        if (modification.Effect == "bleedChance")
+                        {
+                            totalBleedChance += modification.MaxValue; // Use MaxValue as the chance amount
+                        }
+                    }
+                }
+            }
+            
+            return totalBleedChance;
+        }
+
+        /// <summary>
+        /// Gets the total unique action chance from modifications on equipped items
+        /// </summary>
+        public double GetModificationUniqueActionChance()
+        {
+            double totalUniqueActionChance = 0.0;
+            
+            // Check all equipped items for uniqueActionChance modifications
+            var equippedItems = new[] { Head, Body, Weapon, Feet };
+            foreach (var item in equippedItems)
+            {
+                if (item != null)
+                {
+                    foreach (var modification in item.Modifications)
+                    {
+                        if (modification.Effect == "uniqueActionChance")
+                        {
+                            totalUniqueActionChance += modification.MaxValue; // Use MaxValue as the chance amount
+                        }
+                    }
+                }
+            }
+            
+            return totalUniqueActionChance;
+        }
+
+        /// <summary>
+        /// Gets available unique actions based on weapon type and class
+        /// </summary>
+        public List<Action> GetAvailableUniqueActions()
+        {
+            var uniqueActions = new List<Action>();
+            var allActions = ActionLoader.GetAllActions();
+            
+            // Get weapon-specific unique actions
+            if (Weapon is WeaponItem weapon)
+            {
+                string weaponType = weapon.WeaponType.ToString().ToLower();
+                var weaponUniqueActions = allActions.Where(action => 
+                    action.Tags.Contains("unique") && 
+                    action.Tags.Contains("weapon") && 
+                    action.Tags.Contains(weaponType)
+                ).ToList();
+                uniqueActions.AddRange(weaponUniqueActions);
+            }
+            
+            // Get class-specific unique actions
+            var classUniqueActions = allActions.Where(action => 
+                action.Tags.Contains("unique") && 
+                action.Tags.Contains("class")
+            ).ToList();
+            uniqueActions.AddRange(classUniqueActions);
+            
+            return uniqueActions;
+        }
+
+        /// <summary>
+        /// Gets the total armor spike damage from equipped armor
+        /// </summary>
+        public double GetArmorSpikeDamage()
+        {
+            double totalSpikeDamage = 0.0;
+            
+            // Check all equipped items for armor spike statuses
+            var equippedItems = new[] { Head, Body, Weapon, Feet };
+            foreach (var item in equippedItems)
+            {
+                if (item != null)
+                {
+                    foreach (var armorStatus in item.ArmorStatuses)
+                    {
+                        if (armorStatus.Effect == "armorSpikes")
+                        {
+                            totalSpikeDamage += armorStatus.Value;
+                        }
+                    }
+                }
+            }
+            
+            return totalSpikeDamage;
+        }
+
+        /// <summary>
+        /// Gets all armor statuses from equipped items
+        /// </summary>
+        public List<ArmorStatus> GetEquippedArmorStatuses()
+        {
+            var allStatuses = new List<ArmorStatus>();
+            
+            // Check all equipped items for armor statuses
+            var equippedItems = new[] { Head, Body, Weapon, Feet };
+            foreach (var item in equippedItems)
+            {
+                if (item != null)
+                {
+                    allStatuses.AddRange(item.ArmorStatuses);
+                }
+            }
+            
+            return allStatuses;
+        }
+
+        /// <summary>
+        /// Checks if the character has autoSuccess modifications
+        /// </summary>
+        public bool HasAutoSuccess()
+        {
+            // Check all equipped items for autoSuccess modifications
+            var equippedItems = new[] { Head, Body, Weapon, Feet };
+            foreach (var item in equippedItems)
+            {
+                if (item != null)
+                {
+                    foreach (var modification in item.Modifications)
+                    {
+                        if (modification.Effect == "autoSuccess")
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            
+            return false;
+        }
+
+        /// <summary>
+        /// Updates reroll charges based on equipped Divine modifications
+        /// </summary>
+        public void UpdateRerollCharges()
+        {
+            RerollCharges = GetTotalRerollCharges();
+        }
+
+        /// <summary>
+        /// Attempts to use a reroll charge
+        /// </summary>
+        /// <returns>True if reroll was used, false if no charges available</returns>
+        public bool UseReroll()
+        {
+            if (RerollCharges > 0 && !UsedRerollThisTurn)
+            {
+                RerollCharges--;
+                UsedRerollThisTurn = true;
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Resets reroll usage for the next turn
+        /// </summary>
+        public void ResetRerollUsage()
+        {
+            UsedRerollThisTurn = false;
+            // Refresh reroll charges from equipment
+            UpdateRerollCharges();
+        }
+
+        /// <summary>
+        /// Clears all temporary effects (poison, bleed, stun, weaken, slow, roll penalty)
+        /// </summary>
+        public void ClearAllTempEffects()
+        {
+            // Clear poison/bleed effects
+            PoisonDamage = 0;
+            PoisonStacks = 0;
+            IsBleeding = false;
+            LastPoisonTick = 0.0;
+            
+            // Clear stun effects
+            IsStunned = false;
+            StunTurnsRemaining = 0;
+            
+            // Clear weaken effects
+            IsWeakened = false;
+            WeakenTurns = 0;
+            
+            // Clear slow effects
+            SlowTurns = 0;
+            SlowMultiplier = 1.0;
+            
+            // Clear roll penalty effects
+            RollPenalty = 0;
+            RollPenaltyTurns = 0;
+        }
+
+        /// <summary>
+        /// Applies a weaken debuff to the character
+        /// </summary>
+        /// <param name="turns">Number of turns the weaken effect lasts</param>
+        public void ApplyWeaken(int turns)
+        {
+            IsWeakened = true;
+            WeakenTurns = turns;
+        }
+        
+        /// <summary>
+        /// Calculates how many turns an action length represents
+        /// </summary>
+        /// <param name="actionLength">The length of the action</param>
+        /// <returns>Number of turns the action represents</returns>
+        public static double CalculateTurnsFromActionLength(double actionLength)
+        {
+            return actionLength / DEFAULT_ACTION_LENGTH;
+        }
+        
+        /// <summary>
+        /// Calculates action length from number of turns
+        /// </summary>
+        /// <param name="turns">Number of turns</param>
+        /// <returns>Action length equivalent</returns>
+        public static double CalculateActionLengthFromTurns(double turns)
+        {
+            return turns * DEFAULT_ACTION_LENGTH;
         }
 
         /// <summary>
@@ -1016,14 +1694,24 @@ namespace RPGGame
 
         private void AddWarriorActions()
         {
-            // Add special Warrior class action when they have at least 5 points
+            // Add special Warrior class actions when they have at least 5 points
             if (WarriorPoints >= 5)
             {
+                
                 var heroicStrike = ActionLoader.GetAction("HEROIC STRIKE");
                 if (heroicStrike != null)
                 {
                     AddAction(heroicStrike, 0.0);
                 }
+                
+                var whirlwind = ActionLoader.GetAction("WHIRLWIND");
+                if (whirlwind != null)
+                {
+                    AddAction(whirlwind, 0.0);
+                }
+            }
+            else
+            {
             }
         }
 
@@ -1042,15 +1730,64 @@ namespace RPGGame
 
         private void AddWizardActions()
         {
-            // Add special Wizard class action when they have at least 5 points
-            if (WizardPoints >= 5)
+            // Only add wizard actions if the character is actually a wizard class
+            // A wizard class requires: 1) Wand equipped, 2) Wizard points > 0, 3) Wizard is primary class
+            bool isWizardClass = IsWizardClass();
+            
+            if (isWizardClass)
             {
-                var meteor = ActionLoader.GetAction("METEOR");
-                if (meteor != null)
+                // Add FIREBALL as a basic wizard spell (available at 3+ wizard points)
+                if (WizardPoints >= 3)
                 {
-                    AddAction(meteor, 0.0);
+                    var fireball = ActionLoader.GetAction("FIREBALL");
+                    if (fireball != null)
+                    {
+                        AddAction(fireball, 0.0);
+                    }
+                }
+                
+                // Add special Wizard class action when they have at least 5 points
+                if (WizardPoints >= 5)
+                {
+                    var meteor = ActionLoader.GetAction("METEOR");
+                    if (meteor != null)
+                    {
+                        AddAction(meteor, 0.0);
+                    }
                 }
             }
+        }
+
+        /// <summary>
+        /// Determines if the character is a wizard class
+        /// Requires: 1) Wand equipped, 2) Wizard points > 0, 3) Wizard is primary class
+        /// </summary>
+        private bool IsWizardClass()
+        {
+            // Must have a wand equipped
+            if (!(Weapon is WeaponItem weapon) || weapon.WeaponType != WeaponType.Wand)
+            {
+                return false;
+            }
+            
+            // Must have wizard points
+            if (WizardPoints <= 0)
+            {
+                return false;
+            }
+            
+            // Wizard must be the primary class (most points)
+            var classes = new List<(string name, int points)>
+            {
+                ("Barbarian", BarbarianPoints),
+                ("Warrior", WarriorPoints),
+                ("Rogue", RoguePoints),
+                ("Wizard", WizardPoints)
+            };
+            
+            // Sort by points descending - wizard must be first (highest points)
+            classes.Sort((a, b) => b.points.CompareTo(a.points));
+            return classes[0].name == "Wizard";
         }
 
         /// <summary>
@@ -1187,12 +1924,18 @@ namespace RPGGame
 
         private string GetClassTier(string baseClass, int points)
         {
+            if (points >= 100)
+                return $"Legendary {baseClass}";
+            if (points >= 80)
+                return $"Epic {baseClass}";
             if (points >= 40)
                 return $"Grand {baseClass}";
             if (points >= 20)
                 return $"Master {baseClass}";
+            if (points >= 10)
+                return $"Expert {baseClass}";
             if (points >= 5)
-                return baseClass;
+                return $"Adept {baseClass}";
             return "Novice";
         }
 
@@ -1207,24 +1950,9 @@ namespace RPGGame
             // Define gear-specific actions that are lost when unequipped
             var gearActions = GetGearActions(gear);
             
-            // Determine if this gear should have actions
-            bool shouldHaveActions = false;
             
-            if (gear.Type == ItemType.Weapon)
-            {
-                // All weapons (starter and loot) always get at least 1 action
-                shouldHaveActions = true;
-            }
-            else if (!gear.IsStarterItem)
-            {
-                // For non-starter armor, use probability-based action assignment
-                // Higher tier items have better chance of having actions
-                double actionChance = Math.Min(0.3 + (gear.Tier * 0.1), 0.8); // 30% base + 10% per tier, max 80%
-                shouldHaveActions = new Random().NextDouble() < actionChance;
-            }
-            // Starter armor (IsStarterItem = true but Type != Weapon) gets no actions
-            
-            if (shouldHaveActions)
+            // If there are actions to add, load them
+            if (gearActions.Count > 0)
             {
                 foreach (var actionName in gearActions)
                 {
@@ -1246,8 +1974,25 @@ namespace RPGGame
             }
             else if (gear is HeadItem || gear is ChestItem || gear is FeetItem)
             {
-                // Get random armor action from Actions.json (excluding environmental actions)
-                return GetRandomArmorActionFromJson(gear);
+                // Only get armor actions if this armor should have special actions
+                if (HasSpecialArmorActions(gear))
+                {
+                    // Use the gear's assigned action if it has one
+                    if (!string.IsNullOrEmpty(gear.GearAction))
+                    {
+                        return new List<string> { gear.GearAction };
+                    }
+                    else
+                    {
+                        // Fallback to random selection for gear without assigned actions
+                        return GetRandomArmorActionFromJson(gear);
+                    }
+                }
+                else
+                {
+                    // Basic starter armor should have no actions
+                    return new List<string>();
+                }
             }
             
             return new List<string>();
@@ -1295,6 +2040,12 @@ namespace RPGGame
                                 
                                 AddAction(action, 0.0);
                             }
+                            else
+                            {
+                            }
+                        }
+                        else
+                        {
                         }
                     }
                 }
@@ -1334,7 +2085,7 @@ namespace RPGGame
             var classActions = new[] { 
                 "TAUNT", "JAB", "STUN", "CRIT", "SHIELD BASH", "DEFENSIVE STANCE", 
                 "BERSERK", "BLOOD FRENZY", "PRECISION STRIKE", "QUICK REFLEXES",
-                "FOCUS", "READ BOOK"
+                "FOCUS", "READ BOOK", "HEROIC STRIKE", "WHIRLWIND", "BERSERKER RAGE", "SHADOW STRIKE"
             };
             foreach (var actionName in classActions)
             {
@@ -1351,38 +2102,43 @@ namespace RPGGame
             var weaponTag = weaponType.ToString().ToLower();
             var allActions = ActionLoader.GetAllActions();
             
-            return allActions
+            // For mace weapons, return the specific mace actions
+            if (weaponType == WeaponType.Mace)
+            {
+                return new List<string> { "CRUSHING BLOW", "SHIELD BREAK", "THUNDER CLAP" };
+            }
+            
+            // For other weapon types, use the original logic
+            var weaponActions = allActions
                 .Where(action => action.Tags.Contains("weapon") && 
                                 action.Tags.Contains(weaponTag) &&
                                 !action.Tags.Contains("unique"))
                 .Select(action => action.Name)
                 .ToList();
+                
+            return weaponActions;
         }
 
         private List<string> GetRandomArmorActionFromJson(Item armor)
         {
-            var armorSlot = armor switch
+            // All armor types get random actions for variety
+            var randomAction = GetRandomArmorActionName();
+            if (!string.IsNullOrEmpty(randomAction))
             {
-                HeadItem => "head",
-                ChestItem => "chest", 
-                FeetItem => "feet",
-                _ => ""
-            };
-
-            if (string.IsNullOrEmpty(armorSlot))
-                return new List<string>();
-
+                return new List<string> { randomAction };
+            }
+            
+            // Fallback to random selection for unknown armor types
             var allActions = ActionLoader.GetAllActions();
             
-            // Get armor actions for this slot, excluding environmental actions
+            // Get all armor actions, excluding environmental actions
             var armorActions = allActions
                 .Where(action => action.Tags.Contains("armor") && 
-                                action.Tags.Contains(armorSlot) &&
                                 !action.Tags.Contains("environment"))
                 .Select(action => action.Name)
                 .ToList();
 
-            // If no specific armor slot actions found, get any non-environmental combo actions
+            // If no armor actions found, get any non-environmental combo actions
             if (armorActions.Count == 0)
             {
                 armorActions = allActions
@@ -1394,21 +2150,111 @@ namespace RPGGame
                     .ToList();
             }
 
-            // Return a random action from the available pool
+            // Return ONE random armor action (not all of them)
             if (armorActions.Count > 0)
             {
-                var random = new Random();
-                var randomAction = armorActions[random.Next(armorActions.Count)];
-                return new List<string> { randomAction };
+                var fallbackAction = armorActions[Random.Shared.Next(armorActions.Count)];
+                return new List<string> { fallbackAction };
             }
-
+            
             return new List<string>();
+        }
+
+        private string? GetRandomArmorActionName()
+        {
+            // Get ALL combo actions (not just armor-tagged ones) for maximum variety
+            var allActions = ActionLoader.GetAllActions();
+            var availableActions = allActions
+                .Where(action => action.IsComboAction && 
+                               !action.Tags.Contains("environment") &&
+                               !action.Tags.Contains("enemy") &&
+                               !action.Tags.Contains("unique"))
+                .Select(action => action.Name)
+                .ToList();
+
+            // Return completely random action if any are available
+            if (availableActions.Count > 0)
+            {
+                return availableActions[Random.Shared.Next(availableActions.Count)];
+            }
+            
+            return null; // No action if none available
         }
 
         private void AddArmorActions(Item armor)
         {
             // Add gear-specific actions for armor
             AddGearActions(armor);
+        }
+
+        public void AddEnvironmentActions(Environment environment)
+        {
+            // Add environment actions to the player's action pool
+            if (environment != null && environment.ActionPool.Count > 0)
+            {
+                foreach (var (action, probability) in environment.ActionPool)
+                {
+                    // Add environment actions with lower probability (they're situational)
+                    AddAction(action, probability * 0.5); // 50% of environment's probability
+                }
+            }
+        }
+
+        public void ClearEnvironmentActions()
+        {
+            // Remove all actions that have the "environment" tag
+            var actionsToRemove = new List<Action>();
+            foreach (var (action, probability) in ActionPool)
+            {
+                if (action.Tags.Contains("environment"))
+                {
+                    actionsToRemove.Add(action);
+                }
+            }
+            
+            foreach (var action in actionsToRemove)
+            {
+                RemoveAction(action);
+            }
+        }
+
+        /// <summary>
+        /// Determines if an armor piece should have special actions
+        /// Only special armor pieces (looted gear with modifications, stat bonuses, etc.) should have actions
+        /// Default/starter armor should have no actions
+        /// </summary>
+        private bool HasSpecialArmorActions(Item armor)
+        {
+            // Check if this armor piece has special properties that indicate it should have actions
+            
+            // 1. Check if it has modifications (indicates special gear)
+            if (armor.Modifications.Count > 0)
+            {
+                return true;
+            }
+            
+            // 2. Check if it has stat bonuses (indicates special gear)
+            if (armor.StatBonuses.Count > 0)
+            {
+                return true;
+            }
+            
+            // 3. Check if it has action bonuses (legacy system)
+            if (armor.ActionBonuses.Count > 0)
+            {
+                return true;
+            }
+            
+            // 4. Check if it's not basic starter gear by name
+            string[] basicGearNames = { "Leather Helmet", "Leather Armor", "Leather Boots", "Cloth Hood", "Cloth Robes", "Cloth Shoes" };
+            if (basicGearNames.Contains(armor.Name))
+            {
+                return false; // Basic starter gear should have no actions
+            }
+            
+            // 5. If it has a special name or properties, it might be special gear
+            // Only return true if it's clearly special gear, otherwise be conservative
+            return false;
         }
 
         private void ApplyRollBonusesFromGear(Item gear)
@@ -1512,7 +2358,8 @@ namespace RPGGame
             double baseAmp = GetComboAmplifier();
             double currentAmp = Math.Pow(baseAmp, currentStep + 1);
             
-            return $"Combo Step: {currentStep + 1}/{comboActions.Count} | Amplification: {currentAmp:F2}x";
+            // Only return amplification info, combo step removed per user request
+            return $"Amplification: {currentAmp:F2}x";
         }
 
         /// <summary>
@@ -1533,9 +2380,131 @@ namespace RPGGame
         public double GetTotalAttackSpeed()
         {
             var tuning = TuningConfig.Instance;
-            double weaponAttackSpeed = (Weapon is WeaponItem w) ? w.GetTotalAttackSpeed() : 1.0;
-            double totalSpeed = weaponAttackSpeed + (GetEffectiveAgility() * tuning.Combat.AgilitySpeedBonus);
-            return Math.Max(tuning.Combat.MinimumAttackSpeed, totalSpeed);
+            
+            // New system: Base 10s, agility reduces time, weapon adds modifier
+            double baseAttackTime = tuning.Combat.BaseAttackTime;
+            double agilityReduction = GetEffectiveAgility() * tuning.Combat.AgilitySpeedReduction;
+            double weaponModifier = (Weapon is WeaponItem w) ? w.GetAttackSpeedModifier() : 0.0;
+            double equipmentSpeedBonus = GetEquipmentAttackSpeedBonus();
+            
+            // Calculate final attack time: base - agility reduction + weapon modifier - equipment speed bonus
+            double finalAttackTime = baseAttackTime - agilityReduction + weaponModifier - equipmentSpeedBonus;
+            
+            // Apply slow debuff if active
+            if (SlowTurns > 0)
+            {
+                finalAttackTime *= SlowMultiplier;
+            }
+            
+            // Apply speed multiplier modifications (like Ethereal)
+            double speedMultiplier = GetModificationSpeedMultiplier();
+            finalAttackTime /= speedMultiplier; // Divide by multiplier to make attacks faster
+            
+            // Apply minimum cap
+            return Math.Max(tuning.Combat.MinimumAttackTime, finalAttackTime);
+        }
+
+        /// <summary>
+        /// Applies a slow debuff to the character
+        /// </summary>
+        /// <param name="slowMultiplier">Multiplier for attack speed (higher = slower)</param>
+        /// <param name="duration">Duration in turns</param>
+        public void ApplySlow(double slowMultiplier, int duration)
+        {
+            SlowMultiplier = slowMultiplier;
+            SlowTurns = duration;
+        }
+        
+        /// <summary>
+        /// Reduces slow debuff duration by 1 turn
+        /// </summary>
+        public void ReduceSlowTurns()
+        {
+            if (SlowTurns > 0)
+            {
+                SlowTurns--;
+                if (SlowTurns <= 0)
+                {
+                    SlowMultiplier = 1.0; // Reset to normal speed
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Applies a poison debuff to the character
+        /// </summary>
+        /// <param name="damage">Damage per tick</param>
+        /// <param name="stacks">Number of poison stacks to add</param>
+        /// <param name="isBleeding">Whether this is bleeding damage (vs poison)</param>
+        public void ApplyPoison(int damage, int stacks = 1, bool isBleeding = false)
+        {
+            PoisonDamage = damage;
+            PoisonStacks += stacks; // Add stacks (can stack multiple times)
+            LastPoisonTick = GameTicker.Instance.GetCurrentGameTime(); // Set to current time so first tick happens after interval
+            IsBleeding = isBleeding; // Track whether this is bleeding or poison
+        }
+        
+        /// <summary>
+        /// Applies a shield buff that reduces the next incoming attack damage by half
+        /// </summary>
+        public void ApplyShield()
+        {
+            HasShield = true;
+        }
+        
+        /// <summary>
+        /// Consumes the shield and returns whether it was active
+        /// </summary>
+        /// <returns>True if shield was active and consumed, false otherwise</returns>
+        public bool ConsumeShield()
+        {
+            if (HasShield)
+            {
+                HasShield = false;
+                return true;
+            }
+            return false;
+        }
+        
+        /// <summary>
+        /// Processes poison damage based on time intervals (every 10 seconds)
+        /// </summary>
+        /// <param name="currentTime">Current game time in seconds</param>
+        /// <returns>Damage taken from poison this tick</returns>
+        public int ProcessPoison(double currentTime)
+        {
+            if (PoisonStacks > 0)
+            {
+                var poisonConfig = TuningConfig.Instance.Poison;
+                
+                // Check if it's time for a poison tick (based on config)
+                if (currentTime - LastPoisonTick >= poisonConfig.TickInterval)
+                {
+                    int totalDamage = PoisonDamage * PoisonStacks;
+                    TakeDamage(totalDamage);
+                    LastPoisonTick = currentTime;
+                    
+                    // Reduce poison stacks by 1
+                    PoisonStacks--;
+                    if (PoisonStacks <= 0)
+                    {
+                        PoisonDamage = 0; // Reset poison
+                        PoisonStacks = 0;
+                        IsBleeding = false; // Reset bleeding flag
+                    }
+                    return totalDamage;
+                }
+            }
+            return 0;
+        }
+        
+        /// <summary>
+        /// Gets the damage type text for display purposes
+        /// </summary>
+        /// <returns>"poison" or "bleed" based on IsBleeding flag</returns>
+        public string GetDamageTypeText()
+        {
+            return IsBleeding ? "bleed" : "poison";
         }
 
         /// <summary>
@@ -1581,6 +2550,40 @@ namespace RPGGame
             }
         }
 
+        /// <summary>
+        /// Removes actions associated with any item (weapon or armor) from the action pool
+        /// </summary>
+        public void RemoveItemActions(Item? item)
+        {
+            if (item == null) return;
+
+            if (item is WeaponItem weapon)
+            {
+                // Remove weapon-specific actions
+                var allActions = ActionLoader.GetAllActions();
+                var weaponActions = allActions
+                    .Where(action => action.Tags.Contains("weapon") && 
+                                    action.Tags.Contains(weapon.WeaponType.ToString().ToLower()) &&
+                                    !action.Tags.Contains("unique"))
+                    .Select(action => action.Name)
+                    .ToList();
+
+                foreach (var actionName in weaponActions)
+                {
+                    var actionToRemove = ActionPool.FirstOrDefault(a => a.action.Name == actionName);
+                    if (actionToRemove.action != null)
+                    {
+                        RemoveAction(actionToRemove.action);
+                    }
+                }
+            }
+            else if (item is HeadItem || item is ChestItem || item is FeetItem)
+            {
+                // Remove armor actions
+                RemoveArmorActions(item);
+            }
+        }
+
         // Save/Load methods
         public void SaveCharacter(string filename = "character_save.json")
         {
@@ -1615,7 +2618,6 @@ namespace RPGGame
 
                 string json = System.Text.Json.JsonSerializer.Serialize(saveData, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(filename, json);
-                Console.WriteLine($"Character saved to {filename}");
             }
             catch (Exception ex)
             {
@@ -1644,6 +2646,16 @@ namespace RPGGame
 
                 // Create character with saved data
                 var character = new Character(saveData.Name, saveData.Level);
+                
+                // Use the saved name, but fix "Unknown Unknown" names
+                if (saveData.Name == "Unknown Unknown")
+                {
+                    character.Name = FlavorText.GenerateCharacterName();
+                }
+                else
+                {
+                    character.Name = saveData.Name; // Preserve the saved name
+                }
                 character.XP = saveData.XP;
                 character.CurrentHealth = saveData.CurrentHealth;
                 character.MaxHealth = saveData.MaxHealth;

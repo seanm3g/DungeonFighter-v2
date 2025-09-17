@@ -1,0 +1,195 @@
+{
+  "names": {
+    "characterFirstNames": [
+      "Aric", "Bran", "Cael", "Dain", "Eldrin", "Fenris", "Galen", "Haldir",
+      "Ivar", "Joren", "Kael", "Lorin", "Merek", "Nolan", "Orin", "Pax",
+      "Quinn", "Roran", "Soren", "Taran", "Ulfric", "Varis", "Wren", "Xan",
+      "Yorin", "Zarek"
+    ],
+    "characterLastNames": [
+      "Stormrider", "Ironheart", "Shadowbane", "Dawnbringer", "Frostborn",
+      "Blackthorn", "Silverwind", "Firebrand", "Stormcaller", "Nightshade",
+      "Brightblade", "Darkwood", "Swiftarrow", "Stoneheart", "Moonwhisper"
+    ],
+    "bossNames": [
+      "The Corrupted King", "The Shadow Queen", "The Lich Lord", "The Demon Prince",
+      "The Dragon Tyrant", "The Necromancer", "The Archfiend", "The Void Walker",
+      "The Blood Mage", "The Soul Reaper"
+    ]
+  },
+  "items": {
+    "consumableNames": [
+      "Health Potion", "Mana Potion", "Stamina Potion", "Antidote",
+      "Elixir of Strength", "Elixir of Agility", "Elixir of Intelligence",
+      "Scroll of Teleportation", "Scroll of Identification", "Bomb"
+    ]
+  },
+  "environments": {
+    "locationNames": [
+      "Ancient Forest", "Dark Cavern", "Ruined Temple", "Frozen Wastes",
+      "Desert Oasis", "Misty Swamp", "Volcanic Crater", "Crystal Caves",
+      "Haunted Mansion", "Dragon's Lair"
+    ],
+    "locationDescriptions": {
+      "Forest": [
+        "A dense forest with ancient trees that seem to whisper secrets of old.",
+        "Sunlight filters through the canopy, creating dancing shadows on the forest floor.",
+        "Massive oaks tower overhead, their branches forming a natural cathedral.",
+        "The air is thick with the scent of pine and the sound of rustling leaves.",
+        "A peaceful clearing where wildflowers bloom in vibrant colors.",
+        "Thorny vines twist between the trees, creating natural barriers.",
+        "A babbling brook winds through the woods, its waters crystal clear.",
+        "Ancient stone circles stand among the trees, remnants of forgotten rituals."
+      ],
+      "Lava": [
+        "A massive crater filled with bubbling lava and the stench of sulfur.",
+        "Molten rock flows through channels in the floor, creating an oppressive heat.",
+        "Steam rises from cracks in the ground, obscuring vision with thick clouds.",
+        "The walls glow red-hot, casting an eerie crimson light throughout the chamber.",
+        "A bubbling pool of molten rock with geysers of fire erupting periodically.",
+        "The air shimmers with heat waves, making distant objects appear to dance.",
+        "Blackened stone formations rise like twisted monuments from the lava flows.",
+        "The ground trembles with the power of the earth's molten heart below."
+      ],
+      "Crypt": [
+        "Ancient stone walls lined with burial niches, the air thick with dust and decay.",
+        "A solemn chamber filled with ornate sarcophagi and funerary offerings.",
+        "Cobwebs hang from every corner, and the sound of skittering echoes in the darkness.",
+        "Stone coffins line the walls, their surfaces carved with ancient symbols.",
+        "The air is cold and still, carrying the faint scent of embalming spices.",
+        "Flickering torches cast dancing shadows on the crypt's stone walls.",
+        "A forgotten tomb where the walls are covered in ancient hieroglyphs.",
+        "The silence is broken only by the occasional drip of water from above."
+      ],
+      "Crystal": [
+        "Beautiful caves filled with glowing crystals that illuminate the darkness.",
+        "A chamber where crystals grow in intricate formations, pulsing with inner light.",
+        "Prismatic light reflects off countless crystal surfaces, creating a rainbow effect.",
+        "Massive crystal formations rise from the floor like frozen waterfalls.",
+        "The air hums with the resonance of the crystals' natural vibrations.",
+        "Geometric crystal patterns cover every surface, forming natural mosaics.",
+        "A crystal garden where gemstones bloom like flowers in impossible colors.",
+        "The crystals seem to sing with a melody that resonates deep in your bones."
+      ],
+      "Temple": [
+        "A once-great temple now in ruins, its walls covered in mysterious runes.",
+        "Massive stone pillars support a vaulted ceiling adorned with celestial symbols.",
+        "An altar stands at the center, surrounded by offerings and burning incense.",
+        "Ancient murals depict scenes of divine power and mortal devotion.",
+        "The air is heavy with the scent of sacred oils and ceremonial herbs.",
+        "Stained glass windows filter light into patterns of holy radiance.",
+        "A sanctuary where the echoes of ancient prayers still seem to linger.",
+        "Ornate tapestries hang from the walls, telling stories of forgotten gods."
+      ],
+      "Cavern": [
+        "A vast underground cavern with stalactites and stalagmites forming natural columns.",
+        "Deep underground chambers where the air is cool and the walls glisten with moisture.",
+        "A network of interconnected caves with echoing chambers and hidden passages.",
+        "Massive underground halls where the ceiling disappears into darkness above.",
+        "A subterranean world of stone formations and underground streams.",
+        "Ancient caves where the walls are covered in mineral deposits and crystal growths.",
+        "A deep cavern where the sound of dripping water echoes through the darkness.",
+        "Underground chambers where the air is thick with the scent of earth and stone."
+      ],
+      "Swamp": [
+        "A murky swamp where the air is thick with mist and strange creatures lurk.",
+        "Brackish water pools among twisted trees and hanging moss.",
+        "A fetid marsh where the ground squelches underfoot and insects buzz constantly.",
+        "Muddy wetlands where the water is dark and the trees grow in twisted shapes.",
+        "A boggy area where bubbles rise from the murky depths below.",
+        "Swampy terrain where the air is heavy with humidity and decay.",
+        "A marshy landscape where will-o'-wisps dance among the reeds.",
+        "Wetlands where the water is stagnant and the vegetation grows in tangled masses."
+      ],
+      "Desert": [
+        "A vast expanse of sand dunes that stretch endlessly to the horizon.",
+        "A scorching desert where the sun beats down mercilessly from above.",
+        "Rolling sand dunes that shift and change with the desert winds.",
+        "A barren wasteland where the heat shimmers in waves across the sand.",
+        "Desert sands that stretch as far as the eye can see under a blazing sun.",
+        "A dry landscape where cacti and scrub brush are the only signs of life.",
+        "Endless dunes of golden sand that seem to go on forever.",
+        "A harsh desert environment where water is scarce and the heat is oppressive."
+      ],
+      "Ice": [
+        "A frozen wasteland where ice and snow cover everything in sight.",
+        "Glacial formations that tower overhead like frozen monuments.",
+        "A land of eternal winter where the cold cuts through to the bone.",
+        "Ice-covered terrain where the ground is slick and treacherous.",
+        "A frozen landscape where the wind howls and snow falls endlessly.",
+        "Glacial caves where the walls are made of solid ice and frost.",
+        "A winter wonderland where everything is frozen in time.",
+        "Frozen tundra where the air is crisp and the ground is covered in permafrost."
+      ],
+      "Ruins": [
+        "Ancient ruins where crumbling walls tell stories of a forgotten civilization.",
+        "Broken stone structures that once stood proud but now lie in decay.",
+        "A ruined city where nature has begun to reclaim what was once built.",
+        "Crumbling architecture where vines and moss grow through the cracks.",
+        "Ancient stonework that has weathered centuries of neglect and decay.",
+        "Ruined buildings where the walls are covered in ivy and the floors are cracked.",
+        "A forgotten settlement where the remains of buildings dot the landscape.",
+        "Crumbling ruins where the stones are worn smooth by time and weather."
+      ],
+      "Castle": [
+        "A massive stone fortress that towers over the surrounding landscape.",
+        "Ancient castle walls that have stood for centuries against all invaders.",
+        "A grand keep with tall towers and thick defensive walls.",
+        "Medieval architecture where stone and mortar create an imposing structure.",
+        "A fortified stronghold with battlements and defensive positions.",
+        "Castle grounds where the walls are covered in ivy and the courtyards are overgrown.",
+        "A royal residence where banners once flew from the highest towers.",
+        "Ancient fortifications where the stonework shows the marks of countless battles."
+      ],
+      "Graveyard": [
+        "A solemn graveyard where ancient tombstones mark the resting places of the dead.",
+        "A cemetery where the air is thick with the scent of earth and decay.",
+        "Ancient burial grounds where the graves are overgrown with weeds and moss.",
+        "A necropolis where the dead rest in eternal slumber beneath the earth.",
+        "Graveyard paths that wind between rows of weathered headstones.",
+        "A burial site where the silence is broken only by the sound of wind through the trees.",
+        "Ancient tombs where the dead have been laid to rest for centuries.",
+        "A cemetery where the graves are marked with symbols of mourning and remembrance."
+      ],
+      "Generic": [
+        "A dark and damp cavern filled with the echoes of dripping water.",
+        "A vast expanse of ice and snow where the wind howls endlessly.",
+        "A small oasis in the middle of a scorching desert, a rare sight of life.",
+        "A murky swamp where the air is thick with mist and strange creatures lurk.",
+        "An eerie mansion where shadows seem to move on their own.",
+        "A massive cave filled with treasure and the bones of unfortunate adventurers.",
+        "A winding maze of corridors with no clear beginning or end.",
+        "A chamber where the walls seem to shift and change when you're not looking."
+      ]
+    }
+  },
+  "classQualifiers": {
+    "classNames": {
+      "barbarian": ["barbarian", "master barbarian", "grand barbarian"],
+      "warrior": ["warrior", "master warrior", "grand warrior"],
+      "rogue": ["rogue", "master rogue", "grand rogue"],
+      "wizard": ["wizard", "master wizard", "grand wizard"],
+      "fighter": ["fighter", "master fighter", "grand fighter"]
+    },
+    "barbarianQualifiers": [
+      "the Berserker", "the Savage", "the Destroyer", "the Warlord", "the Brute",
+      "the Crusher", "the Devastator", "the Rampager", "the Fury", "the Thunder"
+    ],
+    "warriorQualifiers": [
+      "the Blade", "the Guardian", "the Champion", "the Knight", "the Defender",
+      "the Paladin", "the Crusader", "the Sentinel", "the Protector", "the Valiant"
+    ],
+    "rogueQualifiers": [
+      "the Shadow", "the Phantom", "the Assassin", "the Whisper", "the Nightblade",
+      "the Stalker", "the Ghost", "the Silent", "the Swift", "the Cunning"
+    ],
+    "wizardQualifiers": [
+      "the Arcane", "the Mystic", "the Sage", "the Enchanter", "the Archmage",
+      "the Spellweaver", "the Sorcerer", "the Warlock", "the Seer", "the Oracle"
+    ],
+    "fighterQualifiers": [
+      "the Brave", "the Adventurer", "the Wanderer", "the Seeker", "the Explorer",
+      "the Hero", "the Bold", "the Fearless", "the Determined", "the Resolute"
+    ]
+  }
+}

@@ -37,6 +37,9 @@ namespace RPGGame
         public double Length { get; set; }
         public bool CausesBleed { get; set; }
         public bool CausesWeaken { get; set; }
+        public bool CausesSlow { get; set; }
+        public bool CausesPoison { get; set; }
+        public bool CausesStun { get; set; }
         public bool IsComboAction { get; set; }
         public int ComboBonusAmount { get; set; }
         public int ComboBonusDuration { get; set; }
@@ -88,6 +91,7 @@ namespace RPGGame
             Length = 1.0;
             CausesBleed = false;
             CausesWeaken = false;
+            CausesStun = false;
             IsComboAction = false;
             ComboBonusAmount = 0;
             ComboBonusDuration = 0;
@@ -96,7 +100,7 @@ namespace RPGGame
         public Action(string? name = null, ActionType type = ActionType.Attack, TargetType targetType = TargetType.SingleTarget,
                      int baseValue = 0, int range = 1, int cooldown = 0, string? description = "",
                      int comboOrder = -1, double damageMultiplier = 1.0, double length = 1.0,
-                     bool causesBleed = false, bool causesWeaken = false, bool isComboAction = false,
+                     bool causesBleed = false, bool causesWeaken = false, bool causesPoison = false, bool causesStun = false, bool isComboAction = false,
                      int comboBonusAmount = 0, int comboBonusDuration = 0)
         {
             Name = name ?? GetDefaultName(type);
@@ -112,6 +116,8 @@ namespace RPGGame
             Length = length;
             CausesBleed = causesBleed;
             CausesWeaken = causesWeaken;
+            CausesPoison = causesPoison;
+            CausesStun = causesStun;
             IsComboAction = isComboAction;
             ComboBonusAmount = comboBonusAmount;
             ComboBonusDuration = comboBonusDuration;
@@ -285,18 +291,7 @@ namespace RPGGame
 
         private string GetDefaultName(ActionType type)
         {
-            return type switch
-            {
-                ActionType.Attack => FlavorText.GetRandomName(FlavorText.Actions.AttackNames),
-                ActionType.Heal => "Heal",
-                ActionType.Buff => FlavorText.GetRandomName(FlavorText.Actions.BuffNames),
-                ActionType.Debuff => FlavorText.GetRandomName(FlavorText.Actions.DebuffNames),
-                ActionType.Spell => FlavorText.GetRandomName(FlavorText.Actions.SpellNames),
-                ActionType.Interact => "Interact",
-                ActionType.Move => "Move",
-                ActionType.UseItem => "Use Item",
-                _ => "Unknown Action"
-            };
+            return ActionLoader.GetRandomActionNameByType(type);
         }
 
         public bool IsOnCooldown => CurrentCooldown > 0;

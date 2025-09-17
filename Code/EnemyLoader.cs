@@ -25,6 +25,10 @@ namespace RPGGame
         public int Armor { get; set; }
         [JsonPropertyName("actions")]
         public List<string> Actions { get; set; } = new List<string>();
+        [JsonPropertyName("primaryAttribute")]
+        public string PrimaryAttribute { get; set; } = "Strength"; // Default to Strength if not specified
+        [JsonPropertyName("isLiving")]
+        public bool IsLiving { get; set; } = true; // Default to living if not specified
     }
 
     public static class EnemyLoader
@@ -130,7 +134,14 @@ namespace RPGGame
             int technique = data.Technique;
             int intelligence = data.Intelligence;
 
-            var enemy = new Enemy(data.Name, level, health, strength, agility, technique, intelligence);
+            // Parse the primary attribute string to enum
+            PrimaryAttribute primaryAttribute = PrimaryAttribute.Strength; // Default
+            if (Enum.TryParse<PrimaryAttribute>(data.PrimaryAttribute, out var parsedAttribute))
+            {
+                primaryAttribute = parsedAttribute;
+            }
+
+            var enemy = new Enemy(data.Name, level, health, strength, agility, technique, intelligence, data.Armor, primaryAttribute, data.IsLiving);
             
             // Clear default actions and add actions from the data
             enemy.ActionPool.Clear();

@@ -43,6 +43,15 @@ namespace RPGGame
         public double MaxValue { get; set; } = 0;
     }
 
+    public class ArmorStatus
+    {
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string Effect { get; set; } = "";
+        public double Value { get; set; } = 0;
+        public bool IsPassive { get; set; } = true;
+    }
+
     public class Item
     {
         public string Name { get; set; } = "";
@@ -53,8 +62,12 @@ namespace RPGGame
         public List<StatBonus> StatBonuses { get; set; } = new List<StatBonus>();
         public List<ActionBonus> ActionBonuses { get; set; } = new List<ActionBonus>();
         public List<Modification> Modifications { get; set; } = new List<Modification>();
+        public List<ArmorStatus> ArmorStatuses { get; set; } = new List<ArmorStatus>();
         public int BonusDamage { get; set; } = 0;
         public int BonusAttackSpeed { get; set; } = 0;
+        
+        // The specific action this gear provides (assigned when created)
+        public string? GearAction { get; set; } = null;
         
         // Check if this is a starter item (always gets actions)
         public bool IsStarterItem => Name.Contains("Starter");
@@ -62,7 +75,7 @@ namespace RPGGame
         public Item(ItemType type, string? name = null, int tier = 1, int comboBonus = 0)
         {
             Type = type;
-            Name = name ?? (type == ItemType.Weapon ? FlavorText.GenerateWeaponName() : FlavorText.GenerateArmorName());
+            Name = name ?? (type == ItemType.Weapon ? "Unknown Weapon" : "Unknown Armor");
             Tier = tier;
             ComboBonus = comboBonus;
         }
@@ -176,10 +189,10 @@ namespace RPGGame
     public class WeaponItem : Item
     {
         public int BaseDamage { get; set; }
-        public double BaseAttackSpeed { get; set; } = 1.0;
+        public double BaseAttackSpeed { get; set; } = 0.05;
         public WeaponType WeaponType { get; set; } = WeaponType.Sword;
         
-        public WeaponItem(string? name = null, int tier = 1, int baseDamage = 10, double baseAttackSpeed = 1.0, WeaponType weaponType = WeaponType.Sword)
+        public WeaponItem(string? name = null, int tier = 1, int baseDamage = 10, double baseAttackSpeed = 0.05, WeaponType weaponType = WeaponType.Sword)
             : base(ItemType.Weapon, name, tier)
         {
             BaseDamage = baseDamage;
@@ -195,6 +208,21 @@ namespace RPGGame
         public double GetTotalAttackSpeed()
         {
             return BaseAttackSpeed + (BonusAttackSpeed * 0.1);
+        }
+        
+        /// <summary>
+        /// Gets the attack speed modifier for the new system (-2s to +10s range)
+        /// </summary>
+        /// <returns>Attack speed modifier in seconds</returns>
+        public double GetAttackSpeedModifier()
+        {
+            // Convert the old attack speed system to the new modifier system
+            // Old system: lower values = faster, new system: negative = faster, positive = slower
+            // BaseAttackSpeed of 0.05 (fast) becomes -2s modifier
+            // BaseAttackSpeed of 0.15 (slow) becomes +10s modifier
+            
+            double modifier = (BaseAttackSpeed - 0.05) * 100; // Scale to -2 to +10 range
+            return Math.Max(-2.0, Math.Min(10.0, modifier)); // Clamp to -2s to +10s range
         }
     }
 } 
