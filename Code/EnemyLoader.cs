@@ -7,12 +7,8 @@ using System.Text.Json.Serialization;
 
 namespace RPGGame
 {
-    public class EnemyData
+    public class EnemyStats
     {
-        [JsonPropertyName("name")]
-        public string Name { get; set; } = "";
-        [JsonPropertyName("level")]
-        public int Level { get; set; }
         [JsonPropertyName("strength")]
         public int Strength { get; set; }
         [JsonPropertyName("agility")]
@@ -21,14 +17,33 @@ namespace RPGGame
         public int Technique { get; set; }
         [JsonPropertyName("intelligence")]
         public int Intelligence { get; set; } = 4; // Default value if not specified
-        [JsonPropertyName("armor")]
-        public int Armor { get; set; }
+    }
+
+    public class EnemyData
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = "";
+        [JsonPropertyName("baseLevel")]
+        public int BaseLevel { get; set; }
+        [JsonPropertyName("baseHealth")]
+        public int BaseHealth { get; set; }
+        [JsonPropertyName("baseStats")]
+        public EnemyStats BaseStats { get; set; } = new EnemyStats();
+        [JsonPropertyName("baseArmor")]
+        public int BaseArmor { get; set; }
         [JsonPropertyName("actions")]
         public List<string> Actions { get; set; } = new List<string>();
         [JsonPropertyName("primaryAttribute")]
         public string PrimaryAttribute { get; set; } = "Strength"; // Default to Strength if not specified
         [JsonPropertyName("isLiving")]
         public bool IsLiving { get; set; } = true; // Default to living if not specified
+        
+        // Convenience properties for backward compatibility
+        public int Strength => BaseStats.Strength;
+        public int Agility => BaseStats.Agility;
+        public int Technique => BaseStats.Technique;
+        public int Intelligence => BaseStats.Intelligence;
+        public int Armor => BaseArmor;
     }
 
     public static class EnemyLoader
@@ -126,13 +141,27 @@ namespace RPGGame
 
         private static Enemy CreateEnemyFromData(EnemyData data, int level)
         {
-            // Use the stats from the JSON data with tuning config
-            var tuning = TuningConfig.Instance;
-            int health = 80 + (level * tuning.Character.EnemyHealthPerLevel); // Use tuning config for health scaling
-            int strength = data.Strength;
-            int agility = data.Agility;
-            int technique = data.Technique;
-            int intelligence = data.Intelligence;
+            // Determine archetype first
+            var suggestedArchetype = EnemyDPSCalculator.SuggestArchetypeForEnemy(data.Name, data.Strength, data.Agility, data.Technique, data.Intelligence);
+            
+            // Use stat pool system for balanced distribution
+            var statDistribution = EnemyStatPoolSystem.DistributeStats(level, suggestedArchetype);
+            
+            // Blend JSON base stats with stat pool distribution (70% stat pool, 30% JSON base)
+            int strength = (int)Math.Round(statDistribution.Strength * 0.7 + data.Strength * 0.3);
+            int agility = (int)Math.Round(statDistribution.Agility * 0.7 + data.Agility * 0.3);
+            int technique = (int)Math.Round(statDistribution.Technique * 0.7 + data.Technique * 0.3);
+            int intelligence = (int)Math.Round(statDistribution.Intelligence * 0.7 + data.Intelligence * 0.3);
+            int health = (int)Math.Round(statDistribution.Health * 0.7 + data.BaseHealth * 0.3);
+            int armor = (int)Math.Round(statDistribution.Armor * 0.7 + data.BaseArmor * 0.3);
+            
+            // Ensure minimum values
+            strength = Math.Max(1, strength);
+            agility = Math.Max(1, agility);
+            technique = Math.Max(1, technique);
+            intelligence = Math.Max(1, intelligence);
+            health = Math.Max(10, health);
+            armor = Math.Max(data.BaseArmor, armor); // Ensure armor is at least the base armor value
 
             // Parse the primary attribute string to enum
             PrimaryAttribute primaryAttribute = PrimaryAttribute.Strength; // Default
@@ -141,7 +170,10 @@ namespace RPGGame
                 primaryAttribute = parsedAttribute;
             }
 
-            var enemy = new Enemy(data.Name, level, health, strength, agility, technique, intelligence, data.Armor, primaryAttribute, data.IsLiving);
+            var enemy = new Enemy(data.Name, level, health, strength, agility, technique, intelligence, armor, primaryAttribute, data.IsLiving, suggestedArchetype);
+            
+            // Apply DPS-based scaling to set target values
+            EnemyDPSSystem.ApplyDPSScaling(enemy);
             
             // Clear default actions and add actions from the data
             enemy.ActionPool.Clear();
@@ -226,6 +258,19 @@ namespace RPGGame
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Gets all enemy data loaded from the JSON file
+        /// </summary>
+        public static List<EnemyData> GetAllEnemyData()
+        {
+            if (_enemies == null)
+            {
+                LoadEnemies();
+            }
+
+            return _enemies?.Values.ToList() ?? new List<EnemyData>();
         }
     }
 } 

@@ -73,7 +73,12 @@ namespace RPGGame
             double secondsPerAttack = attackSpeed;
             // Get current amplification
             double currentAmplification = player.GetCurrentComboAmplification();
+            int magicFind = player.GetMagicFind();
             Console.WriteLine($"Damage: {damage} (STR:{player.GetEffectiveStrength()} + Weapon:{weaponDamage} + Equipment:{equipmentDamageBonus} + Mods:{modificationDamageBonus})  Attack Speed: {attackSpeed:0.00}s  Amplification: {currentAmplification:F2}x  Roll Bonus: +{totalRollBonus}  Armor: {armor}");
+            if (magicFind > 0)
+            {
+                Console.WriteLine($"Magic Find: +{magicFind} (improves rare item drop chances)");
+            }
             // Show only classes with points > 0
             var classPointsInfo = new List<string>();
             if (player.BarbarianPoints > 0) classPointsInfo.Add($"Barbarian({player.BarbarianPoints})");
@@ -260,15 +265,16 @@ namespace RPGGame
                         // Show the actual value for modifications
                         string valueDisplay = mod.Effect switch
                         {
-                            "damage" => $"+{mod.MaxValue:F0} Damage",
-                            "speedMultiplier" => $"{mod.MaxValue:F2}x Speed", 
-                            "rollBonus" => $"+{mod.MaxValue:F0} Roll",
+                            "damage" => $"+{mod.RolledValue:F0} Damage",
+                            "speedMultiplier" => $"{mod.RolledValue:F2}x Speed", 
+                            "rollBonus" => $"+{mod.RolledValue:F0} Roll",
                             "reroll" => "Divine Reroll",
-                            "lifesteal" => $"{(mod.MaxValue * 100):F1}% Lifesteal",
+                            "lifesteal" => $"{(mod.RolledValue * 100):F1}% Lifesteal",
                             "autoSuccess" => "Auto Success",
-                            "bleedChance" => $"{(mod.MaxValue * 100):F1}% Bleed",
-                            "uniqueActionChance" => $"{(mod.MaxValue * 100):F1}% Unique Action",
-                            "damageMultiplier" => $"{mod.MaxValue:F1}x Damage",
+                            "bleedChance" => $"{(mod.RolledValue * 100):F1}% Bleed",
+                            "uniqueActionChance" => $"{(mod.RolledValue * 100):F1}% Unique Action",
+                            "damageMultiplier" => $"{mod.RolledValue:F1}x Damage",
+                            "magicFind" => $"+{mod.RolledValue:F0} Magic Find",
                             _ => $"({mod.Effect})"
                         };
                         modificationBonuses.Add($"{mod.Name} ({valueDisplay})");
@@ -318,13 +324,7 @@ namespace RPGGame
                     string inCombo = player.ComboSequence.Any(comboAction => comboAction.Name == action.Name) ? " [IN COMBO]" : "";
                     Console.WriteLine($"  {i + 1}. {action.Name}{inCombo}");
                     
-                    string damageInfo = "";
-                    if (action.Type == ActionType.Attack && action.DamageMultiplier > 0)
-                    {
-                        damageInfo = $" | Damage: {action.DamageMultiplier:F1}x";
-                    }
-                    
-                    Console.WriteLine($"      {action.Description} | Length: {action.Length:F1}{damageInfo}");
+                    Console.WriteLine($"      {action.Description} | Length: {action.Length:F1}x");
                 }
             }
             else
@@ -363,13 +363,7 @@ namespace RPGGame
                     string inCombo = player.ComboSequence.Any(comboAction => comboAction.Name == action.Name) ? " [IN COMBO]" : "";
                     Console.WriteLine($"  {i + 1}. {action.Name}{inCombo}");
                     
-                    string damageInfo = "";
-                    if (action.Type == ActionType.Attack && action.DamageMultiplier > 0)
-                    {
-                        damageInfo = $" | Damage: {action.DamageMultiplier:F1}x";
-                    }
-                    
-                    Console.WriteLine($"      {action.Description} | Length: {action.Length:F1}{damageInfo}");
+                    Console.WriteLine($"      {action.Description} | Length: {action.Length:F1}x");
                 }
             }
             else
@@ -413,6 +407,36 @@ namespace RPGGame
             {
                 Console.WriteLine($"\nNo actions selected for combo sequence. ({actionPoolCount} available)");
             }
+        }
+
+        private double CalculateActionSpeedPercentage(Action action)
+        {
+            // Get the player's total attack speed (time in seconds)
+            double playerAttackSpeed = player.GetTotalAttackSpeed();
+            
+            // Calculate the action duration by multiplying player speed by action length
+            double actionDuration = playerAttackSpeed * action.Length;
+            
+            // Get base attack time from tuning config
+            var tuning = TuningConfig.Instance;
+            double baseAttackTime = tuning.Combat.BaseAttackTime;
+            
+            // Calculate speed percentage: (base time / action time) * 100
+            // Higher percentage = faster action
+            double speedPercentage = (baseAttackTime / actionDuration) * 100.0;
+            
+            return speedPercentage;
+        }
+        
+        private string GetSpeedDescription(double speedPercentage)
+        {
+            if (speedPercentage >= 200) return "extremely fast";
+            if (speedPercentage >= 150) return "very fast";
+            if (speedPercentage >= 125) return "fast";
+            if (speedPercentage >= 100) return "normal speed";
+            if (speedPercentage >= 75) return "slow";
+            if (speedPercentage >= 50) return "very slow";
+            return "extremely slow";
         }
 
         private string GetItemActions(Item? item)
@@ -606,7 +630,22 @@ namespace RPGGame
                 int timesAvailable = actionPool.Count(ap => ap.Name == action.Name);
                 string usageInfo = timesInCombo > 0 ? $" [In combo: {timesInCombo}/{timesAvailable}]" : "";
                 Console.WriteLine($"  {i + 1}. {action.Name}{usageInfo}");
-                Console.WriteLine($"      {action.Description}");
+                
+                // Calculate speed percentage
+                double speedPercentage = CalculateActionSpeedPercentage(action);
+                string speedText = GetSpeedDescription(speedPercentage);
+                
+                // Build action stats line
+                string statsLine = $"      {action.Description} | Damage: {action.DamageMultiplier:F1}x | Speed: {speedPercentage:F0}% ({speedText})";
+                
+                // Add any special effects
+                if (action.CausesBleed) statsLine += ", Causes Bleed";
+                if (action.CausesWeaken) statsLine += ", Causes Weaken";
+                if (action.CausesSlow) statsLine += ", Causes Slow";
+                if (action.CausesPoison) statsLine += ", Causes Poison";
+                if (action.CausesStun) statsLine += ", Causes Stun";
+                
+                Console.WriteLine(statsLine);
             }
             
             Console.Write($"\nEnter action number to add (1-{availableActions.Count}): ");

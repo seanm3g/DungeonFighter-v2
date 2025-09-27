@@ -6,4 +6,9 @@
 6. Make sure that attack speed is on a diminishing returns curve?
 7. Add an action that increases dice for each 1-13 rolled, reset when 14 is rolled higher. | Pity Cuck
 8. Meteor should be amplified by the amount of fire spells you have.  | Meteor is one of 4 actions you get from becoming a wizard.  you pick the action or something?
-9.  When a treant bleeds, it bleeds sap, that slows you.
+9.  When a treant bleeds, it bleeds sap, that slows your attacks.
+10. range would be distance, and melee you'd have to hit first or something?
+11. Not all encounters should be fighting, find a monk who gives you +5 magic find (for dungeon or perma-character)
+12. Your dungeon selection influences your affinity to certain groups, (Undead vs Forest) undead gives you lifesteal, forest gives you aura's bonuses, etc.)  Maybe a gold for goblins but then orcs always rage at you. 
+13. % of a project that has fighters attached. 25% small bonuses, 50% medium, 100% big bonus
+14. Barbarian core action is to ignore armor.

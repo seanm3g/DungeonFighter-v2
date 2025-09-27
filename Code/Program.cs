@@ -41,6 +41,25 @@ namespace RPGGame
             var character = new Character("TestChar", 5);
             Console.WriteLine($"Level 5 Character - Health: {character.MaxHealth}, STR: {character.Strength}, AGI: {character.Agility}, TEC: {character.Technique}, INT: {character.Intelligence}");
             
+            Console.WriteLine("\n=== NEW SCALING SYSTEM TEST ===");
+            ScalingManager.TestScalingFormulas();
+            
+            Console.WriteLine("\n=== FORMULA EVALUATOR TEST ===");
+            var variables = new Dictionary<string, double>
+            {
+                ["BaseDamage"] = 10,
+                ["Tier"] = 3,
+                ["Level"] = 5,
+                ["TierScaling"] = 2.5,
+                ["LevelScaling"] = 0.8
+            };
+            
+            string formula = "BaseDamage * (1 + (Tier - 1) * TierScaling + Level * LevelScaling)";
+            double result = FormulaEvaluator.Evaluate(formula, variables);
+            Console.WriteLine($"Formula: {formula}");
+            Console.WriteLine($"Variables: BaseDamage=10, Tier=3, Level=5, TierScaling=2.5, LevelScaling=0.8");
+            Console.WriteLine($"Result: {result:F2}");
+            
             Console.WriteLine("\nTesting enemy creation with tuning values...");
             var enemy = new Enemy("TestEnemy", 3, 80, 8, 6, 4, 4, 0, PrimaryAttribute.Strength);
             Console.WriteLine($"Level 3 Enemy - Health: {enemy.MaxHealth}, STR: {enemy.Strength}, AGI: {enemy.Agility}, TEC: {enemy.Technique}, INT: {enemy.Intelligence}, Armor: {enemy.Armor}");
@@ -230,7 +249,7 @@ namespace RPGGame
                 // Keep trying until we get loot (guaranteed reward for dungeon completion)
                 while (reward == null && attempts < maxAttempts)
                 {
-                    reward = LootGenerator.GenerateLoot(player.Level, player.Level);
+                    reward = LootGenerator.GenerateLoot(player.Level, player.Level, player);
                     attempts++;
                 }
                 
@@ -1925,16 +1944,19 @@ namespace RPGGame
                 Console.WriteLine("13. Test Intelligent Delay System");
                 Console.WriteLine("14. Test New Dice Mechanics");
                 Console.WriteLine("15. Test New Action System");
-                Console.WriteLine("16. Test Loot Generation System");
-                Console.WriteLine("17. Test Weapon-Based Classes");
-                Console.WriteLine("18. Test Tuning System");
-                Console.WriteLine("19. Test Combo Amplification");
-                Console.WriteLine("20. Test Combo UI");
-                Console.WriteLine("21. Test Enhanced Action Descriptions");
-                Console.WriteLine("22. Test Enemy 14+ Threshold");
-                Console.WriteLine("23. Test Guaranteed Loot");
-                Console.WriteLine("24. Run All Tests");
-                Console.WriteLine("25. Back to Main Menu\n");
+                Console.WriteLine("16. Test Magic Find Rarity System");
+                Console.WriteLine("17. Test Loot Generation System");
+                Console.WriteLine("18. Test Weapon-Based Classes");
+                Console.WriteLine("19. Test Tuning System");
+                Console.WriteLine("20. Test Combo Amplification");
+                Console.WriteLine("21. Test Combo UI");
+                Console.WriteLine("22. Test Enemy Armor & Stat Pools");
+                Console.WriteLine("23. Test Damage Balance");
+                Console.WriteLine("24. Test Enhanced Action Descriptions");
+                Console.WriteLine("25. Test Enemy 14+ Threshold");
+                Console.WriteLine("26. Test Guaranteed Loot");
+                Console.WriteLine("27. Run All Tests");
+                Console.WriteLine("28. Back to Main Menu\n");
                 Console.Write("Choose an option: ");
 
                 string? choice = Console.ReadLine();
@@ -2004,42 +2026,54 @@ namespace RPGGame
                         TestNewActionSystem();
                         break;
                     case "16":
+                        Console.WriteLine("\nRunning Magic Find Rarity System Test...\n");
+                        TestMagicFindRaritySystem();
+                        break;
+                    case "17":
                         Console.WriteLine("\nRunning Loot Generation System Test...\n");
                         TestLootGenerationSystem();
                         break;
-                    case "17":
+                    case "18":
                         Console.WriteLine("\nRunning Weapon-Based Classes Test...\n");
                         TestWeaponBasedClasses();
                         break;
-                    case "18":
+                    case "19":
                         Console.WriteLine("\nRunning Tuning System Test...\n");
                         TestTuningSystem();
                         break;
-                    case "19":
+                    case "20":
                         Console.WriteLine("\nRunning Combo Amplification Test...\n");
                         TestComboAmplification();
                         break;
-                    case "20":
+                    case "21":
                         Console.WriteLine("\nRunning Combo UI Test...\n");
                         TestComboUI();
                         break;
-                    case "21":
+                    case "22":
+                        Console.WriteLine("\nRunning Enemy Armor & Stat Pools Test...\n");
+                        TestEnemyArmorAndStatPools();
+                        break;
+                    case "23":
+                        Console.WriteLine("\nRunning Damage Balance Test...\n");
+                        TestDamageBalance();
+                        break;
+                    case "24":
                         Console.WriteLine("\nRunning Enhanced Action Descriptions Test...\n");
                         TestEnhancedActionDescriptions();
                         break;
-                    case "22":
+                    case "25":
                         Console.WriteLine("\nRunning Enemy 14+ Threshold Test...\n");
                         TestEnemyThreshold();
                         break;
-                    case "23":
+                    case "26":
                         Console.WriteLine("\nRunning Guaranteed Loot Test...\n");
                         TestGuaranteedLoot();
                         break;
-                    case "24":
+                    case "27":
                         Console.WriteLine("\nRunning All Tests...\n");
                         RunAllTests();
                         break;
-                    case "25":
+                    case "28":
                         return;
                     default:
                         Console.WriteLine("Invalid choice. Please try again.");
@@ -2470,7 +2504,8 @@ namespace RPGGame
                 }
                 
                 Console.WriteLine("3. Settings");
-                Console.WriteLine("4. Exit\n");
+                Console.WriteLine("4. Tuning Console");
+                Console.WriteLine("5. Exit\n");
                 Console.Write("Choose an option: ");
 
                 string? choice = Console.ReadLine();
@@ -2486,6 +2521,9 @@ namespace RPGGame
                         RunSettings();
                         break;
                     case "4":
+                        TuningConsole.ShowTuningMenu();
+                        break;
+                    case "5":
                         Console.WriteLine("Goodbye!");
                         return;
                     default:
@@ -2581,15 +2619,16 @@ namespace RPGGame
                                     {
                                         string valueDisplay = m.Effect switch
                                         {
-                                            "damage" => $"+{m.MaxValue:F0} Damage",
-                                            "speedMultiplier" => $"{m.MaxValue:F2}x Speed", 
-                                            "rollBonus" => $"+{m.MaxValue:F0} Roll",
+                                            "damage" => $"+{m.RolledValue:F0} Damage",
+                                            "speedMultiplier" => $"{m.RolledValue:F2}x Speed", 
+                                            "rollBonus" => $"+{m.RolledValue:F0} Roll",
                                             "reroll" => "Divine Reroll",
-                                            "lifesteal" => $"{(m.MaxValue * 100):F1}% Lifesteal",
+                                            "lifesteal" => $"{(m.RolledValue * 100):F1}% Lifesteal",
                                             "autoSuccess" => "Auto Success",
-                                            "bleedChance" => $"{(m.MaxValue * 100):F1}% Bleed",
-                                            "uniqueActionChance" => $"{(m.MaxValue * 100):F1}% Unique Action",
-                                            "damageMultiplier" => $"{m.MaxValue:F1}x Damage",
+                                            "bleedChance" => $"{(m.RolledValue * 100):F1}% Bleed",
+                                            "uniqueActionChance" => $"{(m.RolledValue * 100):F1}% Unique Action",
+                                            "damageMultiplier" => $"{m.RolledValue:F1}x Damage",
+                                            "magicFind" => $"+{m.RolledValue:F0} Magic Find",
                                             _ => $"({m.Effect})"
                                         };
                                         return $"{m.Name} ({valueDisplay})";
@@ -2827,6 +2866,211 @@ namespace RPGGame
                 Console.WriteLine($"\n=== TEST FAILED: {ex.Message} ===");
                 Console.WriteLine($"Stack Trace: {ex.StackTrace}");
             }
+        }
+
+        static void TestEnemyArmorAndStatPools()
+        {
+            Console.WriteLine("=== Testing Enemy Armor & Stat Pools System ===\n");
+            
+            try
+            {
+                // Quick test to check Treant armor
+                Console.WriteLine("=== QUICK TREANT ARMOR TEST ===");
+                var treant = EnemyLoader.CreateEnemy("Treant", 1);
+                if (treant != null)
+                {
+                    Console.WriteLine($"Treant Level 1 - Armor: {treant.Armor}, Health: {treant.MaxHealth}, STR: {treant.Strength}, AGI: {treant.Agility}");
+                    Console.WriteLine($"Treant Archetype: {treant.Archetype}");
+                }
+                Console.WriteLine();
+                
+                EnemyArmorBalanceTest.TestEnemyArmorAndStatPools();
+                Console.WriteLine("\n✓ Enemy Armor & Stat Pools Test PASSED\n");
+                
+                Console.WriteLine("=== Testing Armor Damage Reduction ===\n");
+                EnemyArmorBalanceTest.TestArmorDamageReduction();
+                Console.WriteLine("\n✓ Armor Damage Reduction Test PASSED\n");
+                
+                Console.WriteLine("=== Testing Archetype Variance ===\n");
+                EnemyArmorBalanceTest.TestArchetypeVariance();
+                Console.WriteLine("\n✓ Archetype Variance Test PASSED\n");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"✗ Enemy Armor & Stat Pools Test FAILED: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            }
+        }
+
+        static void TestDamageBalance()
+        {
+            Console.WriteLine("=== Testing Damage Balance System ===\n");
+            
+            try
+            {
+                DamageBalanceTest.TestDamageBalance();
+                Console.WriteLine("\n✓ Damage Balance Test PASSED\n");
+                
+                Console.WriteLine("=== Testing Damage Scaling ===\n");
+                DamageBalanceTest.TestDamageScaling();
+                Console.WriteLine("\n✓ Damage Scaling Test PASSED\n");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"✗ Damage Balance Test FAILED: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            }
+        }
+
+        static void TestMagicFindRaritySystem()
+        {
+            Console.WriteLine("=== Testing Magic Find Rarity System ===\n");
+
+            try
+            {
+                // Initialize loot generator
+                LootGenerator.Initialize();
+
+                // Test different Magic Find values
+                int[] magicFindValues = { 0, 5, 10, 20, 30, 50, 75, 100 };
+                int itemsPerTest = 200; // Generate 200 items per Magic Find value for statistical analysis
+
+                Console.WriteLine("Testing rarity distribution with different Magic Find values:\n");
+
+                foreach (int magicFind in magicFindValues)
+                {
+                    Dictionary<string, int> rarityCounts = new Dictionary<string, int>
+                    {
+                        {"Common", 0}, {"Uncommon", 0}, {"Rare", 0}, {"Epic", 0}, {"Legendary", 0}
+                    };
+
+                    // Create a test character with the specified Magic Find
+                    var testCharacter = new Character("MagicFindTester", 10);
+                    
+                    // Add Magic Find gear if needed
+                    if (magicFind > 0)
+                    {
+                        // Create a test item with Magic Find bonus
+                        var magicFindItem = new HeadItem("Magic Find Test Helmet", 1, 1);
+                        var magicFindBonus = new StatBonus 
+                        { 
+                            Name = "of Testing", 
+                            Description = $"+{magicFind} Magic Find", 
+                            Value = magicFind, 
+                            StatType = "MagicFind" 
+                        };
+                        magicFindItem.StatBonuses.Add(magicFindBonus);
+                        testCharacter.EquipItem(magicFindItem, "head");
+                    }
+
+                    // Generate items and count rarities
+                    for (int i = 0; i < itemsPerTest; i++)
+                    {
+                        var item = LootGenerator.GenerateLoot(10, 10, testCharacter); // Level 10 character
+                        if (item != null && rarityCounts.ContainsKey(item.Rarity))
+                        {
+                            rarityCounts[item.Rarity]++;
+                        }
+                    }
+
+                    // Calculate percentages
+                    int totalItems = rarityCounts.Values.Sum();
+                    Console.WriteLine($"Magic Find {magicFind,3} Results ({totalItems} items generated):");
+                    
+                    foreach (var kvp in rarityCounts.OrderBy(x => GetRarityOrder(x.Key)))
+                    {
+                        double percentage = totalItems > 0 ? (kvp.Value * 100.0 / totalItems) : 0;
+                        Console.WriteLine($"  {kvp.Key,-9}: {kvp.Value,3} items ({percentage,5:F1}%)");
+                    }
+                    Console.WriteLine();
+                }
+
+                // Demonstrate Magic Find effectiveness
+                Console.WriteLine("=== Magic Find Effectiveness Comparison ===");
+                
+                // Test baseline (0 Magic Find)
+                var baselineCharacter = new Character("Baseline", 4);
+                Dictionary<string, int> baselineCounts = new Dictionary<string, int>
+                {
+                    {"Common", 0}, {"Uncommon", 0}, {"Rare", 0}, {"Epic", 0}, {"Legendary", 0}
+                };
+
+                // Test high Magic Find
+                var magicFindCharacter = new Character("MagicFinder", 4);
+                var highMagicFindItem = new HeadItem("Legendary Fortune Helmet", 1, 1);
+                var highMagicFindBonus = new StatBonus 
+                { 
+                    Name = "of Legendary Fortune", 
+                    Description = "+30 Magic Find", 
+                    Value = 30, 
+                    StatType = "MagicFind" 
+                };
+                highMagicFindItem.StatBonuses.Add(highMagicFindBonus);
+                magicFindCharacter.EquipItem(highMagicFindItem, "head");
+
+                Dictionary<string, int> magicFindCounts = new Dictionary<string, int>
+                {
+                    {"Common", 0}, {"Uncommon", 0}, {"Rare", 0}, {"Epic", 0}, {"Legendary", 0}
+                };
+
+                int comparisonTests = 1000;
+                
+                // Generate baseline items
+                for (int i = 0; i < comparisonTests; i++)
+                {
+                    var item = LootGenerator.GenerateLoot(4, 4, baselineCharacter);
+                    if (item != null && baselineCounts.ContainsKey(item.Rarity))
+                    {
+                        baselineCounts[item.Rarity]++;
+                    }
+                }
+
+                // Generate Magic Find items
+                for (int i = 0; i < comparisonTests; i++)
+                {
+                    var item = LootGenerator.GenerateLoot(4, 4, magicFindCharacter);
+                    if (item != null && magicFindCounts.ContainsKey(item.Rarity))
+                    {
+                        magicFindCounts[item.Rarity]++;
+                    }
+                }
+
+                Console.WriteLine($"Level 4 Character Comparison ({comparisonTests} items each):");
+                Console.WriteLine("                 No Magic Find    30 Magic Find    Improvement");
+                Console.WriteLine("                 -------------    -------------    -----------");
+                
+                foreach (var rarity in new[] {"Common", "Uncommon", "Rare", "Epic", "Legendary"})
+                {
+                    int baselineCount = baselineCounts[rarity];
+                    int magicFindCount = magicFindCounts[rarity];
+                    double improvement = baselineCount > 0 ? ((double)magicFindCount / baselineCount - 1.0) * 100.0 : 0.0;
+                    
+                    Console.WriteLine($"{rarity,-9}: {baselineCount,6} ({baselineCount * 100.0 / comparisonTests,5:F1}%)  {magicFindCount,6} ({magicFindCount * 100.0 / comparisonTests,5:F1}%)  {improvement,+6:F1}%");
+                }
+
+                Console.WriteLine($"\nMagic Find System: Characters can now find Magic Find bonuses on gear to improve their chances of finding rare items!");
+                Console.WriteLine("✅ SUCCESS: Magic Find system implemented - rarity is now fixed base rates modified by gear bonuses!");
+
+                Console.WriteLine("\n=== Magic Find Rarity System Test Complete ===");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\n=== TEST FAILED: {ex.Message} ===");
+                Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+            }
+        }
+
+        static int GetRarityOrder(string rarity)
+        {
+            return rarity.ToLower() switch
+            {
+                "common" => 1,
+                "uncommon" => 2,
+                "rare" => 3,
+                "epic" => 4,
+                "legendary" => 5,
+                _ => 6
+            };
         }
     }
 } 

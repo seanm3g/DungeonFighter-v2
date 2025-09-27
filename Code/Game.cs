@@ -83,7 +83,30 @@ namespace RPGGame
             {
                 string jsonPath = Path.Combine("..", "GameData", "StartingGear.json");
                 string jsonContent = File.ReadAllText(jsonPath);
-                return JsonSerializer.Deserialize<StartingGearData>(jsonContent) ?? new StartingGearData();
+                var startingGear = JsonSerializer.Deserialize<StartingGearData>(jsonContent) ?? new StartingGearData();
+                
+                // Apply weapon scaling from tuning config
+                var weaponScaling = TuningConfig.Instance.WeaponScaling;
+                if (weaponScaling != null)
+                {
+                    foreach (var weapon in startingGear.weapons)
+                    {
+                        // Apply global damage multiplier
+                        weapon.damage = (int)(weapon.damage * weaponScaling.GlobalDamageMultiplier);
+                        
+                        // Apply weapon-specific starting damage from tuning config
+                        weapon.damage = weapon.name.ToLower() switch
+                        {
+                            var name when name.Contains("mace") => weaponScaling.StartingWeaponDamage.Mace,
+                            var name when name.Contains("sword") => weaponScaling.StartingWeaponDamage.Sword,
+                            var name when name.Contains("dagger") => weaponScaling.StartingWeaponDamage.Dagger,
+                            var name when name.Contains("wand") => weaponScaling.StartingWeaponDamage.Wand,
+                            _ => weapon.damage
+                        };
+                    }
+                }
+                
+                return startingGear;
             }
             catch (Exception ex)
             {
@@ -619,6 +642,7 @@ namespace RPGGame
                     }
 
                     Console.WriteLine("Room cleared!");
+                    Thread.Sleep(TuningConfig.Instance.UI.RoomClearedDelay);
                     Console.WriteLine($"Remaining Health: {player.CurrentHealth}/{player.GetEffectiveMaxHealth()}");
                     
                     // Reset combo at end of each room
@@ -681,7 +705,7 @@ namespace RPGGame
             // Keep trying until we get loot (guaranteed reward for dungeon completion)
             while (reward == null && attempts < maxAttempts)
             {
-                reward = LootGenerator.GenerateLoot(player.Level, dungeonLevel);
+                reward = LootGenerator.GenerateLoot(player.Level, dungeonLevel, player);
                 attempts++;
             }
             

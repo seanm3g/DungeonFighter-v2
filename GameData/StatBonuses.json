@@ -38,5 +38,11 @@
   { "Name": "of the Storm", "Description": "+8 Agility, +0.015 speed", "Value": 8, "Weight": 1, "StatType": "AGI" },
   { "Name": "of the Archmage", "Description": "+8 Intelligence, +8 damage", "Value": 8, "Weight": 1, "StatType": "INT" },
   { "Name": "of the Grandmaster", "Description": "+8 Technique, +10 damage", "Value": 8, "Weight": 1, "StatType": "TEC" },
-  { "Name": "of the Gods", "Description": "+10 to all stats", "Value": 10, "Weight": 1, "StatType": "ALL" }
+  { "Name": "of the Gods", "Description": "+10 to all stats", "Value": 10, "Weight": 1, "StatType": "ALL" },
+  { "Name": "of Discovery", "Description": "+5 Magic Find", "Value": 5, "Weight": 12, "StatType": "MagicFind" },
+  { "Name": "of Fortune", "Description": "+10 Magic Find", "Value": 10, "Weight": 8, "StatType": "MagicFind" },
+  { "Name": "of the Treasure Hunter", "Description": "+15 Magic Find", "Value": 15, "Weight": 5, "StatType": "MagicFind" },
+  { "Name": "of the Collector", "Description": "+20 Magic Find", "Value": 20, "Weight": 3, "StatType": "MagicFind" },
+  { "Name": "of Legendary Fortune", "Description": "+30 Magic Find", "Value": 30, "Weight": 1, "StatType": "MagicFind" },
+  { "Name": "of the Loot Master", "Description": "+5 Magic Find", "Value": 25, "Weight": 2, "StatType": "MagicFind" }
 ]

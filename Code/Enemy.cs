@@ -15,13 +15,24 @@ namespace RPGGame
         public PrimaryAttribute PrimaryAttribute { get; private set; }
         public int Armor { get; private set; }
         public bool IsLiving { get; private set; }
+        public EnemyArchetype Archetype { get; private set; }
+        public EnemyAttackProfile AttackProfile { get; private set; }
+        
+        // DPS-based system properties
+        public double TargetDPS { get; private set; }
+        public double TargetDamage { get; private set; }
+        public double TargetAttackSpeed { get; private set; }
 
-        public Enemy(string? name = null, int level = 1, int maxHealth = 50, int strength = 8, int agility = 6, int technique = 4, int intelligence = 4, int armor = 0, PrimaryAttribute primaryAttribute = PrimaryAttribute.Strength, bool isLiving = true)
+        public Enemy(string? name = null, int level = 1, int maxHealth = 50, int strength = 8, int agility = 6, int technique = 4, int intelligence = 4, int armor = 0, PrimaryAttribute primaryAttribute = PrimaryAttribute.Strength, bool isLiving = true, EnemyArchetype? archetype = null)
             : base(name ?? "Unknown Enemy")
         {
             Level = level;
             PrimaryAttribute = primaryAttribute;
             IsLiving = isLiving;
+            
+            // Determine archetype if not specified
+            Archetype = archetype ?? EnemyDPSCalculator.SuggestArchetypeForEnemy(name ?? "Unknown", strength, agility, technique, intelligence);
+            AttackProfile = EnemyDPSCalculator.GetArchetypeProfile(Archetype);
             
             var tuning = TuningConfig.Instance;
             
@@ -29,31 +40,16 @@ namespace RPGGame
             MaxHealth = maxHealth + (level * tuning.Character.EnemyHealthPerLevel);
             CurrentHealth = MaxHealth;
             
-            // Base scaling based on tuning config
-            Strength = strength + (level * tuning.Attributes.EnemyAttributesPerLevel);
-            Agility = agility + (level * tuning.Attributes.EnemyAttributesPerLevel);
-            Technique = technique + (level * tuning.Attributes.EnemyAttributesPerLevel);
-            Intelligence = intelligence + (level * tuning.Attributes.EnemyAttributesPerLevel);
+            // Use the stats as provided (they should already be calculated for target DPS)
+            Strength = strength;
+            Agility = agility;
+            Technique = technique;
+            Intelligence = intelligence;
             
-            // Enemies have no armor - only gear provides armor
-            Armor = 0;
+            // Set armor from constructor parameter
+            Armor = armor;
             
-            // Primary attribute gets extra bonus per level based on tuning config
-            switch (PrimaryAttribute)
-            {
-                case PrimaryAttribute.Strength:
-                    Strength += level * tuning.Attributes.EnemyPrimaryAttributeBonus;
-                    break;
-                case PrimaryAttribute.Agility:
-                    Agility += level * tuning.Attributes.EnemyPrimaryAttributeBonus;
-                    break;
-                case PrimaryAttribute.Technique:
-                    Technique += level * tuning.Attributes.EnemyPrimaryAttributeBonus;
-                    break;
-                case PrimaryAttribute.Intelligence:
-                    Intelligence += level * tuning.Attributes.EnemyPrimaryAttributeBonus;
-                    break;
-            }
+            // Primary attribute bonus is already included in the calculated stats
 
             // Scale rewards based on level and tuning config
             GoldReward = tuning.Progression.EnemyGoldBase + (level * tuning.Progression.EnemyGoldPerLevel);
@@ -119,6 +115,57 @@ namespace RPGGame
         public override string ToString()
         {
             return base.ToString();
+        }
+
+        /// <summary>
+        /// Calculates enemy attack speed using archetype modifiers
+        /// </summary>
+        public new double GetTotalAttackSpeed()
+        {
+            var tuning = TuningConfig.Instance;
+            
+            // Base calculation similar to Character.GetTotalAttackSpeed
+            double baseAttackTime = tuning.Combat.BaseAttackTime;
+            double agilityReduction = Agility * tuning.Combat.AgilitySpeedReduction;
+            double finalAttackTime = baseAttackTime - agilityReduction;
+            
+            // Apply archetype speed multiplier
+            finalAttackTime *= AttackProfile.SpeedMultiplier;
+            
+            // Apply slow debuff if active
+            if (SlowTurns > 0)
+            {
+                finalAttackTime *= SlowMultiplier;
+            }
+            
+            // Apply minimum cap
+            return Math.Max(tuning.Combat.MinimumAttackTime, finalAttackTime);
+        }
+
+        /// <summary>
+        /// Gets the archetype-modified damage multiplier for this enemy
+        /// </summary>
+        public double GetArchetypeDamageMultiplier()
+        {
+            return AttackProfile.DamageMultiplier;
+        }
+        
+        /// <summary>
+        /// Sets target DPS values for the DPS-based system
+        /// </summary>
+        public void SetTargetDPS(double targetDPS)
+        {
+            TargetDPS = targetDPS;
+        }
+        
+        public void SetTargetDamage(double targetDamage)
+        {
+            TargetDamage = targetDamage;
+        }
+        
+        public void SetTargetAttackSpeed(double targetAttackSpeed)
+        {
+            TargetAttackSpeed = targetAttackSpeed;
         }
 
         /// <summary>
@@ -198,7 +245,9 @@ namespace RPGGame
                     var narrativeSettings = GameSettings.Instance;
                     if (narrativeSettings.NarrativeBalance <= 0.0)
                     {
-                        string actionResult = $"[{Name}] uses [{action.Name}] on [{target.Name}]: deals {finalEffect} damage. (Rolled {roll}, need {difficulty})";
+                        int actualDamage = Combat.CalculateDamage(this, target, action, 1.0, 1.0, 0, roll, false);
+                        string damageDisplay = Combat.FormatDamageDisplay(this, target, finalEffect, actualDamage, action, 1.0, 1.0, 0, roll);
+                        string actionResult = $"[{Name}] uses [{action.Name}] on [{target.Name}]: deals {damageDisplay}. (Rolled {roll}, need {difficulty})";
                         return (actionResult, true);
                     }
                     return ("", true); // Return empty string in narrative mode, success = true
@@ -232,7 +281,9 @@ namespace RPGGame
                     if (action.Type == ActionType.Attack)
                     {
                         target.TakeDamage(finalEffect);
-                        return ($"[{Name}] uses [{action.Name}] on [{target.Name}]: deals {finalEffect} damage. (Rolled {roll}, need {difficulty})", true);
+                        int actualDamage = Combat.CalculateDamage(this, target, action, 1.0, 1.0, 0, roll, false);
+                        string damageDisplay = Combat.FormatDamageDisplay(this, target, finalEffect, actualDamage, action, 1.0, 1.0, 0, roll);
+                        return ($"[{Name}] uses [{action.Name}] on [{target.Name}]: deals {damageDisplay}. (Rolled {roll}, need {difficulty})", true);
                     }
                     else if (action.Type == ActionType.Debuff)
                     {
@@ -245,6 +296,28 @@ namespace RPGGame
                     return ($"[{Name}] attempts [{action.Name}] but fails. (Rolled {roll}, need {difficulty}) No action performed.", false);
                 }
             }
+        }
+        
+        /// <summary>
+        /// Override TakeDamage to add health milestone tracking for enemies
+        /// </summary>
+        public new void TakeDamage(int amount)
+        {
+            TakeDamageWithNotifications(amount);
+        }
+        
+        public new List<string> TakeDamageWithNotifications(int amount)
+        {
+            // Apply damage reduction if active
+            if (DamageReduction > 0)
+            {
+                amount = (int)(amount * (1.0 - DamageReduction));
+            }
+            
+            CurrentHealth = Math.Max(0, CurrentHealth - amount);
+            
+            // Check for health milestones and leadership changes
+            return Combat.CheckHealthMilestones(this, amount);
         }
     }
 } 

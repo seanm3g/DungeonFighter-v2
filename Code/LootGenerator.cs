@@ -24,7 +24,7 @@ namespace RPGGame
             LoadRarityData();
         }
 
-        public static Item? GenerateLoot(int playerLevel, int dungeonLevel)
+        public static Item? GenerateLoot(int playerLevel, int dungeonLevel, Character? player = null)
         {
             if (_tierDistributions == null || _armorData == null || _weaponData == null || 
                 _statBonuses == null || _actionBonuses == null || _modifications == null || _rarityData == null)
@@ -36,6 +36,11 @@ namespace RPGGame
             
             // Calculate loot chance based on tuning config
             double lootChance = tuning.Loot.LootChanceBase + (playerLevel * tuning.Loot.LootChancePerLevel);
+            
+            // Apply magic find modifier to loot chance
+            double magicFind = player?.GetMagicFind() ?? 0.0;
+            lootChance += magicFind * tuning.Loot.MagicFindLootChanceMultiplier;
+            
             lootChance = Math.Min(lootChance, tuning.Loot.MaximumLootChance);
             
             // Roll for loot chance
@@ -60,16 +65,58 @@ namespace RPGGame
             Item? item = isWeapon ? RollWeapon(tier) : RollArmor(tier);
             if (item == null) return null;
 
-            // ROLL 5b,c: Bonus damage and attack speed based on tuning config
+            // ROLL 5b,c: Apply scaling formulas to base stats
             if (item is WeaponItem weapon)
             {
+                // Apply scaling manager calculations
+                double scaledDamage = ScalingManager.CalculateWeaponDamage(weapon.BaseDamage, weapon.Tier, playerLevel);
+                weapon.BaseDamage = (int)Math.Round(scaledDamage);
+                
+                // Apply bonus damage and attack speed based on tuning config
                 weapon.BonusDamage = _random.Next(tuning.Equipment.BonusDamageRange.Min, tuning.Equipment.BonusDamageRange.Max + 1);
                 weapon.BonusAttackSpeed = _random.Next(tuning.Equipment.BonusAttackSpeedRange.Min, tuning.Equipment.BonusAttackSpeedRange.Max + 1);
             }
+            else if (item is HeadItem headArmor)
+            {
+                // Apply scaling manager calculations for armor
+                double scaledArmor = ScalingManager.CalculateArmorValue(headArmor.Armor, headArmor.Tier, playerLevel);
+                headArmor.Armor = (int)Math.Round(scaledArmor);
+            }
+            else if (item is ChestItem chestArmor)
+            {
+                // Apply scaling manager calculations for armor
+                double scaledArmor = ScalingManager.CalculateArmorValue(chestArmor.Armor, chestArmor.Tier, playerLevel);
+                chestArmor.Armor = (int)Math.Round(scaledArmor);
+            }
+            else if (item is FeetItem feetArmor)
+            {
+                // Apply scaling manager calculations for armor
+                double scaledArmor = ScalingManager.CalculateArmorValue(feetArmor.Armor, feetArmor.Tier, playerLevel);
+                feetArmor.Armor = (int)Math.Round(scaledArmor);
+            }
 
             // ROLL 6: Rarity (determines number of bonuses)
-            var rarity = RollRarity();
+            var rarity = RollRarity(magicFind, playerLevel);
             item.Rarity = rarity.Name;
+            
+            // Apply rarity multipliers from scaling system
+            double rarityMultiplier = ScalingManager.GetRarityMultiplier(rarity.Name);
+            if (item is WeaponItem weaponForRarity)
+            {
+                weaponForRarity.BaseDamage = (int)Math.Round(weaponForRarity.BaseDamage * rarityMultiplier);
+            }
+            else if (item is HeadItem headForRarity)
+            {
+                headForRarity.Armor = (int)Math.Round(headForRarity.Armor * rarityMultiplier);
+            }
+            else if (item is ChestItem chestForRarity)
+            {
+                chestForRarity.Armor = (int)Math.Round(chestForRarity.Armor * rarityMultiplier);
+            }
+            else if (item is FeetItem feetForRarity)
+            {
+                feetForRarity.Armor = (int)Math.Round(feetForRarity.Armor * rarityMultiplier);
+            }
 
             // ROLL 7: Bonus selection
             ApplyBonuses(item, rarity);
@@ -101,16 +148,16 @@ namespace RPGGame
 
             var selectedWeapon = weaponsInTier[_random.Next(weaponsInTier.Count)];
             
-            // Check for "highest item jumps to next tier up" rule
-            if (IsHighestItemInTier(selectedWeapon, weaponsInTier) && tier < 5)
-            {
-                // Roll again on next tier
-                var nextTierWeapons = _weaponData?.Where(w => w.Tier == tier + 1).ToList() ?? new List<WeaponData>();
-                if (nextTierWeapons.Any())
-                {
-                    selectedWeapon = nextTierWeapons[_random.Next(nextTierWeapons.Count)];
-                }
-            }
+            // DISABLED: "highest item jumps to next tier up" rule - this was breaking tier distribution
+            // if (IsHighestItemInTier(selectedWeapon, weaponsInTier) && tier < 5)
+            // {
+            //     // Roll again on next tier
+            //     var nextTierWeapons = _weaponData?.Where(w => w.Tier == tier + 1).ToList() ?? new List<WeaponData>();
+            //     if (nextTierWeapons.Any())
+            //     {
+            //         selectedWeapon = nextTierWeapons[_random.Next(nextTierWeapons.Count)];
+            //     }
+            // }
 
             var weaponType = Enum.Parse<WeaponType>(selectedWeapon.Type);
             return new WeaponItem(selectedWeapon.Name, selectedWeapon.Tier, 
@@ -124,16 +171,16 @@ namespace RPGGame
 
             var selectedArmor = armorInTier[_random.Next(armorInTier.Count)];
             
-            // Check for "highest item jumps to next tier up" rule
-            if (IsHighestItemInTier(selectedArmor, armorInTier) && tier < 5)
-            {
-                // Roll again on next tier
-                var nextTierArmor = _armorData?.Where(a => a.Tier == tier + 1).ToList() ?? new List<ArmorData>();
-                if (nextTierArmor.Any())
-                {
-                    selectedArmor = nextTierArmor[_random.Next(nextTierArmor.Count)];
-                }
-            }
+            // DISABLED: "highest item jumps to next tier up" rule - this was breaking tier distribution
+            // if (IsHighestItemInTier(selectedArmor, armorInTier) && tier < 5)
+            // {
+            //     // Roll again on next tier
+            //     var nextTierArmor = _armorData?.Where(a => a.Tier == tier + 1).ToList() ?? new List<ArmorData>();
+            //     if (nextTierArmor.Any())
+            //     {
+            //         selectedArmor = nextTierArmor[_random.Next(nextTierArmor.Count)];
+            //     }
+            // }
 
             Item? item = selectedArmor.Slot switch
             {
@@ -183,21 +230,102 @@ namespace RPGGame
             return null; // No action if none available
         }
 
-        private static RarityData RollRarity()
+        private static RarityData RollRarity(double magicFind = 0.0, int playerLevel = 1)
         {
-            double roll = _random.NextDouble() * 100;
+            // Apply both magic find and level-based scaling to rarity weights
+            var scaledRarities = _rarityData!.Select(r => new
+            {
+                Rarity = r,
+                ScaledWeight = CalculateScaledRarityWeight(r, magicFind, playerLevel)
+            }).ToList();
+            
+            double totalWeight = scaledRarities.Sum(sr => sr.ScaledWeight);
+            double roll = _random.NextDouble() * totalWeight;
             double cumulative = 0;
 
-            foreach (var rarity in _rarityData!)
+            foreach (var scaledRarity in scaledRarities)
             {
-                cumulative += rarity.Weight;
+                cumulative += scaledRarity.ScaledWeight;
                 if (roll < cumulative)
                 {
-                    return rarity;
+                    return scaledRarity.Rarity;
                 }
             }
 
-            return _rarityData.First(); // Fallback
+            return _rarityData?.First() ?? new RarityData { Name = "Common", Weight = 40, StatBonuses = 1, ActionBonuses = 0, Modifications = 0 }; // Fallback
+        }
+        
+        private static double CalculateScaledRarityWeight(RarityData rarity, double magicFind, int playerLevel)
+        {
+            // Base weight from JSON configuration
+            double baseWeight = rarity.Weight;
+            
+            // Apply Magic Find scaling from configuration
+            double magicFindMultiplier = CalculateMagicFindMultiplier(rarity.Name, magicFind);
+            
+            // Apply Level-based scaling from configuration
+            double levelMultiplier = CalculateLevelMultiplier(rarity.Name, playerLevel);
+            
+            // Combine both multipliers
+            double finalWeight = baseWeight * magicFindMultiplier * levelMultiplier;
+            
+            // Ensure weights don't go negative
+            return Math.Max(0.1, finalWeight);
+        }
+        
+        private static double CalculateMagicFindMultiplier(string rarityName, double magicFind)
+        {
+            var config = TuningConfig.Instance.RarityScaling?.MagicFindScaling;
+            if (config == null) return 1.0;
+            
+            double perPointMultiplier = rarityName.ToLower() switch
+            {
+                "common" => config.Common.PerPointMultiplier,
+                "uncommon" => config.Uncommon.PerPointMultiplier,
+                "rare" => config.Rare.PerPointMultiplier,
+                "epic" => config.Epic.PerPointMultiplier,
+                "legendary" => config.Legendary.PerPointMultiplier,
+                _ => 0.0
+            };
+            
+            return 1.0 + (magicFind * perPointMultiplier);
+        }
+        
+        private static double CalculateLevelMultiplier(string rarityName, int playerLevel)
+        {
+            var config = TuningConfig.Instance.RarityScaling?.LevelBasedRarityScaling;
+            if (config == null) return 1.0;
+            
+            double levelFactor = Math.Max(0.1, playerLevel / 100.0); // 0.1 to 1.0+ scaling
+            
+            return rarityName.ToLower() switch
+            {
+                "common" => config.Common.BaseMultiplier - (levelFactor * config.Common.LevelReduction),
+                "uncommon" => config.Uncommon.BaseMultiplier + (levelFactor * config.Uncommon.LevelBonus),
+                "rare" => config.Rare.BaseMultiplier + (levelFactor * config.Rare.LevelBonus),
+                "epic" => CalculateEpicLevelMultiplier(config.Epic, playerLevel, levelFactor),
+                "legendary" => CalculateLegendaryLevelMultiplier(config.Legendary, playerLevel, levelFactor),
+                _ => 1.0
+            };
+        }
+        
+        private static double CalculateEpicLevelMultiplier(EpicRarityScalingConfig config, int playerLevel, double levelFactor)
+        {
+            if (playerLevel < config.MinLevel)
+                return config.EarlyMultiplier;
+            
+            return config.BaseMultiplier + (levelFactor * config.LevelBonus);
+        }
+        
+        private static double CalculateLegendaryLevelMultiplier(LegendaryRarityScalingConfig config, int playerLevel, double levelFactor)
+        {
+            if (playerLevel < config.MinLevel)
+                return config.EarlyMultiplier;
+            
+            if (playerLevel < config.EarlyThreshold)
+                return config.MidMultiplier;
+            
+            return config.BaseMultiplier + (levelFactor * config.LevelBonus);
         }
 
         private static void ApplyBonuses(Item item, RarityData rarity)
@@ -316,7 +444,34 @@ namespace RPGGame
         {
             // Use the new Dice.RollModification method for 1-24 system
             int diceRoll = Dice.RollModification(itemTier, bonus);
-            return _modifications!.FirstOrDefault(m => m.DiceResult == diceRoll);
+            var baseModification = _modifications!.FirstOrDefault(m => m.DiceResult == diceRoll);
+            
+            if (baseModification == null) return null;
+            
+            // Create a copy of the modification and roll a value between MinValue and MaxValue
+            var rolledModification = new Modification
+            {
+                DiceResult = baseModification.DiceResult,
+                ItemRank = baseModification.ItemRank,
+                Name = baseModification.Name,
+                Description = baseModification.Description,
+                Effect = baseModification.Effect,
+                MinValue = baseModification.MinValue,
+                MaxValue = baseModification.MaxValue,
+                RolledValue = RollValueBetween(baseModification.MinValue, baseModification.MaxValue)
+            };
+            
+            return rolledModification;
+        }
+        
+        private static double RollValueBetween(double minValue, double maxValue)
+        {
+            // If min and max are the same, return that value
+            if (Math.Abs(minValue - maxValue) < 0.001)
+                return minValue;
+                
+            // Roll a random value between min and max (inclusive)
+            return minValue + (_random.NextDouble() * (maxValue - minValue));
         }
 
 

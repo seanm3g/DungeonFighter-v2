@@ -41,6 +41,7 @@ namespace RPGGame
         public string Effect { get; set; } = "";
         public double MinValue { get; set; } = 0;
         public double MaxValue { get; set; } = 0;
+        public double RolledValue { get; set; } = 0; // The actual rolled value between MinValue and MaxValue
     }
 
     public class ArmorStatus
@@ -108,7 +109,7 @@ namespace RPGGame
             {
                 if (modification.Effect.Contains("armor") || modification.Effect.Contains("Armor"))
                 {
-                    totalArmor += (int)modification.MaxValue; // Use MaxValue as the bonus amount
+                    totalArmor += (int)modification.RolledValue; // Use RolledValue as the bonus amount
                 }
             }
             
@@ -143,7 +144,7 @@ namespace RPGGame
             {
                 if (modification.Effect.Contains("armor") || modification.Effect.Contains("Armor"))
                 {
-                    totalArmor += (int)modification.MaxValue; // Use MaxValue as the bonus amount
+                    totalArmor += (int)modification.RolledValue; // Use RolledValue as the bonus amount
                 }
             }
             
@@ -178,7 +179,7 @@ namespace RPGGame
             {
                 if (modification.Effect.Contains("armor") || modification.Effect.Contains("Armor"))
                 {
-                    totalArmor += (int)modification.MaxValue; // Use MaxValue as the bonus amount
+                    totalArmor += (int)modification.RolledValue; // Use RolledValue as the bonus amount
                 }
             }
             
@@ -207,22 +208,26 @@ namespace RPGGame
 
         public double GetTotalAttackSpeed()
         {
-            return BaseAttackSpeed + (BonusAttackSpeed * 0.1);
+            // New system: BaseAttackSpeed is in seconds, BonusAttackSpeed is a modifier
+            // BonusAttackSpeed should reduce the attack time (negative modifier = faster)
+            return BaseAttackSpeed - (BonusAttackSpeed * 0.1);
         }
         
         /// <summary>
-        /// Gets the attack speed modifier for the new system (-2s to +10s range)
+        /// Gets the attack speed modifier for the new system
         /// </summary>
-        /// <returns>Attack speed modifier in seconds</returns>
+        /// <returns>Attack speed modifier in seconds (positive = slower, negative = faster)</returns>
         public double GetAttackSpeedModifier()
         {
-            // Convert the old attack speed system to the new modifier system
-            // Old system: lower values = faster, new system: negative = faster, positive = slower
-            // BaseAttackSpeed of 0.05 (fast) becomes -2s modifier
-            // BaseAttackSpeed of 0.15 (slow) becomes +10s modifier
+            // New system: BaseAttackSpeed is already in seconds
+            // We need to convert this to a modifier relative to a base attack time
+            // Base attack time is 10 seconds (from TuningConfig), so:
+            // - If weapon has 3s attack speed, modifier should be -7s (3-10 = -7)
+            // - If weapon has 6s attack speed, modifier should be -4s (6-10 = -4)
+            // - If weapon has 10s attack speed, modifier should be 0s (10-10 = 0)
             
-            double modifier = (BaseAttackSpeed - 0.05) * 100; // Scale to -2 to +10 range
-            return Math.Max(-2.0, Math.Min(10.0, modifier)); // Clamp to -2s to +10s range
+            double baseAttackTime = 10.0; // This should match TuningConfig.Combat.BaseAttackTime
+            return BaseAttackSpeed - baseAttackTime;
         }
     }
 } 

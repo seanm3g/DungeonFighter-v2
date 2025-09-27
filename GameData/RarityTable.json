@@ -1,7 +1,7 @@
 [
-  { "Name": "Common", "Weight": 40, "StatBonuses": 1, "ActionBonuses": 0, "Modifications": 0 },
-  { "Name": "Uncommon", "Weight": 30, "StatBonuses": 2, "ActionBonuses": 1, "Modifications": 1 },
-  { "Name": "Rare", "Weight": 20, "StatBonuses": 3, "ActionBonuses": 2, "Modifications": 2 },
+  { "Name": "Common", "Weight": 300, "StatBonuses": 1, "ActionBonuses": 0, "Modifications": 0 },
+  { "Name": "Uncommon", "Weight": 100, "StatBonuses": 2, "ActionBonuses": 1, "Modifications": 1 },
+  { "Name": "Rare", "Weight": 40, "StatBonuses": 3, "ActionBonuses": 2, "Modifications": 2 },
   { "Name": "Epic", "Weight": 9, "StatBonuses": 3, "ActionBonuses": 2, "Modifications": 2 },
   { "Name": "Legendary", "Weight": 1, "StatBonuses": 3, "ActionBonuses": 2, "Modifications": 3 }
 ]

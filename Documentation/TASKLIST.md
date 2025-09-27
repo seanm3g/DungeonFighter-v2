@@ -55,7 +55,31 @@ Enemy Stats - Health: 134/134, Armor: 9, Attack: STR 33, AGI 13, TEC 12, INT 13
       Sharp spikes on your armor cause damage on contact | Damage: 0.9x | Length: 1.0 | Damage: 0.9x
       This should be an armor status, not an action.
 39. ✅ If i put on a piece of gear that increase my health in inventory, I want to start the next dungeon with full health.
-40. Audit the environmental actions to be half good, half bad, and are more appropriate narratively matched.
-41. The way action speed is displayed for actions doesn't make sense.
-42. enemies should maybe be affected inverse or neutral to enviromental actions as the hero
-43. Enemies are weak and need to be balanced around a DPS calculator.
+skip | 40. Audit the environmental actions to be half good, half bad, and are more appropriate narratively matched.
+skip | 41. The way action speed is displayed for actions doesn't make sense.
+skip | 42. enemies should maybe be affected inverse or neutral to enviromental actions as the hero
+skip | 43. Enemies are weak and need to be balanced around a DPS calculator.
+skip | 44. Redesign the chance for environment action.  It's always happening in the first set of order.
+
+## New Tasks - Dynamic Tuning System 🔧
+
+44. ✅ Expand TuningConfig.json with scaling formulas for item damage, armor, and rarity systems
+45. ✅ Create FormulaEvaluator.cs to parse and evaluate mathematical expressions from config
+46. ✅ Create ScalingManager.cs for centralized scaling calculations (weapon damage, armor values, drop chances)
+47. ✅ Create TuningConsole.cs for in-game real-time parameter adjustment interface
+48. ✅ Create BalanceAnalyzer.cs for automated balance testing and DPS calculations
+49. ✅ Add ItemScalingConfig.json for weapon-type specific scaling formulas
+50. ✅ Integrate scaling system with existing LootGenerator to use dynamic formulas
+51. ✅ Add tuning console access to main game menu for live parameter adjustment
+52. ✅ Create balance testing scenarios and automated combat simulations
+53. ✅ Add export/import functionality for tuning configurations
+
+## New Tasks - Action Display Improvements 📋
+
+54. ✅ Add stat bonus display to action descriptions (DANCE now shows +1 AGI (dungeon))
+
+## New Tasks - Combat Balance Adjustments ⚔️
+
+55. ✅ Reduce overall damage scaling to make combat last longer and be more balanced
+56. ✅ Implement "actions to kill" as core balance mechanic (2 DPS at level 1, ~10 actions to kill)
+57. ✅ Fix critical balance issues - enemies dying in 1 hit, weapon damage too high

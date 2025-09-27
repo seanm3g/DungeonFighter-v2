@@ -1,24 +1,24 @@
 {
   "Character": {
-    "PlayerBaseHealth": 100,
+    "PlayerBaseHealth": 30,
     "HealthPerLevel": 3,
-    "EnemyHealthPerLevel": 8
+    "EnemyHealthPerLevel": 4
   },
   "Attributes": {
     "PlayerBaseAttributes": {
-      "Strength": 10,
-      "Agility": 10,
-      "Technique": 10,
-      "Intelligence": 10
+      "Strength": 4,
+      "Agility": 4,
+      "Technique": 4,
+      "Intelligence": 4
     },
     "PlayerAttributesPerLevel": 1,
     "EnemyAttributesPerLevel": 1,
-    "EnemyPrimaryAttributeBonus": 3,
+    "EnemyPrimaryAttributeBonus": 2,
     "IntelligenceRollBonusPer": 10
   },
   "Combat": {
     "CriticalHitThreshold": 20,
-    "CriticalHitMultiplier": 1.5,
+    "CriticalHitMultiplier": 1.3,
     "MinimumDamage": 1,
     "BaseAttackTime": 10.0,
     "AgilitySpeedReduction": 0.1,
@@ -41,10 +41,32 @@
     "EnemyGoldBase": 5,
     "EnemyGoldPerLevel": 3
   },
+  "XPRewards": {
+    "BaseXPFormula": "EnemyXPBase + (EnemyLevel * EnemyXPPerLevel)",
+    "LevelDifferenceMultipliers": {
+      "VeryEasy": { "LevelDifference": -3, "Multiplier": 0.1, "Description": "Enemy 3+ levels below player" },
+      "Easy": { "LevelDifference": -2, "Multiplier": 0.3, "Description": "Enemy 2 levels below player" },
+      "Moderate": { "LevelDifference": -1, "Multiplier": 0.7, "Description": "Enemy 1 level below player" },
+      "Normal": { "LevelDifference": 0, "Multiplier": 1.0, "Description": "Enemy same level as player" },
+      "Hard": { "LevelDifference": 1, "Multiplier": 1.5, "Description": "Enemy 1 level above player" },
+      "VeryHard": { "LevelDifference": 2, "Multiplier": 2.2, "Description": "Enemy 2 levels above player" },
+      "Extreme": { "LevelDifference": 3, "Multiplier": 3.0, "Description": "Enemy 3+ levels above player" }
+    },
+    "DungeonCompletionBonus": {
+      "BaseBonus": 50,
+      "BonusPerRoom": 25,
+      "LevelDifferenceMultiplier": 1.0
+    },
+    "GroupXPFormula": "BaseXP * LevelMultiplier * DifficultyMultiplier",
+    "MinimumXP": 1,
+    "MaximumXPMultiplier": 5.0
+  },
   "Loot": {
     "LootChanceBase": 1.0,
     "LootChancePerLevel": 0.05,
-    "MaximumLootChance": 0.8
+    "MaximumLootChance": 0.8,
+    "MagicFindLootChanceMultiplier": 0.01,
+    "Description": "Magic Find increases loot drop chance by 1% per point (e.g., 10 Magic Find = +10% loot chance)"
   },
   "RollSystem": {
     "MissThreshold": { "Min": 1, "Max": 5 },
@@ -59,7 +81,7 @@
   },
   "EnemyScaling": {
     "EnemyHealthMultiplier": 1.5,
-    "EnemyDamageMultiplier": 1.0,
+    "EnemyDamageMultiplier": 0.7,
     "EnemyLevelVariance": 1
   },
   "UI": {
@@ -67,14 +89,231 @@
     "BaseDelayPerAction": 400,
     "MinimumDelay": 50,
     "CombatSpeedMultiplier": 1.0,
-    "CombatLogDelay": 1000,
+    "CombatLogDelay": 2200,
     "MainMenuDelay": 100,
     "DungeonEntryDelay": 1000,
     "RoomEntryDelay": 1000,
-    "EnemyEncounterDelay": 1000
+    "EnemyEncounterDelay": 1000,
+    "RoomClearedDelay": 3000
   },
   "GameSpeed": {
     "GameTickerInterval": 1.0,
     "GameSpeedMultiplier": 1.0
+  },
+  "ItemScaling": {
+    "WeaponDamageFormula": {
+      "BaseMultiplier": 1.0,
+      "TierScaling": 0.3,
+      "LevelScaling": 0.05,
+      "Formula": "BaseDamage * (1 + (Tier - 1) * TierScaling + Level * LevelScaling)"
+    },
+    "ArmorValueFormula": {
+      "BaseMultiplier": 1.0,
+      "TierScaling": 0.15,
+      "LevelScaling": 0.015,
+      "Formula": "BaseArmor * (1 + (Tier - 1) * TierScaling + Level * LevelScaling)"
+    }
+  },
+  "WeaponScaling": {
+    "StartingWeaponDamage": {
+      "Mace": 3,
+      "Sword": 2,
+      "Dagger": 1,
+      "Wand": 1
+    },
+    "TierDamageRanges": {
+      "Tier1": { "Min": 1, "Max": 3 },
+      "Tier2": { "Min": 4, "Max": 6 },
+      "Tier3": { "Min": 7, "Max": 9 },
+      "Tier4": { "Min": 10, "Max": 12 },
+      "Tier5": { "Min": 13, "Max": 15 }
+    },
+    "GlobalDamageMultiplier": 1.0,
+    "Description": "Controls the overall damage scaling for all weapons. Adjust GlobalDamageMultiplier to scale all weapon damage up or down."
+  },
+  "RarityScaling": {
+    "StatBonusMultipliers": {
+      "Common": 1.0,
+      "Uncommon": 1.1,
+      "Rare": 1.25,
+      "Epic": 1.4,
+      "Legendary": 1.6
+    },
+    "RollChanceFormulas": {
+      "ActionBonusChance": "BaseChance * (1 + PlayerLevel * 0.02)",
+      "StatBonusChance": "BaseChance * (1 + PlayerLevel * 0.03)"
+    },
+    "MagicFindScaling": {
+      "Common": {
+        "PerPointMultiplier": -0.01,
+        "Description": "Magic Find slightly reduces common drops (-1% per point)"
+      },
+      "Uncommon": {
+        "PerPointMultiplier": 0.015,
+        "Description": "Magic Find slightly increases uncommon drops (+1.5% per point)"
+      },
+      "Rare": {
+        "PerPointMultiplier": 0.025,
+        "Description": "Magic Find moderately increases rare drops (+2.5% per point)"
+      },
+      "Epic": {
+        "PerPointMultiplier": 0.04,
+        "Description": "Magic Find significantly increases epic drops (+4% per point)"
+      },
+      "Legendary": {
+        "PerPointMultiplier": 0.06,
+        "Description": "Magic Find dramatically increases legendary drops (+6% per point)"
+      }
+    },
+    "LevelBasedRarityScaling": {
+      "Common": {
+        "BaseMultiplier": 1.0,
+        "LevelReduction": 0.0,
+        "Description": "Common items scaling with level (disabled)"
+      },
+      "Uncommon": {
+        "BaseMultiplier": 1.0,
+        "LevelBonus": 0.0,
+        "Description": "Uncommon items scaling with level (disabled)"
+      },
+      "Rare": {
+        "BaseMultiplier": 1.0,
+        "LevelBonus": 0.0,
+        "Description": "Rare items scaling with level (disabled)"
+      },
+      "Epic": {
+        "MinLevel": 1,
+        "EarlyMultiplier": 1.0,
+        "BaseMultiplier": 1.0,
+        "LevelBonus": 0.0,
+        "Description": "Epic items scaling with level (disabled)"
+      },
+      "Legendary": {
+        "MinLevel": 1,
+        "EarlyThreshold": 1,
+        "EarlyMultiplier": 1.0,
+        "MidMultiplier": 1.0,
+        "BaseMultiplier": 1.0,
+        "LevelBonus": 0.0,
+        "Description": "Legendary items scaling with level (disabled)"
+      }
+    }
+  },
+  "ProgressionCurves": {
+    "ExperienceFormula": "BaseXP * (Level^ExponentFactor)",
+    "AttributeGrowth": "BaseAttributes + (Level * LinearGrowth) + (Level^2 * QuadraticGrowth)",
+    "ExponentFactor": 1.5,
+    "LinearGrowth": 1.0,
+    "QuadraticGrowth": 0.1
+  },
+  "EnemyDPS": {
+    "BaseDPSAtLevel1": 1.5,
+    "DPSPerLevel": 0.3,
+    "DPSScalingFormula": "BaseDPSAtLevel1 + (Level * DPSPerLevel)",
+    "Archetypes": {
+      "Berserker": {
+        "Name": "Berserker",
+        "Description": "Lightning-fast attacks with lower damage per hit",
+        "SpeedRatio": 1.4,
+        "DamageRatio": 0.71,
+        "AttributeFocus": { "Agility": 2.0, "Strength": 0.6 }
+      },
+      "Assassin": {
+        "Name": "Assassin", 
+        "Description": "Quick strikes with moderate damage",
+        "SpeedRatio": 1.2,
+        "DamageRatio": 0.83,
+        "AttributeFocus": { "Agility": 1.5, "Technique": 1.3, "Strength": 0.8 }
+      },
+      "Warrior": {
+        "Name": "Warrior",
+        "Description": "Balanced attack speed and damage", 
+        "SpeedRatio": 1.0,
+        "DamageRatio": 1.0,
+        "AttributeFocus": { "Strength": 1.2, "Agility": 1.0, "Technique": 1.0 }
+      },
+      "Brute": {
+        "Name": "Brute",
+        "Description": "Slow but powerful attacks",
+        "SpeedRatio": 0.75,
+        "DamageRatio": 1.1,
+        "AttributeFocus": { "Strength": 2.0, "Agility": 0.6 }
+      },
+      "Juggernaut": {
+        "Name": "Juggernaut",
+        "Description": "A TANK WITH LOW SPEED AND HIGH DAMAGE",
+        "SpeedRatio": 0.6,
+        "DamageRatio": 1.2,
+        "AttributeFocus": { "Strength": 2.5, "Technique": 1.2, "Agility": 0.4 }
+      }
+    },
+    "BalanceValidation": {
+      "TolerancePercentage": 10.0,
+      "MinimumDPS": 1.0,
+      "MaximumDPSMultiplier": 10.0
+    },
+    "SustainBalance": {
+      "Description": "Comprehensive balance system covering DPS/sustain, speed/damage, health/armor, and attribute gain ratios",
+      "TargetActionsToKill": {
+        "Level1": 10,
+        "Level10": 12,
+        "Level20": 15,
+        "Level30": 18,
+        "Formula": "BaseActions + (Level * ActionsPerLevel) + (Level^2 * QuadraticFactor)"
+      },
+      "DPSToSustainRatio": {
+        "BaseRatio": 1.0,
+        "Description": "Overall DPS vs sustain balance (1.0 = balanced, >1.0 = high DPS/low sustain, <1.0 = low DPS/high sustain)",
+        "ArchetypeModifiers": {
+          "Berserker": 0.5,
+          "Assassin": 0.7,
+          "Warrior": 1.0,
+          "Brute": 1.2,
+          "Juggernaut": 1.5
+        }
+      },
+      "SpeedToDamageRatio": {
+        "BaseRatio": 1.0,
+        "Description": "Attack speed vs damage per hit balance (1.0 = balanced, >1.0 = fast/weak, <1.0 = slow/strong)",
+        "ArchetypeModifiers": {
+          "Berserker": 1.2,
+          "Assassin": 1.2,
+          "Warrior": 1.0,
+          "Brute": 0.75,
+          "Juggernaut": 0.6
+        }
+      },
+      "HealthToArmorRatio": {
+        "BaseRatio": 10.0,
+        "Description": "Health pool vs armor value balance (10.0 = 10:1 ratio, higher = more health-focused, lower = more armor-focused)",
+        "ArchetypeModifiers": {
+          "Berserker": 15.0,
+          "Assassin": 12.0,
+          "Warrior": 10.0,
+          "Brute": 8.0,
+          "Juggernaut": 3.0
+        }
+      },
+      "AttributeGainRatio": {
+        "BaseRatio": 1.0,
+        "Description": "Attribute scaling relative to level (1.0 = balanced, >1.0 = high attribute gain, <1.0 = low attribute gain)",
+        "PrimaryAttributeBonus": 2.0,
+        "SecondaryAttributeBonus": 1.0
+      },
+      "SustainScaling": {
+        "HealthPerLevel": 2,
+        "ArmorPerLevel": 0.05,
+        "RegenerationPerLevel": 0.1,
+        "Description": "How sustain stats scale with level relative to DPS"
+      },
+      "BalanceValidation": {
+        "MinActionsToKill": 5,
+        "MaxActionsToKill": 25,
+        "DPSRatioTolerance": 0.3,
+        "SpeedRatioTolerance": 0.2,
+        "HealthArmorRatioTolerance": 2.0,
+        "AttributeRatioTolerance": 0.2
+      }
+    }
   }
 }

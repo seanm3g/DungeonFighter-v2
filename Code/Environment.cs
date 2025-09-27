@@ -409,6 +409,13 @@ namespace RPGGame
                 modifiers.Add($"Self-damage: {data.SelfDamagePercent}%");
             }
             
+            // Add stat bonus information
+            if (data.StatBonus > 0 && !string.IsNullOrEmpty(data.StatBonusType))
+            {
+                string durationText = data.StatBonusDuration == -1 ? "dungeon" : $"{data.StatBonusDuration} turns";
+                modifiers.Add($"+{data.StatBonus} {data.StatBonusType} ({durationText})");
+            }
+            
             // Add special effects
             if (data.SkipNextTurn)
             {

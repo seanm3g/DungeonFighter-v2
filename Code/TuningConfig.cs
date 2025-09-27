@@ -16,12 +16,18 @@ namespace RPGGame
         public PoisonConfig Poison { get; set; } = new();
         public EquipmentConfig Equipment { get; set; } = new();
         public ProgressionConfig Progression { get; set; } = new();
+        public XPRewardsConfig XPRewards { get; set; } = new();
         public LootConfig Loot { get; set; } = new();
         public RollSystemConfig RollSystem { get; set; } = new();
         public ComboSystemConfig ComboSystem { get; set; } = new();
         public EnemyScalingConfig EnemyScaling { get; set; } = new();
         public UIConfig UI { get; set; } = new();
         public GameSpeedConfig GameSpeed { get; set; } = new();
+        public ItemScalingConfig? ItemScaling { get; set; } = new();
+        public WeaponScalingConfig? WeaponScaling { get; set; } = new();
+        public RarityScalingConfig? RarityScaling { get; set; } = new();
+        public ProgressionCurvesConfig? ProgressionCurves { get; set; } = new();
+        public EnemyDPSConfig? EnemyDPS { get; set; } = new();
 
         public static TuningConfig Instance
         {
@@ -78,11 +84,16 @@ namespace RPGGame
                         Combat = config.Combat;
                         Equipment = config.Equipment;
                         Progression = config.Progression;
+                        XPRewards = config.XPRewards;
                         Loot = config.Loot;
                         RollSystem = config.RollSystem;
                         ComboSystem = config.ComboSystem;
                         EnemyScaling = config.EnemyScaling;
                         UI = config.UI;
+                        GameSpeed = config.GameSpeed;
+                        ItemScaling = config.ItemScaling;
+                        RarityScaling = config.RarityScaling;
+                        ProgressionCurves = config.ProgressionCurves;
                     }
                 }
                 else
@@ -171,6 +182,8 @@ namespace RPGGame
         public double LootChanceBase { get; set; } = 0.3;
         public double LootChancePerLevel { get; set; } = 0.05;
         public double MaximumLootChance { get; set; } = 0.8;
+        public double MagicFindLootChanceMultiplier { get; set; } = 0.01;
+        public string Description { get; set; } = "";
     }
 
     public class RollSystemConfig
@@ -206,11 +219,267 @@ namespace RPGGame
         public int DungeonEntryDelay { get; set; } = 1000;
         public int RoomEntryDelay { get; set; } = 1000;
         public int EnemyEncounterDelay { get; set; } = 1000;
+        public int RoomClearedDelay { get; set; } = 800;
     }
     
     public class GameSpeedConfig
     {
         public double GameTickerInterval { get; set; } = 1.0;
         public double GameSpeedMultiplier { get; set; } = 1.0;
+    }
+    
+    public class ItemScalingConfig
+    {
+        public FormulaConfig WeaponDamageFormula { get; set; } = new();
+        public FormulaConfig ArmorValueFormula { get; set; } = new();
+    }
+    
+    public class FormulaConfig
+    {
+        public double BaseMultiplier { get; set; } = 1.0;
+        public double TierScaling { get; set; } = 1.0;
+        public double LevelScaling { get; set; } = 0.1;
+        public string Formula { get; set; } = "";
+    }
+    
+    public class RarityScalingConfig
+    {
+        public RarityMultipliers StatBonusMultipliers { get; set; } = new();
+        public RollChanceFormulas RollChanceFormulas { get; set; } = new();
+        public MagicFindScalingConfig MagicFindScaling { get; set; } = new();
+        public LevelBasedRarityScalingConfig LevelBasedRarityScaling { get; set; } = new();
+    }
+    
+    public class RarityMultipliers
+    {
+        public double Common { get; set; } = 1.0;
+        public double Uncommon { get; set; } = 1.3;
+        public double Rare { get; set; } = 1.7;
+        public double Epic { get; set; } = 2.2;
+        public double Legendary { get; set; } = 3.0;
+    }
+    
+    public class RollChanceFormulas
+    {
+        public string ActionBonusChance { get; set; } = "BaseChance * (1 + PlayerLevel * 0.02)";
+        public string StatBonusChance { get; set; } = "BaseChance * (1 + PlayerLevel * 0.03)";
+    }
+    
+    public class ProgressionCurvesConfig
+    {
+        public string ExperienceFormula { get; set; } = "BaseXP * (Level^ExponentFactor)";
+        public string AttributeGrowth { get; set; } = "BaseAttributes + (Level * LinearGrowth) + (Level^2 * QuadraticGrowth)";
+        public double ExponentFactor { get; set; } = 1.5;
+        public double LinearGrowth { get; set; } = 1.0;
+        public double QuadraticGrowth { get; set; } = 0.1;
+    }
+    
+    public class XPRewardsConfig
+    {
+        public string BaseXPFormula { get; set; } = "EnemyXPBase + (EnemyLevel * EnemyXPPerLevel)";
+        public Dictionary<string, LevelDifficultyMultiplier> LevelDifferenceMultipliers { get; set; } = new();
+        public DungeonCompletionBonusConfig DungeonCompletionBonus { get; set; } = new();
+        public string GroupXPFormula { get; set; } = "BaseXP * LevelMultiplier * DifficultyMultiplier";
+        public int MinimumXP { get; set; } = 1;
+        public double MaximumXPMultiplier { get; set; } = 5.0;
+    }
+    
+    public class LevelDifficultyMultiplier
+    {
+        public int LevelDifference { get; set; } = 0;
+        public double Multiplier { get; set; } = 1.0;
+        public string Description { get; set; } = "";
+    }
+    
+    public class DungeonCompletionBonusConfig
+    {
+        public int BaseBonus { get; set; } = 50;
+        public int BonusPerRoom { get; set; } = 25;
+        public double LevelDifferenceMultiplier { get; set; } = 1.0;
+    }
+    
+    public class EnemyDPSConfig
+    {
+        public double BaseDPSAtLevel1 { get; set; } = 3.0;
+        public double DPSPerLevel { get; set; } = 2.5;
+        public string DPSScalingFormula { get; set; } = "BaseDPSAtLevel1 + (Level * DPSPerLevel)";
+        public Dictionary<string, EnemyArchetypeConfig> Archetypes { get; set; } = new();
+        public DPSBalanceValidationConfig BalanceValidation { get; set; } = new();
+        public SustainBalanceConfig SustainBalance { get; set; } = new();
+    }
+    
+    public class EnemyArchetypeConfig
+    {
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+        public double SpeedRatio { get; set; } = 1.0;
+        public double DamageRatio { get; set; } = 1.0;
+        public Dictionary<string, double> AttributeFocus { get; set; } = new();
+    }
+    
+    public class DPSBalanceValidationConfig
+    {
+        public double TolerancePercentage { get; set; } = 10.0;
+        public double MinimumDPS { get; set; } = 1.0;
+        public double MaximumDPSMultiplier { get; set; } = 10.0;
+    }
+    
+    public class MagicFindScalingConfig
+    {
+        public RarityMagicFindConfig Common { get; set; } = new();
+        public RarityMagicFindConfig Uncommon { get; set; } = new();
+        public RarityMagicFindConfig Rare { get; set; } = new();
+        public RarityMagicFindConfig Epic { get; set; } = new();
+        public RarityMagicFindConfig Legendary { get; set; } = new();
+    }
+    
+    public class RarityMagicFindConfig
+    {
+        public double PerPointMultiplier { get; set; } = 0.0;
+        public string Description { get; set; } = "";
+    }
+    
+    public class LevelBasedRarityScalingConfig
+    {
+        public CommonRarityScalingConfig Common { get; set; } = new();
+        public UncommonRarityScalingConfig Uncommon { get; set; } = new();
+        public RareRarityScalingConfig Rare { get; set; } = new();
+        public EpicRarityScalingConfig Epic { get; set; } = new();
+        public LegendaryRarityScalingConfig Legendary { get; set; } = new();
+    }
+    
+    public class CommonRarityScalingConfig
+    {
+        public double BaseMultiplier { get; set; } = 1.0;
+        public double LevelReduction { get; set; } = 0.0;
+        public string Description { get; set; } = "";
+    }
+    
+    public class UncommonRarityScalingConfig
+    {
+        public double BaseMultiplier { get; set; } = 1.0;
+        public double LevelBonus { get; set; } = 0.0;
+        public string Description { get; set; } = "";
+    }
+    
+    public class RareRarityScalingConfig
+    {
+        public double BaseMultiplier { get; set; } = 1.0;
+        public double LevelBonus { get; set; } = 0.0;
+        public string Description { get; set; } = "";
+    }
+    
+    public class EpicRarityScalingConfig
+    {
+        public int MinLevel { get; set; } = 1;
+        public double EarlyMultiplier { get; set; } = 1.0;
+        public double BaseMultiplier { get; set; } = 1.0;
+        public double LevelBonus { get; set; } = 0.0;
+        public string Description { get; set; } = "";
+    }
+    
+    public class LegendaryRarityScalingConfig
+    {
+        public int MinLevel { get; set; } = 1;
+        public int EarlyThreshold { get; set; } = 1;
+        public double EarlyMultiplier { get; set; } = 1.0;
+        public double MidMultiplier { get; set; } = 1.0;
+        public double BaseMultiplier { get; set; } = 1.0;
+        public double LevelBonus { get; set; } = 0.0;
+        public string Description { get; set; } = "";
+    }
+    
+    public class WeaponScalingConfig
+    {
+        public StartingWeaponDamageConfig StartingWeaponDamage { get; set; } = new();
+        public TierDamageRangesConfig TierDamageRanges { get; set; } = new();
+        public double GlobalDamageMultiplier { get; set; } = 1.0;
+        public string Description { get; set; } = "";
+    }
+    
+    public class StartingWeaponDamageConfig
+    {
+        public int Mace { get; set; } = 3;
+        public int Sword { get; set; } = 2;
+        public int Dagger { get; set; } = 1;
+        public int Wand { get; set; } = 1;
+    }
+    
+    public class TierDamageRangesConfig
+    {
+        public MinMaxConfig Tier1 { get; set; } = new() { Min = 1, Max = 3 };
+        public MinMaxConfig Tier2 { get; set; } = new() { Min = 4, Max = 6 };
+        public MinMaxConfig Tier3 { get; set; } = new() { Min = 7, Max = 9 };
+        public MinMaxConfig Tier4 { get; set; } = new() { Min = 10, Max = 12 };
+        public MinMaxConfig Tier5 { get; set; } = new() { Min = 13, Max = 15 };
+    }
+    
+    public class SustainBalanceConfig
+    {
+        public string Description { get; set; } = "Comprehensive balance system covering DPS/sustain, speed/damage, health/armor, and attribute gain ratios";
+        public TargetActionsToKillConfig TargetActionsToKill { get; set; } = new();
+        public DPSToSustainRatioConfig DPSToSustainRatio { get; set; } = new();
+        public SpeedToDamageRatioConfig SpeedToDamageRatio { get; set; } = new();
+        public HealthToArmorRatioConfig HealthToArmorRatio { get; set; } = new();
+        public AttributeGainRatioConfig AttributeGainRatio { get; set; } = new();
+        public SustainScalingConfig SustainScaling { get; set; } = new();
+        public SustainBalanceValidationConfig BalanceValidation { get; set; } = new();
+    }
+    
+    public class TargetActionsToKillConfig
+    {
+        public int Level1 { get; set; } = 10;
+        public int Level10 { get; set; } = 12;
+        public int Level20 { get; set; } = 15;
+        public int Level30 { get; set; } = 18;
+        public string Formula { get; set; } = "BaseActions + (Level * ActionsPerLevel) + (Level^2 * QuadraticFactor)";
+    }
+    
+    public class DPSToSustainRatioConfig
+    {
+        public double BaseRatio { get; set; } = 1.0;
+        public string Description { get; set; } = "Overall DPS vs sustain balance (1.0 = balanced, >1.0 = high DPS/low sustain, <1.0 = low DPS/high sustain)";
+        public Dictionary<string, double> ArchetypeModifiers { get; set; } = new();
+    }
+    
+    public class SpeedToDamageRatioConfig
+    {
+        public double BaseRatio { get; set; } = 1.0;
+        public string Description { get; set; } = "Attack speed vs damage per hit balance (1.0 = balanced, >1.0 = fast/weak, <1.0 = slow/strong)";
+        public Dictionary<string, double> ArchetypeModifiers { get; set; } = new();
+    }
+    
+    public class HealthToArmorRatioConfig
+    {
+        public double BaseRatio { get; set; } = 10.0;
+        public string Description { get; set; } = "Health pool vs armor value balance (10.0 = 10:1 ratio, higher = more health-focused, lower = more armor-focused)";
+        public Dictionary<string, double> ArchetypeModifiers { get; set; } = new();
+    }
+    
+    public class AttributeGainRatioConfig
+    {
+        public double BaseRatio { get; set; } = 1.0;
+        public string Description { get; set; } = "Attribute scaling relative to level (1.0 = balanced, >1.0 = high attribute gain, <1.0 = low attribute gain)";
+        public double PrimaryAttributeBonus { get; set; } = 2.0;
+        public double SecondaryAttributeBonus { get; set; } = 1.0;
+        public Dictionary<string, double> ArchetypeModifiers { get; set; } = new();
+    }
+    
+    public class SustainScalingConfig
+    {
+        public double HealthPerLevel { get; set; } = 2;
+        public double ArmorPerLevel { get; set; } = 0.1;
+        public double RegenerationPerLevel { get; set; } = 0.1;
+        public string Description { get; set; } = "How sustain stats scale with level relative to DPS";
+    }
+    
+    public class SustainBalanceValidationConfig
+    {
+        public int MinActionsToKill { get; set; } = 5;
+        public int MaxActionsToKill { get; set; } = 25;
+        public double DPSRatioTolerance { get; set; } = 0.3;
+        public double SpeedRatioTolerance { get; set; } = 0.2;
+        public double HealthArmorRatioTolerance { get; set; } = 2.0;
+        public double AttributeRatioTolerance { get; set; } = 0.2;
     }
 }

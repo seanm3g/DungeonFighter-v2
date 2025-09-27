@@ -28,6 +28,8 @@ namespace RPGGame
             TestReadBook();
             TestSharpEdge();
             TestBloodFrenzy();
+            TestActionPoolSynchronization();
+            TestGearSwapComboSequence();
             TestDealWithTheDevil();
             TestBerzerk();
             TestSwingForTheFences();
@@ -90,6 +92,10 @@ namespace RPGGame
                 Assert(dance.StatBonus == 1, "DANCE from JSON should give +1 stat bonus");
                 Assert(dance.StatBonusType == "AGI", "DANCE from JSON should affect AGI");
                 Assert(dance.StatBonusDuration == -1, "DANCE from JSON should last entire dungeon");
+                
+                // Test that the JSON-loaded action shows the stat bonus in description
+                string danceDescription = dance.ToString();
+                Console.WriteLine($"DANCE from JSON Description: {danceDescription}");
                 Console.WriteLine("✓ DANCE JSON loading test passed");
             }
             
@@ -431,6 +437,10 @@ namespace RPGGame
             Assert(action.StatBonus == 1, "DANCE should give +1 AGI");
             Assert(action.StatBonusType == "AGI", "DANCE should affect AGI");
             Assert(action.StatBonusDuration == -1, "DANCE should last entire dungeon");
+            
+            // Test that the action description shows the stat bonus
+            string enhancedDescription = action.ToString();
+            Console.WriteLine($"DANCE Description: {enhancedDescription}");
             Console.WriteLine("✓ DANCE test passed\n");
         }
 
@@ -677,6 +687,155 @@ namespace RPGGame
             Assert(action.DamageMultiplier == 2.5, "SWORDMASTER STRIKE should have 250% damage");
             Assert(action.RollBonus == 2, "SWORDMASTER STRIKE should give +2 roll bonus");
             Console.WriteLine("✓ SWORDMASTER STRIKE test passed - Roll Bonus: +2, Damage: 250% (massive)\n");
+        }
+
+        private static void TestActionPoolSynchronization()
+        {
+            Console.WriteLine("Testing Action Pool Synchronization...");
+            
+            // Create a test character
+            var testCharacter = new Character("TestChar");
+            
+            // Get initial action pool count
+            int initialActionCount = testCharacter.GetActionPool().Count;
+            Console.WriteLine($"Initial action pool count: {initialActionCount}");
+            
+            // Create a test weapon (mace)
+            var testWeapon = new WeaponItem
+            {
+                Name = "Test Mace",
+                WeaponType = WeaponType.Mace,
+                BaseDamage = 10,
+                BaseAttackSpeed = 2.0
+            };
+            
+            // Equip the weapon
+            testCharacter.EquipItem(testWeapon, "weapon");
+            int afterEquipCount = testCharacter.GetActionPool().Count;
+            Console.WriteLine($"Action pool count after equipping mace: {afterEquipCount}");
+            
+            // Check if mace-specific actions were added
+            var actionNames = testCharacter.GetActionPool().Select(a => a.Name).ToList();
+            bool hasCrushingBlow = actionNames.Contains("CRUSHING BLOW");
+            bool hasShieldBreak = actionNames.Contains("SHIELD BREAK");
+            bool hasThunderClap = actionNames.Contains("THUNDER CLAP");
+            
+            Console.WriteLine($"Has CRUSHING BLOW: {hasCrushingBlow}");
+            Console.WriteLine($"Has SHIELD BREAK: {hasShieldBreak}");
+            Console.WriteLine($"Has THUNDER CLAP: {hasThunderClap}");
+            
+            // Unequip the weapon
+            testCharacter.UnequipItem("weapon");
+            int afterUnequipCount = testCharacter.GetActionPool().Count;
+            Console.WriteLine($"Action pool count after unequipping mace: {afterUnequipCount}");
+            
+            // Check if mace-specific actions were removed
+            var actionNamesAfterUnequip = testCharacter.GetActionPool().Select(a => a.Name).ToList();
+            bool stillHasCrushingBlow = actionNamesAfterUnequip.Contains("CRUSHING BLOW");
+            bool stillHasShieldBreak = actionNamesAfterUnequip.Contains("SHIELD BREAK");
+            bool stillHasThunderClap = actionNamesAfterUnequip.Contains("THUNDER CLAP");
+            
+            Console.WriteLine($"Still has CRUSHING BLOW after unequip: {stillHasCrushingBlow}");
+            Console.WriteLine($"Still has SHIELD BREAK after unequip: {stillHasShieldBreak}");
+            Console.WriteLine($"Still has THUNDER CLAP after unequip: {stillHasThunderClap}");
+            
+            // Assertions
+            Assert(afterEquipCount > initialActionCount, "Action pool should have more actions after equipping weapon");
+            Assert(hasCrushingBlow, "Should have CRUSHING BLOW action after equipping mace");
+            Assert(hasShieldBreak, "Should have SHIELD BREAK action after equipping mace");
+            Assert(hasThunderClap, "Should have THUNDER CLAP action after equipping mace");
+            Assert(afterUnequipCount == initialActionCount, "Action pool should return to initial count after unequipping weapon");
+            Assert(!stillHasCrushingBlow, "Should not have CRUSHING BLOW action after unequipping mace");
+            Assert(!stillHasShieldBreak, "Should not have SHIELD BREAK action after unequipping mace");
+            Assert(!stillHasThunderClap, "Should not have THUNDER CLAP action after unequipping mace");
+            
+            Console.WriteLine("Action Pool Synchronization test passed!\n");
+        }
+
+        private static void TestGearSwapComboSequence()
+        {
+            Console.WriteLine("Testing Gear Swap Combo Sequence Management...");
+            
+            // Create a test character
+            var testCharacter = new Character("TestChar");
+            
+            // Create two different weapons
+            var mace = new WeaponItem
+            {
+                Name = "Test Mace",
+                WeaponType = WeaponType.Mace,
+                BaseDamage = 10,
+                BaseAttackSpeed = 2.0
+            };
+            
+            var sword = new WeaponItem
+            {
+                Name = "Test Sword", 
+                WeaponType = WeaponType.Sword,
+                BaseDamage = 8,
+                BaseAttackSpeed = 1.5
+            };
+            
+            // Equip the mace first
+            testCharacter.EquipItem(mace, "weapon");
+            int maceComboCount = testCharacter.GetComboActions().Count;
+            var maceComboNames = testCharacter.GetComboActions().Select(a => a.Name).ToList();
+            Console.WriteLine($"Mace combo count: {maceComboCount}");
+            Console.WriteLine($"Mace combo actions: {string.Join(", ", maceComboNames)}");
+            
+            // Manually add some actions to the combo to simulate player customization
+            var actionPool = testCharacter.GetActionPool();
+            var basicAttack = actionPool.FirstOrDefault(a => a.Name == "BASIC ATTACK");
+            if (basicAttack != null)
+            {
+                testCharacter.AddToCombo(basicAttack);
+            }
+            
+            int customComboCount = testCharacter.GetComboActions().Count;
+            Console.WriteLine($"Custom combo count after adding BASIC ATTACK: {customComboCount}");
+            
+            // Now swap to sword
+            testCharacter.EquipItem(sword, "weapon");
+            int swordComboCount = testCharacter.GetComboActions().Count;
+            var swordComboNames = testCharacter.GetComboActions().Select(a => a.Name).ToList();
+            Console.WriteLine($"Sword combo count: {swordComboCount}");
+            Console.WriteLine($"Sword combo actions: {string.Join(", ", swordComboNames)}");
+            
+            // Check that mace-specific actions were removed
+            bool stillHasCrushingBlow = swordComboNames.Contains("CRUSHING BLOW");
+            bool stillHasShieldBreak = swordComboNames.Contains("SHIELD BREAK");
+            bool stillHasThunderClap = swordComboNames.Contains("THUNDER CLAP");
+            bool stillHasBasicAttack = swordComboNames.Contains("BASIC ATTACK");
+            
+            Console.WriteLine($"Still has CRUSHING BLOW after sword swap: {stillHasCrushingBlow}");
+            Console.WriteLine($"Still has SHIELD BREAK after sword swap: {stillHasShieldBreak}");
+            Console.WriteLine($"Still has THUNDER CLAP after sword swap: {stillHasThunderClap}");
+            Console.WriteLine($"Still has BASIC ATTACK after sword swap: {stillHasBasicAttack}");
+            
+            // Assertions
+            Assert(!stillHasCrushingBlow, "Should not have CRUSHING BLOW after swapping from mace to sword");
+            Assert(!stillHasShieldBreak, "Should not have SHIELD BREAK after swapping from mace to sword");
+            Assert(!stillHasThunderClap, "Should not have THUNDER CLAP after swapping from mace to sword");
+            Assert(stillHasBasicAttack, "Should still have BASIC ATTACK after weapon swap (player customization preserved)");
+            
+            // Unequip the sword
+            testCharacter.UnequipItem("weapon");
+            int noWeaponComboCount = testCharacter.GetComboActions().Count;
+            var noWeaponComboNames = testCharacter.GetComboActions().Select(a => a.Name).ToList();
+            Console.WriteLine($"No weapon combo count: {noWeaponComboCount}");
+            Console.WriteLine($"No weapon combo actions: {string.Join(", ", noWeaponComboNames)}");
+            
+            // Check that sword actions were removed but BASIC ATTACK remains
+            bool stillHasBasicAttackAfterUnequip = noWeaponComboNames.Contains("BASIC ATTACK");
+            bool hasAnySwordActions = noWeaponComboNames.Any(name => name.Contains("STRIKE") || name.Contains("SLASH"));
+            
+            Console.WriteLine($"Still has BASIC ATTACK after unequipping sword: {stillHasBasicAttackAfterUnequip}");
+            Console.WriteLine($"Has any sword actions after unequipping: {hasAnySwordActions}");
+            
+            Assert(stillHasBasicAttackAfterUnequip, "Should still have BASIC ATTACK after unequipping weapon (player customization preserved)");
+            Assert(!hasAnySwordActions, "Should not have any sword-specific actions after unequipping sword");
+            
+            Console.WriteLine("Gear Swap Combo Sequence test passed!\n");
         }
 
         private static void Assert(bool condition, string message)

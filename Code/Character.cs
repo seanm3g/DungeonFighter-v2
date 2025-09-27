@@ -367,6 +367,13 @@ namespace RPGGame
                 modifiers.Add($"Self-damage: {data.SelfDamagePercent}%");
             }
             
+            // Add stat bonus information
+            if (data.StatBonus > 0 && !string.IsNullOrEmpty(data.StatBonusType))
+            {
+                string durationText = data.StatBonusDuration == -1 ? "dungeon" : $"{data.StatBonusDuration} turns";
+                modifiers.Add($"+{data.StatBonus} {data.StatBonusType} ({durationText})");
+            }
+            
             // Add special effects
             if (data.SkipNextTurn)
             {
@@ -441,9 +448,9 @@ namespace RPGGame
                 case "weapon": 
                     previousItem = Weapon;
                     // Remove old weapon actions before equipping new weapon
-                    if (previousItem is WeaponItem)
+                    if (previousItem is WeaponItem oldWeapon)
                     {
-                        RemoveWeaponActions();
+                        RemoveWeaponActions(oldWeapon);
                     }
                     Weapon = item;
                     // Add weapon-specific actions
@@ -479,8 +486,8 @@ namespace RPGGame
                 CurrentHealth = Math.Min(newCurrentHealth, newMaxHealth);
             }
             
-            // Reinitialize combo sequence after equipment change
-            InitializeDefaultCombo();
+            // Update combo sequence after equipment change (only remove actions, don't add defaults)
+            UpdateComboSequenceAfterGearChange();
             
             // Apply roll bonuses from the new item
             ApplyRollBonusesFromGear(item);
@@ -520,9 +527,12 @@ namespace RPGGame
                     break;
                 case "weapon": 
                     unequippedItem = Weapon;
+                    // Remove weapon actions before setting Weapon to null
+                    if (unequippedItem is WeaponItem weaponToRemove)
+                    {
+                        RemoveWeaponActions(weaponToRemove);
+                    }
                     Weapon = null;
-                    // Remove weapon actions
-                    RemoveWeaponActions();
                     break;
                 case "feet": 
                     unequippedItem = Feet;
@@ -559,8 +569,8 @@ namespace RPGGame
             // Update reroll charges from Divine modifications
             UpdateRerollCharges();
             
-            // Reinitialize combo sequence after equipment change
-            InitializeDefaultCombo();
+            // Update combo sequence after equipment change (only remove actions, don't add defaults)
+            UpdateComboSequenceAfterGearChange();
             
             return unequippedItem;
         }
@@ -687,6 +697,11 @@ namespace RPGGame
 
         public void TakeDamage(int amount)
         {
+            TakeDamageWithNotifications(amount);
+        }
+        
+        public List<string> TakeDamageWithNotifications(int amount)
+        {
             int originalAmount = amount;
             bool shieldUsed = false;
             
@@ -716,6 +731,9 @@ namespace RPGGame
             {
                 LastShieldReduction = originalAmount - amount;
             }
+            
+            // Check for health milestones and leadership changes
+            return Combat.CheckHealthMilestones(this, amount);
         }
         
         /// <summary>
@@ -860,6 +878,34 @@ namespace RPGGame
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Updates the combo sequence when gear changes - only removes actions from unequipped gear
+        /// without adding any default actions back
+        /// </summary>
+        private void UpdateComboSequenceAfterGearChange()
+        {
+            // Remove actions from combo sequence that are no longer in the action pool
+            var actionsToRemove = new List<Action>();
+            foreach (var comboAction in ComboSequence)
+            {
+                // Check if this action is still in the action pool
+                var stillInPool = ActionPool.Any(a => a.action.Name == comboAction.Name);
+                if (!stillInPool)
+                {
+                    actionsToRemove.Add(comboAction);
+                }
+            }
+            
+            // Remove the actions that are no longer available
+            foreach (var actionToRemove in actionsToRemove)
+            {
+                RemoveFromCombo(actionToRemove);
+            }
+            
+            // Reorder the remaining combo sequence
+            ReorderComboSequence();
         }
 
         public void SetTempComboBonus(int bonus, int turns)
@@ -1014,6 +1060,16 @@ namespace RPGGame
                 }
             }
 
+            // Update slow debuff
+            if (SlowTurns > 0)
+            {
+                SlowTurns = Math.Max(0, SlowTurns - (int)Math.Ceiling(turnsPassed));
+                if (SlowTurns == 0)
+                {
+                    SlowMultiplier = 1.0; // Reset to normal speed
+                }
+            }
+
             // Reset reroll usage for next turn
             ResetRerollUsage();
         }
@@ -1127,6 +1183,40 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Gets the total Magic Find bonus from all equipped items
+        /// </summary>
+        public int GetMagicFind()
+        {
+            return GetEquipmentStatBonus("MagicFind") + GetModificationMagicFind();
+        }
+
+        /// <summary>
+        /// Gets the total Magic Find bonus from modifications on equipped items
+        /// </summary>
+        public int GetModificationMagicFind()
+        {
+            int totalMagicFind = 0;
+            
+            // Check all equipped items for magicFind modifications
+            var equippedItems = new[] { Head, Body, Weapon, Feet };
+            foreach (var item in equippedItems)
+            {
+                if (item != null)
+                {
+                    foreach (var modification in item.Modifications)
+                    {
+                        if (modification.Effect == "magicFind")
+                        {
+                            totalMagicFind += (int)modification.RolledValue; // Use RolledValue as the bonus amount
+                        }
+                    }
+                }
+            }
+            
+            return totalMagicFind;
+        }
+
+        /// <summary>
         /// Gets the total attack speed bonus from all equipped items
         /// </summary>
         public double GetEquipmentAttackSpeedBonus()
@@ -1236,7 +1326,7 @@ namespace RPGGame
                     {
                         if (modification.Effect == "rollBonus")
                         {
-                            totalRollBonus += (int)modification.MaxValue; // Use MaxValue as the bonus amount
+                            totalRollBonus += (int)modification.RolledValue; // Use RolledValue as the bonus amount
                         }
                     }
                 }
@@ -1262,7 +1352,7 @@ namespace RPGGame
                     {
                         if (modification.Effect == "damage")
                         {
-                            totalDamageBonus += (int)modification.MaxValue; // Use MaxValue as the bonus amount
+                            totalDamageBonus += (int)modification.RolledValue; // Use RolledValue as the bonus amount
                         }
                     }
                 }
@@ -1288,7 +1378,7 @@ namespace RPGGame
                     {
                         if (modification.Effect == "speedMultiplier")
                         {
-                            totalSpeedMultiplier *= modification.MaxValue; // Multiply speed multipliers
+                            totalSpeedMultiplier *= modification.RolledValue; // Multiply speed multipliers
                         }
                     }
                 }
@@ -1314,7 +1404,7 @@ namespace RPGGame
                     {
                         if (modification.Effect == "damageMultiplier")
                         {
-                            totalDamageMultiplier *= modification.MaxValue; // Multiply damage multipliers
+                            totalDamageMultiplier *= modification.RolledValue; // Multiply damage multipliers
                         }
                     }
                 }
@@ -1340,7 +1430,7 @@ namespace RPGGame
                     {
                         if (modification.Effect == "lifesteal")
                         {
-                            totalLifesteal += modification.MaxValue; // Add lifesteal percentages
+                            totalLifesteal += modification.RolledValue; // Add lifesteal percentages
                         }
                     }
                 }
@@ -1366,7 +1456,7 @@ namespace RPGGame
                     {
                         if (modification.Effect == "godlike")
                         {
-                            totalGodlikeBonus += (int)modification.MaxValue; // Use MaxValue as the bonus amount
+                            totalGodlikeBonus += (int)modification.RolledValue; // Use RolledValue as the bonus amount
                         }
                     }
                 }
@@ -1392,7 +1482,7 @@ namespace RPGGame
                     {
                         if (modification.Effect == "bleedChance")
                         {
-                            totalBleedChance += modification.MaxValue; // Use MaxValue as the chance amount
+                            totalBleedChance += modification.RolledValue; // Use RolledValue as the chance amount
                         }
                     }
                 }
@@ -1418,7 +1508,7 @@ namespace RPGGame
                     {
                         if (modification.Effect == "uniqueActionChance")
                         {
-                            totalUniqueActionChance += modification.MaxValue; // Use MaxValue as the chance amount
+                            totalUniqueActionChance += modification.RolledValue; // Use RolledValue as the chance amount
                         }
                     }
                 }
@@ -2060,21 +2150,21 @@ namespace RPGGame
             }
         }
 
-        private void RemoveWeaponActions()
+        private void RemoveWeaponActions(WeaponItem? weapon = null)
         {
-            // Remove weapon-specific gear actions
-            var allActions = ActionLoader.GetAllActions();
-            var weaponActions = allActions
-                .Where(action => action.Tags.Contains("weapon"))
-                .Select(action => action.Name)
-                .ToList();
-                
-            foreach (var actionName in weaponActions)
+            // Remove weapon-specific gear actions using the same logic as GetWeaponActionsFromJson
+            var weaponToRemove = weapon ?? Weapon as WeaponItem;
+            if (weaponToRemove != null)
             {
-                var actionToRemove = ActionPool.FirstOrDefault(a => a.action.Name == actionName);
-                if (actionToRemove.action != null)
+                var weaponActions = GetWeaponActionsFromJson(weaponToRemove.WeaponType);
+                
+                foreach (var actionName in weaponActions)
                 {
-                    RemoveAction(actionToRemove.action);
+                    var actionToRemove = ActionPool.FirstOrDefault(a => a.action.Name == actionName);
+                    if (actionToRemove.action != null)
+                    {
+                        RemoveAction(actionToRemove.action);
+                    }
                 }
             }
         }
@@ -2343,7 +2433,7 @@ namespace RPGGame
             
             int currentStep = ComboStep % comboActions.Count;
             double baseAmp = GetComboAmplifier();
-            return Math.Pow(baseAmp, currentStep + 1);
+            return Math.Pow(baseAmp, currentStep);
         }
 
         /// <summary>
@@ -2521,25 +2611,9 @@ namespace RPGGame
         {
             if (armor == null) return;
             
-            // Determine which armor slot this is
-            string armorSlot = armor switch
-            {
-                HeadItem => "head",
-                ChestItem => "chest",
-                FeetItem => "feet",
-                _ => ""
-            };
-
-            if (string.IsNullOrEmpty(armorSlot))
-                return;
-
-            // Remove all armor actions for this slot
-            var allActions = ActionLoader.GetAllActions();
-            var armorActions = allActions
-                .Where(action => action.Tags.Contains("armor") && action.Tags.Contains(armorSlot))
-                .Select(action => action.Name)
-                .ToList();
-
+            // Use the same logic as GetGearActions to determine which actions to remove
+            var armorActions = GetGearActions(armor);
+            
             foreach (var actionName in armorActions)
             {
                 var actionToRemove = ActionPool.FirstOrDefault(a => a.action.Name == actionName);
@@ -2559,15 +2633,9 @@ namespace RPGGame
 
             if (item is WeaponItem weapon)
             {
-                // Remove weapon-specific actions
-                var allActions = ActionLoader.GetAllActions();
-                var weaponActions = allActions
-                    .Where(action => action.Tags.Contains("weapon") && 
-                                    action.Tags.Contains(weapon.WeaponType.ToString().ToLower()) &&
-                                    !action.Tags.Contains("unique"))
-                    .Select(action => action.Name)
-                    .ToList();
-
+                // Remove weapon-specific actions using the same logic as GetGearActions
+                var weaponActions = GetWeaponActionsFromJson(weapon.WeaponType);
+                
                 foreach (var actionName in weaponActions)
                 {
                     var actionToRemove = ActionPool.FirstOrDefault(a => a.action.Name == actionName);
