@@ -74,7 +74,7 @@ namespace RPGGame
             // Get current amplification
             double currentAmplification = player.GetCurrentComboAmplification();
             int magicFind = player.GetMagicFind();
-            Console.WriteLine($"Damage: {damage} (STR:{player.GetEffectiveStrength()} + Weapon:{weaponDamage} + Equipment:{equipmentDamageBonus} + Mods:{modificationDamageBonus})  Attack Speed: {attackSpeed:0.00}s  Amplification: {currentAmplification:F2}x  Roll Bonus: +{totalRollBonus}  Armor: {armor}");
+            Console.WriteLine($"Damage: {damage} (STR:{player.GetEffectiveStrength()} + Weapon:{weaponDamage} + Equipment:{equipmentDamageBonus} + Mods:{modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  Amplification: {currentAmplification:F2}x  Roll Bonus: +{totalRollBonus}  Armor: {armor}");
             if (magicFind > 0)
             {
                 Console.WriteLine($"Magic Find: +{magicFind} (improves rare item drop chances)");
@@ -156,7 +156,7 @@ namespace RPGGame
                 var item = inventory[i];
                 string itemStats = item switch
                 {
-                    WeaponItem weapon => $"Damage: {weapon.GetTotalDamage()}, Attack Speed: {weapon.GetTotalAttackSpeed():F1}{GetWeaponDiff(weapon, player.Weapon as WeaponItem)}",
+                    WeaponItem weapon => $"Damage: {weapon.GetTotalDamage()}{GetWeaponDiff(weapon, player.Weapon as WeaponItem)}, Attack Speed: {weapon.GetTotalAttackSpeed():F1}x",
                     HeadItem head => $"Armor: {head.GetTotalArmor()}{GetArmorDiff(head, player.Head)}",
                     ChestItem chest => $"Armor: {chest.GetTotalArmor()}{GetArmorDiff(chest, player.Body)}",
                     FeetItem feet => $"Armor: {feet.GetTotalArmor()}{GetArmorDiff(feet, player.Feet)}",
@@ -265,7 +265,7 @@ namespace RPGGame
                         // Show the actual value for modifications
                         string valueDisplay = mod.Effect switch
                         {
-                            "damage" => $"+{mod.RolledValue:F0} Damage",
+                            "damage" => $"{(mod.RolledValue >= 0 ? "+" : "")}{mod.RolledValue:F0} Damage",
                             "speedMultiplier" => $"{mod.RolledValue:F2}x Speed", 
                             "rollBonus" => $"+{mod.RolledValue:F0} Roll",
                             "reroll" => "Divine Reroll",
@@ -322,7 +322,19 @@ namespace RPGGame
                 {
                     var action = actionPool[i];
                     string inCombo = player.ComboSequence.Any(comboAction => comboAction.Name == action.Name) ? " [IN COMBO]" : "";
-                    Console.WriteLine($"  {i + 1}. {action.Name}{inCombo}");
+                    
+                    // Check for class tags and display class information
+                    string classInfo = "";
+                    if (action.Tags != null && action.Tags.Contains("class"))
+                    {
+                        var classTag = action.Tags.FirstOrDefault(tag => tag != "class");
+                        if (!string.IsNullOrEmpty(classTag))
+                        {
+                            classInfo = $" - {classTag.ToUpper()} ACTION";
+                        }
+                    }
+                    
+                    Console.WriteLine($"  {i + 1}. {action.Name}{inCombo}{classInfo}");
                     
                     Console.WriteLine($"      {action.Description} | Length: {action.Length:F1}x");
                 }
@@ -361,7 +373,19 @@ namespace RPGGame
                 {
                     var action = actionPool[i];
                     string inCombo = player.ComboSequence.Any(comboAction => comboAction.Name == action.Name) ? " [IN COMBO]" : "";
-                    Console.WriteLine($"  {i + 1}. {action.Name}{inCombo}");
+                    
+                    // Check for class tags and display class information
+                    string classInfo = "";
+                    if (action.Tags != null && action.Tags.Contains("class"))
+                    {
+                        var classTag = action.Tags.FirstOrDefault(tag => tag != "class");
+                        if (!string.IsNullOrEmpty(classTag))
+                        {
+                            classInfo = $" - {classTag.ToUpper()} ACTION";
+                        }
+                    }
+                    
+                    Console.WriteLine($"  {i + 1}. {action.Name}{inCombo}{classInfo}");
                     
                     Console.WriteLine($"      {action.Description} | Length: {action.Length:F1}x");
                 }

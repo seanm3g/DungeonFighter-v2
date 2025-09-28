@@ -1,32 +1,40 @@
-# Dungeon Fighter RPG
+# Dungeon Fighter RPG v2
 
-A console-based RPG/dungeon crawler game built with .NET 8.0, featuring turn-based combat, character progression, inventory management, and procedurally generated dungeons.
+A sophisticated console-based RPG/dungeon crawler game built with .NET 8.0, featuring advanced turn-based combat, dynamic character progression, comprehensive inventory management, and procedurally generated dungeons with intelligent battle narrative.
 
 ## Features
 
-### Core Gameplay
-- **Turn-based Combat System**: Strategic combat with cooldown-based actions
-- **Character Progression**: Level up system with XP, stat increases, and health scaling
-- **Inventory Management**: Equip weapons, armor, and manage your gear
-- **Combo System**: Chain actions together for increased damage and effects
-- **Data-Driven Design**: Enemies, actions, and rooms loaded from JSON files
+### Advanced Combat System
+- **Turn-based Combat**: Strategic combat with cooldown-based actions and intelligent delay system
+- **Action Combo System**: Chain actions together for escalating damage (1.85x multiplier per combo step)
+- **Dice-based Mechanics**: 1d20 roll system with thresholds (1-5 fail, 6-15 normal, 16-20 combo trigger)
+- **Environmental Actions**: Room-specific effects that impact combat
+- **Battle Narrative System**: Event-driven narrative for significant moments with informational summaries
 
-### Dungeon System
+### Character & Progression System
+- **Character Stats**: Strength, Agility, Technique, Intelligence with level-based scaling
+- **XP & Leveling**: Automatic stat increases and health restoration on level up
+- **Equipment System**: Weapons, armor with tier-based stats and special abilities
+- **Action Pool Management**: Dynamic action selection from equipped gear
+- **Weapon-based Classes**: Barbarian, Warrior, Rogue, Wizard with unique progression paths
+
+### Enemy & AI System
+- **18+ Enemy Types**: Each with unique stats, abilities, and specializations
+- **Primary Attribute System**: Enemies specialize in Strength, Agility, or Technique
+- **Level Scaling**: Dynamic stat scaling based on enemy level with proper DPS balance
+- **Environment-specific Spawning**: Different enemy types appear in themed dungeons
+
+### Dungeon & Environment System
 - **Procedural Generation**: 1-3 rooms per dungeon based on level
-- **Themed Dungeons**: Forest, Lava, Crypt, Cavern, Swamp, Desert, Ice, Ruins, Castle, Graveyard
-- **Room Variety**: 15+ unique room types with thematic environmental actions
+- **10 Themed Dungeons**: Forest, Lava, Crypt, Cavern, Swamp, Desert, Ice, Ruins, Castle, Graveyard
+- **15+ Room Types**: Each with unique environmental actions and effects
 - **Boss Chambers**: Special final rooms with powerful enemies
 
-### Combat Features
-- **18 Unique Enemy Types**: Each with themed abilities and stats
-- **Environmental Actions**: Room-specific effects that impact combat
-- **Action System**: 69+ different actions including attacks, buffs, debuffs, and heals
-- **Health Management**: Health only restores between dungeons, not between rooms
-
-### Technical Features
-- **Data-Driven Architecture**: All game data stored in JSON files
-- **Modular Design**: Easy to add new enemies, actions, and rooms
-- **Comprehensive Testing**: Built-in test suite for all game systems
+### Advanced Technical Features
+- **Dynamic Tuning System**: Real-time parameter adjustment with FormulaEvaluator
+- **Data-Driven Architecture**: All game data stored in structured JSON files
+- **Comprehensive Testing**: Built-in test suite with 27+ test categories
+- **Balance Analysis**: Automated DPS calculations and combat balance testing
 - **Cross-Platform**: Runs on Windows, macOS, and Linux
 
 ## Requirements
@@ -39,7 +47,7 @@ A console-based RPG/dungeon crawler game built with .NET 8.0, featuring turn-bas
 1. **Clone the repository**:
    ```bash
    git clone <your-repo-url>
-   cd DF4-CONSOLE
+   cd DungeonFighter-v2
    ```
 
 2. **Navigate to the Code directory**:
@@ -54,45 +62,71 @@ A console-based RPG/dungeon crawler game built with .NET 8.0, featuring turn-bas
 
 ## Game Controls
 
-- **Main Menu**: Choose between Inventory Management, Dungeon Selection, or Exit
-- **Inventory**: Equip/unequip items, view character stats
-- **Dungeon Selection**: Choose from available dungeons based on your level
-- **Combat**: Automatic turn-based combat with strategic action selection
+### Main Menu
+- **New Game**: Start a fresh character
+- **Load Game**: Continue with saved character (shows character name and level)
+- **Settings**: Configure narrative balance, combat speed, difficulty, and display options
+- **Tuning Console**: Advanced real-time parameter adjustment for developers
+- **Exit**: Quit the game
+
+### In-Game Menu
+- **Choose a Dungeon**: Select from available dungeons based on your level
+- **Inventory**: Manage equipment, view stats, configure action combos
+- **Exit Game and Save**: Save progress and return to main menu
+
+### Inventory Management
+- **Equip Item**: Equip weapons and armor from inventory
+- **Unequip Item**: Remove currently equipped items
+- **Discard Item**: Remove items from inventory permanently
+- **Manage Combo Actions**: Configure action sequences for combat
+- **Continue to Dungeon**: Proceed to dungeon selection
+- **Return to Main Menu**: Exit inventory and return to game menu
 
 ## Project Structure
 
 ```
-DF4 - CONSOLE/
-├── Code/                    # Main source code
-│   ├── Program.cs          # Entry point and test suite
-│   ├── Game.cs             # Main game logic
-│   ├── Character.cs        # Player character system
-│   ├── Combat.cs           # Combat mechanics
-│   ├── Action.cs           # Action system
-│   ├── Enemy.cs            # Enemy base class
-│   ├── EnemyFactory.cs     # Enemy creation
-│   ├── EnemyLoader.cs      # JSON enemy loading
-│   ├── ActionLoader.cs     # JSON action loading
-│   ├── RoomLoader.cs       # JSON room loading
-│   ├── Environment.cs      # Room/environment system
-│   ├── Dungeon.cs          # Dungeon generation
-│   ├── Item.cs             # Item system
-│   ├── Dice.cs             # Random number generation
-│   └── FlavorText.cs       # Text generation
-├── GameData/               # JSON configuration files
-│   ├── Actions.json        # All game actions
-│   ├── Enemies.json        # Enemy definitions
-│   ├── Rooms.json          # Room definitions
-│   ├── Weapons.json        # Weapon items
-│   ├── Armor.json          # Armor items
-│   ├── StartingGear.json   # Starting equipment
-│   └── Dungeons.json       # Dungeon configurations
-├── Tests/                  # Test files
-│   └── ComboSystemTests.cs # Combo system tests
-└── Documentation/          # Project documentation
-    ├── README.md           # This file
-    ├── OVERVIEW.md         # System overview
-    └── TASKLIST.md         # Development tasks
+DungeonFighter-v2/
+├── Code/                           # Main source code
+│   ├── Program.cs                 # Entry point with comprehensive test suite
+│   ├── Game.cs                    # Main game logic and flow
+│   ├── Character.cs               # Player character with class progression
+│   ├── Combat.cs                  # Advanced combat mechanics
+│   ├── Action.cs                  # Action system with combo mechanics
+│   ├── Enemy.cs                   # Enemy base class with scaling
+│   ├── EnemyFactory.cs            # Enemy creation and specialization
+│   ├── EnemyLoader.cs             # JSON enemy loading
+│   ├── ActionLoader.cs            # JSON action loading
+│   ├── RoomLoader.cs              # JSON room loading
+│   ├── Environment.cs             # Room/environment system
+│   ├── Item.cs                    # Item system with tier scaling
+│   ├── Dice.cs                    # Random number generation
+│   ├── FlavorText.cs              # Text generation
+│   ├── BattleNarrative.cs         # Event-driven battle narrative
+│   ├── ManageGear.cs              # Inventory management system
+│   ├── LootGenerator.cs           # Procedural loot generation
+│   ├── TuningConfig.cs            # Dynamic configuration system
+│   ├── TuningConsole.cs           # Real-time parameter adjustment
+│   ├── FormulaEvaluator.cs        # Mathematical expression evaluator
+│   ├── ScalingManager.cs          # Centralized scaling calculations
+│   ├── BalanceAnalyzer.cs         # Automated balance testing
+│   └── GameSettings.cs            # Game configuration management
+├── GameData/                      # JSON configuration files
+│   ├── Actions.json               # All game actions with properties
+│   ├── Enemies.json               # Enemy definitions with scaling
+│   ├── Rooms.json                 # Room definitions with environmental actions
+│   ├── Weapons.json               # Weapon items with tier scaling
+│   ├── Armor.json                 # Armor items with tier scaling
+│   ├── StartingGear.json          # Starting equipment
+│   ├── Dungeons.json              # Dungeon configurations
+│   ├── TuningConfig.json          # Dynamic tuning parameters
+│   ├── ItemScalingConfig.json     # Item scaling formulas
+│   └── StatBonuses.json           # Stat bonus definitions
+├── Documentation/                 # Project documentation
+│   ├── README.md                  # This file
+│   ├── OVERVIEW.md                # Comprehensive system overview
+│   ├── TASKLIST.md                # Development tasks and progress
+│   └── Various feature docs       # Detailed feature documentation
+└── character_save.json            # Player save file (auto-generated)
 ```
 
 ## Game Systems
@@ -154,25 +188,35 @@ Contains room definitions with:
 
 ## Testing
 
-The game includes a comprehensive test suite accessible from the main menu:
+The game includes a comprehensive test suite accessible from the settings menu:
 
 1. Run the game: `dotnet run`
-2. Select "Run Tests" from the main menu
-3. Choose from 14 different test categories:
-   - Character Leveling
-   - Items
-   - Dice
-   - Actions
-   - Entity Action Pools
-   - Combat
-   - Enemy Types
-   - Data-Driven Enemy System
-   - Enhanced Dungeon System
-   - File Loading
-   - Character Stats Overview
-   - Data-Driven Room System
-   - Room Actions in Action List
+2. Select "Settings" from the main menu
+3. Choose "Tests" from the settings menu
+4. Choose from 27+ different test categories:
+   - Character Leveling & Stats
+   - Item Creation & Properties
+   - Dice Rolling Mechanics
+   - Action System Functionality
+   - Combat Mechanics
    - Combo System Tests
+   - Battle Narrative Generation
+   - Enemy Scaling & AI
+   - Intelligent Delay System
+   - New Dice Mechanics
+   - New Action System
+   - Magic Find Rarity System
+   - Loot Generation System
+   - Weapon-Based Classes
+   - Tuning System
+   - Combo Amplification
+   - Combo UI
+   - Enemy Armor & Stat Pools
+   - Damage Balance
+   - Enhanced Action Descriptions
+   - Enemy 14+ Threshold
+   - Guaranteed Loot
+   - All Tests (runs complete suite)
 
 ## Development
 
@@ -199,9 +243,28 @@ dotnet build
 # Run the game
 dotnet run
 
-# Run tests only
-dotnet test
+# Run tests only (access through in-game menu)
+dotnet run
+# Then: Settings → Tests → All Tests
 ```
+
+### Advanced Features
+
+**Tuning Console**: Access real-time parameter adjustment through the main menu:
+- Combat parameters (damage, health, scaling)
+- Item scaling formulas
+- Rarity system configuration
+- Progression curves
+- XP reward systems
+- Enemy DPS analysis
+- Configuration export/import
+
+**Settings Configuration**: Comprehensive game customization:
+- Narrative Balance (0.0 = action-by-action, 1.0 = full narrative)
+- Combat Speed (0.5 = slow, 2.0 = fast)
+- Difficulty multipliers
+- Combat display options
+- Gameplay features
 
 ## License
 

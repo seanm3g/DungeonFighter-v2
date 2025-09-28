@@ -497,6 +497,9 @@ namespace RPGGame
 
         private int environmentActionCount = 0;
         private int maxEnvironmentActions = 2; // Maximum 2 environmental actions per fight
+        private int failedAttempts = 0; // Track failed attempts to increase chance over time
+        private double baseEnvironmentChance = 0.05; // Start with 5% chance
+        private double environmentChanceIncrease = 0.05; // Increase by 5% each failed attempt
         
         /// <summary>
         /// Resets the environment action count for a new fight
@@ -504,6 +507,7 @@ namespace RPGGame
         public void ResetForNewFight()
         {
             environmentActionCount = 0;
+            failedAttempts = 0; // Reset failed attempts for new fight
         }
         
         /// <summary>
@@ -517,11 +521,27 @@ namespace RPGGame
                 return false;
             }
             
-            // 10% chance to act when it's the environment's turn (but limited to max 2 per fight)
-            if (IsHostile && random.NextDouble() < 0.10)
+            if (IsHostile)
             {
-                environmentActionCount++;
-                return true;
+                // Calculate current chance: base chance + (failed attempts * increase per attempt)
+                double currentChance = baseEnvironmentChance + (failedAttempts * environmentChanceIncrease);
+                
+                // Cap the chance at 50% to prevent it from becoming too predictable
+                currentChance = Math.Min(currentChance, 0.50);
+                
+                if (random.NextDouble() < currentChance)
+                {
+                    // Environmental action triggered - reset failed attempts and increment action count
+                    environmentActionCount++;
+                    failedAttempts = 0;
+                    return true;
+                }
+                else
+                {
+                    // Environmental action failed - increment failed attempts for next time
+                    failedAttempts++;
+                    return false;
+                }
             }
             
             return false;

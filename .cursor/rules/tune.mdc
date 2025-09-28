@@ -1,5 +1,4 @@
 ---
-description:
-globs:
-alwaysApply: true
+alwaysApply: false
 ---
+When we're working with balance, the MAJORITY of things that should be adjusted should be in TuningConfig.json

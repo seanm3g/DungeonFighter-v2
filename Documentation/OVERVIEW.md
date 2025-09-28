@@ -75,13 +75,20 @@ DungeonFighter-v2 is a sophisticated turn-based RPG/dungeon crawler game written
 - **`FlavorText`**: Procedural generation of names and descriptions
 
 ### Utility & Support
-- **`Program`**: Application entry point with comprehensive test suite
+- **`Program`**: Application entry point with comprehensive test suite (27+ test categories)
 - **`DiceResult`**: Specialized result tracking for combo mechanics
 - **`GameSettings`**: Singleton configuration management
+- **`TuningConfig`**: Dynamic configuration system with real-time parameter adjustment
+- **`TuningConsole`**: Interactive console for live parameter modification
+- **`FormulaEvaluator`**: Mathematical expression evaluator for dynamic formulas
+- **`ScalingManager`**: Centralized scaling calculations for items and enemies
+- **`BalanceAnalyzer`**: Automated balance testing and DPS calculations
+- **`ActionSpeedSystem`**: Intelligent delay system for optimal user experience
+- **`BattleHealthTracker`**: Health tracking for battle narrative system
 
 ## Development Approach
 - **Layer-by-layer Development:** Each system is built and tested before moving to the next layer
-- **Test-driven Development:** Comprehensive test suite with 14+ test categories covering all major systems
+- **Test-driven Development:** Comprehensive test suite with 27+ test categories covering all major systems
 - **Data-driven Design:** All game content is defined in JSON files for easy modification and expansion
 - **Modular Architecture:** Clear separation of concerns with well-defined interfaces between systems
 - **Documentation:** Extensive documentation for all classes, systems, and game mechanics
@@ -89,11 +96,14 @@ DungeonFighter-v2 is a sophisticated turn-based RPG/dungeon crawler game written
 ## Current Implementation Status
 - **Core Systems:** ✅ Fully implemented and tested
 - **Combat System:** ✅ Advanced combo mechanics and battle narrative
-- **Character System:** ✅ Complete with progression and equipment
-- **Enemy System:** ✅ 18+ enemy types with AI and scaling
+- **Character System:** ✅ Complete with progression, equipment, and weapon-based classes
+- **Enemy System:** ✅ 18+ enemy types with AI, scaling, and primary attribute specialization
 - **Dungeon System:** ✅ Procedural generation with 10 themed dungeons
 - **Data System:** ✅ Complete JSON-driven content management
-- **Testing Framework:** ✅ Comprehensive test suite integrated
+- **Testing Framework:** ✅ Comprehensive test suite with 27+ test categories
+- **Dynamic Tuning System:** ✅ Real-time parameter adjustment with FormulaEvaluator
+- **Balance Analysis:** ✅ Automated DPS calculations and combat balance testing
+- **Advanced Action System:** ✅ Complex action mechanics with temporary effects and divine rerolls
 
 ## Future Development Plans
 - **Unity Integration:** Planning to port core systems to Unity for enhanced graphics and gameplay
@@ -164,6 +174,44 @@ Each action is defined with comprehensive properties:
 - Equipment provides both stat bonuses and potential new actions
 
 This system creates deep, strategic combat that rewards skillful play and proper equipment management.
+
+---
+
+## Advanced Action System
+
+The game features a sophisticated action system with complex mechanics that go beyond simple damage dealing:
+
+### Temporary Effects & Status Modifications
+Actions can apply various temporary effects to characters:
+- **Stat Bonuses**: Temporary increases to Strength, Agility, Technique, or Intelligence
+- **Damage Modifiers**: Extra damage, damage reduction, or damage amplification
+- **Action Modifiers**: Length reduction, extra attacks, or turn skipping
+- **Special Effects**: Combo amplifier multipliers, divine reroll charges, guaranteed success
+
+### Advanced Action Mechanics
+- **Deja Vu**: Track last action for special effects
+- **True Strike**: Skip next turn but guarantee next success
+- **Flurry/Precision Strike**: Grant extra attacks
+- **Opening Volley**: Add extra damage to next attack
+- **Sharp Edge**: Reduce incoming damage
+- **Taunt**: Reduce action length for duration
+- **Pretty Boy Swag**: Amplify combo multipliers
+- **Divine Reroll**: Grant reroll charges for failed actions
+
+### Action Duration & Timing
+- **Action Length**: Each action has a length value affecting cooldown timing
+- **Turn System**: Actions are processed based on their length and timing
+- **Cooldown Management**: Actions have individual cooldowns preventing spam
+- **Speed System**: Intelligent delay system matches action length for natural pacing
+
+### Action Sources & Management
+- **Weapon Actions**: Each weapon type provides specific actions
+- **Armor Actions**: High-tier armor can provide additional actions
+- **Action Pool**: Dynamic collection of all available actions from equipped gear
+- **Combo Sequence**: Ordered subset of actions selected for combo execution
+- **Action Bonuses**: Equipment can provide bonuses to action rolls and effects
+
+This advanced system creates deep tactical gameplay where action selection, timing, and sequencing are crucial for success.
 
 ---
 
@@ -351,6 +399,686 @@ The game features an intelligent delay system that optimizes the user experience
 - **Disabled Delays**: All combat happens at maximum speed regardless of narrative mode
 
 This system ensures that the game feels responsive and engaging regardless of the player's preferred narrative style while maintaining optimal performance.
+
+---
+
+## Action System Implementation
+
+The game features a comprehensive action system with 30+ advanced actions, each with unique mechanics and effects that go beyond simple damage dealing.
+
+### Implemented Actions
+
+#### Basic Actions (1-4)
+1. **JAB** - Resets enemy combo, 100% damage, 2.0 length
+2. **TAUNT** - Reduces next 2 actions by 50% length, +2 combo bonus for 2 turns
+3. **STUN** - Stuns enemy for 5 turns, causes weaken effect
+4. **CRIT** - 300% damage, 2.0 length
+
+#### Multi-Hit & Extra Attacks (5-6)
+5. **FLURRY** - Adds 1 extra attack to next action
+6. **PRECISION STRIKE** - Adds 1 extra attack to next action
+
+#### Stat Bonuses (7-11)
+7. **MOMENTUM BASH** - Gain 1 STR for duration of dungeon
+8. **DANCE** - Gain 1 STR for duration of dungeon
+9. **FOCUS** - Gain 1 STR for duration of dungeon
+10. **READ BOOK** - Gain 1 STR for duration of dungeon
+
+#### Roll Modifications (12-13)
+11. **LUCKY STRIKE** - +1 to next roll
+12. **DRUNKEN BRAWLER** - -5 to your next roll, -5 to enemies next roll
+
+#### Multi-Hit Attacks (14)
+13. **CLEAVE** - 3 hits at 35% damage each
+
+#### Conditional Damage (15-16)
+14. **OVERKILL** - Add 50% damage to next action
+15. **SHIELD BASH** - Double STR if below 25% health
+
+#### Special Effects (17-20)
+16. **OPENING VOLLEY** - Deal 10 extra damage, -1 per turn
+17. **SHARP EDGE** - Reduce damage by 50% each turn
+18. **BLOOD FRENZY** - Deal double damage if health below 25%
+19. **DEAL WITH THE DEVIL** - Do 5% damage to yourself
+
+#### Health-Based Actions (21-24)
+20. **BERZERK** - Double STR if below 25% health
+21. **SWING FOR THE FENCES** - 50% chance to attack yourself
+22. **TRUE STRIKE** - Skip turn, guarantee next action success
+23. **LAST GRASP** - +10 to roll if health below 5%
+
+#### Healing & Recovery (25)
+24. **SECOND WIND** - Heal for 5 health if 2nd slot
+
+#### Defensive Actions (26)
+25. **QUICK REFLEXES** - -5 to next enemies roll if action fails
+
+#### Special Mechanics (27-30)
+26. **DEJA VU** - Repeat the previous action
+27. **FIRST BLOOD** - Double damage if enemy at full health
+28. **POWER OVERWHELMING** - Double damage if STR ≥ 10
+29. **PRETTY BOY SWAG** - Double combo AMP if full health
+30. **DIRTY BOY SWAG** - Quadruple damage if at 1 health
+
+### Advanced Action Mechanics
+
+#### Multi-Hit System
+- **CLEAVE**: 3 hits at 35% damage each
+- **FLURRY/PRECISION STRIKE**: Add extra attacks to next action
+
+#### Self-Damage Effects
+- **DEAL WITH THE DEVIL**: 5% self-damage
+- **SWING FOR THE FENCES**: 50% chance to attack yourself
+
+#### Roll Modifications
+- **LUCKY STRIKE**: +1 to next roll
+- **LAST GRASP**: +10 to roll when health below 5%
+- **DRUNKEN BRAWLER**: -5 to your roll, -5 to enemy roll
+- **QUICK REFLEXES**: -5 to enemy roll if action fails
+
+#### Stat Bonuses
+- **MOMENTUM BASH, DANCE, FOCUS, READ BOOK**: +1 STR for dungeon duration
+- Temporary stat system with duration tracking
+
+#### Turn Control
+- **TRUE STRIKE**: Skip turn but guarantee next success
+- **DEJA VU**: Repeat previous action
+
+#### Health Thresholds
+- **BLOOD FRENZY, SHIELD BASH, BERZERK**: Trigger below 25% health
+- **LAST GRASP**: Trigger below 5% health
+- **PRETTY BOY SWAG**: Trigger at full health
+- **DIRTY BOY SWAG**: Trigger at 1 health
+
+#### Stat Thresholds
+- **POWER OVERWHELMING**: Trigger if STR ≥ 10
+
+#### Conditional Damage Multipliers
+- **OVERKILL**: +50% damage to next action
+- **BLOOD FRENZY, SHIELD BASH, BERZERK**: Double damage when conditions met
+- **FIRST BLOOD**: Double damage if enemy at full health
+- **POWER OVERWHELMING**: Double damage if STR ≥ 10
+- **DIRTY BOY SWAG**: Quadruple damage at 1 health
+
+#### Combo System Enhancements
+- **TAUNT**: +2 combo bonus for 2 turns
+- **PRETTY BOY SWAG**: Double combo amplifier when at full health
+
+#### Special Effects
+- **STUN**: Stuns enemy for 5 turns, causes weaken
+- **JAB**: Resets enemy combo
+- **TAUNT**: Reduces next 2 actions by 50% length
+- **SECOND WIND**: Heals for 5 health
+- **OPENING VOLLEY**: 10 extra damage, decays by 1 per turn
+- **SHARP EDGE**: 50% damage reduction, decays each turn
+
+### Technical Implementation
+
+#### Action Class Extensions
+- Added 25+ new properties for advanced mechanics
+- Automatic parsing of action descriptions to set properties
+- Support for multi-hit, self-damage, roll bonuses, stat bonuses, etc.
+
+#### Character Class Extensions
+- Temporary stat bonuses with duration tracking
+- Health percentage calculations
+- Stat threshold checking
+- Effect duration management
+
+#### JSON Integration
+- All 30 actions loaded from Actions.json
+- Automatic property parsing from descriptions
+- Fallback to hardcoded actions if JSON fails
+
+#### Testing System
+- Comprehensive test suite for all 30 actions
+- Verification of all advanced mechanics
+- Integration with existing test framework
+
+---
+
+## Combat Balance System
+
+The game implements a sophisticated "actions to kill" balance system that ensures consistent combat duration across all levels.
+
+### DPS Balance Implementation
+
+#### Target Specifications
+- **Level 1 DPS Target**: ~2.0 DPS for both heroes and enemies
+- **Actions to Kill Target**: ~10 actions at level 1
+- **Health at Level 1**: 18 base + 2 per level = 20 health
+- **Damage at Level 1**: ~17 base damage per action
+
+#### DPS Calculations
+
+**Level 1 Player DPS:**
+- **Base Damage**: STR(7) + Highest(7) + Weapon(~3) = ~17 damage
+- **Attack Time**: 10.0 - (7 × 0.1) = 9.3 seconds
+- **DPS**: 17 ÷ 9.3 = ~1.83 DPS
+
+**Level 1 Enemy DPS:**
+- **Base Damage**: STR(~7) + Highest(~7) = ~14 damage
+- **Attack Time**: 10.0 - (7 × 0.1) = 9.3 seconds  
+- **DPS**: 14 ÷ 9.3 = ~1.51 DPS
+- **With Archetype Multipliers**: 1.51 × 0.7-1.2 = ~1.1-1.8 DPS
+
+**Actions to Kill Calculation:**
+- **Level 1 Health**: 18 base + 2 per level = 20 health
+- **Player vs Enemy**: 20 health ÷ 1.83 DPS = ~11 actions
+- **Enemy vs Player**: 20 health ÷ 1.51 DPS = ~13 actions
+
+### Scaling Philosophy
+
+#### Level Progression
+- **Health Scaling**: +2 per level (linear)
+- **Damage Scaling**: +1 attribute per level (linear)
+- **DPS Scaling**: Gradual increase through attribute growth
+- **Actions to Kill**: Remains relatively constant (~10-15 actions)
+
+#### Archetype Balance
+Different enemy archetypes maintain the same target DPS but distribute it differently:
+- **Berserker**: Fast attacks (1.4x speed, 0.71x damage)
+- **Assassin**: Quick strikes (1.2x speed, 0.83x damage)  
+- **Warrior**: Balanced (1.0x speed, 1.0x damage)
+- **Brute**: Slow but strong (0.75x speed, 1.1x damage)
+- **Juggernaut**: Very slow but powerful (0.6x speed, 1.2x damage)
+
+### Critical Balance Fixes
+
+#### Problem Identified
+The balance was severely broken with:
+- **Hero dealing 32 damage** to enemies with only 26 health
+- **Enemies dying in 1 hit** instead of the target 10 actions
+- **Enemy STR showing 30** instead of expected ~7-8 values
+- **Weapon damage scaling was 3-4x too high**
+
+#### Root Causes Fixed
+
+**1. Enemy Stat Double-Scaling:**
+- **Problem**: Enemy stats were being scaled twice (first in EnemyLoader.cs, then in Enemy.cs constructor)
+- **Fix**: Removed double scaling in Enemy.cs constructor
+
+**2. Weapon Damage Scaling Too High:**
+- **Problem**: Weapon damage formulas were adding massive multipliers (1.55x)
+- **Fix**: Dramatically reduced weapon scaling multipliers to 0.42x
+
+**3. Enemy DPS System Mismatch:**
+- **Problem**: EnemyDPSSystem was using old level scaling formula
+- **Fix**: Updated to match current system with no level bonus
+
+### Combat Balance Changes
+
+#### Health Scaling Increases
+- **Player Base Health**: 150 → 200 (+33% increase)
+- **Health Per Level**: 3 → 5 (+67% increase)
+- **Enemy Health Per Level**: 4 → 6 (+50% increase)
+
+#### Attribute Scaling Reductions
+- **Player Base Attributes**: 15 → 8 (all stats reduced by ~47%)
+- **Enemy Primary Attribute Bonus**: 3 → 2 (reduced enemy scaling)
+
+#### Combat Multiplier Reductions
+- **Critical Hit Multiplier**: 1.5 → 1.3 (reduced crit damage)
+- **Enemy Damage Multiplier**: 1.0 → 0.7 (30% reduction in enemy damage)
+
+#### Action Damage Multiplier Reductions
+High-damage actions reduced from 1.6x to 1.2x (-25% damage):
+- CRIT, SHIELD BASH, SHARP EDGE, BLOOD FRENZY, DEAL WITH THE DEVIL, BERZERK, SWING FOR THE FENCES, TRUE STRIKE, LAST GRASP, SECOND WIND, QUICK REFLEXES, PRETTY BOY SWAG
+
+Environmental actions reduced from 1.8x to 1.3x (-28% damage):
+- LAVA SPLASH, GHOSTLY WHISPER, SKELETON HAND, RISING DEAD, BOSS RAGE, EARTHQUAKE, CRYSTAL SHARDS, DIVINE JUDGMENT
+
+### Benefits of Balance System
+
+1. **Predictable Combat Duration**: Players can expect roughly 10-15 actions per fight
+2. **Scalable Balance**: System works at all levels with consistent feel
+3. **Strategic Depth**: More actions = more opportunities for combos and strategy
+4. **Clear Progression**: Higher levels = more health and damage, but similar fight duration
+5. **Archetype Variety**: Different enemy types feel distinct while maintaining balance
+
+---
+
+## Damage Display System
+
+The game features a comprehensive damage display system that shows both raw damage and armor calculations for complete transparency.
+
+### Armor Breakdown Display
+
+#### Enhancement Request
+User requested that damage displays show the armor calculation breakdown in the format:
+`deals X damage -(Y armor) = Z damage`
+
+#### Implementation
+Created `FormatDamageDisplay()` method in `Combat.cs` that:
+- Takes raw damage, actual damage, and target information
+- Calculates target's armor value
+- Returns formatted string showing the breakdown
+
+#### Display Examples
+
+**Before Enhancement:**
+```
+[Kobold] uses [Sneak Attack] on [Pax Moonwhisper]: deals 8 damage.
+```
+*Player couldn't see why 48 raw damage became 8 actual damage*
+
+**After Enhancement:**
+```
+[Kobold] uses [Sneak Attack] on [Pax Moonwhisper]: deals 48 damage -(40 armor) = 8 damage.
+```
+*Player can clearly see the armor reduction calculation*
+
+**No Armor Example:**
+```
+[Kobold] uses [Sneak Attack] on [Goblin]: deals 14 damage.
+```
+*Simple format when no armor is involved*
+
+### Damage Display Fix
+
+#### Problem Identified
+The combat log was showing raw damage before armor reduction, which was confusing and misleading.
+
+#### Fix Applied
+Modified all damage display messages throughout the codebase to show the actual damage dealt by calling `CalculateDamage()` which includes armor reduction.
+
+**Fixed all damage displays:**
+- Basic attacks
+- Critical attacks  
+- Combo attacks
+- Unique actions
+- Auto-success attacks
+- Divine reroll attacks
+- DEJA VU attacks
+- Enemy attacks
+
+#### Benefits
+1. **Accurate Information**: Players see exactly how much damage was actually dealt
+2. **Clear Combat Feedback**: No confusion about why high damage numbers don't match health loss
+3. **Better Game Understanding**: Players can see the effectiveness of armor
+4. **Consistent Display**: All damage messages now show actual damage dealt
+5. **Transparency**: Players can see exactly how armor affects damage
+6. **Educational**: Helps players understand the armor system
+7. **Debugging**: Makes it easier to verify armor calculations
+
+### Technical Details
+
+- **Smart Formatting**: Only shows breakdown when armor actually reduces damage
+- **Simple Format**: Shows just the final damage when no armor is involved
+- **Comprehensive**: Covers all attack types (basic, critical, combo, unique, etc.)
+- **Efficient**: Reuses existing armor calculation logic
+- **Maintainable**: Single method handles all formatting logic
+
+---
+
+## Dynamic Tuning System
+
+The Dynamic Tuning System allows real-time adjustment and balancing of game parameters without requiring code recompilation. This system provides comprehensive tools for tuning combat mechanics, item scaling, progression curves, and rarity systems.
+
+### Features
+
+#### 🔧 Real-time Parameter Adjustment
+- Modify combat parameters (damage, critical hits, attack speeds)
+- Adjust item scaling formulas for weapons and armor
+- Fine-tune rarity system multipliers
+- Customize progression curves for experience and attributes
+
+#### 📊 Balance Analysis Tools
+- DPS calculation and analysis across different levels and tiers
+- Item distribution analysis with statistical reporting
+- Automated combat scenario testing
+- Progression curve analysis and growth rate calculations
+
+#### 💾 Configuration Management
+- Export current configurations to timestamped files
+- Import configuration presets
+- Hot-reload configurations without restarting the game
+- Formula-based scaling with mathematical expression support
+
+### How to Access
+
+1. **From Main Menu**: Select option "4. Tuning Console" from the main game menu
+2. **In-Game**: The tuning console provides real-time access to all parameters
+
+### Tuning Console Menu
+
+#### 1. Combat Parameters
+- Critical Hit Threshold and Multiplier
+- Minimum Damage values
+- Base Attack Time and Agility modifiers
+
+#### 2. Item Scaling Formulas
+- Weapon damage scaling by tier and level
+- Armor value scaling formulas
+- Real-time formula adjustment with immediate effect
+
+#### 3. Rarity System
+- Stat bonus multipliers for each rarity tier
+- Drop chance formulas
+- Rarity distribution tuning
+
+#### 4. Progression Curves
+- Experience requirement formulas
+- Attribute growth equations
+- Linear and quadratic growth factors
+
+#### 5. Test Scaling Calculations
+- Live testing of scaling formulas
+- Weapon and armor scaling demonstrations
+- Rarity multiplier verification
+
+#### 6. Run Balance Analysis
+- Comprehensive DPS analysis
+- Item generation distribution testing
+- Combat scenario simulations
+- Progression curve analysis
+
+### Configuration Files
+
+#### Primary Configuration
+- `GameData/TuningConfig.json` - Main configuration file with all tuning parameters
+
+#### Extended Configuration
+- `GameData/ItemScalingConfig.json` - Weapon-type specific scaling formulas and rarity modifiers
+
+### Formula System
+
+The system supports mathematical expressions with variables:
+
+```json
+{
+  "WeaponDamageFormula": {
+    "Formula": "BaseDamage * (1 + (Tier - 1) * TierScaling + Level * LevelScaling)",
+    "TierScaling": 2.5,
+    "LevelScaling": 0.8
+  }
+}
+```
+
+#### Supported Operations
+- Basic arithmetic: `+`, `-`, `*`, `/`
+- Power operations: `^` (converted to Math.Pow)
+- Parentheses for grouping
+- Variable substitution with exact matching
+
+#### Common Variables
+- `BaseDamage`, `BaseArmor` - Base item values
+- `Tier` - Item tier (1-5)
+- `Level` - Player/enemy level
+- `PlayerLevel` - Specific player level
+- `TierScaling`, `LevelScaling` - Scaling factors
+
+### Balance Analysis Features
+
+#### DPS Analysis
+- Calculates theoretical DPS for different weapon tiers and player levels
+- Factors in critical hits, combo potential, and attribute scaling
+- Provides growth rate analysis across level ranges
+
+#### Item Distribution Analysis
+- Simulates large-scale item generation (1000+ samples)
+- Reports tier and rarity distribution percentages
+- Identifies potential balance issues automatically
+
+#### Combat Scenarios
+- Automated combat simulations with various player/enemy matchups
+- Win rate calculations and average combat duration
+- Player survivability analysis
+
+#### Progression Analysis
+- Experience requirement curves
+- Attribute growth visualization
+- Growth rate calculations and balance recommendations
+
+### Usage Examples
+
+#### Adjusting Weapon Scaling
+1. Access Tuning Console → Item Scaling Formulas
+2. Modify Tier Scaling or Level Scaling values
+3. Test changes with "Test Scaling Calculations"
+4. Run balance analysis to verify impact
+
+#### Balancing Rarity System
+1. Access Tuning Console → Rarity System
+2. Adjust multipliers for specific rarity tiers
+3. Run "Item Distribution Analysis" to verify changes
+4. Export configuration when satisfied
+
+#### Combat Balancing
+1. Access Tuning Console → Combat Parameters
+2. Adjust critical hit rates, damage multipliers
+3. Run "Combat Scenario Testing" to evaluate impact
+4. Fine-tune based on win rates and combat duration
+
+### Tips for Effective Tuning
+
+#### Start Small
+- Make incremental changes (10-20% adjustments)
+- Test after each change
+- Use the analysis tools to verify impact
+
+#### Use Analysis Tools
+- Always run balance analysis after major changes
+- Pay attention to growth rates and distribution warnings
+- Test multiple scenarios before finalizing changes
+
+#### Document Changes
+- Export configurations with descriptive names
+- Keep notes on what changes were made and why
+- Test both early game and late game scenarios
+
+#### Common Balance Points
+- **Early Game**: Focus on tier 1-2 weapons, levels 1-5
+- **Mid Game**: Balance tier 3-4 equipment, levels 6-15
+- **Late Game**: Ensure tier 5 items and high-level scaling remain challenging
+
+### Troubleshooting
+
+#### Formula Errors
+- Check variable names match exactly (case-sensitive)
+- Ensure parentheses are balanced
+- Verify mathematical operators are supported
+
+#### Configuration Issues
+- Use "Reload Configuration" if changes don't appear
+- Check JSON syntax in configuration files
+- Restart application if major structural changes are made
+
+#### Performance Considerations
+- Large analysis samples (>5000) may take time
+- Complex formulas with many operations may slow calculations
+- Consider simpler formulas for frequently-called calculations
+
+### Integration with Existing Systems
+
+The tuning system integrates seamlessly with:
+- **LootGenerator**: Uses scaling formulas for item generation
+- **Combat System**: Applies tuning parameters to damage calculations
+- **Character Progression**: Uses progression curves for leveling
+- **Enemy Scaling**: Applies scaling formulas to enemy stats
+
+All changes take effect immediately without requiring game restart, making iterative tuning fast and efficient.
+
+---
+
+## Game Balance Tuning Configuration
+
+This section contains all the key balance parameters that can be adjusted to tune the game difficulty and progression.
+
+### Character & Health Scaling
+
+#### Base Health
+- **Player Base Health**: 50 (starting health for new characters)
+- **Health Per Level**: 3 (health gained per character level)
+- **Enemy Base Health**: 50 (base health for level 1 enemies)
+- **Enemy Health Per Level**: 3 (health gained per enemy level)
+
+#### Health Regeneration
+- **Base Health Regen**: 0 (starting health regeneration)
+- **Health Regen Scaling**: 0.1 (health regen gained per level)
+
+### Attribute Scaling
+
+#### Player Attribute Scaling
+- **Base Attributes**: STR=5, AGI=5, TEC=5, INT=5 (starting attributes)
+- **Attributes Per Level**: 1 (attributes gained per level)
+- **Primary Attribute Bonus**: 2 (extra attribute per level for primary stat)
+
+#### Enemy Attribute Scaling
+- **Base Attributes**: STR=8, AGI=6, TEC=4, INT=4 (starting attributes)
+- **Attributes Per Level**: 1 (attributes gained per enemy level)
+- **Primary Attribute Bonus**: 2 (extra attribute per level for primary stat)
+
+### Damage & Combat
+
+#### Damage Calculation
+- **Base Damage Formula**: STR + Highest Attribute + Weapon Damage + Roll Bonus
+- **Critical Hit Threshold**: 20 (roll needed for critical hit)
+- **Critical Hit Multiplier**: 2.0 (damage multiplier for critical hits)
+- **Minimum Damage**: 1 (minimum damage dealt regardless of armor)
+
+#### Attack Speed
+- **Base Attack Speed**: 1.0 (starting attack speed)
+- **Agility Speed Bonus**: 0.03 (attack speed gained per agility point)
+- **Minimum Attack Speed**: 0.2 (minimum attack speed)
+
+#### Armor System
+- **Armor Reduction**: 1:1 (1 armor reduces 1 damage)
+- **Enemy Armor Per Level**: 1 (armor gained per enemy level)
+
+### Equipment & Items
+
+#### Weapon Damage Scaling
+- **Tier 1 Base Damage**: 5-8 (damage range for tier 1 weapons)
+- **Tier 2 Base Damage**: 8-12 (damage range for tier 2 weapons)
+- **Tier 3 Base Damage**: 12-16 (damage range for tier 3 weapons)
+- **Tier 4 Base Damage**: 16-20 (damage range for tier 4 weapons)
+- **Tier 5 Base Damage**: 20-25 (damage range for tier 5 weapons)
+
+#### Armor Scaling
+- **Tier 1 Base Armor**: 2-4 (armor range for tier 1 armor)
+- **Tier 2 Base Armor**: 4-6 (armor range for tier 2 armor)
+- **Tier 3 Base Armor**: 6-8 (armor range for tier 3 armor)
+- **Tier 4 Base Armor**: 8-10 (armor range for tier 4 armor)
+- **Tier 5 Base Armor**: 10-12 (armor range for tier 5 armor)
+
+#### Item Bonuses
+- **Bonus Damage Range**: 1-10 (random bonus damage on weapons)
+- **Bonus Attack Speed Range**: 1-10 (random bonus attack speed on weapons)
+
+### Experience & Progression
+
+#### Experience Scaling
+- **Base XP to Level 2**: 100 (XP needed for first level up)
+- **XP Scaling Factor**: 1.5 (multiplier for each subsequent level)
+- **Enemy XP Reward Base**: 10 (base XP reward from enemies)
+- **Enemy XP Per Level**: 5 (additional XP per enemy level)
+
+#### Gold Rewards
+- **Enemy Gold Base**: 5 (base gold reward from enemies)
+- **Enemy Gold Per Level**: 3 (additional gold per enemy level)
+
+### Loot & Rarity
+
+#### Loot Generation
+- **Loot Chance Base**: 0.3 (30% chance for loot to drop)
+- **Loot Chance Per Level**: 0.05 (5% additional chance per level)
+- **Maximum Loot Chance**: 0.8 (80% maximum loot chance)
+
+#### Rarity Weights
+- **Common Weight**: 50 (weight for common items)
+- **Uncommon Weight**: 25 (weight for uncommon items)
+- **Rare Weight**: 15 (weight for rare items)
+- **Epic Weight**: 8 (weight for epic items)
+- **Legendary Weight**: 2 (weight for legendary items)
+
+### Combat Mechanics
+
+#### Roll System
+- **Miss Threshold**: 1-5 (rolls that result in misses)
+- **Basic Attack Threshold**: 6-13 (rolls for basic attacks)
+- **Combo Threshold**: 14-20 (rolls for combo actions)
+- **Critical Threshold**: 20+ (rolls for critical hits)
+
+#### Combo System
+- **Combo Reset on Miss**: true (combo resets when missing)
+- **Combo Reset on Basic Attack**: true (combo resets on basic attacks)
+- **Combo Amplifier Base**: 1.0 (base combo damage multiplier)
+- **Combo Amplifier at TEC=5**: 1.05 (amplifier when Technique is 5)
+- **Combo Amplifier Max**: 2.0 (maximum amplifier at max Technique)
+- **Combo Amplifier Max Tech**: 100 (Technique level for maximum amplifier)
+
+#### Combo Damage Scaling
+- **Formula**: Linear scaling from 1.05 (at TEC=5) to 2.0 (at TEC=100)
+- **Exponential Scaling**: Each combo step multiplies damage by amp^step
+  - Combo 1: amp^1 (e.g., 1.05^1 = 1.05x damage)
+  - Combo 2: amp^2 (e.g., 1.05^2 = 1.10x damage)
+  - Combo 3: amp^3 (e.g., 1.05^3 = 1.16x damage)
+  - Combo 4: amp^4 (e.g., 1.05^4 = 1.22x damage)
+  - Combo 5: amp^5 (e.g., 1.05^5 = 1.28x damage)
+
+### Enemy Scaling
+
+#### Enemy Difficulty
+- **Enemy Health Multiplier**: 1.0 (global enemy health multiplier)
+- **Enemy Damage Multiplier**: 1.0 (global enemy damage multiplier)
+- **Enemy Level Variance**: ±1 (enemy level can vary by this amount from room level)
+
+#### Enemy Types
+- **Goblin**: Base Health=80, STR=4, AGI=6, TEC=2, INT=3, Primary=AGI
+- **Orc**: Base Health=95, STR=10, AGI=4, TEC=2, INT=2, Primary=STR
+- **Skeleton**: Base Health=85, STR=6, AGI=4, TEC=3, INT=4, Primary=STR
+- **Bandit**: Base Health=85, STR=6, AGI=8, TEC=3, INT=5, Primary=AGI
+- **Cultist**: Base Health=85, STR=4, AGI=5, TEC=8, INT=7, Primary=TEC
+- **Spider**: Base Health=75, STR=3, AGI=10, TEC=3, INT=2, Primary=AGI
+- **Slime**: Base Health=95, STR=7, AGI=3, TEC=2, INT=1, Primary=STR
+- **Bat**: Base Health=70, STR=3, AGI=12, TEC=4, INT=3, Primary=AGI
+- **Zombie**: Base Health=100, STR=8, AGI=2, TEC=1, INT=1, Primary=STR
+- **Wraith**: Base Health=85, STR=5, AGI=7, TEC=6, INT=8, Primary=TEC
+
+### Action System
+
+#### Action Probabilities
+- **Basic Attack Weight**: 0.7 (70% chance for basic attack)
+- **Special Action Weight**: 0.3 (30% chance for special action)
+
+#### Action Effects
+- **Bleed Damage Per Turn**: 2 (damage from bleed effect)
+- **Bleed Duration**: 3 (turns bleed lasts)
+- **Stun Duration**: 1 (turns stun lasts)
+- **Weaken Damage Reduction**: 0.2 (20% damage reduction from weaken)
+
+### Environment Effects
+
+#### Environmental Modifiers
+- **Forest Damage Bonus**: 1.0 (no change)
+- **Lava Damage Bonus**: 1.2 (20% damage increase)
+- **Ice Damage Reduction**: 0.8 (20% damage reduction)
+- **Swamp Speed Reduction**: 0.9 (10% speed reduction)
+
+### UI & Display
+
+#### Text Display
+- **Enable Text Delays**: true (enable combat text delays)
+- **Base Delay Per Action**: 400 (milliseconds delay per action length)
+- **Minimum Delay**: 50 (minimum delay in milliseconds)
+- **Combat Speed Multiplier**: 1.0 (speed multiplier for combat text)
+
+### Save System
+
+#### Auto-Save
+- **Auto-Save on Level Up**: true (save automatically when leveling up)
+- **Auto-Save on Death**: true (save automatically when dying)
+- **Auto-Save Interval**: 300 (seconds between auto-saves)
+
+### Usage Notes
+
+- All values can be adjusted to fine-tune game balance
+- Decimal values are supported for multipliers and percentages
+- Boolean values use true/false
+- Ranges are specified as "min-max" format
+- Some values may require game restart to take effect
+- Test changes in small increments to maintain game balance
 
 ---
 

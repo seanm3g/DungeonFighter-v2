@@ -1,6 +1,6 @@
-# DF4 Console RPG Game
+# Dungeon Fighter RPG v2 - Documentation
 
-A turn-based RPG game written in C# with a focus on modular design and test-driven development.
+A sophisticated turn-based RPG game written in C# with advanced combat mechanics, dynamic character progression, and comprehensive testing framework.
 
 ## How to Run
 
@@ -17,88 +17,129 @@ A turn-based RPG game written in C# with a focus on modular design and test-driv
 
 ## Main Menu Options
 
-### 1. Play Game
-Start a new game session. You'll be prompted to:
-- Choose a dungeon to explore
-- Fight enemies in turn-based combat
-- Collect loot and experience points
-- Progress through multiple rooms
+### 1. New Game
+Start a fresh character with:
+- Random name generation
+- Starting equipment from StartingGear.json
+- Level 1 with base stats
+- Default action combos from starting weapon
 
-### 2. Tests
-Access various test functions to verify game systems:
-- Character leveling and stats
-- Item creation and properties
-- Dice rolling mechanics
-- Action system functionality
-- Combat mechanics
-- Combo system
-- Battle narrative generation
-- Enemy scaling
-- **Intelligent Delay System** (NEW!)
+### 2. Load Game
+Continue with saved character:
+- Shows character name and level in menu
+- Loads from character_save.json
+- Restores all progress, equipment, and stats
 
 ### 3. Settings
-Configure game behavior and appearance:
-- **Narrative Balance**: Control the mix between event-driven and poetic narrative
-- **Combat Speed**: Adjust how fast combat actions are displayed
-- **Text Display Delays**: Enable/disable delays that match action length (NEW!)
-- Difficulty multipliers for enemies and players
-- Combat display options (health bars, damage numbers, etc.)
-- Gameplay features (auto-save, combo system, etc.)
+Comprehensive game configuration:
+- **Narrative Balance**: Control mix between action-by-action (0.0) and full narrative (1.0)
+- **Combat Speed**: Adjust combat timing (0.5 = slow, 2.0 = fast)
+- **Difficulty Settings**: Player/enemy health and damage multipliers
+- **Combat Display**: Health bars, damage numbers, action details
+- **Gameplay Options**: Auto-save, combo system, narrative events
+- **Tests**: Access 27+ test categories for system verification
+- **Delete Saved Characters**: Remove saved game data
+- **Reset to Defaults**: Restore all settings to original values
 
-## Intelligent Delay System
+### 4. Tuning Console
+Advanced real-time parameter adjustment:
+- **Combat Parameters**: Damage, health, scaling formulas
+- **Item Scaling**: Weapon/armor tier scaling formulas
+- **Rarity System**: Drop rates and magic find mechanics
+- **Progression Curves**: XP, level scaling, stat growth
+- **XP Reward System**: Enemy XP and level scaling
+- **Enemy DPS Analysis**: Automated balance testing
+- **Formula Testing**: Test mathematical expressions
+- **Balance Analysis**: Full system balance verification
+- **Export/Import**: Save and load configuration presets
+- **Reload Config**: Refresh tuning parameters from files
 
-The game now features an intelligent delay system that optimizes the user experience:
+### 5. Exit
+Quit the game
 
-### How It Works
-- **Fast Full Narrative Mode**: When using full narrative mode, calculations happen quickly in the background
-- **Action-Length Matching**: When displaying actions individually, delays match the action's length for natural pacing
-- **Configurable**: You can disable delays entirely for maximum speed
+## In-Game Menu Flow
 
-### Settings
-- **Enable Text Display Delays**: Toggle whether delays are applied when text is displayed
-- **Combat Speed**: Adjust the overall speed multiplier (0.5 = slow, 2.0 = fast)
+### Game Session Menu
+After starting/loading a game, you'll see:
+1. **Choose a Dungeon**: Select from available dungeons based on your level
+2. **Inventory**: Manage equipment, view stats, configure action combos
+3. **Exit Game and Save**: Save progress and return to main menu
 
-### Usage Examples
-1. **For Fast Gameplay**: Set Narrative Balance to 1.0 and disable Text Display Delays
-2. **For Action-by-Action**: Set Narrative Balance to 0.0 and enable Text Display Delays
-3. **For Balanced Experience**: Use default settings (Narrative Balance 0.7, delays enabled)
+### Inventory Management
+The inventory system provides comprehensive character management:
+- **Character Stats Display**: Health, armor, attack stats, class progression
+- **Current Equipment**: Shows equipped weapon and armor with stats
+- **Combo Information**: Current combo sequence and amplification
+- **Inventory List**: All items with detailed stats and bonuses
+- **Action Pool**: All available actions from equipped gear
+
+### Inventory Options
+1. **Equip Item**: Equip weapons and armor from inventory
+2. **Unequip Item**: Remove currently equipped items
+3. **Discard Item**: Remove items from inventory permanently
+4. **Manage Combo Actions**: Configure action sequences for combat
+5. **Continue to Dungeon**: Proceed to dungeon selection
+6. **Return to Main Menu**: Exit inventory and return to game menu
+
+## Advanced Systems
+
+### Intelligent Delay System
+Optimizes user experience with smart timing:
+- **Fast Full Narrative Mode**: Quick background calculations for narrative mode
+- **Action-Length Matching**: Delays match action length for natural pacing
+- **Configurable**: Disable delays entirely for maximum speed
+- **Settings**: Enable Text Display Delays, Combat Speed multiplier
+
+### Battle Narrative System
+Event-driven narrative for significant moments:
+- **Informational Summaries**: Clear, factual combat reporting
+- **Poetic Highlights**: Evocative descriptions for important events
+- **Significant Events**: First blood, health reversals, near death, good combos
+- **Configurable Balance**: Adjust mix between narrative and informational display
 
 ## Game Systems
 
 ### Combat System
-- Turn-based combat with dice rolls
-- Action combo system with escalating damage
-- Enemy scaling based on level and primary attributes
-- Environment effects that modify combat
-
-### Narrative System
-- Event-driven narrative for significant moments
-- Poetic descriptions for important battles
-- Configurable balance between factual and narrative text
+- **Turn-based Combat**: Strategic combat with cooldown-based actions
+- **Action Combo System**: Chain actions for escalating damage (1.85x multiplier per step)
+- **Dice Mechanics**: 1d20 roll system with thresholds (1-5 fail, 6-15 normal, 16-20 combo)
+- **Enemy Scaling**: Dynamic stat scaling based on level and primary attributes
+- **Environmental Effects**: Room-specific actions that modify combat
 
 ### Character Progression
-- Level-based stat increases
-- Equipment system with weapons and armor
-- Experience points from defeating enemies
+- **Weapon-based Classes**: Barbarian, Warrior, Rogue, Wizard with unique progression
+- **Level-based Stats**: Automatic stat increases and health restoration
+- **Equipment System**: Weapons and armor with tier-based stats and special abilities
+- **Action Pool Management**: Dynamic action selection from equipped gear
+- **Experience Points**: Gain XP from defeating enemies
 
-## Testing the Intelligent Delay System
+### Advanced Features
+- **Dynamic Tuning System**: Real-time parameter adjustment with FormulaEvaluator
+- **Balance Analysis**: Automated DPS calculations and combat balance testing
+- **Comprehensive Testing**: 27+ test categories covering all major systems
+- **Data-driven Design**: All game content defined in JSON files
 
-Use the test menu (option 13) to verify the delay system works correctly:
-- Tests delays with and without text display
-- Verifies action length affects delay duration
-- Confirms combat speed setting modifies delays
-- Ensures disabled delays result in no waiting
+## Testing Framework
+
+Access the comprehensive test suite through Settings → Tests:
+- **System Tests**: Character, items, dice, actions, combat mechanics
+- **Advanced Tests**: Combo system, battle narrative, enemy scaling, delay system
+- **Balance Tests**: DPS analysis, damage balance, enemy thresholds
+- **Integration Tests**: Loot generation, weapon classes, tuning system
+- **All Tests**: Run complete test suite for full system verification
 
 ## Configuration Files
 
-The game automatically saves settings to `gamesettings.json` in the Code directory. You can:
-- Modify settings through the in-game menu
-- Edit the JSON file directly (be careful with syntax)
-- Reset to defaults from the settings menu
+The game uses multiple configuration files:
+- **gamesettings.json**: Player settings and preferences (auto-saved)
+- **character_save.json**: Player character data (auto-saved)
+- **TuningConfig.json**: Dynamic tuning parameters
+- **GameData/**: All game content (actions, enemies, rooms, items)
 
 ## Development Notes
 
-- Built with .NET 6.0
-- Uses test-driven development approach
-- Modular architecture for easy extension
-- Comprehensive documentation in OVERVIEW.md and TASKLIST.md 
+- **Built with .NET 8.0**: Latest framework with modern C# features
+- **Test-driven Development**: Comprehensive test suite with 27+ categories
+- **Modular Architecture**: Clear separation of concerns with well-defined interfaces
+- **Data-driven Design**: Easy content modification through JSON files
+- **Comprehensive Documentation**: Detailed system overviews and task tracking 

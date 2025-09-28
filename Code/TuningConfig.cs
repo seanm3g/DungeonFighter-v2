@@ -28,6 +28,8 @@ namespace RPGGame
         public RarityScalingConfig? RarityScaling { get; set; } = new();
         public ProgressionCurvesConfig? ProgressionCurves { get; set; } = new();
         public EnemyDPSConfig? EnemyDPS { get; set; } = new();
+        public GameDataConfig GameData { get; set; } = new();
+        public DebugConfig Debug { get; set; } = new();
 
         public static TuningConfig Instance
         {
@@ -48,12 +50,28 @@ namespace RPGGame
             }
         }
 
+        public static bool IsDebugEnabled => Instance.Debug.EnableDebugOutput;
+
         private void LoadFromFile()
         {
             try
             {
                 // Try multiple possible paths for the config file
+                string executableDir = AppDomain.CurrentDomain.BaseDirectory;
+                string currentDir = Directory.GetCurrentDirectory();
+                
                 string[] possiblePaths = {
+                    // Relative to executable directory
+                    Path.Combine(executableDir, "GameData", "TuningConfig.json"),
+                    Path.Combine(executableDir, "..", "GameData", "TuningConfig.json"),
+                    Path.Combine(executableDir, "..", "..", "GameData", "TuningConfig.json"),
+                    
+                    // Relative to current working directory
+                    Path.Combine(currentDir, "GameData", "TuningConfig.json"),
+                    Path.Combine(currentDir, "..", "GameData", "TuningConfig.json"),
+                    Path.Combine(currentDir, "..", "..", "GameData", "TuningConfig.json"),
+                    
+                    // Legacy paths for backward compatibility
                     Path.Combine("GameData", "TuningConfig.json"),
                     Path.Combine("..", "GameData", "TuningConfig.json"),
                     Path.Combine("..", "..", "GameData", "TuningConfig.json")
@@ -94,6 +112,9 @@ namespace RPGGame
                         ItemScaling = config.ItemScaling;
                         RarityScaling = config.RarityScaling;
                         ProgressionCurves = config.ProgressionCurves;
+                        EnemyDPS = config.EnemyDPS;
+                        GameData = config.GameData;
+                        Debug = config.Debug;
                     }
                 }
                 else
@@ -157,7 +178,7 @@ namespace RPGGame
 
     public class EquipmentConfig
     {
-        public MinMaxConfig BonusDamageRange { get; set; } = new();
+        public int BonusDamagePerTier { get; set; } = 1;
         public MinMaxConfig BonusAttackSpeedRange { get; set; } = new();
     }
 
@@ -230,8 +251,55 @@ namespace RPGGame
     
     public class ItemScalingConfig
     {
+        public Dictionary<string, WeaponTypeConfig> WeaponTypes { get; set; } = new();
+        public Dictionary<string, ArmorTypeConfig> ArmorTypes { get; set; } = new();
+        public Dictionary<string, RarityModifierConfig> RarityModifiers { get; set; } = new();
+        public LevelScalingCapsConfig LevelScalingCaps { get; set; } = new();
         public FormulaConfig WeaponDamageFormula { get; set; } = new();
         public FormulaConfig ArmorValueFormula { get; set; } = new();
+    }
+    
+    public class WeaponTypeConfig
+    {
+        public string DamageFormula { get; set; } = "";
+        public string SpeedFormula { get; set; } = "";
+        public ScalingFactorsConfig ScalingFactors { get; set; } = new();
+    }
+    
+    public class ArmorTypeConfig
+    {
+        public string ArmorFormula { get; set; } = "";
+        public string ActionChanceFormula { get; set; } = "";
+    }
+    
+    public class ScalingFactorsConfig
+    {
+        public double StrengthWeight { get; set; } = 1.0;
+        public double AgilityWeight { get; set; } = 1.0;
+        public double TechniqueWeight { get; set; } = 1.0;
+        public double IntelligenceWeight { get; set; } = 1.0;
+    }
+    
+    public class RarityModifierConfig
+    {
+        public double DamageMultiplier { get; set; } = 1.0;
+        public double ArmorMultiplier { get; set; } = 1.0;
+        public double BonusChanceMultiplier { get; set; } = 1.0;
+    }
+    
+    public class LevelScalingCapsConfig
+    {
+        public double MaxDamageScaling { get; set; } = 5.0;
+        public double MaxArmorScaling { get; set; } = 3.0;
+        public double MaxSpeedScaling { get; set; } = 2.0;
+        public MinimumValuesConfig MinimumValues { get; set; } = new();
+    }
+    
+    public class MinimumValuesConfig
+    {
+        public int Damage { get; set; } = 1;
+        public int Armor { get; set; } = 0;
+        public double Speed { get; set; } = 0.01;
     }
     
     public class FormulaConfig
@@ -482,4 +550,18 @@ namespace RPGGame
         public double HealthArmorRatioTolerance { get; set; } = 2.0;
         public double AttributeRatioTolerance { get; set; } = 0.2;
     }
+    
+    public class GameDataConfig
+    {
+        public bool AutoGenerateOnLaunch { get; set; } = true;
+        public bool ShowGenerationMessages { get; set; } = true;
+        public string Description { get; set; } = "Controls automatic generation of game data files at launch";
+    }
+
+    public class DebugConfig
+    {
+        public bool EnableDebugOutput { get; set; } = false;
+        public string Description { get; set; } = "Controls whether debug messages are displayed throughout the game";
+    }
+
 }

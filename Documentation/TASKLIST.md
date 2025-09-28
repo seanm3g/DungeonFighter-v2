@@ -60,6 +60,10 @@ skip | 41. The way action speed is displayed for actions doesn't make sense.
 skip | 42. enemies should maybe be affected inverse or neutral to enviromental actions as the hero
 skip | 43. Enemies are weak and need to be balanced around a DPS calculator.
 skip | 44. Redesign the chance for environment action.  It's always happening in the first set of order.
+skip | 45. Make tables for each weapon and class so that when a item is rolled 80% of the time it rolls for that set, 20% of the time it rolls from ALL actions.
+skip | 46. Check that you can't add an action more than one time in a sequence | This should be a rare item or action description *remove limitation*
+skip | 47. take a pass at actions to remove any that have zero damage, especially a pass for enemies actions.
+
 
 ## New Tasks - Dynamic Tuning System 🔧
 

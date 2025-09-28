@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace RPGGame
 {
@@ -44,7 +45,7 @@ namespace RPGGame
             lootChance = Math.Min(lootChance, tuning.Loot.MaximumLootChance);
             
             // Roll for loot chance
-            if (_random.NextDouble() > lootChance) return null;
+            if (_random.NextDouble() >= lootChance) return null;
 
             // ROLL 1: Determine loot level (player level - dungeon level)
             int lootLevel = playerLevel - dungeonLevel;
@@ -53,8 +54,8 @@ namespace RPGGame
             if (lootLevel <= -3) return null; // No loot
             if (lootLevel >= 3) lootLevel = 100; // Guaranteed high-tier loot
 
-            // ROLL 2: Item type (50% weapon, 50% armor)
-            bool isWeapon = _random.NextDouble() < 0.5;
+            // ROLL 2: Item type (25% weapon, 75% armor)
+            bool isWeapon = _random.NextDouble() < 0.25;
             
             // ROLL 3: Weapon class (ignored for now as per user request)
             
@@ -73,7 +74,8 @@ namespace RPGGame
                 weapon.BaseDamage = (int)Math.Round(scaledDamage);
                 
                 // Apply bonus damage and attack speed based on tuning config
-                weapon.BonusDamage = _random.Next(tuning.Equipment.BonusDamageRange.Min, tuning.Equipment.BonusDamageRange.Max + 1);
+                // Bonus damage is 1d(tier) - so tier 1 = 1, tier 2 = 1d2, etc.
+                weapon.BonusDamage = weapon.Tier == 1 ? 1 : Dice.Roll(1, weapon.Tier);
                 weapon.BonusAttackSpeed = _random.Next(tuning.Equipment.BonusAttackSpeedRange.Min, tuning.Equipment.BonusAttackSpeedRange.Max + 1);
             }
             else if (item is HeadItem headArmor)
@@ -331,34 +333,43 @@ namespace RPGGame
         private static void ApplyBonuses(Item item, RarityData rarity)
         {
             // Apply stat bonuses
-            for (int i = 0; i < rarity.StatBonuses; i++)
+            if (_statBonuses != null && _statBonuses.Count > 0)
             {
-                var statBonus = _statBonuses![_random.Next(_statBonuses.Count)];
-                item.StatBonuses.Add(statBonus);
+                for (int i = 0; i < rarity.StatBonuses; i++)
+                {
+                    var statBonus = _statBonuses[_random.Next(_statBonuses.Count)];
+                    item.StatBonuses.Add(statBonus);
+                }
             }
 
             // Apply action bonuses
-            for (int i = 0; i < rarity.ActionBonuses; i++)
+            if (_actionBonuses != null && _actionBonuses.Count > 0)
             {
-                var actionBonus = _actionBonuses![_random.Next(_actionBonuses.Count)];
-                item.ActionBonuses.Add(actionBonus);
+                for (int i = 0; i < rarity.ActionBonuses; i++)
+                {
+                    var actionBonus = _actionBonuses[_random.Next(_actionBonuses.Count)];
+                    item.ActionBonuses.Add(actionBonus);
+                }
             }
 
             // Apply modifications
-            for (int i = 0; i < rarity.Modifications; i++)
+            if (_modifications != null && _modifications.Count > 0)
             {
-                var modification = RollModification(item.Tier);
-                if (modification != null)
+                for (int i = 0; i < rarity.Modifications; i++)
                 {
-                    item.Modifications.Add(modification);
-                    
-                    // Handle reroll effect (Divine modification)
-                    if (modification.Effect == "reroll")
+                    var modification = RollModification(item.Tier);
+                    if (modification != null)
                     {
-                        var additionalMod = RollModification(item.Tier, 3); // +3 bonus for reroll
-                        if (additionalMod != null)
+                        item.Modifications.Add(modification);
+                        
+                        // Handle reroll effect (Divine modification)
+                        if (modification.Effect == "reroll")
                         {
-                            item.Modifications.Add(additionalMod);
+                            var additionalMod = RollModification(item.Tier, 3); // +3 bonus for reroll
+                            if (additionalMod != null)
+                            {
+                                item.Modifications.Add(additionalMod);
+                            }
                         }
                     }
                 }
@@ -477,21 +488,72 @@ namespace RPGGame
 
         private static string? FindGameDataFile(string fileName)
         {
-            string[] possiblePaths = {
-                Path.Combine("GameData", fileName),
-                Path.Combine("..", "GameData", fileName),
-                Path.Combine("..", "..", "GameData", fileName),
-                Path.Combine("DF4 - CONSOLE", "GameData", fileName),
-                Path.Combine("..", "DF4 - CONSOLE", "GameData", fileName)
+            // Get the directory where the executable is located
+            string executableDir = AppDomain.CurrentDomain.BaseDirectory;
+            string currentDir = Directory.GetCurrentDirectory();
+            
+            // List of possible GameData directory locations relative to different starting points
+            string[] possibleGameDataDirs = {
+                // Relative to executable directory
+                Path.Combine(executableDir, "GameData"),
+                Path.Combine(executableDir, "..", "GameData"),
+                Path.Combine(executableDir, "..", "..", "GameData"),
+                
+                // Relative to current working directory
+                Path.Combine(currentDir, "GameData"),
+                Path.Combine(currentDir, "..", "GameData"),
+                Path.Combine(currentDir, "..", "..", "GameData"),
+                
+                // Common project structure variations
+                Path.Combine(executableDir, "..", "..", "..", "GameData"),
+                Path.Combine(currentDir, "..", "..", "..", "GameData"),
+                
+                // Legacy paths for backward compatibility
+                Path.Combine("GameData"),
+                Path.Combine("..", "GameData"),
+                Path.Combine("..", "..", "GameData"),
+                Path.Combine("DF4 - CONSOLE", "GameData"),
+                Path.Combine("..", "DF4 - CONSOLE", "GameData")
             };
 
-            foreach (string path in possiblePaths)
+            // Try to find the GameData directory first
+            string? gameDataDir = null;
+            foreach (string dir in possibleGameDataDirs)
+            {
+                if (Directory.Exists(dir))
+                {
+                    gameDataDir = dir;
+                    break;
+                }
+            }
+
+            // If we found a GameData directory, use it
+            if (gameDataDir != null)
+            {
+                string filePath = Path.Combine(gameDataDir, fileName);
+                if (File.Exists(filePath))
+                {
+                    return filePath;
+                }
+            }
+
+            // Fallback: try direct file paths
+            string[] directPaths = {
+                Path.Combine(executableDir, "GameData", fileName),
+                Path.Combine(currentDir, "GameData", fileName),
+                Path.Combine("GameData", fileName),
+                Path.Combine("..", "GameData", fileName),
+                Path.Combine("..", "..", "GameData", fileName)
+            };
+
+            foreach (string path in directPaths)
             {
                 if (File.Exists(path))
                 {
                     return path;
                 }
             }
+
             return null;
         }
 
@@ -503,7 +565,11 @@ namespace RPGGame
                 if (filePath != null)
                 {
                     string json = File.ReadAllText(filePath);
-                    _tierDistributions = JsonSerializer.Deserialize<List<TierDistribution>>(json);
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+                    _tierDistributions = JsonSerializer.Deserialize<List<TierDistribution>>(json, options);
                 }
                 else
                 {
@@ -526,7 +592,11 @@ namespace RPGGame
                 if (filePath != null)
                 {
                     string json = File.ReadAllText(filePath);
-                    _armorData = JsonSerializer.Deserialize<List<ArmorData>>(json);
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+                    _armorData = JsonSerializer.Deserialize<List<ArmorData>>(json, options);
                 }
                 else
                 {
@@ -549,7 +619,11 @@ namespace RPGGame
                 if (filePath != null)
                 {
                     string json = File.ReadAllText(filePath);
-                    _weaponData = JsonSerializer.Deserialize<List<WeaponData>>(json);
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+                    _weaponData = JsonSerializer.Deserialize<List<WeaponData>>(json, options);
                 }
                 else
                 {
@@ -572,7 +646,11 @@ namespace RPGGame
                 if (filePath != null)
                 {
                     string json = File.ReadAllText(filePath);
-                    _statBonuses = JsonSerializer.Deserialize<List<StatBonus>>(json);
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+                    _statBonuses = JsonSerializer.Deserialize<List<StatBonus>>(json, options);
                 }
                 else
                 {
@@ -595,7 +673,12 @@ namespace RPGGame
                 if (filePath != null)
                 {
                     string json = File.ReadAllText(filePath);
-                    var actions = JsonSerializer.Deserialize<List<Action>>(json);
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
+                    };
+                    var actions = JsonSerializer.Deserialize<List<Action>>(json, options);
                     _actionBonuses = actions?.Select(a => new ActionBonus { Name = a.Name, Description = a.Description, Weight = 1 }).ToList() ?? new List<ActionBonus>();
                 }
                 else
@@ -619,7 +702,11 @@ namespace RPGGame
                 if (filePath != null)
                 {
                     string json = File.ReadAllText(filePath);
-                    _modifications = JsonSerializer.Deserialize<List<Modification>>(json);
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+                    _modifications = JsonSerializer.Deserialize<List<Modification>>(json, options);
                 }
                 else
                 {
@@ -642,7 +729,11 @@ namespace RPGGame
                 if (filePath != null)
                 {
                     string json = File.ReadAllText(filePath);
-                    _rarityData = JsonSerializer.Deserialize<List<RarityData>>(json);
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+                    _rarityData = JsonSerializer.Deserialize<List<RarityData>>(json, options);
                 }
                 else
                 {
@@ -671,9 +762,16 @@ namespace RPGGame
 
     public class ArmorData
     {
+        [JsonPropertyName("slot")]
         public string Slot { get; set; } = "";
+        
+        [JsonPropertyName("name")]
         public string Name { get; set; } = "";
+        
+        [JsonPropertyName("armor")]
         public int Armor { get; set; }
+        
+        [JsonPropertyName("tier")]
         public int Tier { get; set; }
     }
 

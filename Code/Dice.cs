@@ -40,8 +40,8 @@ namespace RPGGame
         /// <summary>
         /// New dice mechanics for combo system:
         /// 1-5: Fail at attack
-        /// 6-15: Normal attack
-        /// 16-20: Combo attack (triggers combo mode)
+        /// 6-13: Normal attack
+        /// 14-20: Combo attack (triggers combo mode)
         /// </summary>
         /// <param name="bonus">Bonus to add to the roll</param>
         /// <returns>DiceResult containing the roll, success status, and combo trigger</returns>
@@ -53,7 +53,7 @@ namespace RPGGame
             {
                 return new DiceResult(roll, false, false, "Fail");
             }
-            else if (roll <= 15)
+            else if (roll <= 13)
             {
                 return new DiceResult(roll, true, false, "Normal Attack");
             }

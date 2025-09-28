@@ -221,6 +221,72 @@ namespace RPGGame
             Console.ReadKey();
         }
 
+        static WeaponItem? CreateFallbackWeapon(int playerLevel)
+        {
+            try
+            {
+                // Try to load weapon data and create a tier 1 weapon as fallback
+                string? filePath = FindGameDataFile("Weapons.json");
+                if (filePath == null) 
+                {
+                    Console.WriteLine("   ERROR: Weapons.json file not found in any expected location");
+                    return null;
+                }
+                
+                string json = File.ReadAllText(filePath);
+                var options = new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+                var weaponData = System.Text.Json.JsonSerializer.Deserialize<List<WeaponData>>(json, options);
+                if (weaponData == null) 
+                {
+                    Console.WriteLine("   ERROR: Failed to deserialize weapon data from Weapons.json");
+                    return null;
+                }
+                
+                // Find a tier 1 weapon
+                var tier1Weapons = weaponData.Where(w => w.Tier == 1).ToList();
+                if (!tier1Weapons.Any()) 
+                {
+                    Console.WriteLine($"   ERROR: No Tier 1 weapons found in Weapons.json (total weapons: {weaponData.Count})");
+                    return null;
+                }
+                
+                // Pick a random tier 1 weapon
+                var random = new Random();
+                var selectedWeapon = tier1Weapons[random.Next(tier1Weapons.Count)];
+                
+                var weaponType = Enum.Parse<WeaponType>(selectedWeapon.Type);
+                var weapon = new WeaponItem(selectedWeapon.Name, selectedWeapon.Tier, 
+                    selectedWeapon.BaseDamage, selectedWeapon.AttackSpeed, weaponType);
+                weapon.Rarity = "Common";
+                
+                return weapon;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"   ERROR: Exception in CreateFallbackWeapon: {ex.Message}");
+                return null;
+            }
+        }
+        
+        static string? FindGameDataFile(string fileName)
+        {
+            // Try current directory first
+            if (File.Exists(fileName)) return fileName;
+            
+            // Try GameData subdirectory
+            string gameDataPath = Path.Combine("GameData", fileName);
+            if (File.Exists(gameDataPath)) return gameDataPath;
+            
+            // Try parent directory + GameData
+            string parentGameDataPath = Path.Combine("..", "GameData", fileName);
+            if (File.Exists(parentGameDataPath)) return parentGameDataPath;
+            
+            return null;
+        }
+
         static void TestGuaranteedLoot()
         {
             Console.WriteLine("=== GUARANTEED LOOT TEST ===");
@@ -253,13 +319,28 @@ namespace RPGGame
                     attempts++;
                 }
                 
-                // If still no loot after max attempts, create a basic fallback item
+                // If still no loot after max attempts, notify about the issue
                 if (reward == null)
                 {
-                    // Create a basic weapon as guaranteed fallback
-                    reward = new WeaponItem("Basic Sword", player.Level, 5 + player.Level, 1.0, WeaponType.Sword);
-                    reward.Rarity = "Common";
-                    // Weapons don't need GearAction assignment as they use weapon-specific actions
+                    Console.WriteLine($"⚠️  WARNING: Loot generation failed for attempt {i}!");
+                    Console.WriteLine("   This indicates an issue with the loot generation system.");
+                    Console.WriteLine($"   - Player Level: {player.Level}");
+                    Console.WriteLine($"   - Dungeon Level: {player.Level}");
+                    Console.WriteLine($"   - Attempts Made: {maxAttempts}");
+                    
+                    // Create a diagnostic fallback weapon to prevent test breaking
+                    reward = CreateFallbackWeapon(player.Level);
+                    if (reward == null)
+                    {
+                        // Ultimate fallback if weapon data loading fails
+                        reward = new WeaponItem("Basic Sword", player.Level, 5 + player.Level, 1.0, WeaponType.Sword);
+                        reward.Rarity = "Common";
+                        Console.WriteLine("   Created emergency fallback weapon.");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"   Created fallback weapon: {reward.Name}");
+                    }
                 }
                 
                 if (reward != null)
@@ -340,99 +421,12 @@ namespace RPGGame
 
         static void TestActions()
         {
-            Console.WriteLine("\nTesting Actions:");
+            Console.WriteLine("\nTesting Actions and Action Pools:");
             
-            // Create a character to test with
-            var character = new Character();
-            Console.WriteLine($"Testing with character - Strength: {character.Strength}, Technique: {character.Technique}");
-
-            // Create different types of actions
-            var basicAttack = new Action(
-                "Basic Attack",
-                ActionType.Attack,
-                TargetType.SingleTarget,
-                baseValue: 5,
-                range: 1,
-                description: "A basic melee attack"
-            );
-
-            var fireball = new Action(
-                "Fireball",
-                ActionType.Attack,
-                TargetType.AreaOfEffect,
-                baseValue: 8,
-                range: 3,
-                cooldown: 2,
-                description: "Hurl a ball of fire at your enemies"
-            );
-
-            var heal = new Action(
-                "Heal",
-                ActionType.Heal,
-                TargetType.SingleTarget,
-                baseValue: 10,
-                range: 2,
-                cooldown: 3,
-                description: "Restore health to a target"
-            );
-
-            // Display action information
-            Console.WriteLine("\nAction Details:");
-            Console.WriteLine($"1. {basicAttack}");
-            Console.WriteLine($"2. {fireball}");
-            Console.WriteLine($"3. {heal}");
-
-            // Test effect calculations
-            Console.WriteLine("\nEffect Calculations:");
-            Console.WriteLine($"Basic Attack damage: {basicAttack.CalculateEffect(character)}");
-            Console.WriteLine($"Fireball damage: {fireball.CalculateEffect(character)}");
-            Console.WriteLine($"Heal amount: {heal.CalculateEffect(character)}");
-
-            // Test cooldown system
-            Console.WriteLine("\nCooldown Testing:");
-            Console.WriteLine($"Fireball initial cooldown: {fireball.CurrentCooldown}");
-            fireball.ResetCooldown();
-            Console.WriteLine($"Fireball after reset: {fireball.CurrentCooldown}");
-            Console.WriteLine($"Is Fireball on cooldown? {fireball.IsOnCooldown}");
-            
-            // Simulate turns passing
-            Console.WriteLine("\nSimulating turns:");
-            for (int i = 1; i <= 3; i++)
-            {
-                fireball.UpdateCooldown();
-                Console.WriteLine($"Turn {i}: Fireball cooldown = {fireball.CurrentCooldown}");
-            }
-
-            // Test different target types
-            Console.WriteLine("\nTarget Types:");
-            var selfBuff = new Action(
-                "Self Buff",
-                ActionType.Buff,
-                TargetType.Self,
-                baseValue: 5,
-                description: "Increase your own stats"
-            );
-
-            var environmentAction = new Action(
-                "Search",
-                ActionType.Interact,
-                TargetType.Environment,
-                baseValue: 0,
-                description: "Search the environment"
-            );
-
-            Console.WriteLine($"Self-targeting action: {selfBuff}");
-            Console.WriteLine($"Environment action: {environmentAction}");
-        }
-
-        static void TestEntityActionPools()
-        {
-            Console.WriteLine("\nTesting Entity Action Pools:");
-
             // Create test entities
-            var character = new Character("Test Hero");
-            var weakEnemy = new Enemy("Goblin", 1, 30, 5, 10, 0, 0);
-            var strongEnemy = new Enemy("Orc Warlord", 5, 100, 50, 100, 0, 0);
+            var character = new Character("Test Hero", 1);
+            var weakEnemy = new Enemy("Goblin", 1, 30, 5, 10, 0, 0, 2, PrimaryAttribute.Agility);
+            var strongEnemy = new Enemy("Orc Warlord", 5, 100, 50, 100, 0, 0, 3, PrimaryAttribute.Strength);
             var friendlyEnvironment = new Environment("Forest Clearing", "A peaceful clearing in the woods", false, "Forest");
             var hostileEnvironment = new Environment("Lava Pit", "A dangerous pool of molten lava", true, "Lava");
 
@@ -517,6 +511,7 @@ namespace RPGGame
             Console.WriteLine($"Level 1 - STR: {weakEnemy.Strength}, AGI: {weakEnemy.Agility}, TEC: {weakEnemy.Technique}");
             Console.WriteLine($"Level 5 - STR: {strongEnemy.Strength}, AGI: {strongEnemy.Agility}, TEC: {strongEnemy.Technique}");
         }
+
 
         static void TestCombat()
         {
@@ -852,9 +847,9 @@ namespace RPGGame
                 Console.WriteLine(new string('-', 50));
                 
                 // Create different enemy types at this level with their primary attributes
-                var goblin = new Enemy("Goblin", level, 40, 6, 8, 3, 3, 2, PrimaryAttribute.Agility);
-                var orc = new Enemy("Orc", level, 65, 12, 5, 3, 2, 3, PrimaryAttribute.Strength);
-                var cultist = new Enemy("Cultist", level, 45, 6, 7, 10, 7, 1, PrimaryAttribute.Technique);
+                var goblin = new Enemy("Goblin", level, 40, 6, 8, 3, 0, 2, PrimaryAttribute.Agility);
+                var orc = new Enemy("Orc", level, 65, 12, 5, 3, 0, 3, PrimaryAttribute.Strength);
+                var cultist = new Enemy("Cultist", level, 45, 6, 7, 10, 0, 1, PrimaryAttribute.Technique);
                 
                 Console.WriteLine($"Goblin Lv{level} (Primary: Agility): Health {goblin.MaxHealth}, STR {goblin.Strength}, AGI {goblin.Agility}, TEC {goblin.Technique}");
                 Console.WriteLine($"Orc Lv{level} (Primary: Strength): Health {orc.MaxHealth}, STR {orc.Strength}, AGI {orc.Agility}, TEC {orc.Technique}");
@@ -879,9 +874,9 @@ namespace RPGGame
             Console.WriteLine("\nPrimary Attribute Scaling Comparison (Level 5):");
             Console.WriteLine(new string('-', 50));
             
-            var strengthEnemy = new Enemy("Orc", 5, 65, 12, 5, 3, 2, 3, PrimaryAttribute.Strength);
-            var agilityEnemy = new Enemy("Goblin", 5, 40, 6, 8, 3, 3, 2, PrimaryAttribute.Agility);
-            var techniqueEnemy = new Enemy("Cultist", 5, 45, 6, 7, 10, 7, 1, PrimaryAttribute.Technique);
+            var strengthEnemy = new Enemy("Orc", 5, 65, 12, 5, 3, 0, 3, PrimaryAttribute.Strength);
+            var agilityEnemy = new Enemy("Goblin", 5, 40, 6, 8, 3, 0, 2, PrimaryAttribute.Agility);
+            var techniqueEnemy = new Enemy("Cultist", 5, 45, 6, 7, 10, 0, 1, PrimaryAttribute.Technique);
             
             Console.WriteLine($"Strength Primary: STR {strengthEnemy.Strength}, AGI {strengthEnemy.Agility}, TEC {strengthEnemy.Technique}");
             Console.WriteLine($"Agility Primary: STR {agilityEnemy.Strength}, AGI {agilityEnemy.Agility}, TEC {agilityEnemy.Technique}");
@@ -898,8 +893,8 @@ namespace RPGGame
             Console.WriteLine(new string('-', 40));
             
             var player = new Character("Hero", 1);
-            var weakEnemy = new Enemy("Goblin", 1, 40, 6, 8, 3, 3, 2, PrimaryAttribute.Agility);
-            var strongEnemy = new Enemy("Orc", 5, 65, 12, 5, 3, 2, 3, PrimaryAttribute.Strength);
+            var weakEnemy = new Enemy("Goblin", 1, 40, 6, 8, 3, 0, 2, PrimaryAttribute.Agility);
+            var strongEnemy = new Enemy("Orc", 5, 65, 12, 5, 3, 0, 3, PrimaryAttribute.Strength);
             
             Console.WriteLine($"Player: Health {player.MaxHealth}, STR {player.Strength}");
             Console.WriteLine($"Weak Enemy: Health {weakEnemy.MaxHealth}, STR {weakEnemy.Strength}");
@@ -1281,16 +1276,16 @@ namespace RPGGame
                 var result = Dice.RollComboAction();
                 if (result.Roll <= 5)
                     failCount++;
-                else if (result.Roll <= 15)
+                else if (result.Roll <= 13)
                     normalCount++;
                 else
                     comboCount++;
             }
             
             Console.WriteLine($"Fail (1-5): {failCount} ({failCount/10.0:F1}%)");
-            Console.WriteLine($"Normal (6-15): {normalCount} ({normalCount/10.0:F1}%)");
-            Console.WriteLine($"Combo (16-20): {comboCount} ({comboCount/10.0:F1}%)");
-            Console.WriteLine($"Expected: ~25% fail, ~50% normal, ~25% combo");
+            Console.WriteLine($"Normal (6-13): {normalCount} ({normalCount/10.0:F1}%)");
+            Console.WriteLine($"Combo (14-20): {comboCount} ({comboCount/10.0:F1}%)");
+            Console.WriteLine($"Expected: ~25% fail, ~40% normal, ~35% combo");
             Console.WriteLine();
             
             // Test 2: Combo Continue Rolls
@@ -1726,6 +1721,80 @@ namespace RPGGame
             }
         }
 
+        // Consolidated Test Methods
+        static void TestCharacterSystem()
+        {
+            Console.WriteLine("=== CHARACTER SYSTEM TEST ===");
+            Console.WriteLine("Testing character leveling, attributes, and progression...\n");
+            TestCharacterLeveling();
+            Console.WriteLine("\n" + new string('=', 50) + "\n");
+        }
+
+        static void TestItemsAndEquipment()
+        {
+            Console.WriteLine("=== ITEMS & EQUIPMENT TEST ===");
+            Console.WriteLine("Testing item generation, equipment, and inventory...\n");
+            TestItems();
+            Console.WriteLine("\n" + new string('=', 50) + "\n");
+        }
+
+        static void TestDiceSystem()
+        {
+            Console.WriteLine("=== DICE SYSTEM TEST ===");
+            Console.WriteLine("Testing dice mechanics, rolls, and probability...\n");
+            TestDice();
+            TestNewDiceMechanics();
+            Console.WriteLine("\n" + new string('=', 50) + "\n");
+        }
+
+        static void TestActionSystem()
+        {
+            Console.WriteLine("=== ACTION SYSTEM TEST ===");
+            Console.WriteLine("Testing actions, action pools, and action descriptions...\n");
+            TestActions();
+            TestNewActionSystem();
+            TestEnhancedActionDescriptions();
+            Console.WriteLine("\n" + new string('=', 50) + "\n");
+        }
+
+        static void TestCombatSystem()
+        {
+            Console.WriteLine("=== COMBAT SYSTEM TEST ===");
+            Console.WriteLine("Testing combat mechanics, damage, and battle flow...\n");
+            TestCombat();
+            Console.WriteLine("\n" + new string('=', 50) + "\n");
+        }
+
+        static void TestLootSystem()
+        {
+            Console.WriteLine("=== LOOT SYSTEM TEST ===");
+            Console.WriteLine("Testing loot generation, magic find, and guaranteed loot...\n");
+            TestMagicFindRaritySystem();
+            TestLootGenerationSystem();
+            TestGuaranteedLoot();
+            Console.WriteLine("\n" + new string('=', 50) + "\n");
+        }
+
+        static void TestEnemySystem()
+        {
+            Console.WriteLine("=== ENEMY SYSTEM TEST ===");
+            Console.WriteLine("Testing enemy scaling, armor, stat pools, and thresholds...\n");
+            TestEnemyScaling();
+            TestEnemyArmorAndStatPools();
+            TestEnemyThreshold();
+            Console.WriteLine("\n" + new string('=', 50) + "\n");
+        }
+
+        static void TestNarrativeSystem()
+        {
+            Console.WriteLine("=== NARRATIVE SYSTEM TEST ===");
+            Console.WriteLine("Testing battle narrative, poetic narrative, and event-driven narrative...\n");
+            TestBattleNarrativeSystem();
+            RunDemo();
+            DemoEventDrivenNarrative();
+            Console.WriteLine("\n" + new string('=', 50) + "\n");
+        }
+
         static void RunAllTests()
         {
             Console.WriteLine("=== RUNNING ALL TESTS ===\n");
@@ -1788,24 +1857,10 @@ namespace RPGGame
                 Console.WriteLine($"✗ FAILED: {ex.Message}\n");
             }
             
-            // Test 5: Entity Action Pools
+            // Test 5: Combat
             try
             {
-                Console.WriteLine("Running Test 5: Entity Action Pools...");
-                TestEntityActionPools();
-                testResults.Add(("Entity Action Pools", true, null));
-                Console.WriteLine("✓ PASSED\n");
-            }
-            catch (Exception ex)
-            {
-                testResults.Add(("Entity Action Pools", false, ex.Message));
-                Console.WriteLine($"✗ FAILED: {ex.Message}\n");
-            }
-            
-            // Test 6: Combat
-            try
-            {
-                Console.WriteLine("Running Test 6: Combat...");
+                Console.WriteLine("Running Test 5: Combat...");
                 TestCombat();
                 testResults.Add(("Combat", true, null));
                 Console.WriteLine("✓ PASSED\n");
@@ -1819,7 +1874,7 @@ namespace RPGGame
             // Test 7: Combo System
             try
             {
-                Console.WriteLine("Running Test 7: Combo System...");
+                Console.WriteLine("Running Test 6: Combo System...");
                 TestComboSystem();
                 testResults.Add(("Combo System", true, null));
                 Console.WriteLine("✓ PASSED\n");
@@ -1833,7 +1888,7 @@ namespace RPGGame
             // Test 8: Battle Narrative System
             try
             {
-                Console.WriteLine("Running Test 8: Battle Narrative System...");
+                Console.WriteLine("Running Test 7: Battle Narrative System...");
                 TestBattleNarrativeSystem();
                 testResults.Add(("Battle Narrative System", true, null));
                 Console.WriteLine("✓ PASSED\n");
@@ -1847,7 +1902,7 @@ namespace RPGGame
             // Test 9: Enemy Scaling
             try
             {
-                Console.WriteLine("Running Test 9: Enemy Scaling...");
+                Console.WriteLine("Running Test 8: Enemy Scaling...");
                 TestEnemyScaling();
                 testResults.Add(("Enemy Scaling", true, null));
                 Console.WriteLine("✓ PASSED\n");
@@ -1861,7 +1916,7 @@ namespace RPGGame
             // Test 10: New Dice Mechanics
             try
             {
-                Console.WriteLine("Running Test 10: New Dice Mechanics...");
+                Console.WriteLine("Running Test 9: New Dice Mechanics...");
                 TestNewDiceMechanics();
                 testResults.Add(("New Dice Mechanics", true, null));
                 Console.WriteLine("✓ PASSED\n");
@@ -1875,7 +1930,7 @@ namespace RPGGame
             // Test 11: New Action System
             try
             {
-                Console.WriteLine("Running Test 11: New Action System...");
+                Console.WriteLine("Running Test 10: New Action System...");
                 TestNewActionSystem();
                 testResults.Add(("New Action System", true, null));
                 Console.WriteLine("✓ PASSED\n");
@@ -1889,7 +1944,7 @@ namespace RPGGame
             // Test 12: Loot Generation System
             try
             {
-                Console.WriteLine("Running Test 12: Loot Generation System...");
+                Console.WriteLine("Running Test 11: Loot Generation System...");
                 TestLootGenerationSystem();
                 testResults.Add(("Loot Generation System", true, null));
                 Console.WriteLine("✓ PASSED\n");
@@ -1929,34 +1984,20 @@ namespace RPGGame
             {
                 Console.WriteLine("\nTests Menu\n");
                 Console.WriteLine("0. Exit");
-                Console.WriteLine("1. Character Leveling Test");
-                Console.WriteLine("2. Items Test");
-                Console.WriteLine("3. Dice Test");
-                Console.WriteLine("4. Actions Test");
-                Console.WriteLine("5. Entity Action Pools Test");
-                Console.WriteLine("6. Combat Test");
-                Console.WriteLine("7. Combo System Custom Tests");
-                Console.WriteLine("8. Battle Narrative System Tests");
-                Console.WriteLine("9. Enemy Scaling Test");
-                Console.WriteLine("10. Demo Poetic Narrative");
-                Console.WriteLine("11. Demo Event-Driven Narrative");
-                Console.WriteLine("12. Demo Primary Attributes");
-                Console.WriteLine("13. Test Intelligent Delay System");
-                Console.WriteLine("14. Test New Dice Mechanics");
-                Console.WriteLine("15. Test New Action System");
-                Console.WriteLine("16. Test Magic Find Rarity System");
-                Console.WriteLine("17. Test Loot Generation System");
-                Console.WriteLine("18. Test Weapon-Based Classes");
-                Console.WriteLine("19. Test Tuning System");
-                Console.WriteLine("20. Test Combo Amplification");
-                Console.WriteLine("21. Test Combo UI");
-                Console.WriteLine("22. Test Enemy Armor & Stat Pools");
-                Console.WriteLine("23. Test Damage Balance");
-                Console.WriteLine("24. Test Enhanced Action Descriptions");
-                Console.WriteLine("25. Test Enemy 14+ Threshold");
-                Console.WriteLine("26. Test Guaranteed Loot");
-                Console.WriteLine("27. Run All Tests");
-                Console.WriteLine("28. Back to Main Menu\n");
+                Console.WriteLine("1. Character System Test");
+                Console.WriteLine("2. Items & Equipment Test");
+                Console.WriteLine("3. Dice System Test");
+                Console.WriteLine("4. Action System Test");
+                Console.WriteLine("5. Combat System Test");
+                Console.WriteLine("6. Combo System Test");
+                Console.WriteLine("7. Loot System Test");
+                Console.WriteLine("8. Enemy System Test");
+                Console.WriteLine("9. Narrative System Test");
+                Console.WriteLine("10. Tuning System Test");
+                Console.WriteLine("11. Environmental Actions Test");
+                Console.WriteLine("12. Damage Balance Test");
+                Console.WriteLine("13. Run All Tests");
+                Console.WriteLine("14. Back to Main Menu\n");
                 Console.Write("Choose an option: ");
 
                 string? choice = Console.ReadLine();
@@ -1966,114 +2007,58 @@ namespace RPGGame
                         Console.WriteLine("Goodbye!");
                         return;
                     case "1":
-                        Console.WriteLine("\nRunning Character Leveling Test...\n");
-                        TestCharacterLeveling();
+                        Console.WriteLine("\nRunning Character System Test...\n");
+                        TestCharacterSystem();
                         break;
                     case "2":
-                        Console.WriteLine("\nRunning Items Test...\n");
-                        TestItems();
+                        Console.WriteLine("\nRunning Items & Equipment Test...\n");
+                        TestItemsAndEquipment();
                         break;
                     case "3":
-                        Console.WriteLine("\nRunning Dice Test...\n");
-                        TestDice();
+                        Console.WriteLine("\nRunning Dice System Test...\n");
+                        TestDiceSystem();
                         break;
                     case "4":
-                        Console.WriteLine("\nRunning Actions Test...\n");
-                        TestActions();
+                        Console.WriteLine("\nRunning Action System Test...\n");
+                        TestActionSystem();
                         break;
                     case "5":
-                        Console.WriteLine("\nRunning Entity Action Pools Test...\n");
-                        TestEntityActionPools();
+                        Console.WriteLine("\nRunning Combat System Test...\n");
+                        TestCombatSystem();
                         break;
                     case "6":
-                        Console.WriteLine("\nRunning Combat Test...\n");
-                        TestCombat();
-                        break;
-                    case "7":
-                        Console.WriteLine("\nRunning Combo System Custom Tests...\n");
+                        Console.WriteLine("\nRunning Combo System Test...\n");
                         TestComboSystem();
                         break;
+                    case "7":
+                        Console.WriteLine("\nRunning Loot System Test...\n");
+                        TestLootSystem();
+                        break;
                     case "8":
-                        Console.WriteLine("\nRunning Battle Narrative System Tests...\n");
-                        TestBattleNarrativeSystem();
+                        Console.WriteLine("\nRunning Enemy System Test...\n");
+                        TestEnemySystem();
                         break;
                     case "9":
-                        Console.WriteLine("\nRunning Enemy Scaling Test...\n");
-                        TestEnemyScaling();
+                        Console.WriteLine("\nRunning Narrative System Test...\n");
+                        TestNarrativeSystem();
                         break;
                     case "10":
-                        Console.WriteLine("\nRunning Poetic Narrative Demo...\n");
-                        RunDemo();
-                        break;
-                    case "11":
-                        Console.WriteLine("\nRunning Event-Driven Narrative Demo...\n");
-                        DemoEventDrivenNarrative();
-                        break;
-                    case "12":
-                        Console.WriteLine("\nRunning Primary Attributes Demo...\n");
-                        DemoPrimaryAttributes();
-                        break;
-                    case "13":
-                        Console.WriteLine("\nRunning Intelligent Delay System Test...\n");
-                        TestIntelligentDelaySystem();
-                        break;
-                    case "14":
-                        Console.WriteLine("\nRunning New Dice Mechanics Test...\n");
-                        TestNewDiceMechanics();
-                        break;
-                    case "15":
-                        Console.WriteLine("\nRunning New Action System Test...\n");
-                        TestNewActionSystem();
-                        break;
-                    case "16":
-                        Console.WriteLine("\nRunning Magic Find Rarity System Test...\n");
-                        TestMagicFindRaritySystem();
-                        break;
-                    case "17":
-                        Console.WriteLine("\nRunning Loot Generation System Test...\n");
-                        TestLootGenerationSystem();
-                        break;
-                    case "18":
-                        Console.WriteLine("\nRunning Weapon-Based Classes Test...\n");
-                        TestWeaponBasedClasses();
-                        break;
-                    case "19":
                         Console.WriteLine("\nRunning Tuning System Test...\n");
                         TestTuningSystem();
                         break;
-                    case "20":
-                        Console.WriteLine("\nRunning Combo Amplification Test...\n");
-                        TestComboAmplification();
+                    case "11":
+                        Console.WriteLine("\nRunning Environmental Actions Test...\n");
+                        RisingDeadTest.TestEnvironmentalActions();
                         break;
-                    case "21":
-                        Console.WriteLine("\nRunning Combo UI Test...\n");
-                        TestComboUI();
-                        break;
-                    case "22":
-                        Console.WriteLine("\nRunning Enemy Armor & Stat Pools Test...\n");
-                        TestEnemyArmorAndStatPools();
-                        break;
-                    case "23":
+                    case "12":
                         Console.WriteLine("\nRunning Damage Balance Test...\n");
                         TestDamageBalance();
                         break;
-                    case "24":
-                        Console.WriteLine("\nRunning Enhanced Action Descriptions Test...\n");
-                        TestEnhancedActionDescriptions();
-                        break;
-                    case "25":
-                        Console.WriteLine("\nRunning Enemy 14+ Threshold Test...\n");
-                        TestEnemyThreshold();
-                        break;
-                    case "26":
-                        Console.WriteLine("\nRunning Guaranteed Loot Test...\n");
-                        TestGuaranteedLoot();
-                        break;
-                    case "27":
+                    case "13":
                         Console.WriteLine("\nRunning All Tests...\n");
                         RunAllTests();
                         break;
-                    case "28":
+                    case "14":
                         return;
                     default:
                         Console.WriteLine("Invalid choice. Please try again.");
@@ -2111,9 +2096,10 @@ namespace RPGGame
                 Console.WriteLine("4. Combat Display Options");
                 Console.WriteLine("5. Gameplay Options");
                 Console.WriteLine("6. Tests");
-                Console.WriteLine("7. Delete Saved Characters");
-                Console.WriteLine("8. Reset to Defaults");
-                Console.WriteLine("9. Back to Main Menu\n");
+                Console.WriteLine("7. Tuning Console");
+                Console.WriteLine("8. Delete Saved Characters");
+                Console.WriteLine("9. Reset to Defaults");
+                Console.WriteLine("10. Back to Main Menu\n");
                 Console.Write("Choose an option: ");
 
                 string? choice = Console.ReadLine();
@@ -2138,14 +2124,17 @@ namespace RPGGame
                         RunTests();
                         break;
                     case "7":
-                        DeleteSavedCharacters();
+                        TuningConsole.ShowTuningMenu();
                         break;
                     case "8":
+                        DeleteSavedCharacters();
+                        break;
+                    case "9":
                         settings.ResetToDefaults();
                         settings.SaveSettings();
                         Console.WriteLine("Settings reset to defaults and saved.");
                         break;
-                    case "9":
+                    case "10":
                         settings.SaveSettings();
                         return;
                     default:
@@ -2486,6 +2475,30 @@ namespace RPGGame
 
         static void Main(string[] args)
         {
+            
+            // Generate game data files based on TuningConfig at launch (if enabled)
+            if (TuningConfig.Instance.GameData.AutoGenerateOnLaunch)
+            {
+                try
+                {
+                    if (TuningConfig.Instance.GameData.ShowGenerationMessages)
+                    {
+                        Console.WriteLine("Initializing game data...");
+                    }
+                    GameDataGenerator.GenerateAllGameData();
+                    if (TuningConfig.Instance.GameData.ShowGenerationMessages)
+                    {
+                        Console.WriteLine("Game data initialization complete!\n");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Warning: Failed to generate game data files: {ex.Message}");
+                    Console.WriteLine("Continuing with existing data files...\n");
+                }
+            }
+            
+            
             while (true)
             {
                 Console.WriteLine("\nDungeon Fighter - Main Menu\n");
@@ -2504,8 +2517,7 @@ namespace RPGGame
                 }
                 
                 Console.WriteLine("3. Settings");
-                Console.WriteLine("4. Tuning Console");
-                Console.WriteLine("5. Exit\n");
+                Console.WriteLine("4. Exit\n");
                 Console.Write("Choose an option: ");
 
                 string? choice = Console.ReadLine();
@@ -2521,9 +2533,6 @@ namespace RPGGame
                         RunSettings();
                         break;
                     case "4":
-                        TuningConsole.ShowTuningMenu();
-                        break;
-                    case "5":
                         Console.WriteLine("Goodbye!");
                         return;
                     default:

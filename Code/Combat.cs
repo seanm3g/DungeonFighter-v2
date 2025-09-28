@@ -292,7 +292,7 @@ namespace RPGGame
                         }
                         // Check for bleed chance after damage
                         CheckAndApplyBleedChance(player, target);
-                        int actualCriticalDamage = CalculateDamage(player, target, null, 1.0, 1.0, 0, 20, false);
+                        int actualCriticalDamage = CalculateDamage(player, target, null, 1.0, 1.0, totalRollBonus, autoSuccessRoll, false);
                         string criticalDamageDisplay = FormatDamageDisplay(player, target, criticalDamage, actualCriticalDamage, null, 1.0, 1.0, 0, 20);
                         string criticalArmorBreakdown = GetArmorBreakdown(player, target, actualCriticalDamage);
                         return $"[{player.Name}] uses [Perfect Auto-Success Attack] on [{target.Name}]: deals {criticalDamageDisplay}.\n        (AUTO-SUCCESS!{criticalArmorBreakdown})";
@@ -313,7 +313,7 @@ namespace RPGGame
                     }
                     // Check for bleed chance after damage
                     CheckAndApplyBleedChance(player, target);
-                    int actualCriticalComboDamage = CalculateDamage(player, target, criticalAction, criticalExponentialComboAmp, 1.0, 0, 20, false);
+                    int actualCriticalComboDamage = CalculateDamage(player, target, criticalAction, criticalExponentialComboAmp, 1.0, totalRollBonus, autoSuccessRoll, false);
                     string criticalComboDamageDisplay = FormatDamageDisplay(player, target, criticalComboDamage, actualCriticalComboDamage, criticalAction, criticalExponentialComboAmp, 1.0, 0, 20);
                     string criticalComboArmorBreakdown = GetArmorBreakdown(player, target, actualCriticalComboDamage);
                     return $"[{player.Name}] uses [Perfect {criticalAction.Name}] on [{target.Name}]: deals {criticalComboDamageDisplay}.\n        (AUTO-SUCCESS!, combo step {autoSuccessActionIndex + 1}, {criticalExponentialComboAmp:F2}x amplification{criticalComboArmorBreakdown})";
@@ -505,7 +505,7 @@ namespace RPGGame
                             // Check for bleed chance after damage
                             CheckAndApplyBleedChance(player, target);
                             string dejaVuFallbackRollText = totalRollBonus != 0 ? $"{baseRoll} + {totalRollBonus} = {attackRoll}" : attackRoll.ToString();
-                            int actualDejaVuFallbackDamage = CalculateDamage(player, target, null, fallbackExponentialAmp, 1.0, totalRollBonus, attackRoll, false);
+                            int actualDejaVuFallbackDamage = CalculateDamage(player, target, action, fallbackExponentialAmp, 1.0, totalRollBonus, attackRoll, false);
                             string dejaVuFallbackDamageDisplay = FormatDamageDisplay(player, target, fallbackDamage, actualDejaVuFallbackDamage, null, fallbackExponentialAmp, 1.0, totalRollBonus, attackRoll);
                             return $"[{player.Name}] uses [DEJA VU] but has no previous action to repeat on [{target.Name}]: deals {dejaVuFallbackDamageDisplay}. (Rolled {dejaVuFallbackRollText}, combo step {actionIndex + 1}, {fallbackExponentialAmp:F2}x amplification)";
                         }
@@ -525,17 +525,18 @@ namespace RPGGame
                     double baseComboAmp = player.GetComboAmplifier();
                     double exponentialComboAmp = Math.Pow(baseComboAmp, actionIndex);
                     
-                        int comboDamage = CalculateDamage(player, target, action, exponentialComboAmp, 1.0, totalRollBonus, attackRoll);
-                        if (target is Character comboTargetChar)
-                        {
-                            comboTargetChar.TakeDamage(comboDamage);
-                        }
-                        // Check for bleed chance after damage
-                        CheckAndApplyBleedChance(player, target);
+                    // Calculate damage once and reuse the result for both damage application and display
+                    int comboDamage = CalculateDamage(player, target, action, exponentialComboAmp, 1.0, totalRollBonus, attackRoll);
+                    if (target is Character comboTargetChar)
+                    {
+                        comboTargetChar.TakeDamage(comboDamage);
+                    }
+                    // Check for bleed chance after damage
+                    CheckAndApplyBleedChance(player, target);
+                    
                     string comboRollText = totalRollBonus != 0 ? $"{baseRoll} + {totalRollBonus} = {attackRoll}" : attackRoll.ToString();
-                    int actualComboDamage = CalculateDamage(player, target, action, exponentialComboAmp, 1.0, totalRollBonus, attackRoll, false);
-                    string comboDamageDisplay = FormatDamageDisplay(player, target, comboDamage, actualComboDamage, action, exponentialComboAmp, 1.0, totalRollBonus, attackRoll);
-                    string comboArmorBreakdown = GetArmorBreakdown(player, target, actualComboDamage);
+                    string comboDamageDisplay = FormatDamageDisplay(player, target, comboDamage, comboDamage, action, exponentialComboAmp, 1.0, totalRollBonus, attackRoll);
+                    string comboArmorBreakdown = GetArmorBreakdown(player, target, comboDamage);
                     return $"[{player.Name}] uses [{action.Name}] on [{target.Name}]: deals {comboDamageDisplay}.\n        (Rolled {comboRollText}, combo step {actionIndex + 1}, {exponentialComboAmp:F2}x amplification{comboArmorBreakdown})";
                 }
                 
@@ -676,6 +677,13 @@ namespace RPGGame
                                 character.ApplyPoison(poisonConfig.DamagePerTick, 1, true); // 1 stack of bleed, mark as bleeding
                                 // Bleeding message will be added to return string below
                             }
+                            // Apply burn effect if the action causes burning
+                            else if (selectedAction.CausesBurn)
+                            {
+                                var poisonConfig = TuningConfig.Instance.Poison; // Use same config as poison for now
+                                character.ApplyBurn(poisonConfig.DamagePerTick, poisonConfig.StacksPerApplication);
+                                // Burning message will be added to return string below
+                            }
                         }
                         break;
                     case ActionType.Heal:
@@ -697,6 +705,10 @@ namespace RPGGame
                 {
                     string effectType = GetEffectType(selectedAction);
                     result += $"\n[{target.Name}] is {effectType} from {selectedAction.Name}";
+                }
+                else if (selectedAction.CausesBurn && target is Character burnTarget)
+                {
+                    result += $"\n[{target.Name}] is burning from {selectedAction.Name}";
                 }
                 
                 // Add health milestone notifications after the attack message
@@ -780,6 +792,13 @@ namespace RPGGame
                                 var poisonConfig = TuningConfig.Instance.Poison;
                                 character.ApplyPoison(poisonConfig.DamagePerTick, 1, true); // 1 stack of bleed, mark as bleeding
                                 // Bleeding message will be added to return string below
+                            }
+                            // Apply burn effect if the action causes burning
+                            else if (selectedAction.CausesBurn)
+                            {
+                                var poisonConfig = TuningConfig.Instance.Poison; // Use same config as poison for now
+                                character.ApplyBurn(poisonConfig.DamagePerTick, poisonConfig.StacksPerApplication);
+                                // Burning message will be added to return string below
                             }
                         }
                         break;
@@ -908,7 +927,26 @@ namespace RPGGame
             {
                 weaponDamage = 0; // Enemies don't have weapons, just base damage
                 strength = enemy.Strength;
-                highestAttribute = strength; // For enemies, use strength as highest
+                
+                // For enemies, use their primary attribute as the highest attribute
+                switch (enemy.PrimaryAttribute)
+                {
+                    case PrimaryAttribute.Strength:
+                        highestAttribute = enemy.Strength;
+                        break;
+                    case PrimaryAttribute.Agility:
+                        highestAttribute = enemy.Agility;
+                        break;
+                    case PrimaryAttribute.Technique:
+                        highestAttribute = enemy.Technique;
+                        break;
+                    case PrimaryAttribute.Intelligence:
+                        highestAttribute = enemy.Intelligence;
+                        break;
+                    default:
+                        highestAttribute = enemy.Strength; // Fallback
+                        break;
+                }
                 
                 // Add level-based damage scaling for enemies
                 weaponDamage = enemy.Level * 0; // Enemies get no level damage bonus (DPS scaling handles this)
@@ -1219,34 +1257,77 @@ namespace RPGGame
                         }
                     }
                 }
+                else if (selectedAction.CausesBurn)
+                {
+                    // Apply burn debuff using configuration
+                    var poisonConfig = TuningConfig.Instance.Poison; // Use same config as poison for now
+                    if (target is Character characterTarget)
+                    {
+                        characterTarget.ApplyBurn(poisonConfig.DamagePerTick, poisonConfig.StacksPerApplication);
+                        results.Add($"[{target.Name}] is burning from {selectedAction.Name} (+{poisonConfig.StacksPerApplication} stacks, {poisonConfig.DamagePerTick} damage per stack)");
+                    }
+                    else if (target is Enemy enemyTarget)
+                    {
+                        // Only apply burn to living enemies
+                        if (enemyTarget.IsLiving)
+                        {
+                            enemyTarget.ApplyBurn(poisonConfig.DamagePerTick, poisonConfig.StacksPerApplication);
+                            results.Add($"[{target.Name}] is burning from {selectedAction.Name} (+{poisonConfig.StacksPerApplication} stacks, {poisonConfig.DamagePerTick} damage per stack)");
+                        }
+                        else
+                        {
+                            results.Add($"[{target.Name}] cannot be burned (undead)");
+                        }
+                    }
+                }
                 else if (selectedAction.CausesWeaken)
                 {
-                    // Apply weaken debuff based on action length
+                    // Apply weaken debuff - use 2d2-2 for environmental actions, action length for others
+                    int weakenTurns;
+                    if (source is Environment)
+                    {
+                        // Environmental weaken effects use 2d2-2 (range: 0-2 turns)
+                        weakenTurns = Dice.Roll(2, 2) - 2;
+                    }
+                    else
+                    {
+                        // Non-environmental weaken effects use action length
+                        weakenTurns = (int)Math.Ceiling(Character.CalculateTurnsFromActionLength(selectedAction.Length));
+                    }
+                    
                     if (target is Character weakenTarget)
                     {
-                        int weakenTurns = (int)Math.Ceiling(Character.CalculateTurnsFromActionLength(selectedAction.Length));
                         weakenTarget.ApplyWeaken(weakenTurns);
                         results.Add($"[{target.Name}] is weakened by {selectedAction.Name} ({weakenTurns} turns)");
                     }
                     else if (target is Enemy enemyWeakenTarget)
                     {
-                        int weakenTurns = (int)Math.Ceiling(Character.CalculateTurnsFromActionLength(selectedAction.Length));
                         enemyWeakenTarget.ApplyWeaken(weakenTurns);
                         results.Add($"[{target.Name}] is weakened by {selectedAction.Name} ({weakenTurns} turns)");
                     }
                 }
                 else if (selectedAction.CausesSlow)
                 {
-                    // Apply slow debuff based on action length
+                    // Apply slow debuff - use 2d2-2 for environmental actions, action length for others
+                    int slowTurns;
+                    if (source is Environment)
+                    {
+                        // Environmental slow effects use 2d2-2 (range: 0-2 turns)
+                        slowTurns = Dice.Roll(2, 2) - 2;
+                    }
+                    else
+                    {
+                        // Non-environmental slow effects use action length
+                        slowTurns = (int)Math.Ceiling(Character.CalculateTurnsFromActionLength(selectedAction.Length));
+                    }
+                    
                     if (target is Character slowTarget)
                     {
-                        int slowTurns = (int)Math.Ceiling(Character.CalculateTurnsFromActionLength(selectedAction.Length));
                         slowTarget.ApplySlow(1.5, slowTurns); // 1.5x slower
                         results.Add($"[{target.Name}] is slowed by {selectedAction.Name} ({slowTurns} turns)");
                     }
                     else if (target is Enemy enemySlowTarget)
                     {
-                        int slowTurns = (int)Math.Ceiling(Character.CalculateTurnsFromActionLength(selectedAction.Length));
                         enemySlowTarget.ApplySlow(1.5, slowTurns); // 1.5x slower
                         results.Add($"[{target.Name}] is slowed by {selectedAction.Name} ({slowTurns} turns)");
                     }
@@ -1269,11 +1350,35 @@ namespace RPGGame
                             var poisonConfig = TuningConfig.Instance.Poison;
                             enemyBleedTarget.ApplyPoison(poisonConfig.DamagePerTick, 2, true); // 2 stacks of bleed, mark as bleeding
                             string effectType = GetEffectType(selectedAction);
-                        results.Add($"[{target.Name}] is {effectType} from {selectedAction.Name}");
+                            results.Add($"[{target.Name}] is {effectType} from {selectedAction.Name}");
                         }
                         else
                         {
                             results.Add($"[{target.Name}] cannot be bled (undead)");
+                        }
+                    }
+                }
+                else if (selectedAction.CausesBurn)
+                {
+                    // Apply burn debuff
+                    if (target is Character burnTarget)
+                    {
+                        var poisonConfig = TuningConfig.Instance.Poison; // Use same config as poison for now
+                        burnTarget.ApplyBurn(poisonConfig.DamagePerTick, poisonConfig.StacksPerApplication);
+                        results.Add($"[{target.Name}] is burning from {selectedAction.Name} (+{poisonConfig.StacksPerApplication} stacks, {poisonConfig.DamagePerTick} damage per stack)");
+                    }
+                    else if (target is Enemy enemyBurnTarget)
+                    {
+                        // Only apply burn to living enemies
+                        if (enemyBurnTarget.IsLiving)
+                        {
+                            var poisonConfig = TuningConfig.Instance.Poison; // Use same config as poison for now
+                            enemyBurnTarget.ApplyBurn(poisonConfig.DamagePerTick, poisonConfig.StacksPerApplication);
+                            results.Add($"[{target.Name}] is burning from {selectedAction.Name} (+{poisonConfig.StacksPerApplication} stacks, {poisonConfig.DamagePerTick} damage per stack)");
+                        }
+                        else
+                        {
+                            results.Add($"[{target.Name}] cannot be burned (undead)");
                         }
                     }
                 }
@@ -1300,8 +1405,20 @@ namespace RPGGame
                     // Only apply stun if the target is not already stunned
                     if (!target.IsStunned)
                     {
-                        // Apply stun debuff based on action length
-                        int stunTurns = (int)Math.Ceiling(Character.CalculateTurnsFromActionLength(selectedAction.Length));
+                        int stunTurns;
+                        
+                        // Check if this is an environmental stun (source is Environment)
+                        if (source is Environment)
+                        {
+                            // Environmental stuns use 2d2-1 (range: 0-2 turns)
+                            stunTurns = Dice.Roll(2, 2) - 2;
+                        }
+                        else
+                        {
+                            // Non-environmental stuns use action length
+                            stunTurns = (int)Math.Ceiling(Character.CalculateTurnsFromActionLength(selectedAction.Length));
+                        }
+                        
                         if (target is Character stunTarget)
                         {
                             stunTarget.IsStunned = true;
@@ -1319,6 +1436,32 @@ namespace RPGGame
                     {
                         // Target is already stunned, don't apply new stun
                         results.Add($"[{target.Name}] is already stunned and unaffected by {selectedAction.Name}");
+                    }
+                }
+                else if (selectedAction.Name == "RISING DEAD")
+                {
+                    // Rising Dead only affects living entities
+                    // Environmental actions use 2d2-2 (range: 0-2 turns)
+                    int weakenTurns = Dice.Roll(2, 2) - 2;
+                    
+                    if (target is Character characterTarget)
+                    {
+                        // Characters are always living, so apply the effect
+                        characterTarget.ApplyWeaken(weakenTurns);
+                        results.Add($"[{target.Name}] is weakened by Rising Dead ({weakenTurns} turns)");
+                    }
+                    else if (target is Enemy enemyTarget)
+                    {
+                        // Only apply to living enemies
+                        if (enemyTarget.IsLiving)
+                        {
+                            enemyTarget.ApplyWeaken(weakenTurns);
+                            results.Add($"[{target.Name}] is weakened by Rising Dead ({weakenTurns} turns)");
+                        }
+                        else
+                        {
+                            results.Add($"[{target.Name}] is unaffected by Rising Dead (undead)");
+                        }
                     }
                 }
                 else switch (selectedAction.Type)
@@ -1392,13 +1535,35 @@ namespace RPGGame
                             // Apply other debuff effects if the action causes them
                             if (selectedAction.CausesWeaken)
                             {
-                                int weakenTurns = (int)Math.Ceiling(Character.CalculateTurnsFromActionLength(selectedAction.Length));
+                                // Apply weaken debuff - use 2d2-2 for environmental actions, action length for others
+                                int weakenTurns;
+                                if (source is Environment)
+                                {
+                                    // Environmental weaken effects use 2d2-2 (range: 0-2 turns)
+                                    weakenTurns = Dice.Roll(2, 2) - 2;
+                                }
+                                else
+                                {
+                                    // Non-environmental weaken effects use action length
+                                    weakenTurns = (int)Math.Ceiling(Character.CalculateTurnsFromActionLength(selectedAction.Length));
+                                }
                                 enemyAttackTarget.ApplyWeaken(weakenTurns);
                                 results.Add($"[{target.Name}] is weakened by {selectedAction.Name} ({weakenTurns} turns)");
                             }
                             else if (selectedAction.CausesSlow)
                             {
-                                int slowTurns = (int)Math.Ceiling(Character.CalculateTurnsFromActionLength(selectedAction.Length));
+                                // Apply slow debuff - use 2d2-2 for environmental actions, action length for others
+                                int slowTurns;
+                                if (source is Environment)
+                                {
+                                    // Environmental slow effects use 2d2-2 (range: 0-2 turns)
+                                    slowTurns = Dice.Roll(2, 2) - 2;
+                                }
+                                else
+                                {
+                                    // Non-environmental slow effects use action length
+                                    slowTurns = (int)Math.Ceiling(Character.CalculateTurnsFromActionLength(selectedAction.Length));
+                                }
                                 enemyAttackTarget.ApplySlow(1.5, slowTurns);
                                 results.Add($"[{target.Name}] is slowed by {selectedAction.Name} ({slowTurns} turns)");
                             }
@@ -1415,6 +1580,19 @@ namespace RPGGame
                                     results.Add($"[{target.Name}] cannot be poisoned (undead)");
                                 }
                             }
+                            else if (selectedAction.CausesBurn)
+                            {
+                                var poisonConfig = TuningConfig.Instance.Poison; // Use same config as poison for now
+                                if (enemyAttackTarget.IsLiving)
+                                {
+                                    enemyAttackTarget.ApplyBurn(poisonConfig.DamagePerTick, poisonConfig.StacksPerApplication);
+                                    results.Add($"[{target.Name}] is burning from {selectedAction.Name} (+{poisonConfig.StacksPerApplication} stacks, {poisonConfig.DamagePerTick} damage per stack)");
+                                }
+                                else
+                                {
+                                    results.Add($"[{target.Name}] cannot be burned (undead)");
+                                }
+                            }
                             else if (selectedAction.CausesBleed)
                             {
                                 var poisonConfig = TuningConfig.Instance.Poison;
@@ -1427,6 +1605,19 @@ namespace RPGGame
                                 else
                                 {
                                     results.Add($"[{target.Name}] is immune to bleeding (undead)");
+                                }
+                            }
+                            else if (selectedAction.CausesBurn)
+                            {
+                                var poisonConfig = TuningConfig.Instance.Poison; // Use same config as poison for now
+                                if (enemyAttackTarget.IsLiving)
+                                {
+                                    enemyAttackTarget.ApplyBurn(poisonConfig.DamagePerTick, poisonConfig.StacksPerApplication);
+                                    results.Add($"[{target.Name}] is burning from {selectedAction.Name} (+{poisonConfig.StacksPerApplication} stacks, {poisonConfig.DamagePerTick} damage per stack)");
+                                }
+                                else
+                                {
+                                    results.Add($"[{target.Name}] is immune to burning (undead)");
                                 }
                             }
                         }
@@ -1442,15 +1633,35 @@ namespace RPGGame
                         // Handle different debuff types
                         if (selectedAction.CausesSlow && target is Character slowTarget)
                         {
-                            // Apply slow debuff based on action length
-                            int slowTurns = (int)Math.Ceiling(Character.CalculateTurnsFromActionLength(selectedAction.Length));
+                            // Apply slow debuff - use 2d2-2 for environmental actions, action length for others
+                            int slowTurns;
+                            if (source is Environment)
+                            {
+                                // Environmental slow effects use 2d2-2 (range: 0-2 turns)
+                                slowTurns = Dice.Roll(2, 2) - 2;
+                            }
+                            else
+                            {
+                                // Non-environmental slow effects use action length
+                                slowTurns = (int)Math.Ceiling(Character.CalculateTurnsFromActionLength(selectedAction.Length));
+                            }
                             slowTarget.ApplySlow(1.5, slowTurns);
                             results.Add($"[{target.Name}] is slowed by {selectedAction.Name} ({slowTurns} turns)");
                         }
                         else if (selectedAction.CausesSlow && target is Enemy enemySlowTarget)
                         {
-                            // Apply slow debuff based on action length
-                            int slowTurns = (int)Math.Ceiling(Character.CalculateTurnsFromActionLength(selectedAction.Length));
+                            // Apply slow debuff - use 2d2-2 for environmental actions, action length for others
+                            int slowTurns;
+                            if (source is Environment)
+                            {
+                                // Environmental slow effects use 2d2-2 (range: 0-2 turns)
+                                slowTurns = Dice.Roll(2, 2) - 2;
+                            }
+                            else
+                            {
+                                // Non-environmental slow effects use action length
+                                slowTurns = (int)Math.Ceiling(Character.CalculateTurnsFromActionLength(selectedAction.Length));
+                            }
                             enemySlowTarget.ApplySlow(1.5, slowTurns);
                             results.Add($"[{target.Name}] is slowed by {selectedAction.Name} ({slowTurns} turns)");
                         }

@@ -245,8 +245,9 @@ namespace RPGGame
                     var narrativeSettings = GameSettings.Instance;
                     if (narrativeSettings.NarrativeBalance <= 0.0)
                     {
-                        int actualDamage = Combat.CalculateDamage(this, target, action, 1.0, 1.0, 0, roll, false);
-                        string damageDisplay = Combat.FormatDamageDisplay(this, target, finalEffect, actualDamage, action, 1.0, 1.0, 0, roll);
+                        // Use the same parameters as the actual damage calculation to avoid duplicate weakened messages
+                        int actualDamage = Combat.CalculateDamage(this, target, action, 1.0, settings.EnemyDamageMultiplier, 0, roll, false);
+                        string damageDisplay = Combat.FormatDamageDisplay(this, target, finalEffect, actualDamage, action, 1.0, settings.EnemyDamageMultiplier, 0, roll);
                         string actionResult = $"[{Name}] uses [{action.Name}] on [{target.Name}]: deals {damageDisplay}. (Rolled {roll}, need {difficulty})";
                         return (actionResult, true);
                     }
@@ -281,8 +282,9 @@ namespace RPGGame
                     if (action.Type == ActionType.Attack)
                     {
                         target.TakeDamage(finalEffect);
-                        int actualDamage = Combat.CalculateDamage(this, target, action, 1.0, 1.0, 0, roll, false);
-                        string damageDisplay = Combat.FormatDamageDisplay(this, target, finalEffect, actualDamage, action, 1.0, 1.0, 0, roll);
+                        // Use the same parameters as the actual damage calculation to avoid duplicate weakened messages
+                        int actualDamage = Combat.CalculateDamage(this, target, action, 1.0, settings.EnemyDamageMultiplier, 0, roll, false);
+                        string damageDisplay = Combat.FormatDamageDisplay(this, target, finalEffect, actualDamage, action, 1.0, settings.EnemyDamageMultiplier, 0, roll);
                         return ($"[{Name}] uses [{action.Name}] on [{target.Name}]: deals {damageDisplay}. (Rolled {roll}, need {difficulty})", true);
                     }
                     else if (action.Type == ActionType.Debuff)
@@ -318,6 +320,23 @@ namespace RPGGame
             
             // Check for health milestones and leadership changes
             return Combat.CheckHealthMilestones(this, amount);
+        }
+
+        /// <summary>
+        /// Override ProcessPoison to prevent undead enemies from taking bleed/poison damage
+        /// </summary>
+        /// <param name="currentTime">Current game time in seconds</param>
+        /// <returns>Damage taken from poison this tick (0 for undead)</returns>
+        public new int ProcessPoison(double currentTime)
+        {
+            // Undead enemies are immune to poison and bleed damage
+            if (!IsLiving)
+            {
+                return 0;
+            }
+            
+            // For living enemies, use the base class implementation
+            return base.ProcessPoison(currentTime);
         }
     }
 } 

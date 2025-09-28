@@ -214,20 +214,16 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Gets the attack speed modifier for the new system
+        /// Gets the attack speed multiplier for the weapon
         /// </summary>
-        /// <returns>Attack speed modifier in seconds (positive = slower, negative = faster)</returns>
-        public double GetAttackSpeedModifier()
+        /// <returns>Attack speed multiplier (0.9 = 10% faster, 1.1 = 10% slower)</returns>
+        public double GetAttackSpeedMultiplier()
         {
-            // New system: BaseAttackSpeed is already in seconds
-            // We need to convert this to a modifier relative to a base attack time
-            // Base attack time is 10 seconds (from TuningConfig), so:
-            // - If weapon has 3s attack speed, modifier should be -7s (3-10 = -7)
-            // - If weapon has 6s attack speed, modifier should be -4s (6-10 = -4)
-            // - If weapon has 10s attack speed, modifier should be 0s (10-10 = 0)
-            
-            double baseAttackTime = 10.0; // This should match TuningConfig.Combat.BaseAttackTime
-            return BaseAttackSpeed - baseAttackTime;
+            // BaseAttackSpeed is now used directly as a multiplier
+            // 0.9 = 10% faster than base
+            // 1.0 = same speed as base  
+            // 1.1 = 10% slower than base
+            return BaseAttackSpeed;
         }
     }
 } 

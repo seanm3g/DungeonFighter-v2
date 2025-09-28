@@ -55,6 +55,11 @@ namespace RPGGame
         public double LastPoisonTick { get; set; } = 0.0; // Last time poison ticked
         public bool IsBleeding { get; set; } = false; // Whether the damage is from bleeding (vs poison)
         
+        // Burning debuff from fire effects
+        public int BurnDamage { get; set; } = 0;
+        public int BurnStacks { get; set; } = 0; // Number of burn stacks
+        public double LastBurnTick { get; set; } = 0.0; // Last time burn ticked
+        
         // Shield buff from Arcane SHIELD
         public bool HasShield { get; set; } = false; // Whether character has active shield
         public int LastShieldReduction { get; set; } = 0; // Amount of damage reduced by last shield use
@@ -126,15 +131,23 @@ namespace RPGGame
             Feet = null;
 
             // Add default actions
+            if (TuningConfig.IsDebugEnabled)
+                Console.WriteLine($"DEBUG: Character created, adding default actions...");
             AddDefaultActions();
-            AddComboActions();
+            if (TuningConfig.IsDebugEnabled)
+                Console.WriteLine($"DEBUG: After AddDefaultActions, ActionPool has {ActionPool.Count} actions");
             
-            // Initialize combo sequence with core class actions
-            InitializeDefaultCombo();
+            AddComboActions();
+            if (TuningConfig.IsDebugEnabled)
+                Console.WriteLine($"DEBUG: After AddComboActions, ActionPool has {ActionPool.Count} actions");
+            
+            // Note: InitializeDefaultCombo() will be called after weapon is equipped in Game.cs
         }
 
         private void AddDefaultActions()
         {
+            if (TuningConfig.IsDebugEnabled)
+                Console.WriteLine("DEBUG: AddDefaultActions called");
             // Add basic attack that's always available
             var basicAttack = new Action(
                 name: "BASIC ATTACK",
@@ -152,6 +165,8 @@ namespace RPGGame
                 isComboAction: false
             );
             AddAction(basicAttack, 1.0); // High probability for basic attack
+            if (TuningConfig.IsDebugEnabled)
+                Console.WriteLine("DEBUG: Added BASIC ATTACK to ActionPool");
         }
 
         private void AddComboActions()
@@ -162,14 +177,20 @@ namespace RPGGame
 
         private void AddClassActions()
         {
+            if (TuningConfig.IsDebugEnabled)
+                Console.WriteLine("DEBUG: AddClassActions called");
             // Remove existing class actions first
             RemoveClassActions();
             
             // Add class-specific actions based on class points
+            if (TuningConfig.IsDebugEnabled)
+                Console.WriteLine($"DEBUG: Class points - Barbarian: {BarbarianPoints}, Warrior: {WarriorPoints}, Rogue: {RoguePoints}, Wizard: {WizardPoints}");
             AddBarbarianActions();
             AddWarriorActions();
             AddRogueActions();
             AddWizardActions();
+            if (TuningConfig.IsDebugEnabled)
+                Console.WriteLine($"DEBUG: After AddClassActions, ActionPool has {ActionPool.Count} actions");
         }
 
         private void LoadClassActionsFromJson(WeaponType weaponType)
@@ -211,7 +232,7 @@ namespace RPGGame
                                 var action = CreateActionFromData(actionData);
                                 if (action.IsComboAction)
                                 {
-                                    AddAction(action, 0.0);
+                                    AddAction(action, 1.0);
                                 }
                             }
                         }
@@ -267,7 +288,7 @@ namespace RPGGame
                             var action = CreateActionFromData(actionData);
                             if (action.IsComboAction)
                             {
-                                AddAction(action, 0.0);
+                                AddAction(action, 1.0);
                             }
                         }
                     }
@@ -286,13 +307,16 @@ namespace RPGGame
 
         private Action CreateActionFromData(ActionData data)
         {
+            var actionType = ParseActionType(data.Type);
+            var targetType = ParseTargetType(data.TargetType);
+
             // Enhance description with modifiers
             string enhancedDescription = EnhanceActionDescription(data);
             
             var action = new Action(
                 name: data.Name,
-                type: ParseActionType(data.Type),
-                targetType: TargetType.SingleTarget,
+                type: actionType,
+                targetType: targetType,
                 baseValue: data.BaseValue,
                 range: data.Range,
                 cooldown: data.Cooldown,
@@ -307,6 +331,11 @@ namespace RPGGame
                 comboBonusDuration: data.ComboBonusDuration
             );
             
+            // Set the new debuff properties
+            action.CausesSlow = data.CausesSlow;
+            action.CausesPoison = data.CausesPoison;
+            action.CausesBurn = data.CausesBurn;
+            
             // Set additional properties
             action.RollBonus = data.RollBonus;
             action.StatBonus = data.StatBonus;
@@ -317,6 +346,8 @@ namespace RPGGame
             action.SelfDamagePercent = data.SelfDamagePercent;
             action.SkipNextTurn = data.SkipNextTurn;
             action.RepeatLastAction = data.RepeatLastAction;
+            action.Tags = data.Tags ?? new List<string>();
+            action.EnemyRollPenalty = data.EnemyRollPenalty;
                 
             return action;
         }
@@ -408,6 +439,18 @@ namespace RPGGame
             };
         }
 
+        private TargetType ParseTargetType(string targetType)
+        {
+            return targetType.ToLower() switch
+            {
+                "self" => TargetType.Self,
+                "singletarget" => TargetType.SingleTarget,
+                "areaofeffect" => TargetType.AreaOfEffect,
+                "environment" => TargetType.Environment,
+                _ => TargetType.SingleTarget
+            };
+        }
+
         // Methods to add/remove items from inventory
         public void AddToInventory(Item item) => Inventory.Add(item);
         public bool RemoveFromInventory(Item item) => Inventory.Remove(item);
@@ -486,8 +529,36 @@ namespace RPGGame
                 CurrentHealth = Math.Min(newCurrentHealth, newMaxHealth);
             }
             
-            // Update combo sequence after equipment change (only remove actions, don't add defaults)
+            // Update combo sequence after equipment change
             UpdateComboSequenceAfterGearChange();
+            
+            // If weapon was changed, handle combo sequence intelligently
+            if (slot.ToLower() == "weapon")
+            {
+                // If combo is now empty, initialize default combo
+                if (ComboSequence.Count == 0)
+                {
+                    InitializeDefaultCombo();
+                }
+                // If the new weapon has the same actions as the old weapon, preserve the combo
+                else if (previousItem is WeaponItem oldWeapon && item is WeaponItem newWeapon)
+                {
+                    var oldActions = GetGearActions(oldWeapon);
+                    var newActions = GetGearActions(newWeapon);
+                    
+                    // If actions are the same, keep the current combo sequence
+                    if (oldActions.SequenceEqual(newActions))
+                    {
+                        // Combo sequence is already preserved by UpdateComboSequenceAfterGearChange
+                        // No additional action needed
+                    }
+                    else
+                    {
+                        // Actions are different, but we still have some actions in combo
+                        // Only initialize default if combo is empty (already handled above)
+                    }
+                }
+            }
             
             // Apply roll bonuses from the new item
             ApplyRollBonusesFromGear(item);
@@ -859,25 +930,46 @@ namespace RPGGame
             }
         }
         
-        private void InitializeDefaultCombo()
+        public void InitializeDefaultCombo()
         {
+            if (TuningConfig.IsDebugEnabled)
+                Console.WriteLine("DEBUG: InitializeDefaultCombo called");
             // Clear existing combo sequence
             ComboSequence.Clear();
             
             // Add the two weapon actions to the combo by default
             if (Weapon is WeaponItem weapon)
             {
+                if (TuningConfig.IsDebugEnabled)
+                    Console.WriteLine($"DEBUG: Found weapon: {weapon.Name} (Type: {weapon.WeaponType})");
                 var weaponActions = GetGearActions(weapon);
+                if (TuningConfig.IsDebugEnabled)
+                    Console.WriteLine($"DEBUG: Found {weaponActions.Count} weapon actions: {string.Join(", ", weaponActions)}");
+                
                 foreach (var actionName in weaponActions)
                 {
                     // Find the action in the action pool and add it to combo
                     var action = ActionPool.FirstOrDefault(a => a.action.Name == actionName);
                     if (action.action != null && action.action.IsComboAction)
                     {
+                        if (TuningConfig.IsDebugEnabled)
+                            Console.WriteLine($"DEBUG: Adding {actionName} to combo sequence");
                         AddToCombo(action.action);
+                    }
+                    else
+                    {
+                        if (TuningConfig.IsDebugEnabled)
+                            Console.WriteLine($"DEBUG: Could not add {actionName} to combo - action not found or not a combo action");
                     }
                 }
             }
+            else
+            {
+                if (TuningConfig.IsDebugEnabled)
+                    Console.WriteLine("DEBUG: No weapon equipped, cannot initialize default combo");
+            }
+            if (TuningConfig.IsDebugEnabled)
+                Console.WriteLine($"DEBUG: Combo sequence now has {ComboSequence.Count} actions");
         }
 
         /// <summary>
@@ -1776,7 +1868,7 @@ namespace RPGGame
                 var berserkerRage = ActionLoader.GetAction("BERSERKER RAGE");
                 if (berserkerRage != null)
                 {
-                    AddAction(berserkerRage, 0.0);
+                    AddAction(berserkerRage, 1.0);
                 }
             }
             // Future thresholds: 10, 20, 40, 80, 100 points for additional abilities
@@ -1791,13 +1883,13 @@ namespace RPGGame
                 var heroicStrike = ActionLoader.GetAction("HEROIC STRIKE");
                 if (heroicStrike != null)
                 {
-                    AddAction(heroicStrike, 0.0);
+                    AddAction(heroicStrike, 1.0);
                 }
                 
                 var whirlwind = ActionLoader.GetAction("WHIRLWIND");
                 if (whirlwind != null)
                 {
-                    AddAction(whirlwind, 0.0);
+                    AddAction(whirlwind, 1.0);
                 }
             }
             else
@@ -1813,7 +1905,7 @@ namespace RPGGame
                 var shadowStrike = ActionLoader.GetAction("SHADOW STRIKE");
                 if (shadowStrike != null)
                 {
-                    AddAction(shadowStrike, 0.0);
+                    AddAction(shadowStrike, 1.0);
                 }
             }
         }
@@ -1832,7 +1924,7 @@ namespace RPGGame
                     var fireball = ActionLoader.GetAction("FIREBALL");
                     if (fireball != null)
                     {
-                        AddAction(fireball, 0.0);
+                        AddAction(fireball, 1.0);
                     }
                 }
                 
@@ -1842,7 +1934,7 @@ namespace RPGGame
                     var meteor = ActionLoader.GetAction("METEOR");
                     if (meteor != null)
                     {
-                        AddAction(meteor, 0.0);
+                        AddAction(meteor, 1.0);
                     }
                 }
             }
@@ -2031,21 +2123,30 @@ namespace RPGGame
 
         private void AddWeaponActions(WeaponItem weapon)
         {
+            if (TuningConfig.IsDebugEnabled)
+                Console.WriteLine($"DEBUG: AddWeaponActions called for {weapon.Name} (Type: {weapon.WeaponType})");
             // Add gear-specific actions based on weapon type
             AddGearActions(weapon);
+            if (TuningConfig.IsDebugEnabled)
+                Console.WriteLine($"DEBUG: After AddWeaponActions, ActionPool has {ActionPool.Count} actions");
         }
 
         private void AddGearActions(Item gear)
         {
+            if (TuningConfig.IsDebugEnabled)
+                Console.WriteLine($"DEBUG: AddGearActions called for {gear.Name}");
             // Define gear-specific actions that are lost when unequipped
             var gearActions = GetGearActions(gear);
-            
+            if (TuningConfig.IsDebugEnabled)
+                Console.WriteLine($"DEBUG: GetGearActions returned {gearActions.Count} actions: {string.Join(", ", gearActions)}");
             
             // If there are actions to add, load them
             if (gearActions.Count > 0)
             {
                 foreach (var actionName in gearActions)
                 {
+                    if (TuningConfig.IsDebugEnabled)
+                        Console.WriteLine($"DEBUG: Loading gear action: {actionName}");
                     // Load gear actions from JSON to ensure they're properly configured
                     LoadGearActionFromJson(actionName);
                 }
@@ -2053,14 +2154,21 @@ namespace RPGGame
                 // Apply roll bonuses from stat bonuses to all actions
                 ApplyRollBonusesFromGear(gear);
             }
+            else
+            {
+                if (TuningConfig.IsDebugEnabled)
+                    Console.WriteLine($"DEBUG: No gear actions to add for {gear.Name}");
+            }
         }
 
         private List<string> GetGearActions(Item gear)
         {
+            var actions = new List<string>();
+            
             if (gear is WeaponItem weapon)
             {
                 // Get weapon actions from Actions.json based on weapon type
-                return GetWeaponActionsFromJson(weapon.WeaponType);
+                actions.AddRange(GetWeaponActionsFromJson(weapon.WeaponType));
             }
             else if (gear is HeadItem || gear is ChestItem || gear is FeetItem)
             {
@@ -2070,26 +2178,36 @@ namespace RPGGame
                     // Use the gear's assigned action if it has one
                     if (!string.IsNullOrEmpty(gear.GearAction))
                     {
-                        return new List<string> { gear.GearAction };
+                        actions.Add(gear.GearAction);
                     }
                     else
                     {
                         // Fallback to random selection for gear without assigned actions
-                        return GetRandomArmorActionFromJson(gear);
+                        actions.AddRange(GetRandomArmorActionFromJson(gear));
                     }
                 }
                 else
                 {
                     // Basic starter armor should have no actions
-                    return new List<string>();
                 }
             }
             
-            return new List<string>();
+            // Add action bonuses from the item (for both weapons and armor)
+            foreach (var actionBonus in gear.ActionBonuses)
+            {
+                if (!string.IsNullOrEmpty(actionBonus.Name))
+                {
+                    actions.Add(actionBonus.Name);
+                }
+            }
+            
+            return actions;
         }
 
         private void LoadGearActionFromJson(string actionName)
         {
+            if (TuningConfig.IsDebugEnabled)
+                Console.WriteLine($"DEBUG: LoadGearActionFromJson called for action: {actionName}");
             try
             {
                 string[] possiblePaths = {
@@ -2112,14 +2230,20 @@ namespace RPGGame
                 
                 if (foundPath != null)
                 {
+                    if (TuningConfig.IsDebugEnabled)
+                        Console.WriteLine($"DEBUG: Found Actions.json at: {foundPath}");
                     string jsonContent = File.ReadAllText(foundPath);
                     var allActions = System.Text.Json.JsonSerializer.Deserialize<List<ActionData>>(jsonContent);
                     
                     if (allActions != null)
                     {
+                        if (TuningConfig.IsDebugEnabled)
+                            Console.WriteLine($"DEBUG: Deserialized {allActions.Count} actions from JSON");
                         var actionData = allActions.FirstOrDefault(a => a.Name == actionName);
                         if (actionData != null)
                         {
+                            if (TuningConfig.IsDebugEnabled)
+                                Console.WriteLine($"DEBUG: Found action data for {actionName}");
                             var action = CreateActionFromData(actionData);
                             if (action.IsComboAction)
                             {
@@ -2128,25 +2252,37 @@ namespace RPGGame
                                 int maxOrder = comboActions.Count > 0 ? comboActions.Max(a => a.action.ComboOrder) : 0;
                                 action.ComboOrder = maxOrder + 1;
                                 
-                                AddAction(action, 0.0);
+                                AddAction(action, 1.0);
+                                if (TuningConfig.IsDebugEnabled)
+                                    Console.WriteLine($"DEBUG: Successfully added action {actionName} to ActionPool");
                             }
                             else
                             {
+                                if (TuningConfig.IsDebugEnabled)
+                                    Console.WriteLine($"DEBUG: Action {actionName} is not a combo action, skipping");
                             }
                         }
                         else
                         {
+                            if (TuningConfig.IsDebugEnabled)
+                                Console.WriteLine($"DEBUG: Action {actionName} not found in Actions.json");
                         }
+                    }
+                    else
+                    {
+                        if (TuningConfig.IsDebugEnabled)
+                            Console.WriteLine($"DEBUG: Failed to deserialize Actions.json");
                     }
                 }
                 else
                 {
-                    Console.WriteLine($"Actions.json not found when loading gear action {actionName}. Tried paths: {string.Join(", ", possiblePaths)}");
+                    Console.WriteLine($"ERROR: Actions.json not found when loading gear action {actionName}. Tried paths: {string.Join(", ", possiblePaths)}");
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error loading gear action {actionName} from JSON: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
             }
         }
 
@@ -2190,11 +2326,18 @@ namespace RPGGame
         private List<string> GetWeaponActionsFromJson(WeaponType weaponType)
         {
             var weaponTag = weaponType.ToString().ToLower();
+            if (TuningConfig.IsDebugEnabled)
+                Console.WriteLine($"DEBUG: GetWeaponActionsFromJson called for {weaponType} (tag: {weaponTag})");
+            
             var allActions = ActionLoader.GetAllActions();
+            if (TuningConfig.IsDebugEnabled)
+                Console.WriteLine($"DEBUG: Got {allActions.Count} total actions from ActionLoader");
             
             // For mace weapons, return the specific mace actions
             if (weaponType == WeaponType.Mace)
             {
+                if (TuningConfig.IsDebugEnabled)
+                    Console.WriteLine("DEBUG: Using hardcoded mace actions");
                 return new List<string> { "CRUSHING BLOW", "SHIELD BREAK", "THUNDER CLAP" };
             }
             
@@ -2206,6 +2349,8 @@ namespace RPGGame
                 .Select(action => action.Name)
                 .ToList();
                 
+            if (TuningConfig.IsDebugEnabled)
+                Console.WriteLine($"DEBUG: Found {weaponActions.Count} weapon actions for {weaponType}: {string.Join(", ", weaponActions)}");
             return weaponActions;
         }
 
@@ -2466,19 +2611,25 @@ namespace RPGGame
         /// <summary>
         /// Calculates the total attack speed including weapon and agility bonuses
         /// </summary>
-        /// <returns>Total attack speed value</returns>
+        /// <returns>Total attack speed value in seconds</returns>
         public double GetTotalAttackSpeed()
         {
             var tuning = TuningConfig.Instance;
             
-            // New system: Base 10s, agility reduces time, weapon adds modifier
+            // Base attack time: 10 seconds
             double baseAttackTime = tuning.Combat.BaseAttackTime;
-            double agilityReduction = GetEffectiveAgility() * tuning.Combat.AgilitySpeedReduction;
-            double weaponModifier = (Weapon is WeaponItem w) ? w.GetAttackSpeedModifier() : 0.0;
-            double equipmentSpeedBonus = GetEquipmentAttackSpeedBonus();
             
-            // Calculate final attack time: base - agility reduction + weapon modifier - equipment speed bonus
-            double finalAttackTime = baseAttackTime - agilityReduction + weaponModifier - equipmentSpeedBonus;
+            // Agility reduces attack time (makes you faster)
+            double agilityReduction = GetEffectiveAgility() * tuning.Combat.AgilitySpeedReduction;
+            double agilityAdjustedTime = baseAttackTime - agilityReduction;
+            
+            // Weapon attack speed is a multiplier (0.9 = 10% faster, 1.1 = 10% slower)
+            double weaponMultiplier = (Weapon is WeaponItem w) ? w.BaseAttackSpeed : 1.0;
+            double weaponAdjustedTime = agilityAdjustedTime * weaponMultiplier;
+            
+            // Equipment speed bonus reduces time further
+            double equipmentSpeedBonus = GetEquipmentAttackSpeedBonus();
+            double finalAttackTime = weaponAdjustedTime - equipmentSpeedBonus;
             
             // Apply slow debuff if active
             if (SlowTurns > 0)
@@ -2489,6 +2640,7 @@ namespace RPGGame
             // Apply speed multiplier modifications (like Ethereal)
             double speedMultiplier = GetModificationSpeedMultiplier();
             finalAttackTime /= speedMultiplier; // Divide by multiplier to make attacks faster
+            
             
             // Apply minimum cap
             return Math.Max(tuning.Combat.MinimumAttackTime, finalAttackTime);
@@ -2528,7 +2680,11 @@ namespace RPGGame
         /// <param name="isBleeding">Whether this is bleeding damage (vs poison)</param>
         public void ApplyPoison(int damage, int stacks = 1, bool isBleeding = false)
         {
-            PoisonDamage = damage;
+            // Only set PoisonDamage if we don't have any poison stacks yet, or if the new damage per stack is different
+            if (PoisonStacks == 0 || PoisonDamage != damage)
+            {
+                PoisonDamage = damage; // This should be damage per stack
+            }
             PoisonStacks += stacks; // Add stacks (can stack multiple times)
             LastPoisonTick = GameTicker.Instance.GetCurrentGameTime(); // Set to current time so first tick happens after interval
             IsBleeding = isBleeding; // Track whether this is bleeding or poison
@@ -2595,6 +2751,53 @@ namespace RPGGame
         public string GetDamageTypeText()
         {
             return IsBleeding ? "bleed" : "poison";
+        }
+        
+        /// <summary>
+        /// Applies a burn debuff to the character
+        /// </summary>
+        /// <param name="damage">Damage per tick</param>
+        /// <param name="stacks">Number of burn stacks to add</param>
+        public void ApplyBurn(int damage, int stacks = 1)
+        {
+            // Only set BurnDamage if we don't have any burn stacks yet, or if the new damage per stack is different
+            if (BurnStacks == 0 || BurnDamage != damage)
+            {
+                BurnDamage = damage; // This should be damage per stack
+            }
+            BurnStacks += stacks; // Add stacks (can stack multiple times)
+            LastBurnTick = GameTicker.Instance.GetCurrentGameTime(); // Set to current time so first tick happens after interval
+        }
+        
+        /// <summary>
+        /// Processes burn damage over time
+        /// </summary>
+        /// <param name="currentTime">Current game time</param>
+        /// <returns>Amount of burn damage dealt this tick</returns>
+        public int ProcessBurn(double currentTime)
+        {
+            if (BurnStacks > 0)
+            {
+                var poisonConfig = TuningConfig.Instance.Poison; // Use same config as poison for now
+                
+                // Check if enough time has passed for a burn tick
+                if (currentTime - LastBurnTick >= poisonConfig.TickInterval)
+                {
+                    int totalDamage = BurnDamage * BurnStacks;
+                    TakeDamage(totalDamage);
+                    LastBurnTick = currentTime;
+                    
+                    // Reduce burn stacks by 1
+                    BurnStacks--;
+                    if (BurnStacks <= 0)
+                    {
+                        BurnDamage = 0; // Reset burn
+                        BurnStacks = 0;
+                    }
+                    return totalDamage;
+                }
+            }
+            return 0;
         }
 
         /// <summary>

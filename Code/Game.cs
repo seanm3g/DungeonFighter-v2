@@ -152,7 +152,16 @@ namespace RPGGame
             };
             
             WeaponItem starterWeapon = new WeaponItem(selectedWeaponData.name, 1, selectedWeaponData.damage, selectedWeaponData.attackSpeed, weaponType);
+            if (TuningConfig.IsDebugEnabled)
+                Console.WriteLine($"DEBUG: About to equip starter weapon: {starterWeapon.Name} (Type: {starterWeapon.WeaponType})");
             player.EquipItem(starterWeapon, "weapon");
+            if (TuningConfig.IsDebugEnabled)
+                Console.WriteLine($"DEBUG: After equipping weapon, player has {player.ActionPool.Count} actions in pool");
+            
+            // Initialize combo sequence with weapon actions now that weapon is equipped
+            player.InitializeDefaultCombo();
+            if (TuningConfig.IsDebugEnabled)
+                Console.WriteLine($"DEBUG: After InitializeDefaultCombo, player has {player.ComboSequence.Count} actions in combo sequence");
             
             // Equip starting armor from JSON
             foreach (var armorData in startingGear.armor)
@@ -360,8 +369,8 @@ namespace RPGGame
                         Console.WriteLine($"\nEncountered {currentEnemy.Name}!");
                         Thread.Sleep(TuningConfig.Instance.UI.EnemyEncounterDelay);
                         Console.WriteLine(); // Blank line between "Encountered" and stats
-                        Console.WriteLine($"Hero Stats - Health: {player.CurrentHealth}/{player.GetEffectiveMaxHealth()}, Armor: {player.GetTotalArmor()}, Attack: STR {player.GetEffectiveStrength()}, AGI {player.GetEffectiveAgility()}, TEC {player.GetEffectiveTechnique()}, INT {player.GetEffectiveIntelligence()}, Speed: {player.GetTotalAttackSpeed():F2}");
-                        Console.WriteLine($"Enemy Stats - Health: {currentEnemy.CurrentHealth}/{currentEnemy.MaxHealth}, Armor: {currentEnemy.Armor}, Attack: STR {currentEnemy.Strength}, AGI {currentEnemy.Agility}, TEC {currentEnemy.Technique}, INT {currentEnemy.Intelligence}, Speed: {currentEnemy.GetTotalAttackSpeed():F2}");
+                        Console.WriteLine($"Hero Stats - Health: {player.CurrentHealth}/{player.GetEffectiveMaxHealth()}, Armor: {player.GetTotalArmor()}, Attack: STR {player.GetEffectiveStrength()}, AGI {player.GetEffectiveAgility()}, TEC {player.GetEffectiveTechnique()}, INT {player.GetEffectiveIntelligence()}, Attack Time: {player.GetTotalAttackSpeed():F2}s");
+                        Console.WriteLine($"Enemy Stats - Health: {currentEnemy.CurrentHealth}/{currentEnemy.MaxHealth}, Armor: {currentEnemy.Armor}, Attack: STR {currentEnemy.Strength}, AGI {currentEnemy.Agility}, TEC {currentEnemy.Technique}, INT {currentEnemy.Intelligence}, Attack Time: {currentEnemy.GetTotalAttackSpeed():F2}s");
                         
                         // Show action speed info
                         var speedSystem = Combat.GetCurrentActionSpeedSystem();
@@ -435,7 +444,7 @@ namespace RPGGame
                             if (nextEntity == player && player.IsAlive)
                             {
                                 // Check if player is stunned
-                                if (player.IsStunned)
+                                if (player.StunTurnsRemaining > 0)
                                 {
                                     Combat.WriteCombatLog($"[{player.Name}] is stunned and cannot act! ({player.StunTurnsRemaining} turns remaining)");
                                     // Update temp effects (including reducing stun and weaken turns) even when stunned
@@ -512,7 +521,7 @@ namespace RPGGame
                             else if (nextEntity == currentEnemy && currentEnemy.IsAlive)
                             {
                                 // Check if enemy is stunned
-                                if (currentEnemy.IsStunned)
+                                if (currentEnemy.StunTurnsRemaining > 0)
                                 {
                                     Combat.WriteCombatLog($"[{currentEnemy.Name}] is stunned and cannot act! ({currentEnemy.StunTurnsRemaining} turns remaining)");
                                     // Update temp effects (including reducing stun and weaken turns) even when stunned
@@ -566,6 +575,23 @@ namespace RPGGame
                                     {
                                         string damageType = currentEnemy.GetDamageTypeText();
                                         Combat.WriteCombatLog($"[{currentEnemy.Name}] takes {enemyPoisonDamage} {damageType} damage ({damageType}: {currentEnemy.PoisonStacks} stacks remain)");
+                                    }
+                                }
+                                
+                                // Process burn damage for player
+                                int playerBurnDamage = player.ProcessBurn(currentTime);
+                                if (playerBurnDamage > 0)
+                                {
+                                    Combat.WriteCombatLog($"[{player.Name}] takes {playerBurnDamage} burn damage (burn: {player.BurnStacks} stacks remain)");
+                                }
+                                
+                                // Process burn damage for enemy (only if living)
+                                if (currentEnemy.IsLiving)
+                                {
+                                    int enemyBurnDamage = currentEnemy.ProcessBurn(currentTime);
+                                    if (enemyBurnDamage > 0)
+                                    {
+                                        Combat.WriteCombatLog($"[{currentEnemy.Name}] takes {enemyBurnDamage} burn damage (burn: {currentEnemy.BurnStacks} stacks remain)");
                                     }
                                 }
                             }
@@ -623,14 +649,14 @@ namespace RPGGame
                         
                         if (currentEnemy.IsAlive)
                         {
-                            Combat.WriteCombatLog("You have been defeated!");
+                            Combat.WriteCombatLog("\nYou have been defeated!");
                             // Delete save file when character dies
                             Character.DeleteSaveFile();
                             return;
                         }
                         else
                         {
-                            Combat.WriteCombatLog($"{currentEnemy.Name} has been defeated!");
+                            Combat.WriteCombatLog($"\n{currentEnemy.Name} has been defeated!");
                             player.AddXP(currentEnemy.XPReward);
                         }
                         
@@ -641,9 +667,10 @@ namespace RPGGame
                         }
                     }
 
+                    Console.WriteLine(); // Add blank line before room cleared message
+                    Console.WriteLine($"Remaining Health: {player.CurrentHealth}/{player.GetEffectiveMaxHealth()}");
                     Console.WriteLine("Room cleared!");
                     Thread.Sleep(TuningConfig.Instance.UI.RoomClearedDelay);
-                    Console.WriteLine($"Remaining Health: {player.CurrentHealth}/{player.GetEffectiveMaxHealth()}");
                     
                     // Reset combo at end of each room
                     player.ResetCombo();
@@ -676,6 +703,72 @@ namespace RPGGame
             return availableDungeons[choice - 1];
         }
 
+        private WeaponItem? CreateFallbackWeapon(int playerLevel)
+        {
+            try
+            {
+                // Try to load weapon data and create a tier 1 weapon as fallback
+                string? filePath = FindGameDataFile("Weapons.json");
+                if (filePath == null) 
+                {
+                    Console.WriteLine("   ERROR: Weapons.json file not found in any expected location");
+                    return null;
+                }
+                
+                string json = File.ReadAllText(filePath);
+                var options = new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+                var weaponData = System.Text.Json.JsonSerializer.Deserialize<List<WeaponData>>(json, options);
+                if (weaponData == null) 
+                {
+                    Console.WriteLine("   ERROR: Failed to deserialize weapon data from Weapons.json");
+                    return null;
+                }
+                
+                // Find a tier 1 weapon
+                var tier1Weapons = weaponData.Where(w => w.Tier == 1).ToList();
+                if (!tier1Weapons.Any()) 
+                {
+                    Console.WriteLine($"   ERROR: No Tier 1 weapons found in Weapons.json (total weapons: {weaponData.Count})");
+                    return null;
+                }
+                
+                // Pick a random tier 1 weapon
+                var random = new Random();
+                var selectedWeapon = tier1Weapons[random.Next(tier1Weapons.Count)];
+                
+                var weaponType = Enum.Parse<WeaponType>(selectedWeapon.Type);
+                var weapon = new WeaponItem(selectedWeapon.Name, selectedWeapon.Tier, 
+                    selectedWeapon.BaseDamage, selectedWeapon.AttackSpeed, weaponType);
+                weapon.Rarity = "Common";
+                
+                return weapon;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"   ERROR: Exception in CreateFallbackWeapon: {ex.Message}");
+                return null;
+            }
+        }
+        
+        private string? FindGameDataFile(string fileName)
+        {
+            // Try current directory first
+            if (File.Exists(fileName)) return fileName;
+            
+            // Try GameData subdirectory
+            string gameDataPath = Path.Combine("GameData", fileName);
+            if (File.Exists(gameDataPath)) return gameDataPath;
+            
+            // Try parent directory + GameData
+            string parentGameDataPath = Path.Combine("..", "GameData", fileName);
+            if (File.Exists(parentGameDataPath)) return parentGameDataPath;
+            
+            return null;
+        }
+
         private void AwardLootAndXP()
         {
             Console.WriteLine("\nDungeon completed!");
@@ -687,6 +780,17 @@ namespace RPGGame
             {
                 player.Heal(healthRestored);
                 Console.WriteLine($"You have been fully healed! (+{healthRestored} health)");
+            }
+            
+            // Award XP (scaled by dungeon level using tuning config)
+            var tuning = TuningConfig.Instance;
+            int xpReward = random.Next(tuning.Progression.EnemyXPBase, tuning.Progression.EnemyXPBase + 50) * player.Level;
+            player.AddXP(xpReward);
+            Console.WriteLine($"Gained {xpReward} XP!");
+
+            if (player.Level > 1)
+            {
+                Console.WriteLine($"Level up! You are now level {player.Level}");
             }
             
             // Determine current dungeon level
@@ -709,13 +813,31 @@ namespace RPGGame
                 attempts++;
             }
             
-            // If still no loot after max attempts, create a basic fallback item
+            // If still no loot after max attempts, notify about the issue
             if (reward == null)
             {
-                // Create a basic weapon as guaranteed fallback
-                reward = new WeaponItem("Basic Sword", player.Level, 5 + player.Level, 1.0, WeaponType.Sword);
-                reward.Rarity = "Common";
-                // Weapons don't need GearAction assignment as they use weapon-specific actions
+                Console.WriteLine("⚠️  WARNING: Loot generation failed after multiple attempts!");
+                Console.WriteLine("   This indicates an issue with the loot generation system.");
+                Console.WriteLine("   Please report this issue with the following details:");
+                Console.WriteLine($"   - Player Level: {player.Level}");
+                Console.WriteLine($"   - Dungeon Level: {dungeonLevel}");
+                Console.WriteLine($"   - Attempts Made: {maxAttempts}");
+                Console.WriteLine();
+                
+                // Create a diagnostic fallback weapon to prevent game breaking
+                reward = CreateFallbackWeapon(player.Level);
+                if (reward == null)
+                {
+                    // Ultimate fallback if weapon data loading fails
+                    reward = new WeaponItem("Basic Sword", player.Level, 5 + player.Level, 1.0, WeaponType.Sword);
+                    reward.Rarity = "Common";
+                    Console.WriteLine("   Created emergency fallback weapon to prevent game breaking.");
+                }
+                else
+                {
+                    Console.WriteLine($"   Created fallback weapon: {reward.Name} (from weapon database)");
+                }
+                Console.WriteLine();
             }
 
             if (reward != null)
@@ -729,17 +851,6 @@ namespace RPGGame
             {
                 // This should never happen with the fallback, but just in case
                 Console.WriteLine("You found no loot this time.");
-            }
-
-            // Award XP (scaled by dungeon level using tuning config)
-            var tuning = TuningConfig.Instance;
-            int xpReward = random.Next(tuning.Progression.EnemyXPBase, tuning.Progression.EnemyXPBase + 50) * player.Level;
-            player.AddXP(xpReward);
-            Console.WriteLine($"Gained {xpReward} XP!");
-
-            if (player.Level > 1)
-            {
-                Console.WriteLine($"Level up! You are now level {player.Level}");
             }
             
             // Add spacing before returning to main menu

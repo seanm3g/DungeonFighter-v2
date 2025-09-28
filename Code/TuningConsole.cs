@@ -25,6 +25,8 @@ namespace RPGGame
                 Console.WriteLine("9. Export Current Config");
                 Console.WriteLine("10. Load Config Preset");
                 Console.WriteLine("11. Reload Configuration");
+                Console.WriteLine("12. Generate Game Data Files");
+                Console.WriteLine("13. Game Data Settings");
                 Console.WriteLine("0. Return to Main Menu");
                 Console.WriteLine();
                 Console.Write("Select option: ");
@@ -72,6 +74,12 @@ namespace RPGGame
                         Console.WriteLine("Configuration reloaded!");
                         Console.WriteLine("Press any key to continue...");
                         Console.ReadKey();
+                        break;
+                    case "12":
+                        ShowGameDataGenerationMenu();
+                        break;
+                    case "13":
+                        ShowGameDataSettingsMenu();
                         break;
                     case "0":
                         return;
@@ -739,6 +747,179 @@ namespace RPGGame
                         Console.WriteLine("Testing DPS scaling...");
                         EnemyDPSSystem.AnalyzeAllEnemyDPS();
                         Console.WriteLine("\nPress any key to continue...");
+                        Console.ReadKey();
+                        break;
+                }
+            }
+        }
+
+        private static void ShowGameDataGenerationMenu()
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("=== GAME DATA GENERATION ===");
+                Console.WriteLine("Generate/update JSON files based on current TuningConfig settings");
+                Console.WriteLine();
+                Console.WriteLine("1. Generate All Game Data Files");
+                Console.WriteLine("2. Generate Enemies.json Only");
+                Console.WriteLine("3. Generate Armor.json Only");
+                Console.WriteLine("4. Generate Weapons.json Only");
+                Console.WriteLine("5. Show Current TuningConfig Summary");
+                Console.WriteLine("6. Test Dynamic Generation System");
+                Console.WriteLine("0. Return to Tuning Console");
+                Console.WriteLine();
+                Console.Write("Select option: ");
+
+                string? input = Console.ReadLine();
+                Console.WriteLine();
+
+                switch (input)
+                {
+                    case "1":
+                        Console.WriteLine("Generating all game data files...");
+                        GameDataGenerator.GenerateAllGameData();
+                        Console.WriteLine("\nPress any key to continue...");
+                        Console.ReadKey();
+                        break;
+                    case "2":
+                        Console.WriteLine("Generating Enemies.json...");
+                        GameDataGenerator.GenerateEnemiesJson();
+                        Console.WriteLine("\nPress any key to continue...");
+                        Console.ReadKey();
+                        break;
+                    case "3":
+                        Console.WriteLine("Generating Armor.json...");
+                        GameDataGenerator.GenerateArmorJson();
+                        Console.WriteLine("\nPress any key to continue...");
+                        Console.ReadKey();
+                        break;
+                    case "4":
+                        Console.WriteLine("Generating Weapons.json...");
+                        GameDataGenerator.GenerateWeaponsJson();
+                        Console.WriteLine("\nPress any key to continue...");
+                        Console.ReadKey();
+                        break;
+                    case "5":
+                        ShowTuningConfigSummary();
+                        break;
+                    case "6":
+                        GameDataGenerator.TestDynamicGeneration();
+                        Console.WriteLine("\nPress any key to continue...");
+                        Console.ReadKey();
+                        break;
+                    case "0":
+                        return;
+                    default:
+                        Console.WriteLine("Invalid option. Press any key to continue...");
+                        Console.ReadKey();
+                        break;
+                }
+            }
+        }
+
+        private static void ShowTuningConfigSummary()
+        {
+            Console.Clear();
+            Console.WriteLine("=== TUNING CONFIG SUMMARY ===");
+            var config = TuningConfig.Instance;
+            
+            Console.WriteLine("ItemScaling Configuration:");
+            if (config.ItemScaling != null)
+            {
+                Console.WriteLine($"  WeaponTypes: {config.ItemScaling.WeaponTypes?.Count ?? 0} configured");
+                Console.WriteLine($"  ArmorTypes: {config.ItemScaling.ArmorTypes?.Count ?? 0} configured");
+                Console.WriteLine($"  RarityModifiers: {config.ItemScaling.RarityModifiers?.Count ?? 0} configured");
+                Console.WriteLine($"  LevelScalingCaps: {(config.ItemScaling.LevelScalingCaps != null ? "Configured" : "Not configured")}");
+            }
+            else
+            {
+                Console.WriteLine("  Not configured");
+            }
+            
+            Console.WriteLine("\nSustainBalance Configuration:");
+            if (config.EnemyDPS?.SustainBalance != null)
+            {
+                var sustain = config.EnemyDPS.SustainBalance;
+                Console.WriteLine($"  TargetActionsToKill: {(sustain.TargetActionsToKill != null ? "Configured" : "Not configured")}");
+                Console.WriteLine($"  DPSToSustainRatio: {(sustain.DPSToSustainRatio != null ? "Configured" : "Not configured")}");
+                Console.WriteLine($"  SpeedToDamageRatio: {(sustain.SpeedToDamageRatio != null ? "Configured" : "Not configured")}");
+                Console.WriteLine($"  HealthToArmorRatio: {(sustain.HealthToArmorRatio != null ? "Configured" : "Not configured")}");
+                Console.WriteLine($"  AttributeGainRatio: {(sustain.AttributeGainRatio != null ? "Configured" : "Not configured")}");
+            }
+            else
+            {
+                Console.WriteLine("  Not configured");
+            }
+            
+            Console.WriteLine("\nPress any key to continue...");
+            Console.ReadKey();
+        }
+
+        private static void ShowGameDataSettingsMenu()
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("=== GAME DATA SETTINGS ===");
+                var config = TuningConfig.Instance.GameData;
+                
+                Console.WriteLine($"Auto Generate on Launch: {(config.AutoGenerateOnLaunch ? "Enabled" : "Disabled")}");
+                Console.WriteLine($"Show Generation Messages: {(config.ShowGenerationMessages ? "Enabled" : "Disabled")}");
+                Console.WriteLine();
+                Console.WriteLine("1. Toggle Auto Generate on Launch");
+                Console.WriteLine("2. Toggle Show Generation Messages");
+                Console.WriteLine("3. Test Current Settings");
+                Console.WriteLine("0. Return to Tuning Console");
+                Console.WriteLine();
+                Console.Write("Select option: ");
+
+                string? input = Console.ReadLine();
+                Console.WriteLine();
+
+                switch (input)
+                {
+                    case "1":
+                        config.AutoGenerateOnLaunch = !config.AutoGenerateOnLaunch;
+                        SaveConfiguration();
+                        Console.WriteLine($"Auto Generate on Launch: {(config.AutoGenerateOnLaunch ? "Enabled" : "Disabled")}");
+                        Console.WriteLine("Press any key to continue...");
+                        Console.ReadKey();
+                        break;
+                    case "2":
+                        config.ShowGenerationMessages = !config.ShowGenerationMessages;
+                        SaveConfiguration();
+                        Console.WriteLine($"Show Generation Messages: {(config.ShowGenerationMessages ? "Enabled" : "Disabled")}");
+                        Console.WriteLine("Press any key to continue...");
+                        Console.ReadKey();
+                        break;
+                    case "3":
+                        Console.WriteLine("Testing current settings...");
+                        if (config.AutoGenerateOnLaunch)
+                        {
+                            Console.WriteLine("✓ Game data will be generated automatically at launch");
+                        }
+                        else
+                        {
+                            Console.WriteLine("✗ Game data will NOT be generated automatically at launch");
+                        }
+                        
+                        if (config.ShowGenerationMessages)
+                        {
+                            Console.WriteLine("✓ Generation messages will be shown");
+                        }
+                        else
+                        {
+                            Console.WriteLine("✗ Generation messages will be hidden");
+                        }
+                        
+                        Console.WriteLine("\nPress any key to continue...");
+                        Console.ReadKey();
+                        break;
+                    case "0":
+                        return;
+                    default:
+                        Console.WriteLine("Invalid option. Press any key to continue...");
                         Console.ReadKey();
                         break;
                 }

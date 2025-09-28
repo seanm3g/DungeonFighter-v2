@@ -138,14 +138,16 @@ namespace RPGGame
             // Apply archetype damage multiplier
             double adjustedDamage = baseDamage * profile.DamageMultiplier;
             
-            // Calculate attack speed using Character.GetTotalAttackSpeed logic for enemies
+            // Calculate attack speed using the same logic as Character.GetTotalAttackSpeed
             var tuning = TuningConfig.Instance;
             double baseAttackTime = tuning.Combat.BaseAttackTime;
-            double agilityReduction = enemy.Agility * tuning.Combat.AgilitySpeedReduction;
-            double finalAttackTime = baseAttackTime - agilityReduction;
             
-            // Apply archetype speed multiplier
-            finalAttackTime *= profile.SpeedMultiplier;
+            // Agility reduces attack time (makes you faster)
+            double agilityReduction = enemy.Agility * tuning.Combat.AgilitySpeedReduction;
+            double agilityAdjustedTime = baseAttackTime - agilityReduction;
+            
+            // Apply archetype speed multiplier (0.9 = 10% faster, 1.1 = 10% slower)
+            double finalAttackTime = agilityAdjustedTime * profile.SpeedMultiplier;
             
             // Apply minimum cap
             finalAttackTime = Math.Max(tuning.Combat.MinimumAttackTime, finalAttackTime);

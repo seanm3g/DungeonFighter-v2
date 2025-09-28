@@ -34,6 +34,8 @@ namespace RPGGame
         public bool CausesSlow { get; set; }
         [JsonPropertyName("causesPoison")]
         public bool CausesPoison { get; set; }
+        [JsonPropertyName("causesBurn")]
+        public bool CausesBurn { get; set; }
         [JsonPropertyName("comboBonusAmount")]
         public int ComboBonusAmount { get; set; }
         [JsonPropertyName("comboBonusDuration")]
@@ -70,6 +72,17 @@ namespace RPGGame
     {
         private static Dictionary<string, ActionData>? _actions;
         private static readonly string[] PossibleActionPaths = {
+            // Relative to executable directory
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GameData", "Actions.json"),
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "GameData", "Actions.json"),
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "GameData", "Actions.json"),
+            
+            // Relative to current working directory
+            Path.Combine(Directory.GetCurrentDirectory(), "GameData", "Actions.json"),
+            Path.Combine(Directory.GetCurrentDirectory(), "..", "GameData", "Actions.json"),
+            Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "GameData", "Actions.json"),
+            
+            // Legacy paths for backward compatibility
             Path.Combine("GameData", "Actions.json"),
             Path.Combine("..", "GameData", "Actions.json"),
             Path.Combine("..", "..", "GameData", "Actions.json"),
@@ -93,6 +106,8 @@ namespace RPGGame
 
                 if (foundPath != null)
                 {
+                    if (TuningConfig.IsDebugEnabled)
+                        Console.WriteLine($"DEBUG: ActionLoader found Actions.json at: {foundPath}");
                     string jsonContent = File.ReadAllText(foundPath);
                     
                     var actionList = JsonSerializer.Deserialize<List<ActionData>>(jsonContent);
@@ -111,6 +126,8 @@ namespace RPGGame
                                 Console.WriteLine($"Warning: Found action with null/empty name");
                             }
                         }
+                        if (TuningConfig.IsDebugEnabled)
+                            Console.WriteLine($"DEBUG: ActionLoader loaded {_actions.Count} actions successfully");
                     }
                     else
                     {
@@ -119,7 +136,7 @@ namespace RPGGame
                 }
                 else
                 {
-                    Console.WriteLine($"Warning: Actions file not found. Tried paths: {string.Join(", ", PossibleActionPaths)}");
+                    Console.WriteLine($"ERROR: Actions file not found. Tried paths: {string.Join(", ", PossibleActionPaths)}");
                     _actions = new Dictionary<string, ActionData>();
                 }
             }
@@ -342,16 +359,27 @@ namespace RPGGame
         {
             if (_actions == null)
             {
+                if (TuningConfig.IsDebugEnabled)
+                    Console.WriteLine("DEBUG: ActionLoader._actions is null, calling LoadActions()");
                 LoadActions();
             }
             var actions = new List<Action>();
             if (_actions != null)
             {
+                if (TuningConfig.IsDebugEnabled)
+                    Console.WriteLine($"DEBUG: ActionLoader has {_actions.Count} actions loaded");
                 foreach (var actionData in _actions.Values)
                 {
                     actions.Add(CreateActionFromData(actionData));
                 }
             }
+            else
+            {
+                if (TuningConfig.IsDebugEnabled)
+                    Console.WriteLine("DEBUG: ActionLoader._actions is still null after LoadActions()");
+            }
+            if (TuningConfig.IsDebugEnabled)
+                Console.WriteLine($"DEBUG: GetAllActions() returning {actions.Count} actions");
             return actions;
         }
 

@@ -39,6 +39,7 @@ namespace RPGGame
         public bool CausesWeaken { get; set; }
         public bool CausesSlow { get; set; }
         public bool CausesPoison { get; set; }
+        public bool CausesBurn { get; set; }
         public bool CausesStun { get; set; }
         public bool IsComboAction { get; set; }
         public int ComboBonusAmount { get; set; }
