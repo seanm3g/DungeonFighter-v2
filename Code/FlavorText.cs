@@ -37,6 +37,8 @@ namespace RPGGame
         public string[] LocationNames { get; set; } = Array.Empty<string>();
         [JsonPropertyName("locationDescriptions")]
         public Dictionary<string, string[]> LocationDescriptions { get; set; } = new();
+        [JsonPropertyName("roomContexts")]
+        public Dictionary<string, Dictionary<string, string[]>> RoomContexts { get; set; } = new();
     }
 
     public class ClassQualifiersData
@@ -215,6 +217,31 @@ namespace RPGGame
             
             int index = classPoints % qualifiers.Length;
             return qualifiers[index];
+        }
+
+        public static string GenerateRoomContext(string theme, string roomType)
+        {
+            var data = GetData();
+            
+            // Try to get theme-specific room context
+            if (data.Environments.RoomContexts.TryGetValue(theme, out var themeContexts))
+            {
+                if (themeContexts.TryGetValue(roomType.ToLower(), out string[]? contexts) && contexts.Length > 0)
+                {
+                    return GetRandomName(contexts);
+                }
+            }
+            
+            // Fallback to generic room context
+            if (data.Environments.RoomContexts.TryGetValue("Generic", out var genericContexts))
+            {
+                if (genericContexts.TryGetValue(roomType.ToLower(), out string[]? genericContext) && genericContext.Length > 0)
+                {
+                    return GetRandomName(genericContext);
+                }
+            }
+            
+            return ""; // Return empty string if no context found
         }
     }
 } 

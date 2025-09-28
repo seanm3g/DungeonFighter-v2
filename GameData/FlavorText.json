@@ -30,6 +30,325 @@
       "Desert Oasis", "Misty Swamp", "Volcanic Crater", "Crystal Caves",
       "Haunted Mansion", "Dragon's Lair"
     ],
+    "roomContexts": {
+      "Forest": {
+        "boss": [
+          " This ancient grove is clearly the domain of a powerful forest guardian.",
+          " The very trees seem to bow before the presence of the forest's master.",
+          " Ancient druidic power radiates from this sacred grove's heart."
+        ],
+        "treasure": [
+          " Glittering treasures are hidden among the roots and branches.",
+          " Nature's bounty and ancient artifacts lie scattered among the foliage.",
+          " Precious gems and golden trinkets catch the light filtering through leaves."
+        ],
+        "library": [
+          " Ancient druidic knowledge is preserved in living tree bark and moss-covered stones.",
+          " Wisdom carved into living wood tells stories of the forest's past.",
+          " Sacred texts are inscribed on leaves that never wither."
+        ],
+        "armory": [
+          " Weapons made from living wood and enchanted thorns line the walls.",
+          " Nature's weapons - bows of living wood and spears of thorn - are stored here.",
+          " Enchanted forest weapons gleam with natural magic."
+        ],
+        "kitchen": [
+          " The scent of wild herbs and forest fruits fills this natural cooking area.",
+          " A natural hearth burns with enchanted flames that never consume the wood.",
+          " Forest provisions and wild game are prepared in this sylvan kitchen."
+        ],
+        "chamber": [
+          " This natural chamber is formed by ancient tree roots and living wood.",
+          " The walls pulse with the life force of the ancient forest.",
+          " A living room where the very structure breathes with natural magic."
+        ],
+        "sanctum": [
+          " The air here pulses with the life force of the ancient forest.",
+          " Sacred energy flows through every root and branch in this holy place.",
+          " The heart of the forest beats with primordial power."
+        ],
+        "shrine": [
+          " Sacred grove markers and nature offerings mark this as a place of druidic worship.",
+          " Ancient stones circle a natural altar where forest spirits are honored.",
+          " Offerings of flowers and sacred herbs adorn this woodland shrine."
+        ]
+      },
+      "Lava": {
+        "boss": [
+          " This molten chamber is clearly the domain of a fire lord.",
+          " The very air burns in the presence of the flame's master.",
+          " Infernal heat radiates from this volcanic throne room."
+        ],
+        "treasure": [
+          " Treasures forged in fire glow with inner heat within the molten walls.",
+          " Precious metals and gems glow red-hot in the volcanic heat.",
+          " Fire-forged artifacts pulse with the power of the earth's heart."
+        ],
+        "library": [
+          " Ancient knowledge is preserved in fire-resistant stone tablets.",
+          " Wisdom is carved into stone that can withstand volcanic heat.",
+          " Sacred texts are inscribed on fireproof materials."
+        ],
+        "armory": [
+          " Weapons forged in volcanic fires line the superheated walls.",
+          " Blades of molten metal and spears of volcanic glass are stored here.",
+          " Weapons of fire gleam with the heat of the earth's core."
+        ],
+        "kitchen": [
+          " The intense heat carries the scent of charred meat and molten metal.",
+          " A kitchen where food is cooked in volcanic heat.",
+          " Molten metal and fire-forged tools are used for cooking."
+        ],
+        "chamber": [
+          " This chamber is carved from volcanic rock and flows with molten lava.",
+          " The walls glow red-hot with the heat of flowing lava.",
+          " A room where the very floor pulses with molten energy."
+        ],
+        "sanctum": [
+          " The air here burns with the power of the earth's molten heart.",
+          " Sacred fire energy flows through every molten channel.",
+          " The heart of the volcano beats with infernal power."
+        ],
+        "shrine": [
+          " Molten offerings and fire crystals mark this as a place of volcanic worship.",
+          " An altar of fire where volcanic spirits are honored.",
+          " Molten offerings and fire gems adorn this infernal shrine."
+        ]
+      },
+      "Crypt": {
+        "boss": [
+          " This ancient tomb is clearly the domain of a powerful undead lord.",
+          " The very air reeks of death in the presence of the undead master.",
+          " Necromantic energy radiates from this cursed burial chamber."
+        ],
+        "treasure": [
+          " Funerary treasures and grave goods are piled in shadowy corners.",
+          " Ancient burial offerings and cursed artifacts lie scattered about.",
+          " Precious grave goods glint in the dim light of the tomb."
+        ],
+        "library": [
+          " Ancient necromantic knowledge is preserved in bone scrolls and death runes.",
+          " Wisdom is carved into bones and inscribed in death magic.",
+          " Forbidden texts contain the secrets of undeath and necromancy."
+        ],
+        "armory": [
+          " Weapons of the dead and cursed blades line the tomb walls.",
+          " Ancient weapons and cursed armaments are stored in this burial chamber.",
+          " Weapons that have tasted death line the walls of this armory."
+        ],
+        "kitchen": [
+          " The air carries the scent of embalming spices and decay.",
+          " A kitchen where the dead are prepared for eternal rest.",
+          " Embalming tools and preservation spices fill this morbid kitchen."
+        ],
+        "chamber": [
+          " This burial chamber is lined with ancient sarcophagi and death masks.",
+          " The walls are covered with the faces of the long-dead.",
+          " A room where the dead rest in eternal slumber."
+        ],
+        "sanctum": [
+          " The air here pulses with the dark energy of undeath.",
+          " Sacred death energy flows through every bone and stone.",
+          " The heart of the crypt beats with necromantic power."
+        ],
+        "shrine": [
+          " Death symbols and funerary offerings mark this as a place of necromantic worship.",
+          " An altar of death where undead spirits are honored.",
+          " Grave offerings and death symbols adorn this cursed shrine."
+        ]
+      },
+      "Crystal": {
+        "boss": [
+          " This crystal chamber is clearly the domain of a crystal lord.",
+          " The very air shimmers with prismatic light in the presence of the crystal's master.",
+          " Crystalline power radiates from this gem-studded throne room."
+        ],
+        "treasure": [
+          " Precious gems and crystal artifacts glisten within the crystalline walls.",
+          " Crystalline treasures and gem-studded artifacts lie scattered about.",
+          " Crystal formations contain treasures that sparkle with inner light."
+        ],
+        "library": [
+          " Ancient knowledge is preserved in crystal tablets and gem-encrusted scrolls.",
+          " Wisdom is carved into crystal surfaces that never lose their clarity.",
+          " Sacred texts are inscribed on crystal that preserves knowledge eternally."
+        ],
+        "armory": [
+          " Weapons forged from crystal and gem-studded blades line the walls.",
+          " Crystal weapons and gem-encrusted armaments are stored here.",
+          " Weapons of crystal gleam with the light of precious gems."
+        ],
+        "kitchen": [
+          " The air carries the scent of crystal-clear water and preserved provisions.",
+          " A kitchen where food is preserved in crystal containers.",
+          " Crystal vessels and gem-studded utensils are used for preparation."
+        ],
+        "chamber": [
+          " This chamber is carved from solid crystal and filled with gem formations.",
+          " The walls are made of crystal so clear you can see through them.",
+          " A room where every surface reflects and refracts light in beautiful patterns."
+        ],
+        "sanctum": [
+          " The air here shimmers with the power of crystalline energy.",
+          " Sacred crystal energy flows through every gem and crystal formation.",
+          " The heart of the crystal caves beats with prismatic power."
+        ],
+        "shrine": [
+          " Crystal formations and gem offerings mark this as a place of crystal worship.",
+          " An altar of crystal where gem spirits are honored.",
+          " Crystal offerings and gem formations adorn this prismatic shrine."
+        ]
+      },
+      "Temple": {
+        "boss": [
+          " This grand sanctuary is clearly the domain of a divine being.",
+          " The very air resonates with divine authority in the presence of the temple's master.",
+          " Sacred power radiates from this holy throne chamber."
+        ],
+        "treasure": [
+          " Sacred treasures and holy artifacts fill the temple vaults.",
+          " Precious religious relics and divine regalia are stored in this vault.",
+          " Holy treasures and sacred artifacts glint in the divine light."
+        ],
+        "library": [
+          " Sacred knowledge is preserved in holy tomes and divine scrolls.",
+          " Wisdom is recorded in books bound with sacred materials and divine symbols.",
+          " Temple archives contain the accumulated knowledge of the divine."
+        ],
+        "armory": [
+          " Sacred weapons and holy armor line the temple walls.",
+          " Blades blessed by the divine and armor of sacred quality are stored here.",
+          " Weapons of the faith gleam with the blessing of the divine."
+        ],
+        "kitchen": [
+          " The air carries the scent of sacred offerings and holy cuisine.",
+          " A kitchen where blessed foods are prepared for divine ceremonies.",
+          " Sacred provisions and holy ingredients are prepared in this divine kitchen."
+        ],
+        "chamber": [
+          " This chamber is built with sacred stone and divine architecture.",
+          " The walls are made of blessed stone and decorated with holy symbols.",
+          " A room that reflects the divine power and sacred purpose of the temple."
+        ],
+        "sanctum": [
+          " The air here resonates with the power of divine authority.",
+          " Sacred divine energy flows through every stone and beam.",
+          " The heart of the temple beats with the power of the divine."
+        ],
+        "shrine": [
+          " Sacred symbols and holy offerings mark this as a place of divine worship.",
+          " An altar where divine spirits and holy beings are honored.",
+          " Sacred offerings and divine symbols adorn this holy shrine."
+        ]
+      },
+      "Generic": {
+        "boss": [
+          " This grand chamber is clearly the domain of a powerful being.",
+          " The very air crackles with power in the presence of this room's master.",
+          " Ancient power radiates from this throne of stone and shadow."
+        ],
+        "treasure": [
+          " Glittering treasures catch your eye, but danger may lurk nearby.",
+          " Precious artifacts and valuable items are scattered throughout this room.",
+          " Riches beyond imagination lie waiting to be claimed."
+        ],
+        "guard": [
+          " This area appears to be well-fortified and guarded.",
+          " Defensive positions and guard posts are clearly visible.",
+          " The area is designed to be easily defended against intruders."
+        ],
+        "trap": [
+          " Something about this room seems suspicious and dangerous.",
+          " The air is thick with the sense of hidden danger.",
+          " Every surface seems to hide a potential threat."
+        ],
+        "puzzle": [
+          " Ancient mechanisms and cryptic symbols cover the walls here.",
+          " Complex puzzles and mysterious devices fill this chamber.",
+          " The room is designed to test the intellect of those who enter."
+        ],
+        "rest": [
+          " This area seems surprisingly peaceful and safe.",
+          " A welcome respite from the dangers that lurk elsewhere.",
+          " The atmosphere here is calm and restorative."
+        ],
+        "storage": [
+          " Shelves and supplies line the walls of this storage area.",
+          " Provisions and equipment are organized in this storage room.",
+          " A well-organized space for keeping supplies and materials."
+        ],
+        "library": [
+          " Rows of ancient tomes and scrolls fill this scholarly space.",
+          " Knowledge is preserved in countless books and documents.",
+          " A repository of wisdom and learning from ages past."
+        ],
+        "armory": [
+          " Weapons and armor are displayed on racks throughout this room.",
+          " A collection of arms and armor for those who would fight.",
+          " Weapons of all kinds are stored and maintained here."
+        ],
+        "kitchen": [
+          " The smell of cooking and the sound of clanging pots fills this area.",
+          " A place where food is prepared and meals are cooked.",
+          " The aromas of cooking fill the air in this culinary space."
+        ],
+        "dining": [
+          " A long table is set for a feast, though the food looks questionable.",
+          " A dining hall where meals are shared and stories are told.",
+          " Tables and chairs are arranged for communal dining."
+        ],
+        "chamber": [
+          " This chamber has an air of mystery and ancient power.",
+          " A room that seems to hold secrets from ages past.",
+          " The atmosphere here is thick with history and mystery."
+        ],
+        "hall": [
+          " A long corridor stretches before you, lined with ornate decorations.",
+          " A grand hallway that speaks of wealth and importance.",
+          " An impressive passage that connects different parts of the structure."
+        ],
+        "vault": [
+          " Heavy doors and reinforced walls suggest this place holds something valuable.",
+          " A secure chamber designed to protect its contents.",
+          " The very construction suggests that something precious is stored here."
+        ],
+        "sanctum": [
+          " The air here feels charged with mystical energy.",
+          " A sacred space where the divine and mortal worlds meet.",
+          " The atmosphere here is thick with spiritual power."
+        ],
+        "grotto": [
+          " Natural rock formations create an otherworldly atmosphere.",
+          " A cave-like space formed by natural processes.",
+          " The organic shapes of the rock create a unique environment."
+        ],
+        "catacomb": [
+          " Ancient burial chambers and stone sarcophagi line the walls.",
+          " A place where the dead rest in eternal slumber.",
+          " Stone coffins and burial niches fill this underground chamber."
+        ],
+        "shrine": [
+          " Sacred symbols and offerings mark this as a place of worship.",
+          " A holy place where the divine is honored and revered.",
+          " Religious symbols and sacred objects fill this spiritual space."
+        ],
+        "laboratory": [
+          " Strange equipment and bubbling potions fill this alchemical workspace.",
+          " A place where science and magic meet in mysterious ways.",
+          " Experimental apparatus and mysterious substances fill this workspace."
+        ],
+        "observatory": [
+          " Star charts and celestial instruments suggest this room studies the heavens.",
+          " A place where the movements of the stars are tracked and studied.",
+          " Astronomical equipment and celestial maps fill this scholarly space."
+        ],
+        "throne": [
+          " An ornate throne dominates this regal chamber.",
+          " A seat of power that commands respect and authority.",
+          " The focal point of this room is clearly a symbol of rulership."
+        ]
+      }
+    },
     "locationDescriptions": {
       "Forest": [
         "A dense forest with ancient trees that seem to whisper secrets of old.",

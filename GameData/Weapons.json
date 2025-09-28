@@ -317,105 +317,105 @@
   {
     "type": "Wand",
     "name": "Wooden Wand",
-    "baseDamage": 4,
+    "baseDamage": 12,
     "attackSpeed": 2.0,
     "tier": 1
   },
   {
     "type": "Wand",
     "name": "Oak Wand",
-    "baseDamage": 3,
+    "baseDamage": 10,
     "attackSpeed": 2.1,
     "tier": 1
   },
   {
     "type": "Wand",
     "name": "Pine Wand",
-    "baseDamage": 5,
+    "baseDamage": 14,
     "attackSpeed": 1.9,
     "tier": 1
   },
   {
     "type": "Wand",
     "name": "Crystal Wand",
-    "baseDamage": 6,
+    "baseDamage": 18,
     "attackSpeed": 2.1,
     "tier": 2
   },
   {
     "type": "Wand",
     "name": "Quartz Wand",
-    "baseDamage": 5,
+    "baseDamage": 16,
     "attackSpeed": 2.2,
     "tier": 2
   },
   {
     "type": "Wand",
     "name": "Amethyst Wand",
-    "baseDamage": 7,
+    "baseDamage": 20,
     "attackSpeed": 2.0,
     "tier": 2
   },
   {
     "type": "Wand",
     "name": "Arcane Wand",
-    "baseDamage": 8,
+    "baseDamage": 26,
     "attackSpeed": 2.2,
     "tier": 3
   },
   {
     "type": "Wand",
     "name": "Mystic Wand",
-    "baseDamage": 7,
+    "baseDamage": 24,
     "attackSpeed": 2.3,
     "tier": 3
   },
   {
     "type": "Wand",
     "name": "Enchanted Wand",
-    "baseDamage": 9,
+    "baseDamage": 28,
     "attackSpeed": 2.1,
     "tier": 3
   },
   {
     "type": "Wand",
     "name": "Mystic Staff",
-    "baseDamage": 10,
+    "baseDamage": 34,
     "attackSpeed": 2.3,
     "tier": 4
   },
   {
     "type": "Wand",
     "name": "Arcane Staff",
-    "baseDamage": 9,
+    "baseDamage": 32,
     "attackSpeed": 2.4,
     "tier": 4
   },
   {
     "type": "Wand",
     "name": "Enchanted Staff",
-    "baseDamage": 11,
+    "baseDamage": 36,
     "attackSpeed": 2.2,
     "tier": 4
   },
   {
     "type": "Wand",
     "name": "Staff of Power",
-    "baseDamage": 12,
+    "baseDamage": 42,
     "attackSpeed": 2.4,
     "tier": 5
   },
   {
     "type": "Wand",
     "name": "Staff of the Archmage",
-    "baseDamage": 14,
+    "baseDamage": 46,
     "attackSpeed": 2.3,
     "tier": 5
   },
   {
     "type": "Wand",
     "name": "Elder Staff",
-    "baseDamage": 10,
+    "baseDamage": 38,
     "attackSpeed": 2.5,
     "tier": 5
   }

@@ -86,6 +86,26 @@ namespace RPGGame
             return FormulaEvaluator.Evaluate(formula.Formula, variables);
         }
         
+        public static double CalculateWeaponSpeed(double baseSpeed, int tier, int level, string weaponType)
+        {
+            // Get the weapon type config
+            var weaponTypeConfig = Config.ItemScaling?.WeaponTypes?.GetValueOrDefault(weaponType);
+            if (weaponTypeConfig == null || string.IsNullOrEmpty(weaponTypeConfig.SpeedFormula))
+            {
+                // Fallback to simple calculation if no formula
+                return baseSpeed * (1 + (tier - 1) * 0.1);
+            }
+            
+            var variables = new Dictionary<string, double>
+            {
+                ["BaseSpeed"] = baseSpeed,
+                ["Tier"] = tier,
+                ["Level"] = level
+            };
+            
+            return FormulaEvaluator.Evaluate(weaponTypeConfig.SpeedFormula, variables);
+        }
+        
         public static double CalculateDropChance(string rarityTier, int playerLevel)
         {
             var formulas = Config.RarityScaling?.RollChanceFormulas;
@@ -329,7 +349,7 @@ namespace RPGGame
             TestXPCalculations();
             
             Console.WriteLine();
-            TestScaling.TestNewScalingValues();
+            // TestScaling.TestNewScalingValues(); // Removed - TestScaling.cs deleted
         }
     }
 }

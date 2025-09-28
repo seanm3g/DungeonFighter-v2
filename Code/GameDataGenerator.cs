@@ -660,12 +660,16 @@ namespace RPGGame
             string executableDir = AppDomain.CurrentDomain.BaseDirectory;
             string currentDir = Directory.GetCurrentDirectory();
             
-            // Try to create GameData directory relative to executable first
+            // Prioritize the root GameData directory (project root level)
             string[] preferredLocations = {
-                Path.Combine(executableDir, "GameData"),
-                Path.Combine(executableDir, "..", "GameData"),
-                Path.Combine(currentDir, "GameData"),
+                // Try to find/create GameData at project root level first
                 Path.Combine(currentDir, "..", "GameData"),
+                Path.Combine(executableDir, "..", "GameData"),
+                Path.Combine(currentDir, "..", "..", "GameData"),
+                Path.Combine(executableDir, "..", "..", "GameData"),
+                // Then try other locations
+                Path.Combine(executableDir, "GameData"),
+                Path.Combine(currentDir, "GameData"),
                 Path.Combine("GameData")
             };
 
@@ -694,14 +698,18 @@ namespace RPGGame
             string currentDir = Directory.GetCurrentDirectory();
             
             string[] possibleGameDataDirs = {
+                // Prioritize the root GameData directory (project root level)
+                Path.Combine(currentDir, "..", "GameData"),
+                Path.Combine(executableDir, "..", "GameData"),
+                Path.Combine(currentDir, "..", "..", "GameData"),
+                Path.Combine(executableDir, "..", "..", "GameData"),
+                
                 // Relative to executable directory
                 Path.Combine(executableDir, "GameData"),
-                Path.Combine(executableDir, "..", "GameData"),
                 Path.Combine(executableDir, "..", "..", "GameData"),
                 
                 // Relative to current working directory
                 Path.Combine(currentDir, "GameData"),
-                Path.Combine(currentDir, "..", "GameData"),
                 Path.Combine(currentDir, "..", "..", "GameData"),
                 
                 // Common project structure variations

@@ -210,93 +210,29 @@ namespace RPGGame
             int roll = Dice.Roll(20);
             int difficulty = 8 + (Level / 2);  // Higher level enemies have better accuracy
             
-            // Check if we're in narrative mode
-            if (Combat.IsInNarrativeMode())
+            // Simplified combat logic - narrative mode handling moved to CombatManager
+            if (roll >= difficulty)
             {
-                if (roll >= difficulty)
+                var settings = GameSettings.Instance;
+                int finalEffect = Combat.CalculateDamage(this, target, action, 1.0, settings.EnemyDamageMultiplier, 0, roll, false);
+                
+                if (action.Type == ActionType.Attack)
                 {
-                    var settings = GameSettings.Instance;
-                    int finalEffect = Combat.CalculateDamage(this, target, action, 1.0, settings.EnemyDamageMultiplier, 0, roll);
-                    
-                    var evt = new BattleEvent
-                    {
-                        Actor = Name,
-                        Target = target.Name,
-                        Action = action.Name,
-                        Damage = 0,
-                        IsSuccess = true,
-                        Roll = roll,
-                        Difficulty = difficulty
-                    };
-
-                    if (action.Type == ActionType.Attack)
-                    {
-                        target.TakeDamage(finalEffect);
-                        evt.Damage = finalEffect;
-                    }
-                    else if (action.Type == ActionType.Debuff)
-                    {
-                        // Handle debuff effects if needed
-                    }
-
-                    Combat.AddBattleEvent(evt);
-                    
-                    // Check narrative balance setting - if 0, show action messages
-                    var narrativeSettings = GameSettings.Instance;
-                    if (narrativeSettings.NarrativeBalance <= 0.0)
-                    {
-                        // Use the same parameters as the actual damage calculation to avoid duplicate weakened messages
-                        int actualDamage = Combat.CalculateDamage(this, target, action, 1.0, settings.EnemyDamageMultiplier, 0, roll, false);
-                        string damageDisplay = Combat.FormatDamageDisplay(this, target, finalEffect, actualDamage, action, 1.0, settings.EnemyDamageMultiplier, 0, roll);
-                        string actionResult = $"[{Name}] uses [{action.Name}] on [{target.Name}]: deals {damageDisplay}. (Rolled {roll}, need {difficulty})";
-                        return (actionResult, true);
-                    }
-                    return ("", true); // Return empty string in narrative mode, success = true
+                    target.TakeDamage(finalEffect);
+                    // Use the same parameters as the actual damage calculation to avoid duplicate weakened messages
+                    int actualDamage = Combat.CalculateDamage(this, target, action, 1.0, settings.EnemyDamageMultiplier, 0, roll, false);
+                    string damageDisplay = Combat.FormatDamageDisplay(this, target, finalEffect, actualDamage, action, 1.0, settings.EnemyDamageMultiplier, 0, roll);
+                    return ($"[{Name}] uses [{action.Name}] on [{target.Name}]: deals {damageDisplay}. (Rolled {roll}, need {difficulty})", true);
                 }
-                else
+                else if (action.Type == ActionType.Debuff)
                 {
-                    var evt = new BattleEvent
-                    {
-                        Actor = Name,
-                        Target = target.Name,
-                        Action = action.Name,
-                        IsSuccess = false,
-                        Roll = roll,
-                        Difficulty = difficulty
-                    };
-
-                    Combat.AddBattleEvent(evt);
-                    
-                    // Always show failed attacks, regardless of narrative mode
-                    string actionResult = $"[{Name}] attempts [{action.Name}] but fails. (Rolled {roll}, need {difficulty}) No action performed.";
-                    return (actionResult, false);
+                    return ($"[{Name}] uses [{action.Name}] on [{target.Name}]: applies debuff. (Rolled {roll}, need {difficulty})", true);
                 }
+                return ($"[{Name}] uses [{action.Name}] on [{target.Name}]. (Rolled {roll}, need {difficulty})", true);
             }
             else
             {
-                // Fallback to old message format if not using narrative mode
-                if (roll >= difficulty)
-                {
-                    var settings = GameSettings.Instance;
-                    int finalEffect = Combat.CalculateDamage(this, target, action, 1.0, settings.EnemyDamageMultiplier, 0, roll);
-                    if (action.Type == ActionType.Attack)
-                    {
-                        target.TakeDamage(finalEffect);
-                        // Use the same parameters as the actual damage calculation to avoid duplicate weakened messages
-                        int actualDamage = Combat.CalculateDamage(this, target, action, 1.0, settings.EnemyDamageMultiplier, 0, roll, false);
-                        string damageDisplay = Combat.FormatDamageDisplay(this, target, finalEffect, actualDamage, action, 1.0, settings.EnemyDamageMultiplier, 0, roll);
-                        return ($"[{Name}] uses [{action.Name}] on [{target.Name}]: deals {damageDisplay}. (Rolled {roll}, need {difficulty})", true);
-                    }
-                    else if (action.Type == ActionType.Debuff)
-                    {
-                        return ($"[{Name}] uses [{action.Name}] on [{target.Name}]: applies debuff. (Rolled {roll}, need {difficulty})", true);
-                    }
-                    return ($"[{Name}] uses [{action.Name}] on [{target.Name}]. (Rolled {roll}, need {difficulty})", true);
-                }
-                else
-                {
-                    return ($"[{Name}] attempts [{action.Name}] but fails. (Rolled {roll}, need {difficulty}) No action performed.", false);
-                }
+                return ($"[{Name}] attempts [{action.Name}] but fails. (Rolled {roll}, need {difficulty}) No action performed.", false);
             }
         }
         
@@ -310,7 +246,7 @@ namespace RPGGame
         
         public new List<string> TakeDamageWithNotifications(int amount)
         {
-            // Apply damage reduction if active
+            // Apply damage reduction if active (now inherited from Entity base class)
             if (DamageReduction > 0)
             {
                 amount = (int)(amount * (1.0 - DamageReduction));
@@ -319,7 +255,8 @@ namespace RPGGame
             CurrentHealth = Math.Max(0, CurrentHealth - amount);
             
             // Check for health milestones and leadership changes
-            return Combat.CheckHealthMilestones(this, amount);
+            // Note: Health milestone checking is now handled by CombatManager
+            return new List<string>(); // Return empty list since milestone checking moved to CombatManager
         }
 
         /// <summary>
@@ -327,7 +264,7 @@ namespace RPGGame
         /// </summary>
         /// <param name="currentTime">Current game time in seconds</param>
         /// <returns>Damage taken from poison this tick (0 for undead)</returns>
-        public new int ProcessPoison(double currentTime)
+        public override int ProcessPoison(double currentTime)
         {
             // Undead enemies are immune to poison and bleed damage
             if (!IsLiving)

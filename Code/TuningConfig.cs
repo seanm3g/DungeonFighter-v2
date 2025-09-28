@@ -554,7 +554,7 @@ namespace RPGGame
     public class GameDataConfig
     {
         public bool AutoGenerateOnLaunch { get; set; } = true;
-        public bool ShowGenerationMessages { get; set; } = true;
+        public bool ShowGenerationMessages { get; set; } = false;
         public string Description { get; set; } = "Controls automatic generation of game data files at launch";
     }
 
