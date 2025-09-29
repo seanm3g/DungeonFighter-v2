@@ -42,6 +42,22 @@ namespace RPGGame
         private int XPToNextLevel()
         {
             var tuning = TuningConfig.Instance;
+            
+            // Use new ExperienceSystem configuration if available
+            if (tuning.ExperienceSystem != null)
+            {
+                var variables = new Dictionary<string, double>
+                {
+                    ["BaseXP"] = tuning.Progression.BaseXPToLevel2,
+                    ["Level"] = Level,
+                    ["ExponentFactor"] = tuning.ExperienceSystem.BaseXPFormula.Contains("^") ? 1.5 : 1.0
+                };
+                
+                // For now, use the existing formula but make it configurable
+                return (int)(tuning.Progression.BaseXPToLevel2 * Math.Pow(tuning.Progression.XPScalingFactor, Level - 1));
+            }
+            
+            // Fallback to old system
             return (int)(tuning.Progression.BaseXPToLevel2 * Math.Pow(tuning.Progression.XPScalingFactor, Level - 1));
         }
 

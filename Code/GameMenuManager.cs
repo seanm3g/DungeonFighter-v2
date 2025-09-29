@@ -29,24 +29,23 @@ namespace RPGGame
         {
             while (true)
             {
-                Console.WriteLine("\nDungeon Fighter - Main Menu\n");
-                Thread.Sleep(TuningConfig.Instance.UI.MainMenuDelay);
-                Console.WriteLine("1. New Game");
+                UIManager.WriteLine("\nDungeon Fighter - Main Menu\n");
+                UIManager.WriteMenuLine("1. New Game");
                 
                 // Check if there's a saved character and display info
                 var (characterName, characterLevel) = GetSavedCharacterInfo();
                 if (characterName != null)
                 {
-                    Console.WriteLine($"2. Load Game - {characterName} - Level {characterLevel}");
+                    UIManager.WriteMenuLine($"2. Load Game - {characterName} - Level {characterLevel}");
                 }
                 else
                 {
-                    Console.WriteLine("2. Load Game");
+                    UIManager.WriteMenuLine("2. Load Game");
                 }
                 
-                Console.WriteLine("3. Settings");
-                Console.WriteLine("4. Exit\n");
-                Console.Write("Choose an option: ");
+                UIManager.WriteMenuLine("3. Settings");
+                UIManager.WriteMenuLine("4. Exit\n");
+                UIManager.Write("Choose an option: ");
 
                 string? choice = Console.ReadLine();
                 switch (choice)
@@ -61,12 +60,12 @@ namespace RPGGame
                         ShowSettings();
                         break;
                     case "4":
-                        Console.WriteLine();
-                        Console.WriteLine("Goodbye!");
-                        Console.WriteLine();
+                        UIManager.WriteBlankLine();
+                        UIManager.WriteLine("Goodbye!");
+                        UIManager.WriteBlankLine();
                         return;
                     default:
-                        Console.WriteLine("Invalid choice. Please try again.");
+                        UIManager.WriteLine("Invalid choice. Please try again.");
                         break;
                 }
             }
@@ -118,8 +117,8 @@ namespace RPGGame
             }
             else
             {
-                Console.WriteLine("No saved character found. Starting new game instead...");
-                Console.WriteLine("Press any key to continue...");
+                UIManager.WriteLine("No saved character found. Starting new game instead...");
+                UIManager.WriteLine("Press any key to continue...");
                 Console.ReadKey();
                 StartNewGame();
             }
@@ -133,18 +132,19 @@ namespace RPGGame
         /// <param name="availableDungeons">Available dungeons list</param>
         public void RunGame(Character player, List<Item> inventory, List<Dungeon> availableDungeons)
         {
-            Console.WriteLine("Welcome to the Dungeon Fighter!\n");
-            Console.WriteLine($"Player: {player.GetFullNameWithQualifier()} (Level {player.Level})");
+            UIManager.WriteLine("Welcome to the Dungeon Fighter!\n");
+            UIManager.WriteLine($"Player: {player.GetFullNameWithQualifier()} (Level {player.Level})");
 
             while (true)
             {
                 // Ask if player wants to manage gear first
-                Console.WriteLine("\nWhat would you like to do?");
-                Console.WriteLine();
-                Console.WriteLine("1. Choose a Dungeon");
-                Console.WriteLine("2. Inventory");
-                Console.WriteLine("3. Exit Game and save\n");
-                Console.Write("Enter your choice: ");
+                UIManager.WriteMenuLine("\nWhat would you like to do?");
+                UIManager.WriteMenuLine("");
+                UIManager.WriteMenuLine("1. Choose a Dungeon");
+                UIManager.WriteMenuLine("2. Inventory");
+                UIManager.WriteMenuLine("3. Exit Game and save");
+                UIManager.WriteMenuLine("");
+                UIManager.Write("Enter your choice: ");
 
                 if (int.TryParse(Console.ReadLine(), out int initialChoice))
                 {
@@ -154,7 +154,7 @@ namespace RPGGame
                             // Go straight to dungeon selection
                             break;
                         case 2:
-                            var inventoryManager = new Inventory(player, inventory);
+                            var inventoryManager = new InventoryManager(player, inventory);
                             bool continueToDungeon = inventoryManager.ShowGearMenu();
                             if (!continueToDungeon)
                             {
@@ -163,18 +163,18 @@ namespace RPGGame
                             // Fall through to dungeon selection
                             break;
                         case 3:
-                            Console.WriteLine("Saving game before exit...");
+                            UIManager.WriteLine("Saving game before exit...");
                             player.SaveCharacter();
-                            Console.WriteLine("Game saved! Thanks for playing!");
+                            UIManager.WriteLine("Game saved! Thanks for playing!");
                             return;
                         default:
-                            Console.WriteLine("Invalid choice. Please enter 1, 2, or 3.");
+                            UIManager.WriteLine("Invalid choice. Please enter 1, 2, or 3.");
                             continue; // Continue the loop instead of exiting
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Invalid input. Please enter a number (1, 2, or 3).");
+                    UIManager.WriteLine("Invalid input. Please enter a number (1, 2, or 3).");
                     continue; // Continue the loop instead of exiting
                 }
 
@@ -205,27 +205,7 @@ namespace RPGGame
         /// <returns>Character name and level, or null/0 if not found</returns>
         private (string? name, int level) GetSavedCharacterInfo(string filename = "GameData/character_save.json")
         {
-            try
-            {
-                if (!File.Exists(filename))
-                {
-                    return (null, 0);
-                }
-
-                string json = File.ReadAllText(filename);
-                var saveData = JsonSerializer.Deserialize<CharacterSaveData>(json);
-                
-                if (saveData == null)
-                {
-                    return (null, 0);
-                }
-
-                return (saveData.Name, saveData.Level);
-            }
-            catch (Exception)
-            {
-                return (null, 0);
-            }
+            return CharacterSaveManager.GetSavedCharacterInfo(filename);
         }
 
         /// <summary>

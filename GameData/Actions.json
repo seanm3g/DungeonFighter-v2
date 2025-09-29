@@ -835,8 +835,8 @@
     "name": "ARCANE SHIELD",
     "type": "Buff",
     "damageMultiplier": 0.25,
-    "length": 0.25,
-    "description": "Instant protective barrier that reduces the next incoming attack damage by half and weakens enemies",
+    "length": 1.0,
+    "description": "Quick protective barrier that reduces the next incoming attack damage by half and weakens enemies",
     "comboOrder": 1,
     "isComboAction": true,
     "enemyRollPenalty": 3,
@@ -919,7 +919,7 @@
     "tags": ["enemy", "slime"]
   },
   {
-    "name": "Swoop Attack",
+    "name": "SWOOP ATTACK",
     "type": "Attack",
     "damageMultiplier": 0.9,
     "length": 1.0,
@@ -1217,7 +1217,7 @@
     "tags": ["enemy", "wolf"]
   },
   {
-    "name": "Bite",
+    "name": "BITE",
     "type": "Attack",
     "damageMultiplier": 1.2,
     "length": 1.0,
@@ -1272,7 +1272,7 @@
   {
     "name": "Flame Burst",
     "type": "Attack",
-    "damageMultiplier": 1.6,
+    "damageMultiplier": 1.2,
     "length": 1.5,
     "description": "Explosive burst of searing flames",
     "comboOrder": 0,
@@ -1292,7 +1292,7 @@
   {
     "name": "Magma Punch",
     "type": "Attack",
-    "damageMultiplier": 1.8,
+    "damageMultiplier": 1.4,
     "length": 2.5,
     "description": "Molten fist strikes with devastating force",
     "comboOrder": 0,
@@ -1302,7 +1302,7 @@
   {
     "name": "Lava Spit",
     "type": "Attack",
-    "damageMultiplier": 1.5,
+    "damageMultiplier": 1.2,
     "length": 1.8,
     "description": "Spits molten lava at enemies",
     "comboOrder": 0,
@@ -1313,7 +1313,7 @@
   {
     "name": "Fire Breath",
     "type": "Attack",
-    "damageMultiplier": 1.4,
+    "damageMultiplier": 1.2,
     "length": 2.0,
     "description": "Breathes a cone of scorching flames",
     "comboOrder": 0,
@@ -1882,8 +1882,8 @@
     "name": "BLITZ ATTACK",
     "type": "Attack",
     "damageMultiplier": 0.7,
-    "length": 0.5,
-    "description": "Ultra-fast attack that allows immediate follow-up action",
+    "length": 0.8,
+    "description": "Fast attack that allows immediate follow-up action",
     "comboOrder": 0,
     "isComboAction": true,
     "extraAttacks": 1,

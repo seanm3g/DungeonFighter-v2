@@ -8,18 +8,15 @@ namespace RPGGame
     public static class CombatCalculator
     {
         /// <summary>
-        /// Calculates damage dealt by an attacker to a target
+        /// Calculates raw damage before armor reduction
         /// </summary>
         /// <param name="attacker">The entity dealing damage</param>
-        /// <param name="target">The entity receiving damage</param>
         /// <param name="action">The action being performed</param>
         /// <param name="comboAmplifier">Combo amplification multiplier</param>
         /// <param name="damageMultiplier">Additional damage multiplier</param>
-        /// <param name="rollBonus">Roll bonus for the attack</param>
         /// <param name="roll">The actual roll result</param>
-        /// <param name="showWeakenedMessage">Whether to show weakened damage message</param>
-        /// <returns>The calculated damage amount</returns>
-        public static int CalculateDamage(Entity attacker, Entity target, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, bool showWeakenedMessage = true)
+        /// <returns>Raw damage before armor reduction</returns>
+        public static int CalculateRawDamage(Entity attacker, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int roll = 0)
         {
             // Get base damage from attacker
             int baseDamage = 0;
@@ -51,39 +48,81 @@ namespace RPGGame
             // Calculate total damage before armor
             double totalDamage = (baseDamage * actionMultiplier * comboAmplifier * damageMultiplier);
             
+            // Get combat configuration
+            var combatConfig = TuningConfig.Instance.Combat;
+            var combatBalance = TuningConfig.Instance.CombatBalance;
+            
             // Apply roll-based damage scaling
             if (roll > 0)
             {
                 // Critical hit on natural 20
-                if (roll == 20)
+                if (roll == combatConfig.CriticalHitThreshold)
                 {
-                    totalDamage *= 2.0; // Double damage on critical hit
+                    totalDamage *= combatBalance.CriticalHitDamageMultiplier;
                 }
-                // Enhanced damage scaling based on roll
-                else if (roll >= 15)
+                // Enhanced damage scaling based on roll using RollSystem configuration
+                var rollSystem = TuningConfig.Instance.RollSystem;
+                var rollMultipliers = combatBalance.RollDamageMultipliers;
+                if (roll >= rollSystem.ComboThreshold.Min)
                 {
-                    totalDamage *= 1.5; // 50% bonus for high rolls
+                    totalDamage *= rollMultipliers.ComboRollDamageMultiplier;
                 }
-                else if (roll >= 10)
+                else if (roll >= rollSystem.BasicAttackThreshold.Min)
                 {
-                    totalDamage *= 1.25; // 25% bonus for medium rolls
+                    totalDamage *= rollMultipliers.BasicRollDamageMultiplier;
                 }
-                // Low rolls (1-9) get no bonus
             }
+            
+            return (int)totalDamage;
+        }
+
+        /// <summary>
+        /// Calculates damage dealt by an attacker to a target
+        /// </summary>
+        /// <param name="attacker">The entity dealing damage</param>
+        /// <param name="target">The entity receiving damage</param>
+        /// <param name="action">The action being performed</param>
+        /// <param name="comboAmplifier">Combo amplification multiplier</param>
+        /// <param name="damageMultiplier">Additional damage multiplier</param>
+        /// <param name="rollBonus">Roll bonus for the attack</param>
+        /// <param name="roll">The actual roll result</param>
+        /// <param name="showWeakenedMessage">Whether to show weakened damage message</param>
+        /// <returns>The calculated damage amount</returns>
+        public static int CalculateDamage(Entity attacker, Entity target, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, bool showWeakenedMessage = true)
+        {
+            // Calculate raw damage before armor
+            int totalDamage = CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, roll);
             
             // Get target's armor
             int targetArmor = 0;
-            if (target is Character targetCharacter)
+            if (target is Enemy targetEnemy)
+            {
+                // For enemies, use the Armor property directly to avoid inheritance issues
+                targetArmor = targetEnemy.Armor;
+            }
+            else if (target is Character targetCharacter)
             {
                 targetArmor = targetCharacter.GetTotalArmor();
             }
-            else if (target is Enemy targetEnemy)
-            {
-                targetArmor = targetEnemy.GetTotalArmor();
-            }
             
             // Calculate final damage after armor reduction
-            int finalDamage = Math.Max(1, (int)totalDamage - targetArmor);
+            int finalDamage;
+            
+            // Get combat configuration
+            var combatBalance = TuningConfig.Instance.CombatBalance;
+            
+            // Use configurable armor reduction formula if available
+            if (!string.IsNullOrEmpty(combatBalance.ArmorReductionFormula))
+            {
+                // For now, use the existing simple formula but make it configurable
+                // TODO: Implement formula evaluator for armor reduction
+                finalDamage = Math.Max(TuningConfig.Instance.Combat.MinimumDamage, (int)totalDamage - targetArmor);
+            }
+            else
+            {
+                // Fallback to simple armor reduction
+                finalDamage = Math.Max(TuningConfig.Instance.Combat.MinimumDamage, (int)totalDamage - targetArmor);
+            }
             
             // Apply weakened effect if target is weakened
             if (target.IsWeakened && showWeakenedMessage)
@@ -95,7 +134,8 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Calculates hit/miss based on attack roll vs target's defense
+        /// Calculates hit/miss based on roll value only
+        /// 1-5: Miss, 6-13: Regular attack, 14-19: Combo, 20: Combo + Critical
         /// </summary>
         /// <param name="attacker">The attacking entity</param>
         /// <param name="target">The target entity</param>
@@ -104,22 +144,9 @@ namespace RPGGame
         /// <returns>True if the attack hits, false if it misses</returns>
         public static bool CalculateHit(Entity attacker, Entity target, int rollBonus, int roll)
         {
-            // Calculate attack roll
-            int attackRoll = roll + rollBonus;
-            
-            // Get target's defense (armor + agility bonus)
-            int targetDefense = 0;
-            if (target is Character targetCharacter)
-            {
-                targetDefense = targetCharacter.GetTotalArmor() + (targetCharacter.GetEffectiveAgility() / 2);
-            }
-            else if (target is Enemy targetEnemy)
-            {
-                targetDefense = targetEnemy.GetTotalArmor() + (targetEnemy.GetEffectiveAgility() / 2);
-            }
-            
-            // Hit if attack roll meets or exceeds defense
-            return attackRoll >= targetDefense;
+            // Hit/miss is based on roll value only, not target defense
+            // 1-5: Miss, 6-20: Hit
+            return roll >= 6;
         }
 
         /// <summary>
@@ -217,13 +244,14 @@ namespace RPGGame
         {
             // Get base armor reduction
             int armorReduction = 0;
-            if (target is Character targetCharacter)
+            if (target is Enemy targetEnemy)
+            {
+                // For enemies, use the Armor property directly to avoid inheritance issues
+                armorReduction = targetEnemy.Armor;
+            }
+            else if (target is Character targetCharacter)
             {
                 armorReduction = targetCharacter.GetTotalArmor();
-            }
-            else if (target is Enemy targetEnemy)
-            {
-                armorReduction = targetEnemy.GetTotalArmor();
             }
             
             // Apply damage reduction from effects
@@ -233,8 +261,21 @@ namespace RPGGame
                 damageReductionMultiplier = 1.0 - (target.DamageReduction / 100.0);
             }
             
-            // Calculate final damage
-            int finalDamage = Math.Max(1, (int)((damage - armorReduction) * damageReductionMultiplier));
+            // Use configurable armor reduction formula if available
+            var combatBalance = TuningConfig.Instance.CombatBalance;
+            int finalDamage;
+            
+            if (!string.IsNullOrEmpty(combatBalance.ArmorReductionFormula))
+            {
+                // For now, use the existing simple formula but make it configurable
+                // TODO: Implement formula evaluator for armor reduction
+                finalDamage = Math.Max(TuningConfig.Instance.Combat.MinimumDamage, (int)((damage - armorReduction) * damageReductionMultiplier));
+            }
+            else
+            {
+                // Fallback to simple armor reduction
+                finalDamage = Math.Max(TuningConfig.Instance.Combat.MinimumDamage, (int)((damage - armorReduction) * damageReductionMultiplier));
+            }
             
             return finalDamage;
         }
@@ -279,6 +320,76 @@ namespace RPGGame
             // Roll for effect application
             double roll = Dice.Roll(1, 100) / 100.0;
             return roll < baseChance;
+        }
+        
+        /// <summary>
+        /// Calculates attack speed for any entity (shared logic)
+        /// </summary>
+        /// <param name="entity">The entity to calculate attack speed for</param>
+        /// <returns>Attack speed in seconds</returns>
+        public static double CalculateAttackSpeed(Entity entity)
+        {
+            var tuning = TuningConfig.Instance;
+            double baseAttackTime = tuning.Combat.BaseAttackTime;
+            
+            // Agility reduces attack time (makes you faster)
+            double agilityReduction = 0;
+            if (entity is Character character)
+            {
+                agilityReduction = character.Agility * tuning.Combat.AgilitySpeedReduction;
+            }
+            else if (entity is Enemy enemy)
+            {
+                agilityReduction = enemy.Agility * tuning.Combat.AgilitySpeedReduction;
+            }
+            double agilityAdjustedTime = baseAttackTime - agilityReduction;
+            
+            // Apply entity-specific modifiers
+            if (entity is Character charEntity)
+            {
+                // Calculate weapon speed using the speed formula
+                double weaponSpeed = 1.0;
+                if (charEntity.Weapon is WeaponItem w)
+                {
+                    // Use the scaling manager to calculate the proper weapon speed
+                    weaponSpeed = ScalingManager.CalculateWeaponSpeed(w.BaseAttackSpeed, w.Tier, charEntity.Level, w.Type.ToString());
+                }
+                double weaponAdjustedTime = agilityAdjustedTime * weaponSpeed;
+                
+                // Equipment speed bonus reduces time further
+                double equipmentSpeedBonus = charEntity.GetEquipmentAttackSpeedBonus();
+                double finalAttackTime = weaponAdjustedTime - equipmentSpeedBonus;
+                
+                // Apply slow debuff if active
+                if (charEntity.SlowTurns > 0)
+                {
+                    finalAttackTime *= charEntity.SlowMultiplier;
+                }
+                
+                // Apply speed multiplier modifications (like Ethereal)
+                double speedMultiplier = charEntity.GetModificationSpeedMultiplier();
+                finalAttackTime /= speedMultiplier; // Divide by multiplier to make attacks faster
+                
+                // Apply minimum cap
+                return Math.Max(tuning.Combat.MinimumAttackTime, finalAttackTime);
+            }
+            else if (entity is Enemy enemyEntity)
+            {
+                // Apply archetype speed multiplier
+                double finalAttackTime = agilityAdjustedTime * enemyEntity.AttackProfile.SpeedMultiplier;
+                
+                // Apply slow debuff if active
+                if (enemyEntity.SlowTurns > 0)
+                {
+                    finalAttackTime *= enemyEntity.SlowMultiplier;
+                }
+                
+                // Apply minimum cap
+                return Math.Max(tuning.Combat.MinimumAttackTime, finalAttackTime);
+            }
+            
+            // Fallback for other entity types
+            return Math.Max(tuning.Combat.MinimumAttackTime, agilityAdjustedTime);
         }
 
     }

@@ -4,17 +4,65 @@ using System.Collections.Generic;
 namespace RPGGame
 {
     /// <summary>
-    /// Manages equipment operations including equipping, unequipping, and discarding items
+    /// Consolidated inventory management including display, equipment, and combo management
     /// </summary>
-    public class EquipmentManager
+    public class InventoryManager
     {
         private Character player;
         private List<Item> inventory;
+        private InventoryDisplayManager displayManager;
+        private ComboManager comboManager;
 
-        public EquipmentManager(Character player, List<Item> inventory)
+        public InventoryManager(Character player, List<Item> inventory)
         {
             this.player = player;
             this.inventory = inventory;
+            
+            // Initialize components
+            displayManager = new InventoryDisplayManager(player, inventory);
+            comboManager = new ComboManager(player, displayManager);
+        }
+
+        /// <summary>
+        /// Shows the main gear menu and handles user input
+        /// </summary>
+        /// <returns>True if user wants to continue to dungeon, false if returning to main menu</returns>
+        public bool ShowGearMenu()
+        {
+            while (true)
+            {
+                displayManager.ShowMainDisplay();
+
+                if (int.TryParse(Console.ReadLine(), out int choice))
+                {
+                    switch (choice)
+                    {
+                        case 1:
+                            EquipItem();
+                            break;
+                        case 2:
+                            UnequipItem();
+                            break;
+                        case 3:
+                            DiscardItem();
+                            break;
+                        case 4:
+                            comboManager.ManageComboActions();
+                            break;
+                        case 5:
+                            return true; // Continue to dungeon
+                        case 6:
+                            return false; // Exit inventory menu and return to main menu
+                        default:
+                            Console.WriteLine("Invalid option.");
+                            break;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input.");
+                }
+            }
         }
 
         /// <summary>
@@ -63,12 +111,12 @@ namespace RPGGame
         /// </summary>
         public void UnequipItem()
         {
-            Console.WriteLine("Choose slot to unequip:");
-            Console.WriteLine("1. Weapon");
-            Console.WriteLine("2. Head");
-            Console.WriteLine("3. Body");
-            Console.WriteLine("4. Feet");
-            Console.Write("Enter your choice: ");
+            UIManager.WriteMenuLine("Choose slot to unequip:");
+            UIManager.WriteMenuLine("1. Weapon");
+            UIManager.WriteMenuLine("2. Head");
+            UIManager.WriteMenuLine("3. Body");
+            UIManager.WriteMenuLine("4. Feet");
+            UIManager.Write("Enter your choice: ");
 
             if (int.TryParse(Console.ReadLine(), out int slotChoice) && 
                 slotChoice >= 1 && slotChoice <= 4)
@@ -148,6 +196,16 @@ namespace RPGGame
         public int GetInventoryCount()
         {
             return inventory.Count;
+        }
+
+        /// <summary>
+        /// Updates the inventory reference (useful when inventory changes)
+        /// </summary>
+        public void UpdateInventory(List<Item> newInventory)
+        {
+            this.inventory = newInventory;
+            // Update the display manager with the new inventory reference
+            displayManager = new InventoryDisplayManager(player, inventory);
         }
     }
 }

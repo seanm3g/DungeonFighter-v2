@@ -2,4 +2,4 @@
 description: 
 alwaysApply: false
 ---
-Do not build or run code to check it, as it just freezes.  Instead add debug actions
+run the command cls

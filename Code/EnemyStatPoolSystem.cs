@@ -151,8 +151,8 @@ namespace RPGGame
         /// </summary>
         public static void AnalyzeEnemyStatPools(StatPoolConfig? config = null)
         {
-            Console.WriteLine("=== ENEMY STAT POOL ANALYSIS ===");
-            Console.WriteLine();
+            UIManager.WriteSystemLine("=== ENEMY STAT POOL ANALYSIS ===");
+            UIManager.WriteSystemLine("");
             
             config ??= new StatPoolConfig();
             EnemyLoader.LoadEnemies();
@@ -160,12 +160,12 @@ namespace RPGGame
             
             if (!enemyDataList.Any())
             {
-                Console.WriteLine("No enemy data found!");
+                UIManager.WriteSystemLine("No enemy data found!");
                 return;
             }
             
-            Console.WriteLine("Enemy\t\tLevel\tArchetype\tDPS Pool\tSurv Pool\tTotal\tBalance");
-            Console.WriteLine("".PadRight(85, '='));
+            UIManager.WriteSystemLine("Enemy\t\tLevel\tArchetype\tDPS Pool\tSurv Pool\tTotal\tBalance");
+            UIManager.WriteSystemLine("".PadRight(85, '='));
             
             var testLevels = new[] { 1, 5, 10, 15, 20 };
             
@@ -179,24 +179,24 @@ namespace RPGGame
                     var validation = ValidateEnemyStats(enemy, config);
                     string balanceStatus = validation.IsBalanced ? "✓" : "⚠";
                     
-                    Console.WriteLine($"{enemyData.Name.PadRight(12)}\tL{level}\t{validation.Archetype.ToString().PadRight(8)}\t{validation.ActualDPSPower:F1}\t\t{validation.ActualSurvivabilityPower:F1}\t\t{validation.ActualTotalPower:F1}\t{balanceStatus}");
+                    UIManager.WriteSystemLine($"{enemyData.Name.PadRight(12)}\tL{level}\t{validation.Archetype.ToString().PadRight(8)}\t{validation.ActualDPSPower:F1}\t\t{validation.ActualSurvivabilityPower:F1}\t\t{validation.ActualTotalPower:F1}\t{balanceStatus}");
                 }
-                Console.WriteLine();
+                UIManager.WriteSystemLine("");
             }
             
-            Console.WriteLine();
-            Console.WriteLine("=== STAT POOL DISTRIBUTION EXAMPLES ===");
-            Console.WriteLine("Level\tArchetype\tSTR\tAGI\tHealth\tArmor\tDPS Pool\tSurv Pool");
-            Console.WriteLine("".PadRight(85, '-'));
+            UIManager.WriteSystemLine("");
+            UIManager.WriteSystemLine("=== STAT POOL DISTRIBUTION EXAMPLES ===");
+            UIManager.WriteSystemLine("Level\tArchetype\tSTR\tAGI\tHealth\tArmor\tDPS Pool\tSurv Pool");
+            UIManager.WriteSystemLine("".PadRight(85, '-'));
             
             foreach (int level in new[] { 1, 5, 10, 15 })
             {
                 foreach (var archetype in Enum.GetValues<EnemyArchetype>())
                 {
                     var distribution = DistributeStats(level, archetype, config);
-                    Console.WriteLine($"{level}\t{archetype.ToString().PadRight(8)}\t{distribution.Strength}\t{distribution.Agility}\t{distribution.Health}\t{distribution.Armor}\t{distribution.DPSPool:F1}\t\t{distribution.SurvivabilityPool:F1}");
+                    UIManager.WriteSystemLine($"{level}\t{archetype.ToString().PadRight(8)}\t{distribution.Strength}\t{distribution.Agility}\t{distribution.Health}\t{distribution.Armor}\t{distribution.DPSPool:F1}\t\t{distribution.SurvivabilityPool:F1}");
                 }
-                Console.WriteLine();
+                UIManager.WriteSystemLine("");
             }
         }
 

@@ -71,28 +71,11 @@ namespace RPGGame
     public static class ActionLoader
     {
         private static Dictionary<string, ActionData>? _actions;
-        private static readonly string[] PossibleActionPaths = {
-            // Relative to executable directory
-            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "GameData", "Actions.json"),
-            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "GameData", "Actions.json"),
-            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "GameData", "Actions.json"),
-            
-            // Relative to current working directory
-            Path.Combine(Directory.GetCurrentDirectory(), "GameData", "Actions.json"),
-            Path.Combine(Directory.GetCurrentDirectory(), "..", "GameData", "Actions.json"),
-            Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "GameData", "Actions.json"),
-            
-            // Legacy paths for backward compatibility
-            Path.Combine("GameData", "Actions.json"),
-            Path.Combine("..", "GameData", "Actions.json"),
-            Path.Combine("..", "..", "GameData", "Actions.json"),
-            Path.Combine("DF4 - CONSOLE", "GameData", "Actions.json"),
-            Path.Combine("..", "DF4 - CONSOLE", "GameData", "Actions.json")
-        };
+        private static readonly string[] PossibleActionPaths = GameConstants.GetPossibleGameDataFilePaths(GameConstants.ActionsJson);
 
         public static void LoadActions()
         {
-            try
+            ErrorHandler.TryExecute(() =>
             {
                 string? foundPath = null;
                 foreach (string path in PossibleActionPaths)
@@ -107,7 +90,7 @@ namespace RPGGame
                 if (foundPath != null)
                 {
                     if (TuningConfig.IsDebugEnabled)
-                        Console.WriteLine($"DEBUG: ActionLoader found Actions.json at: {foundPath}");
+                        UIManager.WriteSystemLine($"DEBUG: ActionLoader found Actions.json at: {foundPath}");
                     string jsonContent = File.ReadAllText(foundPath);
                     
                     var actionList = JsonSerializer.Deserialize<List<ActionData>>(jsonContent);
@@ -123,29 +106,23 @@ namespace RPGGame
                             }
                             else
                             {
-                                Console.WriteLine($"Warning: Found action with null/empty name");
+                                ErrorHandler.LogWarning("Found action with null/empty name", "ActionLoader");
                             }
                         }
                         if (TuningConfig.IsDebugEnabled)
-                            Console.WriteLine($"DEBUG: ActionLoader loaded {_actions.Count} actions successfully");
+                            UIManager.WriteSystemLine($"DEBUG: ActionLoader loaded {_actions.Count} actions successfully");
                     }
                     else
                     {
-                        Console.WriteLine("Warning: JSON deserialization returned null");
+                        ErrorHandler.LogWarning("JSON deserialization returned null", "ActionLoader");
                     }
                 }
                 else
                 {
-                    Console.WriteLine($"ERROR: Actions file not found. Tried paths: {string.Join(", ", PossibleActionPaths)}");
+                    ErrorHandler.LogWarning($"Actions file not found. Tried paths: {string.Join(", ", PossibleActionPaths)}", "ActionLoader");
                     _actions = new Dictionary<string, ActionData>();
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error loading actions: {ex.Message}");
-                Console.WriteLine($"Stack trace: {ex.StackTrace}");
-                _actions = new Dictionary<string, ActionData>();
-            }
+            }, "ActionLoader.LoadActions", () => _actions = new Dictionary<string, ActionData>());
         }
 
         public static Action? GetAction(string actionName)
@@ -360,14 +337,14 @@ namespace RPGGame
             if (_actions == null)
             {
                 if (TuningConfig.IsDebugEnabled)
-                    Console.WriteLine("DEBUG: ActionLoader._actions is null, calling LoadActions()");
+                    UIManager.WriteSystemLine("DEBUG: ActionLoader._actions is null, calling LoadActions()");
                 LoadActions();
             }
             var actions = new List<Action>();
             if (_actions != null)
             {
                 if (TuningConfig.IsDebugEnabled)
-                    Console.WriteLine($"DEBUG: ActionLoader has {_actions.Count} actions loaded");
+                    UIManager.WriteSystemLine($"DEBUG: ActionLoader has {_actions.Count} actions loaded");
                 foreach (var actionData in _actions.Values)
                 {
                     actions.Add(CreateActionFromData(actionData));
@@ -376,10 +353,10 @@ namespace RPGGame
             else
             {
                 if (TuningConfig.IsDebugEnabled)
-                    Console.WriteLine("DEBUG: ActionLoader._actions is still null after LoadActions()");
+                    UIManager.WriteSystemLine("DEBUG: ActionLoader._actions is still null after LoadActions()");
             }
             if (TuningConfig.IsDebugEnabled)
-                Console.WriteLine($"DEBUG: GetAllActions() returning {actions.Count} actions");
+                UIManager.WriteSystemLine($"DEBUG: GetAllActions() returning {actions.Count} actions");
             return actions;
         }
 
@@ -410,7 +387,7 @@ namespace RPGGame
             // Fallback names if no actions found
             return type switch
             {
-                ActionType.Attack => "Attack",
+                ActionType.Attack => GameConstants.BasicAttackName,
                 ActionType.Heal => "Heal",
                 ActionType.Buff => "Buff",
                 ActionType.Debuff => "Debuff",

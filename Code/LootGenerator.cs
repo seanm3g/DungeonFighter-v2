@@ -25,7 +25,7 @@ namespace RPGGame
             LoadRarityData();
         }
 
-        public static Item? GenerateLoot(int playerLevel, int dungeonLevel, Character? player = null)
+        public static Item? GenerateLoot(int playerLevel, int dungeonLevel, Character? player = null, bool guaranteedLoot = false)
         {
             if (_tierDistributions == null || _armorData == null || _weaponData == null || 
                 _statBonuses == null || _actionBonuses == null || _modifications == null || _rarityData == null)
@@ -36,23 +36,37 @@ namespace RPGGame
             var tuning = TuningConfig.Instance;
             
             // Calculate loot chance based on tuning config
-            double lootChance = tuning.Loot.LootChanceBase + (playerLevel * tuning.Loot.LootChancePerLevel);
+            double lootChance = tuning.LootSystem.BaseDropChance + (playerLevel * tuning.LootSystem.DropChancePerLevel);
             
             // Apply magic find modifier to loot chance
             double magicFind = player?.GetMagicFind() ?? 0.0;
-            lootChance += magicFind * tuning.Loot.MagicFindLootChanceMultiplier;
+            lootChance += magicFind * tuning.LootSystem.MagicFindEffectiveness;
             
-            lootChance = Math.Min(lootChance, tuning.Loot.MaximumLootChance);
+            lootChance = Math.Min(lootChance, tuning.LootSystem.MaxDropChance);
             
-            // Roll for loot chance
-            if (_random.NextDouble() >= lootChance) return null;
+            // Skip loot chance roll for guaranteed loot (dungeon completion rewards)
+            if (!guaranteedLoot)
+            {
+                // Roll for loot chance
+                double roll = _random.NextDouble();
+                if (roll >= lootChance) 
+                {
+                    return null;
+                }
+            }
 
             // ROLL 1: Determine loot level (player level - dungeon level)
             int lootLevel = playerLevel - dungeonLevel;
             
             // Special rules: 3+ levels below = 0% chance, 3+ levels above = 100% chance
-            if (lootLevel <= -3) return null; // No loot
-            if (lootLevel >= 3) lootLevel = 100; // Guaranteed high-tier loot
+            if (lootLevel <= -3) 
+            {
+                return null; // No loot
+            }
+            if (lootLevel >= 3) 
+            {
+                lootLevel = 100; // Guaranteed high-tier loot
+            }
 
             // ROLL 2: Item type (25% weapon, 75% armor)
             bool isWeapon = _random.NextDouble() < 0.25;
@@ -64,7 +78,10 @@ namespace RPGGame
             
             // ROLL 5: Specific item selection
             Item? item = isWeapon ? RollWeapon(tier) : RollArmor(tier);
-            if (item == null) return null;
+            if (item == null) 
+            {
+                return null;
+            }
 
             // ROLL 5b,c: Apply scaling formulas to base stats
             if (item is WeaponItem weapon)
@@ -74,9 +91,19 @@ namespace RPGGame
                 weapon.BaseDamage = (int)Math.Round(scaledDamage);
                 
                 // Apply bonus damage and attack speed based on tuning config
-                // Bonus damage is 1d(tier) - so tier 1 = 1, tier 2 = 1d2, etc.
-                weapon.BonusDamage = weapon.Tier == 1 ? 1 : Dice.Roll(1, weapon.Tier);
-                weapon.BonusAttackSpeed = _random.Next(tuning.Equipment.BonusAttackSpeedRange.Min, tuning.Equipment.BonusAttackSpeedRange.Max + 1);
+                var equipmentScaling = tuning.EquipmentScaling;
+                if (equipmentScaling != null)
+                {
+                    // Use new EquipmentScaling configuration
+                    weapon.BonusDamage = (int)(weapon.Tier * equipmentScaling.WeaponDamagePerTier);
+                    weapon.BonusAttackSpeed = (int)(weapon.Tier * equipmentScaling.SpeedBonusPerTier);
+                }
+                else
+                {
+                    // Fallback to simple system
+                    weapon.BonusDamage = weapon.Tier == 1 ? 1 : Dice.Roll(1, weapon.Tier);
+                    weapon.BonusAttackSpeed = (int)(weapon.Tier * 0.1); // Simple fallback
+                }
             }
             else if (item is HeadItem headArmor)
             {
@@ -132,21 +159,40 @@ namespace RPGGame
             lootLevel = Math.Max(1, Math.Min(100, lootLevel));
             
             var distribution = _tierDistributions!.FirstOrDefault(d => d.Level == lootLevel);
-            if (distribution == null) return 1;
+            if (distribution == null) 
+            {
+                return 1;
+            }
 
             double roll = _random.NextDouble() * 100;
             
-            if (roll < distribution.Tier1) return 1;
-            if (roll < distribution.Tier1 + distribution.Tier2) return 2;
-            if (roll < distribution.Tier1 + distribution.Tier2 + distribution.Tier3) return 3;
-            if (roll < distribution.Tier1 + distribution.Tier2 + distribution.Tier3 + distribution.Tier4) return 4;
+            if (roll < distribution.Tier1) 
+            {
+                return 1;
+            }
+            if (roll < distribution.Tier1 + distribution.Tier2) 
+            {
+                return 2;
+            }
+            if (roll < distribution.Tier1 + distribution.Tier2 + distribution.Tier3) 
+            {
+                return 3;
+            }
+            if (roll < distribution.Tier1 + distribution.Tier2 + distribution.Tier3 + distribution.Tier4) 
+            {
+                return 4;
+            }
             return 5;
         }
 
         private static Item? RollWeapon(int tier)
         {
             var weaponsInTier = _weaponData!.Where(w => w.Tier == tier).ToList();
-            if (!weaponsInTier.Any()) return null;
+            
+            if (!weaponsInTier.Any()) 
+            {
+                return null;
+            }
 
             var selectedWeapon = weaponsInTier[_random.Next(weaponsInTier.Count)];
             
@@ -161,15 +207,17 @@ namespace RPGGame
             //     }
             // }
 
-            var weaponType = Enum.Parse<WeaponType>(selectedWeapon.Type);
-            return new WeaponItem(selectedWeapon.Name, selectedWeapon.Tier, 
-                selectedWeapon.BaseDamage, selectedWeapon.AttackSpeed, weaponType);
+            return ItemGenerator.GenerateWeaponItem(selectedWeapon);
         }
 
         private static Item? RollArmor(int tier)
         {
             var armorInTier = _armorData!.Where(a => a.Tier == tier).ToList();
-            if (!armorInTier.Any()) return null;
+            
+            if (!armorInTier.Any()) 
+            {
+                return null;
+            }
 
             var selectedArmor = armorInTier[_random.Next(armorInTier.Count)];
             
@@ -184,13 +232,7 @@ namespace RPGGame
             //     }
             // }
 
-            Item? item = selectedArmor.Slot switch
-            {
-                "Head" => new HeadItem(selectedArmor.Name, selectedArmor.Tier, selectedArmor.Armor),
-                "Chest" => new ChestItem(selectedArmor.Name, selectedArmor.Tier, selectedArmor.Armor),
-                "Feet" => new FeetItem(selectedArmor.Name, selectedArmor.Tier, selectedArmor.Armor),
-                _ => null
-            };
+            Item? item = ItemGenerator.GenerateArmorItem(selectedArmor);
 
             // Assign random action for all armor types to provide variety
             if (item != null)
@@ -376,80 +418,9 @@ namespace RPGGame
             }
 
             // Update item name to include modifications and stat bonuses
-            item.Name = GenerateItemNameWithBonuses(item);
+            item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
         }
 
-        private static string GenerateItemNameWithBonuses(Item item)
-        {
-            string baseName = GetBaseItemName(item);
-            var nameParts = new List<string>();
-            
-            // Add rarity prefix based on number of bonuses
-            int totalBonuses = item.StatBonuses.Count + item.ActionBonuses.Count + item.Modifications.Count;
-            string rarityPrefix = totalBonuses switch
-            {
-                >= 5 => "Legendary",
-                >= 4 => "Epic", 
-                >= 3 => "Rare",
-                >= 2 => "Uncommon",
-                _ => ""
-            };
-            
-            if (!string.IsNullOrEmpty(rarityPrefix))
-            {
-                nameParts.Add(rarityPrefix);
-            }
-            
-            // Add modification prefixes
-            foreach (var mod in item.Modifications)
-            {
-                if (!string.IsNullOrEmpty(mod.Name))
-                {
-                    nameParts.Add(mod.Name);
-                }
-            }
-            
-            // Add base item name
-            nameParts.Add(baseName);
-            
-            // Add stat bonus suffixes
-            foreach (var statBonus in item.StatBonuses)
-            {
-                if (!string.IsNullOrEmpty(statBonus.Name))
-                {
-                    nameParts.Add(statBonus.Name);
-                }
-            }
-            
-            return string.Join(" ", nameParts);
-        }
-        
-        private static string GetBaseItemName(Item item)
-        {
-            // Extract the base name without any prefixes/suffixes
-            string originalName = item.Name;
-            
-            // Remove common rarity prefixes
-            string[] rarityPrefixes = { "Legendary", "Epic", "Rare", "Uncommon" };
-            foreach (var prefix in rarityPrefixes)
-            {
-                if (originalName.StartsWith(prefix + " "))
-                {
-                    originalName = originalName.Substring(prefix.Length + 1);
-                }
-            }
-            
-            // Remove modification prefixes
-            foreach (var mod in item.Modifications)
-            {
-                if (!string.IsNullOrEmpty(mod.Name) && originalName.StartsWith(mod.Name + " "))
-                {
-                    originalName = originalName.Substring(mod.Name.Length + 1);
-                }
-            }
-            
-            return originalName;
-        }
 
         private static Modification? RollModification(int itemTier = 1, int bonus = 0)
         {
@@ -486,237 +457,93 @@ namespace RPGGame
         }
 
 
-        private static string? FindGameDataFile(string fileName)
-        {
-            // Get the directory where the executable is located
-            string executableDir = AppDomain.CurrentDomain.BaseDirectory;
-            string currentDir = Directory.GetCurrentDirectory();
-            
-            // List of possible GameData directory locations relative to different starting points
-            string[] possibleGameDataDirs = {
-                // Relative to executable directory
-                Path.Combine(executableDir, "GameData"),
-                Path.Combine(executableDir, "..", "GameData"),
-                Path.Combine(executableDir, "..", "..", "GameData"),
-                
-                // Relative to current working directory
-                Path.Combine(currentDir, "GameData"),
-                Path.Combine(currentDir, "..", "GameData"),
-                Path.Combine(currentDir, "..", "..", "GameData"),
-                
-                // Common project structure variations
-                Path.Combine(executableDir, "..", "..", "..", "GameData"),
-                Path.Combine(currentDir, "..", "..", "..", "GameData"),
-                
-                // Legacy paths for backward compatibility
-                Path.Combine("GameData"),
-                Path.Combine("..", "GameData"),
-                Path.Combine("..", "..", "GameData"),
-                Path.Combine("DF4 - CONSOLE", "GameData"),
-                Path.Combine("..", "DF4 - CONSOLE", "GameData")
-            };
-
-            // Try to find the GameData directory first
-            string? gameDataDir = null;
-            foreach (string dir in possibleGameDataDirs)
-            {
-                if (Directory.Exists(dir))
-                {
-                    gameDataDir = dir;
-                    break;
-                }
-            }
-
-            // If we found a GameData directory, use it
-            if (gameDataDir != null)
-            {
-                string filePath = Path.Combine(gameDataDir, fileName);
-                if (File.Exists(filePath))
-                {
-                    return filePath;
-                }
-            }
-
-            // Fallback: try direct file paths
-            string[] directPaths = {
-                Path.Combine(executableDir, "GameData", fileName),
-                Path.Combine(currentDir, "GameData", fileName),
-                Path.Combine("GameData", fileName),
-                Path.Combine("..", "GameData", fileName),
-                Path.Combine("..", "..", "GameData", fileName)
-            };
-
-            foreach (string path in directPaths)
-            {
-                if (File.Exists(path))
-                {
-                    return path;
-                }
-            }
-
-            return null;
-        }
 
         private static void LoadTierDistributions()
         {
-            try
+            string? filePath = JsonLoader.FindGameDataFile("TierDistribution.json");
+            if (filePath != null)
             {
-                string? filePath = FindGameDataFile("TierDistribution.json");
-                if (filePath != null)
-                {
-                    string json = File.ReadAllText(filePath);
-                    var options = new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    };
-                    _tierDistributions = JsonSerializer.Deserialize<List<TierDistribution>>(json, options);
-                }
-                else
-                {
-                    Console.WriteLine("Error loading tier distributions: TierDistribution.json not found");
-                    _tierDistributions = new List<TierDistribution>();
-                }
+                _tierDistributions = JsonLoader.LoadJsonList<TierDistribution>(filePath);
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"Error loading tier distributions: {ex.Message}");
+                UIManager.WriteLine("Error loading tier distributions: TierDistribution.json not found", UIDelayType.System);
                 _tierDistributions = new List<TierDistribution>();
             }
         }
 
         private static void LoadArmorData()
         {
-            try
+            string? filePath = JsonLoader.FindGameDataFile("Armor.json");
+            if (filePath != null)
             {
-                string? filePath = FindGameDataFile("Armor.json");
-                if (filePath != null)
-                {
-                    string json = File.ReadAllText(filePath);
-                    var options = new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    };
-                    _armorData = JsonSerializer.Deserialize<List<ArmorData>>(json, options);
-                }
-                else
-                {
-                    Console.WriteLine("Error loading armor data: Armor.json not found");
-                    _armorData = new List<ArmorData>();
-                }
+                _armorData = JsonLoader.LoadJsonList<ArmorData>(filePath);
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"Error loading armor data: {ex.Message}");
+                UIManager.WriteLine("Error loading armor data: Armor.json not found", UIDelayType.System);
                 _armorData = new List<ArmorData>();
             }
         }
 
         private static void LoadWeaponData()
         {
-            try
+            string? filePath = JsonLoader.FindGameDataFile("Weapons.json");
+            if (filePath != null)
             {
-                string? filePath = FindGameDataFile("Weapons.json");
-                if (filePath != null)
-                {
-                    string json = File.ReadAllText(filePath);
-                    var options = new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    };
-                    _weaponData = JsonSerializer.Deserialize<List<WeaponData>>(json, options);
-                }
-                else
-                {
-                    Console.WriteLine("Error loading weapon data: Weapons.json not found");
-                    _weaponData = new List<WeaponData>();
-                }
+                _weaponData = JsonLoader.LoadJsonList<WeaponData>(filePath);
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"Error loading weapon data: {ex.Message}");
+                UIManager.WriteLine("Error loading weapon data: Weapons.json not found", UIDelayType.System);
                 _weaponData = new List<WeaponData>();
             }
         }
 
         private static void LoadStatBonuses()
         {
-            try
+            string? filePath = JsonLoader.FindGameDataFile("StatBonuses.json");
+            if (filePath != null)
             {
-                string? filePath = FindGameDataFile("StatBonuses.json");
-                if (filePath != null)
-                {
-                    string json = File.ReadAllText(filePath);
-                    var options = new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    };
-                    _statBonuses = JsonSerializer.Deserialize<List<StatBonus>>(json, options);
-                }
-                else
-                {
-                    Console.WriteLine("Error loading stat bonuses: StatBonuses.json not found");
-                    _statBonuses = new List<StatBonus>();
-                }
+                _statBonuses = JsonLoader.LoadJsonList<StatBonus>(filePath);
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"Error loading stat bonuses: {ex.Message}");
+                UIManager.WriteLine("Error loading stat bonuses: StatBonuses.json not found", UIDelayType.System);
                 _statBonuses = new List<StatBonus>();
             }
         }
 
         private static void LoadActionBonuses()
         {
-            try
+            string? filePath = JsonLoader.FindGameDataFile("Actions.json");
+            if (filePath != null)
             {
-                string? filePath = FindGameDataFile("Actions.json");
-                if (filePath != null)
+                var options = new JsonSerializerOptions
                 {
-                    string json = File.ReadAllText(filePath);
-                    var options = new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true,
-                        Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
-                    };
-                    var actions = JsonSerializer.Deserialize<List<Action>>(json, options);
-                    _actionBonuses = actions?.Select(a => new ActionBonus { Name = a.Name, Description = a.Description, Weight = 1 }).ToList() ?? new List<ActionBonus>();
-                }
-                else
-                {
-                    Console.WriteLine("Error loading action bonuses: Actions.json not found");
-                    _actionBonuses = new List<ActionBonus>();
-                }
+                    PropertyNameCaseInsensitive = true,
+                    Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
+                };
+                var actions = JsonLoader.LoadJsonList<Action>(filePath, options);
+                _actionBonuses = actions?.Select(a => new ActionBonus { Name = a.Name, Description = a.Description, Weight = 1 }).ToList() ?? new List<ActionBonus>();
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"Error loading action bonuses: {ex.Message}");
+                UIManager.WriteLine("Error loading action bonuses: Actions.json not found", UIDelayType.System);
                 _actionBonuses = new List<ActionBonus>();
             }
         }
 
         private static void LoadModifications()
         {
-            try
+            string? filePath = JsonLoader.FindGameDataFile("Modifications.json");
+            if (filePath != null)
             {
-                string? filePath = FindGameDataFile("Modifications.json");
-                if (filePath != null)
-                {
-                    string json = File.ReadAllText(filePath);
-                    var options = new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    };
-                    _modifications = JsonSerializer.Deserialize<List<Modification>>(json, options);
-                }
-                else
-                {
-                    Console.WriteLine("Error loading modifications: Modifications.json not found");
-                    _modifications = new List<Modification>();
-                }
+                _modifications = JsonLoader.LoadJsonList<Modification>(filePath);
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"Error loading modifications: {ex.Message}");
+                UIManager.WriteLine("Error loading modifications: Modifications.json not found", UIDelayType.System);
                 _modifications = new List<Modification>();
             }
         }
@@ -725,7 +552,7 @@ namespace RPGGame
         {
             try
             {
-                string? filePath = FindGameDataFile("RarityTable.json");
+                string? filePath = JsonLoader.FindGameDataFile("RarityTable.json");
                 if (filePath != null)
                 {
                     string json = File.ReadAllText(filePath);

@@ -21,8 +21,8 @@ namespace RPGGame
         public CharacterActions Actions { get; private set; }
 
         // Health
-        public int CurrentHealth { get; protected set; }
-        public int MaxHealth { get; protected set; }
+        public int CurrentHealth { get; set; }
+        public int MaxHealth { get; set; }
 
         // Turn system constants
         public const double DEFAULT_ACTION_LENGTH = 1.0; // Basic attack length defines one turn
@@ -44,14 +44,14 @@ namespace RPGGame
 
             // Add default actions
             if (TuningConfig.IsDebugEnabled)
-                Console.WriteLine($"DEBUG: Character created, adding default actions...");
+                UIManager.WriteLine($"DEBUG: Character created, adding default actions...");
             Actions.AddDefaultActions(this);
             if (TuningConfig.IsDebugEnabled)
-                Console.WriteLine($"DEBUG: After AddDefaultActions, ActionPool has {ActionPool.Count} actions");
+                UIManager.WriteLine($"DEBUG: After AddDefaultActions, ActionPool has {ActionPool.Count} actions");
             
             Actions.AddClassActions(this, Progression, null);
             if (TuningConfig.IsDebugEnabled)
-                Console.WriteLine($"DEBUG: After AddClassActions, ActionPool has {ActionPool.Count} actions");
+                UIManager.WriteLine($"DEBUG: After AddClassActions, ActionPool has {ActionPool.Count} actions");
         }
 
         // IComboMemory implementation
@@ -82,7 +82,7 @@ namespace RPGGame
                 shieldUsed = true;
                 
                 // Display shield message
-                CombatLogger.Log($"[{Name}]'s Arcane Shield reduces damage by {shieldReduction}!");
+                UIManager.WriteCombatLine($"[{Name}]'s Arcane Shield reduces damage by {shieldReduction}!");
             }
             
             // Apply damage reduction if active
@@ -274,19 +274,16 @@ namespace RPGGame
         // XP and leveling
         public void AddXP(int amount)
         {
+            int oldLevel = Progression.Level;
             Progression.AddXP(amount);
-            while (Progression.XP >= GetXPToNextLevel())
+            
+            // Check if level increased and apply character-level changes
+            if (Progression.Level > oldLevel)
             {
-                Progression.AddXP(-GetXPToNextLevel());
                 LevelUp();
             }
         }
 
-        private int GetXPToNextLevel()
-        {
-            var tuning = TuningConfig.Instance;
-            return (int)(tuning.Progression.BaseXPToLevel2 * Math.Pow(tuning.Progression.XPScalingFactor, Progression.Level - 1));
-        }
 
         public void LevelUp()
         {
@@ -294,13 +291,33 @@ namespace RPGGame
             Stats.LevelUp((Equipment.Weapon as WeaponItem)?.WeaponType ?? WeaponType.Mace);
             
             var tuning = TuningConfig.Instance;
-            MaxHealth += tuning.Character.HealthPerLevel;
+            
+            // Apply class balance multipliers if available
+            var classBalance = tuning.ClassBalance;
+            if (classBalance != null && Equipment.Weapon is WeaponItem weapon)
+            {
+                var classMultipliers = weapon.WeaponType switch
+                {
+                    WeaponType.Mace => classBalance.Barbarian,
+                    WeaponType.Sword => classBalance.Warrior,
+                    WeaponType.Dagger => classBalance.Rogue,
+                    WeaponType.Wand => classBalance.Wizard,
+                    _ => new ClassMultipliers() // Default multipliers
+                };
+                
+                MaxHealth += (int)(tuning.Character.HealthPerLevel * classMultipliers.HealthMultiplier);
+            }
+            else
+            {
+                MaxHealth += tuning.Character.HealthPerLevel;
+            }
+            
             CurrentHealth = MaxHealth;
             
             // Award class point and stat increases based on equipped weapon
-            if (Equipment.Weapon is WeaponItem weapon)
+            if (Equipment.Weapon is WeaponItem equippedWeapon)
             {
-                string className = weapon.WeaponType switch
+                string className = equippedWeapon.WeaponType switch
                 {
                     WeaponType.Mace => "Barbarian",
                     WeaponType.Sword => "Warrior",
@@ -309,13 +326,13 @@ namespace RPGGame
                     _ => "Unknown"
                 };
                 
-                Progression.AwardClassPoint(weapon.WeaponType);
-                Console.WriteLine($"\n*** LEVEL UP! ***");
-                Console.WriteLine($"You reached level {Progression.Level}!");
-                Console.WriteLine($"Gained +1 {className} class point!");
-                Console.WriteLine($"Stats increased: {Stats.GetStatIncreaseMessage(weapon.WeaponType)}");
-                Console.WriteLine($"Current class: {Progression.GetCurrentClass()}");
-                Console.WriteLine($"You are now known as: {Progression.GetFullNameWithQualifier(Name)}");
+                Progression.AwardClassPoint(equippedWeapon.WeaponType);
+                UIManager.WriteLine($"\n*** LEVEL UP! ***");
+                UIManager.WriteLine($"You reached level {Progression.Level}!");
+                UIManager.WriteLine($"Gained +1 {className} class point!");
+                UIManager.WriteLine($"Stats increased: {Stats.GetStatIncreaseMessage(equippedWeapon.WeaponType)}");
+                UIManager.WriteLine($"Current class: {Progression.GetCurrentClass()}");
+                UIManager.WriteLine($"You are now known as: {Progression.GetFullNameWithQualifier(Name)}");
                 
                 // Show only classes with points > 0
                 var classPointsInfo = new List<string>();
@@ -326,19 +343,19 @@ namespace RPGGame
                 
                 if (classPointsInfo.Count > 0)
                 {
-                    Console.WriteLine($"Class Points: {string.Join(" ", classPointsInfo)}");
-                    Console.WriteLine($"Next Upgrades: {Progression.GetClassUpgradeInfo()}");
+                    UIManager.WriteLine($"Class Points: {string.Join(" ", classPointsInfo)}");
+                    UIManager.WriteLine($"Next Upgrades: {Progression.GetClassUpgradeInfo()}");
                 }
-                Console.WriteLine();
+                UIManager.WriteBlankLine();
             }
             else
             {
                 Stats.LevelUpNoWeapon();
                 
-                Console.WriteLine($"\n*** LEVEL UP! ***");
-                Console.WriteLine($"You reached level {Progression.Level}!");
-                Console.WriteLine("No weapon equipped - equal stat increases (+2 all stats)");
-                Console.WriteLine();
+                UIManager.WriteLine($"\n*** LEVEL UP! ***");
+                UIManager.WriteLine($"You reached level {Progression.Level}!");
+                UIManager.WriteLine("No weapon equipped - equal stat increases (+2 all stats)");
+                UIManager.WriteBlankLine();
             }
 
             // Re-add class actions when points change
@@ -614,40 +631,8 @@ namespace RPGGame
 
         public double GetTotalAttackSpeed()
         {
-            var tuning = TuningConfig.Instance;
-            
-            // Base attack time: 10 seconds
-            double baseAttackTime = tuning.Combat.BaseAttackTime;
-            
-            // Agility reduces attack time (makes you faster)
-            double agilityReduction = Agility * tuning.Combat.AgilitySpeedReduction;
-            double agilityAdjustedTime = baseAttackTime - agilityReduction;
-            
-            // Calculate weapon speed using the speed formula
-            double weaponSpeed = 1.0;
-            if (Weapon is WeaponItem w)
-            {
-                // Use the scaling manager to calculate the proper weapon speed
-                weaponSpeed = ScalingManager.CalculateWeaponSpeed(w.BaseAttackSpeed, w.Tier, Level, w.Type.ToString());
-            }
-            double weaponAdjustedTime = agilityAdjustedTime * weaponSpeed;
-            
-            // Equipment speed bonus reduces time further
-            double equipmentSpeedBonus = GetEquipmentAttackSpeedBonus();
-            double finalAttackTime = weaponAdjustedTime - equipmentSpeedBonus;
-            
-            // Apply slow debuff if active
-            if (SlowTurns > 0)
-            {
-                finalAttackTime *= SlowMultiplier;
-            }
-            
-            // Apply speed multiplier modifications (like Ethereal)
-            double speedMultiplier = GetModificationSpeedMultiplier();
-            finalAttackTime /= speedMultiplier; // Divide by multiplier to make attacks faster
-            
-            // Apply minimum cap
-            return Math.Max(tuning.Combat.MinimumAttackTime, finalAttackTime);
+            // Use shared attack speed calculation logic
+            return CombatCalculator.CalculateAttackSpeed(this);
         }
 
         public int GetIntelligenceRollBonus()
@@ -681,197 +666,47 @@ namespace RPGGame
 
         public void DisplayCharacterInfo()
         {
-            Console.WriteLine($"=== CHARACTER INFORMATION ===");
-            Console.WriteLine($"Name: {Name}");
-            Console.WriteLine($"Class: {GetCurrentClass()}");
-            Console.WriteLine($"Level: {Level}");
-            Console.WriteLine($"Health: {CurrentHealth}/{MaxHealth}");
-            Console.WriteLine($"XP: {XP}");
-            Console.WriteLine();
-            Console.WriteLine("=== STATS ===");
-            Console.WriteLine($"Strength: {Strength}");
-            Console.WriteLine($"Agility: {Agility}");
-            Console.WriteLine($"Technique: {Technique}");
-            Console.WriteLine($"Intelligence: {Intelligence}");
-            Console.WriteLine();
-            Console.WriteLine("=== CLASS POINTS ===");
-            Console.WriteLine($"Barbarian (Mace): {BarbarianPoints}");
-            Console.WriteLine($"Warrior (Sword): {WarriorPoints}");
-            Console.WriteLine($"Rogue (Dagger): {RoguePoints}");
-            Console.WriteLine($"Wizard (Wand): {WizardPoints}");
-            Console.WriteLine();
-            Console.WriteLine("=== EQUIPMENT ===");
-            Console.WriteLine($"Weapon: {(Weapon?.Name ?? "None")}");
-            Console.WriteLine($"Head: {(Head?.Name ?? "None")}");
-            Console.WriteLine($"Body: {(Body?.Name ?? "None")}");
-            Console.WriteLine($"Feet: {(Feet?.Name ?? "None")}");
-            Console.WriteLine();
+            UIManager.WriteLine($"=== CHARACTER INFORMATION ===");
+            UIManager.WriteLine($"Name: {Name}");
+            UIManager.WriteLine($"Class: {GetCurrentClass()}");
+            UIManager.WriteLine($"Level: {Level}");
+            UIManager.WriteLine($"Health: {CurrentHealth}/{MaxHealth}");
+            UIManager.WriteLine($"XP: {XP}");
+            UIManager.WriteBlankLine();
+            UIManager.WriteLine("=== STATS ===");
+            UIManager.WriteLine($"Strength: {Strength}");
+            UIManager.WriteLine($"Agility: {Agility}");
+            UIManager.WriteLine($"Technique: {Technique}");
+            UIManager.WriteLine($"Intelligence: {Intelligence}");
+            UIManager.WriteBlankLine();
+            UIManager.WriteLine("=== CLASS POINTS ===");
+            UIManager.WriteLine($"Barbarian (Mace): {BarbarianPoints}");
+            UIManager.WriteLine($"Warrior (Sword): {WarriorPoints}");
+            UIManager.WriteLine($"Rogue (Dagger): {RoguePoints}");
+            UIManager.WriteLine($"Wizard (Wand): {WizardPoints}");
+            UIManager.WriteBlankLine();
+            UIManager.WriteLine("=== EQUIPMENT ===");
+            UIManager.WriteLine($"Weapon: {(Weapon?.Name ?? "None")}");
+            UIManager.WriteLine($"Head: {(Head?.Name ?? "None")}");
+            UIManager.WriteLine($"Body: {(Body?.Name ?? "None")}");
+            UIManager.WriteLine($"Feet: {(Feet?.Name ?? "None")}");
+            UIManager.WriteBlankLine();
         }
 
         // Save/Load methods
         public void SaveCharacter(string filename = "GameData/character_save.json")
         {
-            try
-            {
-                var saveData = new CharacterSaveData
-                {
-                    Name = Name,
-                    Level = Level,
-                    XP = XP,
-                    CurrentHealth = CurrentHealth,
-                    MaxHealth = MaxHealth,
-                    Strength = Stats.Strength,
-                    Agility = Stats.Agility,
-                    Technique = Stats.Technique,
-                    Intelligence = Stats.Intelligence,
-                    BarbarianPoints = BarbarianPoints,
-                    WarriorPoints = WarriorPoints,
-                    RoguePoints = RoguePoints,
-                    WizardPoints = WizardPoints,
-                    ComboStep = ComboStep,
-                    ComboBonus = ComboBonus,
-                    TempComboBonus = TempComboBonus,
-                    TempComboBonusTurns = TempComboBonusTurns,
-                    DamageReduction = DamageReduction,
-                    Inventory = Inventory,
-                    Head = Head,
-                    Body = Body,
-                    Weapon = Weapon,
-                    Feet = Feet
-                };
-
-                string json = System.Text.Json.JsonSerializer.Serialize(saveData, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(filename, json);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error saving character: {ex.Message}");
-            }
+            CharacterSaveManager.SaveCharacter(this, filename);
         }
 
         public static Character? LoadCharacter(string filename = "GameData/character_save.json")
         {
-            try
-            {
-                if (!File.Exists(filename))
-                {
-                    Console.WriteLine($"Save file {filename} not found.");
-                    return null;
-                }
-
-                string json = File.ReadAllText(filename);
-                var saveData = System.Text.Json.JsonSerializer.Deserialize<CharacterSaveData>(json);
-                
-                if (saveData == null)
-                {
-                    Console.WriteLine("Error: Could not deserialize save data.");
-                    return null;
-                }
-
-                // Create character with saved data
-                var character = new Character(saveData.Name, saveData.Level);
-                
-                // Use the saved name, but fix "Unknown Unknown" names
-                if (saveData.Name == "Unknown Unknown")
-                {
-                    character.Name = FlavorText.GenerateCharacterName();
-                }
-                else
-                {
-                    character.Name = saveData.Name; // Preserve the saved name
-                }
-                
-                character.Progression.XP = saveData.XP;
-                character.CurrentHealth = saveData.CurrentHealth;
-                character.MaxHealth = saveData.MaxHealth;
-                character.Stats.Strength = saveData.Strength;
-                character.Stats.Agility = saveData.Agility;
-                character.Stats.Technique = saveData.Technique;
-                character.Stats.Intelligence = saveData.Intelligence;
-                character.Progression.BarbarianPoints = saveData.BarbarianPoints;
-                character.Progression.WarriorPoints = saveData.WarriorPoints;
-                character.Progression.RoguePoints = saveData.RoguePoints;
-                character.Progression.WizardPoints = saveData.WizardPoints;
-                character.Effects.ComboStep = saveData.ComboStep;
-                character.Effects.ComboBonus = saveData.ComboBonus;
-                character.Effects.TempComboBonus = saveData.TempComboBonus;
-                character.Effects.TempComboBonusTurns = saveData.TempComboBonusTurns;
-                character.DamageReduction = saveData.DamageReduction;
-                character.Equipment.Inventory = saveData.Inventory;
-                character.Equipment.Head = saveData.Head;
-                character.Equipment.Body = saveData.Body;
-                character.Equipment.Weapon = saveData.Weapon;
-                character.Equipment.Feet = saveData.Feet;
-
-                // Rebuild action pool with proper structure
-                character.ActionPool.Clear();
-                character.Actions.AddDefaultActions(character); // Add basic attack
-                character.Actions.AddClassActions(character, character.Progression, (character.Equipment.Weapon as WeaponItem)?.WeaponType); // Add class actions based on weapon
-                
-                // Re-add gear actions for equipped items (with probability for non-starter items)
-                if (character.Head != null)
-                    character.Actions.AddArmorActions(character, character.Head);
-                if (character.Body != null)
-                    character.Actions.AddArmorActions(character, character.Body);
-                if (character.Weapon is WeaponItem weapon)
-                    character.Actions.AddWeaponActions(character, weapon);
-                if (character.Feet != null)
-                    character.Actions.AddArmorActions(character, character.Feet);
-
-                // Initialize combo sequence after all actions are loaded
-                character.InitializeDefaultCombo();
-
-                Console.WriteLine($"Character loaded from {filename}");
-                return character;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error loading character: {ex.Message}");
-                return null;
-            }
+            return CharacterSaveManager.LoadCharacter(filename);
         }
 
         public static void DeleteSaveFile(string filename = "GameData/character_save.json")
         {
-            try
-            {
-                if (File.Exists(filename))
-                {
-                    File.Delete(filename);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error deleting save file: {ex.Message}");
-            }
+            CharacterSaveManager.DeleteSaveFile(filename);
         }
-    }
-
-    // Data class for character save/load
-    public class CharacterSaveData
-    {
-        public string Name { get; set; } = "";
-        public int Level { get; set; }
-        public int XP { get; set; }
-        public int CurrentHealth { get; set; }
-        public int MaxHealth { get; set; }
-        public int Strength { get; set; }
-        public int Agility { get; set; }
-        public int Technique { get; set; }
-        public int Intelligence { get; set; }
-        public int BarbarianPoints { get; set; }
-        public int WarriorPoints { get; set; }
-        public int RoguePoints { get; set; }
-        public int WizardPoints { get; set; }
-        public int ComboStep { get; set; }
-        public int ComboBonus { get; set; }
-        public int TempComboBonus { get; set; }
-        public int TempComboBonusTurns { get; set; }
-        public double DamageReduction { get; set; }
-        public List<Item> Inventory { get; set; } = new List<Item>();
-        public Item? Head { get; set; }
-        public Item? Body { get; set; }
-        public Item? Weapon { get; set; }
-        public Item? Feet { get; set; }
     }
 }

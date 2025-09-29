@@ -8,12 +8,13 @@ namespace RPGGame
     /// </summary>
     public static class CombatResults
     {
+
         /// <summary>
         /// Formats damage display with detailed breakdown
         /// </summary>
         /// <param name="attacker">The attacking entity</param>
         /// <param name="target">The target entity</param>
-        /// <param name="rawDamage">Raw damage before armor</param>
+        /// <param name="rawDamage">Raw damage before armor (currently same as actual damage)</param>
         /// <param name="actualDamage">Actual damage after armor</param>
         /// <param name="action">The action performed</param>
         /// <param name="comboAmplifier">Combo amplification multiplier</param>
@@ -24,25 +25,61 @@ namespace RPGGame
         public static string FormatDamageDisplay(Entity attacker, Entity target, int rawDamage, int actualDamage, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0)
         {
             string actionName = action?.Name ?? "attack";
-            string damageText = $"[{attacker.Name}] hits {target.Name} with {actionName} for {actualDamage} damage!";
+            string damageText = $"[{attacker.Name}] hits [{target.Name}] with {actionName} for {actualDamage} damage";
             
-            // Add critical hit indicator
-            if (roll == 20)
-            {
-                damageText += " (CRITICAL HIT!)";
-            }
+            // Build the detailed roll and damage information
+            var rollInfo = new List<string>();
             
-            // Add combo amplification info
-            if (comboAmplifier > 1.0)
-            {
-                damageText += $" (Combo x{comboAmplifier:F1})";
-            }
-            
-            // Add roll bonus info
+            // Roll information: roll + buffs - debuffs = total (only show = if there are modifiers)
+            int totalRoll = roll + rollBonus;
+            string rollDisplay = roll.ToString();
             if (rollBonus > 0)
             {
-                damageText += $" (Roll: {roll}+{rollBonus}={roll + rollBonus})";
+                rollDisplay += $" + {rollBonus} = {totalRoll}";
             }
+            else if (rollBonus < 0)
+            {
+                rollDisplay += $" {rollBonus} = {totalRoll}"; // Already includes the minus sign
+            }
+            // If rollBonus is 0, don't add the = total part
+            rollInfo.Add($"roll: {rollDisplay}");
+            
+            // Attack vs Defense information: attack X - Y defense
+            int targetDefense = 0;
+            if (target is Enemy targetEnemy)
+            {
+                // For enemies, use the Armor property directly to avoid inheritance issues
+                targetDefense = targetEnemy.Armor;
+            }
+            else if (target is Character targetCharacter)
+            {
+                targetDefense = targetCharacter.GetTotalArmor();
+            }
+            
+            // Calculate actual raw damage before armor reduction
+            int actualRawDamage = CombatCalculator.CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, roll);
+            rollInfo.Add($"attack {actualRawDamage} - {targetDefense} armor");
+            
+            // Speed information - calculate actual action speed
+            if (action != null && action.Length > 0)
+            {
+                double actualSpeed = CalculateActualActionSpeed(attacker, action);
+                rollInfo.Add($"speed: {actualSpeed:F1}s");
+            }
+            
+            // Add critical hit and combo info to rollInfo if present
+            if (roll == 20)
+            {
+                rollInfo.Add("CRITICAL HIT!");
+            }
+            
+            if (comboAmplifier > 1.0)
+            {
+                rollInfo.Add($"Combo x{comboAmplifier:F1}");
+            }
+            
+            // Add the detailed information on the next line with indentation and parentheses
+            damageText += "\n    (" + string.Join(" | ", rollInfo) + ")";
             
             return damageText;
         }
@@ -81,29 +118,20 @@ namespace RPGGame
         /// <returns>Formatted message with timing</returns>
         public static string FormatCombatMessage(string originalMessage, double actionDuration)
         {
-            // Add timing information if action duration is significant
-            if (actionDuration > 1.0)
-            {
-                return $"{originalMessage} (Action took {actionDuration:F1}s)";
-            }
-            
+            // Action duration is now handled in FormatDamageDisplay, so just return the original message
             return originalMessage;
         }
 
         /// <summary>
         /// Applies text display delay based on action length
+        /// NOTE: This method is deprecated - delays are now handled by UIManager to prevent accumulation
         /// </summary>
         /// <param name="actionLength">Length of the action</param>
         /// <param name="isTextDisplayed">Whether text was displayed</param>
         public static void ApplyTextDisplayDelay(double actionLength, bool isTextDisplayed)
         {
-            if (isTextDisplayed && actionLength > 0.5)
-            {
-                // Apply delay based on action length for better readability
-                int delayMs = (int)(actionLength * 1000); // Convert to milliseconds
-                delayMs = Math.Min(delayMs, 2000); // Cap at 2 seconds
-                Thread.Sleep(delayMs);
-            }
+            // Delays are now handled by UIManager.WriteCombatLine() to prevent accumulation
+            // This method is kept for compatibility but does nothing
         }
 
         /// <summary>
@@ -181,11 +209,57 @@ namespace RPGGame
         /// <returns>Formatted critical hit message</returns>
         public static string FormatCriticalHitMessage(Entity attacker, Entity target, int damage, Action action)
         {
-            return $"[{attacker.Name}] delivers a devastating {action.Name} to {target.Name} for {damage} damage! (CRITICAL HIT!)";
+            return $"[{attacker.Name}] delivers a devastating {action.Name} to [{target.Name}] for {damage} damage! (CRITICAL HIT!)";
         }
 
         /// <summary>
-        /// Formats miss messages
+        /// Formats non-attack action messages (buffs, debuffs, etc.)
+        /// </summary>
+        /// <param name="source">The entity performing the action</param>
+        /// <param name="target">The target entity</param>
+        /// <param name="action">The action performed</param>
+        /// <param name="roll">The action roll</param>
+        /// <param name="rollBonus">Roll bonus applied</param>
+        /// <returns>Formatted non-attack action message</returns>
+        public static string FormatNonAttackAction(Entity source, Entity target, Action action, int roll, int rollBonus)
+        {
+            string actionText = $"[{source.Name}] uses [{action.Name}] on [{target.Name}]";
+            
+            // Build the detailed roll information
+            var rollInfo = new List<string>();
+            
+            // Roll information: roll + buffs - debuffs = total
+            string rollDisplay = roll.ToString();
+            int totalRoll = roll + rollBonus;
+            if (rollBonus > 0)
+            {
+                rollDisplay += $" + {rollBonus} = {totalRoll}";
+            }
+            else if (rollBonus < 0)
+            {
+                rollDisplay += $" {rollBonus} = {totalRoll}"; // Already includes the minus sign
+            }
+            else
+            {
+                rollDisplay += $" = {totalRoll}";
+            }
+            rollInfo.Add($"roll: {rollDisplay}");
+            
+            // Speed information - calculate actual action speed
+            if (action != null && action.Length > 0)
+            {
+                double actualSpeed = CalculateActualActionSpeed(source, action);
+                rollInfo.Add($"speed: {actualSpeed:F1}s");
+            }
+            
+            // Add the detailed information on the next line with indentation and parentheses
+            actionText += "\n    (" + string.Join(" | ", rollInfo) + ")";
+            
+            return actionText;
+        }
+
+        /// <summary>
+        /// Formats miss messages with detailed roll information
         /// </summary>
         /// <param name="attacker">The attacking entity</param>
         /// <param name="target">The target entity</param>
@@ -195,8 +269,39 @@ namespace RPGGame
         /// <returns>Formatted miss message</returns>
         public static string FormatMissMessage(Entity attacker, Entity target, Action action, int roll, int rollBonus)
         {
-            string rollInfo = rollBonus > 0 ? $" (Roll: {roll}+{rollBonus}={roll + rollBonus})" : $" (Roll: {roll})";
-            return $"[{attacker.Name}]'s {action.Name} misses {target.Name}!{rollInfo}";
+            string missText = $"[{attacker.Name}]'s {action.Name} misses [{target.Name}]";
+            
+            // Build the detailed roll information
+            var rollInfo = new List<string>();
+            
+            // Roll information: roll + buffs - debuffs = total
+            string rollDisplay = roll.ToString();
+            int totalRoll = roll + rollBonus;
+            if (rollBonus > 0)
+            {
+                rollDisplay += $" + {rollBonus} = {totalRoll}";
+            }
+            else if (rollBonus < 0)
+            {
+                rollDisplay += $" {rollBonus} = {totalRoll}"; // Already includes the minus sign
+            }
+            else
+            {
+                rollDisplay += $" = {totalRoll}";
+            }
+            rollInfo.Add($"roll: {rollDisplay}");
+            
+            // Speed information - calculate actual action speed
+            if (action != null && action.Length > 0)
+            {
+                double actualSpeed = CalculateActualActionSpeed(attacker, action);
+                rollInfo.Add($"speed: {actualSpeed:F1}s");
+            }
+            
+            // Add the detailed information on the next line with indentation and parentheses
+            missText += "\n    (" + string.Join(" | ", rollInfo) + ")";
+            
+            return missText;
         }
 
         /// <summary>
@@ -209,7 +314,7 @@ namespace RPGGame
         {
             if (killer != null)
             {
-                return $"[{entity.Name}] has been defeated by {killer.Name}!";
+                return $"[{entity.Name}] has been defeated by [{killer.Name}]!";
             }
             else
             {
@@ -250,7 +355,7 @@ namespace RPGGame
         /// <returns>Formatted environmental effect message</returns>
         public static string FormatEnvironmentalEffectMessage(Environment environment, Entity target, string effect)
         {
-            return $"The {environment.Name} {effect} {target.Name}!";
+            return $"The [{environment.Name}] {effect} [{target.Name}]!";
         }
 
         /// <summary>
@@ -290,14 +395,41 @@ namespace RPGGame
         /// <returns>A formatted string describing the result</returns>
         public static string ExecuteActionWithUI(Entity source, Entity target, Action action, Environment? environment = null, Action? lastPlayerAction = null)
         {
-            // Execute the action using CombatActions
-            string result = CombatActions.ExecuteAction(source, target, environment, lastPlayerAction);
+            // Execute the action using CombatActions with the specific action
+            string result = CombatActions.ExecuteAction(source, target, environment, lastPlayerAction, action);
             
-            // Apply text display delay based on action length
-            ApplyTextDisplayDelay(action.Length, !string.IsNullOrEmpty(result));
+            // Delays are now handled by UIManager.WriteCombatLine() to prevent accumulation
             
             // Format the combat message with action duration
             return FormatCombatMessage(result, action.Length);
+        }
+
+        /// <summary>
+        /// Calculates the actual action speed by multiplying entity base speed by action length
+        /// </summary>
+        /// <param name="entity">The entity performing the action</param>
+        /// <param name="action">The action being performed</param>
+        /// <returns>The calculated action speed in seconds</returns>
+        private static double CalculateActualActionSpeed(Entity entity, Action action)
+        {
+            // Get the entity's base attack speed
+            double baseSpeed = 0;
+            if (entity is Character character)
+            {
+                baseSpeed = character.GetTotalAttackSpeed();
+            }
+            else if (entity is Enemy enemy)
+            {
+                baseSpeed = enemy.GetTotalAttackSpeed();
+            }
+            else if (entity is Environment environment)
+            {
+                // For environments, use a default base speed
+                baseSpeed = 15.0; // Same as used in CombatManager
+            }
+            
+            // Calculate actual action speed: base speed * action length
+            return baseSpeed * action.Length;
         }
     }
 }

@@ -4,6 +4,29 @@ using System.Linq;
 
 namespace RPGGame
 {
+    public class DungeonConfig
+    {
+        public List<string> dungeonThemes { get; set; } = new();
+        public List<string> roomThemes { get; set; } = new();
+        public DungeonGenerationConfig dungeonGeneration { get; set; } = new();
+    }
+
+    public class DungeonGenerationConfig
+    {
+        public int minRooms { get; set; } = 2;
+        public double roomCountScaling { get; set; } = 0.5;
+        public double hostileRoomChance { get; set; } = 0.8;
+        public string bossRoomName { get; set; } = "Boss";
+        public string DefaultTheme { get; set; } = "Forest";
+        public string DefaultRoomType { get; set; } = "Chamber";
+        public int DefaultDungeonLevels { get; set; } = 5;
+        public int DefaultRoomCount { get; set; } = 3;
+        public List<string> EquipmentSlots { get; set; } = new() { "Head", "Chest", "Feet", "Weapon" };
+        public List<string> StatusEffectTypes { get; set; } = new() { "bleed", "poison", "burn", "slow", "weaken", "stun" };
+        public string DefaultCharacterName { get; set; } = "Unknown";
+        public string Description { get; set; } = "Dungeon generation defaults and configuration";
+    }
+
     /// <summary>
     /// Manages dungeon-related operations including selection, generation, and completion rewards
     /// </summary>
@@ -63,11 +86,12 @@ namespace RPGGame
         /// <returns>The selected dungeon</returns>
         public Dungeon ChooseDungeon(List<Dungeon> availableDungeons)
         {
-            Console.WriteLine("\nAvailable Dungeons:\n");
+            UIManager.WriteMenuLine("\nAvailable Dungeons:");
+            UIManager.WriteMenuLine("");
             for (int i = 0; i < availableDungeons.Count; i++)
             {
                 var d = availableDungeons[i];
-                Console.WriteLine($"{i + 1}. {d.Name}");
+                UIManager.WriteMenuLine($"{i + 1}. {d.Name}");
             }
 
             int choice = -1;
@@ -77,7 +101,7 @@ namespace RPGGame
                 string? input = Console.ReadLine();
                 if (!int.TryParse(input, out choice) || choice < 1 || choice > availableDungeons.Count)
                 {
-                    Console.WriteLine("Invalid choice. Please enter a valid dungeon number.");
+                    UIManager.WriteLine("Invalid choice. Please enter a valid dungeon number.");
                 }
             }
             return availableDungeons[choice - 1];
@@ -91,7 +115,7 @@ namespace RPGGame
         /// <param name="availableDungeons">Available dungeons to determine dungeon level</param>
         public void AwardLootAndXP(Character player, List<Item> inventory, List<Dungeon> availableDungeons)
         {
-            Console.WriteLine("\nDungeon completed!");
+            UIManager.WriteLine("\nDungeon completed!");
             
             // Heal character back to max health between dungeons
             int effectiveMaxHealth = player.GetEffectiveMaxHealth();
@@ -99,19 +123,19 @@ namespace RPGGame
             if (healthRestored > 0)
             {
                 player.Heal(healthRestored);
-                Console.WriteLine($"You have been fully healed! (+{healthRestored} health)");
+                UIManager.WriteLine($"You have been fully healed! (+{healthRestored} health)");
             }
             
             // Award XP (scaled by dungeon level using tuning config)
             var tuning = TuningConfig.Instance;
             int xpReward = random.Next(tuning.Progression.EnemyXPBase, tuning.Progression.EnemyXPBase + 50) * player.Level;
             player.AddXP(xpReward);
-            Console.WriteLine($"Gained {xpReward} XP!");
-            Console.WriteLine(); // Blank line between XP and loot
+            UIManager.WriteLine($"Gained {xpReward} XP!");
+            UIManager.WriteBlankLine(); // Blank line between XP and loot
 
             if (player.Level > 1)
             {
-                Console.WriteLine($"Level up! You are now level {player.Level}");
+                UIManager.WriteLine($"Level up! You are now level {player.Level}");
             }
             
             // Determine current dungeon level
@@ -124,27 +148,18 @@ namespace RPGGame
             }
             
             // Award guaranteed loot for dungeon completion
-            Item? reward = null;
-            int attempts = 0;
-            const int maxAttempts = 10; // Prevent infinite loop
+            Item? reward = LootGenerator.GenerateLoot(player.Level, dungeonLevel, player, guaranteedLoot: true);
             
-            // Keep trying until we get loot (guaranteed reward for dungeon completion)
-            while (reward == null && attempts < maxAttempts)
-            {
-                reward = LootGenerator.GenerateLoot(player.Level, dungeonLevel, player);
-                attempts++;
-            }
-            
-            // If still no loot after max attempts, notify about the issue
+            // If still no loot, notify about the issue
             if (reward == null)
             {
-                Console.WriteLine("⚠️  WARNING: Loot generation failed after multiple attempts!");
-                Console.WriteLine("   This indicates an issue with the loot generation system.");
-                Console.WriteLine("   Please report this issue with the following details:");
-                Console.WriteLine($"   - Player Level: {player.Level}");
-                Console.WriteLine($"   - Dungeon Level: {dungeonLevel}");
-                Console.WriteLine($"   - Attempts Made: {maxAttempts}");
-                Console.WriteLine();
+                UIManager.WriteLine("⚠️  WARNING: Guaranteed loot generation failed!");
+                UIManager.WriteLine("   This indicates a serious issue with the loot generation system.");
+                UIManager.WriteLine("   Please report this issue with the following details:");
+                UIManager.WriteLine($"   - Player Level: {player.Level}");
+                UIManager.WriteLine($"   - Dungeon Level: {dungeonLevel}");
+                UIManager.WriteLine($"   - Guaranteed Loot Requested: Yes");
+                UIManager.WriteSystemLine("");
                 
                 // Create a diagnostic fallback weapon to prevent game breaking
                 reward = Program.CreateFallbackWeapon(player.Level);
@@ -153,13 +168,13 @@ namespace RPGGame
                     // Ultimate fallback if weapon data loading fails
                     reward = new WeaponItem("Basic Sword", player.Level, 5 + player.Level, 1.0, WeaponType.Sword);
                     reward.Rarity = "Common";
-                    Console.WriteLine("   Created emergency fallback weapon to prevent game breaking.");
+                    UIManager.WriteSystemLine("   Created emergency fallback weapon to prevent game breaking.");
                 }
                 else
                 {
-                    Console.WriteLine($"   Created fallback weapon: {reward.Name} (from weapon database)");
+                    UIManager.WriteSystemLine($"   Created fallback weapon: {reward.Name} (from weapon database)");
                 }
-                Console.WriteLine();
+                UIManager.WriteSystemLine("");
             }
 
             if (reward != null)
@@ -167,12 +182,12 @@ namespace RPGGame
                 // Add to both inventories
                 player.AddToInventory(reward);
                 inventory.Add(reward);
-                Console.WriteLine($"You found: {reward.Name}");
+                UIManager.WriteSystemLine($"You found: {reward.Name}");
             }
             else
             {
                 // This should never happen with the fallback, but just in case
-                Console.WriteLine("You found no loot this time.");
+                UIManager.WriteSystemLine("You found no loot this time.");
             }
         }
 
@@ -185,38 +200,34 @@ namespace RPGGame
         /// <returns>True if player survived the dungeon, false if player died</returns>
         public bool RunDungeon(Dungeon selectedDungeon, Character player, CombatManager combatManager)
         {
-            Console.WriteLine($"\nEntering {selectedDungeon.Name}...");
-            Thread.Sleep(TuningConfig.Instance.UI.DungeonEntryDelay);
+            UIManager.WriteDungeonLine($"\nEntering {selectedDungeon.Name}...");
 
             // Room Sequence
             foreach (Environment room in selectedDungeon.Rooms)
             {
-                Console.WriteLine($"\nEntering room: {room.Name}");
-                Console.WriteLine(room.Description);
+                UIManager.WriteRoomLine($"\nEntering room: {room.Name}");
+                UIManager.WriteRoomLine(room.Description);
                 
                 // Clear all temporary effects when entering a new room
                 player.ClearAllTempEffects();
-                
-                Thread.Sleep(TuningConfig.Instance.UI.RoomEntryDelay);
 
                 while (room.HasLivingEnemies())
                 {
                     Enemy? currentEnemy = room.GetNextLivingEnemy();
                     if (currentEnemy == null) break;
 
-                    Console.WriteLine($"\nEncountered {currentEnemy.Name}!");
-                    Thread.Sleep(TuningConfig.Instance.UI.EnemyEncounterDelay);
-                    Console.WriteLine(); // Blank line between "Encountered" and stats
-                    Console.WriteLine($"Hero Stats - Health: {player.CurrentHealth}/{player.GetEffectiveMaxHealth()}, Armor: {player.GetTotalArmor()}, Attack: STR {player.GetEffectiveStrength()}, AGI {player.GetEffectiveAgility()}, TEC {player.GetEffectiveTechnique()}, INT {player.GetEffectiveIntelligence()}, Attack Time: {player.GetTotalAttackSpeed():F2}s");
-                    Console.WriteLine($"Enemy Stats - Health: {currentEnemy.CurrentHealth}/{currentEnemy.MaxHealth}, Armor: {currentEnemy.Armor}, Attack: STR {currentEnemy.Strength}, AGI {currentEnemy.Agility}, TEC {currentEnemy.Technique}, INT {currentEnemy.Intelligence}, Attack Time: {currentEnemy.GetTotalAttackSpeed():F2}s");
+                    UIManager.WriteEnemyLine($"\nEncountered [{currentEnemy.Name}]!");
+                    UIManager.WriteBlankLine(); // Blank line between "Encountered" and stats
+                    UIManager.WriteMenuLine($"Hero Stats - Health: {player.CurrentHealth}/{player.GetEffectiveMaxHealth()}, Armor: {player.GetTotalArmor()}, Attack: STR {player.GetEffectiveStrength()}, AGI {player.GetEffectiveAgility()}, TEC {player.GetEffectiveTechnique()}, INT {player.GetEffectiveIntelligence()}, Attack Time: {player.GetTotalAttackSpeed():F2}s");
+                    UIManager.WriteMenuLine($"Enemy Stats - Health: {currentEnemy.CurrentHealth}/{currentEnemy.MaxHealth}, Armor: {currentEnemy.Armor}, Attack: STR {currentEnemy.Strength}, AGI {currentEnemy.Agility}, TEC {currentEnemy.Technique}, INT {currentEnemy.Intelligence}, Attack Time: {currentEnemy.GetTotalAttackSpeed():F2}s");
                     
                     // Show action speed info
                     var speedSystem = combatManager.GetCurrentActionSpeedSystem();
                     if (speedSystem != null)
                     {
-                        Console.WriteLine($"Turn Order: {speedSystem.GetTurnOrderInfo()}");
+                        UIManager.WriteMenuLine($"Turn Order: {speedSystem.GetTurnOrderInfo()}");
                     }
-                    Console.WriteLine(); // Line break between stats and action
+                    UIManager.WriteBlankLine(); // Line break between stats and action
 
                     // Clear all temporary effects before each fight
                     player.ClearAllTempEffects();
@@ -229,14 +240,14 @@ namespace RPGGame
                     
                     if (!playerSurvived)
                     {
-                        CombatLogger.Log("\nYou have been defeated!");
+                        UIManager.WriteCombatLine("\nYou have been defeated!");
                         // Delete save file when character dies
                         Character.DeleteSaveFile();
                         return false; // Player died
                     }
                     else
                     {
-                        CombatLogger.Log($"\n{currentEnemy.Name} has been defeated!");
+                        UIManager.WriteCombatLine($"\n[{currentEnemy.Name}] has been defeated!");
                         player.AddXP(currentEnemy.XPReward);
                     }
                     
@@ -244,14 +255,13 @@ namespace RPGGame
                     var narrativeSettings = GameSettings.Instance;
                     if (narrativeSettings.NarrativeBalance > 0.3)
                     {
-                        Console.WriteLine("\nBattle narrative completed.");
+                        UIManager.WriteSystemLine("\nBattle narrative completed.");
                     }
                 }
 
-                Console.WriteLine(); // Add blank line before room cleared message
-                Console.WriteLine($"Remaining Health: {player.CurrentHealth}/{player.GetEffectiveMaxHealth()}");
-                Console.WriteLine("Room cleared!");
-                Thread.Sleep(TuningConfig.Instance.UI.RoomClearedDelay);
+                UIManager.WriteBlankLine(); // Add blank line before room cleared message
+                UIManager.WriteRoomClearedLine($"Remaining Health: {player.CurrentHealth}/{player.GetEffectiveMaxHealth()}");
+                UIManager.WriteRoomClearedLine("Room cleared!");
                 
                 // Reset combo at end of each room
                 player.ResetCombo();

@@ -23,7 +23,7 @@ namespace RPGGame
         /// </summary>
         public void ShowMainDisplay()
         {
-            Console.WriteLine("\n--- Inventory ---");
+            UIManager.WriteMenuLine("\n--- Inventory ---");
             ShowCharacterStats();
             ShowCurrentEquipment();
             ShowComboInfo();
@@ -42,17 +42,17 @@ namespace RPGGame
             int damage = player.GetEffectiveStrength() + weaponDamage + equipmentDamageBonus + modificationDamageBonus;
             double attackSpeed = player.GetTotalAttackSpeed();
             int armor = player.GetTotalArmor();
-            Console.WriteLine($"{player.Name} (Level {player.Level}) - {player.GetCurrentClass()}");
-            Console.WriteLine($"Health: {player.CurrentHealth}/{player.GetEffectiveMaxHealth()}  STR: {player.GetEffectiveStrength()}  AGI: {player.GetEffectiveAgility()}  TEC: {player.GetEffectiveTechnique()}  INT: {player.GetEffectiveIntelligence()}");
+            UIManager.WriteMenuLine($"{player.Name} (Level {player.Level}) - {player.GetCurrentClass()}");
+            UIManager.WriteMenuLine($"Health: {player.CurrentHealth}/{player.GetEffectiveMaxHealth()}  STR: {player.GetEffectiveStrength()}  AGI: {player.GetEffectiveAgility()}  TEC: {player.GetEffectiveTechnique()}  INT: {player.GetEffectiveIntelligence()}");
             int totalRollBonus = player.GetIntelligenceRollBonus() + player.GetModificationRollBonus() + player.GetEquipmentRollBonus();
             double secondsPerAttack = attackSpeed;
             // Get current amplification
             double currentAmplification = player.GetCurrentComboAmplification();
             int magicFind = player.GetMagicFind();
-            Console.WriteLine($"Damage: {damage} (STR:{player.GetEffectiveStrength()} + Weapon:{weaponDamage} + Equipment:{equipmentDamageBonus} + Mods:{modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  Amplification: {currentAmplification:F2}x  Roll Bonus: +{totalRollBonus}  Armor: {armor}");
+            UIManager.WriteMenuLine($"Damage: {damage} (STR:{player.GetEffectiveStrength()} + Weapon:{weaponDamage} + Equipment:{equipmentDamageBonus} + Mods:{modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  Amplification: {currentAmplification:F2}x  Roll Bonus: +{totalRollBonus}  Armor: {armor}");
             if (magicFind > 0)
             {
-                Console.WriteLine($"Magic Find: +{magicFind} (improves rare item drop chances)");
+                UIManager.WriteMenuLine($"Magic Find: +{magicFind} (improves rare item drop chances)");
             }
             // Show only classes with points > 0
             var classPointsInfo = new List<string>();
@@ -63,8 +63,8 @@ namespace RPGGame
             
             if (classPointsInfo.Count > 0)
             {
-                Console.WriteLine($"Class Points: {string.Join(" ", classPointsInfo)}");
-                Console.WriteLine($"Next Upgrades: {player.GetClassUpgradeInfo()}");
+                UIManager.WriteMenuLine($"Class Points: {string.Join(" ", classPointsInfo)}");
+                UIManager.WriteMenuLine($"Next Upgrades: {player.GetClassUpgradeInfo()}");
             }
         }
 
@@ -73,45 +73,45 @@ namespace RPGGame
         /// </summary>
         public void ShowCurrentEquipment()
         {
-            Console.WriteLine();
-            Console.WriteLine("Currently Equipped:");
+            UIManager.WriteMenuLine("");
+            UIManager.WriteMenuLine("Currently Equipped:");
             
             // Show weapon with inline stats
             if (player.Weapon is WeaponItem weapon)
             {
-                Console.WriteLine($"Weapon: {weapon.Name} - Damage: {weapon.GetTotalDamage()}, Attack Speed: {weapon.GetTotalAttackSpeed():F1}x");
+                UIManager.WriteMenuLine($"Weapon: {weapon.Name} - Damage: {weapon.GetTotalDamage()}, Attack Speed: {weapon.GetTotalAttackSpeed():F1}x");
             }
             else
             {
-                Console.WriteLine("Weapon: None");
+                UIManager.WriteMenuLine("Weapon: None");
             }
             
             // Show armor pieces with inline stats
             if (player.Head is HeadItem head)
             {
-                Console.WriteLine($"Head: {head.Name} - Armor: {head.GetTotalArmor()}");
+                UIManager.WriteMenuLine($"Head: {head.Name} - Armor: {head.GetTotalArmor()}");
             }
             else
             {
-                Console.WriteLine("Head: None");
+                UIManager.WriteMenuLine("Head: None");
             }
             
             if (player.Body is ChestItem chest)
             {
-                Console.WriteLine($"Body: {chest.Name} - Armor: {chest.GetTotalArmor()}");
+                UIManager.WriteMenuLine($"Body: {chest.Name} - Armor: {chest.GetTotalArmor()}");
             }
             else
             {
-                Console.WriteLine("Body: None");
+                UIManager.WriteMenuLine("Body: None");
             }
             
             if (player.Feet is FeetItem feet)
             {
-                Console.WriteLine($"Feet: {feet.Name} - Armor: {feet.GetTotalArmor()}");
+                UIManager.WriteMenuLine($"Feet: {feet.Name} - Armor: {feet.GetTotalArmor()}");
             }
             else
             {
-                Console.WriteLine("Feet: None");
+                UIManager.WriteMenuLine("Feet: None");
             }
         }
 
@@ -120,13 +120,14 @@ namespace RPGGame
         /// </summary>
         public void ShowInventory()
         {
-            Console.WriteLine();
-            Console.WriteLine("Inventory:");
+            // Don't display anything if inventory is empty
             if (inventory.Count == 0)
             {
-                Console.WriteLine("(Empty)");
                 return;
             }
+
+            UIManager.WriteMenuLine("");
+            UIManager.WriteMenuLine("Inventory:");
 
             for (int i = 0; i < inventory.Count; i++)
             {
@@ -143,18 +144,18 @@ namespace RPGGame
                 string itemActions = GetItemActions(item);
                 
                 // Show item type and name on first line
-                Console.WriteLine($"{i + 1}. ({displayType}) {item.Name}");
+                UIManager.WriteMenuLine($"{i + 1}. ({displayType}) {item.Name}");
                 
                 // Show stats on indented line
                 if (!string.IsNullOrEmpty(itemStats))
                 {
-                    Console.WriteLine($"    {itemStats}");
+                    UIManager.WriteMenuLine($"    {itemStats}");
                 }
                 
                 // Show actions on indented line if any
                 if (!string.IsNullOrEmpty(itemActions))
                 {
-                    Console.WriteLine($"    Actions: {itemActions.Substring(3)}"); // Remove " | " prefix
+                    UIManager.WriteMenuLine($"    Actions: {itemActions.Substring(3)}"); // Remove " | " prefix
                 }
                 
                 // Show affix bonuses if the item has any
@@ -170,18 +171,18 @@ namespace RPGGame
         /// </summary>
         public void ShowComboInfo()
         {
-            Console.WriteLine();
-            Console.WriteLine("Combo Actions:");
+            UIManager.WriteMenuLine("");
+            UIManager.WriteMenuLine("Combo Actions:");
             if (player.ComboSequence.Count == 0)
             {
-                Console.WriteLine("(No combo actions set)");
+                UIManager.WriteMenuLine("(No combo actions set)");
             }
             else
             {
                 for (int i = 0; i < player.ComboSequence.Count; i++)
                 {
                     var action = player.ComboSequence[i];
-                    Console.WriteLine($"{i + 1}. {action.Name} (Length: {action.Length:F1})");
+                    UIManager.WriteMenuLine($"{i + 1}. {action.Name} (Length: {action.Length:F1})");
                 }
             }
         }
@@ -191,15 +192,15 @@ namespace RPGGame
         /// </summary>
         public void ShowOptions()
         {
-            Console.WriteLine();
-            Console.WriteLine("Options:");
-            Console.WriteLine("1. Equip Item");
-            Console.WriteLine("2. Unequip Item");
-            Console.WriteLine("3. Discard Item");
-            Console.WriteLine("4. Manage Combo Actions");
-            Console.WriteLine("5. Continue to Dungeon");
-            Console.WriteLine("6. Return to Main Menu");
-            Console.Write("Enter your choice: ");
+            UIManager.WriteMenuLine("");
+            UIManager.WriteMenuLine("Options:");
+            UIManager.WriteMenuLine("1. Equip Item");
+            UIManager.WriteMenuLine("2. Unequip Item");
+            UIManager.WriteMenuLine("3. Discard Item");
+            UIManager.WriteMenuLine("4. Manage Combo Actions");
+            UIManager.WriteMenuLine("5. Continue to Dungeon");
+            UIManager.WriteMenuLine("6. Return to Main Menu");
+            UIManager.Write("Enter your choice: ");
         }
 
         /// <summary>
@@ -210,19 +211,19 @@ namespace RPGGame
             // Show stat bonuses
             if (item.StatBonuses.Count > 0)
             {
-                Console.WriteLine($"    Stat Bonuses: {string.Join(", ", item.StatBonuses.Select(b => $"{b.StatType} +{b.Value}"))}");
+                UIManager.WriteMenuLine($"    Stat Bonuses: {string.Join(", ", item.StatBonuses.Select(b => $"{b.StatType} +{b.Value}"))}");
             }
             
             // Show action bonuses (legacy system)
             if (item.ActionBonuses.Count > 0)
             {
-                Console.WriteLine($"    Action Bonuses: {string.Join(", ", item.ActionBonuses.Select(b => $"{b.Name} +{b.Weight}"))}");
+                UIManager.WriteMenuLine($"    Action Bonuses: {string.Join(", ", item.ActionBonuses.Select(b => $"{b.Name} +{b.Weight}"))}");
             }
             
             // Show modifications
             if (item.Modifications.Count > 0)
             {
-                Console.WriteLine($"    Modifications: {string.Join(", ", item.Modifications)}");
+                UIManager.WriteMenuLine($"    Modifications: {string.Join(", ", item.Modifications)}");
             }
         }
 
@@ -330,7 +331,8 @@ namespace RPGGame
             }
             
             // 4. Check if it's not basic starter gear by name
-            string[] basicGearNames = { "Leather Helmet", "Leather Armor", "Leather Boots", "Cloth Hood", "Cloth Robes", "Cloth Shoes" };
+            // Basic gear names moved to GameData configuration
+            string[] basicGearNames = BasicGearConfig.GetBasicGearNames();
             if (basicGearNames.Contains(armor.Name))
             {
                 return false; // Basic starter gear should have no actions
@@ -368,8 +370,9 @@ namespace RPGGame
         /// </summary>
         private List<string> GetRandomArmorActionFromJson(Item armor)
         {
-            // This is a placeholder - the actual implementation would need to be moved from the original class
+            // Return empty list - no action bonuses to display
             return new List<string>();
         }
+        
     }
 }

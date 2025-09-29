@@ -159,7 +159,6 @@ namespace RPGGame
             return false;
         }
 
-        // ApplyWeaken, ProcessPoison, ProcessBurn, and GetDamageTypeText are now handled by Entity base class
 
         public void ClearAllTempEffects()
         {

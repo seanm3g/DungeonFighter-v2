@@ -2,58 +2,58 @@
   {
     "name": "Goblin",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 5,
+      "strength": 4,
       "agility": 1,
-      "technique": 2,
-      "intelligence": 2
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 1,
+    "baseArmor": 3,
     "actions": [
       "Jab"
     ],
     "primaryAttribute": "Strength",
     "isLiving": true,
-    "strength": 5,
+    "strength": 4,
     "agility": 1,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 1
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Wraith",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 3,
-      "agility": 2,
-      "technique": 2,
-      "intelligence": 2
+      "strength": 2,
+      "agility": 1,
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 0,
+    "baseArmor": 3,
     "actions": [
       "Haunting Wail"
     ],
     "primaryAttribute": "Technique",
     "isLiving": false,
-    "strength": 3,
-    "agility": 2,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 0
+    "strength": 2,
+    "agility": 1,
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Spider",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
       "strength": 1,
-      "agility": 5,
-      "technique": 2,
-      "intelligence": 2
+      "agility": 4,
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 0,
+    "baseArmor": 3,
     "actions": [
       "Poison Bite",
       "Bite",
@@ -62,364 +62,364 @@
     "primaryAttribute": "Agility",
     "isLiving": true,
     "strength": 1,
-    "agility": 5,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 0
+    "agility": 4,
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Slime",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 5,
+      "strength": 4,
       "agility": 1,
-      "technique": 2,
-      "intelligence": 2
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 1,
+    "baseArmor": 3,
     "actions": [
       "Acid Spit"
     ],
     "primaryAttribute": "Strength",
     "isLiving": true,
-    "strength": 5,
+    "strength": 4,
     "agility": 1,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 1
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Bat",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
       "strength": 1,
-      "agility": 5,
-      "technique": 2,
-      "intelligence": 2
+      "agility": 4,
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 0,
+    "baseArmor": 3,
     "actions": [
-      "Bite",
-      "Swoop Attack"
+      "BITE",
+      "SWOOP ATTACK"
     ],
     "primaryAttribute": "Agility",
     "isLiving": true,
     "strength": 1,
-    "agility": 5,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 0
+    "agility": 4,
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Skeleton",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 5,
+      "strength": 4,
       "agility": 1,
-      "technique": 2,
-      "intelligence": 2
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 1,
+    "baseArmor": 3,
     "actions": [
       "Bone Strike"
     ],
     "primaryAttribute": "Strength",
     "isLiving": false,
-    "strength": 5,
+    "strength": 4,
     "agility": 1,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 1
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Zombie",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 5,
+      "strength": 4,
       "agility": 1,
-      "technique": 2,
-      "intelligence": 2
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 1,
+    "baseArmor": 3,
     "actions": [
       "Shamble Attack"
     ],
     "primaryAttribute": "Strength",
     "isLiving": false,
-    "strength": 5,
+    "strength": 4,
     "agility": 1,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 1
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Crystal Golem",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 5,
+      "strength": 4,
       "agility": 1,
-      "technique": 2,
-      "intelligence": 2
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 1,
+    "baseArmor": 3,
     "actions": [
       "Crystal Slam",
       "PRISM BEAM"
     ],
     "primaryAttribute": "Strength",
     "isLiving": false,
-    "strength": 5,
+    "strength": 4,
     "agility": 1,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 1
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Prism Spider",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 3,
-      "agility": 2,
-      "technique": 2,
-      "intelligence": 2
+      "strength": 2,
+      "agility": 1,
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 0,
+    "baseArmor": 3,
     "actions": [
       "Light Refraction",
       "Web Trap"
     ],
     "primaryAttribute": "Technique",
     "isLiving": true,
-    "strength": 3,
-    "agility": 2,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 0
+    "strength": 2,
+    "agility": 1,
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Shard Beast",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 5,
+      "strength": 4,
       "agility": 1,
-      "technique": 2,
-      "intelligence": 2
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 1,
+    "baseArmor": 3,
     "actions": [
       "Shard Volley",
       "Crystal Charge"
     ],
     "primaryAttribute": "Strength",
     "isLiving": true,
-    "strength": 5,
+    "strength": 4,
     "agility": 1,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 1
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Stone Guardian",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 5,
+      "strength": 4,
       "agility": 1,
-      "technique": 2,
-      "intelligence": 2
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 1,
+    "baseArmor": 3,
     "actions": [
       "Guardian Strike",
       "Stone Shield"
     ],
     "primaryAttribute": "Strength",
     "isLiving": false,
-    "strength": 5,
+    "strength": 4,
     "agility": 1,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 1
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Temple Warden",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 3,
-      "agility": 2,
-      "technique": 2,
-      "intelligence": 2
+      "strength": 2,
+      "agility": 1,
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 0,
+    "baseArmor": 3,
     "actions": [
       "Ancient Curse",
       "Sacred Bolt"
     ],
     "primaryAttribute": "Technique",
     "isLiving": true,
-    "strength": 3,
-    "agility": 2,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 0
+    "strength": 2,
+    "agility": 1,
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Ancient Sentinel",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 3,
-      "agility": 2,
-      "technique": 2,
-      "intelligence": 2
+      "strength": 2,
+      "agility": 1,
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 0,
+    "baseArmor": 3,
     "actions": [
       "Sentinel Beam",
       "Divine Wrath"
     ],
     "primaryAttribute": "Technique",
     "isLiving": false,
-    "strength": 3,
-    "agility": 2,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 0
+    "strength": 2,
+    "agility": 1,
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Wolf",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 5,
+      "strength": 4,
       "agility": 1,
-      "technique": 2,
-      "intelligence": 2
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 1,
+    "baseArmor": 3,
     "actions": [
       "Pack Howl",
       "Bite"
     ],
     "primaryAttribute": "Strength",
     "isLiving": true,
-    "strength": 5,
+    "strength": 4,
     "agility": 1,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 1
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Bear",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 5,
+      "strength": 4,
       "agility": 1,
-      "technique": 2,
-      "intelligence": 2
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 1,
+    "baseArmor": 3,
     "actions": [
       "Claw Swipe",
       "Roar"
     ],
     "primaryAttribute": "Strength",
     "isLiving": true,
-    "strength": 5,
+    "strength": 4,
     "agility": 1,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 1
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Treant",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 5,
+      "strength": 4,
       "agility": 1,
-      "technique": 2,
-      "intelligence": 2
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 1,
+    "baseArmor": 3,
     "actions": [
       "Root Strike",
       "Bark Armor"
     ],
     "primaryAttribute": "Strength",
     "isLiving": true,
-    "strength": 5,
+    "strength": 4,
     "agility": 1,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 1
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Fire Elemental",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 3,
-      "agility": 2,
-      "technique": 2,
-      "intelligence": 2
+      "strength": 2,
+      "agility": 1,
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 0,
+    "baseArmor": 3,
     "actions": [
       "Flame Burst",
       "Heat Wave"
     ],
     "primaryAttribute": "Intelligence",
     "isLiving": false,
-    "strength": 3,
-    "agility": 2,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 0
+    "strength": 2,
+    "agility": 1,
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Lava Golem",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 5,
+      "strength": 4,
       "agility": 1,
-      "technique": 2,
-      "intelligence": 2
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 1,
+    "baseArmor": 3,
     "actions": [
       "Magma Punch",
       "Lava Spit"
     ],
     "primaryAttribute": "Strength",
     "isLiving": false,
-    "strength": 5,
+    "strength": 4,
     "agility": 1,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 1
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Salamander",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
       "strength": 1,
-      "agility": 5,
-      "technique": 2,
-      "intelligence": 2
+      "agility": 4,
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 0,
+    "baseArmor": 3,
     "actions": [
       "Fire Breath",
       "Tail Whip"
@@ -427,91 +427,91 @@
     "primaryAttribute": "Agility",
     "isLiving": true,
     "strength": 1,
-    "agility": 5,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 0
+    "agility": 4,
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Lich",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 3,
-      "agility": 2,
-      "technique": 2,
-      "intelligence": 2
+      "strength": 2,
+      "agility": 1,
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 0,
+    "baseArmor": 3,
     "actions": [
       "Death Ray",
       "Bone Shield"
     ],
     "primaryAttribute": "Intelligence",
     "isLiving": false,
-    "strength": 3,
-    "agility": 2,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 0
+    "strength": 2,
+    "agility": 1,
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Ghoul",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 5,
+      "strength": 4,
       "agility": 1,
-      "technique": 2,
-      "intelligence": 2
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 1,
+    "baseArmor": 3,
     "actions": [
       "Claw Attack",
       "Paralyzing Touch"
     ],
     "primaryAttribute": "Strength",
     "isLiving": false,
-    "strength": 5,
+    "strength": 4,
     "agility": 1,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 1
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Wight",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 5,
+      "strength": 4,
       "agility": 1,
-      "technique": 2,
-      "intelligence": 2
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 1,
+    "baseArmor": 3,
     "actions": [
       "Life Drain",
       "Fear Aura"
     ],
     "primaryAttribute": "Strength",
     "isLiving": false,
-    "strength": 5,
+    "strength": 4,
     "agility": 1,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 1
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Crystal Sprite",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
       "strength": 1,
-      "agility": 5,
-      "technique": 2,
-      "intelligence": 2
+      "agility": 4,
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 0,
+    "baseArmor": 3,
     "actions": [
       "Crystal Shard",
       "Sparkle"
@@ -519,206 +519,206 @@
     "primaryAttribute": "Agility",
     "isLiving": true,
     "strength": 1,
-    "agility": 5,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 0
+    "agility": 4,
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Geode Beast",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 5,
+      "strength": 4,
       "agility": 1,
-      "technique": 2,
-      "intelligence": 2
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 1,
+    "baseArmor": 3,
     "actions": [
       "Crystal Burst",
       "Hardened Shell"
     ],
     "primaryAttribute": "Strength",
     "isLiving": true,
-    "strength": 5,
+    "strength": 4,
     "agility": 1,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 1
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Crystal Wyrm",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 5,
+      "strength": 4,
       "agility": 1,
-      "technique": 2,
-      "intelligence": 2
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 1,
+    "baseArmor": 3,
     "actions": [
       "Crystal Breath",
       "Tail Crush"
     ],
     "primaryAttribute": "Strength",
     "isLiving": true,
-    "strength": 5,
+    "strength": 4,
     "agility": 1,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 1
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Temple Guard",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 5,
+      "strength": 4,
       "agility": 1,
-      "technique": 2,
-      "intelligence": 2
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 1,
+    "baseArmor": 3,
     "actions": [
       "Divine Strike",
       "Shield Bash"
     ],
     "primaryAttribute": "Strength",
     "isLiving": true,
-    "strength": 5,
+    "strength": 4,
     "agility": 1,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 1
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Priest",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 3,
-      "agility": 2,
-      "technique": 2,
-      "intelligence": 2
+      "strength": 2,
+      "agility": 1,
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 0,
+    "baseArmor": 3,
     "actions": [
       "Heal",
       "Smite"
     ],
     "primaryAttribute": "Intelligence",
     "isLiving": true,
-    "strength": 3,
-    "agility": 2,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 0
+    "strength": 2,
+    "agility": 1,
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Paladin",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 5,
+      "strength": 4,
       "agility": 1,
-      "technique": 2,
-      "intelligence": 2
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 1,
+    "baseArmor": 3,
     "actions": [
       "Holy Strike",
       "Divine Protection"
     ],
     "primaryAttribute": "Strength",
     "isLiving": true,
-    "strength": 5,
+    "strength": 4,
     "agility": 1,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 1
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Bandit",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 5,
+      "strength": 4,
       "agility": 1,
-      "technique": 2,
-      "intelligence": 2
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 1,
+    "baseArmor": 3,
     "actions": [
       "Dirty Strike",
       "Intimidate"
     ],
     "primaryAttribute": "Strength",
     "isLiving": true,
-    "strength": 5,
+    "strength": 4,
     "agility": 1,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 1
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Orc",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 5,
+      "strength": 4,
       "agility": 1,
-      "technique": 2,
-      "intelligence": 2
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 1,
+    "baseArmor": 3,
     "actions": [
       "Brutal Strike",
       "War Cry"
     ],
     "primaryAttribute": "Strength",
     "isLiving": true,
-    "strength": 5,
+    "strength": 4,
     "agility": 1,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 1
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Troll",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
-      "strength": 5,
+      "strength": 4,
       "agility": 1,
-      "technique": 2,
-      "intelligence": 2
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 1,
+    "baseArmor": 3,
     "actions": [
       "Regenerate",
       "Club Smash"
     ],
     "primaryAttribute": "Strength",
     "isLiving": true,
-    "strength": 5,
+    "strength": 4,
     "agility": 1,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 1
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   },
   {
     "name": "Kobold",
     "baseLevel": 1,
-    "baseHealth": 19,
+    "baseHealth": 28,
     "baseStats": {
       "strength": 1,
-      "agility": 5,
-      "technique": 2,
-      "intelligence": 2
+      "agility": 4,
+      "technique": 1,
+      "intelligence": 1
     },
-    "baseArmor": 0,
+    "baseArmor": 3,
     "actions": [
       "Sneak Attack",
       "Trap"
@@ -726,9 +726,9 @@
     "primaryAttribute": "Agility",
     "isLiving": true,
     "strength": 1,
-    "agility": 5,
-    "technique": 2,
-    "intelligence": 2,
-    "armor": 0
+    "agility": 4,
+    "technique": 1,
+    "intelligence": 1,
+    "armor": 3
   }
 ]

@@ -7,9 +7,8 @@ namespace RPGGame
     {
         // Combat state management (moved from Combat.cs)
         private BattleNarrative? currentBattleNarrative;
-        private Action? lastPlayerAction = null; // Track the last action for DEJA VU
-        private ActionSpeedSystem? currentActionSpeedSystem = null;
-        private BattleHealthTracker? currentHealthTracker = null;
+        private TurnManager turnManager = new TurnManager();
+        private Entity? lastActingEntity = null;
 
         /// <summary>
         /// Starts battle narrative and initializes combat state
@@ -17,9 +16,9 @@ namespace RPGGame
         public void StartBattleNarrative(string playerName, string enemyName, string locationName, int playerHealth, int enemyHealth)
         {
             currentBattleNarrative = new BattleNarrative(playerName, enemyName, locationName, playerHealth, enemyHealth);
-            lastPlayerAction = null; // Reset last action for new battle
-            CombatLogger.ResetForNewBattle(); // Reset entity tracking for new battle
-            currentActionSpeedSystem = new ActionSpeedSystem();
+            UIManager.ResetForNewBattle(); // Reset entity tracking for new battle
+            turnManager.InitializeBattle();
+            lastActingEntity = null; // Reset entity change tracking for new battle
         }
 
         /// <summary>
@@ -31,7 +30,7 @@ namespace RPGGame
             {
                 currentBattleNarrative = null;
             }
-            currentActionSpeedSystem = null;
+            turnManager.EndBattle();
         }
 
         /// <summary>
@@ -47,7 +46,7 @@ namespace RPGGame
         /// </summary>
         public ActionSpeedSystem? GetCurrentActionSpeedSystem()
         {
-            return currentActionSpeedSystem;
+            return turnManager.GetActionSpeedSystem();
         }
 
         /// <summary>
@@ -55,7 +54,8 @@ namespace RPGGame
         /// </summary>
         public void InitializeCombatEntities(Character player, Enemy enemy, Environment? environment = null)
         {
-            if (currentActionSpeedSystem == null) return;
+            var actionSpeedSystem = GetCurrentActionSpeedSystem();
+            if (actionSpeedSystem == null) return;
 
             // New system: Use the attack speed directly as base speed
             double playerAttackSpeed = player.GetTotalAttackSpeed();
@@ -63,14 +63,14 @@ namespace RPGGame
             
             // For the new system, we use the attack speed directly as the base speed
             // This will be multiplied by action length in ExecuteAction
-            currentActionSpeedSystem.AddEntity(player, playerAttackSpeed);
-            currentActionSpeedSystem.AddEntity(enemy, enemyAttackSpeed);
+            actionSpeedSystem.AddEntity(player, playerAttackSpeed);
+            actionSpeedSystem.AddEntity(enemy, enemyAttackSpeed);
 
             // Add environment to action speed system with a slow base speed (longer cooldowns)
             if (environment != null && environment.IsHostile)
             {
                 double environmentBaseSpeed = 15.0; // Very slow - environment acts infrequently
-                currentActionSpeedSystem.AddEntity(environment, environmentBaseSpeed);
+                actionSpeedSystem.AddEntity(environment, environmentBaseSpeed);
             }
             
             // Initialize health tracker for battle participants
@@ -79,8 +79,7 @@ namespace RPGGame
             {
                 participants.Add(environment);
             }
-            currentHealthTracker = new BattleHealthTracker();
-            currentHealthTracker.InitializeBattle(participants);
+            turnManager.InitializeHealthTracker(participants);
         }
 
         /// <summary>
@@ -88,7 +87,8 @@ namespace RPGGame
         /// </summary>
         public Entity? GetNextEntityToAct()
         {
-            return currentActionSpeedSystem?.GetNextEntityToAct();
+            var actionSpeedSystem = GetCurrentActionSpeedSystem();
+            return actionSpeedSystem?.GetNextEntityToAct();
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace RPGGame
         /// </summary>
         public void UpdateLastPlayerAction(Action action)
         {
-            lastPlayerAction = action;
+            turnManager.UpdateLastPlayerAction(action);
         }
 
         /// <summary>
@@ -104,7 +104,19 @@ namespace RPGGame
         /// </summary>
         public Action? GetLastPlayerAction()
         {
-            return lastPlayerAction;
+            return turnManager.GetLastPlayerAction();
+        }
+
+        /// <summary>
+        /// Handles entity change detection and adds blank lines when the acting entity changes
+        /// </summary>
+        /// <param name="currentEntity">The entity that is about to act</param>
+        private void HandleEntityChange(Entity currentEntity)
+        {
+            // Blank lines are now handled by UIManager.WriteCombatLine() to prevent duplication
+            
+            // Update the last acting entity
+            lastActingEntity = currentEntity;
         }
 
         /// <summary>
@@ -168,6 +180,9 @@ namespace RPGGame
                     continue;
                 }
 
+                // Handle entity change detection and add blank lines when needed
+                HandleEntityChange(nextEntity);
+
                 // Player acts
                 if (nextEntity == player && player.IsAlive)
                 {
@@ -209,27 +224,62 @@ namespace RPGGame
             // Check if player is stunned
             if (player.StunTurnsRemaining > 0)
             {
-                CombatLogger.Log($"[{player.Name}] is stunned and cannot act! ({player.StunTurnsRemaining} turns remaining)");
-                // Update temp effects (including reducing stun and weaken turns) even when stunned
-                player.UpdateTempEffects(1.0); // 1.0 represents one turn
+                UIManager.WriteLine($"[{player.Name}] is stunned and cannot act! ({player.StunTurnsRemaining} turns remaining)");
+                
+                // Get the player's action speed to calculate proper stun reduction
+                double playerActionSpeed = player.GetTotalAttackSpeed();
+                
+                // Update temp effects with action speed-based turn reduction
+                player.UpdateTempEffects(playerActionSpeed / 10.0); // Normalize to turn-based system
+                
                 // Advance the player's turn in the action speed system based on their action speed
                 var currentSpeedSystem = GetCurrentActionSpeedSystem();
                 if (currentSpeedSystem != null)
                 {
-                    // Use the player's actual action speed for turn duration
-                    double playerActionSpeed = player.GetTotalAttackSpeed();
                     currentSpeedSystem.AdvanceEntityTurn(player, playerActionSpeed);
                 }
             }
             else
             {
-                // Always recalculate comboActions and actionIdx after any combo reset
-                var comboActions = player.GetComboActions();
-                int actionIdx = 0; // Always start at 0 after a reset
-                if (comboActions.Count > 0)
-                    actionIdx = player.ComboStep % comboActions.Count;
-                // The action that will be attempted this turn
-                var attemptedAction = comboActions.Count > 0 ? comboActions[actionIdx] : null;
+                // Roll first to determine what type of action to use
+                int baseRoll = Dice.Roll(1, 20);
+                int rollBonus = CombatActions.CalculateRollBonus(player, null); // Calculate base roll bonus
+                int totalRoll = baseRoll + rollBonus;
+                
+                // Determine action type based on roll result
+                Action? attemptedAction = null;
+                if (totalRoll >= 14) // Combo threshold
+                {
+                    // Use combo action
+                    var comboActions = player.GetComboActions();
+                    if (comboActions.Count > 0)
+                    {
+                        int actionIdx = player.ComboStep % comboActions.Count;
+                        attemptedAction = comboActions[actionIdx];
+                    }
+                }
+                else if (totalRoll >= 6) // Basic attack threshold
+                {
+                    // Use basic attack
+                    attemptedAction = player.ActionPool.FirstOrDefault(a => a.action.Name == "BASIC ATTACK").action;
+                }
+                // If roll < 6, it's a miss (no action)
+                if (attemptedAction == null && totalRoll < 6)
+                {
+                    UIManager.WriteCombatLine($"[{player.Name}] misses! (roll: {baseRoll} + {rollBonus} = {totalRoll})");
+                    
+                    // Update player's action timing in the action speed system even for misses
+                    var actionSpeedSystem = GetCurrentActionSpeedSystem();
+                    if (actionSpeedSystem != null)
+                    {
+                        // Use basic attack length for miss timing
+                        var basicAttack = player.ActionPool.FirstOrDefault(a => a.action.Name == "BASIC ATTACK").action;
+                        if (basicAttack != null)
+                        {
+                            actionSpeedSystem.ExecuteAction(player, basicAttack);
+                        }
+                    }
+                }
 
                 // Execute single action (not multi-attack) with speed tracking
                 if (attemptedAction != null)
@@ -240,16 +290,31 @@ namespace RPGGame
                     // Update last player action for DEJA VU functionality
                     UpdateLastPlayerAction(attemptedAction);
                     
+                    // Update player's action timing in the action speed system
+                    var actionSpeedSystem = GetCurrentActionSpeedSystem();
+                    if (actionSpeedSystem != null)
+                    {
+                        actionSpeedSystem.ExecuteAction(player, attemptedAction);
+                    }
+                    
                     // Show individual action messages with consistent delay
                     if (textDisplayed)
                     {
-                        CombatLogger.Log(result);
+                        // Split multi-line results and display each line with proper delays
+                        string[] lines = result.Split('\n');
+                        foreach (string line in lines)
+                        {
+                            if (!string.IsNullOrWhiteSpace(line))
+                            {
+                                UIManager.WriteCombatLine(line);
+                            }
+                        }
                     }
                 }
                 else
                 {
                     // Player has no actions available - advance their turn to prevent infinite loop
-                    CombatLogger.Log($"[{player.Name}] has no actions available and cannot act!");
+                    UIManager.WriteLine($"[{player.Name}] has no actions available and cannot act!");
                     var currentSpeedSystem = GetCurrentActionSpeedSystem();
                     if (currentSpeedSystem != null)
                     {
@@ -274,15 +339,18 @@ namespace RPGGame
             // Check if enemy is stunned
             if (currentEnemy.StunTurnsRemaining > 0)
             {
-                CombatLogger.Log($"[{currentEnemy.Name}] is stunned and cannot act! ({currentEnemy.StunTurnsRemaining} turns remaining)");
-                // Update temp effects (including reducing stun and weaken turns) even when stunned
-                currentEnemy.UpdateTempEffects(1.0); // 1.0 represents one turn
+                UIManager.WriteLine($"[{currentEnemy.Name}] is stunned and cannot act! ({currentEnemy.StunTurnsRemaining} turns remaining)");
+                
+                // Get the enemy's action speed to calculate proper stun reduction
+                double enemyActionSpeed = currentEnemy.GetTotalAttackSpeed();
+                
+                // Update temp effects with action speed-based turn reduction
+                currentEnemy.UpdateTempEffects(enemyActionSpeed / 10.0); // Normalize to turn-based system
+                
                 // Advance the enemy's turn in the action speed system based on their action speed
                 var currentSpeedSystem = GetCurrentActionSpeedSystem();
                 if (currentSpeedSystem != null)
                 {
-                    // Use the enemy's actual action speed for turn duration
-                    double enemyActionSpeed = currentEnemy.GetTotalAttackSpeed();
                     currentSpeedSystem.AdvanceEntityTurn(currentEnemy, enemyActionSpeed);
                 }
             }
@@ -294,10 +362,36 @@ namespace RPGGame
                     string result = CombatResults.ExecuteActionWithUI(currentEnemy, player, enemyAction, room, GetLastPlayerAction());
                     bool textDisplayed = !string.IsNullOrEmpty(result);
                     
+                    // Update enemy's action timing in the action speed system
+                    var actionSpeedSystem = GetCurrentActionSpeedSystem();
+                    if (actionSpeedSystem != null)
+                    {
+                        actionSpeedSystem.ExecuteAction(currentEnemy, enemyAction);
+                    }
+                    
                     // Show individual action messages with consistent delay
                     if (textDisplayed)
                     {
-                        CombatLogger.Log(result);
+                        // Split multi-line results and display each line with proper delays
+                        string[] lines = result.Split('\n');
+                        foreach (string line in lines)
+                        {
+                            if (!string.IsNullOrWhiteSpace(line))
+                            {
+                                UIManager.WriteCombatLine(line);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // Enemy has no actions available - advance their turn to prevent infinite loop
+                    UIManager.WriteLine($"[{currentEnemy.Name}] has no actions available and cannot act!");
+                    var currentSpeedSystem = GetCurrentActionSpeedSystem();
+                    if (currentSpeedSystem != null)
+                    {
+                        double enemyActionSpeed = currentEnemy.GetTotalAttackSpeed();
+                        currentSpeedSystem.AdvanceEntityTurn(currentEnemy, enemyActionSpeed);
                     }
                 }
             }
@@ -309,7 +403,7 @@ namespace RPGGame
             }
             
             // Process poison/bleed and burn damage after enemy's turn
-            ProcessDamageOverTimeEffects(player, currentEnemy);
+            turnManager.ProcessDamageOverTimeEffects(player, currentEnemy);
             
             return true;
         }
@@ -328,13 +422,21 @@ namespace RPGGame
                     var allTargets = new List<Entity> { player, currentEnemy };
                     
                     // Use area of effect action to target all characters
-                    string result = Combat.ExecuteAreaOfEffectAction(room, allTargets, room, envAction);
+                    string result = CombatActions.ExecuteAreaOfEffectAction(room, allTargets, room, envAction);
                     bool textDisplayed = !string.IsNullOrEmpty(result);
                     
                     // Show individual action messages
                     if (textDisplayed)
                     {
-                        CombatLogger.Log(result);
+                        // Split multi-line results and display each line with proper delays
+                        string[] lines = result.Split('\n');
+                        foreach (string line in lines)
+                        {
+                            if (!string.IsNullOrWhiteSpace(line))
+                            {
+                                UIManager.WriteCombatLine(line);
+                            }
+                        }
                     }
                     
                     // Update environment's action timing in the action speed system
@@ -385,91 +487,10 @@ namespace RPGGame
                 int actualRegen = player.CurrentHealth - oldHealth;
                 if (actualRegen > 0)
                 {
-                    CombatLogger.Log($"[{player.Name}] regenerates {actualRegen} health ({player.CurrentHealth}/{player.GetEffectiveMaxHealth()})");
+                    UIManager.WriteLine($"[{player.Name}] regenerates {actualRegen} health ({player.CurrentHealth}/{player.GetEffectiveMaxHealth()})");
                 }
             }
         }
 
-        /// <summary>
-        /// Processes damage over time effects (poison, bleed, burn) for both player and enemy
-        /// </summary>
-        private void ProcessDamageOverTimeEffects(Character player, Enemy currentEnemy)
-        {
-            double currentTime = GameTicker.Instance.GetCurrentGameTime();
-            
-            // Process poison for player
-            int playerPoisonDamage = player.ProcessPoison(currentTime);
-            if (playerPoisonDamage > 0)
-            {
-                string damageType = player.GetDamageTypeText();
-                player.TakeDamage(playerPoisonDamage); // Apply the actual damage
-                CombatLogger.Log($"[{player.Name}] takes {playerPoisonDamage} {damageType} damage");
-                if (player.PoisonStacks > 0)
-                {
-                    CombatLogger.Log($"        ({damageType}: {player.PoisonStacks} stacks remain)");
-                }
-                else
-                {
-                    string effectEndMessage = damageType == "bleed" ? "bleeding" : "poisoned";
-                    CombatLogger.Log($"        ([{player.Name}] is no longer {effectEndMessage}!)");
-                }
-            }
-            
-            // Process poison for enemy (only if living)
-            if (currentEnemy.IsLiving)
-            {
-                int enemyPoisonDamage = currentEnemy.ProcessPoison(currentTime);
-                if (enemyPoisonDamage > 0)
-                {
-                    string damageType = currentEnemy.GetDamageTypeText();
-                    currentEnemy.TakeDamage(enemyPoisonDamage); // Apply the actual damage
-                    CombatLogger.Log($"[{currentEnemy.Name}] takes {enemyPoisonDamage} {damageType} damage");
-                    if (currentEnemy.PoisonStacks > 0)
-                    {
-                        CombatLogger.Log($"        ({damageType}: {currentEnemy.PoisonStacks} stacks remain)");
-                    }
-                    else
-                    {
-                        string effectEndMessage = damageType == "bleed" ? "bleeding" : "poisoned";
-                        CombatLogger.Log($"        ([{currentEnemy.Name}] is no longer {effectEndMessage}!)");
-                    }
-                }
-            }
-            
-            // Process burn damage for player
-            int playerBurnDamage = player.ProcessBurn(currentTime);
-            if (playerBurnDamage > 0)
-            {
-                player.TakeDamage(playerBurnDamage); // Apply the actual damage
-                CombatLogger.Log($"[{player.Name}] takes {playerBurnDamage} burn damage");
-                if (player.BurnStacks > 0)
-                {
-                    CombatLogger.Log($"        (burn: {player.BurnStacks} stacks remain)");
-                }
-                else
-                {
-                    CombatLogger.Log($"        ([{player.Name}] is no longer burning!)");
-                }
-            }
-            
-            // Process burn damage for enemy (only if living)
-            if (currentEnemy.IsLiving)
-            {
-                int enemyBurnDamage = currentEnemy.ProcessBurn(currentTime);
-                if (enemyBurnDamage > 0)
-                {
-                    currentEnemy.TakeDamage(enemyBurnDamage); // Apply the actual damage
-                    CombatLogger.Log($"[{currentEnemy.Name}] takes {enemyBurnDamage} burn damage");
-                    if (currentEnemy.BurnStacks > 0)
-                    {
-                        CombatLogger.Log($"        (burn: {currentEnemy.BurnStacks} stacks remain)");
-                    }
-                    else
-                    {
-                        CombatLogger.Log($"        ([{currentEnemy.Name}] is no longer burning!)");
-                    }
-                }
-            }
-        }
     }
 }

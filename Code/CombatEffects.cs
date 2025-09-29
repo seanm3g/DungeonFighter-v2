@@ -23,8 +23,9 @@ namespace RPGGame
             // Apply bleed effect
             if (action.CausesBleed && CombatCalculator.CalculateStatusEffectChance(action, attacker, target))
             {
-                target.IsBleeding = true;
-                results.Add($"[{target.Name}] is bleeding!");
+                var bleedConfig = TuningConfig.Instance.StatusEffects.Bleed;
+                target.ApplyPoison(bleedConfig.DamagePerTick, bleedConfig.MaxStacks, true);
+                results.Add($"    [{target.Name}] is bleeding!");
                 effectsApplied = true;
             }
             
@@ -32,7 +33,7 @@ namespace RPGGame
             if (action.CausesWeaken && CombatCalculator.CalculateStatusEffectChance(action, attacker, target))
             {
                 target.ApplyWeaken(2); // 2 turns of weaken
-                results.Add($"[{target.Name}] is weakened!");
+                results.Add($"    [{target.Name}] is weakened!");
                 effectsApplied = true;
             }
             
@@ -40,24 +41,26 @@ namespace RPGGame
             if (action.CausesSlow && CombatCalculator.CalculateStatusEffectChance(action, attacker, target))
             {
                 // For now, just add a message - would need proper slow implementation
-                results.Add($"[{target.Name}] is slowed!");
+                results.Add($"    [{target.Name}] is slowed!");
                 effectsApplied = true;
             }
             
             // Apply poison effect
             if (action.CausesPoison && CombatCalculator.CalculateStatusEffectChance(action, attacker, target))
             {
-                target.ApplyPoison(4, 1); // 4 damage, 1 stack
-                results.Add($"[{target.Name}] is poisoned!");
+                var poisonConfig = TuningConfig.Instance.Poison;
+                target.ApplyPoison(poisonConfig.DamagePerTick, poisonConfig.StacksPerApplication);
+                results.Add($"    [{target.Name}] is poisoned!");
                 effectsApplied = true;
             }
             
             // Apply stun effect
             if (action.CausesStun && CombatCalculator.CalculateStatusEffectChance(action, attacker, target))
             {
+                var stunConfig = TuningConfig.Instance.StatusEffects.Stun;
                 target.IsStunned = true;
-                target.StunTurnsRemaining = 1;
-                results.Add($"[{target.Name}] is stunned!");
+                target.StunTurnsRemaining = stunConfig.SkipTurns;
+                results.Add($"    [{target.Name}] is stunned!");
                 effectsApplied = true;
             }
             
@@ -73,35 +76,46 @@ namespace RPGGame
         public static int ProcessStatusEffects(Entity entity, List<string> results)
         {
             int totalEffectDamage = 0;
+            double currentTime = GameTicker.Instance.GetCurrentGameTime();
             
             // Process poison damage
             if (entity.PoisonStacks > 0)
             {
-                int poisonDamage = entity.ProcessPoison(1.0);
+                int poisonDamage = entity.ProcessPoison(currentTime);
                 if (poisonDamage > 0)
                 {
                     totalEffectDamage += poisonDamage;
-                    results.Add($"[{entity.Name}] takes {poisonDamage} poison damage!");
+                    string damageType = entity.GetDamageTypeText();
+                    results.Add($"[{entity.Name}] takes {poisonDamage} {damageType} damage");
+                    if (entity.PoisonStacks > 0)
+                    {
+                        results.Add($"        ({damageType}: {entity.PoisonStacks} stacks remain)");
+                    }
+                    else
+                    {
+                        string effectEndMessage = damageType == "bleed" ? "bleeding" : "poisoned";
+                        results.Add($"        ([{entity.Name}] is no longer {effectEndMessage}!)");
+                    }
                 }
             }
             
             // Process burn damage
             if (entity.BurnStacks > 0)
             {
-                int burnDamage = entity.ProcessBurn(1.0);
+                int burnDamage = entity.ProcessBurn(currentTime);
                 if (burnDamage > 0)
                 {
                     totalEffectDamage += burnDamage;
-                    results.Add($"[{entity.Name}] takes {burnDamage} burn damage!");
+                    results.Add($"[{entity.Name}] takes {burnDamage} burn damage");
+                    if (entity.BurnStacks > 0)
+                    {
+                        results.Add($"        (burn: {entity.BurnStacks} stacks remain)");
+                    }
+                    else
+                    {
+                        results.Add($"        ([{entity.Name}] is no longer burning!)");
+                    }
                 }
-            }
-            
-            // Process bleed damage (simplified)
-            if (entity.IsBleeding)
-            {
-                int bleedDamage = 2; // Simple bleed damage
-                totalEffectDamage += bleedDamage;
-                results.Add($"[{entity.Name}] takes {bleedDamage} bleed damage!");
             }
             
             return totalEffectDamage;

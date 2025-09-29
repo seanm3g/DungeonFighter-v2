@@ -118,28 +118,20 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Gets total armor for enemies (uses the Armor property)
+        /// </summary>
+        public new int GetTotalArmor()
+        {
+            return Armor;
+        }
+
+        /// <summary>
         /// Calculates enemy attack speed using archetype modifiers
         /// </summary>
         public new double GetTotalAttackSpeed()
         {
-            var tuning = TuningConfig.Instance;
-            
-            // Base calculation similar to Character.GetTotalAttackSpeed
-            double baseAttackTime = tuning.Combat.BaseAttackTime;
-            double agilityReduction = Agility * tuning.Combat.AgilitySpeedReduction;
-            double finalAttackTime = baseAttackTime - agilityReduction;
-            
-            // Apply archetype speed multiplier
-            finalAttackTime *= AttackProfile.SpeedMultiplier;
-            
-            // Apply slow debuff if active
-            if (SlowTurns > 0)
-            {
-                finalAttackTime *= SlowMultiplier;
-            }
-            
-            // Apply minimum cap
-            return Math.Max(tuning.Combat.MinimumAttackTime, finalAttackTime);
+            // Use shared attack speed calculation logic
+            return CombatCalculator.CalculateAttackSpeed(this);
         }
 
         /// <summary>
@@ -214,14 +206,14 @@ namespace RPGGame
             if (roll >= difficulty)
             {
                 var settings = GameSettings.Instance;
-                int finalEffect = Combat.CalculateDamage(this, target, action, 1.0, settings.EnemyDamageMultiplier, 0, roll, false);
+                int finalEffect = CombatCalculator.CalculateDamage(this, target, action, 1.0, settings.EnemyDamageMultiplier, 0, roll, false);
                 
                 if (action.Type == ActionType.Attack)
                 {
                     target.TakeDamage(finalEffect);
                     // Use the same parameters as the actual damage calculation to avoid duplicate weakened messages
-                    int actualDamage = Combat.CalculateDamage(this, target, action, 1.0, settings.EnemyDamageMultiplier, 0, roll, false);
-                    string damageDisplay = Combat.FormatDamageDisplay(this, target, finalEffect, actualDamage, action, 1.0, settings.EnemyDamageMultiplier, 0, roll);
+                    int actualDamage = CombatCalculator.CalculateDamage(this, target, action, 1.0, settings.EnemyDamageMultiplier, 0, roll, false);
+                    string damageDisplay = CombatResults.FormatDamageDisplay(this, target, finalEffect, actualDamage, action, 1.0, settings.EnemyDamageMultiplier, 0, roll);
                     return ($"[{Name}] uses [{action.Name}] on [{target.Name}]: deals {damageDisplay}. (Rolled {roll}, need {difficulty})", true);
                 }
                 else if (action.Type == ActionType.Debuff)

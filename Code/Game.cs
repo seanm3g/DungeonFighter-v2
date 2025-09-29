@@ -2,10 +2,6 @@ namespace RPGGame
 {
     using System.Text.Json;
 
-    // Data classes moved to separate files:
-    // - StartingGearData, StartingWeapon, StartingArmor -> Code/StartingGear.cs
-    // - DungeonConfig, DungeonGenerationConfig -> Code/DungeonConfig.cs
-    // - Dungeon class -> Code/Dungeon.cs
 
     public class Game
     {
@@ -38,7 +34,6 @@ namespace RPGGame
             gameInitializer.InitializeExistingGame(existingCharacter, availableDungeons);
         }
 
-        // LoadStartingGear method moved to GameInitializer class
 
         public static DungeonConfig LoadDungeonConfig()
         {
@@ -55,24 +50,18 @@ namespace RPGGame
                 // Return default config if loading fails
                 return new DungeonConfig
                 {
-                    dungeonThemes = new List<string> { "Forest", "Lava", "Crypt", "Cavern", "Swamp", "Desert", "Ice", "Ruins", "Castle", "Graveyard" },
-                    roomThemes = new List<string> { "Treasure", "Guard", "Trap", "Puzzle", "Rest", "Storage", "Library", "Armory", "Kitchen", "Dining", "Chamber", "Hall", "Vault", "Sanctum", "Grotto", "Catacomb", "Shrine", "Laboratory", "Observatory", "Throne" },
+                    dungeonThemes = new List<string> { "Forest", "Lava", "Crypt" }, // Minimal fallback
+                    roomThemes = new List<string> { "Chamber", "Hall", "Vault" }, // Minimal fallback
                     dungeonGeneration = new DungeonGenerationConfig()
                 };
             }
         }
 
-        // InitializeGame method moved to GameInitializer class
-
-        // InitializeGameForExistingCharacter method moved to GameInitializer class
 
         public void ShowMainMenu()
         {
             menuManager.ShowMainMenu();
         }
 
-        // StartNewGame, LoadAndRunGame, GetSavedCharacterInfo, ShowSettings, and Run methods moved to GameMenuManager class
-
-        // ChooseDungeon and AwardLootAndXP methods moved to DungeonManager class
     }
 } 

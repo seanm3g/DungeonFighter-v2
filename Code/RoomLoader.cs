@@ -56,14 +56,14 @@ namespace RPGGame
                 if (foundPath != null)
                 {
                     string jsonContent = File.ReadAllText(foundPath);
-                    Console.WriteLine($"Reading JSON from {foundPath}, content length: {jsonContent.Length}");
+                    UIManager.WriteSystemLine($"Reading JSON from {foundPath}, content length: {jsonContent.Length}");
                     
                     var roomList = JsonSerializer.Deserialize<List<RoomData>>(jsonContent);
                     
                     _rooms = new Dictionary<string, RoomData>();
                     if (roomList != null)
                     {
-                        Console.WriteLine($"Deserialized {roomList.Count} room types from JSON");
+                        UIManager.WriteSystemLine($"Deserialized {roomList.Count} room types from JSON");
                         foreach (var room in roomList)
                         {
                             if (!string.IsNullOrEmpty(room.Name))
@@ -72,26 +72,26 @@ namespace RPGGame
                             }
                             else
                             {
-                                Console.WriteLine($"Warning: Found room with null/empty name");
+                                UIManager.WriteSystemLine($"Warning: Found room with null/empty name");
                             }
                         }
                     }
                     else
                     {
-                        Console.WriteLine("Warning: JSON deserialization returned null");
+                        UIManager.WriteSystemLine("Warning: JSON deserialization returned null");
                     }
-                    Console.WriteLine($"Successfully loaded {_rooms.Count} room types from {foundPath}");
+                    UIManager.WriteSystemLine($"Successfully loaded {_rooms.Count} room types from {foundPath}");
                 }
                 else
                 {
-                    Console.WriteLine($"Warning: Rooms file not found. Tried paths: {string.Join(", ", PossibleRoomPaths)}");
+                    UIManager.WriteSystemLine($"Warning: Rooms file not found. Tried paths: {string.Join(", ", PossibleRoomPaths)}");
                     _rooms = new Dictionary<string, RoomData>();
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading rooms: {ex.Message}");
-                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                UIManager.WriteSystemLine($"Error loading rooms: {ex.Message}");
+                UIManager.WriteSystemLine($"Stack trace: {ex.StackTrace}");
                 _rooms = new Dictionary<string, RoomData>();
             }
         }

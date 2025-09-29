@@ -41,20 +41,19 @@ namespace RPGGame
             
             Console.WriteLine("Current TuningConfig Status:");
             Console.WriteLine($"  ItemScaling configured: {tuning.ItemScaling != null}");
-            Console.WriteLine($"  SustainBalance configured: {tuning.EnemyDPS?.SustainBalance != null}");
+            Console.WriteLine($"  EnemyScaling configured: {tuning.EnemyScaling != null}");
             
             if (tuning.ItemScaling != null)
             {
-                Console.WriteLine($"  WeaponTypes: {tuning.ItemScaling.WeaponTypes?.Count ?? 0}");
-                Console.WriteLine($"  ArmorTypes: {tuning.ItemScaling.ArmorTypes?.Count ?? 0}");
-                Console.WriteLine($"  RarityModifiers: {tuning.ItemScaling.RarityModifiers?.Count ?? 0}");
+                Console.WriteLine($"  StartingWeaponDamage: {tuning.ItemScaling.StartingWeaponDamage?.Count ?? 0}");
+                Console.WriteLine($"  TierDamageRanges: {tuning.ItemScaling.TierDamageRanges?.Count ?? 0}");
+                Console.WriteLine($"  GlobalDamageMultiplier: {tuning.ItemScaling.GlobalDamageMultiplier}");
             }
             
-            if (tuning.EnemyDPS?.SustainBalance != null)
+            if (tuning.EnemyScaling != null)
             {
-                var sustain = tuning.EnemyDPS.SustainBalance;
-                Console.WriteLine($"  TargetActionsToKill: {sustain.TargetActionsToKill != null}");
-                Console.WriteLine($"  DPSToSustainRatio: {sustain.DPSToSustainRatio != null}");
+                Console.WriteLine($"  BaseDPSAtLevel1: {tuning.EnemyScaling.BaseDPSAtLevel1}");
+                Console.WriteLine($"  DPSPerLevel: {tuning.EnemyScaling.DPSPerLevel}");
             }
             
             Console.WriteLine("\nTesting JSON file generation...");
@@ -94,18 +93,18 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Generates Enemies.json based on SustainBalance configurations
+        /// Generates Enemies.json based on EnemyScaling configurations
         /// </summary>
         public static void GenerateEnemiesJson()
         {
             var tuning = TuningConfig.Instance;
-            var sustainBalance = tuning.EnemyDPS?.SustainBalance;
+            var enemyScaling = tuning.EnemyScaling;
             
-            if (sustainBalance == null)
+            if (enemyScaling == null)
             {
                 if (TuningConfig.Instance.GameData.ShowGenerationMessages)
                 {
-                    Console.WriteLine("Warning: SustainBalance configuration not found, using existing Enemies.json");
+                    Console.WriteLine("Warning: EnemyScaling configuration not found, using existing Enemies.json");
                 }
                 return;
             }
@@ -116,7 +115,7 @@ namespace RPGGame
 
             foreach (var existingEnemy in existingEnemies)
             {
-                var generatedEnemy = GenerateEnemyFromConfig(existingEnemy, sustainBalance);
+                var generatedEnemy = GenerateEnemyFromConfig(existingEnemy, enemyScaling);
                 generatedEnemies.Add(generatedEnemy);
             }
 
@@ -139,11 +138,11 @@ namespace RPGGame
             var tuning = TuningConfig.Instance;
             var itemScaling = tuning.ItemScaling;
             
-            if (itemScaling?.ArmorTypes == null)
+            if (itemScaling == null)
             {
                 if (TuningConfig.Instance.GameData.ShowGenerationMessages)
                 {
-                    Console.WriteLine("Warning: ItemScaling.ArmorTypes configuration not found, using existing Armor.json");
+                    Console.WriteLine("Warning: ItemScaling configuration not found, using existing Armor.json");
                 }
                 return;
             }
@@ -224,11 +223,11 @@ namespace RPGGame
             var tuning = TuningConfig.Instance;
             var itemScaling = tuning.ItemScaling;
             
-            if (itemScaling?.WeaponTypes == null)
+            if (itemScaling == null)
             {
                 if (TuningConfig.Instance.GameData.ShowGenerationMessages)
                 {
-                    Console.WriteLine("Warning: ItemScaling.WeaponTypes configuration not found, using existing Weapons.json");
+                    Console.WriteLine("Warning: ItemScaling configuration not found, using existing Weapons.json");
                 }
                 return;
             }
@@ -282,7 +281,7 @@ namespace RPGGame
             }
         }
 
-        private static EnemyData GenerateEnemyFromConfig(EnemyData existing, SustainBalanceConfig sustainBalance)
+        private static EnemyData GenerateEnemyFromConfig(EnemyData existing, EnemyScalingConfig enemyScaling)
         {
             // Preserve all identity and behavior properties
             // Reset to proper base values first (prevent attribute multiplication on already high values)
@@ -308,85 +307,37 @@ namespace RPGGame
                 BaseArmor = existing.BaseArmor
             };
 
-            // Apply SustainBalance health scaling based on target actions to kill
-            if (sustainBalance.TargetActionsToKill != null)
+            // Apply simplified enemy scaling based on EnemyScaling config
+            // Calculate health based on level and health multiplier
+            generated.BaseHealth = Math.Max(1, (int)Math.Round(existing.BaseHealth * enemyScaling.EnemyHealthMultiplier));
+            
+            // Apply damage scaling to stats
+            double damageMultiplier = enemyScaling.EnemyDamageMultiplier;
+            generated.BaseStats.Strength = Math.Max(1, (int)Math.Round(generated.BaseStats.Strength * damageMultiplier));
+            generated.BaseStats.Agility = Math.Max(1, (int)Math.Round(generated.BaseStats.Agility * damageMultiplier));
+            generated.BaseStats.Technique = Math.Max(1, (int)Math.Round(generated.BaseStats.Technique * damageMultiplier));
+            generated.BaseStats.Intelligence = Math.Max(1, (int)Math.Round(generated.BaseStats.Intelligence * damageMultiplier));
+            
+            // Apply primary attribute bonus
+            switch (existing.PrimaryAttribute.ToLower())
             {
-                var variables = new Dictionary<string, double>
-                {
-                    ["BaseActions"] = sustainBalance.TargetActionsToKill.Level1,
-                    ["Level"] = existing.BaseLevel,
-                    ["ActionsPerLevel"] = (sustainBalance.TargetActionsToKill.Level10 - sustainBalance.TargetActionsToKill.Level1) / 9.0,
-                    ["QuadraticFactor"] = 0.1
-                };
-
-                if (!string.IsNullOrEmpty(sustainBalance.TargetActionsToKill.Formula))
-                {
-                    double targetActions = FormulaEvaluator.Evaluate(sustainBalance.TargetActionsToKill.Formula, variables);
-                    
-                    // Calculate health based on target actions and DPS balance
-                    double baseDPS = 1.5; // Default DPS
-                    if (TuningConfig.Instance.EnemyDPS != null)
-                    {
-                        baseDPS = TuningConfig.Instance.EnemyDPS.BaseDPSAtLevel1 + (existing.BaseLevel * TuningConfig.Instance.EnemyDPS.DPSPerLevel);
-                    }
-                    double estimatedHealth = targetActions * baseDPS;
-                    generated.BaseHealth = Math.Max(1, (int)Math.Round(estimatedHealth));
-                }
+                case "strength":
+                    generated.BaseStats.Strength = (int)Math.Round(generated.BaseStats.Strength * 1.2);
+                    break;
+                case "agility":
+                    generated.BaseStats.Agility = (int)Math.Round(generated.BaseStats.Agility * 1.2);
+                    break;
+                case "technique":
+                    generated.BaseStats.Technique = (int)Math.Round(generated.BaseStats.Technique * 1.2);
+                    break;
+                case "intelligence":
+                    generated.BaseStats.Intelligence = (int)Math.Round(generated.BaseStats.Intelligence * 1.2);
+                    break;
             }
-
-            // Apply SustainBalance attribute scaling
-            if (sustainBalance.AttributeGainRatio != null)
-            {
-                double attributeMultiplier = sustainBalance.AttributeGainRatio.BaseRatio;
-                
-                // Apply primary attribute bonus
-                if (sustainBalance.AttributeGainRatio.PrimaryAttributeBonus > 0)
-                {
-                    switch (existing.PrimaryAttribute.ToLower())
-                    {
-                        case "strength":
-                            generated.BaseStats.Strength = (int)Math.Round(generated.BaseStats.Strength * sustainBalance.AttributeGainRatio.PrimaryAttributeBonus);
-                            break;
-                        case "agility":
-                            generated.BaseStats.Agility = (int)Math.Round(generated.BaseStats.Agility * sustainBalance.AttributeGainRatio.PrimaryAttributeBonus);
-                            break;
-                        case "technique":
-                            generated.BaseStats.Technique = (int)Math.Round(generated.BaseStats.Technique * sustainBalance.AttributeGainRatio.PrimaryAttributeBonus);
-                            break;
-                        case "intelligence":
-                            generated.BaseStats.Intelligence = (int)Math.Round(generated.BaseStats.Intelligence * sustainBalance.AttributeGainRatio.PrimaryAttributeBonus);
-                            break;
-                    }
-                }
-                
-                // Apply secondary attribute scaling
-                double secondaryMultiplier = sustainBalance.AttributeGainRatio.SecondaryAttributeBonus;
-                generated.BaseStats.Strength = (int)Math.Round(generated.BaseStats.Strength * secondaryMultiplier);
-                generated.BaseStats.Agility = (int)Math.Round(generated.BaseStats.Agility * secondaryMultiplier);
-                generated.BaseStats.Technique = (int)Math.Round(generated.BaseStats.Technique * secondaryMultiplier);
-                generated.BaseStats.Intelligence = (int)Math.Round(generated.BaseStats.Intelligence * secondaryMultiplier);
-            }
-
-            // Apply SustainBalance armor scaling based on health-to-armor ratio
-            if (sustainBalance.HealthToArmorRatio != null)
-            {
-                double baseRatio = sustainBalance.HealthToArmorRatio.BaseRatio;
-                double archetypeModifier = 1.0;
-                
-                // Apply archetype-specific modifiers if available
-                if (sustainBalance.HealthToArmorRatio.ArchetypeModifiers != null)
-                {
-                    // Try to determine archetype from enemy name or stats
-                    string archetype = DetermineEnemyArchetype(existing);
-                    if (sustainBalance.HealthToArmorRatio.ArchetypeModifiers.ContainsKey(archetype))
-                    {
-                        archetypeModifier = sustainBalance.HealthToArmorRatio.ArchetypeModifiers[archetype];
-                    }
-                }
-                
-                double targetArmor = generated.BaseHealth / (baseRatio * archetypeModifier);
-                generated.BaseArmor = Math.Max(0, (int)Math.Round(targetArmor));
-            }
+            
+            // Simple armor scaling based on health
+            double armorRatio = 10.0; // 10:1 health to armor ratio
+            generated.BaseArmor = Math.Max(0, (int)Math.Round(generated.BaseHealth / armorRatio));
 
             return generated;
         }
@@ -433,31 +384,10 @@ namespace RPGGame
                 Armor = existing.Armor // Start with original armor value
             };
 
-            // Apply armor type specific scaling - only modify armor value
-            if (itemScaling.ArmorTypes.TryGetValue(existing.Slot, out var armorConfig))
-            {
-                var variables = new Dictionary<string, double>
-                {
-                    ["BaseArmor"] = existing.Armor,
-                    ["Tier"] = existing.Tier,
-                    ["Level"] = 1, // Base level
-                    ["BaseChance"] = 0.1
-                };
-
-                if (!string.IsNullOrEmpty(armorConfig.ArmorFormula))
-                {
-                    double scaledArmor = FormulaEvaluator.Evaluate(armorConfig.ArmorFormula, variables);
-                    generated.Armor = (int)Math.Round(scaledArmor);
-                }
-            }
-
-            // Apply level scaling caps - only modify armor value
-            if (itemScaling.LevelScalingCaps != null)
-            {
-                generated.Armor = Math.Max(itemScaling.LevelScalingCaps.MinimumValues.Armor, generated.Armor);
-                double maxArmor = existing.Armor * itemScaling.LevelScalingCaps.MaxArmorScaling;
-                generated.Armor = Math.Min(generated.Armor, (int)Math.Round(maxArmor));
-            }
+            // Apply simplified armor scaling based on tier
+            double armorPerTier = itemScaling.ArmorValuePerTier;
+            double tierMultiplier = 1.0 + (existing.Tier - 1) * 0.2; // 20% increase per tier
+            generated.Armor = Math.Max(1, (int)Math.Round(existing.Armor * tierMultiplier));
 
             return generated;
         }
@@ -479,41 +409,16 @@ namespace RPGGame
                 Tier = existing.Tier         // Always preserve original tier
             };
 
-            // Apply weapon type specific scaling
-            if (itemScaling.WeaponTypes.TryGetValue(existing.Type, out var weaponConfig))
-            {
-                var variables = new Dictionary<string, double>
-                {
-                    ["BaseDamage"] = existing.BaseDamage,
-                    ["Tier"] = existing.Tier,
-                    ["Level"] = 1, // Base level
-                    ["BaseSpeed"] = existing.AttackSpeed
-                };
-
-                if (!string.IsNullOrEmpty(weaponConfig.DamageFormula))
-                {
-                    double scaledDamage = FormulaEvaluator.Evaluate(weaponConfig.DamageFormula, variables);
-                    generated.BaseDamage = (int)Math.Round(scaledDamage);
-                }
-
-                if (!string.IsNullOrEmpty(weaponConfig.SpeedFormula))
-                {
-                    double scaledSpeed = FormulaEvaluator.Evaluate(weaponConfig.SpeedFormula, variables);
-                    generated.AttackSpeed = scaledSpeed;
-                }
-            }
-
-            // Apply level scaling caps
-            if (itemScaling.LevelScalingCaps != null)
-            {
-                generated.BaseDamage = Math.Max(itemScaling.LevelScalingCaps.MinimumValues.Damage, generated.BaseDamage);
-                double maxDamage = existing.BaseDamage * itemScaling.LevelScalingCaps.MaxDamageScaling;
-                generated.BaseDamage = Math.Min(generated.BaseDamage, (int)Math.Round(maxDamage));
-
-                generated.AttackSpeed = Math.Max(itemScaling.LevelScalingCaps.MinimumValues.Speed, generated.AttackSpeed);
-                double maxSpeed = existing.AttackSpeed * itemScaling.LevelScalingCaps.MaxSpeedScaling;
-                generated.AttackSpeed = Math.Min(generated.AttackSpeed, maxSpeed);
-            }
+            // Apply simplified weapon scaling based on tier and global multiplier
+            double weaponDamagePerTier = itemScaling.WeaponDamagePerTier;
+            double tierMultiplier = 1.0 + (existing.Tier - 1) * 0.3; // 30% increase per tier
+            double globalMultiplier = itemScaling.GlobalDamageMultiplier;
+            
+            generated.BaseDamage = Math.Max(1, (int)Math.Round(existing.BaseDamage * tierMultiplier * globalMultiplier));
+            
+            // Apply speed bonus per tier
+            double speedBonusPerTier = itemScaling.SpeedBonusPerTier;
+            generated.AttackSpeed = Math.Max(0.1, existing.AttackSpeed + (existing.Tier - 1) * speedBonusPerTier);
 
             return generated;
         }
@@ -521,131 +426,34 @@ namespace RPGGame
 
         private static List<EnemyData> LoadExistingEnemies()
         {
-            try
+            string? filePath = JsonLoader.FindGameDataFile("Enemies.json");
+            if (filePath != null)
             {
-                string? filePath = FindGameDataFile("Enemies.json");
-                if (filePath != null && File.Exists(filePath))
-                {
-                    string json = File.ReadAllText(filePath);
-                    var enemies = JsonSerializer.Deserialize<List<EnemyData>>(json) ?? new List<EnemyData>();
-                    return enemies;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error loading existing enemies: {ex.Message}");
+                return JsonLoader.LoadJsonList<EnemyData>(filePath);
             }
             return new List<EnemyData>();
         }
 
         private static List<ArmorData> LoadExistingArmor()
         {
-            try
+            string? filePath = JsonLoader.FindGameDataFile("Armor.json");
+            if (filePath != null)
             {
-                string? filePath = FindGameDataFile("Armor.json");
-                if (filePath != null && File.Exists(filePath))
-                {
-                    string json = File.ReadAllText(filePath);
-                    var armor = JsonSerializer.Deserialize<List<ArmorData>>(json) ?? new List<ArmorData>();
-                    return armor;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error loading existing armor: {ex.Message}");
+                return JsonLoader.LoadJsonList<ArmorData>(filePath);
             }
             return new List<ArmorData>();
         }
 
         private static List<WeaponData> LoadExistingWeapons()
         {
-            try
+            string? filePath = JsonLoader.FindGameDataFile("Weapons.json");
+            if (filePath != null)
             {
-                string? filePath = FindGameDataFile("Weapons.json");
-                if (filePath != null && File.Exists(filePath))
-                {
-                    string json = File.ReadAllText(filePath);
-                    var weapons = JsonSerializer.Deserialize<List<WeaponData>>(json) ?? new List<WeaponData>();
-                    return weapons;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error loading existing weapons: {ex.Message}");
+                return JsonLoader.LoadJsonList<WeaponData>(filePath);
             }
             return new List<WeaponData>();
         }
 
-        private static string? FindGameDataFile(string fileName)
-        {
-            // Get the directory where the executable is located
-            string executableDir = AppDomain.CurrentDomain.BaseDirectory;
-            string currentDir = Directory.GetCurrentDirectory();
-            
-            // List of possible GameData directory locations relative to different starting points
-            string[] possibleGameDataDirs = {
-                // Relative to executable directory
-                Path.Combine(executableDir, "GameData"),
-                Path.Combine(executableDir, "..", "GameData"),
-                Path.Combine(executableDir, "..", "..", "GameData"),
-                
-                // Relative to current working directory
-                Path.Combine(currentDir, "GameData"),
-                Path.Combine(currentDir, "..", "GameData"),
-                Path.Combine(currentDir, "..", "..", "GameData"),
-                
-                // Common project structure variations
-                Path.Combine(executableDir, "..", "..", "..", "GameData"),
-                Path.Combine(currentDir, "..", "..", "..", "GameData"),
-                
-                // Legacy paths for backward compatibility
-                Path.Combine("GameData"),
-                Path.Combine("..", "GameData"),
-                Path.Combine("..", "..", "GameData"),
-                Path.Combine("DF4 - CONSOLE", "GameData"),
-                Path.Combine("..", "DF4 - CONSOLE", "GameData")
-            };
-
-            // Try to find the GameData directory first
-            string? gameDataDir = null;
-            foreach (string dir in possibleGameDataDirs)
-            {
-                if (Directory.Exists(dir))
-                {
-                    gameDataDir = dir;
-                    break;
-                }
-            }
-
-            // If we found a GameData directory, use it
-            if (gameDataDir != null)
-            {
-                string filePath = Path.Combine(gameDataDir, fileName);
-                if (File.Exists(filePath))
-                {
-                    return filePath;
-                }
-            }
-
-            // Fallback: try direct file paths
-            string[] directPaths = {
-                Path.Combine(executableDir, "GameData", fileName),
-                Path.Combine(currentDir, "GameData", fileName),
-                Path.Combine("GameData", fileName),
-                Path.Combine("..", "GameData", fileName),
-                Path.Combine("..", "..", "GameData", fileName)
-            };
-
-            foreach (string path in directPaths)
-            {
-                if (File.Exists(path))
-                {
-                    return path;
-                }
-            }
-
-            return null;
-        }
 
         private static string GetGameDataFilePath(string fileName)
         {

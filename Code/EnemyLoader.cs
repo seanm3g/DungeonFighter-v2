@@ -88,25 +88,25 @@ namespace RPGGame
                             }
                             else
                             {
-                                Console.WriteLine($"Warning: Found enemy with null/empty name");
+                                UIManager.WriteSystemLine($"Warning: Found enemy with null/empty name");
                             }
                         }
                     }
                     else
                     {
-                        Console.WriteLine("Warning: JSON deserialization returned null");
+                        UIManager.WriteSystemLine("Warning: JSON deserialization returned null");
                     }
                 }
                 else
                 {
-                    Console.WriteLine($"Warning: Enemies file not found. Tried paths: {string.Join(", ", PossibleEnemyPaths)}");
+                    UIManager.WriteSystemLine($"Warning: Enemies file not found. Tried paths: {string.Join(", ", PossibleEnemyPaths)}");
                     _enemies = new Dictionary<string, EnemyData>();
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading enemies: {ex.Message}");
-                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                UIManager.WriteSystemLine($"Error loading enemies: {ex.Message}");
+                UIManager.WriteSystemLine($"Stack trace: {ex.StackTrace}");
                 _enemies = new Dictionary<string, EnemyData>();
             }
         }

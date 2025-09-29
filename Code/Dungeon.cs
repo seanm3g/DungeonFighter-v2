@@ -21,16 +21,17 @@ namespace RPGGame
 
         public void Generate()
         {
-            // Use default config for now - will be passed from Game class
-            var config = new DungeonGenerationConfig();
+            // Use TuningConfig for dungeon scaling
+            var dungeonScaling = TuningConfig.Instance.DungeonScaling;
+            var dungeonConfig = Game.LoadDungeonConfig();
             
-            int roomCount = Math.Max(config.minRooms, (int)Math.Ceiling(MinLevel * config.roomCountScaling));
+            int roomCount = Math.Max(dungeonScaling.RoomCountBase, (int)Math.Ceiling(MinLevel * dungeonScaling.RoomCountPerLevel));
             Rooms.Clear();
 
             for (int i = 0; i < roomCount; i++)
             {
                 // Determine room type and difficulty
-                bool isHostile = random.NextDouble() < config.hostileRoomChance;
+                bool isHostile = random.NextDouble() < dungeonConfig.dungeonGeneration.hostileRoomChance;
                 int roomLevel = random.Next(MinLevel, MaxLevel + 1);
 
                 // Create room with appropriate theme
@@ -70,7 +71,7 @@ namespace RPGGame
             string roomContext = FlavorText.GenerateRoomContext(Theme, roomTheme);
             
             // Add hostility context
-            string hostilityContext = isHostile ? " Danger lurks in the shadows." : " It seems safe... for now.";
+            string hostilityContext = isHostile ? " Danger lurks in the shadows." : "\nIt seems safe... for now.";
             
             return baseDescription + roomContext + hostilityContext;
         }

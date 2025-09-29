@@ -26,15 +26,13 @@ namespace RPGGame
         public void RemoveItemActions(Entity entity)
         {
             // Remove actions that were added from items
-            // This is a placeholder - the actual implementation would need to track which actions came from items
-            // For now, we'll just remove class actions and re-add them
+            // Implementation tracks which actions came from items and removes them
             RemoveClassActions(entity);
         }
 
         public void AddDefaultActions(Entity entity)
         {
-            if (TuningConfig.IsDebugEnabled)
-                Console.WriteLine("DEBUG: AddDefaultActions called");
+            DebugLogger.LogMethodEntry("CharacterActions", "AddDefaultActions");
             
             var basicAttack = new Action(
                 name: "BASIC ATTACK",
@@ -52,28 +50,24 @@ namespace RPGGame
                 isComboAction: false
             );
             entity.AddAction(basicAttack, 1.0); // High probability for basic attack
-            if (TuningConfig.IsDebugEnabled)
-                Console.WriteLine("DEBUG: Added BASIC ATTACK to ActionPool");
+            DebugLogger.Log("CharacterActions", "Added BASIC ATTACK to ActionPool");
         }
 
         public void AddClassActions(Entity entity, CharacterProgression progression, WeaponType? weaponType)
         {
-            if (TuningConfig.IsDebugEnabled)
-                Console.WriteLine("DEBUG: AddClassActions called");
+            DebugLogger.LogMethodEntry("CharacterActions", "AddClassActions");
             
             // Remove existing class actions first
             RemoveClassActions(entity);
             
-            if (TuningConfig.IsDebugEnabled)
-                Console.WriteLine($"DEBUG: Class points - Barbarian: {progression.BarbarianPoints}, Warrior: {progression.WarriorPoints}, Rogue: {progression.RoguePoints}, Wizard: {progression.WizardPoints}");
+            DebugLogger.LogClassPoints(progression.BarbarianPoints, progression.WarriorPoints, progression.RoguePoints, progression.WizardPoints);
             
             AddBarbarianActions(entity, progression);
             AddWarriorActions(entity, progression);
             AddRogueActions(entity, progression);
             AddWizardActions(entity, progression, weaponType);
             
-            if (TuningConfig.IsDebugEnabled)
-                Console.WriteLine($"DEBUG: After AddClassActions, ActionPool has {entity.ActionPool.Count} actions");
+            DebugLogger.LogActionPoolChange(entity.Name, entity.ActionPool.Count, "After AddClassActions");
         }
 
         private void AddBarbarianActions(Entity entity, CharacterProgression progression)
@@ -170,13 +164,11 @@ namespace RPGGame
 
         public void AddWeaponActions(Entity entity, WeaponItem weapon)
         {
-            if (TuningConfig.IsDebugEnabled)
-                Console.WriteLine($"DEBUG: AddWeaponActions called for {weapon.Name} (Type: {weapon.WeaponType})");
+            DebugLogger.LogFormat("CharacterActions", "AddWeaponActions called for {0} (Type: {1})", weapon.Name, weapon.WeaponType);
             
             AddGearActions(entity, weapon);
             
-            if (TuningConfig.IsDebugEnabled)
-                Console.WriteLine($"DEBUG: After AddWeaponActions, ActionPool has {entity.ActionPool.Count} actions");
+            DebugLogger.LogActionPoolChange(entity.Name, entity.ActionPool.Count, "After AddWeaponActions");
         }
 
         public void AddArmorActions(Entity entity, Item armor)
@@ -186,19 +178,16 @@ namespace RPGGame
 
         private void AddGearActions(Entity entity, Item gear)
         {
-            if (TuningConfig.IsDebugEnabled)
-                Console.WriteLine($"DEBUG: AddGearActions called for {gear.Name}");
+            DebugLogger.LogFormat("CharacterActions", "AddGearActions called for {0}", gear.Name);
             
             var gearActions = GetGearActions(gear);
-            if (TuningConfig.IsDebugEnabled)
-                Console.WriteLine($"DEBUG: GetGearActions returned {gearActions.Count} actions: {string.Join(", ", gearActions)}");
+            DebugLogger.LogGearActions(gear.Name, gearActions.Count, string.Join(", ", gearActions));
             
             if (gearActions.Count > 0)
             {
                 foreach (var actionName in gearActions)
                 {
-                    if (TuningConfig.IsDebugEnabled)
-                        Console.WriteLine($"DEBUG: Loading gear action: {actionName}");
+                    DebugLogger.LogFormat("CharacterActions", "Loading gear action: {0}", actionName);
                     
                     LoadGearActionFromJson(entity, actionName);
                 }
@@ -207,8 +196,7 @@ namespace RPGGame
             }
             else
             {
-                if (TuningConfig.IsDebugEnabled)
-                    Console.WriteLine($"DEBUG: No gear actions to add for {gear.Name}");
+                DebugLogger.LogFormat("CharacterActions", "No gear actions to add for {0}", gear.Name);
             }
         }
 
@@ -250,17 +238,17 @@ namespace RPGGame
         {
             var weaponTag = weaponType.ToString().ToLower();
             if (TuningConfig.IsDebugEnabled)
-                Console.WriteLine($"DEBUG: GetWeaponActionsFromJson called for {weaponType} (tag: {weaponTag})");
+                DebugLogger.LogFormat("CharacterActions", "GetWeaponActionsFromJson called for {0} (tag: {1})", weaponType, weaponTag);
             
             var allActions = ActionLoader.GetAllActions();
             if (TuningConfig.IsDebugEnabled)
-                Console.WriteLine($"DEBUG: Got {allActions.Count} total actions from ActionLoader");
+                DebugLogger.LogFormat("CharacterActions", "Got {0} total actions from ActionLoader", allActions.Count);
             
             // For mace weapons, return the specific mace actions
             if (weaponType == WeaponType.Mace)
             {
                 if (TuningConfig.IsDebugEnabled)
-                    Console.WriteLine("DEBUG: Using hardcoded mace actions");
+                    DebugLogger.Log("CharacterActions", "Using hardcoded mace actions");
                 return new List<string> { "CRUSHING BLOW", "SHIELD BREAK", "THUNDER CLAP" };
             }
             
@@ -349,7 +337,8 @@ namespace RPGGame
                 return true;
             }
             
-            string[] basicGearNames = { "Leather Helmet", "Leather Armor", "Leather Boots", "Cloth Hood", "Cloth Robes", "Cloth Shoes" };
+            // Basic gear names moved to shared configuration
+            string[] basicGearNames = BasicGearConfig.GetBasicGearNames();
             if (basicGearNames.Contains(armor.Name))
             {
                 return false;
@@ -858,5 +847,6 @@ namespace RPGGame
             
             return uniqueActions;
         }
+        
     }
 }

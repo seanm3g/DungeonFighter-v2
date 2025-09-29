@@ -28,82 +28,48 @@ namespace RPGGame
                 baseDamage = tierRange.Max; // Use max value for the tier
             }
             
-            var formula = Config.ItemScaling?.WeaponDamageFormula;
-            if (formula == null || string.IsNullOrEmpty(formula.Formula))
+            // Use simplified weapon damage calculation
+            var itemScaling = Config.ItemScaling;
+            if (itemScaling != null)
             {
-                // Fallback to simple calculation if no formula
-                double fallbackResult = baseDamage * (1 + (tier - 1) * 0.5);
+                // Apply simplified tier-based scaling
+                double tierMultiplier = 1.0 + (tier - 1) * 0.3; // 30% increase per tier
+                double globalMultiplier = itemScaling.GlobalDamageMultiplier;
+                double result = baseDamage * tierMultiplier * globalMultiplier;
                 
-                // Apply global damage multiplier
-                if (weaponScaling != null)
-                {
-                    fallbackResult *= weaponScaling.GlobalDamageMultiplier;
-                }
-                
-                return fallbackResult;
+                return result;
             }
             
-            var variables = new Dictionary<string, double>
-            {
-                ["BaseDamage"] = baseDamage,
-                ["Tier"] = tier,
-                ["Level"] = level,
-                ["TierScaling"] = formula.TierScaling,
-                ["LevelScaling"] = formula.LevelScaling,
-                ["BaseMultiplier"] = formula.BaseMultiplier
-            };
-            
-            double formulaResult = FormulaEvaluator.Evaluate(formula.Formula, variables);
-            
-            // Apply global damage multiplier
-            if (weaponScaling != null)
-            {
-                formulaResult *= weaponScaling.GlobalDamageMultiplier;
-            }
-            
-            return formulaResult;
+            // Fallback if no item scaling config
+            return baseDamage;
         }
         
         public static double CalculateArmorValue(int baseArmor, int tier, int level)
         {
-            var formula = Config.ItemScaling?.ArmorValueFormula;
-            if (formula == null || string.IsNullOrEmpty(formula.Formula))
+            var itemScaling = Config.ItemScaling;
+            if (itemScaling != null)
             {
-                // Fallback to simple calculation if no formula
-                return baseArmor * (1 + (tier - 1) * 0.3);
+                // Apply simplified armor scaling based on tier
+                double tierMultiplier = 1.0 + (tier - 1) * 0.2; // 20% increase per tier
+                return baseArmor * tierMultiplier;
             }
             
-            var variables = new Dictionary<string, double>
-            {
-                ["BaseArmor"] = baseArmor,
-                ["Tier"] = tier,
-                ["Level"] = level,
-                ["TierScaling"] = formula.TierScaling,
-                ["LevelScaling"] = formula.LevelScaling,
-                ["BaseMultiplier"] = formula.BaseMultiplier
-            };
-            
-            return FormulaEvaluator.Evaluate(formula.Formula, variables);
+            // Fallback if no item scaling config
+            return baseArmor;
         }
         
         public static double CalculateWeaponSpeed(double baseSpeed, int tier, int level, string weaponType)
         {
-            // Get the weapon type config
-            var weaponTypeConfig = Config.ItemScaling?.WeaponTypes?.GetValueOrDefault(weaponType);
-            if (weaponTypeConfig == null || string.IsNullOrEmpty(weaponTypeConfig.SpeedFormula))
+            var itemScaling = Config.ItemScaling;
+            if (itemScaling != null)
             {
-                // Fallback to simple calculation if no formula
-                return baseSpeed * (1 + (tier - 1) * 0.1);
+                // Apply simplified speed scaling based on tier
+                double speedBonusPerTier = itemScaling.SpeedBonusPerTier;
+                return baseSpeed + (tier - 1) * speedBonusPerTier;
             }
             
-            var variables = new Dictionary<string, double>
-            {
-                ["BaseSpeed"] = baseSpeed,
-                ["Tier"] = tier,
-                ["Level"] = level
-            };
-            
-            return FormulaEvaluator.Evaluate(weaponTypeConfig.SpeedFormula, variables);
+            // Fallback if no item scaling config
+            return baseSpeed;
         }
         
         public static double CalculateDropChance(string rarityTier, int playerLevel)

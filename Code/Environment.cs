@@ -22,8 +22,8 @@ namespace RPGGame
         public string RoomType { get; private set; }
 
         // Passive and active effect support
-        public PassiveEffectType PassiveEffectType { get; private set; } = PassiveEffectType.None;
-        public double PassiveEffectValue { get; private set; } = 1.0;
+        public PassiveEffectType PassiveEffectType { get; set; } = PassiveEffectType.None;
+        public double PassiveEffectValue { get; set; } = 1.0;
         public Action? ActiveEffectAction { get; private set; }
 
         public Environment(string name, string description, bool isHostile, string theme, string roomType = "")
@@ -89,7 +89,7 @@ namespace RPGGame
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading environmental actions from JSON: {ex.Message}");
+                UIManager.WriteSystemLine($"Error loading environmental actions from JSON: {ex.Message}");
                 AddDefaultEnvironmentalAction();
             }
         }
@@ -452,7 +452,7 @@ namespace RPGGame
             }
             
             // Fallback: Create basic enemies if JSON loading fails
-            Console.WriteLine("Warning: Could not load enemy data from JSON, creating basic enemies");
+            UIManager.WriteSystemLine("Warning: Could not load enemy data from JSON, creating basic enemies");
             var tuning = TuningConfig.Instance;
             var basicEnemies = new[] { 
                 new { Name = "Basic Enemy", BaseHealth = 80, BaseStrength = 8, BaseAgility = 6, BaseTechnique = 4, BaseIntelligence = 3, Primary = PrimaryAttribute.Strength }
@@ -611,12 +611,12 @@ namespace RPGGame
                 }
                 else
                 {
-                    Console.WriteLine($"Warning: Enemies.json not found. Tried paths: {string.Join(", ", possiblePaths)}");
+                    UIManager.WriteSystemLine($"Warning: Enemies.json not found. Tried paths: {string.Join(", ", possiblePaths)}");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading enemy data from JSON: {ex.Message}");
+                UIManager.WriteSystemLine($"Error loading enemy data from JSON: {ex.Message}");
             }
             return null;
         }
@@ -643,7 +643,7 @@ namespace RPGGame
                 else
                 {
                     // Fallback: Create basic enemy if EnemyLoader fails
-                    Console.WriteLine($"Warning: Could not create enemy {enemyTemplate.Name} from EnemyLoader, creating basic enemy");
+                    UIManager.WriteSystemLine($"Warning: Could not create enemy {enemyTemplate.Name} from EnemyLoader, creating basic enemy");
                     var basicEnemy = new Enemy(
                         enemyTemplate.Name, 
                         enemyLevel,

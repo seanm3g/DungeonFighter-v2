@@ -38,7 +38,7 @@ namespace RPGGame
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error evaluating formula '{formula}': {ex.Message}");
+                UIManager.WriteSystemLine($"Error evaluating formula '{formula}': {ex.Message}");
                 return 0.0; // Return default value on error
             }
         }

@@ -67,7 +67,7 @@ namespace RPGGame
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Warning: Could not load settings file: {ex.Message}");
+                ErrorHandler.LogError(ex, "GameSettings.LoadSettings", "Could not load settings file");
             }
             
             // Return default settings if file doesn't exist or is invalid
@@ -76,15 +76,11 @@ namespace RPGGame
         
         public void SaveSettings()
         {
-            try
+            ErrorHandler.TrySaveJson(() =>
             {
                 string json = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(SettingsFilePath, json);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Warning: Could not save settings file: {ex.Message}");
-            }
+            }, "GameSettings.json");
         }
         
         public void ResetToDefaults()

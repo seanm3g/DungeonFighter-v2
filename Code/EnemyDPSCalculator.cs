@@ -127,13 +127,8 @@ namespace RPGGame
         {
             var profile = GetArchetypeProfile(archetype);
             
-            // Calculate base damage using the same formula as Combat.CalculateDamage for enemies
-            int strength = enemy.Strength;
-            int highestAttribute = strength; // For enemies, typically use strength as highest
-            int levelDamage = enemy.Level * 0; // Level-based damage scaling (handled by DPS system)
-            
-            // Calculate base damage: STR + highest attribute + level scaling
-            int baseDamage = strength + highestAttribute + levelDamage;
+            // Use CombatCalculator for consistent damage calculation
+            int baseDamage = CombatCalculator.CalculateDamage(enemy, enemy, null, 1.0, 1.0, 0, 0, false);
             
             // Apply archetype damage multiplier
             double adjustedDamage = baseDamage * profile.DamageMultiplier;
@@ -218,8 +213,8 @@ namespace RPGGame
         /// </summary>
         public static void AnalyzeEnemyDPS(int sampleSize = 100)
         {
-            Console.WriteLine("=== ENEMY DPS ANALYSIS ===");
-            Console.WriteLine();
+            UIManager.WriteSystemLine("=== ENEMY DPS ANALYSIS ===");
+            UIManager.WriteSystemLine("");
             
             // Load enemy data
             EnemyLoader.LoadEnemies();
@@ -227,12 +222,12 @@ namespace RPGGame
             
             if (enemyDataList == null || !enemyDataList.Any())
             {
-                Console.WriteLine("No enemy data found!");
+                UIManager.WriteSystemLine("No enemy data found!");
                 return;
             }
             
-            Console.WriteLine("Enemy\t\tLevel\tArchetype\tDPS\tSpeed\tDamage\tBalance");
-            Console.WriteLine("".PadRight(80, '='));
+            UIManager.WriteSystemLine("Enemy\t\tLevel\tArchetype\tDPS\tSpeed\tDamage\tBalance");
+            UIManager.WriteSystemLine("".PadRight(80, '='));
             
             var testLevels = new[] { 1, 5, 10, 20, 30 };
             
@@ -266,18 +261,18 @@ namespace RPGGame
                     double targetDPS = profile.TargetDPSAtLevel1 * level;
                     double balanceScore = Math.Abs(dps - targetDPS) / targetDPS * 100;
                     
-                    Console.WriteLine($"{enemy.Name?.PadRight(12)}\tL{level}\t{suggestedArchetype.ToString().PadRight(10)}\t{dps:F1}\t{attackSpeed:F1}s\t{avgDamage:F1}\t{balanceScore:F0}%");
+                    UIManager.WriteSystemLine($"{enemy.Name?.PadRight(12)}\tL{level}\t{suggestedArchetype.ToString().PadRight(10)}\t{dps:F1}\t{attackSpeed:F1}s\t{avgDamage:F1}\t{balanceScore:F0}%");
                 }
-                Console.WriteLine(); // Blank line between enemies
+                UIManager.WriteSystemLine(""); // Blank line between enemies
             }
             
-            Console.WriteLine();
-            Console.WriteLine("=== ARCHETYPE PROFILES ===");
+            UIManager.WriteSystemLine("");
+            UIManager.WriteSystemLine("=== ARCHETYPE PROFILES ===");
             foreach (var archetype in _archetypes.Values)
             {
-                Console.WriteLine($"{archetype.Name}: {archetype.Description}");
-                Console.WriteLine($"  Speed: {archetype.SpeedMultiplier:F1}x, Damage: {archetype.DamageMultiplier:F1}x, Target DPS: {archetype.TargetDPSAtLevel1:F1}");
-                Console.WriteLine();
+                UIManager.WriteSystemLine($"{archetype.Name}: {archetype.Description}");
+                UIManager.WriteSystemLine($"  Speed: {archetype.SpeedMultiplier:F1}x, Damage: {archetype.DamageMultiplier:F1}x, Target DPS: {archetype.TargetDPSAtLevel1:F1}");
+                UIManager.WriteSystemLine("");
             }
         }
 
@@ -294,17 +289,17 @@ namespace RPGGame
         /// </summary>
         public static void TestDPSCalculations()
         {
-            Console.WriteLine("=== DPS CALCULATION TEST ===");
-            Console.WriteLine();
+            UIManager.WriteSystemLine("=== DPS CALCULATION TEST ===");
+            UIManager.WriteSystemLine("");
             
             // Create test enemy
             var testEnemy = new Enemy("Test Enemy", level: 5, maxHealth: 50, strength: 10, agility: 8, technique: 6, intelligence: 4);
             
-            Console.WriteLine($"Test Enemy Stats: STR {testEnemy.Strength}, AGI {testEnemy.Agility}, TEC {testEnemy.Technique}, INT {testEnemy.Intelligence}");
-            Console.WriteLine();
+            UIManager.WriteSystemLine($"Test Enemy Stats: STR {testEnemy.Strength}, AGI {testEnemy.Agility}, TEC {testEnemy.Technique}, INT {testEnemy.Intelligence}");
+            UIManager.WriteSystemLine("");
             
-            Console.WriteLine("Archetype\tDPS\tAttack Time\tDamage/Hit\tHits/10s");
-            Console.WriteLine("".PadRight(60, '-'));
+            UIManager.WriteSystemLine("Archetype\tDPS\tAttack Time\tDamage/Hit\tHits/10s");
+            UIManager.WriteSystemLine("".PadRight(60, '-'));
             
             foreach (var archetype in GetAllArchetypes())
             {
@@ -322,7 +317,7 @@ namespace RPGGame
                 double damagePerHit = baseDamage * profile.DamageMultiplier;
                 double hitsPerTenSeconds = 10.0 / attackTime;
                 
-                Console.WriteLine($"{archetype.ToString().PadRight(12)}\t{dps:F1}\t{attackTime:F1}s\t\t{damagePerHit:F1}\t\t{hitsPerTenSeconds:F1}");
+                UIManager.WriteSystemLine($"{archetype.ToString().PadRight(12)}\t{dps:F1}\t{attackTime:F1}s\t\t{damagePerHit:F1}\t\t{hitsPerTenSeconds:F1}");
             }
         }
     }

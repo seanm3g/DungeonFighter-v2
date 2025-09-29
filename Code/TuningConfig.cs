@@ -14,10 +14,8 @@ namespace RPGGame
         public AttributesConfig Attributes { get; set; } = new();
         public CombatConfig Combat { get; set; } = new();
         public PoisonConfig Poison { get; set; } = new();
-        public EquipmentConfig Equipment { get; set; } = new();
         public ProgressionConfig Progression { get; set; } = new();
         public XPRewardsConfig XPRewards { get; set; } = new();
-        public LootConfig Loot { get; set; } = new();
         public RollSystemConfig RollSystem { get; set; } = new();
         public ComboSystemConfig ComboSystem { get; set; } = new();
         public EnemyScalingConfig EnemyScaling { get; set; } = new();
@@ -30,6 +28,18 @@ namespace RPGGame
         public EnemyDPSConfig? EnemyDPS { get; set; } = new();
         public GameDataConfig GameData { get; set; } = new();
         public DebugConfig Debug { get; set; } = new();
+        public CombatBalanceConfig CombatBalance { get; set; } = new();
+        public ExperienceSystemConfig ExperienceSystem { get; set; } = new();
+        public LootSystemConfig LootSystem { get; set; } = new();
+        public DungeonScalingConfig DungeonScaling { get; set; } = new();
+        public StatusEffectsConfig StatusEffects { get; set; } = new();
+        public EquipmentScalingConfig EquipmentScaling { get; set; } = new();
+        public ClassBalanceConfig ClassBalance { get; set; } = new();
+        public DifficultySettingsConfig DifficultySettings { get; set; } = new();
+        public UICustomizationConfig UICustomization { get; set; } = new();
+        public DungeonGenerationConfig DungeonGeneration { get; set; } = new();
+        public BalanceValidationConfig BalanceValidation { get; set; } = new();
+        public FormulaLibraryConfig FormulaLibrary { get; set; } = new();
 
         public static TuningConfig Instance
         {
@@ -100,10 +110,8 @@ namespace RPGGame
                         Character = config.Character;
                         Attributes = config.Attributes;
                         Combat = config.Combat;
-                        Equipment = config.Equipment;
                         Progression = config.Progression;
                         XPRewards = config.XPRewards;
-                        Loot = config.Loot;
                         RollSystem = config.RollSystem;
                         ComboSystem = config.ComboSystem;
                         EnemyScaling = config.EnemyScaling;
@@ -115,17 +123,29 @@ namespace RPGGame
                         EnemyDPS = config.EnemyDPS;
                         GameData = config.GameData;
                         Debug = config.Debug;
+                        CombatBalance = config.CombatBalance;
+                        ExperienceSystem = config.ExperienceSystem;
+                        LootSystem = config.LootSystem;
+                        DungeonScaling = config.DungeonScaling;
+                        StatusEffects = config.StatusEffects;
+                        EquipmentScaling = config.EquipmentScaling;
+                        ClassBalance = config.ClassBalance;
+                        DifficultySettings = config.DifficultySettings;
+                        UICustomization = config.UICustomization;
+                        DungeonGeneration = config.DungeonGeneration;
+                        BalanceValidation = config.BalanceValidation;
+                        FormulaLibrary = config.FormulaLibrary;
                     }
                 }
                 else
                 {
-                    Console.WriteLine($"Warning: TuningConfig.json not found, using default values. Tried paths: {string.Join(", ", possiblePaths)}");
+                    UIManager.WriteSystemLine($"Warning: TuningConfig.json not found, using default values. Tried paths: {string.Join(", ", possiblePaths)}");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading tuning config: {ex.Message}");
-                Console.WriteLine("Using default values");
+                UIManager.WriteSystemLine($"Error loading tuning config: {ex.Message}");
+                UIManager.WriteSystemLine("Using default values");
             }
         }
 
@@ -176,11 +196,6 @@ namespace RPGGame
         public int StacksPerApplication { get; set; } = 3;
     }
 
-    public class EquipmentConfig
-    {
-        public int BonusDamagePerTier { get; set; } = 1;
-        public MinMaxConfig BonusAttackSpeedRange { get; set; } = new();
-    }
 
     public class MinMaxConfig
     {
@@ -198,14 +213,6 @@ namespace RPGGame
         public int EnemyGoldPerLevel { get; set; } = 3;
     }
 
-    public class LootConfig
-    {
-        public double LootChanceBase { get; set; } = 0.3;
-        public double LootChancePerLevel { get; set; } = 0.05;
-        public double MaximumLootChance { get; set; } = 0.8;
-        public double MagicFindLootChanceMultiplier { get; set; } = 0.01;
-        public string Description { get; set; } = "";
-    }
 
     public class RollSystemConfig
     {
@@ -227,20 +234,16 @@ namespace RPGGame
         public double EnemyHealthMultiplier { get; set; } = 1.0;
         public double EnemyDamageMultiplier { get; set; } = 1.0;
         public int EnemyLevelVariance { get; set; } = 1;
+        public double BaseDPSAtLevel1 { get; set; } = 1.5;
+        public double DPSPerLevel { get; set; } = 0.3;
     }
 
     public class UIConfig
     {
         public bool EnableTextDelays { get; set; } = true;
-        public int BaseDelayPerAction { get; set; } = 400;
-        public int MinimumDelay { get; set; } = 50;
-        public double CombatSpeedMultiplier { get; set; } = 1.0;
-        public int CombatLogDelay { get; set; } = 500;
-        public int MainMenuDelay { get; set; } = 500;
-        public int DungeonEntryDelay { get; set; } = 1000;
-        public int RoomEntryDelay { get; set; } = 1000;
-        public int EnemyEncounterDelay { get; set; } = 1000;
-        public int RoomClearedDelay { get; set; } = 800;
+        public int CombatDelay { get; set; } = 400;
+        public int MenuDelay { get; set; } = 25;
+        public int SystemDelay { get; set; } = 1000;
     }
     
     public class GameSpeedConfig
@@ -251,12 +254,20 @@ namespace RPGGame
     
     public class ItemScalingConfig
     {
-        public Dictionary<string, WeaponTypeConfig> WeaponTypes { get; set; } = new();
-        public Dictionary<string, ArmorTypeConfig> ArmorTypes { get; set; } = new();
-        public Dictionary<string, RarityModifierConfig> RarityModifiers { get; set; } = new();
-        public LevelScalingCapsConfig LevelScalingCaps { get; set; } = new();
-        public FormulaConfig WeaponDamageFormula { get; set; } = new();
-        public FormulaConfig ArmorValueFormula { get; set; } = new();
+        public Dictionary<string, int> StartingWeaponDamage { get; set; } = new();
+        public Dictionary<string, TierRange> TierDamageRanges { get; set; } = new();
+        public double GlobalDamageMultiplier { get; set; } = 1.0;
+        public int WeaponDamagePerTier { get; set; } = 2;
+        public int ArmorValuePerTier { get; set; } = 1;
+        public double SpeedBonusPerTier { get; set; } = 0.1;
+        public int MaxTier { get; set; } = 5;
+        public double EnchantmentChance { get; set; } = 0.1;
+    }
+    
+    public class TierRange
+    {
+        public int Min { get; set; }
+        public int Max { get; set; }
     }
     
     public class WeaponTypeConfig
@@ -562,6 +573,204 @@ namespace RPGGame
     {
         public bool EnableDebugOutput { get; set; } = false;
         public string Description { get; set; } = "Controls whether debug messages are displayed throughout the game";
+    }
+
+    public class CombatBalanceConfig
+    {
+        public string ArmorReductionFormula { get; set; } = "Damage * (1 - Armor / (Armor + 100))";
+        public double CriticalHitChance { get; set; } = 0.05;
+        public double CriticalHitDamageMultiplier { get; set; } = 1.5;
+        public RollDamageMultipliersConfig RollDamageMultipliers { get; set; } = new();
+        public StatusEffectScalingConfig StatusEffectScaling { get; set; } = new();
+        public EnvironmentalEffectsConfig EnvironmentalEffects { get; set; } = new();
+        public string Description { get; set; } = "Advanced combat mechanics and balance settings";
+    }
+
+    public class RollDamageMultipliersConfig
+    {
+        public double ComboRollDamageMultiplier { get; set; } = 1.5;
+        public double BasicRollDamageMultiplier { get; set; } = 1.25;
+        public double ComboAmplificationScalingMultiplier { get; set; } = 2.0;
+        public double TierScalingFallbackMultiplier { get; set; } = 0.5;
+    }
+
+    public class StatusEffectScalingConfig
+    {
+        public double BleedDuration { get; set; } = 3.0;
+        public double PoisonDuration { get; set; } = 5.0;
+        public double StunDuration { get; set; } = 2.0;
+        public double BurnDuration { get; set; } = 4.0;
+        public double FreezeDuration { get; set; } = 3.0;
+        public double StatusEffectDamageScaling { get; set; } = 1.0;
+    }
+
+    public class EnvironmentalEffectsConfig
+    {
+        public bool EnableEnvironmentalEffects { get; set; } = true;
+        public double EnvironmentalDamageMultiplier { get; set; } = 0.1;
+        public double EnvironmentalDebuffChance { get; set; } = 0.15;
+        public double EnvironmentalBuffChance { get; set; } = 0.1;
+    }
+
+    public class ExperienceSystemConfig
+    {
+        public string BaseXPFormula { get; set; } = "BaseXP * (Level^1.5)";
+        public int LevelCap { get; set; } = 100;
+        public int StatPointsPerLevel { get; set; } = 2;
+        public int SkillPointsPerLevel { get; set; } = 1;
+        public int AttributeCap { get; set; } = 100;
+        public string Description { get; set; } = "Character progression and experience system";
+    }
+
+    public class LootSystemConfig
+    {
+        public double BaseDropChance { get; set; } = 0.3;
+        public double DropChancePerLevel { get; set; } = 0.02;
+        public double MaxDropChance { get; set; } = 0.8;
+        public double MagicFindEffectiveness { get; set; } = 0.01;
+        public double GoldDropMultiplier { get; set; } = 1.0;
+        public double ItemValueMultiplier { get; set; } = 1.0;
+        public string Description { get; set; } = "Loot drop rates and economy settings";
+    }
+
+    public class DungeonScalingConfig
+    {
+        public int RoomCountBase { get; set; } = 3;
+        public double RoomCountPerLevel { get; set; } = 0.5;
+        public int EnemyCountPerRoom { get; set; } = 2;
+        public double BossRoomChance { get; set; } = 0.1;
+        public double TrapRoomChance { get; set; } = 0.2;
+        public double TreasureRoomChance { get; set; } = 0.15;
+        public string Description { get; set; } = "Dungeon generation and scaling parameters";
+    }
+
+    public class StatusEffectsConfig
+    {
+        public StatusEffectConfig Bleed { get; set; } = new() { DamagePerTick = 2, TickInterval = 3.0, MaxStacks = 5 };
+        public StatusEffectConfig Burn { get; set; } = new() { DamagePerTick = 3, TickInterval = 2.0, MaxStacks = 3 };
+        public StatusEffectConfig Freeze { get; set; } = new() { SpeedReduction = 0.5, Duration = 5.0 };
+        public StatusEffectConfig Stun { get; set; } = new() { SkipTurns = 1, Duration = 2.0 };
+        public string Description { get; set; } = "Status effect configurations and balance";
+    }
+
+    public class StatusEffectConfig
+    {
+        public int DamagePerTick { get; set; } = 0;
+        public double TickInterval { get; set; } = 0;
+        public int MaxStacks { get; set; } = 1;
+        public double SpeedReduction { get; set; } = 0;
+        public double Duration { get; set; } = 0;
+        public int SkipTurns { get; set; } = 0;
+    }
+
+    public class EquipmentScalingConfig
+    {
+        public int WeaponDamagePerTier { get; set; } = 2;
+        public int ArmorValuePerTier { get; set; } = 1;
+        public double SpeedBonusPerTier { get; set; } = 0.1;
+        public int MaxTier { get; set; } = 5;
+        public double EnchantmentChance { get; set; } = 0.1;
+        public string Description { get; set; } = "Equipment progression and scaling";
+    }
+
+    public class ClassBalanceConfig
+    {
+        public ClassMultipliers Barbarian { get; set; } = new() { HealthMultiplier = 1.2, DamageMultiplier = 1.1, SpeedMultiplier = 0.9 };
+        public ClassMultipliers Warrior { get; set; } = new() { HealthMultiplier = 1.1, DamageMultiplier = 1.0, SpeedMultiplier = 1.0 };
+        public ClassMultipliers Rogue { get; set; } = new() { HealthMultiplier = 0.9, DamageMultiplier = 1.2, SpeedMultiplier = 1.1 };
+        public ClassMultipliers Wizard { get; set; } = new() { HealthMultiplier = 0.8, DamageMultiplier = 1.3, SpeedMultiplier = 1.0 };
+        public string Description { get; set; } = "Character class balance multipliers";
+    }
+
+    public class ClassMultipliers
+    {
+        public double HealthMultiplier { get; set; } = 1.0;
+        public double DamageMultiplier { get; set; } = 1.0;
+        public double SpeedMultiplier { get; set; } = 1.0;
+    }
+
+    public class DifficultySettingsConfig
+    {
+        public DifficultyLevel Easy { get; set; } = new() { EnemyHealthMultiplier = 0.8, EnemyDamageMultiplier = 0.8, XPMultiplier = 1.2, LootMultiplier = 1.1 };
+        public DifficultyLevel Normal { get; set; } = new() { EnemyHealthMultiplier = 1.0, EnemyDamageMultiplier = 1.0, XPMultiplier = 1.0, LootMultiplier = 1.0 };
+        public DifficultyLevel Hard { get; set; } = new() { EnemyHealthMultiplier = 1.3, EnemyDamageMultiplier = 1.2, XPMultiplier = 1.5, LootMultiplier = 1.3 };
+        public string Description { get; set; } = "Difficulty level multipliers for game balance";
+    }
+
+    public class DifficultyLevel
+    {
+        public double EnemyHealthMultiplier { get; set; } = 1.0;
+        public double EnemyDamageMultiplier { get; set; } = 1.0;
+        public double XPMultiplier { get; set; } = 1.0;
+        public double LootMultiplier { get; set; } = 1.0;
+    }
+
+    public class UICustomizationConfig
+    {
+        public string MenuSeparator { get; set; } = "==========================================";
+        public string SubMenuSeparator { get; set; } = "------------------------------------------";
+        public string InvalidChoiceMessage { get; set; } = "Invalid choice. Please try again.";
+        public string PressAnyKeyMessage { get; set; } = "Press any key to continue...";
+        public RarityPrefixesConfig RarityPrefixes { get; set; } = new();
+        public ActionNamesConfig ActionNames { get; set; } = new();
+        public ErrorMessagesConfig ErrorMessages { get; set; } = new();
+        public DebugMessagesConfig DebugMessages { get; set; } = new();
+    }
+
+    public class RarityPrefixesConfig
+    {
+        public string Common { get; set; } = "Common";
+        public string Uncommon { get; set; } = "Uncommon";
+        public string Rare { get; set; } = "Rare";
+        public string Epic { get; set; } = "Epic";
+        public string Legendary { get; set; } = "Legendary";
+    }
+
+    public class ActionNamesConfig
+    {
+        public string BasicAttackName { get; set; } = "BASIC ATTACK";
+        public string DefaultActionDescription { get; set; } = "A basic action";
+    }
+
+    public class ErrorMessagesConfig
+    {
+        public string FileNotFoundError { get; set; } = "File not found";
+        public string JsonDeserializationError { get; set; } = "JSON deserialization failed";
+        public string InvalidDataError { get; set; } = "Invalid data format";
+        public string SaveError { get; set; } = "Failed to save data";
+        public string LoadError { get; set; } = "Failed to load data";
+    }
+
+    public class DebugMessagesConfig
+    {
+        public string DebugPrefix { get; set; } = "DEBUG";
+        public string WarningPrefix { get; set; } = "Warning";
+        public string ErrorPrefix { get; set; } = "Error";
+        public string InfoPrefix { get; set; } = "Info";
+    }
+
+
+    public class BalanceValidationConfig
+    {
+        public bool EnableBalanceChecks { get; set; } = true;
+        public double MaxDamageVariance { get; set; } = 0.2;
+        public double MinCombatDuration { get; set; } = 2.0;
+        public double MaxCombatDuration { get; set; } = 10.0;
+        public List<double> TargetDPSRange { get; set; } = new() { 1.0, 5.0 };
+        public bool ValidateEnemyScaling { get; set; } = true;
+        public bool ValidateLootRates { get; set; } = true;
+        public bool ValidateXPProgression { get; set; } = true;
+        public string Description { get; set; } = "Built-in balance validation and checking tools";
+    }
+
+    public class FormulaLibraryConfig
+    {
+        public string ArmorReductionFormula { get; set; } = "Damage * (1 - Armor / (Armor + 100))";
+        public string CriticalHitFormula { get; set; } = "BaseDamage * CriticalMultiplier";
+        public string ComboAmplificationFormula { get; set; } = "BaseAmplifier ^ ComboStep";
+        public string StatusEffectDamageFormula { get; set; } = "BaseDamage * StatusEffectScaling";
+        public string EnvironmentalDamageFormula { get; set; } = "BaseDamage * EnvironmentalMultiplier";
+        public string Description { get; set; } = "Configurable mathematical formulas for game calculations";
     }
 
 }

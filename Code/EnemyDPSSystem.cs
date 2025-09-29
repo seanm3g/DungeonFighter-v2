@@ -190,20 +190,20 @@ namespace RPGGame
         /// </summary>
         public static void AnalyzeAllEnemyDPS()
         {
-            Console.WriteLine("=== DPS-BASED ENEMY ANALYSIS ===");
-            Console.WriteLine();
+            UIManager.WriteSystemLine("=== DPS-BASED ENEMY ANALYSIS ===");
+            UIManager.WriteSystemLine("");
             
             EnemyLoader.LoadEnemies();
             var enemyDataList = EnemyLoader.GetAllEnemyData();
             
             if (!enemyDataList.Any())
             {
-                Console.WriteLine("No enemy data found!");
+                UIManager.WriteSystemLine("No enemy data found!");
                 return;
             }
             
-            Console.WriteLine("Enemy\t\tLevel\tArchetype\tTarget DPS\tActual DPS\tDev%\tStatus");
-            Console.WriteLine("".PadRight(85, '='));
+            UIManager.WriteSystemLine("Enemy\t\tLevel\tArchetype\tTarget DPS\tActual DPS\tDev%\tStatus");
+            UIManager.WriteSystemLine("".PadRight(85, '='));
             
             var testLevels = new[] { 1, 5, 10, 15, 20 };
             
@@ -217,15 +217,15 @@ namespace RPGGame
                     var validation = ValidateEnemyDPS(enemy);
                     string status = validation.IsWithinTolerance ? "✓" : "⚠";
                     
-                    Console.WriteLine($"{enemyData.Name.PadRight(12)}\tL{level}\t{validation.Archetype.ToString().PadRight(8)}\t{validation.TargetDPS:F1}\t\t{validation.ActualDPS:F1}\t\t{validation.DeviationPercent:F0}%\t{status}");
+                    UIManager.WriteSystemLine($"{enemyData.Name.PadRight(12)}\tL{level}\t{validation.Archetype.ToString().PadRight(8)}\t{validation.TargetDPS:F1}\t\t{validation.ActualDPS:F1}\t\t{validation.DeviationPercent:F0}%\t{status}");
                 }
-                Console.WriteLine();
+                UIManager.WriteSystemLine("");
             }
             
-            Console.WriteLine();
-            Console.WriteLine("=== STAT SCALING COMPARISON ===");
-            Console.WriteLine("Enemy\t\tLevel\tBase STR/AGI\tCalc STR/AGI\tFinal STR/AGI");
-            Console.WriteLine("".PadRight(75, '='));
+            UIManager.WriteSystemLine("");
+            UIManager.WriteSystemLine("=== STAT SCALING COMPARISON ===");
+            UIManager.WriteSystemLine("Enemy\t\tLevel\tBase STR/AGI\tCalc STR/AGI\tFinal STR/AGI");
+            UIManager.WriteSystemLine("".PadRight(75, '='));
             
             foreach (var enemyData in enemyDataList.Take(4))
             {
@@ -242,20 +242,20 @@ namespace RPGGame
                     int finalStr = enemy?.Strength ?? 0;
                     int finalAgi = enemy?.Agility ?? 0;
                     
-                    Console.WriteLine($"{enemyData.Name.PadRight(12)}\tL{level}\t{enemyData.Strength}/{enemyData.Agility}\t\t{calcStr}/{calcAgi}\t\t{finalStr}/{finalAgi}");
+                    UIManager.WriteSystemLine($"{enemyData.Name.PadRight(12)}\tL{level}\t{enemyData.Strength}/{enemyData.Agility}\t\t{calcStr}/{calcAgi}\t\t{finalStr}/{finalAgi}");
                 }
-                Console.WriteLine();
+                UIManager.WriteSystemLine("");
             }
             
-            Console.WriteLine();
-            Console.WriteLine("=== DPS SCALING CURVE ===");
-            Console.WriteLine("Level\tTarget DPS");
-            Console.WriteLine("".PadRight(20, '-'));
+            UIManager.WriteSystemLine("");
+            UIManager.WriteSystemLine("=== DPS SCALING CURVE ===");
+            UIManager.WriteSystemLine("Level\tTarget DPS");
+            UIManager.WriteSystemLine("".PadRight(20, '-'));
             
             for (int level = 1; level <= 20; level++)
             {
                 double targetDPS = CalculateTargetDPS(level);
-                Console.WriteLine($"{level}\t{targetDPS:F1}");
+                UIManager.WriteSystemLine($"{level}\t{targetDPS:F1}");
             }
         }
     }

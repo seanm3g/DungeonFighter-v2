@@ -30,12 +30,12 @@ namespace RPGGame
                 displayManager.ShowCurrentEquipment();
                 ShowComboManagementInfo();
                 
-                Console.WriteLine("\nCombo Management:");
-                Console.WriteLine("1. Add action to combo");
-                Console.WriteLine("2. Remove action from combo");
-                Console.WriteLine("3. Swap two combo actions");
-                Console.WriteLine("4. Back to inventory");
-                Console.Write("\nChoose an option: ");
+                UIManager.WriteMenuLine("\nCombo Management:");
+                UIManager.WriteMenuLine("1. Add action to combo");
+                UIManager.WriteMenuLine("2. Remove action from combo");
+                UIManager.WriteMenuLine("3. Swap two combo actions");
+                UIManager.WriteMenuLine("4. Back to inventory");
+                UIManager.Write("\nChoose an option: ");
 
                 if (int.TryParse(Console.ReadLine(), out int choice))
                 {
@@ -53,16 +53,16 @@ namespace RPGGame
                         case 4:
                             return;
                         default:
-                            Console.WriteLine("Invalid option.");
-                            Console.WriteLine("Press any key to continue...");
+                            UIManager.WriteMenuLine("Invalid option.");
+                            UIManager.WriteMenuLine("Press any key to continue...");
                             Console.ReadKey();
                             break;
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Invalid input.");
-                    Console.WriteLine("Press any key to continue...");
+                    UIManager.WriteMenuLine("Invalid input.");
+                    UIManager.WriteMenuLine("Press any key to continue...");
                     Console.ReadKey();
                 }
             }
@@ -81,20 +81,20 @@ namespace RPGGame
             
             if (availableActions.Count == 0)
             {
-                Console.WriteLine("\nNo actions available to add to combo.");
-                Console.WriteLine("Press any key to continue...");
+                UIManager.WriteMenuLine("\nNo actions available to add to combo.");
+                UIManager.WriteMenuLine("Press any key to continue...");
                 Console.ReadKey();
                 return;
             }
             
-            Console.WriteLine("\nAvailable actions to add to combo:");
+            UIManager.WriteMenuLine("\nAvailable actions to add to combo:");
             for (int i = 0; i < availableActions.Count; i++)
             {
                 var action = availableActions[i];
                 int timesInCombo = comboActions.Count(ca => ca.Name == action.Name);
                 int timesAvailable = actionPool.Count(ap => ap.Name == action.Name);
                 string usageInfo = timesInCombo > 0 ? $" [In combo: {timesInCombo}/{timesAvailable}]" : "";
-                Console.WriteLine($"  {i + 1}. {action.Name}{usageInfo}");
+                UIManager.WriteMenuLine($"  {i + 1}. {action.Name}{usageInfo}");
                 
                 // Calculate speed percentage
                 double speedPercentage = CalculateActionSpeedPercentage(action);
@@ -110,22 +110,22 @@ namespace RPGGame
                 if (action.CausesPoison) statsLine += ", Causes Poison";
                 if (action.CausesStun) statsLine += ", Causes Stun";
                 
-                Console.WriteLine(statsLine);
+                UIManager.WriteMenuLine(statsLine);
             }
             
-            Console.Write($"\nEnter action number to add (1-{availableActions.Count}): ");
+            UIManager.Write($"\nEnter action number to add (1-{availableActions.Count}): ");
             if (int.TryParse(Console.ReadLine(), out int choice) && choice >= 1 && choice <= availableActions.Count)
             {
                 var selectedAction = availableActions[choice - 1];
                 player.AddToCombo(selectedAction);
-                Console.WriteLine($"Added {selectedAction.Name} to combo sequence.");
-                Console.WriteLine("Press any key to continue...");
+                UIManager.WriteMenuLine($"Added {selectedAction.Name} to combo sequence.");
+                UIManager.WriteMenuLine("Press any key to continue...");
                 Console.ReadKey();
             }
             else
             {
-                Console.WriteLine("Invalid choice.");
-                Console.WriteLine("Press any key to continue...");
+                UIManager.WriteMenuLine("Invalid choice.");
+                UIManager.WriteMenuLine("Press any key to continue...");
                 Console.ReadKey();
             }
         }
@@ -139,34 +139,34 @@ namespace RPGGame
             
             if (comboActions.Count == 0)
             {
-                Console.WriteLine("\nNo actions in combo sequence to remove.");
-                Console.WriteLine("Press any key to continue...");
+                UIManager.WriteMenuLine("\nNo actions in combo sequence to remove.");
+                UIManager.WriteMenuLine("Press any key to continue...");
                 Console.ReadKey();
                 return;
             }
             
-            Console.WriteLine("\nCurrent combo sequence:");
+            UIManager.WriteMenuLine("\nCurrent combo sequence:");
             for (int i = 0; i < comboActions.Count; i++)
             {
                 var action = comboActions[i];
                 string currentStep = (player.ComboStep % comboActions.Count == i) ? " ← NEXT" : "";
-                Console.WriteLine($"  {i + 1}. {action.Name}{currentStep}");
-                Console.WriteLine($"      {action.Description}");
+                UIManager.WriteMenuLine($"  {i + 1}. {action.Name}{currentStep}");
+                UIManager.WriteMenuLine($"      {action.Description}");
             }
             
-            Console.Write($"\nEnter action number to remove (1-{comboActions.Count}): ");
+            UIManager.Write($"\nEnter action number to remove (1-{comboActions.Count}): ");
             if (int.TryParse(Console.ReadLine(), out int choice) && choice >= 1 && choice <= comboActions.Count)
             {
                 var selectedAction = comboActions[choice - 1];
                 player.RemoveFromCombo(selectedAction);
-                Console.WriteLine($"Removed {selectedAction.Name} from combo sequence.");
-                Console.WriteLine("Press any key to continue...");
+                UIManager.WriteMenuLine($"Removed {selectedAction.Name} from combo sequence.");
+                UIManager.WriteMenuLine("Press any key to continue...");
                 Console.ReadKey();
             }
             else
             {
-                Console.WriteLine("Invalid choice.");
-                Console.WriteLine("Press any key to continue...");
+                UIManager.WriteMenuLine("Invalid choice.");
+                UIManager.WriteMenuLine("Press any key to continue...");
                 Console.ReadKey();
             }
         }
@@ -180,29 +180,29 @@ namespace RPGGame
             
             if (comboActions.Count < 2)
             {
-                Console.WriteLine("\nYou need at least 2 actions to swap them.");
-                Console.WriteLine("Press any key to continue...");
+                UIManager.WriteMenuLine("\nYou need at least 2 actions to swap them.");
+                UIManager.WriteMenuLine("Press any key to continue...");
                 Console.ReadKey();
                 return;
             }
             
-            Console.WriteLine("\nCurrent combo sequence:");
+            UIManager.WriteMenuLine("\nCurrent combo sequence:");
             for (int i = 0; i < comboActions.Count; i++)
             {
                 var action = comboActions[i];
                 string currentStep = (player.ComboStep % comboActions.Count == i) ? " ← NEXT" : "";
-                Console.WriteLine($"  {i + 1}. {action.Name}{currentStep}");
+                UIManager.WriteMenuLine($"  {i + 1}. {action.Name}{currentStep}");
             }
             
-            Console.Write($"\nEnter first action number (1-{comboActions.Count}): ");
+            UIManager.Write($"\nEnter first action number (1-{comboActions.Count}): ");
             if (int.TryParse(Console.ReadLine(), out int firstIndex) && firstIndex >= 1 && firstIndex <= comboActions.Count)
             {
-                Console.Write($"Enter second action number (1-{comboActions.Count}): ");
+                UIManager.Write($"Enter second action number (1-{comboActions.Count}): ");
                 if (int.TryParse(Console.ReadLine(), out int secondIndex) && secondIndex >= 1 && secondIndex <= comboActions.Count)
                 {
                     if (firstIndex == secondIndex)
                     {
-                        Console.WriteLine("Cannot swap an action with itself.");
+                        UIManager.WriteMenuLine("Cannot swap an action with itself.");
                     }
                     else
                     {
@@ -221,25 +221,25 @@ namespace RPGGame
                             firstPoolEntry.Item1.ComboOrder = secondPoolEntry.Item1.ComboOrder;
                             secondPoolEntry.Item1.ComboOrder = tempOrder;
                             
-                            Console.WriteLine($"Swapped {firstAction.Name} and {secondAction.Name} in combo sequence.");
+                            UIManager.WriteMenuLine($"Swapped {firstAction.Name} and {secondAction.Name} in combo sequence.");
                         }
                         else
                         {
-                            Console.WriteLine("Error: Could not find actions to swap.");
+                            UIManager.WriteMenuLine("Error: Could not find actions to swap.");
                         }
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Invalid second action number.");
+                    UIManager.WriteMenuLine("Invalid second action number.");
                 }
             }
             else
             {
-                Console.WriteLine("Invalid first action number.");
+                UIManager.WriteMenuLine("Invalid first action number.");
             }
             
-            Console.WriteLine("Press any key to continue...");
+            UIManager.WriteMenuLine("Press any key to continue...");
             Console.ReadKey();
         }
 
@@ -248,24 +248,24 @@ namespace RPGGame
         /// </summary>
         private void ShowComboManagementInfo()
         {
-            Console.WriteLine();
-            Console.WriteLine("Combo Management Info:");
-            Console.WriteLine($"Current combo step: {player.ComboStep + 1}");
-            Console.WriteLine($"Combo sequence length: {player.ComboSequence.Count}");
+            UIManager.WriteMenuLine("");
+            UIManager.WriteMenuLine("Combo Management Info:");
+            UIManager.WriteMenuLine($"Current combo step: {player.ComboStep + 1}");
+            UIManager.WriteMenuLine($"Combo sequence length: {player.ComboSequence.Count}");
             
             if (player.ComboSequence.Count > 0)
             {
-                Console.WriteLine("Combo sequence:");
+                UIManager.WriteMenuLine("Combo sequence:");
                 for (int i = 0; i < player.ComboSequence.Count; i++)
                 {
                     var action = player.ComboSequence[i];
                     string currentStep = (player.ComboStep % player.ComboSequence.Count == i) ? " ← NEXT" : "";
-                    Console.WriteLine($"  {i + 1}. {action.Name}{currentStep}");
+                    UIManager.WriteMenuLine($"  {i + 1}. {action.Name}{currentStep}");
                 }
             }
             
-            Console.WriteLine();
-            Console.WriteLine("Action Pool Info:");
+            UIManager.WriteMenuLine("");
+            UIManager.WriteMenuLine("Action Pool Info:");
             ShowActionPoolInfo();
         }
 
@@ -277,17 +277,17 @@ namespace RPGGame
             var actionPool = player.GetActionPool();
             var comboActions = player.GetComboActions();
             
-            Console.WriteLine($"Total actions in pool: {actionPool.Count}");
-            Console.WriteLine($"Actions in combo: {comboActions.Count}");
+            UIManager.WriteMenuLine($"Total actions in pool: {actionPool.Count}");
+            UIManager.WriteMenuLine($"Actions in combo: {comboActions.Count}");
             
             if (actionPool.Count > 0)
             {
-                Console.WriteLine("Available actions:");
+                UIManager.WriteMenuLine("Available actions:");
                 foreach (var action in actionPool)
                 {
                     int timesInCombo = comboActions.Count(ca => ca.Name == action.Name);
                     string comboInfo = timesInCombo > 0 ? $" [In combo: {timesInCombo}]" : "";
-                    Console.WriteLine($"  - {action.Name}{comboInfo}");
+                    UIManager.WriteMenuLine($"  - {action.Name}{comboInfo}");
                 }
             }
         }

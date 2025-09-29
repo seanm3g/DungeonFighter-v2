@@ -2,6 +2,28 @@ using System.Text.Json;
 
 namespace RPGGame
 {
+    public class StartingGearData
+    {
+        public List<StartingWeapon> weapons { get; set; } = new();
+        public List<StartingArmor> armor { get; set; } = new();
+    }
+
+    public class StartingWeapon
+    {
+        public string name { get; set; } = "";
+        public int damage { get; set; }
+        public double weight { get; set; }
+        public double attackSpeed { get; set; } = 0.05;
+    }
+
+    public class StartingArmor
+    {
+        public string slot { get; set; } = "";
+        public string name { get; set; } = "";
+        public int armor { get; set; }
+        public double weight { get; set; }
+    }
+
     /// <summary>
     /// Handles game initialization logic including starting gear, character setup, and dungeon generation
     /// </summary>
@@ -65,23 +87,23 @@ namespace RPGGame
             var startingGear = LoadStartingGear();
             
             // Prompt player to choose a starter weapon
-            Console.WriteLine();
-            Console.WriteLine("Choose your starter weapon:");
-            Console.WriteLine();
+            UIManager.WriteMenuLine("");
+            UIManager.WriteMenuLine("Choose your starter weapon:");
+            UIManager.WriteMenuLine("");
             for (int i = 0; i < startingGear.weapons.Count; i++)
             {
                 var weapon = startingGear.weapons[i];
-                Console.WriteLine($"{i + 1}. {weapon.name}");
+                UIManager.WriteMenuLine($"{i + 1}. {weapon.name}");
             }
-            Console.WriteLine();
+            UIManager.WriteMenuLine("");
             
             int weaponChoice = 1;
             while (true)
             {
-                Console.Write("Choose an option: ");
+                UIManager.Write("Choose an option: ");
                 if (int.TryParse(Console.ReadLine(), out weaponChoice) && weaponChoice >= 1 && weaponChoice <= startingGear.weapons.Count)
                     break;
-                Console.WriteLine("Invalid choice.");
+                UIManager.WriteMenuLine("Invalid choice.");
             }
             
             // Create weapon from JSON data

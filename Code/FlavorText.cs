@@ -121,13 +121,13 @@ namespace RPGGame
                 }
                 else
                 {
-                    Console.WriteLine("Warning: FlavorText.json not found in any expected location");
+                    UIManager.WriteSystemLine("Warning: FlavorText.json not found in any expected location");
                     _data = new FlavorTextData();
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Warning: Could not load FlavorText.json: {ex.Message}");
+                UIManager.WriteSystemLine($"Warning: Could not load FlavorText.json: {ex.Message}");
                 _data = new FlavorTextData();
             }
         }
