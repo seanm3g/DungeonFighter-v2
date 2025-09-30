@@ -22,7 +22,7 @@ namespace RPGGame
 
         public CharacterStats(int level = 1)
         {
-            var tuning = TuningConfig.Instance;
+            var tuning = GameConfiguration.Instance;
             
             // Initialize attributes based on tuning config
             Strength = tuning.Attributes.PlayerBaseAttributes.Strength + (level - 1) * tuning.Attributes.PlayerAttributesPerLevel;

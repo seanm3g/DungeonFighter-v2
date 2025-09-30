@@ -33,7 +33,7 @@ namespace RPGGame
                 Initialize();
             }
 
-            var tuning = TuningConfig.Instance;
+            var tuning = GameConfiguration.Instance;
             
             // Calculate loot chance based on tuning config
             double lootChance = tuning.LootSystem.BaseDropChance + (playerLevel * tuning.LootSystem.DropChancePerLevel);
@@ -134,18 +134,8 @@ namespace RPGGame
             {
                 weaponForRarity.BaseDamage = (int)Math.Round(weaponForRarity.BaseDamage * rarityMultiplier);
             }
-            else if (item is HeadItem headForRarity)
-            {
-                headForRarity.Armor = (int)Math.Round(headForRarity.Armor * rarityMultiplier);
-            }
-            else if (item is ChestItem chestForRarity)
-            {
-                chestForRarity.Armor = (int)Math.Round(chestForRarity.Armor * rarityMultiplier);
-            }
-            else if (item is FeetItem feetForRarity)
-            {
-                feetForRarity.Armor = (int)Math.Round(feetForRarity.Armor * rarityMultiplier);
-            }
+            // Note: Armor rarity multipliers are now handled by stat bonuses and modifications
+            // to prevent double scaling that was causing integer overflow
 
             // ROLL 7: Bonus selection
             ApplyBonuses(item, rarity);
@@ -319,7 +309,7 @@ namespace RPGGame
         
         private static double CalculateMagicFindMultiplier(string rarityName, double magicFind)
         {
-            var config = TuningConfig.Instance.RarityScaling?.MagicFindScaling;
+            var config = GameConfiguration.Instance.RarityScaling?.MagicFindScaling;
             if (config == null) return 1.0;
             
             double perPointMultiplier = rarityName.ToLower() switch
@@ -337,7 +327,7 @@ namespace RPGGame
         
         private static double CalculateLevelMultiplier(string rarityName, int playerLevel)
         {
-            var config = TuningConfig.Instance.RarityScaling?.LevelBasedRarityScaling;
+            var config = GameConfiguration.Instance.RarityScaling?.LevelBasedRarityScaling;
             if (config == null) return 1.0;
             
             double levelFactor = Math.Max(0.1, playerLevel / 100.0); // 0.1 to 1.0+ scaling
@@ -524,7 +514,7 @@ namespace RPGGame
                     PropertyNameCaseInsensitive = true,
                     Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
                 };
-                var actions = JsonLoader.LoadJsonList<Action>(filePath, options);
+                var actions = JsonLoader.LoadJsonList<ActionData>(filePath, true);
                 _actionBonuses = actions?.Select(a => new ActionBonus { Name = a.Name, Description = a.Description, Weight = 1 }).ToList() ?? new List<ActionBonus>();
             }
             else

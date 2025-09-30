@@ -71,7 +71,7 @@ namespace RPGGame
         {
             while (_isRunning)
             {
-                var config = TuningConfig.Instance.GameSpeed;
+                var config = GameConfiguration.Instance.GameSpeed;
                 var tickerInterval = config.GameTickerInterval;
                 var speedMultiplier = config.GameSpeedMultiplier;
                 
@@ -100,7 +100,7 @@ namespace RPGGame
                 // Update game time based on real time elapsed
                 double currentRealTime = DateTime.Now.Ticks / (double)TimeSpan.TicksPerSecond;
                 double realTimeElapsed = currentRealTime - _lastRealTime;
-                double gameTimeElapsed = realTimeElapsed * TuningConfig.Instance.GameSpeed.GameSpeedMultiplier;
+                double gameTimeElapsed = realTimeElapsed * GameConfiguration.Instance.GameSpeed.GameSpeedMultiplier;
                 _gameTime += gameTimeElapsed;
                 _lastRealTime = currentRealTime;
             }

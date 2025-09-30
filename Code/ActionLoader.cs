@@ -77,50 +77,35 @@ namespace RPGGame
         {
             ErrorHandler.TryExecute(() =>
             {
-                string? foundPath = null;
-                foreach (string path in PossibleActionPaths)
+                // Use the new JsonLoader for consistent loading
+                var actionList = JsonLoader.LoadJsonFromPaths<List<ActionData>>(
+                    PossibleActionPaths, 
+                    useCache: true, 
+                    fallbackValue: new List<ActionData>()
+                );
+                
+                _actions = new Dictionary<string, ActionData>();
+                
+                if (actionList.Count > 0)
                 {
-                    if (File.Exists(path))
+                    foreach (var action in actionList)
                     {
-                        foundPath = path;
-                        break;
-                    }
-                }
-
-                if (foundPath != null)
-                {
-                    if (TuningConfig.IsDebugEnabled)
-                        UIManager.WriteSystemLine($"DEBUG: ActionLoader found Actions.json at: {foundPath}");
-                    string jsonContent = File.ReadAllText(foundPath);
-                    
-                    var actionList = JsonSerializer.Deserialize<List<ActionData>>(jsonContent);
-                    
-                    _actions = new Dictionary<string, ActionData>();
-                    if (actionList != null)
-                    {
-                        foreach (var action in actionList)
+                        if (!string.IsNullOrEmpty(action.Name))
                         {
-                            if (!string.IsNullOrEmpty(action.Name))
-                            {
-                                _actions[action.Name] = action;
-                            }
-                            else
-                            {
-                                ErrorHandler.LogWarning("Found action with null/empty name", "ActionLoader");
-                            }
+                            _actions[action.Name] = action;
                         }
-                        if (TuningConfig.IsDebugEnabled)
-                            UIManager.WriteSystemLine($"DEBUG: ActionLoader loaded {_actions.Count} actions successfully");
+                        else
+                        {
+                            ErrorHandler.LogWarning("Found action with null/empty name", "ActionLoader");
+                        }
                     }
-                    else
-                    {
-                        ErrorHandler.LogWarning("JSON deserialization returned null", "ActionLoader");
-                    }
+                    
+                    if (GameConfiguration.IsDebugEnabled)
+                        UIManager.WriteSystemLine($"DEBUG: ActionLoader loaded {_actions.Count} actions successfully");
                 }
                 else
                 {
-                    ErrorHandler.LogWarning($"Actions file not found. Tried paths: {string.Join(", ", PossibleActionPaths)}", "ActionLoader");
-                    _actions = new Dictionary<string, ActionData>();
+                    ErrorHandler.LogWarning("No actions loaded from JSON files", "ActionLoader");
                 }
             }, "ActionLoader.LoadActions", () => _actions = new Dictionary<string, ActionData>());
         }
@@ -336,14 +321,14 @@ namespace RPGGame
         {
             if (_actions == null)
             {
-                if (TuningConfig.IsDebugEnabled)
+                if (GameConfiguration.IsDebugEnabled)
                     UIManager.WriteSystemLine("DEBUG: ActionLoader._actions is null, calling LoadActions()");
                 LoadActions();
             }
             var actions = new List<Action>();
             if (_actions != null)
             {
-                if (TuningConfig.IsDebugEnabled)
+                if (GameConfiguration.IsDebugEnabled)
                     UIManager.WriteSystemLine($"DEBUG: ActionLoader has {_actions.Count} actions loaded");
                 foreach (var actionData in _actions.Values)
                 {
@@ -352,10 +337,10 @@ namespace RPGGame
             }
             else
             {
-                if (TuningConfig.IsDebugEnabled)
+                if (GameConfiguration.IsDebugEnabled)
                     UIManager.WriteSystemLine("DEBUG: ActionLoader._actions is still null after LoadActions()");
             }
-            if (TuningConfig.IsDebugEnabled)
+            if (GameConfiguration.IsDebugEnabled)
                 UIManager.WriteSystemLine($"DEBUG: GetAllActions() returning {actions.Count} actions");
             return actions;
         }

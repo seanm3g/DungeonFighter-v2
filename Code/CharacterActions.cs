@@ -237,17 +237,17 @@ namespace RPGGame
         private List<string> GetWeaponActionsFromJson(WeaponType weaponType)
         {
             var weaponTag = weaponType.ToString().ToLower();
-            if (TuningConfig.IsDebugEnabled)
+            if (GameConfiguration.IsDebugEnabled)
                 DebugLogger.LogFormat("CharacterActions", "GetWeaponActionsFromJson called for {0} (tag: {1})", weaponType, weaponTag);
             
             var allActions = ActionLoader.GetAllActions();
-            if (TuningConfig.IsDebugEnabled)
+            if (GameConfiguration.IsDebugEnabled)
                 DebugLogger.LogFormat("CharacterActions", "Got {0} total actions from ActionLoader", allActions.Count);
             
             // For mace weapons, return the specific mace actions
             if (weaponType == WeaponType.Mace)
             {
-                if (TuningConfig.IsDebugEnabled)
+                if (GameConfiguration.IsDebugEnabled)
                     DebugLogger.Log("CharacterActions", "Using hardcoded mace actions");
                 return new List<string> { "CRUSHING BLOW", "SHIELD BREAK", "THUNDER CLAP" };
             }
@@ -260,7 +260,7 @@ namespace RPGGame
                 .Select(action => action.Name)
                 .ToList();
                 
-            if (TuningConfig.IsDebugEnabled)
+            if (GameConfiguration.IsDebugEnabled)
                 Console.WriteLine($"DEBUG: Found {weaponActions.Count} weapon actions for {weaponType}: {string.Join(", ", weaponActions)}");
             return weaponActions;
         }
@@ -349,7 +349,7 @@ namespace RPGGame
 
         private void LoadGearActionFromJson(Entity entity, string actionName)
         {
-            if (TuningConfig.IsDebugEnabled)
+            if (GameConfiguration.IsDebugEnabled)
                 Console.WriteLine($"DEBUG: LoadGearActionFromJson called for action: {actionName}");
             
             try
@@ -374,7 +374,7 @@ namespace RPGGame
                 
                 if (foundPath != null)
                 {
-                    if (TuningConfig.IsDebugEnabled)
+                    if (GameConfiguration.IsDebugEnabled)
                         Console.WriteLine($"DEBUG: Found Actions.json at: {foundPath}");
                     
                     string jsonContent = File.ReadAllText(foundPath);
@@ -382,13 +382,13 @@ namespace RPGGame
                     
                     if (allActions != null)
                     {
-                        if (TuningConfig.IsDebugEnabled)
+                        if (GameConfiguration.IsDebugEnabled)
                             Console.WriteLine($"DEBUG: Deserialized {allActions.Count} actions from JSON");
                         
                         var actionData = allActions.FirstOrDefault(a => a.Name == actionName);
                         if (actionData != null)
                         {
-                            if (TuningConfig.IsDebugEnabled)
+                            if (GameConfiguration.IsDebugEnabled)
                                 Console.WriteLine($"DEBUG: Found action data for {actionName}");
                             
                             var action = CreateActionFromData(actionData);
@@ -400,24 +400,24 @@ namespace RPGGame
                                 action.ComboOrder = maxOrder + 1;
                                 
                                 entity.AddAction(action, 1.0);
-                                if (TuningConfig.IsDebugEnabled)
+                                if (GameConfiguration.IsDebugEnabled)
                                     Console.WriteLine($"DEBUG: Successfully added action {actionName} to ActionPool");
                             }
                             else
                             {
-                                if (TuningConfig.IsDebugEnabled)
+                                if (GameConfiguration.IsDebugEnabled)
                                     Console.WriteLine($"DEBUG: Action {actionName} is not a combo action, skipping");
                             }
                         }
                         else
                         {
-                            if (TuningConfig.IsDebugEnabled)
+                            if (GameConfiguration.IsDebugEnabled)
                                 Console.WriteLine($"DEBUG: Action {actionName} not found in Actions.json");
                         }
                     }
                     else
                     {
-                        if (TuningConfig.IsDebugEnabled)
+                        if (GameConfiguration.IsDebugEnabled)
                             Console.WriteLine($"DEBUG: Failed to deserialize Actions.json");
                     }
                 }
@@ -743,7 +743,7 @@ namespace RPGGame
         
         public void InitializeDefaultCombo(Entity entity, WeaponItem? weapon)
         {
-            if (TuningConfig.IsDebugEnabled)
+            if (GameConfiguration.IsDebugEnabled)
                 Console.WriteLine("DEBUG: InitializeDefaultCombo called");
             
             // Clear existing combo sequence
@@ -752,11 +752,11 @@ namespace RPGGame
             // Add the two weapon actions to the combo by default
             if (weapon != null)
             {
-                if (TuningConfig.IsDebugEnabled)
+                if (GameConfiguration.IsDebugEnabled)
                     Console.WriteLine($"DEBUG: Found weapon: {weapon.Name} (Type: {weapon.WeaponType})");
                 
                 var weaponActions = GetGearActions(weapon);
-                if (TuningConfig.IsDebugEnabled)
+                if (GameConfiguration.IsDebugEnabled)
                     Console.WriteLine($"DEBUG: Found {weaponActions.Count} weapon actions: {string.Join(", ", weaponActions)}");
                 
                 foreach (var actionName in weaponActions)
@@ -765,24 +765,24 @@ namespace RPGGame
                     var action = entity.ActionPool.FirstOrDefault(a => a.action.Name == actionName);
                     if (action.action != null && action.action.IsComboAction)
                     {
-                        if (TuningConfig.IsDebugEnabled)
+                        if (GameConfiguration.IsDebugEnabled)
                             Console.WriteLine($"DEBUG: Adding {actionName} to combo sequence");
                         AddToCombo(action.action);
                     }
                     else
                     {
-                        if (TuningConfig.IsDebugEnabled)
+                        if (GameConfiguration.IsDebugEnabled)
                             Console.WriteLine($"DEBUG: Could not add {actionName} to combo - action not found or not a combo action");
                     }
                 }
             }
             else
             {
-                if (TuningConfig.IsDebugEnabled)
+                if (GameConfiguration.IsDebugEnabled)
                     Console.WriteLine("DEBUG: No weapon equipped, cannot initialize default combo");
             }
             
-            if (TuningConfig.IsDebugEnabled)
+            if (GameConfiguration.IsDebugEnabled)
                 Console.WriteLine($"DEBUG: Combo sequence now has {ComboSequence.Count} actions");
         }
 

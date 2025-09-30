@@ -14,7 +14,7 @@ namespace RPGGame
         /// </summary>
         public static double CalculateTargetDPS(int level)
         {
-            var config = TuningConfig.Instance.EnemyDPS;
+            var config = GameConfiguration.Instance.EnemyDPS;
             if (config == null) return 3.0 + (level * 2.5); // Fallback
             
             // Use formula evaluation for flexibility
@@ -34,7 +34,7 @@ namespace RPGGame
         public static (double damagePerHit, double attackSpeed) CalculateArchetypeStats(
             double targetDPS, EnemyArchetype archetype)
         {
-            var config = TuningConfig.Instance.EnemyDPS;
+            var config = GameConfiguration.Instance.EnemyDPS;
             if (config == null || !config.Archetypes.TryGetValue(archetype.ToString(), out var archetypeConfig))
             {
                 // Fallback to hardcoded values
@@ -45,7 +45,7 @@ namespace RPGGame
             // Formula: DPS = Damage / AttackTime
             // We want: Damage * SpeedRatio = targetDPS * DamageRatio
             
-            double baseAttackTime = TuningConfig.Instance.Combat.BaseAttackTime;
+            double baseAttackTime = GameConfiguration.Instance.Combat.BaseAttackTime;
             double targetAttackTime = baseAttackTime / archetypeConfig.SpeedRatio;
             double targetDamage = targetDPS * targetAttackTime;
             
@@ -58,7 +58,7 @@ namespace RPGGame
         private static (double damagePerHit, double attackSpeed) CalculateFallbackArchetypeStats(
             double targetDPS, EnemyArchetype archetype)
         {
-            double baseAttackTime = TuningConfig.Instance.Combat.BaseAttackTime;
+            double baseAttackTime = GameConfiguration.Instance.Combat.BaseAttackTime;
             
             return archetype switch
             {
@@ -77,7 +77,7 @@ namespace RPGGame
         public static (int strength, int agility) CalculateRequiredStats(
             double targetDamage, double targetAttackSpeed, int level, EnemyArchetype archetype)
         {
-            var tuning = TuningConfig.Instance;
+            var tuning = GameConfiguration.Instance;
             
             // Get archetype profile for accurate calculations
             var archetypeProfile = EnemyDPSCalculator.GetArchetypeProfile(archetype);
@@ -144,7 +144,7 @@ namespace RPGGame
             double targetDPS = CalculateTargetDPS(enemy.Level);
             double actualDPS = CalculateActualEnemyDPS(enemy);
             
-            var config = TuningConfig.Instance.EnemyDPS?.BalanceValidation;
+            var config = GameConfiguration.Instance.EnemyDPS?.BalanceValidation;
             double tolerance = config?.TolerancePercentage ?? 10.0;
             
             double deviationPercent = Math.Abs(actualDPS - targetDPS) / targetDPS * 100;

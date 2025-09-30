@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace RPGGame
 {
     /// <summary>
@@ -246,16 +248,53 @@ namespace RPGGame
                 int rollBonus = CombatActions.CalculateRollBonus(player, null); // Calculate base roll bonus
                 int totalRoll = baseRoll + rollBonus;
                 
+                if (GameConfiguration.IsDebugEnabled)
+                {
+                    UIManager.WriteSystemLine($"DEBUG [CombatManager]: {player.Name} rolled {baseRoll} + {rollBonus} = {totalRoll}");
+                }
+                
                 // Determine action type based on roll result
                 Action? attemptedAction = null;
-                if (totalRoll >= 14) // Combo threshold
+                if (baseRoll == 20) // Natural 20 - always combo + critical hit
                 {
-                    // Use combo action
+                    // Use combo action for natural 20
                     var comboActions = player.GetComboActions();
                     if (comboActions.Count > 0)
                     {
                         int actionIdx = player.ComboStep % comboActions.Count;
                         attemptedAction = comboActions[actionIdx];
+                    }
+                    else
+                    {
+                        // Fallback to basic attack if no combo actions available
+                        attemptedAction = player.ActionPool.FirstOrDefault(a => a.action.Name == "BASIC ATTACK").action;
+                    }
+                }
+                else if (totalRoll >= 14) // Combo threshold
+                {
+                    // Use combo action
+                    var comboActions = player.GetComboActions();
+                    if (GameConfiguration.IsDebugEnabled)
+                    {
+                        UIManager.WriteSystemLine($"DEBUG [CombatManager]: {player.Name} has {comboActions.Count} combo actions: {string.Join(", ", comboActions.Select(a => a.Name))}");
+                    }
+                    if (comboActions.Count > 0)
+                    {
+                        int actionIdx = player.ComboStep % comboActions.Count;
+                        attemptedAction = comboActions[actionIdx];
+                        if (GameConfiguration.IsDebugEnabled)
+                        {
+                            UIManager.WriteSystemLine($"DEBUG [CombatManager]: Selected combo action: {attemptedAction.Name} (index {actionIdx})");
+                        }
+                    }
+                    else
+                    {
+                        // Fallback to basic attack if no combo actions available
+                        attemptedAction = player.ActionPool.FirstOrDefault(a => a.action.Name == "BASIC ATTACK").action;
+                        if (GameConfiguration.IsDebugEnabled)
+                        {
+                            UIManager.WriteSystemLine($"DEBUG [CombatManager]: No combo actions available for {player.Name} (roll {totalRoll}), falling back to BASIC ATTACK");
+                        }
                     }
                 }
                 else if (totalRoll >= 6) // Basic attack threshold
@@ -263,27 +302,33 @@ namespace RPGGame
                     // Use basic attack
                     attemptedAction = player.ActionPool.FirstOrDefault(a => a.action.Name == "BASIC ATTACK").action;
                 }
-                // If roll < 6, it's a miss (no action)
-                if (attemptedAction == null && totalRoll < 6)
+                // Handle the different cases
+                if (totalRoll < 6)
                 {
-                    UIManager.WriteCombatLine($"[{player.Name}] misses! (roll: {baseRoll} + {rollBonus} = {totalRoll})");
-                    
-                    // Update player's action timing in the action speed system even for misses
-                    var actionSpeedSystem = GetCurrentActionSpeedSystem();
-                    if (actionSpeedSystem != null)
+                    // Miss - no action executed
+                    // Use basic attack for miss message formatting
+                    var basicAttack = player.ActionPool.FirstOrDefault(a => a.action.Name == "BASIC ATTACK").action;
+                    if (basicAttack != null)
                     {
-                        // Use basic attack length for miss timing
-                        var basicAttack = player.ActionPool.FirstOrDefault(a => a.action.Name == "BASIC ATTACK").action;
-                        if (basicAttack != null)
+                        string missMessage = CombatResults.FormatMissMessage(player, currentEnemy, basicAttack, baseRoll, rollBonus);
+                        UIManager.WriteCombatLine(missMessage);
+                        
+                        // Update player's action timing in the action speed system even for misses
+                        var actionSpeedSystem = GetCurrentActionSpeedSystem();
+                        if (actionSpeedSystem != null)
                         {
                             actionSpeedSystem.ExecuteAction(player, basicAttack);
                         }
                     }
+                    else
+                    {
+                        // Fallback if no basic attack is available
+                        UIManager.WriteCombatLine($"[{player.Name}] misses! (roll: {baseRoll} + {rollBonus} = {totalRoll})");
+                    }
                 }
-
-                // Execute single action (not multi-attack) with speed tracking
-                if (attemptedAction != null)
+                else if (attemptedAction != null)
                 {
+                    // Execute single action (not multi-attack) with speed tracking
                     string result = CombatResults.ExecuteActionWithUI(player, currentEnemy, attemptedAction, room, GetLastPlayerAction());
                     bool textDisplayed = !string.IsNullOrEmpty(result);
                     
@@ -300,14 +345,12 @@ namespace RPGGame
                     // Show individual action messages with consistent delay
                     if (textDisplayed)
                     {
-                        // Split multi-line results and display each line with proper delays
+                        // Split multi-line results and display as a group (no delays between lines)
                         string[] lines = result.Split('\n');
-                        foreach (string line in lines)
+                        var nonEmptyLines = lines.Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
+                        if (nonEmptyLines.Length > 0)
                         {
-                            if (!string.IsNullOrWhiteSpace(line))
-                            {
-                                UIManager.WriteCombatLine(line);
-                            }
+                            UIManager.WriteGroup(nonEmptyLines);
                         }
                     }
                 }
@@ -372,14 +415,12 @@ namespace RPGGame
                     // Show individual action messages with consistent delay
                     if (textDisplayed)
                     {
-                        // Split multi-line results and display each line with proper delays
+                        // Split multi-line results and display as a group (no delays between lines)
                         string[] lines = result.Split('\n');
-                        foreach (string line in lines)
+                        var nonEmptyLines = lines.Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
+                        if (nonEmptyLines.Length > 0)
                         {
-                            if (!string.IsNullOrWhiteSpace(line))
-                            {
-                                UIManager.WriteCombatLine(line);
-                            }
+                            UIManager.WriteGroup(nonEmptyLines);
                         }
                     }
                 }
@@ -428,14 +469,12 @@ namespace RPGGame
                     // Show individual action messages
                     if (textDisplayed)
                     {
-                        // Split multi-line results and display each line with proper delays
+                        // Split multi-line results and display as a group (no delays between lines)
                         string[] lines = result.Split('\n');
-                        foreach (string line in lines)
+                        var nonEmptyLines = lines.Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
+                        if (nonEmptyLines.Length > 0)
                         {
-                            if (!string.IsNullOrWhiteSpace(line))
-                            {
-                                UIManager.WriteCombatLine(line);
-                            }
+                            UIManager.WriteGroup(nonEmptyLines);
                         }
                     }
                     

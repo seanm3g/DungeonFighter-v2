@@ -144,25 +144,17 @@ namespace RPGGame
             // Determine archetype first
             var suggestedArchetype = EnemyDPSCalculator.SuggestArchetypeForEnemy(data.Name, data.Strength, data.Agility, data.Technique, data.Intelligence);
             
-            // Use stat pool system for balanced distribution
-            var statDistribution = EnemyStatPoolSystem.DistributeStats(level, suggestedArchetype);
+            // Use new layered balance calculation system
+            var baseStats = new EnemyBaseStats
+            {
+                Strength = data.Strength,
+                Agility = data.Agility,
+                Technique = data.Technique,
+                Intelligence = data.Intelligence
+            };
             
-            // Blend JSON base stats with stat pool distribution (70% stat pool, 30% JSON base)
-            int strength = (int)Math.Round(statDistribution.Strength * 0.7 + data.Strength * 0.3);
-            int agility = (int)Math.Round(statDistribution.Agility * 0.7 + data.Agility * 0.3);
-            int technique = (int)Math.Round(statDistribution.Technique * 0.7 + data.Technique * 0.3);
-            int intelligence = (int)Math.Round(statDistribution.Intelligence * 0.7 + data.Intelligence * 0.3);
-            int health = (int)Math.Round(statDistribution.Health * 0.7 + data.BaseHealth * 0.3);
-            int armor = (int)Math.Round(statDistribution.Armor * 0.7 + data.BaseArmor * 0.3);
+            var calculatedStats = EnemyBalanceCalculator.CalculateStats(level, suggestedArchetype, baseStats);
             
-            // Ensure minimum values
-            strength = Math.Max(1, strength);
-            agility = Math.Max(1, agility);
-            technique = Math.Max(1, technique);
-            intelligence = Math.Max(1, intelligence);
-            health = Math.Max(10, health);
-            armor = Math.Max(data.BaseArmor, armor); // Ensure armor is at least the base armor value
-
             // Parse the primary attribute string to enum
             PrimaryAttribute primaryAttribute = PrimaryAttribute.Strength; // Default
             if (Enum.TryParse<PrimaryAttribute>(data.PrimaryAttribute, out var parsedAttribute))
@@ -170,7 +162,7 @@ namespace RPGGame
                 primaryAttribute = parsedAttribute;
             }
 
-            var enemy = new Enemy(data.Name, level, health, strength, agility, technique, intelligence, armor, primaryAttribute, data.IsLiving, suggestedArchetype);
+            var enemy = new Enemy(data.Name, level, calculatedStats.Health, calculatedStats.Strength, calculatedStats.Agility, calculatedStats.Technique, calculatedStats.Intelligence, calculatedStats.Armor, primaryAttribute, data.IsLiving, suggestedArchetype);
             
             // Apply DPS-based scaling to set target values
             EnemyDPSSystem.ApplyDPSScaling(enemy);

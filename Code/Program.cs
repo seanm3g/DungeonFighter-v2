@@ -8,17 +8,30 @@ namespace RPGGame
     {
         static void Main(string[] args)
         {
+            // Check for test commands
+            if (args.Length > 0 && args[0] == "--test-loot")
+            {
+                LootGenerationTest.RunLootGenerationTests();
+                return;
+            }
+            
+            if (args.Length > 0 && args[0] == "--test-inventory")
+            {
+                InventoryDisplayTest.RunInventoryDisplayTest();
+                return;
+            }
+            
             // Generate game data files based on TuningConfig at launch (if enabled)
-            if (TuningConfig.Instance.GameData.AutoGenerateOnLaunch)
+            if (GameConfiguration.Instance.GameData.AutoGenerateOnLaunch)
             {
                 try
                 {
-                    if (TuningConfig.Instance.GameData.ShowGenerationMessages)
+                    if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
                     {
                         Console.WriteLine("Initializing game data...");
                     }
                     GameDataGenerator.GenerateAllGameData();
-                    if (TuningConfig.Instance.GameData.ShowGenerationMessages)
+                    if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
                     {
                         Console.WriteLine("Game data initialization complete!\n");
                     }

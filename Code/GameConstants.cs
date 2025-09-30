@@ -48,14 +48,20 @@ namespace RPGGame
             Path.Combine("..", GameDataDirectory),
             Path.Combine("..", "..", GameDataDirectory),
             Path.Combine("DF4 - CONSOLE", GameDataDirectory),
-            Path.Combine("..", "DF4 - CONSOLE", GameDataDirectory)
+            Path.Combine("..", "DF4 - CONSOLE", GameDataDirectory),
+            
+            // Case variations for different systems
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "code", GameDataDirectory),
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "code", GameDataDirectory),
+            Path.Combine(Directory.GetCurrentDirectory(), "code", GameDataDirectory),
+            Path.Combine(Directory.GetCurrentDirectory(), "..", "code", GameDataDirectory)
         };
         
         // UI Constants - Now configurable via TuningConfig.UICustomization
-        public static string MenuSeparator => TuningConfig.Instance.UICustomization.MenuSeparator;
-        public static string SubMenuSeparator => TuningConfig.Instance.UICustomization.SubMenuSeparator;
-        public static string InvalidChoiceMessage => TuningConfig.Instance.UICustomization.InvalidChoiceMessage;
-        public static string PressAnyKeyMessage => TuningConfig.Instance.UICustomization.PressAnyKeyMessage;
+        public static string MenuSeparator => GameConfiguration.Instance.UICustomization.MenuSeparator;
+        public static string SubMenuSeparator => GameConfiguration.Instance.UICustomization.SubMenuSeparator;
+        public static string InvalidChoiceMessage => GameConfiguration.Instance.UICustomization.InvalidChoiceMessage;
+        public static string PressAnyKeyMessage => GameConfiguration.Instance.UICustomization.PressAnyKeyMessage;
         
         // Game Constants
         public const int DefaultLevel = 1;
@@ -75,65 +81,168 @@ namespace RPGGame
         
         // Item Constants - Now configurable via TuningConfig.UICustomization
         public static string BasicGearPrefix => "Basic";
-        public static string LegendaryPrefix => TuningConfig.Instance.UICustomization.RarityPrefixes.Legendary;
-        public static string EpicPrefix => TuningConfig.Instance.UICustomization.RarityPrefixes.Epic;
-        public static string RarePrefix => TuningConfig.Instance.UICustomization.RarityPrefixes.Rare;
-        public static string UncommonPrefix => TuningConfig.Instance.UICustomization.RarityPrefixes.Uncommon;
-        public static string CommonPrefix => TuningConfig.Instance.UICustomization.RarityPrefixes.Common;
+        public static string LegendaryPrefix => GameConfiguration.Instance.UICustomization.RarityPrefixes.Legendary;
+        public static string EpicPrefix => GameConfiguration.Instance.UICustomization.RarityPrefixes.Epic;
+        public static string RarePrefix => GameConfiguration.Instance.UICustomization.RarityPrefixes.Rare;
+        public static string UncommonPrefix => GameConfiguration.Instance.UICustomization.RarityPrefixes.Uncommon;
+        public static string CommonPrefix => GameConfiguration.Instance.UICustomization.RarityPrefixes.Common;
         
         // Action Constants - Now configurable via TuningConfig.UICustomization
-        public static string BasicAttackName => TuningConfig.Instance.UICustomization.ActionNames.BasicAttackName;
-        public static string DefaultActionDescription => TuningConfig.Instance.UICustomization.ActionNames.DefaultActionDescription;
+        public static string BasicAttackName => GameConfiguration.Instance.UICustomization.ActionNames.BasicAttackName;
+        public static string DefaultActionDescription => GameConfiguration.Instance.UICustomization.ActionNames.DefaultActionDescription;
         
         // Error Messages - Now configurable via TuningConfig.UICustomization
-        public static string FileNotFoundError => TuningConfig.Instance.UICustomization.ErrorMessages.FileNotFoundError;
-        public static string JsonDeserializationError => TuningConfig.Instance.UICustomization.ErrorMessages.JsonDeserializationError;
-        public static string InvalidDataError => TuningConfig.Instance.UICustomization.ErrorMessages.InvalidDataError;
-        public static string SaveError => TuningConfig.Instance.UICustomization.ErrorMessages.SaveError;
-        public static string LoadError => TuningConfig.Instance.UICustomization.ErrorMessages.LoadError;
+        public static string FileNotFoundError => GameConfiguration.Instance.UICustomization.ErrorMessages.FileNotFoundError;
+        public static string JsonDeserializationError => GameConfiguration.Instance.UICustomization.ErrorMessages.JsonDeserializationError;
+        public static string InvalidDataError => GameConfiguration.Instance.UICustomization.ErrorMessages.InvalidDataError;
+        public static string SaveError => GameConfiguration.Instance.UICustomization.ErrorMessages.SaveError;
+        public static string LoadError => GameConfiguration.Instance.UICustomization.ErrorMessages.LoadError;
         
         // Debug Messages - Now configurable via TuningConfig.UICustomization
-        public static string DebugPrefix => TuningConfig.Instance.UICustomization.DebugMessages.DebugPrefix;
-        public static string WarningPrefix => TuningConfig.Instance.UICustomization.DebugMessages.WarningPrefix;
-        public static string ErrorPrefix => TuningConfig.Instance.UICustomization.DebugMessages.ErrorPrefix;
-        public static string InfoPrefix => TuningConfig.Instance.UICustomization.DebugMessages.InfoPrefix;
+        public static string DebugPrefix => GameConfiguration.Instance.UICustomization.DebugMessages.DebugPrefix;
+        public static string WarningPrefix => GameConfiguration.Instance.UICustomization.DebugMessages.WarningPrefix;
+        public static string ErrorPrefix => GameConfiguration.Instance.UICustomization.DebugMessages.ErrorPrefix;
+        public static string InfoPrefix => GameConfiguration.Instance.UICustomization.DebugMessages.InfoPrefix;
         
         // Character Constants - Now configurable via TuningConfig.DungeonGeneration
-        public static string DefaultCharacterName => TuningConfig.Instance.DungeonGeneration.DefaultCharacterName;
+        public static string DefaultCharacterName => GameConfiguration.Instance.DungeonGeneration.DefaultCharacterName;
         public const int DefaultStrength = 10;
         public const int DefaultAgility = 10;
         public const int DefaultTechnique = 10;
         public const int DefaultIntelligence = 10;
         
         // Dungeon Constants - Now configurable via TuningConfig.DungeonGeneration
-        public static string DefaultDungeonTheme => TuningConfig.Instance.DungeonGeneration.DefaultTheme;
-        public static string DefaultRoomType => TuningConfig.Instance.DungeonGeneration.DefaultRoomType;
-        public static int DefaultDungeonLevels => TuningConfig.Instance.DungeonGeneration.DefaultDungeonLevels;
-        public static int DefaultRoomCount => TuningConfig.Instance.DungeonGeneration.DefaultRoomCount;
+        public static string DefaultDungeonTheme => GameConfiguration.Instance.DungeonGeneration.DefaultTheme;
+        public static string DefaultRoomType => GameConfiguration.Instance.DungeonGeneration.DefaultRoomType;
+        public static int DefaultDungeonLevels => GameConfiguration.Instance.DungeonGeneration.DefaultDungeonLevels;
+        public static int DefaultRoomCount => GameConfiguration.Instance.DungeonGeneration.DefaultRoomCount;
         
         // Equipment Slots - Now configurable via TuningConfig.DungeonGeneration
-        public static string HeadSlot => TuningConfig.Instance.DungeonGeneration.EquipmentSlots[0];
-        public static string ChestSlot => TuningConfig.Instance.DungeonGeneration.EquipmentSlots[1];
-        public static string FeetSlot => TuningConfig.Instance.DungeonGeneration.EquipmentSlots[2];
-        public static string WeaponSlot => TuningConfig.Instance.DungeonGeneration.EquipmentSlots[3];
+        public static string HeadSlot => GameConfiguration.Instance.DungeonGeneration.EquipmentSlots[0];
+        public static string ChestSlot => GameConfiguration.Instance.DungeonGeneration.EquipmentSlots[1];
+        public static string FeetSlot => GameConfiguration.Instance.DungeonGeneration.EquipmentSlots[2];
+        public static string WeaponSlot => GameConfiguration.Instance.DungeonGeneration.EquipmentSlots[3];
         
         // Status Effects - Now configurable via TuningConfig.DungeonGeneration
-        public static string BleedEffect => TuningConfig.Instance.DungeonGeneration.StatusEffectTypes[0];
-        public static string PoisonEffect => TuningConfig.Instance.DungeonGeneration.StatusEffectTypes[1];
-        public static string BurnEffect => TuningConfig.Instance.DungeonGeneration.StatusEffectTypes[2];
-        public static string SlowEffect => TuningConfig.Instance.DungeonGeneration.StatusEffectTypes[3];
-        public static string WeakenEffect => TuningConfig.Instance.DungeonGeneration.StatusEffectTypes[4];
-        public static string StunEffect => TuningConfig.Instance.DungeonGeneration.StatusEffectTypes[5];
+        public static string BleedEffect => GameConfiguration.Instance.DungeonGeneration.StatusEffectTypes[0];
+        public static string PoisonEffect => GameConfiguration.Instance.DungeonGeneration.StatusEffectTypes[1];
+        public static string BurnEffect => GameConfiguration.Instance.DungeonGeneration.StatusEffectTypes[2];
+        public static string SlowEffect => GameConfiguration.Instance.DungeonGeneration.StatusEffectTypes[3];
+        public static string WeakenEffect => GameConfiguration.Instance.DungeonGeneration.StatusEffectTypes[4];
+        public static string StunEffect => GameConfiguration.Instance.DungeonGeneration.StatusEffectTypes[5];
         
         // Utility Methods
         /// <summary>
         /// Gets a file path for a JSON file in the GameData directory
+        /// Uses robust path resolution to find the correct GameData directory
         /// </summary>
         /// <param name="fileName">The JSON file name</param>
         /// <returns>The full path to the file</returns>
         public static string GetGameDataFilePath(string fileName)
         {
+            // First try to find an existing GameData directory
+            string? existingGameDataDir = FindGameDataDirectory();
+            if (existingGameDataDir != null)
+            {
+                return Path.Combine(existingGameDataDir, fileName);
+            }
+
+            // If no existing GameData directory found, create one in the most appropriate location
+            string executableDir = AppDomain.CurrentDomain.BaseDirectory;
+            string currentDir = Directory.GetCurrentDirectory();
+            
+            // Prioritize the root GameData directory (project root level)
+            string[] preferredLocations = {
+                // Try to find/create GameData at project root level first
+                Path.Combine(currentDir, "..", GameDataDirectory),
+                Path.Combine(executableDir, "..", GameDataDirectory),
+                Path.Combine(currentDir, "..", "..", GameDataDirectory),
+                Path.Combine(executableDir, "..", "..", GameDataDirectory),
+                // Then try other locations
+                Path.Combine(executableDir, GameDataDirectory),
+                Path.Combine(currentDir, GameDataDirectory),
+                Path.Combine(GameDataDirectory)
+            };
+
+            foreach (string location in preferredLocations)
+            {
+                try
+                {
+                    // Ensure the directory exists
+                    Directory.CreateDirectory(location);
+                    return Path.Combine(location, fileName);
+                }
+                catch
+                {
+                    // Continue to next location if this one fails
+                    continue;
+                }
+            }
+
+            // Fallback to current directory
             return Path.Combine(GameDataDirectory, fileName);
+        }
+        
+        /// <summary>
+        /// Finds an existing GameData directory by checking common locations
+        /// Uses case-insensitive matching to handle different directory naming conventions
+        /// </summary>
+        /// <returns>The path to an existing GameData directory, or null if none found</returns>
+        private static string? FindGameDataDirectory()
+        {
+            string executableDir = AppDomain.CurrentDomain.BaseDirectory;
+            string currentDir = Directory.GetCurrentDirectory();
+            
+            // Check all possible GameData directory locations
+            foreach (string possiblePath in PossibleGameDataPaths)
+            {
+                if (Directory.Exists(possiblePath))
+                {
+                    return possiblePath;
+                }
+            }
+            
+            // If no exact match found, try case-insensitive search
+            // This handles cases where the directory might be "Code" vs "code"
+            string[] searchPaths = {
+                Path.Combine(currentDir, "..", "GameData"),
+                Path.Combine(executableDir, "..", "GameData"),
+                Path.Combine(currentDir, "..", "..", "GameData"),
+                Path.Combine(executableDir, "..", "..", "GameData"),
+                Path.Combine(executableDir, "GameData"),
+                Path.Combine(currentDir, "GameData")
+            };
+            
+            foreach (string searchPath in searchPaths)
+            {
+                try
+                {
+                    // Get the parent directory to search in
+                    string parentDir = Path.GetDirectoryName(searchPath) ?? "";
+                    string targetDirName = Path.GetFileName(searchPath);
+                    
+                    if (Directory.Exists(parentDir))
+                    {
+                        // Look for directories with case-insensitive matching
+                        string[] subdirs = Directory.GetDirectories(parentDir);
+                        foreach (string subdir in subdirs)
+                        {
+                            string dirName = Path.GetFileName(subdir);
+                            if (string.Equals(dirName, targetDirName, StringComparison.OrdinalIgnoreCase))
+                            {
+                                return subdir;
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+                    // Continue searching if this path fails
+                    continue;
+                }
+            }
+            
+            return null;
         }
         
         /// <summary>

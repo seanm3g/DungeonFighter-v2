@@ -41,7 +41,7 @@ namespace RPGGame
 
         private int XPToNextLevel()
         {
-            var tuning = TuningConfig.Instance;
+            var tuning = GameConfiguration.Instance;
             
             // Use new ExperienceSystem configuration if available
             if (tuning.ExperienceSystem != null)

@@ -38,19 +38,19 @@ namespace RPGGame
             Actions = new CharacterActions();
 
             // Initialize health based on tuning config
-            var tuning = TuningConfig.Instance;
+            var tuning = GameConfiguration.Instance;
             MaxHealth = tuning.Character.PlayerBaseHealth + (level - 1) * tuning.Character.HealthPerLevel;
             CurrentHealth = MaxHealth;
 
             // Add default actions
-            if (TuningConfig.IsDebugEnabled)
+            if (GameConfiguration.IsDebugEnabled)
                 UIManager.WriteLine($"DEBUG: Character created, adding default actions...");
             Actions.AddDefaultActions(this);
-            if (TuningConfig.IsDebugEnabled)
+            if (GameConfiguration.IsDebugEnabled)
                 UIManager.WriteLine($"DEBUG: After AddDefaultActions, ActionPool has {ActionPool.Count} actions");
             
             Actions.AddClassActions(this, Progression, null);
-            if (TuningConfig.IsDebugEnabled)
+            if (GameConfiguration.IsDebugEnabled)
                 UIManager.WriteLine($"DEBUG: After AddClassActions, ActionPool has {ActionPool.Count} actions");
         }
 
@@ -277,8 +277,9 @@ namespace RPGGame
             int oldLevel = Progression.Level;
             Progression.AddXP(amount);
             
-            // Check if level increased and apply character-level changes
-            if (Progression.Level > oldLevel)
+            // Apply character-level changes for each level gained
+            int levelsGained = Progression.Level - oldLevel;
+            for (int i = 0; i < levelsGained; i++)
             {
                 LevelUp();
             }
@@ -287,10 +288,10 @@ namespace RPGGame
 
         public void LevelUp()
         {
-            Progression.LevelUp();
+            // Note: Level has already been incremented by Progression.AddXP()
             Stats.LevelUp((Equipment.Weapon as WeaponItem)?.WeaponType ?? WeaponType.Mace);
             
-            var tuning = TuningConfig.Instance;
+            var tuning = GameConfiguration.Instance;
             
             // Apply class balance multipliers if available
             var classBalance = tuning.ClassBalance;
@@ -582,7 +583,7 @@ namespace RPGGame
         // Combat calculations
         public double GetComboAmplifier()
         {
-            var tuning = TuningConfig.Instance;
+            var tuning = GameConfiguration.Instance;
             
             // Clamp Technique to valid range
             int clampedTech = Math.Max(1, Math.Min(tuning.ComboSystem.ComboAmplifierMaxTech, Technique));
@@ -603,11 +604,26 @@ namespace RPGGame
         public double GetCurrentComboAmplification()
         {
             var comboActions = GetComboActions();
-            if (comboActions.Count == 0) return 1.0;
+            if (comboActions.Count == 0) return GetComboAmplifier();
             
             int currentStep = ComboStep % comboActions.Count;
             double baseAmp = GetComboAmplifier();
             return Math.Pow(baseAmp, currentStep);
+        }
+
+        /// <summary>
+        /// Gets the amplification that will be applied when the next combo action is executed.
+        /// This is used for display purposes to show what amplification the player will get.
+        /// </summary>
+        public double GetNextComboAmplification()
+        {
+            var comboActions = GetComboActions();
+            if (comboActions.Count == 0) return GetComboAmplifier();
+            
+            int currentStep = ComboStep % comboActions.Count;
+            double baseAmp = GetComboAmplifier();
+            // Show what amplification will be applied when the combo executes
+            return Math.Pow(baseAmp, currentStep + 1);
         }
 
         public string GetComboInfo()
@@ -637,7 +653,7 @@ namespace RPGGame
 
         public int GetIntelligenceRollBonus()
         {
-            var tuning = TuningConfig.Instance;
+            var tuning = GameConfiguration.Instance;
             return Intelligence / tuning.Attributes.IntelligenceRollBonusPer; // Every X points of INT gives +1 to rolls
         }
 
@@ -694,17 +710,17 @@ namespace RPGGame
         }
 
         // Save/Load methods
-        public void SaveCharacter(string filename = "GameData/character_save.json")
+        public void SaveCharacter(string? filename = null)
         {
             CharacterSaveManager.SaveCharacter(this, filename);
         }
 
-        public static Character? LoadCharacter(string filename = "GameData/character_save.json")
+        public static Character? LoadCharacter(string? filename = null)
         {
             return CharacterSaveManager.LoadCharacter(filename);
         }
 
-        public static void DeleteSaveFile(string filename = "GameData/character_save.json")
+        public static void DeleteSaveFile(string? filename = null)
         {
             CharacterSaveManager.DeleteSaveFile(filename);
         }

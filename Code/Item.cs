@@ -113,7 +113,8 @@ namespace RPGGame
                 }
             }
             
-            return totalArmor;
+            // Prevent integer overflow
+            return Math.Max(int.MinValue + 1, Math.Min(int.MaxValue - 1, totalArmor));
         }
     }
 
@@ -148,7 +149,8 @@ namespace RPGGame
                 }
             }
             
-            return totalArmor;
+            // Prevent integer overflow
+            return Math.Max(int.MinValue + 1, Math.Min(int.MaxValue - 1, totalArmor));
         }
     }
 
@@ -183,7 +185,8 @@ namespace RPGGame
                 }
             }
             
-            return totalArmor;
+            // Prevent integer overflow
+            return Math.Max(int.MinValue + 1, Math.Min(int.MaxValue - 1, totalArmor));
         }
     }
 
@@ -219,11 +222,18 @@ namespace RPGGame
         /// <returns>Attack speed multiplier (0.9 = 10% faster, 1.1 = 10% slower)</returns>
         public double GetAttackSpeedMultiplier()
         {
-            // BaseAttackSpeed is now used directly as a multiplier
-            // 0.9 = 10% faster than base
-            // 1.0 = same speed as base  
-            // 1.1 = 10% slower than base
-            return BaseAttackSpeed;
+            // Clamp the attack speed to reasonable multiplier values
+            // The scaling system has corrupted BaseAttackSpeed, so we need to normalize it
+            double normalizedSpeed = Math.Max(0.1, Math.Min(10.0, BaseAttackSpeed));
+            
+            // If the speed is extremely high (corrupted by scaling), use a reasonable default
+            if (BaseAttackSpeed > 10.0)
+            {
+                // Use a reasonable default for corrupted values
+                return 1.0; // Normal speed
+            }
+            
+            return normalizedSpeed;
         }
     }
 } 

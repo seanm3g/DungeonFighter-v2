@@ -908,7 +908,7 @@
     "tags": ["armor"]
   },
   {
-    "name": "Acid Spit",
+    "name": "ACID SPIT",
     "type": "Attack",
     "damageMultiplier": 1.2,
     "length": 2.0,
@@ -930,7 +930,7 @@
     "tags": ["enemy", "bat"]
   },
   {
-    "name": "Bone Strike",
+    "name": "BONE STRIKE",
     "type": "Attack",
     "damageMultiplier": 1.3,
     "length": 1.8,
@@ -940,7 +940,7 @@
     "tags": ["enemy", "skeleton"]
   },
   {
-    "name": "Shamble Attack",
+    "name": "SHAMBLE ATTACK",
     "type": "Attack",
     "damageMultiplier": 1.5,
     "length": 3.0,
@@ -950,7 +950,7 @@
     "tags": ["enemy", "zombie"]
   },
   {
-    "name": "Crystal Slam",
+    "name": "CRYSTAL SLAM",
     "type": "Attack",
     "damageMultiplier": 1.4,
     "length": 2.5,
@@ -970,7 +970,7 @@
     "tags": ["enemy", "crystal", "golem"]
   },
   {
-    "name": "Light Refraction",
+    "name": "LIGHT REFRACTION",
     "type": "Debuff",
     "damageMultiplier": 1.0,
     "length": 1.5,
@@ -981,7 +981,7 @@
     "tags": ["enemy", "crystal", "spider"]
   },
   {
-    "name": "Web Trap",
+    "name": "WEB TRAP",
     "type": "Debuff",
     "damageMultiplier": 0.5,
     "length": 2.0,
@@ -991,7 +991,7 @@
     "tags": ["enemy", "crystal", "spider"]
   },
   {
-    "name": "Shard Volley",
+    "name": "SHARD VOLLEY",
     "type": "Attack",
     "damageMultiplier": 1.4,
     "length": 2.2,
@@ -1003,7 +1003,7 @@
     "tags": ["enemy", "crystal", "beast"]
   },
   {
-    "name": "Crystal Charge",
+    "name": "CRYSTAL CHARGE",
     "type": "Attack",
     "damageMultiplier": 1.8,
     "length": 2.8,
@@ -1013,7 +1013,7 @@
     "tags": ["enemy", "crystal", "beast"]
   },
   {
-    "name": "Guardian Strike",
+    "name": "GUARDIAN STRIKE",
     "type": "Attack",
     "damageMultiplier": 1.5,
     "length": 3.0,
@@ -1023,7 +1023,7 @@
     "tags": ["enemy", "temple", "guardian"]
   },
   {
-    "name": "Stone Shield",
+    "name": "STONE SHIELD",
     "type": "Buff",
     "damageMultiplier": 0.0,
     "length": 2.0,
@@ -1033,7 +1033,7 @@
     "tags": ["enemy", "temple", "guardian"]
   },
   {
-    "name": "Ancient Curse",
+    "name": "ANCIENT CURSE",
     "type": "Debuff",
     "damageMultiplier": 1.2,
     "length": 3.5,
@@ -1044,7 +1044,7 @@
     "tags": ["enemy", "temple", "warden"]
   },
   {
-    "name": "Sacred Bolt",
+    "name": "SACRED BOLT",
     "type": "Spell",
     "damageMultiplier": 1.6,
     "length": 2.2,
@@ -1054,7 +1054,7 @@
     "tags": ["enemy", "temple", "warden"]
   },
   {
-    "name": "Sentinel Beam",
+    "name": "SENTINEL BEAM",
     "type": "Spell",
     "damageMultiplier": 1.6,
     "length": 4.0,
@@ -1064,7 +1064,7 @@
     "tags": ["enemy", "temple", "sentinel"]
   },
   {
-    "name": "Divine Wrath",
+    "name": "DIVINE WRATH",
     "type": "Attack",
     "damageMultiplier": 1.8,
     "length": 5.0,
@@ -1166,7 +1166,7 @@
     "tags": ["class", "wizard", "unique", "comboScaling"]
   },
   {
-    "name": "Basic Attack",
+    "name": "BASIC ATTACK",
     "type": "Attack",
     "damageMultiplier": 1.0,
     "length": 1.0,
@@ -1176,7 +1176,7 @@
     "tags": ["enemy", "basic"]
   },
   {
-    "name": "Haunting Wail",
+    "name": "HAUNTING WAIL",
     "type": "Attack",
     "damageMultiplier": 1.1,
     "length": 2.0,
@@ -1186,7 +1186,7 @@
     "tags": ["enemy", "wraith"]
   },
   {
-    "name": "Poison Bite",
+    "name": "POISON BITE",
     "type": "Attack",
     "damageMultiplier": 1.0,
     "length": 1.5,
@@ -1197,7 +1197,7 @@
     "tags": ["enemy", "spider"]
   },
   {
-    "name": "Jab",
+    "name": "JAB",
     "type": "Attack",
     "damageMultiplier": 0.8,
     "length": 0.8,
@@ -1207,7 +1207,7 @@
     "tags": ["enemy", "basic"]
   },
   {
-    "name": "Pack Howl",
+    "name": "PACK HOWL",
     "type": "Buff",
     "damageMultiplier": 0.0,
     "length": 2.0,
@@ -1228,7 +1228,7 @@
     "tags": ["enemy", "wolf", "spider"]
   },
   {
-    "name": "Claw Swipe",
+    "name": "CLAW SWIPE",
     "type": "Attack",
     "damageMultiplier": 1.4,
     "length": 1.5,
@@ -1239,7 +1239,7 @@
     "tags": ["enemy", "bear"]
   },
   {
-    "name": "Roar",
+    "name": "ROAR",
     "type": "Debuff",
     "damageMultiplier": 0.0,
     "length": 2.0,
@@ -1250,7 +1250,7 @@
     "tags": ["enemy", "bear"]
   },
   {
-    "name": "Root Strike",
+    "name": "ROOT STRIKE",
     "type": "Attack",
     "damageMultiplier": 1.3,
     "length": 2.0,
@@ -1260,7 +1260,7 @@
     "tags": ["enemy", "treant"]
   },
   {
-    "name": "Bark Armor",
+    "name": "BARK ARMOR",
     "type": "Buff",
     "damageMultiplier": 0.0,
     "length": 3.0,
@@ -1270,7 +1270,7 @@
     "tags": ["enemy", "treant"]
   },
   {
-    "name": "Flame Burst",
+    "name": "FLAME BURST",
     "type": "Attack",
     "damageMultiplier": 1.2,
     "length": 1.5,
@@ -1280,7 +1280,7 @@
     "tags": ["enemy", "fire"]
   },
   {
-    "name": "Heat Wave",
+    "name": "HEAT WAVE",
     "type": "Attack",
     "damageMultiplier": 1.1,
     "length": 2.0,
@@ -1290,7 +1290,7 @@
     "tags": ["enemy", "fire"]
   },
   {
-    "name": "Magma Punch",
+    "name": "MAGMA PUNCH",
     "type": "Attack",
     "damageMultiplier": 1.4,
     "length": 2.5,
@@ -1300,7 +1300,7 @@
     "tags": ["enemy", "lava"]
   },
   {
-    "name": "Lava Spit",
+    "name": "LAVA SPIT",
     "type": "Attack",
     "damageMultiplier": 1.2,
     "length": 1.8,
@@ -1311,7 +1311,7 @@
     "tags": ["enemy", "lava"]
   },
   {
-    "name": "Fire Breath",
+    "name": "FIRE BREATH",
     "type": "Attack",
     "damageMultiplier": 1.2,
     "length": 2.0,
@@ -1321,7 +1321,7 @@
     "tags": ["enemy", "salamander"]
   },
   {
-    "name": "Tail Whip",
+    "name": "TAIL WHIP",
     "type": "Attack",
     "damageMultiplier": 1.2,
     "length": 1.2,
@@ -1331,7 +1331,7 @@
     "tags": ["enemy", "salamander"]
   },
   {
-    "name": "Death Ray",
+    "name": "DEATH RAY",
     "type": "Attack",
     "damageMultiplier": 1.5,
     "length": 3.0,
@@ -1341,7 +1341,7 @@
     "tags": ["enemy", "lich"]
   },
   {
-    "name": "Bone Shield",
+    "name": "BONE SHIELD",
     "type": "Buff",
     "damageMultiplier": 0.0,
     "length": 4.0,
@@ -1351,7 +1351,7 @@
     "tags": ["enemy", "lich"]
   },
   {
-    "name": "Claw Attack",
+    "name": "CLAW ATTACK",
     "type": "Attack",
     "damageMultiplier": 1.1,
     "length": 1.0,
@@ -1362,7 +1362,7 @@
     "tags": ["enemy", "ghoul"]
   },
   {
-    "name": "Paralyzing Touch",
+    "name": "PARALYZING TOUCH",
     "type": "Debuff",
     "damageMultiplier": 0.0,
     "length": 3.0,
@@ -1373,7 +1373,7 @@
     "tags": ["enemy", "ghoul"]
   },
   {
-    "name": "Life Drain",
+    "name": "LIFE DRAIN",
     "type": "Attack",
     "damageMultiplier": 1.3,
     "length": 2.0,
@@ -1383,7 +1383,7 @@
     "tags": ["enemy", "wight"]
   },
   {
-    "name": "Fear Aura",
+    "name": "FEAR AURA",
     "type": "Debuff",
     "damageMultiplier": 0.0,
     "length": 3.0,
@@ -1394,7 +1394,7 @@
     "tags": ["enemy", "wight"]
   },
   {
-    "name": "Crystal Shard",
+    "name": "CRYSTAL SHARD",
     "type": "Attack",
     "damageMultiplier": 1.0,
     "length": 1.0,
@@ -1405,7 +1405,7 @@
     "tags": ["enemy", "crystal", "sprite"]
   },
   {
-    "name": "Sparkle",
+    "name": "SPARKLE",
     "type": "Debuff",
     "damageMultiplier": 0.0,
     "length": 2.0,
@@ -1416,7 +1416,7 @@
     "tags": ["enemy", "crystal", "sprite"]
   },
   {
-    "name": "Crystal Burst",
+    "name": "CRYSTAL BURST",
     "type": "Attack",
     "damageMultiplier": 1.7,
     "length": 2.0,
@@ -1427,7 +1427,7 @@
     "tags": ["enemy", "crystal", "beast"]
   },
   {
-    "name": "Hardened Shell",
+    "name": "HARDENED SHELL",
     "type": "Buff",
     "damageMultiplier": 0.0,
     "length": 4.0,
@@ -1437,7 +1437,7 @@
     "tags": ["enemy", "crystal", "beast"]
   },
   {
-    "name": "Crystal Breath",
+    "name": "CRYSTAL BREATH",
     "type": "Attack",
     "damageMultiplier": 1.4,
     "length": 3.0,
@@ -1447,7 +1447,7 @@
     "tags": ["enemy", "crystal", "wyrm"]
   },
   {
-    "name": "Tail Crush",
+    "name": "TAIL CRUSH",
     "type": "Attack",
     "damageMultiplier": 1.3,
     "length": 2.5,
@@ -1457,7 +1457,7 @@
     "tags": ["enemy", "crystal", "wyrm"]
   },
   {
-    "name": "Divine Strike",
+    "name": "DIVINE STRIKE",
     "type": "Attack",
     "damageMultiplier": 1.6,
     "length": 2.0,
@@ -1467,7 +1467,7 @@
     "tags": ["enemy", "temple", "guard"]
   },
   {
-    "name": "Shield Bash",
+    "name": "SHIELD BASH",
     "type": "Attack",
     "damageMultiplier": 1.2,
     "length": 1.5,
@@ -1477,7 +1477,7 @@
     "tags": ["enemy", "temple", "guard"]
   },
   {
-    "name": "Heal",
+    "name": "HEAL",
     "type": "Heal",
     "damageMultiplier": 0.0,
     "length": 2.0,
@@ -1487,7 +1487,7 @@
     "tags": ["enemy", "temple", "priest"]
   },
   {
-    "name": "Smite",
+    "name": "SMITE",
     "type": "Attack",
     "damageMultiplier": 1.8,
     "length": 2.5,
@@ -1497,7 +1497,7 @@
     "tags": ["enemy", "temple", "priest"]
   },
   {
-    "name": "Holy Strike",
+    "name": "HOLY STRIKE",
     "type": "Attack",
     "damageMultiplier": 1.9,
     "length": 2.2,
@@ -1507,7 +1507,7 @@
     "tags": ["enemy", "temple", "paladin"]
   },
   {
-    "name": "Divine Protection",
+    "name": "DIVINE PROTECTION",
     "type": "Buff",
     "damageMultiplier": 0.0,
     "length": 5.0,
@@ -1517,7 +1517,7 @@
     "tags": ["enemy", "temple", "paladin"]
   },
   {
-    "name": "Dirty Strike",
+    "name": "DIRTY STRIKE",
     "type": "Attack",
     "damageMultiplier": 1.1,
     "length": 1.0,
@@ -1528,7 +1528,7 @@
     "tags": ["enemy", "bandit"]
   },
   {
-    "name": "Intimidate",
+    "name": "INTIMIDATE",
     "type": "Debuff",
     "damageMultiplier": 0.0,
     "length": 2.0,
@@ -1539,7 +1539,7 @@
     "tags": ["enemy", "bandit"]
   },
   {
-    "name": "Brutal Strike",
+    "name": "BRUTAL STRIKE",
     "type": "Attack",
     "damageMultiplier": 1.5,
     "length": 1.8,
@@ -1549,7 +1549,7 @@
     "tags": ["enemy", "orc"]
   },
   {
-    "name": "War Cry",
+    "name": "WAR CRY",
     "type": "Buff",
     "damageMultiplier": 0.0,
     "length": 3.0,
@@ -1560,7 +1560,7 @@
     "tags": ["enemy", "orc"]
   },
   {
-    "name": "Regenerate",
+    "name": "REGENERATE",
     "type": "Heal",
     "damageMultiplier": 0.0,
     "length": 4.0,
@@ -1570,7 +1570,7 @@
     "tags": ["enemy", "troll"]
   },
   {
-    "name": "Club Smash",
+    "name": "CLUB SMASH",
     "type": "Attack",
     "damageMultiplier": 1.5,
     "length": 3.0,
@@ -1580,7 +1580,7 @@
     "tags": ["enemy", "troll"]
   },
   {
-    "name": "Sneak Attack",
+    "name": "SNEAK ATTACK",
     "type": "Attack",
     "damageMultiplier": 1.3,
     "length": 0.8,
@@ -1591,7 +1591,7 @@
     "tags": ["enemy", "kobold"]
   },
   {
-    "name": "Trap",
+    "name": "TRAP",
     "type": "Debuff",
     "damageMultiplier": 0.0,
     "length": 2.0,

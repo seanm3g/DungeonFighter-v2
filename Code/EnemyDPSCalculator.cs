@@ -13,7 +13,8 @@ namespace RPGGame
         Assassin,     // Fast, moderate damage (moderate speed, moderate damage)
         Warrior,      // Balanced speed and damage (average speed, average damage)
         Brute,        // Slow, high damage (low speed, high damage per hit)
-        Juggernaut    // Very slow, very high damage (very low speed, very high damage)
+        Juggernaut,   // Very slow, very high damage (very low speed, very high damage)
+        Guardian      // Very high sustain, low damage (maximum health and armor, minimal damage)
     }
 
     /// <summary>
@@ -109,6 +110,19 @@ namespace RPGGame
                     AttributeWeights = new() { ["Strength"] = 2.5, ["Technique"] = 1.2, ["Agility"] = 0.4 },
                     TargetDPSAtLevel1 = 5.3
                 }
+            },
+            {
+                EnemyArchetype.Guardian,
+                new EnemyAttackProfile
+                {
+                    Archetype = EnemyArchetype.Guardian,
+                    Name = "Guardian",
+                    Description = "Maximum sustain, minimal damage",
+                    SpeedMultiplier = 1.2,  // 20% slower attacks
+                    DamageMultiplier = 0.6, // 40% less damage per hit
+                    AttributeWeights = new() { ["Strength"] = 0.8, ["Technique"] = 1.5, ["Agility"] = 0.6, ["Intelligence"] = 1.0 },
+                    TargetDPSAtLevel1 = 3.0
+                }
             }
         };
 
@@ -134,7 +148,7 @@ namespace RPGGame
             double adjustedDamage = baseDamage * profile.DamageMultiplier;
             
             // Calculate attack speed using the same logic as Character.GetTotalAttackSpeed
-            var tuning = TuningConfig.Instance;
+            var tuning = GameConfiguration.Instance;
             double baseAttackTime = tuning.Combat.BaseAttackTime;
             
             // Agility reduces attack time (makes you faster)
@@ -173,7 +187,14 @@ namespace RPGGame
             }
             else if (techniqueRatio >= 0.3) // Decent technique
             {
+                // If technique is high but other stats are low, might be a Guardian
+                if (strengthRatio <= 0.2 && agilityRatio <= 0.2)
+                    return EnemyArchetype.Guardian;
                 return EnemyArchetype.Assassin;
+            }
+            else if (strengthRatio <= 0.2 && agilityRatio <= 0.2 && techniqueRatio >= 0.25) // Low damage stats, decent technique
+            {
+                return EnemyArchetype.Guardian;
             }
             
             // Default to balanced
@@ -187,7 +208,7 @@ namespace RPGGame
             EnemyArchetype archetype, int level, double targetDPS)
         {
             var profile = GetArchetypeProfile(archetype);
-            var tuning = TuningConfig.Instance;
+            var tuning = GameConfiguration.Instance;
             
             // Start with base stats scaled by level
             int baseStatPerLevel = tuning.Attributes.EnemyAttributesPerLevel;
@@ -307,7 +328,7 @@ namespace RPGGame
                 var profile = GetArchetypeProfile(archetype);
                 
                 // Calculate attack time and damage per hit
-                var tuning = TuningConfig.Instance;
+                var tuning = GameConfiguration.Instance;
                 double baseAttackTime = tuning.Combat.BaseAttackTime;
                 double agilityReduction = testEnemy.Agility * tuning.Combat.AgilitySpeedReduction;
                 double attackTime = Math.Max(tuning.Combat.MinimumAttackTime, 

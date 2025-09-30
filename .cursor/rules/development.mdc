@@ -1,0 +1,37 @@
+---
+alwaysApply: true
+---
+
+# Development Rules for DungeonFighter-v2
+
+## Development Process
+Always follow the development workflow:
+
+1. **Pre-Development**: Read ARCHITECTURE.md and TASKLIST.md
+2. **During Development**: Make incremental changes, test frequently
+3. **Post-Development**: Run tests, update documentation, commit changes
+
+## Code Standards
+- Follow patterns in CODE_PATTERNS.md
+- Use established naming conventions
+- Implement proper error handling
+- Add comprehensive testing
+- Document complex logic
+
+## Testing Requirements
+- Run relevant tests after each change
+- Use TESTING_STRATEGY.md for comprehensive testing
+- Verify balance with balance analysis
+- Check for regressions
+
+## Documentation Requirements
+- Update relevant documentation files
+- Add new patterns to CODE_PATTERNS.md
+- Document solutions in PROBLEM_SOLUTIONS.md
+- Update KNOWN_ISSUES.md for any new problems
+
+## Quality Assurance
+- Follow CODE_PATTERNS.md for consistent code style
+- Use TESTING_STRATEGY.md for comprehensive testing
+- Monitor performance with PERFORMANCE_NOTES.md
+- Maintain code quality standards

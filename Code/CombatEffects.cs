@@ -19,13 +19,14 @@ namespace RPGGame
         public static bool ApplyStatusEffects(Action action, Entity attacker, Entity target, List<string> results)
         {
             bool effectsApplied = false;
+            string statusMessage = "";
             
             // Apply bleed effect
             if (action.CausesBleed && CombatCalculator.CalculateStatusEffectChance(action, attacker, target))
             {
-                var bleedConfig = TuningConfig.Instance.StatusEffects.Bleed;
-                target.ApplyPoison(bleedConfig.DamagePerTick, bleedConfig.MaxStacks, true);
-                results.Add($"    [{target.Name}] is bleeding!");
+                var bleedConfig = GameConfiguration.Instance.StatusEffects.Bleed;
+                target.ApplyPoison(bleedConfig.DamagePerTick, bleedConfig.StacksPerApplication, true);
+                statusMessage += $"\n    [{target.Name}] is bleeding!";
                 effectsApplied = true;
             }
             
@@ -33,7 +34,7 @@ namespace RPGGame
             if (action.CausesWeaken && CombatCalculator.CalculateStatusEffectChance(action, attacker, target))
             {
                 target.ApplyWeaken(2); // 2 turns of weaken
-                results.Add($"    [{target.Name}] is weakened!");
+                statusMessage += $"\n    [{target.Name}] is weakened!";
                 effectsApplied = true;
             }
             
@@ -41,27 +42,42 @@ namespace RPGGame
             if (action.CausesSlow && CombatCalculator.CalculateStatusEffectChance(action, attacker, target))
             {
                 // For now, just add a message - would need proper slow implementation
-                results.Add($"    [{target.Name}] is slowed!");
+                statusMessage += $"\n    [{target.Name}] is slowed!";
                 effectsApplied = true;
             }
             
             // Apply poison effect
             if (action.CausesPoison && CombatCalculator.CalculateStatusEffectChance(action, attacker, target))
             {
-                var poisonConfig = TuningConfig.Instance.Poison;
+                var poisonConfig = GameConfiguration.Instance.StatusEffects.Poison;
                 target.ApplyPoison(poisonConfig.DamagePerTick, poisonConfig.StacksPerApplication);
-                results.Add($"    [{target.Name}] is poisoned!");
+                statusMessage += $"\n    [{target.Name}] is poisoned!";
                 effectsApplied = true;
             }
             
             // Apply stun effect
             if (action.CausesStun && CombatCalculator.CalculateStatusEffectChance(action, attacker, target))
             {
-                var stunConfig = TuningConfig.Instance.StatusEffects.Stun;
+                var stunConfig = GameConfiguration.Instance.StatusEffects.Stun;
                 target.IsStunned = true;
                 target.StunTurnsRemaining = stunConfig.SkipTurns;
-                results.Add($"    [{target.Name}] is stunned!");
+                statusMessage += $"    [{target.Name}] is stunned!";
                 effectsApplied = true;
+            }
+            
+            // Apply burn effect
+            if (action.CausesBurn && CombatCalculator.CalculateStatusEffectChance(action, attacker, target))
+            {
+                var burnConfig = GameConfiguration.Instance.StatusEffects.Burn;
+                target.ApplyBurn(burnConfig.DamagePerTick, burnConfig.MaxStacks);
+                statusMessage += $"    [{target.Name}] is burning!";
+                effectsApplied = true;
+            }
+            
+            // If any effects were applied, append the status message to the last result
+            if (effectsApplied && results.Count > 0)
+            {
+                results[results.Count - 1] += statusMessage;
             }
             
             return effectsApplied;
@@ -157,7 +173,15 @@ namespace RPGGame
                     if (action.CausesPoison)
                     {
                         target.ApplyPoison(3, 1);
-                        results.Add($"[{target.Name}] is poisoned by the environment!");
+                        // Append to last result if available, otherwise add as new result
+                        if (results.Count > 0)
+                        {
+                            results[results.Count - 1] += $"\n    [{target.Name}] is poisoned by the environment!";
+                        }
+                        else
+                        {
+                            results.Add($"[{target.Name}] is poisoned by the environment!");
+                        }
                         return true;
                     }
                     break;
@@ -165,7 +189,15 @@ namespace RPGGame
                 case "slow":
                     if (action.CausesSlow)
                     {
-                        results.Add($"[{target.Name}] is slowed by the environment!");
+                        // Append to last result if available, otherwise add as new result
+                        if (results.Count > 0)
+                        {
+                            results[results.Count - 1] += $"\n    [{target.Name}] is slowed by the environment!";
+                        }
+                        else
+                        {
+                            results.Add($"[{target.Name}] is slowed by the environment!");
+                        }
                         return true;
                     }
                     break;
@@ -174,7 +206,15 @@ namespace RPGGame
                     if (action.CausesWeaken)
                     {
                         target.ApplyWeaken(2);
-                        results.Add($"[{target.Name}] is weakened by the environment!");
+                        // Append to last result if available, otherwise add as new result
+                        if (results.Count > 0)
+                        {
+                            results[results.Count - 1] += $"\n    [{target.Name}] is weakened by the environment!";
+                        }
+                        else
+                        {
+                            results.Add($"[{target.Name}] is weakened by the environment!");
+                        }
                         return true;
                     }
                     break;
@@ -184,7 +224,32 @@ namespace RPGGame
                     {
                         target.IsStunned = true;
                         target.StunTurnsRemaining = 1;
-                        results.Add($"[{target.Name}] is stunned by the environment!");
+                        // Append to last result if available, otherwise add as new result
+                        if (results.Count > 0)
+                        {
+                            results[results.Count - 1] += $"\n    [{target.Name}] is stunned by the environment!";
+                        }
+                        else
+                        {
+                            results.Add($"[{target.Name}] is stunned by the environment!");
+                        }
+                        return true;
+                    }
+                    break;
+                    
+                case "burn":
+                    if (action.CausesBurn)
+                    {
+                        target.ApplyBurn(3, 1);
+                        // Append to last result if available, otherwise add as new result
+                        if (results.Count > 0)
+                        {
+                            results[results.Count - 1] += $"\n    [{target.Name}] is burning from the environment!";
+                        }
+                        else
+                        {
+                            results.Add($"[{target.Name}] is burning from the environment!");
+                        }
                         return true;
                     }
                     break;

@@ -25,7 +25,7 @@ namespace RPGGame
             catch (Exception ex)
             {
                 UIManager.WriteSystemLine($"Error in {operationName}: {ex.Message}");
-                if (TuningConfig.IsDebugEnabled)
+                if (GameConfiguration.IsDebugEnabled)
                 {
                     UIManager.WriteSystemLine($"Stack trace: {ex.StackTrace}");
                 }
@@ -52,7 +52,7 @@ namespace RPGGame
             catch (Exception ex)
             {
                 UIManager.WriteSystemLine($"Error in {operationName}: {ex.Message}");
-                if (TuningConfig.IsDebugEnabled)
+                if (GameConfiguration.IsDebugEnabled)
                 {
                     UIManager.WriteSystemLine($"Stack trace: {ex.StackTrace}");
                 }
@@ -77,7 +77,7 @@ namespace RPGGame
             catch (Exception ex)
             {
                 UIManager.WriteSystemLine($"Error in {operationName}: {ex.Message}");
-                if (TuningConfig.IsDebugEnabled)
+                if (GameConfiguration.IsDebugEnabled)
                 {
                     UIManager.WriteSystemLine($"Stack trace: {ex.StackTrace}");
                 }
@@ -102,7 +102,7 @@ namespace RPGGame
             catch (Exception ex)
             {
                 UIManager.WriteSystemLine($"Error loading {fileName}: {ex.Message}");
-                if (TuningConfig.IsDebugEnabled)
+                if (GameConfiguration.IsDebugEnabled)
                 {
                     UIManager.WriteSystemLine($"Stack trace: {ex.StackTrace}");
                 }
@@ -126,7 +126,7 @@ namespace RPGGame
             catch (Exception ex)
             {
                 UIManager.WriteSystemLine($"Error saving {fileName}: {ex.Message}");
-                if (TuningConfig.IsDebugEnabled)
+                if (GameConfiguration.IsDebugEnabled)
                 {
                     UIManager.WriteSystemLine($"Stack trace: {ex.StackTrace}");
                 }
@@ -151,7 +151,7 @@ namespace RPGGame
             catch (Exception ex)
             {
                 UIManager.WriteSystemLine($"Error in file operation '{operationName}': {ex.Message}");
-                if (TuningConfig.IsDebugEnabled)
+                if (GameConfiguration.IsDebugEnabled)
                 {
                     UIManager.WriteSystemLine($"Stack trace: {ex.StackTrace}");
                 }
@@ -174,7 +174,7 @@ namespace RPGGame
             {
                 UIManager.WriteSystemLine($"Additional info: {additionalInfo}");
             }
-            if (TuningConfig.IsDebugEnabled)
+            if (GameConfiguration.IsDebugEnabled)
             {
                 UIManager.WriteSystemLine($"Stack trace: {ex.StackTrace}");
             }

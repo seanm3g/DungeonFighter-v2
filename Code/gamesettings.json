@@ -1,11 +1,12 @@
 {
-  "NarrativeBalance": 0,
+  "NarrativeBalance": 0.6,
   "EnableNarrativeEvents": true,
   "EnableInformationalSummaries": true,
   "CombatSpeed": 1,
   "ShowIndividualActionMessages": false,
   "EnableComboSystem": true,
   "EnableTextDisplayDelays": true,
+  "FastCombat": true,
   "EnableAutoSave": true,
   "AutoSaveInterval": 5,
   "ShowDetailedStats": true,

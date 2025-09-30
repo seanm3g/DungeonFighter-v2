@@ -22,7 +22,7 @@ namespace RPGGame
         public void Generate()
         {
             // Use TuningConfig for dungeon scaling
-            var dungeonScaling = TuningConfig.Instance.DungeonScaling;
+            var dungeonScaling = GameConfiguration.Instance.DungeonScaling;
             var dungeonConfig = Game.LoadDungeonConfig();
             
             int roomCount = Math.Max(dungeonScaling.RoomCountBase, (int)Math.Ceiling(MinLevel * dungeonScaling.RoomCountPerLevel));

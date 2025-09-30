@@ -29,7 +29,8 @@ namespace RPGGame
         {
             while (true)
             {
-                UIManager.WriteLine("\nDungeon Fighter - Main Menu\n");
+                UIManager.WriteTitleLine("\nDUNGEON FIGHTER\n");
+
                 UIManager.WriteMenuLine("1. New Game");
                 
                 // Check if there's a saved character and display info
@@ -132,13 +133,15 @@ namespace RPGGame
         /// <param name="availableDungeons">Available dungeons list</param>
         public void RunGame(Character player, List<Item> inventory, List<Dungeon> availableDungeons)
         {
-            UIManager.WriteLine("Welcome to the Dungeon Fighter!\n");
-            UIManager.WriteLine($"Player: {player.GetFullNameWithQualifier()} (Level {player.Level})");
+            UIManager.WriteBlankLine();
+            UIManager.WriteTitleLine(player.GetFullNameWithQualifier());
+            UIManager.WriteTitleLine("\nWelcome to...\n");
+            UIManager.WriteTitleLine("DUNGEON FIGHTER\n");
 
             while (true)
             {
                 // Ask if player wants to manage gear first
-                UIManager.WriteMenuLine("\nWhat would you like to do?");
+                UIManager.WriteTitleLine("\nWhat would you like to do?");
                 UIManager.WriteMenuLine("");
                 UIManager.WriteMenuLine("1. Choose a Dungeon");
                 UIManager.WriteMenuLine("2. Inventory");

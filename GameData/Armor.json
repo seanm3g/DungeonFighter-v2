@@ -2,7 +2,7 @@
   {
     "slot": "head",
     "name": "Leather Helmet",
-    "armor": 1,
+    "armor": 2,
     "tier": 1
   },
   {
@@ -14,13 +14,13 @@
   {
     "slot": "head",
     "name": "Iron Helmet",
-    "armor": 1,
+    "armor": 3,
     "tier": 1
   },
   {
     "slot": "chest",
     "name": "Leather Armor",
-    "armor": 2,
+    "armor": 4,
     "tier": 1
   },
   {
@@ -32,13 +32,13 @@
   {
     "slot": "chest",
     "name": "Iron Chestplate",
-    "armor": 2,
+    "armor": 6,
     "tier": 1
   },
   {
     "slot": "feet",
     "name": "Leather Boots",
-    "armor": 1,
+    "armor": 2,
     "tier": 1
   },
   {
@@ -50,223 +50,223 @@
   {
     "slot": "feet",
     "name": "Iron Boots",
-    "armor": 1,
+    "armor": 3,
     "tier": 1
   },
   {
     "slot": "head",
     "name": "Chainmail Coif",
-    "armor": 2,
+    "armor": 5,
     "tier": 2
   },
   {
     "slot": "head",
     "name": "Studded Leather Cap",
-    "armor": 2,
+    "armor": 4,
     "tier": 2
   },
   {
     "slot": "head",
     "name": "Steel Helmet",
-    "armor": 2,
+    "armor": 6,
     "tier": 2
   },
   {
     "slot": "chest",
     "name": "Chainmail Shirt",
-    "armor": 4,
+    "armor": 10,
     "tier": 2
   },
   {
     "slot": "chest",
     "name": "Studded Leather Armor",
-    "armor": 4,
+    "armor": 7,
     "tier": 2
   },
   {
     "slot": "chest",
     "name": "Steel Chestplate",
-    "armor": 4,
+    "armor": 12,
     "tier": 2
   },
   {
     "slot": "feet",
     "name": "Chainmail Boots",
-    "armor": 2,
+    "armor": 5,
     "tier": 2
   },
   {
     "slot": "feet",
     "name": "Studded Leather Boots",
-    "armor": 2,
+    "armor": 4,
     "tier": 2
   },
   {
     "slot": "feet",
     "name": "Steel Boots",
-    "armor": 2,
+    "armor": 6,
     "tier": 2
   },
   {
     "slot": "head",
     "name": "Scale Mail Coif",
-    "armor": 4,
+    "armor": 8,
     "tier": 3
   },
   {
     "slot": "head",
     "name": "Ring Mail Helmet",
-    "armor": 4,
+    "armor": 7,
     "tier": 3
   },
   {
     "slot": "head",
     "name": "Mithril Helmet",
-    "armor": 4,
+    "armor": 10,
     "tier": 3
   },
   {
     "slot": "chest",
     "name": "Scale Mail",
-    "armor": 6,
+    "armor": 17,
     "tier": 3
   },
   {
     "slot": "chest",
     "name": "Ring Mail",
-    "armor": 6,
+    "armor": 14,
     "tier": 3
   },
   {
     "slot": "chest",
     "name": "Mithril Chestplate",
-    "armor": 6,
+    "armor": 20,
     "tier": 3
   },
   {
     "slot": "feet",
     "name": "Scale Mail Boots",
-    "armor": 4,
+    "armor": 8,
     "tier": 3
   },
   {
     "slot": "feet",
     "name": "Ring Mail Boots",
-    "armor": 4,
+    "armor": 7,
     "tier": 3
   },
   {
     "slot": "feet",
     "name": "Mithril Boots",
-    "armor": 4,
+    "armor": 10,
     "tier": 3
   },
   {
     "slot": "head",
     "name": "Splint Mail Coif",
-    "armor": 6,
+    "armor": 13,
     "tier": 4
   },
   {
     "slot": "head",
     "name": "Banded Mail Helmet",
-    "armor": 6,
+    "armor": 11,
     "tier": 4
   },
   {
     "slot": "head",
     "name": "Adamantine Helmet",
-    "armor": 6,
+    "armor": 14,
     "tier": 4
   },
   {
     "slot": "chest",
     "name": "Splint Mail",
-    "armor": 8,
+    "armor": 26,
     "tier": 4
   },
   {
     "slot": "chest",
     "name": "Banded Mail",
-    "armor": 8,
+    "armor": 22,
     "tier": 4
   },
   {
     "slot": "chest",
     "name": "Adamantine Chestplate",
-    "armor": 8,
+    "armor": 29,
     "tier": 4
   },
   {
     "slot": "feet",
     "name": "Splint Mail Boots",
-    "armor": 6,
+    "armor": 13,
     "tier": 4
   },
   {
     "slot": "feet",
     "name": "Banded Mail Boots",
-    "armor": 6,
+    "armor": 11,
     "tier": 4
   },
   {
     "slot": "feet",
     "name": "Adamantine Boots",
-    "armor": 6,
+    "armor": 14,
     "tier": 4
   },
   {
     "slot": "head",
     "name": "Plate Mail Coif",
-    "armor": 9,
+    "armor": 18,
     "tier": 5
   },
   {
     "slot": "head",
     "name": "Full Plate Helmet",
-    "armor": 9,
+    "armor": 16,
     "tier": 5
   },
   {
     "slot": "head",
     "name": "Dragon Scale Helmet",
-    "armor": 9,
+    "armor": 22,
     "tier": 5
   },
   {
     "slot": "chest",
     "name": "Plate Mail",
-    "armor": 11,
+    "armor": 36,
     "tier": 5
   },
   {
     "slot": "chest",
     "name": "Full Plate Armor",
-    "armor": 11,
+    "armor": 32,
     "tier": 5
   },
   {
     "slot": "chest",
     "name": "Dragon Scale Armor",
-    "armor": 11,
+    "armor": 43,
     "tier": 5
   },
   {
     "slot": "feet",
     "name": "Plate Mail Boots",
-    "armor": 9,
+    "armor": 18,
     "tier": 5
   },
   {
     "slot": "feet",
     "name": "Full Plate Boots",
-    "armor": 9,
+    "armor": 16,
     "tier": 5
   },
   {
     "slot": "feet",
     "name": "Dragon Scale Boots",
-    "armor": 9,
+    "armor": 22,
     "tier": 5
   }
 ]

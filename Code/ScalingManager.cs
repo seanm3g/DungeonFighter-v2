@@ -5,7 +5,7 @@ namespace RPGGame
 {
     public class ScalingManager
     {
-        private static TuningConfig Config => TuningConfig.Instance;
+        private static GameConfiguration Config => GameConfiguration.Instance;
         
         public static double CalculateWeaponDamage(int baseDamage, int tier, int level)
         {
@@ -51,7 +51,10 @@ namespace RPGGame
             {
                 // Apply simplified armor scaling based on tier
                 double tierMultiplier = 1.0 + (tier - 1) * 0.2; // 20% increase per tier
-                return baseArmor * tierMultiplier;
+                double result = baseArmor * tierMultiplier;
+                
+                // Prevent extreme values that could cause overflow
+                return Math.Max(1, Math.Min(10000, result));
             }
             
             // Fallback if no item scaling config

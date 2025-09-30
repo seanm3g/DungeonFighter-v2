@@ -1,5 +1,4 @@
 ---
-description: 
 alwaysApply: false
 ---
-run the command cls
+Run CLS in the command prompt

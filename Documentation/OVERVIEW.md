@@ -79,7 +79,6 @@ DungeonFighter-v2 is a sophisticated turn-based RPG/dungeon crawler game written
 - **`DiceResult`**: Specialized result tracking for combo mechanics
 - **`GameSettings`**: Singleton configuration management
 - **`TuningConfig`**: Dynamic configuration system with real-time parameter adjustment
-- **`TuningConsole`**: Interactive console for live parameter modification
 - **`FormulaEvaluator`**: Mathematical expression evaluator for dynamic formulas
 - **`ScalingManager`**: Centralized scaling calculations for items and enemies
 - **`BalanceAnalyzer`**: Automated balance testing and DPS calculations
@@ -101,7 +100,7 @@ DungeonFighter-v2 is a sophisticated turn-based RPG/dungeon crawler game written
 - **Dungeon System:** ✅ Procedural generation with 10 themed dungeons
 - **Data System:** ✅ Complete JSON-driven content management
 - **Testing Framework:** ✅ Comprehensive test suite with 27+ test categories
-- **Dynamic Tuning System:** ✅ Real-time parameter adjustment with FormulaEvaluator
+- **Dynamic Tuning System:** ✅ Real-time parameter adjustment with FormulaEvaluator and ScalingManager
 - **Balance Analysis:** ✅ Automated DPS calculations and combat balance testing
 - **Advanced Action System:** ✅ Complex action mechanics with temporary effects and divine rerolls
 
@@ -1079,6 +1078,14 @@ This section contains all the key balance parameters that can be adjusted to tun
 - Ranges are specified as "min-max" format
 - Some values may require game restart to take effect
 - Test changes in small increments to maintain game balance
+
+## Related Documentation
+
+- **`ARCHITECTURE.md`**: Detailed system architecture and design patterns
+- **`DEVELOPMENT_GUIDE.md`**: Comprehensive development guide
+- **`TASKLIST.md`**: Current development tasks and progress
+- **`QUICK_REFERENCE.md`**: Fast lookup for game systems
+- **`INDEX.md`**: Complete documentation index
 
 ---
 

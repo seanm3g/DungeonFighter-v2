@@ -25,13 +25,23 @@ namespace RPGGame
         public static string FormatDamageDisplay(Entity attacker, Entity target, int rawDamage, int actualDamage, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0)
         {
             string actionName = action?.Name ?? "attack";
+            
+            // Check if this is a critical hit (total roll of 20)
+            int totalRoll = roll + rollBonus;
+            bool isCritical = totalRoll == 20;
+            
+            // Add CRITICAL prefix to action name if it's a critical hit
+            if (isCritical)
+            {
+                actionName = $"CRITICAL {actionName}";
+            }
+            
             string damageText = $"[{attacker.Name}] hits [{target.Name}] with {actionName} for {actualDamage} damage";
             
             // Build the detailed roll and damage information
             var rollInfo = new List<string>();
             
             // Roll information: roll + buffs - debuffs = total (only show = if there are modifiers)
-            int totalRoll = roll + rollBonus;
             string rollDisplay = roll.ToString();
             if (rollBonus > 0)
             {
@@ -41,7 +51,7 @@ namespace RPGGame
             {
                 rollDisplay += $" {rollBonus} = {totalRoll}"; // Already includes the minus sign
             }
-            // If rollBonus is 0, don't add the = total part
+            // If rollBonus is 0, don't add the = total part (totalRoll will equal roll)
             rollInfo.Add($"roll: {rollDisplay}");
             
             // Attack vs Defense information: attack X - Y defense
@@ -67,11 +77,7 @@ namespace RPGGame
                 rollInfo.Add($"speed: {actualSpeed:F1}s");
             }
             
-            // Add critical hit and combo info to rollInfo if present
-            if (roll == 20)
-            {
-                rollInfo.Add("CRITICAL HIT!");
-            }
+            // Add combo info to rollInfo if present
             
             if (comboAmplifier > 1.0)
             {
@@ -228,7 +234,7 @@ namespace RPGGame
             // Build the detailed roll information
             var rollInfo = new List<string>();
             
-            // Roll information: roll + buffs - debuffs = total
+            // Roll information: roll + buffs - debuffs = total (only show = if there are modifiers)
             string rollDisplay = roll.ToString();
             int totalRoll = roll + rollBonus;
             if (rollBonus > 0)
@@ -239,10 +245,7 @@ namespace RPGGame
             {
                 rollDisplay += $" {rollBonus} = {totalRoll}"; // Already includes the minus sign
             }
-            else
-            {
-                rollDisplay += $" = {totalRoll}";
-            }
+            // If rollBonus is 0, don't add the = total part (totalRoll will equal roll)
             rollInfo.Add($"roll: {rollDisplay}");
             
             // Speed information - calculate actual action speed
@@ -269,12 +272,12 @@ namespace RPGGame
         /// <returns>Formatted miss message</returns>
         public static string FormatMissMessage(Entity attacker, Entity target, Action action, int roll, int rollBonus)
         {
-            string missText = $"[{attacker.Name}]'s {action.Name} misses [{target.Name}]";
+            string missText = $"[{attacker.Name}] misses [{target.Name}]";
             
             // Build the detailed roll information
             var rollInfo = new List<string>();
             
-            // Roll information: roll + buffs - debuffs = total
+            // Roll information: roll + buffs - debuffs = total (only show = if there are modifiers)
             string rollDisplay = roll.ToString();
             int totalRoll = roll + rollBonus;
             if (rollBonus > 0)
@@ -285,10 +288,7 @@ namespace RPGGame
             {
                 rollDisplay += $" {rollBonus} = {totalRoll}"; // Already includes the minus sign
             }
-            else
-            {
-                rollDisplay += $" = {totalRoll}";
-            }
+            // If rollBonus is 0, don't add the = total part (totalRoll will equal roll)
             rollInfo.Add($"roll: {rollDisplay}");
             
             // Speed information - calculate actual action speed

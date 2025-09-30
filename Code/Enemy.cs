@@ -22,6 +22,10 @@ namespace RPGGame
         public double TargetDPS { get; private set; }
         public double TargetDamage { get; private set; }
         public double TargetAttackSpeed { get; private set; }
+        
+        // Direct stat properties (for new system)
+        public int Damage { get; private set; }
+        public double AttackSpeed { get; private set; }
 
         public Enemy(string? name = null, int level = 1, int maxHealth = 50, int strength = 8, int agility = 6, int technique = 4, int intelligence = 4, int armor = 0, PrimaryAttribute primaryAttribute = PrimaryAttribute.Strength, bool isLiving = true, EnemyArchetype? archetype = null)
             : base(name ?? "Unknown Enemy")
@@ -34,10 +38,10 @@ namespace RPGGame
             Archetype = archetype ?? EnemyDPSCalculator.SuggestArchetypeForEnemy(name ?? "Unknown", strength, agility, technique, intelligence);
             AttackProfile = EnemyDPSCalculator.GetArchetypeProfile(Archetype);
             
-            var tuning = TuningConfig.Instance;
+            var tuning = GameConfiguration.Instance;
             
-            // Scale health and stats based on level and tuning config
-            MaxHealth = maxHealth + (level * tuning.Character.EnemyHealthPerLevel);
+            // Use the calculated health directly (no additional scaling)
+            MaxHealth = maxHealth;
             CurrentHealth = MaxHealth;
             
             // Use the stats as provided (they should already be calculated for target DPS)
@@ -51,6 +55,39 @@ namespace RPGGame
             
             // Primary attribute bonus is already included in the calculated stats
 
+            // Scale rewards based on level and tuning config
+            GoldReward = tuning.Progression.EnemyGoldBase + (level * tuning.Progression.EnemyGoldPerLevel);
+            XPReward = tuning.Progression.EnemyXPBase + (level * tuning.Progression.EnemyXPPerLevel);
+
+            ActionPool.Clear();
+            AddDefaultActions();
+        }
+
+        // New constructor for direct stat system
+        public Enemy(string? name = null, int level = 1, int maxHealth = 50, int damage = 8, int armor = 0, double attackSpeed = 1.0, PrimaryAttribute primaryAttribute = PrimaryAttribute.Strength, bool isLiving = true, EnemyArchetype? archetype = null, bool useDirectStats = true)
+            : base(name ?? "Unknown Enemy")
+        {
+            Level = level;
+            PrimaryAttribute = primaryAttribute;
+            IsLiving = isLiving;
+            Archetype = archetype ?? EnemyArchetype.Warrior;
+            AttackProfile = EnemyDPSCalculator.GetArchetypeProfile(Archetype);
+            
+            var tuning = GameConfiguration.Instance;
+            
+            // Use direct stats
+            MaxHealth = maxHealth;
+            CurrentHealth = MaxHealth;
+            Damage = damage;
+            Armor = armor;
+            AttackSpeed = attackSpeed;
+            
+            // Set legacy attributes to 0 since we're using direct stats
+            Strength = 0;
+            Agility = 0;
+            Technique = 0;
+            Intelligence = 0;
+            
             // Scale rewards based on level and tuning config
             GoldReward = tuning.Progression.EnemyGoldBase + (level * tuning.Progression.EnemyGoldPerLevel);
             XPReward = tuning.Progression.EnemyXPBase + (level * tuning.Progression.EnemyXPPerLevel);
@@ -126,11 +163,17 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Calculates enemy attack speed using archetype modifiers
+        /// Calculates enemy attack speed using direct stat or archetype modifiers
         /// </summary>
         public new double GetTotalAttackSpeed()
         {
-            // Use shared attack speed calculation logic
+            // If using direct stat system, return the direct attack speed
+            if (Damage > 0 && Strength == 0 && Agility == 0)
+            {
+                return AttackSpeed;
+            }
+            
+            // Otherwise use shared attack speed calculation logic
             return CombatCalculator.CalculateAttackSpeed(this);
         }
 

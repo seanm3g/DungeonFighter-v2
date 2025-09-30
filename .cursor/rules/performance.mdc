@@ -1,0 +1,41 @@
+---
+alwaysApply: true
+---
+
+# Performance Rules for DungeonFighter-v2
+
+## Performance Monitoring
+Always monitor performance:
+
+1. **Execution Time**: Track operation duration
+2. **Memory Usage**: Monitor memory consumption
+3. **Garbage Collection**: Watch for GC pressure
+4. **Scalability**: Test with large datasets
+
+## Performance Targets
+- Combat Response: <100ms for simple actions
+- Menu Navigation: <50ms response time
+- Data Loading: <500ms for all game data
+- Memory Usage: <200MB peak usage
+- Startup Time: <5 seconds total
+
+## Optimization Techniques
+- Use lazy loading for data
+- Implement object pooling
+- Cache expensive calculations
+- Use efficient data structures
+- Optimize algorithms
+
+## Performance Testing
+- Run performance tests regularly
+- Monitor memory usage
+- Test under load
+- Profile bottlenecks
+- Verify optimizations
+
+## Performance Best Practices
+- Use appropriate data structures
+- Avoid unnecessary object creation
+- Cache expensive calculations
+- Use lazy loading where appropriate
+- Optimize for common cases

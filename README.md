@@ -31,7 +31,7 @@ A sophisticated console-based RPG/dungeon crawler game built with .NET 8.0, feat
 - **Boss Chambers**: Special final rooms with powerful enemies
 
 ### Advanced Technical Features
-- **Dynamic Tuning System**: Real-time parameter adjustment with FormulaEvaluator
+- **Dynamic Tuning System**: Real-time parameter adjustment with FormulaEvaluator and ScalingManager
 - **Data-Driven Architecture**: All game data stored in structured JSON files
 - **Comprehensive Testing**: Built-in test suite with 27+ test categories
 - **Balance Analysis**: Automated DPS calculations and combat balance testing
@@ -123,8 +123,18 @@ DungeonFighter-v2/
 │   └── StatBonuses.json           # Stat bonus definitions
 ├── Documentation/                 # Project documentation
 │   ├── README.md                  # This file
+│   ├── ARCHITECTURE.md            # System architecture and design patterns
 │   ├── OVERVIEW.md                # Comprehensive system overview
 │   ├── TASKLIST.md                # Development tasks and progress
+│   ├── DEVELOPMENT_GUIDE.md       # Comprehensive development guide
+│   ├── PROBLEM_SOLUTIONS.md       # Solutions to common problems
+│   ├── QUICK_REFERENCE.md         # Fast lookup for key information
+│   ├── DEBUGGING_GUIDE.md         # Debugging techniques and tools
+│   ├── CODE_PATTERNS.md           # Code patterns and conventions
+│   ├── TESTING_STRATEGY.md        # Testing approaches and verification
+│   ├── DEVELOPMENT_WORKFLOW.md    # Step-by-step development process
+│   ├── KNOWN_ISSUES.md            # Track of known problems and status
+│   ├── PERFORMANCE_NOTES.md       # Performance considerations and optimizations
 │   └── Various feature docs       # Detailed feature documentation
 └── character_save.json            # Player save file (auto-generated)
 ```
@@ -219,6 +229,24 @@ The game includes a comprehensive test suite accessible from the settings menu:
    - All Tests (runs complete suite)
 
 ## Development
+
+### Development Resources
+
+**For Efficient Development:**
+- **`DEVELOPMENT_GUIDE.md`**: Comprehensive guide for efficient development
+- **`ARCHITECTURE.md`**: System architecture and design patterns
+- **`CODE_PATTERNS.md`**: Code patterns, conventions, and best practices
+- **`DEVELOPMENT_WORKFLOW.md`**: Step-by-step development process
+
+**For Problem Solving:**
+- **`PROBLEM_SOLUTIONS.md`**: Solutions to common problems
+- **`DEBUGGING_GUIDE.md`**: Debugging techniques and tools
+- **`QUICK_REFERENCE.md`**: Fast lookup for key information
+- **`KNOWN_ISSUES.md`**: Track of known problems and their status
+
+**For Quality Assurance:**
+- **`TESTING_STRATEGY.md`**: Testing approaches and verification methods
+- **`PERFORMANCE_NOTES.md`**: Performance considerations and optimizations
 
 ### Adding New Content
 

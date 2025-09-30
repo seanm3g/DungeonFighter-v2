@@ -48,7 +48,7 @@ namespace RPGGame
                 var startingGear = JsonSerializer.Deserialize<StartingGearData>(jsonContent) ?? new StartingGearData();
                 
                 // Apply weapon scaling from tuning config
-                var weaponScaling = TuningConfig.Instance.WeaponScaling;
+                var weaponScaling = GameConfiguration.Instance.WeaponScaling;
                 if (weaponScaling != null)
                 {
                     foreach (var weapon in startingGear.weapons)
@@ -88,7 +88,7 @@ namespace RPGGame
             
             // Prompt player to choose a starter weapon
             UIManager.WriteMenuLine("");
-            UIManager.WriteMenuLine("Choose your starter weapon:");
+            UIManager.WriteTitleLine("Choose your starter weapon:");
             UIManager.WriteMenuLine("");
             for (int i = 0; i < startingGear.weapons.Count; i++)
             {
@@ -119,15 +119,15 @@ namespace RPGGame
             };
             
             WeaponItem starterWeapon = new WeaponItem(selectedWeaponData.name, 1, selectedWeaponData.damage, selectedWeaponData.attackSpeed, weaponType);
-            if (TuningConfig.IsDebugEnabled)
+            if (GameConfiguration.IsDebugEnabled)
                 Console.WriteLine($"DEBUG: About to equip starter weapon: {starterWeapon.Name} (Type: {starterWeapon.WeaponType})");
             player.EquipItem(starterWeapon, "weapon");
-            if (TuningConfig.IsDebugEnabled)
+            if (GameConfiguration.IsDebugEnabled)
                 Console.WriteLine($"DEBUG: After equipping weapon, player has {player.ActionPool.Count} actions in pool");
             
             // Initialize combo sequence with weapon actions now that weapon is equipped
             player.InitializeDefaultCombo();
-            if (TuningConfig.IsDebugEnabled)
+            if (GameConfiguration.IsDebugEnabled)
                 Console.WriteLine($"DEBUG: After InitializeDefaultCombo, player has {player.ComboSequence.Count} actions in combo sequence");
             
             // Equip starting armor from JSON

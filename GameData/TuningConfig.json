@@ -1,34 +1,31 @@
 {
   "Character": {
-    "PlayerBaseHealth": 30,
+    "PlayerBaseHealth": 50,
     "HealthPerLevel": 3,
-    "EnemyHealthPerLevel": 4
+    "EnemyHealthPerLevel": 3
   },
   "Attributes": {
     "PlayerBaseAttributes": {
-      "Strength": 4,
-      "Agility": 4,
+      "Strength": 8,
+      "Agility": 6,
       "Technique": 4,
       "Intelligence": 4
     },
-    "PlayerAttributesPerLevel": 1,
-    "EnemyAttributesPerLevel": 1,
-    "EnemyPrimaryAttributeBonus": 2,
+    "PlayerAttributesPerLevel": 2,
+    "EnemyAttributesPerLevel": 2,
+    "EnemyPrimaryAttributeBonus": 1,
     "IntelligenceRollBonusPer": 10
   },
   "Combat": {
     "CriticalHitThreshold": 20,
-    "CriticalHitMultiplier": 1.3,
+    "CriticalHitMultiplier": 2.0,
     "MinimumDamage": 1,
     "BaseAttackTime": 10.0,
     "AgilitySpeedReduction": 0.1,
-    "MinimumAttackTime": 1.0,
-    "ArmorReductionFormula": "Damage * (1 - Armor / (Armor + 100))",
-    "CriticalHitChance": 0.05,
-    "CriticalHitDamageMultiplier": 1.5
+    "MinimumAttackTime": 1.0
   },
   "Poison": {
-    "TickInterval": 5.0,
+    "TickInterval": 10.0,
     "DamagePerTick": 3,
     "StacksPerApplication": 3
   },
@@ -80,13 +77,107 @@
     "EnemyDamageMultiplier": 0.7,
     "EnemyLevelVariance": 1,
     "BaseDPSAtLevel1": 1.5,
-    "DPSPerLevel": 0.3
+    "DPSPerLevel": 0.3,
+    "EnemyBaseArmorAtLevel1": 2,
+    "EnemyArmorPerLevel": 0.5
+  },
+  "EnemyBalance": {
+    "BaseTotalPointsAtLevel1": 10,
+    "TotalPointsPerLevel": 3,
+    "DPSAllocation": {
+      "MinPercentage": 0.3,
+      "MaxPercentage": 0.7,
+      "DefaultPercentage": 0.5
+    },
+    "SUSTAINAllocation": {
+      "MinPercentage": 0.3,
+      "MaxPercentage": 0.7,
+      "DefaultPercentage": 0.5
+    },
+    "DPSComponents": {
+      "AttackWeight": 0.6,
+      "AttackSpeedWeight": 0.4
+    },
+    "SUSTAINComponents": {
+      "HealthWeight": 0.7,
+      "ArmorWeight": 0.3
+    },
+    "StatConversionRates": {
+      "DamagePerPoint": 1.0,
+      "AttackSpeedPerPoint": 0.1,
+      "HealthPerPoint": 5.0,
+      "ArmorPerPoint": 1.0
+    },
+    "ArchetypeConfigs": {
+      "Berserker": {
+        "DPSPoolRatio": 0.75,
+        "SUSTAINPoolRatio": 0.25,
+        "DPSAttackRatio": 0.3,
+        "DPSAttackSpeedRatio": 0.7,
+        "SUSTAINHealthRatio": 0.8,
+        "SUSTAINArmorRatio": 0.2
+      },
+      "Assassin": {
+        "DPSPoolRatio": 0.65,
+        "SUSTAINPoolRatio": 0.35,
+        "DPSAttackRatio": 0.5,
+        "DPSAttackSpeedRatio": 0.5,
+        "SUSTAINHealthRatio": 0.6,
+        "SUSTAINArmorRatio": 0.4
+      },
+      "Warrior": {
+        "DPSPoolRatio": 0.6,
+        "SUSTAINPoolRatio": 0.4,
+        "DPSAttackRatio": 0.6,
+        "DPSAttackSpeedRatio": 0.4,
+        "SUSTAINHealthRatio": 0.7,
+        "SUSTAINArmorRatio": 0.3
+      },
+      "Brute": {
+        "DPSPoolRatio": 0.7,
+        "SUSTAINPoolRatio": 0.3,
+        "DPSAttackRatio": 0.8,
+        "DPSAttackSpeedRatio": 0.2,
+        "SUSTAINHealthRatio": 0.6,
+        "SUSTAINArmorRatio": 0.4
+      },
+      "Juggernaut": {
+        "DPSPoolRatio": 0.3,
+        "SUSTAINPoolRatio": 0.7,
+        "DPSAttackRatio": 0.7,
+        "DPSAttackSpeedRatio": 0.3,
+        "SUSTAINHealthRatio": 0.4,
+        "SUSTAINArmorRatio": 0.6
+      },
+      "Guardian": {
+        "DPSPoolRatio": 0.25,
+        "SUSTAINPoolRatio": 0.75,
+        "DPSAttackRatio": 0.6,
+        "DPSAttackSpeedRatio": 0.4,
+        "SUSTAINHealthRatio": 0.5,
+        "SUSTAINArmorRatio": 0.5
+      }
+    }
   },
   "UI": {
     "EnableTextDelays": true,
-    "CombatDelay": 400,
+    "CombatDelay": 2000,
     "MenuDelay": 25,
-    "SystemDelay": 1000
+    "SystemDelay": 1000,
+    "TitleDelay": 500
+  },
+  "GameSpeed": {
+    "GameTickerInterval": 1.0,
+    "GameSpeedMultiplier": 1.0
+  },
+  "GameData": {
+    "AutoGenerateOnLaunch": true,
+    "ShowGenerationMessages": true,
+    "Description": "Controls automatic generation of game data files at launch"
+  },
+  "Debug": {
+    "EnableDebugOutput": false,
+    "Description": "Controls whether debug messages are displayed throughout the game"
   },
   "UICustomization": {
     "MenuSeparator": "==========================================",
@@ -117,10 +208,6 @@
       "ErrorPrefix": "Error",
       "InfoPrefix": "Info"
     }
-  },
-  "GameSpeed": {
-    "GameTickerInterval": 1.0,
-    "GameSpeedMultiplier": 1.0
   },
   "ItemScaling": {
     "StartingWeaponDamage": {
@@ -211,15 +298,6 @@
       }
     }
   },
-  "GameData": {
-    "AutoGenerateOnLaunch": true,
-    "ShowGenerationMessages": false,
-    "Description": "Controls automatic generation of game data files at launch"
-  },
-  "Debug": {
-    "EnableDebugOutput": false,
-    "Description": "Controls whether debug messages are displayed throughout the game"
-  },
   "LootSystem": {
     "BaseDropChance": 0.3,
     "DropChancePerLevel": 0.02,
@@ -250,22 +328,43 @@
   },
   "StatusEffects": {
     "Bleed": {
-      "DamagePerTick": 2,
+      "DamagePerTick": 1,
       "TickInterval": 3.0,
-      "MaxStacks": 5
+      "MaxStacks": 5,
+      "StacksPerApplication": 2
     },
     "Burn": {
       "DamagePerTick": 3,
       "TickInterval": 2.0,
-      "MaxStacks": 3
+      "MaxStacks": 3,
+      "StacksPerApplication": 1
     },
     "Freeze": {
       "SpeedReduction": 0.5,
-      "Duration": 5.0
+      "Duration": 5.0,
+      "DamagePerTick": 0,
+      "TickInterval": 0.0,
+      "MaxStacks": 1,
+      "StacksPerApplication": 1,
+      "SkipTurns": 0
     },
     "Stun": {
       "SkipTurns": 1,
-      "Duration": 2.0
+      "Duration": 2.0,
+      "DamagePerTick": 0,
+      "TickInterval": 0.0,
+      "MaxStacks": 1,
+      "StacksPerApplication": 1,
+      "SpeedReduction": 0.0
+    },
+    "Poison": {
+      "DamagePerTick": 3,
+      "TickInterval": 2.0,
+      "MaxStacks": 5,
+      "StacksPerApplication": 1,
+      "SpeedReduction": 0.0,
+      "Duration": 0.0,
+      "SkipTurns": 0
     }
   },
   "ClassBalance": {
@@ -311,5 +410,130 @@
       "LootMultiplier": 1.3
     },
     "Description": "Difficulty level multipliers for game balance"
+  },
+  "CombatBalance": {
+    "ArmorReductionFormula": "Damage * (1 - Armor / (Armor + 100))",
+    "CriticalHitChance": 0.05,
+    "CriticalHitDamageMultiplier": 1.5,
+    "RollDamageMultipliers": {
+      "ComboRollDamageMultiplier": 1.5,
+      "BasicRollDamageMultiplier": 1.25,
+      "ComboAmplificationScalingMultiplier": 2.0,
+      "TierScalingFallbackMultiplier": 0.5
+    },
+    "StatusEffectScaling": {
+      "BleedDuration": 3.0,
+      "PoisonDuration": 5.0,
+      "StunDuration": 2.0,
+      "BurnDuration": 4.0,
+      "FreezeDuration": 3.0,
+      "StatusEffectDamageScaling": 1.0
+    },
+    "EnvironmentalEffects": {
+      "EnableEnvironmentalEffects": true,
+      "EnvironmentalDamageMultiplier": 0.1,
+      "EnvironmentalDebuffChance": 0.15,
+      "EnvironmentalBuffChance": 0.1
+    },
+    "Description": "Advanced combat mechanics and balance settings"
+  },
+  "ExperienceSystem": {
+    "BaseXPFormula": "BaseXP * (Level^1.5)",
+    "LevelCap": 100,
+    "StatPointsPerLevel": 2,
+    "SkillPointsPerLevel": 1,
+    "AttributeCap": 100,
+    "Description": "Character progression and experience system"
+  },
+  "EquipmentScaling": {
+    "WeaponDamagePerTier": 2,
+    "ArmorValuePerTier": 1,
+    "SpeedBonusPerTier": 0.1,
+    "MaxTier": 5,
+    "EnchantmentChance": 0.1,
+    "Description": "Equipment progression and scaling"
+  },
+  "BalanceValidation": {
+    "EnableBalanceChecks": true,
+    "MaxDamageVariance": 0.2,
+    "MinCombatDuration": 2.0,
+    "MaxCombatDuration": 10.0,
+    "TargetDPSRange": [1.0, 5.0],
+    "ValidateEnemyScaling": true,
+    "ValidateLootRates": true,
+    "ValidateXPProgression": true,
+    "Description": "Built-in balance validation and checking tools"
+  },
+  "FormulaLibrary": {
+    "ArmorReductionFormula": "Damage * (1 - Armor / (Armor + 100))",
+    "CriticalHitFormula": "BaseDamage * CriticalMultiplier",
+    "ComboAmplificationFormula": "BaseAmplifier ^ ComboStep",
+    "StatusEffectDamageFormula": "BaseDamage * StatusEffectScaling",
+    "EnvironmentalDamageFormula": "BaseDamage * EnvironmentalMultiplier",
+    "Description": "Configurable mathematical formulas for game calculations"
+  },
+  "EnemyDPS": {
+    "BaseDPSAtLevel1": 2.0,
+    "DPSPerLevel": 2.5,
+    "DPSScalingFormula": "BaseDPSAtLevel1 + (Level * DPSPerLevel)",
+    "Archetypes": {},
+    "BalanceValidation": {
+      "TolerancePercentage": 10.0,
+      "MinimumDPS": 1.0,
+      "MaximumDPSMultiplier": 10.0
+    },
+    "SustainBalance": {
+      "Description": "Comprehensive balance system covering DPS/sustain, speed/damage, health/armor, and attribute gain ratios",
+      "TargetActionsToKill": {
+        "Level1": 10,
+        "Level10": 12,
+        "Level20": 15,
+        "Level30": 18,
+        "Formula": "BaseActions + (Level * ActionsPerLevel) + (Level^2 * QuadraticFactor)"
+      },
+      "DPSToSustainRatio": {
+        "BaseRatio": 1.0,
+        "Description": "Overall DPS vs sustain balance (1.0 = balanced, >1.0 = high DPS/low sustain, <1.0 = low DPS/high sustain)",
+        "ArchetypeModifiers": {}
+      },
+      "SpeedToDamageRatio": {
+        "BaseRatio": 1.0,
+        "Description": "Attack speed vs damage per hit balance (1.0 = balanced, >1.0 = fast/weak, <1.0 = slow/strong)",
+        "ArchetypeModifiers": {}
+      },
+      "HealthToArmorRatio": {
+        "BaseRatio": 10.0,
+        "Description": "Health pool vs armor value balance (10.0 = 10:1 ratio, higher = more health-focused, lower = more armor-focused)",
+        "ArchetypeModifiers": {}
+      },
+      "AttributeGainRatio": {
+        "BaseRatio": 1.0,
+        "Description": "Attribute scaling relative to level (1.0 = balanced, >1.0 = high attribute gain, <1.0 = low attribute gain)",
+        "PrimaryAttributeBonus": 2.0,
+        "SecondaryAttributeBonus": 1.0,
+        "ArchetypeModifiers": {}
+      },
+      "SustainScaling": {
+        "HealthPerLevel": 2,
+        "ArmorPerLevel": 0.1,
+        "RegenerationPerLevel": 0.1,
+        "Description": "How sustain stats scale with level relative to DPS"
+      },
+      "BalanceValidation": {
+        "MinActionsToKill": 5,
+        "MaxActionsToKill": 25,
+        "DPSRatioTolerance": 0.3,
+        "SpeedRatioTolerance": 0.2,
+        "HealthArmorRatioTolerance": 2.0,
+        "AttributeRatioTolerance": 0.2
+      }
+    }
+  },
+  "ProgressionCurves": {
+    "ExperienceFormula": "BaseXP * (Level^ExponentFactor)",
+    "AttributeGrowth": "BaseAttributes + (Level * LinearGrowth) + (Level^2 * QuadraticGrowth)",
+    "ExponentFactor": 1.5,
+    "LinearGrowth": 1.0,
+    "QuadraticGrowth": 0.1
   }
 }

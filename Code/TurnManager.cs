@@ -96,9 +96,9 @@ namespace RPGGame
             {
                 player.TakeDamage(playerDamage);
             }
-            foreach (string message in playerResults)
+            if (playerResults.Count > 0)
             {
-                UIManager.WriteCombatLine(message);
+                UIManager.WriteGroup(playerResults.ToArray());
             }
             
             // Process effects for enemy (only if living)
@@ -110,9 +110,9 @@ namespace RPGGame
                 {
                     enemy.TakeDamage(enemyDamage);
                 }
-                foreach (string message in enemyResults)
+                if (enemyResults.Count > 0)
                 {
-                    UIManager.WriteCombatLine(message);
+                    UIManager.WriteGroup(enemyResults.ToArray());
                 }
             }
         }
@@ -125,7 +125,7 @@ namespace RPGGame
         {
             if (player.CurrentHealth < player.GetEffectiveMaxHealth())
             {
-                var tuning = TuningConfig.Instance;
+                var tuning = GameConfiguration.Instance;
                 // TODO: Fix player regeneration - PlayerRegenPerTurn property doesn't exist
                 int regenAmount = 1; // Default regeneration
                 int actualRegen = Math.Min(regenAmount, player.GetEffectiveMaxHealth() - player.CurrentHealth);

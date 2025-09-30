@@ -23,26 +23,21 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Archetype-specific stat distribution configuration
+        /// Archetype-specific stat distribution configuration with two-layer allocation
         /// </summary>
         public class ArchetypeStatConfig
         {
-            public double DPSPoolRatio { get; set; } = 0.6; // % of total power for DPS
-            public double SurvivabilityPoolRatio { get; set; } = 0.4; // % of total power for survivability
+            // Layer 1: DPS vs SUSTAIN allocation
+            public double DPSPoolRatio { get; set; } = 0.5; // % of total power for DPS
+            public double SUSTAINPoolRatio { get; set; } = 0.5; // % of total power for SUSTAIN
             
-            // DPS pool distribution
-            public double DPSStrengthRatio { get; set; } = 0.7; // % of DPS pool to strength
-            public double DPSAgilityRatio { get; set; } = 0.3; // % of DPS pool to agility
+            // Layer 2a: DPS sub-allocation (Attack vs Attack Speed)
+            public double DPSAttackRatio { get; set; } = 0.6; // % of DPS pool to Attack
+            public double DPSAttackSpeedRatio { get; set; } = 0.4; // % of DPS pool to Attack Speed
             
-            // Survivability pool distribution
-            public double SurvivabilityHealthRatio { get; set; } = 0.7; // % of survivability to health
-            public double SurvivabilityArmorRatio { get; set; } = 0.3; // % of survivability to armor
-            
-            // Archetype flavor multipliers
-            public double StrengthFlavorMultiplier { get; set; } = 1.0; // Extra strength emphasis
-            public double AgilityFlavorMultiplier { get; set; } = 1.0; // Extra agility emphasis
-            public double HealthFlavorMultiplier { get; set; } = 1.0; // Extra health emphasis
-            public double ArmorFlavorMultiplier { get; set; } = 1.0; // Extra armor emphasis
+            // Layer 2b: SUSTAIN sub-allocation (Health vs Armor)
+            public double SUSTAINHealthRatio { get; set; } = 0.7; // % of SUSTAIN pool to Health
+            public double SUSTAINArmorRatio { get; set; } = 0.3; // % of SUSTAIN pool to Armor
         }
 
         /// <summary>
@@ -55,7 +50,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Distributes stat pools for an enemy based on level and archetype
+        /// Distributes stat pools for an enemy based on level and archetype using two-layer allocation
         /// </summary>
         public static EnemyStatDistribution DistributeStats(int level, EnemyArchetype archetype, StatPoolConfig? config = null)
         {
@@ -65,48 +60,40 @@ namespace RPGGame
             // Get archetype-specific configuration
             var archetypeConfig = GetArchetypeConfig(archetype, config);
             
-            // Calculate pool sizes based on archetype
+            // Layer 1: Allocate to DPS and SUSTAIN pools
             double dpsPool = totalPower * archetypeConfig.DPSPoolRatio;
-            double survivabilityPool = totalPower * archetypeConfig.SurvivabilityPoolRatio;
+            double sustainPool = totalPower * archetypeConfig.SUSTAINPoolRatio;
             
-            // Distribute DPS pool with archetype-specific ratios
-            double strengthPower = dpsPool * archetypeConfig.DPSStrengthRatio;
-            double agilityPower = dpsPool * archetypeConfig.DPSAgilityRatio;
+            // Layer 2a: Allocate DPS pool to Attack and Attack Speed
+            double attackPoints = dpsPool * archetypeConfig.DPSAttackRatio;
+            double attackSpeedPoints = dpsPool * archetypeConfig.DPSAttackSpeedRatio;
             
-            // Distribute survivability pool with archetype-specific ratios
-            double healthPower = survivabilityPool * archetypeConfig.SurvivabilityHealthRatio;
-            double armorPower = survivabilityPool * archetypeConfig.SurvivabilityArmorRatio;
+            // Layer 2b: Allocate SUSTAIN pool to Health and Armor
+            double healthPoints = sustainPool * archetypeConfig.SUSTAINHealthRatio;
+            double armorPoints = sustainPool * archetypeConfig.SUSTAINArmorRatio;
             
-            // Apply archetype flavor multipliers for extra emphasis
-            strengthPower *= archetypeConfig.StrengthFlavorMultiplier;
-            agilityPower *= archetypeConfig.AgilityFlavorMultiplier;
-            healthPower *= archetypeConfig.HealthFlavorMultiplier;
-            armorPower *= archetypeConfig.ArmorFlavorMultiplier;
-            
-            // Convert power to actual stats
-            int strength = Math.Max(1, (int)Math.Round(strengthPower));
-            int agility = Math.Max(1, (int)Math.Round(agilityPower));
-            int health = Math.Max(10, (int)Math.Round(healthPower * 2.0)); // Health scales 2x power
-            int armor = Math.Max(0, (int)Math.Round(armorPower));
-            
-            // Set technique and intelligence based on archetype profile
-            var archetypeProfile = EnemyDPSCalculator.GetArchetypeProfile(archetype);
-            int technique = Math.Max(1, (int)Math.Round(archetypeProfile.AttributeWeights.GetValueOrDefault("Technique", 1.0) * 3));
-            int intelligence = Math.Max(1, (int)Math.Round(archetypeProfile.AttributeWeights.GetValueOrDefault("Intelligence", 1.0) * 2));
+            // Convert points to final stats using tuning config
+            var tuning = GameConfiguration.Instance;
+            int damage = Math.Max(1, (int)Math.Round(attackPoints * tuning.EnemyBalance.StatConversionRates.DamagePerPoint));
+            double attackSpeed = attackSpeedPoints * tuning.EnemyBalance.StatConversionRates.AttackSpeedPerPoint;
+            int health = Math.Max(10, (int)Math.Round(healthPoints * tuning.EnemyBalance.StatConversionRates.HealthPerPoint));
+            int armor = Math.Max(0, (int)Math.Round(armorPoints * tuning.EnemyBalance.StatConversionRates.ArmorPerPoint));
             
             return new EnemyStatDistribution
             {
                 Level = level,
                 Archetype = archetype,
-                Strength = strength,
-                Agility = agility,
-                Technique = technique,
-                Intelligence = intelligence,
+                Damage = damage,
+                AttackSpeed = attackSpeed,
                 Health = health,
                 Armor = armor,
                 TotalPower = totalPower,
                 DPSPool = dpsPool,
-                SurvivabilityPool = survivabilityPool
+                SUSTAINPool = sustainPool,
+                AttackPoints = attackPoints,
+                AttackSpeedPoints = attackSpeedPoints,
+                HealthPoints = healthPoints,
+                ArmorPoints = armorPoints
             };
         }
 
@@ -127,7 +114,7 @@ namespace RPGGame
             
             // Calculate deviations
             double dpsDeviation = Math.Abs(actualDPSPower - expectedDistribution.DPSPool) / expectedDistribution.DPSPool * 100;
-            double survivabilityDeviation = Math.Abs(actualSurvivabilityPower - expectedDistribution.SurvivabilityPool) / expectedDistribution.SurvivabilityPool * 100;
+            double survivabilityDeviation = Math.Abs(actualSurvivabilityPower - expectedDistribution.SUSTAINPool) / expectedDistribution.SUSTAINPool * 100;
             double totalDeviation = Math.Abs(actualTotalPower - expectedDistribution.TotalPower) / expectedDistribution.TotalPower * 100;
             
             return new StatPoolValidationResult
@@ -194,20 +181,20 @@ namespace RPGGame
                 foreach (var archetype in Enum.GetValues<EnemyArchetype>())
                 {
                     var distribution = DistributeStats(level, archetype, config);
-                    UIManager.WriteSystemLine($"{level}\t{archetype.ToString().PadRight(8)}\t{distribution.Strength}\t{distribution.Agility}\t{distribution.Health}\t{distribution.Armor}\t{distribution.DPSPool:F1}\t\t{distribution.SurvivabilityPool:F1}");
+                    UIManager.WriteSystemLine($"{level}\t{archetype.ToString().PadRight(8)}\t{distribution.Damage}\t{distribution.AttackSpeed:F1}\t{distribution.Health}\t{distribution.Armor}\t{distribution.DPSPool:F1}\t\t{distribution.SUSTAINPool:F1}");
                 }
                 UIManager.WriteSystemLine("");
             }
         }
 
         /// <summary>
-        /// Creates a balanced enemy using the stat pool system
+        /// Creates a balanced enemy using the stat pool system with direct stats
         /// </summary>
         public static Enemy CreateBalancedEnemy(string name, int level, EnemyArchetype archetype, StatPoolConfig? config = null)
         {
             var distribution = DistributeStats(level, archetype, config);
             
-            // Determine primary attribute based on archetype
+            // Determine primary attribute based on archetype (for compatibility)
             PrimaryAttribute primaryAttribute = archetype switch
             {
                 EnemyArchetype.Berserker => PrimaryAttribute.Agility,
@@ -222,11 +209,9 @@ namespace RPGGame
                 name: name,
                 level: level,
                 maxHealth: distribution.Health,
-                strength: distribution.Strength,
-                agility: distribution.Agility,
-                technique: distribution.Technique,
-                intelligence: distribution.Intelligence,
+                damage: distribution.Damage,
                 armor: distribution.Armor,
+                attackSpeed: distribution.AttackSpeed,
                 primaryAttribute: primaryAttribute,
                 isLiving: true,
                 archetype: archetype
@@ -234,77 +219,30 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets the default stat pool configuration with archetype-specific settings
+        /// Gets the default stat pool configuration with two-layer archetype-specific settings from TuningConfig
         /// </summary>
         private static StatPoolConfig GetDefaultConfig()
         {
             var config = new StatPoolConfig();
+            var tuning = GameConfiguration.Instance;
             
-            // Berserker: High DPS, low survivability, agility-focused
-            config.ArchetypeConfigs[EnemyArchetype.Berserker] = new ArchetypeStatConfig
+            // Load archetype configurations from TuningConfig
+            foreach (var archetype in Enum.GetValues<EnemyArchetype>())
             {
-                DPSPoolRatio = 0.75, // 75% DPS, 25% survivability
-                SurvivabilityPoolRatio = 0.25,
-                DPSStrengthRatio = 0.3, // Low strength
-                DPSAgilityRatio = 0.7, // High agility
-                SurvivabilityHealthRatio = 0.8, // Mostly health
-                SurvivabilityArmorRatio = 0.2, // Low armor
-                AgilityFlavorMultiplier = 1.3, // Extra agility emphasis
-                HealthFlavorMultiplier = 0.8 // Less health emphasis
-            };
-            
-            // Assassin: Balanced DPS, moderate survivability, technique-focused
-            config.ArchetypeConfigs[EnemyArchetype.Assassin] = new ArchetypeStatConfig
-            {
-                DPSPoolRatio = 0.65, // 65% DPS, 35% survivability
-                SurvivabilityPoolRatio = 0.35,
-                DPSStrengthRatio = 0.4, // Moderate strength
-                DPSAgilityRatio = 0.6, // High agility
-                SurvivabilityHealthRatio = 0.6, // Balanced health/armor
-                SurvivabilityArmorRatio = 0.4,
-                AgilityFlavorMultiplier = 1.2, // Extra agility emphasis
-                ArmorFlavorMultiplier = 1.1 // Slight armor emphasis
-            };
-            
-            // Warrior: Balanced everything
-            config.ArchetypeConfigs[EnemyArchetype.Warrior] = new ArchetypeStatConfig
-            {
-                DPSPoolRatio = 0.6, // 60% DPS, 40% survivability
-                SurvivabilityPoolRatio = 0.4,
-                DPSStrengthRatio = 0.6, // Moderate strength
-                DPSAgilityRatio = 0.4, // Moderate agility
-                SurvivabilityHealthRatio = 0.7, // Slightly more health
-                SurvivabilityArmorRatio = 0.3, // Slightly less armor
-                StrengthFlavorMultiplier = 1.1, // Slight strength emphasis
-                HealthFlavorMultiplier = 1.1 // Slight health emphasis
-            };
-            
-            // Brute: High DPS, moderate survivability, strength-focused
-            config.ArchetypeConfigs[EnemyArchetype.Brute] = new ArchetypeStatConfig
-            {
-                DPSPoolRatio = 0.7, // 70% DPS, 30% survivability
-                SurvivabilityPoolRatio = 0.3,
-                DPSStrengthRatio = 0.8, // High strength
-                DPSAgilityRatio = 0.2, // Low agility
-                SurvivabilityHealthRatio = 0.6, // Balanced health/armor
-                SurvivabilityArmorRatio = 0.4,
-                StrengthFlavorMultiplier = 1.3, // Extra strength emphasis
-                ArmorFlavorMultiplier = 1.2 // Extra armor emphasis
-            };
-            
-            // Juggernaut: Moderate DPS, very high survivability, tank-focused
-            config.ArchetypeConfigs[EnemyArchetype.Juggernaut] = new ArchetypeStatConfig
-            {
-                DPSPoolRatio = 0.45, // 45% DPS, 55% survivability
-                SurvivabilityPoolRatio = 0.55,
-                DPSStrengthRatio = 0.7, // High strength
-                DPSAgilityRatio = 0.3, // Low agility
-                SurvivabilityHealthRatio = 0.5, // Balanced health/armor
-                SurvivabilityArmorRatio = 0.5,
-                StrengthFlavorMultiplier = 1.2, // Extra strength emphasis
-                HealthFlavorMultiplier = 1.3, // Extra health emphasis
-                ArmorFlavorMultiplier = 1.4 // Extra armor emphasis
-            };
+                string archetypeName = archetype.ToString();
+                if (tuning.EnemyBalance.ArchetypeConfigs.TryGetValue(archetypeName, out var archetypeConfig))
+                {
+                    config.ArchetypeConfigs[archetype] = new ArchetypeStatConfig
+                    {
+                        DPSPoolRatio = archetypeConfig.DPSPoolRatio,
+                        SUSTAINPoolRatio = archetypeConfig.SUSTAINPoolRatio,
+                        DPSAttackRatio = archetypeConfig.DPSAttackRatio,
+                        DPSAttackSpeedRatio = archetypeConfig.DPSAttackSpeedRatio,
+                        SUSTAINHealthRatio = archetypeConfig.SUSTAINHealthRatio,
+                        SUSTAINArmorRatio = archetypeConfig.SUSTAINArmorRatio
+                    };
+                }
+            }
             
             return config;
         }
@@ -323,31 +261,39 @@ namespace RPGGame
             return new ArchetypeStatConfig
             {
                 DPSPoolRatio = 0.6,
-                SurvivabilityPoolRatio = 0.4,
-                DPSStrengthRatio = 0.6,
-                DPSAgilityRatio = 0.4,
-                SurvivabilityHealthRatio = 0.7,
-                SurvivabilityArmorRatio = 0.3
+                SUSTAINPoolRatio = 0.4,
+                DPSAttackRatio = 0.6,
+                DPSAttackSpeedRatio = 0.4,
+                SUSTAINHealthRatio = 0.7,
+                SUSTAINArmorRatio = 0.3
             };
         }
     }
 
     /// <summary>
-    /// Represents the distribution of stats for an enemy
+    /// Represents the distribution of stats for an enemy using the two-layer system
     /// </summary>
     public class EnemyStatDistribution
     {
         public int Level { get; set; }
         public EnemyArchetype Archetype { get; set; }
-        public int Strength { get; set; }
-        public int Agility { get; set; }
-        public int Technique { get; set; }
-        public int Intelligence { get; set; }
-        public int Health { get; set; }
-        public int Armor { get; set; }
+        
+        // Final calculated stats (no attributes needed)
+        public int Damage { get; set; }        // Final damage value
+        public double AttackSpeed { get; set; } // Final attack speed value
+        public int Health { get; set; }        // Final health value
+        public int Armor { get; set; }         // Final armor value
+        
+        // Power allocation tracking
         public double TotalPower { get; set; }
         public double DPSPool { get; set; }
-        public double SurvivabilityPool { get; set; }
+        public double SUSTAINPool { get; set; }
+        
+        // Sub-allocation tracking for analysis
+        public double AttackPoints { get; set; }
+        public double AttackSpeedPoints { get; set; }
+        public double HealthPoints { get; set; }
+        public double ArmorPoints { get; set; }
     }
 
     /// <summary>

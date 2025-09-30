@@ -16,10 +16,15 @@ namespace RPGGame
         /// </summary>
         /// <param name="character">The character to save</param>
         /// <param name="filename">The filename to save to</param>
-        public static void SaveCharacter(Character character, string filename = "GameData/character_save.json")
+        public static void SaveCharacter(Character character, string? filename = null)
         {
             try
             {
+                // Use proper path resolution if no filename provided
+                if (string.IsNullOrEmpty(filename))
+                {
+                    filename = GameConstants.GetGameDataFilePath(GameConstants.CharacterSaveJson);
+                }
                 var saveData = new CharacterSaveData
                 {
                     Name = character.Name,
@@ -55,7 +60,6 @@ namespace RPGGame
 
                 string json = JsonSerializer.Serialize(saveData, options);
                 File.WriteAllText(filename, json);
-                UIManager.WriteLine($"Character saved to {filename}");
             }
             catch (Exception ex)
             {
@@ -68,10 +72,16 @@ namespace RPGGame
         /// </summary>
         /// <param name="filename">The filename to load from</param>
         /// <returns>The loaded character, or null if loading failed</returns>
-        public static Character? LoadCharacter(string filename = "GameData/character_save.json")
+        public static Character? LoadCharacter(string? filename = null)
         {
             try
             {
+                // Use proper path resolution if no filename provided
+                if (string.IsNullOrEmpty(filename))
+                {
+                    filename = GameConstants.GetGameDataFilePath(GameConstants.CharacterSaveJson);
+                }
+                
                 if (!File.Exists(filename))
                 {
                     UIManager.WriteLine($"No save file found at {filename}");
@@ -145,10 +155,16 @@ namespace RPGGame
         /// Deletes a character save file
         /// </summary>
         /// <param name="filename">The filename to delete</param>
-        public static void DeleteSaveFile(string filename = "GameData/character_save.json")
+        public static void DeleteSaveFile(string? filename = null)
         {
             try
             {
+                // Use proper path resolution if no filename provided
+                if (string.IsNullOrEmpty(filename))
+                {
+                    filename = GameConstants.GetGameDataFilePath(GameConstants.CharacterSaveJson);
+                }
+                
                 if (File.Exists(filename))
                 {
                     File.Delete(filename);
@@ -166,8 +182,14 @@ namespace RPGGame
         /// </summary>
         /// <param name="filename">The filename to check</param>
         /// <returns>True if the save file exists</returns>
-        public static bool SaveFileExists(string filename = "GameData/character_save.json")
+        public static bool SaveFileExists(string? filename = null)
         {
+            // Use proper path resolution if no filename provided
+            if (string.IsNullOrEmpty(filename))
+            {
+                filename = GameConstants.GetGameDataFilePath(GameConstants.CharacterSaveJson);
+            }
+            
             return File.Exists(filename);
         }
 
@@ -176,10 +198,16 @@ namespace RPGGame
         /// </summary>
         /// <param name="filename">The filename to check</param>
         /// <returns>Tuple of (characterName, level) or (null, 0) if not found</returns>
-        public static (string? characterName, int level) GetSavedCharacterInfo(string filename = "GameData/character_save.json")
+        public static (string? characterName, int level) GetSavedCharacterInfo(string? filename = null)
         {
             try
             {
+                // Use proper path resolution if no filename provided
+                if (string.IsNullOrEmpty(filename))
+                {
+                    filename = GameConstants.GetGameDataFilePath(GameConstants.CharacterSaveJson);
+                }
+                
                 if (!File.Exists(filename))
                     return (null, 0);
 

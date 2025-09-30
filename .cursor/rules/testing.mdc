@@ -1,0 +1,43 @@
+---
+alwaysApply: true
+---
+
+# Testing Rules for DungeonFighter-v2
+
+## Testing Strategy
+Always follow the testing strategy:
+
+1. **Unit Tests**: Test individual components
+2. **Integration Tests**: Test system interactions
+3. **Balance Tests**: Verify game balance
+4. **Performance Tests**: Check execution time and memory
+5. **User Acceptance Tests**: End-to-end scenarios
+
+## Test Categories
+Use the built-in test suite:
+- Character Tests
+- Combat Tests
+- Balance Tests
+- Data Loading Tests
+- Advanced System Tests
+
+## Testing Requirements
+- Run tests after each change
+- Use appropriate test types
+- Maintain test quality
+- Fix issues immediately
+- Document test results
+
+## Balance Testing
+- Run balance analysis
+- Verify DPS calculations
+- Check scaling formulas
+- Test combat duration
+- Monitor performance impact
+
+## Test Data Management
+- Use test data builders
+- Create mock objects
+- Maintain test consistency
+- Clean up test data
+- Document test scenarios

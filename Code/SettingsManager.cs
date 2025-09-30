@@ -17,7 +17,7 @@ namespace RPGGame
                 UIManager.WriteMenuLine("4. Combat Display");
                 UIManager.WriteMenuLine("5. Gameplay Options");
                 UIManager.WriteMenuLine("6. Delete Saved Characters");
-                UIManager.WriteMenuLine("7. Test All Systems");
+                UIManager.WriteMenuLine("7. Tests");
                 UIManager.WriteMenuLine("8. Back to Main Menu");
                 UIManager.WriteMenuLine("");
                 UIManager.Write("Choose an option: ");
@@ -44,7 +44,7 @@ namespace RPGGame
                         DeleteSavedCharacters();
                         break;
                     case "7":
-                        TestAllSystems();
+                        Tests();
                         break;
                     case "8":
                         return;
@@ -120,6 +120,7 @@ namespace RPGGame
         {
             UIManager.WriteMenuLine("\n=== COMBAT SPEED ===");
             UIManager.WriteMenuLine($"Current speed: {settings.CombatSpeed:F1} (0.1 = Very slow, 2.0 = Very fast)");
+            UIManager.WriteMenuLine($"Fast Combat: {settings.GetFastCombatDescription()}");
             UIManager.WriteMenuLine("");
             UIManager.WriteMenuLine("Choose combat speed:");
             UIManager.WriteMenuLine("1. Very slow (0.1) - Maximum detail");
@@ -128,7 +129,8 @@ namespace RPGGame
             UIManager.WriteMenuLine("4. Fast (1.0) - Quick combat");
             UIManager.WriteMenuLine("5. Very fast (2.0) - Minimal delays");
             UIManager.WriteMenuLine("6. Custom value");
-            UIManager.WriteMenuLine("7. Back");
+            UIManager.WriteMenuLine("7. Toggle FAST Combat (Zero delays)");
+            UIManager.WriteMenuLine("8. Back");
             UIManager.WriteMenuLine("");
             UIManager.Write("Choose an option: ");
 
@@ -163,6 +165,10 @@ namespace RPGGame
                     }
                     break;
                 case "7":
+                    settings.FastCombat = !settings.FastCombat;
+                    UIManager.WriteMenuLine($"FAST Combat: {settings.GetFastCombatDescription()}");
+                    break;
+                case "8":
                     return;
                 default:
                     UIManager.WriteMenuLine("Invalid choice.");
@@ -195,7 +201,7 @@ namespace RPGGame
             {
                 case "1":
                     // Easy difficulty - use TuningConfig values
-                    var easyConfig = TuningConfig.Instance.DifficultySettings.Easy;
+                    var easyConfig = GameConfiguration.Instance.DifficultySettings.Easy;
                     settings.EnemyHealthMultiplier = easyConfig.EnemyHealthMultiplier;
                     settings.EnemyDamageMultiplier = easyConfig.EnemyDamageMultiplier;
                     settings.PlayerHealthMultiplier = 1.0 / easyConfig.EnemyHealthMultiplier; // Inverse for player
@@ -203,7 +209,7 @@ namespace RPGGame
                     break;
                 case "2":
                     // Normal difficulty - use TuningConfig values
-                    var normalConfig = TuningConfig.Instance.DifficultySettings.Normal;
+                    var normalConfig = GameConfiguration.Instance.DifficultySettings.Normal;
                     settings.EnemyHealthMultiplier = normalConfig.EnemyHealthMultiplier;
                     settings.EnemyDamageMultiplier = normalConfig.EnemyDamageMultiplier;
                     settings.PlayerHealthMultiplier = 1.0;
@@ -211,7 +217,7 @@ namespace RPGGame
                     break;
                 case "3":
                     // Hard difficulty - use TuningConfig values
-                    var hardConfig = TuningConfig.Instance.DifficultySettings.Hard;
+                    var hardConfig = GameConfiguration.Instance.DifficultySettings.Hard;
                     settings.EnemyHealthMultiplier = hardConfig.EnemyHealthMultiplier;
                     settings.EnemyDamageMultiplier = hardConfig.EnemyDamageMultiplier;
                     settings.PlayerHealthMultiplier = 1.0 / hardConfig.EnemyHealthMultiplier; // Inverse for player
@@ -370,58 +376,6 @@ namespace RPGGame
             }
         }
 
-        private static void TestAllSystems()
-        {
-            UIManager.WriteMenuLine("\n=== COMPREHENSIVE SYSTEM TESTS ===");
-            UIManager.WriteMenuLine("This will test all game systems to ensure they work correctly.");
-            UIManager.WriteMenuLine("");
-            UIManager.WriteMenuLine("Test Categories:");
-            UIManager.WriteMenuLine("1. Combat System");
-            UIManager.WriteMenuLine("2. Character System");
-            UIManager.WriteMenuLine("3. Inventory System");
-            UIManager.WriteMenuLine("4. Action System");
-            UIManager.WriteMenuLine("5. Enemy System");
-            UIManager.WriteMenuLine("6. Dungeon System");
-            UIManager.WriteMenuLine("7. Loot System");
-            UIManager.WriteMenuLine("8. All Systems (Complete Test)");
-            UIManager.WriteMenuLine("9. Back");
-            UIManager.WriteMenuLine("");
-            UIManager.Write("Choose test category: ");
-
-            string? choice = Console.ReadLine();
-            switch (choice)
-            {
-                case "1":
-                    TestCombatSystem();
-                    break;
-                case "2":
-                    TestCharacterSystem();
-                    break;
-                case "3":
-                    TestInventorySystem();
-                    break;
-                case "4":
-                    TestActionSystem();
-                    break;
-                case "5":
-                    TestEnemySystem();
-                    break;
-                case "6":
-                    TestDungeonSystem();
-                    break;
-                case "7":
-                    TestLootSystem();
-                    break;
-                case "8":
-                    RunAllSystemTests();
-                    break;
-                case "9":
-                    return;
-                default:
-                    UIManager.WriteMenuLine("Invalid choice. Please try again.");
-                    break;
-            }
-        }
 
 
         private static void TestCombatSystem()
@@ -432,7 +386,7 @@ namespace RPGGame
 
             // Create test entities
             var testPlayer = new Character("TestPlayer", 1);
-            var testEnemy = new Enemy("TestEnemy", 1);
+            var testEnemy = new Enemy("TestEnemy", 1, 50, 8, 6, 4, 4, 0);
             
             UIManager.WriteMenuLine($"Test Player Stats: HP={testPlayer.CurrentHealth}, STR={testPlayer.Strength}, AGI={testPlayer.Agility}");
             UIManager.WriteMenuLine($"Test Enemy Stats: HP={testEnemy.CurrentHealth}, STR={testEnemy.Strength}, AGI={testEnemy.Agility}");
@@ -548,6 +502,23 @@ namespace RPGGame
             UIManager.WriteMenuLine($"After adding 100 XP: Level {oldLevel} -> {testChar.Level}");
             UIManager.WriteMenuLine($"Health: {oldMaxHealth} -> {testChar.MaxHealth} (Expected: {oldMaxHealth + 3})");
             UIManager.WriteMenuLine($"XP after level up: {testChar.XP}");
+            UIManager.WriteMenuLine("");
+
+            // Test class point system
+            UIManager.WriteMenuLine("Testing Class Point System:");
+            UIManager.WriteMenuLine($"Current Level: {testChar.Level}");
+            UIManager.WriteMenuLine($"Wizard Points: {testChar.WizardPoints}");
+            UIManager.WriteMenuLine($"Expected Wizard Points: {testChar.Level - 1} (should be level - 1 if started at level 1)");
+            
+            // Test multiple level ups to verify class points
+            int initialLevel = testChar.Level;
+            int initialWizardPoints = testChar.WizardPoints;
+            UIManager.WriteMenuLine($"Before multiple level ups: Level {initialLevel}, Wizard Points: {initialWizardPoints}");
+            
+            // Add enough XP to level up twice
+            testChar.AddXP(200);
+            UIManager.WriteMenuLine($"After adding 200 XP: Level {testChar.Level}, Wizard Points: {testChar.WizardPoints}");
+            UIManager.WriteMenuLine($"Expected: Level {initialLevel + 2}, Wizard Points: {initialWizardPoints + 2}");
             UIManager.WriteMenuLine("");
 
             // Test combo system
@@ -690,7 +661,7 @@ namespace RPGGame
             // Test action execution
             UIManager.WriteMenuLine("Testing Action Execution:");
             var testPlayer = new Character("TestPlayer", 1);
-            var testEnemy = new Enemy("TestEnemy", 1);
+            var testEnemy = new Enemy("TestEnemy", 1, 50, 8, 6, 4, 4, 0);
             
             if (actions.Count > 0)
             {
@@ -938,6 +909,164 @@ namespace RPGGame
             UIManager.WriteMenuLine("");
 
             UIManager.WriteMenuLine("Loot System Tests Complete!");
+            UIManager.WriteMenuLine("Press any key to continue...");
+            Console.ReadKey();
+        }
+
+        private static void Tests()
+        {
+            UIManager.WriteMenuLine("\n=== TESTS ===");
+            UIManager.WriteMenuLine("");
+            UIManager.WriteMenuLine("1. Test Enemy Balance System");
+            UIManager.WriteMenuLine("2. Test Combat System");
+            UIManager.WriteMenuLine("3. Test Loot Generation System");
+            UIManager.WriteMenuLine("4. Test Inventory Display System");
+            UIManager.WriteMenuLine("5. Test All Systems");
+            UIManager.WriteMenuLine("6. Back to Settings");
+            UIManager.WriteMenuLine("");
+            UIManager.Write("Choose an option: ");
+
+            string? choice = Console.ReadLine();
+            switch (choice)
+            {
+                case "1":
+                    TestEnemyBalanceSystem();
+                    break;
+                case "2":
+                    TestCombatSystemMenu();
+                    break;
+                case "3":
+                    TestLootGenerationSystem();
+                    break;
+                case "4":
+                    TestInventoryDisplaySystem();
+                    break;
+                case "5":
+                    RunAllSystemTests();
+                    break;
+                case "6":
+                    return;
+                default:
+                    UIManager.WriteMenuLine("Invalid choice. Please try again.");
+                    break;
+            }
+        }
+
+        private static void TestEnemyBalanceSystem()
+        {
+            UIManager.WriteMenuLine("\n=== TESTING ENEMY BALANCE SYSTEM ===");
+            UIManager.WriteMenuLine("Press any key to start...");
+            Console.ReadKey();
+
+            EnemyBalanceTest.TestEnemyBalanceSystem();
+
+            UIManager.WriteMenuLine("\n=== ENEMY BALANCE SYSTEM TEST COMPLETE ===");
+            UIManager.WriteMenuLine("Press any key to return to test menu...");
+            Console.ReadKey();
+        }
+
+        private static void TestLootGenerationSystem()
+        {
+            UIManager.WriteMenuLine("\n=== TESTING LOOT GENERATION SYSTEM ===");
+            UIManager.WriteMenuLine("This will test loot generation, rarity distribution, and data integrity.");
+            UIManager.WriteMenuLine("Press any key to start...");
+            Console.ReadKey();
+
+            LootGenerationTest.RunLootGenerationTests();
+
+            UIManager.WriteMenuLine("\n=== LOOT GENERATION SYSTEM TEST COMPLETE ===");
+            UIManager.WriteMenuLine("Press any key to return to test menu...");
+            Console.ReadKey();
+        }
+
+        private static void TestInventoryDisplaySystem()
+        {
+            UIManager.WriteMenuLine("\n=== TESTING INVENTORY DISPLAY SYSTEM ===");
+            UIManager.WriteMenuLine("This will test inventory display with stat bonuses and modifications.");
+            UIManager.WriteMenuLine("Press any key to start...");
+            Console.ReadKey();
+
+            InventoryDisplayTest.RunInventoryDisplayTest();
+
+            UIManager.WriteMenuLine("\n=== INVENTORY DISPLAY SYSTEM TEST COMPLETE ===");
+            UIManager.WriteMenuLine("Press any key to return to test menu...");
+            Console.ReadKey();
+        }
+
+        private static void TestCombatSystemMenu()
+        {
+            while (true)
+            {
+                UIManager.WriteMenuLine("\n=== COMBAT SYSTEM TESTS ===");
+                UIManager.WriteMenuLine("");
+                UIManager.WriteMenuLine("1. Test Action Selection");
+                UIManager.WriteMenuLine("2. Test Damage Calculation");
+                UIManager.WriteMenuLine("3. Test Status Effects");
+                UIManager.WriteMenuLine("4. Test Environmental Effects");
+                UIManager.WriteMenuLine("5. Test Miss Messages");
+                UIManager.WriteMenuLine("6. Test Combat Log Formatting");
+                UIManager.WriteMenuLine("7. Test Loot Generation");
+                UIManager.WriteMenuLine("8. Test Roll 8 Issue (Debug)");
+                UIManager.WriteMenuLine("9. Run All Combat Tests");
+                UIManager.WriteMenuLine("10. Back to Test Menu");
+                UIManager.WriteMenuLine("");
+                UIManager.Write("Choose an option: ");
+
+                string? choice = Console.ReadLine();
+                switch (choice)
+                {
+                    case "1":
+                        RunCombatTest("action");
+                        break;
+                    case "2":
+                        RunCombatTest("damage");
+                        break;
+                    case "3":
+                        RunCombatTest("status");
+                        break;
+                    case "4":
+                        RunCombatTest("environmental");
+                        break;
+                    case "5":
+                        RunCombatTest("miss");
+                        break;
+                    case "6":
+                        RunCombatTest("log");
+                        break;
+                    case "7":
+                        RunCombatTest("loot");
+                        break;
+                    case "8":
+                        RunCombatTest("roll8");
+                        break;
+                    case "9":
+                        RunCombatTest("all");
+                        break;
+                    case "10":
+                        return;
+                    default:
+                        UIManager.WriteMenuLine("Invalid choice. Please try again.");
+                        break;
+                }
+            }
+        }
+
+        private static void RunCombatTest(string testName)
+        {
+            UIManager.WriteMenuLine($"\n=== RUNNING COMBAT TEST: {testName.ToUpper()} ===");
+            UIManager.WriteMenuLine("Press any key to start...");
+            Console.ReadKey();
+
+            try
+            {
+                CombatTest.RunTest(testName);
+            }
+            catch (Exception ex)
+            {
+                UIManager.WriteMenuLine($"Error running test: {ex.Message}");
+            }
+
+            UIManager.WriteMenuLine("\n=== TEST COMPLETE ===");
             UIManager.WriteMenuLine("Press any key to continue...");
             Console.ReadKey();
         }

@@ -46,10 +46,10 @@ namespace RPGGame
             UIManager.WriteMenuLine($"Health: {player.CurrentHealth}/{player.GetEffectiveMaxHealth()}  STR: {player.GetEffectiveStrength()}  AGI: {player.GetEffectiveAgility()}  TEC: {player.GetEffectiveTechnique()}  INT: {player.GetEffectiveIntelligence()}");
             int totalRollBonus = player.GetIntelligenceRollBonus() + player.GetModificationRollBonus() + player.GetEquipmentRollBonus();
             double secondsPerAttack = attackSpeed;
-            // Get current amplification
-            double currentAmplification = player.GetCurrentComboAmplification();
+            // Get next amplification (what will be applied when combo executes)
+            double nextAmplification = player.GetNextComboAmplification();
             int magicFind = player.GetMagicFind();
-            UIManager.WriteMenuLine($"Damage: {damage} (STR:{player.GetEffectiveStrength()} + Weapon:{weaponDamage} + Equipment:{equipmentDamageBonus} + Mods:{modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  Amplification: {currentAmplification:F2}x  Roll Bonus: +{totalRollBonus}  Armor: {armor}");
+            UIManager.WriteMenuLine($"Damage: {damage} (STR:{player.GetEffectiveStrength()} + Weapon:{weaponDamage} + Equipment:{equipmentDamageBonus} + Mods:{modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  Amplification: {nextAmplification:F2}x  Roll Bonus: +{totalRollBonus}  Armor: {armor}");
             if (magicFind > 0)
             {
                 UIManager.WriteMenuLine($"Magic Find: +{magicFind} (improves rare item drop chances)");
@@ -76,20 +76,28 @@ namespace RPGGame
             UIManager.WriteMenuLine("");
             UIManager.WriteMenuLine("Currently Equipped:");
             
-            // Show weapon with inline stats
+            // Show weapon with indented stats
             if (player.Weapon is WeaponItem weapon)
             {
-                UIManager.WriteMenuLine($"Weapon: {weapon.Name} - Damage: {weapon.GetTotalDamage()}, Attack Speed: {weapon.GetTotalAttackSpeed():F1}x");
+                UIManager.WriteMenuLine($"Weapon: {weapon.Name}");
+                UIManager.WriteMenuLine($"    Damage: {weapon.GetTotalDamage()}, Attack Speed: {weapon.GetAttackSpeedMultiplier():F1}x");
+                
+                // Show weapon bonuses and modifications
+                ShowItemBonuses(weapon);
             }
             else
             {
                 UIManager.WriteMenuLine("Weapon: None");
             }
             
-            // Show armor pieces with inline stats
+            // Show armor pieces with indented stats
             if (player.Head is HeadItem head)
             {
-                UIManager.WriteMenuLine($"Head: {head.Name} - Armor: {head.GetTotalArmor()}");
+                UIManager.WriteMenuLine($"Head: {head.Name}");
+                UIManager.WriteMenuLine($"    Armor: {head.GetTotalArmor()}");
+                
+                // Show head armor bonuses and modifications
+                ShowItemBonuses(head);
             }
             else
             {
@@ -98,7 +106,11 @@ namespace RPGGame
             
             if (player.Body is ChestItem chest)
             {
-                UIManager.WriteMenuLine($"Body: {chest.Name} - Armor: {chest.GetTotalArmor()}");
+                UIManager.WriteMenuLine($"Body: {chest.Name}");
+                UIManager.WriteMenuLine($"    Armor: {chest.GetTotalArmor()}");
+                
+                // Show chest armor bonuses and modifications
+                ShowItemBonuses(chest);
             }
             else
             {
@@ -107,7 +119,11 @@ namespace RPGGame
             
             if (player.Feet is FeetItem feet)
             {
-                UIManager.WriteMenuLine($"Feet: {feet.Name} - Armor: {feet.GetTotalArmor()}");
+                UIManager.WriteMenuLine($"Feet: {feet.Name}");
+                UIManager.WriteMenuLine($"    Armor: {feet.GetTotalArmor()}");
+                
+                // Show feet armor bonuses and modifications
+                ShowItemBonuses(feet);
             }
             else
             {
@@ -134,7 +150,7 @@ namespace RPGGame
                 var item = inventory[i];
                 string itemStats = item switch
                 {
-                    WeaponItem weapon => $"Damage: {weapon.GetTotalDamage()}{GetWeaponDiff(weapon, player.Weapon as WeaponItem)}, Attack Speed: {weapon.GetTotalAttackSpeed():F1}x",
+                    WeaponItem weapon => $"Damage: {weapon.GetTotalDamage()}{GetWeaponDiff(weapon, player.Weapon as WeaponItem)}, Attack Speed: {weapon.GetAttackSpeedMultiplier():F1}x",
                     HeadItem head => $"Armor: {head.GetTotalArmor()}{GetArmorDiff(head, player.Head)}",
                     ChestItem chest => $"Armor: {chest.GetTotalArmor()}{GetArmorDiff(chest, player.Body)}",
                     FeetItem feet => $"Armor: {feet.GetTotalArmor()}{GetArmorDiff(feet, player.Feet)}",
@@ -223,7 +239,8 @@ namespace RPGGame
             // Show modifications
             if (item.Modifications.Count > 0)
             {
-                UIManager.WriteMenuLine($"    Modifications: {string.Join(", ", item.Modifications)}");
+                var modificationTexts = item.Modifications.Select(m => $"{m.Name} ({m.RolledValue:F1})");
+                UIManager.WriteMenuLine($"    Modifications: {string.Join(", ", modificationTexts)}");
             }
         }
 
@@ -234,11 +251,28 @@ namespace RPGGame
         {
             return item.Type switch
             {
-                ItemType.Weapon => "Weapon",
+                ItemType.Weapon => GetWeaponClassDisplay(item as WeaponItem),
                 ItemType.Head => "Head",
                 ItemType.Chest => "Chest",
                 ItemType.Feet => "Feet",
                 _ => "Item"
+            };
+        }
+
+        /// <summary>
+        /// Gets the weapon class display string
+        /// </summary>
+        private string GetWeaponClassDisplay(WeaponItem? weapon)
+        {
+            if (weapon == null) return "Weapon";
+            
+            return weapon.WeaponType switch
+            {
+                WeaponType.Mace => "Barbarian Weapon",
+                WeaponType.Sword => "Warrior Weapon",
+                WeaponType.Dagger => "Rogue Weapon",
+                WeaponType.Wand => "Wizard Weapon",
+                _ => "Weapon"
             };
         }
 

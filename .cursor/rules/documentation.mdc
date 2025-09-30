@@ -1,0 +1,36 @@
+---
+alwaysApply: true
+---
+
+# Documentation Rules for DungeonFighter-v2
+
+## Always Reference Documentation First
+Before making any changes, always reference the relevant documentation:
+
+1. **ARCHITECTURE.md** - For system understanding and design patterns
+2. **CODE_PATTERNS.md** - For consistent code style and conventions
+3. **PROBLEM_SOLUTIONS.md** - For known issues and solutions
+4. **QUICK_REFERENCE.md** - For fast lookups of key information
+5. **DEVELOPMENT_WORKFLOW.md** - For step-by-step development process
+
+## Documentation Updates
+When making changes:
+- Update relevant documentation files
+- Add new patterns to CODE_PATTERNS.md
+- Document solutions in PROBLEM_SOLUTIONS.md
+- Update KNOWN_ISSUES.md for any new problems
+- Follow the development workflow in DEVELOPMENT_WORKFLOW.md
+
+## Code Quality Standards
+- Follow established patterns in CODE_PATTERNS.md
+- Use consistent naming conventions
+- Implement proper error handling
+- Add comprehensive testing
+- Document complex logic
+
+## Problem Solving Approach
+1. Check PROBLEM_SOLUTIONS.md for known issues
+2. Use DEBUGGING_GUIDE.md for systematic debugging
+3. Reference QUICK_REFERENCE.md for key information
+4. Follow TESTING_STRATEGY.md for verification
+5. Update documentation with new solutions

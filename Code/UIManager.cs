@@ -55,9 +55,14 @@ namespace RPGGame
             }
             
             // Apply delay for combat messages using TuningConfig values
-            if (TuningConfig.Instance.UI.EnableTextDelays)
+            if (GameConfiguration.Instance.UI.EnableTextDelays)
             {
-                Thread.Sleep(TuningConfig.Instance.UI.CombatDelay);
+                // Check if Fast Combat is enabled - if so, set combat delays to zero
+                int combatDelay = GameSettings.Instance.FastCombat ? 0 : GameConfiguration.Instance.UI.CombatDelay;
+                if (combatDelay > 0)
+                {
+                    Thread.Sleep(combatDelay);
+                }
             }
         }
         
@@ -114,6 +119,16 @@ namespace RPGGame
         }
         
         /// <summary>
+        /// Writes a title line with title delay
+        /// </summary>
+        /// <param name="message">Title message to display</param>
+        public static void WriteTitleLine(string message)
+        {
+            Console.WriteLine(message);
+            ApplyDelay(UIDelayType.Title);
+        }
+        
+        /// <summary>
         /// Writes a dungeon-related message with system delay
         /// </summary>
         /// <param name="message">Dungeon message to display</param>
@@ -167,13 +182,17 @@ namespace RPGGame
         /// <param name="delayType">Type of delay to apply</param>
         private static void ApplyDelay(UIDelayType delayType)
         {
-            if (!TuningConfig.Instance.UI.EnableTextDelays) return;
+            if (!GameConfiguration.Instance.UI.EnableTextDelays) return;
+            
+            // Check if Fast Combat is enabled - if so, set combat delays to zero
+            bool fastCombat = GameSettings.Instance.FastCombat;
             
             int delayMs = delayType switch
             {
-                UIDelayType.Combat => TuningConfig.Instance.UI.CombatDelay,
-                UIDelayType.Menu => TuningConfig.Instance.UI.MenuDelay,
-                UIDelayType.System => TuningConfig.Instance.UI.SystemDelay,
+                UIDelayType.Combat => fastCombat ? 0 : GameConfiguration.Instance.UI.CombatDelay,
+                UIDelayType.Menu => GameConfiguration.Instance.UI.MenuDelay,
+                UIDelayType.System => GameConfiguration.Instance.UI.SystemDelay,
+                UIDelayType.Title => GameConfiguration.Instance.UI.TitleDelay,
                 UIDelayType.None => 0,
                 _ => 0
             };
@@ -229,6 +248,7 @@ namespace RPGGame
         None,
         Combat,
         Menu,
-        System
+        System,
+        Title
     }
 }

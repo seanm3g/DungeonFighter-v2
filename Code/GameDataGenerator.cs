@@ -15,7 +15,7 @@ namespace RPGGame
         /// </summary>
         public static void GenerateAllGameData()
         {
-            if (TuningConfig.Instance.GameData.ShowGenerationMessages)
+            if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
             {
                 Console.WriteLine("Generating game data files based on TuningConfig...");
             }
@@ -24,7 +24,7 @@ namespace RPGGame
             GenerateArmorJson();
             GenerateWeaponsJson();
             
-            if (TuningConfig.Instance.GameData.ShowGenerationMessages)
+            if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
             {
                 Console.WriteLine("Game data generation complete!");
             }
@@ -37,7 +37,7 @@ namespace RPGGame
         {
             Console.WriteLine("=== TESTING DYNAMIC GENERATION SYSTEM ===");
             
-            var tuning = TuningConfig.Instance;
+            var tuning = GameConfiguration.Instance;
             
             Console.WriteLine("Current TuningConfig Status:");
             Console.WriteLine($"  ItemScaling configured: {tuning.ItemScaling != null}");
@@ -97,12 +97,12 @@ namespace RPGGame
         /// </summary>
         public static void GenerateEnemiesJson()
         {
-            var tuning = TuningConfig.Instance;
+            var tuning = GameConfiguration.Instance;
             var enemyScaling = tuning.EnemyScaling;
             
             if (enemyScaling == null)
             {
-                if (TuningConfig.Instance.GameData.ShowGenerationMessages)
+                if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
                 {
                     Console.WriteLine("Warning: EnemyScaling configuration not found, using existing Enemies.json");
                 }
@@ -124,7 +124,7 @@ namespace RPGGame
             string filePath = GetGameDataFilePath("Enemies.json");
             File.WriteAllText(filePath, json);
             
-            if (TuningConfig.Instance.GameData.ShowGenerationMessages)
+            if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
             {
                 Console.WriteLine($"Generated {generatedEnemies.Count} enemies in Enemies.json");
             }
@@ -135,12 +135,12 @@ namespace RPGGame
         /// </summary>
         public static void GenerateArmorJson()
         {
-            var tuning = TuningConfig.Instance;
+            var tuning = GameConfiguration.Instance;
             var itemScaling = tuning.ItemScaling;
             
             if (itemScaling == null)
             {
-                if (TuningConfig.Instance.GameData.ShowGenerationMessages)
+                if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
                 {
                     Console.WriteLine("Warning: ItemScaling configuration not found, using existing Armor.json");
                 }
@@ -150,7 +150,7 @@ namespace RPGGame
             // Load existing armor data to preserve names and other properties
             var existingArmor = LoadExistingArmor();
             
-            if (TuningConfig.Instance.GameData.ShowGenerationMessages)
+            if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
             {
                 Console.WriteLine($"Loaded {existingArmor?.Count ?? 0} existing armor pieces");
             }
@@ -158,7 +158,7 @@ namespace RPGGame
             // If no valid armor data exists, skip generation entirely - DO NOT OVERWRITE FILE
             if (existingArmor == null || existingArmor.Count == 0)
             {
-                if (TuningConfig.Instance.GameData.ShowGenerationMessages)
+                if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
                 {
                     Console.WriteLine("No existing armor data found, skipping armor generation to preserve file");
                 }
@@ -175,7 +175,7 @@ namespace RPGGame
                 if (string.IsNullOrEmpty(existing.Slot) || string.IsNullOrEmpty(existing.Name) || existing.Tier <= 0)
                 {
                     skippedEntries++;
-                    if (TuningConfig.Instance.GameData.ShowGenerationMessages)
+                    if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
                     {
                         Console.WriteLine($"Skipping invalid armor entry: Slot='{existing.Slot}', Name='{existing.Name}', Tier={existing.Tier}");
                     }
@@ -186,7 +186,7 @@ namespace RPGGame
                 var generated = GenerateArmorFromConfig(existing, itemScaling);
                 generatedArmor.Add(generated);
                 
-                if (TuningConfig.Instance.GameData.ShowGenerationMessages)
+                if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
                 {
                     Console.WriteLine($"Processed: {existing.Name} (Tier {existing.Tier}) - Armor: {existing.Armor} -> {generated.Armor}");
                 }
@@ -200,7 +200,7 @@ namespace RPGGame
                 string filePath = GetGameDataFilePath("Armor.json");
                 File.WriteAllText(filePath, json);
                 
-                if (TuningConfig.Instance.GameData.ShowGenerationMessages)
+                if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
                 {
                     Console.WriteLine($"Updated armor values for {generatedArmor.Count} armor pieces in Armor.json");
                     Console.WriteLine($"Skipped {skippedEntries} invalid entries");
@@ -208,7 +208,7 @@ namespace RPGGame
             }
             else
             {
-                if (TuningConfig.Instance.GameData.ShowGenerationMessages)
+                if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
                 {
                     Console.WriteLine($"No valid armor entries found (skipped {skippedEntries} invalid entries), skipping armor generation to preserve existing data");
                 }
@@ -220,12 +220,12 @@ namespace RPGGame
         /// </summary>
         public static void GenerateWeaponsJson()
         {
-            var tuning = TuningConfig.Instance;
+            var tuning = GameConfiguration.Instance;
             var itemScaling = tuning.ItemScaling;
             
             if (itemScaling == null)
             {
-                if (TuningConfig.Instance.GameData.ShowGenerationMessages)
+                if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
                 {
                     Console.WriteLine("Warning: ItemScaling configuration not found, using existing Weapons.json");
                 }
@@ -239,7 +239,7 @@ namespace RPGGame
             // Safety check: if no weapons exist, don't overwrite the file
             if (existingWeapons.Count == 0)
             {
-                if (TuningConfig.Instance.GameData.ShowGenerationMessages)
+                if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
                 {
                     Console.WriteLine("Warning: No weapons found in Weapons.json, skipping generation to prevent data loss");
                 }
@@ -252,7 +252,7 @@ namespace RPGGame
             // Safety check: if all weapons are corrupted, don't overwrite the file
             if (validWeapons.Count == 0)
             {
-                if (TuningConfig.Instance.GameData.ShowGenerationMessages)
+                if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
                 {
                     Console.WriteLine("Warning: All weapons are corrupted, skipping generation to prevent data loss");
                 }
@@ -265,7 +265,7 @@ namespace RPGGame
                 generatedWeapons.Add(generated);
             }
             
-            if (validWeapons.Count != existingWeapons.Count && TuningConfig.Instance.GameData.ShowGenerationMessages)
+            if (validWeapons.Count != existingWeapons.Count && GameConfiguration.Instance.GameData.ShowGenerationMessages)
             {
                 Console.WriteLine($"Filtered out {existingWeapons.Count - validWeapons.Count} corrupted weapon entries");
             }
@@ -275,7 +275,7 @@ namespace RPGGame
             string filePath = GetGameDataFilePath("Weapons.json");
             File.WriteAllText(filePath, json);
             
-            if (TuningConfig.Instance.GameData.ShowGenerationMessages)
+            if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
             {
                 Console.WriteLine($"Generated {generatedWeapons.Count} weapons in Weapons.json");
             }
@@ -335,9 +335,8 @@ namespace RPGGame
                     break;
             }
             
-            // Simple armor scaling based on health
-            double armorRatio = 10.0; // 10:1 health to armor ratio
-            generated.BaseArmor = Math.Max(0, (int)Math.Round(generated.BaseHealth / armorRatio));
+            // Use tuning config for armor scaling instead of health ratio
+            generated.BaseArmor = enemyScaling.EnemyBaseArmorAtLevel1;
 
             return generated;
         }

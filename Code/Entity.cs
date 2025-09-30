@@ -141,7 +141,7 @@ namespace RPGGame
         {
             if (PoisonStacks > 0)
             {
-                var poisonConfig = TuningConfig.Instance.Poison;
+                var poisonConfig = GameConfiguration.Instance.Poison;
                 
                 if (currentTime - LastPoisonTick >= poisonConfig.TickInterval)
                 {
@@ -170,7 +170,7 @@ namespace RPGGame
         {
             if (BurnStacks > 0)
             {
-                var poisonConfig = TuningConfig.Instance.Poison;
+                var poisonConfig = GameConfiguration.Instance.Poison;
                 
                 if (currentTime - LastBurnTick >= poisonConfig.TickInterval)
                 {

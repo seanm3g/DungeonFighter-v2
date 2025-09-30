@@ -11,4 +11,12 @@
 11. Not all encounters should be fighting, find a monk who gives you +5 magic find (for dungeon or perma-character)
 12. Your dungeon selection influences your affinity to certain groups, (Undead vs Forest) undead gives you lifesteal, forest gives you aura's bonuses, etc.)  Maybe a gold for goblins but then orcs always rage at you. 
 13. % of a project that has fighters attached. 25% small bonuses, 50% medium, 100% big bonus
-14. Barbarian core action is to ignore armor.
+14. Barbarian core action is to ignore armor on basic attack. | increases requirement of dice roll +1.  Really the idea is for dice manipulation to affect the entire thing, just combos, just basics, or just misses. What would be good language for that.
+15. Remove miss, add combo chance in dice rolls
+16. for every points above 20 it amplifies the crit. OR it adds that to the next roll you have.
+17. Your title should be based on your attributes (10 INT, 25 INT, 50 INT 80 INT, 90 INT, 100 INT, for each attribute though)
+18. Weapons should always have a guaranteed action, and one random weapon action with it. Magic Missle + (1 of 3 or something)
+19. Closer to end of battle adds more narrative flavor ("color") text.
+20. Add narrative beats based on context to the game.
+21. Add slots for an environemnt action happening IF it rolled for one.  "The air is cooler." Random narrative filler until something happens.  Teach the mechanics of the room, adding tone to the game, and a clean run where nothing bad happened.
+22. Amp should apply to effects not just damage.

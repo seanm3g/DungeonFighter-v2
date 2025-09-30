@@ -2,421 +2,421 @@
   {
     "type": "Sword",
     "name": "Iron Sword",
-    "baseDamage": 1,
-    "attackSpeed": 88.19748525897474,
+    "baseDamage": 5,
+    "attackSpeed": 1,
     "tier": 1
   },
   {
     "type": "Sword",
     "name": "Iron Blade",
-    "baseDamage": 1,
-    "attackSpeed": 97.0172337848722,
+    "baseDamage": 6,
+    "attackSpeed": 0.9,
     "tier": 1
   },
   {
     "type": "Sword",
     "name": "Iron Saber",
-    "baseDamage": 1,
-    "attackSpeed": 79.37773673307721,
+    "baseDamage": 4,
+    "attackSpeed": 1.1,
     "tier": 1
   },
   {
     "type": "Sword",
     "name": "Steel Sword",
-    "baseDamage": 1,
-    "attackSpeed": 5793.202989006,
+    "baseDamage": 10,
+    "attackSpeed": 1.1,
     "tier": 2
   },
   {
     "type": "Sword",
     "name": "Steel Blade",
-    "baseDamage": 1,
-    "attackSpeed": 6319.848715279271,
+    "baseDamage": 12,
+    "attackSpeed": 1,
     "tier": 2
   },
   {
     "type": "Sword",
     "name": "Steel Saber",
-    "baseDamage": 1,
-    "attackSpeed": 5266.5572627327265,
+    "baseDamage": 9,
+    "attackSpeed": 1.2000000000000002,
     "tier": 2
   },
   {
     "type": "Sword",
     "name": "Silver Sword",
-    "baseDamage": 2,
-    "attackSpeed": 271968.8242944707,
+    "baseDamage": 19,
+    "attackSpeed": 1.2,
     "tier": 3
   },
   {
     "type": "Sword",
     "name": "Silver Blade",
-    "baseDamage": 2,
-    "attackSpeed": 294632.8763190101,
+    "baseDamage": 21,
+    "attackSpeed": 1.1,
     "tier": 3
   },
   {
     "type": "Sword",
     "name": "Silver Saber",
-    "baseDamage": 2,
-    "attackSpeed": 249304.7722699315,
+    "baseDamage": 18,
+    "attackSpeed": 1.3,
     "tier": 3
   },
   {
     "type": "Sword",
     "name": "Mithril Sword",
-    "baseDamage": 2,
-    "attackSpeed": 9593145.74886795,
+    "baseDamage": 34,
+    "attackSpeed": 1.3,
     "tier": 4
   },
   {
     "type": "Sword",
     "name": "Mithril Blade",
-    "baseDamage": 2,
-    "attackSpeed": 10331080.014165493,
+    "baseDamage": 36,
+    "attackSpeed": 1.2000000000000002,
     "tier": 4
   },
   {
     "type": "Sword",
     "name": "Mithril Saber",
-    "baseDamage": 2,
-    "attackSpeed": 8855211.48357043,
+    "baseDamage": 32,
+    "attackSpeed": 1.4000000000000001,
     "tier": 4
   },
   {
     "type": "Sword",
     "name": "Dragon Sword",
-    "baseDamage": 4,
-    "attackSpeed": 264494844.93323523,
+    "baseDamage": 55,
+    "attackSpeed": 1.4,
     "tier": 5
   },
   {
     "type": "Sword",
     "name": "Excalibur",
-    "baseDamage": 4,
-    "attackSpeed": 245602356.03800404,
+    "baseDamage": 62,
+    "attackSpeed": 1.2000000000000002,
     "tier": 5
   },
   {
     "type": "Sword",
     "name": "Blade of Light",
-    "baseDamage": 4,
-    "attackSpeed": 283387333.82846653,
+    "baseDamage": 57,
+    "attackSpeed": 1.6,
     "tier": 5
   },
   {
     "type": "Dagger",
     "name": "Iron Dagger",
-    "baseDamage": 1,
-    "attackSpeed": 57595342.35100328,
+    "baseDamage": 3,
+    "attackSpeed": 1.5,
     "tier": 1
   },
   {
     "type": "Dagger",
     "name": "Iron Knife",
-    "baseDamage": 1,
-    "attackSpeed": 61435031.84107022,
+    "baseDamage": 4,
+    "attackSpeed": 1.4,
     "tier": 1
   },
   {
     "type": "Dagger",
     "name": "Iron Stiletto",
-    "baseDamage": 1,
-    "attackSpeed": 53755652.860936455,
+    "baseDamage": 2,
+    "attackSpeed": 1.6,
     "tier": 1
   },
   {
     "type": "Dagger",
     "name": "Steel Dagger",
-    "baseDamage": 1,
-    "attackSpeed": 6277101735.486683,
+    "baseDamage": 6,
+    "attackSpeed": 1.6,
     "tier": 2
   },
   {
     "type": "Dagger",
     "name": "Steel Knife",
-    "baseDamage": 1,
-    "attackSpeed": 6669420593.94835,
+    "baseDamage": 8,
+    "attackSpeed": 1.5,
     "tier": 2
   },
   {
     "type": "Dagger",
     "name": "Steel Stiletto",
-    "baseDamage": 1,
-    "attackSpeed": 5884782877.025017,
+    "baseDamage": 5,
+    "attackSpeed": 1.7000000000000002,
     "tier": 2
   },
   {
     "type": "Dagger",
     "name": "Silver Dagger",
-    "baseDamage": 2,
-    "attackSpeed": 450025589670.0797,
+    "baseDamage": 13,
+    "attackSpeed": 1.7,
     "tier": 3
   },
   {
     "type": "Dagger",
     "name": "Silver Knife",
-    "baseDamage": 2,
-    "attackSpeed": 476497683180.07275,
+    "baseDamage": 14,
+    "attackSpeed": 1.5999999999999999,
     "tier": 3
   },
   {
     "type": "Dagger",
     "name": "Silver Stiletto",
-    "baseDamage": 2,
-    "attackSpeed": 423553496160.0866,
+    "baseDamage": 11,
+    "attackSpeed": 1.8,
     "tier": 3
   },
   {
     "type": "Dagger",
     "name": "Mithril Dagger",
-    "baseDamage": 2,
-    "attackSpeed": 22734832029874.51,
+    "baseDamage": 23,
+    "attackSpeed": 1.8,
     "tier": 4
   },
   {
     "type": "Dagger",
     "name": "Mithril Knife",
-    "baseDamage": 2,
-    "attackSpeed": 23997878253756.395,
+    "baseDamage": 25,
+    "attackSpeed": 1.7,
     "tier": 4
   },
   {
     "type": "Dagger",
     "name": "Mithril Stiletto",
-    "baseDamage": 2,
-    "attackSpeed": 21471785805992.62,
+    "baseDamage": 21,
+    "attackSpeed": 1.9000000000000001,
     "tier": 4
   },
   {
     "type": "Dagger",
     "name": "Shadow Dagger",
-    "baseDamage": 2,
-    "attackSpeed": 267401227875123.6,
+    "baseDamage": 40,
+    "attackSpeed": 1.9,
     "tier": 5
   },
   {
     "type": "Dagger",
     "name": "Assassin\u0027s Blade",
-    "baseDamage": 2,
-    "attackSpeed": 253327479039590.8,
+    "baseDamage": 44,
+    "attackSpeed": 1.7000000000000002,
     "tier": 5
   },
   {
     "type": "Dagger",
     "name": "Void Blade",
-    "baseDamage": 2,
-    "attackSpeed": 281474976710656.4,
+    "baseDamage": 42,
+    "attackSpeed": 2.1,
     "tier": 5
   },
   {
     "type": "Mace",
     "name": "Iron Mace",
-    "baseDamage": 1,
-    "attackSpeed": 0.3095391206785582,
+    "baseDamage": 8,
+    "attackSpeed": 0.8,
     "tier": 1
   },
   {
     "type": "Mace",
     "name": "Iron Club",
-    "baseDamage": 1,
-    "attackSpeed": 0.3482315107633781,
+    "baseDamage": 9,
+    "attackSpeed": 0.7,
     "tier": 1
   },
   {
     "type": "Mace",
     "name": "Iron Flail",
-    "baseDamage": 1,
-    "attackSpeed": 0.27084673059373865,
+    "baseDamage": 7,
+    "attackSpeed": 0.9,
     "tier": 1
   },
   {
     "type": "Mace",
     "name": "Steel Mace",
-    "baseDamage": 1,
-    "attackSpeed": 14.019325053141435,
+    "baseDamage": 16,
+    "attackSpeed": 0.9,
     "tier": 2
   },
   {
     "type": "Mace",
     "name": "Steel Club",
-    "baseDamage": 1,
-    "attackSpeed": 15.56591672571271,
+    "baseDamage": 17,
+    "attackSpeed": 0.7999999999999999,
     "tier": 2
   },
   {
     "type": "Mace",
     "name": "Steel Flail",
-    "baseDamage": 1,
-    "attackSpeed": 12.472733380570164,
+    "baseDamage": 14,
+    "attackSpeed": 1,
     "tier": 2
   },
   {
     "type": "Mace",
     "name": "Silver Mace",
-    "baseDamage": 3,
-    "attackSpeed": 472.8373219149581,
+    "baseDamage": 29,
+    "attackSpeed": 1,
     "tier": 3
   },
   {
     "type": "Mace",
     "name": "Silver Club",
-    "baseDamage": 3,
-    "attackSpeed": 520.101054106454,
+    "baseDamage": 30,
+    "attackSpeed": 0.8999999999999999,
     "tier": 3
   },
   {
     "type": "Mace",
     "name": "Silver Flail",
-    "baseDamage": 3,
-    "attackSpeed": 425.57358972346174,
+    "baseDamage": 27,
+    "attackSpeed": 1.1,
     "tier": 3
   },
   {
     "type": "Mace",
     "name": "Mithril Mace",
-    "baseDamage": 10,
-    "attackSpeed": 12598.390588074099,
+    "baseDamage": 48,
+    "attackSpeed": 1.1,
     "tier": 4
   },
   {
     "type": "Mace",
     "name": "Mithril Club",
-    "baseDamage": 10,
-    "attackSpeed": 13743.671550626303,
+    "baseDamage": 49,
+    "attackSpeed": 1,
     "tier": 4
   },
   {
     "type": "Mace",
     "name": "Mithril Flail",
-    "baseDamage": 10,
-    "attackSpeed": 11453.109625521904,
+    "baseDamage": 46,
+    "attackSpeed": 1.2000000000000002,
     "tier": 4
   },
   {
     "type": "Mace",
     "name": "War Hammer",
-    "baseDamage": 198,
-    "attackSpeed": 271969.0242944708,
+    "baseDamage": 77,
+    "attackSpeed": 1.2000000000000002,
     "tier": 5
   },
   {
     "type": "Mace",
     "name": "Doom Hammer",
-    "baseDamage": 207,
-    "attackSpeed": 249304.97226993166,
+    "baseDamage": 84,
+    "attackSpeed": 1,
     "tier": 5
   },
   {
     "type": "Mace",
     "name": "Thunder Mace",
-    "baseDamage": 189,
-    "attackSpeed": 294633.0763190103,
+    "baseDamage": 79,
+    "attackSpeed": 1.3,
     "tier": 5
   },
   {
     "type": "Wand",
     "name": "Wooden Wand",
-    "baseDamage": 1,
-    "attackSpeed": 22905.61925104381,
+    "baseDamage": 4,
+    "attackSpeed": 1.2,
     "tier": 1
   },
   {
     "type": "Wand",
     "name": "Oak Wand",
-    "baseDamage": 1,
-    "attackSpeed": 24050.900213596018,
+    "baseDamage": 5,
+    "attackSpeed": 1.1,
     "tier": 1
   },
   {
     "type": "Wand",
     "name": "Pine Wand",
-    "baseDamage": 1,
-    "attackSpeed": 21760.338288491632,
+    "baseDamage": 3,
+    "attackSpeed": 1.3,
     "tier": 1
   },
   {
     "type": "Wand",
     "name": "Crystal Wand",
-    "baseDamage": 1,
-    "attackSpeed": 1977629.0814190784,
+    "baseDamage": 9,
+    "attackSpeed": 1.3,
     "tier": 2
   },
   {
     "type": "Wand",
     "name": "Quartz Wand",
-    "baseDamage": 1,
-    "attackSpeed": 2071801.8900580816,
+    "baseDamage": 10,
+    "attackSpeed": 1.2000000000000002,
     "tier": 2
   },
   {
     "type": "Wand",
     "name": "Amethyst Wand",
-    "baseDamage": 1,
-    "attackSpeed": 1883456.2727800764,
+    "baseDamage": 8,
+    "attackSpeed": 1.4000000000000001,
     "tier": 2
   },
   {
     "type": "Wand",
     "name": "Arcane Wand",
-    "baseDamage": 2,
-    "attackSpeed": 116682816.45186934,
+    "baseDamage": 18,
+    "attackSpeed": 1.4,
     "tier": 3
   },
   {
     "type": "Wand",
     "name": "Mystic Wand",
-    "baseDamage": 2,
-    "attackSpeed": 121986580.82695433,
+    "baseDamage": 19,
+    "attackSpeed": 1.3,
     "tier": 3
   },
   {
     "type": "Wand",
     "name": "Enchanted Wand",
-    "baseDamage": 2,
-    "attackSpeed": 111379052.0767844,
+    "baseDamage": 16,
+    "attackSpeed": 1.5,
     "tier": 3
   },
   {
     "type": "Wand",
     "name": "Mystic Staff",
-    "baseDamage": 2,
-    "attackSpeed": 4995867630.797926,
+    "baseDamage": 30,
+    "attackSpeed": 1.5,
     "tier": 4
   },
   {
     "type": "Wand",
     "name": "Arcane Staff",
-    "baseDamage": 2,
-    "attackSpeed": 5213079266.906536,
+    "baseDamage": 32,
+    "attackSpeed": 1.4000000000000001,
     "tier": 4
   },
   {
     "type": "Wand",
     "name": "Enchanted Staff",
-    "baseDamage": 2,
-    "attackSpeed": 4778655994.689319,
+    "baseDamage": 28,
+    "attackSpeed": 1.6,
     "tier": 4
   },
   {
     "type": "Wand",
     "name": "Staff of Power",
-    "baseDamage": 4,
-    "attackSpeed": 162671153587.1136,
+    "baseDamage": 48,
+    "attackSpeed": 1.6,
     "tier": 5
   },
   {
     "type": "Wand",
     "name": "Staff of the Archmage",
-    "baseDamage": 4,
-    "attackSpeed": 155893188854.3339,
+    "baseDamage": 55,
+    "attackSpeed": 1.4,
     "tier": 5
   },
   {
     "type": "Wand",
     "name": "Elder Staff",
-    "baseDamage": 4,
-    "attackSpeed": 169449118319.89325,
+    "baseDamage": 51,
+    "attackSpeed": 1.7999999999999998,
     "tier": 5
   }
 ]

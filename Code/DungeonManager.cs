@@ -127,7 +127,7 @@ namespace RPGGame
             }
             
             // Award XP (scaled by dungeon level using tuning config)
-            var tuning = TuningConfig.Instance;
+            var tuning = GameConfiguration.Instance;
             int xpReward = random.Next(tuning.Progression.EnemyXPBase, tuning.Progression.EnemyXPBase + 50) * player.Level;
             player.AddXP(xpReward);
             UIManager.WriteLine($"Gained {xpReward} XP!");
@@ -136,6 +136,7 @@ namespace RPGGame
             if (player.Level > 1)
             {
                 UIManager.WriteLine($"Level up! You are now level {player.Level}");
+                UIManager.WriteBlankLine(); // Add line break after level up message
             }
             
             // Determine current dungeon level
@@ -206,6 +207,7 @@ namespace RPGGame
             foreach (Environment room in selectedDungeon.Rooms)
             {
                 UIManager.WriteRoomLine($"\nEntering room: {room.Name}");
+                UIManager.WriteRoomLine("");
                 UIManager.WriteRoomLine(room.Description);
                 
                 // Clear all temporary effects when entering a new room
@@ -255,7 +257,7 @@ namespace RPGGame
                     var narrativeSettings = GameSettings.Instance;
                     if (narrativeSettings.NarrativeBalance > 0.3)
                     {
-                        UIManager.WriteSystemLine("\nBattle narrative completed.");
+                        // Battle narrative completed message removed
                     }
                 }
 

@@ -38,8 +38,15 @@ namespace RPGGame
             }
             else if (attacker is Enemy enemy)
             {
-                // For enemies, use their base damage
-                baseDamage = enemy.GetEffectiveStrength();
+                // For enemies, use direct damage if available, otherwise use strength
+                if (enemy.Damage > 0 && enemy.Strength == 0)
+                {
+                    baseDamage = enemy.Damage;
+                }
+                else
+                {
+                    baseDamage = enemy.GetEffectiveStrength();
+                }
             }
             
             // Apply action damage multiplier if action is provided
@@ -49,19 +56,27 @@ namespace RPGGame
             double totalDamage = (baseDamage * actionMultiplier * comboAmplifier * damageMultiplier);
             
             // Get combat configuration
-            var combatConfig = TuningConfig.Instance.Combat;
-            var combatBalance = TuningConfig.Instance.CombatBalance;
+            var combatConfig = GameConfiguration.Instance.Combat;
+            var combatBalance = GameConfiguration.Instance.CombatBalance;
             
             // Apply roll-based damage scaling
             if (roll > 0)
             {
-                // Critical hit on natural 20
+                // Critical hit on total roll of 20 (baseRoll + rollBonus)
                 if (roll == combatConfig.CriticalHitThreshold)
                 {
+                    if (GameConfiguration.IsDebugEnabled)
+                    {
+                        UIManager.WriteSystemLine($"DEBUG: Critical hit! Base damage: {totalDamage}, multiplier: {combatBalance.CriticalHitDamageMultiplier}");
+                    }
                     totalDamage *= combatBalance.CriticalHitDamageMultiplier;
+                    if (GameConfiguration.IsDebugEnabled)
+                    {
+                        UIManager.WriteSystemLine($"DEBUG: Critical hit damage after multiplier: {totalDamage}");
+                    }
                 }
                 // Enhanced damage scaling based on roll using RollSystem configuration
-                var rollSystem = TuningConfig.Instance.RollSystem;
+                var rollSystem = GameConfiguration.Instance.RollSystem;
                 var rollMultipliers = combatBalance.RollDamageMultipliers;
                 if (roll >= rollSystem.ComboThreshold.Min)
                 {
@@ -109,19 +124,19 @@ namespace RPGGame
             int finalDamage;
             
             // Get combat configuration
-            var combatBalance = TuningConfig.Instance.CombatBalance;
+            var combatBalance = GameConfiguration.Instance.CombatBalance;
             
             // Use configurable armor reduction formula if available
             if (!string.IsNullOrEmpty(combatBalance.ArmorReductionFormula))
             {
                 // For now, use the existing simple formula but make it configurable
                 // TODO: Implement formula evaluator for armor reduction
-                finalDamage = Math.Max(TuningConfig.Instance.Combat.MinimumDamage, (int)totalDamage - targetArmor);
+                finalDamage = Math.Max(GameConfiguration.Instance.Combat.MinimumDamage, (int)totalDamage - targetArmor);
             }
             else
             {
                 // Fallback to simple armor reduction
-                finalDamage = Math.Max(TuningConfig.Instance.Combat.MinimumDamage, (int)totalDamage - targetArmor);
+                finalDamage = Math.Max(GameConfiguration.Instance.Combat.MinimumDamage, (int)totalDamage - targetArmor);
             }
             
             // Apply weakened effect if target is weakened
@@ -262,19 +277,19 @@ namespace RPGGame
             }
             
             // Use configurable armor reduction formula if available
-            var combatBalance = TuningConfig.Instance.CombatBalance;
+            var combatBalance = GameConfiguration.Instance.CombatBalance;
             int finalDamage;
             
             if (!string.IsNullOrEmpty(combatBalance.ArmorReductionFormula))
             {
                 // For now, use the existing simple formula but make it configurable
                 // TODO: Implement formula evaluator for armor reduction
-                finalDamage = Math.Max(TuningConfig.Instance.Combat.MinimumDamage, (int)((damage - armorReduction) * damageReductionMultiplier));
+                finalDamage = Math.Max(GameConfiguration.Instance.Combat.MinimumDamage, (int)((damage - armorReduction) * damageReductionMultiplier));
             }
             else
             {
                 // Fallback to simple armor reduction
-                finalDamage = Math.Max(TuningConfig.Instance.Combat.MinimumDamage, (int)((damage - armorReduction) * damageReductionMultiplier));
+                finalDamage = Math.Max(GameConfiguration.Instance.Combat.MinimumDamage, (int)((damage - armorReduction) * damageReductionMultiplier));
             }
             
             return finalDamage;
@@ -289,37 +304,22 @@ namespace RPGGame
         /// <returns>True if status effect should be applied</returns>
         public static bool CalculateStatusEffectChance(Action action, Entity attacker, Entity target)
         {
-            // Base chance from action
-            double baseChance = 0.0;
-            
-            if (action.CausesBleed) baseChance = 0.3; // 30% chance
-            else if (action.CausesWeaken) baseChance = 0.25; // 25% chance
-            else if (action.CausesSlow) baseChance = 0.2; // 20% chance
-            else if (action.CausesPoison) baseChance = 0.35; // 35% chance
-            else if (action.CausesStun) baseChance = 0.15; // 15% chance
-            
-            // Modify chance based on attacker's intelligence
-            double intelligenceBonus = 0.0;
-            if (attacker is Character attackerCharacter)
+            // Check if action can cause any status effect
+            if (!action.CausesBleed && !action.CausesWeaken && !action.CausesSlow && 
+                !action.CausesPoison && !action.CausesStun && !action.CausesBurn)
             {
-                intelligenceBonus = attackerCharacter.GetEffectiveIntelligence() * 0.01; // 1% per intelligence point
+                return false; // No status effects possible
             }
-            baseChance += intelligenceBonus;
             
-            // Modify chance based on target's resistance
-            double resistancePenalty = 0.0;
-            if (target is Character targetCharacter)
-            {
-                resistancePenalty = targetCharacter.GetEffectiveIntelligence() * 0.005; // 0.5% resistance per intelligence point
-            }
-            baseChance -= resistancePenalty;
+            // Use 2d2-2 roll for status effect chance
+            // 2d2 gives range 2-4, minus 2 gives range 0-2
+            // 0 = no effect, 1+ = effect applied
+            int roll1 = Dice.Roll(1, 2); // First d2
+            int roll2 = Dice.Roll(1, 2); // Second d2
+            int result = (roll1 + roll2) - 2; // 2d2-2
             
-            // Ensure chance is within valid range
-            baseChance = Math.Max(0.0, Math.Min(1.0, baseChance));
-            
-            // Roll for effect application
-            double roll = Dice.Roll(1, 100) / 100.0;
-            return roll < baseChance;
+            // Effect is applied if result is 1 or 2 (66.7% chance)
+            return result >= 1;
         }
         
         /// <summary>
@@ -329,7 +329,7 @@ namespace RPGGame
         /// <returns>Attack speed in seconds</returns>
         public static double CalculateAttackSpeed(Entity entity)
         {
-            var tuning = TuningConfig.Instance;
+            var tuning = GameConfiguration.Instance;
             double baseAttackTime = tuning.Combat.BaseAttackTime;
             
             // Agility reduces attack time (makes you faster)

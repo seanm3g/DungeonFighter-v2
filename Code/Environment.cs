@@ -453,7 +453,7 @@ namespace RPGGame
             
             // Fallback: Create basic enemies if JSON loading fails
             UIManager.WriteSystemLine("Warning: Could not load enemy data from JSON, creating basic enemies");
-            var tuning = TuningConfig.Instance;
+            var tuning = GameConfiguration.Instance;
             var basicEnemies = new[] { 
                 new { Name = "Basic Enemy", BaseHealth = 80, BaseStrength = 8, BaseAgility = 6, BaseTechnique = 4, BaseIntelligence = 3, Primary = PrimaryAttribute.Strength }
             };
@@ -463,23 +463,32 @@ namespace RPGGame
                 int enemyLevel = Math.Max(1, roomLevel + random.Next(-tuning.EnemyScaling.EnemyLevelVariance, tuning.EnemyScaling.EnemyLevelVariance + 1));
                 var enemyType = basicEnemies[random.Next(basicEnemies.Length)];
                 
-                // Apply difficulty multipliers from tuning config
-                int adjustedHealth = (int)(enemyType.BaseHealth * tuning.EnemyScaling.EnemyHealthMultiplier);
-                int adjustedStrength = (int)(enemyType.BaseStrength * tuning.EnemyScaling.EnemyDamageMultiplier);
-                int adjustedAgility = (int)(enemyType.BaseAgility * tuning.EnemyScaling.EnemyDamageMultiplier);
-                int adjustedTechnique = (int)(enemyType.BaseTechnique * tuning.EnemyScaling.EnemyDamageMultiplier);
-                int adjustedIntelligence = (int)(enemyType.BaseIntelligence * tuning.EnemyScaling.EnemyDamageMultiplier);
+                // Use new layered balance calculation system
+                var baseStats = new EnemyBaseStats
+                {
+                    Strength = enemyType.BaseStrength,
+                    Agility = enemyType.BaseAgility,
+                    Technique = enemyType.BaseTechnique,
+                    Intelligence = enemyType.BaseIntelligence
+                };
+                
+                // Determine archetype from base stats
+                var archetype = EnemyDPSCalculator.SuggestArchetypeForEnemy(enemyType.Name, enemyType.BaseStrength, enemyType.BaseAgility, enemyType.BaseTechnique, enemyType.BaseIntelligence);
+                
+                var calculatedStats = EnemyBalanceCalculator.CalculateStats(enemyLevel, archetype, baseStats);
                 
                 var enemy = new Enemy(
                     enemyType.Name, 
                     enemyLevel,
-                    adjustedHealth,
-                    adjustedStrength,
-                    adjustedAgility,
-                    adjustedTechnique,
-                    adjustedIntelligence,
-                    0, // Base armor - will be scaled by level in Enemy constructor
-                    enemyType.Primary
+                    calculatedStats.Health,
+                    calculatedStats.Strength,
+                    calculatedStats.Agility,
+                    calculatedStats.Technique,
+                    calculatedStats.Intelligence,
+                    calculatedStats.Armor,
+                    enemyType.Primary,
+                    true, // isLiving
+                    archetype
                 );
                 enemies.Add(enemy);
             }
@@ -623,7 +632,7 @@ namespace RPGGame
 
         private void GenerateEnemiesFromJson(int roomLevel, int enemyCount, List<EnemyData> enemyData)
         {
-            var tuning = TuningConfig.Instance;
+            var tuning = GameConfiguration.Instance;
             
             // Filter enemies by theme if possible
             var themeEnemies = GetThemeAppropriateEnemies(enemyData);

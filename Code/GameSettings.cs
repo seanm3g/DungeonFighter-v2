@@ -16,6 +16,7 @@ namespace RPGGame
         public bool ShowIndividualActionMessages { get; set; } = false;
         public bool EnableComboSystem { get; set; } = true;
         public bool EnableTextDisplayDelays { get; set; } = true; // Only apply delays when text is displayed
+        public bool FastCombat { get; set; } = false; // When enabled, sets combat delay to zero
         
         // Gameplay Settings
         public bool EnableAutoSave { get; set; } = true;
@@ -92,6 +93,7 @@ namespace RPGGame
             ShowIndividualActionMessages = false;
             EnableComboSystem = true;
             EnableTextDisplayDelays = true;
+            FastCombat = false;
             EnableAutoSave = true;
             AutoSaveInterval = 5;
             ShowDetailedStats = true;
@@ -151,6 +153,11 @@ namespace RPGGame
         public string GetTextDisplayDelayDescription()
         {
             return EnableTextDisplayDelays ? "Enabled (Delays match action length)" : "Disabled (Fast background calculations)";
+        }
+        
+        public string GetFastCombatDescription()
+        {
+            return FastCombat ? "Enabled (Zero combat delays)" : "Disabled (Normal combat delays)";
         }
     }
 } 

@@ -65,7 +65,7 @@ namespace RPGGame
             if (item is WeaponData weapon)
                 return weapon.Tier;
             if (item is ArmorData armor)
-                return armor.Armor;
+                return armor.Tier; // Fixed: was using armor.Armor instead of armor.Tier
             return 0;
         }
 
