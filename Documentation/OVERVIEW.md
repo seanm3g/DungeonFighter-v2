@@ -39,7 +39,6 @@ DungeonFighter-v2 is a sophisticated turn-based RPG/dungeon crawler game written
 ### Data-driven Architecture
 - **JSON Configuration:** All game data stored in structured JSON files
 - **Modular Design:** Easy to add new enemies, actions, rooms, and items
-- **Comprehensive Testing:** Built-in test suite with 14+ test categories
 - **Cross-platform:** Runs on Windows, macOS, and Linux
 
 ## Implemented Classes
@@ -75,19 +74,17 @@ DungeonFighter-v2 is a sophisticated turn-based RPG/dungeon crawler game written
 - **`FlavorText`**: Procedural generation of names and descriptions
 
 ### Utility & Support
-- **`Program`**: Application entry point with comprehensive test suite (27+ test categories)
+- **`Program`**: Application entry point and game initialization
 - **`DiceResult`**: Specialized result tracking for combo mechanics
 - **`GameSettings`**: Singleton configuration management
 - **`TuningConfig`**: Dynamic configuration system with real-time parameter adjustment
 - **`FormulaEvaluator`**: Mathematical expression evaluator for dynamic formulas
 - **`ScalingManager`**: Centralized scaling calculations for items and enemies
-- **`BalanceAnalyzer`**: Automated balance testing and DPS calculations
 - **`ActionSpeedSystem`**: Intelligent delay system for optimal user experience
 - **`BattleHealthTracker`**: Health tracking for battle narrative system
 
 ## Development Approach
 - **Layer-by-layer Development:** Each system is built and tested before moving to the next layer
-- **Test-driven Development:** Comprehensive test suite with 27+ test categories covering all major systems
 - **Data-driven Design:** All game content is defined in JSON files for easy modification and expansion
 - **Modular Architecture:** Clear separation of concerns with well-defined interfaces between systems
 - **Documentation:** Extensive documentation for all classes, systems, and game mechanics
@@ -99,9 +96,7 @@ DungeonFighter-v2 is a sophisticated turn-based RPG/dungeon crawler game written
 - **Enemy System:** ✅ 18+ enemy types with AI, scaling, and primary attribute specialization
 - **Dungeon System:** ✅ Procedural generation with 10 themed dungeons
 - **Data System:** ✅ Complete JSON-driven content management
-- **Testing Framework:** ✅ Comprehensive test suite with 27+ test categories
 - **Dynamic Tuning System:** ✅ Real-time parameter adjustment with FormulaEvaluator and ScalingManager
-- **Balance Analysis:** ✅ Automated DPS calculations and combat balance testing
 - **Advanced Action System:** ✅ Complex action mechanics with temporary effects and divine rerolls
 
 ## Future Development Plans
@@ -143,9 +138,8 @@ The system uses sophisticated dice mechanics for action resolution:
 
 - **Initial Roll**: `1d20 + bonus` (where bonus comes from loot or effects)
   - **1-5**: Fail at attack (combo resets to step 1)
-  - **6-15**: Normal attack (continues combo sequence)
-  - **16-20**: Combo attack (triggers combo mode)
-- **Combo Mode**: Once triggered, subsequent rolls use **14+** threshold to continue
+- **6-13**: Normal attack (continues combo sequence)
+- **14-20**: Combo attack (triggers combo mode)
 - **Damage Amplification**: Each successful combo step multiplies damage
 - **Failure Handling**: Failed rolls reset the sequence to the first action and deactivate combo mode
 
@@ -316,8 +310,8 @@ The game features an innovative event-driven battle narrative system that provid
 
 ### Significant Events That Trigger Narrative
 
-1. **First Blood**: The first significant damage dealt (>10 damage) in a battle
-   - *Example: "Warrior draws first blood with a Heroic Strike that deals 25 damage to Goblin!"*
+1. **First Blood**: The first successful hit that deals damage in a battle
+   - *Example: "The first drop of blood is drawn! The battle has truly begun."*
 
 2. **Health Reversal**: When someone goes from having higher health percentage to lower health than their opponent
    - *Example: "Hero turns the tide! Their relentless assault has brought Villain to their knees!"*

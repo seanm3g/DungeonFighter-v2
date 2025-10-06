@@ -20,7 +20,8 @@ namespace RPGGame
         public ComboSystemConfig ComboSystem { get; set; } = new();
         public EnemyScalingConfig EnemyScaling { get; set; } = new();
         public EnemyBalanceConfig EnemyBalance { get; set; } = new();
-        public UIConfig UI { get; set; } = new();
+        public EnemyBaselineConfig EnemyBaseline { get; set; } = new();
+        public EnemyArchetypesConfig EnemyArchetypes { get; set; } = new();
         public GameSpeedConfig GameSpeed { get; set; } = new();
         public ItemScalingConfig? ItemScaling { get; set; } = new();
         public WeaponScalingConfig? WeaponScaling { get; set; } = new();
@@ -29,6 +30,7 @@ namespace RPGGame
         public EnemyDPSConfig? EnemyDPS { get; set; } = new();
         public GameDataConfig GameData { get; set; } = new();
         public DebugConfig Debug { get; set; } = new();
+        public BalanceAnalysisConfig BalanceAnalysis { get; set; } = new();
         public CombatBalanceConfig CombatBalance { get; set; } = new();
         public ExperienceSystemConfig ExperienceSystem { get; set; } = new();
         public LootSystemConfig LootSystem { get; set; } = new();
@@ -111,20 +113,24 @@ namespace RPGGame
                         Character = config.Character;
                         Attributes = config.Attributes;
                         Combat = config.Combat;
+                        Poison = config.Poison;
                         Progression = config.Progression;
                         XPRewards = config.XPRewards;
                         RollSystem = config.RollSystem;
                         ComboSystem = config.ComboSystem;
                         EnemyScaling = config.EnemyScaling;
                         EnemyBalance = config.EnemyBalance;
-                        UI = config.UI;
+                        EnemyBaseline = config.EnemyBaseline;
+                        EnemyArchetypes = config.EnemyArchetypes;
                         GameSpeed = config.GameSpeed;
                         ItemScaling = config.ItemScaling;
+                        WeaponScaling = config.WeaponScaling;
                         RarityScaling = config.RarityScaling;
                         ProgressionCurves = config.ProgressionCurves;
                         EnemyDPS = config.EnemyDPS;
                         GameData = config.GameData;
                         Debug = config.Debug;
+                        BalanceAnalysis = config.BalanceAnalysis;
                         CombatBalance = config.CombatBalance;
                         ExperienceSystem = config.ExperienceSystem;
                         LootSystem = config.LootSystem;
@@ -244,24 +250,69 @@ namespace RPGGame
 
     public class EnemyBalanceConfig
     {
-        public int BaseTotalPointsAtLevel1 { get; set; }
-        public int TotalPointsPerLevel { get; set; }
-        public AllocationConfig DPSAllocation { get; set; } = new();
-        public AllocationConfig SUSTAINAllocation { get; set; } = new();
-        public DPSComponentsConfig DPSComponents { get; set; } = new();
-        public SUSTAINComponentsConfig SUSTAINComponents { get; set; } = new();
+        public PoolConfig AttributePool { get; set; } = new();
+        public PoolConfig SustainPool { get; set; } = new();
         public StatConversionRatesConfig StatConversionRates { get; set; } = new();
+        public Dictionary<string, BaseEnemyConfig> BaseEnemyConfigs { get; set; } = new();
         public Dictionary<string, ArchetypeConfig> ArchetypeConfigs { get; set; } = new();
+    }
+
+    public class PoolConfig
+    {
+        public int BasePointsAtLevel1 { get; set; }
+        public int PointsPerLevel { get; set; }
     }
 
     public class ArchetypeConfig
     {
-        public double DPSPoolRatio { get; set; }
+        public double AttributePoolRatio { get; set; }
         public double SUSTAINPoolRatio { get; set; }
-        public double DPSAttackRatio { get; set; }
-        public double DPSAttackSpeedRatio { get; set; }
+        public double StrengthRatio { get; set; }
+        public double AgilityRatio { get; set; }
+        public double TechniqueRatio { get; set; }
+        public double IntelligenceRatio { get; set; }
         public double SUSTAINHealthRatio { get; set; }
         public double SUSTAINArmorRatio { get; set; }
+        public Level1Modifiers? Level1Modifiers { get; set; }
+        public ArchetypeBonuses? ArchetypeBonuses { get; set; }
+    }
+
+    public class ArchetypeBonuses
+    {
+        public double StrengthMultiplier { get; set; } = 1.0;
+        public double AgilityMultiplier { get; set; } = 1.0;
+        public double HealthMultiplier { get; set; } = 1.0;
+        public double ArmorMultiplier { get; set; } = 1.0;
+        public double AttackSpeedMultiplier { get; set; } = 1.0;
+    }
+
+    public class BaseEnemyConfig
+    {
+        public int BaseLevel { get; set; }
+        public int BaseHealth { get; set; }
+        public BaseEnemyStats BaseStats { get; set; } = new();
+        public int BaseArmor { get; set; }
+        public string PrimaryAttribute { get; set; } = "Strength";
+        public bool IsLiving { get; set; } = true;
+        public List<string> Actions { get; set; } = new();
+    }
+
+    public class BaseEnemyStats
+    {
+        public int Strength { get; set; }
+        public int Agility { get; set; }
+        public int Technique { get; set; }
+        public int Intelligence { get; set; }
+    }
+
+    public class Level1Modifiers
+    {
+        public int HealthBonus { get; set; }
+        public int StrengthBonus { get; set; }
+        public int AgilityBonus { get; set; }
+        public int TechniqueBonus { get; set; }
+        public int IntelligenceBonus { get; set; }
+        public int ArmorBonus { get; set; }
     }
 
     public class AllocationConfig
@@ -285,20 +336,14 @@ namespace RPGGame
 
     public class StatConversionRatesConfig
     {
-        public double DamagePerPoint { get; set; }
-        public double AttackSpeedPerPoint { get; set; }
+        public double StrengthPerPoint { get; set; }
+        public double AgilityPerPoint { get; set; }
+        public double TechniquePerPoint { get; set; }
+        public double IntelligencePerPoint { get; set; }
         public double HealthPerPoint { get; set; }
         public double ArmorPerPoint { get; set; }
     }
 
-    public class UIConfig
-    {
-        public bool EnableTextDelays { get; set; }
-        public int CombatDelay { get; set; }
-        public int MenuDelay { get; set; }
-        public int SystemDelay { get; set; }
-        public int TitleDelay { get; set; }
-    }
     
     public class GameSpeedConfig
     {
@@ -308,7 +353,8 @@ namespace RPGGame
     
     public class ItemScalingConfig
     {
-        public Dictionary<string, int> StartingWeaponDamage { get; set; } = new();
+        public Dictionary<string, double> StartingWeaponDamage { get; set; } = new();
+        public Dictionary<string, double> StartingWeaponSpeed { get; set; } = new();
         public Dictionary<string, TierRange> TierDamageRanges { get; set; } = new();
         public double GlobalDamageMultiplier { get; set; }
         public int WeaponDamagePerTier { get; set; }
@@ -441,14 +487,6 @@ namespace RPGGame
         public SustainBalanceConfig SustainBalance { get; set; } = new();
     }
     
-    public class EnemyArchetypeConfig
-    {
-        public string Name { get; set; } = "";
-        public string Description { get; set; } = "";
-        public double SpeedRatio { get; set; }
-        public double DamageRatio { get; set; }
-        public Dictionary<string, double> AttributeFocus { get; set; } = new();
-    }
     
     public class DPSBalanceValidationConfig
     {
@@ -626,6 +664,10 @@ namespace RPGGame
     public class DebugConfig
     {
         public bool EnableDebugOutput { get; set; }
+        public bool ShowCombatSimulationDebug { get; set; }
+        public int MaxDetailedBattles { get; set; } = 10;
+        public bool LogCombatActions { get; set; } = false;
+        public bool LogOnlyOnErrors { get; set; } = true;
         public string Description { get; set; } = "";
     }
 
@@ -828,6 +870,153 @@ namespace RPGGame
         public string StatusEffectDamageFormula { get; set; } = "";
         public string EnvironmentalDamageFormula { get; set; } = "";
         public string Description { get; set; } = "";
+    }
+
+    public class BalanceAnalysisConfig
+    {
+        public int SimulationsPerMatchup { get; set; } = 100;
+        public int TargetWinRateMin { get; set; } = 85;
+        public int TargetWinRateMax { get; set; } = 98;
+        public bool EnableDetailedLogging { get; set; } = false;
+        public int MaxDetailedBattles { get; set; } = 5;
+        public bool HideCombatLogs { get; set; } = true;
+        public Dictionary<string, PlayerStatsConfig> PlayerStats { get; set; } = new Dictionary<string, PlayerStatsConfig>();
+        public DamageCalculationConfig DamageCalculation { get; set; } = new DamageCalculationConfig();
+        public DifficultyThresholdsConfig DifficultyThresholds { get; set; } = new DifficultyThresholdsConfig();
+        public DPSCalculationConfig DPSCalculation { get; set; } = new DPSCalculationConfig();
+        public string Description { get; set; } = "";
+    }
+
+    public class PlayerStatsConfig
+    {
+        public int Strength { get; set; } = 1;
+        public int Agility { get; set; } = 1;
+        public int Technique { get; set; } = 1;
+        public int Intelligence { get; set; } = 1;
+    }
+
+    public class DamageCalculationConfig
+    {
+        public double AverageDamageMultiplier { get; set; } = 0.8;
+        public int MinimumDamage { get; set; } = 1;
+    }
+
+    public class DifficultyThresholdsConfig
+    {
+        public double TooEasy { get; set; } = 0.98;
+        public double Moderate { get; set; } = 0.6;
+        public double Hard { get; set; } = 0.4;
+    }
+
+    public class DPSCalculationConfig
+    {
+        public double BaseDamageMultiplier { get; set; } = 0.5;
+        public double AttackSpeedMultiplier { get; set; } = 0.1;
+    }
+
+    /// <summary>
+    /// Helper class for retrieving archetype configurations from TuningConfig
+    /// </summary>
+    public static class ArchetypeConfigHelper
+    {
+        /// <summary>
+        /// Gets the archetype configuration for a given enemy archetype
+        /// </summary>
+        /// <param name="archetype">The enemy archetype</param>
+        /// <param name="config">The enemy balance configuration</param>
+        /// <returns>Archetype configuration with ratios and modifiers</returns>
+        public static ArchetypeConfig GetArchetypeConfig(EnemyArchetype archetype, EnemyBalanceConfig config)
+        {
+            if (config.ArchetypeConfigs == null)
+            {
+                // Return default configuration if archetype configs are not available
+                return new ArchetypeConfig
+                {
+                    AttributePoolRatio = 0.6,
+                    SUSTAINPoolRatio = 0.4,
+                    StrengthRatio = 0.4,
+                    AgilityRatio = 0.3,
+                    TechniqueRatio = 0.2,
+                    IntelligenceRatio = 0.1,
+                    SUSTAINHealthRatio = 0.5,
+                    SUSTAINArmorRatio = 0.5,
+                    Level1Modifiers = new Level1Modifiers()
+                };
+            }
+
+            return archetype switch
+            {
+                EnemyArchetype.Berserker => config.ArchetypeConfigs.GetValueOrDefault("Berserker") ?? GetDefaultConfig(),
+                EnemyArchetype.Assassin => config.ArchetypeConfigs.GetValueOrDefault("Assassin") ?? GetDefaultConfig(),
+                EnemyArchetype.Brute => config.ArchetypeConfigs.GetValueOrDefault("Brute") ?? GetDefaultConfig(),
+                EnemyArchetype.Guardian => config.ArchetypeConfigs.GetValueOrDefault("Guardian") ?? GetDefaultConfig(),
+                _ => GetDefaultConfig()
+            };
+        }
+
+        /// <summary>
+        /// Gets a default archetype configuration
+        /// </summary>
+        private static ArchetypeConfig GetDefaultConfig()
+        {
+            return new ArchetypeConfig
+            {
+                AttributePoolRatio = 0.6,
+                SUSTAINPoolRatio = 0.4,
+                StrengthRatio = 0.4,
+                AgilityRatio = 0.3,
+                TechniqueRatio = 0.2,
+                IntelligenceRatio = 0.1,
+                SUSTAINHealthRatio = 0.5,
+                SUSTAINArmorRatio = 0.5,
+                Level1Modifiers = new Level1Modifiers()
+            };
+        }
+    }
+
+    public class EnemyBaselineConfig
+    {
+        public BaseStatsConfig BaseStats { get; set; } = new();
+        public ScalingPerLevelConfig ScalingPerLevel { get; set; } = new();
+        public string Description { get; set; } = "";
+    }
+
+    public class BaseStatsConfig
+    {
+        public int Health { get; set; }
+        public int Strength { get; set; }
+        public int Agility { get; set; }
+        public int Technique { get; set; }
+        public int Intelligence { get; set; }
+        public int Armor { get; set; }
+    }
+
+    public class ScalingPerLevelConfig
+    {
+        public int Health { get; set; }
+        public int Attributes { get; set; }
+        public double Armor { get; set; }
+    }
+
+    public class EnemyArchetypesConfig
+    {
+        public Dictionary<string, EnemyArchetypeConfig> Archetypes { get; set; } = new();
+    }
+
+    public class EnemyArchetypeConfig
+    {
+        public StatMultipliersConfig StatMultipliers { get; set; } = new();
+        public string Description { get; set; } = "";
+    }
+
+    public class StatMultipliersConfig
+    {
+        public double Health { get; set; } = 1.0;
+        public double Strength { get; set; } = 1.0;
+        public double Agility { get; set; } = 1.0;
+        public double Technique { get; set; } = 1.0;
+        public double Intelligence { get; set; } = 1.0;
+        public double Armor { get; set; } = 1.0;
     }
 
 }

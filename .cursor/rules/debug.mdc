@@ -1,0 +1,174 @@
+# Debug Analysis Rule
+
+## Purpose
+Analyze the latest debug output from the game's balance tuning system to diagnose configuration and calculation issues.
+
+## When to Use
+- When tuning changes in TuningConfig.json aren't taking effect
+- When enemies are unexpectedly easy/hard despite configuration changes
+- When debugging enemy stat calculations
+- When investigating archetype configuration issues
+
+## How to Use
+1. Run the game and select option 5 (Level 1 Difficulty Analysis)
+2. The debug output will be displayed in the console
+3. Use this rule to analyze the debug statements and identify issues
+
+## Debug Output Analysis
+
+### Configuration Loading
+Look for these debug lines to verify TuningConfig.json is loading correctly:
+```
+DEBUG [EnemyBalanceCalculator]: Config values - AttributePool.BasePointsAtLevel1=X, SustainPool.BasePointsAtLevel1=Y
+```
+
+**Expected Values:**
+- AttributePool.BasePointsAtLevel1: Should match your TuningConfig.json setting (currently 50)
+- SustainPool.BasePointsAtLevel1: Should match your TuningConfig.json setting (currently 60)
+
+### Point Calculations
+Look for these debug lines to verify point allocation:
+```
+DEBUG [EnemyBalanceCalculator]: Calculated points - AttributePoints=X, SustainPoints=Y
+```
+
+**Expected Values:**
+- AttributePoints: Should be 50 for Level 1 enemies
+- SustainPoints: Should be 60 for Level 1 enemies
+
+### Archetype Configuration
+Look for these debug lines to verify archetype ratios:
+```
+DEBUG [EnemyBalanceCalculator]: ArchetypeConfig - STR=X, AGI=Y, TEC=Z, INT=W
+```
+
+**Expected Values:**
+- All ratios should be between 0.0 and 1.0
+- Ratios should sum to approximately 1.0 for each archetype
+
+### Stat Conversion Rates
+Look for these debug lines to verify conversion rates:
+```
+DEBUG [EnemyBalanceCalculator]: StatConversionRates - STR=X, AGI=Y, TEC=Z, INT=W
+```
+
+**Expected Values:**
+- Should match your TuningConfig.json StatConversionRates section
+- Currently: STR=1.0, AGI=1.0, TEC=1.0, INT=1.0
+
+### Point Allocation
+Look for these debug lines to verify attribute point distribution:
+```
+DEBUG [EnemyBalanceCalculator]: Point allocation - STR=X, AGI=Y, TEC=Z, INT=W
+```
+
+**Expected Values:**
+- Points should sum to AttributePoints (50 for Level 1)
+- Distribution should follow archetype ratios
+
+### Final Calculated Stats
+Look for these debug lines to see final enemy stats:
+```
+DEBUG [EnemyBalanceCalculator]: Final calculated stats - STR=X, AGI=Y, TEC=Z, INT=W, HP=A, ARM=B
+```
+
+**Expected Values:**
+- Stats should be significantly higher than original Enemies.json values
+- Health should be much higher than original (60+ points vs ~20-30)
+- Attributes should be higher than original (50+ points vs ~10-15)
+
+### Original vs Calculated Comparison
+Look for these debug lines to compare original vs calculated stats:
+```
+DEBUG [EnemyLoader]: [EnemyName] - Original: STR=X, AGI=Y, TEC=Z, INT=W, HP=A, ARM=B
+DEBUG [EnemyLoader]: [EnemyName] - Calculated: STR=X, AGI=Y, TEC=Z, INT=W, HP=A, ARM=B
+```
+
+**Expected Values:**
+- Calculated stats should be significantly higher than Original stats
+- If they're the same, the EnemyBalanceCalculator isn't being used
+
+## Common Issues to Look For
+
+### Issue 1: Configuration Not Loading
+**Symptoms:**
+- Config values show default/old values
+- AttributePoints/SustainPoints are low (20-30 instead of 50-60)
+
+**Solution:**
+- Check TuningConfig.json syntax
+- Verify JSON is valid
+- Restart the game
+
+### Issue 2: Archetype Not Found
+**Symptoms:**
+- "Archetype 'X' not found in dictionary, using fallback defaults"
+- All enemies using same fallback ratios
+
+**Solution:**
+- Check archetype names in TuningConfig.json match EnemyArchetype enum
+- Verify ArchetypeConfigs section is properly formatted
+
+### Issue 3: Stats Not Updating
+**Symptoms:**
+- Original and Calculated stats are identical
+- Final calculated stats are low
+
+**Solution:**
+- Verify EnemyBalanceCalculator.CalculateStats is being called
+- Check that calculated stats are being used in Enemy constructor
+
+### Issue 4: Point Allocation Issues
+**Symptoms:**
+- Point allocation doesn't sum to AttributePoints
+- Negative or zero attribute points
+
+**Solution:**
+- Check archetype ratios sum to 1.0
+- Verify StatConversionRates are positive
+
+## Analysis Commands
+
+### Check Latest Debug Output
+```bash
+# Look for the most recent debug statements in console output
+# Focus on the debug lines that start with "DEBUG ["
+```
+
+### Verify Configuration Loading
+```bash
+# Check if BasePointsAtLevel1 values are being read correctly
+# Should see: AttributePool.BasePointsAtLevel1=50, SustainPool.BasePointsAtLevel1=60
+```
+
+### Verify Stat Calculations
+```bash
+# Check if calculated stats are significantly higher than original
+# Should see: Calculated stats much higher than Original stats
+```
+
+## Expected Debug Flow
+1. **Config Loading**: BasePointsAtLevel1 values loaded from TuningConfig.json
+2. **Point Calculation**: AttributePoints=50, SustainPoints=60 for Level 1
+3. **Archetype Lookup**: Archetype config found or fallback used
+4. **Point Allocation**: Points distributed according to archetype ratios
+5. **Stat Conversion**: Points converted to final stats using conversion rates
+6. **Final Stats**: High calculated stats (50+ attributes, 60+ health)
+7. **Comparison**: Calculated stats much higher than original Enemies.json stats
+
+## Troubleshooting Steps
+1. **Run the game** and select option 5
+2. **Copy the debug output** from the console
+3. **Analyze each section** using this rule
+4. **Identify the issue** based on symptoms above
+5. **Apply the solution** for the identified issue
+6. **Re-test** to verify the fix
+
+## Success Indicators
+- ✅ Config values match TuningConfig.json settings
+- ✅ AttributePoints=50, SustainPoints=60 for Level 1
+- ✅ Archetype configs found (not fallback)
+- ✅ Point allocation sums correctly
+- ✅ Final calculated stats are high (50+ attributes, 60+ health)
+- ✅ Calculated stats >> Original stats
+- ✅ Enemies are appropriately challenging (85-98% win rate)

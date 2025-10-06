@@ -29,6 +29,37 @@ This document contains solutions to common problems encountered during developme
 - Modify `EnableTextDisplayDelays` for pacing
 - Tune `NarrativeBalance` (0.0 = action-by-action, 1.0 = full narrative)
 
+## Data Generation Issues
+
+### Problem: Armor generation creating massive numbers (30,130,992)
+**Symptoms:**
+- Armor values in Armor.json showing extremely large numbers
+- Tier 2 armor showing 30+ million instead of reasonable values like 4-8
+- Data generation amplifying existing corrupted values
+
+**Root Cause:**
+- `GenerateArmorFromConfig` method multiplying existing armor values by tier multipliers
+- System using corrupted existing values as base instead of generating clean base values
+
+**Solution:**
+1. **Replace Amplification Logic**: Use base value generation instead of multiplying existing values
+2. **Create Base Value Lookup**: Implement `GetBaseArmorForTierAndSlot` with predefined values
+3. **Define Proper Progression**: 
+   - Tier 1: Head=2, Chest=4, Feet=2
+   - Tier 2: Head=4, Chest=8, Feet=4
+   - Tier 3: Head=6, Chest=12, Feet=6
+   - etc.
+4. **Add Fallback**: Simple tier-based calculation for unknown combinations
+
+**Prevention:**
+- Always use base value generation instead of amplifying existing values
+- Test data generation with clean/corrupted input files
+- Validate generated values are within reasonable ranges
+
+**Files to Check:**
+- `Code/GameDataGenerator.cs` (GenerateArmorFromConfig method)
+- `GameData/Armor.json` (generated values)
+
 ## Data Loading Issues
 
 ### Problem: JSON files not loading properly
@@ -59,6 +90,20 @@ This document contains solutions to common problems encountered during developme
 - Verify weapon has `"actions": ["ACTION_NAME"]` in JSON
 - Check armor action chance percentages
 - Ensure ActionLoader.cs is loading actions correctly
+
+### Problem: Some enemies can't deal damage (only utility/debuff actions)
+**Symptoms:**
+- Encounters where enemies never reduce player health
+- Examples: `Prism Spider` had only `LIGHT REFRACTION` and `WEB TRAP`
+
+**Solution:**
+1. Added a data fix ensuring all enemies include at least one damaging action in `GameData/Enemies.json` (e.g., added `POISON BITE` to `Prism Spider`).
+2. Added a loader-time safeguard in `EnemyLoader.CreateEnemyFromData` that injects `BASIC ATTACK` if no damaging actions are present or resolvable.
+3. Added `EnemyTests.TestEnemiesHaveDamagingAction()` and a CLI hook `--test-enemies` to validate configurations.
+
+**Verification:**
+- Run `Code.exe --test-enemies` to see validation results.
+- In combat, previously non-damaging enemies now attack and can win fights.
 
 ## Character Progression Issues
 

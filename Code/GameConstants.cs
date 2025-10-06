@@ -29,15 +29,15 @@ namespace RPGGame
         
         // Common File Paths
         public static readonly string[] PossibleGameDataPaths = {
+            // Relative to current working directory (most common case)
+            Path.Combine(Directory.GetCurrentDirectory(), "..", GameDataDirectory),
+            Path.Combine(Directory.GetCurrentDirectory(), GameDataDirectory),
+            Path.Combine(Directory.GetCurrentDirectory(), "..", "..", GameDataDirectory),
+            
             // Relative to executable directory
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, GameDataDirectory),
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", GameDataDirectory),
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", GameDataDirectory),
-            
-            // Relative to current working directory
-            Path.Combine(Directory.GetCurrentDirectory(), GameDataDirectory),
-            Path.Combine(Directory.GetCurrentDirectory(), "..", GameDataDirectory),
-            Path.Combine(Directory.GetCurrentDirectory(), "..", "..", GameDataDirectory),
             
             // Common project structure variations
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", GameDataDirectory),

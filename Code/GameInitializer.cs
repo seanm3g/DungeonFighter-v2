@@ -11,8 +11,8 @@ namespace RPGGame
     public class StartingWeapon
     {
         public string name { get; set; } = "";
-        public int damage { get; set; }
-        public double weight { get; set; }
+        public double damage { get; set; }
+        public double weight { get; set; } = 0.0;
         public double attackSpeed { get; set; } = 0.05;
     }
 
@@ -21,7 +21,7 @@ namespace RPGGame
         public string slot { get; set; } = "";
         public string name { get; set; } = "";
         public int armor { get; set; }
-        public double weight { get; set; }
+        public double weight { get; set; } = 0.0;
     }
 
     /// <summary>
@@ -54,7 +54,7 @@ namespace RPGGame
                     foreach (var weapon in startingGear.weapons)
                     {
                         // Apply global damage multiplier
-                        weapon.damage = (int)(weapon.damage * weaponScaling.GlobalDamageMultiplier);
+                        weapon.damage = weapon.damage * weaponScaling.GlobalDamageMultiplier;
                         
                         // Apply weapon-specific starting damage from tuning config
                         string weaponName = weapon.name.ToLower();
@@ -89,7 +89,7 @@ namespace RPGGame
             // Prompt player to choose a starter weapon
             UIManager.WriteMenuLine("");
             UIManager.WriteTitleLine("Choose your starter weapon:");
-            UIManager.WriteMenuLine("");
+            UIManager.WriteMenuLine(new string('-', 25)); // Creates 20 dashes
             for (int i = 0; i < startingGear.weapons.Count; i++)
             {
                 var weapon = startingGear.weapons[i];
@@ -118,17 +118,11 @@ namespace RPGGame
                 _ => WeaponType.Sword
             };
             
-            WeaponItem starterWeapon = new WeaponItem(selectedWeaponData.name, 1, selectedWeaponData.damage, selectedWeaponData.attackSpeed, weaponType);
-            if (GameConfiguration.IsDebugEnabled)
-                Console.WriteLine($"DEBUG: About to equip starter weapon: {starterWeapon.Name} (Type: {starterWeapon.WeaponType})");
+            WeaponItem starterWeapon = new WeaponItem(selectedWeaponData.name, 1, (int)selectedWeaponData.damage, selectedWeaponData.attackSpeed, weaponType);
             player.EquipItem(starterWeapon, "weapon");
-            if (GameConfiguration.IsDebugEnabled)
-                Console.WriteLine($"DEBUG: After equipping weapon, player has {player.ActionPool.Count} actions in pool");
             
             // Initialize combo sequence with weapon actions now that weapon is equipped
             player.InitializeDefaultCombo();
-            if (GameConfiguration.IsDebugEnabled)
-                Console.WriteLine($"DEBUG: After InitializeDefaultCombo, player has {player.ComboSequence.Count} actions in combo sequence");
             
             // Equip starting armor from JSON
             foreach (var armorData in startingGear.armor)

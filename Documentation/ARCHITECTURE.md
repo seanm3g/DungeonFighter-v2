@@ -50,9 +50,6 @@ DungeonFighter-v2/
 - **`Enemy.cs`** - Enemy entity with AI and combat behavior
 - **`EnemyFactory.cs`** - Creates enemies based on type and level
 - **`EnemyLoader.cs`** - Loads enemy data from JSON files
-- **`EnemyDPSCalculator.cs`** - Calculates enemy damage per second
-- **`EnemyDPSSystem.cs`** - Manages enemy DPS scaling and balance
-- **`EnemyStatPoolSystem.cs`** - Handles enemy stat distribution and scaling
 
 ### **Dungeon System**
 - **`DungeonManager.cs`** - Manages dungeon selection, generation, and completion
@@ -82,7 +79,6 @@ DungeonFighter-v2/
 - **`ErrorHandler.cs`** - Centralized error handling and logging
 - **`RandomUtility.cs`** - Consistent random number generation
 - **`GameConstants.cs`** - Common constants, file paths, and strings
-- **`DebugLogger.cs`** - Centralized debug output
 - **`BasicGearConfig.cs`** - Basic gear names and configuration
 - **`ScalingManager.cs`** - Handles game difficulty and content scaling
 - **`SettingsManager.cs`** - User settings management

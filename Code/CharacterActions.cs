@@ -34,23 +34,55 @@ namespace RPGGame
         {
             DebugLogger.LogMethodEntry("CharacterActions", "AddDefaultActions");
             
-            var basicAttack = new Action(
-                name: "BASIC ATTACK",
-                type: ActionType.Attack,
-                targetType: TargetType.SingleTarget,
-                baseValue: 0,
-                range: 1,
-                cooldown: 0,
-                description: "A simple attack",
-                comboOrder: -1, // Basic attack doesn't participate in combos
-                damageMultiplier: 1.0,
-                length: 1.0,
-                causesBleed: false,
-                causesWeaken: false,
-                isComboAction: false
-            );
-            entity.AddAction(basicAttack, 1.0); // High probability for basic attack
-            DebugLogger.Log("CharacterActions", "Added BASIC ATTACK to ActionPool");
+            // Ensure BASIC ATTACK is always available - this is critical for basic attack rolls (6-13)
+            EnsureBasicAttackAvailable(entity);
+        }
+        
+        /// <summary>
+        /// Ensures that BASIC ATTACK is always available in the entity's action pool
+        /// This is critical for basic attack rolls (6-13) to work properly
+        /// </summary>
+        public void EnsureBasicAttackAvailable(Entity entity)
+        {
+            // Check if BASIC ATTACK is already in the action pool
+            bool hasBasicAttack = entity.ActionPool.Any(a => 
+                string.Equals(a.action.Name, "BASIC ATTACK", StringComparison.OrdinalIgnoreCase));
+            
+            if (!hasBasicAttack)
+            {
+                // Load BASIC ATTACK from JSON to get proper settings
+                var basicAttack = ActionLoader.GetAction("BASIC ATTACK");
+                if (basicAttack != null)
+                {
+                    entity.AddAction(basicAttack, 1.0); // High probability for basic attack
+                    DebugLogger.Log("CharacterActions", "Added BASIC ATTACK to ActionPool from JSON");
+                }
+                else
+                {
+                    // Fallback if JSON loading fails - create a proper BASIC ATTACK
+                    var fallbackBasicAttack = new Action(
+                        name: "BASIC ATTACK",
+                        type: ActionType.Attack,
+                        targetType: TargetType.SingleTarget,
+                        baseValue: 0, // Damage comes from STR + weapon, not baseValue
+                        range: 1,
+                        cooldown: 0,
+                        description: "A standard physical attack using STR + weapon damage",
+                        comboOrder: 0,
+                        damageMultiplier: 1.0,
+                        length: 1.0,
+                        causesBleed: false,
+                        causesWeaken: false,
+                        isComboAction: false // BASIC ATTACK should NOT be a combo action
+                    );
+                    entity.AddAction(fallbackBasicAttack, 1.0);
+                    DebugLogger.Log("CharacterActions", "Added fallback BASIC ATTACK to ActionPool");
+                }
+            }
+            else
+            {
+                DebugLogger.Log("CharacterActions", "BASIC ATTACK already available in ActionPool");
+            }
         }
 
         public void AddClassActions(Entity entity, CharacterProgression progression, WeaponType? weaponType)
@@ -260,8 +292,6 @@ namespace RPGGame
                 .Select(action => action.Name)
                 .ToList();
                 
-            if (GameConfiguration.IsDebugEnabled)
-                Console.WriteLine($"DEBUG: Found {weaponActions.Count} weapon actions for {weaponType}: {string.Join(", ", weaponActions)}");
             return weaponActions;
         }
 
@@ -349,8 +379,6 @@ namespace RPGGame
 
         private void LoadGearActionFromJson(Entity entity, string actionName)
         {
-            if (GameConfiguration.IsDebugEnabled)
-                Console.WriteLine($"DEBUG: LoadGearActionFromJson called for action: {actionName}");
             
             try
             {
@@ -374,22 +402,16 @@ namespace RPGGame
                 
                 if (foundPath != null)
                 {
-                    if (GameConfiguration.IsDebugEnabled)
-                        Console.WriteLine($"DEBUG: Found Actions.json at: {foundPath}");
                     
                     string jsonContent = File.ReadAllText(foundPath);
                     var allActions = System.Text.Json.JsonSerializer.Deserialize<List<ActionData>>(jsonContent);
                     
                     if (allActions != null)
                     {
-                        if (GameConfiguration.IsDebugEnabled)
-                            Console.WriteLine($"DEBUG: Deserialized {allActions.Count} actions from JSON");
                         
                         var actionData = allActions.FirstOrDefault(a => a.Name == actionName);
                         if (actionData != null)
                         {
-                            if (GameConfiguration.IsDebugEnabled)
-                                Console.WriteLine($"DEBUG: Found action data for {actionName}");
                             
                             var action = CreateActionFromData(actionData);
                             if (action.IsComboAction)
@@ -400,25 +422,17 @@ namespace RPGGame
                                 action.ComboOrder = maxOrder + 1;
                                 
                                 entity.AddAction(action, 1.0);
-                                if (GameConfiguration.IsDebugEnabled)
-                                    Console.WriteLine($"DEBUG: Successfully added action {actionName} to ActionPool");
                             }
                             else
                             {
-                                if (GameConfiguration.IsDebugEnabled)
-                                    Console.WriteLine($"DEBUG: Action {actionName} is not a combo action, skipping");
                             }
                         }
                         else
                         {
-                            if (GameConfiguration.IsDebugEnabled)
-                                Console.WriteLine($"DEBUG: Action {actionName} not found in Actions.json");
                         }
                     }
                     else
                     {
-                        if (GameConfiguration.IsDebugEnabled)
-                            Console.WriteLine($"DEBUG: Failed to deserialize Actions.json");
                     }
                 }
                 else
@@ -743,8 +757,6 @@ namespace RPGGame
         
         public void InitializeDefaultCombo(Entity entity, WeaponItem? weapon)
         {
-            if (GameConfiguration.IsDebugEnabled)
-                Console.WriteLine("DEBUG: InitializeDefaultCombo called");
             
             // Clear existing combo sequence
             ComboSequence.Clear();
@@ -752,12 +764,8 @@ namespace RPGGame
             // Add the two weapon actions to the combo by default
             if (weapon != null)
             {
-                if (GameConfiguration.IsDebugEnabled)
-                    Console.WriteLine($"DEBUG: Found weapon: {weapon.Name} (Type: {weapon.WeaponType})");
                 
                 var weaponActions = GetGearActions(weapon);
-                if (GameConfiguration.IsDebugEnabled)
-                    Console.WriteLine($"DEBUG: Found {weaponActions.Count} weapon actions: {string.Join(", ", weaponActions)}");
                 
                 foreach (var actionName in weaponActions)
                 {
@@ -765,25 +773,52 @@ namespace RPGGame
                     var action = entity.ActionPool.FirstOrDefault(a => a.action.Name == actionName);
                     if (action.action != null && action.action.IsComboAction)
                     {
-                        if (GameConfiguration.IsDebugEnabled)
-                            Console.WriteLine($"DEBUG: Adding {actionName} to combo sequence");
                         AddToCombo(action.action);
                     }
                     else
                     {
-                        if (GameConfiguration.IsDebugEnabled)
-                            Console.WriteLine($"DEBUG: Could not add {actionName} to combo - action not found or not a combo action");
                     }
                 }
             }
-            else
+            
+            // If no weapon or no weapon actions were added, ensure we have proper combo actions
+            if (ComboSequence.Count == 0)
             {
-                if (GameConfiguration.IsDebugEnabled)
-                    Console.WriteLine("DEBUG: No weapon equipped, cannot initialize default combo");
+                // Find any available combo actions from the action pool
+                var availableComboActions = entity.ActionPool
+                    .Where(a => a.action.IsComboAction)
+                    .Select(a => a.action)
+                    .ToList();
+                
+                if (availableComboActions.Count > 0)
+                {
+                    // Add the first available combo action
+                    AddToCombo(availableComboActions[0]);
+                }
+                else
+                {
+                    // If no combo actions are available, create a default combo action
+                    // This should never happen in normal gameplay, but provides a safety net
+                    var defaultComboAction = new Action(
+                        name: "POWER STRIKE",
+                        type: ActionType.Attack,
+                        targetType: TargetType.SingleTarget,
+                        baseValue: 0,
+                        range: 1,
+                        cooldown: 0,
+                        description: "A powerful strike that deals extra damage",
+                        comboOrder: 1,
+                        damageMultiplier: 1.2,
+                        length: 1.0,
+                        causesBleed: false,
+                        causesWeaken: false,
+                        isComboAction: true
+                    );
+                    entity.AddAction(defaultComboAction, 1.0);
+                    AddToCombo(defaultComboAction);
+                }
             }
             
-            if (GameConfiguration.IsDebugEnabled)
-                Console.WriteLine($"DEBUG: Combo sequence now has {ComboSequence.Count} actions");
         }
 
         public void UpdateComboSequenceAfterGearChange(Entity entity)

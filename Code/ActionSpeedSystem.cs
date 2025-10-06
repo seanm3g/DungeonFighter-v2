@@ -36,6 +36,7 @@ namespace RPGGame
             var readyEntity = entities
                 .Where(e => IsEntityAlive(e.Entity) && e.NextActionTime <= currentTime)
                 .OrderBy(e => e.NextActionTime)
+                .ThenBy(e => e.Entity.Name) // Add secondary sort by name for consistent ordering when times are equal
                 .FirstOrDefault();
 
             return readyEntity?.Entity;
@@ -50,7 +51,10 @@ namespace RPGGame
             // Update the entity's NextActionTime to ensure proper turn alternation
             double currentTime = GameTicker.Instance.GetCurrentGameTime();
             currentTime = Math.Max(currentTime, combatEntity.NextActionTime);
-            combatEntity.NextActionTime = currentTime + turnDuration;
+            
+            // Add a small buffer to prevent entities with identical speeds from acting simultaneously
+            double buffer = 0.01; // 10ms buffer
+            combatEntity.NextActionTime = currentTime + turnDuration + buffer;
         }
 
         public double ExecuteAction(Entity entity, Action action, bool isBasicAttack = false)
@@ -66,16 +70,28 @@ namespace RPGGame
                 // For characters: use the new attack speed system
                 double attackSpeed = character.GetTotalAttackSpeed();
                 
+                // Apply critical miss penalty (doubles action speed)
+                if (entity.HasCriticalMissPenalty)
+                {
+                    attackSpeed *= 2.0;
+                }
+                
                 // Use default length (1.0) for basic attacks, action length for combo actions
                 double lengthMultiplier = isBasicAttack ? 1.0 : action.Length;
                 actionDuration = attackSpeed * lengthMultiplier;
             }
             else if (entity is Enemy enemy)
             {
-                // For enemies: use a more reasonable base speed for action duration
-                // Use a base speed of 1.0 second, modified by agility
-                double baseSpeed = 1.0;
+                // For enemies: use the BaseSpeed that was set in AddEntity, modified by agility
+                double baseSpeed = combatEntity.BaseSpeed;
                 double agilityModifier = Math.Max(0.5, 1.0 - (enemy.GetEffectiveAgility() * 0.05)); // Agility reduces action time
+                
+                // Apply critical miss penalty (doubles action speed)
+                if (entity.HasCriticalMissPenalty)
+                {
+                    baseSpeed *= 2.0;
+                }
+                
                 actionDuration = baseSpeed * agilityModifier * action.Length;
             }
             else if (entity is Environment environment)
@@ -93,6 +109,13 @@ namespace RPGGame
             double currentTime = GameTicker.Instance.GetCurrentGameTime();
             currentTime = Math.Max(currentTime, combatEntity.NextActionTime);
             combatEntity.NextActionTime = currentTime + actionDuration;
+            
+            // Clear critical miss penalty after action is executed
+            if (entity.HasCriticalMissPenalty)
+            {
+                entity.HasCriticalMissPenalty = false;
+                entity.CriticalMissPenaltyTurns = 0;
+            }
             
             return actionDuration;
         }

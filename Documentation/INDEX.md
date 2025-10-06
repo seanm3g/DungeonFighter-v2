@@ -16,6 +16,9 @@ Complete index of all documentation files and their purposes.
 - **[`DEVELOPMENT_GUIDE.md`](DEVELOPMENT_GUIDE.md)** - Comprehensive development guide and quick start
 - **[`DEVELOPMENT_WORKFLOW.md`](DEVELOPMENT_WORKFLOW.md)** - Step-by-step development process
 - **[`CODE_PATTERNS.md`](CODE_PATTERNS.md)** - Code patterns, conventions, and best practices
+- **[`CHAT_COMMANDS.md`](CHAT_COMMANDS.md)** - Special chat commands for development assistance
+- **[`BALANCE_TUNING_STRATEGY.md`](BALANCE_TUNING_STRATEGY.md)** - Binary search balance tuning methodology
+- **[`BALANCE_CHANGES_LOG.md`](BALANCE_CHANGES_LOG.md)** - History of balance tuning changes and results
 
 ### Problem Solving
 - **[`PROBLEM_SOLUTIONS.md`](PROBLEM_SOLUTIONS.md)** - Solutions to common problems and issues

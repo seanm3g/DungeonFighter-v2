@@ -26,6 +26,7 @@ namespace RPGGame
         public int TargetHealthAfter { get; set; }
         public int Roll { get; set; }
         public int Difficulty { get; set; }
+        public bool IsCritical { get; set; }
 
         public BattleEvent()
         {
@@ -43,12 +44,18 @@ namespace RPGGame
         private int initialEnemyHealth;
         private int finalPlayerHealth;
         private int finalEnemyHealth;
-        private bool battleEnded;
         private List<string> narrativeEvents;
+        private List<string> pendingNarrativeEvents;
         private bool firstBloodOccurred;
         private bool healthReversalOccurred;
-        private bool nearDeathOccurred;
         private bool goodComboOccurred;
+        private bool playerBelow50Percent;
+        private bool enemyBelow50Percent;
+        private bool playerBelow10Percent;
+        private bool enemyBelow10Percent;
+        private bool criticalHitOccurred;
+        private bool playerDefeated;
+        private bool enemyDefeated;
 
         public BattleNarrative(string playerName, string enemyName, string environmentName = "", int playerHealth = 0, int enemyHealth = 0)
         {
@@ -61,11 +68,17 @@ namespace RPGGame
             this.finalEnemyHealth = enemyHealth;
             this.events = new List<BattleEvent>();
             this.narrativeEvents = new List<string>();
-            this.battleEnded = false;
+            this.pendingNarrativeEvents = new List<string>();
             this.firstBloodOccurred = false;
             this.healthReversalOccurred = false;
-            this.nearDeathOccurred = false;
             this.goodComboOccurred = false;
+            this.playerBelow50Percent = false;
+            this.enemyBelow50Percent = false;
+            this.playerBelow10Percent = false;
+            this.enemyBelow10Percent = false;
+            this.criticalHitOccurred = false;
+            this.playerDefeated = false;
+            this.enemyDefeated = false;
         }
 
         public void AddEvent(BattleEvent evt)
@@ -89,20 +102,68 @@ namespace RPGGame
             // Check for significant events that trigger narrative
             CheckForSignificantEvents(evt);
         }
-
-        private void CheckForSignificantEvents(BattleEvent evt)
+        
+        /// <summary>
+        /// Gets the narratives that were triggered by the last event
+        /// </summary>
+        /// <returns>List of triggered narrative messages</returns>
+        public List<string> GetTriggeredNarratives()
         {
-            // First Blood - first significant damage dealt
-            if (!firstBloodOccurred && evt.Damage > 10)
+            var triggeredNarratives = new List<string>();
+            
+            // Get the last event to check for triggered narratives
+            if (events.Count > 0)
+            {
+                var lastEvent = events[events.Count - 1];
+                triggeredNarratives = CheckForSignificantEvents(lastEvent);
+            }
+            
+            return triggeredNarratives;
+        }
+
+        private List<string> CheckForSignificantEvents(BattleEvent evt)
+        {
+            var settings = GameSettings.Instance;
+            var triggeredNarratives = new List<string>();
+            
+            // First Blood - first successful hit that deals damage
+            if (!firstBloodOccurred && evt.Damage > 0 && evt.IsSuccess)
             {
                 firstBloodOccurred = true;
-                if (evt.Actor == playerName)
+                string narrative = GetRandomNarrative("firstBlood");
+                narrativeEvents.Add(narrative);
+                
+                // Add to triggered narratives for immediate display
+                if (settings.EnableNarrativeEvents)
                 {
-                    narrativeEvents.Add($"{playerName} draws first blood with a {evt.Action} that deals {evt.Damage} damage to {enemyName}!");
+                    triggeredNarratives.Add(narrative);
                 }
-                else
+            }
+
+            // Critical Hit - when a critical hit occurs
+            if (!criticalHitOccurred && evt.IsCritical)
+            {
+                criticalHitOccurred = true;
+                string narrative = GetRandomNarrative("criticalHit");
+                narrativeEvents.Add(narrative);
+                
+                // Add to triggered narratives for immediate display
+                if (settings.EnableNarrativeEvents)
                 {
-                    narrativeEvents.Add($"{enemyName} strikes first, their {evt.Action} dealing {evt.Damage} damage to {playerName}!");
+                    triggeredNarratives.Add(narrative);
+                }
+            }
+
+            // Health Recovery - when someone heals
+            if (evt.IsHeal && evt.HealAmount > 0)
+            {
+                string narrative = GetRandomNarrative("healthRecovery").Replace("{name}", evt.Target);
+                narrativeEvents.Add(narrative);
+                
+                // Add to triggered narratives for immediate display
+                if (settings.EnableNarrativeEvents)
+                {
+                    triggeredNarratives.Add(narrative);
                 }
             }
 
@@ -115,37 +176,92 @@ namespace RPGGame
                 // Check if there was a reversal in health advantage
                 if (evt.Actor == playerName && evt.Damage > 0)
                 {
-                    if (playerHealthPercentage > enemyHealthPercentage && finalPlayerHealth < finalEnemyHealth)
+                    // Player was behind in health percentage but now has advantage
+                    if (playerHealthPercentage < enemyHealthPercentage && finalPlayerHealth > finalEnemyHealth)
                     {
                         healthReversalOccurred = true;
-                        narrativeEvents.Add($"{playerName} turns the tide! Their relentless assault has brought {enemyName} to their knees!");
+                        string narrative = $"{playerName} turns the tide! Their relentless assault has brought {enemyName} to their knees!";
+                        narrativeEvents.Add(narrative);
+                        
+                        // Add to triggered narratives for immediate display
+                        if (settings.EnableNarrativeEvents)
+                        {
+                            triggeredNarratives.Add(narrative);
+                        }
                     }
                 }
                 else if (evt.Actor == enemyName && evt.Damage > 0)
                 {
-                    if (enemyHealthPercentage > playerHealthPercentage && finalEnemyHealth < finalPlayerHealth)
+                    // Enemy was behind in health percentage but now has advantage
+                    if (enemyHealthPercentage < playerHealthPercentage && finalEnemyHealth > finalPlayerHealth)
                     {
                         healthReversalOccurred = true;
-                        narrativeEvents.Add($"{enemyName} seizes control! Their brutal counterattack has {playerName} reeling!");
+                        string narrative = $"{enemyName} seizes control! Their brutal counterattack has {playerName} reeling!";
+                        narrativeEvents.Add(narrative);
+                        
+                        // Add to triggered narratives for immediate display
+                        if (settings.EnableNarrativeEvents)
+                        {
+                            triggeredNarratives.Add(narrative);
+                        }
                     }
                 }
             }
 
-            // Near Death - when someone gets below 20% health
-            if (!nearDeathOccurred)
+            // Below 50% Health - when someone gets below 50% health
+            var playerHealthPercentage50 = (double)finalPlayerHealth / initialPlayerHealth;
+            var enemyHealthPercentage50 = (double)finalEnemyHealth / initialEnemyHealth;
+            
+            if (!playerBelow50Percent && playerHealthPercentage50 < 0.5 && finalPlayerHealth > 0)
             {
-                var playerHealthPercentage = (double)finalPlayerHealth / initialPlayerHealth;
-                var enemyHealthPercentage = (double)finalEnemyHealth / initialEnemyHealth;
+                playerBelow50Percent = true;
+                string narrative = GetRandomNarrative("below50Percent").Replace("{name}", playerName);
+                narrativeEvents.Add(narrative);
                 
-                if (playerHealthPercentage < 0.2 && finalPlayerHealth > 0)
+                // Add to triggered narratives for immediate display
+                if (settings.EnableNarrativeEvents)
                 {
-                    nearDeathOccurred = true;
-                    narrativeEvents.Add($"{playerName} staggers, bloodied and battered, but their spirit refuses to break!");
+                    triggeredNarratives.Add(narrative);
                 }
-                else if (enemyHealthPercentage < 0.2 && finalEnemyHealth > 0)
+            }
+            
+            if (!enemyBelow50Percent && enemyHealthPercentage50 < 0.5 && finalEnemyHealth > 0)
+            {
+                enemyBelow50Percent = true;
+                string narrative = GetRandomNarrative("below50Percent").Replace("{name}", enemyName);
+                narrativeEvents.Add(narrative);
+                
+                // Add to triggered narratives for immediate display
+                if (settings.EnableNarrativeEvents)
                 {
-                    nearDeathOccurred = true;
-                    narrativeEvents.Add($"{enemyName} stumbles, their malice faltering as death's shadow looms!");
+                    triggeredNarratives.Add(narrative);
+                }
+            }
+
+            // Below 10% Health - when someone gets below 10% health
+            if (!playerBelow10Percent && playerHealthPercentage50 < 0.1 && finalPlayerHealth > 0)
+            {
+                playerBelow10Percent = true;
+                string narrative = GetRandomNarrative("below10Percent").Replace("{name}", playerName);
+                narrativeEvents.Add(narrative);
+                
+                // Add to triggered narratives for immediate display
+                if (settings.EnableNarrativeEvents)
+                {
+                    triggeredNarratives.Add(narrative);
+                }
+            }
+            
+            if (!enemyBelow10Percent && enemyHealthPercentage50 < 0.1 && finalEnemyHealth > 0)
+            {
+                enemyBelow10Percent = true;
+                string narrative = GetRandomNarrative("below10Percent").Replace("{name}", enemyName);
+                narrativeEvents.Add(narrative);
+                
+                // Add to triggered narratives for immediate display
+                if (settings.EnableNarrativeEvents)
+                {
+                    triggeredNarratives.Add(narrative);
                 }
             }
 
@@ -153,69 +269,151 @@ namespace RPGGame
             if (!goodComboOccurred && evt.IsCombo && evt.ComboStep >= 2)
             {
                 goodComboOccurred = true;
+                string narrative;
                 if (evt.Actor == playerName)
                 {
-                    narrativeEvents.Add($"{playerName} unleashes a devastating combo sequence! Each strike flows into the next with deadly precision!");
+                    narrative = $"{playerName} unleashes a devastating combo sequence! Each strike flows into the next with deadly precision!";
                 }
                 else
                 {
-                    narrativeEvents.Add($"{enemyName} demonstrates masterful technique with a brutal combo that leaves {playerName} reeling!");
+                    narrative = $"{enemyName} demonstrates masterful technique with a brutal combo that leaves {playerName} reeling!";
+                }
+                narrativeEvents.Add(narrative);
+                
+                // Add to triggered narratives for immediate display
+                if (settings.EnableNarrativeEvents)
+                {
+                    triggeredNarratives.Add(narrative);
                 }
             }
+
+            // Defeat Events - when someone is defeated
+            if (!playerDefeated && finalPlayerHealth <= 0)
+            {
+                playerDefeated = true;
+                string narrative = GetRandomNarrative("playerDefeated");
+                narrativeEvents.Add(narrative);
+                
+                // Add to triggered narratives for immediate display
+                if (settings.EnableNarrativeEvents)
+                {
+                    triggeredNarratives.Add(narrative);
+                }
+            }
+            
+            if (!enemyDefeated && finalEnemyHealth <= 0)
+            {
+                enemyDefeated = true;
+                string narrative = GetRandomNarrative("enemyDefeated").Replace("{name}", enemyName);
+                narrativeEvents.Add(narrative);
+                
+                // Add to triggered narratives for immediate display
+                if (settings.EnableNarrativeEvents)
+                {
+                    triggeredNarratives.Add(narrative);
+                }
+            }
+            
+            return triggeredNarratives;
         }
 
         public void EndBattle()
         {
-            battleEnded = true;
+            // Battle has ended - this method is kept for compatibility
         }
 
-        public string GenerateNarrative()
+        /// <summary>
+        /// Updates the final health values from actual entities
+        /// </summary>
+        public void UpdateFinalHealth(int playerHealth, int enemyHealth)
         {
-            if (!battleEnded)
-            {
-                return "Battle is still ongoing...";
-            }
+            finalPlayerHealth = playerHealth;
+            finalEnemyHealth = enemyHealth;
+        }
 
-            var settings = GameSettings.Instance;
+
+
+        /// <summary>
+        /// Gets a random narrative text from FlavorText.json for the specified event type
+        /// </summary>
+        /// <param name="eventType">The type of narrative event (firstBlood, criticalHit, etc.)</param>
+        /// <returns>A random narrative string for the event type</returns>
+        private string GetRandomNarrative(string eventType)
+        {
+            try
+            {
+                var flavorData = FlavorText.GetData();
+                
+                // Use reflection to get the combat narratives
+                var combatNarrativesProperty = flavorData.GetType().GetProperty("CombatNarratives");
+                if (combatNarrativesProperty == null)
+                {
+                    return GetFallbackNarrative(eventType);
+                }
+
+                var combatNarratives = combatNarrativesProperty.GetValue(flavorData);
+                if (combatNarratives == null)
+                {
+                    return GetFallbackNarrative(eventType);
+                }
+
+                // Get the specific event type array
+                var eventProperty = combatNarratives.GetType().GetProperty(eventType);
+                if (eventProperty == null)
+                {
+                    return GetFallbackNarrative(eventType);
+                }
+
+                var narratives = eventProperty.GetValue(combatNarratives) as string[];
+                if (narratives == null || narratives.Length == 0)
+                {
+                    return GetFallbackNarrative(eventType);
+                }
+
+                // Return a random narrative
+                var random = new Random();
+                return narratives[random.Next(narratives.Length)];
+            }
+            catch (Exception)
+            {
+                return GetFallbackNarrative(eventType);
+            }
+        }
+
+        /// <summary>
+        /// Provides fallback narrative text when FlavorText.json is not available
+        /// </summary>
+        /// <param name="eventType">The type of narrative event</param>
+        /// <returns>A fallback narrative string</returns>
+        private string GetFallbackNarrative(string eventType)
+        {
+            return eventType switch
+            {
+                "firstBlood" => "The first drop of blood is drawn! The battle has truly begun.",
+                "criticalHit" => "A devastating blow strikes true! The impact is felt throughout the battlefield.",
+                "healthRecovery" => "{name} feels renewed strength flowing through their veins.",
+                "below50Percent" => "{name} staggers under the weight of their injuries, but refuses to yield!",
+                "below10Percent" => "{name} is on the brink of collapse, but their will to fight remains unbroken!",
+                "playerDefeated" => "You collapse to the ground, your strength finally exhausted.",
+                "enemyDefeated" => "{name} falls to the ground, defeated at last!",
+                _ => "A significant event occurs in the battle."
+            };
+        }
+
+
+        public string GenerateInformationalSummary()
+        {
             var playerEvents = events.Where(e => e.Actor == playerName && e.IsSuccess).ToList();
             var enemyEvents = events.Where(e => e.Actor == enemyName && e.IsSuccess).ToList();
             var totalPlayerDamage = playerEvents.Sum(e => e.Damage);
             var totalEnemyDamage = enemyEvents.Sum(e => e.Damage);
             var playerComboCount = playerEvents.Count(e => e.IsCombo);
             var enemyComboCount = enemyEvents.Count(e => e.IsCombo);
-
-            if (!settings.EnableNarrativeEvents)
-            {
-                // Return only informational summary
-                return GenerateInformationalSummary(totalPlayerDamage, totalEnemyDamage, playerComboCount, enemyComboCount);
-            }
-
-            string summary = GenerateInformationalSummary(totalPlayerDamage, totalEnemyDamage, playerComboCount, enemyComboCount);
             
-            // Add narrative events based on balance setting
-            if (narrativeEvents.Any())
-            {
-                // Apply narrative balance setting
-                if (settings.NarrativeBalance >= 0.5)
-                {
-                    // More narrative-focused
-                    summary += "\n\n" + string.Join("\n", narrativeEvents);
-                }
-                else
-                {
-                    // More event-focused - only show significant events
-                    var significantEvents = narrativeEvents.Where((_, index) => index < narrativeEvents.Count / 2).ToList();
-                    if (significantEvents.Any())
-                    {
-                        summary += "\n\n" + string.Join("\n", significantEvents);
-                    }
-                }
-            }
-
-            return summary;
+            return GenerateInformationalSummary(totalPlayerDamage, totalEnemyDamage, playerComboCount, enemyComboCount);
         }
 
-        private string GenerateInformationalSummary(int totalPlayerDamage, int totalEnemyDamage, int playerComboCount, int enemyComboCount)
+        public string GenerateInformationalSummary(int totalPlayerDamage, int totalEnemyDamage, int playerComboCount, int enemyComboCount)
         {
             bool playerWon = finalEnemyHealth <= 0;
             bool enemyWon = finalPlayerHealth <= 0;
@@ -227,7 +425,7 @@ namespace RPGGame
             }
             else if (enemyWon)
             {
-                return $"{enemyName} defeats {playerName}! Total damage dealt: {totalEnemyDamage} vs {totalPlayerDamage} received. " +
+                return $"{enemyName} defeats {playerName}! \nTotal damage dealt: {totalEnemyDamage} vs {totalPlayerDamage} received. " +
                        $"Combos executed: {enemyComboCount} vs {playerComboCount}.";
             }
             else

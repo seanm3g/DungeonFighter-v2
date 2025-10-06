@@ -11,6 +11,8 @@ namespace RPGGame
     /// </summary>
     public static class JsonLoader
     {
+        
+
         private static readonly Dictionary<string, object> _cache = new Dictionary<string, object>();
         private static readonly JsonSerializerOptions _defaultOptions = new JsonSerializerOptions
         {
@@ -34,8 +36,6 @@ namespace RPGGame
             {
                 if (cachedValue is T cachedResult)
                 {
-                    if (GameConfiguration.IsDebugEnabled)
-                        UIManager.WriteSystemLine($"DEBUG: JsonLoader cache hit for {filePath}");
                     return cachedResult;
                 }
             }
@@ -71,8 +71,6 @@ namespace RPGGame
                 if (useCache)
                 {
                     _cache[filePath] = result;
-                    if (GameConfiguration.IsDebugEnabled)
-                        UIManager.WriteSystemLine($"DEBUG: JsonLoader cached {filePath}");
                 }
 
                 return result;
@@ -94,8 +92,6 @@ namespace RPGGame
             {
                 if (File.Exists(path))
                 {
-                    if (GameConfiguration.IsDebugEnabled)
-                        UIManager.WriteSystemLine($"DEBUG: JsonLoader found file at: {path}");
                     return LoadJson<T>(path, useCache, fallbackValue);
                 }
             }
@@ -138,8 +134,6 @@ namespace RPGGame
                 if (updateCache)
                 {
                     _cache[filePath] = data!;
-                    if (GameConfiguration.IsDebugEnabled)
-                        UIManager.WriteSystemLine($"DEBUG: JsonLoader updated cache for {filePath}");
                 }
             }, filePath);
         }
@@ -151,8 +145,6 @@ namespace RPGGame
         public static void ClearCache()
         {
             _cache.Clear();
-            if (GameConfiguration.IsDebugEnabled)
-                UIManager.WriteSystemLine("DEBUG: JsonLoader cache cleared");
         }
 
         /// <summary>
@@ -163,7 +155,6 @@ namespace RPGGame
         {
             if (_cache.Remove(filePath) && GameConfiguration.IsDebugEnabled)
             {
-                UIManager.WriteSystemLine($"DEBUG: JsonLoader cleared cache for {filePath}");
             }
         }
 

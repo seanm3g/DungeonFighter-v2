@@ -1,0 +1,1 @@
+DEBUG [Program]: Game session ended - debug file should be available

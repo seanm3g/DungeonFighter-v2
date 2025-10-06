@@ -1,0 +1,48 @@
+DEBUG ANALYSIS SESSION - 2025-10-03 00:29:59
+===================================================
+
+DEBUG [MethodEntry] [AddDefaultActions]: CharacterActions
+DEBUG [CharacterActions]: Added BASIC ATTACK to ActionPool
+DEBUG [MethodEntry] [AddClassActions]: CharacterActions
+DEBUG [CharacterActions]: ClassPoints: 0, 0, 0, 0
+DEBUG [CharacterActions]: ActionPool: Zarek Frostborn, 1, After AddClassActions
+DEBUG [Format]: CharacterActions, AddWeaponActions called for Mace (Type: Mace)
+DEBUG [Format]: CharacterActions, AddGearActions called for Mace
+DEBUG [Format]: CharacterActions, GetWeaponActionsFromJson called for Mace (tag: mace)
+DEBUG [Format]: CharacterActions, Got 176 total actions from ActionLoader
+DEBUG [CharacterActions]: Using hardcoded mace actions
+DEBUG [CharacterActions]: GearActions: Mace, 3, CRUSHING BLOW, SHIELD BREAK, THUNDER CLAP
+DEBUG [Format]: CharacterActions, Loading gear action: CRUSHING BLOW
+DEBUG [Format]: CharacterActions, Loading gear action: SHIELD BREAK
+DEBUG [Format]: CharacterActions, Loading gear action: THUNDER CLAP
+DEBUG [CharacterActions]: ActionPool: Zarek Frostborn, 4, After AddWeaponActions
+DEBUG [Format]: CharacterActions, GetWeaponActionsFromJson called for Mace (tag: mace)
+DEBUG [Format]: CharacterActions, Got 176 total actions from ActionLoader
+DEBUG [CharacterActions]: Using hardcoded mace actions
+DEBUG [Format]: CharacterActions, GetWeaponActionsFromJson called for Mace (tag: mace)
+DEBUG [Format]: CharacterActions, Got 176 total actions from ActionLoader
+DEBUG [CharacterActions]: Using hardcoded mace actions
+DEBUG [Format]: CharacterActions, AddGearActions called for Leather Helmet
+DEBUG [CharacterActions]: GearActions: Leather Helmet, 0, 
+DEBUG [Format]: CharacterActions, No gear actions to add for Leather Helmet
+DEBUG [Format]: CharacterActions, AddGearActions called for Leather Armor
+DEBUG [CharacterActions]: GearActions: Leather Armor, 0, 
+DEBUG [Format]: CharacterActions, No gear actions to add for Leather Armor
+DEBUG [Format]: CharacterActions, AddGearActions called for Leather Boots
+DEBUG [CharacterActions]: GearActions: Leather Boots, 0, 
+DEBUG [Format]: CharacterActions, No gear actions to add for Leather Boots
+DEBUG [MethodEntry] [AddDefaultActions]: CharacterActions
+DEBUG [CharacterActions]: Added BASIC ATTACK to ActionPool
+DEBUG [MethodEntry] [AddClassActions]: CharacterActions
+DEBUG [CharacterActions]: ClassPoints: 0, 0, 0, 0
+DEBUG [CharacterActions]: ActionPool: Prism Spider, 1, After AddClassActions
+DEBUG [MethodEntry] [AddDefaultActions]: CharacterActions
+DEBUG [CharacterActions]: Added BASIC ATTACK to ActionPool
+DEBUG [MethodEntry] [AddClassActions]: CharacterActions
+DEBUG [CharacterActions]: ClassPoints: 0, 0, 0, 0
+DEBUG [CharacterActions]: ActionPool: Kobold, 1, After AddClassActions
+DEBUG [MethodEntry] [AddDefaultActions]: CharacterActions
+DEBUG [CharacterActions]: Added BASIC ATTACK to ActionPool
+DEBUG [MethodEntry] [AddClassActions]: CharacterActions
+DEBUG [CharacterActions]: ClassPoints: 0, 0, 0, 0
+DEBUG [CharacterActions]: ActionPool: Fire Elemental, 1, After AddClassActions

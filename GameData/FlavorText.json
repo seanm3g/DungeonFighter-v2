@@ -510,5 +510,56 @@
       "the Brave", "the Adventurer", "the Wanderer", "the Seeker", "the Explorer",
       "the Hero", "the Bold", "the Fearless", "the Determined", "the Resolute"
     ]
+  },
+  "combatNarratives": {
+    "firstBlood": [
+      "The first drop of blood is drawn! The battle has truly begun.",
+      "Blood is spilled! The combat intensifies as both fighters feel the sting of battle.",
+      "First blood goes to the attacker! The fight becomes more desperate.",
+      "A crimson stain marks the beginning of this deadly dance.",
+      "The taste of blood in the air signals the start of true combat."
+    ],
+    "healthRecovery": [
+      "A surge of vitality courses through {name}'s body as wounds begin to heal.",
+      "{name} feels renewed strength flowing through their veins.",
+      "The healing magic takes effect, mending {name}'s battered form.",
+      "{name}'s wounds close as life energy restores their fighting spirit.",
+      "A warm glow surrounds {name} as their health is restored."
+    ],
+    "below50Percent": [
+      "{name} staggers under the weight of their injuries, but refuses to yield!",
+      "Bloodied and battered, {name} fights on with grim determination.",
+      "{name} is wounded but not defeated, their fighting spirit still burning bright.",
+      "Despite their injuries, {name} continues to press the attack.",
+      "{name} grits their teeth and fights through the pain."
+    ],
+    "below10Percent": [
+      "{name} is on the brink of collapse, but their will to fight remains unbroken!",
+      "Barely standing, {name} makes one final desperate stand!",
+      "{name} is critically wounded but refuses to go down without a fight!",
+      "At death's door, {name} summons every last ounce of strength!",
+      "{name} is mortally wounded but their fighting spirit burns brighter than ever!"
+    ],
+    "criticalHit": [
+      "A devastating blow strikes true! The impact is felt throughout the battlefield.",
+      "A perfect strike! The attack finds its mark with brutal precision.",
+      "Critical hit! The force of the blow sends shockwaves through the air.",
+      "A masterful attack! The strike is delivered with deadly accuracy.",
+      "The perfect moment! The attack lands with devastating effect."
+    ],
+    "enemyDefeated": [
+      "{name} falls to the ground, defeated at last!",
+      "With a final cry, {name} collapses, the fight finally over.",
+      "{name} succumbs to their wounds, the battle won.",
+      "The last of {name}'s strength fails, and they fall.",
+      "{name} is vanquished, their threat ended."
+    ],
+    "playerDefeated": [
+      "You collapse to the ground, your strength finally exhausted.",
+      "The world fades to black as you succumb to your wounds.",
+      "Your last conscious thought is of the battle lost.",
+      "Darkness takes you as your body can fight no more.",
+      "You fall, defeated but not broken in spirit."
+    ]
   }
 }

@@ -8,6 +8,43 @@ namespace RPGGame
         Intelligence
     }
 
+    /// <summary>
+    /// Defines different enemy attack archetypes based on DPS distribution
+    /// </summary>
+    public enum EnemyArchetype
+    {
+        Berserker,    // High damage - aggressive fighters
+        Guardian,     // High armor - protective tanks
+        Brute,        // High health - heavy hitters
+        Assassin      // High attack speed - quick strikers
+    }
+
+    /// <summary>
+    /// Configuration for enemy attack patterns
+    /// </summary>
+    public class EnemyAttackProfile
+    {
+        public EnemyArchetype Archetype { get; set; }
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+        
+        // Speed multiplier (affects attack time - lower = faster attacks)
+        public double SpeedMultiplier { get; set; } = 1.0;
+        
+        // Damage multiplier (affects damage per hit)
+        public double DamageMultiplier { get; set; } = 1.0;
+        
+        // Health multiplier (affects total health)
+        public double HealthMultiplier { get; set; } = 1.0;
+        
+        // Armor multiplier (affects damage reduction)
+        public double ArmorMultiplier { get; set; } = 1.0;
+        
+        // Action pool configuration
+        public List<string> PreferredActions { get; set; } = new List<string>();
+        public List<string> AvoidActions { get; set; } = new List<string>();
+    }
+
     public class Enemy : Character
     {
         public int GoldReward { get; private set; }
@@ -35,8 +72,8 @@ namespace RPGGame
             IsLiving = isLiving;
             
             // Determine archetype if not specified
-            Archetype = archetype ?? EnemyDPSCalculator.SuggestArchetypeForEnemy(name ?? "Unknown", strength, agility, technique, intelligence);
-            AttackProfile = EnemyDPSCalculator.GetArchetypeProfile(Archetype);
+            Archetype = archetype ?? SuggestArchetypeForEnemy(name ?? "Unknown", strength, agility, technique, intelligence);
+            AttackProfile = GetArchetypeProfile(Archetype);
             
             var tuning = GameConfiguration.Instance;
             
@@ -70,8 +107,8 @@ namespace RPGGame
             Level = level;
             PrimaryAttribute = primaryAttribute;
             IsLiving = isLiving;
-            Archetype = archetype ?? EnemyArchetype.Warrior;
-            AttackProfile = EnemyDPSCalculator.GetArchetypeProfile(Archetype);
+            Archetype = archetype ?? EnemyArchetype.Berserker;
+            AttackProfile = GetArchetypeProfile(Archetype);
             
             var tuning = GameConfiguration.Instance;
             
@@ -100,7 +137,7 @@ namespace RPGGame
         {
             // Use simpler base values - the unified damage system will handle scaling
             var basicAttack = new Action(
-                "Basic Attack",
+                "BASIC ATTACK",
                 ActionType.Attack,
                 TargetType.SingleTarget,
                 baseValue: 8,  // Base damage - unified system will add weapon + strength
@@ -175,6 +212,53 @@ namespace RPGGame
             
             // Otherwise use shared attack speed calculation logic
             return CombatCalculator.CalculateAttackSpeed(this);
+        }
+
+        /// <summary>
+        /// Gets intelligence roll bonus for enemies (same as heroes: +1 per 10 INT)
+        /// </summary>
+        public new int GetIntelligenceRollBonus()
+        {
+            var tuning = GameConfiguration.Instance;
+            return Intelligence / tuning.Attributes.IntelligenceRollBonusPer; // Every X points of INT gives +1 to rolls
+        }
+
+        /// <summary>
+        /// Gets combo amplification for enemies (same as heroes: based on Technique)
+        /// </summary>
+        public new double GetComboAmplifier()
+        {
+            var tuning = GameConfiguration.Instance;
+            
+            // Clamp Technique to valid range
+            int clampedTech = Math.Max(1, Math.Min(tuning.ComboSystem.ComboAmplifierMaxTech, Technique));
+            
+            // Calculate base amplification using the same formula as heroes
+            double baseAmplification = tuning.ComboSystem.ComboAmplifierAtTech5;
+            double amplificationPerPoint = (tuning.ComboSystem.ComboAmplifierMax - baseAmplification) / (tuning.ComboSystem.ComboAmplifierMaxTech - 5);
+            
+            return Math.Min(tuning.ComboSystem.ComboAmplifierMax, baseAmplification + (clampedTech - 5) * amplificationPerPoint);
+        }
+
+        /// <summary>
+        /// Gets effective strength for enemies (same as heroes: used for damage)
+        /// </summary>
+        public new int GetEffectiveStrength()
+        {
+            return Strength; // Enemies don't have equipment bonuses, so just return base strength
+        }
+
+        /// <summary>
+        /// Gets current combo amplification for enemies (same as heroes)
+        /// </summary>
+        public new double GetCurrentComboAmplification()
+        {
+            var comboActions = GetComboActions();
+            if (comboActions.Count == 0) return GetComboAmplifier();
+            
+            int currentStep = ComboStep % comboActions.Count;
+            double baseAmp = GetComboAmplifier();
+            return Math.Pow(baseAmp, currentStep);
         }
 
         /// <summary>
@@ -309,6 +393,79 @@ namespace RPGGame
             
             // For living enemies, use the base class implementation
             return base.ProcessPoison(currentTime);
+        }
+
+        /// <summary>
+        /// Suggests an archetype for an enemy based on their stats
+        /// </summary>
+        private static EnemyArchetype SuggestArchetypeForEnemy(string name, int strength, int agility, int technique, int intelligence)
+        {
+            // Simple archetype suggestion based on primary stat
+            int maxStat = Math.Max(Math.Max(strength, agility), Math.Max(technique, intelligence));
+            
+            if (maxStat == strength)
+                return EnemyArchetype.Brute;
+            else if (maxStat == agility)
+                return EnemyArchetype.Assassin;
+            else if (maxStat == technique)
+                return EnemyArchetype.Berserker;
+            else
+                return EnemyArchetype.Guardian;
+        }
+
+        /// <summary>
+        /// Gets the attack profile for a given archetype
+        /// </summary>
+        private static EnemyAttackProfile GetArchetypeProfile(EnemyArchetype archetype)
+        {
+            return archetype switch
+            {
+                EnemyArchetype.Berserker => new EnemyAttackProfile
+                {
+                    Archetype = EnemyArchetype.Berserker,
+                    Name = "Berserker",
+                    SpeedMultiplier = 1.0,
+                    DamageMultiplier = 1.0,
+                    HealthMultiplier = 1.0,
+                    ArmorMultiplier = 1.0
+                },
+                EnemyArchetype.Assassin => new EnemyAttackProfile
+                {
+                    Archetype = EnemyArchetype.Assassin,
+                    Name = "Assassin",
+                    SpeedMultiplier = 1.0,
+                    DamageMultiplier = 1.0,
+                    HealthMultiplier = 1.0,
+                    ArmorMultiplier = 1.0
+                },
+                EnemyArchetype.Brute => new EnemyAttackProfile
+                {
+                    Archetype = EnemyArchetype.Brute,
+                    Name = "Brute",
+                    SpeedMultiplier = 1.0,
+                    DamageMultiplier = 1.0,
+                    HealthMultiplier = 1.0,
+                    ArmorMultiplier = 1.0
+                },
+                EnemyArchetype.Guardian => new EnemyAttackProfile
+                {
+                    Archetype = EnemyArchetype.Guardian,
+                    Name = "Guardian",
+                    SpeedMultiplier = 1.0,
+                    DamageMultiplier = 1.0,
+                    HealthMultiplier = 1.0,
+                    ArmorMultiplier = 1.0
+                },
+                _ => new EnemyAttackProfile
+                {
+                    Archetype = EnemyArchetype.Berserker,
+                    Name = "Warrior",
+                    SpeedMultiplier = 1.0,
+                    DamageMultiplier = 1.0,
+                    HealthMultiplier = 1.0,
+                    ArmorMultiplier = 1.0
+                }
+            };
         }
     }
 } 

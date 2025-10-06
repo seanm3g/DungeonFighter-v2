@@ -8,18 +8,11 @@ namespace RPGGame
     {
         static void Main(string[] args)
         {
-            // Check for test commands
-            if (args.Length > 0 && args[0] == "--test-loot")
-            {
-                LootGenerationTest.RunLootGenerationTests();
-                return;
-            }
+            // Initialize the UI configuration system
+            UIManager.ReloadConfiguration();
             
-            if (args.Length > 0 && args[0] == "--test-inventory")
-            {
-                InventoryDisplayTest.RunInventoryDisplayTest();
-                return;
-            }
+            // Force reload configuration to ensure latest changes are loaded
+            UIManager.ReloadConfiguration();
             
             // Generate game data files based on TuningConfig at launch (if enabled)
             if (GameConfiguration.Instance.GameData.AutoGenerateOnLaunch)
@@ -28,22 +21,22 @@ namespace RPGGame
                 {
                     if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
                     {
-                        Console.WriteLine("Initializing game data...");
+                        TextDisplayIntegration.DisplaySystem("Initializing game data...");
                     }
                     GameDataGenerator.GenerateAllGameData();
                     if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
                     {
-                        Console.WriteLine("Game data initialization complete!\n");
+                        TextDisplayIntegration.DisplaySystem("Game data initialization complete!");
+                        TextDisplayIntegration.DisplayBlankLine();
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Warning: Failed to generate game data files: {ex.Message}");
-                    Console.WriteLine("Continuing with existing data files...\n");
+                    TextDisplayIntegration.DisplaySystem($"Warning: Failed to generate game data files: {ex.Message}");
+                    TextDisplayIntegration.DisplaySystem("Continuing with existing data files...");
+                    TextDisplayIntegration.DisplayBlankLine();
                 }
             }
-            
-            // GameData path resolution has been fixed
             
             // Create and run the game
             var game = new Game();

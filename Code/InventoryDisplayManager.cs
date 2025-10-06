@@ -23,12 +23,18 @@ namespace RPGGame
         /// </summary>
         public void ShowMainDisplay()
         {
+            // Reset menu delay counter at the start of inventory display
+            UIManager.ResetMenuDelayCounter();
+            
             UIManager.WriteMenuLine("\n--- Inventory ---");
             ShowCharacterStats();
             ShowCurrentEquipment();
             ShowComboInfo();
             ShowInventory();
             ShowOptions();
+            
+            // Reset menu delay counter after inventory display is complete
+            UIManager.ResetMenuDelayCounter();
         }
 
         /// <summary>
@@ -208,14 +214,18 @@ namespace RPGGame
         /// </summary>
         public void ShowOptions()
         {
-            UIManager.WriteMenuLine("");
-            UIManager.WriteMenuLine("Options:");
-            UIManager.WriteMenuLine("1. Equip Item");
-            UIManager.WriteMenuLine("2. Unequip Item");
-            UIManager.WriteMenuLine("3. Discard Item");
-            UIManager.WriteMenuLine("4. Manage Combo Actions");
-            UIManager.WriteMenuLine("5. Continue to Dungeon");
-            UIManager.WriteMenuLine("6. Return to Main Menu");
+            var options = MenuConfiguration.GetInventoryMenuOptions();
+            foreach (var option in options)
+            {
+                if (string.IsNullOrEmpty(option))
+                {
+                    UIManager.WriteMenuLine("");
+                }
+                else
+                {
+                    UIManager.WriteMenuLine(option);
+                }
+            }
             UIManager.Write("Enter your choice: ");
         }
 

@@ -26,8 +26,8 @@ namespace RPGGame
         /// <summary>
         /// Shows the main gear menu and handles user input
         /// </summary>
-        /// <returns>True if user wants to continue to dungeon, false if returning to main menu</returns>
-        public bool ShowGearMenu()
+        /// <returns>True if user wants to continue to dungeon, false if returning to main menu, null if exiting game</returns>
+        public bool? ShowGearMenu()
         {
             while (true)
             {
@@ -53,6 +53,10 @@ namespace RPGGame
                             return true; // Continue to dungeon
                         case 6:
                             return false; // Exit inventory menu and return to main menu
+                        case 0:
+                            // Exit game completely
+                            Console.WriteLine("Exiting game...");
+                            return null; // Signal to exit game
                         default:
                             Console.WriteLine("Invalid option.");
                             break;

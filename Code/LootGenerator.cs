@@ -86,9 +86,8 @@ namespace RPGGame
             // ROLL 5b,c: Apply scaling formulas to base stats
             if (item is WeaponItem weapon)
             {
-                // Apply scaling manager calculations
-                double scaledDamage = ScalingManager.CalculateWeaponDamage(weapon.BaseDamage, weapon.Tier, playerLevel);
-                weapon.BaseDamage = (int)Math.Round(scaledDamage);
+                // Simple damage scaling
+                weapon.BaseDamage = weapon.BaseDamage;
                 
                 // Apply bonus damage and attack speed based on tuning config
                 var equipmentScaling = tuning.EquipmentScaling;
@@ -101,35 +100,32 @@ namespace RPGGame
                 else
                 {
                     // Fallback to simple system
-                    weapon.BonusDamage = weapon.Tier == 1 ? 1 : Dice.Roll(1, weapon.Tier);
+                    weapon.BonusDamage = weapon.Tier <= 1 ? 1 : Dice.Roll(1, Math.Max(2, weapon.Tier));
                     weapon.BonusAttackSpeed = (int)(weapon.Tier * 0.1); // Simple fallback
                 }
             }
             else if (item is HeadItem headArmor)
             {
-                // Apply scaling manager calculations for armor
-                double scaledArmor = ScalingManager.CalculateArmorValue(headArmor.Armor, headArmor.Tier, playerLevel);
-                headArmor.Armor = (int)Math.Round(scaledArmor);
+                // Simple armor scaling
+                headArmor.Armor = headArmor.Armor;
             }
             else if (item is ChestItem chestArmor)
             {
-                // Apply scaling manager calculations for armor
-                double scaledArmor = ScalingManager.CalculateArmorValue(chestArmor.Armor, chestArmor.Tier, playerLevel);
-                chestArmor.Armor = (int)Math.Round(scaledArmor);
+                // Simple armor scaling
+                chestArmor.Armor = chestArmor.Armor;
             }
             else if (item is FeetItem feetArmor)
             {
-                // Apply scaling manager calculations for armor
-                double scaledArmor = ScalingManager.CalculateArmorValue(feetArmor.Armor, feetArmor.Tier, playerLevel);
-                feetArmor.Armor = (int)Math.Round(scaledArmor);
+                // Simple armor scaling
+                feetArmor.Armor = feetArmor.Armor;
             }
 
             // ROLL 6: Rarity (determines number of bonuses)
             var rarity = RollRarity(magicFind, playerLevel);
             item.Rarity = rarity.Name;
             
-            // Apply rarity multipliers from scaling system
-            double rarityMultiplier = ScalingManager.GetRarityMultiplier(rarity.Name);
+            // Simple rarity multiplier
+            double rarityMultiplier = 1.0; // No scaling for now
             if (item is WeaponItem weaponForRarity)
             {
                 weaponForRarity.BaseDamage = (int)Math.Round(weaponForRarity.BaseDamage * rarityMultiplier);
@@ -457,7 +453,7 @@ namespace RPGGame
             }
             else
             {
-                UIManager.WriteLine("Error loading tier distributions: TierDistribution.json not found", UIDelayType.System);
+                UIManager.WriteLine("Error loading tier distributions: TierDistribution.json not found", UIMessageType.System);
                 _tierDistributions = new List<TierDistribution>();
             }
         }
@@ -471,7 +467,7 @@ namespace RPGGame
             }
             else
             {
-                UIManager.WriteLine("Error loading armor data: Armor.json not found", UIDelayType.System);
+                UIManager.WriteLine("Error loading armor data: Armor.json not found", UIMessageType.System);
                 _armorData = new List<ArmorData>();
             }
         }
@@ -485,7 +481,7 @@ namespace RPGGame
             }
             else
             {
-                UIManager.WriteLine("Error loading weapon data: Weapons.json not found", UIDelayType.System);
+                UIManager.WriteLine("Error loading weapon data: Weapons.json not found", UIMessageType.System);
                 _weaponData = new List<WeaponData>();
             }
         }
@@ -499,7 +495,7 @@ namespace RPGGame
             }
             else
             {
-                UIManager.WriteLine("Error loading stat bonuses: StatBonuses.json not found", UIDelayType.System);
+                UIManager.WriteLine("Error loading stat bonuses: StatBonuses.json not found", UIMessageType.System);
                 _statBonuses = new List<StatBonus>();
             }
         }
@@ -519,7 +515,7 @@ namespace RPGGame
             }
             else
             {
-                UIManager.WriteLine("Error loading action bonuses: Actions.json not found", UIDelayType.System);
+                UIManager.WriteLine("Error loading action bonuses: Actions.json not found", UIMessageType.System);
                 _actionBonuses = new List<ActionBonus>();
             }
         }
@@ -533,7 +529,7 @@ namespace RPGGame
             }
             else
             {
-                UIManager.WriteLine("Error loading modifications: Modifications.json not found", UIDelayType.System);
+                UIManager.WriteLine("Error loading modifications: Modifications.json not found", UIMessageType.System);
                 _modifications = new List<Modification>();
             }
         }

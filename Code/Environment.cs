@@ -463,19 +463,16 @@ namespace RPGGame
                 int enemyLevel = Math.Max(1, roomLevel + random.Next(-tuning.EnemyScaling.EnemyLevelVariance, tuning.EnemyScaling.EnemyLevelVariance + 1));
                 var enemyType = basicEnemies[random.Next(basicEnemies.Length)];
                 
-                // Use new layered balance calculation system
-                var baseStats = new EnemyBaseStats
+                // Calculate stats with level scaling
+                var calculatedStats = new
                 {
-                    Strength = enemyType.BaseStrength,
-                    Agility = enemyType.BaseAgility,
-                    Technique = enemyType.BaseTechnique,
-                    Intelligence = enemyType.BaseIntelligence
+                    Health = enemyType.BaseHealth + (enemyLevel - 1) * tuning.Character.EnemyHealthPerLevel,
+                    Strength = enemyType.BaseStrength + (enemyLevel - 1) * tuning.Attributes.EnemyAttributesPerLevel,
+                    Agility = enemyType.BaseAgility + (enemyLevel - 1) * tuning.Attributes.EnemyAttributesPerLevel,
+                    Technique = enemyType.BaseTechnique + (enemyLevel - 1) * tuning.Attributes.EnemyAttributesPerLevel,
+                    Intelligence = enemyType.BaseIntelligence + (enemyLevel - 1) * tuning.Attributes.EnemyAttributesPerLevel,
+                    Armor = (int)(0 + (enemyLevel - 1) * tuning.EnemyScaling.EnemyArmorPerLevel)
                 };
-                
-                // Determine archetype from base stats
-                var archetype = EnemyDPSCalculator.SuggestArchetypeForEnemy(enemyType.Name, enemyType.BaseStrength, enemyType.BaseAgility, enemyType.BaseTechnique, enemyType.BaseIntelligence);
-                
-                var calculatedStats = EnemyBalanceCalculator.CalculateStats(enemyLevel, archetype, baseStats);
                 
                 var enemy = new Enemy(
                     enemyType.Name, 
@@ -488,7 +485,7 @@ namespace RPGGame
                     calculatedStats.Armor,
                     enemyType.Primary,
                     true, // isLiving
-                    archetype
+                    EnemyArchetype.Berserker // Default archetype
                 );
                 enemies.Add(enemy);
             }
@@ -657,12 +654,14 @@ namespace RPGGame
                         enemyTemplate.Name, 
                         enemyLevel,
                         80 + (enemyLevel * tuning.Character.EnemyHealthPerLevel),
-                        enemyTemplate.Strength,
-                        enemyTemplate.Agility,
-                        enemyTemplate.Technique,
-                        enemyTemplate.Intelligence,
-                        enemyTemplate.Armor,
-                        PrimaryAttribute.Strength
+                        3, // Default strength
+                        3, // Default agility
+                        3, // Default technique
+                        3, // Default intelligence
+                        2, // Default armor
+                        PrimaryAttribute.Strength,
+                        true, // isLiving
+                        EnemyArchetype.Berserker
                     );
                     enemies.Add(basicEnemy);
                 }
@@ -696,6 +695,24 @@ namespace RPGGame
 
             // If theme not found, return all enemies
             return allEnemies;
+        }
+
+        /// <summary>
+        /// Suggests an archetype for an enemy based on their stats
+        /// </summary>
+        private static EnemyArchetype SuggestArchetypeForEnemy(string name, int strength, int agility, int technique, int intelligence)
+        {
+            // Simple archetype suggestion based on primary stat
+            int maxStat = Math.Max(Math.Max(strength, agility), Math.Max(technique, intelligence));
+            
+            if (maxStat == strength)
+                return EnemyArchetype.Brute;
+            else if (maxStat == agility)
+                return EnemyArchetype.Assassin;
+            else if (maxStat == technique)
+                return EnemyArchetype.Berserker;
+            else
+                return EnemyArchetype.Guardian;
         }
     }
 

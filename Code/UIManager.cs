@@ -9,17 +9,49 @@ namespace RPGGame
     /// </summary>
     public static class UIManager
     {
+        // Flag to disable all UI output during balance analysis
+        public static bool DisableAllUIOutput = false;
+        
         private static string? lastActingEntity = null;
+        private static UIConfiguration? _uiConfig = null;
+        
+        // Progressive delay system for menu lines
+        private static int consecutiveMenuLines = 0;
+        private static int baseMenuDelay = 0;
+        
+        /// <summary>
+        /// Gets the current UI configuration
+        /// </summary>
+        private static UIConfiguration UIConfig
+        {
+            get
+            {
+                if (_uiConfig == null)
+                {
+                    _uiConfig = UIConfiguration.LoadFromFile();
+                }
+                return _uiConfig;
+            }
+        }
+        
+        /// <summary>
+        /// Reloads the UI configuration from file
+        /// </summary>
+        public static void ReloadConfiguration()
+        {
+            _uiConfig = UIConfiguration.LoadFromFile();
+        }
         
         /// <summary>
         /// Writes a line to console with optional delay
         /// </summary>
         /// <param name="message">Message to display</param>
-        /// <param name="delayType">Type of delay to apply</param>
-        public static void WriteLine(string message, UIDelayType delayType = UIDelayType.None)
+        /// <param name="messageType">Type of message for delay configuration</param>
+        public static void WriteLine(string message, UIMessageType messageType = UIMessageType.System)
         {
+            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
             Console.WriteLine(message);
-            ApplyDelay(delayType);
+            ApplyDelay(messageType);
         }
         
         /// <summary>
@@ -28,6 +60,7 @@ namespace RPGGame
         /// <param name="message">Message to display</param>
         public static void Write(string message)
         {
+            if (DisableAllUIOutput) return;
             Console.Write(message);
         }
         
@@ -37,11 +70,14 @@ namespace RPGGame
         /// <param name="message">Combat message to display</param>
         public static void WriteCombatLine(string message)
         {
+            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
+            
             // Extract entity name from message (format: [EntityName] ...)
             string? currentEntity = ExtractEntityNameFromMessage(message);
             
-            // Add line break if this is a different entity than the last one
-            if (currentEntity != null && lastActingEntity != null && currentEntity != lastActingEntity)
+            // Add line break if this is a different entity than the last one and spacing is enabled
+            if (UIConfig.AddBlankLinesBetweenEntities && 
+                currentEntity != null && lastActingEntity != null && currentEntity != lastActingEntity)
             {
                 Console.WriteLine(); // Add blank line between different entities (no delay)
             }
@@ -54,49 +90,10 @@ namespace RPGGame
                 lastActingEntity = currentEntity;
             }
             
-            // Apply delay for combat messages using TuningConfig values
-            if (GameConfiguration.Instance.UI.EnableTextDelays)
-            {
-                // Check if Fast Combat is enabled - if so, set combat delays to zero
-                int combatDelay = GameSettings.Instance.FastCombat ? 0 : GameConfiguration.Instance.UI.CombatDelay;
-                if (combatDelay > 0)
-                {
-                    Thread.Sleep(combatDelay);
-                }
-            }
+            // Apply delay for combat messages using new configuration system
+            ApplyDelay(UIMessageType.Combat);
         }
         
-        /// <summary>
-        /// Writes multiple related messages as a group
-        /// </summary>
-        /// <param name="messages">Array of messages to display</param>
-        public static void WriteGroup(string[] messages)
-        {
-            if (messages == null || messages.Length == 0) return;
-            
-            // Extract entity name from first message
-            string? currentEntity = ExtractEntityNameFromMessage(messages[0]);
-            
-            // Add line break if this is a different entity than the last one
-            if (currentEntity != null && lastActingEntity != null && currentEntity != lastActingEntity)
-            {
-                Console.WriteLine(); // Add blank line between different entities
-            }
-            
-            // Write all messages in the group
-            foreach (string message in messages)
-            {
-                Console.WriteLine(message);
-            }
-            
-            // Update the last acting entity
-            if (currentEntity != null)
-            {
-                lastActingEntity = currentEntity;
-            }
-            
-            ApplyDelay(UIDelayType.Combat);
-        }
         
         /// <summary>
         /// Writes a system message (no entity tracking)
@@ -104,18 +101,18 @@ namespace RPGGame
         /// <param name="message">System message to display</param>
         public static void WriteSystemLine(string message)
         {
-            Console.WriteLine(message);
-            ApplyDelay(UIDelayType.System);
+            WriteLine(message, UIMessageType.System);
         }
         
         /// <summary>
-        /// Writes a menu line with menu delay
+        /// Writes a menu line with progressive delay reduction (speeds up with each consecutive line)
         /// </summary>
         /// <param name="message">Menu message to display</param>
         public static void WriteMenuLine(string message)
         {
+            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
             Console.WriteLine(message);
-            ApplyDelay(UIDelayType.Menu);
+            ApplyProgressiveMenuDelay();
         }
         
         /// <summary>
@@ -124,9 +121,10 @@ namespace RPGGame
         /// <param name="message">Title message to display</param>
         public static void WriteTitleLine(string message)
         {
-            Console.WriteLine(message);
-            ApplyDelay(UIDelayType.Title);
+            WriteLine(message, UIMessageType.Title);
         }
+        
+        
         
         /// <summary>
         /// Writes a dungeon-related message with system delay
@@ -134,8 +132,7 @@ namespace RPGGame
         /// <param name="message">Dungeon message to display</param>
         public static void WriteDungeonLine(string message)
         {
-            Console.WriteLine(message);
-            ApplyDelay(UIDelayType.System);
+            WriteLine(message, UIMessageType.System);
         }
         
         /// <summary>
@@ -144,8 +141,7 @@ namespace RPGGame
         /// <param name="message">Room message to display</param>
         public static void WriteRoomLine(string message)
         {
-            Console.WriteLine(message);
-            ApplyDelay(UIDelayType.System);
+            WriteLine(message, UIMessageType.System);
         }
         
         /// <summary>
@@ -154,8 +150,7 @@ namespace RPGGame
         /// <param name="message">Enemy encounter message to display</param>
         public static void WriteEnemyLine(string message)
         {
-            Console.WriteLine(message);
-            ApplyDelay(UIDelayType.System);
+            WriteLine(message, UIMessageType.System);
         }
         
         /// <summary>
@@ -164,8 +159,62 @@ namespace RPGGame
         /// <param name="message">Room cleared message to display</param>
         public static void WriteRoomClearedLine(string message)
         {
+            WriteLine(message, UIMessageType.System);
+        }
+        
+        
+        /// <summary>
+        /// Writes a status effect message (stun, poison, bleed, etc.) with effect message delay
+        /// </summary>
+        /// <param name="message">Status effect message to display</param>
+        public static void WriteEffectLine(string message)
+        {
+            WriteLine(message, UIMessageType.EffectMessage);
+        }
+        
+        /// <summary>
+        /// Writes a roll information message with 0.75 beat delay
+        /// </summary>
+        /// <param name="message">Roll information message to display</param>
+        public static void WriteRollInfoLine(string message)
+        {
+            WriteLine(message, UIMessageType.RollInfo);
+        }
+        
+        /// <summary>
+        /// Writes a roll information message with 0.75 beat delay without updating entity tracking
+        /// This is used for roll info that belongs to the previous combat action
+        /// </summary>
+        /// <param name="message">Roll information message to display</param>
+        public static void WriteRollInfoLineNoEntityTracking(string message)
+        {
+            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
             Console.WriteLine(message);
-            ApplyDelay(UIDelayType.System);
+            ApplyDelay(UIMessageType.RollInfo);
+        }
+        
+        /// <summary>
+        /// Writes a stun message with effect message delay (backward compatibility)
+        /// </summary>
+        /// <param name="message">Stun message to display</param>
+        public static void WriteStunLine(string message)
+        {
+            WriteEffectLine(message);
+        }
+        
+        /// <summary>
+        /// Writes a damage over time message with damage over time delay
+        /// </summary>
+        /// <param name="message">Damage over time message to display</param>
+        public static void WriteDamageOverTimeLine(string message)
+        {
+            // Add blank line before damage over time if configured
+            if (UIConfig.AddBlankLinesAfterDamageOverTime)
+            {
+                WriteBlankLine();
+            }
+            
+            WriteLine(message, UIMessageType.DamageOverTime);
         }
         
         /// <summary>
@@ -177,25 +226,12 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Applies appropriate delay based on delay type
+        /// Applies appropriate delay based on message type using the beat-based timing system
         /// </summary>
-        /// <param name="delayType">Type of delay to apply</param>
-        private static void ApplyDelay(UIDelayType delayType)
+        /// <param name="messageType">Type of message for delay configuration</param>
+        public static void ApplyDelay(UIMessageType messageType)
         {
-            if (!GameConfiguration.Instance.UI.EnableTextDelays) return;
-            
-            // Check if Fast Combat is enabled - if so, set combat delays to zero
-            bool fastCombat = GameSettings.Instance.FastCombat;
-            
-            int delayMs = delayType switch
-            {
-                UIDelayType.Combat => fastCombat ? 0 : GameConfiguration.Instance.UI.CombatDelay,
-                UIDelayType.Menu => GameConfiguration.Instance.UI.MenuDelay,
-                UIDelayType.System => GameConfiguration.Instance.UI.SystemDelay,
-                UIDelayType.Title => GameConfiguration.Instance.UI.TitleDelay,
-                UIDelayType.None => 0,
-                _ => 0
-            };
+            int delayMs = UIConfig.GetEffectiveDelay(messageType);
             
             if (delayMs > 0)
             {
@@ -204,22 +240,67 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Applies a gap delay between actions
-        /// NOTE: This method is deprecated - delays are now handled by WriteCombatLine to prevent accumulation
+        /// Applies progressive menu delay - reduces delay by 1ms for each consecutive menu line
         /// </summary>
-        public static void ApplyActionGap()
+        private static void ApplyProgressiveMenuDelay()
         {
-            // Delays are now handled by WriteCombatLine to prevent accumulation
-            // This method is kept for compatibility but does nothing
+            // Get base menu delay from configuration
+            int baseDelay = UIConfig.BeatTiming.GetMenuDelay();
+            
+            // Store base delay on first menu line
+            if (consecutiveMenuLines == 0)
+            {
+                baseMenuDelay = baseDelay;
+            }
+            
+            // Calculate progressive delay: base delay minus 1ms per consecutive line
+            int progressiveDelay = Math.Max(0, baseMenuDelay - consecutiveMenuLines);
+            
+            // Apply the delay
+            if (progressiveDelay > 0)
+            {
+                Thread.Sleep(progressiveDelay);
+            }
+            
+            // Increment consecutive menu line counter
+            consecutiveMenuLines++;
         }
+        
+        /// <summary>
+        /// Resets the progressive menu delay counter (call when menu section is complete)
+        /// </summary>
+        public static void ResetMenuDelayCounter()
+        {
+            consecutiveMenuLines = 0;
+            baseMenuDelay = 0;
+        }
+        
+        /// <summary>
+        /// Gets the current consecutive menu line count (for testing/debugging)
+        /// </summary>
+        public static int GetConsecutiveMenuLineCount()
+        {
+            return consecutiveMenuLines;
+        }
+        
+        /// <summary>
+        /// Gets the current base menu delay (for testing/debugging)
+        /// </summary>
+        public static int GetBaseMenuDelay()
+        {
+            return baseMenuDelay;
+        }
+        
         
         /// <summary>
         /// Writes a blank line without any delay
         /// </summary>
         public static void WriteBlankLine()
         {
+            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
             Console.WriteLine();
         }
+        
         
         /// <summary>
         /// Extracts the entity name from a combat message
@@ -238,17 +319,5 @@ namespace RPGGame
             
             return message.Substring(startIndex + 1, endIndex - startIndex - 1);
         }
-    }
-    
-    /// <summary>
-    /// Types of UI delays available
-    /// </summary>
-    public enum UIDelayType
-    {
-        None,
-        Combat,
-        Menu,
-        System,
-        Title
     }
 }

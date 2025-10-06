@@ -1,17 +1,17 @@
 {
-  "name": "Fenris Ironheart",
-  "level": 3,
-  "xp": 10,
-  "currentHealth": 54,
-  "maxHealth": 54,
-  "strength": 10,
-  "agility": 8,
-  "technique": 6,
-  "intelligence": 10,
+  "name": "Galen Dawnbringer",
+  "level": 1,
+  "xp": 75,
+  "currentHealth": 100,
+  "maxHealth": 100,
+  "strength": 3,
+  "agility": 3,
+  "technique": 3,
+  "intelligence": 3,
   "barbarianPoints": 0,
   "warriorPoints": 0,
   "roguePoints": 0,
-  "wizardPoints": 2,
+  "wizardPoints": 0,
   "comboStep": 0,
   "comboBonus": 0,
   "tempComboBonus": 0,
@@ -19,121 +19,42 @@
   "damageReduction": 0,
   "inventory": [
     {
-      "name": "Iron Mace",
-      "type": 3,
+      "name": "Iron Chestplate",
+      "type": 2,
       "tier": 1,
       "comboBonus": 0,
       "rarity": "Common",
       "statBonuses": [
         {
-          "name": "of Fortune",
-          "description": "\u002B10 Magic Find",
-          "value": 10,
-          "weight": 8,
-          "statType": "MagicFind"
+          "name": "of the Master",
+          "description": "\u002B5 Technique, \u002B5 damage",
+          "value": 5,
+          "weight": 3,
+          "statType": "TEC"
         }
       ],
       "actionBonuses": [],
       "modifications": [],
       "armorStatuses": [],
-      "bonusDamage": 2,
-      "bonusAttackSpeed": 0,
-      "gearAction": null,
-      "isStarterItem": false
-    },
-    {
-      "name": "Epic Enchanted Cloth Cap",
-      "type": 0,
-      "tier": 1,
-      "comboBonus": 0,
-      "rarity": "Uncommon",
-      "statBonuses": [
-        {
-          "name": "of Recovery",
-          "description": "\u002B1 health regeneration",
-          "value": 1,
-          "weight": 15,
-          "statType": "HealthRegen"
-        },
-        {
-          "name": "of Strength",
-          "description": "\u002B2 Strength stat",
-          "value": 2,
-          "weight": 15,
-          "statType": "STR"
-        }
-      ],
-      "actionBonuses": [
-        {
-          "name": "ACID SPIT",
-          "description": "Spits corrosive acid that burns over time",
-          "weight": 1
-        }
-      ],
-      "modifications": [
-        {
-          "diceResult": 19,
-          "itemRank": "Legendary",
-          "name": "Enchanted",
-          "description": "5%-15% Unique Action Chance",
-          "effect": "uniqueActionChance",
-          "minValue": 0.05,
-          "maxValue": 0.15,
-          "rolledValue": 0.11993061909511622
-        }
-      ],
-      "armorStatuses": [],
       "bonusDamage": 0,
       "bonusAttackSpeed": 0,
-      "gearAction": "PRECISION AIM",
+      "gearAction": "QUICK STEP",
       "isStarterItem": false
     }
   ],
   "head": {
-    "name": "Epic Enchanted Cloth Cap",
+    "name": "Leather Helmet",
     "type": 0,
     "tier": 1,
     "comboBonus": 0,
-    "rarity": "Uncommon",
-    "statBonuses": [
-      {
-        "name": "of Recovery",
-        "description": "\u002B1 health regeneration",
-        "value": 1,
-        "weight": 15,
-        "statType": "HealthRegen"
-      },
-      {
-        "name": "of Strength",
-        "description": "\u002B2 Strength stat",
-        "value": 2,
-        "weight": 15,
-        "statType": "STR"
-      }
-    ],
-    "actionBonuses": [
-      {
-        "name": "ACID SPIT",
-        "description": "Spits corrosive acid that burns over time",
-        "weight": 1
-      }
-    ],
-    "modifications": [
-      {
-        "diceResult": 19,
-        "itemRank": "Legendary",
-        "name": "Enchanted",
-        "description": "5%-15% Unique Action Chance",
-        "effect": "uniqueActionChance",
-        "minValue": 0.05,
-        "maxValue": 0.15,
-        "rolledValue": 0.11993061909511622
-      }
-    ],
+    "rarity": "Common",
+    "statBonuses": [],
+    "actionBonuses": [],
+    "modifications": [],
     "armorStatuses": [],
     "bonusDamage": 0,
     "bonusAttackSpeed": 0,
-    "gearAction": "PRECISION AIM",
+    "gearAction": null,
     "isStarterItem": false
   },
   "body": {

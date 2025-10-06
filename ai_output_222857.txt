@@ -1,0 +1,13 @@
+[22:28:57.18] Starting Balance Analysis... 
+ 
+
+DUNGEON FIGHTER
+
+1. New Game
+2. Load Game -  - Level 0
+3. Settings
+4. Balance Tuning Console
+5. Level 1 Difficulty Analysis
+0. Exit
+
+Choose an option: ^C

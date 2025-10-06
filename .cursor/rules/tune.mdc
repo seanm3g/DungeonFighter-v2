@@ -1,4 +1,63 @@
 ---
 alwaysApply: false
 ---
-When we're working with balance, the MAJORITY of things that should be adjusted should be in TuningConfig.json
+
+# DungeonFighter Balance Tuning Process
+
+DO NOT try to run code to check for balance.
+
+## Step 1: Read Required Documentation
+**CRITICAL**: Read `Documentation/TUNING_FACTORS_ANALYSIS.md` FIRST to understand which tuning factors actually work!
+
+## Step 2: Find Latest Balance Analysis
+Check the balance file with the latest date in year-month-day_hour-minute-second format.
+**At the TOP of your response, state which file you read.**
+
+## Step 3: Understand Win Rate Logic
+- **Win Rate = Player Win Rate** (how often the player beats the enemy)
+- **Target Range**: 85-98% player win rate (players should win 85-98% of the time)
+
+### Enemy Categories:
+- **Too Easy** (player win rate >98%): Players win too much → Make enemies HARDER
+- **Too Hard** (player win rate <85%): Players win too little → Make enemies EASIER
+
+### Effectiveness Adjustments:
+- **INCREASE effectiveness** = STRONGER enemies = LOWER player win rate = HARDER for players
+- **DECREASE effectiveness** = WEAKER enemies = HIGHER player win rate = EASIER for players
+
+## Step 4: Tuning Hierarchy (Apply in Order)
+1. **Global Level**: `StatConversionRates` in TuningConfig.json (affects all enemies)
+2. **Archetype Level**: `ArchetypeConfigs` in TuningConfig.json (affects enemy groups)
+3. **Individual Level**: Specific enemy stats in Enemies.json (affects specific enemies)
+4. **Action Level**: Action damage multipliers in Actions.json (affects all enemies using that action)
+
+## Step 5: Analysis Process
+1. **Identify Outliers**: Find enemies with win rates outside 85-98% range
+2. **Group Analysis**: Look for common patterns (archetype, tier, actions used)
+3. **Root Cause**: Determine which tuning factor affects the problematic group
+4. **Apply Fix**: Make targeted adjustments to the appropriate level
+
+## Step 6: Adjustment Guidelines
+
+### For Enemies Too Easy (>98% win rate):
+- **INCREASE** stat conversion rates (e.g., 0.8 → 1.0)
+- **INCREASE** health, damage, or armor values
+- **INCREASE** archetype effectiveness multipliers
+
+### For Enemies Too Hard (<85% win rate):
+- **DECREASE** stat conversion rates (e.g., 1.0 → 0.8)
+- **DECREASE** health, damage, or armor values
+- **DECREASE** archetype effectiveness multipliers
+
+## Step 7: Hero Adjustments
+If multiple enemy types are problematic, consider adjusting:
+- Hero base stats
+- Starting weapon damage
+- Character progression scaling
+
+## Step 8: Validation
+After adjustments, run balance analysis again to verify changes moved win rates toward target range.
+
+---
+
+**Remember**: Start with global changes, then archetype, then individual enemies. Reference `TUNING_FACTORS_ANALYSIS.md` for specific recommendations.

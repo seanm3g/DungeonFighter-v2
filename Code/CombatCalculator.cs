@@ -38,14 +38,13 @@ namespace RPGGame
             }
             else if (attacker is Enemy enemy)
             {
-                // For enemies, use direct damage if available, otherwise use strength
-                if (enemy.Damage > 0 && enemy.Strength == 0)
+                // For enemies, use strength + weapon damage (same as heroes)
+                baseDamage = enemy.GetEffectiveStrength();
+                
+                // Add weapon damage if enemy has a weapon
+                if (enemy.Weapon is WeaponItem weapon)
                 {
-                    baseDamage = enemy.Damage;
-                }
-                else
-                {
-                    baseDamage = enemy.GetEffectiveStrength();
+                    baseDamage += weapon.GetTotalDamage();
                 }
             }
             
@@ -62,17 +61,21 @@ namespace RPGGame
             // Apply roll-based damage scaling
             if (roll > 0)
             {
-                // Critical hit on total roll of 20 (baseRoll + rollBonus)
-                if (roll == combatConfig.CriticalHitThreshold)
+                // Critical hit on total roll of 20 or higher (baseRoll + rollBonus) - FIXED: Allow 20+
+                if (roll >= combatConfig.CriticalHitThreshold)
                 {
                     if (GameConfiguration.IsDebugEnabled)
                     {
-                        UIManager.WriteSystemLine($"DEBUG: Critical hit! Base damage: {totalDamage}, multiplier: {combatBalance.CriticalHitDamageMultiplier}");
+                        if (!CombatActions.DisableCombatDebugOutput)
+                        {
+                        }
                     }
                     totalDamage *= combatBalance.CriticalHitDamageMultiplier;
                     if (GameConfiguration.IsDebugEnabled)
                     {
-                        UIManager.WriteSystemLine($"DEBUG: Critical hit damage after multiplier: {totalDamage}");
+                        if (!CombatActions.DisableCombatDebugOutput)
+                        {
+                        }
                     }
                 }
                 // Enhanced damage scaling based on roll using RollSystem configuration
@@ -209,6 +212,10 @@ namespace RPGGame
                 totalBonus += character.GetModificationRollBonus();
                 totalBonus += character.GetEquipmentRollBonus();
             }
+            else if (attacker is Enemy enemy)
+            {
+                totalBonus += enemy.GetIntelligenceRollBonus();
+            }
             
             // Apply roll penalty (for effects like Dust Cloud)
             totalBonus -= attacker.RollPenalty;
@@ -224,8 +231,8 @@ namespace RPGGame
         /// <returns>True if critical hit, false otherwise</returns>
         public static bool IsCriticalHit(Entity attacker, int roll)
         {
-            // Natural 20 is always a critical hit
-            if (roll == 20)
+            // Natural 20 or higher is always a critical hit - FIXED: Allow 20+
+            if (roll >= 20)
             {
                 return true;
             }
@@ -347,14 +354,20 @@ namespace RPGGame
             // Apply entity-specific modifiers
             if (entity is Character charEntity)
             {
-                // Calculate weapon speed using the speed formula
-                double weaponSpeed = 1.0;
+                // Calculate weapon speed using the equation: (base attack speed + weapon) × action speed
+                double weaponSpeedModifier = 0.0;
                 if (charEntity.Weapon is WeaponItem w)
                 {
-                    // Use the scaling manager to calculate the proper weapon speed
-                    weaponSpeed = ScalingManager.CalculateWeaponSpeed(w.BaseAttackSpeed, w.Tier, charEntity.Level, w.Type.ToString());
+                    // Weapon speed is added to base attack time, then multiplied by action length
+                    // Fast weapons have negative values (speed up), slow weapons have positive values (slow down)
+                    weaponSpeedModifier = w.BaseAttackSpeed;
+                    
+                    // Debug logging for weapon speed calculation
+                    if (GameConfiguration.IsDebugEnabled)
+                    {
+                    }
                 }
-                double weaponAdjustedTime = agilityAdjustedTime * weaponSpeed;
+                double weaponAdjustedTime = (agilityAdjustedTime + weaponSpeedModifier);
                 
                 // Equipment speed bonus reduces time further
                 double equipmentSpeedBonus = charEntity.GetEquipmentAttackSpeedBonus();
@@ -371,12 +384,27 @@ namespace RPGGame
                 finalAttackTime /= speedMultiplier; // Divide by multiplier to make attacks faster
                 
                 // Apply minimum cap
-                return Math.Max(tuning.Combat.MinimumAttackTime, finalAttackTime);
+                double finalResult = Math.Max(tuning.Combat.MinimumAttackTime, finalAttackTime);
+                
+                // Debug logging for final result
+                if (GameConfiguration.IsDebugEnabled)
+                {
+                }
+                
+                return finalResult;
             }
             else if (entity is Enemy enemyEntity)
             {
+                // Apply weapon speed modifier (same as characters)
+                double weaponSpeedModifier = 0.0;
+                if (enemyEntity.Weapon is WeaponItem w)
+                {
+                    weaponSpeedModifier = w.BaseAttackSpeed;
+                }
+                double weaponAdjustedTime = (agilityAdjustedTime + weaponSpeedModifier);
+                
                 // Apply archetype speed multiplier
-                double finalAttackTime = agilityAdjustedTime * enemyEntity.AttackProfile.SpeedMultiplier;
+                double finalAttackTime = weaponAdjustedTime * enemyEntity.AttackProfile.SpeedMultiplier;
                 
                 // Apply slow debuff if active
                 if (enemyEntity.SlowTurns > 0)

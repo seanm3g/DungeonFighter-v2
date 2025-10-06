@@ -7,6 +7,9 @@ namespace RPGGame
     /// </summary>
     public class CombatManager
     {
+        // Flag to disable UI output during balance analysis
+        public static bool DisableCombatUIOutput = false;
+        
         // Combat state management (moved from Combat.cs)
         private BattleNarrative? currentBattleNarrative;
         private TurnManager turnManager = new TurnManager();
@@ -19,6 +22,7 @@ namespace RPGGame
         {
             currentBattleNarrative = new BattleNarrative(playerName, enemyName, locationName, playerHealth, enemyHealth);
             UIManager.ResetForNewBattle(); // Reset entity tracking for new battle
+            TextDisplayIntegration.ResetForNewBattle(); // Reset new text display system
             turnManager.InitializeBattle();
             lastActingEntity = null; // Reset entity change tracking for new battle
         }
@@ -30,6 +34,51 @@ namespace RPGGame
         {
             if (currentBattleNarrative != null)
             {
+                // End the battle and generate narrative
+                currentBattleNarrative.EndBattle();
+                
+                // Display only the battle summary (damage totals) since narrative events are now displayed immediately
+                var settings = GameSettings.Instance;
+                if (settings.EnableNarrativeEvents && !DisableCombatUIOutput)
+                {
+                    string summary = currentBattleNarrative.GenerateInformationalSummary();
+                    if (!string.IsNullOrEmpty(summary))
+                    {
+                        // Use system delay for combat summary
+                        UIManager.WriteSystemLine(summary);
+                    }
+                }
+                
+                currentBattleNarrative = null;
+            }
+            turnManager.EndBattle();
+        }
+
+        /// <summary>
+        /// Ends the battle narrative with final health values from actual entities
+        /// </summary>
+        public void EndBattleNarrative(Character player, Enemy enemy)
+        {
+            if (currentBattleNarrative != null)
+            {
+                // Update final health values from actual entities
+                currentBattleNarrative.UpdateFinalHealth(player.CurrentHealth, enemy.CurrentHealth);
+                
+                // End the battle and generate narrative
+                currentBattleNarrative.EndBattle();
+                
+                // Display only the battle summary (damage totals) since narrative events are now displayed immediately
+                var settings = GameSettings.Instance;
+                if (settings.EnableNarrativeEvents && !DisableCombatUIOutput)
+                {
+                    string summary = currentBattleNarrative.GenerateInformationalSummary();
+                    if (!string.IsNullOrEmpty(summary))
+                    {
+                        // Use system delay for combat summary
+                        UIManager.WriteSystemLine(summary);
+                    }
+                }
+                
                 currentBattleNarrative = null;
             }
             turnManager.EndBattle();
@@ -130,6 +179,8 @@ namespace RPGGame
         /// <returns>True if combat completed successfully, false if player died</returns>
         public bool RunCombat(Character player, Enemy currentEnemy, Environment room)
         {
+            DebugLogger.WriteCombatDebug("CombatManager", $"Starting combat: {player.Name} vs {currentEnemy.Name} in {room.Name}");
+            
             // Start battle narrative and initialize action speed system
             StartBattleNarrative(player.Name, currentEnemy.Name, room.Name, player.CurrentHealth, currentEnemy.CurrentHealth);
             InitializeCombatEntities(player, currentEnemy, room);
@@ -211,8 +262,10 @@ namespace RPGGame
                 }
             }
             
-            // End the battle narrative
-            EndBattleNarrative();
+            // End the battle narrative with final health values
+            EndBattleNarrative(player, currentEnemy);
+            
+            DebugLogger.WriteCombatDebug("CombatManager", $"Combat ended: {player.Name} {(player.IsAlive ? "survived" : "died")} vs {currentEnemy.Name}");
             
             // Return true if player survived, false if player died
             return player.IsAlive;
@@ -223,10 +276,15 @@ namespace RPGGame
         /// </summary>
         private bool ProcessPlayerTurn(Character player, Enemy currentEnemy, Environment room)
         {
-            // Check if player is stunned
+                // Check if player is stunned
             if (player.StunTurnsRemaining > 0)
             {
-                UIManager.WriteLine($"[{player.Name}] is stunned and cannot act! ({player.StunTurnsRemaining} turns remaining)");
+                if (!DisableCombatUIOutput)
+                {
+                    // Use WriteStunLine for configurable stun message handling (no indentation)
+                    UIManager.WriteStunLine($"[{player.Name}] is stunned and cannot act! ({player.StunTurnsRemaining} turns remaining)");
+                    // Don't add explicit blank line - let UIManager handle entity-based spacing
+                }
                 
                 // Get the player's action speed to calculate proper stun reduction
                 double playerActionSpeed = player.GetTotalAttackSpeed();
@@ -248,10 +306,6 @@ namespace RPGGame
                 int rollBonus = CombatActions.CalculateRollBonus(player, null); // Calculate base roll bonus
                 int totalRoll = baseRoll + rollBonus;
                 
-                if (GameConfiguration.IsDebugEnabled)
-                {
-                    UIManager.WriteSystemLine($"DEBUG [CombatManager]: {player.Name} rolled {baseRoll} + {rollBonus} = {totalRoll}");
-                }
                 
                 // Determine action type based on roll result
                 Action? attemptedAction = null;
@@ -266,52 +320,100 @@ namespace RPGGame
                     }
                     else
                     {
-                        // Fallback to basic attack if no combo actions available
-                        attemptedAction = player.ActionPool.FirstOrDefault(a => a.action.Name == "BASIC ATTACK").action;
+                        // This should never happen - combo actions should always be available
+                        // If we reach here, there's a bug in the combo initialization
+                        DebugLogger.Log("CombatManager", $"ERROR: No combo actions available for {player.Name} on natural 20! This should never happen.");
+                        
+                        // Try to find any combo action from the action pool
+                        var anyComboAction = player.ActionPool
+                            .Where(a => a.action.IsComboAction)
+                            .Select(a => a.action)
+                            .FirstOrDefault();
+                        
+                        if (anyComboAction != null)
+                        {
+                            attemptedAction = anyComboAction;
+                            DebugLogger.Log("CombatManager", $"Found combo action {anyComboAction.Name} for {player.Name}");
+                        }
+                        else
+                        {
+                            // Last resort: create a combo action on the fly
+                            attemptedAction = new Action(
+                                name: "EMERGENCY STRIKE",
+                                type: ActionType.Attack,
+                                targetType: TargetType.SingleTarget,
+                                baseValue: 0,
+                                range: 1,
+                                cooldown: 0,
+                                description: "An emergency strike created when no combo actions were available",
+                                comboOrder: 1,
+                                damageMultiplier: 1.3,
+                                length: 1.0,
+                                causesBleed: false,
+                                causesWeaken: false,
+                                isComboAction: true
+                            );
+                            player.AddAction(attemptedAction, 1.0);
+                            DebugLogger.Log("CombatManager", $"Created emergency combo action for {player.Name}");
+                        }
                     }
                 }
                 else if (totalRoll >= 14) // Combo threshold
                 {
                     // Use combo action
                     var comboActions = player.GetComboActions();
-                    if (GameConfiguration.IsDebugEnabled)
-                    {
-                        UIManager.WriteSystemLine($"DEBUG [CombatManager]: {player.Name} has {comboActions.Count} combo actions: {string.Join(", ", comboActions.Select(a => a.Name))}");
-                    }
                     if (comboActions.Count > 0)
                     {
                         int actionIdx = player.ComboStep % comboActions.Count;
                         attemptedAction = comboActions[actionIdx];
-                        if (GameConfiguration.IsDebugEnabled)
-                        {
-                            UIManager.WriteSystemLine($"DEBUG [CombatManager]: Selected combo action: {attemptedAction.Name} (index {actionIdx})");
-                        }
                     }
                     else
                     {
                         // Fallback to basic attack if no combo actions available
                         attemptedAction = player.ActionPool.FirstOrDefault(a => a.action.Name == "BASIC ATTACK").action;
-                        if (GameConfiguration.IsDebugEnabled)
-                        {
-                            UIManager.WriteSystemLine($"DEBUG [CombatManager]: No combo actions available for {player.Name} (roll {totalRoll}), falling back to BASIC ATTACK");
-                        }
                     }
                 }
                 else if (totalRoll >= 6) // Basic attack threshold
                 {
                     // Use basic attack
                     attemptedAction = player.ActionPool.FirstOrDefault(a => a.action.Name == "BASIC ATTACK").action;
+                    
+                    // Fallback if BASIC ATTACK is not found
+                    if (attemptedAction == null)
+                    {
+                        // Try to load BASIC ATTACK directly
+                        attemptedAction = ActionLoader.GetAction("BASIC ATTACK");
+                    }
+                    
+                    // Last resort: pick any Attack-type action
+                    if (attemptedAction == null)
+                    {
+                        attemptedAction = player.ActionPool.FirstOrDefault(a => a.action.Type == ActionType.Attack || a.action.Type == ActionType.Spell).action;
+                    }
                 }
                 // Handle the different cases
                 if (totalRoll < 6)
                 {
                     // Miss - no action executed
+                    // Check for critical miss and apply penalty BEFORE formatting message
+                    bool isCriticalMiss = totalRoll <= 1;
+                    if (isCriticalMiss)
+                    {
+                        // Apply critical miss penalty - doubles action speed for next turn
+                        player.HasCriticalMissPenalty = true;
+                        player.CriticalMissPenaltyTurns = 1;
+                    }
+                    
                     // Use basic attack for miss message formatting
                     var basicAttack = player.ActionPool.FirstOrDefault(a => a.action.Name == "BASIC ATTACK").action;
                     if (basicAttack != null)
                     {
                         string missMessage = CombatResults.FormatMissMessage(player, currentEnemy, basicAttack, baseRoll, rollBonus);
-                        UIManager.WriteCombatLine(missMessage);
+                        if (!DisableCombatUIOutput)
+                        {
+                            // Use TextDisplayIntegration for consistent entity tracking
+                            TextDisplayIntegration.DisplayCombatAction(missMessage, new List<string>(), new List<string>(), player.Name);
+                        }
                         
                         // Update player's action timing in the action speed system even for misses
                         var actionSpeedSystem = GetCurrentActionSpeedSystem();
@@ -323,14 +425,29 @@ namespace RPGGame
                     else
                     {
                         // Fallback if no basic attack is available
-                        UIManager.WriteCombatLine($"[{player.Name}] misses! (roll: {baseRoll} + {rollBonus} = {totalRoll})");
+                        if (!DisableCombatUIOutput)
+                        {
+                            // Use TextDisplayIntegration for consistent entity tracking
+                            string missType = isCriticalMiss ? "CRITICAL MISS" : "misses";
+                            string fallbackMessage = $"[{player.Name}] {missType}! (roll: {baseRoll} + {rollBonus} = {totalRoll})";
+                            TextDisplayIntegration.DisplayCombatAction(fallbackMessage, new List<string>(), new List<string>(), player.Name);
+                        }
                     }
                 }
                 else if (attemptedAction != null)
                 {
                     // Execute single action (not multi-attack) with speed tracking
-                    string result = CombatResults.ExecuteActionWithUI(player, currentEnemy, attemptedAction, room, GetLastPlayerAction());
+                    var (result, statusEffects) = CombatResults.ExecuteActionWithUIAndStatusEffects(player, currentEnemy, attemptedAction, room, GetLastPlayerAction(), currentBattleNarrative);
                     bool textDisplayed = !string.IsNullOrEmpty(result);
+                    
+                    // Get triggered narratives and display everything together
+                    if (textDisplayed && currentBattleNarrative != null)
+                    {
+                        var narratives = currentBattleNarrative.GetTriggeredNarratives();
+                        // Add proper indentation to status effects
+                        var indentedStatusEffects = statusEffects.Select(effect => $"    {effect}").ToList();
+                        TextDisplayIntegration.DisplayCombatAction(result, narratives, indentedStatusEffects, player.Name);
+                    }
                     
                     // Update last player action for DEJA VU functionality
                     UpdateLastPlayerAction(attemptedAction);
@@ -342,22 +459,15 @@ namespace RPGGame
                         actionSpeedSystem.ExecuteAction(player, attemptedAction);
                     }
                     
-                    // Show individual action messages with consistent delay
-                    if (textDisplayed)
-                    {
-                        // Split multi-line results and display as a group (no delays between lines)
-                        string[] lines = result.Split('\n');
-                        var nonEmptyLines = lines.Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
-                        if (nonEmptyLines.Length > 0)
-                        {
-                            UIManager.WriteGroup(nonEmptyLines);
-                        }
-                    }
+                    // Display is now handled by TextDisplayIntegration.DisplayCombatAction above
                 }
                 else
                 {
                     // Player has no actions available - advance their turn to prevent infinite loop
-                    UIManager.WriteLine($"[{player.Name}] has no actions available and cannot act!");
+                    if (!DisableCombatUIOutput)
+                    {
+                        UIManager.WriteLine($"[{player.Name}] has no actions available and cannot act!");
+                    }
                     var currentSpeedSystem = GetCurrentActionSpeedSystem();
                     if (currentSpeedSystem != null)
                     {
@@ -382,7 +492,12 @@ namespace RPGGame
             // Check if enemy is stunned
             if (currentEnemy.StunTurnsRemaining > 0)
             {
-                UIManager.WriteLine($"[{currentEnemy.Name}] is stunned and cannot act! ({currentEnemy.StunTurnsRemaining} turns remaining)");
+                if (!DisableCombatUIOutput)
+                {
+                    // Use WriteStunLine for configurable stun message handling (no indentation)
+                    UIManager.WriteStunLine($"[{currentEnemy.Name}] is stunned and cannot act! ({currentEnemy.StunTurnsRemaining} turns remaining)");
+                    // Don't add explicit blank line - let UIManager handle entity-based spacing
+                }
                 
                 // Get the enemy's action speed to calculate proper stun reduction
                 double enemyActionSpeed = currentEnemy.GetTotalAttackSpeed();
@@ -399,42 +514,32 @@ namespace RPGGame
             }
             else
             {
-                var enemyAction = currentEnemy.SelectAction();
-                if (enemyAction != null)
+                // Use dice-based action selection for enemies (no forced action)
+                var (result, statusEffects) = CombatResults.ExecuteActionWithUIAndStatusEffects(currentEnemy, player, null, room, GetLastPlayerAction(), currentBattleNarrative);
+                bool textDisplayed = !string.IsNullOrEmpty(result);
+                
+                // Get triggered narratives and display everything together
+                if (textDisplayed && currentBattleNarrative != null)
                 {
-                    string result = CombatResults.ExecuteActionWithUI(currentEnemy, player, enemyAction, room, GetLastPlayerAction());
-                    bool textDisplayed = !string.IsNullOrEmpty(result);
-                    
-                    // Update enemy's action timing in the action speed system
-                    var actionSpeedSystem = GetCurrentActionSpeedSystem();
-                    if (actionSpeedSystem != null)
+                    var narratives = currentBattleNarrative.GetTriggeredNarratives();
+                    // Add proper indentation to status effects
+                    var indentedStatusEffects = statusEffects.Select(effect => $"    {effect}").ToList();
+                    TextDisplayIntegration.DisplayCombatAction(result, narratives, indentedStatusEffects, currentEnemy.Name);
+                }
+                
+                // Update enemy's action timing in the action speed system
+                var actionSpeedSystem = GetCurrentActionSpeedSystem();
+                if (actionSpeedSystem != null)
+                {
+                    // Get the action that was actually used for timing purposes
+                    var usedAction = CombatActions.GetLastUsedAction(currentEnemy);
+                    if (usedAction != null)
                     {
-                        actionSpeedSystem.ExecuteAction(currentEnemy, enemyAction);
-                    }
-                    
-                    // Show individual action messages with consistent delay
-                    if (textDisplayed)
-                    {
-                        // Split multi-line results and display as a group (no delays between lines)
-                        string[] lines = result.Split('\n');
-                        var nonEmptyLines = lines.Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
-                        if (nonEmptyLines.Length > 0)
-                        {
-                            UIManager.WriteGroup(nonEmptyLines);
-                        }
+                        actionSpeedSystem.ExecuteAction(currentEnemy, usedAction);
                     }
                 }
-                else
-                {
-                    // Enemy has no actions available - advance their turn to prevent infinite loop
-                    UIManager.WriteLine($"[{currentEnemy.Name}] has no actions available and cannot act!");
-                    var currentSpeedSystem = GetCurrentActionSpeedSystem();
-                    if (currentSpeedSystem != null)
-                    {
-                        double enemyActionSpeed = currentEnemy.GetTotalAttackSpeed();
-                        currentSpeedSystem.AdvanceEntityTurn(currentEnemy, enemyActionSpeed);
-                    }
-                }
+                
+                // Display is now handled by TextDisplayIntegration.DisplayCombatAction above
             }
             
             // Return false if player is dead (combat should end)
@@ -466,16 +571,13 @@ namespace RPGGame
                     string result = CombatActions.ExecuteAreaOfEffectAction(room, allTargets, room, envAction);
                     bool textDisplayed = !string.IsNullOrEmpty(result);
                     
-                    // Show individual action messages
+                    // Display environmental action result
                     if (textDisplayed)
                     {
-                        // Split multi-line results and display as a group (no delays between lines)
-                        string[] lines = result.Split('\n');
-                        var nonEmptyLines = lines.Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
-                        if (nonEmptyLines.Length > 0)
-                        {
-                            UIManager.WriteGroup(nonEmptyLines);
-                        }
+                        // Use WriteCombatLine for proper entity tracking and spacing
+                        UIManager.WriteCombatLine(result);
+                        
+                        // Don't add explicit blank line - let UIManager handle entity-based spacing
                     }
                     
                     // Update environment's action timing in the action speed system
@@ -524,7 +626,7 @@ namespace RPGGame
                     player.TakeDamage(player.CurrentHealth - player.GetEffectiveMaxHealth());
                 }
                 int actualRegen = player.CurrentHealth - oldHealth;
-                if (actualRegen > 0)
+                if (actualRegen > 0 && !DisableCombatUIOutput)
                 {
                     UIManager.WriteLine($"[{player.Name}] regenerates {actualRegen} health ({player.CurrentHealth}/{player.GetEffectiveMaxHealth()})");
                 }

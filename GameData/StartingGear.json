@@ -1,13 +1,13 @@
 {
   "weapons": [
-    { "name": "Mace", "damage": 3, "weight": 2.5, "attackSpeed": 1.2 },
-    { "name": "Sword", "damage": 2, "weight": 2.0, "attackSpeed": 1.0 },
-    { "name": "Dagger", "damage": 1, "weight": 1.0, "attackSpeed": 0.8 },
-    { "name": "Wand", "damage": 1, "weight": 1.0, "attackSpeed": 1.1 }
+    { "name": "Mace", "damage": 7.5, "attackSpeed": 0.8 },
+    { "name": "Sword", "damage": 6.0, "attackSpeed": 1.0 },
+    { "name": "Dagger", "damage": 4.3, "attackSpeed": 1.4 },
+    { "name": "Wand", "damage": 5.5, "attackSpeed": 1.1 }
   ],
   "armor": [
-    { "slot": "Head", "name": "Leather Helmet", "armor": 0, "weight": 1.0 },
-    { "slot": "Chest", "name": "Leather Armor", "armor": 1, "weight": 3.0 },
-    { "slot": "Feet", "name": "Leather Boots", "armor": 0, "weight": 1.0 }
+    { "slot": "Head", "name": "Leather Helmet", "armor": 0 },
+    { "slot": "Chest", "name": "Leather Armor", "armor": 2 },
+    { "slot": "Feet", "name": "Leather Boots", "armor": 0 }
   ]
 } 

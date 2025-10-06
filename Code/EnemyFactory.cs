@@ -1,10 +1,48 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RPGGame
 {
     public static class EnemyFactory
     {
+        private static List<WeaponData>? _weaponData;
+
+        /// <summary>
+        /// Generates a common-tier weapon for an enemy
+        /// </summary>
+        /// <param name="enemyName">The name of the enemy</param>
+        /// <param name="enemyLevel">The level of the enemy</param>
+        /// <returns>A common-tier weapon appropriate for the enemy</returns>
+        private static WeaponItem GenerateCommonWeaponForEnemy(string enemyName, int enemyLevel)
+        {
+            // Load weapon data if not already loaded
+            if (_weaponData == null)
+            {
+                LoadWeaponData();
+            }
+
+            // Get only tier 1 (common) weapons
+            var commonWeapons = _weaponData?.Where(w => w.Tier == 1).ToList() ?? new List<WeaponData>();
+            
+            if (!commonWeapons.Any())
+            {
+                // Fallback to basic weapon if no common weapons found
+                return new WeaponItem($"{enemyName} Weapon", 1, 6, 0.0, WeaponType.Sword);
+            }
+
+            // Select a random common weapon
+            var selectedWeapon = commonWeapons[RandomUtility.Next(commonWeapons.Count)];
+            
+            // Generate the weapon item
+            var weapon = ItemGenerator.GenerateWeaponItem(selectedWeapon);
+            
+            // Ensure it's marked as common rarity
+            weapon.Rarity = "Common";
+            
+            return weapon;
+        }
+
         public static Enemy CreateEnemy(string enemyType, int level = 1)
         {
             // Try to create enemy from JSON data first
@@ -44,6 +82,9 @@ namespace RPGGame
             var enemy = new Enemy("Goblin", level, 30 + level * 5, 8 + level, 12 + level, 4 + level);
             enemy.ActionPool.Clear();
             
+            // Add a common weapon to the enemy
+            enemy.Weapon = GenerateCommonWeaponForEnemy("Goblin", level);
+            
             var quickStab = ActionLoader.GetAction("Quick Stab");
             var dirtyTrick = ActionLoader.GetAction("Dirty Trick");
             var retreat = ActionLoader.GetAction("Retreat");
@@ -59,6 +100,9 @@ namespace RPGGame
         {
             var enemy = new Enemy("Orc", level, 50 + level * 8, 15 + level * 2, 8 + level, 6 + level);
             enemy.ActionPool.Clear();
+            
+            // Add a common weapon to the enemy
+            enemy.Weapon = GenerateCommonWeaponForEnemy("Orc", level);
             
             var heavySwing = ActionLoader.GetAction("Heavy Swing");
             var battleRage = ActionLoader.GetAction("Battle Rage");
@@ -76,6 +120,9 @@ namespace RPGGame
             var enemy = new Enemy("Skeleton", level, 35 + level * 6, 10 + level, 8 + level, 6 + level);
             enemy.ActionPool.Clear();
             
+            // Add a common weapon to the enemy
+            enemy.Weapon = GenerateCommonWeaponForEnemy("Skeleton", level);
+            
             var boneThrow = ActionLoader.GetAction("Bone Throw");
             var rattlingBones = ActionLoader.GetAction("Rattling Bones");
             var reassemble = ActionLoader.GetAction("Reassemble");
@@ -91,6 +138,9 @@ namespace RPGGame
         {
             var enemy = new Enemy("Zombie", level, 45 + level * 7, 12 + level, 4 + level, 2 + level);
             enemy.ActionPool.Clear();
+            
+            // Add a common weapon to the enemy
+            enemy.Weapon = GenerateCommonWeaponForEnemy("Zombie", level);
             
             var slowGrab = ActionLoader.GetAction("Slow Grab");
             var infectiousBite = ActionLoader.GetAction("Infectious Bite");
@@ -108,6 +158,9 @@ namespace RPGGame
             var enemy = new Enemy("Wraith", level, 25 + level * 4, 6 + level, 14 + level, 16 + level);
             enemy.ActionPool.Clear();
             
+            // Add a common weapon to the enemy
+            enemy.Weapon = GenerateCommonWeaponForEnemy("Wraith", level);
+            
             var etherealTouch = ActionLoader.GetAction("Ethereal Touch");
             var hauntingWail = ActionLoader.GetAction("Haunting Wail");
             var phaseShift = ActionLoader.GetAction("Phase Shift");
@@ -123,6 +176,9 @@ namespace RPGGame
         {
             var enemy = new Enemy("Spider", level, 30 + level * 5, 8 + level, 16 + level, 8 + level);
             enemy.ActionPool.Clear();
+            
+            // Add a common weapon to the enemy
+            enemy.Weapon = GenerateCommonWeaponForEnemy("Spider", level);
             
             var venomousBite = ActionLoader.GetAction("Venomous Bite");
             var webTrap = ActionLoader.GetAction("Web Trap");
@@ -140,6 +196,9 @@ namespace RPGGame
             var enemy = new Enemy("Slime", level, 40 + level * 6, 6 + level, 6 + level, 10 + level);
             enemy.ActionPool.Clear();
             
+            // Add a common weapon to the enemy
+            enemy.Weapon = GenerateCommonWeaponForEnemy("Slime", level);
+            
             var acidicSplash = ActionLoader.GetAction("Acidic Splash");
             var absorb = ActionLoader.GetAction("Absorb");
             var split = ActionLoader.GetAction("Split");
@@ -155,6 +214,9 @@ namespace RPGGame
         {
             var enemy = new Enemy("Bat", level, 20 + level * 3, 6 + level, 18 + level, 4 + level);
             enemy.ActionPool.Clear();
+            
+            // Add a common weapon to the enemy
+            enemy.Weapon = GenerateCommonWeaponForEnemy("Bat", level);
             
             var sonicScream = ActionLoader.GetAction("Sonic Scream");
             var diveBomb = ActionLoader.GetAction("Dive Bomb");
@@ -172,6 +234,9 @@ namespace RPGGame
             var enemy = new Enemy("Bandit", level, 35 + level * 5, 10 + level, 12 + level, 8 + level);
             enemy.ActionPool.Clear();
             
+            // Add a common weapon to the enemy
+            enemy.Weapon = GenerateCommonWeaponForEnemy("Bandit", level);
+            
             var backstab = ActionLoader.GetAction("Backstab");
             var smokeBomb = ActionLoader.GetAction("Smoke Bomb");
             var adrenalineRush = ActionLoader.GetAction("Adrenaline Rush");
@@ -187,6 +252,9 @@ namespace RPGGame
         {
             var enemy = new Enemy("Cultist", level, 30 + level * 4, 8 + level, 10 + level, 14 + level);
             enemy.ActionPool.Clear();
+            
+            // Add a common weapon to the enemy
+            enemy.Weapon = GenerateCommonWeaponForEnemy("Cultist", level);
             
             var darkRitual = ActionLoader.GetAction("Dark Ritual");
             var summonShadows = ActionLoader.GetAction("Summon Shadows");
@@ -204,6 +272,9 @@ namespace RPGGame
             var enemy = new Enemy("Troll", level, 80 + level * 12, 18 + level * 2, 6 + level, 4 + level);
             enemy.ActionPool.Clear();
             
+            // Add a common weapon to the enemy
+            enemy.Weapon = GenerateCommonWeaponForEnemy("Troll", level);
+            
             var clubSmash = ActionLoader.GetAction("Club Smash");
             var regeneration = ActionLoader.GetAction("Regeneration");
             var groundStomp = ActionLoader.GetAction("Ground Stomp");
@@ -219,6 +290,9 @@ namespace RPGGame
         {
             var enemy = new Enemy("Dragon", level, 120 + level * 20, 20 + level * 3, 12 + level, 16 + level);
             enemy.ActionPool.Clear();
+            
+            // Add a common weapon to the enemy
+            enemy.Weapon = GenerateCommonWeaponForEnemy("Dragon", level);
             
             var fireBreath = ActionLoader.GetAction("Fire Breath");
             var wingBuffet = ActionLoader.GetAction("Wing Buffet");
@@ -236,6 +310,9 @@ namespace RPGGame
             var enemy = new Enemy("Ghost", level, 25 + level * 4, 4 + level, 16 + level, 18 + level);
             enemy.ActionPool.Clear();
             
+            // Add a common weapon to the enemy
+            enemy.Weapon = GenerateCommonWeaponForEnemy("Ghost", level);
+            
             var possession = ActionLoader.GetAction("Possession");
             var ghostlyWail = ActionLoader.GetAction("Ghostly Wail");
             var fadeAway = ActionLoader.GetAction("Fade Away");
@@ -251,6 +328,9 @@ namespace RPGGame
         {
             var enemy = new Enemy("Vampire", level, 50 + level * 8, 12 + level, 14 + level, 12 + level);
             enemy.ActionPool.Clear();
+            
+            // Add a common weapon to the enemy
+            enemy.Weapon = GenerateCommonWeaponForEnemy("Vampire", level);
             
             var bloodDrain = ActionLoader.GetAction("Blood Drain");
             var hypnoticGaze = ActionLoader.GetAction("Hypnotic Gaze");
@@ -268,6 +348,9 @@ namespace RPGGame
             var enemy = new Enemy("Werewolf", level, 60 + level * 10, 16 + level * 2, 14 + level, 8 + level);
             enemy.ActionPool.Clear();
             
+            // Add a common weapon to the enemy
+            enemy.Weapon = GenerateCommonWeaponForEnemy("Werewolf", level);
+            
             var savageClaw = ActionLoader.GetAction("Savage Claw");
             var howl = ActionLoader.GetAction("Howl");
             var pounce = ActionLoader.GetAction("Pounce");
@@ -283,6 +366,9 @@ namespace RPGGame
         {
             var enemy = new Enemy("Gargoyle", level, 70 + level * 10, 14 + level * 2, 8 + level, 10 + level);
             enemy.ActionPool.Clear();
+            
+            // Add a common weapon to the enemy
+            enemy.Weapon = GenerateCommonWeaponForEnemy("Gargoyle", level);
             
             var stoneFist = ActionLoader.GetAction("Stone Fist");
             var petrify = ActionLoader.GetAction("Petrify");
@@ -300,6 +386,9 @@ namespace RPGGame
             var enemy = new Enemy("Mimic", level, 45 + level * 7, 10 + level, 8 + level, 12 + level);
             enemy.ActionPool.Clear();
             
+            // Add a common weapon to the enemy
+            enemy.Weapon = GenerateCommonWeaponForEnemy("Mimic", level);
+            
             var surpriseBite = ActionLoader.GetAction("Surprise Bite");
             var adhesiveTrap = ActionLoader.GetAction("Adhesive Trap");
             var disguise = ActionLoader.GetAction("Disguise");
@@ -316,6 +405,9 @@ namespace RPGGame
             var enemy = new Enemy("Elemental", level, 40 + level * 6, 8 + level, 10 + level, 16 + level);
             enemy.ActionPool.Clear();
             
+            // Add a common weapon to the enemy
+            enemy.Weapon = GenerateCommonWeaponForEnemy("Elemental", level);
+            
             var elementalBlast = ActionLoader.GetAction("Elemental Blast");
             var elementalShield = ActionLoader.GetAction("Elemental Shield");
             var elementalStorm = ActionLoader.GetAction("Elemental Storm");
@@ -325,6 +417,23 @@ namespace RPGGame
             if (elementalStorm != null) enemy.AddAction(elementalStorm, 0.2);
             
             return enemy;
+        }
+
+        /// <summary>
+        /// Loads weapon data from JSON file
+        /// </summary>
+        private static void LoadWeaponData()
+        {
+            string? filePath = JsonLoader.FindGameDataFile("Weapons.json");
+            if (filePath != null)
+            {
+                _weaponData = JsonLoader.LoadJsonList<WeaponData>(filePath);
+            }
+            else
+            {
+                UIManager.WriteLine("Error loading weapon data: Weapons.json not found", UIMessageType.System);
+                _weaponData = new List<WeaponData>();
+            }
         }
     }
 } 

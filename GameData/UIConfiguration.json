@@ -1,0 +1,30 @@
+{
+  "EnableDelays": true,
+  "FastCombat": false,
+  "DisableAllOutput": false,
+  "AddBlankLinesBetweenEntities": true,
+  "AddBlankLinesAfterEnvironmentalActions": true,
+  "AddBlankLinesAfterStunMessages": true,
+  "AddBlankLinesAfterDamageOverTime": true,
+  "BeatTiming": {
+    "CombatBeatLengthMs": 500,
+    "MenuBeatLengthMs": 20,
+    "BeatMultipliers": {
+      "Title": 10.0,
+      "MainTitle": 20.0,
+      "System": 1.0,
+      
+      "Combat": 0.1,
+      "Environmental": 1.5,
+      "EffectMessage": 0.4,
+      "DamageOverTime": 0.4,
+      "RollInfo": 1.0,
+      "Encounter": 1.0
+    }
+  },
+  "ShowTimingInfo": true,
+  "ShowEntityNames": true,
+  "ShowDetailedCombatInfo": true,
+  "GroupRelatedMessages": true,
+  "ShowStatusEffectIndentation": true
+}

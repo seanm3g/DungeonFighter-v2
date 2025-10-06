@@ -9,6 +9,9 @@ namespace RPGGame
     /// </summary>
     public class TurnManager
     {
+        // Flag to disable UI output during balance analysis
+        public static bool DisableCombatUIOutput = false;
+        
         private ActionSpeedSystem? actionSpeedSystem;
         private BattleHealthTracker? healthTracker;
         private Action? lastPlayerAction;
@@ -58,15 +61,20 @@ namespace RPGGame
         /// <param name="target">The target entity</param>
         /// <param name="action">The action to execute</param>
         /// <param name="environment">The environment affecting the action</param>
+        /// <param name="battleNarrative">The battle narrative to add events to</param>
         /// <returns>True if the entity is still alive after the turn</returns>
-        public bool ExecuteTurn(Entity entity, Entity target, Action action, Environment? environment = null)
+        public bool ExecuteTurn(Entity entity, Entity target, Action action, Environment? environment = null, BattleNarrative? battleNarrative = null)
         {
             if (actionSpeedSystem == null || healthTracker == null)
                 throw new InvalidOperationException("TurnManager not initialized. Call InitializeBattle() first.");
 
             // Execute the action
-            string result = CombatResults.ExecuteActionWithUI(entity, target, action, environment, lastPlayerAction);
-            UIManager.WriteCombatLine(result);
+            var (result, statusEffects) = CombatResults.ExecuteActionWithUIAndStatusEffects(entity, target, action, environment, lastPlayerAction, battleNarrative);
+            if (!DisableCombatUIOutput)
+            {
+                // Use TextDisplayIntegration for consistent entity tracking
+                TextDisplayIntegration.DisplayCombatAction(result, new List<string>(), statusEffects, entity.Name);
+            }
 
             // Track last player action for DEJA VU functionality
             if (entity is Character)
@@ -98,7 +106,10 @@ namespace RPGGame
             }
             if (playerResults.Count > 0)
             {
-                UIManager.WriteGroup(playerResults.ToArray());
+                foreach (var result in playerResults)
+                {
+                    UIManager.WriteDamageOverTimeLine(result);
+                }
             }
             
             // Process effects for enemy (only if living)
@@ -112,7 +123,10 @@ namespace RPGGame
                 }
                 if (enemyResults.Count > 0)
                 {
-                    UIManager.WriteGroup(enemyResults.ToArray());
+                    foreach (var result in enemyResults)
+                    {
+                        UIManager.WriteDamageOverTimeLine(result);
+                    }
                 }
             }
         }
@@ -133,7 +147,9 @@ namespace RPGGame
                 if (actualRegen > 0)
                 {
                     player.Heal(actualRegen);
-                    UIManager.WriteCombatLine($"[{player.Name}] regenerates {actualRegen} health ({player.CurrentHealth}/{player.GetEffectiveMaxHealth()})");
+                    // Use TextDisplayIntegration for consistent entity tracking
+                    string regenMessage = $"[{player.Name}] regenerates {actualRegen} health ({player.CurrentHealth}/{player.GetEffectiveMaxHealth()})";
+                    TextDisplayIntegration.DisplayCombatAction(regenMessage, new List<string>(), new List<string>(), player.Name);
                 }
             }
         }
@@ -151,7 +167,8 @@ namespace RPGGame
             var events = healthTracker.CheckHealthMilestones(entity, damageAmount);
             foreach (var evt in events)
             {
-                UIManager.WriteCombatLine(evt);
+                // Use TextDisplayIntegration for consistent entity tracking
+                TextDisplayIntegration.DisplayCombatAction(evt, new List<string>(), new List<string>(), entity.Name);
             }
         }
 

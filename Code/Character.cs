@@ -13,6 +13,9 @@ namespace RPGGame
 
     public class Character : Entity, IComboMemory
     {
+        // Flag to disable debug output during balance analysis
+        public static bool DisableCharacterCreationDebug = false;
+        
         // Core components using composition
         public CharacterStats Stats { get; private set; }
         public CharacterEffects Effects { get; private set; }
@@ -43,15 +46,11 @@ namespace RPGGame
             CurrentHealth = MaxHealth;
 
             // Add default actions
-            if (GameConfiguration.IsDebugEnabled)
-                UIManager.WriteLine($"DEBUG: Character created, adding default actions...");
             Actions.AddDefaultActions(this);
-            if (GameConfiguration.IsDebugEnabled)
-                UIManager.WriteLine($"DEBUG: After AddDefaultActions, ActionPool has {ActionPool.Count} actions");
-            
             Actions.AddClassActions(this, Progression, null);
-            if (GameConfiguration.IsDebugEnabled)
-                UIManager.WriteLine($"DEBUG: After AddClassActions, ActionPool has {ActionPool.Count} actions");
+            
+            // Initialize default combo sequence
+            Actions.InitializeDefaultCombo(this, Equipment.Weapon as WeaponItem);
         }
 
         // IComboMemory implementation
@@ -82,7 +81,9 @@ namespace RPGGame
                 shieldUsed = true;
                 
                 // Display shield message
-                UIManager.WriteCombatLine($"[{Name}]'s Arcane Shield reduces damage by {shieldReduction}!");
+                // Use TextDisplayIntegration for consistent entity tracking
+                string shieldMessage = $"[{Name}]'s Arcane Shield reduces damage by {shieldReduction}!";
+                TextDisplayIntegration.DisplayCombatAction(shieldMessage, new List<string>(), new List<string>(), Name);
             }
             
             // Apply damage reduction if active
@@ -256,6 +257,10 @@ namespace RPGGame
                     Actions.AddArmorActions(this, newItem);
                 }
             }
+
+            // CRITICAL: Ensure BASIC ATTACK is always available after equipment changes
+            // This prevents the issue where rolls 6-13 can't find BASIC ATTACK
+            Actions.EnsureBasicAttackAvailable(this);
 
             // Update combo sequence after equipment change
             Actions.UpdateComboSequenceAfterGearChange(this);
@@ -640,8 +645,11 @@ namespace RPGGame
 
         public int GetAttacksPerTurn()
         {
-            double attackSpeed = GetTotalAttackSpeed();
-            int attacks = (int)Math.Floor(attackSpeed);
+            double attackTime = GetTotalAttackSpeed();
+            // Attack time is in seconds, so we need to calculate how many attacks fit in a reasonable turn duration
+            // Assuming a turn is roughly 10 seconds, calculate attacks per turn
+            double turnDuration = 10.0; // 10 second turns
+            int attacks = (int)Math.Floor(turnDuration / attackTime);
             return Math.Max(1, attacks); // Always at least 1 attack
         }
 

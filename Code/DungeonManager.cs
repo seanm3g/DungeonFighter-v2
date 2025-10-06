@@ -87,7 +87,7 @@ namespace RPGGame
         public Dungeon ChooseDungeon(List<Dungeon> availableDungeons)
         {
             UIManager.WriteMenuLine("\nAvailable Dungeons:");
-            UIManager.WriteMenuLine("");
+            UIManager.WriteMenuLine("--------------------------");
             for (int i = 0; i < availableDungeons.Count; i++)
             {
                 var d = availableDungeons[i];
@@ -115,7 +115,7 @@ namespace RPGGame
         /// <param name="availableDungeons">Available dungeons to determine dungeon level</param>
         public void AwardLootAndXP(Character player, List<Item> inventory, List<Dungeon> availableDungeons)
         {
-            UIManager.WriteLine("\nDungeon completed!");
+            UIManager.WriteSystemLine("\nDungeon completed!");
             
             // Heal character back to max health between dungeons
             int effectiveMaxHealth = player.GetEffectiveMaxHealth();
@@ -123,14 +123,14 @@ namespace RPGGame
             if (healthRestored > 0)
             {
                 player.Heal(healthRestored);
-                UIManager.WriteLine($"You have been fully healed! (+{healthRestored} health)");
+                UIManager.WriteSystemLine($"You have been fully healed! (+{healthRestored} health)");
             }
             
             // Award XP (scaled by dungeon level using tuning config)
             var tuning = GameConfiguration.Instance;
             int xpReward = random.Next(tuning.Progression.EnemyXPBase, tuning.Progression.EnemyXPBase + 50) * player.Level;
             player.AddXP(xpReward);
-            UIManager.WriteLine($"Gained {xpReward} XP!");
+            UIManager.WriteSystemLine($"Gained {xpReward} XP!");
             UIManager.WriteBlankLine(); // Blank line between XP and loot
 
             if (player.Level > 1)
@@ -183,7 +183,11 @@ namespace RPGGame
                 // Add to both inventories
                 player.AddToInventory(reward);
                 inventory.Add(reward);
-                UIManager.WriteSystemLine($"You found: {reward.Name}");
+                
+                // Display "You found:" with half beat delay
+                UIManager.WriteSystemLine("You found:");
+                // Display item name with 2x beat delay (using title delay which is longer)
+                UIManager.WriteTitleLine(reward.Name);
             }
             else
             {
@@ -207,9 +211,11 @@ namespace RPGGame
             foreach (Environment room in selectedDungeon.Rooms)
             {
                 UIManager.WriteRoomLine($"\nEntering room: {room.Name}");
+                UIManager.ApplyDelay(UIMessageType.Encounter); // Add configurable delay after encounter message
+
                 UIManager.WriteRoomLine("");
                 UIManager.WriteRoomLine(room.Description);
-                
+                UIManager.ApplyDelay(UIMessageType.Encounter);
                 // Clear all temporary effects when entering a new room
                 player.ClearAllTempEffects();
 
@@ -218,11 +224,19 @@ namespace RPGGame
                     Enemy? currentEnemy = room.GetNextLivingEnemy();
                     if (currentEnemy == null) break;
 
-                    UIManager.WriteEnemyLine($"\nEncountered [{currentEnemy.Name}]!");
+                    // Display enemy encounter with weapon information
+                    string enemyWeaponInfo = "";
+                    if (currentEnemy.Weapon != null)
+                    {
+                        enemyWeaponInfo = $" with {currentEnemy.Weapon.Name}";
+                    }
+                    UIManager.WriteEnemyLine($"\nEncountered [{currentEnemy.Name}]{enemyWeaponInfo}!");
+                    UIManager.ApplyDelay(UIMessageType.Encounter); // Add configurable delay after encounter message
                     UIManager.WriteBlankLine(); // Blank line between "Encountered" and stats
-                    UIManager.WriteMenuLine($"Hero Stats - Health: {player.CurrentHealth}/{player.GetEffectiveMaxHealth()}, Armor: {player.GetTotalArmor()}, Attack: STR {player.GetEffectiveStrength()}, AGI {player.GetEffectiveAgility()}, TEC {player.GetEffectiveTechnique()}, INT {player.GetEffectiveIntelligence()}, Attack Time: {player.GetTotalAttackSpeed():F2}s");
-                    UIManager.WriteMenuLine($"Enemy Stats - Health: {currentEnemy.CurrentHealth}/{currentEnemy.MaxHealth}, Armor: {currentEnemy.Armor}, Attack: STR {currentEnemy.Strength}, AGI {currentEnemy.Agility}, TEC {currentEnemy.Technique}, INT {currentEnemy.Intelligence}, Attack Time: {currentEnemy.GetTotalAttackSpeed():F2}s");
-                    
+                    UIManager.WriteSystemLine($"Hero Stats - Health: {player.CurrentHealth}/{player.GetEffectiveMaxHealth()}, Armor: {player.GetTotalArmor()}, Attack: STR {player.GetEffectiveStrength()}, AGI {player.GetEffectiveAgility()}, TEC {player.GetEffectiveTechnique()}, INT {player.GetEffectiveIntelligence()}, Attack Time: {player.GetTotalAttackSpeed():F2}s");
+                    UIManager.WriteSystemLine($"Enemy Stats - Health: {currentEnemy.CurrentHealth}/{currentEnemy.MaxHealth}, Armor: {currentEnemy.Armor}, Attack: STR {currentEnemy.Strength}, AGI {currentEnemy.Agility}, TEC {currentEnemy.Technique}, INT {currentEnemy.Intelligence}, Attack Time: {currentEnemy.GetTotalAttackSpeed():F2}s");
+                    UIManager.ApplyDelay(UIMessageType.Encounter); // Add configurable delay after encounter message
+
                     // Show action speed info
                     var speedSystem = combatManager.GetCurrentActionSpeedSystem();
                     if (speedSystem != null)
@@ -242,14 +256,17 @@ namespace RPGGame
                     
                     if (!playerSurvived)
                     {
-                        UIManager.WriteCombatLine("\nYou have been defeated!");
+                        // Use TextDisplayIntegration for consistent entity tracking
+                        TextDisplayIntegration.DisplayCombatAction("\nYou have been defeated!", new List<string>(), new List<string>(), "System");
                         // Delete save file when character dies
                         Character.DeleteSaveFile();
                         return false; // Player died
                     }
                     else
                     {
-                        UIManager.WriteCombatLine($"\n[{currentEnemy.Name}] has been defeated!");
+                        // Use TextDisplayIntegration for consistent entity tracking
+                        string defeatMessage = $"\n[{currentEnemy.Name}] has been defeated!";
+                        TextDisplayIntegration.DisplayCombatAction(defeatMessage, new List<string>(), new List<string>(), "System");
                         player.AddXP(currentEnemy.XPReward);
                     }
                     
@@ -261,7 +278,6 @@ namespace RPGGame
                     }
                 }
 
-                UIManager.WriteBlankLine(); // Add blank line before room cleared message
                 UIManager.WriteRoomClearedLine($"Remaining Health: {player.CurrentHealth}/{player.GetEffectiveMaxHealth()}");
                 UIManager.WriteRoomClearedLine("Room cleared!");
                 

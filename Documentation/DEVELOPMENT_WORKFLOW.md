@@ -293,6 +293,18 @@ dotnet clean
 dotnet build
 ```
 
+### Process Management Commands
+```bash
+# Kill all DungeonFighter processes (use @kill.mdc in chat)
+Get-Process | Where-Object {$_.ProcessName -like "*dotnet*" -or $_.ProcessName -like "*Code*" -or $_.ProcessName -like "*DF4*"} | Stop-Process -Force
+
+# Find running processes
+Get-Process | Where-Object {$_.ProcessName -like "*dotnet*"} | Select-Object ProcessName, Id, CPU, WorkingSet
+
+# Kill specific process by ID
+Stop-Process -Id [ProcessID] -Force
+```
+
 ### Debugging Commands
 ```csharp
 // Enable debug logging
@@ -357,6 +369,12 @@ EnemyBalanceCalculator.AnalyzeBalance();
 2. **Check File Paths**: Ensure GameData files are accessible
 3. **Enable Debug Logging**: Use debug tools to trace issues
 4. **Check Error Logs**: Review error messages for clues
+
+### Process Management Issues
+1. **Game Locked Error**: Use `@kill.mdc` in chat to terminate all DungeonFighter processes
+2. **Multiple Instances**: Check for running dotnet processes and terminate them
+3. **Stuck Processes**: Use Ctrl+C or close terminal windows to force terminate
+4. **Background Processes**: Use Task Manager or PowerShell to find and kill processes
 
 ## Continuous Improvement
 

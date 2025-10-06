@@ -100,8 +100,6 @@ namespace RPGGame
                         }
                     }
                     
-                    if (GameConfiguration.IsDebugEnabled)
-                        UIManager.WriteSystemLine($"DEBUG: ActionLoader loaded {_actions.Count} actions successfully");
                 }
                 else
                 {
@@ -321,15 +319,11 @@ namespace RPGGame
         {
             if (_actions == null)
             {
-                if (GameConfiguration.IsDebugEnabled)
-                    UIManager.WriteSystemLine("DEBUG: ActionLoader._actions is null, calling LoadActions()");
                 LoadActions();
             }
             var actions = new List<Action>();
             if (_actions != null)
             {
-                if (GameConfiguration.IsDebugEnabled)
-                    UIManager.WriteSystemLine($"DEBUG: ActionLoader has {_actions.Count} actions loaded");
                 foreach (var actionData in _actions.Values)
                 {
                     actions.Add(CreateActionFromData(actionData));
@@ -337,11 +331,7 @@ namespace RPGGame
             }
             else
             {
-                if (GameConfiguration.IsDebugEnabled)
-                    UIManager.WriteSystemLine("DEBUG: ActionLoader._actions is still null after LoadActions()");
             }
-            if (GameConfiguration.IsDebugEnabled)
-                UIManager.WriteSystemLine($"DEBUG: GetAllActions() returning {actions.Count} actions");
             return actions;
         }
 

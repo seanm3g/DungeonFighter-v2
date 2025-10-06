@@ -12,14 +12,12 @@ namespace RPGGame
     public class GameMenuManager
     {
         private GameInitializer gameInitializer;
-        private DungeonManager dungeonManager;
-        private CombatManager combatManager;
+        private GameLoopManager gameLoopManager;
 
         public GameMenuManager()
         {
             gameInitializer = new GameInitializer();
-            dungeonManager = new DungeonManager();
-            combatManager = new CombatManager();
+            gameLoopManager = new GameLoopManager();
         }
 
         /// <summary>
@@ -29,24 +27,15 @@ namespace RPGGame
         {
             while (true)
             {
-                UIManager.WriteTitleLine("\nDUNGEON FIGHTER\n");
-
-                UIManager.WriteMenuLine("1. New Game");
-                
-                // Check if there's a saved character and display info
+                // Get saved character info
                 var (characterName, characterLevel) = GetSavedCharacterInfo();
-                if (characterName != null)
-                {
-                    UIManager.WriteMenuLine($"2. Load Game - {characterName} - Level {characterLevel}");
-                }
-                else
-                {
-                    UIManager.WriteMenuLine("2. Load Game");
-                }
+                bool hasSavedGame = characterName != null;
                 
-                UIManager.WriteMenuLine("3. Settings");
-                UIManager.WriteMenuLine("4. Exit\n");
-                UIManager.Write("Choose an option: ");
+                // Get menu options from configuration
+                var menuOptions = MenuConfiguration.GetMainMenuOptions(hasSavedGame, characterName, characterLevel);
+                
+                TextDisplayIntegration.DisplayMenu("\nDUNGEON FIGHTER", menuOptions);
+                Console.Write("Choose an option: ");
 
                 string? choice = Console.ReadLine();
                 switch (choice)
@@ -60,17 +49,18 @@ namespace RPGGame
                     case "3":
                         ShowSettings();
                         break;
-                    case "4":
-                        UIManager.WriteBlankLine();
-                        UIManager.WriteLine("Goodbye!");
-                        UIManager.WriteBlankLine();
+                    case "0":
+                        TextDisplayIntegration.DisplayBlankLine();
+                        TextDisplayIntegration.DisplaySystem("Goodbye!");
+                        TextDisplayIntegration.DisplayBlankLine();
                         return;
                     default:
-                        UIManager.WriteLine("Invalid choice. Please try again.");
+                        TextDisplayIntegration.DisplaySystem("Invalid choice. Please try again.");
                         break;
                 }
             }
         }
+
 
         /// <summary>
         /// Starts a new game with character creation
@@ -118,87 +108,23 @@ namespace RPGGame
             }
             else
             {
-                UIManager.WriteLine("No saved character found. Starting new game instead...");
-                UIManager.WriteLine("Press any key to continue...");
+                TextDisplayIntegration.DisplaySystem("No saved character found. Starting new game instead...");
+                TextDisplayIntegration.DisplaySystem("Press any key to continue...");
                 Console.ReadKey();
                 StartNewGame();
             }
         }
 
         /// <summary>
-        /// Runs the main game loop
+        /// Runs the main game loop using the GameLoopManager
         /// </summary>
         /// <param name="player">The player character</param>
         /// <param name="inventory">Player's inventory</param>
         /// <param name="availableDungeons">Available dungeons list</param>
         public void RunGame(Character player, List<Item> inventory, List<Dungeon> availableDungeons)
         {
-            UIManager.WriteBlankLine();
-            UIManager.WriteTitleLine(player.GetFullNameWithQualifier());
-            UIManager.WriteTitleLine("\nWelcome to...\n");
-            UIManager.WriteTitleLine("DUNGEON FIGHTER\n");
-
-            while (true)
-            {
-                // Ask if player wants to manage gear first
-                UIManager.WriteTitleLine("\nWhat would you like to do?");
-                UIManager.WriteMenuLine("");
-                UIManager.WriteMenuLine("1. Choose a Dungeon");
-                UIManager.WriteMenuLine("2. Inventory");
-                UIManager.WriteMenuLine("3. Exit Game and save");
-                UIManager.WriteMenuLine("");
-                UIManager.Write("Enter your choice: ");
-
-                if (int.TryParse(Console.ReadLine(), out int initialChoice))
-                {
-                    switch (initialChoice)
-                    {
-                        case 1:
-                            // Go straight to dungeon selection
-                            break;
-                        case 2:
-                            var inventoryManager = new InventoryManager(player, inventory);
-                            bool continueToDungeon = inventoryManager.ShowGearMenu();
-                            if (!continueToDungeon)
-                            {
-                                continue; // Return to main menu instead of going to dungeon
-                            }
-                            // Fall through to dungeon selection
-                            break;
-                        case 3:
-                            UIManager.WriteLine("Saving game before exit...");
-                            player.SaveCharacter();
-                            UIManager.WriteLine("Game saved! Thanks for playing!");
-                            return;
-                        default:
-                            UIManager.WriteLine("Invalid choice. Please enter 1, 2, or 3.");
-                            continue; // Continue the loop instead of exiting
-                    }
-                }
-                else
-                {
-                    UIManager.WriteLine("Invalid input. Please enter a number (1, 2, or 3).");
-                    continue; // Continue the loop instead of exiting
-                }
-
-                // Regenerate dungeons based on current player level
-                dungeonManager.RegenerateDungeons(player, availableDungeons);
-
-                // Dungeon Selection and Run
-                Dungeon selectedDungeon = dungeonManager.ChooseDungeon(availableDungeons);
-                selectedDungeon.Generate();
-
-                // Run the complete dungeon
-                bool playerSurvivedDungeon = dungeonManager.RunDungeon(selectedDungeon, player, combatManager);
-                
-                if (!playerSurvivedDungeon)
-                {
-                    return; // Player died, game ends
-                }
-
-                // Dungeon Completion
-                dungeonManager.AwardLootAndXP(player, inventory, availableDungeons);
-            }
+            // Delegate to GameLoopManager for the actual game loop logic
+            gameLoopManager.RunGameLoop(player, inventory, availableDungeons);
         }
 
         /// <summary>

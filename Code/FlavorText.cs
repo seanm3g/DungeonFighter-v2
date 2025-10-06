@@ -13,6 +13,8 @@ namespace RPGGame
         public EnvironmentsData Environments { get; set; } = new();
         [JsonPropertyName("classQualifiers")]
         public ClassQualifiersData ClassQualifiers { get; set; } = new();
+        [JsonPropertyName("combatNarratives")]
+        public CombatNarrativesData CombatNarratives { get; set; } = new();
     }
 
     public class NamesData
@@ -69,6 +71,24 @@ namespace RPGGame
         public string[] Wizard { get; set; } = Array.Empty<string>();
         [JsonPropertyName("fighter")]
         public string[] Fighter { get; set; } = Array.Empty<string>();
+    }
+
+    public class CombatNarrativesData
+    {
+        [JsonPropertyName("firstBlood")]
+        public string[] FirstBlood { get; set; } = Array.Empty<string>();
+        [JsonPropertyName("healthRecovery")]
+        public string[] HealthRecovery { get; set; } = Array.Empty<string>();
+        [JsonPropertyName("below50Percent")]
+        public string[] Below50Percent { get; set; } = Array.Empty<string>();
+        [JsonPropertyName("below10Percent")]
+        public string[] Below10Percent { get; set; } = Array.Empty<string>();
+        [JsonPropertyName("criticalHit")]
+        public string[] CriticalHit { get; set; } = Array.Empty<string>();
+        [JsonPropertyName("enemyDefeated")]
+        public string[] EnemyDefeated { get; set; } = Array.Empty<string>();
+        [JsonPropertyName("playerDefeated")]
+        public string[] PlayerDefeated { get; set; } = Array.Empty<string>();
     }
 
     public static class FlavorText

@@ -7,47 +7,43 @@ using System.Text.Json.Serialization;
 
 namespace RPGGame
 {
-    public class EnemyStats
-    {
-        [JsonPropertyName("strength")]
-        public int Strength { get; set; }
-        [JsonPropertyName("agility")]
-        public int Agility { get; set; }
-        [JsonPropertyName("technique")]
-        public int Technique { get; set; }
-        [JsonPropertyName("intelligence")]
-        public int Intelligence { get; set; } = 4; // Default value if not specified
-    }
 
     public class EnemyData
     {
         [JsonPropertyName("name")]
         public string Name { get; set; } = "";
-        [JsonPropertyName("baseLevel")]
-        public int BaseLevel { get; set; }
-        [JsonPropertyName("baseHealth")]
-        public int BaseHealth { get; set; }
-        [JsonPropertyName("baseStats")]
-        public EnemyStats BaseStats { get; set; } = new EnemyStats();
-        [JsonPropertyName("baseArmor")]
-        public int BaseArmor { get; set; }
+        [JsonPropertyName("archetype")]
+        public string Archetype { get; set; } = "Berserker"; // Default archetype
+        [JsonPropertyName("overrides")]
+        public StatOverridesConfig? Overrides { get; set; }
         [JsonPropertyName("actions")]
         public List<string> Actions { get; set; } = new List<string>();
-        [JsonPropertyName("primaryAttribute")]
-        public string PrimaryAttribute { get; set; } = "Strength"; // Default to Strength if not specified
         [JsonPropertyName("isLiving")]
         public bool IsLiving { get; set; } = true; // Default to living if not specified
-        
-        // Convenience properties for backward compatibility
-        public int Strength => BaseStats.Strength;
-        public int Agility => BaseStats.Agility;
-        public int Technique => BaseStats.Technique;
-        public int Intelligence => BaseStats.Intelligence;
-        public int Armor => BaseArmor;
+        [JsonPropertyName("description")]
+        public string Description { get; set; } = "";
+    }
+
+    public class StatOverridesConfig
+    {
+        [JsonPropertyName("health")]
+        public double? Health { get; set; }
+        [JsonPropertyName("strength")]
+        public double? Strength { get; set; }
+        [JsonPropertyName("agility")]
+        public double? Agility { get; set; }
+        [JsonPropertyName("technique")]
+        public double? Technique { get; set; }
+        [JsonPropertyName("intelligence")]
+        public double? Intelligence { get; set; }
+        [JsonPropertyName("armor")]
+        public double? Armor { get; set; }
     }
 
     public static class EnemyLoader
     {
+        private static List<WeaponData>? _weaponData;
+
         private static Dictionary<string, EnemyData>? _enemies;
         private static readonly string[] PossibleEnemyPaths = {
             Path.Combine("GameData", "Enemies.json"),
@@ -141,32 +137,147 @@ namespace RPGGame
 
         private static Enemy CreateEnemyFromData(EnemyData data, int level)
         {
-            // Determine archetype first
-            var suggestedArchetype = EnemyDPSCalculator.SuggestArchetypeForEnemy(data.Name, data.Strength, data.Agility, data.Technique, data.Intelligence);
+            var tuning = GameConfiguration.Instance;
             
-            // Use new layered balance calculation system
-            var baseStats = new EnemyBaseStats
+            // Only use the new archetype-based system
+            if (!string.IsNullOrEmpty(data.Archetype) && tuning.EnemyBaseline != null && tuning.EnemyArchetypes != null && 
+                IsValidArchetype(data.Archetype))
             {
-                Strength = data.Strength,
-                Agility = data.Agility,
-                Technique = data.Technique,
-                Intelligence = data.Intelligence
+                return CreateEnemyWithNewSystem(data, level, tuning);
+            }
+            else
+            {
+                // If no valid archetype, create a basic enemy with default stats
+                UIManager.WriteSystemLine($"Warning: Enemy '{data.Name}' has invalid archetype '{data.Archetype}'. Using default Berserker archetype.");
+                data.Archetype = "Berserker";
+                return CreateEnemyWithNewSystem(data, level, tuning);
+            }
+        }
+
+        private static Enemy CreateEnemyWithNewSystem(EnemyData data, int level, GameConfiguration tuning)
+        {
+            // 1. Start with baseline stats
+            var baseline = tuning.EnemyBaseline.BaseStats;
+            var scaling = tuning.EnemyBaseline.ScalingPerLevel;
+            
+            // 2. Apply archetype multipliers
+            var archetype = tuning.EnemyArchetypes.Archetypes.GetValueOrDefault(data.Archetype);
+            if (archetype == null)
+            {
+                // Fallback to Warrior archetype if not found
+                archetype = tuning.EnemyArchetypes.Archetypes.GetValueOrDefault("Warrior") ?? new EnemyArchetypeConfig();
+            }
+            
+            var archetypeMultipliers = archetype.StatMultipliers;
+            
+            // 3. Apply individual enemy overrides
+            var overrides = data.Overrides ?? new StatOverridesConfig();
+            
+            // 4. Calculate final stats
+            var baseHealth = (int)(baseline.Health * archetypeMultipliers.Health * (overrides.Health ?? 1.0));
+            var baseStrength = (int)(baseline.Strength * archetypeMultipliers.Strength * (overrides.Strength ?? 1.0));
+            var baseAgility = (int)(baseline.Agility * archetypeMultipliers.Agility * (overrides.Agility ?? 1.0));
+            var baseTechnique = (int)(baseline.Technique * archetypeMultipliers.Technique * (overrides.Technique ?? 1.0));
+            var baseIntelligence = (int)(baseline.Intelligence * archetypeMultipliers.Intelligence * (overrides.Intelligence ?? 1.0));
+            var baseArmor = (int)(baseline.Armor * archetypeMultipliers.Armor * (overrides.Armor ?? 1.0));
+            
+            // 5. Scale by level
+            var calculatedStats = new
+            {
+                Health = baseHealth + (level - 1) * scaling.Health,
+                Strength = baseStrength + (level - 1) * scaling.Attributes,
+                Agility = baseAgility + (level - 1) * scaling.Attributes,
+                Technique = baseTechnique + (level - 1) * scaling.Attributes,
+                Intelligence = baseIntelligence + (level - 1) * scaling.Attributes,
+                Armor = (int)(baseArmor + (level - 1) * scaling.Armor)
             };
             
-            var calculatedStats = EnemyBalanceCalculator.CalculateStats(level, suggestedArchetype, baseStats);
+            // Determine primary attribute based on highest stat
+            var primaryAttribute = DeterminePrimaryAttribute(calculatedStats.Strength, calculatedStats.Agility, calculatedStats.Technique, calculatedStats.Intelligence);
             
-            // Parse the primary attribute string to enum
-            PrimaryAttribute primaryAttribute = PrimaryAttribute.Strength; // Default
-            if (Enum.TryParse<PrimaryAttribute>(data.PrimaryAttribute, out var parsedAttribute))
+            // Convert archetype string to enum
+            var enemyArchetype = ConvertStringToEnemyArchetype(data.Archetype);
+            
+            var enemy = new Enemy(data.Name, level, calculatedStats.Health, calculatedStats.Strength, calculatedStats.Agility, calculatedStats.Technique, calculatedStats.Intelligence, calculatedStats.Armor, primaryAttribute, data.IsLiving, enemyArchetype);
+            
+            // Add a common-tier weapon to the enemy (same system as heroes)
+            var enemyWeapon = GenerateCommonWeaponForEnemy(data.Name, enemy.Level);
+            enemy.Weapon = enemyWeapon;
+            
+            // Add actions to the enemy
+            AddActionsToEnemy(enemy, data);
+            
+            return enemy;
+        }
+
+
+        private static PrimaryAttribute DeterminePrimaryAttribute(int strength, int agility, int technique, int intelligence)
+        {
+            var stats = new[] { (strength, PrimaryAttribute.Strength), (agility, PrimaryAttribute.Agility), (technique, PrimaryAttribute.Technique), (intelligence, PrimaryAttribute.Intelligence) };
+            return stats.OrderByDescending(s => s.Item1).First().Item2;
+        }
+
+        /// <summary>
+        /// Generates a common-tier weapon for an enemy
+        /// </summary>
+        /// <param name="enemyName">The name of the enemy</param>
+        /// <param name="enemyLevel">The level of the enemy</param>
+        /// <returns>A common-tier weapon appropriate for the enemy</returns>
+        private static WeaponItem GenerateCommonWeaponForEnemy(string enemyName, int enemyLevel)
+        {
+            // Load weapon data if not already loaded
+            if (_weaponData == null)
             {
-                primaryAttribute = parsedAttribute;
+                LoadWeaponData();
             }
 
-            var enemy = new Enemy(data.Name, level, calculatedStats.Health, calculatedStats.Strength, calculatedStats.Agility, calculatedStats.Technique, calculatedStats.Intelligence, calculatedStats.Armor, primaryAttribute, data.IsLiving, suggestedArchetype);
+            // Get only tier 1 (common) weapons
+            var commonWeapons = _weaponData?.Where(w => w.Tier == 1).ToList() ?? new List<WeaponData>();
             
-            // Apply DPS-based scaling to set target values
-            EnemyDPSSystem.ApplyDPSScaling(enemy);
+            if (!commonWeapons.Any())
+            {
+                // Fallback to basic weapon if no common weapons found
+                return new WeaponItem($"{enemyName} Weapon", 1, 6, 0.0, WeaponType.Sword);
+            }
+
+            // Select a random common weapon
+            var selectedWeapon = commonWeapons[RandomUtility.Next(commonWeapons.Count)];
             
+            // Generate the weapon item
+            var weapon = ItemGenerator.GenerateWeaponItem(selectedWeapon);
+            
+            // Ensure it's marked as common rarity
+            weapon.Rarity = "Common";
+            
+            return weapon;
+        }
+
+        private static bool IsValidArchetype(string archetypeString)
+        {
+            return archetypeString.ToLower() switch
+            {
+                "berserker" => true,
+                "guardian" => true,
+                "assassin" => true,
+                "brute" => true,
+                _ => false
+            };
+        }
+
+        private static EnemyArchetype ConvertStringToEnemyArchetype(string archetypeString)
+        {
+            return archetypeString.ToLower() switch
+            {
+                "berserker" => EnemyArchetype.Berserker,
+                "guardian" => EnemyArchetype.Guardian,
+                "assassin" => EnemyArchetype.Assassin,
+                "brute" => EnemyArchetype.Brute,
+                _ => EnemyArchetype.Berserker
+            };
+        }
+
+        private static void AddActionsToEnemy(Enemy enemy, EnemyData data)
+        {
             // Clear default actions and add actions from the data
             enemy.ActionPool.Clear();
             foreach (var actionName in data.Actions)
@@ -191,7 +302,37 @@ namespace RPGGame
                 }
             }
 
-            return enemy;
+            // Ensure ALL enemies have a BASIC ATTACK action
+            bool hasBasicAttack = enemy.ActionPool.Any(a => string.Equals(a.action.Name, "BASIC ATTACK", StringComparison.OrdinalIgnoreCase));
+            if (!hasBasicAttack)
+            {
+                // Try to inject BASIC ATTACK from actions data
+                var basic = ActionLoader.GetAction("BASIC ATTACK");
+                if (basic != null)
+                {
+                    enemy.AddAction(basic, 1.0);
+                }
+                else
+                {
+                    // Final fallback: create a simple basic attack
+                    var createdBasic = new Action(
+                        name: "BASIC ATTACK",
+                        type: ActionType.Attack,
+                        targetType: TargetType.SingleTarget,
+                        baseValue: 8,
+                        range: 1,
+                        description: "A standard physical attack"
+                    );
+                    enemy.AddAction(createdBasic, 1.0);
+                }
+            }
+
+            // Additional safeguard: ensure enemy has at least one damaging action (Attack or Spell)
+            bool hasDamagingAction = enemy.ActionPool.Any(a => a.action.Type == ActionType.Attack || a.action.Type == ActionType.Spell);
+            if (!hasDamagingAction)
+            {
+                UIManager.WriteSystemLine($"Warning: Enemy '{data.Name}' still has no damaging actions after adding BASIC ATTACK.");
+            }
         }
 
         public static bool HasEnemy(string enemyType)
@@ -263,6 +404,41 @@ namespace RPGGame
             }
 
             return _enemies?.Values.ToList() ?? new List<EnemyData>();
+        }
+
+        /// <summary>
+        /// Suggests an archetype for an enemy based on their stats
+        /// </summary>
+        private static EnemyArchetype SuggestArchetypeForEnemy(string name, int strength, int agility, int technique, int intelligence)
+        {
+            // Simple archetype suggestion based on primary stat
+            int maxStat = Math.Max(Math.Max(strength, agility), Math.Max(technique, intelligence));
+            
+            if (maxStat == strength)
+                return EnemyArchetype.Brute;
+            else if (maxStat == agility)
+                return EnemyArchetype.Assassin;
+            else if (maxStat == technique)
+                return EnemyArchetype.Berserker;
+            else
+                return EnemyArchetype.Guardian;
+        }
+
+        /// <summary>
+        /// Loads weapon data from JSON file
+        /// </summary>
+        private static void LoadWeaponData()
+        {
+            string? filePath = JsonLoader.FindGameDataFile("Weapons.json");
+            if (filePath != null)
+            {
+                _weaponData = JsonLoader.LoadJsonList<WeaponData>(filePath);
+            }
+            else
+            {
+                UIManager.WriteLine("Error loading weapon data: Weapons.json not found", UIMessageType.System);
+                _weaponData = new List<WeaponData>();
+            }
         }
     }
 } 

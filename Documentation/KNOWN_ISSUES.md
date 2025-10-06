@@ -9,8 +9,18 @@ Track of known problems, their status, and potential solutions.
 
 ## High Priority Issues
 
-### None Currently Known
-*No high priority issues identified at this time.*
+### Issue: Validate enemy action sets include damage
+**Status**: IN_PROGRESS
+**Priority**: HIGH
+**Description**: Some enemies defined only utility/debuff actions which could lead to unwinnable (for enemy) encounters.
+
+**Mitigation**:
+- Data fix to include at least one damaging action per enemy (e.g., added `POISON BITE` to `Prism Spider`).
+- Loader safeguard injects `BASIC ATTACK` if missing.
+- Test `--test-enemies` validates configuration.
+
+**Next Steps**:
+- Keep validation test in CI/regression runs.
 
 ## Medium Priority Issues
 
@@ -78,6 +88,30 @@ Track of known problems, their status, and potential solutions.
 3. Updated action damage calculations
 
 **Verification**: Action damage now balanced with basic attacks.
+
+### Issue: Armor Generation Amplifying Corrupted Values
+**Status**: ✅ RESOLVED
+**Date Resolved**: Recent
+**Description**: Armor generation system was amplifying existing corrupted values instead of generating proper base values, creating massive numbers like 30,130,992 for Tier 2 armor.
+
+**Root Causes**:
+1. `GenerateArmorFromConfig` method was multiplying existing armor values by tier multipliers
+2. System was using corrupted existing values as base instead of generating clean base values
+3. No proper base value lookup system for different tiers and slots
+
+**Solution**:
+1. Replaced amplification logic with proper base value generation
+2. Created `GetBaseArmorForTierAndSlot` method with predefined base values
+3. Implemented tier-based armor progression (Tier 1: 2/4/2, Tier 2: 4/8/4, etc.)
+4. Added fallback calculation for unknown tier/slot combinations
+
+**Verification**: Armor values now generate reasonable numbers (Tier 2 head: 4 instead of 30,130,992).
+
+**Related Files**:
+- `Code/GameDataGenerator.cs` (GenerateArmorFromConfig method)
+- `GameData/Armor.json` (generated armor values)
+
+**Prevention**: Always use base value generation instead of amplifying existing values in data generation systems.
 
 ## Issue Tracking Template
 

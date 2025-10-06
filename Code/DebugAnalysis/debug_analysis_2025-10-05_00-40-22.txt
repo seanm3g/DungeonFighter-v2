@@ -1,0 +1,113 @@
+DEBUG ANALYSIS SESSION - 2025-10-05 00:40:22
+===================================================
+
+DEBUG [MethodEntry] [AddDefaultActions]: CharacterActions
+DEBUG [CharacterActions]: Added BASIC ATTACK to ActionPool
+DEBUG [MethodEntry] [AddClassActions]: CharacterActions
+DEBUG [CharacterActions]: ClassPoints: 0, 0, 0, 0
+DEBUG [CharacterActions]: ActionPool: Cael Moonwhisper, 1, After AddClassActions
+DEBUG [Format]: CharacterActions, AddWeaponActions called for Wand (Type: Wand)
+DEBUG [Format]: CharacterActions, AddGearActions called for Wand
+DEBUG [Format]: CharacterActions, GetWeaponActionsFromJson called for Wand (tag: wand)
+DEBUG [Format]: CharacterActions, Got 177 total actions from ActionLoader
+DEBUG [CharacterActions]: GearActions: Wand, 2, MAGIC MISSILE, ARCANE SHIELD
+DEBUG [Format]: CharacterActions, Loading gear action: MAGIC MISSILE
+DEBUG [Format]: CharacterActions, Loading gear action: ARCANE SHIELD
+DEBUG [CharacterActions]: ActionPool: Cael Moonwhisper, 3, After AddWeaponActions
+DEBUG [Format]: CharacterActions, GetWeaponActionsFromJson called for Wand (tag: wand)
+DEBUG [Format]: CharacterActions, Got 177 total actions from ActionLoader
+DEBUG [Format]: CharacterActions, GetWeaponActionsFromJson called for Wand (tag: wand)
+DEBUG [Format]: CharacterActions, Got 177 total actions from ActionLoader
+DEBUG [Format]: CharacterActions, AddGearActions called for Leather Helmet
+DEBUG [CharacterActions]: GearActions: Leather Helmet, 0, 
+DEBUG [Format]: CharacterActions, No gear actions to add for Leather Helmet
+DEBUG [Format]: CharacterActions, AddGearActions called for Leather Armor
+DEBUG [CharacterActions]: GearActions: Leather Armor, 0, 
+DEBUG [Format]: CharacterActions, No gear actions to add for Leather Armor
+DEBUG [Format]: CharacterActions, AddGearActions called for Leather Boots
+DEBUG [CharacterActions]: GearActions: Leather Boots, 0, 
+DEBUG [Format]: CharacterActions, No gear actions to add for Leather Boots
+DEBUG [MethodEntry] [AddDefaultActions]: CharacterActions
+DEBUG [CharacterActions]: Added BASIC ATTACK to ActionPool
+DEBUG [MethodEntry] [AddClassActions]: CharacterActions
+DEBUG [CharacterActions]: ClassPoints: 0, 0, 0, 0
+DEBUG [CharacterActions]: ActionPool: Bear, 1, After AddClassActions
+DEBUG [MethodEntry] [AddDefaultActions]: CharacterActions
+DEBUG [CharacterActions]: Added BASIC ATTACK to ActionPool
+DEBUG [MethodEntry] [AddClassActions]: CharacterActions
+DEBUG [CharacterActions]: ClassPoints: 0, 0, 0, 0
+DEBUG [CharacterActions]: ActionPool: Goblin, 1, After AddClassActions
+DEBUG [Format]: CharacterActions, AddGearActions called for Legendary Swift Dull Leather Armor
+DEBUG [CharacterActions]: GearActions: Legendary Swift Dull Leather Armor, 3, BERZERK, POLLEN CLOUD, PROBE
+DEBUG [Format]: CharacterActions, Loading gear action: BERZERK
+DEBUG [Format]: CharacterActions, Loading gear action: POLLEN CLOUD
+DEBUG [Format]: CharacterActions, Loading gear action: PROBE
+DEBUG [MethodEntry] [AddDefaultActions]: CharacterActions
+DEBUG [CharacterActions]: Added BASIC ATTACK to ActionPool
+DEBUG [MethodEntry] [AddClassActions]: CharacterActions
+DEBUG [CharacterActions]: ClassPoints: 0, 0, 0, 0
+DEBUG [CharacterActions]: ActionPool: Lich, 1, After AddClassActions
+DEBUG [MethodEntry] [AddDefaultActions]: CharacterActions
+DEBUG [CharacterActions]: Added BASIC ATTACK to ActionPool
+DEBUG [MethodEntry] [AddClassActions]: CharacterActions
+DEBUG [CharacterActions]: ClassPoints: 0, 0, 0, 0
+DEBUG [CharacterActions]: ActionPool: Kobold, 1, After AddClassActions
+DEBUG [MethodEntry] [AddDefaultActions]: CharacterActions
+DEBUG [CharacterActions]: Added BASIC ATTACK to ActionPool
+DEBUG [MethodEntry] [AddClassActions]: CharacterActions
+DEBUG [CharacterActions]: ClassPoints: 0, 0, 0, 0
+DEBUG [CharacterActions]: ActionPool: Kobold, 1, After AddClassActions
+DEBUG [MethodEntry] [AddClassActions]: CharacterActions
+DEBUG [CharacterActions]: ClassPoints: 0, 0, 0, 1
+DEBUG [CharacterActions]: ActionPool: Cael Moonwhisper, 5, After AddClassActions
+DEBUG [Format]: CharacterActions, AddGearActions called for Legendary Ethereal Sturdy Iron Helmet
+DEBUG [CharacterActions]: GearActions: Legendary Ethereal Sturdy Iron Helmet, 3, OVERKILL, FIRST BLOOD, SWORDMASTER STRIKE
+DEBUG [Format]: CharacterActions, Loading gear action: OVERKILL
+DEBUG [Format]: CharacterActions, Loading gear action: FIRST BLOOD
+DEBUG [Format]: CharacterActions, Loading gear action: SWORDMASTER STRIKE
+DEBUG [MethodEntry] [AddDefaultActions]: CharacterActions
+DEBUG [CharacterActions]: Added BASIC ATTACK to ActionPool
+DEBUG [MethodEntry] [AddClassActions]: CharacterActions
+DEBUG [CharacterActions]: ClassPoints: 0, 0, 0, 0
+DEBUG [CharacterActions]: ActionPool: Skeleton, 1, After AddClassActions
+DEBUG [MethodEntry] [AddDefaultActions]: CharacterActions
+DEBUG [CharacterActions]: Added BASIC ATTACK to ActionPool
+DEBUG [MethodEntry] [AddClassActions]: CharacterActions
+DEBUG [CharacterActions]: ClassPoints: 0, 0, 0, 0
+DEBUG [CharacterActions]: ActionPool: Lich, 1, After AddClassActions
+DEBUG [MethodEntry] [AddClassActions]: CharacterActions
+DEBUG [CharacterActions]: ClassPoints: 0, 0, 0, 2
+DEBUG [CharacterActions]: ActionPool: Cael Moonwhisper, 8, After AddClassActions
+DEBUG [MethodEntry] [AddDefaultActions]: CharacterActions
+DEBUG [CharacterActions]: Added BASIC ATTACK to ActionPool
+DEBUG [MethodEntry] [AddClassActions]: CharacterActions
+DEBUG [CharacterActions]: ClassPoints: 0, 0, 0, 0
+DEBUG [CharacterActions]: ActionPool: Cael Moonwhisper, 1, After AddClassActions
+DEBUG [MethodEntry] [AddDefaultActions]: CharacterActions
+DEBUG [CharacterActions]: Added BASIC ATTACK to ActionPool
+DEBUG [MethodEntry] [AddClassActions]: CharacterActions
+DEBUG [CharacterActions]: ClassPoints: 0, 0, 0, 2
+DEBUG [CharacterActions]: ActionPool: Cael Moonwhisper, 1, After AddClassActions
+DEBUG [Format]: CharacterActions, AddGearActions called for Legendary Ethereal Sturdy Iron Helmet
+DEBUG [CharacterActions]: GearActions: Legendary Ethereal Sturdy Iron Helmet, 3, OVERKILL, FIRST BLOOD, SWORDMASTER STRIKE
+DEBUG [Format]: CharacterActions, Loading gear action: OVERKILL
+DEBUG [Format]: CharacterActions, Loading gear action: FIRST BLOOD
+DEBUG [Format]: CharacterActions, Loading gear action: SWORDMASTER STRIKE
+DEBUG [Format]: CharacterActions, AddGearActions called for Legendary Swift Dull Leather Armor
+DEBUG [CharacterActions]: GearActions: Legendary Swift Dull Leather Armor, 3, BERZERK, POLLEN CLOUD, PROBE
+DEBUG [Format]: CharacterActions, Loading gear action: BERZERK
+DEBUG [Format]: CharacterActions, Loading gear action: POLLEN CLOUD
+DEBUG [Format]: CharacterActions, Loading gear action: PROBE
+DEBUG [Format]: CharacterActions, AddWeaponActions called for Wand (Type: Sword)
+DEBUG [Format]: CharacterActions, AddGearActions called for Wand
+DEBUG [Format]: CharacterActions, GetWeaponActionsFromJson called for Sword (tag: sword)
+DEBUG [Format]: CharacterActions, Got 177 total actions from ActionLoader
+DEBUG [CharacterActions]: GearActions: Wand, 2, PARRY, SWORD SLASH
+DEBUG [Format]: CharacterActions, Loading gear action: PARRY
+DEBUG [Format]: CharacterActions, Loading gear action: SWORD SLASH
+DEBUG [CharacterActions]: ActionPool: Cael Moonwhisper, 8, After AddWeaponActions
+DEBUG [Format]: CharacterActions, AddGearActions called for Leather Boots
+DEBUG [CharacterActions]: GearActions: Leather Boots, 0, 
+DEBUG [Format]: CharacterActions, No gear actions to add for Leather Boots
+DEBUG [Format]: CharacterActions, GetWeaponActionsFromJson called for Sword (tag: sword)
+DEBUG [Format]: CharacterActions, Got 177 total actions from ActionLoader

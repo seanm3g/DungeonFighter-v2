@@ -1,734 +1,211 @@
 [
   {
     "name": "Goblin",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 4,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
+    "archetype": "Berserker",
+    "overrides": null,
     "actions": [
-      "JAB"
+      "JAB",
+      "TAUNT"
     ],
-    "primaryAttribute": "Strength",
     "isLiving": true,
-    "strength": 4,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Wraith",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 2,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "HAUNTING WAIL"
-    ],
-    "primaryAttribute": "Technique",
-    "isLiving": false,
-    "strength": 2,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Spider",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 1,
-      "agility": 4,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "POISON BITE",
-      "BITE",
-      "WEB TRAP"
-    ],
-    "primaryAttribute": "Agility",
-    "isLiving": true,
-    "strength": 1,
-    "agility": 4,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Slime",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 4,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "ACID SPIT"
-    ],
-    "primaryAttribute": "Strength",
-    "isLiving": true,
-    "strength": 4,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Bat",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 1,
-      "agility": 4,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "BITE",
-      "SWOOP ATTACK"
-    ],
-    "primaryAttribute": "Agility",
-    "isLiving": true,
-    "strength": 1,
-    "agility": 4,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Skeleton",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 4,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "BONE STRIKE"
-    ],
-    "primaryAttribute": "Strength",
-    "isLiving": false,
-    "strength": 4,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Zombie",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 4,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "SHAMBLE ATTACK"
-    ],
-    "primaryAttribute": "Strength",
-    "isLiving": false,
-    "strength": 4,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Crystal Golem",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 4,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "CRYSTAL SLAM",
-      "PRISM BEAM"
-    ],
-    "primaryAttribute": "Strength",
-    "isLiving": false,
-    "strength": 4,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Prism Spider",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 2,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "LIGHT REFRACTION",
-      "WEB TRAP"
-    ],
-    "primaryAttribute": "Technique",
-    "isLiving": true,
-    "strength": 2,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Shard Beast",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 4,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "SHARD VOLLEY",
-      "CRYSTAL CHARGE"
-    ],
-    "primaryAttribute": "Strength",
-    "isLiving": true,
-    "strength": 4,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Stone Guardian",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 4,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "GUARDIAN STRIKE",
-      "STONE SHIELD"
-    ],
-    "primaryAttribute": "Strength",
-    "isLiving": false,
-    "strength": 4,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Temple Warden",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 2,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "ANCIENT CURSE",
-      "SACRED BOLT"
-    ],
-    "primaryAttribute": "Technique",
-    "isLiving": true,
-    "strength": 2,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Ancient Sentinel",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 2,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "SENTINEL BEAM",
-      "DIVINE WRATH"
-    ],
-    "primaryAttribute": "Technique",
-    "isLiving": false,
-    "strength": 2,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Wolf",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 4,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "PACK HOWL",
-      "BITE"
-    ],
-    "primaryAttribute": "Strength",
-    "isLiving": true,
-    "strength": 4,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Bear",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 4,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "CLAW SWIPE",
-      "ROAR"
-    ],
-    "primaryAttribute": "Strength",
-    "isLiving": true,
-    "strength": 4,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Treant",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 4,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "ROOT STRIKE",
-      "BARK ARMOR"
-    ],
-    "primaryAttribute": "Strength",
-    "isLiving": true,
-    "strength": 4,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Fire Elemental",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 2,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "FLAME BURST",
-      "HEAT WAVE"
-    ],
-    "primaryAttribute": "Intelligence",
-    "isLiving": false,
-    "strength": 2,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Lava Golem",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 4,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "MAGMA PUNCH",
-      "LAVA SPIT"
-    ],
-    "primaryAttribute": "Strength",
-    "isLiving": false,
-    "strength": 4,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Salamander",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 1,
-      "agility": 4,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "FIRE BREATH",
-      "TAIL WHIP"
-    ],
-    "primaryAttribute": "Agility",
-    "isLiving": true,
-    "strength": 1,
-    "agility": 4,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Lich",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 2,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "DEATH RAY",
-      "BONE SHIELD"
-    ],
-    "primaryAttribute": "Intelligence",
-    "isLiving": false,
-    "strength": 2,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Ghoul",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 4,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "CLAW ATTACK",
-      "PARALYZING TOUCH"
-    ],
-    "primaryAttribute": "Strength",
-    "isLiving": false,
-    "strength": 4,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Wight",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 4,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "LIFE DRAIN",
-      "FEAR AURA"
-    ],
-    "primaryAttribute": "Strength",
-    "isLiving": false,
-    "strength": 4,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Crystal Sprite",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 1,
-      "agility": 4,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "CRYSTAL SHARD",
-      "SPARKLE"
-    ],
-    "primaryAttribute": "Agility",
-    "isLiving": true,
-    "strength": 1,
-    "agility": 4,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Geode Beast",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 4,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "CRYSTAL BURST",
-      "HARDENED SHELL"
-    ],
-    "primaryAttribute": "Strength",
-    "isLiving": true,
-    "strength": 4,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Crystal Wyrm",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 4,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "CRYSTAL BREATH",
-      "TAIL CRUSH"
-    ],
-    "primaryAttribute": "Strength",
-    "isLiving": true,
-    "strength": 4,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Temple Guard",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 4,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "DIVINE STRIKE",
-      "SHIELD BASH"
-    ],
-    "primaryAttribute": "Strength",
-    "isLiving": true,
-    "strength": 4,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Priest",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 2,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "HEAL",
-      "SMITE"
-    ],
-    "primaryAttribute": "Intelligence",
-    "isLiving": true,
-    "strength": 2,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Paladin",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 4,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "HOLY STRIKE",
-      "DIVINE PROTECTION"
-    ],
-    "primaryAttribute": "Strength",
-    "isLiving": true,
-    "strength": 4,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
-  },
-  {
-    "name": "Bandit",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 4,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
-    "actions": [
-      "DIRTY STRIKE",
-      "INTIMIDATE"
-    ],
-    "primaryAttribute": "Strength",
-    "isLiving": true,
-    "strength": 4,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
+    "description": ""
   },
   {
     "name": "Orc",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 4,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
+    "archetype": "Berserker",
+    "overrides": null,
     "actions": [
       "BRUTAL STRIKE",
       "WAR CRY"
     ],
-    "primaryAttribute": "Strength",
     "isLiving": true,
-    "strength": 4,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
+    "description": ""
   },
   {
-    "name": "Troll",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 4,
-      "agility": 1,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
+    "name": "Bandit",
+    "archetype": "Berserker",
+    "overrides": null,
     "actions": [
-      "REGENERATE",
-      "CLUB SMASH"
+      "QUICK STRIKE",
+      "DODGE"
     ],
-    "primaryAttribute": "Strength",
     "isLiving": true,
-    "strength": 4,
-    "agility": 1,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
+    "description": ""
+  },
+  {
+    "name": "Skeleton",
+    "archetype": "Berserker",
+    "overrides": null,
+    "actions": [
+      "BONE STRIKE",
+      "RATTLE"
+    ],
+    "isLiving": false,
+    "description": ""
+  },
+  {
+    "name": "Cultist",
+    "archetype": "Berserker",
+    "overrides": null,
+    "actions": [
+      "DARK BOLT",
+      "CURSE"
+    ],
+    "isLiving": true,
+    "description": ""
+  },
+  {
+    "name": "Wolf",
+    "archetype": "Berserker",
+    "overrides": null,
+    "actions": [
+      "BITE",
+      "HOWL"
+    ],
+    "isLiving": true,
+    "description": ""
+  },
+  {
+    "name": "Bear",
+    "archetype": "Berserker",
+    "overrides": null,
+    "actions": [
+      "MAUL",
+      "ROAR"
+    ],
+    "isLiving": true,
+    "description": ""
+  },
+  {
+    "name": "Treant",
+    "archetype": "Berserker",
+    "overrides": null,
+    "actions": [
+      "ROOT STRIKE",
+      "ENTANGLE"
+    ],
+    "isLiving": true,
+    "description": ""
+  },
+  {
+    "name": "Fire Elemental",
+    "archetype": "Berserker",
+    "overrides": null,
+    "actions": [
+      "FIRE BOLT",
+      "IGNITE"
+    ],
+    "isLiving": false,
+    "description": ""
+  },
+  {
+    "name": "Lava Golem",
+    "archetype": "Berserker",
+    "overrides": null,
+    "actions": [
+      "MAGMA FIST",
+      "ERUPTION"
+    ],
+    "isLiving": false,
+    "description": ""
+  },
+  {
+    "name": "Salamander",
+    "archetype": "Berserker",
+    "overrides": null,
+    "actions": [
+      "FLAME STRIKE",
+      "HEAT WAVE"
+    ],
+    "isLiving": true,
+    "description": ""
+  },
+  {
+    "name": "Zombie",
+    "archetype": "Berserker",
+    "overrides": null,
+    "actions": [
+      "CLAW",
+      "GROAN"
+    ],
+    "isLiving": false,
+    "description": ""
+  },
+  {
+    "name": "Wraith",
+    "archetype": "Berserker",
+    "overrides": null,
+    "actions": [
+      "SOUL DRAIN",
+      "PHASE"
+    ],
+    "isLiving": false,
+    "description": ""
+  },
+  {
+    "name": "Lich",
+    "archetype": "Berserker",
+    "overrides": null,
+    "actions": [
+      "DEATH BOLT",
+      "RAISE DEAD"
+    ],
+    "isLiving": false,
+    "description": ""
+  },
+  {
+    "name": "Crystal Golem",
+    "archetype": "Berserker",
+    "overrides": null,
+    "actions": [
+      "CRYSTAL SMASH",
+      "REFLECT"
+    ],
+    "isLiving": false,
+    "description": ""
+  },
+  {
+    "name": "Prism Spider",
+    "archetype": "Berserker",
+    "overrides": null,
+    "actions": [
+      "WEB STRIKE",
+      "PRISM BEAM"
+    ],
+    "isLiving": true,
+    "description": ""
+  },
+  {
+    "name": "Stone Guardian",
+    "archetype": "Berserker",
+    "overrides": null,
+    "actions": [
+      "STONE CRUSH",
+      "EARTHQUAKE"
+    ],
+    "isLiving": false,
+    "description": ""
+  },
+  {
+    "name": "Temple Warden",
+    "archetype": "Berserker",
+    "overrides": null,
+    "actions": [
+      "DIVINE STRIKE",
+      "BLESSING"
+    ],
+    "isLiving": true,
+    "description": ""
   },
   {
     "name": "Kobold",
-    "baseLevel": 1,
-    "baseHealth": 2416,
-    "baseStats": {
-      "strength": 1,
-      "agility": 4,
-      "technique": 1,
-      "intelligence": 1
-    },
-    "baseArmor": 2,
+    "archetype": "Berserker",
+    "overrides": null,
     "actions": [
       "SNEAK ATTACK",
       "TRAP"
     ],
-    "primaryAttribute": "Agility",
     "isLiving": true,
-    "strength": 1,
-    "agility": 4,
-    "technique": 1,
-    "intelligence": 1,
-    "armor": 2
+    "description": ""
   }
 ]

@@ -30,6 +30,10 @@ namespace RPGGame
         
         // Damage reduction system
         public double DamageReduction { get; set; } = 0.0;
+        
+        // Critical miss system - doubles action speed for next turn
+        public bool HasCriticalMissPenalty { get; set; } = false;
+        public int CriticalMissPenaltyTurns { get; set; } = 0;
 
         protected Entity(string name)
         {
@@ -129,6 +133,14 @@ namespace RPGGame
             if (DamageReduction > 0)
             {
                 DamageReduction = Math.Max(0.0, DamageReduction - (0.1 * Math.Ceiling(turnsPassed)));
+            }
+            
+            // Update critical miss penalty
+            if (CriticalMissPenaltyTurns > 0)
+            {
+                CriticalMissPenaltyTurns = Math.Max(0, CriticalMissPenaltyTurns - (int)Math.Ceiling(turnsPassed));
+                if (CriticalMissPenaltyTurns == 0)
+                    HasCriticalMissPenalty = false;
             }
         }
         

@@ -93,30 +93,49 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Generates Enemies.json based on EnemyScaling configurations
+        /// Generates Enemies.json based on base enemy configurations in TuningConfig
         /// </summary>
         public static void GenerateEnemiesJson()
         {
             var tuning = GameConfiguration.Instance;
             var enemyScaling = tuning.EnemyScaling;
+            var enemyBalance = tuning.EnemyBalance;
             
-            if (enemyScaling == null)
+            if (enemyScaling == null || enemyBalance == null)
             {
                 if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
                 {
-                    Console.WriteLine("Warning: EnemyScaling configuration not found, using existing Enemies.json");
+                    Console.WriteLine("Warning: EnemyScaling or EnemyBalance configuration not found, using existing Enemies.json");
                 }
                 return;
             }
 
-            // Load existing enemy data to preserve names, actions, and other properties
-            var existingEnemies = LoadExistingEnemies();
+            // Generate enemies from base configurations in TuningConfig
             var generatedEnemies = new List<EnemyData>();
 
-            foreach (var existingEnemy in existingEnemies)
+            foreach (var baseEnemyConfig in enemyBalance.BaseEnemyConfigs)
             {
-                var generatedEnemy = GenerateEnemyFromConfig(existingEnemy, enemyScaling);
-                generatedEnemies.Add(generatedEnemy);
+                try
+                {
+                    // Create a minimal existing enemy data structure for compatibility
+                    var existingEnemy = new EnemyData
+                    {
+                        Name = baseEnemyConfig.Key,
+                        Archetype = "Berserker", // Default archetype
+                        Actions = baseEnemyConfig.Value.Actions,
+                        IsLiving = baseEnemyConfig.Value.IsLiving
+                    };
+                    
+                    var generatedEnemy = GenerateEnemyFromConfig(existingEnemy, enemyScaling);
+                    generatedEnemies.Add(generatedEnemy);
+                }
+                catch (Exception ex)
+                {
+                    if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
+                    {
+                        Console.WriteLine($"ERROR: Failed to generate enemy {baseEnemyConfig.Key}: {ex.Message}");
+                    }
+                }
             }
 
             // Write updated enemies to JSON
@@ -126,7 +145,7 @@ namespace RPGGame
             
             if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
             {
-                Console.WriteLine($"Generated {generatedEnemies.Count} enemies in Enemies.json");
+                Console.WriteLine($"Generated {generatedEnemies.Count} enemies in Enemies.json from TuningConfig base configurations");
             }
         }
 
@@ -168,6 +187,7 @@ namespace RPGGame
             var generatedArmor = new List<ArmorData>();
             int validEntries = 0;
             int skippedEntries = 0;
+            int changedEntries = 0;
 
             foreach (var existing in existingArmor)
             {
@@ -188,7 +208,12 @@ namespace RPGGame
                 
                 if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
                 {
-                    Console.WriteLine($"Processed: {existing.Name} (Tier {existing.Tier}) - Armor: {existing.Armor} -> {generated.Armor}");
+                    // Only show items that actually changed
+                    if (existing.Armor != generated.Armor)
+                    {
+                        Console.WriteLine($"Updated: {existing.Name} (Tier {existing.Tier}) - Armor: {existing.Armor} -> {generated.Armor}");
+                        changedEntries++;
+                    }
                 }
             }
 
@@ -202,8 +227,15 @@ namespace RPGGame
                 
                 if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
                 {
-                    Console.WriteLine($"Updated armor values for {generatedArmor.Count} armor pieces in Armor.json");
-                    Console.WriteLine($"Skipped {skippedEntries} invalid entries");
+                    // Only show summary if there were actual changes
+                    if (changedEntries > 0)
+                    {
+                        Console.WriteLine($"Updated {changedEntries} armor pieces in Armor.json");
+                    }
+                    if (skippedEntries > 0)
+                    {
+                        Console.WriteLine($"Skipped {skippedEntries} invalid entries");
+                    }
                 }
             }
             else
@@ -283,93 +315,9 @@ namespace RPGGame
 
         private static EnemyData GenerateEnemyFromConfig(EnemyData existing, EnemyScalingConfig enemyScaling)
         {
-            // Preserve all identity and behavior properties
-            // Reset to proper base values first (prevent attribute multiplication on already high values)
-            var baseStats = GetBaseEnemyStats(existing.Name, existing.PrimaryAttribute);
-            
-            var generated = new EnemyData
-            {
-                Name = existing.Name,                    // Keep original name
-                BaseLevel = existing.BaseLevel,          // Keep original level
-                PrimaryAttribute = existing.PrimaryAttribute, // Keep original primary attribute
-                Actions = existing.Actions,              // Keep original actions
-                IsLiving = existing.IsLiving,            // Keep original living status
-                
-                // These will be recalculated based on TuningConfig
-                BaseHealth = existing.BaseHealth,
-                BaseStats = new EnemyStats
-                {
-                    Strength = baseStats.Strength,
-                    Agility = baseStats.Agility,
-                    Technique = baseStats.Technique,
-                    Intelligence = baseStats.Intelligence
-                },
-                BaseArmor = existing.BaseArmor
-            };
-
-            // Apply simplified enemy scaling based on EnemyScaling config
-            // Calculate health based on level and health multiplier
-            generated.BaseHealth = Math.Max(1, (int)Math.Round(existing.BaseHealth * enemyScaling.EnemyHealthMultiplier));
-            
-            // Apply damage scaling to stats
-            double damageMultiplier = enemyScaling.EnemyDamageMultiplier;
-            generated.BaseStats.Strength = Math.Max(1, (int)Math.Round(generated.BaseStats.Strength * damageMultiplier));
-            generated.BaseStats.Agility = Math.Max(1, (int)Math.Round(generated.BaseStats.Agility * damageMultiplier));
-            generated.BaseStats.Technique = Math.Max(1, (int)Math.Round(generated.BaseStats.Technique * damageMultiplier));
-            generated.BaseStats.Intelligence = Math.Max(1, (int)Math.Round(generated.BaseStats.Intelligence * damageMultiplier));
-            
-            // Apply primary attribute bonus
-            switch (existing.PrimaryAttribute.ToLower())
-            {
-                case "strength":
-                    generated.BaseStats.Strength = (int)Math.Round(generated.BaseStats.Strength * 1.2);
-                    break;
-                case "agility":
-                    generated.BaseStats.Agility = (int)Math.Round(generated.BaseStats.Agility * 1.2);
-                    break;
-                case "technique":
-                    generated.BaseStats.Technique = (int)Math.Round(generated.BaseStats.Technique * 1.2);
-                    break;
-                case "intelligence":
-                    generated.BaseStats.Intelligence = (int)Math.Round(generated.BaseStats.Intelligence * 1.2);
-                    break;
-            }
-            
-            // Use tuning config for armor scaling instead of health ratio
-            generated.BaseArmor = enemyScaling.EnemyBaseArmorAtLevel1;
-
-            return generated;
-        }
-
-        private static string DetermineEnemyArchetype(EnemyData enemy)
-        {
-            // Simple archetype determination based on primary attribute and stats
-            // This can be enhanced with more sophisticated logic
-            switch (enemy.PrimaryAttribute.ToLower())
-            {
-                case "strength":
-                    if (enemy.BaseStats.Agility < enemy.BaseStats.Strength * 0.7)
-                        return "Juggernaut";
-                    else if (enemy.BaseStats.Agility > enemy.BaseStats.Strength * 1.2)
-                        return "Berserker";
-                    else
-                        return "Brute";
-                        
-                case "agility":
-                    if (enemy.BaseStats.Strength > enemy.BaseStats.Agility * 1.2)
-                        return "Assassin";
-                    else
-                        return "Berserker";
-                        
-                case "technique":
-                    return "Warrior";
-                    
-                case "intelligence":
-                    return "Warrior"; // Default for intelligence-based enemies
-                    
-                default:
-                    return "Warrior";
-            }
+            // For the new archetype system, we just return the existing enemy data
+            // The actual stat generation happens in EnemyLoader.cs using the archetype system
+            return existing;
         }
 
         private static ArmorData GenerateArmorFromConfig(ArmorData existing, ItemScalingConfig itemScaling)
@@ -380,15 +328,36 @@ namespace RPGGame
                 Slot = existing.Slot,
                 Name = existing.Name,
                 Tier = existing.Tier,
-                Armor = existing.Armor // Start with original armor value
+                Armor = 1 // Start with base value, not existing corrupted value
             };
 
-            // Apply simplified armor scaling based on tier
-            double armorPerTier = itemScaling.ArmorValuePerTier;
-            double tierMultiplier = 1.0 + (existing.Tier - 1) * 0.2; // 20% increase per tier
-            generated.Armor = Math.Max(1, (int)Math.Round(existing.Armor * tierMultiplier));
+            // Generate proper base armor values based on tier and slot
+            int baseArmor = GetBaseArmorForTierAndSlot(existing.Tier, existing.Slot);
+            generated.Armor = baseArmor;
 
             return generated;
+        }
+
+        private static int GetBaseArmorForTierAndSlot(int tier, string slot)
+        {
+            // Define base armor values by tier and slot (not amplifying existing values)
+            var baseValues = new Dictionary<int, Dictionary<string, int>>
+            {
+                [1] = new Dictionary<string, int> { ["head"] = 2, ["chest"] = 4, ["feet"] = 2 },
+                [2] = new Dictionary<string, int> { ["head"] = 4, ["chest"] = 8, ["feet"] = 4 },
+                [3] = new Dictionary<string, int> { ["head"] = 6, ["chest"] = 12, ["feet"] = 6 },
+                [4] = new Dictionary<string, int> { ["head"] = 8, ["chest"] = 16, ["feet"] = 8 },
+                [5] = new Dictionary<string, int> { ["head"] = 10, ["chest"] = 20, ["feet"] = 10 }
+            };
+
+            if (baseValues.TryGetValue(tier, out var tierValues) && 
+                tierValues.TryGetValue(slot, out int armor))
+            {
+                return armor;
+            }
+
+            // Fallback: simple tier-based calculation
+            return Math.Max(1, tier * 2);
         }
 
         private static WeaponData GenerateWeaponFromConfig(WeaponData existing, ItemScalingConfig itemScaling)
@@ -422,7 +391,6 @@ namespace RPGGame
             return generated;
         }
 
-
         private static List<EnemyData> LoadExistingEnemies()
         {
             string? filePath = JsonLoader.FindGameDataFile("Enemies.json");
@@ -452,7 +420,6 @@ namespace RPGGame
             }
             return new List<WeaponData>();
         }
-
 
         private static string GetGameDataFilePath(string fileName)
         {
@@ -541,121 +508,5 @@ namespace RPGGame
 
             return null;
         }
-
-        private static EnemyStats GetBaseEnemyStats(string enemyName, string primaryAttribute)
-        {
-            // Determine archetype based on enemy name and primary attribute
-            string archetype = DetermineEnemyArchetype(new EnemyData 
-            { 
-                Name = enemyName, 
-                PrimaryAttribute = primaryAttribute 
-            });
-            
-            // Get archetype ratios (hardcoded for now until TuningConfig classes are properly set up)
-            var archetypeRatios = GetArchetypeRatios(archetype);
-            
-            // Base attribute pool (total points to distribute)
-            int baseAttributePool = 10; // Total attribute points to distribute
-            
-            // Apply archetype ratios to distribute the pool
-            var baseStats = DistributeAttributePool(baseAttributePool, archetypeRatios);
-            
-            return baseStats;
-        }
-
-        private static EnemyStats DistributeAttributePool(int totalPool, Dictionary<string, double> archetypeRatios)
-        {
-            // Calculate total ratio weight
-            double totalRatio = archetypeRatios.Values.Sum();
-            
-            // Distribute pool based on ratios
-            var stats = new EnemyStats();
-            
-            // Get ratios for each attribute (default to 1.0 if not specified)
-            double strengthRatio = archetypeRatios.GetValueOrDefault("Strength", 1.0);
-            double agilityRatio = archetypeRatios.GetValueOrDefault("Agility", 1.0);
-            double techniqueRatio = archetypeRatios.GetValueOrDefault("Technique", 1.0);
-            double intelligenceRatio = archetypeRatios.GetValueOrDefault("Intelligence", 1.0);
-            
-            // Calculate attribute values
-            stats.Strength = Math.Max(1, (int)Math.Round((strengthRatio / totalRatio) * totalPool));
-            stats.Agility = Math.Max(1, (int)Math.Round((agilityRatio / totalRatio) * totalPool));
-            stats.Technique = Math.Max(1, (int)Math.Round((techniqueRatio / totalRatio) * totalPool));
-            stats.Intelligence = Math.Max(1, (int)Math.Round((intelligenceRatio / totalRatio) * totalPool));
-            
-            // Ensure minimum of 1 for each attribute
-            stats.Strength = Math.Max(1, stats.Strength);
-            stats.Agility = Math.Max(1, stats.Agility);
-            stats.Technique = Math.Max(1, stats.Technique);
-            stats.Intelligence = Math.Max(1, stats.Intelligence);
-            
-            return stats;
-        }
-
-        private static Dictionary<string, double> GetArchetypeRatios(string archetype)
-        {
-            // Hardcoded archetype ratios for now (can be moved to TuningConfig later)
-            switch (archetype.ToLower())
-            {
-                case "berserker":
-                    return new Dictionary<string, double>
-                    {
-                        { "Strength", 0.6 },
-                        { "Agility", 2.0 },
-                        { "Technique", 1.0 },
-                        { "Intelligence", 1.0 }
-                    };
-                case "assassin":
-                    return new Dictionary<string, double>
-                    {
-                        { "Strength", 0.8 },
-                        { "Agility", 1.5 },
-                        { "Technique", 1.3 },
-                        { "Intelligence", 1.0 }
-                    };
-                case "warrior":
-                    return new Dictionary<string, double>
-                    {
-                        { "Strength", 1.2 },
-                        { "Agility", 1.0 },
-                        { "Technique", 1.0 },
-                        { "Intelligence", 1.0 }
-                    };
-                case "brute":
-                    return new Dictionary<string, double>
-                    {
-                        { "Strength", 2.0 },
-                        { "Agility", 0.6 },
-                        { "Technique", 1.0 },
-                        { "Intelligence", 1.0 }
-                    };
-                case "juggernaut":
-                    return new Dictionary<string, double>
-                    {
-                        { "Strength", 2.5 },
-                        { "Agility", 0.4 },
-                        { "Technique", 1.2 },
-                        { "Intelligence", 1.0 }
-                    };
-                case "mage":
-                    return new Dictionary<string, double>
-                    {
-                        { "Strength", 0.5 },
-                        { "Agility", 0.5 },
-                        { "Technique", 1.0 },
-                        { "Intelligence", 2.0 }
-                    };
-                default:
-                    return new Dictionary<string, double>
-                    {
-                        { "Strength", 1.0 },
-                        { "Agility", 1.0 },
-                        { "Technique", 1.0 },
-                        { "Intelligence", 1.0 }
-                    };
-            }
-        }
     }
-
-    // Note: EnemyData and EnemyStats classes are defined in EnemyLoader.cs
 }

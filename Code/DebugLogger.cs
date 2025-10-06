@@ -1,359 +1,184 @@
 using System;
+using System.IO;
 
 namespace RPGGame
 {
     /// <summary>
-    /// Simple debug logging utility that provides basic logging capabilities
+    /// Centralized debug logging system that writes to debug analysis files
     /// </summary>
     public static class DebugLogger
     {
+        private static string? _currentDebugFile = null;
+        private static readonly object _lockObject = new object();
+
         /// <summary>
-        /// Logs a general debug message
+        /// Writes a debug message to the debug analysis file (always writes, regardless of debug setting)
         /// </summary>
-        /// <param name="message">The message to log</param>
-        public static void Log(string message)
+        /// <param name="message">The debug message to write</param>
+        public static void WriteDebugAlways(string message)
         {
-            if (GameConfiguration.IsDebugEnabled)
+            WriteDebugInternal(message);
+        }
+
+        /// <summary>
+        /// Writes a debug message to the debug analysis file
+        /// </summary>
+        /// <param name="message">The debug message to write</param>
+        public static void WriteDebug(string message)
+        {
+            if (!GameConfiguration.IsDebugEnabled)
+                return;
+                
+            WriteDebugInternal(message);
+        }
+
+        /// <summary>
+        /// Writes a debug message only if LogCombatActions is enabled
+        /// </summary>
+        /// <param name="category">The debug category</param>
+        /// <param name="message">The debug message to write</param>
+        public static void WriteCombatDebug(string category, string message)
+        {
+            if (!GameConfiguration.IsDebugEnabled || !GameConfiguration.Instance.Debug.LogCombatActions)
+                return;
+                
+            WriteDebugInternal($"[{category}] {message}");
+        }
+
+        /// <summary>
+        /// Writes a debug message only if LogCombatActions is enabled (single parameter version)
+        /// </summary>
+        /// <param name="message">The debug message to write</param>
+        public static void WriteCombatDebug(string message)
+        {
+            if (!GameConfiguration.IsDebugEnabled || !GameConfiguration.Instance.Debug.LogCombatActions)
+                return;
+                
+            WriteDebugInternal(message);
+        }
+
+        /// <summary>
+        /// Writes a debug message only if LogOnlyOnErrors is enabled
+        /// </summary>
+        /// <param name="message">The debug message to write</param>
+        public static void WriteErrorDebug(string message)
+        {
+            if (!GameConfiguration.IsDebugEnabled || !GameConfiguration.Instance.Debug.LogOnlyOnErrors)
+                return;
+                
+            WriteDebugInternal(message);
+        }
+
+        /// <summary>
+        /// Internal method that actually writes the debug message
+        /// </summary>
+        /// <param name="message">The debug message to write</param>
+        private static void WriteDebugInternal(string message)
+        {
+                
+            lock (_lockObject)
             {
-                UIManager.WriteSystemLine($"DEBUG: {message}");
+                try
+                {
+                    // Always use Code/DebugAnalysis relative to the project root
+                    string currentDir = Directory.GetCurrentDirectory();
+                    string debugDir;
+                    
+                    // If we're in the Code directory, use DebugAnalysis directly
+                    if (currentDir.EndsWith("Code", StringComparison.OrdinalIgnoreCase))
+                    {
+                        debugDir = Path.Combine(currentDir, "DebugAnalysis");
+                    }
+                    // If we're in the project root, use Code/DebugAnalysis
+                    else if (Directory.Exists(Path.Combine(currentDir, "Code")))
+                    {
+                        debugDir = Path.Combine(currentDir, "Code", "DebugAnalysis");
+                    }
+                    // Fallback to relative path
+                    else
+                    {
+                        debugDir = Path.Combine("Code", "DebugAnalysis");
+                    }
+                    
+                    // Debug path info removed from console output
+                    if (!Directory.Exists(debugDir))
+                    {
+                        Directory.CreateDirectory(debugDir);
+                    }
+                    
+                    // Create a single debug file per game session
+                    if (_currentDebugFile == null)
+                    {
+                        string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+                        _currentDebugFile = Path.Combine(debugDir, $"debug_analysis_{timestamp}.txt");
+                        
+                        // Write session header
+                        File.WriteAllText(_currentDebugFile, $"DEBUG ANALYSIS SESSION - {DateTime.Now:yyyy-MM-dd HH:mm:ss}\n");
+                        File.AppendAllText(_currentDebugFile, "=" + new string('=', 50) + "\n\n");
+                        // Debug file creation confirmation removed from console output
+                    }
+                    
+                    File.AppendAllText(_currentDebugFile, message + "\n");
+                }
+                catch
+                {
+                    // Ignore file write errors - debug output is optional
+                }
             }
         }
 
         /// <summary>
-        /// Logs a general debug message with context
+        /// Writes a debug message with a specific component tag (always writes, regardless of debug setting)
         /// </summary>
-        /// <param name="message">The message to log</param>
-        /// <param name="context">The context</param>
-        public static void Log(string message, string context)
+        /// <param name="component">The component generating the debug message</param>
+        /// <param name="message">The debug message to write</param>
+        public static void WriteDebugAlways(string component, string message)
         {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [{context}]: {message}");
-            }
+            WriteDebugInternal($"DEBUG [{component}]: {message}");
         }
 
         /// <summary>
-        /// Logs method entry
+        /// Writes a debug message with a specific component tag
         /// </summary>
+        /// <param name="component">The component generating the debug message</param>
+        /// <param name="message">The debug message to write</param>
+        public static void WriteDebug(string component, string message)
+        {
+            WriteDebug($"DEBUG [{component}]: {message}");
+        }
+
+        /// <summary>
+        /// Writes a debug message with method entry information
+        /// </summary>
+        /// <param name="component">The component generating the debug message</param>
         /// <param name="methodName">The method name</param>
-        public static void LogMethodEntry(string methodName)
+        public static void WriteMethodEntry(string component, string methodName)
         {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [MethodEntry]: {methodName}");
-            }
+            WriteDebug($"DEBUG [MethodEntry] [{methodName}]: {component}");
         }
 
         /// <summary>
-        /// Logs method entry with context
+        /// Writes a debug message with formatted parameters
         /// </summary>
-        /// <param name="methodName">The method name</param>
-        /// <param name="context">The context</param>
-        public static void LogMethodEntry(string methodName, string context)
+        /// <param name="component">The component generating the debug message</param>
+        /// <param name="message">The debug message format</param>
+        /// <param name="args">The format arguments</param>
+        public static void WriteDebugFormat(string component, string message, params object[] args)
         {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [MethodEntry] [{context}]: {methodName}");
-            }
+            WriteDebug($"DEBUG [Format]: {component}, {string.Format(message, args)}");
         }
-
-        /// <summary>
-        /// Logs class points information
-        /// </summary>
-        /// <param name="message">The message to log</param>
-        public static void LogClassPoints(string message)
-        {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [ClassPoints]: {message}");
-            }
-        }
-
-        /// <summary>
-        /// Logs class points information with multiple parameters
-        /// </summary>
-        /// <param name="param1">First parameter</param>
-        /// <param name="param2">Second parameter</param>
-        /// <param name="param3">Third parameter</param>
-        /// <param name="param4">Fourth parameter</param>
-        public static void LogClassPoints(string param1, string param2, string param3, string param4)
-        {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [ClassPoints]: {param1}, {param2}, {param3}, {param4}");
-            }
-        }
-
-        /// <summary>
-        /// Logs class points information with integer parameters
-        /// </summary>
-        /// <param name="param1">First parameter</param>
-        /// <param name="param2">Second parameter</param>
-        /// <param name="param3">Third parameter</param>
-        /// <param name="param4">Fourth parameter</param>
-        public static void LogClassPoints(int param1, int param2, int param3, int param4)
-        {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [ClassPoints]: {param1}, {param2}, {param3}, {param4}");
-            }
-        }
-
-        /// <summary>
-        /// Logs action pool changes
-        /// </summary>
-        /// <param name="message">The message to log</param>
-        public static void LogActionPoolChange(string message)
-        {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [ActionPool]: {message}");
-            }
-        }
-
-        /// <summary>
-        /// Logs action pool changes with multiple parameters
-        /// </summary>
-        /// <param name="param1">First parameter</param>
-        /// <param name="param2">Second parameter</param>
-        /// <param name="param3">Third parameter</param>
-        public static void LogActionPoolChange(string param1, string param2, string param3)
-        {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [ActionPool]: {param1}, {param2}, {param3}");
-            }
-        }
-
-        /// <summary>
-        /// Logs action pool changes with mixed parameters
-        /// </summary>
-        /// <param name="param1">First parameter</param>
-        /// <param name="param2">Second parameter (int)</param>
-        public static void LogActionPoolChange(string param1, int param2)
-        {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [ActionPool]: {param1}, {param2}");
-            }
-        }
-
-        /// <summary>
-        /// Logs action pool changes with mixed parameters
-        /// </summary>
-        /// <param name="param1">First parameter (int)</param>
-        /// <param name="param2">Second parameter (int)</param>
-        public static void LogActionPoolChange(int param1, int param2)
-        {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [ActionPool]: {param1}, {param2}");
-            }
-        }
-
-        /// <summary>
-        /// Logs action pool changes with mixed parameters
-        /// </summary>
-        /// <param name="param1">First parameter (int)</param>
-        /// <param name="param2">Second parameter (string)</param>
-        public static void LogActionPoolChange(int param1, string param2)
-        {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [ActionPool]: {param1}, {param2}");
-            }
-        }
-
-        /// <summary>
-        /// Logs action pool changes with mixed parameters
-        /// </summary>
-        /// <param name="param1">First parameter (string)</param>
-        /// <param name="param2">Second parameter (int)</param>
-        /// <param name="param3">Third parameter (string)</param>
-        public static void LogActionPoolChange(string param1, int param2, string param3)
-        {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [ActionPool]: {param1}, {param2}, {param3}");
-            }
-        }
-
-        /// <summary>
-        /// Logs formatted messages
-        /// </summary>
-        /// <param name="message">The message to log</param>
-        public static void LogFormat(string message)
-        {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [Format]: {message}");
-            }
-        }
-
-        /// <summary>
-        /// Logs formatted messages with multiple parameters
-        /// </summary>
-        /// <param name="param1">First parameter</param>
-        /// <param name="param2">Second parameter</param>
-        /// <param name="param3">Third parameter</param>
-        public static void LogFormat(string param1, string param2, string param3)
-        {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [Format]: {param1}, {param2}, {param3}");
-            }
-        }
-
-        /// <summary>
-        /// Logs formatted messages with four parameters
-        /// </summary>
-        /// <param name="param1">First parameter</param>
-        /// <param name="param2">Second parameter</param>
-        /// <param name="param3">Third parameter</param>
-        /// <param name="param4">Fourth parameter</param>
-        public static void LogFormat(string param1, string param2, string param3, string param4)
-        {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [Format]: {param1}, {param2}, {param3}, {param4}");
-            }
-        }
-
-        /// <summary>
-        /// Logs formatted messages with mixed parameters
-        /// </summary>
-        /// <param name="param1">First parameter</param>
-        /// <param name="param2">Second parameter (int)</param>
-        public static void LogFormat(string param1, int param2)
-        {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [Format]: {param1}, {param2}");
-            }
-        }
-
-        /// <summary>
-        /// Logs formatted messages with mixed parameters
-        /// </summary>
-        /// <param name="param1">First parameter (int)</param>
-        /// <param name="param2">Second parameter (int)</param>
-        public static void LogFormat(int param1, int param2)
-        {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [Format]: {param1}, {param2}");
-            }
-        }
-
-        /// <summary>
-        /// Logs formatted messages with mixed parameters
-        /// </summary>
-        /// <param name="param1">First parameter</param>
-        /// <param name="param2">Second parameter</param>
-        /// <param name="param3">Third parameter (WeaponType)</param>
-        public static void LogFormat(string param1, string param2, WeaponType param3)
-        {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [Format]: {param1}, {param2}, {param3}");
-            }
-        }
-
-        /// <summary>
-        /// Logs formatted messages with mixed parameters
-        /// </summary>
-        /// <param name="param1">First parameter</param>
-        /// <param name="param2">Second parameter</param>
-        /// <param name="param3">Third parameter (int)</param>
-        public static void LogFormat(string param1, string param2, int param3)
-        {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [Format]: {param1}, {param2}, {param3}");
-            }
-        }
-
-        /// <summary>
-        /// Logs formatted messages with mixed parameters
-        /// </summary>
-        /// <param name="param1">First parameter</param>
-        /// <param name="param2">Second parameter</param>
-        /// <param name="param3">Third parameter (WeaponType)</param>
-        /// <param name="param4">Fourth parameter</param>
-        public static void LogFormat(string param1, string param2, WeaponType param3, string param4)
-        {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [Format]: {param1}, {param2}, {param3}, {param4}");
-            }
-        }
-
-        /// <summary>
-        /// Logs formatted messages with mixed parameters
-        /// </summary>
-        /// <param name="param1">First parameter</param>
-        /// <param name="param2">Second parameter</param>
-        /// <param name="param3">Third parameter</param>
-        /// <param name="param4">Fourth parameter (WeaponType)</param>
-        public static void LogFormat(string param1, string param2, string param3, WeaponType param4)
-        {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [Format]: {param1}, {param2}, {param3}, {param4}");
-            }
-        }
-
-        /// <summary>
-        /// Logs gear actions
-        /// </summary>
-        /// <param name="message">The message to log</param>
-        public static void LogGearActions(string message)
-        {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [GearActions]: {message}");
-            }
-        }
-
-        /// <summary>
-        /// Logs gear actions with multiple parameters
-        /// </summary>
-        /// <param name="param1">First parameter</param>
-        /// <param name="param2">Second parameter</param>
-        /// <param name="param3">Third parameter</param>
-        public static void LogGearActions(string param1, string param2, string param3)
-        {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [GearActions]: {param1}, {param2}, {param3}");
-            }
-        }
-
-        /// <summary>
-        /// Logs gear actions with mixed parameters
-        /// </summary>
-        /// <param name="param1">First parameter</param>
-        /// <param name="param2">Second parameter (int)</param>
-        public static void LogGearActions(string param1, int param2)
-        {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [GearActions]: {param1}, {param2}");
-            }
-        }
-
-        /// <summary>
-        /// Logs gear actions with mixed parameters
-        /// </summary>
-        /// <param name="param1">First parameter (string)</param>
-        /// <param name="param2">Second parameter (int)</param>
-        /// <param name="param3">Third parameter (string)</param>
-        public static void LogGearActions(string param1, int param2, string param3)
-        {
-            if (GameConfiguration.IsDebugEnabled)
-            {
-                UIManager.WriteSystemLine($"DEBUG [GearActions]: {param1}, {param2}, {param3}");
-            }
-        }
+        
+        // Legacy method names for compatibility
+        public static void LogMethodEntry(string component, string methodName) => WriteMethodEntry(component, methodName);
+        public static void Log(string component, string message) => WriteDebug(component, message);
+        public static void LogFormat(string component, string message, params object[] args) => WriteDebugFormat(component, message, args);
+        public static void LogClassPoints(string component, string message) => WriteDebug(component, message);
+        public static void LogActionPoolChange(string component, string message) => WriteDebug(component, message);
+        public static void LogGearActions(string component, string message) => WriteDebug(component, message);
+        
+        // Overloads for different parameter signatures
+        public static void LogClassPoints(int barbarian, int warrior, int rogue, int wizard) => WriteDebug("CharacterActions", $"ClassPoints: {barbarian}, {warrior}, {rogue}, {wizard}");
+        public static void LogActionPoolChange(string name, int count, string context) => WriteDebug("CharacterActions", $"ActionPool: {name}, {count}, {context}");
+        public static void LogGearActions(string gearName, int count, string actions) => WriteDebug("CharacterActions", $"GearActions: {gearName}, {count}, {actions}");
     }
 }
