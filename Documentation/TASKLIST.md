@@ -122,7 +122,5 @@ skip | 47. take a pass at actions to remove any that have zero damage, especiall
 81. ✅ Fix text display inconsistencies - remove delays between action and details, ensure proper indentation
 81. Add a way to save balance tunings that can be restored or loaded later.  Always label a balance tuning
 82. ✅ Replace swap abilities function with re-order abilities function that accepts sequence like 15324
-83. add multi-attacks per action
-84. Add a roll for enemy weapons (that can affect the damage output they have, or actions they have available)
-85. Fix menus to always use 0 as return to main menu.
+83. ✅ Add turn counter that increments every 10 actions (including misses) - displays "Turn X (Action Y/10)"
 86. Fix the Save character logic so that you can load a chracter to play again.

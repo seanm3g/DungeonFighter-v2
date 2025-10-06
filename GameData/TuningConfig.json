@@ -8,7 +8,6 @@
     "MinimumAttackTime": 0.1
   },
   "CombatBalance": {
-    "ArmorReductionFormula": "Damage * (1 - Armor / (Armor + 100))",
     "CriticalHitChance": 0.05,
     "CriticalHitDamageMultiplier": 1.5,
     "RollDamageMultipliers": {

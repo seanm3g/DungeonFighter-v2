@@ -10,6 +10,11 @@ Complete index of all documentation files and their purposes.
 - **[`OVERVIEW.md`](OVERVIEW.md)** - Comprehensive game features, systems, and current status
 - **[`TASKLIST.md`](TASKLIST.md)** - Development tasks, progress tracking, and priorities
 
+### Development Notes
+- **[`NOTES/ideas.md`](NOTES/ideas.md)** - Collection of game development ideas and concepts
+- **[`NOTES/LESSONS.md`](NOTES/LESSONS.md)** - Key lessons learned during development
+- **[`NOTES/FOLDER_STRUCTURE_RULES.md`](NOTES/FOLDER_STRUCTURE_RULES.md)** - Important folder structure guidelines
+
 ## 🛠️ Development Tools
 
 ### Development Process

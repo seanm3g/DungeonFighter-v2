@@ -7,10 +7,10 @@
   "AddBlankLinesAfterStunMessages": true,
   "AddBlankLinesAfterDamageOverTime": true,
   "BeatTiming": {
-    "CombatBeatLengthMs": 500,
-    "MenuBeatLengthMs": 20,
+    "CombatBeatLengthMs": 5,
+    "MenuBeatLengthMs": 25,
     "BeatMultipliers": {
-      "Title": 10.0,
+      "Title": 15.0,
       "MainTitle": 20.0,
       "System": 1.0,
       

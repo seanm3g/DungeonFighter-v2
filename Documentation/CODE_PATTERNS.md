@@ -61,7 +61,7 @@ public class CombatManager
 }
 ```
 
-**Usage**: `CombatManager`, `DungeonManager`, `InventoryManager`
+**Usage**: `CombatManager`, `DungeonManager`, `InventoryManager`, `CharacterHealthManager`, `CharacterCombatCalculator`, `CharacterDisplayManager`
 
 ### 2. Factory Pattern
 **Purpose**: Create objects with complex initialization logic
@@ -148,7 +148,57 @@ public class BasicAttack : Action
 
 **Usage**: `Action` subclasses, `CharacterActions`
 
-### 5. Observer Pattern
+### 5. Composition Pattern
+**Purpose**: Use composition over inheritance to build complex objects from simpler components
+
+**Example**:
+```csharp
+public class Character : Entity, IComboMemory
+{
+    // Core components using composition
+    public CharacterStats Stats { get; private set; }
+    public CharacterEffects Effects { get; private set; }
+    public CharacterEquipment Equipment { get; private set; }
+    public CharacterProgression Progression { get; private set; }
+    public CharacterActions Actions { get; private set; }
+
+    // NEW: Extracted managers using composition
+    public CharacterHealthManager Health { get; private set; }
+    public CharacterCombatCalculator Combat { get; private set; }
+    public CharacterDisplayManager Display { get; private set; }
+
+    public Character(string? name = null, int level = 1) : base(name ?? FlavorText.GenerateCharacterName())
+    {
+        // Initialize all components
+        Stats = new CharacterStats(level);
+        Effects = new CharacterEffects();
+        Equipment = new CharacterEquipment();
+        Progression = new CharacterProgression(level);
+        Actions = new CharacterActions();
+
+        // Initialize new managers
+        Health = new CharacterHealthManager(this);
+        Combat = new CharacterCombatCalculator(this);
+        Display = new CharacterDisplayManager(this);
+    }
+
+    // Delegate complex operations to specialized managers
+    public void TakeDamage(int amount) => Health.TakeDamage(amount);
+    public double GetComboAmplifier() => Combat.GetComboAmplifier();
+    public void DisplayCharacterInfo() => Display.DisplayCharacterInfo();
+}
+```
+
+**Benefits**:
+- **Single Responsibility**: Each manager handles one specific concern
+- **Maintainability**: Changes to health logic only affect `CharacterHealthManager`
+- **Testability**: Each manager can be unit tested independently
+- **Flexibility**: Easy to add new managers or modify existing ones
+- **Reduced Complexity**: Main class becomes a coordinator instead of doing everything
+
+**Usage**: `Character` class with `CharacterHealthManager`, `CharacterCombatCalculator`, `CharacterDisplayManager`
+
+### 6. Observer Pattern
 **Purpose**: Notify multiple objects of state changes
 
 **Example**:

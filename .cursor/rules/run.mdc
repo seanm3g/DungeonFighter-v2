@@ -1,0 +1,5 @@
+
+---
+alwaysApply: true
+---
+run Scripts\DF.bat

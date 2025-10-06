@@ -39,11 +39,15 @@ DungeonFighter-v2/
 - **`TurnManager.cs`** - Manages turn-based combat logic
 
 ### **Character System**
-- **`Character.cs`** - Main player character class with stats, equipment, and progression
+- **`Character.cs`** - Main player character coordinator class (refactored from 737 to 539 lines)
 - **`CharacterStats.cs`** - Character statistics and leveling system
 - **`CharacterEquipment.cs`** - Equipment management and stat bonuses
 - **`CharacterEffects.cs`** - Character-specific effects and buffs/debuffs
 - **`CharacterProgression.cs`** - Experience, leveling, and skill progression
+- **`CharacterActions.cs`** - Character action management and combo sequences
+- **`CharacterHealthManager.cs`** - Health management, damage, and healing logic
+- **`CharacterCombatCalculator.cs`** - Combat calculations and stat computations
+- **`CharacterDisplayManager.cs`** - Character information display and formatting
 - **`CharacterSaveManager.cs`** - Save/load functionality for character data
 
 ### **Enemy System**
@@ -69,7 +73,15 @@ DungeonFighter-v2/
 - **`GameDataGenerator.cs`** - Generates and manages game data files
 - **`LootGenerator.cs`** - Creates randomized loot and items
 - **`ItemGenerator.cs`** - Base class for item generation logic
-- **`TuningConfig.cs`** - Game balance and configuration management
+- **`GameConfiguration.cs`** - Main configuration orchestrator (refactored from 1000+ lines)
+- **`Config/`** - Configuration classes organized by domain:
+  - **`CharacterConfig.cs`** - Character, attributes, progression, and class balance
+  - **`CombatConfig.cs`** - Combat, status effects, and roll systems
+  - **`EnemyConfig.cs`** - Enemy scaling, balance, and archetypes
+  - **`ItemConfig.cs`** - Item scaling, rarity, and loot systems
+  - **`DungeonConfig.cs`** - Dungeon generation and scaling
+  - **`UIConfig.cs`** - UI customization and messages
+  - **`SystemConfig.cs`** - System settings, debug, and balance analysis
 - **`GameSettings.cs`** - User settings and preferences
 - **`ScalingManager.cs`** - Handles game difficulty and content scaling
 
@@ -175,10 +187,31 @@ CombatManager.cs
 └── CombatResults.cs (UI display)
 ```
 
+### **6. Character System Architecture (Refactored)**
+```
+Character.cs (Coordinator - 539 lines)
+├── CharacterStats.cs (statistics and leveling)
+├── CharacterEffects.cs (effects and buffs/debuffs)
+├── CharacterEquipment.cs (equipment management)
+├── CharacterProgression.cs (experience and progression)
+├── CharacterActions.cs (action management)
+├── CharacterHealthManager.cs (health, damage, healing)
+├── CharacterCombatCalculator.cs (combat calculations)
+└── CharacterDisplayManager.cs (display and formatting)
+```
+
+**Character System Benefits:**
+- **Single Responsibility**: Each manager handles one specific concern
+- **Maintainability**: Health logic changes only affect `CharacterHealthManager`
+- **Testability**: Each manager can be unit tested independently
+- **Composition**: Character delegates to specialized managers instead of doing everything
+- **Reduced Complexity**: Main Character class reduced from 737 to 539 lines (27% reduction)
+
 ## 🎨 Key Design Patterns
 
 ### **1. Manager Pattern**
 - **`CombatManager`**, **`DungeonManager`**, **`InventoryManager`** - Orchestrate complex subsystems
+- **`CharacterHealthManager`**, **`CharacterCombatCalculator`**, **`CharacterDisplayManager`** - Specialized character managers
 - Centralize related functionality and provide clean interfaces
 
 ### **2. Factory Pattern**
@@ -205,6 +238,12 @@ CombatManager.cs
 - **`TuningConfig`** - Centralized game balance with 8 configurable systems
 - **`FormulaEvaluator`** - Evaluates mathematical formulas for dynamic configuration
 - **`ScalingManager`** - Applies configuration-based scaling to game content
+
+### **8. Composition Pattern**
+- **`Character`** - Uses composition with specialized managers instead of inheritance
+- **`CharacterHealthManager`**, **`CharacterCombatCalculator`**, **`CharacterDisplayManager`** - Composed managers
+- Delegates complex operations to specialized components while maintaining a clean interface
+- Follows "composition over inheritance" principle for better maintainability
 
 ## ⚙️ Configuration Systems
 
@@ -248,6 +287,7 @@ JSON Files → Loaders → Data Classes → Managers → Game Logic → UI Displ
 ### **1. Separation of Concerns**
 - Each class has a single, well-defined responsibility
 - Clear boundaries between systems (combat, inventory, dungeon, etc.)
+- Character system refactored into specialized managers (Health, Combat, Display)
 
 ### **2. Modularity**
 - Systems can be modified independently
@@ -256,6 +296,9 @@ JSON Files → Loaders → Data Classes → Managers → Game Logic → UI Displ
 ### **3. Maintainability**
 - Centralized utilities reduce code duplication
 - Clear naming conventions and documentation
+- Large classes refactored into manageable, focused components
+- Character class reduced from 737 to 539 lines through composition pattern
+- GameConfiguration refactored from 1000+ lines to clean orchestrator with domain-specific config files
 
 ### **4. Extensibility**
 - New enemy types, actions, and items can be added via JSON
@@ -264,6 +307,8 @@ JSON Files → Loaders → Data Classes → Managers → Game Logic → UI Displ
 ### **5. Testability**
 - Utility classes can be easily unit tested
 - Manager classes provide clear interfaces for testing
+- Character managers can be tested independently (Health, Combat, Display)
+- Composition pattern enables better mocking and isolation testing
 
 ## 📈 Performance Considerations
 

@@ -1,45 +1,15 @@
-D:\Code ProjectS\DF loot generator v2\Code\bin\Debug\net8.0\Code.exe
-D:\Code ProjectS\DF loot generator v2\Code\bin\Debug\net8.0\Code.deps.json
-D:\Code ProjectS\DF loot generator v2\Code\bin\Debug\net8.0\Code.runtimeconfig.json
-D:\Code ProjectS\DF loot generator v2\Code\bin\Debug\net8.0\Code.dll
-D:\Code ProjectS\DF loot generator v2\Code\bin\Debug\net8.0\Code.pdb
-D:\Code ProjectS\DF loot generator v2\Code\obj\Debug\net8.0\Code.GeneratedMSBuildEditorConfig.editorconfig
-D:\Code ProjectS\DF loot generator v2\Code\obj\Debug\net8.0\Code.AssemblyInfoInputs.cache
-D:\Code ProjectS\DF loot generator v2\Code\obj\Debug\net8.0\Code.AssemblyInfo.cs
-D:\Code ProjectS\DF loot generator v2\Code\obj\Debug\net8.0\Code.csproj.CoreCompileInputs.cache
-D:\Code ProjectS\DF loot generator v2\Code\obj\Debug\net8.0\Code.sourcelink.json
-D:\Code ProjectS\DF loot generator v2\Code\obj\Debug\net8.0\Code.dll
-D:\Code ProjectS\DF loot generator v2\Code\obj\Debug\net8.0\refint\Code.dll
-D:\Code ProjectS\DF loot generator v2\Code\obj\Debug\net8.0\Code.pdb
-D:\Code ProjectS\DF loot generator v2\Code\obj\Debug\net8.0\Code.genruntimeconfig.cache
-D:\Code ProjectS\DF loot generator v2\Code\obj\Debug\net8.0\ref\Code.dll
-D:\Code Projects\DF4 - CONSOLE\Code\bin\Debug\net8.0\Code.exe
-D:\Code Projects\DF4 - CONSOLE\Code\bin\Debug\net8.0\Code.deps.json
-D:\Code Projects\DF4 - CONSOLE\Code\bin\Debug\net8.0\Code.runtimeconfig.json
-D:\Code Projects\DF4 - CONSOLE\Code\bin\Debug\net8.0\Code.dll
-D:\Code Projects\DF4 - CONSOLE\Code\bin\Debug\net8.0\Code.pdb
-D:\Code Projects\DF4 - CONSOLE\Code\obj\Debug\net8.0\Code.GeneratedMSBuildEditorConfig.editorconfig
-D:\Code Projects\DF4 - CONSOLE\Code\obj\Debug\net8.0\Code.AssemblyInfoInputs.cache
-D:\Code Projects\DF4 - CONSOLE\Code\obj\Debug\net8.0\Code.AssemblyInfo.cs
-D:\Code Projects\DF4 - CONSOLE\Code\obj\Debug\net8.0\Code.csproj.CoreCompileInputs.cache
-D:\Code Projects\DF4 - CONSOLE\Code\obj\Debug\net8.0\Code.sourcelink.json
-D:\Code Projects\DF4 - CONSOLE\Code\obj\Debug\net8.0\Code.dll
-D:\Code Projects\DF4 - CONSOLE\Code\obj\Debug\net8.0\refint\Code.dll
-D:\Code Projects\DF4 - CONSOLE\Code\obj\Debug\net8.0\Code.pdb
-D:\Code Projects\DF4 - CONSOLE\Code\obj\Debug\net8.0\Code.genruntimeconfig.cache
-D:\Code Projects\DF4 - CONSOLE\Code\obj\Debug\net8.0\ref\Code.dll
-D:\Code Projects\github projects\DungeonFighter-v2\Code\bin\Debug\net8.0\Code.exe
-D:\Code Projects\github projects\DungeonFighter-v2\Code\bin\Debug\net8.0\Code.dll
-D:\Code Projects\github projects\DungeonFighter-v2\Code\obj\Debug\net8.0\Code.GeneratedMSBuildEditorConfig.editorconfig
-D:\Code Projects\github projects\DungeonFighter-v2\Code\obj\Debug\net8.0\Code.AssemblyInfoInputs.cache
-D:\Code Projects\github projects\DungeonFighter-v2\Code\obj\Debug\net8.0\Code.AssemblyInfo.cs
-D:\Code Projects\github projects\DungeonFighter-v2\Code\obj\Debug\net8.0\Code.csproj.CoreCompileInputs.cache
-D:\Code Projects\github projects\DungeonFighter-v2\Code\obj\Debug\net8.0\Code.sourcelink.json
-D:\Code Projects\github projects\DungeonFighter-v2\Code\obj\Debug\net8.0\Code.dll
-D:\Code Projects\github projects\DungeonFighter-v2\Code\obj\Debug\net8.0\refint\Code.dll
-D:\Code Projects\github projects\DungeonFighter-v2\Code\obj\Debug\net8.0\Code.pdb
-D:\Code Projects\github projects\DungeonFighter-v2\Code\bin\Debug\net8.0\Code.deps.json
-D:\Code Projects\github projects\DungeonFighter-v2\Code\bin\Debug\net8.0\Code.runtimeconfig.json
-D:\Code Projects\github projects\DungeonFighter-v2\Code\bin\Debug\net8.0\Code.pdb
-D:\Code Projects\github projects\DungeonFighter-v2\Code\obj\Debug\net8.0\Code.genruntimeconfig.cache
-D:\Code Projects\github projects\DungeonFighter-v2\Code\obj\Debug\net8.0\ref\Code.dll
+D:\Code Projects\github projects\DungeonFighter-v2\code\bin\Debug\net8.0\DF2.exe
+D:\Code Projects\github projects\DungeonFighter-v2\code\bin\Debug\net8.0\DF2.deps.json
+D:\Code Projects\github projects\DungeonFighter-v2\code\bin\Debug\net8.0\DF2.runtimeconfig.json
+D:\Code Projects\github projects\DungeonFighter-v2\code\bin\Debug\net8.0\DF2.dll
+D:\Code Projects\github projects\DungeonFighter-v2\code\bin\Debug\net8.0\DF2.pdb
+D:\Code Projects\github projects\DungeonFighter-v2\code\obj\Debug\net8.0\Code.GeneratedMSBuildEditorConfig.editorconfig
+D:\Code Projects\github projects\DungeonFighter-v2\code\obj\Debug\net8.0\Code.AssemblyInfoInputs.cache
+D:\Code Projects\github projects\DungeonFighter-v2\code\obj\Debug\net8.0\Code.AssemblyInfo.cs
+D:\Code Projects\github projects\DungeonFighter-v2\code\obj\Debug\net8.0\Code.csproj.CoreCompileInputs.cache
+D:\Code Projects\github projects\DungeonFighter-v2\code\obj\Debug\net8.0\Code.sourcelink.json
+D:\Code Projects\github projects\DungeonFighter-v2\code\obj\Debug\net8.0\DF2.dll
+D:\Code Projects\github projects\DungeonFighter-v2\code\obj\Debug\net8.0\refint\DF2.dll
+D:\Code Projects\github projects\DungeonFighter-v2\code\obj\Debug\net8.0\DF2.pdb
+D:\Code Projects\github projects\DungeonFighter-v2\code\obj\Debug\net8.0\Code.genruntimeconfig.cache
+D:\Code Projects\github projects\DungeonFighter-v2\code\obj\Debug\net8.0\ref\DF2.dll

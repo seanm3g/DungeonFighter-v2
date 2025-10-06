@@ -8,7 +8,7 @@ Essential information for rapid development and problem-solving.
 - **Entry Point**: `Code/Program.cs`
 - **Main Game Loop**: `Code/Game.cs`
 - **Combat System**: `Code/CombatManager.cs`
-- **Character System**: `Code/Character.cs`
+- **Character System**: `Code/Character.cs` (coordinator) + specialized managers
 - **Enemy System**: `Code/Enemy.cs`
 
 ### Configuration Files
@@ -42,10 +42,14 @@ Essential information for rapid development and problem-solving.
 - **`BattleNarrative.cs`**: Event-driven battle descriptions
 
 ### Character System
-- **`Character.cs`**: Main player class with stats, equipment, progression
+- **`Character.cs`**: Main player coordinator class (refactored from 737 to 539 lines)
 - **`CharacterStats.cs`**: Statistics and leveling system
 - **`CharacterEquipment.cs`**: Equipment management and stat bonuses
 - **`CharacterProgression.cs`**: Experience, leveling, skill progression
+- **`CharacterActions.cs`**: Character action management and combo sequences
+- **`CharacterHealthManager.cs`**: Health management, damage, and healing logic
+- **`CharacterCombatCalculator.cs`**: Combat calculations and stat computations
+- **`CharacterDisplayManager.cs`**: Character information display and formatting
 - **`CharacterSaveManager.cs`**: Save/load functionality
 
 ### Enemy System

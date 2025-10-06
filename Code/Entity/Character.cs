@@ -1,0 +1,538 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
+
+namespace RPGGame
+{
+    public interface IComboMemory
+    {
+        int LastComboActionIdx { get; set; }
+    }
+
+    public class Character : Entity, IComboMemory
+    {
+        // Flag to disable debug output during balance analysis
+        public static bool DisableCharacterCreationDebug = false;
+        
+        // Core components using composition
+        public CharacterStats Stats { get; private set; }
+        public CharacterEffects Effects { get; private set; }
+        public CharacterEquipment Equipment { get; private set; }
+        public CharacterProgression Progression { get; private set; }
+        public CharacterActions Actions { get; private set; }
+
+        // NEW: Extracted managers
+        public CharacterHealthManager Health { get; private set; }
+        public CharacterCombatCalculator Combat { get; private set; }
+        public CharacterDisplayManager Display { get; private set; }
+
+        // Health properties (delegated to Health manager)
+        public int CurrentHealth 
+        { 
+            get => Health.CurrentHealth; 
+            set => Health.CurrentHealth = value; 
+        }
+        public int MaxHealth 
+        { 
+            get => Health.MaxHealth; 
+            set => Health.MaxHealth = value; 
+        }
+
+        // Turn system constants
+        public const double DEFAULT_ACTION_LENGTH = 1.0; // Basic attack length defines one turn
+
+        public Character(string? name = null, int level = 1)
+            : base(name ?? FlavorText.GenerateCharacterName())
+        {
+            // Initialize components
+            Stats = new CharacterStats(level);
+            Effects = new CharacterEffects();
+            Equipment = new CharacterEquipment();
+            Progression = new CharacterProgression(level);
+            Actions = new CharacterActions();
+
+            // Initialize new managers
+            Health = new CharacterHealthManager(this);
+            Combat = new CharacterCombatCalculator(this);
+            Display = new CharacterDisplayManager(this);
+
+            // Initialize health based on tuning config
+            var tuning = GameConfiguration.Instance;
+            Health.MaxHealth = tuning.Character.PlayerBaseHealth + (level - 1) * tuning.Character.HealthPerLevel;
+            Health.CurrentHealth = Health.MaxHealth;
+
+            // Add default actions
+            Actions.AddDefaultActions(this);
+            Actions.AddClassActions(this, Progression, null);
+            
+            // Initialize default combo sequence
+            Actions.InitializeDefaultCombo(this, Equipment.Weapon as WeaponItem);
+        }
+
+        // IComboMemory implementation
+        public int LastComboActionIdx 
+        { 
+            get => Effects.LastComboActionIdx; 
+            set => Effects.LastComboActionIdx = value; 
+        }
+
+        // Health management (delegated to Health manager)
+        public void TakeDamage(int amount) => Health.TakeDamage(amount);
+        public List<string> TakeDamageWithNotifications(int amount) => Health.TakeDamageWithNotifications(amount);
+        public (int finalDamage, int shieldReduction, bool shieldUsed) CalculateDamageWithShield(int amount) => Health.CalculateDamageWithShield(amount);
+        public void Heal(int amount) => Health.Heal(amount);
+        public bool IsAlive => Health.IsAlive;
+        public int GetEffectiveMaxHealth() => Health.GetEffectiveMaxHealth();
+        public double GetHealthPercentage() => Health.GetHealthPercentage();
+        public bool MeetsHealthThreshold(double threshold) => Health.MeetsHealthThreshold(threshold);
+        public void ApplyHealthMultiplier(double multiplier) => Health.ApplyHealthMultiplier(multiplier);
+
+        // Equipment management
+        public Item? EquipItem(Item item, string slot)
+        {
+            // Store current health percentage before equipping
+            double healthPercentage = GetHealthPercentage();
+            int oldMaxHealth = GetEffectiveMaxHealth();
+            
+            Item? previousItem = Equipment.EquipItem(item, slot);
+            
+            // Check if max health changed and adjust current health accordingly
+            int newMaxHealth = GetEffectiveMaxHealth();
+            Health.AdjustHealthForMaxHealthChange(oldMaxHealth, newMaxHealth);
+            
+            // Update actions after equipment change
+            UpdateActionsAfterGearChange(previousItem, item, slot);
+            
+            // Apply roll bonuses from the new item
+            Actions.ApplyRollBonusesFromGear(this, item);
+            
+            // Update reroll charges from Divine modifications
+            Effects.RerollCharges = Equipment.GetTotalRerollCharges();
+            
+            return previousItem;
+        }
+
+        public Item? UnequipItem(string slot)
+        {
+            // Store current health percentage before unequipping
+            double healthPercentage = GetHealthPercentage();
+            int oldMaxHealth = GetEffectiveMaxHealth();
+            
+            Item? unequippedItem = Equipment.UnequipItem(slot);
+            
+            // Check if max health changed and adjust current health accordingly
+            int newMaxHealth = GetEffectiveMaxHealth();
+            Health.AdjustHealthForMaxHealthChange(oldMaxHealth, newMaxHealth);
+            
+            // Remove roll bonuses from the unequipped item
+            if (unequippedItem != null)
+            {
+                Actions.RemoveRollBonusesFromGear(this, unequippedItem);
+            }
+            
+            // Update reroll charges from Divine modifications
+            Effects.RerollCharges = Equipment.GetTotalRerollCharges();
+            
+            // Update actions after equipment change
+            UpdateActionsAfterGearChange(unequippedItem, null, slot);
+            
+            return unequippedItem;
+        }
+
+        private void UpdateActionsAfterGearChange(Item? previousItem, Item? newItem, string slot)
+        {
+            // Remove actions from previous item
+            if (previousItem != null)
+            {
+                if (previousItem is WeaponItem oldWeapon)
+                {
+                    Actions.RemoveWeaponActions(this, oldWeapon);
+                }
+                else
+                {
+                    Actions.RemoveArmorActions(this, previousItem);
+                }
+            }
+
+            // Add actions from new item
+            if (newItem != null)
+            {
+                if (newItem is WeaponItem weapon)
+                {
+                    Actions.AddWeaponActions(this, weapon);
+                }
+                else
+                {
+                    Actions.AddArmorActions(this, newItem);
+                }
+            }
+
+            // CRITICAL: Ensure BASIC ATTACK is always available after equipment changes
+            // This prevents the issue where rolls 6-13 can't find BASIC ATTACK
+            Actions.EnsureBasicAttackAvailable(this);
+
+            // Update combo sequence after equipment change
+            Actions.UpdateComboSequenceAfterGearChange(this);
+            
+            // If weapon was changed, handle combo sequence intelligently
+            if (slot.ToLower() == "weapon")
+            {
+                // If combo is now empty, initialize default combo
+                if (Actions.ComboSequence.Count == 0)
+                {
+                    Actions.InitializeDefaultCombo(this, Equipment.Weapon as WeaponItem);
+                }
+            }
+        }
+
+        // XP and leveling
+        public void AddXP(int amount)
+        {
+            int oldLevel = Progression.Level;
+            Progression.AddXP(amount);
+            
+            // Apply character-level changes for each level gained
+            int levelsGained = Progression.Level - oldLevel;
+            for (int i = 0; i < levelsGained; i++)
+            {
+                LevelUp();
+            }
+        }
+
+
+        public void LevelUp()
+        {
+            // Note: Level has already been incremented by Progression.AddXP()
+            Stats.LevelUp((Equipment.Weapon as WeaponItem)?.WeaponType ?? WeaponType.Mace);
+            
+            var tuning = GameConfiguration.Instance;
+            
+            // Apply class balance multipliers if available
+            var classBalance = tuning.ClassBalance;
+            if (classBalance != null && Equipment.Weapon is WeaponItem weapon)
+            {
+                var classMultipliers = weapon.WeaponType switch
+                {
+                    WeaponType.Mace => classBalance.Barbarian,
+                    WeaponType.Sword => classBalance.Warrior,
+                    WeaponType.Dagger => classBalance.Rogue,
+                    WeaponType.Wand => classBalance.Wizard,
+                    _ => new ClassMultipliers() // Default multipliers
+                };
+                
+                Health.MaxHealth += (int)(tuning.Character.HealthPerLevel * classMultipliers.HealthMultiplier);
+            }
+            else
+            {
+                Health.MaxHealth += tuning.Character.HealthPerLevel;
+            }
+            
+            Health.CurrentHealth = Health.MaxHealth;
+            
+            // Award class point and stat increases based on equipped weapon
+            if (Equipment.Weapon is WeaponItem equippedWeapon)
+            {
+                string className = equippedWeapon.WeaponType switch
+                {
+                    WeaponType.Mace => "Barbarian",
+                    WeaponType.Sword => "Warrior",
+                    WeaponType.Dagger => "Rogue",
+                    WeaponType.Wand => "Wizard",
+                    _ => "Unknown"
+                };
+                
+                Progression.AwardClassPoint(equippedWeapon.WeaponType);
+                UIManager.WriteLine($"\n*** LEVEL UP! ***");
+                UIManager.WriteLine($"You reached level {Progression.Level}!");
+                UIManager.WriteLine($"Gained +1 {className} class point!");
+                UIManager.WriteLine($"Stats increased: {Stats.GetStatIncreaseMessage(equippedWeapon.WeaponType)}");
+                UIManager.WriteLine($"Current class: {Progression.GetCurrentClass()}");
+                UIManager.WriteLine($"You are now known as: {Progression.GetFullNameWithQualifier(Name)}");
+                
+                // Show only classes with points > 0
+                var classPointsInfo = new List<string>();
+                if (Progression.BarbarianPoints > 0) classPointsInfo.Add($"Barbarian({Progression.BarbarianPoints})");
+                if (Progression.WarriorPoints > 0) classPointsInfo.Add($"Warrior({Progression.WarriorPoints})");
+                if (Progression.RoguePoints > 0) classPointsInfo.Add($"Rogue({Progression.RoguePoints})");
+                if (Progression.WizardPoints > 0) classPointsInfo.Add($"Wizard({Progression.WizardPoints})");
+                
+                if (classPointsInfo.Count > 0)
+                {
+                    UIManager.WriteLine($"Class Points: {string.Join(" ", classPointsInfo)}");
+                    UIManager.WriteLine($"Next Upgrades: {Progression.GetClassUpgradeInfo()}");
+                }
+                UIManager.WriteBlankLine();
+            }
+            else
+            {
+                Stats.LevelUpNoWeapon();
+                
+                UIManager.WriteLine($"\n*** LEVEL UP! ***");
+                UIManager.WriteLine($"You reached level {Progression.Level}!");
+                UIManager.WriteLine("No weapon equipped - equal stat increases (+2 all stats)");
+                UIManager.WriteBlankLine();
+            }
+
+            // Re-add class actions when points change
+            Actions.AddClassActions(this, Progression, (Equipment.Weapon as WeaponItem)?.WeaponType);
+        }
+
+        // Stat accessors
+        public int Strength 
+        { 
+            get => Stats.GetEffectiveStrength(Equipment.GetEquipmentStatBonus("STR"), Equipment.GetModificationGodlikeBonus());
+            set => Stats.Strength = value;
+        }
+        public int Agility 
+        { 
+            get => Stats.GetEffectiveAgility(Equipment.GetEquipmentStatBonus("AGI"));
+            set => Stats.Agility = value;
+        }
+        public int Technique 
+        { 
+            get => Stats.GetEffectiveTechnique(Equipment.GetEquipmentStatBonus("TEC"));
+            set => Stats.Technique = value;
+        }
+        public int Intelligence 
+        { 
+            get => Stats.GetEffectiveIntelligence(Equipment.GetEquipmentStatBonus("INT"));
+            set => Stats.Intelligence = value;
+        }
+
+        public int Level 
+        { 
+            get => Progression.Level; 
+            set => Progression.Level = value; 
+        }
+        public int XP 
+        { 
+            get => Progression.XP; 
+            set => Progression.XP = value; 
+        }
+
+        // Equipment accessors
+        public List<Item> Inventory 
+        { 
+            get => Equipment.Inventory; 
+            set => Equipment.Inventory = value; 
+        }
+        public Item? Head 
+        { 
+            get => Equipment.Head; 
+            set => Equipment.Head = value; 
+        }
+        public Item? Body 
+        { 
+            get => Equipment.Body; 
+            set => Equipment.Body = value; 
+        }
+        public Item? Weapon 
+        { 
+            get => Equipment.Weapon; 
+            set => Equipment.Weapon = value; 
+        }
+        public Item? Feet 
+        { 
+            get => Equipment.Feet; 
+            set => Equipment.Feet = value; 
+        }
+
+        public void AddToInventory(Item item) => Equipment.AddToInventory(item);
+        public bool RemoveFromInventory(Item item) => Equipment.RemoveFromInventory(item);
+
+        // Effects accessors
+        public int ComboStep 
+        { 
+            get => Effects.ComboStep; 
+            set => Effects.ComboStep = value; 
+        }
+        public double ComboAmplifier => Effects.ComboAmplifier;
+        public int ComboBonus => Effects.ComboBonus;
+        public int TempComboBonus => Effects.TempComboBonus;
+        public int TempComboBonusTurns => Effects.TempComboBonusTurns;
+        public int EnemyRollPenalty 
+        { 
+            get => Effects.EnemyRollPenalty; 
+            set => Effects.EnemyRollPenalty = value; 
+        }
+        public int EnemyRollPenaltyTurns 
+        { 
+            get => Effects.EnemyRollPenaltyTurns; 
+            set => Effects.EnemyRollPenaltyTurns = value; 
+        }
+        public double SlowMultiplier => Effects.SlowMultiplier;
+        public int SlowTurns => Effects.SlowTurns;
+        // Poison and burn properties are now accessed directly from Entity base class
+        public bool HasShield => Effects.HasShield;
+        public int LastShieldReduction => Effects.LastShieldReduction;
+        public bool ComboModeActive => Effects.ComboModeActive;
+        public int TempStrengthBonus => Stats.TempStrengthBonus;
+        public int TempAgilityBonus => Stats.TempAgilityBonus;
+        public int TempTechniqueBonus => Stats.TempTechniqueBonus;
+        public int TempIntelligenceBonus => Stats.TempIntelligenceBonus;
+        public int TempStatBonusTurns => Stats.TempStatBonusTurns;
+        public Action? LastAction => Effects.LastAction;
+        public bool SkipNextTurn => Effects.SkipNextTurn;
+        public bool GuaranteeNextSuccess => Effects.GuaranteeNextSuccess;
+        public int ExtraAttacks => Effects.ExtraAttacks;
+        public int ExtraDamage 
+        { 
+            get => Effects.ExtraDamage; 
+            set => Effects.ExtraDamage = value; 
+        }
+        // DamageReduction is now accessed directly from Entity base class
+        public double LengthReduction 
+        { 
+            get => Effects.LengthReduction; 
+            set => Effects.LengthReduction = value; 
+        }
+        public int LengthReductionTurns 
+        { 
+            get => Effects.LengthReductionTurns; 
+            set => Effects.LengthReductionTurns = value; 
+        }
+        public double ComboAmplifierMultiplier => Effects.ComboAmplifierMultiplier;
+        public int ComboAmplifierTurns => Effects.ComboAmplifierTurns;
+        public int RerollCharges => Effects.RerollCharges;
+        public bool UsedRerollThisTurn => Effects.UsedRerollThisTurn;
+
+        // Class points accessors
+        public int BarbarianPoints => Progression.BarbarianPoints;
+        public int WarriorPoints => Progression.WarriorPoints;
+        public int RoguePoints => Progression.RoguePoints;
+        public int WizardPoints => Progression.WizardPoints;
+
+        // Combo sequence accessor
+        public List<Action> ComboSequence => Actions.ComboSequence;
+
+        // Action management
+        public List<Action> GetComboActions() => Actions.GetComboActions();
+        public List<Action> GetActionPool() => Actions.GetActionPool(this);
+        public void AddToCombo(Action action) => Actions.AddToCombo(action);
+        public void RemoveFromCombo(Action action) => Actions.RemoveFromCombo(action);
+        public void InitializeDefaultCombo() => Actions.InitializeDefaultCombo(this, Equipment.Weapon as WeaponItem);
+
+        // Effective stat methods
+        public int GetEffectiveStrength() => Stats.GetEffectiveStrength(Equipment.GetEquipmentStatBonus("STR"), Equipment.GetModificationGodlikeBonus());
+        public int GetEffectiveAgility() => Stats.GetEffectiveAgility(Equipment.GetEquipmentStatBonus("AGI"));
+        public int GetEffectiveTechnique() => Stats.GetEffectiveTechnique(Equipment.GetEquipmentStatBonus("TEC"));
+        public int GetEffectiveIntelligence() => Stats.GetEffectiveIntelligence(Equipment.GetEquipmentStatBonus("INT"));
+
+        // Action length calculation
+        public double CalculateTurnsFromActionLength(double actionLength) => Actions.CalculateTurnsFromActionLength(actionLength);
+        public void RemoveItemActions() => Actions.RemoveItemActions(this);
+
+        // Progression methods
+
+        // Action methods
+        public void ApplyRollBonusesFromGear(Item gear) => Actions.ApplyRollBonusesFromGear(this, gear);
+
+        // Effect management
+        public void SetTempComboBonus(int bonus, int turns) => Effects.SetTempComboBonus(bonus, turns);
+        public int ConsumeTempComboBonus() => Effects.ConsumeTempComboBonus();
+        public void ActivateComboMode() => Effects.ActivateComboMode();
+        public void DeactivateComboMode() => Effects.DeactivateComboMode();
+        public void ResetCombo() => Effects.ResetCombo();
+        public void ApplyStatBonus(int bonus, string statType, int duration) => Stats.ApplyStatBonus(bonus, statType, duration);
+        public override void UpdateTempEffects(double actionLength = DEFAULT_ACTION_LENGTH)
+        {
+            // Update base class effects (stun, weaken, roll penalty, poison, burn, damage reduction)
+            base.UpdateTempEffects(actionLength);
+            
+            // Update character-specific effects
+            Stats.UpdateTempEffects(actionLength);
+            Effects.UpdateTempEffects(actionLength);
+        }
+        public void ApplySlow(double slowMultiplier, int duration) => Effects.ApplySlow(slowMultiplier, duration);
+        public override void ApplyPoison(int damage, int stacks = 1, bool isBleeding = false) => base.ApplyPoison(damage, stacks, isBleeding);
+        public override void ApplyBurn(int damage, int stacks = 1) => base.ApplyBurn(damage, stacks);
+        public void ApplyShield() => Effects.ApplyShield();
+        public bool ConsumeShield() => Effects.ConsumeShield();
+        public override void ApplyWeaken(int turns) => base.ApplyWeaken(turns);
+        public override int ProcessPoison(double currentTime) => base.ProcessPoison(currentTime);
+        public override int ProcessBurn(double currentTime) => base.ProcessBurn(currentTime);
+        public override string GetDamageTypeText() => base.GetDamageTypeText();
+        public override void ClearAllTempEffects() 
+        {
+            // Clear base class effects
+            base.ClearAllTempEffects();
+            // Clear character-specific effects
+            Effects.ClearAllTempEffects();
+        }
+        public bool UseReroll() => Effects.UseReroll();
+        public void ResetRerollUsage() => Effects.ResetRerollUsage();
+        public void ResetRerollCharges() => Effects.ResetRerollCharges();
+        public int GetRemainingRerollCharges() => Effects.GetRemainingRerollCharges(Equipment.GetTotalRerollCharges());
+        public bool UseRerollCharge() => Effects.UseRerollCharge();
+
+        // Equipment bonuses
+        public int GetEquipmentDamageBonus() => Equipment.GetEquipmentDamageBonus();
+        public int GetEquipmentHealthBonus() => Equipment.GetEquipmentHealthBonus();
+        public int GetEquipmentRollBonus() => Equipment.GetEquipmentRollBonus();
+        public int GetMagicFind() => Equipment.GetMagicFind();
+        public double GetEquipmentAttackSpeedBonus() => Equipment.GetEquipmentAttackSpeedBonus();
+        public int GetEquipmentHealthRegenBonus() => Equipment.GetEquipmentHealthRegenBonus();
+        public int GetTotalArmor() => Equipment.GetTotalArmor();
+        public int GetTotalRerollCharges() => Equipment.GetTotalRerollCharges();
+        public int GetModificationMagicFind() => Equipment.GetModificationMagicFind();
+        public int GetModificationRollBonus() => Equipment.GetModificationRollBonus();
+        public int GetModificationDamageBonus() => Equipment.GetModificationDamageBonus();
+        public double GetModificationSpeedMultiplier() => Equipment.GetModificationSpeedMultiplier();
+        public double GetModificationDamageMultiplier() => Equipment.GetModificationDamageMultiplier();
+        public double GetModificationLifesteal() => Equipment.GetModificationLifesteal();
+        public int GetModificationGodlikeBonus() => Equipment.GetModificationGodlikeBonus();
+        public double GetModificationBleedChance() => Equipment.GetModificationBleedChance();
+        public double GetModificationUniqueActionChance() => Equipment.GetModificationUniqueActionChance();
+        public double GetArmorSpikeDamage() => Equipment.GetArmorSpikeDamage();
+        public List<ArmorStatus> GetEquippedArmorStatuses() => Equipment.GetEquippedArmorStatuses();
+        public bool HasAutoSuccess() => Equipment.HasAutoSuccess();
+
+        // Progression
+        public string GetCurrentClass() => Progression.GetCurrentClass();
+        public string GetFullNameWithQualifier() => Progression.GetFullNameWithQualifier(Name);
+        public int GetNextClassThreshold(string className) => Progression.GetNextClassThreshold(className);
+        public string GetClassUpgradeInfo() => Progression.GetClassUpgradeInfo();
+        public void AwardClassPoint(WeaponType weaponType) => Progression.AwardClassPoint(weaponType);
+
+        // Combat calculations (delegated to Combat manager)
+        public double GetComboAmplifier() => Combat.GetComboAmplifier();
+        public double GetCurrentComboAmplification() => Combat.GetCurrentComboAmplification();
+        public double GetNextComboAmplification() => Combat.GetNextComboAmplification();
+        public string GetComboInfo() => Combat.GetComboInfo();
+        public int GetAttacksPerTurn() => Combat.GetAttacksPerTurn();
+        public double GetTotalAttackSpeed() => Combat.GetTotalAttackSpeed();
+        public int GetIntelligenceRollBonus() => Combat.GetIntelligenceRollBonus();
+        public void SetTechniqueForTesting(int value) => Combat.SetTechniqueForTesting(value);
+        public bool MeetsStatThreshold(string statType, double threshold) => Combat.MeetsStatThreshold(statType, threshold);
+
+        // Environment actions
+        public void AddEnvironmentActions(Environment environment) => Actions.AddEnvironmentActions(this, environment);
+        public void ClearEnvironmentActions() => Actions.ClearEnvironmentActions(this);
+
+        // Unique actions
+        public List<Action> GetAvailableUniqueActions() => Actions.GetAvailableUniqueActions(Weapon as WeaponItem);
+
+        // Display methods (delegated to Display manager)
+        public override string GetDescription() => Display.GetDescription();
+        public override string ToString() => base.ToString();
+        public void DisplayCharacterInfo() => Display.DisplayCharacterInfo();
+
+        // Save/Load methods
+        public void SaveCharacter(string? filename = null)
+        {
+            CharacterSaveManager.SaveCharacter(this, filename);
+        }
+
+        public static Character? LoadCharacter(string? filename = null)
+        {
+            return CharacterSaveManager.LoadCharacter(filename);
+        }
+
+        public static void DeleteSaveFile(string? filename = null)
+        {
+            CharacterSaveManager.DeleteSaveFile(filename);
+        }
+    }
+}

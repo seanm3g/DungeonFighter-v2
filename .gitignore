@@ -360,6 +360,11 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
+# DungeonFighter specific
+dist/
+DebugAnalysis/
+*.log
+
 # macOS
 .DS_Store
 .AppleDouble
