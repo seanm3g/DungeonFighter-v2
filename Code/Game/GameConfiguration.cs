@@ -30,12 +30,15 @@ namespace RPGGame
         public PoisonConfig Poison { get; set; } = new();
         public StatusEffectsConfig StatusEffects { get; set; } = new();
 
-        // Enemy-related configurations
+        // Enemy-related configurations (Legacy - kept for backward compatibility)
         public EnemyScalingConfig EnemyScaling { get; set; } = new();
         public EnemyBalanceConfig EnemyBalance { get; set; } = new();
         public EnemyBaselineConfig EnemyBaseline { get; set; } = new();
         public EnemyArchetypesConfig EnemyArchetypes { get; set; } = new();
         public EnemyDPSConfig? EnemyDPS { get; set; } = new();
+        
+        // Unified enemy system configuration (New improved system)
+        public EnemySystemConfig EnemySystem { get; set; } = new();
 
         // Item-related configurations
         public ItemScalingConfig? ItemScaling { get; set; } = new();
@@ -59,6 +62,9 @@ namespace RPGGame
 
         // UI-related configurations
         public UICustomizationConfig UICustomization { get; set; } = new();
+        
+        // Modification-related configurations
+        public ModificationRarityConfig ModificationRarity { get; set; } = new();
 
         public static GameConfiguration Instance
         {
@@ -142,12 +148,15 @@ namespace RPGGame
                         Poison = config.Poison;
                         StatusEffects = config.StatusEffects;
 
-                        // Enemy-related configurations
+                        // Enemy-related configurations (Legacy)
                         EnemyScaling = config.EnemyScaling;
                         EnemyBalance = config.EnemyBalance;
                         EnemyBaseline = config.EnemyBaseline;
                         EnemyArchetypes = config.EnemyArchetypes;
                         EnemyDPS = config.EnemyDPS;
+                        
+                        // Unified enemy system configuration (New improved system)
+                        EnemySystem = config.EnemySystem;
 
                         // Item-related configurations
                         ItemScaling = config.ItemScaling;
@@ -171,6 +180,9 @@ namespace RPGGame
 
                         // UI-related configurations
                         UICustomization = config.UICustomization;
+                        
+                        // Modification-related configurations
+                        ModificationRarity = config.ModificationRarity;
                     }
                 }
                 else

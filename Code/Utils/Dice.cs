@@ -80,21 +80,107 @@ namespace RPGGame
         /// <summary>
         /// Roll for item modifications based on item tier and quality
         /// Higher tier items have better chances for good modifications
+        /// Uses weighted system to make stronger modifications much rarer
         /// </summary>
         /// <param name="itemTier">Tier of the item (1-10+)</param>
         /// <param name="bonus">Additional bonus to the roll</param>
-        /// <returns>Modification roll result (1-24)</returns>
+        /// <returns>Modification roll result (1-31)</returns>
         public static int RollModification(int itemTier = 1, int bonus = 0)
         {
-            // Base roll on d24 for modification table
-            int baseRoll = Roll(24);
+            // Use weighted system instead of simple 1-31 roll
+            // This makes stronger modifications much rarer
             
-            // Higher tier items get bonuses to roll better modifications
-            int tierBonus = Math.Max(0, itemTier - 1); // Tier 1 = +0, Tier 2 = +1, etc.
+            // Get rarity configuration from GameConfiguration
+            var config = GameConfiguration.Instance.ModificationRarity;
+            if (config == null)
+            {
+                // Fallback to hardcoded values if config is not available
+                return RollModificationFallback(itemTier, bonus);
+            }
             
-            int finalRoll = Math.Min(24, baseRoll + tierBonus + bonus);
+            // Define weighted ranges for different modification tiers from config
+            double roll = _random.NextDouble() * 100.0;
             
-            return finalRoll;
+            // Apply tier bonus - higher tier items get better chances
+            double tierBonus = Math.Max(0, (itemTier - 1) * config.TierBonusPerLevel);
+            roll -= tierBonus; // Subtract to make higher rolls more likely
+            
+            // Apply additional bonus
+            roll -= bonus * config.BonusPointEffectiveness;
+            
+            // Clamp roll to valid range
+            roll = Math.Max(0, Math.Min(99.99, roll));
+            
+            // Calculate cumulative thresholds
+            double commonThreshold = config.Common;
+            double uncommonThreshold = commonThreshold + config.Uncommon;
+            double rareThreshold = uncommonThreshold + config.Rare;
+            double epicThreshold = rareThreshold + config.Epic;
+            double legendaryThreshold = epicThreshold + config.Legendary;
+            double mythicThreshold = legendaryThreshold + config.Mythic;
+            
+            // Determine modification tier based on weighted roll
+            if (roll < commonThreshold) // Common modifications (1-4, 29)
+            {
+                // 90% chance for regular common mods, 10% for magic find
+                if (_random.NextDouble() < 0.9)
+                    return Roll(4); // DiceResult 1-4
+                else
+                    return 29; // Magic Fingers
+            }
+            else if (roll < uncommonThreshold) // Uncommon modifications (5-8, 30)
+            {
+                // 90% chance for regular uncommon mods, 10% for magic find
+                if (_random.NextDouble() < 0.9)
+                    return Roll(4) + 4; // DiceResult 5-8
+                else
+                    return 30; // Lucky Magic Find
+            }
+            else if (roll < rareThreshold) // Rare modifications (9-12)
+            {
+                return Roll(4) + 8; // DiceResult 9-12
+            }
+            else if (roll < epicThreshold) // Epic modifications (13-16, 31)
+            {
+                // 90% chance for regular epic mods, 10% for magic find
+                if (_random.NextDouble() < 0.9)
+                    return Roll(4) + 12; // DiceResult 13-16
+                else
+                    return 31; // Magical Lamp
+            }
+            else if (roll < legendaryThreshold) // Legendary modifications (17-20)
+            {
+                return Roll(4) + 16; // DiceResult 17-20
+            }
+            else if (roll < mythicThreshold) // Mythic modifications (21-24)
+            {
+                return Roll(4) + 20; // DiceResult 21-24
+            }
+            else // Transcendent modifications (25-28)
+            {
+                return Roll(4) + 24; // DiceResult 25-28
+            }
+        }
+        
+        /// <summary>
+        /// Fallback method with hardcoded values if configuration is not available
+        /// </summary>
+        private static int RollModificationFallback(int itemTier = 1, int bonus = 0)
+        {
+            // Hardcoded fallback values
+            double roll = _random.NextDouble() * 100.0;
+            double tierBonus = Math.Max(0, (itemTier - 1) * 1.5);
+            roll -= tierBonus;
+            roll -= bonus * 1.0;
+            roll = Math.Max(0, Math.Min(99.99, roll));
+            
+            if (roll < 35.0) return Roll(4);
+            else if (roll < 60.0) return Roll(4) + 4;
+            else if (roll < 80.0) return Roll(4) + 8;
+            else if (roll < 92.0) return Roll(4) + 12;
+            else if (roll < 98.0) return Roll(4) + 16;
+            else if (roll < 99.8) return Roll(4) + 20;
+            else return Roll(4) + 24;
         }
 
         /// <summary>

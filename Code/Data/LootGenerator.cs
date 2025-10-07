@@ -36,36 +36,44 @@ namespace RPGGame
             var tuning = GameConfiguration.Instance;
             
             // Calculate loot chance based on tuning config
-            double lootChance = tuning.LootSystem.BaseDropChance + (playerLevel * tuning.LootSystem.DropChancePerLevel);
-            
-            // Apply magic find modifier to loot chance
-            double magicFind = player?.GetMagicFind() ?? 0.0;
-            lootChance += magicFind * tuning.LootSystem.MagicFindEffectiveness;
-            
-            lootChance = Math.Min(lootChance, tuning.LootSystem.MaxDropChance);
-            
-            // Skip loot chance roll for guaranteed loot (dungeon completion rewards)
-            if (!guaranteedLoot)
+            double lootChance;
+            if (guaranteedLoot)
             {
-                // Roll for loot chance
-                double roll = _random.NextDouble();
-                if (roll >= lootChance) 
-                {
-                    return null;
-                }
+                // Use 100% drop chance for guaranteed loot (dungeon completion)
+                lootChance = tuning.LootSystem.GuaranteedLootChance;
+            }
+            else
+            {
+                // Calculate normal loot chance
+                lootChance = tuning.LootSystem.BaseDropChance + (playerLevel * tuning.LootSystem.DropChancePerLevel);
+                
+                // Apply magic find modifier to loot chance
+                double magicFind = player?.GetMagicFind() ?? 0.0;
+                lootChance += magicFind * tuning.LootSystem.MagicFindEffectiveness;
+                
+                lootChance = Math.Min(lootChance, tuning.LootSystem.MaxDropChance);
+            }
+            
+            // Roll for loot chance
+            double roll = _random.NextDouble();
+            if (roll >= lootChance) 
+            {
+                return null;
             }
 
-            // ROLL 1: Determine loot level (player level - dungeon level)
-            int lootLevel = playerLevel - dungeonLevel;
+            // ROLL 1: Determine loot level based on character level relative to dungeon level
+            // If character is higher level than dungeon, they get lower-tier loot
+            // If character is lower level than dungeon, they get higher-tier loot
+            int lootLevel = dungeonLevel - (playerLevel - dungeonLevel);
             
-            // Special rules: 3+ levels below = 0% chance, 3+ levels above = 100% chance
-            if (lootLevel <= -3) 
+            // Special rules: Clamp loot level to valid range
+            if (lootLevel <= 0) 
             {
-                return null; // No loot
+                lootLevel = 1; // Minimum level 1 loot
             }
-            if (lootLevel >= 3) 
+            if (lootLevel >= 100) 
             {
-                lootLevel = 100; // Guaranteed high-tier loot
+                lootLevel = 100; // Cap at level 100
             }
 
             // ROLL 2: Item type (25% weapon, 75% armor)
@@ -121,7 +129,7 @@ namespace RPGGame
             }
 
             // ROLL 6: Rarity (determines number of bonuses)
-            var rarity = RollRarity(magicFind, playerLevel);
+            var rarity = RollRarity(0.0, playerLevel);
             item.Rarity = rarity.Name;
             
             // Simple rarity multiplier
@@ -262,27 +270,34 @@ namespace RPGGame
 
         private static RarityData RollRarity(double magicFind = 0.0, int playerLevel = 1)
         {
-            // Apply both magic find and level-based scaling to rarity weights
-            var scaledRarities = _rarityData!.Select(r => new
+            // Ensure _rarityData is loaded
+            if (_rarityData == null)
             {
-                Rarity = r,
-                ScaledWeight = CalculateScaledRarityWeight(r, magicFind, playerLevel)
-            }).ToList();
-            
-            double totalWeight = scaledRarities.Sum(sr => sr.ScaledWeight);
+                Initialize();
+            }
+
+            // Ensure _rarityData is still not null after initialization
+            if (_rarityData == null || _rarityData.Count == 0)
+            {
+                return new RarityData { Name = "Common", Weight = 500, StatBonuses = 1, ActionBonuses = 0, Modifications = 0 };
+            }
+
+            // Use base weights from RarityTable.json without additional scaling
+            // This ensures the rarity distribution matches exactly what's configured
+            double totalWeight = _rarityData.Sum(r => r.Weight);
             double roll = _random.NextDouble() * totalWeight;
             double cumulative = 0;
 
-            foreach (var scaledRarity in scaledRarities)
+            foreach (var rarity in _rarityData)
             {
-                cumulative += scaledRarity.ScaledWeight;
+                cumulative += rarity.Weight;
                 if (roll < cumulative)
                 {
-                    return scaledRarity.Rarity;
+                    return rarity;
                 }
             }
 
-            return _rarityData?.First() ?? new RarityData { Name = "Common", Weight = 40, StatBonuses = 1, ActionBonuses = 0, Modifications = 0 }; // Fallback
+            return _rarityData.First();
         }
         
         private static double CalculateScaledRarityWeight(RarityData rarity, double magicFind, int playerLevel)
@@ -360,30 +375,59 @@ namespace RPGGame
 
         private static void ApplyBonuses(Item item, RarityData rarity)
         {
-            // Apply stat bonuses
+            // Special handling for Common items: 25% chance to have mods/stat bonuses
+            if (rarity.Name.Equals("Common", StringComparison.OrdinalIgnoreCase))
+            {
+                // 25% chance for Common items to have bonuses
+                if (_random.NextDouble() < 0.25)
+                {
+                    // Apply 1 stat bonus and 1 modification for Common items that get bonuses
+                    ApplyStatBonuses(item, 1);
+                    ApplyModifications(item, 1);
+                }
+                // If the 25% roll fails, Common items get no bonuses (as intended)
+            }
+            else
+            {
+                // Apply bonuses normally for all other rarities
+                ApplyStatBonuses(item, rarity.StatBonuses);
+                ApplyActionBonuses(item, rarity.ActionBonuses);
+                ApplyModifications(item, rarity.Modifications);
+            }
+
+            // Update item name to include modifications and stat bonuses
+            item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
+        }
+
+        private static void ApplyStatBonuses(Item item, int count)
+        {
             if (_statBonuses != null && _statBonuses.Count > 0)
             {
-                for (int i = 0; i < rarity.StatBonuses; i++)
+                for (int i = 0; i < count; i++)
                 {
                     var statBonus = _statBonuses[_random.Next(_statBonuses.Count)];
                     item.StatBonuses.Add(statBonus);
                 }
             }
+        }
 
-            // Apply action bonuses
+        private static void ApplyActionBonuses(Item item, int count)
+        {
             if (_actionBonuses != null && _actionBonuses.Count > 0)
             {
-                for (int i = 0; i < rarity.ActionBonuses; i++)
+                for (int i = 0; i < count; i++)
                 {
                     var actionBonus = _actionBonuses[_random.Next(_actionBonuses.Count)];
                     item.ActionBonuses.Add(actionBonus);
                 }
             }
+        }
 
-            // Apply modifications
+        private static void ApplyModifications(Item item, int count)
+        {
             if (_modifications != null && _modifications.Count > 0)
             {
-                for (int i = 0; i < rarity.Modifications; i++)
+                for (int i = 0; i < count; i++)
                 {
                     var modification = RollModification(item.Tier);
                     if (modification != null)
@@ -398,13 +442,12 @@ namespace RPGGame
                             {
                                 item.Modifications.Add(additionalMod);
                             }
+                            // Note: Divine modification itself is already added above, 
+                            // the reroll result is the additional modification
                         }
                     }
                 }
             }
-
-            // Update item name to include modifications and stat bonuses
-            item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
         }
 
 
@@ -547,6 +590,12 @@ namespace RPGGame
                         PropertyNameCaseInsensitive = true
                     };
                     _rarityData = JsonSerializer.Deserialize<List<RarityData>>(json, options);
+                    
+                    // Ensure _rarityData is never null
+                    if (_rarityData == null)
+                    {
+                        _rarityData = new List<RarityData>();
+                    }
                 }
                 else
                 {
@@ -600,7 +649,7 @@ namespace RPGGame
     public class RarityData
     {
         public string Name { get; set; } = "";
-        public int Weight { get; set; }
+        public double Weight { get; set; }
         public int StatBonuses { get; set; }
         public int ActionBonuses { get; set; }
         public int Modifications { get; set; }

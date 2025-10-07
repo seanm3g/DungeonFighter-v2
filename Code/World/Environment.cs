@@ -437,7 +437,7 @@ namespace RPGGame
             return result;
         }
 
-        public void GenerateEnemies(int roomLevel)
+        public void GenerateEnemies(int roomLevel, List<string>? possibleEnemies = null)
         {
             if (!IsHostile) return;
 
@@ -447,7 +447,7 @@ namespace RPGGame
             var jsonEnemies = LoadEnemyDataFromJson();
             if (jsonEnemies != null && jsonEnemies.Count > 0)
             {
-                GenerateEnemiesFromJson(roomLevel, enemyCount, jsonEnemies);
+                GenerateEnemiesFromJson(roomLevel, enemyCount, jsonEnemies, possibleEnemies);
                 return;
             }
             
@@ -460,7 +460,7 @@ namespace RPGGame
             
             for (int i = 0; i < enemyCount; i++)
             {
-                int enemyLevel = Math.Max(1, roomLevel + random.Next(-tuning.EnemyScaling.EnemyLevelVariance, tuning.EnemyScaling.EnemyLevelVariance + 1));
+                int enemyLevel = Math.Max(1, roomLevel + random.Next(-tuning.EnemySystem.LevelVariance, tuning.EnemySystem.LevelVariance + 1));
                 var enemyType = basicEnemies[random.Next(basicEnemies.Length)];
                 
                 // Calculate stats with level scaling
@@ -627,17 +627,46 @@ namespace RPGGame
             return null;
         }
 
-        private void GenerateEnemiesFromJson(int roomLevel, int enemyCount, List<EnemyData> enemyData)
+        private void GenerateEnemiesFromJson(int roomLevel, int enemyCount, List<EnemyData> enemyData, List<string>? possibleEnemies = null)
         {
             var tuning = GameConfiguration.Instance;
             
-            // Filter enemies by theme if possible
-            var themeEnemies = GetThemeAppropriateEnemies(enemyData);
-            var availableEnemies = themeEnemies.Count > 0 ? themeEnemies : enemyData;
+            // Filter enemies by possible enemies list first, then by theme
+            List<EnemyData> availableEnemies;
+            if (possibleEnemies != null && possibleEnemies.Count > 0)
+            {
+                // Filter by the dungeon's possible enemies list
+                availableEnemies = enemyData.Where(e => possibleEnemies.Contains(e.Name)).ToList();
+                if (availableEnemies.Count == 0)
+                {
+                    // Fallback to theme-appropriate enemies if no matches found
+                    availableEnemies = GetThemeAppropriateEnemies(enemyData);
+                }
+            }
+            else
+            {
+                // Filter enemies by theme if no specific enemies list provided
+                var themeEnemies = GetThemeAppropriateEnemies(enemyData);
+                availableEnemies = themeEnemies.Count > 0 ? themeEnemies : enemyData;
+            }
+            
+            // Safety check: if no enemies are available, fall back to all enemies
+            if (availableEnemies.Count == 0)
+            {
+                UIManager.WriteSystemLine($"Warning: No theme-appropriate enemies found for theme '{Theme}', using all available enemies");
+                availableEnemies = enemyData;
+            }
+            
+            // Final safety check: if still no enemies, create a basic fallback
+            if (availableEnemies.Count == 0)
+            {
+                UIManager.WriteSystemLine("Error: No enemy data available, cannot generate enemies");
+                return;
+            }
             
             for (int i = 0; i < enemyCount; i++)
             {
-                int enemyLevel = Math.Max(1, roomLevel + random.Next(-tuning.EnemyScaling.EnemyLevelVariance, tuning.EnemyScaling.EnemyLevelVariance + 1));
+                int enemyLevel = Math.Max(1, roomLevel + random.Next(-tuning.EnemySystem.LevelVariance, tuning.EnemySystem.LevelVariance + 1));
                 var enemyTemplate = availableEnemies[random.Next(availableEnemies.Count)];
                 
                 // Use EnemyLoader to create the enemy with proper actions loaded
@@ -670,22 +699,34 @@ namespace RPGGame
 
         private List<EnemyData> GetThemeAppropriateEnemies(List<EnemyData> allEnemies)
         {
-            // Map themes to appropriate enemies based on the dungeon enemy lists
+            // Map themes to appropriate enemies based on the dungeon enemy lists from Dungeons.json
             var themeEnemyMap = new Dictionary<string, string[]>
             {
-                ["Forest"] = new[] { "Goblin", "Spider", "Wolf", "Bear", "Treant", "Dryad", "Ent" },
-                ["Lava"] = new[] { "Wraith", "Slime", "Bat", "Fire Elemental", "Lava Golem", "Salamander", "Magma Beast" },
-                ["Crypt"] = new[] { "Skeleton", "Zombie", "Wraith", "Lich", "Ghoul", "Wight", "Mummy", "Banshee" },
-                ["Cavern"] = new[] { "Bat", "Spider", "Slime", "Cave Troll", "Rock Golem", "Cave Bear", "Giant Rat" },
-                ["Swamp"] = new[] { "Slime", "Spider", "Swamp Monster", "Bog Witch", "Marsh Hag", "Will-o'-Wisp", "Swamp Dragon" },
-                ["Desert"] = new[] { "Sand Worm", "Desert Nomad", "Scorpion", "Mummy", "Sand Elemental", "Desert Bandit", "Cactus Golem" },
-                ["Ice"] = new[] { "Ice Elemental", "Frost Giant", "Ice Golem", "Winter Wolf", "Frost Wraith", "Ice Spider", "Yeti" },
-                ["Ruins"] = new[] { "Skeleton", "Zombie", "Gargoyle", "Stone Guardian", "Ancient Construct", "Ruin Wraith", "Fallen Knight" },
-                ["Castle"] = new[] { "Knight", "Guard", "Gargoyle", "Ghost", "Vampire", "Royal Guard", "Castle Wraith" },
-                ["Graveyard"] = new[] { "Skeleton", "Zombie", "Ghost", "Wraith", "Banshee", "Grave Wight", "Necromancer" },
+                ["Forest"] = new[] { "Goblin", "Spider", "Wolf", "Bear", "Treant" },
+                ["Lava"] = new[] { "Wraith", "Slime", "Bat", "Fire Elemental", "Lava Golem", "Salamander" },
+                ["Crypt"] = new[] { "Skeleton", "Zombie", "Wraith", "Lich", "Ghoul", "Wight" },
                 ["Crystal"] = new[] { "Crystal Golem", "Prism Spider", "Shard Beast", "Crystal Sprite", "Geode Beast", "Crystal Wyrm" },
                 ["Temple"] = new[] { "Stone Guardian", "Temple Warden", "Ancient Sentinel", "Temple Guard", "Priest", "Paladin" },
-                ["Generic"] = new[] { "Bandit", "Orc", "Troll", "Kobold", "Goblin" }
+                ["Generic"] = new[] { "Bandit", "Orc", "Troll", "Kobold", "Goblin" },
+                ["Ice"] = new[] { "Ice Elemental", "Frost Wolf", "Yeti", "Ice Golem", "Frozen Wraith", "Blizzard Beast" },
+                ["Shadow"] = new[] { "Shadow Stalker", "Dark Mage", "Void Walker", "Shadow Beast", "Nightmare", "Umbra" },
+                ["Steampunk"] = new[] { "Steam Golem", "Clockwork Soldier", "Mechanical Spider", "Gear Beast", "Steam Knight", "Automaton" },
+                ["Swamp"] = new[] { "Swamp Troll", "Poison Frog", "Bog Witch", "Marsh Serpent", "Toxic Slime", "Venomous Spider" },
+                ["Astral"] = new[] { "Star Guardian", "Cosmic Wisp", "Astral Mage", "Nebula Beast", "Comet Spirit", "Galaxy Walker" },
+                ["Underground"] = new[] { "Deep Dwarf", "Cave Troll", "Underground Rat", "Mole Beast", "Tunnel Worm", "Subterranean Guard" },
+                ["Storm"] = new[] { "Storm Elemental", "Lightning Bird", "Thunder Giant", "Wind Spirit", "Tempest Beast", "Hurricane Wraith" },
+                ["Nature"] = new[] { "Nature Spirit", "Flower Guardian", "Vine Beast", "Garden Sprite", "Thorn Wolf", "Bloom Elemental" },
+                ["Arcane"] = new[] { "Arcane Scholar", "Book Golem", "Knowledge Spirit", "Scroll Guardian", "Tome Beast", "Librarian Wraith" },
+                ["Desert"] = new[] { "Sand Elemental", "Desert Nomad", "Cactus Beast", "Oasis Spirit", "Sand Worm", "Mirage Phantom" },
+                ["Volcano"] = new[] { "Magma Beast", "Volcano Spirit", "Ash Elemental", "Lava Serpent", "Ember Golem", "Pyroclast" },
+                ["Ruins"] = new[] { "Skeleton", "Zombie", "Wraith", "Lich", "Stone Guardian", "Temple Warden" },
+                ["Ocean"] = new[] { "Sea Serpent", "Kraken Spawn", "Deep Sea Beast", "Ocean Spirit", "Coral Guardian", "Abyssal Walker" },
+                ["Mountain"] = new[] { "Mountain Giant", "Eagle Spirit", "Rock Elemental", "Summit Guardian", "Peak Beast", "Altitude Wraith" },
+                ["Temporal"] = new[] { "Time Wraith", "Chronos Beast", "Echo Spirit", "Paradox Guardian", "Temporal Mage", "Time Elemental" },
+                ["Dream"] = new[] { "Dream Walker", "Sleep Spirit", "Lucid Beast", "Nightmare Lord", "Dream Guardian", "Sleep Paralysis Demon" },
+                ["Void"] = new[] { "Void Beast", "Null Entity", "Void Walker", "Empty Spirit", "Void Guardian", "Null Wraith" },
+                ["Dimensional"] = new[] { "Dimension Walker", "Portal Guardian", "Reality Beast", "Multiverse Spirit", "Plane Walker", "Dimension Mage" },
+                ["Divine"] = new[] { "Divine Guardian", "Celestial Being", "Angel Warrior", "Heavenly Spirit", "Divine Beast", "Sacred Guardian" }
             };
 
             if (themeEnemyMap.TryGetValue(Theme, out var themeEnemyNames))

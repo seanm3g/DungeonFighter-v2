@@ -21,16 +21,40 @@ namespace RPGGame
         /// <returns>A generated Environment object</returns>
         public static Environment GenerateRoom(string dungeonTheme, int playerLevel, bool isHostile = true)
         {
-            string roomType = GenerateRoomType();
-            string roomName = GenerateRoomName(dungeonTheme, roomType);
-            string description = GenerateRoomDescription(dungeonTheme, roomType, isHostile);
-            
-            var environment = new Environment(roomName, description, isHostile, dungeonTheme, roomType);
-            
-            // Apply room-specific effects
-            ApplyRoomEffects(environment, dungeonTheme, roomType, playerLevel);
-            
-            return environment;
+            // First try to get a theme-specific room from the JSON data
+            var themeRooms = RoomLoader.GetRoomsByTheme(dungeonTheme);
+            var hostileRooms = themeRooms.Where(roomName => 
+            {
+                var roomData = RoomLoader.GetRoomData(roomName);
+                return roomData?.IsHostile == isHostile;
+            }).ToList();
+
+            if (hostileRooms.Count > 0)
+            {
+                // Use a theme-specific room from JSON
+                string selectedRoomName = hostileRooms[random.Next(hostileRooms.Count)];
+                return RoomLoader.CreateRoom(selectedRoomName, dungeonTheme);
+            }
+            else if (themeRooms.Count > 0)
+            {
+                // Use any theme-specific room if no matching hostility found
+                string selectedRoomName = themeRooms[random.Next(themeRooms.Count)];
+                return RoomLoader.CreateRoom(selectedRoomName, dungeonTheme);
+            }
+            else
+            {
+                // Fallback to generated room if no theme-specific rooms exist
+                string roomType = GenerateRoomType();
+                string roomName = GenerateRoomName(dungeonTheme, roomType);
+                string description = GenerateRoomDescription(dungeonTheme, roomType, isHostile);
+                
+                var environment = new Environment(roomName, description, isHostile, dungeonTheme, roomType);
+                
+                // Apply room-specific effects
+                ApplyRoomEffects(environment, dungeonTheme, roomType, playerLevel);
+                
+                return environment;
+            }
         }
 
         /// <summary>

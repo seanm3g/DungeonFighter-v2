@@ -54,18 +54,18 @@ namespace RPGGame
             // Store the roll for use in the main execution
             _lastActionSelectionRolls[source] = baseRoll;
             
-            // Determine action type based on roll result
+            // Determine action type based on roll result (with bonuses)
             Action? selectedAction = null;
             
             if (baseRoll == 20) // Natural 20 - always combo + critical hit
             {
                 selectedAction = SelectComboAction(source);
             }
-            else if (totalRoll >= 14) // Combo threshold (14-20)
+            else if (totalRoll >= 14) // Combo threshold (14-20) - with bonuses
             {
                 selectedAction = SelectComboAction(source);
             }
-            else if (totalRoll >= 6) // Basic attack threshold (6-13)
+            else if (totalRoll >= 6) // Basic attack threshold (6-13) - with bonuses
             {
                 selectedAction = ActionFactory.GetBasicAttack(source);
             }

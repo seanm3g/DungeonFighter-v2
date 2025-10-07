@@ -47,7 +47,7 @@ A sophisticated console-based RPG/dungeon crawler game built with .NET 8.0, feat
 1. **Clone the repository**:
    ```bash
    git clone <your-repo-url>
-   cd DungeonFighter-v2
+   cd DungeonFighter
    ```
 
 2. **Navigate to the Code directory**:
@@ -85,7 +85,7 @@ A sophisticated console-based RPG/dungeon crawler game built with .NET 8.0, feat
 ## Project Structure
 
 ```
-DungeonFighter-v2/
+DungeonFighter/
 ├── Code/                           # Main source code
 │   ├── Program.cs                 # Entry point with comprehensive test suite
 │   ├── Game.cs                    # Main game logic and flow
@@ -121,21 +121,30 @@ DungeonFighter-v2/
 │   ├── TuningConfig.json          # Dynamic tuning parameters
 │   ├── ItemScalingConfig.json     # Item scaling formulas
 │   └── StatBonuses.json           # Stat bonus definitions
-├── Documentation/                 # Project documentation
-│   ├── README.md                  # This file
-│   ├── ARCHITECTURE.md            # System architecture and design patterns
-│   ├── OVERVIEW.md                # Comprehensive system overview
-│   ├── TASKLIST.md                # Development tasks and progress
-│   ├── DEVELOPMENT_GUIDE.md       # Comprehensive development guide
-│   ├── PROBLEM_SOLUTIONS.md       # Solutions to common problems
-│   ├── QUICK_REFERENCE.md         # Fast lookup for key information
-│   ├── DEBUGGING_GUIDE.md         # Debugging techniques and tools
-│   ├── CODE_PATTERNS.md           # Code patterns and conventions
-│   ├── TESTING_STRATEGY.md        # Testing approaches and verification
-│   ├── DEVELOPMENT_WORKFLOW.md    # Step-by-step development process
-│   ├── KNOWN_ISSUES.md            # Track of known problems and status
-│   ├── PERFORMANCE_NOTES.md       # Performance considerations and optimizations
-│   └── Various feature docs       # Detailed feature documentation
+├── Documentation/                 # Project documentation (organized in subfolders)
+│   ├── README.md                  # Documentation overview and folder structure
+│   ├── 01-Core/                   # Essential project documentation
+│   │   ├── README.md              # Main project overview
+│   │   ├── ARCHITECTURE.md        # System architecture and design patterns
+│   │   ├── OVERVIEW.md            # Comprehensive system overview
+│   │   └── TASKLIST.md            # Development tasks and progress
+│   ├── 02-Development/            # Development guides and patterns
+│   │   ├── DEVELOPMENT_GUIDE.md   # Comprehensive development guide
+│   │   ├── CODE_PATTERNS.md       # Code patterns and conventions
+│   │   ├── DEVELOPMENT_WORKFLOW.md # Step-by-step development process
+│   │   └── Balance documentation  # Balance tuning and changes
+│   ├── 03-Quality/                # Testing, debugging, and performance
+│   │   ├── TESTING_STRATEGY.md    # Testing approaches and verification
+│   │   ├── DEBUGGING_GUIDE.md     # Debugging techniques and tools
+│   │   ├── PERFORMANCE_NOTES.md   # Performance considerations
+│   │   └── PROBLEM_SOLUTIONS.md   # Solutions to common problems
+│   ├── 04-Reference/              # Quick reference and change tracking
+│   │   ├── QUICK_REFERENCE.md     # Fast lookup for key information
+│   │   ├── INDEX.md               # Complete documentation index
+│   │   └── Change tracking docs   # Change logs and tracking
+│   ├── 05-Systems/                # System-specific documentation
+│   │   └── Feature documentation  # UI, text display, tuning analysis
+│   └── 06-Archive/                # Historical notes and reference materials
 └── character_save.json            # Player save file (auto-generated)
 ```
 

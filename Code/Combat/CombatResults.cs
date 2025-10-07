@@ -97,7 +97,7 @@ namespace RPGGame
             }
             
             // Add the detailed information on the next line with indentation and parentheses
-            damageText += "\n    (" + string.Join(" | ", rollInfo) + ")";
+            damageText += "\n        (" + string.Join(" | ", rollInfo) + ")";
             
             return damageText;
         }
@@ -189,7 +189,7 @@ namespace RPGGame
             }
             
             // Return the roll information as a separate string
-            string rollInfoText = "    (" + string.Join(" | ", rollInfo) + ")";
+            string rollInfoText = "        (" + string.Join(" | ", rollInfo) + ")";
             
             return (damageText, rollInfoText);
         }
@@ -287,7 +287,7 @@ namespace RPGGame
             }
             
             // Add the detailed information on the next line with indentation and parentheses
-            actionText += "\n    (" + string.Join(" | ", rollInfo) + ")";
+            actionText += "\n        (" + string.Join(" | ", rollInfo) + ")";
             
             return actionText;
         }

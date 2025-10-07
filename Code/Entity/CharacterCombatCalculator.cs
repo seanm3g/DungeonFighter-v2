@@ -28,17 +28,20 @@ namespace RPGGame
             // Clamp Technique to valid range
             int clampedTech = Math.Max(1, Math.Min(tuning.ComboSystem.ComboAmplifierMaxTech, character.Technique));
 
-            // Linear interpolation between ComboAmplifierAtTech5 and ComboAmplifierMax
-            double techRange = tuning.ComboSystem.ComboAmplifierMaxTech - 5;
-            double ampRange = tuning.ComboSystem.ComboAmplifierMax - tuning.ComboSystem.ComboAmplifierAtTech5;
-
+            // Linear scaling from 1.01 at Technique 1 to ComboAmplifierAtTech5 at Technique 5
             if (clampedTech <= 5)
             {
-                return tuning.ComboSystem.ComboAmplifierAtTech5;
+                double lowTechProgress = (clampedTech - 1) / 4.0; // Scale from 1 to 5 (4 point range)
+                double baseAmplifier = 1.01; // Start at 1.01x for Technique 1
+                double lowAmpRange = tuning.ComboSystem.ComboAmplifierAtTech5 - baseAmplifier;
+                return baseAmplifier + (lowAmpRange * lowTechProgress);
             }
 
-            double techProgress = (clampedTech - 5) / techRange;
-            return tuning.ComboSystem.ComboAmplifierAtTech5 + (ampRange * techProgress);
+            // Linear interpolation between ComboAmplifierAtTech5 and ComboAmplifierMax for Technique > 5
+            double techRange = tuning.ComboSystem.ComboAmplifierMaxTech - 5;
+            double highAmpRange = tuning.ComboSystem.ComboAmplifierMax - tuning.ComboSystem.ComboAmplifierAtTech5;
+            double highTechProgress = (clampedTech - 5) / techRange;
+            return tuning.ComboSystem.ComboAmplifierAtTech5 + (highAmpRange * highTechProgress);
         }
 
         /// <summary>

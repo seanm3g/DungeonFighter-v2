@@ -162,45 +162,13 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Generates available dungeons based on player level
+        /// Generates available dungeons based on player level using DungeonManager
         /// </summary>
         private void GenerateDungeons(Character player, List<Dungeon> availableDungeons)
         {
-            availableDungeons.Clear();
-            int playerLevel = player.Level;
-            int[] dungeonLevels = new int[] { Math.Max(1, playerLevel - 1), playerLevel, playerLevel + 1 };
-            
-            // Load dungeon themes from config
-            var dungeonConfig = Game.LoadDungeonConfig();
-            var themes = dungeonConfig.dungeonThemes.ToArray();
-            
-            // Shuffle themes to ensure no repeats
-            var shuffledThemes = themes.OrderBy(x => random.Next()).ToArray();
-            
-            // Create unique dungeon combinations with proper theme selection
-            var usedThemes = new HashSet<string>();
-            int dungeonCount = 0;
-            int themeIndex = 0;
-            
-            // Sort dungeon levels to ensure proper ordering
-            Array.Sort(dungeonLevels);
-            
-            while (dungeonCount < 3 && themeIndex < shuffledThemes.Length)
-            {
-                string currentTheme = shuffledThemes[themeIndex];
-                if (!usedThemes.Contains(currentTheme))
-                {
-                    usedThemes.Add(currentTheme);
-                    int level = dungeonLevels[dungeonCount % dungeonLevels.Length];
-                    string themedName = $"{currentTheme} Dungeon (Level {level})";
-                    availableDungeons.Add(new Dungeon(themedName, level, level, currentTheme));
-                    dungeonCount++;
-                }
-                themeIndex++;
-            }
-            
-            // Sort dungeons by level (lowest to highest)
-            availableDungeons.Sort((d1, d2) => d1.MinLevel.CompareTo(d2.MinLevel));
+            // Use DungeonManager to generate dungeons from Dungeons.json
+            var dungeonManager = new DungeonManager();
+            dungeonManager.RegenerateDungeons(player, availableDungeons);
         }
     }
 }

@@ -139,8 +139,8 @@ namespace RPGGame
         {
             var tuning = GameConfiguration.Instance;
             
-            // Only use the new archetype-based system
-            if (!string.IsNullOrEmpty(data.Archetype) && tuning.EnemyBaseline != null && tuning.EnemyArchetypes != null && 
+            // Use the new unified enemy system
+            if (!string.IsNullOrEmpty(data.Archetype) && tuning.EnemySystem != null && 
                 IsValidArchetype(data.Archetype))
             {
                 return CreateEnemyWithNewSystem(data, level, tuning);
@@ -156,33 +156,35 @@ namespace RPGGame
 
         private static Enemy CreateEnemyWithNewSystem(EnemyData data, int level, GameConfiguration tuning)
         {
+            // Use the new unified EnemySystem configuration
+            var enemySystem = tuning.EnemySystem;
+            
             // 1. Start with baseline stats
-            var baseline = tuning.EnemyBaseline.BaseStats;
-            var scaling = tuning.EnemyBaseline.ScalingPerLevel;
+            var baseline = enemySystem.BaselineStats;
+            var scaling = enemySystem.ScalingPerLevel;
+            var global = enemySystem.GlobalMultipliers;
             
             // 2. Apply archetype multipliers
-            var archetype = tuning.EnemyArchetypes.Archetypes.GetValueOrDefault(data.Archetype);
+            var archetype = enemySystem.Archetypes.GetValueOrDefault(data.Archetype);
             if (archetype == null)
             {
-                // Fallback to Warrior archetype if not found
-                archetype = tuning.EnemyArchetypes.Archetypes.GetValueOrDefault("Warrior") ?? new EnemyArchetypeConfig();
+                // Fallback to Berserker archetype if not found
+                archetype = enemySystem.Archetypes.GetValueOrDefault("Berserker") ?? new ArchetypeMultipliersConfig();
             }
-            
-            var archetypeMultipliers = archetype.StatMultipliers;
             
             // 3. Apply individual enemy overrides
             var overrides = data.Overrides ?? new StatOverridesConfig();
             
-            // 4. Calculate final stats
-            var baseHealth = (int)(baseline.Health * archetypeMultipliers.Health * (overrides.Health ?? 1.0));
-            var baseStrength = (int)(baseline.Strength * archetypeMultipliers.Strength * (overrides.Strength ?? 1.0));
-            var baseAgility = (int)(baseline.Agility * archetypeMultipliers.Agility * (overrides.Agility ?? 1.0));
-            var baseTechnique = (int)(baseline.Technique * archetypeMultipliers.Technique * (overrides.Technique ?? 1.0));
-            var baseIntelligence = (int)(baseline.Intelligence * archetypeMultipliers.Intelligence * (overrides.Intelligence ?? 1.0));
-            var baseArmor = (int)(baseline.Armor * archetypeMultipliers.Armor * (overrides.Armor ?? 1.0));
+            // 4. Calculate base stats with archetype multipliers and overrides
+            var baseHealth = (int)(baseline.Health * archetype.Health * (overrides.Health ?? 1.0));
+            var baseStrength = (int)(baseline.Strength * archetype.Strength * (overrides.Strength ?? 1.0));
+            var baseAgility = (int)(baseline.Agility * archetype.Agility * (overrides.Agility ?? 1.0));
+            var baseTechnique = (int)(baseline.Technique * archetype.Technique * (overrides.Technique ?? 1.0));
+            var baseIntelligence = (int)(baseline.Intelligence * archetype.Intelligence * (overrides.Intelligence ?? 1.0));
+            var baseArmor = (int)(baseline.Armor * archetype.Armor * (overrides.Armor ?? 1.0));
             
             // 5. Scale by level
-            var calculatedStats = new
+            var levelScaledStats = new
             {
                 Health = baseHealth + (level - 1) * scaling.Health,
                 Strength = baseStrength + (level - 1) * scaling.Attributes,
@@ -192,13 +194,24 @@ namespace RPGGame
                 Armor = (int)(baseArmor + (level - 1) * scaling.Armor)
             };
             
+            // 6. Apply global multipliers
+            var finalStats = new
+            {
+                Health = (int)(levelScaledStats.Health * global.HealthMultiplier),
+                Strength = (int)(levelScaledStats.Strength * global.DamageMultiplier),
+                Agility = (int)(levelScaledStats.Agility * global.SpeedMultiplier),
+                Technique = (int)(levelScaledStats.Technique * global.DamageMultiplier),
+                Intelligence = (int)(levelScaledStats.Intelligence * global.DamageMultiplier),
+                Armor = (int)(levelScaledStats.Armor * global.ArmorMultiplier)
+            };
+            
             // Determine primary attribute based on highest stat
-            var primaryAttribute = DeterminePrimaryAttribute(calculatedStats.Strength, calculatedStats.Agility, calculatedStats.Technique, calculatedStats.Intelligence);
+            var primaryAttribute = DeterminePrimaryAttribute(finalStats.Strength, finalStats.Agility, finalStats.Technique, finalStats.Intelligence);
             
             // Convert archetype string to enum
             var enemyArchetype = ConvertStringToEnemyArchetype(data.Archetype);
             
-            var enemy = new Enemy(data.Name, level, calculatedStats.Health, calculatedStats.Strength, calculatedStats.Agility, calculatedStats.Technique, calculatedStats.Intelligence, calculatedStats.Armor, primaryAttribute, data.IsLiving, enemyArchetype);
+            var enemy = new Enemy(data.Name, level, finalStats.Health, finalStats.Strength, finalStats.Agility, finalStats.Technique, finalStats.Intelligence, finalStats.Armor, primaryAttribute, data.IsLiving, enemyArchetype);
             
             // Add a common-tier weapon to the enemy (same system as heroes)
             var enemyWeapon = GenerateCommonWeaponForEnemy(data.Name, enemy.Level);
@@ -260,6 +273,7 @@ namespace RPGGame
                 "guardian" => true,
                 "assassin" => true,
                 "brute" => true,
+                "mage" => true,
                 _ => false
             };
         }
@@ -272,6 +286,7 @@ namespace RPGGame
                 "guardian" => EnemyArchetype.Guardian,
                 "assassin" => EnemyArchetype.Assassin,
                 "brute" => EnemyArchetype.Brute,
+                "mage" => EnemyArchetype.Mage,
                 _ => EnemyArchetype.Berserker
             };
         }

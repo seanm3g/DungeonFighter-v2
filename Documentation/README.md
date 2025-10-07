@@ -1,145 +1,83 @@
-# Dungeon Fighter RPG v2 - Documentation
+# Documentation - DungeonFighter
 
-A sophisticated turn-based RPG game written in C# with advanced combat mechanics, dynamic character progression, and comprehensive testing framework.
+This directory contains all project documentation organized into logical subfolders for easy navigation and maintenance.
 
-## How to Run
+## 📁 Folder Structure
 
-1. **Compile the project:**
-   ```bash
-   cd Code
-   dotnet build
-   ```
+### 01-Core/
+Essential project documentation that every developer should be familiar with:
+- **`README.md`** - Main project overview, features, and quick start guide
+- **`ARCHITECTURE.md`** - System architecture, design patterns, and technical overview
+- **`OVERVIEW.md`** - Comprehensive game features, systems, and current status
+- **`TASKLIST.md`** - Development tasks, progress tracking, and priorities
 
-2. **Run the game:**
-   ```bash
-   dotnet run
-   ```
+### 02-Development/
+Development guides, patterns, and balance documentation:
+- **`DEVELOPMENT_GUIDE.md`** - Comprehensive development guide and quick start
+- **`DEVELOPMENT_WORKFLOW.md`** - Step-by-step development process
+- **`CODE_PATTERNS.md`** - Code patterns, conventions, and best practices
+- **`CHAT_COMMANDS.md`** - Special chat commands for development assistance
+- **`BALANCE_TUNING_STRATEGY.md`** - Binary search balance tuning methodology
+- **`BALANCE_CHANGES_LOG.md`** - History of balance tuning changes and results
 
-## Main Menu Options
+### 03-Quality/
+Testing, debugging, performance, and issue tracking:
+- **`TESTING_STRATEGY.md`** - Testing approaches and verification methods
+- **`PERFORMANCE_NOTES.md`** - Performance considerations and optimizations
+- **`KNOWN_ISSUES.md`** - Track of known problems and their status
+- **`PROBLEM_SOLUTIONS.md`** - Solutions to common problems and issues
+- **`DEBUGGING_GUIDE.md`** - Debugging techniques and systematic approaches
 
-### 1. New Game
-Start a fresh character with:
-- Random name generation
-- Starting equipment from StartingGear.json
-- Level 1 with base stats
-- Default action combos from starting weapon
+### 04-Reference/
+Quick reference materials and change tracking:
+- **`QUICK_REFERENCE.md`** - Fast lookup for key information and commands
+- **`INDEX.md`** - Complete index of all documentation files
+- **`README_TESTING_SYSTEM.md`** - Testing system documentation
 
-### 2. Load Game
-Continue with saved character:
-- Shows character name and level in menu
-- Loads from character_save.json
-- Restores all progress, equipment, and stats
+### 05-Systems/
+System-specific documentation for various game systems:
+- **`UI_CONFIGURATION_GUIDE.md`** - UI system configuration
+- **`TEXT_DISPLAY_SYSTEM.md`** - Text display system documentation
+- **`README_TEXT_DISPLAY_SYSTEM.md`** - Text display system guide
+- **`README_BALANCED_COMBAT.md`** - Combat balance documentation
+- **`TUNING_FACTORS_ANALYSIS.md`** - Tuning factors analysis
+- **`TUNING_CONFIG_ANALYSIS.md`** - Tuning configuration analysis
 
-### 3. Settings
-Comprehensive game configuration:
-- **Narrative Balance**: Control mix between action-by-action (0.0) and full narrative (1.0)
-- **Combat Speed**: Adjust combat timing (0.5 = slow, 2.0 = fast)
-- **Difficulty Settings**: Player/enemy health and damage multipliers
-- **Combat Display**: Health bars, damage numbers, action details
-- **Gameplay Options**: Auto-save, combo system, narrative events
-- **Tests**: Access 27+ test categories for system verification
-- **Delete Saved Characters**: Remove saved game data
-- **Reset to Defaults**: Restore all settings to original values
+### 06-Archive/
+Historical notes and reference materials:
+- **`NOTES/`** - Development notes and ideas
+- **`reference images/`** - Reference images and assets
 
-### 4. Tuning Console
-Advanced real-time parameter adjustment:
-- **Combat Parameters**: Damage, health, scaling formulas
-- **Item Scaling**: Weapon/armor tier scaling formulas
-- **Rarity System**: Drop rates and magic find mechanics
-- **Progression Curves**: XP, level scaling, stat growth
-- **XP Reward System**: Enemy XP and level scaling
-- **Enemy DPS Analysis**: Automated balance testing
-- **Formula Testing**: Test mathematical expressions
-- **Balance Analysis**: Full system balance verification
-- **Export/Import**: Save and load configuration presets
-- **Reload Config**: Refresh tuning parameters from files
+## 🚀 Quick Start
 
-### 5. Exit
-Quit the game
+### For New Developers
+1. Start with **[`01-Core/README.md`](01-Core/README.md)** for project overview
+2. Read **[`01-Core/ARCHITECTURE.md`](01-Core/ARCHITECTURE.md)** for system understanding
+3. Check **[`01-Core/TASKLIST.md`](01-Core/TASKLIST.md)** for current priorities
+4. Follow **[`02-Development/DEVELOPMENT_WORKFLOW.md`](02-Development/DEVELOPMENT_WORKFLOW.md)** for process
 
-## In-Game Menu Flow
+### For Problem Solving
+1. Check **[`03-Quality/PROBLEM_SOLUTIONS.md`](03-Quality/PROBLEM_SOLUTIONS.md)** for known issues
+2. Use **[`03-Quality/DEBUGGING_GUIDE.md`](03-Quality/DEBUGGING_GUIDE.md)** for systematic debugging
+3. Reference **[`04-Reference/QUICK_REFERENCE.md`](04-Reference/QUICK_REFERENCE.md)** for fast lookups
 
-### Game Session Menu
-After starting/loading a game, you'll see:
-1. **Choose a Dungeon**: Select from available dungeons based on your level
-2. **Inventory**: Manage equipment, view stats, configure action combos
-3. **Exit Game and Save**: Save progress and return to main menu
+### For Code Quality
+1. Follow **[`02-Development/CODE_PATTERNS.md`](02-Development/CODE_PATTERNS.md)** for consistent code style
+2. Use **[`03-Quality/TESTING_STRATEGY.md`](03-Quality/TESTING_STRATEGY.md)** for comprehensive testing
+3. Monitor **[`03-Quality/PERFORMANCE_NOTES.md`](03-Quality/PERFORMANCE_NOTES.md)** for optimization
 
-### Inventory Management
-The inventory system provides comprehensive character management:
-- **Character Stats Display**: Health, armor, attack stats, class progression
-- **Current Equipment**: Shows equipped weapon and armor with stats
-- **Combo Information**: Current combo sequence and amplification
-- **Inventory List**: All items with detailed stats and bonuses
-- **Action Pool**: All available actions from equipped gear
+## 📖 Complete Index
 
-### Inventory Options
-1. **Equip Item**: Equip weapons and armor from inventory
-2. **Unequip Item**: Remove currently equipped items
-3. **Discard Item**: Remove items from inventory permanently
-4. **Manage Combo Actions**: Configure action sequences for combat
-5. **Continue to Dungeon**: Proceed to dungeon selection
-6. **Return to Main Menu**: Exit inventory and return to game menu
+For a complete index of all documentation files with detailed descriptions and cross-references, see **[`04-Reference/INDEX.md`](04-Reference/INDEX.md)**.
 
-## Advanced Systems
+## 🔄 Maintenance
 
-### Intelligent Delay System
-Optimizes user experience with smart timing:
-- **Fast Full Narrative Mode**: Quick background calculations for narrative mode
-- **Action-Length Matching**: Delays match action length for natural pacing
-- **Configurable**: Disable delays entirely for maximum speed
-- **Settings**: Enable Text Display Delays, Combat Speed multiplier
+When adding new documentation:
+1. Place files in the appropriate subfolder based on their purpose
+2. Update **[`04-Reference/INDEX.md`](04-Reference/INDEX.md)** with new entries
+3. Update cross-references in related documentation
+4. Follow the established naming conventions
 
-### Battle Narrative System
-Event-driven narrative for significant moments:
-- **Informational Summaries**: Clear, factual combat reporting
-- **Poetic Highlights**: Evocative descriptions for important events
-- **Significant Events**: First blood, health reversals, near death, good combos
-- **Configurable Balance**: Adjust mix between narrative and informational display
+---
 
-## Game Systems
-
-### Combat System
-- **Turn-based Combat**: Strategic combat with cooldown-based actions
-- **Action Combo System**: Chain actions for escalating damage (1.85x multiplier per step)
-- **Dice Mechanics**: 1d20 roll system with thresholds (1-5 fail, 6-15 normal, 16-20 combo)
-- **Enemy Scaling**: Dynamic stat scaling based on level and primary attributes
-- **Environmental Effects**: Room-specific actions that modify combat
-
-### Character Progression
-- **Weapon-based Classes**: Barbarian, Warrior, Rogue, Wizard with unique progression
-- **Level-based Stats**: Automatic stat increases and health restoration
-- **Equipment System**: Weapons and armor with tier-based stats and special abilities
-- **Action Pool Management**: Dynamic action selection from equipped gear
-- **Experience Points**: Gain XP from defeating enemies
-
-### Advanced Features
-- **Dynamic Tuning System**: Real-time parameter adjustment with FormulaEvaluator
-- **Balance Analysis**: Automated DPS calculations and combat balance testing
-- **Comprehensive Testing**: 27+ test categories covering all major systems
-- **Data-driven Design**: All game content defined in JSON files
-
-## Testing Framework
-
-Access the comprehensive test suite through Settings → Tests:
-- **System Tests**: Character, items, dice, actions, combat mechanics
-- **Advanced Tests**: Combo system, battle narrative, enemy scaling, delay system
-- **Balance Tests**: DPS analysis, damage balance, enemy thresholds
-- **Integration Tests**: Loot generation, weapon classes, tuning system
-- **All Tests**: Run complete test suite for full system verification
-
-## Configuration Files
-
-The game uses multiple configuration files:
-- **gamesettings.json**: Player settings and preferences (auto-saved)
-- **character_save.json**: Player character data (auto-saved)
-- **TuningConfig.json**: Dynamic tuning parameters
-- **GameData/**: All game content (actions, enemies, rooms, items)
-
-## Development Notes
-
-- **Built with .NET 8.0**: Latest framework with modern C# features
-- **Test-driven Development**: Comprehensive test suite with 27+ categories
-- **Modular Architecture**: Clear separation of concerns with well-defined interfaces
-- **Data-driven Design**: Easy content modification through JSON files
-- **Comprehensive Documentation**: Detailed system overviews and task tracking 
+*This documentation structure is designed to be intuitive and maintainable. Each folder has a specific purpose and the numbering system (01-06) provides a logical reading order.*

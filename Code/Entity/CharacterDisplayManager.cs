@@ -95,7 +95,6 @@ namespace RPGGame
         /// </summary>
         public void DisplayCurrentEquipment()
         {
-            UIManager.WriteMenuLine("");
             UIManager.WriteMenuLine("Currently Equipped:");
 
             // Show weapon with indented stats
@@ -158,7 +157,7 @@ namespace RPGGame
         /// </summary>
         public void DisplayComboInfo()
         {
-            UIManager.WriteMenuLine("");
+            UIManager.WriteMenuLine("---------------------");
             UIManager.WriteMenuLine("Combo Actions:");
             if (character.ComboSequence.Count == 0)
             {
@@ -183,7 +182,8 @@ namespace RPGGame
             // Show stat bonuses
             if (item.StatBonuses.Count > 0)
             {
-                UIManager.WriteMenuLine($"    Stat Bonuses: {string.Join(", ", item.StatBonuses.Select(b => $"{b.StatType} +{b.Value}"))}");
+                var bonusTexts = item.StatBonuses.Select(b => $"{CleanStatBonusName(b.Name)} ({FormatStatBonus(b)})");
+                UIManager.WriteMenuLine($"    Stat Bonuses: {string.Join(", ", bonusTexts)}");
             }
 
             // Show action bonuses (legacy system)
@@ -195,9 +195,56 @@ namespace RPGGame
             // Show modifications
             if (item.Modifications.Count > 0)
             {
-                var modificationTexts = item.Modifications.Select(m => $"{m.Name} ({m.RolledValue:F1})");
+                var modificationTexts = item.Modifications.Select(m => GetModificationDisplayText(m));
                 UIManager.WriteMenuLine($"    Modifications: {string.Join(", ", modificationTexts)}");
             }
+        }
+
+        /// <summary>
+        /// Formats a stat bonus with appropriate display format
+        /// </summary>
+        private string FormatStatBonus(StatBonus bonus)
+        {
+            return bonus.StatType switch
+            {
+                "AttackSpeed" => $"AttackSpeed +{bonus.Value:F2}s",
+                _ => $"{bonus.StatType} +{bonus.Value}"
+            };
+        }
+
+        /// <summary>
+        /// Cleans a stat bonus name by removing the "of " prefix if present
+        /// </summary>
+        private string CleanStatBonusName(string name)
+        {
+            if (name.StartsWith("of ", StringComparison.OrdinalIgnoreCase))
+            {
+                return name.Substring(3); // Remove "of " (3 characters)
+            }
+            return name;
+        }
+
+        /// <summary>
+        /// Gets a descriptive text for a modification showing what the value does
+        /// </summary>
+        private string GetModificationDisplayText(Modification modification)
+        {
+            return modification.Effect switch
+            {
+                "damage" => $"{modification.Name} (+{modification.RolledValue:F0} damage)",
+                "speedMultiplier" => $"{modification.Name} ({(modification.RolledValue - 1.0) * 100:F0}% faster)",
+                "rollBonus" => $"{modification.Name} (+{modification.RolledValue:F0} to rolls)",
+                "damageMultiplier" => $"{modification.Name} ({(modification.RolledValue - 1.0) * 100:F0}% more damage)",
+                "lifesteal" => $"{modification.Name} ({modification.RolledValue * 100:F1}% lifesteal)",
+                "magicFind" => $"{modification.Name} (+{modification.RolledValue:F0} magic find)",
+                "bleedChance" => $"{modification.Name} ({modification.RolledValue * 100:F0}% bleed chance)",
+                "uniqueActionChance" => $"{modification.Name} ({modification.RolledValue * 100:F1}% unique action chance)",
+                "godlike" => $"{modification.Name} (+{modification.RolledValue:F0} to rolls & +1 STR)",
+                "autoSuccess" => $"{modification.Name} (auto-success)",
+                "reroll" => $"{modification.Name} (reroll with +{modification.RolledValue:F0} bonus)",
+                "durability" => $"{modification.Name} (+{modification.RolledValue:F0} durability)",
+                _ => $"{modification.Name} ({modification.RolledValue:F1})"
+            };
         }
 
         /// <summary>

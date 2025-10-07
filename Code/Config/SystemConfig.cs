@@ -19,6 +19,8 @@ namespace RPGGame
     {
         public bool AutoGenerateOnLaunch { get; set; }
         public bool ShowGenerationMessages { get; set; }
+        public bool CreateBackupsOnAutoGenerate { get; set; } = true;
+        public bool ForceOverwriteOnAutoGenerate { get; set; } = false;
         public string Description { get; set; } = "";
     }
 

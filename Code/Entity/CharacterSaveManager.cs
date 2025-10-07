@@ -175,7 +175,6 @@ namespace RPGGame
                 if (File.Exists(filename))
                 {
                     File.Delete(filename);
-                    UIManager.WriteLine($"Save file deleted: {filename}");
                 }
             }
             catch (Exception ex)

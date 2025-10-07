@@ -88,7 +88,7 @@ namespace RPGGame
                 nameParts.Add(rarityPrefix);
             }
             
-            // Add modification names
+            // Add modification names as prefixes (like "Balanced", "Sharp", etc.)
             foreach (var modification in item.Modifications)
             {
                 if (!string.IsNullOrEmpty(modification.Name))
@@ -100,7 +100,14 @@ namespace RPGGame
             // Add base name
             nameParts.Add(baseName);
             
-            // Note: Modifications only have Name property, not separate Prefix/Suffix
+            // Add stat bonus names as suffixes (these are typically "of Protection", "of Swiftness", etc.)
+            foreach (var statBonus in item.StatBonuses)
+            {
+                if (!string.IsNullOrEmpty(statBonus.Name))
+                {
+                    nameParts.Add(statBonus.Name);
+                }
+            }
             
             return string.Join(" ", nameParts);
         }

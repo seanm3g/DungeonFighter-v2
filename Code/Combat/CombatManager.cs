@@ -13,12 +13,12 @@ namespace RPGGame
         
         // Specialized managers using composition pattern
         private readonly CombatStateManager stateManager;
-        private readonly CombatTurnProcessor turnProcessor;
+        private readonly CombatTurnHandler turnHandler;
 
         public CombatManager()
         {
             stateManager = new CombatStateManager();
-            turnProcessor = new CombatTurnProcessor(stateManager);
+            turnHandler = new CombatTurnHandler(stateManager);
         }
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace RPGGame
                 // Player acts
                 if (nextEntity == player && player.IsAlive)
                 {
-                    if (!turnProcessor.ProcessPlayerTurn(player, currentEnemy, room))
+                    if (!turnHandler.ProcessPlayerTurn(player, currentEnemy, room))
                     {
                         break; // Combat ended
                     }
@@ -178,7 +178,7 @@ namespace RPGGame
                 // Enemy acts
                 else if (nextEntity == currentEnemy && currentEnemy.IsAlive)
                 {
-                    if (!turnProcessor.ProcessEnemyTurn(player, currentEnemy, room))
+                    if (!turnHandler.ProcessEnemyTurn(player, currentEnemy, room))
                     {
                         break; // Combat ended
                     }
@@ -186,7 +186,7 @@ namespace RPGGame
                 // Environment acts
                 else if (nextEntity == room && room.IsHostile && room.ActionPool.Count > 0)
                 {
-                    if (!turnProcessor.ProcessEnvironmentTurn(player, currentEnemy, room))
+                    if (!turnHandler.ProcessEnvironmentTurn(player, currentEnemy, room))
                     {
                         break; // Combat ended
                     }

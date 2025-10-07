@@ -420,7 +420,7 @@ namespace RPGGame
 
             if (playerWon)
             {
-                return $"{playerName} defeats {enemyName}!\nTotal damage dealt: {totalPlayerDamage} vs {totalEnemyDamage} received. " +
+                return $"Total damage dealt: {totalPlayerDamage} vs {totalEnemyDamage} received. " +
                        $"Combos executed: {playerComboCount} vs {enemyComboCount}.";
             }
             else if (enemyWon)

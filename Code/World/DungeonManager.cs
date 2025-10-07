@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 
 namespace RPGGame
 {
@@ -11,6 +12,15 @@ namespace RPGGame
         public DungeonGenerationConfig dungeonGeneration { get; set; } = new();
     }
 
+    public class DungeonData
+    {
+        public string name { get; set; } = "";
+        public string theme { get; set; } = "";
+        public int minLevel { get; set; }
+        public int maxLevel { get; set; }
+        public List<string> possibleEnemies { get; set; } = new();
+    }
+
 
     /// <summary>
     /// Manages dungeon-related operations including selection, generation, and completion rewards
@@ -18,46 +28,80 @@ namespace RPGGame
     public class DungeonManager
     {
         private Random random = new Random();
+        private List<DungeonData>? allDungeons = null;
 
         /// <summary>
-        /// Regenerates available dungeons based on player level
+        /// Loads all dungeons from Dungeons.json file
+        /// </summary>
+        /// <returns>List of all available dungeons</returns>
+        private List<DungeonData> LoadAllDungeons()
+        {
+            if (allDungeons != null) return allDungeons;
+
+            try
+            {
+                string jsonPath = Path.Combine("..", "GameData", "Dungeons.json");
+                string jsonContent = File.ReadAllText(jsonPath);
+                allDungeons = JsonSerializer.Deserialize<List<DungeonData>>(jsonContent) ?? new List<DungeonData>();
+                return allDungeons;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading dungeons: {ex.Message}");
+                // Return fallback dungeons if loading fails
+                allDungeons = new List<DungeonData>
+                {
+                    new DungeonData { name = "Ancient Forest", theme = "Forest", minLevel = 1, maxLevel = 100, possibleEnemies = new List<string> { "Goblin", "Wolf", "Bear" } },
+                    new DungeonData { name = "Lava Caves", theme = "Lava", minLevel = 2, maxLevel = 100, possibleEnemies = new List<string> { "Fire Elemental", "Lava Golem" } },
+                    new DungeonData { name = "Haunted Crypt", theme = "Crypt", minLevel = 3, maxLevel = 100, possibleEnemies = new List<string> { "Skeleton", "Zombie", "Wraith" } }
+                };
+                return allDungeons;
+            }
+        }
+
+        /// <summary>
+        /// Regenerates available dungeons based on player level using actual dungeons from Dungeons.json
         /// </summary>
         /// <param name="player">The player character</param>
         /// <param name="availableDungeons">List to populate with available dungeons</param>
         public void RegenerateDungeons(Character player, List<Dungeon> availableDungeons)
         {
-            // Always regenerate dungeons based on current player level
             availableDungeons.Clear();
             int playerLevel = player.Level;
-            int[] dungeonLevels = new int[] { Math.Max(1, playerLevel - 1), playerLevel, playerLevel + 1 };
             
-            // Load dungeon themes from config
-            var dungeonConfig = Game.LoadDungeonConfig();
-            var themes = dungeonConfig.dungeonThemes.ToArray();
+            // Load all dungeons from Dungeons.json
+            var allDungeons = LoadAllDungeons();
             
-            // Shuffle themes to ensure no repeats
-            var shuffledThemes = themes.OrderBy(x => random.Next()).ToArray();
+            // Filter dungeons that are appropriate for the player's level
+            var suitableDungeons = allDungeons.Where(d => 
+                playerLevel >= d.minLevel && playerLevel <= d.maxLevel
+            ).ToList();
             
-            // Create unique dungeon combinations with proper theme selection
-            var usedThemes = new HashSet<string>();
-            int dungeonCount = 0;
-            int themeIndex = 0;
-            
-            // Sort dungeon levels to ensure proper ordering
-            Array.Sort(dungeonLevels);
-            
-            while (dungeonCount < 3 && themeIndex < shuffledThemes.Length)
+            // If no dungeons are suitable for current level, find the closest ones
+            if (suitableDungeons.Count == 0)
             {
-                string currentTheme = shuffledThemes[themeIndex];
-                if (!usedThemes.Contains(currentTheme))
-                {
-                    usedThemes.Add(currentTheme);
-                    int level = dungeonLevels[dungeonCount % dungeonLevels.Length];
-                    string themedName = $"{currentTheme} Dungeon (Level {level})";
-                    availableDungeons.Add(new Dungeon(themedName, level, level, currentTheme));
-                    dungeonCount++;
-                }
-                themeIndex++;
+                // Find dungeons with minimum level requirements closest to player level
+                suitableDungeons = allDungeons
+                    .OrderBy(d => Math.Abs(d.minLevel - playerLevel))
+                    .Take(3)
+                    .ToList();
+            }
+            
+            // Shuffle and select up to 3 dungeons
+            var shuffledDungeons = suitableDungeons.OrderBy(x => random.Next()).Take(3).ToList();
+            
+            // Create Dungeon objects from the selected DungeonData
+            foreach (var dungeonData in shuffledDungeons)
+            {
+                // Use the actual dungeon level (minLevel) for the dungeon instance
+                int dungeonLevel = dungeonData.minLevel;
+                availableDungeons.Add(new Dungeon(
+                    dungeonData.name, 
+                    dungeonLevel, 
+                    dungeonLevel, 
+                    dungeonData.theme,
+                    dungeonData.possibleEnemies
+                ));
             }
             
             // Sort dungeons by level (lowest to highest)
@@ -76,7 +120,7 @@ namespace RPGGame
             for (int i = 0; i < availableDungeons.Count; i++)
             {
                 var d = availableDungeons[i];
-                UIManager.WriteMenuLine($"{i + 1}. {d.Name}");
+                UIManager.WriteMenuLine($"{i + 1}. {d.Name} (lvl {d.MinLevel})");
             }
 
             int choice = -1;
@@ -172,7 +216,9 @@ namespace RPGGame
                 // Display "You found:" with half beat delay
                 UIManager.WriteSystemLine("You found:");
                 // Display item name with 2x beat delay (using title delay which is longer)
-                UIManager.WriteTitleLine(reward.Name);
+                UIManager.WriteTitleLine(FormatItemNameWithRarityInParentheses(reward));
+                // Add blank line after item display
+                UIManager.WriteSystemLine("");
             }
             else
             {
@@ -190,7 +236,7 @@ namespace RPGGame
         /// <returns>True if player survived the dungeon, false if player died</returns>
         public bool RunDungeon(Dungeon selectedDungeon, Character player, CombatManager combatManager)
         {
-            UIManager.WriteDungeonLine($"\nEntering {selectedDungeon.Name}...");
+            UIManager.WriteDungeonLine($"\nEntering {selectedDungeon.Name}...\n");
 
             // Room Sequence
             foreach (Environment room in selectedDungeon.Rooms)
@@ -220,7 +266,7 @@ namespace RPGGame
                     UIManager.WriteBlankLine(); // Blank line between "Encountered" and stats
                     UIManager.WriteSystemLine($"Hero Stats - Health: {player.CurrentHealth}/{player.GetEffectiveMaxHealth()}, Armor: {player.GetTotalArmor()}, Attack: STR {player.GetEffectiveStrength()}, AGI {player.GetEffectiveAgility()}, TEC {player.GetEffectiveTechnique()}, INT {player.GetEffectiveIntelligence()}, Attack Time: {player.GetTotalAttackSpeed():F2}s");
                     UIManager.WriteSystemLine($"Enemy Stats - Health: {currentEnemy.CurrentHealth}/{currentEnemy.MaxHealth}, Armor: {currentEnemy.Armor}, Attack: STR {currentEnemy.Strength}, AGI {currentEnemy.Agility}, TEC {currentEnemy.Technique}, INT {currentEnemy.Intelligence}, Attack Time: {currentEnemy.GetTotalAttackSpeed():F2}s");
-                    UIManager.WriteSystemLine($"--- Turn 1 (Action 1/10) ---");
+                    // Turn separator line removed for cleaner combat logs
                     UIManager.ApplyDelay(UIMessageType.Encounter); // Add configurable delay after encounter message
 
                     // Show action speed info
@@ -251,7 +297,7 @@ namespace RPGGame
                     else
                     {
                         // Use TextDisplayIntegration for consistent entity tracking
-                        string defeatMessage = $"\n[{currentEnemy.Name}] has been defeated!";
+                        string defeatMessage = $"[{currentEnemy.Name}] has been defeated!";
                         TextDisplayIntegration.DisplayCombatAction(defeatMessage, new List<string>(), new List<string>(), "System");
                         player.AddXP(currentEnemy.XPReward);
                     }
@@ -273,6 +319,32 @@ namespace RPGGame
             }
 
             return true; // Player survived the dungeon
+        }
+
+        /// <summary>
+        /// Formats an item name to display rarity in parentheses instead of as a prefix
+        /// </summary>
+        /// <param name="item">The item to format</param>
+        /// <returns>Formatted item name with rarity in parentheses</returns>
+        private static string FormatItemNameWithRarityInParentheses(Item item)
+        {
+            string name = item.Name;
+            
+            // Check for rarity prefixes and move them to parentheses
+            string[] rarities = { "Legendary", "Epic", "Rare", "Uncommon", "Common" };
+            
+            foreach (string rarity in rarities)
+            {
+                if (name.StartsWith(rarity + " "))
+                {
+                    // Remove the rarity prefix and add it in parentheses
+                    string nameWithoutRarity = name.Substring(rarity.Length + 1);
+                    return $"({rarity}) {nameWithoutRarity}";
+                }
+            }
+            
+            // If no rarity prefix found, return the name as-is
+            return name;
         }
     }
 }

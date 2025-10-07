@@ -194,12 +194,21 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Writes a stun message with effect message delay (backward compatibility)
+        /// Writes a stun message with effect message delay and proper spacing
         /// </summary>
         /// <param name="message">Stun message to display</param>
         public static void WriteStunLine(string message)
         {
+            // Add blank line before stun message if configured
+            if (UIConfig.AddBlankLinesAfterStunMessages)
+            {
+                WriteBlankLine();
+            }
+            
             WriteEffectLine(message);
+            
+            // Add blank line after stun message to separate from next entity action
+            WriteBlankLine();
         }
         
         /// <summary>

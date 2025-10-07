@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Threading;
+using RPGGame;
 
 namespace RPGGame
 {
@@ -38,6 +39,8 @@ namespace RPGGame
                 Console.Write("Choose an option: ");
 
                 string? choice = Console.ReadLine();
+                
+                
                 switch (choice)
                 {
                     case "1":
@@ -81,7 +84,7 @@ namespace RPGGame
             var availableDungeons = new List<Dungeon>();
             
             gameInitializer.InitializeNewGame(player, availableDungeons);
-            RunGame(player, inventory, availableDungeons);
+            RunGame(player, inventory, availableDungeons, false); // false = new character
         }
 
         /// <summary>
@@ -104,7 +107,7 @@ namespace RPGGame
                 var availableDungeons = new List<Dungeon>();
                 
                 gameInitializer.InitializeExistingGame(player, availableDungeons);
-                RunGame(player, inventory, availableDungeons);
+                RunGame(player, inventory, availableDungeons, true); // true = loaded character
             }
             else
             {
@@ -121,18 +124,19 @@ namespace RPGGame
         /// <param name="player">The player character</param>
         /// <param name="inventory">Player's inventory</param>
         /// <param name="availableDungeons">Available dungeons list</param>
-        public void RunGame(Character player, List<Item> inventory, List<Dungeon> availableDungeons)
+        /// <param name="isLoadedCharacter">True if this is a loaded character, false if new</param>
+        public void RunGame(Character player, List<Item> inventory, List<Dungeon> availableDungeons, bool isLoadedCharacter = false)
         {
             // Delegate to GameLoopManager for the actual game loop logic
-            gameLoopManager.RunGameLoop(player, inventory, availableDungeons);
+            gameLoopManager.RunGameLoop(player, inventory, availableDungeons, isLoadedCharacter);
         }
 
         /// <summary>
         /// Gets information about saved character
         /// </summary>
-        /// <param name="filename">Save file path</param>
+        /// <param name="filename">Save file path (optional, uses default if null)</param>
         /// <returns>Character name and level, or null/0 if not found</returns>
-        private (string? name, int level) GetSavedCharacterInfo(string filename = "GameData/character_save.json")
+        private (string? name, int level) GetSavedCharacterInfo(string? filename = null)
         {
             return CharacterSaveManager.GetSavedCharacterInfo(filename);
         }

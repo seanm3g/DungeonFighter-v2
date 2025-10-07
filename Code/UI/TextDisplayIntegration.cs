@@ -71,7 +71,7 @@ namespace RPGGame
                 UIManager.WriteEffectLine(effect);
             }
             
-            // Don't add blank line here - let UIManager handle entity-based spacing
+            // No blank line after combat actions for cleaner formatting
         }
 
         
@@ -112,6 +112,9 @@ namespace RPGGame
             {
                 UIManager.WriteMenuLine(option);
             }
+            
+            // Add blank line after menu options for better spacing
+            UIManager.WriteBlankLine();
             
             // Reset menu delay counter after menu display is complete
             UIManager.ResetMenuDelayCounter();

@@ -8,6 +8,29 @@ namespace RPGGame
     {
         static void Main(string[] args)
         {
+            // Test amplification scaling if requested
+            if (args.Length > 0 && args[0] == "test-amplification")
+            {
+                TestAmplificationScaling();
+                return;
+            }
+            
+            // Test game data generator if requested
+            if (args.Length > 0 && args[0] == "test-generator")
+            {
+                GameDataGeneratorTest.TestRefactoredGenerator();
+                GameDataGeneratorTest.TestBackupFunctionality();
+                return;
+            }
+            
+            // Manual game data generation if requested
+            if (args.Length > 0 && args[0] == "generate-data")
+            {
+                bool forceOverwrite = args.Length > 1 && args[1] == "--force";
+                GameDataGenerator.GenerateGameDataManually(forceOverwrite);
+                return;
+            }
+            
             // Initialize the UI configuration system
             UIManager.ReloadConfiguration();
             
@@ -23,10 +46,29 @@ namespace RPGGame
                     {
                         TextDisplayIntegration.DisplaySystem("Initializing game data...");
                     }
-                    GameDataGenerator.GenerateAllGameData();
+                    
+                    // Use configuration-controlled generation for automatic startup
+                    var config = GameConfiguration.Instance.GameData;
+                    var result = GameDataGenerator.GenerateAllGameData(forceOverwrite: config.ForceOverwriteOnAutoGenerate);
+                    
                     if (GameConfiguration.Instance.GameData.ShowGenerationMessages)
                     {
-                        TextDisplayIntegration.DisplaySystem("Game data initialization complete!");
+                        if (result.HasErrors)
+                        {
+                            TextDisplayIntegration.DisplaySystem($"Warning: Game data generation completed with errors. Check console for details.");
+                        }
+                        else if (result.HasWarnings)
+                        {
+                            TextDisplayIntegration.DisplaySystem($"Game data generation completed with warnings. Check console for details.");
+                        }
+                        else if (result.TotalFilesUpdated > 0)
+                        {
+                            TextDisplayIntegration.DisplaySystem($"Game data updated: {result.TotalFilesUpdated} files modified.");
+                        }
+                        else
+                        {
+                            TextDisplayIntegration.DisplaySystem("Game data is up to date.");
+                        }
                         TextDisplayIntegration.DisplayBlankLine();
                     }
                 }
@@ -108,6 +150,41 @@ namespace RPGGame
             if (File.Exists(parentGameDataPath)) return parentGameDataPath;
             
             return null;
+        }
+        
+        /// <summary>
+        /// Test method to verify amplification scaling works correctly
+        /// </summary>
+        static void TestAmplificationScaling()
+        {
+            Console.WriteLine("=== Amplification Scaling Test ===");
+            Console.WriteLine("Testing Technique 1-10 amplification values:");
+            Console.WriteLine();
+
+            // Create a test character with different Technique values
+            for (int tech = 1; tech <= 10; tech++)
+            {
+                var character = new Character("Test");
+                character.Technique = tech;
+                
+                var calculator = new CharacterCombatCalculator(character);
+                double amplification = calculator.GetComboAmplifier();
+                
+                Console.WriteLine($"Technique {tech,2}: {amplification:F3}x");
+            }
+            
+            Console.WriteLine();
+            Console.WriteLine("Expected values:");
+            Console.WriteLine("Technique  1: 1.010x (base)");
+            Console.WriteLine("Technique  2: 1.020x");
+            Console.WriteLine("Technique  3: 1.030x");
+            Console.WriteLine("Technique  4: 1.040x");
+            Console.WriteLine("Technique  5: 1.050x (ComboAmplifierAtTech5)");
+            Console.WriteLine("Technique  6: 1.063x (scaling to max)");
+            Console.WriteLine("Technique 10: 1.126x (scaling to max)");
+            Console.WriteLine();
+            Console.WriteLine("Press any key to exit...");
+            Console.ReadKey();
         }
     }
 }

@@ -16,7 +16,8 @@ namespace RPGGame
         Berserker,    // High damage - aggressive fighters
         Guardian,     // High armor - protective tanks
         Brute,        // High health - heavy hitters
-        Assassin      // High attack speed - quick strikers
+        Assassin,     // High attack speed - quick strikers
+        Mage          // High intelligence - magical casters
     }
 
     /// <summary>
@@ -233,11 +234,20 @@ namespace RPGGame
             // Clamp Technique to valid range
             int clampedTech = Math.Max(1, Math.Min(tuning.ComboSystem.ComboAmplifierMaxTech, Technique));
             
-            // Calculate base amplification using the same formula as heroes
-            double baseAmplification = tuning.ComboSystem.ComboAmplifierAtTech5;
-            double amplificationPerPoint = (tuning.ComboSystem.ComboAmplifierMax - baseAmplification) / (tuning.ComboSystem.ComboAmplifierMaxTech - 5);
+            // Linear scaling from 1.01 at Technique 1 to ComboAmplifierAtTech5 at Technique 5 (same as heroes)
+            if (clampedTech <= 5)
+            {
+                double lowTechProgress = (clampedTech - 1) / 4.0; // Scale from 1 to 5 (4 point range)
+                double baseAmplifier = 1.01; // Start at 1.01x for Technique 1
+                double lowAmpRange = tuning.ComboSystem.ComboAmplifierAtTech5 - baseAmplifier;
+                return baseAmplifier + (lowAmpRange * lowTechProgress);
+            }
             
-            return Math.Min(tuning.ComboSystem.ComboAmplifierMax, baseAmplification + (clampedTech - 5) * amplificationPerPoint);
+            // Linear interpolation between ComboAmplifierAtTech5 and ComboAmplifierMax for Technique > 5
+            double techRange = tuning.ComboSystem.ComboAmplifierMaxTech - 5;
+            double highAmpRange = tuning.ComboSystem.ComboAmplifierMax - tuning.ComboSystem.ComboAmplifierAtTech5;
+            double highTechProgress = (clampedTech - 5) / techRange;
+            return tuning.ComboSystem.ComboAmplifierAtTech5 + (highAmpRange * highTechProgress);
         }
 
         /// <summary>
@@ -326,32 +336,35 @@ namespace RPGGame
             if (action == null)
                 return ($"{Name} has no available actions!", false);
                 
-            int roll = Dice.Roll(20);
+            // Use the same roll system as ActionExecutor for consistency
+            int baseRoll = Dice.Roll(20);
+            int rollBonus = ActionUtilities.CalculateRollBonus(this, action);
+            int totalRoll = baseRoll + rollBonus;
             int difficulty = 8 + (Level / 2);  // Higher level enemies have better accuracy
             
             // Simplified combat logic - narrative mode handling moved to CombatManager
-            if (roll >= difficulty)
+            if (totalRoll >= difficulty)
             {
                 var settings = GameSettings.Instance;
-                int finalEffect = CombatCalculator.CalculateDamage(this, target, action, 1.0, settings.EnemyDamageMultiplier, 0, roll, false);
+                int finalEffect = CombatCalculator.CalculateDamage(this, target, action, 1.0, settings.EnemyDamageMultiplier, rollBonus, baseRoll, false);
                 
                 if (action.Type == ActionType.Attack)
                 {
                     target.TakeDamage(finalEffect);
                     // Use the same parameters as the actual damage calculation to avoid duplicate weakened messages
-                    int actualDamage = CombatCalculator.CalculateDamage(this, target, action, 1.0, settings.EnemyDamageMultiplier, 0, roll, false);
-                    string damageDisplay = CombatResults.FormatDamageDisplay(this, target, finalEffect, actualDamage, action, 1.0, settings.EnemyDamageMultiplier, 0, roll);
-                    return ($"[{Name}] uses [{action.Name}] on [{target.Name}]: deals {damageDisplay}. (Rolled {roll}, need {difficulty})", true);
+                    int actualDamage = CombatCalculator.CalculateDamage(this, target, action, 1.0, settings.EnemyDamageMultiplier, rollBonus, baseRoll, false);
+                    string damageDisplay = CombatResults.FormatDamageDisplay(this, target, finalEffect, actualDamage, action, 1.0, settings.EnemyDamageMultiplier, rollBonus, baseRoll);
+                    return ($"[{Name}] uses [{action.Name}] on [{target.Name}]: deals {damageDisplay}. (Rolled {totalRoll}, need {difficulty})", true);
                 }
                 else if (action.Type == ActionType.Debuff)
                 {
-                    return ($"[{Name}] uses [{action.Name}] on [{target.Name}]: applies debuff. (Rolled {roll}, need {difficulty})", true);
+                    return ($"[{Name}] uses [{action.Name}] on [{target.Name}]: applies debuff. (Rolled {totalRoll}, need {difficulty})", true);
                 }
-                return ($"[{Name}] uses [{action.Name}] on [{target.Name}]. (Rolled {roll}, need {difficulty})", true);
+                return ($"[{Name}] uses [{action.Name}] on [{target.Name}]. (Rolled {totalRoll}, need {difficulty})", true);
             }
             else
             {
-                return ($"[{Name}] attempts [{action.Name}] but fails. (Rolled {roll}, need {difficulty}) No action performed.", false);
+                return ($"[{Name}] attempts [{action.Name}] but fails. (Rolled {totalRoll}, need {difficulty}) No action performed.", false);
             }
         }
         
@@ -451,6 +464,15 @@ namespace RPGGame
                 {
                     Archetype = EnemyArchetype.Guardian,
                     Name = "Guardian",
+                    SpeedMultiplier = 1.0,
+                    DamageMultiplier = 1.0,
+                    HealthMultiplier = 1.0,
+                    ArmorMultiplier = 1.0
+                },
+                EnemyArchetype.Mage => new EnemyAttackProfile
+                {
+                    Archetype = EnemyArchetype.Mage,
+                    Name = "Mage",
                     SpeedMultiplier = 1.0,
                     DamageMultiplier = 1.0,
                     HealthMultiplier = 1.0,

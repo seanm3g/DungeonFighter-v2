@@ -62,10 +62,28 @@ namespace RPGGame
         public double BaseDropChance { get; set; }
         public double DropChancePerLevel { get; set; }
         public double MaxDropChance { get; set; }
+        public double GuaranteedLootChance { get; set; }
         public double MagicFindEffectiveness { get; set; }
         public double GoldDropMultiplier { get; set; }
         public double ItemValueMultiplier { get; set; }
         public string Description { get; set; } = "";
+    }
+
+    /// <summary>
+    /// Modification rarity configuration
+    /// </summary>
+    public class ModificationRarityConfig
+    {
+        public double Common { get; set; } = 35.0;
+        public double Uncommon { get; set; } = 25.0;
+        public double Rare { get; set; } = 20.0;
+        public double Epic { get; set; } = 12.0;
+        public double Legendary { get; set; } = 6.0;
+        public double Mythic { get; set; } = 1.8;
+        public double Transcendent { get; set; } = 0.2;
+        public double TierBonusPerLevel { get; set; } = 1.5;
+        public double BonusPointEffectiveness { get; set; } = 1.0;
+        public string Description { get; set; } = "Modification rarity distribution percentages. Total should equal 100.0";
     }
 
     /// <summary>

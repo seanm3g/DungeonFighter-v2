@@ -23,7 +23,11 @@
   { "DiceResult": 22, "ItemRank": "Mythic", "Name": "Time Warp", "Description": "50% faster attack speed", "Effect": "speedMultiplier", "MinValue": 1.5, "MaxValue": 1.5 },
   { "DiceResult": 23, "ItemRank": "Mythic", "Name": "Perfect", "Description": "All attacks automatically succeed", "Effect": "autoSuccess", "MinValue": 1, "MaxValue": 1 },
   { "DiceResult": 24, "ItemRank": "Mythic", "Name": "Divine", "Description": "ADD +3 TO MODS AND REROLL", "Effect": "reroll", "MinValue": 3, "MaxValue": 3 },
-  { "DiceResult": 25, "ItemRank": "Common", "Name": "Magic Fingers", "Description": "+1 Magic Find", "Effect": "magicFind", "MinValue": 1, "MaxValue": 1 },
-  { "DiceResult": 26, "ItemRank": "Uncommon", "Name": "Lucky", "Description": "+3 to +5 Magic Find", "Effect": "magicFind", "MinValue": 3, "MaxValue": 5 },
-  { "DiceResult": 27, "ItemRank": "Epic", "Name": "Magical Lamp", "Description": "+5 to +15 Magic Find", "Effect": "magicFind", "MinValue": 5, "MaxValue": 15 }
+  { "DiceResult": 25, "ItemRank": "Transcendent", "Name": "Reality Breaker", "Description": "50% more damage & 100% faster attack speed", "Effect": "realityBreaker", "MinValue": 1.5, "MaxValue": 2.0 },
+  { "DiceResult": 26, "ItemRank": "Transcendent", "Name": "Omnipotent", "Description": "All attacks succeed & +10 to all rolls", "Effect": "omnipotent", "MinValue": 10, "MaxValue": 10 },
+  { "DiceResult": 27, "ItemRank": "Transcendent", "Name": "Infinite", "Description": "Infinite durability & perfect stats", "Effect": "infinite", "MinValue": 1, "MaxValue": 1 },
+  { "DiceResult": 28, "ItemRank": "Transcendent", "Name": "Cosmic", "Description": "Transcends all limitations", "Effect": "cosmic", "MinValue": 1, "MaxValue": 1 },
+  { "DiceResult": 29, "ItemRank": "Common", "Name": "Magic Fingers", "Description": "+1 Magic Find", "Effect": "magicFind", "MinValue": 1, "MaxValue": 1 },
+  { "DiceResult": 30, "ItemRank": "Uncommon", "Name": "Lucky", "Description": "+3 to +5 Magic Find", "Effect": "magicFind", "MinValue": 3, "MaxValue": 5 },
+  { "DiceResult": 31, "ItemRank": "Epic", "Name": "Magical Lamp", "Description": "+5 to +15 Magic Find", "Effect": "magicFind", "MinValue": 5, "MaxValue": 15 }
 ]

@@ -48,8 +48,6 @@ namespace RPGGame
                     string summary = currentBattleNarrative.GenerateInformationalSummary();
                     if (!string.IsNullOrEmpty(summary))
                     {
-                        // Add blank line before battle summary
-                        UIManager.WriteBlankLine();
                         // Use system delay for combat summary
                         UIManager.WriteSystemLine(summary);
                     }
@@ -80,8 +78,6 @@ namespace RPGGame
                     string summary = currentBattleNarrative.GenerateInformationalSummary();
                     if (!string.IsNullOrEmpty(summary))
                     {
-                        // Add blank line before battle summary
-                        UIManager.WriteBlankLine();
                         // Use system delay for combat summary
                         UIManager.WriteSystemLine(summary);
                     }

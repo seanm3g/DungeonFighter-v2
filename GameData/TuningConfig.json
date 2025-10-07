@@ -5,7 +5,8 @@
     "MinimumDamage": 1,
     "BaseAttackTime": 8.0,
     "AgilitySpeedReduction": 0.1,
-    "MinimumAttackTime": 0.1
+    "MinimumAttackTime": 0.1,
+    "Description": "Core combat mechanics and timing"
   },
   "CombatBalance": {
     "CriticalHitChance": 0.05,
@@ -32,10 +33,27 @@
     },
     "Description": "Advanced combat mechanics and balance settings"
   },
+  "RollSystem": {
+    "MissThreshold": {
+      "Min": 1,
+      "Max": 5
+    },
+    "BasicAttackThreshold": {
+      "Min": 6,
+      "Max": 13
+    },
+    "ComboThreshold": {
+      "Min": 14,
+      "Max": 19
+    },
+    "CriticalThreshold": 20,
+    "Description": "Roll system thresholds for determining action types and critical hits"
+  },
   "Character": {
     "PlayerBaseHealth": 100,
     "HealthPerLevel": 3,
-    "EnemyHealthPerLevel": 3
+    "EnemyHealthPerLevel": 3,
+    "Description": "Character health scaling parameters"
   },
   "Attributes": {
     "PlayerBaseAttributes": {
@@ -47,16 +65,81 @@
     "PlayerAttributesPerLevel": 2,
     "EnemyAttributesPerLevel": 2,
     "EnemyPrimaryAttributeBonus": 1,
-    "IntelligenceRollBonusPer": 10
+    "IntelligenceRollBonusPer": 10,
+    "Description": "Attribute scaling for players and enemies"
   },
-  "EnemyScaling": {
-    "EnemyHealthMultiplier": 0.5,
-    "EnemyDamageMultiplier": 0.25,
-    "EnemyLevelVariance": 1,
-    "BaseDPSAtLevel1": 3.0,
-    "DPSPerLevel": 0.3,
-    "EnemyBaseArmorAtLevel1": 1,
-    "EnemyArmorPerLevel": 0.1
+  "EnemySystem": {
+    "GlobalMultipliers": {
+      "HealthMultiplier": 1.0,
+      "DamageMultiplier": 1.0,
+      "ArmorMultiplier": 1.0,
+      "SpeedMultiplier": 1.0,
+      "Description": "Global multipliers applied to all enemies"
+    },
+    "BaselineStats": {
+      "Health": 50,
+      "Strength": 3,
+      "Agility": 3,
+      "Technique": 3,
+      "Intelligence": 3,
+      "Armor": 2,
+      "Description": "Base stats that all enemies start with"
+    },
+    "ScalingPerLevel": {
+      "Health": 3,
+      "Attributes": 2,
+      "Armor": 0.1,
+      "Description": "How much stats increase per enemy level"
+    },
+    "Archetypes": {
+      "Berserker": {
+        "Health": 0.8,
+        "Strength": 1.5,
+        "Agility": 0.9,
+        "Technique": 0.9,
+        "Intelligence": 0.8,
+        "Armor": 0.5,
+        "Description": "High damage - aggressive fighters"
+      },
+      "Guardian": {
+        "Health": 1.0,
+        "Strength": 0.8,
+        "Agility": 0.8,
+        "Technique": 0.8,
+        "Intelligence": 0.8,
+        "Armor": 1.8,
+        "Description": "High armor - protective tanks"
+      },
+      "Assassin": {
+        "Health": 0.7,
+        "Strength": 1.0,
+        "Agility": 1.6,
+        "Technique": 1.2,
+        "Intelligence": 1.0,
+        "Armor": 0.4,
+        "Description": "High attack speed - quick strikers"
+      },
+      "Brute": {
+        "Health": 1.6,
+        "Strength": 1.0,
+        "Agility": 0.7,
+        "Technique": 0.7,
+        "Intelligence": 0.7,
+        "Armor": 0.8,
+        "Description": "High health - heavy hitters"
+      },
+      "Mage": {
+        "Health": 0.6,
+        "Strength": 0.6,
+        "Agility": 0.8,
+        "Technique": 0.8,
+        "Intelligence": 1.8,
+        "Armor": 0.3,
+        "Description": "High intelligence - magical casters"
+      }
+    },
+    "LevelVariance": 1,
+    "Description": "Unified enemy system with archetypes and scaling"
   },
   "Progression": {
     "BaseXPToLevel2": 100,
@@ -68,7 +151,8 @@
     "LevelCap": 100,
     "StatPointsPerLevel": 2,
     "SkillPointsPerLevel": 1,
-    "AttributeCap": 100
+    "AttributeCap": 100,
+    "Description": "Character progression and experience system"
   },
   "StatusEffects": {
     "Bleed": {
@@ -109,12 +193,14 @@
       "SpeedReduction": 0.0,
       "Duration": 0.0,
       "SkipTurns": 0
-    }
+    },
+    "Description": "Status effect configurations and balance"
   },
   "LootSystem": {
-    "BaseDropChance": 0.3,
-    "DropChancePerLevel": 0.02,
-    "MaxDropChance": 0.8,
+    "BaseDropChance": 0.2,
+    "DropChancePerLevel": 0.015,
+    "MaxDropChance": 0.6,
+    "GuaranteedLootChance": 1.0,
     "MagicFindEffectiveness": 0.01,
     "GoldDropMultiplier": 1.0,
     "ItemValueMultiplier": 1.0,
@@ -123,37 +209,20 @@
   "ComboSystem": {
     "ComboAmplifierAtTech5": 1.05,
     "ComboAmplifierMax": 2.0,
-    "ComboAmplifierMaxTech": 100
-  },
-  "DifficultySettings": {
-    "Easy": {
-      "EnemyHealthMultiplier": 0.8,
-      "EnemyDamageMultiplier": 0.8,
-      "XPMultiplier": 1.2,
-      "LootMultiplier": 1.1
-    },
-    "Normal": {
-      "EnemyHealthMultiplier": 1.0,
-      "EnemyDamageMultiplier": 1.0,
-      "XPMultiplier": 1.0,
-      "LootMultiplier": 1.0
-    },
-    "Hard": {
-      "EnemyHealthMultiplier": 1.3,
-      "EnemyDamageMultiplier": 1.2,
-      "XPMultiplier": 1.5,
-      "LootMultiplier": 1.3
-    },
-    "Description": "Difficulty level multipliers for game balance"
+    "ComboAmplifierMaxTech": 100,
+    "Description": "Combo system scaling and amplification"
   },
   "GameSpeed": {
     "GameTickerInterval": 1.0,
-    "GameSpeedMultiplier": 1.0
+    "GameSpeedMultiplier": 1.0,
+    "Description": "Game timing and speed controls"
   },
   "GameData": {
     "AutoGenerateOnLaunch": true,
     "ShowGenerationMessages": false,
-    "Description": "Controls automatic generation of game data files at launch"
+    "CreateBackupsOnAutoGenerate": true,
+    "ForceOverwriteOnAutoGenerate": false,
+    "Description": "Controls automatic generation of game data files at launch. CreateBackupsOnAutoGenerate creates backup files before writing. ForceOverwriteOnAutoGenerate forces regeneration even when no changes are needed."
   },
   "Debug": {
     "EnableDebugOutput": true,
@@ -173,14 +242,6 @@
     "DefaultCharacterName": "Unknown",
     "Description": "Dungeon generation defaults and configuration"
   },
-  "ExperienceSystem": {
-    "BaseXPFormula": "BaseXP * (Level^1.5)",
-    "LevelCap": 100,
-    "StatPointsPerLevel": 2,
-    "SkillPointsPerLevel": 1,
-    "AttributeCap": 100,
-    "Description": "Character progression and experience system"
-  },
   "DungeonScaling": {
     "RoomCountBase": 3,
     "RoomCountPerLevel": 0.5,
@@ -189,68 +250,6 @@
     "TrapRoomChance": 0.2,
     "TreasureRoomChance": 0.15,
     "Description": "Dungeon generation and scaling parameters"
-  },
-  "EnemyBaseline": {
-    "BaseStats": {
-      "Health": 65,
-      "Strength": 3,
-      "Agility": 3,
-      "Technique": 3,
-      "Intelligence": 3,
-      "Armor": 2
-    },
-    "ScalingPerLevel": {
-      "Health": 3,
-      "Attributes": 2,
-      "Armor": 0.1
-    },
-    "Description": "Baseline stats that all enemies are derived from"
-  },
-  "EnemyArchetypes": {
-    "Berserker": {
-      "StatMultipliers": {
-        "Health": 0.8,
-        "Strength": 1.5,
-        "Agility": 0.9,
-        "Technique": 0.9,
-        "Intelligence": 0.8,
-        "Armor": 0.5
-      },
-      "Description": "High damage - aggressive fighters"
-    },
-    "Guardian": {
-      "StatMultipliers": {
-        "Health": 1.0,
-        "Strength": 0.8,
-        "Agility": 0.8,
-        "Technique": 0.8,
-        "Intelligence": 0.8,
-        "Armor": 1.8
-      },
-      "Description": "High armor - protective tanks"
-    },
-    "Assassin": {
-      "StatMultipliers": {
-        "Health": 0.7,
-        "Strength": 1.0,
-        "Agility": 1.6,
-        "Technique": 1.2,
-        "Intelligence": 1.0,
-        "Armor": 0.4
-      },
-      "Description": "High attack speed - quick strikers"
-    },
-    "Brute": {
-      "StatMultipliers": {
-        "Health": 1.6,
-        "Strength": 1.0,
-        "Agility": 0.7,
-        "Technique": 0.7,
-        "Intelligence": 0.7,
-        "Armor": 0.8
-      },
-      "Description": "High health - heavy hitters"
-    }
   },
   "WeaponScaling": {
     "StartingWeaponDamage": {
@@ -262,426 +261,25 @@
     "GlobalDamageMultiplier": 1.0,
     "Description": "Weapon damage scaling and starting weapon configuration"
   },
-  "EnemyBalance": {
-    "AttributePool": {
-      "BasePointsAtLevel1": 25,
-      "PointsPerLevel": 0
-    },
-    "SustainPool": {
-      "BasePointsAtLevel1": 35,
-      "PointsPerLevel": 0
-    },
-    "StatConversionRates": {
-      "StrengthPerPoint": 1.05,
-      "AgilityPerPoint": 1.05,
-      "TechniquePerPoint": 1.05,
-      "IntelligencePerPoint": 1.05,
-      "HealthPerPoint": 1.05,
-      "ArmorPerPoint": 0.35
-    },
-    "BaseEnemyConfigs": {
-      "Goblin": {
-        "BaseLevel": 1,
-        "BaseHealth": 60,
-        "BaseStats": {
-          "Strength": 7,
-          "Agility": 1,
-          "Technique": 1,
-          "Intelligence": 1
-        },
-        "BaseArmor": 2,
-        "PrimaryAttribute": "Strength",
-        "IsLiving": true,
-        "Actions": ["JAB", "TAUNT"]
-      },
-      "Orc": {
-        "BaseLevel": 1,
-        "BaseHealth": 35,
-        "BaseStats": {
-          "Strength": 4,
-          "Agility": 1,
-          "Technique": 2,
-          "Intelligence": 2
-        },
-        "BaseArmor": 1,
-        "PrimaryAttribute": "Strength",
-        "IsLiving": true,
-        "Actions": ["BRUTAL STRIKE", "WAR CRY"]
-      },
-      "Bandit": {
-        "BaseLevel": 1,
-        "BaseHealth": 20,
-        "BaseStats": {
-          "Strength": 2,
-          "Agility": 3,
-          "Technique": 2,
-          "Intelligence": 1
-        },
-        "BaseArmor": 0,
-        "PrimaryAttribute": "Agility",
-        "IsLiving": true,
-        "Actions": ["QUICK STRIKE", "DODGE"]
-      },
-      "Skeleton": {
-        "BaseLevel": 1,
-        "BaseHealth": 15,
-        "BaseStats": {
-          "Strength": 2,
-          "Agility": 2,
-          "Technique": 1,
-          "Intelligence": 1
-        },
-        "BaseArmor": 0,
-        "PrimaryAttribute": "Agility",
-        "IsLiving": false,
-        "Actions": ["BONE STRIKE", "RATTLE"]
-      },
-      "Cultist": {
-        "BaseLevel": 1,
-        "BaseHealth": 18,
-        "BaseStats": {
-          "Strength": 1,
-          "Agility": 1,
-          "Technique": 2,
-          "Intelligence": 4
-        },
-        "BaseArmor": 0,
-        "PrimaryAttribute": "Intelligence",
-        "IsLiving": true,
-        "Actions": ["DARK BOLT", "CURSE"]
-      },
-      "Wolf": {
-        "BaseLevel": 1,
-        "BaseHealth": 20,
-        "BaseStats": {
-          "Strength": 2,
-          "Agility": 2,
-          "Technique": 1,
-          "Intelligence": 1
-        },
-        "BaseArmor": 0,
-        "PrimaryAttribute": "Agility",
-        "IsLiving": true,
-        "Actions": ["BITE", "HOWL"]
-      },
-      "Bear": {
-        "BaseLevel": 1,
-        "BaseHealth": 30,
-        "BaseStats": {
-          "Strength": 3,
-          "Agility": 1,
-          "Technique": 1,
-          "Intelligence": 1
-        },
-        "BaseArmor": 1,
-        "PrimaryAttribute": "Strength",
-        "IsLiving": true,
-        "Actions": ["MAUL", "ROAR"]
-      },
-      "Treant": {
-        "BaseLevel": 1,
-        "BaseHealth": 35,
-        "BaseStats": {
-          "Strength": 3,
-          "Agility": 1,
-          "Technique": 2,
-          "Intelligence": 2
-        },
-        "BaseArmor": 2,
-        "PrimaryAttribute": "Strength",
-        "IsLiving": true,
-        "Actions": ["ROOT STRIKE", "ENTANGLE"]
-      },
-      "Fire Elemental": {
-        "BaseLevel": 1,
-        "BaseHealth": 20,
-        "BaseStats": {
-          "Strength": 2,
-          "Agility": 2,
-          "Technique": 1,
-          "Intelligence": 5
-        },
-        "BaseArmor": 0,
-        "PrimaryAttribute": "Intelligence",
-        "IsLiving": false,
-        "Actions": ["FIRE BOLT", "IGNITE"]
-      },
-      "Lava Golem": {
-        "BaseLevel": 1,
-        "BaseHealth": 60,
-        "BaseStats": {
-          "Strength": 6,
-          "Agility": 1,
-          "Technique": 1,
-          "Intelligence": 1
-        },
-        "BaseArmor": 4,
-        "PrimaryAttribute": "Strength",
-        "IsLiving": false,
-        "Actions": ["MAGMA FIST", "ERUPTION"]
-      },
-      "Salamander": {
-        "BaseLevel": 1,
-        "BaseHealth": 25,
-        "BaseStats": {
-          "Strength": 3,
-          "Agility": 4,
-          "Technique": 2,
-          "Intelligence": 2
-        },
-        "BaseArmor": 1,
-        "PrimaryAttribute": "Agility",
-        "IsLiving": true,
-        "Actions": ["FLAME STRIKE", "HEAT WAVE"]
-      },
-      "Zombie": {
-        "BaseLevel": 1,
-        "BaseHealth": 25,
-        "BaseStats": {
-          "Strength": 3,
-          "Agility": 1,
-          "Technique": 1,
-          "Intelligence": 1
-        },
-        "BaseArmor": 0,
-        "PrimaryAttribute": "Strength",
-        "IsLiving": false,
-        "Actions": ["CLAW", "GROAN"]
-      },
-      "Wraith": {
-        "BaseLevel": 1,
-        "BaseHealth": 15,
-        "BaseStats": {
-          "Strength": 1,
-          "Agility": 3,
-          "Technique": 2,
-          "Intelligence": 4
-        },
-        "BaseArmor": 0,
-        "PrimaryAttribute": "Intelligence",
-        "IsLiving": false,
-        "Actions": ["SOUL DRAIN", "PHASE"]
-      },
-      "Lich": {
-        "BaseLevel": 1,
-        "BaseHealth": 30,
-        "BaseStats": {
-          "Strength": 2,
-          "Agility": 1,
-          "Technique": 2,
-          "Intelligence": 4
-        },
-        "BaseArmor": 1,
-        "PrimaryAttribute": "Intelligence",
-        "IsLiving": false,
-        "Actions": ["DEATH BOLT", "RAISE DEAD"]
-      },
-      "Crystal Golem": {
-        "BaseLevel": 1,
-        "BaseHealth": 45,
-        "BaseStats": {
-          "Strength": 4,
-          "Agility": 1,
-          "Technique": 1,
-          "Intelligence": 1
-        },
-        "BaseArmor": 2,
-        "PrimaryAttribute": "Strength",
-        "IsLiving": false,
-        "Actions": ["CRYSTAL SMASH", "REFLECT"]
-      },
-      "Prism Spider": {
-        "BaseLevel": 1,
-        "BaseHealth": 18,
-        "BaseStats": {
-          "Strength": 2,
-          "Agility": 5,
-          "Technique": 3,
-          "Intelligence": 2
-        },
-        "BaseArmor": 1,
-        "PrimaryAttribute": "Agility",
-        "IsLiving": true,
-        "Actions": ["WEB STRIKE", "PRISM BEAM"]
-      },
-      "Stone Guardian": {
-        "BaseLevel": 1,
-        "BaseHealth": 50,
-        "BaseStats": {
-          "Strength": 4,
-          "Agility": 1,
-          "Technique": 2,
-          "Intelligence": 1
-        },
-        "BaseArmor": 3,
-        "PrimaryAttribute": "Strength",
-        "IsLiving": false,
-        "Actions": ["STONE CRUSH", "EARTHQUAKE"]
-      },
-      "Temple Warden": {
-        "BaseLevel": 1,
-        "BaseHealth": 40,
-        "BaseStats": {
-          "Strength": 3,
-          "Agility": 2,
-          "Technique": 4,
-          "Intelligence": 3
-        },
-        "BaseArmor": 3,
-        "PrimaryAttribute": "Technique",
-        "IsLiving": true,
-        "Actions": ["DIVINE STRIKE", "BLESSING"]
-      },
-      "Kobold": {
-        "BaseLevel": 1,
-        "BaseHealth": 12,
-        "BaseStats": {
-          "Strength": 1,
-          "Agility": 3,
-          "Technique": 2,
-          "Intelligence": 1
-        },
-        "BaseArmor": 0,
-        "PrimaryAttribute": "Agility",
-        "IsLiving": true,
-        "Actions": ["SNEAK ATTACK", "TRAP"]
-      }
-    },
-    "ArchetypeConfigs": {
-      "Berserker": {
-        "AttributePoolRatio": 0.5,
-        "SUSTAINPoolRatio": 0.5,
-        "StrengthRatio": 0.3,
-        "AgilityRatio": 0.4,
-        "TechniqueRatio": 0.2,
-        "IntelligenceRatio": 0.1,
-        "SUSTAINHealthRatio": 0.9,
-        "SUSTAINArmorRatio": 0.1,
-        "Level1Modifiers": {
-          "HealthBonus": 0,
-          "StrengthBonus": 0,
-          "AgilityBonus": 0,
-          "TechniqueBonus": 0,
-          "IntelligenceBonus": 0,
-          "ArmorBonus": 0
-        },
-        "ArchetypeBonuses": {
-          "StrengthMultiplier": 1.2,
-          "AttackSpeedMultiplier": 1.1
-        }
-      },
-      "Assassin": {
-        "AttributePoolRatio": 0.5,
-        "SUSTAINPoolRatio": 0.5,
-        "StrengthRatio": 0.2,
-        "AgilityRatio": 0.5,
-        "TechniqueRatio": 0.2,
-        "IntelligenceRatio": 0.1,
-        "SUSTAINHealthRatio": 0.9,
-        "SUSTAINArmorRatio": 0.1,
-        "Level1Modifiers": {
-          "HealthBonus": 0,
-          "StrengthBonus": 0,
-          "AgilityBonus": 0,
-          "TechniqueBonus": 0,
-          "IntelligenceBonus": 0,
-          "ArmorBonus": 0
-        },
-        "ArchetypeBonuses": {
-          "AgilityMultiplier": 1.3,
-          "AttackSpeedMultiplier": 1.2
-        }
-      },
-      "Warrior": {
-        "AttributePoolRatio": 0.5,
-        "SUSTAINPoolRatio": 0.5,
-        "StrengthRatio": 0.3,
-        "AgilityRatio": 0.3,
-        "TechniqueRatio": 0.3,
-        "IntelligenceRatio": 0.1,
-        "SUSTAINHealthRatio": 0.9,
-        "SUSTAINArmorRatio": 0.1,
-        "Level1Modifiers": {
-          "HealthBonus": 0,
-          "StrengthBonus": 0,
-          "AgilityBonus": 0,
-          "TechniqueBonus": 0,
-          "IntelligenceBonus": 0,
-          "ArmorBonus": 0
-        },
-        "ArchetypeBonuses": {
-          "StrengthMultiplier": 1.0,
-          "AttackSpeedMultiplier": 1.0
-        }
-      },
-      "Brute": {
-        "AttributePoolRatio": 0.5,
-        "SUSTAINPoolRatio": 0.5,
-        "StrengthRatio": 0.5,
-        "AgilityRatio": 0.2,
-        "TechniqueRatio": 0.2,
-        "IntelligenceRatio": 0.1,
-        "SUSTAINHealthRatio": 0.9,
-        "SUSTAINArmorRatio": 0.1,
-        "Level1Modifiers": {
-          "HealthBonus": 0,
-          "StrengthBonus": 0,
-          "AgilityBonus": 0,
-          "TechniqueBonus": 0,
-          "IntelligenceBonus": 0,
-          "ArmorBonus": 0
-        },
-        "ArchetypeBonuses": {
-          "StrengthMultiplier": 1.1,
-          "HealthMultiplier": 1.1
-        }
-      },
-      "Juggernaut": {
-        "AttributePoolRatio": 0.5,
-        "SUSTAINPoolRatio": 0.5,
-        "StrengthRatio": 0.4,
-        "AgilityRatio": 0.1,
-        "TechniqueRatio": 0.3,
-        "IntelligenceRatio": 0.2,
-        "SUSTAINHealthRatio": 0.9,
-        "SUSTAINArmorRatio": 0.1,
-        "Level1Modifiers": {
-          "HealthBonus": 0,
-          "StrengthBonus": 0,
-          "AgilityBonus": 0,
-          "TechniqueBonus": 0,
-          "IntelligenceBonus": 0,
-          "ArmorBonus": 0
-        },
-        "ArchetypeBonuses": {
-          "HealthMultiplier": 1.3,
-          "ArmorMultiplier": 1.2
-        }
-      },
-      "Guardian": {
-        "AttributePoolRatio": 0.5,
-        "SUSTAINPoolRatio": 0.5,
-        "StrengthRatio": 0.2,
-        "AgilityRatio": 0.2,
-        "TechniqueRatio": 0.3,
-        "IntelligenceRatio": 0.3,
-        "SUSTAINHealthRatio": 0.9,
-        "SUSTAINArmorRatio": 0.1,
-        "Level1Modifiers": {
-          "HealthBonus": 0,
-          "StrengthBonus": 0,
-          "AgilityBonus": 0,
-          "TechniqueBonus": 0,
-          "IntelligenceBonus": 0,
-          "ArmorBonus": 0
-        },
-        "ArchetypeBonuses": {
-          "HealthMultiplier": 1.5,
-          "ArmorMultiplier": 1.4,
-          "StrengthMultiplier": 0.8
-        }
-      }
-    }
+  "EquipmentScaling": {
+    "WeaponDamagePerTier": 2,
+    "ArmorValuePerTier": 1,
+    "SpeedBonusPerTier": 0.05,
+    "MaxTier": 5,
+    "EnchantmentChance": 0.1,
+    "Description": "Equipment progression and scaling parameters"
+  },
+  "ModificationRarity": {
+    "Common": 35.0,
+    "Uncommon": 25.0,
+    "Rare": 20.0,
+    "Epic": 12.0,
+    "Legendary": 6.0,
+    "Mythic": 1.8,
+    "Transcendent": 0.2,
+    "TierBonusPerLevel": 1.5,
+    "BonusPointEffectiveness": 1.0,
+    "Description": "Modification rarity distribution percentages. Total should equal 100.0"
   },
   "UICustomization": {
     "MenuSeparator": "==========================================",
@@ -711,6 +309,7 @@
       "WarningPrefix": "Warning",
       "ErrorPrefix": "Error",
       "InfoPrefix": "Info"
-    }
+    },
+    "Description": "UI customization and message configuration"
   }
 }

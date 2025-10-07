@@ -17,6 +17,7 @@ namespace RPGGame
         // Spacing Configuration
         public bool AddBlankLinesBetweenEntities { get; set; } = true;
         public bool AddBlankLinesAfterDamageOverTime { get; set; } = true;
+        public bool AddBlankLinesAfterStunMessages { get; set; } = true;
         
         // Debug Configuration
         public bool ShowTimingInfo { get; set; } = false;

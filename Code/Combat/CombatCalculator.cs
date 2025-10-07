@@ -78,16 +78,20 @@ namespace RPGGame
                         }
                     }
                 }
-                // Enhanced damage scaling based on roll using RollSystem configuration
-                var rollSystem = GameConfiguration.Instance.RollSystem;
-                var rollMultipliers = combatBalance.RollDamageMultipliers;
-                if (roll >= rollSystem.ComboThreshold.Min)
+                else
                 {
-                    totalDamage *= rollMultipliers.ComboRollDamageMultiplier;
-                }
-                else if (roll >= rollSystem.BasicAttackThreshold.Min)
-                {
-                    totalDamage *= rollMultipliers.BasicRollDamageMultiplier;
+                    // Enhanced damage scaling based on roll using RollSystem configuration
+                    // Only apply if not a critical hit (roll < 20)
+                    var rollSystem = GameConfiguration.Instance.RollSystem;
+                    var rollMultipliers = combatBalance.RollDamageMultipliers;
+                    if (roll >= rollSystem.ComboThreshold.Min)
+                    {
+                        totalDamage *= rollMultipliers.ComboRollDamageMultiplier;
+                    }
+                    else if (roll >= rollSystem.BasicAttackThreshold.Min)
+                    {
+                        totalDamage *= rollMultipliers.BasicRollDamageMultiplier;
+                    }
                 }
             }
             

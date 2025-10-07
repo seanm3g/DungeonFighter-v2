@@ -56,14 +56,12 @@ namespace RPGGame
                 if (foundPath != null)
                 {
                     string jsonContent = File.ReadAllText(foundPath);
-                    UIManager.WriteSystemLine($"Reading JSON from {foundPath}, content length: {jsonContent.Length}");
                     
                     var roomList = JsonSerializer.Deserialize<List<RoomData>>(jsonContent);
                     
                     _rooms = new Dictionary<string, RoomData>();
                     if (roomList != null)
                     {
-                        UIManager.WriteSystemLine($"Deserialized {roomList.Count} room types from JSON");
                         foreach (var room in roomList)
                         {
                             if (!string.IsNullOrEmpty(room.Name))
@@ -80,7 +78,6 @@ namespace RPGGame
                     {
                         UIManager.WriteSystemLine("Warning: JSON deserialization returned null");
                     }
-                    UIManager.WriteSystemLine($"Successfully loaded {_rooms.Count} room types from {foundPath}");
                 }
                 else
                 {
