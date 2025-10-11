@@ -49,3 +49,17 @@ two dimensions - level and the specific dungeon
 92. An action that happens in the sequence in response to the environment. Dodge or something.
 93. Could you include movement in between actions as sort of navigation actions.?
 94. Add all of the attributes for enemies.  Find common ideas, has blood, alive, has hands (can hold a weapon), intelligent.
+95. If you add target priority, then you gain the ability to having multiple enemies.
+96. Use this to build a flowchart?
+97. junk gear is chaotic actions like mud on helmet. Junk actions.
+98. fire should heal an elemental fire enemy
+99. The enemies should have taunts. "I hope you like to read, bitch" - Book Golem, "Shh! Quiet it's a library!"
+100. Whole category of status effects
+101. Is stun a guaranteed 2 turn loss, with a chance for another.
+102. roll 2 dice, take the lowest. debuff
+103. flip enemy bonuses
+104. Ignores armor / reduces armor by 50%  Status effect
+105. Abandoned Temple should have no enemies
+106. Shrines or Aura's that are temporary stat bonuses.
+107. status effects, enemy tags, actions, rooms, environmental actions
+108. Random piece of gear becomes empowered and only upon killing X demons that it yields tokens. Collect every piece of gear beacuse you don't know what will become blessed.  If you use a blessed item to kill a demon you burn the item in exchange for the token.

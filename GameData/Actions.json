@@ -834,7 +834,7 @@
   {
     "name": "MAGIC MISSILE",
     "type": "Spell",
-    "damageMultiplier": 1.2,
+    "damageMultiplier": 0.8,
     "length": 1.1,
     "description": "Fast magical projectile likely to hit",
     "comboOrder": 0,
@@ -844,8 +844,8 @@
   },
   {
     "name": "ARCANE SHIELD",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
+    "type": "Spell",
+    "damageMultiplier": 0.5,
     "length": 1.0,
     "description": "Quick protective barrier that reduces the next incoming attack damage by half and weakens enemies",
     "comboOrder": 1,
@@ -2768,7 +2768,7 @@
     "tags": ["enemy", "storm"]
   },
   {
-    "name": "MAGIC MISSILE",
+    "name": "ARCANE MISSILE",
     "type": "Attack",
     "damageMultiplier": 1.0,
     "length": 1.0,

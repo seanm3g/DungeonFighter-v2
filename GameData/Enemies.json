@@ -2173,5 +2173,1715 @@
     ],
     "isLiving": false,
     "description": "A being that walks through eternity"
+  },
+  {
+    "name": "Ice Elemental",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.2,
+      "strength": 1.1,
+      "technique": 0.9
+    },
+    "actions": [
+      "ICE SHARDS",
+      "FROST BITE"
+    ],
+    "isLiving": false,
+    "description": "A creature of pure ice and cold"
+  },
+  {
+    "name": "Frost Wolf",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.8,
+      "agility": 1.3,
+      "technique": 1.1
+    },
+    "actions": [
+      "FROST BITE",
+      "WINTER HOWL"
+    ],
+    "isLiving": true,
+    "description": "A wolf with ice-cold breath and frozen claws"
+  },
+  {
+    "name": "Yeti",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.4,
+      "strength": 1.2,
+      "agility": 0.8
+    },
+    "actions": [
+      "SNOW CRUSH",
+      "ICE CLAW"
+    ],
+    "isLiving": true,
+    "description": "A massive creature of the frozen peaks"
+  },
+  {
+    "name": "Ice Golem",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.3,
+      "strength": 1.1,
+      "armor": 1.2
+    },
+    "actions": [
+      "ICE CRUSH",
+      "FROST ARMOR"
+    ],
+    "isLiving": false,
+    "description": "A golem carved from solid ice"
+  },
+  {
+    "name": "Frozen Wraith",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.7,
+      "agility": 1.2,
+      "technique": 1.3
+    },
+    "actions": [
+      "CHILLING TOUCH",
+      "ICE SHROUD"
+    ],
+    "isLiving": false,
+    "description": "A spirit frozen in eternal winter"
+  },
+  {
+    "name": "Blizzard Beast",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.0,
+      "technique": 1.2
+    },
+    "actions": [
+      "SNOW STORM",
+      "BLIZZARD"
+    ],
+    "isLiving": true,
+    "description": "A beast that commands the power of blizzards"
+  },
+  {
+    "name": "Shadow Stalker",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.8,
+      "agility": 1.4,
+      "technique": 1.2
+    },
+    "actions": [
+      "SHADOW STRIKE",
+      "SHADOW GRASP"
+    ],
+    "isLiving": false,
+    "description": "A creature that moves through shadows"
+  },
+  {
+    "name": "Dark Mage",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.9,
+      "intelligence": 1.4,
+      "technique": 1.1
+    },
+    "actions": [
+      "DARK BOLT",
+      "SHADOW BLAST"
+    ],
+    "isLiving": true,
+    "description": "A mage corrupted by dark magic"
+  },
+  {
+    "name": "Void Walker",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.0,
+      "strength": 1.1,
+      "intelligence": 1.2
+    },
+    "actions": [
+      "VOID TOUCH",
+      "DARK AURA"
+    ],
+    "isLiving": false,
+    "description": "A being that walks between dimensions"
+  },
+  {
+    "name": "Shadow Beast",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.2,
+      "agility": 1.0
+    },
+    "actions": [
+      "SHADOW STRIKE",
+      "TERRIFY"
+    ],
+    "isLiving": false,
+    "description": "A beast born from pure darkness"
+  },
+  {
+    "name": "Nightmare",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.9,
+      "intelligence": 1.3,
+      "technique": 1.2
+    },
+    "actions": [
+      "NIGHTMARE",
+      "DREAM CLAW"
+    ],
+    "isLiving": false,
+    "description": "A creature that feeds on fear and dreams"
+  },
+  {
+    "name": "Umbra",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.2,
+      "strength": 1.1,
+      "intelligence": 1.1
+    },
+    "actions": [
+      "SHADOW BLAST",
+      "DARK AURA"
+    ],
+    "isLiving": false,
+    "description": "The embodiment of shadow itself"
+  },
+  {
+    "name": "Swamp Troll",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.3,
+      "strength": 1.2,
+      "agility": 0.8
+    },
+    "actions": [
+      "SWAMP CLAW",
+      "POISON SPIT"
+    ],
+    "isLiving": true,
+    "description": "A massive troll that dwells in the swamps"
+  },
+  {
+    "name": "Poison Frog",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.6,
+      "agility": 1.3,
+      "technique": 1.2
+    },
+    "actions": [
+      "POISON DART",
+      "LEAP"
+    ],
+    "isLiving": true,
+    "description": "A brightly colored frog with deadly poison"
+  },
+  {
+    "name": "Bog Witch",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.9,
+      "intelligence": 1.4,
+      "technique": 1.1
+    },
+    "actions": [
+      "POISON CLOUD",
+      "CURSE"
+    ],
+    "isLiving": true,
+    "description": "A witch who draws power from the bog"
+  },
+  {
+    "name": "Marsh Serpent",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.1,
+      "agility": 1.0
+    },
+    "actions": [
+      "SERPENT STRIKE",
+      "CONSTRICT"
+    ],
+    "isLiving": true,
+    "description": "A massive serpent that lurks in the marsh"
+  },
+  {
+    "name": "Toxic Slime",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.0,
+      "strength": 1.0,
+      "armor": 0.8
+    },
+    "actions": [
+      "ACIDIC SPLASH",
+      "TOXIC CLOUD"
+    ],
+    "isLiving": false,
+    "description": "A slime creature filled with toxic waste"
+  },
+  {
+    "name": "Venomous Spider",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.7,
+      "agility": 1.3,
+      "technique": 1.2
+    },
+    "actions": [
+      "VENOMOUS BITE",
+      "WEB STRIKE"
+    ],
+    "isLiving": true,
+    "description": "A spider with deadly venom in its fangs"
+  },
+  {
+    "name": "Star Guardian",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.2,
+      "strength": 1.1,
+      "intelligence": 1.2
+    },
+    "actions": [
+      "STAR BURST",
+      "STELLAR SHIELD"
+    ],
+    "isLiving": false,
+    "description": "A guardian of the celestial realm"
+  },
+  {
+    "name": "Cosmic Wisp",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.7,
+      "agility": 1.3,
+      "intelligence": 1.3
+    },
+    "actions": [
+      "COSMIC RAY",
+      "GRAVITY WELL"
+    ],
+    "isLiving": false,
+    "description": "A wisp of pure cosmic energy"
+  },
+  {
+    "name": "Astral Mage",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.9,
+      "intelligence": 1.4,
+      "technique": 1.1
+    },
+    "actions": [
+      "STELLAR ALIGNMENT",
+      "COSMIC RAY"
+    ],
+    "isLiving": true,
+    "description": "A mage who draws power from the stars"
+  },
+  {
+    "name": "Nebula Beast",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.2,
+      "intelligence": 1.0
+    },
+    "actions": [
+      "COMET STRIKE",
+      "COSMIC TAIL"
+    ],
+    "isLiving": false,
+    "description": "A beast born from stellar dust"
+  },
+  {
+    "name": "Comet Spirit",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.8,
+      "agility": 1.4,
+      "technique": 1.2
+    },
+    "actions": [
+      "COMET STRIKE",
+      "GALACTIC STRIKE"
+    ],
+    "isLiving": false,
+    "description": "A spirit that rides on comets"
+  },
+  {
+    "name": "Galaxy Walker",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.3,
+      "strength": 1.1,
+      "intelligence": 1.1
+    },
+    "actions": [
+      "GALACTIC STRIKE",
+      "STELLAR ALIGNMENT"
+    ],
+    "isLiving": false,
+    "description": "A being that walks between galaxies"
+  },
+  {
+    "name": "Deep Dwarf",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.2,
+      "armor": 1.1
+    },
+    "actions": [
+      "PICKAXE STRIKE",
+      "BRACE"
+    ],
+    "isLiving": true,
+    "description": "A dwarf who has lived deep underground for centuries"
+  },
+  {
+    "name": "Cave Troll",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.4,
+      "strength": 1.3,
+      "agility": 0.7
+    },
+    "actions": [
+      "CLUB SMASH",
+      "INTIMIDATE"
+    ],
+    "isLiving": true,
+    "description": "A massive troll that dwells in deep caves"
+  },
+  {
+    "name": "Underground Rat",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.6,
+      "agility": 1.4,
+      "technique": 1.1
+    },
+    "actions": [
+      "DISEASE BITE",
+      "SWARM"
+    ],
+    "isLiving": true,
+    "description": "A large rat that carries disease"
+  },
+  {
+    "name": "Mole Beast",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.0,
+      "strength": 1.1,
+      "agility": 0.9
+    },
+    "actions": [
+      "TUNNEL STRIKE",
+      "BURROW"
+    ],
+    "isLiving": true,
+    "description": "A massive mole with powerful digging claws"
+  },
+  {
+    "name": "Tunnel Worm",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.2,
+      "strength": 1.1,
+      "armor": 0.9
+    },
+    "actions": [
+      "BURROW",
+      "CONSTRICT"
+    ],
+    "isLiving": true,
+    "description": "A giant worm that tunnels through rock"
+  },
+  {
+    "name": "Subterranean Guard",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.1,
+      "armor": 1.2
+    },
+    "actions": [
+      "GUARDIAN STRIKE",
+      "SHIELD BASH"
+    ],
+    "isLiving": true,
+    "description": "A guard who protects underground passages"
+  },
+  {
+    "name": "Storm Elemental",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.0,
+      "technique": 1.3
+    },
+    "actions": [
+      "LIGHTNING STRIKE",
+      "WIND GUST"
+    ],
+    "isLiving": false,
+    "description": "A creature of pure storm energy"
+  },
+  {
+    "name": "Lightning Bird",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.8,
+      "agility": 1.4,
+      "technique": 1.2
+    },
+    "actions": [
+      "LIGHTNING STRIKE",
+      "SWOOP ATTACK"
+    ],
+    "isLiving": true,
+    "description": "A bird that commands the power of lightning"
+  },
+  {
+    "name": "Thunder Giant",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.3,
+      "strength": 1.2,
+      "technique": 1.1
+    },
+    "actions": [
+      "THUNDER CLAP",
+      "STORM'S EYE"
+    ],
+    "isLiving": true,
+    "description": "A giant that wields the power of thunder"
+  },
+  {
+    "name": "Wind Spirit",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.7,
+      "agility": 1.5,
+      "technique": 1.2
+    },
+    "actions": [
+      "WIND GUST",
+      "STORM'S EYE"
+    ],
+    "isLiving": false,
+    "description": "A spirit of pure wind and air"
+  },
+  {
+    "name": "Tempest Beast",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.2,
+      "strength": 1.1,
+      "agility": 1.1
+    },
+    "actions": [
+      "THUNDER CLAP",
+      "LIGHTNING STRIKE"
+    ],
+    "isLiving": true,
+    "description": "A beast that commands the power of tempests"
+  },
+  {
+    "name": "Hurricane Wraith",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.9,
+      "agility": 1.3,
+      "intelligence": 1.2
+    },
+    "actions": [
+      "WIND GUST",
+      "STORM'S EYE"
+    ],
+    "isLiving": false,
+    "description": "A wraith that rides on hurricane winds"
+  },
+  {
+    "name": "Nature Spirit",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.8,
+      "agility": 1.3,
+      "intelligence": 1.2
+    },
+    "actions": [
+      "NATURE'S WRATH",
+      "HEALING TOUCH"
+    ],
+    "isLiving": false,
+    "description": "A spirit that embodies the power of nature"
+  },
+  {
+    "name": "Flower Guardian",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.0,
+      "strength": 1.0,
+      "technique": 1.2
+    },
+    "actions": [
+      "POLLEN BURST",
+      "THORN STRIKE"
+    ],
+    "isLiving": false,
+    "description": "A guardian that protects the mystical garden"
+  },
+  {
+    "name": "Vine Beast",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.1,
+      "agility": 0.9
+    },
+    "actions": [
+      "VINE WHIP",
+      "ENTANGLE"
+    ],
+    "isLiving": true,
+    "description": "A beast made of living vines"
+  },
+  {
+    "name": "Garden Sprite",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.6,
+      "agility": 1.4,
+      "technique": 1.3
+    },
+    "actions": [
+      "SPRITE DART",
+      "NATURE'S BLESSING"
+    ],
+    "isLiving": true,
+    "description": "A small sprite that tends to the garden"
+  },
+  {
+    "name": "Thorn Wolf",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.9,
+      "agility": 1.3,
+      "technique": 1.1
+    },
+    "actions": [
+      "THORN BITE",
+      "HOWL"
+    ],
+    "isLiving": true,
+    "description": "A wolf with thorns growing from its fur"
+  },
+  {
+    "name": "Bloom Elemental",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.0,
+      "technique": 1.2
+    },
+    "actions": [
+      "PETAL STORM",
+      "BLOOM BURST"
+    ],
+    "isLiving": false,
+    "description": "An elemental of pure blooming energy"
+  },
+  {
+    "name": "Arcane Scholar",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.9,
+      "intelligence": 1.4,
+      "technique": 1.1
+    },
+    "actions": [
+      "ARCANE DISCHARGE",
+      "ARCANE MISSILE"
+    ],
+    "isLiving": true,
+    "description": "A scholar who has mastered ancient magic"
+  },
+  {
+    "name": "Book Golem",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.2,
+      "strength": 1.1,
+      "intelligence": 1.1
+    },
+    "actions": [
+      "PAPER CUT",
+      "WISDOM BOLT"
+    ],
+    "isLiving": false,
+    "description": "A golem made from ancient tomes"
+  },
+  {
+    "name": "Knowledge Spirit",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.8,
+      "intelligence": 1.5,
+      "technique": 1.1
+    },
+    "actions": [
+      "WISDOM BOLT",
+      "SILENCE"
+    ],
+    "isLiving": false,
+    "description": "A spirit that embodies pure knowledge"
+  },
+  {
+    "name": "Scroll Guardian",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.0,
+      "strength": 1.0,
+      "intelligence": 1.2
+    },
+    "actions": [
+      "SCROLL STRIKE",
+      "ARCANE SHIELD"
+    ],
+    "isLiving": false,
+    "description": "A guardian that protects ancient scrolls"
+  },
+  {
+    "name": "Tome Beast",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.1,
+      "intelligence": 1.0
+    },
+    "actions": [
+      "PAPER CUT",
+      "ARCANE DISCHARGE"
+    ],
+    "isLiving": false,
+    "description": "A beast that feeds on magical knowledge"
+  },
+  {
+    "name": "Librarian Wraith",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.9,
+      "intelligence": 1.3,
+      "technique": 1.2
+    },
+    "actions": [
+      "SILENCE",
+      "WISDOM BOLT"
+    ],
+    "isLiving": false,
+    "description": "A wraith that haunts the ancient library"
+  },
+  {
+    "name": "Sand Elemental",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.0,
+      "strength": 1.0,
+      "technique": 1.2
+    },
+    "actions": [
+      "SANDSTORM",
+      "QUICKSAND"
+    ],
+    "isLiving": false,
+    "description": "A creature of pure sand and wind"
+  },
+  {
+    "name": "Desert Nomad",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.9,
+      "agility": 1.3,
+      "technique": 1.1
+    },
+    "actions": [
+      "DESERT BLESSING",
+      "HEAT MIRAGE"
+    ],
+    "isLiving": true,
+    "description": "A nomad who has survived the harsh desert"
+  },
+  {
+    "name": "Cactus Beast",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.1,
+      "armor": 1.1
+    },
+    "actions": [
+      "THORN STRIKE",
+      "DESERT BLESSING"
+    ],
+    "isLiving": true,
+    "description": "A beast that resembles a giant cactus"
+  },
+  {
+    "name": "Oasis Spirit",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.8,
+      "intelligence": 1.3,
+      "technique": 1.2
+    },
+    "actions": [
+      "HEALING WATERS",
+      "HEAT MIRAGE"
+    ],
+    "isLiving": false,
+    "description": "A spirit that guards the desert oasis"
+  },
+  {
+    "name": "Sand Worm",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.2,
+      "strength": 1.2,
+      "agility": 0.8
+    },
+    "actions": [
+      "BURROW",
+      "SANDSTORM"
+    ],
+    "isLiving": true,
+    "description": "A massive worm that burrows through sand"
+  },
+  {
+    "name": "Mirage Phantom",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.7,
+      "agility": 1.4,
+      "intelligence": 1.2
+    },
+    "actions": [
+      "HEAT MIRAGE",
+      "PHASE"
+    ],
+    "isLiving": false,
+    "description": "A phantom that appears as desert mirages"
+  },
+  {
+    "name": "Magma Beast",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.2,
+      "strength": 1.2,
+      "technique": 1.0
+    },
+    "actions": [
+      "LAVA SURGE",
+      "MAGMA PUNCH"
+    ],
+    "isLiving": false,
+    "description": "A beast made of molten rock"
+  },
+  {
+    "name": "Volcano Spirit",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.9,
+      "intelligence": 1.3,
+      "technique": 1.2
+    },
+    "actions": [
+      "ASH CLOUD",
+      "LAVA SPLASH"
+    ],
+    "isLiving": false,
+    "description": "A spirit that embodies volcanic power"
+  },
+  {
+    "name": "Ash Elemental",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.0,
+      "strength": 1.0,
+      "technique": 1.2
+    },
+    "actions": [
+      "ASH CLOUD",
+      "STEAM BURST"
+    ],
+    "isLiving": false,
+    "description": "An elemental of volcanic ash"
+  },
+  {
+    "name": "Lava Serpent",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.1,
+      "agility": 1.0
+    },
+    "actions": [
+      "LAVA SPLASH",
+      "CONSTRICT"
+    ],
+    "isLiving": false,
+    "description": "A serpent made of flowing lava"
+  },
+  {
+    "name": "Ember Golem",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.3,
+      "strength": 1.1,
+      "armor": 1.1
+    },
+    "actions": [
+      "MAGMA PUNCH",
+      "FIRE BREATH"
+    ],
+    "isLiving": false,
+    "description": "A golem made of glowing embers"
+  },
+  {
+    "name": "Pyroclast",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.8,
+      "agility": 1.3,
+      "technique": 1.2
+    },
+    "actions": [
+      "STEAM BURST",
+      "FALLING DEBRIS"
+    ],
+    "isLiving": false,
+    "description": "A creature of volcanic debris and ash"
+  },
+  {
+    "name": "Sea Serpent",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.2,
+      "strength": 1.2,
+      "agility": 1.0
+    },
+    "actions": [
+      "TIDAL WAVE",
+      "CONSTRICT"
+    ],
+    "isLiving": true,
+    "description": "A massive serpent that rules the ocean depths"
+  },
+  {
+    "name": "Kraken Spawn",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.1,
+      "technique": 1.1
+    },
+    "actions": [
+      "OCEAN CURRENT",
+      "TIDAL WAVE"
+    ],
+    "isLiving": true,
+    "description": "A spawn of the legendary kraken"
+  },
+  {
+    "name": "Deep Sea Beast",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.3,
+      "strength": 1.3,
+      "agility": 0.7
+    },
+    "actions": [
+      "OCEAN CURRENT",
+      "OCEAN BLESSING"
+    ],
+    "isLiving": true,
+    "description": "A beast from the deepest ocean trenches"
+  },
+  {
+    "name": "Ocean Spirit",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.8,
+      "agility": 1.3,
+      "intelligence": 1.2
+    },
+    "actions": [
+      "HEALING WATERS",
+      "OCEAN BLESSING"
+    ],
+    "isLiving": false,
+    "description": "A spirit that embodies the ocean's power"
+  },
+  {
+    "name": "Coral Guardian",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.0,
+      "strength": 1.0,
+      "armor": 1.2
+    },
+    "actions": [
+      "GUARDIAN STRIKE",
+      "OCEAN BLESSING"
+    ],
+    "isLiving": false,
+    "description": "A guardian made of living coral"
+  },
+  {
+    "name": "Abyssal Walker",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.9,
+      "agility": 1.3,
+      "intelligence": 1.1
+    },
+    "actions": [
+      "TIDAL WAVE",
+      "OCEAN CURRENT"
+    ],
+    "isLiving": false,
+    "description": "A being that walks the ocean floor"
+  },
+  {
+    "name": "Mountain Giant",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.4,
+      "strength": 1.3,
+      "agility": 0.6
+    },
+    "actions": [
+      "AVALANCHE",
+      "STONE CRUSH"
+    ],
+    "isLiving": true,
+    "description": "A massive giant that dwells in the mountains"
+  },
+  {
+    "name": "Eagle Spirit",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.8,
+      "agility": 1.4,
+      "technique": 1.2
+    },
+    "actions": [
+      "SWOOP ATTACK",
+      "MOUNTAIN BLESSING"
+    ],
+    "isLiving": false,
+    "description": "A spirit that soars above the mountain peaks"
+  },
+  {
+    "name": "Rock Elemental",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.2,
+      "strength": 1.2,
+      "armor": 1.1
+    },
+    "actions": [
+      "STONE CRUSH",
+      "AVALANCHE"
+    ],
+    "isLiving": false,
+    "description": "An elemental made of solid rock"
+  },
+  {
+    "name": "Summit Guardian",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.1,
+      "armor": 1.2
+    },
+    "actions": [
+      "GUARDIAN STRIKE",
+      "MOUNTAIN BLESSING"
+    ],
+    "isLiving": true,
+    "description": "A guardian that protects the mountain summit"
+  },
+  {
+    "name": "Peak Beast",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.1,
+      "agility": 1.0
+    },
+    "actions": [
+      "AVALANCHE",
+      "STONE CRUSH"
+    ],
+    "isLiving": true,
+    "description": "A beast that roams the mountain peaks"
+  },
+  {
+    "name": "Altitude Wraith",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.9,
+      "agility": 1.3,
+      "intelligence": 1.1
+    },
+    "actions": [
+      "MOUNTAIN BLESSING",
+      "PHASE"
+    ],
+    "isLiving": false,
+    "description": "A wraith that haunts the high altitudes"
+  },
+  {
+    "name": "Time Wraith",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.8,
+      "agility": 1.3,
+      "intelligence": 1.3
+    },
+    "actions": [
+      "TIME STOP",
+      "TEMPORAL RIFT"
+    ],
+    "isLiving": false,
+    "description": "A wraith that exists outside of time"
+  },
+  {
+    "name": "Chronos Beast",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.1,
+      "intelligence": 1.1
+    },
+    "actions": [
+      "TIME DISTORTION",
+      "TEMPORAL RIFT"
+    ],
+    "isLiving": false,
+    "description": "A beast that controls the flow of time"
+  },
+  {
+    "name": "Temporal Guardian",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.1,
+      "intelligence": 1.2
+    },
+    "actions": [
+      "GUARDIAN STRIKE",
+      "TEMPORAL BLESSING"
+    ],
+    "isLiving": false,
+    "description": "A guardian that exists across all time"
+  },
+  {
+    "name": "Echo Spirit",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.7,
+      "agility": 1.4,
+      "technique": 1.2
+    },
+    "actions": [
+      "ECHOING SILENCE",
+      "TIME STOP"
+    ],
+    "isLiving": false,
+    "description": "A spirit that echoes through time"
+  },
+  {
+    "name": "Paradox Walker",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.0,
+      "strength": 1.0,
+      "intelligence": 1.3
+    },
+    "actions": [
+      "TIME DISTORTION",
+      "TEMPORAL BLESSING"
+    ],
+    "isLiving": false,
+    "description": "A being that walks through temporal paradoxes"
+  },
+  {
+    "name": "Timeline Phantom",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.8,
+      "agility": 1.3,
+      "intelligence": 1.2
+    },
+    "actions": [
+      "PHASE",
+      "TEMPORAL RIFT"
+    ],
+    "isLiving": false,
+    "description": "A phantom that exists in multiple timelines"
+  },
+  {
+    "name": "Dream Walker",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.8,
+      "agility": 1.3,
+      "intelligence": 1.2
+    },
+    "actions": [
+      "DREAM WEAVE",
+      "DREAM BLESSING"
+    ],
+    "isLiving": false,
+    "description": "A being that walks through dreams"
+  },
+  {
+    "name": "Nightmare Beast",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.1,
+      "intelligence": 1.1
+    },
+    "actions": [
+      "NIGHTMARE",
+      "TERRIFY"
+    ],
+    "isLiving": false,
+    "description": "A beast born from nightmares"
+  },
+  {
+    "name": "Sleep Spirit",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.7,
+      "agility": 1.3,
+      "intelligence": 1.3
+    },
+    "actions": [
+      "DREAM BLESSING",
+      "SILENCE"
+    ],
+    "isLiving": false,
+    "description": "A spirit that brings peaceful sleep"
+  },
+  {
+    "name": "Lucid Guardian",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.0,
+      "strength": 1.0,
+      "intelligence": 1.2
+    },
+    "actions": [
+      "GUARDIAN STRIKE",
+      "DREAM WEAVE"
+    ],
+    "isLiving": false,
+    "description": "A guardian that maintains lucid dreams"
+  },
+  {
+    "name": "Subconscious Wraith",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.9,
+      "agility": 1.3,
+      "intelligence": 1.1
+    },
+    "actions": [
+      "DREAM CLAW",
+      "NIGHTMARE"
+    ],
+    "isLiving": false,
+    "description": "A wraith that haunts the subconscious"
+  },
+  {
+    "name": "Fantasy Elemental",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.0,
+      "intelligence": 1.2
+    },
+    "actions": [
+      "DREAM WEAVE",
+      "DREAM BLESSING"
+    ],
+    "isLiving": false,
+    "description": "An elemental of pure fantasy"
+  },
+  {
+    "name": "Void Beast",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.2,
+      "strength": 1.2,
+      "intelligence": 1.0
+    },
+    "actions": [
+      "VOID BLESSING",
+      "NULLIFICATION"
+    ],
+    "isLiving": false,
+    "description": "A beast born from the void"
+  },
+  {
+    "name": "Null Walker",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.9,
+      "agility": 1.3,
+      "intelligence": 1.2
+    },
+    "actions": [
+      "NULLIFICATION",
+      "VOID BLESSING"
+    ],
+    "isLiving": false,
+    "description": "A being that walks through nothingness"
+  },
+  {
+    "name": "Emptiness Spirit",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.7,
+      "agility": 1.4,
+      "intelligence": 1.2
+    },
+    "actions": [
+      "VOID BLESSING",
+      "PHASE"
+    ],
+    "isLiving": false,
+    "description": "A spirit of pure emptiness"
+  },
+  {
+    "name": "Void Guardian",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.1,
+      "intelligence": 1.1
+    },
+    "actions": [
+      "GUARDIAN STRIKE",
+      "NULLIFICATION"
+    ],
+    "isLiving": false,
+    "description": "A guardian that protects the void"
+  },
+  {
+    "name": "Nothingness Wraith",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.8,
+      "agility": 1.3,
+      "intelligence": 1.2
+    },
+    "actions": [
+      "VOID BLESSING",
+      "NULLIFICATION"
+    ],
+    "isLiving": false,
+    "description": "A wraith of pure nothingness"
+  },
+  {
+    "name": "Absence Phantom",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.7,
+      "agility": 1.4,
+      "intelligence": 1.2
+    },
+    "actions": [
+      "PHASE",
+      "VOID BLESSING"
+    ],
+    "isLiving": false,
+    "description": "A phantom that exists in absence"
+  },
+  {
+    "name": "Dimension Walker",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.1,
+      "intelligence": 1.2
+    },
+    "actions": [
+      "DIMENSIONAL SHIFT",
+      "REALITY TEAR"
+    ],
+    "isLiving": false,
+    "description": "A being that walks between dimensions"
+  },
+  {
+    "name": "Reality Beast",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.2,
+      "strength": 1.2,
+      "intelligence": 1.0
+    },
+    "actions": [
+      "REALITY TEAR",
+      "DIMENSIONAL RIFT"
+    ],
+    "isLiving": false,
+    "description": "A beast that exists across realities"
+  },
+  {
+    "name": "Rift Guardian",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.1,
+      "intelligence": 1.2
+    },
+    "actions": [
+      "GUARDIAN STRIKE",
+      "DIMENSIONAL BLESSING"
+    ],
+    "isLiving": false,
+    "description": "A guardian that protects dimensional rifts"
+  },
+  {
+    "name": "Space-Time Spirit",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.8,
+      "agility": 1.3,
+      "intelligence": 1.3
+    },
+    "actions": [
+      "DIMENSIONAL SHIFT",
+      "DIMENSIONAL BLESSING"
+    ],
+    "isLiving": false,
+    "description": "A spirit that exists in space-time"
+  },
+  {
+    "name": "Multiverse Wraith",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.9,
+      "agility": 1.3,
+      "intelligence": 1.2
+    },
+    "actions": [
+      "DIMENSIONAL RIFT",
+      "REALITY TEAR"
+    ],
+    "isLiving": false,
+    "description": "A wraith that exists across the multiverse"
+  },
+  {
+    "name": "Quantum Phantom",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.7,
+      "agility": 1.4,
+      "intelligence": 1.3
+    },
+    "actions": [
+      "PHASE",
+      "DIMENSIONAL SHIFT"
+    ],
+    "isLiving": false,
+    "description": "A phantom that exists in quantum states"
+  },
+  {
+    "name": "Divine Guardian",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.3,
+      "strength": 1.2,
+      "intelligence": 1.2
+    },
+    "actions": [
+      "DIVINE STRIKE",
+      "DIVINE BLESSING"
+    ],
+    "isLiving": false,
+    "description": "A guardian of divine power"
+  },
+  {
+    "name": "Celestial Beast",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.2,
+      "strength": 1.2,
+      "intelligence": 1.1
+    },
+    "actions": [
+      "DIVINE WRATH",
+      "HOLY BLESSING"
+    ],
+    "isLiving": false,
+    "description": "A beast of celestial origin"
+  },
+  {
+    "name": "Sacred Spirit",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.8,
+      "agility": 1.3,
+      "intelligence": 1.3
+    },
+    "actions": [
+      "HOLY BLESSING",
+      "DIVINE BLESSING"
+    ],
+    "isLiving": false,
+    "description": "A spirit of pure divinity"
+  },
+  {
+    "name": "Holy Wraith",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.9,
+      "agility": 1.3,
+      "intelligence": 1.2
+    },
+    "actions": [
+      "DIVINE WRATH",
+      "HOLY BLESSING"
+    ],
+    "isLiving": false,
+    "description": "A wraith of holy power"
+  },
+  {
+    "name": "Blessed Phantom",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.7,
+      "agility": 1.4,
+      "intelligence": 1.3
+    },
+    "actions": [
+      "PHASE",
+      "DIVINE BLESSING"
+    ],
+    "isLiving": false,
+    "description": "A phantom blessed by divine power"
+  },
+  {
+    "name": "Eternal Walker",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.4,
+      "strength": 1.1,
+      "intelligence": 1.2
+    },
+    "actions": [
+      "DIVINE WRATH",
+      "DIVINE BLESSING"
+    ],
+    "isLiving": false,
+    "description": "A being that walks through eternity"
+  },
+  {
+    "name": "Shard Beast",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.1,
+      "agility": 0.9
+    },
+    "actions": [
+      "CRYSTAL SHARD",
+      "SHARD VOLLEY"
+    ],
+    "isLiving": true,
+    "description": "A beast made of crystal shards"
+  },
+  {
+    "name": "Crystal Sprite",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.6,
+      "agility": 1.4,
+      "technique": 1.3
+    },
+    "actions": [
+      "SPARKLE",
+      "CRYSTAL BURST"
+    ],
+    "isLiving": true,
+    "description": "A small sprite made of pure crystal"
+  },
+  {
+    "name": "Geode Beast",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.2,
+      "strength": 1.1,
+      "armor": 1.1
+    },
+    "actions": [
+      "HARDENED SHELL",
+      "CRYSTAL CHARGE"
+    ],
+    "isLiving": true,
+    "description": "A beast with a crystalline shell"
+  },
+  {
+    "name": "Crystal Wyrm",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.3,
+      "strength": 1.2,
+      "agility": 0.8
+    },
+    "actions": [
+      "CRYSTAL BREATH",
+      "TAIL CRUSH"
+    ],
+    "isLiving": true,
+    "description": "A massive wyrm made of living crystal"
+  },
+  {
+    "name": "Ancient Sentinel",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.2,
+      "strength": 1.1,
+      "armor": 1.2
+    },
+    "actions": [
+      "SENTINEL BEAM",
+      "ANCIENT CURSE"
+    ],
+    "isLiving": false,
+    "description": "An ancient guardian of the temple"
+  },
+  {
+    "name": "Temple Guard",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.0,
+      "strength": 1.0,
+      "armor": 1.1
+    },
+    "actions": [
+      "GUARDIAN STRIKE",
+      "TEMPLE BLESSING"
+    ],
+    "isLiving": true,
+    "description": "A guard that protects the temple"
+  },
+  {
+    "name": "Priest",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.9,
+      "intelligence": 1.4,
+      "technique": 1.1
+    },
+    "actions": [
+      "HOLY BLESSING",
+      "DIVINE WRATH"
+    ],
+    "isLiving": true,
+    "description": "A priest who serves the temple"
+  },
+  {
+    "name": "Paladin",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.1,
+      "armor": 1.2
+    },
+    "actions": [
+      "DIVINE STRIKE",
+      "HOLY STRIKE"
+    ],
+    "isLiving": true,
+    "description": "A holy warrior of the temple"
+  },
+  {
+    "name": "Slime",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.0,
+      "strength": 1.0,
+      "armor": 0.8
+    },
+    "actions": [
+      "SLIME COAT",
+      "ACID SPIT"
+    ],
+    "isLiving": false,
+    "description": "A gelatinous creature that oozes through the lava caves"
+  },
+  {
+    "name": "Bat",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.6,
+      "agility": 1.4,
+      "technique": 1.1
+    },
+    "actions": [
+      "SCREECH",
+      "SWOOP ATTACK"
+    ],
+    "isLiving": true,
+    "description": "A bat that dwells in the lava caves"
+  },
+  {
+    "name": "Ghoul",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.8,
+      "agility": 1.3,
+      "technique": 1.2
+    },
+    "actions": [
+      "CLAW ATTACK",
+      "TERRIFY"
+    ],
+    "isLiving": false,
+    "description": "A ghoul that haunts the crypt"
+  },
+  {
+    "name": "Wight",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.9,
+      "agility": 1.3,
+      "intelligence": 1.2
+    },
+    "actions": [
+      "LIFE DRAIN",
+      "FEAR AURA"
+    ],
+    "isLiving": false,
+    "description": "A wight that guards the crypt"
   }
 ]

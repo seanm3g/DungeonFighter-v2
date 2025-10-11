@@ -107,26 +107,51 @@ namespace RPGGame
         {
             // Process effects for player
             var playerResults = new List<string>();
-            int playerDamage = CombatEffects.ProcessStatusEffects(player, playerResults);
+            int playerDamage = CombatEffectsSimplified.ProcessStatusEffects(player, playerResults);
             if (playerDamage > 0)
             {
                 player.TakeDamage(playerDamage);
             }
             if (playerResults.Count > 0)
             {
-                // Group related messages together - first display damage, then status effects
+                // Group related messages together - display damage and status effects as one block
+                var damageMessages = new List<string>();
+                var statusMessages = new List<string>();
+                
                 for (int i = 0; i < playerResults.Count; i++)
                 {
                     var result = playerResults[i];
                     if (result.StartsWith("    ")) // Status effect message (indented)
                     {
-                        // This is a status effect message, display it with effect timing
-                        UIManager.WriteEffectLine(result);
+                        statusMessages.Add(result); // Keep indentation for proper formatting
                     }
                     else // Damage message
                     {
-                        // This is a damage message, display it with damage over time timing
-                        UIManager.WriteDamageOverTimeLine(result);
+                        damageMessages.Add(result);
+                    }
+                }
+                
+                // Combine damage and status messages into single blocks to avoid spacing issues
+                if (damageMessages.Count > 0 && statusMessages.Count > 0)
+                {
+                    // Combine damage and status messages into one block
+                    string combinedMessage = string.Join("\n", damageMessages.Concat(statusMessages));
+                    BlockDisplayManager.DisplaySystemBlock(combinedMessage);
+                }
+                else if (damageMessages.Count > 0)
+                {
+                    // Only damage messages
+                    foreach (var damage in damageMessages)
+                    {
+                        BlockDisplayManager.DisplaySystemBlock(damage);
+                    }
+                }
+                else if (statusMessages.Count > 0)
+                {
+                    // Only status messages
+                    foreach (var status in statusMessages)
+                    {
+                        BlockDisplayManager.DisplaySystemBlock(status);
                     }
                 }
             }
@@ -135,26 +160,51 @@ namespace RPGGame
             if (enemy.IsLiving)
             {
                 var enemyResults = new List<string>();
-                int enemyDamage = CombatEffects.ProcessStatusEffects(enemy, enemyResults);
+                int enemyDamage = CombatEffectsSimplified.ProcessStatusEffects(enemy, enemyResults);
                 if (enemyDamage > 0)
                 {
                     enemy.TakeDamage(enemyDamage);
                 }
                 if (enemyResults.Count > 0)
                 {
-                    // Group related messages together - first display damage, then status effects
+                    // Group related messages together - display damage and status effects as one block
+                    var damageMessages = new List<string>();
+                    var statusMessages = new List<string>();
+                    
                     for (int i = 0; i < enemyResults.Count; i++)
                     {
                         var result = enemyResults[i];
                         if (result.StartsWith("    ")) // Status effect message (indented)
                         {
-                            // This is a status effect message, display it with effect timing
-                            UIManager.WriteEffectLine(result);
+                            statusMessages.Add(result); // Keep indentation for proper formatting
                         }
                         else // Damage message
                         {
-                            // This is a damage message, display it with damage over time timing
-                            UIManager.WriteDamageOverTimeLine(result);
+                            damageMessages.Add(result);
+                        }
+                    }
+                    
+                    // Combine damage and status messages into single blocks to avoid spacing issues
+                    if (damageMessages.Count > 0 && statusMessages.Count > 0)
+                    {
+                        // Combine damage and status messages into one block
+                        string combinedMessage = string.Join("\n", damageMessages.Concat(statusMessages));
+                        BlockDisplayManager.DisplaySystemBlock(combinedMessage);
+                    }
+                    else if (damageMessages.Count > 0)
+                    {
+                        // Only damage messages
+                        foreach (var damage in damageMessages)
+                        {
+                            BlockDisplayManager.DisplaySystemBlock(damage);
+                        }
+                    }
+                    else if (statusMessages.Count > 0)
+                    {
+                        // Only status messages
+                        foreach (var status in statusMessages)
+                        {
+                            BlockDisplayManager.DisplaySystemBlock(status);
                         }
                     }
                 }

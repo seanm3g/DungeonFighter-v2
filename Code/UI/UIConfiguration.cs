@@ -19,6 +19,9 @@ namespace RPGGame
         public bool AddBlankLinesAfterDamageOverTime { get; set; } = true;
         public bool AddBlankLinesAfterStunMessages { get; set; } = true;
         
+        // Block Spacing Configuration
+        public BlockSpacingConfiguration BlockSpacing { get; set; } = new BlockSpacingConfiguration();
+        
         // Debug Configuration
         public bool ShowTimingInfo { get; set; } = false;
         
@@ -230,6 +233,11 @@ namespace RPGGame
         public BeatMultipliers BeatMultipliers { get; set; } = new BeatMultipliers();
         
         /// <summary>
+        /// Block-based delays for the new display system
+        /// </summary>
+        public Dictionary<string, double> BlockDelays { get; set; } = new Dictionary<string, double>();
+        
+        /// <summary>
         /// Gets the beat multiplier for a specific message type
         /// </summary>
         /// <param name="messageType">Type of message</param>
@@ -365,5 +373,26 @@ namespace RPGGame
         DamageOverTime,
         RollInfo,
         Encounter
+    }
+    
+    /// <summary>
+    /// Configuration for block spacing in the new display system
+    /// </summary>
+    public class BlockSpacingConfiguration
+    {
+        /// <summary>
+        /// Add blank lines between action blocks
+        /// </summary>
+        public bool AddBlankLinesBetweenActionBlocks { get; set; } = true;
+        
+        /// <summary>
+        /// Add blank lines between effect blocks
+        /// </summary>
+        public bool AddBlankLinesBetweenEffectBlocks { get; set; } = true;
+        
+        /// <summary>
+        /// Add blank lines around narrative blocks
+        /// </summary>
+        public bool AddBlankLinesAroundNarrativeBlocks { get; set; } = true;
     }
 }

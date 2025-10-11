@@ -11,7 +11,7 @@ namespace RPGGame
     {
         
         /// <summary>
-        /// Displays a combat action with all associated messages in the correct order
+        /// Displays a combat action using the new block-based system
         /// </summary>
         /// <param name="combatResult">The combat result message</param>
         /// <param name="narrativeMessages">Narrative messages triggered by this action</param>
@@ -19,59 +19,39 @@ namespace RPGGame
         /// <param name="entityName">The entity performing the action</param>
         public static void DisplayCombatAction(string combatResult, List<string> narrativeMessages, List<string> statusEffects, string entityName)
         {
-            // Use the new UIManager system with beat-based timing instead of the old TextDisplaySystem
+            // Parse the combat result to extract action text and roll info
+            string actionText = "";
+            string rollInfo = "";
             
-            // Check if combat result contains roll information (has newline and parentheses)
             if (!string.IsNullOrEmpty(combatResult) && combatResult.Contains('\n') && combatResult.Contains("("))
             {
                 // Split the result into damage text and roll info
                 var lines = combatResult.Split('\n');
                 if (lines.Length >= 2)
                 {
-                    // First line is the damage text
-                    UIManager.WriteCombatLine(lines[0]);
-                    
-                    // Second line (and any additional lines) are roll info
-                    for (int i = 1; i < lines.Length; i++)
-                    {
-                        if (!string.IsNullOrEmpty(lines[i].Trim()))
-                        {
-                            UIManager.WriteRollInfoLineNoEntityTracking(lines[i]); // Don't trim - preserve indentation
-                        }
-                    }
-                    
-                    // Don't add blank line after roll info - let status effects follow directly
-                }
-                else
-                {
-                    // Fallback to original behavior
-                    UIManager.WriteCombatLine(combatResult);
+                    actionText = lines[0];
+                    rollInfo = lines[1].Trim(); // Remove the 4-space indentation
                 }
             }
-            else
+            else if (!string.IsNullOrEmpty(combatResult))
             {
-                // Display combat result with combat timing (no roll info to separate)
-                if (!string.IsNullOrEmpty(combatResult))
-                {
-                    UIManager.WriteCombatLine(combatResult);
-                }
+                // Simple combat result without roll info
+                actionText = combatResult;
+                rollInfo = ""; // Will be handled by the action system
             }
             
-            // Display narrative messages with system timing
+            // Display the action block
+            var validEffects = statusEffects?.FindAll(m => !string.IsNullOrEmpty(m)) ?? new List<string>();
+            // Remove existing indentation from status effects since BlockDisplayManager will add it
+            var trimmedEffects = validEffects.Select(e => e.TrimStart()).ToList();
+            BlockDisplayManager.DisplayActionBlock(actionText, rollInfo, trimmedEffects);
+            
+            // Display narrative messages as separate blocks (no extra spacing)
             var validNarratives = narrativeMessages?.FindAll(m => !string.IsNullOrEmpty(m)) ?? new List<string>();
             foreach (var narrative in validNarratives)
             {
-                UIManager.WriteSystemLine(narrative);
+                BlockDisplayManager.DisplayNarrativeBlock(narrative);
             }
-            
-            // Display status effects with effect timing
-            var validEffects = statusEffects?.FindAll(m => !string.IsNullOrEmpty(m)) ?? new List<string>();
-            foreach (var effect in validEffects)
-            {
-                UIManager.WriteEffectLine(effect);
-            }
-            
-            // No blank line after combat actions for cleaner formatting
         }
 
         
@@ -154,6 +134,7 @@ namespace RPGGame
         public static void ResetForNewBattle()
         {
             UIManager.ResetForNewBattle();
+            BlockDisplayManager.ResetForNewBattle();
         }
     }
 }

@@ -31,19 +31,25 @@ DungeonFighter/
 - **`Code/UI/GameMenuManager.cs`** - Manages main menu navigation and user interactions
 - **`Code/Game/GameLoopManager.cs`** - Manages the main game loop, dungeon selection, and game progression
 
-### **Combat System**
+### **Combat System (Refactored Architecture)**
 - **`Code/Combat/CombatManager.cs`** - Orchestrates combat flow and turn management (refactored to use specialized managers)
 - **`Code/Combat/CombatStateManager.cs`** - Manages combat state, battle narrative, and entity management
-- **`Code/Combat/CombatTurnProcessor.cs`** - Handles turn processing logic for player, enemy, and environment entities
+- **`Code/Combat/CombatTurnHandlerSimplified.cs`** - Simplified turn processing logic (replaces CombatTurnProcessor)
 - **`Code/Combat/CombatCalculator.cs`** - Centralized damage, speed, and stat calculations
-- **`Code/Combat/CombatEffects.cs`** - Manages status effects, debuffs, and environmental effects
+- **`Code/Combat/CombatEffectsSimplified.cs`** - Simplified status effects management (replaces CombatEffects)
+- **`Code/Combat/EffectHandlerRegistry.cs`** - Strategy pattern for handling different combat effects
+- **`Code/Combat/StunProcessor.cs`** - Generic stun processing logic
 - **`Code/Combat/CombatResults.cs`** - Handles UI display and result formatting
 - **`Code/Combat/TurnManager.cs`** - Manages turn-based combat logic
 - **`Code/Combat/BattleNarrative.cs`** - Event-driven battle descriptions
 - **`Code/Combat/BattleHealthTracker.cs`** - Health tracking for battle narrative system
 
-### **Character System**
-- **`Code/Entity/Character.cs`** - Main player character coordinator class (refactored from 737 to 539 lines)
+### **Character System (Refactored Architecture)**
+- **`Code/Entity/Character.cs`** - Main player character coordinator class (refactored from 539 to 250 lines)
+- **`Code/Entity/CharacterFacade.cs`** - Simplified facade interface for character operations
+- **`Code/Entity/EquipmentManager.cs`** - Equipment management and stat bonuses
+- **`Code/Entity/LevelUpManager.cs`** - Level up and progression logic
+- **`Code/Entity/CharacterBuilder.cs`** - Complex character initialization logic
 - **`Code/Entity/CharacterStats.cs`** - Character statistics and leveling system
 - **`Code/Entity/CharacterEquipment.cs`** - Equipment management and stat bonuses
 - **`Code/Entity/CharacterEffects.cs`** - Character-specific effects and buffs/debuffs
@@ -51,12 +57,15 @@ DungeonFighter/
 - **`Code/Entity/CharacterActions.cs`** - Character action management and combo sequences
 - **`Code/Entity/CharacterHealthManager.cs`** - Health management, damage, and healing logic
 - **`Code/Entity/CharacterCombatCalculator.cs`** - Combat calculations and stat computations
-- **`Code/Entity/CharacterDisplayManager.cs`** - Character information display and formatting
 - **`Code/Entity/CharacterSaveManager.cs`** - Save/load functionality for character data
 
-### **Enemy System**
-- **`Code/Entity/Enemy.cs`** - Enemy entity with AI and combat behavior
-- **`Code/Entity/EnemyFactory.cs`** - Creates enemies based on type and level
+### **Enemy System (Refactored Architecture)**
+- **`Code/Entity/Enemy.cs`** - Enemy entity with AI and combat behavior (refactored from 493 to 321 lines)
+- **`Code/Entity/EnemyData.cs`** - Enemy data structures, enums, and attack profiles
+- **`Code/Entity/ArchetypeManager.cs`** - Enemy archetype logic and profile management
+- **`Code/Entity/EnemyCombatManager.cs`** - Enemy-specific combat logic and action attempts
+- **`Code/Entity/EnemyBuilder.cs`** - Complex enemy initialization logic
+- **`Code/Entity/EnemyFactory.cs`** - Factory methods for creating different enemy types
 - **`Code/Data/EnemyLoader.cs`** - Loads enemy data from JSON files
 
 ### **Action System**
@@ -68,10 +77,14 @@ DungeonFighter/
 - **`Code/Actions/ActionSpeedSystem.cs`** - Intelligent delay system for optimal user experience
 - **`Code/Actions/ClassActionManager.cs`** - Manages class-specific actions and abilities
 
-### **World & Environment System**
+### **World & Environment System (Refactored Architecture)**
 - **`Code/World/Dungeon.cs`** - Procedurally generates themed room sequences and manages progression
-- **`Code/World/DungeonManager.cs`** - Manages dungeon-related operations including selection, generation, and completion rewards
+- **`Code/World/DungeonManagerWithRegistry.cs`** - Simplified dungeon management using registry pattern
+- **`Code/World/DungeonRunner.cs`** - Manages dungeon execution flow and room progression
+- **`Code/World/RewardManager.cs`** - Handles loot and XP rewards after dungeon completion
+- **`Code/World/DungeonData.cs`** - Dungeon data structure definitions
 - **`Code/World/Environment.cs`** - Room/environment system with environmental effects
+- **`Code/World/EnvironmentalEffectRegistry.cs`** - Strategy pattern for environmental effects
 - **`Code/World/EnvironmentalActionHandler.cs`** - Handles environmental actions and effects
 - **`Code/World/StatusEffectManager.cs`** - Manages status effects and their application
 - **`Code/World/DamageEffectManager.cs`** - Manages damage effects and calculations
@@ -85,18 +98,26 @@ DungeonFighter/
 - **`Code/Items/ComboManager.cs`** - Manages combo sequences and bonuses
 - **`Code/Items/BasicGearConfig.cs`** - Configuration for basic gear and equipment
 
-### **UI System**
+### **UI System (Refactored Architecture)**
 - **`Code/UI/UIManager.cs`** - Centralized UI output and display with beat-based timing
 - **`Code/UI/GameMenuManager.cs`** - Manages game menus, UI interactions, and game flow
-- **`Code/UI/InventoryDisplayManager.cs`** - Manages all display logic for inventory, character stats, and equipment
+- **`Code/UI/GameDisplayManager.cs`** - Unified display manager for inventory, character stats, and equipment
+- **`Code/UI/ItemDisplayFormatter.cs`** - Centralized item display formatting utilities
+- **`Code/UI/EquipmentDisplayService.cs`** - Equipment display logic and comparison services
 - **`Code/UI/MenuConfiguration.cs`** - Centralized configuration for all menu options throughout the game
 - **`Code/UI/TextDisplayIntegration.cs`** - Integration layer for displaying text using the new UIManager beat-based timing system
 - **`Code/UI/TextDisplaySettings.cs`** - Configuration for text display timing and formatting
 - **`Code/UI/UIConfiguration.cs`** - UI configuration management
 
-### **Data & Configuration**
+### **Data & Configuration (Refactored Architecture)**
 - **`Code/Data/ActionLoader.cs`** - Loads and manages action data from JSON
-- **`Code/Game/GameDataGenerator.cs`** - Generates and manages game data files
+- **`Code/Game/GameDataGenerator.cs`** - Legacy wrapper for game data generation (refactored from 684 to 68 lines)
+- **`Code/Game/GameDataGenerationOrchestrator.cs`** - Orchestrates game data generation
+- **`Code/Game/GenerationResult.cs`** - Result classes for generation operations
+- **`Code/Game/FileManager.cs`** - File I/O and backup operations
+- **`Code/Game/ItemGenerators/ArmorGenerator.cs`** - Armor data generation logic
+- **`Code/Game/ItemGenerators/WeaponGenerator.cs`** - Weapon data generation logic
+- **`Code/Game/ItemGenerators/EnemyGenerator.cs`** - Enemy data generation logic
 - **`Code/Data/LootGenerator.cs`** - Creates randomized loot and items
 - **`Code/Data/ItemGenerator.cs`** - Base class for item generation logic
 - **`Code/Game/GameConfiguration.cs`** - Main configuration orchestrator (refactored from 1000+ lines)
@@ -213,9 +234,13 @@ Code/Combat/CombatManager.cs
 └── Code/Combat/CombatResults.cs (UI display)
 ```
 
-### **6. Character System Architecture (Refactored)**
+### **6. Character System Architecture (Fully Refactored)**
 ```
-Code/Entity/Character.cs (Coordinator - 539 lines)
+Code/Entity/Character.cs (Coordinator - 250 lines)
+├── Code/Entity/CharacterFacade.cs (simplified interface)
+├── Code/Entity/EquipmentManager.cs (equipment management)
+├── Code/Entity/LevelUpManager.cs (level up and progression)
+├── Code/Entity/CharacterBuilder.cs (complex initialization)
 ├── Code/Entity/CharacterStats.cs (statistics and leveling)
 ├── Code/Entity/CharacterEffects.cs (effects and buffs/debuffs)
 ├── Code/Entity/CharacterEquipment.cs (equipment management)
@@ -223,7 +248,7 @@ Code/Entity/Character.cs (Coordinator - 539 lines)
 ├── Code/Entity/CharacterActions.cs (action management)
 ├── Code/Entity/CharacterHealthManager.cs (health, damage, healing)
 ├── Code/Entity/CharacterCombatCalculator.cs (combat calculations)
-└── Code/Entity/CharacterDisplayManager.cs (display and formatting)
+└── Code/Entity/CharacterSaveManager.cs (save/load functionality)
 ```
 
 **Character System Benefits:**
@@ -231,20 +256,24 @@ Code/Entity/Character.cs (Coordinator - 539 lines)
 - **Maintainability**: Health logic changes only affect `CharacterHealthManager`
 - **Testability**: Each manager can be unit tested independently
 - **Composition**: Character delegates to specialized managers instead of doing everything
-- **Reduced Complexity**: Main Character class reduced from 737 to 539 lines (27% reduction)
+- **Facade Pattern**: `CharacterFacade` provides simplified interface to complex subsystems
+- **Builder Pattern**: `CharacterBuilder` handles complex initialization logic
+- **Reduced Complexity**: Main Character class reduced from 539 to 250 lines (54% reduction)
 
 ## 🎨 Key Design Patterns
 
 ### **1. Manager Pattern**
-- **`CombatManager`**, **`DungeonManager`**, **`InventoryManager`** - Orchestrate complex subsystems
-- **`CharacterHealthManager`**, **`CharacterCombatCalculator`**, **`CharacterDisplayManager`** - Specialized character managers
-- **`CombatStateManager`**, **`CombatTurnProcessor`** - Specialized combat managers
+- **`CombatManager`**, **`DungeonManagerWithRegistry`**, **`InventoryManager`** - Orchestrate complex subsystems
+- **`CharacterHealthManager`**, **`CharacterCombatCalculator`**, **`GameDisplayManager`** - Specialized character managers
+- **`CombatStateManager`**, **`CombatTurnHandlerSimplified`** - Specialized combat managers
+- **`EquipmentManager`**, **`LevelUpManager`** - Specialized character subsystem managers
 - Centralize related functionality and provide clean interfaces
 
 ### **2. Factory Pattern**
 - **`EnemyFactory`** - Creates enemies based on type and level
 - **`ItemGenerator`** - Generates items with randomized properties
 - **`ActionFactory`** - Creates and manages action instances
+- **`ArmorGenerator`**, **`WeaponGenerator`**, **`EnemyGenerator`** - Specialized data generators
 
 ### **3. Singleton Pattern**
 - **`GameTicker`** - Single instance for game time management
@@ -254,32 +283,57 @@ Code/Entity/Character.cs (Coordinator - 539 lines)
 - **`ActionSelector`** - Different action selection strategies for heroes vs enemies
 - **`ActionExecutor`** - Different action execution strategies
 - **`CharacterActions`** - Class-specific action behaviors
+- **`EffectHandlerRegistry`** - Strategy pattern for handling different combat effects
+- **`EnvironmentalEffectRegistry`** - Strategy pattern for environmental effects
 
-### **5. Observer Pattern**
+### **5. Registry Pattern**
+- **`EffectHandlerRegistry`** - Registry of combat effect handlers (Bleed, Weaken, Slow, Poison, Stun, Burn)
+- **`EnvironmentalEffectRegistry`** - Registry of environmental effect handlers
+- Provides extensible, maintainable effect system
+
+### **6. Facade Pattern**
+- **`CharacterFacade`** - Simplified interface to complex character subsystems
+- **`GameDisplayManager`** - Unified interface for all display operations
+- Hides complexity and provides simple, consistent interface
+
+### **7. Builder Pattern**
+- **`CharacterBuilder`** - Handles complex character initialization
+- **`EnemyBuilder`** - Handles complex enemy initialization
+- Separates construction logic from entity classes
+
+### **8. Observer Pattern**
 - **`BattleHealthTracker`** - Monitors health milestones during combat
 - **`CombatResults`** - Displays combat outcomes and notifications
 
-### **6. Utility Pattern**
+### **9. Utility Pattern**
 - **`UIManager`**, **`JsonLoader`**, **`ErrorHandler`** - Centralized utility functions
 - **`RandomUtility`**, **`GameConstants`** - Shared resources and constants
 - **`ActionUtilities`** - Shared utilities for action-related operations
+- **`ItemDisplayFormatter`** - Centralized item display formatting
+- **`StunProcessor`** - Generic stun processing logic
 
-### **7. Configuration Pattern**
+### **10. Configuration Pattern**
 - **`GameConfiguration`** - Centralized game balance with 8 configurable systems
 - **`UIConfiguration`** - UI timing and display configuration
 - **`MenuConfiguration`** - Centralized menu option configuration
 
-### **8. Composition Pattern**
+### **11. Composition Pattern**
 - **`Character`** - Uses composition with specialized managers instead of inheritance
-- **`CharacterHealthManager`**, **`CharacterCombatCalculator`**, **`CharacterDisplayManager`** - Composed managers
-- **`CombatManager`** - Uses composition with `CombatStateManager` and `CombatTurnProcessor`
+- **`CharacterFacade`**, **`EquipmentManager`**, **`LevelUpManager`** - Composed managers
+- **`CombatManager`** - Uses composition with `CombatStateManager` and `CombatTurnHandlerSimplified`
+- **`Enemy`** - Uses composition with `EnemyCombatManager` and `ArchetypeManager`
 - Delegates complex operations to specialized components while maintaining a clean interface
 - Follows "composition over inheritance" principle for better maintainability
 
-### **9. Integration Pattern**
+### **12. Integration Pattern**
 - **`TextDisplayIntegration`** - Integration layer for displaying text using the new UIManager beat-based timing system
+- **`EquipmentDisplayService`** - Service layer for equipment display operations
 - Provides a clean interface for game components to display messages
 - Bridges the gap between game logic and UI display systems
+
+### **13. Template Method Pattern**
+- **`ActionAdditionTemplate`** - Template for adding class actions consistently
+- Provides consistent behavior while allowing customization
 
 ## ⚙️ Configuration Systems
 
@@ -324,27 +378,38 @@ JSON Files → Loaders → Data Classes → Managers → Game Logic → UI Displ
 - Each class has a single, well-defined responsibility
 - Clear boundaries between systems (combat, inventory, dungeon, etc.)
 - Character system refactored into specialized managers (Health, Combat, Display)
+- Combat effects separated into specialized handlers using Strategy pattern
 
 ### **2. Modularity**
 - Systems can be modified independently
 - Easy to add new features without affecting existing code
+- Registry pattern allows easy addition of new effect types
+- Factory pattern enables easy addition of new entity types
 
 ### **3. Maintainability**
 - Centralized utilities reduce code duplication
 - Clear naming conventions and documentation
 - Large classes refactored into manageable, focused components
-- Character class reduced from 737 to 539 lines through composition pattern
-- GameConfiguration refactored from 1000+ lines to clean orchestrator with domain-specific config files
+- **Major Refactoring Achievements:**
+  - **GameDataGenerator**: 684 → 68 lines (90% reduction)
+  - **Character**: 539 → 250 lines (54% reduction)
+  - **Enemy**: 493 → 321 lines (35% reduction)
+  - **GameConfiguration**: 1000+ → 205 lines (80% reduction)
+- Eliminated code duplication across display managers
+- Registry pattern eliminates large switch statements
 
 ### **4. Extensibility**
 - New enemy types, actions, and items can be added via JSON
 - Plugin-like architecture for new features
+- Registry pattern allows easy addition of new effect handlers
+- Builder pattern enables complex entity creation without modifying core classes
 
 ### **5. Testability**
 - Utility classes can be easily unit tested
 - Manager classes provide clear interfaces for testing
 - Character managers can be tested independently (Health, Combat, Display)
 - Composition pattern enables better mocking and isolation testing
+- Registry pattern allows testing individual effect handlers in isolation
 
 ## 📈 Performance Considerations
 

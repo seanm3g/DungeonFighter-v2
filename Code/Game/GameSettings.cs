@@ -7,7 +7,7 @@ namespace RPGGame
     public class GameSettings
     {
         // Narrative Settings
-        public double NarrativeBalance { get; set; } = 0.7; // 0.0 = Event-driven, 1.0 = Poetic narrative
+        public double NarrativeBalance { get; set; } = 0.8; // 0.0 = Event-driven, 1.0 = Poetic narrative
         public bool EnableNarrativeEvents { get; set; } = true;
         public bool EnableInformationalSummaries { get; set; } = true;
         

@@ -10,7 +10,7 @@ namespace RPGGame
     {
         private Character player;
         private List<Item> inventory;
-        private InventoryDisplayManager displayManager;
+        private GameDisplayManager displayManager;
         private ComboManager comboManager;
 
         public InventoryManager(Character player, List<Item> inventory)
@@ -19,7 +19,7 @@ namespace RPGGame
             this.inventory = inventory;
             
             // Initialize components
-            displayManager = new InventoryDisplayManager(player, inventory);
+            displayManager = new GameDisplayManager(player, inventory);
             comboManager = new ComboManager(player, displayManager);
         }
 
@@ -209,7 +209,7 @@ namespace RPGGame
         {
             this.inventory = newInventory;
             // Update the display manager with the new inventory reference
-            displayManager = new InventoryDisplayManager(player, inventory);
+            displayManager = new GameDisplayManager(player, inventory);
         }
     }
 }

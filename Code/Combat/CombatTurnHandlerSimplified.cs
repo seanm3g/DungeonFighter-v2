@@ -5,14 +5,14 @@ using System.Linq;
 namespace RPGGame
 {
     /// <summary>
-    /// Handles turn processing logic using the new ActionSelector system
-    /// Replaces CombatTurnProcessor with a cleaner, more robust implementation
+    /// Simplified combat turn handler using generic processors to eliminate duplication
+    /// Replaces the original CombatTurnHandler with cleaner, more maintainable code
     /// </summary>
-    public class CombatTurnHandler
+    public class CombatTurnHandlerSimplified
     {
         private readonly CombatStateManager stateManager;
 
-        public CombatTurnHandler(CombatStateManager stateManager)
+        public CombatTurnHandlerSimplified(CombatStateManager stateManager)
         {
             this.stateManager = stateManager;
         }
@@ -25,7 +25,7 @@ namespace RPGGame
             // Check if player is stunned
             if (player.StunTurnsRemaining > 0)
             {
-                ProcessStunnedPlayer(player);
+                StunProcessor.ProcessStunnedEntity(player, stateManager);
             }
             else
             {
@@ -48,7 +48,7 @@ namespace RPGGame
             // Check if enemy is stunned
             if (currentEnemy.StunTurnsRemaining > 0)
             {
-                ProcessStunnedEnemy(currentEnemy);
+                StunProcessor.ProcessStunnedEntity(currentEnemy, stateManager);
             }
             else
             {
@@ -118,6 +118,13 @@ namespace RPGGame
                     string result = EnvironmentalActionHandler.ExecuteAreaOfEffectAction(room, allTargets, room, envAction);
                     bool textDisplayed = !string.IsNullOrEmpty(result);
                     
+                    // Add environmental action to narrative system
+                    var battleNarrative = stateManager.GetCurrentBattleNarrative();
+                    if (battleNarrative != null && textDisplayed)
+                    {
+                        battleNarrative.AddEnvironmentalAction(result);
+                    }
+                    
                     // Record the environmental action for turn counting
                     bool newTurn = stateManager.RecordAction(room.Name, envAction.Name);
                     if (newTurn && !CombatManager.DisableCombatUIOutput)
@@ -125,13 +132,24 @@ namespace RPGGame
                         // Turn separator line removed for cleaner combat logs
                     }
                     
-                    // Display environmental action result
+                    // Display environmental action result using block system
                     if (textDisplayed)
                     {
-                        // Use WriteCombatLine for proper entity tracking and spacing
-                        UIManager.WriteCombatLine(result);
+                        // Parse the environmental action to extract main text and effects
+                        var lines = result.Split('\n');
+                        string mainText = lines[0];
+                        var effects = new List<string>();
                         
-                        // Don't add explicit blank line - let UIManager handle entity-based spacing
+                        // Extract any effects from additional lines
+                        for (int i = 1; i < lines.Length; i++)
+                        {
+                            if (!string.IsNullOrEmpty(lines[i].Trim()))
+                            {
+                                effects.Add(lines[i].Trim());
+                            }
+                        }
+                        
+                        BlockDisplayManager.DisplayEnvironmentalBlock(mainText, effects);
                     }
                     
                     // Update environment's action timing in the action speed system
@@ -197,6 +215,9 @@ namespace RPGGame
                 TextDisplayIntegration.DisplayCombatAction(result, narratives, indentedStatusEffects, player.Name);
             }
             
+            // End turn for statistics tracking
+            player.EndTurn();
+            
             // Update last player action for DEJA VU functionality
             if (usedAction != null)
             {
@@ -208,58 +229,6 @@ namespace RPGGame
             if (actionSpeedSystem != null && usedAction != null)
             {
                 actionSpeedSystem.ExecuteAction(player, usedAction);
-            }
-        }
-
-        /// <summary>
-        /// Processes a stunned player
-        /// </summary>
-        private void ProcessStunnedPlayer(Character player)
-        {
-            if (!CombatManager.DisableCombatUIOutput)
-            {
-                // Use WriteStunLine for configurable stun message handling (no indentation)
-                UIManager.WriteStunLine($"[{player.Name}] is stunned and cannot act! ({player.StunTurnsRemaining} turns remaining)");
-                // Don't add explicit blank line - let UIManager handle entity-based spacing
-            }
-            
-            // Get the player's action speed to calculate proper stun reduction
-            double playerActionSpeed = player.GetTotalAttackSpeed();
-            
-            // Update temp effects with action speed-based turn reduction
-            player.UpdateTempEffects(playerActionSpeed / 10.0); // Normalize to turn-based system
-            
-            // Advance the player's turn in the action speed system based on their action speed
-            var currentSpeedSystem = stateManager.GetCurrentActionSpeedSystem();
-            if (currentSpeedSystem != null)
-            {
-                currentSpeedSystem.AdvanceEntityTurn(player, playerActionSpeed);
-            }
-        }
-
-        /// <summary>
-        /// Processes a stunned enemy
-        /// </summary>
-        private void ProcessStunnedEnemy(Enemy enemy)
-        {
-            if (!CombatManager.DisableCombatUIOutput)
-            {
-                // Use WriteStunLine for configurable stun message handling (no indentation)
-                UIManager.WriteStunLine($"[{enemy.Name}] is stunned and cannot act! ({enemy.StunTurnsRemaining} turns remaining)");
-                // Don't add explicit blank line - let UIManager handle entity-based spacing
-            }
-            
-            // Get the enemy's action speed to calculate proper stun reduction
-            double enemyActionSpeed = enemy.GetTotalAttackSpeed();
-            
-            // Update temp effects with action speed-based turn reduction
-            enemy.UpdateTempEffects(enemyActionSpeed / 10.0); // Normalize to turn-based system
-            
-            // Advance the enemy's turn in the action speed system based on their action speed
-            var currentSpeedSystem = stateManager.GetCurrentActionSpeedSystem();
-            if (currentSpeedSystem != null)
-            {
-                currentSpeedSystem.AdvanceEntityTurn(enemy, enemyActionSpeed);
             }
         }
 
@@ -283,6 +252,7 @@ namespace RPGGame
                 if (actualRegen > 0 && !CombatManager.DisableCombatUIOutput)
                 {
                     UIManager.WriteLine($"[{player.Name}] regenerates {actualRegen} health ({player.CurrentHealth}/{player.GetEffectiveMaxHealth()})");
+                    UIManager.WriteLine(""); // Add blank line after regeneration message
                 }
             }
         }

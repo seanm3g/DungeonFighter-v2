@@ -11,12 +11,10 @@ namespace RPGGame
     {
         private BattleNarrative? currentBattleNarrative;
         private TurnManager turnManager;
-        private Entity? lastActingEntity;
 
         public CombatStateManager()
         {
             turnManager = new TurnManager();
-            lastActingEntity = null;
         }
 
         /// <summary>
@@ -28,7 +26,7 @@ namespace RPGGame
             UIManager.ResetForNewBattle(); // Reset entity tracking for new battle
             TextDisplayIntegration.ResetForNewBattle(); // Reset new text display system
             turnManager.InitializeBattle();
-            lastActingEntity = null; // Reset entity change tracking for new battle
+            // Entity tracking is now handled by BlockDisplayManager
         }
 
         /// <summary>
@@ -48,8 +46,8 @@ namespace RPGGame
                     string summary = currentBattleNarrative.GenerateInformationalSummary();
                     if (!string.IsNullOrEmpty(summary))
                     {
-                        // Use system delay for combat summary
-                        UIManager.WriteSystemLine(summary);
+                        // Use system block for combat summary
+                        BlockDisplayManager.DisplaySystemBlock(summary);
                     }
                 }
                 
@@ -78,8 +76,8 @@ namespace RPGGame
                     string summary = currentBattleNarrative.GenerateInformationalSummary();
                     if (!string.IsNullOrEmpty(summary))
                     {
-                        // Use system delay for combat summary
-                        UIManager.WriteSystemLine(summary);
+                        // Use system block for combat summary
+                        BlockDisplayManager.DisplaySystemBlock(summary);
                     }
                 }
                 
@@ -184,10 +182,7 @@ namespace RPGGame
         /// <param name="currentEntity">The entity that is about to act</param>
         public void HandleEntityChange(Entity currentEntity)
         {
-            // Blank lines are now handled by UIManager.WriteCombatLine() to prevent duplication
-            
-            // Update the last acting entity
-            lastActingEntity = currentEntity;
+            // Entity tracking and blank lines are now handled by BlockDisplayManager
         }
 
         /// <summary>

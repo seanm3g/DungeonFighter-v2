@@ -15,6 +15,34 @@ namespace RPGGame
                 return;
             }
             
+            // Test wand actions if requested
+            if (args.Length > 0 && args[0] == "test-wand")
+            {
+                WandActionTest.TestWandActions();
+                return;
+            }
+            
+            // Debug wand actions if requested
+            if (args.Length > 0 && args[0] == "debug-wand")
+            {
+                DebugWandActions.DebugWandActionLoading();
+                return;
+            }
+            
+            // Simple wand test if requested
+            if (args.Length > 0 && args[0] == "simple-wand")
+            {
+                SimpleWandTest.TestWandActions();
+                return;
+            }
+            
+            // Test wand fix if requested
+            if (args.Length > 0 && args[0] == "test-wand-fix")
+            {
+                TestWandFix.TestWandActionFix();
+                return;
+            }
+            
             // Test game data generator if requested
             if (args.Length > 0 && args[0] == "test-generator")
             {

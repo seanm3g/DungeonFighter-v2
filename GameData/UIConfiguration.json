@@ -2,29 +2,35 @@
   "EnableDelays": true,
   "FastCombat": false,
   "DisableAllOutput": false,
-  "AddBlankLinesBetweenEntities": true,
-  "AddBlankLinesAfterEnvironmentalActions": true,
-  "AddBlankLinesAfterStunMessages": true,
-  "AddBlankLinesAfterDamageOverTime": true,
   "BeatTiming": {
-    "CombatBeatLengthMs": 1500,
+    "CombatBeatLengthMs": 2000,
     "MenuBeatLengthMs": 35,
-    "BeatMultipliers": {
+    "BlockDelays": {
+      "ActionBlock": 0.8,
+      "EffectBlock": 0.7,
+      "NarrativeBlock": 1.0,
+      "EnvironmentalBlock": 0.8,
+      "MenuBlock": 1.0,
+      "SystemBlock": 0.8
+    },
+    "LegacyMultipliers": {
       "Title": 15.0,
       "MainTitle": 20.0,
       "System": 1.0,
-      
-      "Combat": 0.1,
+      "Combat": 0.5,
       "Environmental": 1.5,
       "EffectMessage": 0.4,
       "DamageOverTime": 0.4,
       "RollInfo": 1.0,
-      "Encounter": 1.0
+      "Encounter": 2.0
     }
   },
   "ShowTimingInfo": true,
   "ShowEntityNames": true,
   "ShowDetailedCombatInfo": true,
-  "GroupRelatedMessages": true,
-  "ShowStatusEffectIndentation": true
+  "BlockSpacing": {
+    "AddBlankLinesBetweenActionBlocks": false,
+    "AddBlankLinesBetweenEffectBlocks": false,
+    "AddBlankLinesAroundNarrativeBlocks": true
+  }
 }

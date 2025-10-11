@@ -48,13 +48,15 @@ namespace RPGGame
 
             // Roll first to determine what type of action to use
             int baseRoll = Dice.Roll(1, 20);
+            
+            // Store the base roll for use in the main execution
+            _lastActionSelectionRolls[source] = baseRoll;
+            
+            // Calculate roll bonus for action selection (using null action for base bonus)
             int rollBonus = ActionUtilities.CalculateRollBonus(source, null);
             int totalRoll = baseRoll + rollBonus;
             
-            // Store the roll for use in the main execution
-            _lastActionSelectionRolls[source] = baseRoll;
-            
-            // Determine action type based on roll result (with bonuses)
+            // Determine action type based on total roll result (base roll + bonuses)
             Action? selectedAction = null;
             
             if (baseRoll == 20) // Natural 20 - always combo + critical hit
@@ -92,22 +94,28 @@ namespace RPGGame
                 return null;
 
             int baseRoll = Dice.Roll(1, 20);
-            int rollBonus = 0; // Enemies generally have no base roll bonus for selection
-            int totalRoll = baseRoll + rollBonus;
             
-            // Store the roll for use in hit calculation (same as heroes)
+            // Store the base roll for use in hit calculation (same as heroes)
             _lastActionSelectionRolls[source] = baseRoll;
 
-            // 20 or 14-19: prefer combo actions
+            // Calculate roll bonus for action selection (enemies generally have no base roll bonus)
+            int rollBonus = ActionUtilities.CalculateRollBonus(source, null);
+            int totalRoll = baseRoll + rollBonus;
+
+            // 20 or 14-19: prefer combo actions, but only if they have both combo and basic actions
             if (baseRoll == 20 || totalRoll >= 14)
             {
                 var comboActions = ActionUtilities.GetComboActions(source);
-                if (comboActions.Count > 0)
+                var hasBasicAttack = source.ActionPool.Any(a => a.action.Name == "BASIC ATTACK");
+                
+                // Only use combo actions if the enemy has both combo actions AND basic attacks available
+                // This prevents enemies from always using combo actions when they should do basic attacks
+                if (comboActions.Count > 0 && hasBasicAttack)
                 {
                     int idx = comboActions.Count > 1 ? Dice.Roll(1, comboActions.Count) - 1 : 0;
                     return comboActions[idx];
                 }
-                // Fallback to weighted selection
+                // If no basic attack available, fall back to weighted selection
                 return source.SelectAction();
             }
 

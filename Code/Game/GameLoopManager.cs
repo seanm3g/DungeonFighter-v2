@@ -9,12 +9,12 @@ namespace RPGGame
     /// </summary>
     public class GameLoopManager
     {
-        private DungeonManager dungeonManager;
+        private DungeonManagerWithRegistry dungeonManager;
         private CombatManager combatManager;
 
         public GameLoopManager()
         {
-            dungeonManager = new DungeonManager();
+            dungeonManager = new DungeonManagerWithRegistry();
             combatManager = new CombatManager();
         }
 

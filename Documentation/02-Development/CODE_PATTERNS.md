@@ -38,7 +38,106 @@ Documentation of common code patterns, conventions, and architectural decisions 
 
 ## Architectural Patterns
 
-### 1. Manager Pattern
+### 1. Registry Pattern (NEW)
+**Purpose**: Provide extensible, maintainable effect systems using strategy pattern
+
+**Example**:
+```csharp
+public class EffectHandlerRegistry
+{
+    private readonly Dictionary<string, IEffectHandler> _handlers = new();
+    
+    public EffectHandlerRegistry()
+    {
+        RegisterHandler("Bleed", new BleedEffectHandler());
+        RegisterHandler("Weaken", new WeakenEffectHandler());
+        // ... other handlers
+    }
+    
+    public void ApplyEffect(string effectType, Entity target, int intensity)
+    {
+        if (_handlers.TryGetValue(effectType, out var handler))
+        {
+            handler.ApplyEffect(target, intensity);
+        }
+    }
+}
+```
+
+**Benefits**:
+- Eliminates large switch statements
+- Easy to add new effect types
+- Testable individual handlers
+- Follows Open/Closed Principle
+
+### 2. Facade Pattern (NEW)
+**Purpose**: Provide simplified interface to complex subsystems
+
+**Example**:
+```csharp
+public class CharacterFacade
+{
+    private readonly Character _character;
+    private readonly EquipmentManager _equipmentManager;
+    private readonly LevelUpManager _levelUpManager;
+    
+    public CharacterFacade(Character character)
+    {
+        _character = character;
+        _equipmentManager = new EquipmentManager(character);
+        _levelUpManager = new LevelUpManager(character);
+    }
+    
+    // Simplified interface methods
+    public void AddXP(int amount) => _levelUpManager.AddXP(amount);
+    public Item? EquipItem(Item item, string slot) => _equipmentManager.EquipItem(item, slot);
+}
+```
+
+**Benefits**:
+- Hides complexity of subsystems
+- Provides consistent interface
+- Reduces coupling between components
+
+### 3. Builder Pattern (NEW)
+**Purpose**: Handle complex object initialization without cluttering entity classes
+
+**Example**:
+```csharp
+public class CharacterBuilder
+{
+    private string? _name;
+    private int _level = 1;
+    private int _strength = 8;
+    // ... other properties
+    
+    public CharacterBuilder WithName(string name)
+    {
+        _name = name;
+        return this;
+    }
+    
+    public CharacterBuilder WithLevel(int level)
+    {
+        _level = level;
+        return this;
+    }
+    
+    public Character Build()
+    {
+        var character = new Character(_name, _level);
+        // Complex initialization logic here
+        return character;
+    }
+}
+```
+
+**Benefits**:
+- Separates construction from representation
+- Fluent interface for readability
+- Handles complex initialization logic
+
+### 4. Manager Pattern
 **Purpose**: Orchestrate complex subsystems and provide clean interfaces
 
 **Example**:
@@ -47,7 +146,7 @@ public class CombatManager
 {
     // Specialized managers using composition pattern
     private readonly CombatStateManager stateManager;
-    private readonly CombatTurnProcessor turnProcessor;
+    private readonly CombatTurnHandlerSimplified turnHandler;
 
     public CombatManager()
     {

@@ -1,439 +1,139 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace RPGGame
 {
+    /// <summary>
+    /// Factory pattern for creating different types of enemies
+    /// Provides convenient methods for creating common enemy types
+    /// </summary>
     public static class EnemyFactory
     {
-        private static List<WeaponData>? _weaponData;
-
         /// <summary>
-        /// Generates a common-tier weapon for an enemy
+        /// Creates a basic enemy with standard stats
         /// </summary>
-        /// <param name="enemyName">The name of the enemy</param>
-        /// <param name="enemyLevel">The level of the enemy</param>
-        /// <returns>A common-tier weapon appropriate for the enemy</returns>
-        private static WeaponItem GenerateCommonWeaponForEnemy(string enemyName, int enemyLevel)
+        public static Enemy CreateBasicEnemy(string name, int level)
         {
-            // Load weapon data if not already loaded
-            if (_weaponData == null)
-            {
-                LoadWeaponData();
-            }
-
-            // Get only tier 1 (common) weapons
-            var commonWeapons = _weaponData?.Where(w => w.Tier == 1).ToList() ?? new List<WeaponData>();
-            
-            if (!commonWeapons.Any())
-            {
-                // Fallback to basic weapon if no common weapons found
-                return new WeaponItem($"{enemyName} Weapon", 1, 6, 0.0, WeaponType.Sword);
-            }
-
-            // Select a random common weapon
-            var selectedWeapon = commonWeapons[RandomUtility.Next(commonWeapons.Count)];
-            
-            // Generate the weapon item
-            var weapon = ItemGenerator.GenerateWeaponItem(selectedWeapon);
-            
-            // Ensure it's marked as common rarity
-            weapon.Rarity = "Common";
-            
-            return weapon;
-        }
-
-        public static Enemy CreateEnemy(string enemyType, int level = 1)
-        {
-            // Try to create enemy from JSON data first
-            var enemy = EnemyLoader.CreateEnemy(enemyType, level);
-            if (enemy != null)
-            {
-                return enemy;
-            }
-
-            // Fallback to hardcoded creation if not found in JSON
-            return enemyType.ToLower() switch
-            {
-                "goblin" => CreateGoblin(level),
-                "orc" => CreateOrc(level),
-                "skeleton" => CreateSkeleton(level),
-                "zombie" => CreateZombie(level),
-                "wraith" => CreateWraith(level),
-                "spider" => CreateSpider(level),
-                "slime" => CreateSlime(level),
-                "bat" => CreateBat(level),
-                "bandit" => CreateBandit(level),
-                "cultist" => CreateCultist(level),
-                "troll" => CreateTroll(level),
-                "dragon" => CreateDragon(level),
-                "ghost" => CreateGhost(level),
-                "vampire" => CreateVampire(level),
-                "werewolf" => CreateWerewolf(level),
-                "gargoyle" => CreateGargoyle(level),
-                "mimic" => CreateMimic(level),
-                "elemental" => CreateElemental(level),
-                _ => CreateGoblin(level) // Default fallback
-            };
-        }
-
-        private static Enemy CreateGoblin(int level)
-        {
-            var enemy = new Enemy("Goblin", level, 30 + level * 5, 8 + level, 12 + level, 4 + level);
-            enemy.ActionPool.Clear();
-            
-            // Add a common weapon to the enemy
-            enemy.Weapon = GenerateCommonWeaponForEnemy("Goblin", level);
-            
-            var quickStab = ActionLoader.GetAction("Quick Stab");
-            var dirtyTrick = ActionLoader.GetAction("Dirty Trick");
-            var retreat = ActionLoader.GetAction("Retreat");
-            
-            if (quickStab != null) enemy.AddAction(quickStab, 0.6);
-            if (dirtyTrick != null) enemy.AddAction(dirtyTrick, 0.3);
-            if (retreat != null) enemy.AddAction(retreat, 0.1);
-            
-            return enemy;
-        }
-
-        private static Enemy CreateOrc(int level)
-        {
-            var enemy = new Enemy("Orc", level, 50 + level * 8, 15 + level * 2, 8 + level, 6 + level);
-            enemy.ActionPool.Clear();
-            
-            // Add a common weapon to the enemy
-            enemy.Weapon = GenerateCommonWeaponForEnemy("Orc", level);
-            
-            var heavySwing = ActionLoader.GetAction("Heavy Swing");
-            var battleRage = ActionLoader.GetAction("Battle Rage");
-            var intimidatingRoar = ActionLoader.GetAction("Intimidating Roar");
-            
-            if (heavySwing != null) enemy.AddAction(heavySwing, 0.7);
-            if (battleRage != null) enemy.AddAction(battleRage, 0.2);
-            if (intimidatingRoar != null) enemy.AddAction(intimidatingRoar, 0.1);
-            
-            return enemy;
-        }
-
-        private static Enemy CreateSkeleton(int level)
-        {
-            var enemy = new Enemy("Skeleton", level, 35 + level * 6, 10 + level, 8 + level, 6 + level);
-            enemy.ActionPool.Clear();
-            
-            // Add a common weapon to the enemy
-            enemy.Weapon = GenerateCommonWeaponForEnemy("Skeleton", level);
-            
-            var boneThrow = ActionLoader.GetAction("Bone Throw");
-            var rattlingBones = ActionLoader.GetAction("Rattling Bones");
-            var reassemble = ActionLoader.GetAction("Reassemble");
-            
-            if (boneThrow != null) enemy.AddAction(boneThrow, 0.6);
-            if (rattlingBones != null) enemy.AddAction(rattlingBones, 0.3);
-            if (reassemble != null) enemy.AddAction(reassemble, 0.1);
-            
-            return enemy;
-        }
-
-        private static Enemy CreateZombie(int level)
-        {
-            var enemy = new Enemy("Zombie", level, 45 + level * 7, 12 + level, 4 + level, 2 + level);
-            enemy.ActionPool.Clear();
-            
-            // Add a common weapon to the enemy
-            enemy.Weapon = GenerateCommonWeaponForEnemy("Zombie", level);
-            
-            var slowGrab = ActionLoader.GetAction("Slow Grab");
-            var infectiousBite = ActionLoader.GetAction("Infectious Bite");
-            var undeadResilience = ActionLoader.GetAction("Undead Resilience");
-            
-            if (slowGrab != null) enemy.AddAction(slowGrab, 0.7);
-            if (infectiousBite != null) enemy.AddAction(infectiousBite, 0.2);
-            if (undeadResilience != null) enemy.AddAction(undeadResilience, 0.1);
-            
-            return enemy;
-        }
-
-        private static Enemy CreateWraith(int level)
-        {
-            var enemy = new Enemy("Wraith", level, 25 + level * 4, 6 + level, 14 + level, 16 + level);
-            enemy.ActionPool.Clear();
-            
-            // Add a common weapon to the enemy
-            enemy.Weapon = GenerateCommonWeaponForEnemy("Wraith", level);
-            
-            var etherealTouch = ActionLoader.GetAction("Ethereal Touch");
-            var hauntingWail = ActionLoader.GetAction("Haunting Wail");
-            var phaseShift = ActionLoader.GetAction("Phase Shift");
-            
-            if (etherealTouch != null) enemy.AddAction(etherealTouch, 0.5);
-            if (hauntingWail != null) enemy.AddAction(hauntingWail, 0.3);
-            if (phaseShift != null) enemy.AddAction(phaseShift, 0.2);
-            
-            return enemy;
-        }
-
-        private static Enemy CreateSpider(int level)
-        {
-            var enemy = new Enemy("Spider", level, 30 + level * 5, 8 + level, 16 + level, 8 + level);
-            enemy.ActionPool.Clear();
-            
-            // Add a common weapon to the enemy
-            enemy.Weapon = GenerateCommonWeaponForEnemy("Spider", level);
-            
-            var venomousBite = ActionLoader.GetAction("Venomous Bite");
-            var webTrap = ActionLoader.GetAction("Web Trap");
-            var skitter = ActionLoader.GetAction("Skitter");
-            
-            if (venomousBite != null) enemy.AddAction(venomousBite, 0.6);
-            if (webTrap != null) enemy.AddAction(webTrap, 0.3);
-            if (skitter != null) enemy.AddAction(skitter, 0.1);
-            
-            return enemy;
-        }
-
-        private static Enemy CreateSlime(int level)
-        {
-            var enemy = new Enemy("Slime", level, 40 + level * 6, 6 + level, 6 + level, 10 + level);
-            enemy.ActionPool.Clear();
-            
-            // Add a common weapon to the enemy
-            enemy.Weapon = GenerateCommonWeaponForEnemy("Slime", level);
-            
-            var acidicSplash = ActionLoader.GetAction("Acidic Splash");
-            var absorb = ActionLoader.GetAction("Absorb");
-            var split = ActionLoader.GetAction("Split");
-            
-            if (acidicSplash != null) enemy.AddAction(acidicSplash, 0.6);
-            if (absorb != null) enemy.AddAction(absorb, 0.3);
-            if (split != null) enemy.AddAction(split, 0.1);
-            
-            return enemy;
-        }
-
-        private static Enemy CreateBat(int level)
-        {
-            var enemy = new Enemy("Bat", level, 20 + level * 3, 6 + level, 18 + level, 4 + level);
-            enemy.ActionPool.Clear();
-            
-            // Add a common weapon to the enemy
-            enemy.Weapon = GenerateCommonWeaponForEnemy("Bat", level);
-            
-            var sonicScream = ActionLoader.GetAction("Sonic Scream");
-            var diveBomb = ActionLoader.GetAction("Dive Bomb");
-            var echolocation = ActionLoader.GetAction("Echolocation");
-            
-            if (sonicScream != null) enemy.AddAction(sonicScream, 0.4);
-            if (diveBomb != null) enemy.AddAction(diveBomb, 0.5);
-            if (echolocation != null) enemy.AddAction(echolocation, 0.1);
-            
-            return enemy;
-        }
-
-        private static Enemy CreateBandit(int level)
-        {
-            var enemy = new Enemy("Bandit", level, 35 + level * 5, 10 + level, 12 + level, 8 + level);
-            enemy.ActionPool.Clear();
-            
-            // Add a common weapon to the enemy
-            enemy.Weapon = GenerateCommonWeaponForEnemy("Bandit", level);
-            
-            var backstab = ActionLoader.GetAction("Backstab");
-            var smokeBomb = ActionLoader.GetAction("Smoke Bomb");
-            var adrenalineRush = ActionLoader.GetAction("Adrenaline Rush");
-            
-            if (backstab != null) enemy.AddAction(backstab, 0.6);
-            if (smokeBomb != null) enemy.AddAction(smokeBomb, 0.3);
-            if (adrenalineRush != null) enemy.AddAction(adrenalineRush, 0.1);
-            
-            return enemy;
-        }
-
-        private static Enemy CreateCultist(int level)
-        {
-            var enemy = new Enemy("Cultist", level, 30 + level * 4, 8 + level, 10 + level, 14 + level);
-            enemy.ActionPool.Clear();
-            
-            // Add a common weapon to the enemy
-            enemy.Weapon = GenerateCommonWeaponForEnemy("Cultist", level);
-            
-            var darkRitual = ActionLoader.GetAction("Dark Ritual");
-            var summonShadows = ActionLoader.GetAction("Summon Shadows");
-            var curse = ActionLoader.GetAction("Curse");
-            
-            if (darkRitual != null) enemy.AddAction(darkRitual, 0.5);
-            if (summonShadows != null) enemy.AddAction(summonShadows, 0.3);
-            if (curse != null) enemy.AddAction(curse, 0.2);
-            
-            return enemy;
-        }
-
-        private static Enemy CreateTroll(int level)
-        {
-            var enemy = new Enemy("Troll", level, 80 + level * 12, 18 + level * 2, 6 + level, 4 + level);
-            enemy.ActionPool.Clear();
-            
-            // Add a common weapon to the enemy
-            enemy.Weapon = GenerateCommonWeaponForEnemy("Troll", level);
-            
-            var clubSmash = ActionLoader.GetAction("Club Smash");
-            var regeneration = ActionLoader.GetAction("Regeneration");
-            var groundStomp = ActionLoader.GetAction("Ground Stomp");
-            
-            if (clubSmash != null) enemy.AddAction(clubSmash, 0.6);
-            if (regeneration != null) enemy.AddAction(regeneration, 0.2);
-            if (groundStomp != null) enemy.AddAction(groundStomp, 0.2);
-            
-            return enemy;
-        }
-
-        private static Enemy CreateDragon(int level)
-        {
-            var enemy = new Enemy("Dragon", level, 120 + level * 20, 20 + level * 3, 12 + level, 16 + level);
-            enemy.ActionPool.Clear();
-            
-            // Add a common weapon to the enemy
-            enemy.Weapon = GenerateCommonWeaponForEnemy("Dragon", level);
-            
-            var fireBreath = ActionLoader.GetAction("Fire Breath");
-            var wingBuffet = ActionLoader.GetAction("Wing Buffet");
-            var dragonRage = ActionLoader.GetAction("Dragon Rage");
-            
-            if (fireBreath != null) enemy.AddAction(fireBreath, 0.4);
-            if (wingBuffet != null) enemy.AddAction(wingBuffet, 0.4);
-            if (dragonRage != null) enemy.AddAction(dragonRage, 0.2);
-            
-            return enemy;
-        }
-
-        private static Enemy CreateGhost(int level)
-        {
-            var enemy = new Enemy("Ghost", level, 25 + level * 4, 4 + level, 16 + level, 18 + level);
-            enemy.ActionPool.Clear();
-            
-            // Add a common weapon to the enemy
-            enemy.Weapon = GenerateCommonWeaponForEnemy("Ghost", level);
-            
-            var possession = ActionLoader.GetAction("Possession");
-            var ghostlyWail = ActionLoader.GetAction("Ghostly Wail");
-            var fadeAway = ActionLoader.GetAction("Fade Away");
-            
-            if (possession != null) enemy.AddAction(possession, 0.3);
-            if (ghostlyWail != null) enemy.AddAction(ghostlyWail, 0.5);
-            if (fadeAway != null) enemy.AddAction(fadeAway, 0.2);
-            
-            return enemy;
-        }
-
-        private static Enemy CreateVampire(int level)
-        {
-            var enemy = new Enemy("Vampire", level, 50 + level * 8, 12 + level, 14 + level, 12 + level);
-            enemy.ActionPool.Clear();
-            
-            // Add a common weapon to the enemy
-            enemy.Weapon = GenerateCommonWeaponForEnemy("Vampire", level);
-            
-            var bloodDrain = ActionLoader.GetAction("Blood Drain");
-            var hypnoticGaze = ActionLoader.GetAction("Hypnotic Gaze");
-            var batForm = ActionLoader.GetAction("Bat Form");
-            
-            if (bloodDrain != null) enemy.AddAction(bloodDrain, 0.6);
-            if (hypnoticGaze != null) enemy.AddAction(hypnoticGaze, 0.3);
-            if (batForm != null) enemy.AddAction(batForm, 0.1);
-            
-            return enemy;
-        }
-
-        private static Enemy CreateWerewolf(int level)
-        {
-            var enemy = new Enemy("Werewolf", level, 60 + level * 10, 16 + level * 2, 14 + level, 8 + level);
-            enemy.ActionPool.Clear();
-            
-            // Add a common weapon to the enemy
-            enemy.Weapon = GenerateCommonWeaponForEnemy("Werewolf", level);
-            
-            var savageClaw = ActionLoader.GetAction("Savage Claw");
-            var howl = ActionLoader.GetAction("Howl");
-            var pounce = ActionLoader.GetAction("Pounce");
-            
-            if (savageClaw != null) enemy.AddAction(savageClaw, 0.6);
-            if (howl != null) enemy.AddAction(howl, 0.2);
-            if (pounce != null) enemy.AddAction(pounce, 0.2);
-            
-            return enemy;
-        }
-
-        private static Enemy CreateGargoyle(int level)
-        {
-            var enemy = new Enemy("Gargoyle", level, 70 + level * 10, 14 + level * 2, 8 + level, 10 + level);
-            enemy.ActionPool.Clear();
-            
-            // Add a common weapon to the enemy
-            enemy.Weapon = GenerateCommonWeaponForEnemy("Gargoyle", level);
-            
-            var stoneFist = ActionLoader.GetAction("Stone Fist");
-            var petrify = ActionLoader.GetAction("Petrify");
-            var stoneSkin = ActionLoader.GetAction("Stone Skin");
-            
-            if (stoneFist != null) enemy.AddAction(stoneFist, 0.6);
-            if (petrify != null) enemy.AddAction(petrify, 0.2);
-            if (stoneSkin != null) enemy.AddAction(stoneSkin, 0.2);
-            
-            return enemy;
-        }
-
-        private static Enemy CreateMimic(int level)
-        {
-            var enemy = new Enemy("Mimic", level, 45 + level * 7, 10 + level, 8 + level, 12 + level);
-            enemy.ActionPool.Clear();
-            
-            // Add a common weapon to the enemy
-            enemy.Weapon = GenerateCommonWeaponForEnemy("Mimic", level);
-            
-            var surpriseBite = ActionLoader.GetAction("Surprise Bite");
-            var adhesiveTrap = ActionLoader.GetAction("Adhesive Trap");
-            var disguise = ActionLoader.GetAction("Disguise");
-            
-            if (surpriseBite != null) enemy.AddAction(surpriseBite, 0.7);
-            if (adhesiveTrap != null) enemy.AddAction(adhesiveTrap, 0.2);
-            if (disguise != null) enemy.AddAction(disguise, 0.1);
-            
-            return enemy;
-        }
-
-        private static Enemy CreateElemental(int level)
-        {
-            var enemy = new Enemy("Elemental", level, 40 + level * 6, 8 + level, 10 + level, 16 + level);
-            enemy.ActionPool.Clear();
-            
-            // Add a common weapon to the enemy
-            enemy.Weapon = GenerateCommonWeaponForEnemy("Elemental", level);
-            
-            var elementalBlast = ActionLoader.GetAction("Elemental Blast");
-            var elementalShield = ActionLoader.GetAction("Elemental Shield");
-            var elementalStorm = ActionLoader.GetAction("Elemental Storm");
-            
-            if (elementalBlast != null) enemy.AddAction(elementalBlast, 0.5);
-            if (elementalShield != null) enemy.AddAction(elementalShield, 0.3);
-            if (elementalStorm != null) enemy.AddAction(elementalStorm, 0.2);
-            
-            return enemy;
+            return new EnemyBuilder()
+                .WithName(name)
+                .WithLevel(level)
+                .WithMaxHealth(50 + (level * 10))
+                .WithStats(8 + level, 6 + level, 4 + level, 4 + level)
+                .WithArmor(level)
+                .Build();
         }
 
         /// <summary>
-        /// Loads weapon data from JSON file
+        /// Creates a berserker enemy (high damage, aggressive)
         /// </summary>
-        private static void LoadWeaponData()
+        public static Enemy CreateBerserker(string name, int level)
         {
-            string? filePath = JsonLoader.FindGameDataFile("Weapons.json");
-            if (filePath != null)
-            {
-                _weaponData = JsonLoader.LoadJsonList<WeaponData>(filePath);
-            }
-            else
-            {
-                UIManager.WriteLine("Error loading weapon data: Weapons.json not found", UIMessageType.System);
-                _weaponData = new List<WeaponData>();
-            }
+            return new EnemyBuilder()
+                .WithName(name)
+                .WithLevel(level)
+                .WithMaxHealth(60 + (level * 12))
+                .WithStats(12 + level, 4 + level, 8 + level, 2 + level)
+                .WithPrimaryAttribute(PrimaryAttribute.Strength)
+                .WithArchetype(EnemyArchetype.Berserker)
+                .WithArmor(level / 2)
+                .Build();
+        }
+
+        /// <summary>
+        /// Creates an assassin enemy (high agility, fast attacks)
+        /// </summary>
+        public static Enemy CreateAssassin(string name, int level)
+        {
+            return new EnemyBuilder()
+                .WithName(name)
+                .WithLevel(level)
+                .WithMaxHealth(40 + (level * 8))
+                .WithStats(4 + level, 12 + level, 6 + level, 4 + level)
+                .WithPrimaryAttribute(PrimaryAttribute.Agility)
+                .WithArchetype(EnemyArchetype.Assassin)
+                .WithArmor(level)
+                .Build();
+        }
+
+        /// <summary>
+        /// Creates a brute enemy (high health, heavy hitter)
+        /// </summary>
+        public static Enemy CreateBrute(string name, int level)
+        {
+            return new EnemyBuilder()
+                .WithName(name)
+                .WithLevel(level)
+                .WithMaxHealth(80 + (level * 15))
+                .WithStats(10 + level, 3 + level, 5 + level, 2 + level)
+                .WithPrimaryAttribute(PrimaryAttribute.Strength)
+                .WithArchetype(EnemyArchetype.Brute)
+                .WithArmor(level * 2)
+                .Build();
+        }
+
+        /// <summary>
+        /// Creates a guardian enemy (high armor, protective)
+        /// </summary>
+        public static Enemy CreateGuardian(string name, int level)
+        {
+            return new EnemyBuilder()
+                .WithName(name)
+                .WithLevel(level)
+                .WithMaxHealth(70 + (level * 12))
+                .WithStats(6 + level, 4 + level, 8 + level, 6 + level)
+                .WithPrimaryAttribute(PrimaryAttribute.Technique)
+                .WithArchetype(EnemyArchetype.Guardian)
+                .WithArmor(level * 3)
+                .Build();
+        }
+
+        /// <summary>
+        /// Creates a mage enemy (high intelligence, magical)
+        /// </summary>
+        public static Enemy CreateMage(string name, int level)
+        {
+            return new EnemyBuilder()
+                .WithName(name)
+                .WithLevel(level)
+                .WithMaxHealth(45 + (level * 9))
+                .WithStats(2 + level, 4 + level, 4 + level, 12 + level)
+                .WithPrimaryAttribute(PrimaryAttribute.Intelligence)
+                .WithArchetype(EnemyArchetype.Mage)
+                .WithArmor(level)
+                .Build();
+        }
+
+        /// <summary>
+        /// Creates an undead enemy (immune to poison/bleed)
+        /// </summary>
+        public static Enemy CreateUndead(string name, int level)
+        {
+            return new EnemyBuilder()
+                .WithName(name)
+                .WithLevel(level)
+                .WithMaxHealth(55 + (level * 11))
+                .WithStats(8 + level, 5 + level, 5 + level, 3 + level)
+                .WithPrimaryAttribute(PrimaryAttribute.Strength)
+                .WithLivingStatus(false)
+                .WithArchetype(EnemyArchetype.Brute)
+                .WithArmor(level)
+                .Build();
+        }
+
+        /// <summary>
+        /// Creates an enemy with direct stats (new system)
+        /// </summary>
+        public static Enemy CreateWithDirectStats(string name, int level, int maxHealth, int damage, double attackSpeed, int armor = 0)
+        {
+            return EnemyBuilder.CreateWithDirectStats(name, level, maxHealth, damage, attackSpeed, armor);
+        }
+
+        /// <summary>
+        /// Creates an enemy with traditional stats (legacy system)
+        /// </summary>
+        public static Enemy CreateWithStats(string name, int level, int maxHealth, int strength, int agility, int technique, int intelligence, int armor = 0)
+        {
+            return EnemyBuilder.CreateWithStats(name, level, maxHealth, strength, agility, technique, intelligence, armor);
         }
     }
-} 
+}

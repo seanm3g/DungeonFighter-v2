@@ -12,7 +12,6 @@ namespace RPGGame
         // Flag to disable all UI output during balance analysis
         public static bool DisableAllUIOutput = false;
         
-        private static string? lastActingEntity = null;
         private static UIConfiguration? _uiConfig = null;
         
         // Progressive delay system for menu lines
@@ -22,7 +21,7 @@ namespace RPGGame
         /// <summary>
         /// Gets the current UI configuration
         /// </summary>
-        private static UIConfiguration UIConfig
+        public static UIConfiguration UIConfig
         {
             get
             {
@@ -64,35 +63,6 @@ namespace RPGGame
             Console.Write(message);
         }
         
-        /// <summary>
-        /// Writes a line with entity tracking for combat messages
-        /// </summary>
-        /// <param name="message">Combat message to display</param>
-        public static void WriteCombatLine(string message)
-        {
-            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
-            
-            // Extract entity name from message (format: [EntityName] ...)
-            string? currentEntity = ExtractEntityNameFromMessage(message);
-            
-            // Add line break if this is a different entity than the last one and spacing is enabled
-            if (UIConfig.AddBlankLinesBetweenEntities && 
-                currentEntity != null && lastActingEntity != null && currentEntity != lastActingEntity)
-            {
-                Console.WriteLine(); // Add blank line between different entities (no delay)
-            }
-            
-            Console.WriteLine(message);
-            
-            // Update the last acting entity
-            if (currentEntity != null)
-            {
-                lastActingEntity = currentEntity;
-            }
-            
-            // Apply delay for combat messages using new configuration system
-            ApplyDelay(UIMessageType.Combat);
-        }
         
         
         /// <summary>
@@ -172,66 +142,15 @@ namespace RPGGame
             WriteLine(message, UIMessageType.EffectMessage);
         }
         
-        /// <summary>
-        /// Writes a roll information message with 0.75 beat delay
-        /// </summary>
-        /// <param name="message">Roll information message to display</param>
-        public static void WriteRollInfoLine(string message)
-        {
-            WriteLine(message, UIMessageType.RollInfo);
-        }
         
-        /// <summary>
-        /// Writes a roll information message with 0.75 beat delay without updating entity tracking
-        /// This is used for roll info that belongs to the previous combat action
-        /// </summary>
-        /// <param name="message">Roll information message to display</param>
-        public static void WriteRollInfoLineNoEntityTracking(string message)
-        {
-            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
-            Console.WriteLine(message);
-            ApplyDelay(UIMessageType.RollInfo);
-        }
         
-        /// <summary>
-        /// Writes a stun message with effect message delay and proper spacing
-        /// </summary>
-        /// <param name="message">Stun message to display</param>
-        public static void WriteStunLine(string message)
-        {
-            // Add blank line before stun message if configured
-            if (UIConfig.AddBlankLinesAfterStunMessages)
-            {
-                WriteBlankLine();
-            }
-            
-            WriteEffectLine(message);
-            
-            // Add blank line after stun message to separate from next entity action
-            WriteBlankLine();
-        }
-        
-        /// <summary>
-        /// Writes a damage over time message with damage over time delay
-        /// </summary>
-        /// <param name="message">Damage over time message to display</param>
-        public static void WriteDamageOverTimeLine(string message)
-        {
-            // Add blank line before damage over time if configured
-            if (UIConfig.AddBlankLinesAfterDamageOverTime)
-            {
-                WriteBlankLine();
-            }
-            
-            WriteLine(message, UIMessageType.DamageOverTime);
-        }
         
         /// <summary>
         /// Resets entity tracking for a new battle
         /// </summary>
         public static void ResetForNewBattle()
         {
-            lastActingEntity = null;
+            // Entity tracking is now handled by BlockDisplayManager
         }
         
         /// <summary>
@@ -324,22 +243,5 @@ namespace RPGGame
         }
         
         
-        /// <summary>
-        /// Extracts the entity name from a combat message
-        /// </summary>
-        /// <param name="message">The combat message</param>
-        /// <returns>Entity name if found, null otherwise</returns>
-        private static string? ExtractEntityNameFromMessage(string message)
-        {
-            if (string.IsNullOrEmpty(message)) return null;
-            
-            int startIndex = message.IndexOf('[');
-            if (startIndex == -1) return null;
-            
-            int endIndex = message.IndexOf(']', startIndex);
-            if (endIndex == -1) return null;
-            
-            return message.Substring(startIndex + 1, endIndex - startIndex - 1);
-        }
     }
 }

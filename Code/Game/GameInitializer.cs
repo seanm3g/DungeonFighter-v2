@@ -162,12 +162,12 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Generates available dungeons based on player level using DungeonManager
+        /// Generates available dungeons based on player level using DungeonManagerWithRegistry
         /// </summary>
         private void GenerateDungeons(Character player, List<Dungeon> availableDungeons)
         {
-            // Use DungeonManager to generate dungeons from Dungeons.json
-            var dungeonManager = new DungeonManager();
+            // Use DungeonManagerWithRegistry to generate dungeons from Dungeons.json
+            var dungeonManager = new DungeonManagerWithRegistry();
             dungeonManager.RegenerateDungeons(player, availableDungeons);
         }
     }

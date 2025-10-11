@@ -527,39 +527,196 @@
       "A warm glow surrounds {name} as their health is restored."
     ],
     "below50Percent": [
-      "{name} staggers under the weight of their injuries, but refuses to yield!",
-      "Bloodied and battered, {name} fights on with grim determination.",
-      "{name} is wounded but not defeated, their fighting spirit still burning bright.",
-      "Despite their injuries, {name} continues to press the attack.",
-      "{name} grits their teeth and fights through the pain."
+      "{name} staggers under the weight of their injuries, but their eyes still burn with defiance!",
+      "Blood streams from {name}'s wounds, yet they stand firm against the onslaught!",
+      "{name} is wounded but far from broken, their fighting spirit blazing brighter than ever!",
+      "Despite the crimson stains marking their body, {name} presses forward with renewed fury!",
+      "{name} grits their teeth through the pain, their resolve hardening like steel!",
+      "The battle has taken its toll on {name}, but their warrior's heart beats strong!",
+      "{name} bears the marks of combat proudly, each wound a testament to their courage!",
+      "Though battered and bleeding, {name} refuses to let their opponent see weakness!"
     ],
     "below10Percent": [
-      "{name} is on the brink of collapse, but their will to fight remains unbroken!",
-      "Barely standing, {name} makes one final desperate stand!",
-      "{name} is critically wounded but refuses to go down without a fight!",
-      "At death's door, {name} summons every last ounce of strength!",
-      "{name} is mortally wounded but their fighting spirit burns brighter than ever!"
+      "{name} stands on the precipice of death, yet their eyes blaze with unbreakable determination!",
+      "Bloodied and broken, {name} rises from the ground like a phoenix from the ashes!",
+      "{name} is at death's door, but their warrior's soul refuses to surrender to the darkness!",
+      "With their last breath, {name} summons the fury of a thousand battles!",
+      "{name} is mortally wounded, yet their fighting spirit burns brighter than the sun!",
+      "The very air crackles with {name}'s desperate resolve as they face their final moments!",
+      "{name} stands alone against the tide of fate, their courage unshaken by mortal wounds!",
+      "In their darkest hour, {name} finds the strength of legends coursing through their veins!"
     ],
     "criticalHit": [
-      "A devastating blow strikes true! The impact is felt throughout the battlefield.",
-      "A perfect strike! The attack finds its mark with brutal precision.",
-      "Critical hit! The force of the blow sends shockwaves through the air.",
-      "A masterful attack! The strike is delivered with deadly accuracy.",
-      "The perfect moment! The attack lands with devastating effect."
+      "{name} delivers a devastating blow that shakes the very foundations of the battlefield!",
+      "A perfect strike from {name} finds its mark with brutal, bone-shattering precision!",
+      "{name}'s critical hit sends shockwaves through the air, the impact felt by all!",
+      "With masterful technique, {name} delivers a strike of deadly, soul-crushing accuracy!",
+      "{name} seizes the perfect moment, their attack landing with earth-shattering effect!",
+      "The force of {name}'s critical strike reverberates through the ground itself!",
+      "{name} channels their fury into a single, devastating blow that defies all defense!",
+      "A strike worthy of legend! {name}'s critical hit will be remembered for ages to come!"
+    ],
+    "criticalMiss": [
+      "{name}'s wild swing cuts through empty air, the attack going wide of its intended target!",
+      "The strike from {name} falters at the crucial moment, finding nothing but disappointment!",
+      "{name}'s clumsy attack fails spectacularly, the weapon finding no purchase!",
+      "A critical miss! {name}'s blow goes astray, missing the target by a wide margin!",
+      "{name}'s poorly timed strike fails to connect, leaving them vulnerable and exposed!",
+      "The attack from {name} goes completely off-target, a moment of embarrassing failure!",
+      "{name} stumbles in their assault, the critical miss leaving them off-balance!",
+      "A devastating miss! {name}'s attack finds only empty space where their foe once stood!"
+    ],
+    "environmentalAction": [
+      "The environment itself joins the fray! {effect}",
+      "Nature's power manifests as {effect}",
+      "The very air crackles with energy as {effect}",
+      "Environmental forces take hold: {effect}",
+      "The surroundings react to the battle: {effect}"
+    ],
+    "healthLeadChange": [
+      "The tide of battle shifts! {name} now holds the advantage!",
+      "A dramatic reversal! {name} gains the upper hand!",
+      "The momentum swings! {name} seizes control of the fight!",
+      "The balance of power changes! {name} now leads the assault!",
+      "A turning point! {name} gains the advantage in this deadly dance!"
+    ],
+    "intenseBattle": [
+      "The battle reaches a fever pitch as both {player} and {enemy} stand bloodied but unbroken!",
+      "The air crackles with tension as {player} and {enemy} face each other in this epic struggle!",
+      "Both {player} and {enemy} are wounded, yet their determination burns brighter than ever!",
+      "The battlefield trembles as {player} and {enemy} engage in a battle for the ages!",
+      "Bloodied warriors {player} and {enemy} circle each other, each knowing only one will walk away!",
+      "The intensity reaches new heights as {player} and {enemy} push themselves beyond their limits!",
+      "Both {player} and {enemy} stand on the edge of victory and defeat in this climactic moment!",
+      "The very ground shakes as {player} and {enemy} clash in this legendary confrontation!"
     ],
     "enemyDefeated": [
-      "{name} falls to the ground, defeated at last!",
-      "With a final cry, {name} collapses, the fight finally over.",
-      "{name} succumbs to their wounds, the battle won.",
-      "The last of {name}'s strength fails, and they fall.",
-      "{name} is vanquished, their threat ended."
+      "{name} falls to the ground with a thunderous crash, defeated at last by {player}'s superior skill!",
+      "With a final, desperate cry, {name} collapses before {player}, the epic battle finally concluded!",
+      "{name} succumbs to their grievous wounds, {player} standing victorious over their fallen foe!",
+      "The last of {name}'s strength fails them, and they fall before {player}'s relentless assault!",
+      "{name} is vanquished by {player}'s might, their reign of terror brought to an end!",
+      "In a moment of final defeat, {name} crumbles before {player}'s unwavering determination!",
+      "{name} meets their end at {player}'s hands, the battlefield falling silent save for the victor's breath!",
+      "The mighty {name} falls, {player} standing triumphant over their defeated adversary!"
     ],
     "playerDefeated": [
-      "You collapse to the ground, your strength finally exhausted.",
-      "The world fades to black as you succumb to your wounds.",
-      "Your last conscious thought is of the battle lost.",
-      "Darkness takes you as your body can fight no more.",
-      "You fall, defeated but not broken in spirit."
+      "You collapse to the ground, your strength finally exhausted by {enemy}'s relentless assault!",
+      "The world fades to black as you succumb to your wounds, {enemy} standing victorious over your fallen form!",
+      "Your last conscious thought is of the battle lost, {enemy}'s triumph echoing in your fading mind!",
+      "Darkness takes you as your body can fight no more, {enemy} having proven the stronger warrior!",
+      "You fall before {enemy}'s might, defeated in body but not broken in spirit!",
+      "The mighty {enemy} has bested you, your valiant effort ending in noble defeat!",
+      "You meet your end at {enemy}'s hands, your courage remembered even in defeat!",
+      "Though you fall to {enemy}, your fighting spirit will inspire others to rise!"
+    ],
+    "playerTaunt": [
+      "\"{enemy}, you're no match for me!\" {name} declares confidently.",
+      "\"Is that all you've got?\" {name} taunts with a smirk.",
+      "\"You fight like a child!\" {name} laughs mockingly.",
+      "\"I've faced worse than you in my sleep!\" {name} boasts.",
+      "\"Give up now, {enemy}, before I really get started!\" {name} warns.",
+      "\"You're making this too easy!\" {name} jeers.",
+      "\"Come on, {enemy}, show me what you're really made of!\" {name} challenges.",
+      "\"I expected more from someone like you!\" {name} says disappointedly.",
+      "\"This is almost too simple!\" {name} remarks casually.",
+      "\"You call that an attack?\" {name} mocks with a grin."
+    ],
+    "enemyTaunt": [
+      "\"You cannot defeat me, {player}!\" {name} growls menacingly.",
+      "\"Your efforts are pathetic, {player}!\" {name} sneers.",
+      "\"I will crush you like the insect you are!\" {name} roars.",
+      "\"You dare challenge me, {player}?\" {name} bellows in rage.",
+      "\"Your death will be slow and painful!\" {name} threatens.",
+      "\"I have slain hundreds like you!\" {name} boasts.",
+      "\"You are nothing compared to my power!\" {name} declares.",
+      "\"Your blood will stain this ground!\" {name} promises darkly.",
+      "\"I will make you beg for mercy!\" {name} threatens.",
+      "\"You have made a grave mistake, {player}!\" {name} warns."
+    ],
+    "playerTaunt_library": [
+      "\"Shh! We're in a library!\" {name} whispers fiercely to {enemy}.",
+      "\"Keep your voice down, {enemy}!\" {name} hisses in the quiet study.",
+      "\"This sacred place demands respect, {enemy}!\" {name} murmurs among the ancient tomes.",
+      "\"Silence! The books are watching, {enemy}!\" {name} whispers ominously."
+    ],
+    "enemyTaunt_library": [
+      "\"Silence! This sacred place demands respect!\" {name} hisses at {player}.",
+      "\"Quiet! The ancient knowledge must not be disturbed!\" {name} whispers menacingly.",
+      "\"Hush! The spirits of the library will judge you, {player}!\" {name} intones softly.",
+      "\"The books themselves will witness your defeat, {player}!\" {name} murmurs in the shadows."
+    ],
+    "playerTaunt_underwater": [
+      "*Bubbles escape {name}'s mouth as they gesture threateningly at {enemy}.*",
+      "*{name} makes aggressive hand signals, bubbles streaming upward.*",
+      "*{name} points menacingly at {enemy}, their words lost in the depths.*",
+      "*{name} shakes their fist, the gesture clear despite the watery silence.*"
+    ],
+    "enemyTaunt_underwater": [
+      "*{name} makes aggressive gestures, bubbles streaming from their mouth.*",
+      "*{name} points threateningly at {player}, their words lost in the watery depths.*",
+      "*{name} shakes their weapon menacingly, bubbles rising from their movements.*",
+      "*{name} makes a cutting motion across their throat, the threat clear despite the silence.*"
+    ],
+    "playerTaunt_lava": [
+      "\"The heat won't save you, {enemy}!\" {name} shouts over the roaring flames.",
+      "\"You'll burn before I do, {enemy}!\" {name} yells through the inferno.",
+      "\"The fire only makes me stronger, {enemy}!\" {name} roars above the molten rock.",
+      "\"I thrive in this heat, {enemy}!\" {name} bellows in the volcanic chamber."
+    ],
+    "enemyTaunt_lava": [
+      "\"You'll burn before you defeat me, {player}!\" {name} roars through the inferno.",
+      "\"The molten rock will claim you, {player}!\" {name} shouts over the crackling flames.",
+      "\"This is my domain, {player}!\" {name} bellows in the volcanic heat.",
+      "\"The fire itself will consume you, {player}!\" {name} roars above the lava flows."
+    ],
+    "playerTaunt_crypt": [
+      "\"You belong here with the dead, {enemy}!\" {name} declares in the echoing tomb.",
+      "\"The spirits will welcome you, {enemy}!\" {name} intones in the burial chamber.",
+      "\"Your place is among the bones, {enemy}!\" {name} echoes through the crypt.",
+      "\"The dead will claim you as their own, {enemy}!\" {name} proclaims in the tomb."
+    ],
+    "enemyTaunt_crypt": [
+      "\"Join the others in eternal rest, {player}!\" {name} intones ominously.",
+      "\"The crypt will be your final resting place, {player}!\" {name} echoes in the tomb.",
+      "\"Your bones will join the others, {player}!\" {name} declares in the burial chamber.",
+      "\"The dead welcome you, {player}!\" {name} intones in the echoing crypt."
+    ],
+    "playerTaunt_crystal": [
+      "\"Your fate is crystal clear, {enemy}!\" {name} shouts, voice echoing off the gems.",
+      "\"You'll shatter like glass, {enemy}!\" {name} calls through the crystalline chamber.",
+      "\"The crystals themselves will witness your defeat, {enemy}!\" {name} proclaims.",
+      "\"Your reflection shows your doom, {enemy}!\" {name} shouts in the gem-studded cave."
+    ],
+    "enemyTaunt_crystal": [
+      "\"You'll shatter like glass, {player}!\" {name} bellows in the crystalline chamber.",
+      "\"The gems will be your tomb, {player}!\" {name} echoes through the crystal cave.",
+      "\"Your fate is written in the crystals, {player}!\" {name} intones ominously.",
+      "\"The crystal formations will be your grave, {player}!\" {name} roars in the gem chamber."
+    ],
+    "playerTaunt_temple": [
+      "\"The gods favor me, not you, {enemy}!\" {name} proclaims in the sacred hall.",
+      "\"Divine justice will strike you down, {enemy}!\" {name} declares in the temple.",
+      "\"The holy ground rejects you, {enemy}!\" {name} calls in the sanctuary.",
+      "\"The gods themselves will judge you, {enemy}!\" {name} proclaims in the sacred space."
+    ],
+    "enemyTaunt_temple": [
+      "\"Your blasphemy ends here, {player}!\" {name} thunders in the holy sanctuary.",
+      "\"The gods will punish your sacrilege, {player}!\" {name} roars in the temple.",
+      "\"This sacred ground will reject you, {player}!\" {name} bellows in the hall.",
+      "\"Divine wrath will consume you, {player}!\" {name} thunders in the sanctuary."
+    ],
+    "playerTaunt_forest": [
+      "\"The forest itself will aid me against you, {enemy}!\" {name} calls to the trees.",
+      "\"Nature's power flows through me, {enemy}!\" {name} shouts among the ancient oaks.",
+      "\"The trees themselves will fight for me, {enemy}!\" {name} proclaims in the grove.",
+      "\"The forest spirits are on my side, {enemy}!\" {name} calls through the woodland."
+    ],
+    "enemyTaunt_forest": [
+      "\"Nature's wrath will consume you, {player}!\" {name} growls among the ancient oaks.",
+      "\"The forest itself will turn against you, {player}!\" {name} roars in the grove.",
+      "\"The trees will witness your defeat, {player}!\" {name} bellows through the woodland.",
+      "\"The forest spirits will claim you, {player}!\" {name} growls among the towering trees."
     ]
   }
 }

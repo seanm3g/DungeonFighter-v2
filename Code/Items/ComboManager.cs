@@ -10,9 +10,9 @@ namespace RPGGame
     public class ComboManager
     {
         private Character player;
-        private InventoryDisplayManager displayManager;
+        private GameDisplayManager displayManager;
 
-        public ComboManager(Character player, InventoryDisplayManager displayManager)
+        public ComboManager(Character player, GameDisplayManager displayManager)
         {
             this.player = player;
             this.displayManager = displayManager;

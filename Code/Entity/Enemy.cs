@@ -1,50 +1,6 @@
 namespace RPGGame
 {
-    public enum PrimaryAttribute
-    {
-        Strength,
-        Agility,
-        Technique,
-        Intelligence
-    }
-
-    /// <summary>
-    /// Defines different enemy attack archetypes based on DPS distribution
-    /// </summary>
-    public enum EnemyArchetype
-    {
-        Berserker,    // High damage - aggressive fighters
-        Guardian,     // High armor - protective tanks
-        Brute,        // High health - heavy hitters
-        Assassin,     // High attack speed - quick strikers
-        Mage          // High intelligence - magical casters
-    }
-
-    /// <summary>
-    /// Configuration for enemy attack patterns
-    /// </summary>
-    public class EnemyAttackProfile
-    {
-        public EnemyArchetype Archetype { get; set; }
-        public string Name { get; set; } = "";
-        public string Description { get; set; } = "";
-        
-        // Speed multiplier (affects attack time - lower = faster attacks)
-        public double SpeedMultiplier { get; set; } = 1.0;
-        
-        // Damage multiplier (affects damage per hit)
-        public double DamageMultiplier { get; set; } = 1.0;
-        
-        // Health multiplier (affects total health)
-        public double HealthMultiplier { get; set; } = 1.0;
-        
-        // Armor multiplier (affects damage reduction)
-        public double ArmorMultiplier { get; set; } = 1.0;
-        
-        // Action pool configuration
-        public List<string> PreferredActions { get; set; } = new List<string>();
-        public List<string> AvoidActions { get; set; } = new List<string>();
-    }
+    // Enemy data classes moved to EnemyData.cs
 
     public class Enemy : Character
     {
@@ -65,6 +21,9 @@ namespace RPGGame
         public int Damage { get; private set; }
         public double AttackSpeed { get; private set; }
 
+        // NEW: Combat manager for enemy-specific combat logic
+        private readonly EnemyCombatManager _combatManager;
+
         public Enemy(string? name = null, int level = 1, int maxHealth = 50, int strength = 8, int agility = 6, int technique = 4, int intelligence = 4, int armor = 0, PrimaryAttribute primaryAttribute = PrimaryAttribute.Strength, bool isLiving = true, EnemyArchetype? archetype = null)
             : base(name ?? "Unknown Enemy")
         {
@@ -72,9 +31,9 @@ namespace RPGGame
             PrimaryAttribute = primaryAttribute;
             IsLiving = isLiving;
             
-            // Determine archetype if not specified
-            Archetype = archetype ?? SuggestArchetypeForEnemy(name ?? "Unknown", strength, agility, technique, intelligence);
-            AttackProfile = GetArchetypeProfile(Archetype);
+            // Determine archetype if not specified using ArchetypeManager
+            Archetype = archetype ?? ArchetypeManager.SuggestArchetypeForEnemy(name ?? "Unknown", strength, agility, technique, intelligence);
+            AttackProfile = ArchetypeManager.GetArchetypeProfile(Archetype);
             
             var tuning = GameConfiguration.Instance;
             
@@ -91,11 +50,12 @@ namespace RPGGame
             // Set armor from constructor parameter
             Armor = armor;
             
-            // Primary attribute bonus is already included in the calculated stats
-
             // Scale rewards based on level and tuning config
             GoldReward = tuning.Progression.EnemyGoldBase + (level * tuning.Progression.EnemyGoldPerLevel);
             XPReward = tuning.Progression.EnemyXPBase + (level * tuning.Progression.EnemyXPPerLevel);
+
+            // Initialize combat manager
+            _combatManager = new EnemyCombatManager(this);
 
             ActionPool.Clear();
             AddDefaultActions();
@@ -109,7 +69,7 @@ namespace RPGGame
             PrimaryAttribute = primaryAttribute;
             IsLiving = isLiving;
             Archetype = archetype ?? EnemyArchetype.Berserker;
-            AttackProfile = GetArchetypeProfile(Archetype);
+            AttackProfile = ArchetypeManager.GetArchetypeProfile(Archetype);
             
             var tuning = GameConfiguration.Instance;
             
@@ -129,6 +89,9 @@ namespace RPGGame
             // Scale rewards based on level and tuning config
             GoldReward = tuning.Progression.EnemyGoldBase + (level * tuning.Progression.EnemyGoldPerLevel);
             XPReward = tuning.Progression.EnemyXPBase + (level * tuning.Progression.EnemyXPPerLevel);
+
+            // Initialize combat manager
+            _combatManager = new EnemyCombatManager(this);
 
             ActionPool.Clear();
             AddDefaultActions();
@@ -272,11 +235,11 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets the archetype-modified damage multiplier for this enemy
+        /// Gets the archetype-modified damage multiplier for this enemy (delegated to ArchetypeManager)
         /// </summary>
         public double GetArchetypeDamageMultiplier()
         {
-            return AttackProfile.DamageMultiplier;
+            return ArchetypeManager.GetArchetypeDamageMultiplier(AttackProfile);
         }
         
         /// <summary>
@@ -298,74 +261,19 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Attempts multiple actions based on attack speed
+        /// Attempts multiple actions based on attack speed (delegated to combat manager)
         /// </summary>
         public (string result, bool success) AttemptMultiAction(Character target, Environment? environment = null)
         {
-            int attacksPerTurn = GetAttacksPerTurn();
-            var results = new List<string>();
-            bool anySuccess = false;
-            
-            for (int i = 0; i < attacksPerTurn; i++)
-            {
-                if (!target.IsAlive) break; // Stop if target is dead
-                
-                var (result, success) = AttemptAction(target, environment);
-                if (!string.IsNullOrEmpty(result))
-                {
-                    results.Add(result);
-                }
-                if (success) anySuccess = true;
-            }
-            return (string.Join("\n", results), anySuccess);
+            return _combatManager.AttemptMultiAction(target, environment);
         }
 
-        // Add a method to Enemy to handle action selection with a roll threshold
+        /// <summary>
+        /// Attempts a single action against a target (delegated to combat manager)
+        /// </summary>
         public (string result, bool success) AttemptAction(Character target, Environment? environment = null)
         {
-            var availableActions = new List<Action>();
-            foreach (var entry in ActionPool)
-            {
-                availableActions.Add(entry.action);
-            }
-            if (availableActions.Count == 0)
-                return ($"{Name} has no available actions!", false);
-            
-            // Select action based on weights
-            var action = SelectAction();
-            if (action == null)
-                return ($"{Name} has no available actions!", false);
-                
-            // Use the same roll system as ActionExecutor for consistency
-            int baseRoll = Dice.Roll(20);
-            int rollBonus = ActionUtilities.CalculateRollBonus(this, action);
-            int totalRoll = baseRoll + rollBonus;
-            int difficulty = 8 + (Level / 2);  // Higher level enemies have better accuracy
-            
-            // Simplified combat logic - narrative mode handling moved to CombatManager
-            if (totalRoll >= difficulty)
-            {
-                var settings = GameSettings.Instance;
-                int finalEffect = CombatCalculator.CalculateDamage(this, target, action, 1.0, settings.EnemyDamageMultiplier, rollBonus, baseRoll, false);
-                
-                if (action.Type == ActionType.Attack)
-                {
-                    target.TakeDamage(finalEffect);
-                    // Use the same parameters as the actual damage calculation to avoid duplicate weakened messages
-                    int actualDamage = CombatCalculator.CalculateDamage(this, target, action, 1.0, settings.EnemyDamageMultiplier, rollBonus, baseRoll, false);
-                    string damageDisplay = CombatResults.FormatDamageDisplay(this, target, finalEffect, actualDamage, action, 1.0, settings.EnemyDamageMultiplier, rollBonus, baseRoll);
-                    return ($"[{Name}] uses [{action.Name}] on [{target.Name}]: deals {damageDisplay}. (Rolled {totalRoll}, need {difficulty})", true);
-                }
-                else if (action.Type == ActionType.Debuff)
-                {
-                    return ($"[{Name}] uses [{action.Name}] on [{target.Name}]: applies debuff. (Rolled {totalRoll}, need {difficulty})", true);
-                }
-                return ($"[{Name}] uses [{action.Name}] on [{target.Name}]. (Rolled {totalRoll}, need {difficulty})", true);
-            }
-            else
-            {
-                return ($"[{Name}] attempts [{action.Name}] but fails. (Rolled {totalRoll}, need {difficulty}) No action performed.", false);
-            }
+            return _combatManager.AttemptAction(target, environment);
         }
         
         /// <summary>
@@ -408,86 +316,6 @@ namespace RPGGame
             return base.ProcessPoison(currentTime);
         }
 
-        /// <summary>
-        /// Suggests an archetype for an enemy based on their stats
-        /// </summary>
-        private static EnemyArchetype SuggestArchetypeForEnemy(string name, int strength, int agility, int technique, int intelligence)
-        {
-            // Simple archetype suggestion based on primary stat
-            int maxStat = Math.Max(Math.Max(strength, agility), Math.Max(technique, intelligence));
-            
-            if (maxStat == strength)
-                return EnemyArchetype.Brute;
-            else if (maxStat == agility)
-                return EnemyArchetype.Assassin;
-            else if (maxStat == technique)
-                return EnemyArchetype.Berserker;
-            else
-                return EnemyArchetype.Guardian;
-        }
-
-        /// <summary>
-        /// Gets the attack profile for a given archetype
-        /// </summary>
-        private static EnemyAttackProfile GetArchetypeProfile(EnemyArchetype archetype)
-        {
-            return archetype switch
-            {
-                EnemyArchetype.Berserker => new EnemyAttackProfile
-                {
-                    Archetype = EnemyArchetype.Berserker,
-                    Name = "Berserker",
-                    SpeedMultiplier = 1.0,
-                    DamageMultiplier = 1.0,
-                    HealthMultiplier = 1.0,
-                    ArmorMultiplier = 1.0
-                },
-                EnemyArchetype.Assassin => new EnemyAttackProfile
-                {
-                    Archetype = EnemyArchetype.Assassin,
-                    Name = "Assassin",
-                    SpeedMultiplier = 1.0,
-                    DamageMultiplier = 1.0,
-                    HealthMultiplier = 1.0,
-                    ArmorMultiplier = 1.0
-                },
-                EnemyArchetype.Brute => new EnemyAttackProfile
-                {
-                    Archetype = EnemyArchetype.Brute,
-                    Name = "Brute",
-                    SpeedMultiplier = 1.0,
-                    DamageMultiplier = 1.0,
-                    HealthMultiplier = 1.0,
-                    ArmorMultiplier = 1.0
-                },
-                EnemyArchetype.Guardian => new EnemyAttackProfile
-                {
-                    Archetype = EnemyArchetype.Guardian,
-                    Name = "Guardian",
-                    SpeedMultiplier = 1.0,
-                    DamageMultiplier = 1.0,
-                    HealthMultiplier = 1.0,
-                    ArmorMultiplier = 1.0
-                },
-                EnemyArchetype.Mage => new EnemyAttackProfile
-                {
-                    Archetype = EnemyArchetype.Mage,
-                    Name = "Mage",
-                    SpeedMultiplier = 1.0,
-                    DamageMultiplier = 1.0,
-                    HealthMultiplier = 1.0,
-                    ArmorMultiplier = 1.0
-                },
-                _ => new EnemyAttackProfile
-                {
-                    Archetype = EnemyArchetype.Berserker,
-                    Name = "Warrior",
-                    SpeedMultiplier = 1.0,
-                    DamageMultiplier = 1.0,
-                    HealthMultiplier = 1.0,
-                    ArmorMultiplier = 1.0
-                }
-            };
-        }
+        // Archetype-related methods moved to ArchetypeManager
     }
 } 

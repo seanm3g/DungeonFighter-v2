@@ -89,7 +89,7 @@ namespace RPGGame
             }
             catch (Exception ex)
             {
-                UIManager.WriteSystemLine($"Error loading environmental actions from JSON: {ex.Message}");
+                BlockDisplayManager.DisplaySystemBlock($"Error loading environmental actions from JSON: {ex.Message}");
                 AddDefaultEnvironmentalAction();
             }
         }
@@ -220,7 +220,7 @@ namespace RPGGame
                     
                 case "storage":
                     actions.Add(new Action("Falling Crates", ActionType.Debuff, TargetType.AreaOfEffect, 0, 0, 0, "Heavy storage crates fall, stunning all combatants", -1, 0.0, 2.0, false, false, false, true, false, 0, 0));
-                    actions.Add(new Action("Dust Cloud", ActionType.Debuff, TargetType.AreaOfEffect, 0, 0, 0, "Thick dust from storage causes coughing and reduces accuracy", -1, 0.0, 2.0, false, false, false, false, false, 0, 0));
+                    actions.Add(new Action("Dust Cloud", ActionType.Debuff, TargetType.AreaOfEffect, 0, 0, 0, "Thick dust from storage causes coughing and reduces accuracy", -1, 0.0, 2.0, false, false, true, false, false, 0, 0));
                     actions.Add(new Action("Shelf Collapse", ActionType.Debuff, TargetType.AreaOfEffect, 0, 0, 0, "Storage shelves collapse, causing bleeding wounds", -1, 0.0, 2.5, true, false, false, false, false, 0, 0));
                     break;
                     
@@ -322,7 +322,7 @@ namespace RPGGame
                     
                 default: // Generic room
                     actions.Add(new Action("Room Collapse", ActionType.Debuff, TargetType.AreaOfEffect, 0, 0, 0, "The room structure begins to collapse, stunning all combatants", -1, 0.0, 2.0, false, false, false, true, false, 0, 0));
-                    actions.Add(new Action("Dust Cloud", ActionType.Debuff, TargetType.AreaOfEffect, 0, 0, 0, "Thick dust clouds cause coughing and reduce accuracy", -1, 0.0, 2.0, false, false, false, false, false, 0, 0));
+                    actions.Add(new Action("Dust Cloud", ActionType.Debuff, TargetType.AreaOfEffect, 0, 0, 0, "Thick dust clouds cause coughing and reduce accuracy", -1, 0.0, 2.0, false, false, true, false, false, 0, 0));
                     actions.Add(new Action("Ancient Trap", ActionType.Debuff, TargetType.AreaOfEffect, 0, 0, 0, "Ancient mechanisms activate, causing bleeding and weakness", -1, 0.0, 2.5, true, true, false, false, false, 0, 0));
                     break;
             }
@@ -452,7 +452,7 @@ namespace RPGGame
             }
             
             // Fallback: Create basic enemies if JSON loading fails
-            UIManager.WriteSystemLine("Warning: Could not load enemy data from JSON, creating basic enemies");
+            BlockDisplayManager.DisplaySystemBlock("Warning: Could not load enemy data from JSON, creating basic enemies");
             var tuning = GameConfiguration.Instance;
             var basicEnemies = new[] { 
                 new { Name = "Basic Enemy", BaseHealth = 80, BaseStrength = 8, BaseAgility = 6, BaseTechnique = 4, BaseIntelligence = 3, Primary = PrimaryAttribute.Strength }
@@ -617,12 +617,12 @@ namespace RPGGame
                 }
                 else
                 {
-                    UIManager.WriteSystemLine($"Warning: Enemies.json not found. Tried paths: {string.Join(", ", possiblePaths)}");
+                    BlockDisplayManager.DisplaySystemBlock($"Warning: Enemies.json not found. Tried paths: {string.Join(", ", possiblePaths)}");
                 }
             }
             catch (Exception ex)
             {
-                UIManager.WriteSystemLine($"Error loading enemy data from JSON: {ex.Message}");
+                BlockDisplayManager.DisplaySystemBlock($"Error loading enemy data from JSON: {ex.Message}");
             }
             return null;
         }
@@ -653,14 +653,14 @@ namespace RPGGame
             // Safety check: if no enemies are available, fall back to all enemies
             if (availableEnemies.Count == 0)
             {
-                UIManager.WriteSystemLine($"Warning: No theme-appropriate enemies found for theme '{Theme}', using all available enemies");
+                BlockDisplayManager.DisplaySystemBlock($"Warning: No theme-appropriate enemies found for theme '{Theme}', using all available enemies");
                 availableEnemies = enemyData;
             }
             
             // Final safety check: if still no enemies, create a basic fallback
             if (availableEnemies.Count == 0)
             {
-                UIManager.WriteSystemLine("Error: No enemy data available, cannot generate enemies");
+                BlockDisplayManager.DisplaySystemBlock("Error: No enemy data available, cannot generate enemies");
                 return;
             }
             
@@ -678,7 +678,7 @@ namespace RPGGame
                 else
                 {
                     // Fallback: Create basic enemy if EnemyLoader fails
-                    UIManager.WriteSystemLine($"Warning: Could not create enemy {enemyTemplate.Name} from EnemyLoader, creating basic enemy");
+                    BlockDisplayManager.DisplaySystemBlock($"Warning: Could not create enemy {enemyTemplate.Name} from EnemyLoader, creating basic enemy");
                     var basicEnemy = new Enemy(
                         enemyTemplate.Name, 
                         enemyLevel,

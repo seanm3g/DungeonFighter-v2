@@ -4,10 +4,13 @@ using System.Collections.Generic;
 namespace RPGGame
 {
     /// <summary>
-    /// Handles combat status effects including poison, burn, stun, weaken, and bleed
+    /// Simplified combat effects handler using the effect registry pattern
+    /// Replaces the original CombatEffects.cs with cleaner, more maintainable code
     /// </summary>
-    public static class CombatEffects
+    public static class CombatEffectsSimplified
     {
+        private static readonly EffectHandlerRegistry _effectRegistry = new EffectHandlerRegistry();
+
         /// <summary>
         /// Applies status effects from an action to the target
         /// </summary>
@@ -19,68 +22,40 @@ namespace RPGGame
         public static bool ApplyStatusEffects(Action action, Entity attacker, Entity target, List<string> results)
         {
             bool effectsApplied = false;
-            string statusMessage = "";
+            var effectTypes = GetEffectTypesFromAction(action);
             
-            // Apply bleed effect
-            if (action.CausesBleed && CombatCalculator.CalculateStatusEffectChance(action, attacker, target))
+            foreach (var effectType in effectTypes)
             {
-                var bleedConfig = GameConfiguration.Instance.StatusEffects.Bleed;
-                target.ApplyPoison(bleedConfig.DamagePerTick, bleedConfig.StacksPerApplication, true);
-                statusMessage += $"\n    [{target.Name}] is bleeding!";
-                effectsApplied = true;
-            }
-            
-            // Apply weaken effect
-            if (action.CausesWeaken && CombatCalculator.CalculateStatusEffectChance(action, attacker, target))
-            {
-                target.ApplyWeaken(2); // 2 turns of weaken
-                statusMessage += $"\n    [{target.Name}] is weakened!";
-                effectsApplied = true;
-            }
-            
-            // Apply slow effect (simplified - just set a flag)
-            if (action.CausesSlow && CombatCalculator.CalculateStatusEffectChance(action, attacker, target))
-            {
-                // For now, just add a message - would need proper slow implementation
-                statusMessage += $"\n    [{target.Name}] is slowed!";
-                effectsApplied = true;
-            }
-            
-            // Apply poison effect
-            if (action.CausesPoison && CombatCalculator.CalculateStatusEffectChance(action, attacker, target))
-            {
-                var poisonConfig = GameConfiguration.Instance.StatusEffects.Poison;
-                target.ApplyPoison(poisonConfig.DamagePerTick, poisonConfig.StacksPerApplication);
-                statusMessage += $"\n    [{target.Name}] is poisoned!";
-                effectsApplied = true;
-            }
-            
-            // Apply stun effect
-            if (action.CausesStun && CombatCalculator.CalculateStatusEffectChance(action, attacker, target))
-            {
-                var stunConfig = GameConfiguration.Instance.StatusEffects.Stun;
-                target.IsStunned = true;
-                target.StunTurnsRemaining = stunConfig.SkipTurns;
-                statusMessage += $"    [{target.Name}] is stunned!";
-                effectsApplied = true;
-            }
-            
-            // Apply burn effect
-            if (action.CausesBurn && CombatCalculator.CalculateStatusEffectChance(action, attacker, target))
-            {
-                var burnConfig = GameConfiguration.Instance.StatusEffects.Burn;
-                target.ApplyBurn(burnConfig.DamagePerTick, burnConfig.MaxStacks);
-                statusMessage += $"    [{target.Name}] is burning!";
-                effectsApplied = true;
+                if (_effectRegistry.ApplyEffect(effectType, target, action, results))
+                {
+                    effectsApplied = true;
+                }
             }
             
             // If any effects were applied, append the status message to the last result
             if (effectsApplied && results.Count > 0)
             {
-                results[results.Count - 1] += statusMessage;
+                // Effects are already added to results by individual handlers
             }
             
             return effectsApplied;
+        }
+
+        /// <summary>
+        /// Gets all effect types that an action can cause
+        /// </summary>
+        private static List<string> GetEffectTypesFromAction(Action action)
+        {
+            var effects = new List<string>();
+            
+            if (action.CausesBleed) effects.Add("bleed");
+            if (action.CausesWeaken) effects.Add("weaken");
+            if (action.CausesSlow) effects.Add("slow");
+            if (action.CausesPoison) effects.Add("poison");
+            if (action.CausesStun) effects.Add("stun");
+            if (action.CausesBurn) effects.Add("burn");
+            
+            return effects;
         }
 
         /// <summary>
@@ -162,7 +137,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Applies environmental debuffs to entities
+        /// Applies environmental debuffs to entities using the effect registry
         /// </summary>
         /// <param name="source">The source of the debuff (usually environment)</param>
         /// <param name="target">The target entity</param>
@@ -172,96 +147,20 @@ namespace RPGGame
         /// <returns>True if debuff was applied</returns>
         public static bool ApplyEnvironmentalDebuff(Entity source, Entity target, Action action, string debuffType, List<string> results)
         {
-            // Apply the appropriate debuff
-            switch (debuffType.ToLower())
+            // Use the effect registry to apply environmental effects
+            bool applied = _effectRegistry.ApplyEffect(debuffType, target, action, results);
+            
+            if (applied)
             {
-                case "poison":
-                    if (action.CausesPoison)
-                    {
-                        target.ApplyPoison(3, 1);
-                        // Append to last result if available, otherwise add as new result
-                        if (results.Count > 0)
-                        {
-                            results[results.Count - 1] += $"\n    [{target.Name}] is poisoned by the environment!";
-                        }
-                        else
-                        {
-                            results.Add($"[{target.Name}] is poisoned by the environment!");
-                        }
-                        return true;
-                    }
-                    break;
-                    
-                case "slow":
-                    if (action.CausesSlow)
-                    {
-                        // Append to last result if available, otherwise add as new result
-                        if (results.Count > 0)
-                        {
-                            results[results.Count - 1] += $"\n    [{target.Name}] is slowed by the environment!";
-                        }
-                        else
-                        {
-                            results.Add($"[{target.Name}] is slowed by the environment!");
-                        }
-                        return true;
-                    }
-                    break;
-                    
-                case "weaken":
-                    if (action.CausesWeaken)
-                    {
-                        target.ApplyWeaken(2);
-                        // Append to last result if available, otherwise add as new result
-                        if (results.Count > 0)
-                        {
-                            results[results.Count - 1] += $"\n    [{target.Name}] is weakened by the environment!";
-                        }
-                        else
-                        {
-                            results.Add($"[{target.Name}] is weakened by the environment!");
-                        }
-                        return true;
-                    }
-                    break;
-                    
-                case "stun":
-                    if (action.CausesStun)
-                    {
-                        target.IsStunned = true;
-                        target.StunTurnsRemaining = 1;
-                        // Append to last result if available, otherwise add as new result
-                        if (results.Count > 0)
-                        {
-                            results[results.Count - 1] += $"\n    [{target.Name}] is stunned by the environment!";
-                        }
-                        else
-                        {
-                            results.Add($"[{target.Name}] is stunned by the environment!");
-                        }
-                        return true;
-                    }
-                    break;
-                    
-                case "burn":
-                    if (action.CausesBurn)
-                    {
-                        target.ApplyBurn(3, 1);
-                        // Append to last result if available, otherwise add as new result
-                        if (results.Count > 0)
-                        {
-                            results[results.Count - 1] += $"\n    [{target.Name}] is burning from the environment!";
-                        }
-                        else
-                        {
-                            results.Add($"[{target.Name}] is burning from the environment!");
-                        }
-                        return true;
-                    }
-                    break;
+                // Modify the result message to indicate environmental source
+                if (results.Count > 0)
+                {
+                    string lastResult = results[results.Count - 1];
+                    results[results.Count - 1] = lastResult.Replace($"[{target.Name}]", $"[{target.Name}]").Replace("!", " by the environment!");
+                }
             }
             
-            return false;
+            return applied;
         }
 
         /// <summary>
@@ -288,19 +187,13 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets the effect type description for an action
+        /// Gets the effect type description for an action using the registry
         /// </summary>
         /// <param name="action">The action to describe</param>
         /// <returns>Description of the effect type</returns>
         public static string GetEffectType(Action action)
         {
-            if (action.CausesBleed) return "Bleeding";
-            if (action.CausesWeaken) return "Weakening";
-            if (action.CausesSlow) return "Slowing";
-            if (action.CausesPoison) return "Poisoning";
-            if (action.CausesStun) return "Stunning";
-            if (action.CausesBurn) return "Burning";
-            return "Damage";
+            return _effectRegistry.GetEffectType(action);
         }
 
         /// <summary>

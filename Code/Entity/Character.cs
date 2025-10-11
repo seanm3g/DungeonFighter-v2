@@ -23,10 +23,18 @@ namespace RPGGame
         public CharacterProgression Progression { get; private set; }
         public CharacterActions Actions { get; private set; }
 
-        // NEW: Extracted managers
+        // Extracted managers
         public CharacterHealthManager Health { get; private set; }
         public CharacterCombatCalculator Combat { get; private set; }
-        public CharacterDisplayManager Display { get; private set; }
+        public GameDisplayManager Display { get; set; }
+
+        // NEW: Simplified facade and managers
+        public CharacterFacade Facade { get; private set; }
+        private readonly EquipmentManager _equipmentManager;
+        private readonly LevelUpManager _levelUpManager;
+        
+        // Session statistics tracking
+        public SessionStatistics SessionStats { get; private set; }
 
         // Health properties (delegated to Health manager)
         public int CurrentHealth 
@@ -53,10 +61,19 @@ namespace RPGGame
             Progression = new CharacterProgression(level);
             Actions = new CharacterActions();
 
-            // Initialize new managers
+            // Initialize managers
             Health = new CharacterHealthManager(this);
             Combat = new CharacterCombatCalculator(this);
-            Display = new CharacterDisplayManager(this);
+            Display = new GameDisplayManager(this, new List<Item>()); // Will be updated with actual inventory later
+
+            // Initialize new managers
+            _equipmentManager = new EquipmentManager(this);
+            _levelUpManager = new LevelUpManager(this);
+            Facade = new CharacterFacade(this);
+            
+            // Initialize session statistics
+            SessionStats = new SessionStatistics();
+            SessionStats.StartingLevel = level;
 
             // Initialize health based on tuning config
             var tuning = GameConfiguration.Instance;
@@ -89,354 +106,94 @@ namespace RPGGame
         public bool MeetsHealthThreshold(double threshold) => Health.MeetsHealthThreshold(threshold);
         public void ApplyHealthMultiplier(double multiplier) => Health.ApplyHealthMultiplier(multiplier);
 
-        // Equipment management
-        public Item? EquipItem(Item item, string slot)
-        {
-            // Store current health percentage before equipping
-            double healthPercentage = GetHealthPercentage();
-            int oldMaxHealth = GetEffectiveMaxHealth();
-            
-            Item? previousItem = Equipment.EquipItem(item, slot);
-            
-            // Check if max health changed and adjust current health accordingly
-            int newMaxHealth = GetEffectiveMaxHealth();
-            Health.AdjustHealthForMaxHealthChange(oldMaxHealth, newMaxHealth);
-            
-            // Update actions after equipment change
-            UpdateActionsAfterGearChange(previousItem, item, slot);
-            
-            // Apply roll bonuses from the new item
-            Actions.ApplyRollBonusesFromGear(this, item);
-            
-            // Update reroll charges from Divine modifications
-            Effects.RerollCharges = Equipment.GetTotalRerollCharges();
-            
-            return previousItem;
-        }
+        // Equipment management (delegated to EquipmentManager)
+        public Item? EquipItem(Item item, string slot) => _equipmentManager.EquipItem(item, slot);
+        public Item? UnequipItem(string slot) => _equipmentManager.UnequipItem(slot);
 
-        public Item? UnequipItem(string slot)
-        {
-            // Store current health percentage before unequipping
-            double healthPercentage = GetHealthPercentage();
-            int oldMaxHealth = GetEffectiveMaxHealth();
-            
-            Item? unequippedItem = Equipment.UnequipItem(slot);
-            
-            // Check if max health changed and adjust current health accordingly
-            int newMaxHealth = GetEffectiveMaxHealth();
-            Health.AdjustHealthForMaxHealthChange(oldMaxHealth, newMaxHealth);
-            
-            // Remove roll bonuses from the unequipped item
-            if (unequippedItem != null)
-            {
-                Actions.RemoveRollBonusesFromGear(this, unequippedItem);
-            }
-            
-            // Update reroll charges from Divine modifications
-            Effects.RerollCharges = Equipment.GetTotalRerollCharges();
-            
-            // Update actions after equipment change
-            UpdateActionsAfterGearChange(unequippedItem, null, slot);
-            
-            return unequippedItem;
-        }
+        // UpdateActionsAfterGearChange is now handled by EquipmentManager
 
-        private void UpdateActionsAfterGearChange(Item? previousItem, Item? newItem, string slot)
-        {
-            // Remove actions from previous item
-            if (previousItem != null)
-            {
-                if (previousItem is WeaponItem oldWeapon)
-                {
-                    Actions.RemoveWeaponActions(this, oldWeapon);
-                }
-                else
-                {
-                    Actions.RemoveArmorActions(this, previousItem);
-                }
-            }
+        // XP and leveling (delegated to LevelUpManager)
+        public void AddXP(int amount) => Facade.AddXP(amount);
+        public void LevelUp() => _levelUpManager.LevelUp();
 
-            // Add actions from new item
-            if (newItem != null)
-            {
-                if (newItem is WeaponItem weapon)
-                {
-                    Actions.AddWeaponActions(this, weapon);
-                }
-                else
-                {
-                    Actions.AddArmorActions(this, newItem);
-                }
-            }
+        // Stat accessors (delegated to Facade)
+        public int Strength { get => Facade.Strength; set => Facade.Strength = value; }
+        public int Agility { get => Facade.Agility; set => Facade.Agility = value; }
+        public int Technique { get => Facade.Technique; set => Facade.Technique = value; }
+        public int Intelligence { get => Facade.Intelligence; set => Facade.Intelligence = value; }
 
-            // CRITICAL: Ensure BASIC ATTACK is always available after equipment changes
-            // This prevents the issue where rolls 6-13 can't find BASIC ATTACK
-            Actions.EnsureBasicAttackAvailable(this);
+        public int Level { get => Facade.Properties.Level; set => Facade.Properties.Level = value; }
+        public int XP { get => Facade.Properties.XP; set => Facade.Properties.XP = value; }
 
-            // Update combo sequence after equipment change
-            Actions.UpdateComboSequenceAfterGearChange(this);
-            
-            // If weapon was changed, handle combo sequence intelligently
-            if (slot.ToLower() == "weapon")
-            {
-                // If combo is now empty, initialize default combo
-                if (Actions.ComboSequence.Count == 0)
-                {
-                    Actions.InitializeDefaultCombo(this, Equipment.Weapon as WeaponItem);
-                }
-            }
-        }
+        // Equipment accessors (delegated to Facade)
+        public List<Item> Inventory => Facade.Properties.Inventory;
+        public Item? Head => Facade.Properties.Head;
+        public Item? Body => Facade.Properties.Body;
+        public Item? Weapon { get => Facade.Properties.Weapon; set => Facade.Properties.Weapon = value; }
+        public Item? Feet => Facade.Properties.Feet;
 
-        // XP and leveling
-        public void AddXP(int amount)
-        {
-            int oldLevel = Progression.Level;
-            Progression.AddXP(amount);
-            
-            // Apply character-level changes for each level gained
-            int levelsGained = Progression.Level - oldLevel;
-            for (int i = 0; i < levelsGained; i++)
-            {
-                LevelUp();
-            }
-        }
+        public void AddToInventory(Item item) => Facade.AddToInventory(item);
+        public bool RemoveFromInventory(Item item) => Facade.RemoveFromInventory(item);
 
+        // Effects accessors (delegated to Facade)
+        public int ComboStep { get => Facade.Properties.ComboStep; set => Facade.Properties.ComboStep = value; }
+        public double ComboAmplifier => Facade.Properties.ComboAmplifier;
+        public int ComboBonus => Facade.Properties.ComboBonus;
+        public int TempComboBonus => Facade.Properties.TempComboBonus;
+        public int TempComboBonusTurns => Facade.Properties.TempComboBonusTurns;
+        public int EnemyRollPenalty => Facade.Properties.EnemyRollPenalty;
+        public int EnemyRollPenaltyTurns => Facade.Properties.EnemyRollPenaltyTurns;
+        public double SlowMultiplier => Facade.Properties.SlowMultiplier;
+        public int SlowTurns => Facade.Properties.SlowTurns;
+        public bool HasShield => Facade.Properties.HasShield;
+        public int LastShieldReduction => Facade.Properties.LastShieldReduction;
+        public bool ComboModeActive => Facade.Properties.ComboModeActive;
+        public int TempStrengthBonus => Facade.Properties.TempStrengthBonus;
+        public int TempAgilityBonus => Facade.Properties.TempAgilityBonus;
+        public int TempTechniqueBonus => Facade.Properties.TempTechniqueBonus;
+        public int TempIntelligenceBonus => Facade.Properties.TempIntelligenceBonus;
+        public int TempStatBonusTurns => Facade.Properties.TempStatBonusTurns;
+        public Action? LastAction => Facade.Properties.LastAction;
+        public bool SkipNextTurn => Facade.Properties.SkipNextTurn;
+        public bool GuaranteeNextSuccess => Facade.Properties.GuaranteeNextSuccess;
+        public int ExtraAttacks => Facade.Properties.ExtraAttacks;
+        public int ExtraDamage => Facade.Properties.ExtraDamage;
+        public double LengthReduction => Facade.Properties.LengthReduction;
+        public int LengthReductionTurns => Facade.Properties.LengthReductionTurns;
+        public double ComboAmplifierMultiplier => Facade.Properties.ComboAmplifierMultiplier;
+        public int ComboAmplifierTurns => Facade.Properties.ComboAmplifierTurns;
+        public int RerollCharges => Facade.Properties.RerollCharges;
+        public bool UsedRerollThisTurn => Facade.Properties.UsedRerollThisTurn;
 
-        public void LevelUp()
-        {
-            // Note: Level has already been incremented by Progression.AddXP()
-            Stats.LevelUp((Equipment.Weapon as WeaponItem)?.WeaponType ?? WeaponType.Mace);
-            
-            var tuning = GameConfiguration.Instance;
-            
-            // Apply class balance multipliers if available
-            var classBalance = tuning.ClassBalance;
-            if (classBalance != null && Equipment.Weapon is WeaponItem weapon)
-            {
-                var classMultipliers = weapon.WeaponType switch
-                {
-                    WeaponType.Mace => classBalance.Barbarian,
-                    WeaponType.Sword => classBalance.Warrior,
-                    WeaponType.Dagger => classBalance.Rogue,
-                    WeaponType.Wand => classBalance.Wizard,
-                    _ => new ClassMultipliers() // Default multipliers
-                };
-                
-                Health.MaxHealth += (int)(tuning.Character.HealthPerLevel * classMultipliers.HealthMultiplier);
-            }
-            else
-            {
-                Health.MaxHealth += tuning.Character.HealthPerLevel;
-            }
-            
-            Health.CurrentHealth = Health.MaxHealth;
-            
-            // Award class point and stat increases based on equipped weapon
-            if (Equipment.Weapon is WeaponItem equippedWeapon)
-            {
-                string className = equippedWeapon.WeaponType switch
-                {
-                    WeaponType.Mace => "Barbarian",
-                    WeaponType.Sword => "Warrior",
-                    WeaponType.Dagger => "Rogue",
-                    WeaponType.Wand => "Wizard",
-                    _ => "Unknown"
-                };
-                
-                Progression.AwardClassPoint(equippedWeapon.WeaponType);
-                UIManager.WriteLine($"\n*** LEVEL UP! ***");
-                UIManager.WriteLine($"You reached level {Progression.Level}!");
-                UIManager.WriteLine($"Gained +1 {className} class point!");
-                UIManager.WriteLine($"Stats increased: {Stats.GetStatIncreaseMessage(equippedWeapon.WeaponType)}");
-                UIManager.WriteLine($"Current class: {Progression.GetCurrentClass()}");
-                UIManager.WriteLine($"You are now known as: {Progression.GetFullNameWithQualifier(Name)}");
-                
-                // Show only classes with points > 0
-                var classPointsInfo = new List<string>();
-                if (Progression.BarbarianPoints > 0) classPointsInfo.Add($"Barbarian({Progression.BarbarianPoints})");
-                if (Progression.WarriorPoints > 0) classPointsInfo.Add($"Warrior({Progression.WarriorPoints})");
-                if (Progression.RoguePoints > 0) classPointsInfo.Add($"Rogue({Progression.RoguePoints})");
-                if (Progression.WizardPoints > 0) classPointsInfo.Add($"Wizard({Progression.WizardPoints})");
-                
-                if (classPointsInfo.Count > 0)
-                {
-                    UIManager.WriteLine($"Class Points: {string.Join(" ", classPointsInfo)}");
-                    UIManager.WriteLine($"Next Upgrades: {Progression.GetClassUpgradeInfo()}");
-                }
-                UIManager.WriteBlankLine();
-            }
-            else
-            {
-                Stats.LevelUpNoWeapon();
-                
-                UIManager.WriteLine($"\n*** LEVEL UP! ***");
-                UIManager.WriteLine($"You reached level {Progression.Level}!");
-                UIManager.WriteLine("No weapon equipped - equal stat increases (+2 all stats)");
-                UIManager.WriteBlankLine();
-            }
+        // Class points accessors (delegated to Facade)
+        public int BarbarianPoints => Facade.Properties.BarbarianPoints;
+        public int WarriorPoints => Facade.Properties.WarriorPoints;
+        public int RoguePoints => Facade.Properties.RoguePoints;
+        public int WizardPoints => Facade.Properties.WizardPoints;
 
-            // Re-add class actions when points change
-            Actions.AddClassActions(this, Progression, (Equipment.Weapon as WeaponItem)?.WeaponType);
-        }
+        // Combo sequence accessor (delegated to Facade)
+        public List<Action> ComboSequence => Facade.Properties.ComboSequence;
 
-        // Stat accessors
-        public int Strength 
-        { 
-            get => Stats.GetEffectiveStrength(Equipment.GetEquipmentStatBonus("STR"), Equipment.GetModificationGodlikeBonus());
-            set => Stats.Strength = value;
-        }
-        public int Agility 
-        { 
-            get => Stats.GetEffectiveAgility(Equipment.GetEquipmentStatBonus("AGI"));
-            set => Stats.Agility = value;
-        }
-        public int Technique 
-        { 
-            get => Stats.GetEffectiveTechnique(Equipment.GetEquipmentStatBonus("TEC"));
-            set => Stats.Technique = value;
-        }
-        public int Intelligence 
-        { 
-            get => Stats.GetEffectiveIntelligence(Equipment.GetEquipmentStatBonus("INT"));
-            set => Stats.Intelligence = value;
-        }
-
-        public int Level 
-        { 
-            get => Progression.Level; 
-            set => Progression.Level = value; 
-        }
-        public int XP 
-        { 
-            get => Progression.XP; 
-            set => Progression.XP = value; 
-        }
-
-        // Equipment accessors
-        public List<Item> Inventory 
-        { 
-            get => Equipment.Inventory; 
-            set => Equipment.Inventory = value; 
-        }
-        public Item? Head 
-        { 
-            get => Equipment.Head; 
-            set => Equipment.Head = value; 
-        }
-        public Item? Body 
-        { 
-            get => Equipment.Body; 
-            set => Equipment.Body = value; 
-        }
-        public Item? Weapon 
-        { 
-            get => Equipment.Weapon; 
-            set => Equipment.Weapon = value; 
-        }
-        public Item? Feet 
-        { 
-            get => Equipment.Feet; 
-            set => Equipment.Feet = value; 
-        }
-
-        public void AddToInventory(Item item) => Equipment.AddToInventory(item);
-        public bool RemoveFromInventory(Item item) => Equipment.RemoveFromInventory(item);
-
-        // Effects accessors
-        public int ComboStep 
-        { 
-            get => Effects.ComboStep; 
-            set => Effects.ComboStep = value; 
-        }
-        public double ComboAmplifier => Effects.ComboAmplifier;
-        public int ComboBonus => Effects.ComboBonus;
-        public int TempComboBonus => Effects.TempComboBonus;
-        public int TempComboBonusTurns => Effects.TempComboBonusTurns;
-        public int EnemyRollPenalty 
-        { 
-            get => Effects.EnemyRollPenalty; 
-            set => Effects.EnemyRollPenalty = value; 
-        }
-        public int EnemyRollPenaltyTurns 
-        { 
-            get => Effects.EnemyRollPenaltyTurns; 
-            set => Effects.EnemyRollPenaltyTurns = value; 
-        }
-        public double SlowMultiplier => Effects.SlowMultiplier;
-        public int SlowTurns => Effects.SlowTurns;
-        // Poison and burn properties are now accessed directly from Entity base class
-        public bool HasShield => Effects.HasShield;
-        public int LastShieldReduction => Effects.LastShieldReduction;
-        public bool ComboModeActive => Effects.ComboModeActive;
-        public int TempStrengthBonus => Stats.TempStrengthBonus;
-        public int TempAgilityBonus => Stats.TempAgilityBonus;
-        public int TempTechniqueBonus => Stats.TempTechniqueBonus;
-        public int TempIntelligenceBonus => Stats.TempIntelligenceBonus;
-        public int TempStatBonusTurns => Stats.TempStatBonusTurns;
-        public Action? LastAction => Effects.LastAction;
-        public bool SkipNextTurn => Effects.SkipNextTurn;
-        public bool GuaranteeNextSuccess => Effects.GuaranteeNextSuccess;
-        public int ExtraAttacks => Effects.ExtraAttacks;
-        public int ExtraDamage 
-        { 
-            get => Effects.ExtraDamage; 
-            set => Effects.ExtraDamage = value; 
-        }
-        // DamageReduction is now accessed directly from Entity base class
-        public double LengthReduction 
-        { 
-            get => Effects.LengthReduction; 
-            set => Effects.LengthReduction = value; 
-        }
-        public int LengthReductionTurns 
-        { 
-            get => Effects.LengthReductionTurns; 
-            set => Effects.LengthReductionTurns = value; 
-        }
-        public double ComboAmplifierMultiplier => Effects.ComboAmplifierMultiplier;
-        public int ComboAmplifierTurns => Effects.ComboAmplifierTurns;
-        public int RerollCharges => Effects.RerollCharges;
-        public bool UsedRerollThisTurn => Effects.UsedRerollThisTurn;
-
-        // Class points accessors
-        public int BarbarianPoints => Progression.BarbarianPoints;
-        public int WarriorPoints => Progression.WarriorPoints;
-        public int RoguePoints => Progression.RoguePoints;
-        public int WizardPoints => Progression.WizardPoints;
-
-        // Combo sequence accessor
-        public List<Action> ComboSequence => Actions.ComboSequence;
-
-        // Action management
-        public List<Action> GetComboActions() => Actions.GetComboActions();
-        public List<Action> GetActionPool() => Actions.GetActionPool(this);
-        public void AddToCombo(Action action) => Actions.AddToCombo(action);
-        public void RemoveFromCombo(Action action) => Actions.RemoveFromCombo(action);
-        public void InitializeDefaultCombo() => Actions.InitializeDefaultCombo(this, Equipment.Weapon as WeaponItem);
-
-        // Effective stat methods
-        public int GetEffectiveStrength() => Stats.GetEffectiveStrength(Equipment.GetEquipmentStatBonus("STR"), Equipment.GetModificationGodlikeBonus());
-        public int GetEffectiveAgility() => Stats.GetEffectiveAgility(Equipment.GetEquipmentStatBonus("AGI"));
-        public int GetEffectiveTechnique() => Stats.GetEffectiveTechnique(Equipment.GetEquipmentStatBonus("TEC"));
-        public int GetEffectiveIntelligence() => Stats.GetEffectiveIntelligence(Equipment.GetEquipmentStatBonus("INT"));
-
-        // Action length calculation
-        public double CalculateTurnsFromActionLength(double actionLength) => Actions.CalculateTurnsFromActionLength(actionLength);
-        public void RemoveItemActions() => Actions.RemoveItemActions(this);
-
-        // Progression methods
-
-        // Action methods
-        public void ApplyRollBonusesFromGear(Item gear) => Actions.ApplyRollBonusesFromGear(this, gear);
-
-        // Effect management
-        public void SetTempComboBonus(int bonus, int turns) => Effects.SetTempComboBonus(bonus, turns);
-        public int ConsumeTempComboBonus() => Effects.ConsumeTempComboBonus();
-        public void ActivateComboMode() => Effects.ActivateComboMode();
-        public void DeactivateComboMode() => Effects.DeactivateComboMode();
-        public void ResetCombo() => Effects.ResetCombo();
-        public void ApplyStatBonus(int bonus, string statType, int duration) => Stats.ApplyStatBonus(bonus, statType, duration);
-        public override void UpdateTempEffects(double actionLength = DEFAULT_ACTION_LENGTH)
+        // All other methods delegated to Facade for clean separation
+        public List<Action> GetComboActions() => Facade.GetComboActions();
+        public List<Action> GetActionPool() => Facade.GetActionPool();
+        public void AddToCombo(Action action) => Facade.AddToCombo(action);
+        public void RemoveFromCombo(Action action) => Facade.RemoveFromCombo(action);
+        public void InitializeDefaultCombo() => Facade.InitializeDefaultCombo();
+        public int GetEffectiveStrength() => Facade.GetEffectiveStrength();
+        public int GetEffectiveAgility() => Facade.GetEffectiveAgility();
+        public int GetEffectiveTechnique() => Facade.GetEffectiveTechnique();
+        public int GetEffectiveIntelligence() => Facade.GetEffectiveIntelligence();
+        public double CalculateTurnsFromActionLength(double actionLength) => Facade.CalculateTurnsFromActionLength(actionLength);
+        public void RemoveItemActions() => Facade.RemoveItemActions();
+        public void ApplyRollBonusesFromGear(Item gear) => Facade.ApplyRollBonusesFromGear(gear);
+        public void SetTempComboBonus(int bonus, int turns) => Facade.SetTempComboBonus(bonus, turns);
+        public int ConsumeTempComboBonus() => Facade.ConsumeTempComboBonus();
+        public void ActivateComboMode() => Facade.ActivateComboMode();
+        public void DeactivateComboMode() => Facade.DeactivateComboMode();
+        public void ResetCombo() => Facade.ResetCombo();
+        public void ApplyStatBonus(int bonus, string statType, int duration) => Facade.ApplyStatBonus(bonus, statType, duration);
+        public override void UpdateTempEffects(double actionLength = DEFAULT_ACTION_LENGTH) 
         {
             // Update base class effects (stun, weaken, roll penalty, poison, burn, damage reduction)
             base.UpdateTempEffects(actionLength);
@@ -445,94 +202,95 @@ namespace RPGGame
             Stats.UpdateTempEffects(actionLength);
             Effects.UpdateTempEffects(actionLength);
         }
-        public void ApplySlow(double slowMultiplier, int duration) => Effects.ApplySlow(slowMultiplier, duration);
+        public void ApplySlow(double slowMultiplier, int duration) => Facade.ApplySlow(slowMultiplier, duration);
         public override void ApplyPoison(int damage, int stacks = 1, bool isBleeding = false) => base.ApplyPoison(damage, stacks, isBleeding);
         public override void ApplyBurn(int damage, int stacks = 1) => base.ApplyBurn(damage, stacks);
-        public void ApplyShield() => Effects.ApplyShield();
-        public bool ConsumeShield() => Effects.ConsumeShield();
+        public void ApplyShield() => Facade.ApplyShield();
+        public bool ConsumeShield() => Facade.ConsumeShield();
         public override void ApplyWeaken(int turns) => base.ApplyWeaken(turns);
         public override int ProcessPoison(double currentTime) => base.ProcessPoison(currentTime);
         public override int ProcessBurn(double currentTime) => base.ProcessBurn(currentTime);
         public override string GetDamageTypeText() => base.GetDamageTypeText();
         public override void ClearAllTempEffects() 
         {
-            // Clear base class effects
+            // Clear base class effects (poison, burn, stun, weaken, etc.)
             base.ClearAllTempEffects();
             // Clear character-specific effects
             Effects.ClearAllTempEffects();
+            // Clear temporary stat bonuses
+            Stats.TempStrengthBonus = 0;
+            Stats.TempAgilityBonus = 0;
+            Stats.TempTechniqueBonus = 0;
+            Stats.TempIntelligenceBonus = 0;
+            Stats.TempStatBonusTurns = 0;
         }
-        public bool UseReroll() => Effects.UseReroll();
-        public void ResetRerollUsage() => Effects.ResetRerollUsage();
-        public void ResetRerollCharges() => Effects.ResetRerollCharges();
-        public int GetRemainingRerollCharges() => Effects.GetRemainingRerollCharges(Equipment.GetTotalRerollCharges());
-        public bool UseRerollCharge() => Effects.UseRerollCharge();
-
-        // Equipment bonuses
-        public int GetEquipmentDamageBonus() => Equipment.GetEquipmentDamageBonus();
-        public int GetEquipmentHealthBonus() => Equipment.GetEquipmentHealthBonus();
-        public int GetEquipmentRollBonus() => Equipment.GetEquipmentRollBonus();
-        public int GetMagicFind() => Equipment.GetMagicFind();
-        public double GetEquipmentAttackSpeedBonus() => Equipment.GetEquipmentAttackSpeedBonus();
-        public int GetEquipmentHealthRegenBonus() => Equipment.GetEquipmentHealthRegenBonus();
-        public int GetTotalArmor() => Equipment.GetTotalArmor();
-        public int GetTotalRerollCharges() => Equipment.GetTotalRerollCharges();
-        public int GetModificationMagicFind() => Equipment.GetModificationMagicFind();
-        public int GetModificationRollBonus() => Equipment.GetModificationRollBonus();
-        public int GetModificationDamageBonus() => Equipment.GetModificationDamageBonus();
-        public double GetModificationSpeedMultiplier() => Equipment.GetModificationSpeedMultiplier();
-        public double GetModificationDamageMultiplier() => Equipment.GetModificationDamageMultiplier();
-        public double GetModificationLifesteal() => Equipment.GetModificationLifesteal();
-        public int GetModificationGodlikeBonus() => Equipment.GetModificationGodlikeBonus();
-        public double GetModificationBleedChance() => Equipment.GetModificationBleedChance();
-        public double GetModificationUniqueActionChance() => Equipment.GetModificationUniqueActionChance();
-        public double GetArmorSpikeDamage() => Equipment.GetArmorSpikeDamage();
-        public List<ArmorStatus> GetEquippedArmorStatuses() => Equipment.GetEquippedArmorStatuses();
-        public bool HasAutoSuccess() => Equipment.HasAutoSuccess();
-
-        // Progression
-        public string GetCurrentClass() => Progression.GetCurrentClass();
-        public string GetFullNameWithQualifier() => Progression.GetFullNameWithQualifier(Name);
-        public int GetNextClassThreshold(string className) => Progression.GetNextClassThreshold(className);
-        public string GetClassUpgradeInfo() => Progression.GetClassUpgradeInfo();
-        public void AwardClassPoint(WeaponType weaponType) => Progression.AwardClassPoint(weaponType);
-
-        // Combat calculations (delegated to Combat manager)
-        public double GetComboAmplifier() => Combat.GetComboAmplifier();
-        public double GetCurrentComboAmplification() => Combat.GetCurrentComboAmplification();
-        public double GetNextComboAmplification() => Combat.GetNextComboAmplification();
-        public string GetComboInfo() => Combat.GetComboInfo();
-        public int GetAttacksPerTurn() => Combat.GetAttacksPerTurn();
-        public double GetTotalAttackSpeed() => Combat.GetTotalAttackSpeed();
-        public int GetIntelligenceRollBonus() => Combat.GetIntelligenceRollBonus();
-        public void SetTechniqueForTesting(int value) => Combat.SetTechniqueForTesting(value);
-        public bool MeetsStatThreshold(string statType, double threshold) => Combat.MeetsStatThreshold(statType, threshold);
-
-        // Environment actions
-        public void AddEnvironmentActions(Environment environment) => Actions.AddEnvironmentActions(this, environment);
-        public void ClearEnvironmentActions() => Actions.ClearEnvironmentActions(this);
-
-        // Unique actions
-        public List<Action> GetAvailableUniqueActions() => Actions.GetAvailableUniqueActions(Weapon as WeaponItem);
-
-        // Display methods (delegated to Display manager)
-        public override string GetDescription() => Display.GetDescription();
+        public bool UseReroll() => Facade.UseReroll();
+        public void ResetRerollUsage() => Facade.ResetRerollUsage();
+        public void ResetRerollCharges() => Facade.ResetRerollCharges();
+        public int GetRemainingRerollCharges() => Facade.GetRemainingRerollCharges();
+        public bool UseRerollCharge() => Facade.UseRerollCharge();
+        public int GetEquipmentDamageBonus() => Facade.GetEquipmentDamageBonus();
+        public int GetEquipmentHealthBonus() => Facade.GetEquipmentHealthBonus();
+        public int GetEquipmentRollBonus() => Facade.GetEquipmentRollBonus();
+        public int GetMagicFind() => Facade.GetMagicFind();
+        public double GetEquipmentAttackSpeedBonus() => Facade.GetEquipmentAttackSpeedBonus();
+        public int GetEquipmentHealthRegenBonus() => Facade.GetEquipmentHealthRegenBonus();
+        public int GetTotalArmor() => Facade.GetTotalArmor();
+        public int GetTotalRerollCharges() => Facade.GetTotalRerollCharges();
+        public int GetModificationMagicFind() => Facade.GetModificationMagicFind();
+        public int GetModificationRollBonus() => Facade.GetModificationRollBonus();
+        public int GetModificationDamageBonus() => Facade.GetModificationDamageBonus();
+        public double GetModificationSpeedMultiplier() => Facade.GetModificationSpeedMultiplier();
+        public double GetModificationDamageMultiplier() => Facade.GetModificationDamageMultiplier();
+        public double GetModificationLifesteal() => Facade.GetModificationLifesteal();
+        public int GetModificationGodlikeBonus() => Facade.GetModificationGodlikeBonus();
+        public double GetModificationBleedChance() => Facade.GetModificationBleedChance();
+        public double GetModificationUniqueActionChance() => Facade.GetModificationUniqueActionChance();
+        public double GetArmorSpikeDamage() => Facade.GetArmorSpikeDamage();
+        public List<ArmorStatus> GetEquippedArmorStatuses() => Facade.GetEquippedArmorStatuses();
+        public bool HasAutoSuccess() => Facade.HasAutoSuccess();
+        public string GetCurrentClass() => Facade.GetCurrentClass();
+        public string GetFullNameWithQualifier() => Facade.GetFullNameWithQualifier();
+        public int GetNextClassThreshold(string className) => Facade.GetNextClassThreshold(className);
+        public string GetClassUpgradeInfo() => Facade.GetClassUpgradeInfo();
+        public void AwardClassPoint(WeaponType weaponType) => Facade.AwardClassPoint(weaponType);
+        public double GetComboAmplifier() => Facade.GetComboAmplifier();
+        public double GetCurrentComboAmplification() => Facade.GetCurrentComboAmplification();
+        public double GetNextComboAmplification() => Facade.GetNextComboAmplification();
+        public string GetComboInfo() => Facade.GetComboInfo();
+        public int GetAttacksPerTurn() => Facade.GetAttacksPerTurn();
+        public double GetTotalAttackSpeed() => Facade.GetTotalAttackSpeed();
+        public int GetIntelligenceRollBonus() => Facade.GetIntelligenceRollBonus();
+        public void SetTechniqueForTesting(int value) => Facade.SetTechniqueForTesting(value);
+        public bool MeetsStatThreshold(string statType, double threshold) => Facade.MeetsStatThreshold(statType, threshold);
+        public void AddEnvironmentActions(Environment environment) => Facade.AddEnvironmentActions(environment);
+        public void ClearEnvironmentActions() => Facade.ClearEnvironmentActions();
+        public List<Action> GetAvailableUniqueActions() => Facade.GetAvailableUniqueActions();
+        public override string GetDescription() => Facade.GetDescription();
         public override string ToString() => base.ToString();
-        public void DisplayCharacterInfo() => Display.DisplayCharacterInfo();
-
-        // Save/Load methods
-        public void SaveCharacter(string? filename = null)
-        {
-            CharacterSaveManager.SaveCharacter(this, filename);
-        }
-
-        public static Character? LoadCharacter(string? filename = null)
-        {
-            return CharacterSaveManager.LoadCharacter(filename);
-        }
-
-        public static void DeleteSaveFile(string? filename = null)
-        {
-            CharacterSaveManager.DeleteSaveFile(filename);
-        }
+        public void DisplayCharacterInfo() => Facade.DisplayCharacterInfo();
+        public void SaveCharacter(string? filename = null) => Facade.SaveCharacter(filename);
+        public static Character? LoadCharacter(string? filename = null) => CharacterFacade.LoadCharacter(filename);
+        public static void DeleteSaveFile(string? filename = null) => CharacterFacade.DeleteSaveFile(filename);
+        
+        // Session statistics methods
+        public void RecordEnemyDefeat() => SessionStats.RecordEnemyDefeat();
+        public void RecordDamageDealt(int damage, bool isCritical = false) => SessionStats.RecordDamageDealt(damage, isCritical);
+        public void RecordDamageReceived(int damage) => SessionStats.RecordDamageReceived(damage);
+        public void RecordHealingReceived(int healing) => SessionStats.RecordHealingReceived(healing);
+        public void RecordAction(bool hit, bool isCritical = false, bool isCriticalMiss = false) => SessionStats.RecordAction(hit, isCritical, isCriticalMiss);
+        public void RecordCombo(int comboStep, int comboDamage) => SessionStats.RecordCombo(comboStep, comboDamage);
+        public void RecordItemCollected(Item item) => SessionStats.RecordItemCollected(item);
+        public void RecordItemEquipped() => SessionStats.RecordItemEquipped();
+        public void RecordDungeonCompleted() => SessionStats.RecordDungeonCompleted();
+        public void RecordRoomExplored() => SessionStats.RecordRoomExplored();
+        public void RecordEncounterSurvived() => SessionStats.RecordEncounterSurvived();
+        public void RecordLevelUp(int newLevel) => SessionStats.RecordLevelUp(newLevel);
+        public void RecordXPGain(int xp) => SessionStats.RecordXPGain(xp);
+        public void RecordHealthStatus(double healthPercentage) => SessionStats.RecordHealthStatus(healthPercentage);
+        public void RecordPerfectCombat() => SessionStats.RecordPerfectCombat();
+        public void RecordOneShotKill() => SessionStats.RecordOneShotKill();
+        public void EndTurn() => SessionStats.EndTurn();
+        public string GetDefeatSummary() => SessionStats.GetDefeatSummary();
     }
 }

@@ -13,12 +13,12 @@ namespace RPGGame
         
         // Specialized managers using composition pattern
         private readonly CombatStateManager stateManager;
-        private readonly CombatTurnHandler turnHandler;
+        private readonly CombatTurnHandlerSimplified turnHandler;
 
         public CombatManager()
         {
             stateManager = new CombatStateManager();
-            turnHandler = new CombatTurnHandler(stateManager);
+            turnHandler = new CombatTurnHandlerSimplified(stateManager);
         }
 
         /// <summary>

@@ -379,71 +379,37 @@ namespace RPGGame
 
         private void LoadGearActionFromJson(Entity entity, string actionName)
         {
-            
             try
             {
-                string[] possiblePaths = {
-                    Path.Combine("GameData", "Actions.json"),
-                    Path.Combine("..", "GameData", "Actions.json"),
-                    Path.Combine("..", "..", "GameData", "Actions.json"),
-                    Path.Combine("DF4 - CONSOLE", "GameData", "Actions.json"),
-                    Path.Combine("..", "DF4 - CONSOLE", "GameData", "Actions.json")
-                };
-
-                string? foundPath = null;
-                foreach (string path in possiblePaths)
+                // Use the proper ActionLoader system instead of manual JSON loading
+                var action = ActionLoader.GetAction(actionName);
+                if (action != null)
                 {
-                    if (File.Exists(path))
+                    if (action.IsComboAction)
                     {
-                        foundPath = path;
-                        break;
-                    }
-                }
-                
-                if (foundPath != null)
-                {
-                    
-                    string jsonContent = File.ReadAllText(foundPath);
-                    var allActions = System.Text.Json.JsonSerializer.Deserialize<List<ActionData>>(jsonContent);
-                    
-                    if (allActions != null)
-                    {
+                        // Find the highest combo order among combo actions only and add 1
+                        var comboActions = entity.ActionPool.Where(a => a.action.IsComboAction).ToList();
+                        int maxOrder = comboActions.Count > 0 ? comboActions.Max(a => a.action.ComboOrder) : 0;
+                        action.ComboOrder = maxOrder + 1;
                         
-                        var actionData = allActions.FirstOrDefault(a => a.Name == actionName);
-                        if (actionData != null)
-                        {
-                            
-                            var action = CreateActionFromData(actionData);
-                            if (action.IsComboAction)
-                            {
-                                // Find the highest combo order among combo actions only and add 1
-                                var comboActions = entity.ActionPool.Where(a => a.action.IsComboAction).ToList();
-                                int maxOrder = comboActions.Count > 0 ? comboActions.Max(a => a.action.ComboOrder) : 0;
-                                action.ComboOrder = maxOrder + 1;
-                                
-                                entity.AddAction(action, 1.0);
-                            }
-                            else
-                            {
-                            }
-                        }
-                        else
-                        {
-                        }
+                        entity.AddAction(action, 1.0);
+                        DebugLogger.LogFormat("CharacterActions", "Added combo action {0} to ActionPool", actionName);
                     }
                     else
                     {
+                        // Add non-combo actions directly to the action pool
+                        entity.AddAction(action, 1.0);
+                        DebugLogger.LogFormat("CharacterActions", "Added non-combo action {0} to ActionPool", actionName);
                     }
                 }
                 else
                 {
-                    Console.WriteLine($"ERROR: Actions.json not found when loading gear action {actionName}. Tried paths: {string.Join(", ", possiblePaths)}");
+                    DebugLogger.LogFormat("CharacterActions", "Failed to load action {0} from ActionLoader", actionName);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading gear action {actionName} from JSON: {ex.Message}");
-                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                DebugLogger.LogFormat("CharacterActions", "Error loading gear action {0}: {1}", actionName, ex.Message);
             }
         }
 
@@ -781,6 +747,15 @@ namespace RPGGame
                     }
                     else
                     {
+                        // If weapon action is not in action pool, add it first
+                        LoadGearActionFromJson(entity, actionName);
+                        
+                        // Try to find it again after loading
+                        action = entity.ActionPool.FirstOrDefault(a => a.action.Name == actionName);
+                        if (action.action != null && action.action.IsComboAction)
+                        {
+                            AddToCombo(action.action);
+                        }
                     }
                 }
             }
@@ -804,19 +779,19 @@ namespace RPGGame
                     // If no combo actions are available, create a default combo action
                     // This should never happen in normal gameplay, but provides a safety net
                     var defaultComboAction = new Action(
-                        name: "POWER STRIKE",
+                        name: "BASIC ATTACK",
                         type: ActionType.Attack,
                         targetType: TargetType.SingleTarget,
                         baseValue: 0,
                         range: 1,
                         cooldown: 0,
-                        description: "A powerful strike that deals extra damage",
-                        comboOrder: 1,
-                        damageMultiplier: 1.2,
+                        description: "A standard physical attack using STR + weapon damage",
+                        comboOrder: 0,
+                        damageMultiplier: 1.0,
                         length: 1.0,
                         causesBleed: false,
                         causesWeaken: false,
-                        isComboAction: true
+                        isComboAction: false
                     );
                     entity.AddAction(defaultComboAction, 1.0);
                     AddToCombo(defaultComboAction);

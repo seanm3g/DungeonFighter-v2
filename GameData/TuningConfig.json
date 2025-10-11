@@ -50,9 +50,9 @@
     "Description": "Roll system thresholds for determining action types and critical hits"
   },
   "Character": {
-    "PlayerBaseHealth": 100,
+    "PlayerBaseHealth": 60,
     "HealthPerLevel": 3,
-    "EnemyHealthPerLevel": 3,
+    "Enemy1PerLevel": 3,
     "Description": "Character health scaling parameters"
   },
   "Attributes": {
@@ -77,7 +77,7 @@
       "Description": "Global multipliers applied to all enemies"
     },
     "BaselineStats": {
-      "Health": 50,
+      "Health": 30,
       "Strength": 3,
       "Agility": 3,
       "Technique": 3,
@@ -253,10 +253,10 @@
   },
   "WeaponScaling": {
     "StartingWeaponDamage": {
-      "Mace": 6,
-      "Sword": 6,
-      "Dagger": 6,
-      "Wand": 6
+      "Mace": 4,
+      "Sword": 4,
+      "Dagger": 4,
+      "Wand": 4
     },
     "GlobalDamageMultiplier": 1.0,
     "Description": "Weapon damage scaling and starting weapon configuration"

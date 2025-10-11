@@ -1,0 +1,422 @@
+[
+  {
+    "type": "Sword",
+    "name": "Iron Sword",
+    "baseDamage": 4,
+    "attackSpeed": 1.0,
+    "tier": 1
+  },
+  {
+    "type": "Sword",
+    "name": "Iron Blade",
+    "baseDamage": 4,
+    "attackSpeed": 0.9,
+    "tier": 1
+  },
+  {
+    "type": "Sword",
+    "name": "Iron Saber",
+    "baseDamage": 4,
+    "attackSpeed": 1.1,
+    "tier": 1
+  },
+  {
+    "type": "Sword",
+    "name": "Steel Sword",
+    "baseDamage": 4,
+    "attackSpeed": 1.05,
+    "tier": 2
+  },
+  {
+    "type": "Sword",
+    "name": "Steel Blade",
+    "baseDamage": 4,
+    "attackSpeed": 0.95,
+    "tier": 2
+  },
+  {
+    "type": "Sword",
+    "name": "Steel Saber",
+    "baseDamage": 4,
+    "attackSpeed": 1.15,
+    "tier": 2
+  },
+  {
+    "type": "Sword",
+    "name": "Silver Sword",
+    "baseDamage": 4,
+    "attackSpeed": 1.10,
+    "tier": 3
+  },
+  {
+    "type": "Sword",
+    "name": "Silver Blade",
+    "baseDamage": 4,
+    "attackSpeed": 1.00,
+    "tier": 3
+  },
+  {
+    "type": "Sword",
+    "name": "Silver Saber",
+    "baseDamage": 4,
+    "attackSpeed": 1.20,
+    "tier": 3
+  },
+  {
+    "type": "Sword",
+    "name": "Mithril Sword",
+    "baseDamage": 4,
+    "attackSpeed": 1.15,
+    "tier": 4
+  },
+  {
+    "type": "Sword",
+    "name": "Mithril Blade",
+    "baseDamage": 4,
+    "attackSpeed": 1.05,
+    "tier": 4
+  },
+  {
+    "type": "Sword",
+    "name": "Mithril Saber",
+    "baseDamage": 4,
+    "attackSpeed": 1.25,
+    "tier": 4
+  },
+  {
+    "type": "Sword",
+    "name": "Dragon Sword",
+    "baseDamage": 4,
+    "attackSpeed": 1.20,
+    "tier": 5
+  },
+  {
+    "type": "Sword",
+    "name": "Excalibur",
+    "baseDamage": 4,
+    "attackSpeed": 1.10,
+    "tier": 5
+  },
+  {
+    "type": "Sword",
+    "name": "Blade of Light",
+    "baseDamage": 4,
+    "attackSpeed": 1.30,
+    "tier": 5
+  },
+  {
+    "type": "Mace",
+    "name": "Iron Mace",
+    "baseDamage": 4,
+    "attackSpeed": 0.8,
+    "tier": 1
+  },
+  {
+    "type": "Mace",
+    "name": "Iron Club",
+    "baseDamage": 4,
+    "attackSpeed": 0.7,
+    "tier": 1
+  },
+  {
+    "type": "Mace",
+    "name": "Iron Hammer",
+    "baseDamage": 4,
+    "attackSpeed": 0.9,
+    "tier": 1
+  },
+  {
+    "type": "Mace",
+    "name": "Steel Mace",
+    "baseDamage": 4,
+    "attackSpeed": 0.85,
+    "tier": 2
+  },
+  {
+    "type": "Mace",
+    "name": "Steel Club",
+    "baseDamage": 4,
+    "attackSpeed": 0.75,
+    "tier": 2
+  },
+  {
+    "type": "Mace",
+    "name": "Steel Hammer",
+    "baseDamage": 4,
+    "attackSpeed": 0.95,
+    "tier": 2
+  },
+  {
+    "type": "Mace",
+    "name": "Silver Mace",
+    "baseDamage": 4,
+    "attackSpeed": 0.90,
+    "tier": 3
+  },
+  {
+    "type": "Mace",
+    "name": "Silver Club",
+    "baseDamage": 4,
+    "attackSpeed": 0.80,
+    "tier": 3
+  },
+  {
+    "type": "Mace",
+    "name": "Silver Hammer",
+    "baseDamage": 4,
+    "attackSpeed": 1.00,
+    "tier": 3
+  },
+  {
+    "type": "Mace",
+    "name": "Mithril Mace",
+    "baseDamage": 4,
+    "attackSpeed": 0.95,
+    "tier": 4
+  },
+  {
+    "type": "Mace",
+    "name": "Mithril Club",
+    "baseDamage": 4,
+    "attackSpeed": 0.85,
+    "tier": 4
+  },
+  {
+    "type": "Mace",
+    "name": "Mithril Hammer",
+    "baseDamage": 4,
+    "attackSpeed": 1.05,
+    "tier": 4
+  },
+  {
+    "type": "Mace",
+    "name": "Dragon Mace",
+    "baseDamage": 4,
+    "attackSpeed": 1.00,
+    "tier": 5
+  },
+  {
+    "type": "Mace",
+    "name": "Warhammer of Power",
+    "baseDamage": 4,
+    "attackSpeed": 0.90,
+    "tier": 5
+  },
+  {
+    "type": "Mace",
+    "name": "Mace of Destruction",
+    "baseDamage": 4,
+    "attackSpeed": 1.10,
+    "tier": 5
+  },
+  {
+    "type": "Dagger",
+    "name": "Iron Dagger",
+    "baseDamage": 4,
+    "attackSpeed": 1.4,
+    "tier": 1
+  },
+  {
+    "type": "Dagger",
+    "name": "Iron Knife",
+    "baseDamage": 4,
+    "attackSpeed": 1.3,
+    "tier": 1
+  },
+  {
+    "type": "Dagger",
+    "name": "Iron Blade",
+    "baseDamage": 4,
+    "attackSpeed": 1.5,
+    "tier": 1
+  },
+  {
+    "type": "Dagger",
+    "name": "Steel Dagger",
+    "baseDamage": 4,
+    "attackSpeed": 1.45,
+    "tier": 2
+  },
+  {
+    "type": "Dagger",
+    "name": "Steel Knife",
+    "baseDamage": 4,
+    "attackSpeed": 1.35,
+    "tier": 2
+  },
+  {
+    "type": "Dagger",
+    "name": "Steel Blade",
+    "baseDamage": 4,
+    "attackSpeed": 1.55,
+    "tier": 2
+  },
+  {
+    "type": "Dagger",
+    "name": "Silver Dagger",
+    "baseDamage": 4,
+    "attackSpeed": 1.50,
+    "tier": 3
+  },
+  {
+    "type": "Dagger",
+    "name": "Silver Knife",
+    "baseDamage": 4,
+    "attackSpeed": 1.40,
+    "tier": 3
+  },
+  {
+    "type": "Dagger",
+    "name": "Silver Blade",
+    "baseDamage": 4,
+    "attackSpeed": 1.60,
+    "tier": 3
+  },
+  {
+    "type": "Dagger",
+    "name": "Mithril Dagger",
+    "baseDamage": 4,
+    "attackSpeed": 1.55,
+    "tier": 4
+  },
+  {
+    "type": "Dagger",
+    "name": "Mithril Knife",
+    "baseDamage": 4,
+    "attackSpeed": 1.45,
+    "tier": 4
+  },
+  {
+    "type": "Dagger",
+    "name": "Mithril Blade",
+    "baseDamage": 4,
+    "attackSpeed": 1.65,
+    "tier": 4
+  },
+  {
+    "type": "Dagger",
+    "name": "Dragon Dagger",
+    "baseDamage": 4,
+    "attackSpeed": 1.60,
+    "tier": 5
+  },
+  {
+    "type": "Dagger",
+    "name": "Shadow Blade",
+    "baseDamage": 4,
+    "attackSpeed": 1.50,
+    "tier": 5
+  },
+  {
+    "type": "Dagger",
+    "name": "Assassin's Blade",
+    "baseDamage": 4,
+    "attackSpeed": 1.70,
+    "tier": 5
+  },
+  {
+    "type": "Wand",
+    "name": "Iron Wand",
+    "baseDamage": 4,
+    "attackSpeed": 1.2,
+    "tier": 1
+  },
+  {
+    "type": "Wand",
+    "name": "Iron Staff",
+    "baseDamage": 4,
+    "attackSpeed": 1.1,
+    "tier": 1
+  },
+  {
+    "type": "Wand",
+    "name": "Iron Rod",
+    "baseDamage": 4,
+    "attackSpeed": 1.3,
+    "tier": 1
+  },
+  {
+    "type": "Wand",
+    "name": "Steel Wand",
+    "baseDamage": 4,
+    "attackSpeed": 1.25,
+    "tier": 2
+  },
+  {
+    "type": "Wand",
+    "name": "Steel Staff",
+    "baseDamage": 4,
+    "attackSpeed": 1.15,
+    "tier": 2
+  },
+  {
+    "type": "Wand",
+    "name": "Steel Rod",
+    "baseDamage": 4,
+    "attackSpeed": 1.35,
+    "tier": 2
+  },
+  {
+    "type": "Wand",
+    "name": "Silver Wand",
+    "baseDamage": 4,
+    "attackSpeed": 1.30,
+    "tier": 3
+  },
+  {
+    "type": "Wand",
+    "name": "Silver Staff",
+    "baseDamage": 4,
+    "attackSpeed": 1.20,
+    "tier": 3
+  },
+  {
+    "type": "Wand",
+    "name": "Silver Rod",
+    "baseDamage": 4,
+    "attackSpeed": 1.40,
+    "tier": 3
+  },
+  {
+    "type": "Wand",
+    "name": "Mithril Wand",
+    "baseDamage": 4,
+    "attackSpeed": 1.35,
+    "tier": 4
+  },
+  {
+    "type": "Wand",
+    "name": "Mithril Staff",
+    "baseDamage": 4,
+    "attackSpeed": 1.25,
+    "tier": 4
+  },
+  {
+    "type": "Wand",
+    "name": "Mithril Rod",
+    "baseDamage": 4,
+    "attackSpeed": 1.45,
+    "tier": 4
+  },
+  {
+    "type": "Wand",
+    "name": "Dragon Wand",
+    "baseDamage": 4,
+    "attackSpeed": 1.40,
+    "tier": 5
+  },
+  {
+    "type": "Wand",
+    "name": "Staff of Power",
+    "baseDamage": 4,
+    "attackSpeed": 1.30,
+    "tier": 5
+  },
+  {
+    "type": "Wand",
+    "name": "Rod of Destruction",
+    "baseDamage": 4,
+    "attackSpeed": 1.50,
+    "tier": 5
+  }
+]

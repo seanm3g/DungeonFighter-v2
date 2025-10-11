@@ -89,15 +89,19 @@ namespace RPGGame
                 rollInfo.Add($"speed: {actualSpeed:F1}s");
             }
             
-            // Add combo info to rollInfo if present
-            
+            // Add combo info to rollInfo if present - show amp prominently
             if (comboAmplifier > 1.0)
             {
-                rollInfo.Add($"Combo x{comboAmplifier:F1}");
+                rollInfo.Add($"amp: {comboAmplifier:F1}x");
+            }
+            else if (action != null && action.IsComboAction)
+            {
+                // Show amp:1.0x for first combo action
+                rollInfo.Add("amp: 1.0x");
             }
             
             // Add the detailed information on the next line with indentation and parentheses
-            damageText += "\n        (" + string.Join(" | ", rollInfo) + ")";
+            damageText += "\n    (" + string.Join(" | ", rollInfo) + ")";
             
             return damageText;
         }
@@ -182,14 +186,19 @@ namespace RPGGame
                 rollInfo.Add($"speed: {actualSpeed:F1}s");
             }
             
-            // Add combo info to rollInfo if present
+            // Add combo info to rollInfo if present - show amp prominently
             if (comboAmplifier > 1.0)
             {
-                rollInfo.Add($"Combo x{comboAmplifier:F1}");
+                rollInfo.Add($"amp: {comboAmplifier:F1}x");
+            }
+            else if (action != null && action.IsComboAction)
+            {
+                // Show amp:1.0x for first combo action
+                rollInfo.Add("amp: 1.0x");
             }
             
             // Return the roll information as a separate string
-            string rollInfoText = "        (" + string.Join(" | ", rollInfo) + ")";
+            string rollInfoText = "    (" + string.Join(" | ", rollInfo) + ")";
             
             return (damageText, rollInfoText);
         }
@@ -287,7 +296,7 @@ namespace RPGGame
             }
             
             // Add the detailed information on the next line with indentation and parentheses
-            actionText += "\n        (" + string.Join(" | ", rollInfo) + ")";
+            actionText += "\n    (" + string.Join(" | ", rollInfo) + ")";
             
             return actionText;
         }

@@ -85,11 +85,11 @@ namespace RPGGame
                 selectedAction = ActionUtilities.HandleUniqueActionChance(character, selectedAction);
             }
             
-            // Calculate roll bonus using shared utility
-            int rollBonus = ActionUtilities.CalculateRollBonus(source, selectedAction);
-            
             // Use the same roll that was used for action selection (for both heroes and enemies)
             int baseRoll = ActionSelector.GetActionRoll(source);
+            
+            // Calculate roll bonus using the selected action (this may be different from selection bonus)
+            int rollBonus = ActionUtilities.CalculateRollBonus(source, selectedAction);
             int attackRoll = baseRoll + rollBonus;
             int cappedRoll = Math.Min(attackRoll, 20);
             
@@ -127,13 +127,13 @@ namespace RPGGame
                 }
                 
                 // Apply status effects for all action types
-                CombatEffects.ApplyStatusEffects(selectedAction, source, target, results);
+                CombatEffectsSimplified.ApplyStatusEffects(selectedAction, source, target, results);
                 
                 // Apply enemy roll penalty if the action has one
                 if (selectedAction.EnemyRollPenalty > 0 && target is Enemy targetEnemy)
                 {
                     targetEnemy.ApplyRollPenalty(selectedAction.EnemyRollPenalty, 1); // Apply for 1 turn
-                    results.Add($"[{target.Name}] suffers a -{selectedAction.EnemyRollPenalty} roll penalty!");
+                    results.Add($"    [{target.Name}] suffers a -{selectedAction.EnemyRollPenalty} roll penalty!");
                 }
                 
                 // Handle combo advancement for characters
@@ -144,6 +144,16 @@ namespace RPGGame
             }
             else
             {
+                // Track miss statistics for player
+                if (source is Character characterMiss)
+                {
+                    bool isCriticalMissMiss = (baseRoll + rollBonus) <= 1;
+                    characterMiss.RecordAction(false, false, isCriticalMissMiss);
+                }
+                
+                // Create and add BattleEvent for miss
+                ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, 0, baseRoll + rollBonus, rollBonus, false, false, 0, 0, false, battleNarrative);
+                
                 results.Add(CombatResults.FormatMissMessage(source, target, selectedAction, baseRoll, rollBonus));
             }
             
@@ -167,13 +177,44 @@ namespace RPGGame
                 DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} dealt {damage} damage to {target.Name} with {selectedAction.Name}");
             }
             
-            // Create and add BattleEvent for narrative system using shared utility
-            bool isCritical = totalRoll >= 20; // Critical hit on natural 20 or higher
-            bool isCombo = selectedAction.Name != "BASIC ATTACK"; // Any non-basic attack counts as combo
-            ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, damage, totalRoll, rollBonus, true, isCombo, 0, 0, isCritical, battleNarrative);
+            // Track statistics for player actions
+            if (source is Character character)
+            {
+                bool isCritical = totalRoll >= 20;
+                bool isCriticalMiss = (baseRoll + rollBonus) <= 1;
+                
+                // Record action statistics
+                character.RecordAction(true, isCritical, isCriticalMiss);
+                character.RecordDamageDealt(damage, isCritical);
+                
+                // Track combo statistics
+                bool isComboAction = selectedAction.Name != "BASIC ATTACK";
+                if (isComboAction)
+                {
+                    character.RecordCombo(character.ComboStep, damage);
+                }
+                
+                // Check for one-shot kill
+                if (target is Enemy enemyTarget && !enemyTarget.IsAlive && damage >= enemyTarget.GetEffectiveMaxHealth())
+                {
+                    character.RecordOneShotKill();
+                }
+            }
             
-            // Add damage message
-            results.Add(CombatResults.FormatDamageDisplay(source, target, damage, damage, selectedAction, 1.0, damageMultiplier, rollBonus, baseRoll));
+            // Track damage received for player
+            if (target is Character targetCharacter)
+            {
+                targetCharacter.RecordDamageReceived(damage);
+                targetCharacter.RecordHealthStatus(targetCharacter.GetHealthPercentage());
+            }
+            
+            // Create and add BattleEvent for narrative system using shared utility
+            bool isCombo = selectedAction.Name != "BASIC ATTACK"; // Any non-basic attack counts as combo
+            bool isCriticalHit = totalRoll >= 20; // Critical hit on natural 20 or higher
+            ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, damage, totalRoll, rollBonus, true, isCombo, 0, 0, isCriticalHit, battleNarrative);
+            
+            // Add damage message - use the actual damage multiplier (which includes combo amplification) as the comboAmplifier
+            results.Add(CombatResults.FormatDamageDisplay(source, target, damage, damage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll));
         }
 
         /// <summary>
@@ -190,6 +231,12 @@ namespace RPGGame
             if (!DisableCombatDebugOutput)
             {
                 DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} healed {target.Name} for {healAmount} health with {selectedAction.Name}");
+            }
+            
+            // Track healing statistics for player
+            if (target is Character character)
+            {
+                character.RecordHealingReceived(healAmount);
             }
             
             // Create and add BattleEvent for narrative system using shared utility
