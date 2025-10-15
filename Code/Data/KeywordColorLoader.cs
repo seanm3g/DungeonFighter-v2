@@ -1,0 +1,131 @@
+using System;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
+using RPGGame.UI;
+
+namespace RPGGame.Data
+{
+    /// <summary>
+    /// Data structure for loading keyword color groups from JSON
+    /// </summary>
+    public class KeywordColorConfig
+    {
+        [JsonPropertyName("$schema")]
+        public string? Schema { get; set; }
+        
+        [JsonPropertyName("description")]
+        public string? Description { get; set; }
+        
+        [JsonPropertyName("groups")]
+        public List<KeywordGroupData>? Groups { get; set; }
+        
+        [JsonPropertyName("usage")]
+        public Dictionary<string, string>? Usage { get; set; }
+        
+        [JsonPropertyName("notes")]
+        public List<string>? Notes { get; set; }
+    }
+    
+    public class KeywordGroupData
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = "";
+        
+        [JsonPropertyName("colorPattern")]
+        public string ColorPattern { get; set; } = "";
+        
+        [JsonPropertyName("caseSensitive")]
+        public bool CaseSensitive { get; set; } = false;
+        
+        [JsonPropertyName("keywords")]
+        public List<string>? Keywords { get; set; }
+    }
+    
+    /// <summary>
+    /// Loads keyword color groups from KeywordColorGroups.json
+    /// </summary>
+    public static class KeywordColorLoader
+    {
+        private static KeywordColorConfig? _cachedConfig;
+        private static bool _isLoaded = false;
+        
+        /// <summary>
+        /// Loads keyword color configuration from GameData/KeywordColorGroups.json
+        /// </summary>
+        public static KeywordColorConfig LoadKeywordColors()
+        {
+            if (_isLoaded && _cachedConfig != null)
+            {
+                return _cachedConfig;
+            }
+            
+            var filePath = JsonLoader.FindGameDataFile("KeywordColorGroups.json");
+            if (filePath == null)
+            {
+                ErrorHandler.LogWarning("KeywordColorGroups.json not found. Using empty configuration.", "KeywordColorLoader");
+                _cachedConfig = new KeywordColorConfig
+                {
+                    Groups = new List<KeywordGroupData>()
+                };
+                _isLoaded = true;
+                return _cachedConfig;
+            }
+            
+            _cachedConfig = JsonLoader.LoadJson<KeywordColorConfig>(filePath, true, new KeywordColorConfig
+            {
+                Groups = new List<KeywordGroupData>()
+            });
+            
+            _isLoaded = true;
+            return _cachedConfig;
+        }
+        
+        /// <summary>
+        /// Loads keyword groups and registers them with KeywordColorSystem
+        /// </summary>
+        public static void LoadAndRegisterKeywordGroups()
+        {
+            var config = LoadKeywordColors();
+            
+            if (config.Groups == null)
+            {
+                ErrorHandler.LogWarning("No keyword groups found in KeywordColorGroups.json", "KeywordColorLoader");
+                return;
+            }
+            
+            foreach (var groupData in config.Groups)
+            {
+                try
+                {
+                    var group = new KeywordColorSystem.KeywordGroup(
+                        groupData.Name,
+                        groupData.ColorPattern,
+                        groupData.CaseSensitive
+                    );
+                    
+                    if (groupData.Keywords != null && groupData.Keywords.Count > 0)
+                    {
+                        group.AddKeywords(groupData.Keywords.ToArray());
+                    }
+                    
+                    KeywordColorSystem.RegisterKeywordGroup(group);
+                }
+                catch (Exception ex)
+                {
+                    ErrorHandler.LogError(ex, "KeywordColorLoader", $"Failed to load keyword group: {groupData.Name}");
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Reloads the keyword color configuration from disk
+        /// </summary>
+        public static void Reload()
+        {
+            _isLoaded = false;
+            _cachedConfig = null;
+            JsonLoader.ClearCacheForFile("KeywordColorGroups.json");
+        }
+    }
+}
+

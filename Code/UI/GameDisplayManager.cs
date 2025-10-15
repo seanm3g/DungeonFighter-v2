@@ -68,10 +68,10 @@ namespace RPGGame
             UIManager.WriteLine($"Wizard (Wand): {player.WizardPoints}");
             UIManager.WriteBlankLine();
             UIManager.WriteLine("=== EQUIPMENT ===");
-            UIManager.WriteLine($"Weapon: {(player.Weapon?.Name ?? "None")}");
-            UIManager.WriteLine($"Head: {(player.Head?.Name ?? "None")}");
-            UIManager.WriteLine($"Body: {(player.Body?.Name ?? "None")}");
-            UIManager.WriteLine($"Feet: {(player.Feet?.Name ?? "None")}");
+            UIManager.WriteLine($"Weapon: {(player.Weapon != null ? ItemDisplayFormatter.GetColoredItemName(player.Weapon) : "None")}");
+            UIManager.WriteLine($"Head: {(player.Head != null ? ItemDisplayFormatter.GetColoredItemName(player.Head) : "None")}");
+            UIManager.WriteLine($"Body: {(player.Body != null ? ItemDisplayFormatter.GetColoredItemName(player.Body) : "None")}");
+            UIManager.WriteLine($"Feet: {(player.Feet != null ? ItemDisplayFormatter.GetColoredItemName(player.Feet) : "None")}");
             UIManager.WriteBlankLine();
         }
 
@@ -141,8 +141,9 @@ namespace RPGGame
                 string displayType = ItemDisplayFormatter.GetDisplayType(item);
                 string itemActions = equipmentService.GetItemActions(item);
                 
-                // Show item type and name on first line
-                UIManager.WriteMenuLine($"{i + 1}. ({displayType}) {item.Name}");
+                // Show item type and name on first line with color
+                string coloredName = ItemDisplayFormatter.GetColoredItemName(item);
+                UIManager.WriteMenuLine($"{i + 1}. ({displayType}) {coloredName}");
                 
                 // Show stats on indented line
                 if (!string.IsNullOrEmpty(itemStats))
@@ -156,10 +157,10 @@ namespace RPGGame
                     UIManager.WriteMenuLine($"    Actions: {itemActions.Substring(3)}"); // Remove " | " prefix
                 }
                 
-                // Show affix bonuses if the item has any
+                // Show affix bonuses if the item has any (with colors)
                 if (item.StatBonuses.Count > 0 || item.ActionBonuses.Count > 0 || item.Modifications.Count > 0)
                 {
-                    ItemDisplayFormatter.FormatItemBonuses(item, UIManager.WriteMenuLine);
+                    ItemDisplayFormatter.FormatItemBonusesWithColor(item, UIManager.WriteMenuLine);
                 }
             }
         }

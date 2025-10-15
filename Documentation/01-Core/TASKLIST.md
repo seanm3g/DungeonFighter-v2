@@ -4,6 +4,7 @@
 2. Get environmental actions working and implemented again
 3. ✅ Add an item generation tool - **COMPLETED**: Refactored GameDataGenerator with safety features
 4. A way to tweak balance, save, update those settings.
+5. ✅ Fix combat display - **COMPLETED**: Combat now renders in persistent layout with proper color parsing
 
 ## ✅ MAJOR REFACTORING COMPLETED
 
@@ -34,6 +35,35 @@
 - **Data Generation**: GameDataGenerator → GameDataGenerator + 6 specialized classes
 
 ## Recent Updates
+
+### ✅ Combat Display Fix (COMPLETED - Oct 11, 2025)
+- **Issue**: Combat output was not contained in persistent layout center block, colors not rendering
+- **Solution**: Updated `RenderDisplayBuffer()` to use persistent layout and parse color markup
+- **Features**:
+  - Combat text now renders in center content area of persistent layout
+  - Character panel remains visible on left during combat
+  - Color markup properly parsed (e.g., `{{red|Kobold}}` renders as red text)
+  - Clean display buffer before each combat encounter
+- **Benefits**:
+  - Consistent layout across all game phases
+  - Improved visual clarity with proper color rendering
+  - Better user experience with persistent character information
+- **Documentation**: See `COMBAT_DISPLAY_FIX.md` for detailed information
+
+### ✅ Opening Animation System (COMPLETED)
+- **Feature**: Added stylized ASCII art opening animation for game startup
+- **Implementation**: `OpeningAnimation.cs` with multiple animation styles
+- **Features**:
+  - Four different animation styles (Standard, Simplified, Detailed, Sword & Shield)
+  - Color-coded ASCII art using game's color markup system
+  - Animated line-by-line reveal with configurable timing
+  - Works with both console and custom UI managers
+  - User can press any key to skip (console mode)
+  - Automatic 2-second display for custom UI mode
+- **Integration**: 
+  - Automatically displays on game startup in `Program.cs`
+  - Fully integrated with UIManager color system
+  - Documented in `OPENING_ANIMATION.md`
 
 ### GameDataGenerator Refactoring (COMPLETED)
 - **Issue**: GameDataGenerator was automatically overwriting files during development

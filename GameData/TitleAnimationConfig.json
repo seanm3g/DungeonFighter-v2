@@ -1,0 +1,16 @@
+{
+  "FramesPerSecond": 30,
+  "WhiteLightHoldFrames": 3,
+  "FinalTransitionFrames": 51,
+  "FinalHoldDuration": 1000,
+  "ColorScheme": {
+    "InitialColor": "k",
+    "FlashColor1": "W",
+    "FlashColor2": "Y",
+    "HoldColor": "Y",
+    "DungeonFinalColor": "W",
+    "FighterFinalColor": "O",
+    "TransitionFromColor": "Y"
+  }
+}
+

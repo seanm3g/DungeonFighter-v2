@@ -72,7 +72,7 @@ namespace RPGGame
             var selectedAction = forcedAction ?? ActionSelector.SelectActionByEntityType(source);
             if (selectedAction == null)
             {
-                return $"[{source.Name}] has no actions available.";
+                return $"{source.Name} has no actions available.";
             }
             
             // Store the action that will be used
@@ -133,7 +133,7 @@ namespace RPGGame
                 if (selectedAction.EnemyRollPenalty > 0 && target is Enemy targetEnemy)
                 {
                     targetEnemy.ApplyRollPenalty(selectedAction.EnemyRollPenalty, 1); // Apply for 1 turn
-                    results.Add($"    [{target.Name}] suffers a -{selectedAction.EnemyRollPenalty} roll penalty!");
+                    results.Add($"    {target.Name} suffers a -{selectedAction.EnemyRollPenalty} roll penalty!");
                 }
                 
                 // Handle combo advancement for characters
@@ -244,7 +244,7 @@ namespace RPGGame
             ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, 0, totalRoll, rollBonus, true, isCombo, 0, healAmount, false, battleNarrative);
             
             // Add healing message
-            results.Add($"[{source.Name}] heals [{target.Name}] for {healAmount} health with {selectedAction.Name}");
+            results.Add($"{source.Name} heals {target.Name} for {healAmount} health with {selectedAction.Name}");
         }
 
         /// <summary>

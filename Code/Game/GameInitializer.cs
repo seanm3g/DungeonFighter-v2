@@ -81,29 +81,39 @@ namespace RPGGame
         /// <summary>
         /// Initializes a new game with character creation and starting gear
         /// </summary>
-        public void InitializeNewGame(Character player, List<Dungeon> availableDungeons)
+        public void InitializeNewGame(Character player, List<Dungeon> availableDungeons, int weaponChoice = 0)
         {
             // Load starting gear from JSON
             var startingGear = LoadStartingGear();
             
-            // Prompt player to choose a starter weapon
-            UIManager.WriteMenuLine("");
-            UIManager.WriteTitleLine("Choose your starter weapon:");
-            UIManager.WriteMenuLine(new string('-', 27)); // Creates 20 dashes
-            for (int i = 0; i < startingGear.weapons.Count; i++)
+            // If weaponChoice is 0, this is being called from old console UI - prompt for weapon
+            if (weaponChoice == 0)
             {
-                var weapon = startingGear.weapons[i];
-                UIManager.WriteMenuLine($"{i + 1}. {weapon.name}");
+                // Prompt player to choose a starter weapon (console mode)
+                UIManager.WriteMenuLine("");
+                UIManager.WriteTitleLine("Choose your starter weapon:");
+                UIManager.WriteMenuLine(new string('-', 27)); // Creates 20 dashes
+                for (int i = 0; i < startingGear.weapons.Count; i++)
+                {
+                    var weapon = startingGear.weapons[i];
+                    UIManager.WriteMenuLine($"{i + 1}. {weapon.name}");
+                }
+                UIManager.WriteMenuLine("");
+                
+                weaponChoice = 1;
+                while (true)
+                {
+                    UIManager.Write("Choose an option: ");
+                    if (int.TryParse(Console.ReadLine(), out weaponChoice) && weaponChoice >= 1 && weaponChoice <= startingGear.weapons.Count)
+                        break;
+                    UIManager.WriteMenuLine("Invalid choice.");
+                }
             }
-            UIManager.WriteMenuLine("");
             
-            int weaponChoice = 1;
-            while (true)
+            // Validate weapon choice
+            if (weaponChoice < 1 || weaponChoice > startingGear.weapons.Count)
             {
-                UIManager.Write("Choose an option: ");
-                if (int.TryParse(Console.ReadLine(), out weaponChoice) && weaponChoice >= 1 && weaponChoice <= startingGear.weapons.Count)
-                    break;
-                UIManager.WriteMenuLine("Invalid choice.");
+                weaponChoice = 1; // Default to first weapon
             }
             
             // Create weapon from JSON data

@@ -26,7 +26,7 @@ namespace RPGGame
             var action = selectedAction ?? source.SelectAction();
             if (action == null)
             {
-                return $"[{source.Name}] has no actions available.";
+                return $"{source.Name} has no actions available.";
             }
             
             // For environmental actions, use special duration-based system
@@ -85,7 +85,8 @@ namespace RPGGame
             
             if (aliveTargets.Count == 0)
             {
-                return $"[{source.Name}]'s {action.Name} has no effect!";
+                string coloredSourceName = $"{{{{natural|{source.Name}}}}}";
+                return $"{coloredSourceName}'s {action.Name} has no effect!";
             }
             
             // Roll separately for each target and track which ones are affected
@@ -107,7 +108,8 @@ namespace RPGGame
             // If no targets were affected, show no effect message
             if (affectedTargets.Count == 0)
             {
-                return $"[{source.Name}]'s {action.Name} has no effect!";
+                string coloredSourceName = $"{{{{natural|{source.Name}}}}}";
+                return $"{coloredSourceName}'s {action.Name} has no effect!";
             }
             
             // Format the message based on number of affected targets
@@ -121,14 +123,15 @@ namespace RPGGame
             {
                 // Multiple targets affected - format as area of effect with individual results
                 var targetNames = GetUniqueTargetNames(aliveTargets);
-                var result = $"[{source.Name}] uses [{action.Name}] on {targetNames}!";
+                string coloredSourceName = $"{{{{natural|{source.Name}}}}}";
+                var result = $"{coloredSourceName} uses {action.Name} on {targetNames}!";
                 
                 // Add individual effect messages for each affected target
                 foreach (var (target, duration) in affectedTargets)
                 {
                     string displayName = GetDisplayName(target);
                     string effectMessage = GetEnvironmentalEffectMessage(action, duration);
-                    result += $"\n    {displayName} affected by {effectMessage}";
+                    result += $"\n    {displayName} &Yaffected by&y {effectMessage}";
                 }
                 
                 return result;
@@ -197,25 +200,27 @@ namespace RPGGame
         private static string FormatEnvironmentalEffectMessage(Entity source, Entity target, Action action, int duration)
         {
             string displayName = GetDisplayName(target);
+            string coloredSourceName = $"{{{{natural|{source.Name}}}}}";
+            // Use explicit color codes to prevent keyword coloring interference and spacing issues
             if (action.CausesBleed)
             {
-                return $"[{source.Name}] uses [{action.Name}] on {displayName}!\n    {displayName} is bleeding for {duration} turns!";
+                return $"{coloredSourceName} uses {action.Name} on {displayName}!\n    {displayName} &Yis &RBLEEDING &Yfor {duration} turns!&y";
             }
             else if (action.CausesWeaken)
             {
-                return $"[{source.Name}] uses [{action.Name}] on {displayName}!\n    {displayName} is weakened for {duration} turns!";
+                return $"{coloredSourceName} uses {action.Name} on {displayName}!\n    {displayName} &Yis &OWEAKENED &Yfor {duration} turns!&y";
             }
             else if (action.CausesSlow)
             {
-                return $"[{source.Name}] uses [{action.Name}] on {displayName}!\n    {displayName} is slowed for {duration} turns!";
+                return $"{coloredSourceName} uses {action.Name} on {displayName}!\n    {displayName} &Yis &CSLOWED &Yfor {duration} turns!&y";
             }
             else if (action.CausesPoison)
             {
-                return $"[{source.Name}] uses [{action.Name}] on {displayName}!\n    {displayName} is poisoned for {duration} turns!";
+                return $"{coloredSourceName} uses {action.Name} on {displayName}!\n    {displayName} &Yis &GPOISONED &Yfor {duration} turns!&y";
             }
             else if (action.CausesStun)
             {
-                return $"[{source.Name}] uses [{action.Name}] on {displayName}!\n    {displayName} is stunned for {duration} turns!";
+                return $"{coloredSourceName} uses {action.Name} on {displayName}!\n    {displayName} &Yis &MSTUNNED &Yfor {duration} turns!&y";
             }
             else if (action.Type == ActionType.Attack)
             {
@@ -227,7 +232,7 @@ namespace RPGGame
             else
             {
                 // Generic environmental effect
-                return $"[{source.Name}] uses [{action.Name}] on {displayName}!\n    Effect lasts for {duration} turns!";
+                return $"{coloredSourceName} uses {action.Name} on {displayName}!\n    &YEffect lasts for {duration} turns!&y";
             }
         }
 
@@ -256,7 +261,7 @@ namespace RPGGame
         /// <returns>Display name with entity's actual name</returns>
         private static string GetDisplayName(Entity entity)
         {
-            return $"[{entity.Name}]";
+            return entity.Name;
         }
 
         /// <summary>
@@ -267,29 +272,30 @@ namespace RPGGame
         /// <returns>Effect message</returns>
         private static string GetEnvironmentalEffectMessage(Action action, int duration)
         {
+            // Use explicit color codes to prevent keyword coloring interference
             if (action.CausesBleed)
             {
-                return $"BLEED for {duration} turns";
+                return $"&RBLEED&Y for {duration} turns&y";
             }
             else if (action.CausesWeaken)
             {
-                return $"WEAKEN for {duration} turns";
+                return $"&OWEAKEN&Y for {duration} turns&y";
             }
             else if (action.CausesSlow)
             {
-                return $"SLOW for {duration} turns";
+                return $"&CSLOW&Y for {duration} turns&y";
             }
             else if (action.CausesPoison)
             {
-                return $"POISON for {duration} turns";
+                return $"&GPOISON&Y for {duration} turns&y";
             }
             else if (action.CausesStun)
             {
-                return $"STUN for {duration} turns";
+                return $"&MSTUN&Y for {duration} turns&y";
             }
             else
             {
-                return $"EFFECT for {duration} turns";
+                return $"&YEFFECT&Y for {duration} turns&y";
             }
         }
 

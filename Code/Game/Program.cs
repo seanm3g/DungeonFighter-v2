@@ -1,12 +1,42 @@
 using System;
 using System.Text.Json;
 using RPGGame;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Markup.Xaml;
+using RPGGame.UI.Avalonia;
 
 namespace RPGGame
 {
     class Program
     {
-        static void Main(string[] args)
+        // Initialization code. Don't use any Avalonia, third-party APIs or any
+        // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
+        // yet and stuff might break.
+        [STAThread]
+        public static void Main(string[] args)
+        {
+            // Check for UI mode argument
+            if (args.Length > 0 && args[0] == "--console")
+            {
+                // Launch console UI
+                LaunchConsoleUI(args);
+            }
+            else
+            {
+                // Launch Avalonia GUI (default)
+                BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+            }
+        }
+
+        // Avalonia configuration, don't remove; also used by visual designer.
+        public static AppBuilder BuildAvaloniaApp()
+            => AppBuilder.Configure<App>()
+                .UsePlatformDetect()
+                .WithInterFont()
+                .LogToTrace();
+
+        private static void LaunchConsoleUI(string[] args)
         {
             // Test amplification scaling if requested
             if (args.Length > 0 && args[0] == "test-amplification")
@@ -15,33 +45,33 @@ namespace RPGGame
                 return;
             }
             
-            // Test wand actions if requested
-            if (args.Length > 0 && args[0] == "test-wand")
-            {
-                WandActionTest.TestWandActions();
-                return;
-            }
-            
-            // Debug wand actions if requested
-            if (args.Length > 0 && args[0] == "debug-wand")
-            {
-                DebugWandActions.DebugWandActionLoading();
-                return;
-            }
-            
-            // Simple wand test if requested
-            if (args.Length > 0 && args[0] == "simple-wand")
-            {
-                SimpleWandTest.TestWandActions();
-                return;
-            }
-            
-            // Test wand fix if requested
-            if (args.Length > 0 && args[0] == "test-wand-fix")
-            {
-                TestWandFix.TestWandActionFix();
-                return;
-            }
+            // Test wand actions if requested (removed during cleanup)
+            // if (args.Length > 0 && args[0] == "test-wand")
+            // {
+            //     WandActionTest.TestWandActions();
+            //     return;
+            // }
+            // 
+            // // Debug wand actions if requested
+            // if (args.Length > 0 && args[0] == "debug-wand")
+            // {
+            //     DebugWandActions.DebugWandActionLoading();
+            //     return;
+            // }
+            // 
+            // // Simple wand test if requested
+            // if (args.Length > 0 && args[0] == "simple-wand")
+            // {
+            //     SimpleWandTest.TestWandActions();
+            //     return;
+            // }
+            // 
+            // // Test wand fix if requested
+            // if (args.Length > 0 && args[0] == "test-wand-fix")
+            // {
+            //     TestWandFix.TestWandActionFix();
+            //     return;
+            // }
             
             // Test game data generator if requested
             if (args.Length > 0 && args[0] == "test-generator")
@@ -59,11 +89,28 @@ namespace RPGGame
                 return;
             }
             
+            // Test fade animation system if requested
+            if (args.Length > 0 && args[0] == "test-fade")
+            {
+                if (args.Length > 1 && args[1] == "--interactive")
+                {
+                    TextFadeAnimatorExamples.InteractiveDemo();
+                }
+                else
+                {
+                    TextFadeAnimatorExamples.RunAllDemos();
+                }
+                return;
+            }
+            
             // Initialize the UI configuration system
             UIManager.ReloadConfiguration();
             
             // Force reload configuration to ensure latest changes are loaded
             UIManager.ReloadConfiguration();
+            
+            // Show opening animation
+            OpeningAnimation.ShowOpeningAnimation();
             
             // Generate game data files based on TuningConfig at launch (if enabled)
             if (GameConfiguration.Instance.GameData.AutoGenerateOnLaunch)

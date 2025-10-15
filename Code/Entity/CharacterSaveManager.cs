@@ -64,7 +64,11 @@ namespace RPGGame
             }
             catch (Exception ex)
             {
-                UIManager.WriteLine($"Error saving character: {ex.Message}");
+                // Only show error in console mode (not in custom UI mode)
+                if (UIManager.GetCustomUIManager() == null)
+                {
+                    UIManager.WriteLine($"Error saving character: {ex.Message}");
+                }
             }
         }
 
@@ -85,7 +89,11 @@ namespace RPGGame
                 
                 if (!File.Exists(filename))
                 {
-                    UIManager.WriteLine($"No save file found at {filename}");
+                    // Only show message in console mode (not in custom UI mode)
+                    if (UIManager.GetCustomUIManager() == null)
+                    {
+                        UIManager.WriteLine($"No save file found at {filename}");
+                    }
                     return null;
                 }
 
@@ -98,7 +106,11 @@ namespace RPGGame
 
                 if (saveData == null)
                 {
-                    UIManager.WriteLine("Failed to deserialize character data");
+                    // Only show message in console mode (not in custom UI mode)
+                    if (UIManager.GetCustomUIManager() == null)
+                    {
+                        UIManager.WriteLine("Failed to deserialize character data");
+                    }
                     return null;
                 }
 
@@ -148,12 +160,20 @@ namespace RPGGame
                 // Initialize combo sequence after all actions are loaded
                 character.InitializeDefaultCombo();
 
-                UIManager.WriteLine($"Character loaded from {filename}");
+                // Only show load message in console mode (not in custom UI mode)
+                if (UIManager.GetCustomUIManager() == null)
+                {
+                    UIManager.WriteLine($"Character loaded from {filename}");
+                }
                 return character;
             }
             catch (Exception ex)
             {
-                UIManager.WriteLine($"Error loading character: {ex.Message}");
+                // Only show error in console mode (not in custom UI mode)
+                if (UIManager.GetCustomUIManager() == null)
+                {
+                    UIManager.WriteLine($"Error loading character: {ex.Message}");
+                }
                 return null;
             }
         }
@@ -179,7 +199,11 @@ namespace RPGGame
             }
             catch (Exception ex)
             {
-                UIManager.WriteLine($"Error deleting save file: {ex.Message}");
+                // Only show error in console mode (not in custom UI mode)
+                if (UIManager.GetCustomUIManager() == null)
+                {
+                    UIManager.WriteLine($"Error deleting save file: {ex.Message}");
+                }
             }
         }
 

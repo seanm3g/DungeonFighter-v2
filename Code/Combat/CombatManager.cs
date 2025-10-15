@@ -152,7 +152,7 @@ namespace RPGGame
                         else
                         {
                             // No entities ready and no next ready time - this shouldn't happen
-                            Console.WriteLine("ERROR: No entities ready and no next ready time. Breaking combat loop.");
+                            UIManager.WriteLine("ERROR: No entities ready and no next ready time. Breaking combat loop.", UIMessageType.System);
                             break;
                         }
                     }

@@ -24,36 +24,71 @@ namespace RPGGame
         
         // Debug Configuration
         public bool ShowTimingInfo { get; set; } = false;
+        public bool ShowEntityNames { get; set; } = true;
+        public bool ShowDetailedCombatInfo { get; set; } = true;
         
         // Beat-based Timing System
         public BeatTimingConfiguration BeatTiming { get; set; } = new BeatTimingConfiguration();
         
+        // Color System Configuration
+        /// <summary>
+        /// Controls the intensity of warm/cool white temperature gradients
+        /// 0.0 = no temperature shift (pure white), 1.0 = default intensity, 2.0 = extreme temperature shift
+        /// Warm white: yellowish tint for early dungeon; Cool white: bluish tint for deep dungeon
+        /// </summary>
+        public double WhiteTemperatureIntensity { get; set; } = 1.0;
+        
+        // Animation Configuration
+        /// <summary>
+        /// Controls the speed of the undulation/shimmer effect on colored text (in milliseconds)
+        /// Lower values = faster shimmer, higher values = slower, more subtle shimmer
+        /// Must be set in UIConfiguration.json
+        /// </summary>
+        public int UndulationTimerMs { get; set; }
+        
+        /// <summary>
+        /// Configuration for the moving brightness mask effect
+        /// </summary>
+        public BrightnessMaskConfig BrightnessMask { get; set; } = new BrightnessMaskConfig();
+        
         
         /// <summary>
         /// Loads configuration from a JSON file
+        /// Uses the centralized GameData path finding from GameConstants
+        /// This ensures all builds (Debug, Release, dist) reference the same GameData folder
         /// </summary>
-        /// <param name="filePath">Path to the configuration file</param>
+        /// <param name="fileName">The configuration file name</param>
         /// <returns>Loaded configuration or default if file doesn't exist</returns>
-        public static UIConfiguration LoadFromFile(string filePath = "../GameData/UIConfiguration.json")
+        public static UIConfiguration LoadFromFile(string fileName = "UIConfiguration.json")
         {
             try
             {
-                if (System.IO.File.Exists(filePath))
+                // Use the same path-finding logic as all other game data files
+                string? foundPath = JsonLoader.FindGameDataFile(fileName);
+                
+                if (foundPath != null && System.IO.File.Exists(foundPath))
                 {
-                    string json = System.IO.File.ReadAllText(filePath);
+                    string json = System.IO.File.ReadAllText(foundPath);
+                    
                     var config = JsonSerializer.Deserialize<UIConfiguration>(json, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true,
-                        WriteIndented = true
+                        WriteIndented = true,
+                        ReadCommentHandling = JsonCommentHandling.Skip,
+                        AllowTrailingCommas = true
                     });
                     
-                    
                     return config ?? new UIConfiguration();
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[DEBUG] UIConfiguration.json not found in GameData, using defaults. WhiteTemperatureIntensity will be: 1.0 (from C# default)");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Warning: Could not load UI configuration from {filePath}: {ex.Message}");
+                Console.WriteLine($"Warning: Could not load UI configuration: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[DEBUG] Error loading config: {ex.Message}");
             }
             
             return new UIConfiguration();
@@ -238,6 +273,11 @@ namespace RPGGame
         public Dictionary<string, double> BlockDelays { get; set; } = new Dictionary<string, double>();
         
         /// <summary>
+        /// Legacy multipliers for backward compatibility
+        /// </summary>
+        public LegacyMultipliers LegacyMultipliers { get; set; } = new LegacyMultipliers();
+        
+        /// <summary>
         /// Gets the beat multiplier for a specific message type
         /// </summary>
         /// <param name="messageType">Type of message</param>
@@ -345,6 +385,23 @@ namespace RPGGame
     }
     
     /// <summary>
+    /// Legacy multipliers for backward compatibility with older configurations
+    /// These are alternative timing values that can be loaded from JSON
+    /// </summary>
+    public class LegacyMultipliers
+    {
+        public double Title { get; set; } = 15.0;
+        public double MainTitle { get; set; } = 20.0;
+        public double System { get; set; } = 1.0;
+        public double Combat { get; set; } = 0.5;
+        public double Environmental { get; set; } = 1.5;
+        public double EffectMessage { get; set; } = 0.4;
+        public double DamageOverTime { get; set; } = 0.4;
+        public double RollInfo { get; set; } = 1.0;
+        public double Encounter { get; set; } = 2.0;
+    }
+    
+    /// <summary>
     /// Preset configurations for common use cases
     /// </summary>
     public enum UIConfigurationPreset
@@ -394,5 +451,34 @@ namespace RPGGame
         /// Add blank lines around narrative blocks
         /// </summary>
         public bool AddBlankLinesAroundNarrativeBlocks { get; set; } = true;
+    }
+    
+    /// <summary>
+    /// Configuration for the moving brightness mask effect
+    /// </summary>
+    public class BrightnessMaskConfig
+    {
+        /// <summary>
+        /// Enable or disable the brightness mask effect
+        /// </summary>
+        public bool Enabled { get; set; }
+        
+        /// <summary>
+        /// Maximum brightness adjustment (+/- this value in percent)
+        /// Must be set in UIConfiguration.json
+        /// </summary>
+        public float Intensity { get; set; }
+        
+        /// <summary>
+        /// Length of the wave pattern (higher = slower, more gradual changes)
+        /// Must be set in UIConfiguration.json
+        /// </summary>
+        public float WaveLength { get; set; }
+        
+        /// <summary>
+        /// How often the brightness mask moves (in milliseconds)
+        /// Must be set in UIConfiguration.json
+        /// </summary>
+        public int UpdateIntervalMs { get; set; }
     }
 }

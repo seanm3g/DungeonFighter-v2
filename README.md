@@ -1,8 +1,19 @@
 # Dungeon Fighter RPG v2
 
-A sophisticated console-based RPG/dungeon crawler game built with .NET 8.0, featuring advanced turn-based combat, dynamic character progression, comprehensive inventory management, and procedurally generated dungeons with intelligent battle narrative.
+**Version 6.2** - *Production Ready*
+
+A sophisticated RPG/dungeon crawler game built with .NET 8.0, featuring a modern **Avalonia-based GUI** with ASCII canvas rendering, advanced turn-based combat, dynamic character progression, comprehensive inventory management, procedurally generated dungeons, and an intelligent battle narrative system.
 
 ## Features
+
+### GUI & Visual Systems ✨ *NEW in v6.2*
+- **Modern GUI**: Avalonia-based interface with ASCII canvas rendering
+- **Animated Title Screen**: Smooth 30 FPS color transition animation
+- **Item Color System**: Rarity-based visual feedback (Common → Transcendent)
+- **Color Configuration**: Data-driven JSON-based color system (166 templates, 200+ keywords)
+- **Persistent Layout**: Always-visible character panel with stats, health, and equipment
+- **1920×1080 Resolution**: Optimized for modern displays
+- **Mouse & Keyboard Support**: Full input support with clickable UI elements
 
 ### Advanced Combat System
 - **Turn-based Combat**: Strategic combat with cooldown-based actions and intelligent delay system
@@ -315,6 +326,23 @@ This project is open source. Feel free to modify and distribute according to you
 4. Test thoroughly
 5. Submit a pull request
 
+## What's New in v6.2
+
+### Major Features
+- ✅ **Animated Title Screen** - Professional color transitions at 30 FPS
+- ✅ **Complete Inventory System** - All 7 actions fully functional in GUI
+- ✅ **Item Color System** - Rarity-based visual excitement
+- ✅ **Data-Driven Colors** - 166 templates, 200+ keywords in JSON
+- ✅ **1920×1080 Resolution** - Optimized layout and readability
+- ✅ **Combat Text Polish** - Smart wrapping, clean display, proper formatting
+
+### Documentation
+See `Documentation/02-Development/CHANGELOG.md` for complete version history.
+See `Documentation/02-Development/OCTOBER_2025_IMPLEMENTATION_SUMMARY.md` for detailed feature documentation.
+
 ## Future Enhancements
 
-- [ ] GUI version
+- [ ] Combo Management UI (placeholder exists)
+- [ ] Equipment comparison tooltips
+- [ ] Sound effects and audio
+- [ ] Additional color themes

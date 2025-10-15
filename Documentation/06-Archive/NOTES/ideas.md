@@ -62,4 +62,7 @@ two dimensions - level and the specific dungeon
 105. Abandoned Temple should have no enemies
 106. Shrines or Aura's that are temporary stat bonuses.
 107. status effects, enemy tags, actions, rooms, environmental actions
-108. Random piece of gear becomes empowered and only upon killing X demons that it yields tokens. Collect every piece of gear beacuse you don't know what will become blessed.  If you use a blessed item to kill a demon you burn the item in exchange for the token.
+108. Random piece of gear becomes empowered and only upon killing X demons that it yields tokens. Collect every piece of gear beacuse you don't know what will become blessed.  If you use a blessed item to kill a demon you burn the item in exchange for the token. Creates item sink
+109. Insurance makes a clone, (loses the gear) Dungeon Insurance.  What does insurance cost? insuarance can only be bought with the token. Cost needs to be worth less than fighter.  The cost needs to be associated with the gear you get.  You can resurrect infintely but each time it costs more. You can buy insurance for a dungeon but it's half the price of the resurrection cost. Buying insurance makes it go up 10%.
+110. Champions of a guild/clan that can ban together to resurrect their fighter.  Fighter Sponsor.
+111. Roll the whole thing and then analyze that from a narrative perspective, and display that instead.  Where momentum swings in ones favor, when someone pulls off a combo.  Etc.  Turn the entire game into pure flavortext, but complex and rich with story as it reflects the dice and results of actions and sequences of actions.

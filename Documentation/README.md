@@ -13,6 +13,8 @@ Essential project documentation that every developer should be familiar with:
 
 ### 02-Development/
 Development guides, patterns, and balance documentation:
+- **`CHANGELOG.md`** - Complete version history and feature releases
+- **`TASKLIST.md`** - Current development tasks and progress tracking
 - **`DEVELOPMENT_GUIDE.md`** - Comprehensive development guide and quick start
 - **`DEVELOPMENT_WORKFLOW.md`** - Step-by-step development process
 - **`CODE_PATTERNS.md`** - Code patterns, conventions, and best practices
@@ -42,6 +44,9 @@ System-specific documentation for various game systems:
 - **`README_BALANCED_COMBAT.md`** - Combat balance documentation
 - **`TUNING_FACTORS_ANALYSIS.md`** - Tuning factors analysis
 - **`TUNING_CONFIG_ANALYSIS.md`** - Tuning configuration analysis
+- **`COLOR_COMBAT_GUI_INTEGRATION_ANALYSIS.md`** - Comprehensive analysis of color, combat text, and GUI integration
+- **`COLOR_SYSTEM_STREAMLINING_GUIDE.md`** - Step-by-step guide for implementing color system improvements
+- **`COLOR_GUI_INTEGRATION_SUMMARY.md`** - Executive summary and recommendations for color system optimization
 
 ### 06-Archive/
 Historical notes and reference materials:

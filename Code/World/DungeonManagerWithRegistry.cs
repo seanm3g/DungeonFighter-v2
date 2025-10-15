@@ -59,7 +59,7 @@ namespace RPGGame
 
         /// <summary>
         /// Regenerates available dungeons based on player level using actual dungeons from Dungeons.json
-        /// Shows exactly 3 dungeons: one at player level -1, one at player level, and one at player level +1
+        /// Randomly selects 3 unique dungeons from all 25 available dungeons
         /// </summary>
         /// <param name="player">The player character</param>
         /// <param name="availableDungeons">List to populate with available dungeons</param>
@@ -71,93 +71,36 @@ namespace RPGGame
             // Load all dungeons from Dungeons.json
             var allDungeons = LoadAllDungeons();
             
-            // Filter dungeons that are appropriate for the player's level
-            var suitableDungeons = GetSuitableDungeons(allDungeons, playerLevel);
+            // Randomly select 3 unique dungeons from the full list
+            var selectedDungeons = allDungeons
+                .OrderBy(x => random.Next())
+                .Take(3)
+                .ToList();
             
-            // If no dungeons are suitable for current level, find the closest ones
-            if (suitableDungeons.Count == 0)
+            // Create Dungeon objects with appropriate level scaling
+            // First dungeon: player level - 1 (easier)
+            // Second dungeon: player level (current difficulty)
+            // Third dungeon: player level + 1 (harder)
+            for (int i = 0; i < selectedDungeons.Count; i++)
             {
-                suitableDungeons = GetClosestDungeons(allDungeons, playerLevel);
+                var dungeonData = selectedDungeons[i];
+                int dungeonLevel = Math.Max(1, playerLevel + (i - 1)); // -1, 0, +1
+                
+                availableDungeons.Add(new Dungeon(
+                    dungeonData.name,
+                    dungeonLevel,
+                    dungeonLevel,
+                    dungeonData.theme,
+                    dungeonData.possibleEnemies
+                ));
             }
             
-            // Create exactly 3 dungeons: one for each level (below, current, above)
-            CreateDungeonObjects(suitableDungeons, availableDungeons, playerLevel);
-            
-            // Sort dungeons by level (lowest to highest) - modify the list in place
+            // Sort dungeons by level (lowest to highest)
             var sortedDungeons = availableDungeons.OrderBy(d => d.MinLevel).ToList();
             availableDungeons.Clear();
             availableDungeons.AddRange(sortedDungeons);
         }
 
-        /// <summary>
-        /// Gets dungeons suitable for the player's level
-        /// Shows dungeons at player level -1, player level, and player level +1
-        /// </summary>
-        private List<DungeonData> GetSuitableDungeons(List<DungeonData> allDungeons, int playerLevel)
-        {
-            // Calculate the three levels we want to show: player level -1, player level, player level +1
-            int levelBelow = Math.Max(1, playerLevel - 1); // Ensure we don't go below level 1
-            int currentLevel = playerLevel;
-            int levelAbove = playerLevel + 1;
-            
-            return allDungeons.Where(d => 
-                (levelBelow >= d.minLevel && levelBelow <= d.maxLevel) ||
-                (currentLevel >= d.minLevel && currentLevel <= d.maxLevel) ||
-                (levelAbove >= d.minLevel && levelAbove <= d.maxLevel)
-            ).ToList();
-        }
-
-        /// <summary>
-        /// Gets the closest dungeons when no suitable ones are found
-        /// </summary>
-        private List<DungeonData> GetClosestDungeons(List<DungeonData> allDungeons, int playerLevel)
-        {
-            return allDungeons
-                .OrderBy(d => Math.Abs(d.minLevel - playerLevel))
-                .Take(3)
-                .ToList();
-        }
-
-        /// <summary>
-        /// Creates Dungeon objects from DungeonData
-        /// Creates dungeons at player level -1, player level, and player level +1
-        /// </summary>
-        private void CreateDungeonObjects(List<DungeonData> dungeonDataList, List<Dungeon> availableDungeons, int playerLevel)
-        {
-            // Calculate the three levels we want to show: player level -1, player level, player level +1
-            int levelBelow = Math.Max(1, playerLevel - 1); // Ensure we don't go below level 1
-            int currentLevel = playerLevel;
-            int levelAbove = playerLevel + 1;
-            
-            // Group dungeons by which level they support
-            var dungeonsForLevelBelow = dungeonDataList.Where(d => levelBelow >= d.minLevel && levelBelow <= d.maxLevel).ToList();
-            var dungeonsForCurrentLevel = dungeonDataList.Where(d => currentLevel >= d.minLevel && currentLevel <= d.maxLevel).ToList();
-            var dungeonsForLevelAbove = dungeonDataList.Where(d => levelAbove >= d.minLevel && levelAbove <= d.maxLevel).ToList();
-            
-            // Create one dungeon for each level (below, current, above)
-            CreateDungeonForLevel(dungeonsForLevelBelow, levelBelow, availableDungeons);
-            CreateDungeonForLevel(dungeonsForCurrentLevel, currentLevel, availableDungeons);
-            CreateDungeonForLevel(dungeonsForLevelAbove, levelAbove, availableDungeons);
-        }
-        
-        /// <summary>
-        /// Creates a dungeon for a specific level from available dungeon data
-        /// </summary>
-        private void CreateDungeonForLevel(List<DungeonData> dungeonDataList, int targetLevel, List<Dungeon> availableDungeons)
-        {
-            if (dungeonDataList.Count == 0) return;
-            
-            // Select a random dungeon from the available ones for this level
-            var selectedDungeon = dungeonDataList[random.Next(dungeonDataList.Count)];
-            
-            availableDungeons.Add(new Dungeon(
-                selectedDungeon.name, 
-                targetLevel, 
-                targetLevel, 
-                selectedDungeon.theme,
-                selectedDungeon.possibleEnemies
-            ));
-        }
 
         /// <summary>
         /// Allows player to choose a dungeon from available options

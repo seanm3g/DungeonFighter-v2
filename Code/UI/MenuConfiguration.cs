@@ -24,7 +24,7 @@ namespace RPGGame
             
             if (hasSavedGame && characterName != null)
             {
-                options.Add($"2. Load Game - *{characterName}*");
+                options.Add($"2. Load Game - *{characterName} - lvl {characterLevel}*");
             }
             else
             {
@@ -32,7 +32,7 @@ namespace RPGGame
             }
             
             options.Add("3. Settings");
-            options.Add("0. Exit");
+            options.Add("0. Quit");
             
             return options;
         }

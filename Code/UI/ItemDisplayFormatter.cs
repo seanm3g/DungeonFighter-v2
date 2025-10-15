@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.UI;
 
 namespace RPGGame
 {
@@ -169,6 +170,58 @@ namespace RPGGame
                 FeetItem feet => $"Armor: {feet.GetTotalArmor()}{GetArmorDiff(feet, player.Feet)}",
                 _ => ""
             };
+        }
+
+        /// <summary>
+        /// Gets colored item name with rarity
+        /// </summary>
+        public static string GetColoredItemName(Item item)
+        {
+            return ItemColorSystem.FormatSimpleItemDisplay(item);
+        }
+
+        /// <summary>
+        /// Gets colored item name with prefixes and suffixes
+        /// </summary>
+        public static string GetColoredFullItemName(Item item)
+        {
+            return ItemColorSystem.FormatFullItemName(item);
+        }
+
+        /// <summary>
+        /// Formats item bonuses with colors for display
+        /// </summary>
+        public static void FormatItemBonusesWithColor(Item item, Action<string> writeLine)
+        {
+            // Show stat bonuses with color
+            if (item.StatBonuses.Count > 0)
+            {
+                var bonusTexts = item.StatBonuses.Select(b => 
+                {
+                    string coloredName = ItemColorSystem.FormatStatBonus(b);
+                    string formatted = FormatStatBonus(b);
+                    return $"{coloredName} ({formatted})";
+                });
+                writeLine($"    &CStats:&y {string.Join(", ", bonusTexts)}");
+            }
+            
+            // Show action bonuses (legacy system)
+            if (item.ActionBonuses.Count > 0)
+            {
+                writeLine($"    &CActions:&y {string.Join(", ", item.ActionBonuses.Select(b => $"&G{b.Name}&y +{b.Weight}"))}");
+            }
+            
+            // Show modifications with color
+            if (item.Modifications.Count > 0)
+            {
+                var modificationTexts = item.Modifications.Select(m => 
+                {
+                    string coloredName = ItemColorSystem.FormatModification(m);
+                    string details = GetModificationDisplayText(m);
+                    return $"{coloredName} &y({details.Substring(m.Name.Length + 1)})"; // Remove name from details since we already colored it
+                });
+                writeLine($"    &CModifiers:&y {string.Join(", ", modificationTexts)}");
+            }
         }
     }
 }

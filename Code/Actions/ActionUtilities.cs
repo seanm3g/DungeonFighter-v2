@@ -178,7 +178,7 @@ namespace RPGGame
                         int randomIndex = availableUniqueActions.Count > 1 ? Dice.Roll(1, availableUniqueActions.Count) - 1 : 0;
                         selectedAction = availableUniqueActions[randomIndex];
                         // Use TextDisplayIntegration for consistent entity tracking
-                        string uniqueActionMessage = $"[{character.Name}] channels unique power and uses [{selectedAction.Name}]!";
+                        string uniqueActionMessage = $"{character.Name} channels unique power and uses {selectedAction.Name}!";
                         TextDisplayIntegration.DisplayCombatAction(uniqueActionMessage, new List<string>(), new List<string>(), character.Name);
                     }
                 }

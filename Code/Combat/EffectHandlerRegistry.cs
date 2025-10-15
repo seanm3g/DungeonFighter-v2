@@ -91,7 +91,7 @@ namespace RPGGame
             {
                 var bleedConfig = GameConfiguration.Instance.StatusEffects.Bleed;
                 target.ApplyPoison(bleedConfig.DamagePerTick, bleedConfig.StacksPerApplication, true);
-                results.Add($"\n    [{target.Name}] is bleeding!");
+                results.Add($"    [{target.Name}] is bleeding!");
                 return true;
             }
             return false;
@@ -112,7 +112,7 @@ namespace RPGGame
             if (CombatCalculator.CalculateStatusEffectChance(action, dummyAttacker, target))
             {
                 target.ApplyWeaken(2); // 2 turns of weaken
-                results.Add($"\n    [{target.Name}] is weakened!");
+                results.Add($"    [{target.Name}] is weakened!");
                 return true;
             }
             return false;
@@ -133,7 +133,7 @@ namespace RPGGame
             if (CombatCalculator.CalculateStatusEffectChance(action, dummyAttacker, target))
             {
                 // For now, just add a message - would need proper slow implementation
-                results.Add($"\n    [{target.Name}] is slowed!");
+                results.Add($"    [{target.Name}] is slowed!");
                 return true;
             }
             return false;
@@ -155,7 +155,7 @@ namespace RPGGame
             {
                 var poisonConfig = GameConfiguration.Instance.StatusEffects.Poison;
                 target.ApplyPoison(poisonConfig.DamagePerTick, poisonConfig.StacksPerApplication);
-                results.Add($"\n    [{target.Name}] is poisoned!");
+                results.Add($"    [{target.Name}] is poisoned!");
                 return true;
             }
             return false;

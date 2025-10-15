@@ -18,7 +18,8 @@ namespace RPGGame
         /// <returns>True if player survived the dungeon, false if player died</returns>
         public bool RunDungeon(Dungeon selectedDungeon, Character player, CombatManager combatManager)
         {
-            UIManager.WriteDungeonLine($"\nEntering {selectedDungeon.Name}...\n");
+            // Display dungeon entry with chunked reveal
+            UIManager.WriteDungeonChunked($"==== ENTERING DUNGEON ====\n\nDungeon: {selectedDungeon.Name}\nLevel Range: {selectedDungeon.MinLevel} - {selectedDungeon.MaxLevel}\nTotal Rooms: {selectedDungeon.Rooms.Count}");
 
             // Room Sequence
             foreach (Environment room in selectedDungeon.Rooms)
@@ -41,12 +42,8 @@ namespace RPGGame
         /// <returns>True if player survived the room, false if player died</returns>
         private bool ProcessRoom(Environment room, Character player, CombatManager combatManager)
         {
-            UIManager.WriteRoomLine($"Entering room: {room.Name}");
-            UIManager.ApplyDelay(UIMessageType.Encounter); // Add configurable delay after encounter message
-
-            UIManager.WriteRoomLine("");
-            UIManager.WriteRoomLine(room.Description);
-            UIManager.ApplyDelay(UIMessageType.Encounter);
+            // Display room entry as a chunk
+            UIManager.WriteRoomChunked($"Entering room: {room.Name}\n\n{room.Description}");
             
             // Track room exploration statistics
             player.RecordRoomExplored();
@@ -108,20 +105,25 @@ namespace RPGGame
         /// </summary>
         private void DisplayEnemyEncounter(Enemy currentEnemy, Character player, CombatManager combatManager)
         {
-            // Display enemy encounter with weapon information
+            // Build encounter text with all information
             string enemyWeaponInfo = "";
             if (currentEnemy.Weapon != null)
             {
                 enemyWeaponInfo = $" with {currentEnemy.Weapon.Name}";
             }
-            UIManager.WriteEnemyLine($"\nEncountered [{currentEnemy.Name}]{enemyWeaponInfo}!");
-            UIManager.ApplyDelay(UIMessageType.Encounter); // Add configurable delay after encounter message
             
-            // Display stats using stats blocks (no spacing between consecutive stats)
-            BlockDisplayManager.DisplayStatsBlock($"Hero Stats - Health: {player.CurrentHealth}/{player.GetEffectiveMaxHealth()}, Armor: {player.GetTotalArmor()}, Attack: STR {player.GetEffectiveStrength()}, AGI {player.GetEffectiveAgility()}, TEC {player.GetEffectiveTechnique()}, INT {player.GetEffectiveIntelligence()}, Attack Time: {player.GetTotalAttackSpeed():F2}s");
-            BlockDisplayManager.DisplayStatsBlock($"Enemy Stats - Health: {currentEnemy.CurrentHealth}/{currentEnemy.MaxHealth}, Armor: {currentEnemy.Armor}, Attack: STR {currentEnemy.Strength}, AGI {currentEnemy.Agility}, TEC {currentEnemy.Technique}, INT {currentEnemy.Intelligence}, Attack Time: {currentEnemy.GetTotalAttackSpeed():F2}s");
+            string encounterText = $"Encountered [{currentEnemy.Name}]{enemyWeaponInfo}!\n\n" +
+                $"Enemy Stats - Health: {currentEnemy.CurrentHealth}/{currentEnemy.MaxHealth}, Armor: {currentEnemy.Armor}\n" +
+                $" Attack: STR {currentEnemy.Strength}, AGI {currentEnemy.Agility}, TEC {currentEnemy.Technique}, INT {currentEnemy.Intelligence}";
             
-            UIManager.ApplyDelay(UIMessageType.Encounter); // Add configurable delay after encounter message
+            // Display with chunked reveal
+            UIManager.WriteChunked(encounterText, new UI.ChunkedTextReveal.RevealConfig
+            {
+                Strategy = UI.ChunkedTextReveal.ChunkStrategy.Line,
+                BaseDelayPerCharMs = 20,
+                MinDelayMs = 600,
+                MaxDelayMs = 2000
+            });
 
             // Show action speed info
             var speedSystem = combatManager.GetCurrentActionSpeedSystem();
@@ -156,7 +158,7 @@ namespace RPGGame
         private void HandleEnemyDefeat(Enemy currentEnemy, Character player)
         {
             // Use TextDisplayIntegration for consistent entity tracking
-            string defeatMessage = $"[{currentEnemy.Name}] has been defeated!";
+            string defeatMessage = $"{currentEnemy.Name} has been defeated!";
             TextDisplayIntegration.DisplayCombatAction(defeatMessage, new List<string>(), new List<string>(), "System");
             player.AddXP(currentEnemy.XPReward);
             

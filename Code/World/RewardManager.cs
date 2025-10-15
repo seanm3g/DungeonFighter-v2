@@ -90,7 +90,7 @@ namespace RPGGame
                 player.RecordItemCollected(reward);
                 
                 // Display "You found:" without extra spacing
-                Console.WriteLine("You found:");
+                UIManager.WriteSystemLine("You found:");
                 // Display item name with 2x beat delay (using title delay which is longer)
                 UIManager.WriteTitleLine(FormatItemNameWithRarityInParentheses(reward));
                 // Add blank line after item display

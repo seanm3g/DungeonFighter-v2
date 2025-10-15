@@ -1,17 +1,75 @@
 namespace RPGGame
 {
     using System.Text.Json;
+    using RPGGame.UI.Avalonia;
+
+    public enum GameState
+    {
+        MainMenu,
+        WeaponSelection,
+        CharacterCreation,
+        GameLoop,
+        Inventory,
+        CharacterInfo,
+        Settings,
+        DungeonSelection,
+        Dungeon,
+        Combat
+    }
 
 
     public class Game
     {
         private GameMenuManager menuManager;
+        private IUIManager? customUIManager;
+        private GameInitializer gameInitializer;
+        
+        // Game state management
+        private GameState currentState = GameState.MainMenu;
+        private Character? currentPlayer;
+        private List<Item> currentInventory = new();
+        private List<Dungeon> availableDungeons = new();
+        
+        // Game loop state
+        private GameLoopManager? gameLoopManager;
+        private DungeonManagerWithRegistry? dungeonManager;
+        private CombatManager? combatManager;
+        private Dungeon? currentDungeon = null;
+        private Environment? currentRoom = null;
+        private List<string> dungeonLog = new();
+        private List<string> dungeonHeaderInfo = new();  // Stores dungeon info for each encounter
+        private List<string> currentRoomInfo = new();    // Stores current room info for each encounter
 
         public Game()
         {
             // Start the game ticker
             GameTicker.Instance.Start();
             menuManager = new GameMenuManager();
+            gameInitializer = new GameInitializer();
+            
+            // Initialize game loop managers
+            gameLoopManager = new GameLoopManager();
+            dungeonManager = new DungeonManagerWithRegistry();
+            combatManager = new CombatManager();
+        }
+
+        public Game(IUIManager uiManager)
+        {
+            // Start the game ticker
+            GameTicker.Instance.Start();
+            customUIManager = uiManager;
+            
+            // Set the custom UI manager for the static UIManager class
+            // This ensures combat text goes to the GUI instead of console
+            UIManager.SetCustomUIManager(uiManager);
+            
+            menuManager = new GameMenuManager();
+            gameInitializer = new GameInitializer();
+            
+            // Initialize game loop managers
+            gameLoopManager = new GameLoopManager();
+            dungeonManager = new DungeonManagerWithRegistry();
+            combatManager = new CombatManager();
         }
 
         public Game(Character existingCharacter)
@@ -26,9 +84,14 @@ namespace RPGGame
             // Start the game ticker
             GameTicker.Instance.Start();
             menuManager = new GameMenuManager();
+            gameInitializer = new GameInitializer();
+            
+            // Initialize game loop managers
+            gameLoopManager = new GameLoopManager();
+            dungeonManager = new DungeonManagerWithRegistry();
+            combatManager = new CombatManager();
             
             // Initialize existing game
-            var gameInitializer = new GameInitializer();
             var inventory = new List<Item>();
             var availableDungeons = new List<Dungeon>();
             gameInitializer.InitializeExistingGame(existingCharacter, availableDungeons);
@@ -84,7 +147,1023 @@ namespace RPGGame
 
         public void ShowMainMenu()
         {
-            menuManager.ShowMainMenu();
+            // Try to load saved character if we don't have one yet
+            if (currentPlayer == null)
+            {
+                var savedCharacter = Character.LoadCharacter();
+                if (savedCharacter != null)
+                {
+                    currentPlayer = savedCharacter;
+                    gameInitializer.InitializeExistingGame(currentPlayer, availableDungeons);
+                    
+                    // Set character in UI manager for persistent display
+                    if (customUIManager is CanvasUIManager canvasUI)
+                    {
+                        canvasUI.SetCharacter(currentPlayer);
+                    }
+                    
+                    // Apply health multiplier if configured
+                    var settings = GameSettings.Instance;
+                    if (settings.PlayerHealthMultiplier != 1.0)
+                    {
+                        currentPlayer.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
+                    }
+                    
+                    // Load inventory
+                    if (currentPlayer.Inventory != null)
+                    {
+                        currentInventory = currentPlayer.Inventory;
+                    }
+                }
+            }
+            
+            if (customUIManager != null)
+            {
+                // Use custom UI manager (e.g., CanvasUIManager)
+                ShowMainMenuWithCustomUI();
+            }
+            else
+            {
+                // Use default console UI
+                menuManager.ShowMainMenu();
+            }
+        }
+
+        public void SetUIManager(IUIManager uiManager)
+        {
+            customUIManager = uiManager;
+            
+            // Set the custom UI manager for the static UIManager class
+            // This ensures combat text goes to the GUI instead of console
+            UIManager.SetCustomUIManager(uiManager);
+        }
+
+        private void ShowMainMenuWithCustomUI()
+        {
+            if (customUIManager is CanvasUIManager canvasUI)
+            {
+                // Check if we have a saved game
+                bool hasSavedGame = currentPlayer != null;
+                string? characterName = currentPlayer?.Name;
+                int characterLevel = currentPlayer?.Level ?? 0;
+                
+                canvasUI.RenderMainMenu(hasSavedGame, characterName, characterLevel);
+            }
+            currentState = GameState.MainMenu;
+        }
+
+        public async Task HandleInput(string input)
+        {
+            // Handle input for custom UI
+            if (customUIManager != null)
+            {
+                // Process input based on current game state
+                switch (currentState)
+                {
+                    case GameState.MainMenu:
+                        HandleMainMenuInput(input);
+                        break;
+                    case GameState.WeaponSelection:
+                        await HandleWeaponSelectionInput(input);
+                        break;
+                    case GameState.Inventory:
+                        HandleInventoryInput(input);
+                        break;
+                    case GameState.CharacterInfo:
+                        HandleCharacterInfoInput(input);
+                        break;
+                    case GameState.Settings:
+                        HandleSettingsInput(input);
+                        break;
+                    case GameState.GameLoop:
+                        await HandleGameLoopInput(input);
+                        break;
+                    case GameState.CharacterCreation:
+                        await HandleCharacterCreationInput(input);
+                        break;
+                    case GameState.DungeonSelection:
+                        await HandleDungeonSelectionInput(input);
+                        break;
+                    case GameState.Dungeon:
+                    case GameState.Combat:
+                        // During dungeon/combat, input is handled automatically
+                        // Ignore keyboard input to prevent interference
+                        break;
+                    default:
+                        // Default to main menu for unknown states
+                        currentState = GameState.MainMenu;
+                        ShowMainMenuWithCustomUI();
+                        break;
+                }
+            }
+        }
+
+        private void HandleMainMenuInput(string input)
+        {
+            switch (input)
+            {
+                case "1":
+                    // New Game
+                    StartNewGame();
+                    break;
+                case "2":
+                    // Load Game
+                    LoadGame();
+                    break;
+                case "3":
+                    // Settings
+                    currentState = GameState.Settings;
+                    ShowSettings();
+                    break;
+                case "0":
+                    // Quit
+                    ExitGame();
+                    break;
+                default:
+                    ShowMessage("Invalid choice. Please select 1, 2, 3, or 0.");
+                    break;
+            }
+        }
+
+        private void LoadGame()
+        {
+            if (currentPlayer != null)
+            {
+                // Character already loaded, go to game loop
+                currentState = GameState.GameLoop;
+                ShowGameLoopMenu();
+            }
+            else
+            {
+                // Try to load saved character
+                var savedCharacter = Character.LoadCharacter();
+                if (savedCharacter != null)
+                {
+                    currentPlayer = savedCharacter;
+                    gameInitializer.InitializeExistingGame(currentPlayer, availableDungeons);
+                    
+                    // Set character in UI manager
+                    if (customUIManager is CanvasUIManager canvasUI)
+                    {
+                        canvasUI.SetCharacter(currentPlayer);
+                    }
+                    
+                    // Apply health multiplier if configured
+                    var settings = GameSettings.Instance;
+                    if (settings.PlayerHealthMultiplier != 1.0)
+                    {
+                        currentPlayer.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
+                    }
+                    
+                    // Load inventory
+                    if (currentPlayer.Inventory != null)
+                    {
+                        currentInventory = currentPlayer.Inventory;
+                    }
+                    
+                    ShowMessage($"Welcome back, {currentPlayer.Name}!");
+                    
+                    // Go to game loop
+                    currentState = GameState.GameLoop;
+                    ShowGameLoopMenu();
+                }
+                else
+                {
+                    ShowMessage("No saved game found. Please start a new game.");
+                    ShowMainMenuWithCustomUI();
+                }
+            }
+        }
+
+        public Task HandleEscapeKey()
+        {
+            // Handle escape key based on current game state
+            switch (currentState)
+            {
+                case GameState.Inventory:
+                case GameState.CharacterInfo:
+                case GameState.Settings:
+                    // Return to main menu
+                    currentState = GameState.MainMenu;
+                    ShowMainMenuWithCustomUI();
+                    break;
+                case GameState.GameLoop:
+                case GameState.Dungeon:
+                case GameState.Combat:
+                    // Return to main menu from game
+                    currentState = GameState.MainMenu;
+                    ShowMainMenuWithCustomUI();
+                    break;
+                default:
+                    // Default to main menu
+                    currentState = GameState.MainMenu;
+                    ShowMainMenuWithCustomUI();
+                    break;
+            }
+            
+            return Task.CompletedTask;
+        }
+
+        // Game action methods
+        private void StartNewGame()
+        {
+            try
+            {
+                // Check if we have a saved character
+                var savedCharacter = Character.LoadCharacter();
+                if (savedCharacter != null)
+                {
+                    // Load existing character
+                    currentPlayer = savedCharacter;
+                    gameInitializer.InitializeExistingGame(currentPlayer, availableDungeons);
+                    
+                    // Set character in UI manager for persistent display
+                    if (customUIManager is CanvasUIManager canvasUI)
+                    {
+                        canvasUI.SetCharacter(currentPlayer);
+                    }
+                    
+                    // Apply health multiplier if configured
+                    var settings = GameSettings.Instance;
+                    if (settings.PlayerHealthMultiplier != 1.0)
+                    {
+                        currentPlayer.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
+                    }
+                    
+                    // Go directly to game loop for existing character
+                    currentState = GameState.GameLoop;
+                    ShowGameLoop();
+                }
+                else
+                {
+                    // Create new character (without equipment yet)
+                    currentPlayer = new Character(null, 1); // null triggers random name generation
+                    
+                    // Apply health multiplier if configured
+                    var settings = GameSettings.Instance;
+                    if (settings.PlayerHealthMultiplier != 1.0)
+                    {
+                        currentPlayer.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
+                    }
+                    
+                    // Go to weapon selection first
+                    currentState = GameState.WeaponSelection;
+                    ShowWeaponSelection();
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowMessage($"Error starting game: {ex.Message}");
+                currentState = GameState.MainMenu;
+                ShowMainMenuWithCustomUI();
+            }
+        }
+
+        private void ShowInventory()
+        {
+            if (customUIManager is CanvasUIManager canvasUI && currentPlayer != null)
+            {
+                canvasUI.SetCharacter(currentPlayer);
+                canvasUI.RenderInventory(currentPlayer, currentInventory);
+            }
+        }
+
+        private void ShowGameLoopMenu()
+        {
+            if (customUIManager is CanvasUIManager canvasUI && currentPlayer != null)
+            {
+                canvasUI.SetCharacter(currentPlayer);
+                canvasUI.RenderGameMenu(currentPlayer, currentInventory);
+            }
+        }
+
+        private void ShowCharacterInfo()
+        {
+            if (customUIManager is CanvasUIManager canvasUI && currentPlayer != null)
+            {
+                // For now, show inventory which includes character stats
+                canvasUI.RenderInventory(currentPlayer, currentInventory);
+            }
+        }
+
+        private void ShowSettings()
+        {
+            if (customUIManager is CanvasUIManager canvasUI)
+            {
+                canvasUI.RenderSettings();
+            }
+        }
+
+        private Task SaveGame()
+        {
+            if (currentPlayer != null)
+            {
+                try
+                {
+                    currentPlayer.SaveCharacter();
+                    ShowMessage($"Game saved successfully!");
+                }
+                catch (Exception ex)
+                {
+                    ShowMessage($"Error saving game: {ex.Message}");
+                }
+            }
+            
+            return Task.CompletedTask;
+        }
+
+        private void ExitGame()
+        {
+            ShowMessage("Thanks for playing Dungeon Fighter!");
+            // Close the application
+            if (customUIManager is CanvasUIManager canvasUI)
+            {
+                canvasUI.Close();
+            }
+            System.Environment.Exit(0);
+        }
+
+        private void ShowCharacterCreation()
+        {
+            if (customUIManager is CanvasUIManager canvasUI && currentPlayer != null)
+            {
+                canvasUI.RenderCharacterCreation(currentPlayer);
+            }
+        }
+
+        private void ShowGameLoop()
+        {
+            if (customUIManager is CanvasUIManager canvasUI && currentPlayer != null)
+            {
+                // Show the main game menu (like the original console version)
+                canvasUI.RenderGameMenu(currentPlayer, currentInventory);
+            }
+        }
+
+        private void ShowMessage(string message)
+        {
+            if (customUIManager is CanvasUIManager canvasUI)
+            {
+                canvasUI.ShowMessage(message);
+            }
+        }
+
+        // Placeholder methods for other input handlers
+        private void HandleInventoryInput(string input)
+        {
+            if (currentPlayer == null) return;
+            
+            // Handle multi-step actions (item selection, slot selection)
+            if (waitingForItemSelection && int.TryParse(input, out int itemIndex))
+            {
+                waitingForItemSelection = false;
+                
+                if (itemIndex == 0)
+                {
+                    ShowMessage("Cancelled.");
+                    ShowInventory();
+                    return;
+                }
+                
+                itemIndex--; // Convert 1-based to 0-based
+                
+                if (itemSelectionAction == "equip")
+                {
+                    EquipItem(itemIndex);
+                }
+                else if (itemSelectionAction == "discard")
+                {
+                    DiscardItem(itemIndex);
+                }
+                
+                itemSelectionAction = "";
+                return;
+            }
+            
+            if (waitingForSlotSelection && int.TryParse(input, out int slotChoice))
+            {
+                waitingForSlotSelection = false;
+                
+                if (slotChoice == 0)
+                {
+                    ShowMessage("Cancelled.");
+                    ShowInventory();
+                    return;
+                }
+                
+                UnequipItem(slotChoice);
+                return;
+            }
+            
+            // Normal menu actions
+            switch (input)
+            {
+                case "1":
+                    // Equip Item
+                    PromptEquipItem();
+                    break;
+                case "2":
+                    // Unequip Item
+                    PromptUnequipItem();
+                    break;
+                case "3":
+                    // Discard Item
+                    PromptDiscardItem();
+                    break;
+                case "4":
+                    // Manage Combo Actions
+                    ShowComboManagement();
+                    break;
+                case "5":
+                    // Continue to Dungeon
+                    currentState = GameState.GameLoop;
+                    ShowGameLoopMenu();
+                    break;
+                case "6":
+                    // Return to Main Menu
+                    currentState = GameState.MainMenu;
+                    ShowMainMenuWithCustomUI();
+                    break;
+                case "0":
+                    // Exit Game
+                    ExitGame();
+                    break;
+                default:
+                    ShowMessage("Invalid choice. Press 1-6, 0, or ESC to go back.");
+                    break;
+            }
+        }
+
+        private void HandleCharacterInfoInput(string input)
+        {
+            // Character info is read-only, just go back to main menu
+            currentState = GameState.MainMenu;
+            ShowMainMenuWithCustomUI();
+        }
+
+        // Inventory action methods
+        private void PromptEquipItem()
+        {
+            if (currentPlayer == null) return;
+            
+            if (currentInventory.Count == 0)
+            {
+                ShowMessage("No items in inventory to equip.");
+                ShowInventory();
+                return;
+            }
+            
+            // Render item selection screen for equipping
+            if (customUIManager is CanvasUIManager canvasUI)
+            {
+                canvasUI.RenderItemSelectionPrompt(currentPlayer, currentInventory, "Select Item to Equip", "equip");
+            }
+            
+            // State will be handled by input processing
+            waitingForItemSelection = true;
+            itemSelectionAction = "equip";
+        }
+
+        private void PromptUnequipItem()
+        {
+            if (currentPlayer == null) return;
+            
+            // Render slot selection screen for unequipping
+            if (customUIManager is CanvasUIManager canvasUI)
+            {
+                canvasUI.RenderSlotSelectionPrompt(currentPlayer);
+            }
+            
+            waitingForSlotSelection = true;
+        }
+
+        private void PromptDiscardItem()
+        {
+            if (currentPlayer == null) return;
+            
+            if (currentInventory.Count == 0)
+            {
+                ShowMessage("No items in inventory to discard.");
+                ShowInventory();
+                return;
+            }
+            
+            // Render item selection screen for discarding
+            if (customUIManager is CanvasUIManager canvasUI)
+            {
+                canvasUI.RenderItemSelectionPrompt(currentPlayer, currentInventory, "Select Item to Discard", "discard");
+            }
+            
+            waitingForItemSelection = true;
+            itemSelectionAction = "discard";
+        }
+
+        private void EquipItem(int itemIndex)
+        {
+            if (currentPlayer == null || itemIndex < 0 || itemIndex >= currentInventory.Count) return;
+            
+            var item = currentInventory[itemIndex];
+            string slot = item.Type switch
+            {
+                ItemType.Weapon => "weapon",
+                ItemType.Head => "head",
+                ItemType.Chest => "body",
+                ItemType.Feet => "feet",
+                _ => ""
+            };
+            
+            // Get the previously equipped item (if any)
+            var previousItem = currentPlayer.EquipItem(item, slot);
+            
+            // Remove the new item from inventory
+            currentInventory.RemoveAt(itemIndex);
+            
+            // Destroy the previous item (do not add back to inventory)
+            if (previousItem != null)
+            {
+                ShowMessage($"Unequipped and destroyed {previousItem.Name}. Equipped {item.Name}.");
+            }
+            else
+            {
+                ShowMessage($"Equipped {item.Name}.");
+            }
+            
+            // Refresh inventory display
+            ShowInventory();
+        }
+
+        private void UnequipItem(int slotChoice)
+        {
+            if (currentPlayer == null) return;
+            
+            string slot = slotChoice switch
+            {
+                1 => "weapon",
+                2 => "head",
+                3 => "body",
+                4 => "feet",
+                _ => ""
+            };
+            
+            if (string.IsNullOrEmpty(slot))
+            {
+                ShowMessage("Invalid slot choice.");
+                ShowInventory();
+                return;
+            }
+            
+            var unequippedItem = currentPlayer.UnequipItem(slot);
+            if (unequippedItem != null)
+            {
+                currentInventory.Add(unequippedItem);
+                ShowMessage($"Unequipped {unequippedItem.Name}.");
+            }
+            else
+            {
+                ShowMessage($"No item was equipped in the {slot} slot.");
+            }
+            
+            ShowInventory();
+        }
+
+        private void DiscardItem(int itemIndex)
+        {
+            if (currentPlayer == null || itemIndex < 0 || itemIndex >= currentInventory.Count) return;
+            
+            var item = currentInventory[itemIndex];
+            currentInventory.RemoveAt(itemIndex);
+            ShowMessage($"Discarded {item.Name}.");
+            
+            ShowInventory();
+        }
+
+        private void ShowComboManagement()
+        {
+            if (currentPlayer == null) return;
+            
+            ShowMessage("Combo Management - Coming soon!\nPress any key to return to inventory.");
+            // TODO: Implement full combo management UI
+            ShowInventory();
+        }
+
+        // State tracking for multi-step actions
+        private bool waitingForItemSelection = false;
+        private bool waitingForSlotSelection = false;
+        private string itemSelectionAction = "";
+
+
+        private void HandleSettingsInput(string input)
+        {
+            if (customUIManager is CanvasUIManager canvasUI)
+            {
+                switch (input)
+                {
+                    case "1":
+                        // Back to Main Menu
+                        canvasUI.ResetDeleteConfirmation();
+                        currentState = GameState.MainMenu;
+                        ShowMainMenuWithCustomUI();
+                        break;
+                    case "2":
+                        // Delete Saved Character
+                        HandleDeleteCharacter(canvasUI);
+                        break;
+                    default:
+                        // Any other input cancels the delete confirmation
+                        canvasUI.ResetDeleteConfirmation();
+                        ShowSettings();
+                        break;
+                }
+            }
+            else
+            {
+                // Fallback for non-UI mode
+                currentState = GameState.MainMenu;
+                ShowMainMenuWithCustomUI();
+            }
+        }
+        
+        private void HandleDeleteCharacter(CanvasUIManager canvasUI)
+        {
+            // Check if we have a saved character
+            if (!CharacterSaveManager.SaveFileExists())
+            {
+                ShowMessage("No saved character found.");
+                canvasUI.ResetDeleteConfirmation();
+                ShowSettings();
+                return;
+            }
+            
+            // Two-step confirmation process
+            if (!deleteConfirmationPending)
+            {
+                // First click: Set confirmation pending
+                deleteConfirmationPending = true;
+                canvasUI.SetDeleteConfirmationPending(true);
+                ShowSettings(); // Re-render with confirmation prompt
+            }
+            else
+            {
+                // Second click: Actually delete the character
+                try
+                {
+                    CharacterSaveManager.DeleteSaveFile();
+                    ShowMessage("Character deleted successfully.");
+                    deleteConfirmationPending = false;
+                    canvasUI.ResetDeleteConfirmation();
+                    
+                    // If we just deleted the current player, clear them
+                    if (currentPlayer != null)
+                    {
+                        currentPlayer = null;
+                    }
+                    
+                    // Return to main menu
+                    currentState = GameState.MainMenu;
+                    ShowMainMenuWithCustomUI();
+                }
+                catch (Exception ex)
+                {
+                    ShowMessage($"Error deleting character: {ex.Message}");
+                    deleteConfirmationPending = false;
+                    canvasUI.ResetDeleteConfirmation();
+                    ShowSettings();
+                }
+            }
+        }
+        
+        // Track delete confirmation state
+        private bool deleteConfirmationPending = false;
+
+        private async Task HandleGameLoopInput(string input)
+        {
+            if (currentPlayer == null) return;
+            
+            switch (input)
+            {
+                case "1":
+                    // Go to Dungeon Selection
+                    await StartDungeonSelection();
+                    break;
+                case "2":
+                    // Show Inventory Menu
+                    currentState = GameState.Inventory;
+                    ShowInventory();
+                    break;
+                case "0":
+                    // Save and Exit
+                    await SaveGame();
+                    currentState = GameState.MainMenu;
+                    ShowMainMenuWithCustomUI();
+                    break;
+                default:
+                    ShowMessage("Invalid choice. Please select 1, 2, or 0.");
+                    break;
+            }
+        }
+
+        private Task StartDungeonSelection()
+        {
+            if (currentPlayer == null || dungeonManager == null) return Task.CompletedTask;
+            
+            // Regenerate dungeons based on current player level
+            dungeonManager.RegenerateDungeons(currentPlayer, availableDungeons);
+            
+            // Set state to dungeon selection
+            currentState = GameState.DungeonSelection;
+            
+            // Show dungeon selection screen
+            if (customUIManager is CanvasUIManager canvasUI)
+            {
+                canvasUI.RenderDungeonSelection(currentPlayer, availableDungeons);
+            }
+            
+            return Task.CompletedTask;
+        }
+
+        private async Task HandleDungeonSelectionInput(string input)
+        {
+            if (currentPlayer == null) return;
+            
+            if (int.TryParse(input, out int choice))
+            {
+                if (choice >= 1 && choice <= availableDungeons.Count)
+                {
+                    // Stop dungeon selection animation
+                    if (customUIManager is CanvasUIManager canvasUI)
+                    {
+                        canvasUI.StopDungeonSelectionAnimation();
+                    }
+                    
+                    // Select the dungeon (choice is 1-based, convert to 0-based)
+                    await SelectDungeon(choice - 1);
+                }
+                else if (choice == 0)
+                {
+                    // Stop dungeon selection animation
+                    if (customUIManager is CanvasUIManager canvasUI)
+                    {
+                        canvasUI.StopDungeonSelectionAnimation();
+                    }
+                    
+                    // Return to game menu
+                    currentState = GameState.GameLoop;
+                    ShowGameLoop();
+                }
+                else
+                {
+                    ShowMessage("Invalid choice. Please select a valid dungeon or 0 to return.");
+                }
+            }
+            else
+            {
+                ShowMessage("Invalid input. Please enter a number.");
+            }
+        }
+
+        private async Task SelectDungeon(int dungeonIndex)
+        {
+            if (currentPlayer == null || dungeonManager == null || combatManager == null) return;
+            
+            if (dungeonIndex < 0 || dungeonIndex >= availableDungeons.Count)
+            {
+                ShowMessage("Invalid dungeon selection.");
+                return;
+            }
+            
+            currentDungeon = availableDungeons[dungeonIndex];
+            currentDungeon.Generate();
+            
+            // Start the dungeon run
+            await RunDungeon();
+        }
+
+        private async Task RunDungeon()
+        {
+            if (currentPlayer == null || currentDungeon == null || combatManager == null) return;
+            
+            // Set game state to Dungeon to prevent dungeon selection input from being processed
+            currentState = GameState.Dungeon;
+            
+            // Store dungeon header info separately so we can reuse it for each encounter
+            dungeonHeaderInfo.Clear();
+            dungeonHeaderInfo.Add("&Y" + AsciiArtAssets.UIText.CreateHeader(AsciiArtAssets.UIText.EnteringDungeonHeader));
+            
+            // Get theme color for dungeon name to match the entrance screen
+            char themeColorCode = DungeonThemeColors.GetThemeColorCode(currentDungeon.Theme);
+            dungeonHeaderInfo.Add($"&YDungeon: &{themeColorCode}{currentDungeon.Name}");
+            dungeonHeaderInfo.Add($"&YLevel Range: {currentDungeon.MinLevel} - {currentDungeon.MaxLevel}");
+            dungeonHeaderInfo.Add($"&YTotal Rooms: {currentDungeon.Rooms.Count}");
+            dungeonHeaderInfo.Add("");
+            
+            // Run through all rooms in the dungeon
+            foreach (Environment room in currentDungeon.Rooms)
+            {
+                if (!await ProcessRoom(room))
+                {
+                    // Player died
+                    currentState = GameState.MainMenu;
+                    ShowMainMenuWithCustomUI();
+                    return;
+                }
+            }
+            
+            // Dungeon completed successfully
+            await CompleteDungeon();
+        }
+
+        private async Task<bool> ProcessRoom(Environment room)
+        {
+            if (currentPlayer == null || combatManager == null) return false;
+            
+            currentRoom = room;
+            
+            // Store room info separately so we can reuse it for each enemy encounter in this room
+            currentRoomInfo.Clear();
+            currentRoomInfo.Add("&Y" + AsciiArtAssets.UIText.CreateHeader(AsciiArtAssets.UIText.EnteringRoomHeader));
+            currentRoomInfo.Add($"&WRoom: {room.Name}");
+            currentRoomInfo.Add($"&W{room.Description}");
+            currentRoomInfo.Add("");
+            
+            // Clear temporary effects when entering a new room
+            currentPlayer.ClearAllTempEffects();
+            
+            // Process all enemies in the room
+            bool roomWasHostile = room.IsHostile;
+            while (room.HasLivingEnemies())
+            {
+                Enemy? currentEnemy = room.GetNextLivingEnemy();
+                if (currentEnemy == null) break;
+                
+                if (!await ProcessEnemyEncounter(currentEnemy))
+                {
+                    return false; // Player died
+                }
+            }
+            
+            // Add room completion message to combat log only if room was hostile (don't clear screen)
+            if (roomWasHostile && customUIManager is CanvasUIManager canvasUI2)
+            {
+                canvasUI2.AddRoomClearedMessage();
+                await Task.Delay(2000);  // Matches dungeon completion delay
+            }
+            return true; // Player survived the room
+        }
+
+        private async Task<bool> ProcessEnemyEncounter(Enemy enemy)
+        {
+            if (currentPlayer == null || combatManager == null) return false;
+            
+            // Build fresh context for this specific encounter (dungeon + room + enemy)
+            dungeonLog.Clear();
+            dungeonLog.AddRange(dungeonHeaderInfo);
+            dungeonLog.AddRange(currentRoomInfo);
+            
+            // Add current enemy encounter info with color markup
+            string enemyWeaponInfo = enemy.Weapon != null 
+                ? string.Format(AsciiArtAssets.UIText.WeaponSuffix, enemy.Weapon.Name)
+                : "";
+            dungeonLog.Add("&Y" + string.Format(AsciiArtAssets.UIText.EncounteredFormat, enemy.Name, enemyWeaponInfo));
+            dungeonLog.Add("&C" + AsciiArtAssets.UIText.FormatEnemyStats(enemy.CurrentHealth, enemy.MaxHealth, enemy.Armor));
+            dungeonLog.Add("&C" + AsciiArtAssets.UIText.FormatEnemyAttack(enemy.Strength, enemy.Agility, enemy.Technique, enemy.Intelligence));
+            dungeonLog.Add("");
+            
+            // Show accumulated dungeon log with enemy info briefly before combat
+            if (customUIManager is CanvasUIManager canvasUI)
+            {
+                canvasUI.RenderEnemyEncounter(enemy, currentPlayer, dungeonLog, currentDungeon?.Name, currentRoom?.Name);
+            }
+            
+            await Task.Delay(1500);  // Brief pause to see enemy info
+            
+            // Prepare for combat - set dungeon context so it persists during combat
+            if (customUIManager is CanvasUIManager canvasUI2)
+            {
+                canvasUI2.SetDungeonContext(dungeonLog);
+                canvasUI2.SetCurrentEnemy(enemy);  // Track enemy so health bar stays visible
+                canvasUI2.SetDungeonName(currentDungeon?.Name);  // Set dungeon name for right panel
+                canvasUI2.SetRoomName(currentRoom?.Name);  // Set room name for right panel
+                canvasUI2.ResetForNewBattle();
+                canvasUI2.SetCharacter(currentPlayer);
+            }
+            
+            // Run the actual combat using the original combat system
+            // Run on background thread to not block UI
+            bool playerSurvived = await Task.Run(() => 
+            {
+                return combatManager.RunCombat(currentPlayer, enemy, currentRoom!);
+            });
+            
+            // Get the battle narrative for combat log
+            var battleNarrative = combatManager.GetCurrentBattleNarrative();
+            
+            // Add combat result message to the combat log (don't clear screen)
+            if (customUIManager is CanvasUIManager canvasUI3)
+            {
+                if (enemy.CurrentHealth <= 0)
+                {
+                    // Victory - add message to combat log
+                    canvasUI3.AddVictoryMessage(enemy, battleNarrative);
+                }
+                else if (!playerSurvived)
+                {
+                    // Defeat - add message to combat log
+                    canvasUI3.AddDefeatMessage();
+                }
+                
+                // Keep the message visible for a moment
+                await Task.Delay(2000);
+                
+                // Clear enemy tracking after combat (removes health bar but keeps combat log)
+                canvasUI3.ClearCurrentEnemy();
+            }
+            
+            // Check if player survived
+            return currentPlayer.CurrentHealth > 0;
+        }
+
+        private async Task CompleteDungeon()
+        {
+            if (currentPlayer == null || dungeonManager == null) return;
+            
+            // Award loot and XP
+            dungeonManager.AwardLootAndXP(currentPlayer, currentInventory, availableDungeons);
+            
+            // Show dungeon completion
+            if (customUIManager is CanvasUIManager canvasUI)
+            {
+                canvasUI.RenderDungeonCompletion(currentDungeon!, currentPlayer);
+            }
+            
+            await Task.Delay(2000);
+            
+            // Return to game menu
+            currentDungeon = null;
+            currentRoom = null;
+            currentState = GameState.GameLoop;
+            ShowGameLoop();
+        }
+
+
+        private Task HandleCharacterCreationInput(string input)
+        {
+            switch (input)
+            {
+                case "1":
+                    // Start Adventure
+                    currentState = GameState.GameLoop;
+                    ShowGameLoop();
+                    break;
+                case "2":
+                    // Back to Main Menu
+                    currentState = GameState.MainMenu;
+                    ShowMainMenuWithCustomUI();
+                    break;
+                default:
+                    ShowMessage("Invalid choice. Press 1-2 or ESC to go back.");
+                    break;
+            }
+            
+            return Task.CompletedTask;
+        }
+
+        private void ShowWeaponSelection()
+        {
+            if (customUIManager is CanvasUIManager canvasUI && gameInitializer != null)
+            {
+                var startingGear = gameInitializer.LoadStartingGear();
+                canvasUI.RenderWeaponSelection(startingGear.weapons);
+            }
+        }
+
+        private Task HandleWeaponSelectionInput(string input)
+        {
+            if (currentPlayer == null) return Task.CompletedTask;
+            
+            if (int.TryParse(input, out int weaponChoice))
+            {
+                var startingGear = gameInitializer.LoadStartingGear();
+                if (weaponChoice >= 1 && weaponChoice <= startingGear.weapons.Count)
+                {
+                    // Initialize the character with the selected weapon
+                    gameInitializer.InitializeNewGame(currentPlayer, availableDungeons, weaponChoice);
+                    
+                    // Set character in UI manager for persistent display
+                    if (customUIManager is CanvasUIManager canvasUI)
+                    {
+                        canvasUI.SetCharacter(currentPlayer);
+                    }
+                    
+                    // Show character creation summary
+                    currentState = GameState.CharacterCreation;
+                    ShowCharacterCreation();
+                    return Task.CompletedTask;
+                }
+            }
+            
+            // Invalid input
+            ShowMessage("Invalid choice. Please select a weapon by number.");
+            return Task.CompletedTask;
         }
 
     }

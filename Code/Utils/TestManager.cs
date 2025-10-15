@@ -666,6 +666,74 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Runs comprehensive ColorParser tests
+        /// Tests template expansion, color code parsing, length calculations, and edge cases
+        /// </summary>
+        public static void RunColorParserTest()
+        {
+            TextDisplayIntegration.DisplaySystem("Starting ColorParser Test Suite...");
+            TextDisplayIntegration.DisplaySystem("This will test color template and markup parsing functionality.");
+            TextDisplayIntegration.DisplaySystem("Press any key to continue or 'q' to quit...");
+            
+            var key = Console.ReadKey();
+            if (key.KeyChar == 'q' || key.KeyChar == 'Q')
+            {
+                TextDisplayIntegration.DisplaySystem("Test cancelled.");
+                return;
+            }
+            
+            Console.WriteLine();
+            Console.WriteLine();
+            
+            // Run the comprehensive test suite
+            UI.ColorParserTest.RunAllTests();
+            
+            TextDisplayIntegration.DisplaySystem("\nPress any key to continue...");
+            Console.ReadKey();
+        }
+        
+        /// <summary>
+        /// Runs a quick smoke test of ColorParser (subset of critical tests)
+        /// </summary>
+        public static void RunColorParserQuickTest()
+        {
+            TextDisplayIntegration.DisplaySystem("Running ColorParser Quick Test...");
+            Console.WriteLine();
+            
+            // Run the quick test suite
+            UI.ColorParserTest.RunQuickTest();
+            
+            TextDisplayIntegration.DisplaySystem("\nPress any key to continue...");
+            Console.ReadKey();
+        }
+        
+        /// <summary>
+        /// Runs color debugging tools to diagnose spacing issues
+        /// </summary>
+        public static void RunColorDebugTest()
+        {
+            TextDisplayIntegration.DisplaySystem("Running Color Debug Tool...");
+            TextDisplayIntegration.DisplaySystem("This will help diagnose spacing issues with colored text.");
+            TextDisplayIntegration.DisplaySystem("Press any key to continue or 'q' to quit...");
+            
+            var key = Console.ReadKey();
+            if (key.KeyChar == 'q' || key.KeyChar == 'Q')
+            {
+                TextDisplayIntegration.DisplaySystem("Test cancelled.");
+                return;
+            }
+            
+            Console.WriteLine();
+            Console.WriteLine();
+            
+            // Run the debug tool
+            UI.ColorDebugTool.RunCombatMessageTests();
+            
+            TextDisplayIntegration.DisplaySystem("\nPress any key to continue...");
+            Console.ReadKey();
+        }
+
+        /// <summary>
         /// Gets the order for rarity sorting
         /// </summary>
         /// <param name="rarity">The rarity name</param>

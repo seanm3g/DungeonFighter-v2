@@ -19,7 +19,7 @@ namespace RPGGame
             // Show weapon with indented stats
             if (character.Weapon is WeaponItem weapon)
             {
-                writeMenuLine($"Weapon: {weapon.Name}");
+                writeMenuLine($"Weapon: {ItemDisplayFormatter.GetColoredItemName(weapon)}");
                 writeMenuLine($"    Damage: {weapon.GetTotalDamage()}, Attack Speed: {weapon.GetAttackSpeedMultiplier():F1}x");
                 
                 // Show weapon bonuses and modifications
@@ -43,7 +43,7 @@ namespace RPGGame
         {
             if (armor != null)
             {
-                writeMenuLine($"{slotName}: {armor.Name}");
+                writeMenuLine($"{slotName}: {ItemDisplayFormatter.GetColoredItemName(armor)}");
                 writeMenuLine($"    Armor: {GetArmorValue(armor)}");
                 
                 // Show armor bonuses and modifications

@@ -1,15 +1,15 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\Code.csproj": {}
+    "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\code.csproj": {}
   },
   "projects": {
-    "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\Code.csproj": {
+    "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\code.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\Code.csproj",
+        "projectUniqueName": "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\code.csproj",
         "projectName": "DF",
-        "projectPath": "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\Code.csproj",
+        "projectPath": "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\code.csproj",
         "packagesPath": "C:\\Users\\Seanye\\.nuget\\packages\\",
         "outputPath": "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\obj\\",
         "projectStyle": "PackageReference",
@@ -42,6 +42,28 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "dependencies": {
+            "Avalonia": {
+              "target": "Package",
+              "version": "[11.2.7, )"
+            },
+            "Avalonia.Desktop": {
+              "target": "Package",
+              "version": "[11.2.7, )"
+            },
+            "Avalonia.Diagnostics": {
+              "target": "Package",
+              "version": "[11.2.7, )"
+            },
+            "Avalonia.Fonts.Inter": {
+              "target": "Package",
+              "version": "[11.2.7, )"
+            },
+            "Avalonia.Themes.Fluent": {
+              "target": "Package",
+              "version": "[11.2.7, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",

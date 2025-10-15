@@ -32,5 +32,13 @@
     "AddBlankLinesBetweenActionBlocks": false,
     "AddBlankLinesBetweenEffectBlocks": false,
     "AddBlankLinesAroundNarrativeBlocks": true
+  },
+  "WhiteTemperatureIntensity": 1.1,
+  "UndulationTimerMs": 1000,
+  "BrightnessMask": {
+    "Enabled": true,
+    "Intensity": 8.0,
+    "WaveLength": 3.0,
+    "UpdateIntervalMs": 100
   }
 }

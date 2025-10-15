@@ -228,8 +228,9 @@ namespace RPGGame
                 {
                     player.Heal(actualRegen);
                     // Use TextDisplayIntegration for consistent entity tracking
-                    string regenMessage = $"[{player.Name}] regenerates {actualRegen} health ({player.CurrentHealth}/{player.GetEffectiveMaxHealth()})";
+                    string regenMessage = $"{player.Name} regenerates {actualRegen} health ({player.CurrentHealth}/{player.GetEffectiveMaxHealth()})";
                     TextDisplayIntegration.DisplayCombatAction(regenMessage, new List<string>(), new List<string>(), player.Name);
+                    UIManager.WriteLine(""); // Add blank line after regeneration message
                 }
             }
         }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using RPGGame.UI;
 
 namespace RPGGame
 {
@@ -10,6 +11,20 @@ namespace RPGGame
     /// </summary>
     public static class BlockDisplayManager
     {
+        /// <summary>
+        /// Applies keyword coloring to text if enabled
+        /// Skips coloring if text already has explicit color codes to prevent conflicts
+        /// </summary>
+        private static string ApplyKeywordColoring(string text)
+        {
+            // Skip keyword coloring if text already has explicit color codes
+            // This prevents double-coloring and spacing issues
+            if (ColorParser.HasColorMarkup(text))
+            {
+                return text;
+            }
+            return KeywordColorSystem.Colorize(text);
+        }
         private static string? lastActingEntity = null;
         private static string? lastBlockType = null;
 
@@ -67,17 +82,17 @@ namespace RPGGame
             // Note: Entity switching spacing is now handled by centralized spacing rules
             // We only track the entity for potential future use, but don't add manual spacing
             
-            // Display the action
-            Console.WriteLine(actionText);
+            // Display the action with keyword coloring
+            UIManager.WriteLine(ApplyKeywordColoring(actionText), UIMessageType.Combat);
             
-            // Always display roll info with 4-space indentation
-            Console.WriteLine($"    {rollInfo}");
+            // Always display roll info with 4-space indentation (NO COLORING - keep stats white)
+            UIManager.WriteLine($"    {rollInfo}", UIMessageType.RollInfo);
             
             // Display status effects if present
             var validEffects = statusEffects?.FindAll(e => !string.IsNullOrEmpty(e)) ?? new List<string>();
             foreach (var effect in validEffects)
             {
-                Console.WriteLine($"    {effect}");
+                UIManager.WriteLine($"    {ApplyKeywordColoring(effect)}", UIMessageType.EffectMessage);
             }
             
             // Update the last acting entity
@@ -105,13 +120,13 @@ namespace RPGGame
             // Manage spacing between block types
             ManageBlockSpacing("EffectBlock");
             
-            // Display the effect
-            Console.WriteLine(effectText);
+            // Display the effect with keyword coloring
+            UIManager.WriteLine(ApplyKeywordColoring(effectText), UIMessageType.EffectMessage);
             
             // Display details if present
             if (!string.IsNullOrEmpty(details))
             {
-                Console.WriteLine($"    ({details})");
+                UIManager.WriteLine($"    ({ApplyKeywordColoring(details)})", UIMessageType.EffectMessage);
             }
             
             // Apply block delay and spacing
@@ -133,8 +148,8 @@ namespace RPGGame
             // Manage spacing between block types
             ManageBlockSpacing("NarrativeBlock");
             
-            // Display the narrative
-            Console.WriteLine(narrativeText);
+            // Display the narrative with keyword coloring
+            UIManager.WriteLine(ApplyKeywordColoring(narrativeText), UIMessageType.System);
             
             // Apply block delay and spacing
             ApplyBlockDelay("NarrativeBlock");
@@ -155,14 +170,14 @@ namespace RPGGame
             // Manage spacing between block types
             ManageBlockSpacing("EnvironmentalBlock");
             
-            // Display the environmental action
-            Console.WriteLine(environmentalText);
+            // Display the environmental action with keyword coloring
+            UIManager.WriteLine(ApplyKeywordColoring(environmentalText), UIMessageType.Environmental);
             
             // Display effects if present
             var validEffects = effects?.FindAll(e => !string.IsNullOrEmpty(e)) ?? new List<string>();
             foreach (var effect in validEffects)
             {
-                Console.WriteLine($"    {effect}");
+                UIManager.WriteLine($"    {ApplyKeywordColoring(effect)}", UIMessageType.EffectMessage);
             }
             
             // Apply block delay and spacing
@@ -181,7 +196,7 @@ namespace RPGGame
             // Manage spacing between block types
             ManageBlockSpacing("SystemBlock");
             
-            Console.WriteLine(systemText);
+            UIManager.WriteLine(ApplyKeywordColoring(systemText), UIMessageType.System);
             
             // Apply block delay and spacing
             ApplyBlockDelay("SystemBlock");
@@ -199,7 +214,7 @@ namespace RPGGame
             // Manage spacing between block types
             ManageBlockSpacing("StatsBlock");
             
-            Console.WriteLine(statsText);
+            UIManager.WriteLine(ApplyKeywordColoring(statsText), UIMessageType.System);
             
             // Apply block delay and spacing
             ApplyBlockDelay("StatsBlock");
@@ -217,7 +232,7 @@ namespace RPGGame
             // Manage spacing between block types
             ManageBlockSpacing("MenuBlock");
             
-            Console.WriteLine(menuText);
+            UIManager.WriteLine(ApplyKeywordColoring(menuText), UIMessageType.Menu);
             
             // Apply block delay and spacing
             ApplyBlockDelay("MenuBlock");
@@ -263,7 +278,7 @@ namespace RPGGame
                 // Add blank lines before this block type
                 for (int i = 0; i < currentRule.Before; i++)
                 {
-                    Console.WriteLine();
+                    UIManager.WriteBlankLine();
                 }
             }
             
@@ -282,7 +297,7 @@ namespace RPGGame
                 // Add blank lines after this block type
                 for (int i = 0; i < rule.After; i++)
                 {
-                    Console.WriteLine();
+                    UIManager.WriteBlankLine();
                 }
             }
         }

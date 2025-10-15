@@ -40,14 +40,15 @@ namespace RPGGame
             bool isComboAction = actionName != "BASIC ATTACK" && actionName != "CRITICAL BASIC ATTACK";
             
             // First line: Different format for basic attacks vs combo actions
+            // Using template-based coloring {{damage|number}} for proper spacing
             string damageText;
             if (isComboAction)
             {
-                damageText = $"[{attacker.Name}] hits [{target.Name}] with {actionName} for {actualDamage} damage";
+                damageText = $"{attacker.Name} hits {target.Name} with {actionName} for {{{{damage|{actualDamage}}}}} damage";
             }
             else
             {
-                damageText = $"[{attacker.Name}] hits [{target.Name}] for {actualDamage} damage";
+                damageText = $"{attacker.Name} hits {target.Name} for {{{{damage|{actualDamage}}}}} damage";
             }
             
             // Build the detailed roll and damage information
@@ -137,14 +138,15 @@ namespace RPGGame
             bool isComboAction = actionName != "BASIC ATTACK" && actionName != "CRITICAL BASIC ATTACK";
             
             // First line: Different format for basic attacks vs combo actions
+            // Using template-based coloring {{damage|number}} for proper spacing
             string damageText;
             if (isComboAction)
             {
-                damageText = $"[{attacker.Name}] hits [{target.Name}] with {actionName} for {actualDamage} damage";
+                damageText = $"{attacker.Name} hits {target.Name} with {actionName} for {{{{damage|{actualDamage}}}}} damage";
             }
             else
             {
-                damageText = $"[{attacker.Name}] hits [{target.Name}] for {actualDamage} damage";
+                damageText = $"{attacker.Name} hits {target.Name} for {{{{damage|{actualDamage}}}}} damage";
             }
             
             // Build the detailed roll and damage information
@@ -233,11 +235,11 @@ namespace RPGGame
                 
                 if (healthPercentage <= 0.25 && healthPercentage > 0.1)
                 {
-                    notifications.Add($"[{character.Name}] is critically wounded!");
+                    notifications.Add($"{character.Name} is critically wounded!");
                 }
                 else if (healthPercentage <= 0.1)
                 {
-                    notifications.Add($"[{character.Name}] is near death!");
+                    notifications.Add($"{character.Name} is near death!");
                 }
             }
             else if (entity is Enemy enemy)
@@ -247,11 +249,11 @@ namespace RPGGame
                 
                 if (healthPercentage <= 0.5 && healthPercentage > 0.25)
                 {
-                    notifications.Add($"[{enemy.Name}] is badly wounded!");
+                    notifications.Add($"{enemy.Name} is badly wounded!");
                 }
                 else if (healthPercentage <= 0.25)
                 {
-                    notifications.Add($"[{enemy.Name}] is on the verge of defeat!");
+                    notifications.Add($"{enemy.Name} is on the verge of defeat!");
                 }
             }
             
@@ -269,7 +271,9 @@ namespace RPGGame
         /// <returns>Formatted non-attack action message</returns>
         public static string FormatNonAttackAction(Entity source, Entity target, Action action, int roll, int rollBonus)
         {
-            string actionText = $"[{source.Name}] uses [{action.Name}] on [{target.Name}]";
+            // Wrap action name in natural template (green/environment color) so it's treated as one colored unit
+            // Make "uses" explicitly white
+            string actionText = $"{source.Name} &Yuses&y {{{{natural|{action.Name}}}}} on {target.Name}";
             
             // Build the detailed roll information
             var rollInfo = new List<string>();
@@ -317,8 +321,8 @@ namespace RPGGame
             bool isCriticalMiss = totalRoll <= 1;
             
             string missText = isCriticalMiss ? 
-                $"[{attacker.Name}] CRITICAL MISS on [{target.Name}]" : 
-                $"[{attacker.Name}] misses [{target.Name}]";
+                $"{attacker.Name} {{{{critical|CRITICAL}}}} {{{{miss|MISS}}}} &yon {target.Name}" : 
+                $"{attacker.Name} {{{{miss|misses}}}} {target.Name}";
             
             // Build the detailed roll information
             var rollInfo = new List<string>();

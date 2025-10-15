@@ -1,16 +1,23 @@
 using System;
 using System.Threading;
+using RPGGame.UI;
 
 namespace RPGGame
 {
     /// <summary>
     /// Centralized UI management system that handles all console output, formatting, and delays
-    /// Replaces scattered Console.WriteLine calls across the codebase
+    /// Supports Caves of Qud-style color markup
     /// </summary>
     public static class UIManager
     {
         // Flag to disable all UI output during balance analysis
         public static bool DisableAllUIOutput = false;
+        
+        // Flag to enable color markup parsing
+        public static bool EnableColorMarkup = true;
+        
+        // Custom UI Manager for non-console interfaces (like Avalonia)
+        private static IUIManager? _customUIManager = null;
         
         private static UIConfiguration? _uiConfig = null;
         
@@ -34,6 +41,22 @@ namespace RPGGame
         }
         
         /// <summary>
+        /// Sets a custom UI manager for non-console interfaces (like Avalonia)
+        /// </summary>
+        public static void SetCustomUIManager(IUIManager? customUIManager)
+        {
+            _customUIManager = customUIManager;
+        }
+        
+        /// <summary>
+        /// Gets the custom UI manager if one is set
+        /// </summary>
+        public static IUIManager? GetCustomUIManager()
+        {
+            return _customUIManager;
+        }
+        
+        /// <summary>
         /// Reloads the UI configuration from file
         /// </summary>
         public static void ReloadConfiguration()
@@ -42,25 +65,56 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Writes a line to console with optional delay
+        /// Writes a line to console with optional delay and color markup support
         /// </summary>
-        /// <param name="message">Message to display</param>
+        /// <param name="message">Message to display (supports &X and {{template|text}} markup)</param>
         /// <param name="messageType">Type of message for delay configuration</param>
         public static void WriteLine(string message, UIMessageType messageType = UIMessageType.System)
         {
             if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
-            Console.WriteLine(message);
+            
+            // Use custom UI manager if one is set
+            if (_customUIManager != null)
+            {
+                _customUIManager.WriteLine(message, messageType);
+                return;
+            }
+            
+            if (EnableColorMarkup && ColorParser.HasColorMarkup(message))
+            {
+                ColoredConsoleWriter.WriteLine(message);
+            }
+            else
+            {
+                Console.WriteLine(message);
+            }
+            
             ApplyDelay(messageType);
         }
         
         /// <summary>
-        /// Writes text to console without newline
+        /// Writes text to console without newline with color markup support
         /// </summary>
-        /// <param name="message">Message to display</param>
+        /// <param name="message">Message to display (supports &X and {{template|text}} markup)</param>
         public static void Write(string message)
         {
             if (DisableAllUIOutput) return;
-            Console.Write(message);
+            
+            // Use custom UI manager if one is set
+            if (_customUIManager != null)
+            {
+                _customUIManager.Write(message);
+                return;
+            }
+            
+            if (EnableColorMarkup && ColorParser.HasColorMarkup(message))
+            {
+                ColoredConsoleWriter.Write(message);
+            }
+            else
+            {
+                Console.Write(message);
+            }
         }
         
         
@@ -76,12 +130,29 @@ namespace RPGGame
         
         /// <summary>
         /// Writes a menu line with progressive delay reduction (speeds up with each consecutive line)
+        /// Supports color markup
         /// </summary>
-        /// <param name="message">Menu message to display</param>
+        /// <param name="message">Menu message to display (supports &X and {{template|text}} markup)</param>
         public static void WriteMenuLine(string message)
         {
             if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
-            Console.WriteLine(message);
+            
+            // Use custom UI manager if one is set
+            if (_customUIManager != null)
+            {
+                _customUIManager.WriteMenuLine(message);
+                return;
+            }
+            
+            if (EnableColorMarkup && ColorParser.HasColorMarkup(message))
+            {
+                ColoredConsoleWriter.WriteLine(message);
+            }
+            else
+            {
+                Console.WriteLine(message);
+            }
+            
             ApplyProgressiveMenuDelay();
         }
         
@@ -150,6 +221,13 @@ namespace RPGGame
         /// </summary>
         public static void ResetForNewBattle()
         {
+            // Use custom UI manager if one is set
+            if (_customUIManager != null)
+            {
+                _customUIManager.ResetForNewBattle();
+                return;
+            }
+            
             // Entity tracking is now handled by BlockDisplayManager
         }
         
@@ -239,9 +317,67 @@ namespace RPGGame
         public static void WriteBlankLine()
         {
             if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
+            
+            // Use custom UI manager if one is set
+            if (_customUIManager != null)
+            {
+                _customUIManager.WriteBlankLine();
+                return;
+            }
+            
             Console.WriteLine();
         }
         
+        /// <summary>
+        /// Writes text with chunked reveal (progressive text display)
+        /// Text appears chunk by chunk with delays proportional to chunk length
+        /// </summary>
+        /// <param name="message">The text to reveal in chunks</param>
+        /// <param name="config">Optional configuration for chunked reveal</param>
+        public static void WriteChunked(string message, UI.ChunkedTextReveal.RevealConfig? config = null)
+        {
+            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
+            
+            // Use custom UI manager if one is set
+            if (_customUIManager != null)
+            {
+                _customUIManager.WriteChunked(message, config);
+                return;
+            }
+            
+            // Use ChunkedTextReveal for console output
+            UI.ChunkedTextReveal.RevealText(message, config);
+        }
+        
+        /// <summary>
+        /// Writes dungeon exploration text with chunked reveal (optimized for dungeon content)
+        /// </summary>
+        /// <param name="message">The dungeon text to reveal</param>
+        public static void WriteDungeonChunked(string message)
+        {
+            WriteChunked(message, new UI.ChunkedTextReveal.RevealConfig
+            {
+                Strategy = UI.ChunkedTextReveal.ChunkStrategy.Semantic,
+                BaseDelayPerCharMs = 25,
+                MinDelayMs = 800,
+                MaxDelayMs = 3000
+            });
+        }
+        
+        /// <summary>
+        /// Writes room description text with chunked reveal
+        /// </summary>
+        /// <param name="message">The room description to reveal</param>
+        public static void WriteRoomChunked(string message)
+        {
+            WriteChunked(message, new UI.ChunkedTextReveal.RevealConfig
+            {
+                Strategy = UI.ChunkedTextReveal.ChunkStrategy.Sentence,
+                BaseDelayPerCharMs = 30,
+                MinDelayMs = 1000,
+                MaxDelayMs = 3000
+            });
+        }
         
     }
 }

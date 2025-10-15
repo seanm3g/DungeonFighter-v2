@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame.UI;
 
 namespace RPGGame
 {
@@ -9,6 +10,20 @@ namespace RPGGame
     /// </summary>
     public static class TextDisplayIntegration
     {
+        /// <summary>
+        /// Applies keyword coloring to text if enabled
+        /// Skips coloring if text already has explicit color codes to prevent conflicts
+        /// </summary>
+        private static string ApplyKeywordColoring(string text)
+        {
+            // Skip keyword coloring if text already has explicit color codes
+            // This prevents double-coloring and spacing issues
+            if (ColorParser.HasColorMarkup(text))
+            {
+                return text;
+            }
+            return KeywordColorSystem.Colorize(text);
+        }
         
         /// <summary>
         /// Displays a combat action using the new block-based system
@@ -65,7 +80,7 @@ namespace RPGGame
             // Reset menu delay counter at the start of menu display
             UIManager.ResetMenuDelayCounter();
             
-            UIManager.WriteTitleLine(title);
+            UIManager.WriteTitleLine(CenterText(ApplyKeywordColoring(title)));
             
             // Add separator line between title and options
             if (!string.IsNullOrWhiteSpace(title))
@@ -84,13 +99,13 @@ namespace RPGGame
                 // Use dashes for menu separator (shorter than title separator)
                 if (maxLength > 0)
                 {
-                    UIManager.WriteMenuLine(new string('-', Math.Max(8, maxLength)));
+                    UIManager.WriteMenuLine(CenterText(new string('-', Math.Max(8, maxLength))));
                 }
             }
             
             foreach (var option in options)
             {
-                UIManager.WriteMenuLine(option);
+                UIManager.WriteMenuLine(CenterText(ApplyKeywordColoring(option)));
             }
             
             // Add blank line after menu options for better spacing
@@ -101,12 +116,113 @@ namespace RPGGame
         }
         
         /// <summary>
+        /// Centers text based on console window width
+        /// Handles multi-line strings by centering each line independently
+        /// </summary>
+        private static string CenterText(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return text;
+                
+            try
+            {
+                int consoleWidth = Console.WindowWidth;
+                if (consoleWidth <= 0)
+                    return text; // Can't center if width is invalid
+                
+                // Handle multi-line strings
+                if (text.Contains('\n'))
+                {
+                    var lines = text.Split('\n');
+                    var centeredLines = new List<string>();
+                    foreach (var line in lines)
+                    {
+                        centeredLines.Add(CenterSingleLine(line, consoleWidth));
+                    }
+                    return string.Join("\n", centeredLines);
+                }
+                
+                return CenterSingleLine(text, consoleWidth);
+            }
+            catch
+            {
+                // If console width can't be determined, return text as-is
+                return text;
+            }
+        }
+        
+        /// <summary>
+        /// Centers a single line of text
+        /// </summary>
+        private static string CenterSingleLine(string line, int consoleWidth)
+        {
+            // Calculate visible length (excluding color markup)
+            int visibleLength = GetVisibleLength(line);
+            
+            if (visibleLength >= consoleWidth)
+                return line; // Line is too long to center
+            
+            int padding = (consoleWidth - visibleLength) / 2;
+            return new string(' ', padding) + line;
+        }
+        
+        /// <summary>
+        /// Gets the visible length of text, excluding color markup codes
+        /// Handles both {{template|text}}, &X foreground, and ^X background markup formats
+        /// </summary>
+        private static int GetVisibleLength(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return 0;
+            
+            int length = 0;
+            int i = 0;
+            
+            while (i < text.Length)
+            {
+                // Check for {{template|text}} markup
+                if (i < text.Length - 1 && text[i] == '{' && text[i + 1] == '{')
+                {
+                    // Find the closing }}
+                    int closeIndex = text.IndexOf("}}", i + 2);
+                    if (closeIndex != -1)
+                    {
+                        // Extract the text portion after the |
+                        int pipeIndex = text.IndexOf('|', i + 2);
+                        if (pipeIndex != -1 && pipeIndex < closeIndex)
+                        {
+                            // Count only the text after the pipe
+                            string visibleText = text.Substring(pipeIndex + 1, closeIndex - pipeIndex - 1);
+                            length += visibleText.Length;
+                            i = closeIndex + 2;
+                            continue;
+                        }
+                    }
+                }
+                
+                // Check for &X foreground color markup or ^X background color markup
+                if ((text[i] == '&' || text[i] == '^') && i < text.Length - 1)
+                {
+                    // Skip the & or ^ and the color character
+                    i += 2;
+                    continue;
+                }
+                
+                // Regular character
+                length++;
+                i++;
+            }
+            
+            return length;
+        }
+        
+        /// <summary>
         /// Displays a system message
         /// </summary>
         /// <param name="message">The system message</param>
         public static void DisplaySystem(string message)
         {
-            UIManager.WriteSystemLine(message);
+            UIManager.WriteSystemLine(ApplyKeywordColoring(message));
         }
         
         /// <summary>
@@ -115,7 +231,7 @@ namespace RPGGame
         /// <param name="message">The title message</param>
         public static void DisplayTitle(string message)
         {
-            UIManager.WriteTitleLine(message);
+            UIManager.WriteTitleLine(ApplyKeywordColoring(message));
         }
         
         

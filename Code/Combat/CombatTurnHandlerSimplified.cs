@@ -251,7 +251,7 @@ namespace RPGGame
                 int actualRegen = player.CurrentHealth - oldHealth;
                 if (actualRegen > 0 && !CombatManager.DisableCombatUIOutput)
                 {
-                    UIManager.WriteLine($"[{player.Name}] regenerates {actualRegen} health ({player.CurrentHealth}/{player.GetEffectiveMaxHealth()})");
+                    UIManager.WriteLine($"{player.Name} regenerates {actualRegen} health ({player.CurrentHealth}/{player.GetEffectiveMaxHealth()})");
                     UIManager.WriteLine(""); // Add blank line after regeneration message
                 }
             }

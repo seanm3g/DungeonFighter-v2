@@ -1,0 +1,285 @@
+{
+  "$schema": "KeywordColorGroups Schema",
+  "description": "Keyword groups for automatic text coloring",
+  
+  "groups": [
+    {
+      "name": "damage",
+      "colorPattern": "damage",
+      "caseSensitive": false,
+      "keywords": [
+        "slash", "pierce", "crush", "wound", "injure", "harm", "hurt"
+      ],
+      "comment": "Removed: 'damage', 'hit', 'strike', 'attack' - too common, appear in stats"
+    },
+    {
+      "name": "critical",
+      "colorPattern": "critical",
+      "caseSensitive": false,
+      "keywords": [
+        "critical", "crit", "devastating", "crushing blow", 
+        "massive hit", "overwhelming"
+      ]
+    },
+    {
+      "name": "miss",
+      "colorPattern": "miss",
+      "caseSensitive": false,
+      "keywords": [
+        "miss", "misses", "missed"
+      ]
+    },
+    {
+      "name": "heal",
+      "colorPattern": "heal",
+      "caseSensitive": false,
+      "keywords": [
+        "heal", "restore", "regenerate", "recover", "mend", 
+        "revive"
+      ],
+      "comment": "Removed: 'health', 'hp' - too common, appear in stats"
+    },
+    {
+      "name": "fire",
+      "colorPattern": "fiery",
+      "caseSensitive": false,
+      "keywords": [
+        "fire", "flame", "burn", "burning", "blaze", "inferno", 
+        "ignite", "scorch", "ember", "pyro"
+      ]
+    },
+    {
+      "name": "ice",
+      "colorPattern": "icy",
+      "caseSensitive": false,
+      "keywords": [
+        "ice", "frost", "frozen", "freeze", "chill", "cold", 
+        "glacial", "arctic", "cryo"
+      ]
+    },
+    {
+      "name": "lightning",
+      "colorPattern": "electric",
+      "caseSensitive": false,
+      "keywords": [
+        "lightning", "thunder", "electric", "shock", "zap", 
+        "bolt", "spark", "voltage"
+      ]
+    },
+    {
+      "name": "poison",
+      "colorPattern": "poisoned",
+      "caseSensitive": false,
+      "keywords": [
+        "poison", "venom", "toxic", "poisoned", "toxin", 
+        "venomous", "contaminate"
+      ]
+    },
+    {
+      "name": "shadow",
+      "colorPattern": "shadow",
+      "caseSensitive": false,
+      "keywords": [
+        "shadow", "darkness", "dark", "void", "abyss", 
+        "umbral", "night", "blackness"
+      ]
+    },
+    {
+      "name": "holy",
+      "colorPattern": "holy",
+      "caseSensitive": false,
+      "keywords": [
+        "holy", "divine", "sacred", "blessed", "light", 
+        "radiant", "celestial", "sanctified"
+      ]
+    },
+    {
+      "name": "death",
+      "colorPattern": "bloodied",
+      "caseSensitive": false,
+      "keywords": [
+        "death", "die", "dies", "died", "killed", "slain", 
+        "defeated", "destroyed", "perish"
+      ]
+    },
+    {
+      "name": "blood",
+      "colorPattern": "bleeding",
+      "caseSensitive": false,
+      "keywords": [
+        "blood", "bleed", "bleeding", "hemorrhage", "bloodied", 
+        "gore", "crimson"
+      ]
+    },
+    {
+      "name": "stun",
+      "colorPattern": "stunned",
+      "caseSensitive": false,
+      "keywords": [
+        "stun", "stunned", "daze", "dazed", "paralyzed", 
+        "immobilize", "disable"
+      ]
+    },
+    {
+      "name": "common",
+      "colorPattern": "common",
+      "caseSensitive": false,
+      "keywords": ["common"]
+    },
+    {
+      "name": "uncommon",
+      "colorPattern": "uncommon",
+      "caseSensitive": false,
+      "keywords": ["uncommon"]
+    },
+    {
+      "name": "rare",
+      "colorPattern": "rare",
+      "caseSensitive": false,
+      "keywords": ["rare"]
+    },
+    {
+      "name": "epic",
+      "colorPattern": "epic",
+      "caseSensitive": false,
+      "keywords": ["epic"]
+    },
+    {
+      "name": "legendary",
+      "colorPattern": "legendary",
+      "caseSensitive": false,
+      "keywords": ["legendary", "mythic", "artifact"]
+    },
+    {
+      "name": "magic",
+      "colorPattern": "arcane",
+      "caseSensitive": false,
+      "keywords": [
+        "magic", "spell", "arcane", "mystical", "enchanted", 
+        "magical", "sorcery", "wizardry"
+      ]
+    },
+    {
+      "name": "nature",
+      "colorPattern": "natural",
+      "caseSensitive": false,
+      "keywords": [
+        "nature", "natural", "earth", "growth", "plant", 
+        "forest", "grove", "wilderness"
+      ]
+    },
+    {
+      "name": "gold",
+      "colorPattern": "golden",
+      "caseSensitive": false,
+      "keywords": [
+        "gold", "coins", "currency", "treasure", "wealth", 
+        "riches", "money"
+      ]
+    },
+    {
+      "name": "experience",
+      "colorPattern": "golden",
+      "caseSensitive": false,
+      "keywords": [
+        "experience", "xp", "level up", "leveled", 
+        "gained level"
+      ],
+      "comment": "Changed colorPattern from 'Y' (color code) to 'golden' (template); removed 'level' (too common)"
+    },
+    {
+      "name": "enemy_types",
+      "colorPattern": "damage",
+      "caseSensitive": false,
+      "keywords": [
+        "boss", "monster", "creature", "beast", "undead", "fiend"
+      ],
+      "comment": "Removed specific enemy names (goblin, orc, etc.) - should use explicit coloring; kept only generic types; changed from 'R' to 'damage' template"
+    },
+    {
+      "name": "class",
+      "colorPattern": "arcane",
+      "caseSensitive": false,
+      "keywords": [
+        "warrior", "mage", "rogue", "wizard", "barbarian", 
+        "paladin", "ranger", "knight", "sorcerer"
+      ],
+      "comment": "Changed colorPattern from 'C' (color code) to 'arcane' (template)"
+    },
+    {
+      "name": "action",
+      "colorPattern": "electric",
+      "caseSensitive": false,
+      "keywords": [
+        "jab", "taunt", "flurry", "cleave", "shield bash", "precision strike",
+        "momentum bash", "lucky strike", "overkill", "dance", "opening volley",
+        "focus", "sharp edge", "blood frenzy", "berzerk", "swing for the fences",
+        "true strike", "last grasp", "second wind", "quick reflexes", "first blood",
+        "brutal strike", "war cry", "web strike", "poison bite", "devastating blow",
+        "power attack", "rending slash", "execute", "backstab", "sneak attack"
+      ]
+    },
+    {
+      "name": "character",
+      "colorPattern": "golden",
+      "caseSensitive": false,
+      "keywords": [
+        "you", "your", "yourself", "hero", "champion", "adventurer"
+      ]
+    },
+    {
+      "name": "environment",
+      "colorPattern": "natural",
+      "caseSensitive": false,
+      "keywords": [
+        "entrance", "chamber", "room", "hall", "cavern", "tunnel", "passage",
+        "dungeon", "crypt", "tomb", "vault", "sanctuary", "grove", "clearing",
+        "lair", "den", "nest", "pool", "lake", "cave", "cathedral", "temple",
+        "altar", "shrine", "library", "armory", "treasury", "prison", "barracks"
+      ]
+    },
+    {
+      "name": "theme",
+      "colorPattern": "crystalline",
+      "caseSensitive": false,
+      "keywords": [
+        "forest", "lava", "frozen", "ice", "shadow", "crystal", "astral",
+        "underground", "swamp", "storm", "volcanic", "glacial", "void",
+        "steampunk", "mechanical", "nature", "cosmic"
+      ]
+    },
+    {
+      "name": "buff",
+      "colorPattern": "holy",
+      "caseSensitive": false,
+      "keywords": [
+        "strengthen", "fortify", "enhance", "boost", "empower", 
+        "blessed", "buff", "augment"
+      ]
+    },
+    {
+      "name": "debuff",
+      "colorPattern": "corrupted",
+      "caseSensitive": false,
+      "keywords": [
+        "weaken", "curse", "hex", "poison", "disease", "corrupt", 
+        "debuff", "enfeeble"
+      ]
+    }
+  ],
+
+  "usage": {
+    "automatic": "KeywordColorSystem.Colorize(text) - Colors all keywords",
+    "specific": "KeywordColorSystem.ColorizeWithGroups(text, 'damage', 'critical') - Colors specific groups",
+    "custom": "KeywordColorSystem.CreateGroup('mygroup', 'fiery', false, 'word1', 'word2')"
+  },
+
+  "notes": [
+    "Keywords are matched as whole words only",
+    "Case sensitivity is configurable per group",
+    "Color patterns can be template names or color codes",
+    "Keywords already in color markup are not re-colored",
+    "Groups are processed in order, first match wins"
+  ]
+}
+

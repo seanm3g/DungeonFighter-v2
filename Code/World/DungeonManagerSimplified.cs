@@ -61,6 +61,7 @@ namespace RPGGame
 
         /// <summary>
         /// Regenerates available dungeons based on player level using actual dungeons from Dungeons.json
+        /// Always ensures exactly 3 unique dungeons are selected
         /// </summary>
         /// <param name="player">The player character</param>
         /// <param name="availableDungeons">List to populate with available dungeons</param>
@@ -81,11 +82,29 @@ namespace RPGGame
                 suitableDungeons = GetClosestDungeons(allDungeons, playerLevel);
             }
             
-            // Shuffle and select up to 3 dungeons
-            var shuffledDungeons = suitableDungeons.OrderBy(x => random.Next()).Take(3).ToList();
+            // Ensure we have at least 3 unique dungeons available
+            // Group by name to ensure uniqueness, then shuffle and select exactly 3
+            var uniqueDungeons = suitableDungeons
+                .GroupBy(d => d.name)
+                .Select(g => g.First())
+                .OrderBy(x => random.Next())
+                .ToList();
+            
+            // If we have fewer than 3 unique dungeons, pad with additional unique dungeons from the full list
+            if (uniqueDungeons.Count < 3)
+            {
+                var additionalDungeons = allDungeons
+                    .Where(d => !uniqueDungeons.Any(ud => ud.name == d.name))
+                    .OrderBy(x => random.Next())
+                    .Take(3 - uniqueDungeons.Count);
+                uniqueDungeons.AddRange(additionalDungeons);
+            }
+            
+            // Take exactly 3 unique dungeons
+            var selectedDungeons = uniqueDungeons.Take(3).ToList();
             
             // Create Dungeon objects from the selected DungeonData
-            CreateDungeonObjects(shuffledDungeons, availableDungeons, playerLevel);
+            CreateDungeonObjects(selectedDungeons, availableDungeons, playerLevel);
             
             // Sort dungeons by level (lowest to highest) - modify the list in place
             var sortedDungeons = availableDungeons.OrderBy(d => d.MinLevel).ToList();

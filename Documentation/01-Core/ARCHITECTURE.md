@@ -108,6 +108,7 @@ DungeonFighter/
 - **`Code/UI/TextDisplayIntegration.cs`** - Integration layer for displaying text using the new UIManager beat-based timing system
 - **`Code/UI/TextDisplaySettings.cs`** - Configuration for text display timing and formatting
 - **`Code/UI/UIConfiguration.cs`** - UI configuration management
+- **`Code/UI/DungeonThemeColors.cs`** - Theme-based color mapping for dungeons (24 unique dungeon themes)
 
 ### **Data & Configuration (Refactored Architecture)**
 - **`Code/Data/ActionLoader.cs`** - Loads and manages action data from JSON
