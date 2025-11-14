@@ -61,8 +61,8 @@ The game uses `JsonLoader.FindGameDataFile()` which searches in this order:
 **Cause:** Duplicate file in parent directory being loaded instead
 
 **Solution:**
-1. Check for duplicate: `Test-Path "D:\Code Projects\github projects\GameData\"`
-2. Delete if exists: `Remove-Item "D:\Code Projects\github projects\GameData\" -Recurse -Force`
+1. Check for duplicate: `Test-Path "..\GameData\"` (from project root)
+2. Delete if exists: `Remove-Item "..\GameData\" -Recurse -Force` (from project root)
 3. Verify correct file is being loaded (check console debug output)
 
 ### Issue: Configuration Not Loading

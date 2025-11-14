@@ -280,7 +280,7 @@ Based on this implementation, the following future optimizations are recommended
 
 1. **Compile the project:**
    ```bash
-   cd "D:\Code Projects\github projects\DungeonFighter-v2\Code"
+   cd Code
    dotnet build
    ```
 

@@ -178,7 +178,7 @@ TextFadeAnimator.FadeOutWithTemplate("The darkness spreads", "shadow",
 ### 1. Run All Demonstrations
 
 ```bash
-cd "D:\Code Projects\github projects\DungeonFighter-v2"
+# From project root directory
 Scripts\test-fade.bat
 ```
 

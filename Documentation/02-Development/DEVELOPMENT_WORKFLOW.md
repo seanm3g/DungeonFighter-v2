@@ -29,8 +29,8 @@ Step-by-step development process and best practices for working with the Dungeon
 
 ### Step 1: Environment Setup
 ```bash
-# Navigate to project directory
-cd "D:\Code Projects\github projects\DungeonFighter"
+# Navigate to project directory (adjust path to your local project location)
+cd path/to/DungeonFighter-v2
 
 # Verify project structure
 ls -la

@@ -18,7 +18,7 @@ TextFadeAnimator.FadeOutAlternating("The enemy has been defeated!");
 Run the demonstrations to see all fade patterns:
 
 ```bash
-cd "D:\Code Projects\github projects\DungeonFighter-v2"
+# From project root directory
 Scripts\test-fade.bat
 ```
 
