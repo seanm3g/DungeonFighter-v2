@@ -32,7 +32,8 @@ namespace RPGGame
 
             try
             {
-                string jsonPath = Path.Combine("..", "GameData", "Dungeons.json");
+                // Use FileManager to get the correct path (handles multiple possible locations)
+                string jsonPath = FileManager.GetGameDataFilePath("Dungeons.json");
                 string jsonContent = File.ReadAllText(jsonPath);
                 allDungeons = JsonSerializer.Deserialize<List<DungeonData>>(jsonContent) ?? new List<DungeonData>();
                 return allDungeons;

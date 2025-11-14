@@ -43,7 +43,8 @@ namespace RPGGame
         {
             try
             {
-                string jsonPath = Path.Combine("..", "GameData", "StartingGear.json");
+                // Use FileManager to get the correct path (handles multiple possible locations)
+                string jsonPath = FileManager.GetGameDataFilePath("StartingGear.json");
                 string jsonContent = File.ReadAllText(jsonPath);
                 var startingGear = JsonSerializer.Deserialize<StartingGearData>(jsonContent) ?? new StartingGearData();
                 
