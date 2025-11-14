@@ -33,6 +33,30 @@ namespace RPGGame
             // Award guaranteed loot for dungeon completion
             AwardLoot(player, inventory, dungeonLevel);
         }
+        
+        /// <summary>
+        /// Awards loot and XP for dungeon completion and returns the rewards
+        /// </summary>
+        /// <param name="player">The player character</param>
+        /// <param name="inventory">Player's inventory</param>
+        /// <param name="dungeonLevel">Level of the completed dungeon</param>
+        /// <returns>Tuple containing XP gained and loot received</returns>
+        public (int xpGained, Item? lootReceived) AwardLootAndXPWithReturns(Character player, List<Item> inventory, int dungeonLevel)
+        {
+            // Track dungeon completion statistics
+            player.RecordDungeonCompleted();
+            
+            // Heal character back to max health between dungeons
+            HealPlayer(player);
+            
+            // Award XP and get the amount
+            int xpGained = AwardXPWithReturn(player);
+            
+            // Award guaranteed loot for dungeon completion and get the item
+            Item? lootReceived = AwardLootWithReturn(player, inventory, dungeonLevel);
+            
+            return (xpGained, lootReceived);
+        }
 
         /// <summary>
         /// Heals the player to full health
@@ -64,6 +88,17 @@ namespace RPGGame
                 UIManager.WriteLine($"Level up! You are now level {player.Level}");
                 UIManager.WriteBlankLine(); // Add line break after level up message
             }
+        }
+        
+        /// <summary>
+        /// Awards XP to the player and returns the amount
+        /// </summary>
+        private int AwardXPWithReturn(Character player)
+        {
+            var tuning = GameConfiguration.Instance;
+            int xpReward = random.Next(tuning.Progression.EnemyXPBase, tuning.Progression.EnemyXPBase + 50) * player.Level;
+            player.AddXP(xpReward);
+            return xpReward;
         }
 
         /// <summary>
@@ -101,6 +136,33 @@ namespace RPGGame
                 // This should never happen with the fallback, but just in case
                 BlockDisplayManager.DisplaySystemBlock("You found no loot this time.");
             }
+        }
+        
+        /// <summary>
+        /// Awards loot to the player and returns the item
+        /// </summary>
+        private Item? AwardLootWithReturn(Character player, List<Item> inventory, int dungeonLevel)
+        {
+            Item? reward = LootGenerator.GenerateLoot(player.Level, dungeonLevel, player, guaranteedLoot: true);
+            
+            // If still no loot, notify about the issue
+            if (reward == null)
+            {
+                HandleLootGenerationFailure(player, dungeonLevel);
+                reward = CreateFallbackReward(player);
+            }
+
+            if (reward != null)
+            {
+                // Add to both inventories
+                player.AddToInventory(reward);
+                inventory.Add(reward);
+                
+                // Track item collection statistics
+                player.RecordItemCollected(reward);
+            }
+            
+            return reward;
         }
 
         /// <summary>

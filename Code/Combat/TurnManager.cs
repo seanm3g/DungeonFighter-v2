@@ -57,9 +57,33 @@ namespace RPGGame
             if (actionSpeedSystem == null)
                 throw new InvalidOperationException("TurnManager not initialized. Call InitializeBattle() first.");
 
-            // TODO: Fix turn order determination - DetermineTurnOrder method doesn't exist
-            // For now, return player first
-            return new List<Entity> { player, enemy };
+            // Use ActionSpeedSystem to determine turn order based on action speeds
+            var turnOrder = new List<Entity>();
+            
+            // Get the next entity to act from the speed system
+            var nextEntity = actionSpeedSystem.GetNextEntityToAct();
+            if (nextEntity != null)
+            {
+                turnOrder.Add(nextEntity);
+                
+                // Add the other entity
+                if (nextEntity == player)
+                {
+                    turnOrder.Add(enemy);
+                }
+                else
+                {
+                    turnOrder.Add(player);
+                }
+            }
+            else
+            {
+                // Fallback: return player first if speed system doesn't have entities ready
+                turnOrder.Add(player);
+                turnOrder.Add(enemy);
+            }
+            
+            return turnOrder;
         }
 
         /// <summary>

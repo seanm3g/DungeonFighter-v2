@@ -1,5 +1,5 @@
 using Avalonia.Media;
-using RPGGame.UI;
+using RPGGame.UI.ColorSystem;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Linq;
 namespace RPGGame.UI.Avalonia.Renderers
 {
     /// <summary>
-    /// Handles colored text rendering with color markup support and text wrapping
+    /// Handles colored text rendering with the new color system
     /// </summary>
     public class ColoredTextWriter
     {
@@ -19,270 +19,253 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
         
         /// <summary>
-        /// Adds colored text to canvas with color markup support
-        /// Uses simple character positioning for per-character coloring (title screen)
-        /// Uses measured widths for word-based coloring (combat text)
+        /// Adds colored text to canvas using the new color system
         /// </summary>
         public void WriteLineColored(string message, int x, int y)
         {
-            if (ColorParser.HasColorMarkup(message))
+            // Check if message has old-style color markup (&X format)
+            if (CompatibilityLayer.HasColorMarkup(message))
             {
-                var segments = ColorParser.Parse(message);
-                RenderSegments(segments, x, y);
+                // Use old-style parser for &X format
+                var coloredText = CompatibilityLayer.ConvertOldMarkup(message);
+                RenderSegments(coloredText, x, y);
             }
             else
             {
-                canvas.AddText(x, y, message, AsciiArtAssets.Colors.White);
+                // Parse the message using the new color system
+                var coloredText = ColoredTextParser.Parse(message);
+                RenderSegments(coloredText, x, y);
             }
         }
         
         /// <summary>
-        /// Adds colored text to canvas using ColoredText object (pattern applied at render time)
-        /// This is the preferred method as it avoids parsing issues
+        /// Adds colored text to canvas using ColoredText object
         /// </summary>
         public void WriteLineColored(ColoredText coloredText, int x, int y)
         {
-            var segments = coloredText.GetSegments();
+            var segments = new List<ColoredText> { coloredText };
             RenderSegments(segments, x, y);
         }
         
         /// <summary>
-        /// Renders a list of segments to the canvas
-        /// This is public for direct segment rendering (avoids string conversion)
+        /// Renders a list of colored text segments to the canvas
         /// </summary>
-        public void RenderSegments(List<ColorDefinitions.ColoredSegment> segments, int x, int y)
+        public void RenderSegments(List<ColoredText> segments, int x, int y)
         {
-            // Check if this should use simple character positioning (title screen)
-            // This applies to:
-            // 1. Old per-character coloring (many tiny segments)
-            // 2. New efficient title screen lines (few segments, but very long with block chars)
-            // 3. Sequence/Alternation templates that create per-character segments (even if mixed with longer segments)
-            bool hasBlockCharacters = segments.Any(s => s.Text != null && 
-                s.Text.Contains("█") && s.Text.Length > 20);
+            if (segments == null || segments.Count == 0)
+                return;
             
-            // Check if MOST segments are single characters (>=70% are length 1-2)
-            int singleCharSegments = segments.Count(s => !string.IsNullOrEmpty(s.Text) && s.Text.Length <= 2);
-            bool isPerCharacterColoring = segments.Count >= 5 && 
-                (singleCharSegments >= segments.Count * 0.7);
+            int currentX = x;
             
-            if (isPerCharacterColoring || hasBlockCharacters)
+            foreach (var segment in segments)
             {
-                // Simple character-by-character positioning (title screen)
-                // Avoids fractional error accumulation across hundreds of segments
-                int charPosition = 0;
-                foreach (var segment in segments)
-                {
-                    if (!string.IsNullOrEmpty(segment.Text))
-                    {
-                        // IMPORTANT: Even whitespace needs a color to render properly
-                        Color color = segment.Foreground.HasValue 
-                            ? segment.Foreground.Value.ToAvaloniaColor() 
-                            : AsciiArtAssets.Colors.White;
-                        
-                        canvas.AddText(x + charPosition, y, segment.Text, color);
-                        charPosition += segment.Text.Length;
-                    }
-                }
-            }
-            else
-            {
-                // Use simple character position tracking for word-based coloring (combat text)
-                // Monospace font means we can just track character count
-                int charPosition = 0;
-                foreach (var segment in segments)
-                {
-                    if (!string.IsNullOrEmpty(segment.Text))
-                    {
-                        Color color = segment.Foreground.HasValue 
-                            ? segment.Foreground.Value.ToAvaloniaColor() 
-                            : AsciiArtAssets.Colors.White;
-                        
-                        canvas.AddText(x + charPosition, y, segment.Text, color);
-                        charPosition += segment.Text.Length;
-                    }
-                }
+                if (string.IsNullOrEmpty(segment.Text))
+                    continue;
+                
+                // Convert Avalonia color to the canvas color format
+                var canvasColor = ConvertToCanvasColor(segment.Color);
+                
+                // Add text to canvas
+                canvas.AddText(currentX, y, segment.Text, canvasColor);
+                
+                // Calculate next position (simple character-based positioning)
+                currentX += segment.Text.Length;
             }
         }
         
         /// <summary>
-        /// Adds colored text to canvas with color markup support and text wrapping
-        /// Returns the number of lines rendered
+        /// Renders colored text with word-based positioning
         /// </summary>
-        public int WriteLineColoredWrapped(string message, int x, int y, int maxWidth)
+        public void RenderSegmentsWithWordPositioning(List<ColoredText> segments, int x, int y)
         {
-            // Wrap the text first (preserving color markup)
-            var wrappedLines = WrapText(message, maxWidth);
+            if (segments == null || segments.Count == 0)
+                return;
             
-            // Render each wrapped line
-            int currentY = y;
-            foreach (var line in wrappedLines)
+            int currentX = x;
+            
+            foreach (var segment in segments)
             {
-                WriteLineColored(line, x, y + (currentY - y));
-                currentY++;
+                if (string.IsNullOrEmpty(segment.Text))
+                    continue;
+                
+                // Convert Avalonia color to the canvas color format
+                var canvasColor = ConvertToCanvasColor(segment.Color);
+                
+                // Add text to canvas
+                canvas.AddText(currentX, y, segment.Text, canvasColor);
+                
+                // Calculate next position using measured width
+                currentX += MeasureTextWidth(segment.Text);
             }
-            
-            return wrappedLines.Count;
         }
         
         /// <summary>
-        /// Adds colored text to canvas with text wrapping using ColoredText object
-        /// Returns the number of lines rendered
+        /// Renders colored text with character-based positioning (for title screen)
         /// </summary>
-        public int WriteLineColoredWrapped(ColoredText coloredText, int x, int y, int maxWidth)
+        public void RenderSegmentsWithCharacterPositioning(List<ColoredText> segments, int x, int y)
         {
-            // For ColoredText, we wrap the plain text and apply color to each line
-            var wrappedLines = WrapText(coloredText.Text, maxWidth);
+            if (segments == null || segments.Count == 0)
+                return;
             
-            int currentY = y;
-            foreach (var line in wrappedLines)
+            int currentX = x;
+            
+            foreach (var segment in segments)
             {
-                // Create a new ColoredText with the wrapped line but same color pattern
-                var wrappedColoredText = new ColoredText(line, coloredText.Template, coloredText.SimpleColorCode);
-                WriteLineColored(wrappedColoredText, x, y + (currentY - y));
-                currentY++;
+                if (string.IsNullOrEmpty(segment.Text))
+                    continue;
+                
+                // Convert Avalonia color to the canvas color format
+                var canvasColor = ConvertToCanvasColor(segment.Color);
+                
+                // Add text to canvas
+                canvas.AddText(currentX, y, segment.Text, canvasColor);
+                
+                // Calculate next position (character-based)
+                currentX += segment.Text.Length;
             }
-            
-            return wrappedLines.Count;
         }
         
         /// <summary>
-        /// Wraps text to fit within maxWidth, preserving leading whitespace (indentation)
+        /// Converts Avalonia color to canvas color format
+        /// </summary>
+        private Color ConvertToCanvasColor(Color color)
+        {
+            // Simple color mapping - you may need to adjust this based on your canvas color system
+            if (color == Colors.Red) return AsciiArtAssets.Colors.Red;
+            if (color == Colors.Green) return AsciiArtAssets.Colors.Green;
+            if (color == Colors.Blue) return AsciiArtAssets.Colors.Blue;
+            if (color == Colors.Yellow) return AsciiArtAssets.Colors.Yellow;
+            if (color == Colors.Cyan) return AsciiArtAssets.Colors.Cyan;
+            if (color == Colors.Magenta) return AsciiArtAssets.Colors.Magenta;
+            if (color == Colors.White) return AsciiArtAssets.Colors.White;
+            if (color == Colors.Black) return AsciiArtAssets.Colors.Black;
+            if (color == Colors.Gray) return AsciiArtAssets.Colors.Gray;
+            
+            // Default to white for unknown colors
+            return AsciiArtAssets.Colors.White;
+        }
+        
+        /// <summary>
+        /// Measures text width (placeholder implementation)
+        /// </summary>
+        private int MeasureTextWidth(string text)
+        {
+            // This is a placeholder - you may need to implement proper text measurement
+            // based on your canvas system
+            return text.Length;
+        }
+        
+        /// <summary>
+        /// Writes plain text (no color)
+        /// </summary>
+        public void WriteLine(string message, int x, int y)
+        {
+            canvas.AddText(x, y, message, AsciiArtAssets.Colors.White);
+        }
+        
+        /// <summary>
+        /// Writes text with a specific color
+        /// </summary>
+        public void WriteLine(string message, int x, int y, Color color)
+        {
+            var canvasColor = ConvertToCanvasColor(color);
+            canvas.AddText(x, y, message, canvasColor);
+        }
+        
+        /// <summary>
+        /// Writes text with a color palette
+        /// </summary>
+        public void WriteLine(string message, int x, int y, ColorPalette color)
+        {
+            var canvasColor = ConvertToCanvasColor(color.GetColor());
+            canvas.AddText(x, y, message, canvasColor);
+        }
+        
+        /// <summary>
+        /// Writes text with a pattern
+        /// </summary>
+        public void WriteLineWithPattern(string message, int x, int y, string pattern)
+        {
+            var color = ColorPatterns.GetColorForPattern(pattern);
+            var canvasColor = ConvertToCanvasColor(color);
+            canvas.AddText(x, y, message, canvasColor);
+        }
+        
+        /// <summary>
+        /// Wraps text to fit within a specified width
         /// </summary>
         public List<string> WrapText(string text, int maxWidth)
         {
-            var lines = new List<string>();
+            var result = new List<string>();
             
-            // Preserve leading whitespace (important for combat log formatting)
-            int leadingSpaces = text.Length - text.TrimStart().Length;
-            string indentation = text.Substring(0, leadingSpaces);
-            string trimmedText = text.TrimStart();
+            if (string.IsNullOrEmpty(text))
+                return result;
             
-            // If the line is entirely whitespace, just return it
-            if (string.IsNullOrWhiteSpace(trimmedText))
-            {
-                lines.Add(text);
-                return lines;
-            }
-            
-            // For indented text (status messages), use a minimal continuation indent
-            // to show it's part of the same message but avoid excessive nesting
-            string continuationIndent = leadingSpaces > 0 ? "  " : "";
-            
-            // Split by spaces but keep color markup together as single units
-            var words = SplitPreservingMarkup(trimmedText);
-            
-            // Pre-calculate word lengths once to avoid repeated regex operations
-            // This significantly improves performance when wrapping long text blocks
-            var wordLengths = new int[words.Count];
-            for (int i = 0; i < words.Count; i++)
-            {
-                wordLengths[i] = ColorParser.GetDisplayLength(words[i]);
-            }
-            
-            // Pre-calculate indent lengths
-            int indentationLength = ColorParser.GetDisplayLength(indentation);
-            int continuationIndentLength = ColorParser.GetDisplayLength(continuationIndent);
-            
+            var words = text.Split(' ');
             var currentLine = "";
-            int currentLineLength = 0; // Track visible length of current line
-            bool isFirstLine = true;
             
-            for (int i = 0; i < words.Count; i++)
+            foreach (var word in words)
             {
-                string word = words[i];
+                var testLine = string.IsNullOrEmpty(currentLine) ? word : $"{currentLine} {word}";
                 
-                // Skip empty words from multiple spaces
-                if (string.IsNullOrEmpty(word)) continue;
-                
-                int wordDisplayLength = wordLengths[i];
-                int currentIndentLength = isFirstLine ? indentationLength : continuationIndentLength;
-                
-                // Check if adding this word would exceed max width
-                // Use currentLineLength (visible length) instead of currentLine.Length (which includes markup)
-                int spaceNeeded = currentLineLength > 0 ? 1 : 0; // Add 1 for space if not first word
-                int totalLength = currentIndentLength + currentLineLength + spaceNeeded + wordDisplayLength;
-                
-                if (totalLength <= maxWidth)
+                if (testLine.Length <= maxWidth)
                 {
-                    // Use currentLineLength instead of currentLine.Length to check if space is needed
-                    currentLine += (currentLineLength > 0 ? " " : "") + word;
-                    currentLineLength += spaceNeeded + wordDisplayLength;
+                    currentLine = testLine;
                 }
                 else
                 {
-                    // Use currentLineLength instead of currentLine.Length
-                    if (currentLineLength > 0)
+                    if (!string.IsNullOrEmpty(currentLine))
                     {
-                        // First line gets original indentation, continuation lines get minimal indent
-                        lines.Add(isFirstLine ? indentation + currentLine : continuationIndent + currentLine);
-                        isFirstLine = false;
+                        result.Add(currentLine);
                     }
                     currentLine = word;
-                    currentLineLength = wordDisplayLength;
                 }
             }
             
-            // Use currentLineLength instead of currentLine.Length
-            if (currentLineLength > 0)
+            if (!string.IsNullOrEmpty(currentLine))
             {
-                lines.Add(isFirstLine ? indentation + currentLine : continuationIndent + currentLine);
+                result.Add(currentLine);
             }
             
-            return lines;
+            return result;
         }
         
         /// <summary>
-        /// Splits text by spaces while keeping color markup templates together
+        /// Writes colored text with word wrapping
         /// </summary>
-        private List<string> SplitPreservingMarkup(string text)
+        /// <returns>Number of lines written</returns>
+        public int WriteLineColoredWrapped(string message, int x, int y, int maxWidth)
         {
-            var words = new List<string>();
-            var currentWord = "";
-            int templateDepth = 0;
-            
-            for (int i = 0; i < text.Length; i++)
+            var lines = WrapText(message, maxWidth);
+            int currentY = y;
+
+            foreach (var line in lines)
             {
-                char c = text[i];
-                
-                // Track template markup depth
-                if (i < text.Length - 1 && c == '{' && text[i + 1] == '{')
-                {
-                    templateDepth++;
-                    currentWord += "{{";
-                    i++; // Skip next '{'
-                    continue;
-                }
-                else if (i < text.Length - 1 && c == '}' && text[i + 1] == '}')
-                {
-                    templateDepth--;
-                    currentWord += "}}";
-                    i++; // Skip next '}'
-                    continue;
-                }
-                
-                // Split on space only if not inside a template
-                if (c == ' ' && templateDepth == 0)
-                {
-                    if (currentWord.Length > 0)
-                    {
-                        words.Add(currentWord);
-                        currentWord = "";
-                    }
-                }
-                else
-                {
-                    currentWord += c;
-                }
+                WriteLineColored(line, x, currentY);
+                currentY++;
             }
             
-            // Add the last word
-            if (currentWord.Length > 0)
+            return lines.Count;
+        }
+
+        /// <summary>
+        /// Writes colored text with word wrapping using List of ColoredText
+        /// </summary>
+        /// <returns>Number of lines written</returns>
+        public int WriteLineColoredWrapped(List<ColoredText> segments, int x, int y, int maxWidth)
+        {
+            // Combine segments into plain text for wrapping
+            var plainText = string.Join("", segments.Select(s => s.Text));
+            var lines = WrapText(plainText, maxWidth);
+
+            int currentY = y;
+            foreach (var line in lines)
             {
-                words.Add(currentWord);
+                WriteLineColored(line, x, currentY);
+                currentY++;
             }
             
-            return words;
+            return lines.Count;
         }
     }
 }
-

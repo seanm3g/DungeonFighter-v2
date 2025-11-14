@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using RPGGame.UI;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
 {
@@ -17,13 +19,9 @@ namespace RPGGame
         /// </summary>
         private static string ApplyKeywordColoring(string text)
         {
-            // Skip keyword coloring if text already has explicit color codes
-            // This prevents double-coloring and spacing issues
-            if (ColorParser.HasColorMarkup(text))
-            {
-                return text;
-            }
-            return KeywordColorSystem.Colorize(text);
+            // Return text as-is. Keyword coloring will be applied at render time if needed.
+            // This method is kept for compatibility but no longer modifies the text.
+            return text;
         }
         private static string? lastActingEntity = null;
         private static string? lastBlockType = null;
@@ -60,6 +58,55 @@ namespace RPGGame
             ["StatsBlock"] = new SpacingRule { Before = 0, After = 0 },
             ["MenuBlock"] = new SpacingRule { Before = 0, After = 0 }
         };
+        // ===== COLORED TEXT OVERLOADS =====
+        
+        /// <summary>
+        /// Displays an ACTION BLOCK using ColoredText for better color management
+        /// </summary>
+        public static void DisplayActionBlock(List<ColoredText> actionText, string rollInfo, List<string>? statusEffects = null)
+        {
+            // Convert ColoredText to markup string for now (future: render directly)
+            UIManager.WriteColoredText(actionText);
+            UIManager.WriteLine($"    {rollInfo}", UIMessageType.RollInfo);
+            
+            var validEffects = statusEffects?.FindAll(e => !string.IsNullOrEmpty(e)) ?? new List<string>();
+            foreach (var effect in validEffects)
+            {
+                UIManager.WriteLine($"    {ApplyKeywordColoring(effect)}", UIMessageType.EffectMessage);
+            }
+            
+            ApplyBlockDelay("ActionBlock");
+            ApplyBlockSpacing("ActionBlock");
+        }
+        
+        /// <summary>
+        /// Displays a NARRATIVE BLOCK using ColoredText
+        /// </summary>
+        public static void DisplayNarrativeBlock(List<ColoredText> narrativeText)
+        {
+            if (UIManager.UIConfig.DisableAllOutput || narrativeText == null || narrativeText.Count == 0) return;
+            
+            ManageBlockSpacing("NarrativeBlock");
+            UIManager.WriteColoredText(narrativeText);
+            ApplyBlockDelay("NarrativeBlock");
+            ApplyBlockSpacing("NarrativeBlock");
+        }
+        
+        /// <summary>
+        /// Displays a SYSTEM BLOCK using ColoredText
+        /// </summary>
+        public static void DisplaySystemBlock(List<ColoredText> systemText)
+        {
+            if (UIManager.UIConfig.DisableAllOutput || systemText == null || systemText.Count == 0) return;
+            
+            ManageBlockSpacing("SystemBlock");
+            UIManager.WriteColoredText(systemText);
+            ApplyBlockDelay("SystemBlock");
+            ApplyBlockSpacing("SystemBlock");
+        }
+        
+        // ===== STRING-BASED METHODS (Legacy Support) =====
+        
         /// <summary>
         /// Displays an ACTION BLOCK with consistent formatting
         /// Format: [Entity] action [Target] for X damage
@@ -247,14 +294,8 @@ namespace RPGGame
         {
             if (!UIManager.UIConfig.EnableDelays) return;
             
-            // Get the delay multiplier for this block type
-            double multiplier = UIManager.UIConfig.BeatTiming?.BlockDelays?.GetValueOrDefault(blockType, 0.0) ?? 0.0;
-            
-            if (multiplier > 0)
-            {
-                int delayMs = (int)((UIManager.UIConfig.BeatTiming?.CombatBeatLengthMs ?? 1500) * multiplier);
-                Thread.Sleep(delayMs);
-            }
+            // Use centralized delay system for individual messages
+            CombatDelayManager.DelayAfterMessage();
         }
         
         /// <summary>

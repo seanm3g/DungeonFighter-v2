@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Text;
 using RPGGame.UI;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.Tests
 {
@@ -16,7 +17,8 @@ namespace RPGGame.Tests
             Console.WriteLine();
             
             // Step 1: Create the markup
-            string markup = ColorParser.Colorize(text, templateName);
+            var coloredSegments = ColorParser.Colorize(text);
+            string markup = string.Join("", coloredSegments.Select(s => s.Text));
             Console.WriteLine($"Step 1 - ColorParser.Colorize() produces:");
             Console.WriteLine($"  \"{markup}\"");
             Console.WriteLine($"  Length: {markup.Length} chars");

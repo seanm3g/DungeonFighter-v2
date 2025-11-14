@@ -162,7 +162,7 @@ namespace RPGGame
                 .FirstOrDefault();
                 
             if (nextEntity == null)
-                return 0.0;
+                return -1.0; // Return -1 to indicate no entities exist
                 
             double currentTime = GameTicker.Instance.GetCurrentGameTime();
             

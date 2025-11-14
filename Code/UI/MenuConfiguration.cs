@@ -79,9 +79,8 @@ namespace RPGGame
             return new List<string>
             {
                 "=== SETTINGS ===",
-                "1. Tests",
-                "2. Delete Saved Characters",
-                "0. Exit"
+                "1. Testing",
+                "0. Back to Main Menu"
             };
         }
         

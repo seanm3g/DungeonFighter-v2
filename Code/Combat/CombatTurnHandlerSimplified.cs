@@ -71,15 +71,15 @@ namespace RPGGame
                     // Turn separator line removed for cleaner combat logs
                 }
                 
-                // Get triggered narratives and display everything together
-                var battleNarrative = stateManager.GetCurrentBattleNarrative();
-                if (textDisplayed && battleNarrative != null)
-                {
-                    var narratives = battleNarrative.GetTriggeredNarratives();
-                    // Add proper indentation to status effects
-                    var indentedStatusEffects = statusEffects.Select(effect => $"    {effect}").ToList();
-                    TextDisplayIntegration.DisplayCombatAction(result, narratives, indentedStatusEffects, currentEnemy.Name);
-                }
+            // Get triggered narratives and display everything together
+            var battleNarrative = stateManager.GetCurrentBattleNarrative();
+            if (textDisplayed && battleNarrative != null)
+            {
+                var narratives = battleNarrative.GetTriggeredNarratives();
+                // Add proper indentation to status effects
+                var indentedStatusEffects = statusEffects.Select(effect => $"    {effect}").ToList();
+                TextDisplayIntegration.DisplayCombatAction(result, narratives, indentedStatusEffects, currentEnemy.Name);
+            }
                 
                 // Update enemy's action timing in the action speed system
                 var actionSpeedSystem = stateManager.GetCurrentActionSpeedSystem();
@@ -251,8 +251,10 @@ namespace RPGGame
                 int actualRegen = player.CurrentHealth - oldHealth;
                 if (actualRegen > 0 && !CombatManager.DisableCombatUIOutput)
                 {
-                    UIManager.WriteLine($"{player.Name} regenerates {actualRegen} health ({player.CurrentHealth}/{player.GetEffectiveMaxHealth()})");
-                    UIManager.WriteLine(""); // Add blank line after regeneration message
+                    // Use new ColoredText system for health regeneration
+                    var coloredText = CombatFlowColoredText.FormatHealthRegenerationColored(
+                        player.Name, actualRegen, player.CurrentHealth, player.GetEffectiveMaxHealth());
+                    BlockDisplayManager.DisplaySystemBlock(coloredText);
                 }
             }
         }

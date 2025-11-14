@@ -97,18 +97,14 @@ namespace RPGGame.Data
             {
                 try
                 {
-                    var group = new KeywordColorSystem.KeywordGroup(
-                        groupData.Name,
-                        groupData.ColorPattern,
-                        groupData.CaseSensitive
-                    );
-                    
+                    // Add each keyword to the group using the simplified API
                     if (groupData.Keywords != null && groupData.Keywords.Count > 0)
                     {
-                        group.AddKeywords(groupData.Keywords.ToArray());
+                        foreach (var keyword in groupData.Keywords)
+                        {
+                            KeywordColorSystem.AddKeyword(keyword, groupData.Name);
+                        }
                     }
-                    
-                    KeywordColorSystem.RegisterKeywordGroup(group);
                 }
                 catch (Exception ex)
                 {

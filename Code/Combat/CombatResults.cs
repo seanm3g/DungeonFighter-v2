@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
 {
@@ -44,11 +45,11 @@ namespace RPGGame
             string damageText;
             if (isComboAction)
             {
-                damageText = $"{attacker.Name} hits {target.Name} with {actionName} for {{{{damage|{actualDamage}}}}} damage";
+                damageText = $"{attacker.Name} hits {target.Name} with {actionName} for {actualDamage} damage";
             }
             else
             {
-                damageText = $"{attacker.Name} hits {target.Name} for {{{{damage|{actualDamage}}}}} damage";
+                damageText = $"{attacker.Name} hits {target.Name} for {actualDamage} damage";
             }
             
             // Build the detailed roll and damage information
@@ -142,11 +143,11 @@ namespace RPGGame
             string damageText;
             if (isComboAction)
             {
-                damageText = $"{attacker.Name} hits {target.Name} with {actionName} for {{{{damage|{actualDamage}}}}} damage";
+                damageText = $"{attacker.Name} hits {target.Name} with {actionName} for {actualDamage} damage";
             }
             else
             {
-                damageText = $"{attacker.Name} hits {target.Name} for {{{{damage|{actualDamage}}}}} damage";
+                damageText = $"{attacker.Name} hits {target.Name} for {actualDamage} damage";
             }
             
             // Build the detailed roll and damage information
@@ -273,7 +274,7 @@ namespace RPGGame
         {
             // Wrap action name in natural template (green/environment color) so it's treated as one colored unit
             // Make "uses" explicitly white
-            string actionText = $"{source.Name} &Yuses&y {{{{natural|{action.Name}}}}} on {target.Name}";
+            string actionText = $"{source.Name} uses {action.Name} on {target.Name}";
             
             // Build the detailed roll information
             var rollInfo = new List<string>();
@@ -406,6 +407,88 @@ namespace RPGGame
             
             // Calculate actual action speed: base speed * action length
             return baseSpeed * action.Length;
+        }
+        
+        // ===== NEW COLORED TEXT SYSTEM WRAPPERS =====
+        
+        /// <summary>
+        /// Formats damage display using the new ColoredText system
+        /// </summary>
+        public static List<ColoredText> FormatDamageDisplayColored(Entity attacker, Entity target, int rawDamage, int actualDamage, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0)
+        {
+            return CombatResultsColoredText.FormatDamageDisplayColored(attacker, target, rawDamage, actualDamage, action, comboAmplifier, damageMultiplier, rollBonus, roll);
+        }
+        
+        /// <summary>
+        /// Formats miss message using the new ColoredText system
+        /// </summary>
+        public static List<ColoredText> FormatMissMessageColored(Entity attacker, Entity target, Action action, int roll, int rollBonus)
+        {
+            return CombatResultsColoredText.FormatMissMessageColored(attacker, target, action, roll, rollBonus);
+        }
+        
+        /// <summary>
+        /// Formats non-attack action using the new ColoredText system
+        /// </summary>
+        public static List<ColoredText> FormatNonAttackActionColored(Entity source, Entity target, Action action, int roll, int rollBonus)
+        {
+            return CombatResultsColoredText.FormatNonAttackActionColored(source, target, action, roll, rollBonus);
+        }
+        
+        /// <summary>
+        /// Formats health milestone using the new ColoredText system
+        /// </summary>
+        public static List<ColoredText> FormatHealthMilestoneColored(Entity entity, double healthPercentage)
+        {
+            return CombatResultsColoredText.FormatHealthMilestoneColored(entity, healthPercentage);
+        }
+        
+        /// <summary>
+        /// Formats block message using the new ColoredText system
+        /// </summary>
+        public static List<ColoredText> FormatBlockMessageColored(Entity defender, Entity attacker, int damageBlocked)
+        {
+            return CombatResultsColoredText.FormatBlockMessageColored(defender, attacker, damageBlocked);
+        }
+        
+        /// <summary>
+        /// Formats dodge message using the new ColoredText system
+        /// </summary>
+        public static List<ColoredText> FormatDodgeMessageColored(Entity defender, Entity attacker)
+        {
+            return CombatResultsColoredText.FormatDodgeMessageColored(defender, attacker);
+        }
+        
+        /// <summary>
+        /// Formats status effect using the new ColoredText system
+        /// </summary>
+        public static List<ColoredText> FormatStatusEffectColored(Entity target, string effectName, bool isApplied, int? duration = null, int? stackCount = null)
+        {
+            return CombatResultsColoredText.FormatStatusEffectColored(target, effectName, isApplied, duration, stackCount);
+        }
+        
+        /// <summary>
+        /// Formats healing message using the new ColoredText system
+        /// </summary>
+        public static List<ColoredText> FormatHealingMessageColored(Entity healer, Entity target, int healAmount)
+        {
+            return CombatResultsColoredText.FormatHealingMessageColored(healer, target, healAmount);
+        }
+        
+        /// <summary>
+        /// Formats victory message using the new ColoredText system
+        /// </summary>
+        public static List<ColoredText> FormatVictoryMessageColored(Entity victor, Entity defeated)
+        {
+            return CombatResultsColoredText.FormatVictoryMessageColored(victor, defeated);
+        }
+        
+        /// <summary>
+        /// Formats defeat message using the new ColoredText system
+        /// </summary>
+        public static List<ColoredText> FormatDefeatMessageColored(Entity victor, Entity defeated)
+        {
+            return CombatResultsColoredText.FormatDefeatMessageColored(victor, defeated);
         }
     }
 }

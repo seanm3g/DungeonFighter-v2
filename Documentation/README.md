@@ -14,7 +14,8 @@ Essential project documentation that every developer should be familiar with:
 ### 02-Development/
 Development guides, patterns, and balance documentation:
 - **`CHANGELOG.md`** - Complete version history and feature releases
-- **`TASKLIST.md`** - Current development tasks and progress tracking
+- **`COMPREHENSIVE_IMPLEMENTATION_SUMMARY.md`** ✨ **NEW** - Complete consolidation of all implementation summaries
+- **`OCTOBER_2025_IMPLEMENTATION_SUMMARY.md`** - Detailed v6.2 feature documentation (67 pages)
 - **`DEVELOPMENT_GUIDE.md`** - Comprehensive development guide and quick start
 - **`DEVELOPMENT_WORKFLOW.md`** - Step-by-step development process
 - **`CODE_PATTERNS.md`** - Code patterns, conventions, and best practices
@@ -32,12 +33,14 @@ Testing, debugging, performance, and issue tracking:
 
 ### 04-Reference/
 Quick reference materials and change tracking:
+- **`IMPLEMENTATION_QUICK_REFERENCE.md`** ✨ **NEW** - Quick reference for all major implementations
 - **`QUICK_REFERENCE.md`** - Fast lookup for key information and commands
 - **`INDEX.md`** - Complete index of all documentation files
 - **`README_TESTING_SYSTEM.md`** - Testing system documentation
 
 ### 05-Systems/
 System-specific documentation for various game systems:
+- **`INTENTIONAL_COLOR_SCHEME.md`** ✨ **NEW** - Comprehensive intentional color scheme system for items, classes, and modifications
 - **`UI_CONFIGURATION_GUIDE.md`** - UI system configuration
 - **`TEXT_DISPLAY_SYSTEM.md`** - Text display system documentation
 - **`README_TEXT_DISPLAY_SYSTEM.md`** - Text display system guide
@@ -58,7 +61,7 @@ Historical notes and reference materials:
 ### For New Developers
 1. Start with **[`01-Core/README.md`](01-Core/README.md)** for project overview
 2. Read **[`01-Core/ARCHITECTURE.md`](01-Core/ARCHITECTURE.md)** for system understanding
-3. Check **[`01-Core/TASKLIST.md`](01-Core/TASKLIST.md)** for current priorities
+3. Check **[`02-Development/COMPREHENSIVE_IMPLEMENTATION_SUMMARY.md`](02-Development/COMPREHENSIVE_IMPLEMENTATION_SUMMARY.md)** for complete implementation overview
 4. Follow **[`02-Development/DEVELOPMENT_WORKFLOW.md`](02-Development/DEVELOPMENT_WORKFLOW.md)** for process
 
 ### For Problem Solving

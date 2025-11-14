@@ -36,6 +36,17 @@ DungeonFighter is a sophisticated turn-based RPG/dungeon crawler game written in
 - **Significant Event Detection:** First blood, health reversals, near death, combo achievements
 - **Configurable Display:** Balance between narrative and informational modes
 
+### Modern GUI & Visual Systems
+- **Avalonia-based Interface:** Modern desktop GUI with ASCII canvas rendering
+- **Persistent Layout:** Always-visible character panel with stats, health, and equipment
+- **Item Color System:** Rarity-based visual feedback (Common → Transcendent) with 7 tiers
+- **Color Configuration:** Data-driven JSON-based color system (166+ templates, 200+ keywords)
+- **Title Screen Animation:** Smooth 30 FPS color transition animations
+- **Chunked Text Reveal:** Progressive text display with natural timing
+- **Dungeon Shimmer:** Continuous color animation on dungeon names
+- **1920×1080 Resolution:** Optimized for modern displays
+- **Mouse & Keyboard Support:** Full input support with clickable UI elements
+
 ### Data-driven Architecture
 - **JSON Configuration:** All game data stored in structured JSON files
 - **Modular Design:** Easy to add new enemies, actions, rooms, and items
@@ -81,14 +92,21 @@ DungeonFighter is a sophisticated turn-based RPG/dungeon crawler game written in
 - **`BattleNarrative`**: Generates event-driven battle descriptions and summaries
 - **`BattleHealthTracker`**: Health tracking for battle narrative system
 
-### UI System (New)
+### UI System (Modern GUI)
+- **`CanvasUIManager`**: Modern Avalonia-based GUI with ASCII canvas rendering and persistent layout
+- **`GameCanvasControl`**: Avalonia control for rendering ASCII art and game content
+- **`PersistentLayoutManager`**: Always-visible character panel with stats, health, and equipment
 - **`UIManager`**: Centralized UI output and display with beat-based timing
 - **`GameMenuManager`**: Manages game menus, UI interactions, and game flow
-- **`InventoryDisplayManager`**: Manages all display logic for inventory, character stats, and equipment
+- **`GameDisplayManager`**: Unified display manager for inventory, character stats, and equipment
 - **`MenuConfiguration`**: Centralized configuration for all menu options throughout the game
 - **`TextDisplayIntegration`**: Integration layer for displaying text using the new UIManager beat-based timing system
 - **`TextDisplaySettings`**: Configuration for text display timing and formatting
 - **`UIConfiguration`**: UI configuration management
+- **`ItemColorSystem`**: Rarity-based item coloring with 7 rarity tiers and modifier colors
+- **`TitleScreenAnimator`**: 30 FPS color transition animations for title screen
+- **`ChunkedTextReveal`**: Progressive text display with natural timing
+- **`ColoredTextWriter`**: Color markup parsing and rendering system
 
 ### World & Environment System
 - **`Dungeon`**: Procedurally generates themed room sequences and manages progression
@@ -145,11 +163,14 @@ DungeonFighter is a sophisticated turn-based RPG/dungeon crawler game written in
 - **Enemy System:** ✅ 18+ enemy types with AI, scaling, and primary attribute specialization
 - **Dungeon System:** ✅ Procedural generation with 10 themed dungeons
 - **Data System:** ✅ Complete JSON-driven content management
-- **UI System:** ✅ Beat-based timing system with TextDisplayIntegration and MenuConfiguration
+- **UI System:** ✅ Modern Avalonia-based GUI with ASCII canvas rendering and persistent layout
 - **Action System:** ✅ Refactored with ActionSelector, ActionExecutor, and ActionUtilities
 - **World System:** ✅ Environment effects, status effects, and damage management
 - **Dynamic Tuning System:** ✅ Real-time parameter adjustment with GameConfiguration
 - **Advanced Action System:** ✅ Complex action mechanics with temporary effects and divine rerolls
+- **GUI Features:** ✅ Title screen animations, item color system, inventory management, combat display
+- **Color System:** ✅ Pattern-based color templates with 166+ templates and 200+ keywords
+- **Animation System:** ✅ Chunked text reveal, title screen transitions, dungeon shimmer effects
 
 ## Future Development Plans
 - **Unity Integration:** Planning to port core systems to Unity for enhanced graphics and gameplay

@@ -5,7 +5,39 @@ using System.Text.Json;
 namespace RPGGame
 {
     /// <summary>
+    /// Preset configurations for common use cases
+    /// </summary>
+    public enum UIConfigurationPreset
+    {
+        Balanced,
+        Fast,
+        Cinematic,
+        Debug,
+        Snappy,      // Quick but not instant
+        Relaxed,     // Slower, more deliberate
+        Instant      // No delays at all
+    }
+    
+    /// <summary>
+    /// Types of UI messages for delay configuration
+    /// </summary>
+    public enum UIMessageType
+    {
+        Combat,
+        Menu,
+        System,
+        Title,
+        MainTitle,
+        Environmental,
+        EffectMessage,
+        DamageOverTime,
+        RollInfo,
+        Encounter
+    }
+
+    /// <summary>
     /// Comprehensive UI configuration system for easily adjusting combat log display, delays, and spacing
+    /// Refactored to use separate configuration classes for better maintainability
     /// </summary>
     public class UIConfiguration
     {
@@ -19,8 +51,21 @@ namespace RPGGame
         public bool AddBlankLinesAfterDamageOverTime { get; set; } = true;
         public bool AddBlankLinesAfterStunMessages { get; set; } = true;
         
-        // Block Spacing Configuration
-        public BlockSpacingConfiguration BlockSpacing { get; set; } = new BlockSpacingConfiguration();
+        // Block Spacing Configuration (merged from BlockSpacingConfiguration)
+        /// <summary>
+        /// Add blank lines between action blocks
+        /// </summary>
+        public bool AddBlankLinesBetweenActionBlocks { get; set; } = true;
+        
+        /// <summary>
+        /// Add blank lines between effect blocks
+        /// </summary>
+        public bool AddBlankLinesBetweenEffectBlocks { get; set; } = true;
+        
+        /// <summary>
+        /// Add blank lines around narrative blocks
+        /// </summary>
+        public bool AddBlankLinesAroundNarrativeBlocks { get; set; } = true;
         
         // Debug Configuration
         public bool ShowTimingInfo { get; set; } = false;
@@ -50,7 +95,6 @@ namespace RPGGame
         /// Configuration for the moving brightness mask effect
         /// </summary>
         public BrightnessMaskConfig BrightnessMask { get; set; } = new BrightnessMaskConfig();
-        
         
         /// <summary>
         /// Loads configuration from a JSON file
@@ -245,240 +289,5 @@ namespace RPGGame
             
             return delay;
         }
-    }
-    
-    /// <summary>
-    /// Beat-based timing configuration system with two core beats
-    /// </summary>
-    public class BeatTimingConfiguration
-    {
-        /// <summary>
-        /// Combat beat length in milliseconds - used for combat, environmental, effects, and damage over time
-        /// </summary>
-        public int CombatBeatLengthMs { get; set; } = 1500;
-        
-        /// <summary>
-        /// Menu beat length in milliseconds - used for system messages and titles
-        /// </summary>
-        public int MenuBeatLengthMs { get; set; } = 20;
-        
-        /// <summary>
-        /// Beat multipliers for different message types
-        /// </summary>
-        public BeatMultipliers BeatMultipliers { get; set; } = new BeatMultipliers();
-        
-        /// <summary>
-        /// Block-based delays for the new display system
-        /// </summary>
-        public Dictionary<string, double> BlockDelays { get; set; } = new Dictionary<string, double>();
-        
-        /// <summary>
-        /// Legacy multipliers for backward compatibility
-        /// </summary>
-        public LegacyMultipliers LegacyMultipliers { get; set; } = new LegacyMultipliers();
-        
-        /// <summary>
-        /// Gets the beat multiplier for a specific message type
-        /// </summary>
-        /// <param name="messageType">Type of message</param>
-        /// <returns>Beat multiplier (e.g., 1.0 = 1 beat, 0.5 = half beat, 2.0 = 2 beats)</returns>
-        public double GetBeatMultiplier(UIMessageType messageType)
-        {
-            return messageType switch
-            {
-                UIMessageType.Combat => BeatMultipliers.Combat,
-                UIMessageType.Menu => 0, // Menu uses MenuSpeedMs instead
-                UIMessageType.System => BeatMultipliers.System,
-                UIMessageType.Title => BeatMultipliers.Title,
-                UIMessageType.MainTitle => BeatMultipliers.MainTitle,
-                UIMessageType.Environmental => BeatMultipliers.Environmental,
-                UIMessageType.EffectMessage => BeatMultipliers.EffectMessage,
-                UIMessageType.DamageOverTime => BeatMultipliers.DamageOverTime,
-                UIMessageType.RollInfo => BeatMultipliers.RollInfo, // Use JSON configuration
-                UIMessageType.Encounter => BeatMultipliers.Encounter,
-                _ => 0
-            };
-        }
-        
-        /// <summary>
-        /// Gets the appropriate base beat length for a message type
-        /// </summary>
-        /// <param name="messageType">Type of message</param>
-        /// <returns>Base beat length in milliseconds</returns>
-        public int GetBaseBeatLength(UIMessageType messageType)
-        {
-            return messageType switch
-            {
-                UIMessageType.Combat => CombatBeatLengthMs,
-                UIMessageType.Environmental => CombatBeatLengthMs,
-                UIMessageType.EffectMessage => CombatBeatLengthMs,
-                UIMessageType.DamageOverTime => CombatBeatLengthMs,
-                UIMessageType.RollInfo => CombatBeatLengthMs,
-                UIMessageType.Encounter => CombatBeatLengthMs,
-                UIMessageType.System => MenuBeatLengthMs,
-                UIMessageType.Title => MenuBeatLengthMs,
-                UIMessageType.MainTitle => MenuBeatLengthMs,
-                UIMessageType.Menu => MenuBeatLengthMs,
-                _ => CombatBeatLengthMs
-            };
-        }
-        
-        /// <summary>
-        /// Gets the effective menu delay (independent of beat system)
-        /// </summary>
-        /// <returns>Menu delay in milliseconds</returns>
-        public int GetMenuDelay()
-        {
-            return MenuBeatLengthMs;
-        }
-    }
-    
-    /// <summary>
-    /// Beat multipliers for different message types
-    /// </summary>
-    public class BeatMultipliers
-    {
-        /// <summary>
-        /// Combat actions - 1 beat (standard timing)
-        /// </summary>
-        public double Combat { get; set; } = 1.0;
-        
-        /// <summary>
-        /// System messages - 1 beat (same as combat)
-        /// </summary>
-        public double System { get; set; } = 1.0;
-        
-        /// <summary>
-        /// Environmental actions - 1.5 beats (slightly longer for dramatic effect)
-        /// </summary>
-        public double Environmental { get; set; } = 1.5;
-        
-        /// <summary>
-        /// Status effect messages (stun, poison, bleed, etc.) - 0.5 beats (quick, snappy)
-        /// </summary>
-        public double EffectMessage { get; set; } = 0.5;
-        
-        /// <summary>
-        /// Damage over time - 0.5 beats (quick, like stun)
-        /// </summary>
-        public double DamageOverTime { get; set; } = 0.5;
-        
-        /// <summary>
-        /// Title screens - 10 beats (dramatic, long pause)
-        /// </summary>
-        public double Title { get; set; } = 10.0;
-        
-        /// <summary>
-        /// Main title screens - 20 beats (extra dramatic pause for main game title)
-        /// </summary>
-        public double MainTitle { get; set; } = 20.0;
-        
-        /// <summary>
-        /// Encounter messages - 0.67 beats (dramatic pause after encountering enemies)
-        /// </summary>
-        public double Encounter { get; set; } = 0.67;
-        
-        /// <summary>
-        /// Roll information messages - 0.10 beats (quick display of roll details)
-        /// </summary>
-        public double RollInfo { get; set; } = 0.10;
-    }
-    
-    /// <summary>
-    /// Legacy multipliers for backward compatibility with older configurations
-    /// These are alternative timing values that can be loaded from JSON
-    /// </summary>
-    public class LegacyMultipliers
-    {
-        public double Title { get; set; } = 15.0;
-        public double MainTitle { get; set; } = 20.0;
-        public double System { get; set; } = 1.0;
-        public double Combat { get; set; } = 0.5;
-        public double Environmental { get; set; } = 1.5;
-        public double EffectMessage { get; set; } = 0.4;
-        public double DamageOverTime { get; set; } = 0.4;
-        public double RollInfo { get; set; } = 1.0;
-        public double Encounter { get; set; } = 2.0;
-    }
-    
-    /// <summary>
-    /// Preset configurations for common use cases
-    /// </summary>
-    public enum UIConfigurationPreset
-    {
-        Balanced,
-        Fast,
-        Cinematic,
-        Debug,
-        Snappy,      // Quick but not instant
-        Relaxed,     // Slower, more deliberate
-        Instant      // No delays at all
-    }
-    
-    /// <summary>
-    /// Types of UI messages for delay configuration
-    /// </summary>
-    public enum UIMessageType
-    {
-        Combat,
-        Menu,
-        System,
-        Title,
-        MainTitle,
-        Environmental,
-        EffectMessage,
-        DamageOverTime,
-        RollInfo,
-        Encounter
-    }
-    
-    /// <summary>
-    /// Configuration for block spacing in the new display system
-    /// </summary>
-    public class BlockSpacingConfiguration
-    {
-        /// <summary>
-        /// Add blank lines between action blocks
-        /// </summary>
-        public bool AddBlankLinesBetweenActionBlocks { get; set; } = true;
-        
-        /// <summary>
-        /// Add blank lines between effect blocks
-        /// </summary>
-        public bool AddBlankLinesBetweenEffectBlocks { get; set; } = true;
-        
-        /// <summary>
-        /// Add blank lines around narrative blocks
-        /// </summary>
-        public bool AddBlankLinesAroundNarrativeBlocks { get; set; } = true;
-    }
-    
-    /// <summary>
-    /// Configuration for the moving brightness mask effect
-    /// </summary>
-    public class BrightnessMaskConfig
-    {
-        /// <summary>
-        /// Enable or disable the brightness mask effect
-        /// </summary>
-        public bool Enabled { get; set; }
-        
-        /// <summary>
-        /// Maximum brightness adjustment (+/- this value in percent)
-        /// Must be set in UIConfiguration.json
-        /// </summary>
-        public float Intensity { get; set; }
-        
-        /// <summary>
-        /// Length of the wave pattern (higher = slower, more gradual changes)
-        /// Must be set in UIConfiguration.json
-        /// </summary>
-        public float WaveLength { get; set; }
-        
-        /// <summary>
-        /// How often the brightness mask moves (in milliseconds)
-        /// Must be set in UIConfiguration.json
-        /// </summary>
-        public int UpdateIntervalMs { get; set; }
     }
 }

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
 {
@@ -85,6 +87,28 @@ namespace RPGGame
         public void WriteChunked(string message, UI.ChunkedTextReveal.RevealConfig? config = null)
         {
             UIManager.WriteChunked(message, config);
+        }
+        
+        // ===== NEW COLORED TEXT SYSTEM METHODS =====
+        
+        public void WriteColoredText(ColoredText coloredText, UIMessageType messageType = UIMessageType.System)
+        {
+            UIManager.WriteColoredText(coloredText, messageType);
+        }
+        
+        public void WriteLineColoredText(ColoredText coloredText, UIMessageType messageType = UIMessageType.System)
+        {
+            UIManager.WriteLineColoredText(coloredText, messageType);
+        }
+        
+        public void WriteColoredSegments(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System)
+        {
+            UIManager.WriteColoredSegments(segments, messageType);
+        }
+        
+        public void WriteLineColoredSegments(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System)
+        {
+            UIManager.WriteLineColoredSegments(segments, messageType);
         }
     }
 }

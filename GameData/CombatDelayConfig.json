@@ -1,0 +1,12 @@
+{
+  "ActionDelayMs": 1000,
+  "MessageDelayMs": 200,
+  "EnableGuiDelays": true,
+  "EnableConsoleDelays": true,
+  "Description": {
+    "ActionDelayMs": "Delay between complete actions (in milliseconds)",
+    "MessageDelayMs": "Delay between individual messages within an action (in milliseconds)",
+    "EnableGuiDelays": "Whether to enable delays for GUI",
+    "EnableConsoleDelays": "Whether to enable delays for console"
+  }
+}

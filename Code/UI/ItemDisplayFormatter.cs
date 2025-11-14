@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame.UI;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
 {
@@ -177,7 +178,8 @@ namespace RPGGame
         /// </summary>
         public static string GetColoredItemName(Item item)
         {
-            return ItemColorSystem.FormatSimpleItemDisplay(item);
+            var coloredText = ItemColorSystem.FormatSimpleItemDisplay(item);
+            return ColoredTextRenderer.RenderAsPlainText(coloredText);
         }
 
         /// <summary>
@@ -185,7 +187,8 @@ namespace RPGGame
         /// </summary>
         public static string GetColoredFullItemName(Item item)
         {
-            return ItemColorSystem.FormatFullItemName(item);
+            var coloredText = ItemColorSystem.FormatFullItemName(item);
+            return ColoredTextRenderer.RenderAsPlainText(coloredText);
         }
 
         /// <summary>
@@ -198,7 +201,8 @@ namespace RPGGame
             {
                 var bonusTexts = item.StatBonuses.Select(b => 
                 {
-                    string coloredName = ItemColorSystem.FormatStatBonus(b);
+                    var coloredNameList = ItemColorSystem.FormatStatBonus(b);
+                    string coloredName = ColoredTextRenderer.RenderAsPlainText(coloredNameList);
                     string formatted = FormatStatBonus(b);
                     return $"{coloredName} ({formatted})";
                 });
@@ -216,12 +220,87 @@ namespace RPGGame
             {
                 var modificationTexts = item.Modifications.Select(m => 
                 {
-                    string coloredName = ItemColorSystem.FormatModification(m);
+                    var coloredNameList = ItemColorSystem.FormatModification(m);
+                    string coloredName = ColoredTextRenderer.RenderAsPlainText(coloredNameList);
                     string details = GetModificationDisplayText(m);
                     return $"{coloredName} &y({details.Substring(m.Name.Length + 1)})"; // Remove name from details since we already colored it
                 });
                 writeLine($"    &CModifiers:&y {string.Join(", ", modificationTexts)}");
             }
+        }
+        
+        // ===== NEW COLORED TEXT SYSTEM WRAPPERS =====
+        
+        /// <summary>
+        /// Gets colored item name (simple) using new ColoredText system
+        /// </summary>
+        public static List<ColoredText> GetColoredItemNameNew(Item item)
+        {
+            return ItemDisplayColoredText.FormatSimpleItemName(item);
+        }
+        
+        /// <summary>
+        /// Gets colored full item name using new ColoredText system
+        /// </summary>
+        public static List<ColoredText> GetColoredFullItemNameNew(Item item)
+        {
+            return ItemDisplayColoredText.FormatFullItemName(item);
+        }
+        
+        /// <summary>
+        /// Gets colored item with rarity using new ColoredText system
+        /// </summary>
+        public static List<ColoredText> GetColoredItemWithRarityNew(Item item)
+        {
+            return ItemDisplayColoredText.FormatItemWithRarity(item);
+        }
+        
+        /// <summary>
+        /// Formats item stats using new ColoredText system
+        /// </summary>
+        public static List<List<ColoredText>> FormatItemStatsNew(Item item)
+        {
+            return ItemDisplayColoredText.FormatItemStats(item);
+        }
+        
+        /// <summary>
+        /// Formats stat bonus using new ColoredText system
+        /// </summary>
+        public static List<ColoredText> FormatStatBonusNew(StatBonus bonus)
+        {
+            return ItemDisplayColoredText.FormatStatBonus(bonus);
+        }
+        
+        /// <summary>
+        /// Formats inventory item using new ColoredText system
+        /// </summary>
+        public static List<ColoredText> FormatInventoryItemNew(int index, Item item)
+        {
+            return ItemDisplayColoredText.FormatInventoryItem(index, item);
+        }
+        
+        /// <summary>
+        /// Formats equipped item using new ColoredText system
+        /// </summary>
+        public static List<ColoredText> FormatEquippedItemNew(string slotName, Item? item)
+        {
+            return ItemDisplayColoredText.FormatEquippedItem(slotName, item);
+        }
+        
+        /// <summary>
+        /// Formats item comparison using new ColoredText system
+        /// </summary>
+        public static List<List<ColoredText>> FormatItemComparisonNew(Item newItem, Item? currentItem)
+        {
+            return ItemDisplayColoredText.FormatItemComparison(newItem, currentItem);
+        }
+        
+        /// <summary>
+        /// Formats loot drop using new ColoredText system
+        /// </summary>
+        public static List<ColoredText> FormatLootDropNew(Item item)
+        {
+            return ItemDisplayColoredText.FormatLootDrop(item);
         }
     }
 }

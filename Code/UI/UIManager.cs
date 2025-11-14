@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using RPGGame.UI;
+using RPGGame.UI.ColorSystem;
+using RPGGame.Utils;
 
 namespace RPGGame
 {
@@ -377,6 +380,255 @@ namespace RPGGame
                 MinDelayMs = 1000,
                 MaxDelayMs = 3000
             });
+        }
+        
+        // ===== NEW COLORED TEXT SYSTEM METHODS =====
+        
+        /// <summary>
+        /// Writes colored text using the new ColoredText system
+        /// </summary>
+        /// <param name="coloredText">ColoredText object to display</param>
+        /// <param name="messageType">Type of message for delay configuration</param>
+        public static void WriteColoredText(ColoredText coloredText, UIMessageType messageType = UIMessageType.System)
+        {
+            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
+            
+            // Use custom UI manager if one is set
+            if (_customUIManager != null)
+            {
+                _customUIManager.WriteColoredText(coloredText, messageType);
+                return;
+            }
+            
+            // For console output, use the new system
+            var segments = new List<ColoredText> { coloredText };
+            ColoredConsoleWriter.WriteSegments(segments);
+            
+            ApplyDelay(messageType);
+        }
+        
+        /// <summary>
+        /// Writes a list of colored text segments
+        /// </summary>
+        public static void WriteColoredText(List<ColoredText> coloredTexts, UIMessageType messageType = UIMessageType.System)
+        {
+            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
+            
+            // Use custom UI manager if one is set
+            if (_customUIManager != null)
+            {
+                foreach (var coloredText in coloredTexts)
+                {
+                    _customUIManager.WriteColoredText(coloredText, messageType);
+                }
+                return;
+            }
+            
+            // For console output, use the new system
+            ColoredConsoleWriter.WriteSegments(coloredTexts);
+            
+            ApplyDelay(messageType);
+        }
+        
+        /// <summary>
+        /// Writes colored text using the new ColoredText system with newline
+        /// </summary>
+        /// <param name="coloredText">ColoredText object to display</param>
+        /// <param name="messageType">Type of message for delay configuration</param>
+        public static void WriteLineColoredText(ColoredText coloredText, UIMessageType messageType = UIMessageType.System)
+        {
+            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
+            
+            // Use custom UI manager if one is set
+            if (_customUIManager != null)
+            {
+                _customUIManager.WriteLineColoredText(coloredText, messageType);
+                return;
+            }
+            
+            // For console output, use the new system
+            var segments = new List<ColoredText> { coloredText };
+            ColoredConsoleWriter.WriteSegments(segments);
+            Console.WriteLine();
+            
+            ApplyDelay(messageType);
+        }
+        
+        /// <summary>
+        /// Writes colored text segments using the new ColoredText system
+        /// </summary>
+        /// <param name="segments">List of ColoredText segments to display</param>
+        /// <param name="messageType">Type of message for delay configuration</param>
+        public static void WriteColoredSegments(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System)
+        {
+            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
+            
+            // Use custom UI manager if one is set
+            if (_customUIManager != null)
+            {
+                _customUIManager.WriteColoredSegments(segments, messageType);
+                return;
+            }
+            
+            // For console output, use the new system
+            ColoredConsoleWriter.WriteSegments(segments);
+            
+            ApplyDelay(messageType);
+        }
+        
+        /// <summary>
+        /// Writes colored text segments using the new ColoredText system with newline
+        /// </summary>
+        /// <param name="segments">List of ColoredText segments to display</param>
+        /// <param name="messageType">Type of message for delay configuration</param>
+        public static void WriteLineColoredSegments(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System)
+        {
+            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
+            
+            // Use custom UI manager if one is set
+            if (_customUIManager != null)
+            {
+                _customUIManager.WriteLineColoredSegments(segments, messageType);
+                return;
+            }
+            
+            // For console output, use the new system
+            ColoredConsoleWriter.WriteSegments(segments);
+            Console.WriteLine();
+            
+            ApplyDelay(messageType);
+        }
+        
+        /// <summary>
+        /// Writes colored text using the builder pattern
+        /// </summary>
+        /// <param name="builder">ColoredTextBuilder to build and display</param>
+        /// <param name="messageType">Type of message for delay configuration</param>
+        public static void WriteColoredTextBuilder(ColoredTextBuilder builder, UIMessageType messageType = UIMessageType.System)
+        {
+            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
+            
+            var segments = builder.Build();
+            WriteColoredSegments(segments, messageType);
+        }
+        
+        /// <summary>
+        /// Writes colored text using the builder pattern with newline
+        /// </summary>
+        /// <param name="builder">ColoredTextBuilder to build and display</param>
+        /// <param name="messageType">Type of message for delay configuration</param>
+        public static void WriteLineColoredTextBuilder(ColoredTextBuilder builder, UIMessageType messageType = UIMessageType.System)
+        {
+            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
+            
+            var segments = builder.Build();
+            WriteLineColoredSegments(segments, messageType);
+        }
+        
+        /// <summary>
+        /// Creates a combat message using the new color system
+        /// </summary>
+        /// <param name="attacker">Name of the attacker</param>
+        /// <param name="action">Action performed</param>
+        /// <param name="target">Name of the target</param>
+        /// <param name="damage">Damage amount (optional)</param>
+        /// <param name="isCritical">Whether this is a critical hit</param>
+        /// <param name="isMiss">Whether this is a miss</param>
+        /// <param name="isBlock">Whether this is blocked</param>
+        /// <param name="isDodge">Whether this is dodged</param>
+        public static void WriteCombatMessage(string attacker, string action, string target, int? damage = null, 
+            bool isCritical = false, bool isMiss = false, bool isBlock = false, bool isDodge = false)
+        {
+            var builder = new ColoredTextBuilder();
+            
+            // Attacker name
+            builder.Add(attacker, ColorPalette.Player);
+            builder.AddSpace();
+            
+            // Action
+            if (isMiss)
+            {
+                builder.AddWithPattern(action, "miss");
+            }
+            else if (isBlock)
+            {
+                builder.AddWithPattern(action, "block");
+            }
+            else if (isDodge)
+            {
+                builder.AddWithPattern(action, "dodge");
+            }
+            else
+            {
+                builder.AddWithPattern(action, "damage");
+            }
+            
+            builder.AddSpace();
+            
+            // Target name
+            builder.Add(target, ColorPalette.Enemy);
+            
+            // Damage amount
+            if (damage.HasValue)
+            {
+                builder.AddSpace();
+                builder.Add(damage.Value.ToString(), isCritical ? ColorPalette.Critical : ColorPalette.Damage);
+                builder.AddSpace();
+                builder.AddWithPattern("damage", "damage");
+            }
+            
+            WriteLineColoredTextBuilder(builder, UIMessageType.Combat);
+        }
+        
+        /// <summary>
+        /// Creates a healing message using the new color system
+        /// </summary>
+        /// <param name="healer">Name of the healer</param>
+        /// <param name="target">Name of the target</param>
+        /// <param name="amount">Healing amount</param>
+        public static void WriteHealingMessage(string healer, string target, int amount)
+        {
+            var builder = new ColoredTextBuilder();
+            
+            builder.Add(healer, ColorPalette.Player);
+            builder.AddSpace();
+            builder.AddWithPattern("heals", "healing");
+            builder.AddSpace();
+            builder.Add(target, ColorPalette.Player);
+            builder.AddSpace();
+            builder.Add(amount.ToString(), ColorPalette.Healing);
+            builder.AddSpace();
+            builder.AddWithPattern("health", "healing");
+            
+            WriteLineColoredTextBuilder(builder, UIMessageType.Combat);
+        }
+        
+        /// <summary>
+        /// Creates a status effect message using the new color system
+        /// </summary>
+        /// <param name="target">Name of the target</param>
+        /// <param name="effect">Effect name</param>
+        /// <param name="isApplied">Whether the effect is applied or removed</param>
+        public static void WriteStatusEffectMessage(string target, string effect, bool isApplied = true)
+        {
+            var builder = new ColoredTextBuilder();
+            
+            builder.Add(target, ColorPalette.Player);
+            builder.AddSpace();
+            
+            if (isApplied)
+            {
+                builder.AddWithPattern("is affected by", "warning");
+            }
+            else
+            {
+                builder.AddWithPattern("is no longer affected by", "success");
+            }
+            
+            builder.AddSpace();
+            builder.AddWithPattern(effect, "warning");
+            
+            WriteLineColoredTextBuilder(builder, UIMessageType.Combat);
         }
         
     }

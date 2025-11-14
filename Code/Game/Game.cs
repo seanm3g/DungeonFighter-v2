@@ -2,6 +2,7 @@ namespace RPGGame
 {
     using System.Text.Json;
     using RPGGame.UI.Avalonia;
+    using RPGGame.UI.ColorSystem;
 
     public enum GameState
     {
@@ -12,9 +13,11 @@ namespace RPGGame
         Inventory,
         CharacterInfo,
         Settings,
+        Testing,
         DungeonSelection,
         Dungeon,
-        Combat
+        Combat,
+        DungeonCompletion
     }
 
 
@@ -145,21 +148,30 @@ namespace RPGGame
         }
 
 
-        public void ShowMainMenu()
+        public async void ShowMainMenu()
         {
             // Try to load saved character if we don't have one yet
             if (currentPlayer == null)
             {
-                var savedCharacter = Character.LoadCharacter();
+                // Show loading message
+                if (customUIManager is CanvasUICoordinator canvasUI)
+                {
+                    canvasUI.ShowLoadingAnimation("Loading saved game...");
+                }
+                
+                // Load character on background thread to avoid blocking UI
+                var savedCharacter = await Task.Run(() => Character.LoadCharacter());
                 if (savedCharacter != null)
                 {
                     currentPlayer = savedCharacter;
-                    gameInitializer.InitializeExistingGame(currentPlayer, availableDungeons);
                     
-                    // Set character in UI manager for persistent display
-                    if (customUIManager is CanvasUIManager canvasUI)
+                    // Initialize game data on background thread
+                    await Task.Run(() => gameInitializer.InitializeExistingGame(currentPlayer, availableDungeons));
+                    
+                    // Set character in UI manager for persistent display (on UI thread)
+                    if (customUIManager is CanvasUICoordinator canvasUI2)
                     {
-                        canvasUI.SetCharacter(currentPlayer);
+                        canvasUI2.SetCharacter(currentPlayer);
                     }
                     
                     // Apply health multiplier if configured
@@ -179,7 +191,7 @@ namespace RPGGame
             
             if (customUIManager != null)
             {
-                // Use custom UI manager (e.g., CanvasUIManager)
+                // Use custom UI manager (e.g., CanvasUICoordinator)
                 ShowMainMenuWithCustomUI();
             }
             else
@@ -200,7 +212,7 @@ namespace RPGGame
 
         private void ShowMainMenuWithCustomUI()
         {
-            if (customUIManager is CanvasUIManager canvasUI)
+            if (customUIManager is CanvasUICoordinator canvasUI)
             {
                 // Check if we have a saved game
                 bool hasSavedGame = currentPlayer != null;
@@ -235,6 +247,9 @@ namespace RPGGame
                     case GameState.Settings:
                         HandleSettingsInput(input);
                         break;
+                    case GameState.Testing:
+                        HandleTestingInput(input);
+                        break;
                     case GameState.GameLoop:
                         await HandleGameLoopInput(input);
                         break;
@@ -243,6 +258,9 @@ namespace RPGGame
                         break;
                     case GameState.DungeonSelection:
                         await HandleDungeonSelectionInput(input);
+                        break;
+                    case GameState.DungeonCompletion:
+                        await HandleDungeonCompletionInput(input);
                         break;
                     case GameState.Dungeon:
                     case GameState.Combat:
@@ -285,7 +303,7 @@ namespace RPGGame
             }
         }
 
-        private void LoadGame()
+        private async void LoadGame()
         {
             if (currentPlayer != null)
             {
@@ -295,17 +313,25 @@ namespace RPGGame
             }
             else
             {
-                // Try to load saved character
-                var savedCharacter = Character.LoadCharacter();
+                // Show loading message
+                if (customUIManager is CanvasUICoordinator canvasUI)
+                {
+                    canvasUI.ShowLoadingAnimation("Loading saved game...");
+                }
+                
+                // Try to load saved character on background thread
+                var savedCharacter = await Task.Run(() => Character.LoadCharacter());
                 if (savedCharacter != null)
                 {
                     currentPlayer = savedCharacter;
-                    gameInitializer.InitializeExistingGame(currentPlayer, availableDungeons);
                     
-                    // Set character in UI manager
-                    if (customUIManager is CanvasUIManager canvasUI)
+                    // Initialize game data on background thread
+                    await Task.Run(() => gameInitializer.InitializeExistingGame(currentPlayer, availableDungeons));
+                    
+                    // Set character in UI manager (on UI thread)
+                    if (customUIManager is CanvasUICoordinator canvasUI2)
                     {
-                        canvasUI.SetCharacter(currentPlayer);
+                        canvasUI2.SetCharacter(currentPlayer);
                     }
                     
                     // Apply health multiplier if configured
@@ -378,7 +404,7 @@ namespace RPGGame
                     gameInitializer.InitializeExistingGame(currentPlayer, availableDungeons);
                     
                     // Set character in UI manager for persistent display
-                    if (customUIManager is CanvasUIManager canvasUI)
+                    if (customUIManager is CanvasUICoordinator canvasUI)
                     {
                         canvasUI.SetCharacter(currentPlayer);
                     }
@@ -421,7 +447,7 @@ namespace RPGGame
 
         private void ShowInventory()
         {
-            if (customUIManager is CanvasUIManager canvasUI && currentPlayer != null)
+            if (customUIManager is CanvasUICoordinator canvasUI && currentPlayer != null)
             {
                 canvasUI.SetCharacter(currentPlayer);
                 canvasUI.RenderInventory(currentPlayer, currentInventory);
@@ -430,7 +456,7 @@ namespace RPGGame
 
         private void ShowGameLoopMenu()
         {
-            if (customUIManager is CanvasUIManager canvasUI && currentPlayer != null)
+            if (customUIManager is CanvasUICoordinator canvasUI && currentPlayer != null)
             {
                 canvasUI.SetCharacter(currentPlayer);
                 canvasUI.RenderGameMenu(currentPlayer, currentInventory);
@@ -439,7 +465,7 @@ namespace RPGGame
 
         private void ShowCharacterInfo()
         {
-            if (customUIManager is CanvasUIManager canvasUI && currentPlayer != null)
+            if (customUIManager is CanvasUICoordinator canvasUI && currentPlayer != null)
             {
                 // For now, show inventory which includes character stats
                 canvasUI.RenderInventory(currentPlayer, currentInventory);
@@ -448,7 +474,7 @@ namespace RPGGame
 
         private void ShowSettings()
         {
-            if (customUIManager is CanvasUIManager canvasUI)
+            if (customUIManager is CanvasUICoordinator canvasUI)
             {
                 canvasUI.RenderSettings();
             }
@@ -476,7 +502,7 @@ namespace RPGGame
         {
             ShowMessage("Thanks for playing Dungeon Fighter!");
             // Close the application
-            if (customUIManager is CanvasUIManager canvasUI)
+            if (customUIManager is CanvasUICoordinator canvasUI)
             {
                 canvasUI.Close();
             }
@@ -485,7 +511,7 @@ namespace RPGGame
 
         private void ShowCharacterCreation()
         {
-            if (customUIManager is CanvasUIManager canvasUI && currentPlayer != null)
+            if (customUIManager is CanvasUICoordinator canvasUI && currentPlayer != null)
             {
                 canvasUI.RenderCharacterCreation(currentPlayer);
             }
@@ -493,7 +519,7 @@ namespace RPGGame
 
         private void ShowGameLoop()
         {
-            if (customUIManager is CanvasUIManager canvasUI && currentPlayer != null)
+            if (customUIManager is CanvasUICoordinator canvasUI && currentPlayer != null)
             {
                 // Show the main game menu (like the original console version)
                 canvasUI.RenderGameMenu(currentPlayer, currentInventory);
@@ -502,9 +528,176 @@ namespace RPGGame
 
         private void ShowMessage(string message)
         {
-            if (customUIManager is CanvasUIManager canvasUI)
+            if (customUIManager is CanvasUICoordinator canvasUI)
             {
                 canvasUI.ShowMessage(message);
+            }
+        }
+
+        private void ShowTestingMenu()
+        {
+            if (customUIManager is CanvasUICoordinator canvasUI)
+            {
+                canvasUI.RenderTestingMenu();
+            }
+        }
+
+        private async void HandleTestingInput(string input)
+        {
+            if (customUIManager is CanvasUICoordinator canvasUI)
+            {
+                // Check if we're waiting for any key to return to test menu
+                if (waitingForTestMenuReturn)
+                {
+                    // Clear the display buffer and show the test menu
+                    canvasUI.ClearDisplayBuffer();
+                    waitingForTestMenuReturn = false;
+                    ShowTestingMenu();
+                    return;
+                }
+                
+                var testRunner = new GameSystemTestRunner(canvasUI);
+                
+                switch (input)
+                {
+                    case "1":
+                        // Run All Tests
+                        await RunAllTests(testRunner);
+                        break;
+                    case "2":
+                        // Character System Tests
+                        await RunSystemTests(testRunner, "Character");
+                        break;
+                    case "3":
+                        // Combat System Tests
+                        await RunSystemTests(testRunner, "Combat");
+                        break;
+                    case "4":
+                        // Inventory System Tests
+                        await RunSystemTests(testRunner, "Inventory");
+                        break;
+                    case "5":
+                        // Dungeon System Tests
+                        await RunSystemTests(testRunner, "Dungeon");
+                        break;
+                    case "6":
+                        // Data System Tests
+                        await RunSystemTests(testRunner, "Data");
+                        break;
+                    case "7":
+                        // UI System Tests
+                        await RunSystemTests(testRunner, "UI");
+                        break;
+                    case "8":
+                        // Combat UI Fixes
+                        await RunCombatUIFixes(testRunner);
+                        break;
+                    case "9":
+                        // Integration Tests
+                        await RunIntegrationTests(testRunner);
+                        break;
+                    case "0":
+                        // Back to Settings
+                        currentState = GameState.Settings;
+                        ShowSettings();
+                        break;
+                    default:
+                        canvasUI.WriteLine("Invalid choice. Please select 1-9 or 0.");
+                        break;
+                }
+            }
+        }
+
+        private async Task RunAllTests(GameSystemTestRunner testRunner)
+        {
+            if (customUIManager is CanvasUICoordinator canvasUI)
+            {
+                canvasUI.ClearDisplayBuffer();
+                var results = await testRunner.RunAllTests();
+                
+                canvasUI.WriteBlankLine();
+                canvasUI.WriteLine("=== TEST COMPLETE ===");
+                canvasUI.WriteBlankLine();
+                canvasUI.WriteLine(testRunner.GetTestSummary());
+                canvasUI.WriteBlankLine();
+                
+                // Position "Press any key" message at bottom right corner
+                canvasUI.WriteLineColored("Press any key to return to test menu...", 150, 55);
+                
+                // Set flag to indicate we're waiting for any key to return to menu
+                waitingForTestMenuReturn = true;
+            }
+        }
+
+        private async Task RunSystemTests(GameSystemTestRunner testRunner, string systemName)
+        {
+            if (customUIManager is CanvasUICoordinator canvasUI)
+            {
+                canvasUI.ClearDisplayBuffer();
+                var results = await testRunner.RunSystemTests(systemName);
+                
+                canvasUI.WriteBlankLine();
+                canvasUI.WriteLine("=== TEST COMPLETE ===");
+                canvasUI.WriteBlankLine();
+                canvasUI.WriteLine(testRunner.GetTestSummary());
+                canvasUI.WriteBlankLine();
+                
+                // Position "Press any key" message at bottom right corner
+                canvasUI.WriteLineColored("Press any key to return to test menu...", 150, 55);
+                
+                // Set flag to indicate we're waiting for any key to return to menu
+                waitingForTestMenuReturn = true;
+            }
+        }
+
+        private async Task RunCombatUIFixes(GameSystemTestRunner testRunner)
+        {
+            if (customUIManager is CanvasUICoordinator canvasUI)
+            {
+                canvasUI.ClearDisplayBuffer();
+                canvasUI.WriteLine("=== COMBAT UI FIXES TESTS ===");
+                canvasUI.WriteBlankLine();
+                
+                var result1 = await testRunner.RunSpecificTest("Combat Panel Containment");
+                var result2 = await testRunner.RunSpecificTest("Combat Freezing Prevention");
+                var result3 = await testRunner.RunSpecificTest("Combat Log Cleanup");
+                
+                canvasUI.WriteBlankLine();
+                canvasUI.WriteLine("=== TEST COMPLETE ===");
+                canvasUI.WriteBlankLine();
+                canvasUI.WriteLine(testRunner.GetTestSummary());
+                canvasUI.WriteBlankLine();
+                
+                // Position "Press any key" message at bottom right corner
+                canvasUI.WriteLineColored("Press any key to return to test menu...", 150, 55);
+                
+                // Set flag to indicate we're waiting for any key to return to menu
+                waitingForTestMenuReturn = true;
+            }
+        }
+
+        private async Task RunIntegrationTests(GameSystemTestRunner testRunner)
+        {
+            if (customUIManager is CanvasUICoordinator canvasUI)
+            {
+                canvasUI.ClearDisplayBuffer();
+                canvasUI.WriteLine("=== INTEGRATION TESTS ===");
+                canvasUI.WriteBlankLine();
+                
+                var result1 = await testRunner.RunSpecificTest("Game Flow Integration");
+                var result2 = await testRunner.RunSpecificTest("Performance Integration");
+                
+                canvasUI.WriteBlankLine();
+                canvasUI.WriteLine("=== TEST COMPLETE ===");
+                canvasUI.WriteBlankLine();
+                canvasUI.WriteLine(testRunner.GetTestSummary());
+                canvasUI.WriteBlankLine();
+                
+                // Position "Press any key" message at bottom right corner
+                canvasUI.WriteLineColored("Press any key to return to test menu...", 150, 55);
+                
+                // Set flag to indicate we're waiting for any key to return to menu
+                waitingForTestMenuReturn = true;
             }
         }
 
@@ -614,7 +807,7 @@ namespace RPGGame
             }
             
             // Render item selection screen for equipping
-            if (customUIManager is CanvasUIManager canvasUI)
+            if (customUIManager is CanvasUICoordinator canvasUI)
             {
                 canvasUI.RenderItemSelectionPrompt(currentPlayer, currentInventory, "Select Item to Equip", "equip");
             }
@@ -629,7 +822,7 @@ namespace RPGGame
             if (currentPlayer == null) return;
             
             // Render slot selection screen for unequipping
-            if (customUIManager is CanvasUIManager canvasUI)
+            if (customUIManager is CanvasUICoordinator canvasUI)
             {
                 canvasUI.RenderSlotSelectionPrompt(currentPlayer);
             }
@@ -649,7 +842,7 @@ namespace RPGGame
             }
             
             // Render item selection screen for discarding
-            if (customUIManager is CanvasUIManager canvasUI)
+            if (customUIManager is CanvasUICoordinator canvasUI)
             {
                 canvasUI.RenderItemSelectionPrompt(currentPlayer, currentInventory, "Select Item to Discard", "discard");
             }
@@ -754,19 +947,20 @@ namespace RPGGame
 
         private void HandleSettingsInput(string input)
         {
-            if (customUIManager is CanvasUIManager canvasUI)
+            if (customUIManager is CanvasUICoordinator canvasUI)
             {
                 switch (input)
                 {
                     case "1":
+                        // Run Tests
+                        currentState = GameState.Testing;
+                        ShowTestingMenu();
+                        break;
+                    case "0":
                         // Back to Main Menu
                         canvasUI.ResetDeleteConfirmation();
                         currentState = GameState.MainMenu;
                         ShowMainMenuWithCustomUI();
-                        break;
-                    case "2":
-                        // Delete Saved Character
-                        HandleDeleteCharacter(canvasUI);
                         break;
                     default:
                         // Any other input cancels the delete confirmation
@@ -783,7 +977,7 @@ namespace RPGGame
             }
         }
         
-        private void HandleDeleteCharacter(CanvasUIManager canvasUI)
+        private void HandleDeleteCharacter(CanvasUICoordinator canvasUI)
         {
             // Check if we have a saved character
             if (!CharacterSaveManager.SaveFileExists())
@@ -834,10 +1028,42 @@ namespace RPGGame
         
         // Track delete confirmation state
         private bool deleteConfirmationPending = false;
+        private bool waitingForTestMenuReturn = false;
 
         private async Task HandleGameLoopInput(string input)
         {
             if (currentPlayer == null) return;
+            
+            switch (input)
+            {
+                case "1":
+                    // Go to Dungeon Selection
+                    await StartDungeonSelection();
+                    break;
+                case "2":
+                    // Show Inventory Menu
+                    currentState = GameState.Inventory;
+                    ShowInventory();
+                    break;
+                case "0":
+                    // Save and Exit
+                    await SaveGame();
+                    currentState = GameState.MainMenu;
+                    ShowMainMenuWithCustomUI();
+                    break;
+                default:
+                    ShowMessage("Invalid choice. Please select 1, 2, or 0.");
+                    break;
+            }
+        }
+        
+        private async Task HandleDungeonCompletionInput(string input)
+        {
+            if (currentPlayer == null) return;
+            
+            // Clear dungeon state
+            currentDungeon = null;
+            currentRoom = null;
             
             switch (input)
             {
@@ -873,7 +1099,7 @@ namespace RPGGame
             currentState = GameState.DungeonSelection;
             
             // Show dungeon selection screen
-            if (customUIManager is CanvasUIManager canvasUI)
+            if (customUIManager is CanvasUICoordinator canvasUI)
             {
                 canvasUI.RenderDungeonSelection(currentPlayer, availableDungeons);
             }
@@ -890,7 +1116,7 @@ namespace RPGGame
                 if (choice >= 1 && choice <= availableDungeons.Count)
                 {
                     // Stop dungeon selection animation
-                    if (customUIManager is CanvasUIManager canvasUI)
+                    if (customUIManager is CanvasUICoordinator canvasUI)
                     {
                         canvasUI.StopDungeonSelectionAnimation();
                     }
@@ -901,7 +1127,7 @@ namespace RPGGame
                 else if (choice == 0)
                 {
                     // Stop dungeon selection animation
-                    if (customUIManager is CanvasUIManager canvasUI)
+                    if (customUIManager is CanvasUICoordinator canvasUI)
                     {
                         canvasUI.StopDungeonSelectionAnimation();
                     }
@@ -947,13 +1173,35 @@ namespace RPGGame
             
             // Store dungeon header info separately so we can reuse it for each encounter
             dungeonHeaderInfo.Clear();
-            dungeonHeaderInfo.Add("&Y" + AsciiArtAssets.UIText.CreateHeader(AsciiArtAssets.UIText.EnteringDungeonHeader));
+            
+            // Create colored dungeon header using new system
+            var headerText = AsciiArtAssets.UIText.CreateHeader(AsciiArtAssets.UIText.EnteringDungeonHeader);
+            var coloredHeader = new ColoredTextBuilder()
+                .Add(headerText, ColorPalette.Warning)
+                .Build();
+            dungeonHeaderInfo.Add(ColoredTextRenderer.RenderAsPlainText(coloredHeader));
             
             // Get theme color for dungeon name to match the entrance screen
             char themeColorCode = DungeonThemeColors.GetThemeColorCode(currentDungeon.Theme);
-            dungeonHeaderInfo.Add($"&YDungeon: &{themeColorCode}{currentDungeon.Name}");
-            dungeonHeaderInfo.Add($"&YLevel Range: {currentDungeon.MinLevel} - {currentDungeon.MaxLevel}");
-            dungeonHeaderInfo.Add($"&YTotal Rooms: {currentDungeon.Rooms.Count}");
+            var dungeonNameColor = GetColorFromThemeCode(themeColorCode);
+            
+            var dungeonInfo = new ColoredTextBuilder()
+                .Add("Dungeon: ", ColorPalette.Warning)
+                .Add(currentDungeon.Name, dungeonNameColor)
+                .Build();
+            dungeonHeaderInfo.Add(ColoredTextRenderer.RenderAsPlainText(dungeonInfo));
+            
+            var levelInfo = new ColoredTextBuilder()
+                .Add("Level Range: ", ColorPalette.Warning)
+                .Add($"{currentDungeon.MinLevel} - {currentDungeon.MaxLevel}", ColorPalette.Info)
+                .Build();
+            dungeonHeaderInfo.Add(ColoredTextRenderer.RenderAsPlainText(levelInfo));
+            
+            var roomInfo = new ColoredTextBuilder()
+                .Add("Total Rooms: ", ColorPalette.Warning)
+                .Add(currentDungeon.Rooms.Count.ToString(), ColorPalette.Info)
+                .Build();
+            dungeonHeaderInfo.Add(ColoredTextRenderer.RenderAsPlainText(roomInfo));
             dungeonHeaderInfo.Add("");
             
             // Run through all rooms in the dungeon
@@ -969,7 +1217,7 @@ namespace RPGGame
             }
             
             // Dungeon completed successfully
-            await CompleteDungeon();
+            CompleteDungeon();
         }
 
         private async Task<bool> ProcessRoom(Environment room)
@@ -980,9 +1228,24 @@ namespace RPGGame
             
             // Store room info separately so we can reuse it for each enemy encounter in this room
             currentRoomInfo.Clear();
-            currentRoomInfo.Add("&Y" + AsciiArtAssets.UIText.CreateHeader(AsciiArtAssets.UIText.EnteringRoomHeader));
-            currentRoomInfo.Add($"&WRoom: {room.Name}");
-            currentRoomInfo.Add($"&W{room.Description}");
+            
+            // Create colored room header using new system
+            var roomHeaderText = AsciiArtAssets.UIText.CreateHeader(AsciiArtAssets.UIText.EnteringRoomHeader);
+            var coloredRoomHeader = new ColoredTextBuilder()
+                .Add(roomHeaderText, ColorPalette.Warning)
+                .Build();
+            currentRoomInfo.Add(ColoredTextRenderer.RenderAsPlainText(coloredRoomHeader));
+            
+            var roomNameInfo = new ColoredTextBuilder()
+                .Add("Room: ", ColorPalette.White)
+                .Add(room.Name, ColorPalette.White)
+                .Build();
+            currentRoomInfo.Add(ColoredTextRenderer.RenderAsPlainText(roomNameInfo));
+            
+            var roomDescription = new ColoredTextBuilder()
+                .Add(room.Description, ColorPalette.White)
+                .Build();
+            currentRoomInfo.Add(ColoredTextRenderer.RenderAsPlainText(roomDescription));
             currentRoomInfo.Add("");
             
             // Clear temporary effects when entering a new room
@@ -1002,7 +1265,7 @@ namespace RPGGame
             }
             
             // Add room completion message to combat log only if room was hostile (don't clear screen)
-            if (roomWasHostile && customUIManager is CanvasUIManager canvasUI2)
+            if (roomWasHostile && customUIManager is CanvasUICoordinator canvasUI2)
             {
                 canvasUI2.AddRoomClearedMessage();
                 await Task.Delay(2000);  // Matches dungeon completion delay
@@ -1029,7 +1292,7 @@ namespace RPGGame
             dungeonLog.Add("");
             
             // Show accumulated dungeon log with enemy info briefly before combat
-            if (customUIManager is CanvasUIManager canvasUI)
+            if (customUIManager is CanvasUICoordinator canvasUI)
             {
                 canvasUI.RenderEnemyEncounter(enemy, currentPlayer, dungeonLog, currentDungeon?.Name, currentRoom?.Name);
             }
@@ -1037,7 +1300,7 @@ namespace RPGGame
             await Task.Delay(1500);  // Brief pause to see enemy info
             
             // Prepare for combat - set dungeon context so it persists during combat
-            if (customUIManager is CanvasUIManager canvasUI2)
+            if (customUIManager is CanvasUICoordinator canvasUI2)
             {
                 canvasUI2.SetDungeonContext(dungeonLog);
                 canvasUI2.SetCurrentEnemy(enemy);  // Track enemy so health bar stays visible
@@ -1045,20 +1308,20 @@ namespace RPGGame
                 canvasUI2.SetRoomName(currentRoom?.Name);  // Set room name for right panel
                 canvasUI2.ResetForNewBattle();
                 canvasUI2.SetCharacter(currentPlayer);
+                
+                // Render the combat screen to show the combat interface
+                canvasUI2.RenderCombat(currentPlayer, enemy, dungeonLog);
             }
             
             // Run the actual combat using the original combat system
-            // Run on background thread to not block UI
-            bool playerSurvived = await Task.Run(() => 
-            {
-                return combatManager.RunCombat(currentPlayer, enemy, currentRoom!);
-            });
+            // Run synchronously to allow turn-by-turn display in the GUI
+            bool playerSurvived = combatManager.RunCombat(currentPlayer, enemy, currentRoom!);
             
             // Get the battle narrative for combat log
             var battleNarrative = combatManager.GetCurrentBattleNarrative();
             
             // Add combat result message to the combat log (don't clear screen)
-            if (customUIManager is CanvasUIManager canvasUI3)
+            if (customUIManager is CanvasUICoordinator canvasUI3)
             {
                 if (enemy.CurrentHealth <= 0)
                 {
@@ -1082,26 +1345,51 @@ namespace RPGGame
             return currentPlayer.CurrentHealth > 0;
         }
 
-        private async Task CompleteDungeon()
+        private void CompleteDungeon()
         {
             if (currentPlayer == null || dungeonManager == null) return;
             
-            // Award loot and XP
-            dungeonManager.AwardLootAndXP(currentPlayer, currentInventory, availableDungeons);
+            // Award loot and XP and get the rewards
+            var (xpGained, lootReceived) = dungeonManager.AwardLootAndXPWithReturns(currentPlayer, currentInventory, availableDungeons);
             
-            // Show dungeon completion
-            if (customUIManager is CanvasUIManager canvasUI)
+            // Show consolidated dungeon completion screen with statistics and menu choices
+            if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                canvasUI.RenderDungeonCompletion(currentDungeon!, currentPlayer);
+                // Clear the display buffer to remove combat log before showing completion screen
+                canvasUI.ClearDisplayBuffer();
+                canvasUI.RenderDungeonCompletion(currentDungeon!, currentPlayer, xpGained, lootReceived);
             }
             
-            await Task.Delay(2000);
-            
-            // Return to game menu
-            currentDungeon = null;
-            currentRoom = null;
-            currentState = GameState.GameLoop;
-            ShowGameLoop();
+            // Set state to handle input from the completion screen
+            currentState = GameState.DungeonCompletion;
+        }
+        
+        /// <summary>
+        /// Helper method to convert theme color codes to ColorPalette values
+        /// </summary>
+        private ColorPalette GetColorFromThemeCode(char themeColorCode)
+        {
+            return themeColorCode switch
+            {
+                'R' => ColorPalette.Damage,
+                'r' => ColorPalette.DarkRed,
+                'G' => ColorPalette.Success,
+                'g' => ColorPalette.DarkGreen,
+                'B' => ColorPalette.Info,
+                'b' => ColorPalette.DarkBlue,
+                'Y' => ColorPalette.Warning,
+                'C' => ColorPalette.Cyan,
+                'c' => ColorPalette.DarkCyan,
+                'M' => ColorPalette.Magenta,
+                'm' => ColorPalette.DarkMagenta,
+                'W' => ColorPalette.White,
+                'w' => ColorPalette.Brown,
+                'O' => ColorPalette.Orange,
+                'o' => ColorPalette.Orange,
+                'K' => ColorPalette.Black,
+                'k' => ColorPalette.DarkGray,
+                _ => ColorPalette.White
+            };
         }
 
 
@@ -1129,7 +1417,7 @@ namespace RPGGame
 
         private void ShowWeaponSelection()
         {
-            if (customUIManager is CanvasUIManager canvasUI && gameInitializer != null)
+            if (customUIManager is CanvasUICoordinator canvasUI && gameInitializer != null)
             {
                 var startingGear = gameInitializer.LoadStartingGear();
                 canvasUI.RenderWeaponSelection(startingGear.weapons);
@@ -1149,7 +1437,7 @@ namespace RPGGame
                     gameInitializer.InitializeNewGame(currentPlayer, availableDungeons, weaponChoice);
                     
                     // Set character in UI manager for persistent display
-                    if (customUIManager is CanvasUIManager canvasUI)
+                    if (customUIManager is CanvasUICoordinator canvasUI)
                     {
                         canvasUI.SetCharacter(currentPlayer);
                     }

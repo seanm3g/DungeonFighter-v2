@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using System;
 using System.Collections.Generic;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.UI.Avalonia
 {
@@ -141,6 +142,14 @@ namespace RPGGame.UI.Avalonia
         public void AddText(int x, int y, string text, Color color)
         {
             textElements.Add(new CanvasText { X = x, Y = y, Content = text, Color = color });
+        }
+        
+        /// <summary>
+        /// Alias for AddText for compatibility
+        /// </summary>
+        public void DrawText(string text, int x, int y, Color color)
+        {
+            AddText(x, y, text, color);
         }
         
         /// <summary>

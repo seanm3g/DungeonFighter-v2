@@ -5,6 +5,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using RPGGame.UI.Avalonia;
+using RPGGame.UI.Animations;
 
 namespace RPGGame
 {
@@ -92,16 +93,11 @@ namespace RPGGame
             // Test fade animation system if requested
             if (args.Length > 0 && args[0] == "test-fade")
             {
-                if (args.Length > 1 && args[1] == "--interactive")
-                {
-                    TextFadeAnimatorExamples.InteractiveDemo();
-                }
-                else
-                {
-                    TextFadeAnimatorExamples.RunAllDemos();
-                }
+                Console.WriteLine("TextFadeAnimatorExamples has been removed.");
+                Console.WriteLine("Use the main game instead.");
                 return;
             }
+            
             
             // Initialize the UI configuration system
             UIManager.ReloadConfiguration();

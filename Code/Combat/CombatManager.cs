@@ -112,12 +112,14 @@ namespace RPGGame
         {
             DebugLogger.WriteCombatDebug("CombatManager", $"Starting combat: {player.Name} vs {currentEnemy.Name} in {room.Name}");
             
+            // Reset game time FIRST to ensure clean timing state
+            GameTicker.Instance.Reset();
+            
             // Start battle narrative and initialize action speed system
             StartBattleNarrative(player.Name, currentEnemy.Name, room.Name, player.CurrentHealth, currentEnemy.CurrentHealth);
-            InitializeCombatEntities(player, currentEnemy, room);
             
-            // Reset game time AFTER initializing combat entities to avoid timing conflicts
-            GameTicker.Instance.Reset();
+            // Initialize combat entities AFTER action speed system is created
+            InitializeCombatEntities(player, currentEnemy, room);
             
             // Reset environment action count for new fight
             room.ResetForNewFight();
@@ -149,10 +151,18 @@ namespace RPGGame
                                 currentSpeedSystem.AdvanceTime(0.1);
                             }
                         }
+                        else if (nextReadyTime == -1.0)
+                        {
+                            // No entities exist in the action speed system - this shouldn't happen
+                            var errorText = CombatFlowColoredText.FormatSystemErrorColored("No entities in action speed system. Breaking combat loop.");
+                            BlockDisplayManager.DisplaySystemBlock(errorText);
+                            break;
+                        }
                         else
                         {
                             // No entities ready and no next ready time - this shouldn't happen
-                            UIManager.WriteLine("ERROR: No entities ready and no next ready time. Breaking combat loop.", UIMessageType.System);
+                            var errorText = CombatFlowColoredText.FormatSystemErrorColored("No entities ready and no next ready time. Breaking combat loop.");
+                            BlockDisplayManager.DisplaySystemBlock(errorText);
                             break;
                         }
                     }
@@ -174,6 +184,9 @@ namespace RPGGame
                     {
                         break; // Combat ended
                     }
+                    
+                    // Add delay after player action
+                    CombatDelayManager.DelayAfterAction();
                 }
                 // Enemy acts
                 else if (nextEntity == currentEnemy && currentEnemy.IsAlive)
@@ -182,6 +195,9 @@ namespace RPGGame
                     {
                         break; // Combat ended
                     }
+                    
+                    // Add delay after enemy action
+                    CombatDelayManager.DelayAfterAction();
                 }
                 // Environment acts
                 else if (nextEntity == room && room.IsHostile && room.ActionPool.Count > 0)
@@ -190,6 +206,9 @@ namespace RPGGame
                     {
                         break; // Combat ended
                     }
+                    
+                    // Add delay after environmental action
+                    CombatDelayManager.DelayAfterAction();
                 }
             }
             

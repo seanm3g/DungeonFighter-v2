@@ -824,6 +824,144 @@
       "shaderType": "sequence",
       "colors": ["k", "K", "y", "O", "o"],
       "description": "Title screen FIGHTER gradient - black to warm orange to vibrant orange"
+    },
+    {
+      "name": "weapon_class",
+      "shaderType": "sequence",
+      "colors": ["R", "O", "Y"],
+      "description": "Weapon class theme - red to orange to yellow (combat/offensive)"
+    },
+    {
+      "name": "armor_class",
+      "shaderType": "sequence",
+      "colors": ["B", "C", "Y"],
+      "description": "Armor class theme - blue to cyan to white (defensive/protective)"
+    },
+    {
+      "name": "head_armor",
+      "shaderType": "sequence",
+      "colors": ["C", "B", "Y"],
+      "description": "Head armor theme - cyan to blue to white (mental/protective)"
+    },
+    {
+      "name": "chest_armor",
+      "shaderType": "sequence",
+      "colors": ["B", "C", "Y"],
+      "description": "Chest armor theme - blue to cyan to white (core protection)"
+    },
+    {
+      "name": "feet_armor",
+      "shaderType": "sequence",
+      "colors": ["G", "C", "Y"],
+      "description": "Feet armor theme - green to cyan to white (mobility/grounded)"
+    },
+    {
+      "name": "sword_weapon",
+      "shaderType": "sequence",
+      "colors": ["Y", "W", "Y"],
+      "description": "Sword weapon type - white to bright white (balanced/classic)"
+    },
+    {
+      "name": "dagger_weapon",
+      "shaderType": "sequence",
+      "colors": ["C", "Y", "C"],
+      "description": "Dagger weapon type - cyan to white (quick/precise)"
+    },
+    {
+      "name": "mace_weapon",
+      "shaderType": "sequence",
+      "colors": ["O", "R", "O"],
+      "description": "Mace weapon type - orange to red (heavy/blunt)"
+    },
+    {
+      "name": "wand_weapon",
+      "shaderType": "sequence",
+      "colors": ["M", "C", "M"],
+      "description": "Wand weapon type - magenta to cyan (magical/mystical)"
+    },
+    {
+      "name": "damage_effect",
+      "shaderType": "sequence",
+      "colors": ["R", "O", "Y"],
+      "description": "Damage effects - red to orange to yellow (destructive)"
+    },
+    {
+      "name": "speed_effect",
+      "shaderType": "sequence",
+      "colors": ["C", "Y", "W"],
+      "description": "Speed effects - cyan to white (fast/dynamic)"
+    },
+    {
+      "name": "magical_effect",
+      "shaderType": "sequence",
+      "colors": ["M", "C", "B"],
+      "description": "Magical effects - magenta to cyan to blue (mystical)"
+    },
+    {
+      "name": "defensive_effect",
+      "shaderType": "sequence",
+      "colors": ["B", "C", "Y"],
+      "description": "Defensive effects - blue to cyan to white (protective)"
+    },
+    {
+      "name": "life_effect",
+      "shaderType": "sequence",
+      "colors": ["G", "Y", "W"],
+      "description": "Life/health effects - green to white (vitality)"
+    },
+    {
+      "name": "death_effect",
+      "shaderType": "sequence",
+      "colors": ["r", "R", "m"],
+      "description": "Death/dark effects - dark red to red to magenta (corruption)"
+    },
+    {
+      "name": "divine_effect",
+      "shaderType": "sequence",
+      "colors": ["W", "Y", "W"],
+      "description": "Divine effects - white to yellow to white (holy)"
+    },
+    {
+      "name": "enhanced_common",
+      "shaderType": "solid",
+      "colors": ["y"],
+      "description": "Enhanced common rarity - light grey (basic but clean)"
+    },
+    {
+      "name": "enhanced_uncommon",
+      "shaderType": "sequence",
+      "colors": ["G", "Y"],
+      "description": "Enhanced uncommon rarity - green to white (nature/improvement)"
+    },
+    {
+      "name": "enhanced_rare",
+      "shaderType": "sequence",
+      "colors": ["B", "C", "Y"],
+      "description": "Enhanced rare rarity - blue to cyan to white (valuable)"
+    },
+    {
+      "name": "enhanced_epic",
+      "shaderType": "sequence",
+      "colors": ["M", "C", "Y"],
+      "description": "Enhanced epic rarity - magenta to cyan to white (exceptional)"
+    },
+    {
+      "name": "enhanced_legendary",
+      "shaderType": "sequence",
+      "colors": ["O", "W", "Y", "W", "O"],
+      "description": "Enhanced legendary rarity - orange to white to yellow (legendary shimmer)"
+    },
+    {
+      "name": "enhanced_mythic",
+      "shaderType": "sequence",
+      "colors": ["M", "C", "Y", "B", "M"],
+      "description": "Enhanced mythic rarity - magenta to cyan to yellow to blue (prismatic)"
+    },
+    {
+      "name": "enhanced_transcendent",
+      "shaderType": "sequence",
+      "colors": ["Y", "M", "C", "B", "Y", "W"],
+      "description": "Enhanced transcendent rarity - white to magenta to cyan to blue (ethereal)"
     }
   ],
 

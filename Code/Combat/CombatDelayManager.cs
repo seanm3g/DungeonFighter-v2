@@ -1,0 +1,154 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Text.Json;
+
+namespace RPGGame
+{
+    /// <summary>
+    /// Centralized delay management for combat actions
+    /// Provides a single point of control for all combat timing
+    /// </summary>
+    public static class CombatDelayManager
+    {
+        private static bool _configLoaded = false;
+        
+        /// <summary>
+        /// Configuration for combat delays
+        /// </summary>
+        public static class Config
+        {
+            /// <summary>
+            /// Delay between complete actions (in milliseconds)
+            /// </summary>
+            public static int ActionDelayMs = 1000;
+            
+            /// <summary>
+            /// Delay between individual messages within an action (in milliseconds)
+            /// </summary>
+            public static int MessageDelayMs = 200;
+            
+            /// <summary>
+            /// Whether delays are enabled for GUI
+            /// </summary>
+            public static bool EnableGuiDelays = true;
+            
+            /// <summary>
+            /// Whether delays are enabled for console
+            /// </summary>
+            public static bool EnableConsoleDelays = true;
+        }
+        
+        /// <summary>
+        /// Loads delay configuration from JSON file
+        /// </summary>
+        private static void LoadConfig()
+        {
+            if (_configLoaded) return;
+            
+            try
+            {
+                string configPath = "GameData/CombatDelayConfig.json";
+                if (System.IO.File.Exists(configPath))
+                {
+                    string jsonContent = System.IO.File.ReadAllText(configPath);
+                    var config = JsonSerializer.Deserialize<JsonElement>(jsonContent);
+                    
+                    if (config.TryGetProperty("ActionDelayMs", out var actionDelay))
+                        Config.ActionDelayMs = actionDelay.GetInt32();
+                    
+                    if (config.TryGetProperty("MessageDelayMs", out var messageDelay))
+                        Config.MessageDelayMs = messageDelay.GetInt32();
+                    
+                    if (config.TryGetProperty("EnableGuiDelays", out var enableGui))
+                        Config.EnableGuiDelays = enableGui.GetBoolean();
+                    
+                    if (config.TryGetProperty("EnableConsoleDelays", out var enableConsole))
+                        Config.EnableConsoleDelays = enableConsole.GetBoolean();
+                }
+            }
+            catch (Exception ex)
+            {
+                // If config loading fails, use default values
+                UIManager.WriteLine($"Warning: Could not load combat delay config: {ex.Message}", UIMessageType.System);
+            }
+            
+            _configLoaded = true;
+        }
+        
+        /// <summary>
+        /// Applies delay after a complete action is processed and displayed
+        /// Uses minimal delay for GUI to prevent freezing while maintaining readability
+        /// </summary>
+        public static void DelayAfterAction()
+        {
+            LoadConfig();
+            if (!ShouldApplyDelay()) return;
+            
+            // For GUI, use minimal delay to prevent freezing while maintaining readability
+            if (UIManager.GetCustomUIManager() != null)
+            {
+                // Use very short delay for GUI to prevent freezing
+                Thread.Sleep(Math.Min(Config.ActionDelayMs, 100));
+            }
+            else
+            {
+                // Use full delay for console
+                Thread.Sleep(Config.ActionDelayMs);
+            }
+        }
+        
+        /// <summary>
+        /// Applies delay after individual messages within an action
+        /// Uses minimal delay for GUI to prevent freezing while maintaining readability
+        /// </summary>
+        public static void DelayAfterMessage()
+        {
+            LoadConfig();
+            if (!ShouldApplyDelay()) return;
+            
+            // For GUI, use minimal delay to prevent freezing while maintaining readability
+            if (UIManager.GetCustomUIManager() != null)
+            {
+                // Use very short delay for GUI to prevent freezing
+                Thread.Sleep(Math.Min(Config.MessageDelayMs, 50));
+            }
+            else
+            {
+                // Use full delay for console
+                Thread.Sleep(Config.MessageDelayMs);
+            }
+        }
+        
+        /// <summary>
+        /// Determines if delays should be applied based on UI type and configuration
+        /// </summary>
+        private static bool ShouldApplyDelay()
+        {
+            // Check if we have a custom UI manager (GUI)
+            if (UIManager.GetCustomUIManager() != null)
+            {
+                return Config.EnableGuiDelays;
+            }
+            else
+            {
+                return Config.EnableConsoleDelays;
+            }
+        }
+        
+        /// <summary>
+        /// Updates delay configuration
+        /// </summary>
+        /// <param name="actionDelayMs">Delay between complete actions</param>
+        /// <param name="messageDelayMs">Delay between individual messages</param>
+        /// <param name="enableGuiDelays">Whether to enable delays for GUI</param>
+        /// <param name="enableConsoleDelays">Whether to enable delays for console</param>
+        public static void UpdateConfig(int actionDelayMs = -1, int messageDelayMs = -1, bool? enableGuiDelays = null, bool? enableConsoleDelays = null)
+        {
+            if (actionDelayMs >= 0) Config.ActionDelayMs = actionDelayMs;
+            if (messageDelayMs >= 0) Config.MessageDelayMs = messageDelayMs;
+            if (enableGuiDelays.HasValue) Config.EnableGuiDelays = enableGuiDelays.Value;
+            if (enableConsoleDelays.HasValue) Config.EnableConsoleDelays = enableConsoleDelays.Value;
+        }
+    }
+}

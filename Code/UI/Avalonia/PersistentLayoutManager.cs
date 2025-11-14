@@ -2,6 +2,7 @@ using Avalonia.Media;
 using RPGGame;
 using System;
 using System.Collections.Generic;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.UI.Avalonia
 {
@@ -237,6 +238,7 @@ namespace RPGGame.UI.Avalonia
         
         /// <summary>
         /// Renders the dungeon and enemy information panel (right side)
+        /// Always shows all sections (Location, Room, Enemy) even when empty
         /// </summary>
         private void RenderRightPanel(Enemy? enemy, string? dungeonName, string? roomName)
         {
@@ -246,40 +248,48 @@ namespace RPGGame.UI.Avalonia
             int y = RIGHT_PANEL_Y + 1;
             int x = RIGHT_PANEL_X + 2;
             
-            // Dungeon section
+            // Location section - always shown
             canvas.AddText(x, y, "══ LOCATION ══", AsciiArtAssets.Colors.Gold);
             y += 2;
             
+            // Dungeon - always shown
+            canvas.AddText(x, y, "Dungeon:", AsciiArtAssets.Colors.Gray);
+            y++;
             if (!string.IsNullOrEmpty(dungeonName))
             {
                 string displayDungeon = dungeonName;
                 if (displayDungeon.Length > 20)
                     displayDungeon = displayDungeon.Substring(0, 17) + "...";
-                
-                canvas.AddText(x, y, "Dungeon:", AsciiArtAssets.Colors.Gray);
-                y++;
                 canvas.AddText(x, y, displayDungeon, AsciiArtAssets.Colors.Cyan);
-                y += 2;
             }
+            else
+            {
+                canvas.AddText(x, y, "None", AsciiArtAssets.Colors.DarkGray);
+            }
+            y += 2;
             
+            // Room - always shown
+            canvas.AddText(x, y, "Room:", AsciiArtAssets.Colors.Gray);
+            y++;
             if (!string.IsNullOrEmpty(roomName))
             {
                 string displayRoom = roomName;
                 if (displayRoom.Length > 20)
                     displayRoom = displayRoom.Substring(0, 17) + "...";
-                
-                canvas.AddText(x, y, "Room:", AsciiArtAssets.Colors.Gray);
-                y++;
                 canvas.AddText(x, y, displayRoom, AsciiArtAssets.Colors.Yellow);
-                y += 2;
             }
+            else
+            {
+                canvas.AddText(x, y, "None", AsciiArtAssets.Colors.DarkGray);
+            }
+            y += 2;
             
-            // Enemy section
+            // Enemy section - always shown
+            canvas.AddText(x, y, "══ ENEMY ══", AsciiArtAssets.Colors.Gold);
+            y += 2;
+            
             if (enemy != null)
             {
-                canvas.AddText(x, y, "══ ENEMY ══", AsciiArtAssets.Colors.Gold);
-                y += 2;
-                
                 string enemyName = enemy.Name;
                 if (enemyName.Length > 20)
                     enemyName = enemyName.Substring(0, 17) + "...";
@@ -294,13 +304,32 @@ namespace RPGGame.UI.Avalonia
                 y++;
                 canvas.AddHealthBar(x, y, RIGHT_PANEL_WIDTH - 6, enemy.CurrentHealth, enemy.MaxHealth, AsciiArtAssets.Colors.Green, AsciiArtAssets.Colors.DarkGreen);
                 canvas.AddText(x, y + 1, $"{enemy.CurrentHealth}/{enemy.MaxHealth}", AsciiArtAssets.Colors.White);
+                y += 3;
+                
+                // Enemy stats
+                canvas.AddText(x, y, "Armor:", AsciiArtAssets.Colors.White);
+                y++;
+                canvas.AddText(x, y, $"{enemy.Armor}", AsciiArtAssets.Colors.Yellow);
+                y += 2;
+                
+                canvas.AddText(x, y, "Attack:", AsciiArtAssets.Colors.White);
+                y++;
+                canvas.AddText(x, y, $"STR {enemy.Strength}", AsciiArtAssets.Colors.Yellow);
+                y++;
+                canvas.AddText(x, y, $"AGI {enemy.Agility}", AsciiArtAssets.Colors.Yellow);
+                y++;
+                canvas.AddText(x, y, $"TEC {enemy.Technique}", AsciiArtAssets.Colors.Yellow);
+                y++;
+                canvas.AddText(x, y, $"INT {enemy.Intelligence}", AsciiArtAssets.Colors.Yellow);
             }
-            else if (string.IsNullOrEmpty(dungeonName) && string.IsNullOrEmpty(roomName))
+            else
             {
-                // If no dungeon, room, or enemy info, show empty state
-                y = RIGHT_PANEL_Y + RIGHT_PANEL_HEIGHT / 2;
-                canvas.AddText(x + 4, y, "No Active", AsciiArtAssets.Colors.Gray);
-                canvas.AddText(x + 4, y + 1, "Dungeon", AsciiArtAssets.Colors.Gray);
+                // Show empty enemy state
+                canvas.AddText(x, y, "None", AsciiArtAssets.Colors.DarkGray);
+                y += 2;
+                canvas.AddText(x, y, "No active", AsciiArtAssets.Colors.DarkGray);
+                y++;
+                canvas.AddText(x, y, "combat", AsciiArtAssets.Colors.DarkGray);
             }
         }
         

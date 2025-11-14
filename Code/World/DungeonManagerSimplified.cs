@@ -196,6 +196,22 @@ namespace RPGGame
             // Delegate to RewardManager
             rewardManager.AwardLootAndXP(player, inventory, dungeonLevel);
         }
+        
+        /// <summary>
+        /// Awards loot and XP for dungeon completion and returns the rewards
+        /// </summary>
+        /// <param name="player">The player character</param>
+        /// <param name="inventory">Player's inventory</param>
+        /// <param name="availableDungeons">Available dungeons to determine dungeon level</param>
+        /// <returns>Tuple containing XP gained and loot received</returns>
+        public (int xpGained, Item? lootReceived) AwardLootAndXPWithReturns(Character player, List<Item> inventory, List<Dungeon> availableDungeons)
+        {
+            // Determine current dungeon level
+            int dungeonLevel = GetCurrentDungeonLevel(player, availableDungeons);
+            
+            // Delegate to RewardManager
+            return rewardManager.AwardLootAndXPWithReturns(player, inventory, dungeonLevel);
+        }
 
         /// <summary>
         /// Gets the current dungeon level

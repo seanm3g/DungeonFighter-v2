@@ -98,7 +98,7 @@ DungeonFighter/
 - **`Code/Items/ComboManager.cs`** - Manages combo sequences and bonuses
 - **`Code/Items/BasicGearConfig.cs`** - Configuration for basic gear and equipment
 
-### **UI System (Refactored Architecture)**
+### **UI System (Refactored Architecture - Coordinator Pattern)**
 - **`Code/UI/UIManager.cs`** - Centralized UI output and display with beat-based timing
 - **`Code/UI/GameMenuManager.cs`** - Manages game menus, UI interactions, and game flow
 - **`Code/UI/GameDisplayManager.cs`** - Unified display manager for inventory, character stats, and equipment
@@ -109,6 +109,26 @@ DungeonFighter/
 - **`Code/UI/TextDisplaySettings.cs`** - Configuration for text display timing and formatting
 - **`Code/UI/UIConfiguration.cs`** - UI configuration management
 - **`Code/UI/DungeonThemeColors.cs`** - Theme-based color mapping for dungeons (24 unique dungeon themes)
+
+#### **Avalonia UI System (New Modular Architecture)**
+- **`Code/UI/Avalonia/CanvasUICoordinator.cs`** - Main coordinator implementing IUIManager, delegates to specialized managers
+- **`Code/UI/Avalonia/CanvasUITypes.cs`** - Shared types (ClickableElement, ElementType) for UI interactions
+- **`Code/UI/Avalonia/Managers/ICanvasContextManager.cs`** - Interface for managing UI state and context
+- **`Code/UI/Avalonia/Managers/CanvasContextManager.cs`** - Implementation of UI context management
+- **`Code/UI/Avalonia/Managers/ICanvasTextManager.cs`** - Interface for text display and formatting
+- **`Code/UI/Avalonia/Managers/CanvasTextManager.cs`** - Implementation of text management
+- **`Code/UI/Avalonia/Managers/ICanvasInteractionManager.cs`** - Interface for mouse interactions
+- **`Code/UI/Avalonia/Managers/CanvasInteractionManager.cs`** - Implementation of interaction management
+- **`Code/UI/Avalonia/Managers/ICanvasAnimationManager.cs`** - Interface for animations
+- **`Code/UI/Avalonia/Managers/CanvasAnimationManager.cs`** - Implementation of animation management
+- **`Code/UI/Avalonia/Managers/CanvasLayoutManager.cs`** - Utility class for layout calculations
+- **`Code/UI/Avalonia/Renderers/ICanvasRenderer.cs`** - Interface for unified rendering
+- **`Code/UI/Avalonia/Renderers/CanvasRenderer.cs`** - Main renderer that delegates to specialized renderers
+- **`Code/UI/Avalonia/Renderers/CombatMessageHandler.cs`** - Handles combat-related messages
+- **`Code/UI/Avalonia/Renderers/MenuRenderer.cs`** - Specialized menu rendering
+- **`Code/UI/Avalonia/Renderers/InventoryRenderer.cs`** - Specialized inventory rendering
+- **`Code/UI/Avalonia/Renderers/CombatRenderer.cs`** - Specialized combat rendering
+- **`Code/UI/Avalonia/Renderers/DungeonRenderer.cs`** - Specialized dungeon rendering
 
 ### **Data & Configuration (Refactored Architecture)**
 - **`Code/Data/ActionLoader.cs`** - Loads and manages action data from JSON

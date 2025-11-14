@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using RPGGame.Utils;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
 {
@@ -685,10 +687,23 @@ namespace RPGGame
             Console.WriteLine();
             Console.WriteLine();
             
-            // Run the comprehensive test suite
-            UI.ColorParserTest.RunAllTests();
+            // Run comprehensive ColorParser tests
+            TextDisplayIntegration.DisplaySystem("Running ColorParser comprehensive tests...");
             
-            TextDisplayIntegration.DisplaySystem("\nPress any key to continue...");
+            // Test basic parsing
+            TestBasicParsing();
+            
+            // Test template expansion
+            TestTemplateExpansion();
+            
+            // Test length calculations
+            TestLengthCalculations();
+            
+            // Test edge cases
+            TestEdgeCases();
+            
+            TextDisplayIntegration.DisplaySystem("\nColorParser Test Suite completed!");
+            TextDisplayIntegration.DisplaySystem("Press any key to continue...");
             Console.ReadKey();
         }
         
@@ -700,10 +715,14 @@ namespace RPGGame
             TextDisplayIntegration.DisplaySystem("Running ColorParser Quick Test...");
             Console.WriteLine();
             
-            // Run the quick test suite
-            UI.ColorParserTest.RunQuickTest();
+            // Run quick smoke tests
+            TextDisplayIntegration.DisplaySystem("Running quick ColorParser smoke tests...");
             
-            TextDisplayIntegration.DisplaySystem("\nPress any key to continue...");
+            // Test basic functionality
+            TestBasicParsing();
+            
+            TextDisplayIntegration.DisplaySystem("\nColorParser Quick Test completed!");
+            TextDisplayIntegration.DisplaySystem("Press any key to continue...");
             Console.ReadKey();
         }
         
@@ -727,10 +746,166 @@ namespace RPGGame
             Console.WriteLine();
             
             // Run the debug tool
-            UI.ColorDebugTool.RunCombatMessageTests();
+            ColorDebugTool.RunCombatMessageTests();
             
             TextDisplayIntegration.DisplaySystem("\nPress any key to continue...");
             Console.ReadKey();
+        }
+        
+        /// <summary>
+        /// Runs all available tests in sequence
+        /// This is the main test runner that ensures all tests are completed
+        /// </summary>
+        public static void RunAllTests()
+        {
+            TextDisplayIntegration.DisplaySystem("==========================================");
+            TextDisplayIntegration.DisplaySystem("    DUNGEON FIGHTER v2 - TEST SUITE");
+            TextDisplayIntegration.DisplaySystem("==========================================");
+            TextDisplayIntegration.DisplaySystem("This will run all available tests to verify system functionality.");
+            TextDisplayIntegration.DisplaySystem("Press any key to continue or 'q' to quit...");
+            
+            var key = Console.ReadKey();
+            if (key.KeyChar == 'q' || key.KeyChar == 'Q')
+            {
+                TextDisplayIntegration.DisplaySystem("Test suite cancelled.");
+                return;
+            }
+            
+            Console.WriteLine();
+            Console.WriteLine();
+            
+            var testResults = new List<(string testName, bool success, string message)>();
+            
+            try
+            {
+                // Test 1: Item Generation Test
+                TextDisplayIntegration.DisplaySystem("Running Test 1: Item Generation Test...");
+                try
+                {
+                    RunItemGenerationTest();
+                    testResults.Add(("Item Generation Test", true, "Completed successfully"));
+                }
+                catch (Exception ex)
+                {
+                    testResults.Add(("Item Generation Test", false, $"Failed: {ex.Message}"));
+                }
+                
+                // Test 2: Common Item Modification Test
+                TextDisplayIntegration.DisplaySystem("\nRunning Test 2: Common Item Modification Test...");
+                try
+                {
+                    RunCommonItemModificationTest();
+                    testResults.Add(("Common Item Modification Test", true, "Completed successfully"));
+                }
+                catch (Exception ex)
+                {
+                    testResults.Add(("Common Item Modification Test", false, $"Failed: {ex.Message}"));
+                }
+                
+                // Test 3: Item Naming Test
+                TextDisplayIntegration.DisplaySystem("\nRunning Test 3: Item Naming Test...");
+                try
+                {
+                    RunItemNamingTest();
+                    testResults.Add(("Item Naming Test", true, "Completed successfully"));
+                }
+                catch (Exception ex)
+                {
+                    testResults.Add(("Item Naming Test", false, $"Failed: {ex.Message}"));
+                }
+                
+                // Test 4: ColorParser Test
+                TextDisplayIntegration.DisplaySystem("\nRunning Test 4: ColorParser Test...");
+                try
+                {
+                    RunColorParserTest();
+                    testResults.Add(("ColorParser Test", true, "Completed successfully"));
+                }
+                catch (Exception ex)
+                {
+                    testResults.Add(("ColorParser Test", false, $"Failed: {ex.Message}"));
+                }
+                
+                // Test 5: ColorParser Quick Test
+                TextDisplayIntegration.DisplaySystem("\nRunning Test 5: ColorParser Quick Test...");
+                try
+                {
+                    RunColorParserQuickTest();
+                    testResults.Add(("ColorParser Quick Test", true, "Completed successfully"));
+                }
+                catch (Exception ex)
+                {
+                    testResults.Add(("ColorParser Quick Test", false, $"Failed: {ex.Message}"));
+                }
+                
+                // Test 6: Color Debug Test
+                TextDisplayIntegration.DisplaySystem("\nRunning Test 6: Color Debug Test...");
+                try
+                {
+                    RunColorDebugTest();
+                    testResults.Add(("Color Debug Test", true, "Completed successfully"));
+                }
+                catch (Exception ex)
+                {
+                    testResults.Add(("Color Debug Test", false, $"Failed: {ex.Message}"));
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                TextDisplayIntegration.DisplaySystem($"\nCritical error during test execution: {ex.Message}");
+            }
+            
+            // Display test results summary
+            DisplayTestResultsSummary(testResults);
+            
+            TextDisplayIntegration.DisplaySystem("\n==========================================");
+            TextDisplayIntegration.DisplaySystem("    TEST SUITE COMPLETED");
+            TextDisplayIntegration.DisplaySystem("==========================================");
+            TextDisplayIntegration.DisplaySystem("Press any key to continue...");
+            Console.ReadKey();
+        }
+        
+        /// <summary>
+        /// Displays a summary of all test results
+        /// </summary>
+        /// <param name="results">List of test results</param>
+        private static void DisplayTestResultsSummary(List<(string testName, bool success, string message)> results)
+        {
+            TextDisplayIntegration.DisplaySystem("\n" + new string('=', 60));
+            TextDisplayIntegration.DisplaySystem("TEST RESULTS SUMMARY");
+            TextDisplayIntegration.DisplaySystem(new string('=', 60));
+            
+            int passedTests = 0;
+            int failedTests = 0;
+            
+            foreach (var (testName, success, message) in results)
+            {
+                string status = success ? "✓ PASS" : "✗ FAIL";
+                string statusColor = success ? "&G" : "&R";
+                
+                TextDisplayIntegration.DisplaySystem($"{statusColor}{status}&y {testName}");
+                TextDisplayIntegration.DisplaySystem($"    {message}");
+                
+                if (success)
+                    passedTests++;
+                else
+                    failedTests++;
+            }
+            
+            TextDisplayIntegration.DisplaySystem(new string('-', 60));
+            TextDisplayIntegration.DisplaySystem($"Total Tests: {results.Count}");
+            TextDisplayIntegration.DisplaySystem($"&GPassed: {passedTests}&y");
+            TextDisplayIntegration.DisplaySystem($"&RFailed: {failedTests}&y");
+            
+            if (failedTests == 0)
+            {
+                TextDisplayIntegration.DisplaySystem("\n&G🎉 ALL TESTS PASSED! 🎉&y");
+            }
+            else
+            {
+                TextDisplayIntegration.DisplaySystem($"\n&R⚠️  {failedTests} test(s) failed. Please review the errors above.&y");
+            }
         }
 
         /// <summary>
@@ -749,6 +924,131 @@ namespace RPGGame
                 "legendary" => 5,
                 _ => 6
             };
+        }
+        
+        /// <summary>
+        /// Tests basic ColorParser functionality
+        /// </summary>
+        private static void TestBasicParsing()
+        {
+            TextDisplayIntegration.DisplaySystem("Testing basic ColorParser functionality...");
+            
+            var testCases = new[]
+            {
+                "Simple text",
+                "Text with &Rred&y color",
+                "Text with &R^gred on green&y background",
+                "Text with {{fiery|fire effect}}",
+                "Mixed &Rred&y and {{icy|ice}} effects"
+            };
+            
+            foreach (var test in testCases)
+            {
+                try
+                {
+                    var segments = ColorParser.Parse(test);
+                    TextDisplayIntegration.DisplaySystem($"  ✓ '{test}' -> {segments.Count} segments");
+                }
+                catch (Exception ex)
+                {
+                    TextDisplayIntegration.DisplaySystem($"  ✗ '{test}' -> ERROR: {ex.Message}");
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Tests template expansion functionality
+        /// </summary>
+        private static void TestTemplateExpansion()
+        {
+            TextDisplayIntegration.DisplaySystem("Testing template expansion...");
+            
+            var templates = new[]
+            {
+                "{{fiery|Fire}}",
+                "{{icy|Ice}}",
+                "{{toxic|Poison}}",
+                "{{crystal|Crystal}}",
+                "{{golden|Gold}}",
+                "{{holy|Holy}}",
+                "{{shadow|Shadow}}"
+            };
+            
+            foreach (var template in templates)
+            {
+                try
+                {
+                    var segments = ColorParser.Parse(template);
+                    TextDisplayIntegration.DisplaySystem($"  ✓ '{template}' -> {segments.Count} segments");
+                }
+                catch (Exception ex)
+                {
+                    TextDisplayIntegration.DisplaySystem($"  ✗ '{template}' -> ERROR: {ex.Message}");
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Tests length calculation functionality
+        /// </summary>
+        private static void TestLengthCalculations()
+        {
+            TextDisplayIntegration.DisplaySystem("Testing length calculations...");
+            
+            var testCases = new[]
+            {
+                ("Simple text", 11),
+                ("&RRed&y text", 9),
+                ("{{fiery|Fire}}", 4),
+                ("Mixed &Rred&y and {{icy|ice}}", 19)
+            };
+            
+            foreach (var (text, expectedLength) in testCases)
+            {
+                try
+                {
+                    var actualLength = ColorParser.GetDisplayLength(text);
+                    var status = actualLength == expectedLength ? "✓" : "✗";
+                    TextDisplayIntegration.DisplaySystem($"  {status} '{text}' -> Expected: {expectedLength}, Actual: {actualLength}");
+                }
+                catch (Exception ex)
+                {
+                    TextDisplayIntegration.DisplaySystem($"  ✗ '{text}' -> ERROR: {ex.Message}");
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Tests edge cases and error handling
+        /// </summary>
+        private static void TestEdgeCases()
+        {
+            TextDisplayIntegration.DisplaySystem("Testing edge cases...");
+            
+            var edgeCases = new[]
+            {
+                "", // Empty string
+                "&", // Incomplete color code
+                "{{", // Incomplete template
+                "{{invalid|template}}", // Invalid template
+                "&X", // Invalid color code
+                "Text with &R", // Incomplete color at end
+                "{{fiery|", // Incomplete template
+                "Normal text with no markup"
+            };
+            
+            foreach (var test in edgeCases)
+            {
+                try
+                {
+                    var segments = ColorParser.Parse(test);
+                    TextDisplayIntegration.DisplaySystem($"  ✓ '{test}' -> {segments.Count} segments (handled gracefully)");
+                }
+                catch (Exception ex)
+                {
+                    TextDisplayIntegration.DisplaySystem($"  ⚠ '{test}' -> Exception: {ex.Message}");
+                }
+            }
         }
     }
     

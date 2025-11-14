@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using RPGGame.UI;
+using RPGGame.UI.ColorSystem;
+using RPGGame.Utils;
 
 namespace RPGGame.UI
 {

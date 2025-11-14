@@ -108,11 +108,17 @@ namespace RPGGame
         public void InitializeCombatEntities(Character player, Enemy enemy, Environment? environment = null)
         {
             var actionSpeedSystem = GetCurrentActionSpeedSystem();
-            if (actionSpeedSystem == null) return;
+            if (actionSpeedSystem == null) 
+            {
+                var errorText = CombatFlowColoredText.FormatSystemErrorColored("ActionSpeedSystem is null during InitializeCombatEntities!");
+                BlockDisplayManager.DisplaySystemBlock(errorText);
+                return;
+            }
 
             // New system: Use the attack speed directly as base speed
             double playerAttackSpeed = player.GetTotalAttackSpeed();
             double enemyAttackSpeed = enemy.GetTotalAttackSpeed();
+            
             
             // For the new system, we use the attack speed directly as the base speed
             // This will be multiplied by action length in ExecuteAction
@@ -125,6 +131,7 @@ namespace RPGGame
                 double environmentBaseSpeed = 15.0; // Very slow - environment acts infrequently
                 actionSpeedSystem.AddEntity(environment, environmentBaseSpeed);
             }
+            
             
             // Initialize health tracker for battle participants
             var participants = new List<Entity> { player, enemy };

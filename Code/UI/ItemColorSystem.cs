@@ -1,258 +1,155 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Avalonia.Media;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.UI
 {
     /// <summary>
-    /// Handles color formatting for items based on rarity and modifications
+    /// Color system for item display
+    /// Provides consistent coloring for items based on rarity, type, and properties
     /// </summary>
     public static class ItemColorSystem
     {
-        // Color templates for modification effects
-        private static readonly Dictionary<string, string> ModificationColorMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            // Damage-related
-            { "damage", "fiery" },
-            { "damageMultiplier", "fiery" },
-            
-            // Speed-related
-            { "speedMultiplier", "electric" },
-            { "attackSpeed", "electric" },
-            
-            // Magical effects
-            { "rollBonus", "arcane" },
-            { "magicFind", "ethereal" },
-            { "uniqueActionChance", "arcane" },
-            
-            // Life/Death
-            { "lifesteal", "bloodied" },
-            { "bleedChance", "bleeding" },
-            
-            // Special
-            { "godlike", "holy" },
-            { "autoSuccess", "golden" },
-            { "reroll", "crystalline" },
-            { "durability", "natural" }
-        };
-
-        // Color templates for stat bonuses
-        private static readonly Dictionary<string, string> StatBonusColorMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            { "STR", "fiery" },
-            { "AGI", "electric" },
-            { "TEC", "crystalline" },
-            { "INT", "arcane" },
-            { "Health", "heal" },
-            { "Armor", "natural" },
-            { "AttackSpeed", "electric" }
-        };
-
         /// <summary>
-        /// Gets the color template name for a given rarity
+        /// Gets the color for an item's rarity
         /// </summary>
-        public static string GetRarityTemplate(string rarity)
+        public static Color GetRarityColor(string rarity)
         {
             return rarity.ToLower() switch
             {
-                "common" => "common",
-                "uncommon" => "uncommon",
-                "rare" => "rare",
-                "epic" => "epic",
-                "legendary" => "legendary",
-                "mythic" => "mythic",
-                "transcendent" => "transcendent",
-                _ => "common"
+                "common" => ColorPalette.Gray.GetColor(),
+                "uncommon" => ColorPalette.Green.GetColor(),
+                "rare" => ColorPalette.Blue.GetColor(),
+                "epic" => ColorPalette.Purple.GetColor(),
+                "legendary" => ColorPalette.Orange.GetColor(),
+                _ => Colors.White
             };
         }
-
+        
         /// <summary>
-        /// Formats an item name with rarity color
+        /// Gets colored text for an item name based on rarity
         /// </summary>
-        public static string FormatItemName(Item item)
+        public static List<ColoredText> ColorItemName(string itemName, string rarity)
         {
-            string rarityTemplate = GetRarityTemplate(item.Rarity);
-            return $"{{{{{rarityTemplate}|{item.Name}}}}}";
+            var color = GetRarityColor(rarity);
+            return new List<ColoredText> { new ColoredText(itemName, color) };
         }
-
+        
         /// <summary>
-        /// Formats an item name with rarity and modification prefixes/suffixes
+        /// Gets the color for item stats
         /// </summary>
-        public static string FormatFullItemName(Item item)
+        public static Color GetStatColor(string statType)
         {
-            var parts = new List<string>();
+            return statType.ToLower() switch
+            {
+                "damage" => ColorPalette.Red.GetColor(),
+                "armor" => ColorPalette.Blue.GetColor(),
+                "health" => ColorPalette.Green.GetColor(),
+                "str" or "strength" => ColorPalette.Red.GetColor(),
+                "agi" or "agility" => ColorPalette.Yellow.GetColor(),
+                "tec" or "technique" => ColorPalette.Cyan.GetColor(),
+                "int" or "intelligence" => ColorPalette.Magenta.GetColor(),
+                _ => Colors.White
+            };
+        }
+        
+        /// <summary>
+        /// Formats an item with colored text
+        /// </summary>
+        public static List<ColoredText> FormatItem(Item item)
+        {
+            var result = new List<ColoredText>();
             
-            // Get modifications (prefixes and suffixes)
-            var prefixes = item.Modifications.Where(m => m.ItemRank == "prefix" || string.IsNullOrEmpty(m.ItemRank)).ToList();
-            var suffixes = item.Modifications.Where(m => m.ItemRank == "suffix").ToList();
-
-            // Add colored prefixes
-            foreach (var prefix in prefixes)
-            {
-                string prefixName = ExtractModificationName(prefix.Name);
-                string colorTemplate = GetModificationColorTemplate(prefix.Effect);
-                parts.Add($"{{{{{colorTemplate}|{prefixName}}}}}");
-            }
-
-            // Add the main item name with rarity color
-            string rarityTemplate = GetRarityTemplate(item.Rarity);
-            string baseName = GetBaseItemName(item);
-            parts.Add($"{{{{{rarityTemplate}|{baseName}}}}}");
-
-            // Add colored suffixes
-            foreach (var suffix in suffixes)
-            {
-                string suffixName = ExtractModificationName(suffix.Name);
-                string colorTemplate = GetModificationColorTemplate(suffix.Effect);
-                parts.Add($"{{{{{colorTemplate}|{suffixName}}}}}");
-            }
-
-            return string.Join(" ", parts);
-        }
-
-        /// <summary>
-        /// Formats a modification with appropriate color
-        /// </summary>
-        public static string FormatModification(Modification modification)
-        {
-            string colorTemplate = GetModificationColorTemplate(modification.Effect);
-            string modName = ExtractModificationName(modification.Name);
-            return $"{{{{{colorTemplate}|{modName}}}}}";
-        }
-
-        /// <summary>
-        /// Formats a stat bonus with appropriate color
-        /// </summary>
-        public static string FormatStatBonus(StatBonus bonus)
-        {
-            string colorTemplate = GetStatBonusColorTemplate(bonus.StatType);
-            string bonusName = CleanStatBonusName(bonus.Name);
-            return $"{{{{{colorTemplate}|{bonusName}}}}}";
-        }
-
-        /// <summary>
-        /// Gets the color template for a modification effect
-        /// </summary>
-        private static string GetModificationColorTemplate(string effect)
-        {
-            if (ModificationColorMap.TryGetValue(effect, out string? template))
-            {
-                return template;
-            }
-            return "arcane"; // Default for unknown effects
-        }
-
-        /// <summary>
-        /// Gets the color template for a stat bonus
-        /// </summary>
-        private static string GetStatBonusColorTemplate(string statType)
-        {
-            if (StatBonusColorMap.TryGetValue(statType, out string? template))
-            {
-                return template;
-            }
-            return "natural"; // Default for unknown stats
-        }
-
-        /// <summary>
-        /// Extracts the modification name, removing common prefixes
-        /// </summary>
-        private static string ExtractModificationName(string name)
-        {
-            // Remove "of " prefix if present
-            if (name.StartsWith("of ", StringComparison.OrdinalIgnoreCase))
-            {
-                return name.Substring(3);
-            }
-            return name;
-        }
-
-        /// <summary>
-        /// Gets the base item name without modifications
-        /// </summary>
-        private static string GetBaseItemName(Item item)
-        {
-            string name = item.Name;
+            // Add item name with rarity color
+            var color = GetRarityColor(item.Rarity);
+            result.Add(new ColoredText(item.Name, color));
             
-            // Remove modification names from the full name
-            foreach (var mod in item.Modifications)
-            {
-                string modName = ExtractModificationName(mod.Name);
-                name = name.Replace(modName, "").Trim();
-            }
-
-            // Clean up multiple spaces
-            while (name.Contains("  "))
-            {
-                name = name.Replace("  ", " ");
-            }
-
-            return name.Trim();
+            return result;
         }
-
+        
         /// <summary>
-        /// Cleans a stat bonus name by removing the "of " prefix if present
+        /// Formats an item's full display with stats
         /// </summary>
-        private static string CleanStatBonusName(string name)
+        public static List<List<ColoredText>> FormatItemDetailed(Item item)
         {
-            if (name.StartsWith("of ", StringComparison.OrdinalIgnoreCase))
-            {
-                return name.Substring(3);
-            }
-            return name;
-        }
-
-        /// <summary>
-        /// Creates a simple colored item display (just name + rarity)
-        /// </summary>
-        public static string FormatSimpleItemDisplay(Item item)
-        {
-            string rarityTemplate = GetRarityTemplate(item.Rarity);
-            return $"{{{{{rarityTemplate}|{item.Name}}}}}";
-        }
-
-        /// <summary>
-        /// Creates a detailed item display with all bonuses colored
-        /// </summary>
-        public static List<string> FormatDetailedItemDisplay(Item item)
-        {
-            var lines = new List<string>();
+            var lines = new List<List<ColoredText>>();
             
-            // Main item name
-            lines.Add(FormatSimpleItemDisplay(item));
-            
-            // Stat bonuses
-            if (item.StatBonuses.Count > 0)
+            // Item name line
+            var nameLine = new List<ColoredText>
             {
-                var bonusTexts = item.StatBonuses.Select(b => FormatStatBonus(b));
-                lines.Add($"    &CStats:&y {string.Join(", ", bonusTexts)}");
-            }
+                new ColoredText(item.Name, GetRarityColor(item.Rarity))
+            };
+            lines.Add(nameLine);
             
-            // Action bonuses
-            if (item.ActionBonuses.Count > 0)
+            // Type and tier line
+            var typeLine = new List<ColoredText>
             {
-                var actionTexts = item.ActionBonuses.Select(a => $"&G{a.Name}&y");
-                lines.Add($"    &CActions:&y {string.Join(", ", actionTexts)}");
-            }
-            
-            // Modifications
-            if (item.Modifications.Count > 0)
-            {
-                var modTexts = item.Modifications.Select(m => FormatModification(m));
-                lines.Add($"    &CModifiers:&y {string.Join(", ", modTexts)}");
-            }
+                new ColoredText($"{item.Type} | Tier {item.Tier}", ColorPalette.Gray.GetColor())
+            };
+            lines.Add(typeLine);
             
             return lines;
         }
-
+        
         /// <summary>
-        /// Gets a simple rarity indicator with color
+        /// Formats a simple item display (name with rarity color)
         /// </summary>
-        public static string GetRarityIndicator(string rarity)
+        public static List<ColoredText> FormatSimpleItemDisplay(Item item)
         {
-            string template = GetRarityTemplate(rarity);
-            return $"{{{{{template}|[{rarity.ToUpper()}]}}}}";
+            return ColorItemName(item.Name, item.Rarity);
+        }
+        
+        /// <summary>
+        /// Formats full item name with rarity and type
+        /// </summary>
+        public static List<ColoredText> FormatFullItemName(Item item)
+        {
+            var result = new List<ColoredText>();
+            
+            // Rarity indicator
+            result.Add(new ColoredText("[", Colors.Gray));
+            result.Add(new ColoredText(item.Rarity, GetRarityColor(item.Rarity)));
+            result.Add(new ColoredText("] ", Colors.Gray));
+            
+            // Item name
+            result.Add(new ColoredText(item.Name, GetRarityColor(item.Rarity)));
+            
+            return result;
+        }
+        
+        /// <summary>
+        /// Formats a stat bonus
+        /// </summary>
+        public static List<ColoredText> FormatStatBonus(StatBonus statBonus)
+        {
+            var result = new List<ColoredText>();
+            
+            var sign = statBonus.Value >= 0 ? "+" : "";
+            var color = statBonus.Value >= 0 ? ColorPalette.Green.GetColor() : ColorPalette.Red.GetColor();
+            
+            result.Add(new ColoredText($"{sign}{statBonus.Value} ", color));
+            result.Add(new ColoredText(statBonus.StatType, GetStatColor(statBonus.StatType)));
+            
+            return result;
+        }
+        
+        /// <summary>
+        /// Formats a modification
+        /// </summary>
+        public static List<ColoredText> FormatModification(Modification modification)
+        {
+            var result = new List<ColoredText>();
+            
+            result.Add(new ColoredText(modification.Name, ColorPalette.Orange.GetColor()));
+            
+            if (modification.RolledValue != 0)
+            {
+                var sign = modification.RolledValue >= 0 ? "+" : "";
+                result.Add(new ColoredText($" ({sign}{modification.RolledValue})", ColorPalette.Gray.GetColor()));
+            }
+            
+            return result;
         }
     }
 }

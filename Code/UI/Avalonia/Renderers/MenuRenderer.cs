@@ -1,5 +1,8 @@
 using Avalonia.Media;
+using RPGGame;
 using RPGGame.UI;
+using RPGGame.UI.Avalonia.Managers;
+using RPGGame.UI.ColorSystem;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,12 +10,14 @@ using System.Linq;
 namespace RPGGame.UI.Avalonia.Renderers
 {
     /// <summary>
-    /// Handles rendering of all menu screens (main menu, settings, game menu)
+    /// Handles rendering of all menu screens (main menu, settings, game menu, weapon selection)
     /// </summary>
     public class MenuRenderer : IInteractiveRenderer
     {
         private readonly GameCanvasControl canvas;
         private readonly List<ClickableElement> clickableElements;
+        private readonly ICanvasTextManager textManager;
+        private readonly ICanvasInteractionManager interactionManager;
         private int currentLineCount;
         
         // Screen dimensions
@@ -21,10 +26,12 @@ namespace RPGGame.UI.Avalonia.Renderers
         private const int LEFT_MARGIN = 2;
         private const int CONTENT_WIDTH = 206;
         
-        public MenuRenderer(GameCanvasControl canvas, List<ClickableElement> clickableElements)
+        public MenuRenderer(GameCanvasControl canvas, List<ClickableElement> clickableElements, ICanvasTextManager textManager, ICanvasInteractionManager interactionManager)
         {
             this.canvas = canvas;
             this.clickableElements = clickableElements;
+            this.textManager = textManager;
+            this.interactionManager = interactionManager;
             this.currentLineCount = 0;
         }
         
@@ -73,7 +80,60 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
         
         /// <summary>
-        /// Renders the main menu with saved game info if available
+        /// Renders the main menu content within the center panel (top-left justified)
+        /// </summary>
+        public void RenderMainMenuContent(int x, int y, int width, int height, bool hasSavedGame, string? characterName, int characterLevel)
+        {
+            clickableElements.Clear();
+            currentLineCount = 0;
+            
+            // Build menu options dynamically
+            string loadGameText = hasSavedGame && characterName != null 
+                ? $"Load Game - *{characterName} - lvl {characterLevel}*"
+                : "Load Game";
+            
+            // Warm white to cold white gradient using ColorLayerSystem
+            var menuConfig = new[]
+            {
+                (1, "New Game", ColorLayerSystem.GetWhite(WhiteTemperature.Warm)),
+                (2, loadGameText, ColorLayerSystem.GetWhiteByDepth(2)),
+                (3, "Settings", ColorLayerSystem.GetWhiteByDepth(3)),
+                (0, "Quit", ColorLayerSystem.GetWhite(WhiteTemperature.Cool))
+            };
+            
+            // Position menu at top-left of center panel
+            int menuStartX = x + 2; // Small margin from left edge
+            int menuStartY = y + 2; // Small margin from top edge
+            
+            // Render menu options with colors
+            for (int i = 0; i < menuConfig.Length; i++)
+            {
+                var (number, text, color) = menuConfig[i];
+                string displayText = $"[{number}] {text}";
+                
+                var option = new ClickableElement
+                {
+                    X = menuStartX,
+                    Y = menuStartY + i,
+                    Width = displayText.Length,
+                    Height = 1,
+                    Type = ElementType.MenuOption,
+                    Value = number.ToString(),
+                    DisplayText = displayText
+                };
+                clickableElements.Add(option);
+                
+                canvas.AddMenuOption(menuStartX, menuStartY + i, number, text, color, option.IsHovered);
+                currentLineCount++;
+            }
+            
+            // Add instruction text at bottom of center panel
+            int instructionY = y + height - 3;
+            canvas.AddText(x + 2, instructionY, "Click on options or press number keys. Press H for help", AsciiArtAssets.Colors.Gray);
+        }
+        
+        /// <summary>
+        /// Renders the main menu with saved game info if available (legacy method)
         /// </summary>
         public void RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel)
         {
@@ -94,10 +154,10 @@ namespace RPGGame.UI.Avalonia.Renderers
             // This respects the WhiteTemperatureIntensity configuration parameter
             var menuConfig = new[]
             {
-                (1, "New Game", ColorLayerSystem.GetWhite(WhiteTemperature.Warm, 1.0f).ToAvaloniaColor()),
-                (2, loadGameText, ColorLayerSystem.GetWhiteByDepth(2, 4, 1.0f).ToAvaloniaColor()),
-                (3, "Settings", ColorLayerSystem.GetWhiteByDepth(3, 4, 1.0f).ToAvaloniaColor()),
-                (0, "Quit", ColorLayerSystem.GetWhite(WhiteTemperature.Cool, 0.92f).ToAvaloniaColor())
+                (1, "New Game", ColorLayerSystem.GetWhite(WhiteTemperature.Warm)),
+                (2, loadGameText, ColorLayerSystem.GetWhiteByDepth(2)),
+                (3, "Settings", ColorLayerSystem.GetWhiteByDepth(3)),
+                (0, "Quit", ColorLayerSystem.GetWhite(WhiteTemperature.Cool))
             };
             
             // Find the longest menu option for centering
@@ -141,120 +201,161 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
         
         /// <summary>
-        /// Renders the settings screen
+        /// Renders the settings screen using the 3-panel layout
         /// </summary>
         public void RenderSettings()
         {
-            canvas.Clear();
-            clickableElements.Clear();
-            currentLineCount = 0;
+            // Use the persistent layout system for consistent 3-panel design
+            var layoutManager = new PersistentLayoutManager(canvas);
             
-            // Title
-            canvas.AddTitle(2, "SETTINGS", AsciiArtAssets.Colors.White);
-            currentLineCount = 4; // Title at line 2 + spacing
-            
-            // Settings sections
-            canvas.AddBorder(LEFT_MARGIN, 4, CONTENT_WIDTH, 8, AsciiArtAssets.Colors.Blue);
-            canvas.AddTitle(5, "GAME SETTINGS", AsciiArtAssets.Colors.Blue);
-            currentLineCount = 7; // Border + title + spacing
-            
-            int y = 6;
-            canvas.AddText(LEFT_MARGIN + 2, y, "UI Mode: ASCII Interface", AsciiArtAssets.Colors.White);
-            y++;
-            currentLineCount++;
-            canvas.AddText(LEFT_MARGIN + 2, y, "Color Scheme: Terminal", AsciiArtAssets.Colors.White);
-            y++;
-            currentLineCount++;
-            canvas.AddText(LEFT_MARGIN + 2, y, "Input: Mouse + Keyboard", AsciiArtAssets.Colors.White);
-            y++;
-            currentLineCount++;
-            canvas.AddText(LEFT_MARGIN + 2, y, "Performance: Optimized", AsciiArtAssets.Colors.White);
-            currentLineCount++;
-            
-            // Controls section
-            y = 13;
-            canvas.AddBorder(LEFT_MARGIN, y, CONTENT_WIDTH, 10, AsciiArtAssets.Colors.Green);
-            canvas.AddTitle(y + 1, "CONTROLS", AsciiArtAssets.Colors.Green);
-            currentLineCount = y + 3; // Border + title + spacing
-            
-            y += 3;
-            canvas.AddText(LEFT_MARGIN + 2, y, "Mouse: Click to select options", AsciiArtAssets.Colors.White);
-            y++;
-            currentLineCount++;
-            canvas.AddText(LEFT_MARGIN + 2, y, "Keyboard: 1-6 for menu options", AsciiArtAssets.Colors.White);
-            y++;
-            currentLineCount++;
-            canvas.AddText(LEFT_MARGIN + 2, y, "H: Toggle help screen", AsciiArtAssets.Colors.White);
-            y++;
-            currentLineCount++;
-            canvas.AddText(LEFT_MARGIN + 2, y, "ESC: Return to previous screen", AsciiArtAssets.Colors.White);
-            y++;
-            currentLineCount++;
-            canvas.AddText(LEFT_MARGIN + 2, y, "Hover: Highlight interactive elements", AsciiArtAssets.Colors.White);
-            currentLineCount++;
-            
-            // Action buttons
-            y = 24;
-            int buttonCount = 1;
-            
-            // Check for saved character
+            // Get saved character info for display
             var (characterName, characterLevel) = CharacterSaveManager.GetSavedCharacterInfo();
             bool hasSavedCharacter = characterName != null;
             
-            if (hasSavedCharacter)
+            // Render the layout with settings content
+            layoutManager.RenderLayout(
+                character: null, // No character in settings
+                renderCenterContent: (x, y, width, height) => RenderSettingsContent(x, y, width, height, hasSavedCharacter, characterName, characterLevel),
+                title: "SETTINGS",
+                enemy: null,
+                dungeonName: null,
+                roomName: null
+            );
+        }
+        
+        /// <summary>
+        /// Renders the simplified settings content with only functional options
+        /// </summary>
+        private void RenderSettingsContent(int x, int y, int width, int height, bool hasSavedCharacter, string? characterName, int characterLevel)
+        {
+            clickableElements.Clear();
+            currentLineCount = 0;
+            
+            // Simple centered menu layout
+            int menuStartX = x + (width / 2) - 15; // Center the menu
+            int menuStartY = y + (height / 2) - 3; // Center vertically
+            
+            // Title
+            canvas.AddText(menuStartX, menuStartY, "=== SETTINGS ===", AsciiArtAssets.Colors.Gold);
+            menuStartY += 3;
+            
+            // Menu options - only functional ones
+            var menuOptions = new[]
             {
-                buttonCount = 2;
-            }
-            
-            int borderHeight = 4 + buttonCount * 2;
-            canvas.AddBorder(LEFT_MARGIN, y, CONTENT_WIDTH, borderHeight, AsciiArtAssets.Colors.Yellow);
-            canvas.AddTitle(y + 1, "ACTIONS", AsciiArtAssets.Colors.Yellow);
-            currentLineCount = y + 3; // Up to the start of buttons
-            
-            int buttonY = y + 3;
-            
-            // Delete button if saved character exists
-            if (hasSavedCharacter)
-            {
-                var deleteButton = new ClickableElement
-                {
-                    X = LEFT_MARGIN + 2,
-                    Y = buttonY,
-                    Width = 30,
-                    Height = 1,
-                    Type = ElementType.Button,
-                    Value = "2",
-                    DisplayText = "[2] Delete Saved Character"
-                };
-                clickableElements.Add(deleteButton);
-                
-                canvas.AddMenuOption(LEFT_MARGIN + 2, buttonY, 2, "Delete Saved Character", 
-                    Color.FromRgb(255, 100, 100), deleteButton.IsHovered);
-                currentLineCount++;
-                canvas.AddText(LEFT_MARGIN + 4, buttonY + 1, 
-                    $"Current Save: {characterName} (Level {characterLevel})", AsciiArtAssets.Colors.Gray);
-                currentLineCount++;
-                buttonY += 3;
-            }
-            
-            // Back button
-            var backButton = new ClickableElement
-            {
-                X = LEFT_MARGIN + 2,
-                Y = buttonY,
-                Width = 20,
-                Height = 1,
-                Type = ElementType.Button,
-                Value = "1",
-                DisplayText = "[1] Back to Main Menu"
+                (1, "Testing", AsciiArtAssets.Colors.White),
+                (0, "Back to Main Menu", AsciiArtAssets.Colors.White)
             };
-            clickableElements.Add(backButton);
             
-            canvas.AddMenuOption(LEFT_MARGIN + 2, buttonY, 1, "Back to Main Menu", 
-                AsciiArtAssets.Colors.White, backButton.IsHovered);
+            foreach (var (number, text, color) in menuOptions)
+            {
+                var option = new ClickableElement
+                {
+                    X = menuStartX,
+                    Y = menuStartY,
+                    Width = text.Length + 4,
+                    Height = 1,
+                    Type = ElementType.MenuOption,
+                    Value = number.ToString(),
+                    DisplayText = $"[{number}] {text}"
+                };
+                clickableElements.Add(option);
+                
+                canvas.AddText(menuStartX, menuStartY, $"[{number}] {text}", color);
+                menuStartY++;
+            }
+            
+            // Show saved character info if available
+            if (hasSavedCharacter && characterName != null)
+            {
+                menuStartY += 2;
+                canvas.AddText(menuStartX, menuStartY, $"Saved Character: {characterName} (Level {characterLevel})", AsciiArtAssets.Colors.Cyan);
+                menuStartY++;
+                canvas.AddText(menuStartX, menuStartY, "Use 'Delete Saved Character' in game menu to remove", AsciiArtAssets.Colors.Gray);
+            }
+        }
+        
+        
+        /// <summary>
+        /// Renders the testing menu screen using the 3-panel layout
+        /// </summary>
+        public void RenderTestingMenu(int x, int y, int width, int height)
+        {
+            clickableElements.Clear();
+            currentLineCount = 0;
+            
+            // Test description panel (top section)
+            int panelHeight = (height - 4) / 3; // Divide available height into 3 sections with spacing
+            int currentY = y;
+            
+            canvas.AddBorder(x, currentY, width, panelHeight, AsciiArtAssets.Colors.Blue);
+            canvas.AddTitle(currentY + 1, "TEST DESCRIPTION", AsciiArtAssets.Colors.Blue);
+            currentLineCount = currentY + 3; // Border + title + spacing
+            
+            int textY = currentY + 3;
+            canvas.AddText(x + 2, textY, "These tests verify all game systems:", AsciiArtAssets.Colors.White);
+            textY++;
+            currentLineCount++;
+            canvas.AddText(x + 2, textY, "• Character, Combat, Inventory, Dungeon", AsciiArtAssets.Colors.White);
+            textY++;
+            currentLineCount++;
+            canvas.AddText(x + 2, textY, "• Data Loading, UI, Save/Load, Actions", AsciiArtAssets.Colors.White);
+            textY++;
+            currentLineCount++;
+            canvas.AddText(x + 2, textY, "• Color System, Performance, Integration", AsciiArtAssets.Colors.White);
+            textY++;
+            currentLineCount++;
+            canvas.AddText(x + 2, textY, "• Combat UI Fixes and System Validation", AsciiArtAssets.Colors.White);
             currentLineCount++;
             
-            canvas.Refresh();
+            // Test options panel (middle section)
+            currentY += panelHeight + 1;
+            canvas.AddBorder(x, currentY, width, panelHeight, AsciiArtAssets.Colors.Green);
+            canvas.AddTitle(currentY + 1, "TEST OPTIONS", AsciiArtAssets.Colors.Green);
+            currentLineCount = currentY + 3; // Border + title + spacing
+            
+            textY = currentY + 3;
+            canvas.AddText(x + 2, textY, "[1] Run All Tests (Complete Suite)", AsciiArtAssets.Colors.White);
+            textY++;
+            currentLineCount++;
+            canvas.AddText(x + 2, textY, "[2] Character System Tests", AsciiArtAssets.Colors.White);
+            textY++;
+            currentLineCount++;
+            canvas.AddText(x + 2, textY, "[3] Combat System Tests", AsciiArtAssets.Colors.White);
+            textY++;
+            currentLineCount++;
+            canvas.AddText(x + 2, textY, "[4] Inventory System Tests", AsciiArtAssets.Colors.White);
+            textY++;
+            currentLineCount++;
+            canvas.AddText(x + 2, textY, "[5] Dungeon System Tests", AsciiArtAssets.Colors.White);
+            textY++;
+            currentLineCount++;
+            canvas.AddText(x + 2, textY, "[6] Data System Tests", AsciiArtAssets.Colors.White);
+            textY++;
+            currentLineCount++;
+            canvas.AddText(x + 2, textY, "[7] UI System Tests", AsciiArtAssets.Colors.White);
+            textY++;
+            currentLineCount++;
+            canvas.AddText(x + 2, textY, "[8] Combat UI Fixes", AsciiArtAssets.Colors.White);
+            textY++;
+            currentLineCount++;
+            canvas.AddText(x + 2, textY, "[9] Integration Tests", AsciiArtAssets.Colors.White);
+            textY++;
+            currentLineCount++;
+            canvas.AddText(x + 2, textY, "[0] Back to Settings", AsciiArtAssets.Colors.White);
+            currentLineCount++;
+            
+            // Instructions panel (bottom section)
+            currentY += panelHeight + 1;
+            canvas.AddBorder(x, currentY, width, panelHeight, AsciiArtAssets.Colors.Yellow);
+            canvas.AddTitle(currentY + 1, "INSTRUCTIONS", AsciiArtAssets.Colors.Yellow);
+            currentLineCount = currentY + 3; // Border + title + spacing
+            
+            textY = currentY + 3;
+            canvas.AddText(x + 2, textY, "Select a test option to run. Results will be displayed", AsciiArtAssets.Colors.White);
+            textY++;
+            currentLineCount++;
+            canvas.AddText(x + 2, textY, "in the center panel after test completion.", AsciiArtAssets.Colors.White);
+            currentLineCount++;
         }
         
         /// <summary>
@@ -314,6 +415,79 @@ namespace RPGGame.UI.Avalonia.Renderers
             currentLineCount++;
             canvas.AddMenuOption(menuX, centerY + 2, 0, "Save & Exit", AsciiArtAssets.Colors.White, option3.IsHovered);
             currentLineCount++;
+        }
+
+        /// <summary>
+        /// Renders the weapon selection screen (merged from WeaponSelectionRenderer)
+        /// </summary>
+        public void RenderWeaponSelection(List<StartingWeapon> weapons)
+        {
+            interactionManager.ClearClickableElements();
+            // Render weapon selection content directly
+            RenderWeaponSelectionContent(0, 0, (int)canvas.Width, (int)canvas.Height, weapons);
+        }
+        
+        /// <summary>
+        /// Renders the weapon selection content with centered layout (merged from WeaponSelectionRenderer)
+        /// </summary>
+        private void RenderWeaponSelectionContent(int x, int y, int width, int height, List<StartingWeapon> weapons)
+        {
+            // Center the content vertically
+            int centerY = y + (height / 2) - (weapons.Count * 3) / 2 - 2;
+            
+            // Instructions
+            string instructions = "Choose your starting weapon:";
+            int instructionX = x + (width / 2) - (instructions.Length / 2);
+            canvas.AddText(instructionX, centerY, instructions, AsciiArtAssets.Colors.White);
+            centerY += 3;
+            
+            // Find max weapon display text length for centering
+            int maxLength = 0;
+            foreach (var weapon in weapons)
+            {
+                string displayText = $"[{weapons.IndexOf(weapon) + 1}] {weapon.name}";
+                if (displayText.Length > maxLength)
+                    maxLength = displayText.Length;
+            }
+            
+            // Render weapon options centered
+            foreach (var weapon in weapons)
+            {
+                int weaponNum = weapons.IndexOf(weapon) + 1;
+                string displayText = $"[{weaponNum}] {weapon.name}";
+                string coloredName = $"{{{{common|{weapon.name}}}}}";
+                
+                // Center each weapon option
+                int optionX = x + (width / 2) - (maxLength / 2);
+                
+                // Add clickable element (relative to canvas, not content area)
+                interactionManager.AddClickableElement(new ClickableElement
+                {
+                    X = optionX,
+                    Y = centerY,
+                    Width = displayText.Length,
+                    Height = 1,
+                    Type = ElementType.MenuOption,
+                    Value = weaponNum.ToString(),
+                    DisplayText = displayText
+                });
+                
+                // Display weapon name with color
+                textManager.WriteLineColored($"[{weaponNum}] {coloredName}", optionX, centerY);
+                centerY++;
+                
+                // Weapon stats (indented slightly)
+                string stats = $"    Damage: {weapon.damage:F1}, Attack Speed: {weapon.attackSpeed:F2}s";
+                int statsX = x + (width / 2) - (stats.Length / 2);
+                canvas.AddText(statsX, centerY, stats, AsciiArtAssets.Colors.Gray);
+                centerY += 2;
+            }
+            
+            // Instructions at bottom
+            centerY += 2;
+            string bottomInstructions = "Press the number key or click to select your weapon";
+            int bottomX = x + (width / 2) - (bottomInstructions.Length / 2);
+            canvas.AddText(bottomX, centerY, bottomInstructions, AsciiArtAssets.Colors.White);
         }
     }
 }

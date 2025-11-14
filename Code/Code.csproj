@@ -7,6 +7,9 @@
     <Nullable>enable</Nullable>
     <AssemblyName>DF</AssemblyName>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <DefaultItemExcludes>$(DefaultItemExcludes);StandaloneColorDemo/**;ColorSystemTest/**;MCP/**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>

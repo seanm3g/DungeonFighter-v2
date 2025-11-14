@@ -1,5 +1,7 @@
 using Avalonia.Media;
+using RPGGame;
 using RPGGame.UI;
+using RPGGame.UI.ColorSystem;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +9,8 @@ using System.Linq;
 namespace RPGGame.UI.Avalonia.Renderers
 {
     /// <summary>
-    /// Handles rendering of dungeon-related screens (selection, entry, room entry, completion)
+    /// Consolidated dungeon renderer that handles all dungeon-related screens
+    /// Merged from multiple specialized renderers for better maintainability
     /// </summary>
     public class DungeonRenderer : IInteractiveRenderer
     {
@@ -16,11 +19,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         private readonly List<ClickableElement> clickableElements;
         private int currentLineCount;
         
-        // Store dungeon name texts for animation
-        private readonly List<ColoredText> dungeonNameTexts = new();
-        private List<Dungeon>? lastDungeonList = null;
-        private readonly BrightnessMask? sharedBrightnessMask;
-        private static readonly Random random = new Random();
+        // Specialized renderers (only keep complex ones)
+        private readonly DungeonSelectionRenderer selectionRenderer;
+        private readonly DungeonCompletionRenderer dungeonCompletionRenderer;
         
         public DungeonRenderer(GameCanvasControl canvas, ColoredTextWriter textWriter, List<ClickableElement> clickableElements)
         {
@@ -29,12 +30,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             this.clickableElements = clickableElements;
             this.currentLineCount = 0;
             
-            // Initialize brightness mask from configuration
-            var maskConfig = UIManager.UIConfig.BrightnessMask;
-            if (maskConfig.Enabled)
-            {
-                sharedBrightnessMask = new BrightnessMask(maskConfig.Intensity, maskConfig.WaveLength);
-            }
+            // Initialize specialized renderers (only complex ones)
+            this.selectionRenderer = new DungeonSelectionRenderer(canvas, textWriter, clickableElements);
+            this.dungeonCompletionRenderer = new DungeonCompletionRenderer(canvas, clickableElements);
         }
         
         // IScreenRenderer implementation
@@ -47,7 +45,6 @@ namespace RPGGame.UI.Avalonia.Renderers
         public void Clear()
         {
             clickableElements.Clear();
-            dungeonNameTexts.Clear();
             currentLineCount = 0;
         }
         
@@ -57,13 +54,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// </summary>
         public void UpdateUndulation()
         {
-            foreach (var text in dungeonNameTexts)
-            {
-                if (text.Undulate)
-                {
-                    text.AdvanceUndulation();
-                }
-            }
+            selectionRenderer.UpdateUndulation();
         }
         
         /// <summary>
@@ -71,7 +62,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// </summary>
         public void UpdateBrightnessMask()
         {
-            sharedBrightnessMask?.Advance();
+            selectionRenderer.UpdateBrightnessMask();
         }
         
         public int GetLineCount()
@@ -110,107 +101,11 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// </summary>
         public void RenderDungeonSelection(int x, int y, int width, int height, List<Dungeon> dungeons)
         {
-            currentLineCount = 0;
-            
-            // Only recreate ColoredText objects if the dungeon list has changed
-            bool dungeonListChanged = lastDungeonList == null || 
-                                      lastDungeonList.Count != dungeons.Count ||
-                                      !lastDungeonList.SequenceEqual(dungeons);
-            
-            if (dungeonListChanged)
-            {
-                dungeonNameTexts.Clear();
-                lastDungeonList = new List<Dungeon>(dungeons);
-            }
-            
-            // Available dungeons
-            canvas.AddText(x + 2, y, "═══ AVAILABLE DUNGEONS ═══", AsciiArtAssets.Colors.Gold);
-            y += 2;
-            currentLineCount += 2;
-            
-            for (int i = 0; i < dungeons.Count; i++)
-            {
-                var dungeon = dungeons[i];
-                var option = new ClickableElement
-                {
-                    X = x + 4,
-                    Y = y,
-                    Width = width - 8,
-                    Height = 1,
-                    Type = ElementType.MenuOption,
-                    Value = (i + 1).ToString(),
-                    DisplayText = $"[{i + 1}] {dungeon.Name} (lvl {dungeon.MinLevel})"
-                };
-                clickableElements.Add(option);
-                
-                // Create or reuse the dungeon name ColoredText
-                ColoredText dungeonNameText;
-                if (dungeonListChanged)
-                {
-                    dungeonNameText = ColoredText.FromTemplate(
-                        dungeon.Name, 
-                        GetDungeonThemeTemplate(dungeon.Theme), 
-                        undulate: false
-                    );
-                    // Apply shared brightness mask for cloud-like lighting effect
-                    dungeonNameText.BrightnessMask = sharedBrightnessMask;
-                    // Set random line offset to make each line independent
-                    dungeonNameText.BrightnessMaskLineOffset = random.Next(0, 1000);
-                    dungeonNameTexts.Add(dungeonNameText);
-                }
-                else
-                {
-                    dungeonNameText = dungeonNameTexts[i];
-                }
-                
-                // Build the dungeon display text using ColoredText pattern approach
-                if (option.IsHovered)
-                {
-                    // When hovered, use yellow color for everything
-                    var hoveredText = ColoredText.FromColor($"[{i + 1}] {dungeon.Name} (lvl {dungeon.MinLevel})", 'Y');
-                    textWriter.WriteLineColored(hoveredText, x + 4, y);
-                }
-                else
-                {
-                    // Build using ColoredTextBuilder - keeps text and patterns separate
-                    var builder = new ColoredTextBuilder()
-                        .Add($"[{i + 1}] ", 'y')  // Grey bracket and number
-                        .Add(dungeonNameText)  // Use the stored ColoredText (will animate!)
-                        .Add($" (lvl {dungeon.MinLevel})", 'Y');  // White level info
-                    
-                    // Render segments directly - no parsing, no corruption
-                    var segments = builder.Build();
-                    textWriter.RenderSegments(segments, x + 4, y);
-                }
-                y++;
-                currentLineCount++;
-            }
-            
-            // Return option
-            y += 2;
-            currentLineCount += 2;
-            canvas.AddText(x + 2, y, "═══ OPTIONS ═══", AsciiArtAssets.Colors.Gold);
-            y += 2;
-            currentLineCount += 2;
-            
-            var returnOption = new ClickableElement
-            {
-                X = x + 4,
-                Y = y,
-                Width = 25,
-                Height = 1,
-                Type = ElementType.MenuOption,
-                Value = "0",
-                DisplayText = "[0] Return to Menu"
-            };
-            clickableElements.Add(returnOption);
-            
-            canvas.AddMenuOption(x + 4, y, 0, "Return to Menu", AsciiArtAssets.Colors.White, returnOption.IsHovered);
-            currentLineCount++;
+            currentLineCount = selectionRenderer.RenderDungeonSelection(x, y, width, height, dungeons);
         }
         
         /// <summary>
-        /// Renders the dungeon start screen
+        /// Renders the dungeon start screen (merged from DungeonStartRenderer)
         /// </summary>
         public void RenderDungeonStart(int x, int y, int width, int height, Dungeon dungeon)
         {
@@ -244,7 +139,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
         
         /// <summary>
-        /// Renders the room entry screen
+        /// Renders the room entry screen (merged from RoomEntryRenderer)
         /// </summary>
         public void RenderRoomEntry(int x, int y, int width, int height, Environment room)
         {
@@ -307,7 +202,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
         
         /// <summary>
-        /// Renders the room completion screen
+        /// Renders the room completion screen (merged from RoomCompletionRenderer)
         /// </summary>
         public void RenderRoomCompletion(int x, int y, int width, int height, Environment room, Character currentCharacter)
         {
@@ -331,57 +226,11 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
         
         /// <summary>
-        /// Renders the dungeon completion screen
+        /// Renders the dungeon completion screen with detailed statistics and menu choices
         /// </summary>
-        public void RenderDungeonCompletion(int x, int y, int width, int height, Dungeon dungeon)
+        public void RenderDungeonCompletion(int x, int y, int width, int height, Dungeon dungeon, Character player, int xpGained, Item? lootReceived)
         {
-            currentLineCount = 0;
-            int centerY = y + (height / 2) - 8;
-            
-            // Victory message
-            canvas.AddText(x + (width / 2) - 15, centerY, "═══ VICTORY! ═══", AsciiArtAssets.Colors.Gold);
-            centerY += 3;
-            currentLineCount += 3;
-            
-            canvas.AddText(x + 4, centerY, "Congratulations! You have successfully completed the dungeon!", AsciiArtAssets.Colors.White);
-            centerY += 2;
-            currentLineCount += 2;
-            canvas.AddText(x + 4, centerY, "You have gained experience and loot.", AsciiArtAssets.Colors.White);
-            centerY += 3;
-            currentLineCount += 3;
-            
-            // Use theme color for dungeon name
-            var themeColor = DungeonThemeColors.GetThemeColor(dungeon.Theme);
-            canvas.AddText(x + 4, centerY, "Dungeon: ", AsciiArtAssets.Colors.White);
-            canvas.AddText(x + 14, centerY, dungeon.Name, themeColor);
-            centerY++;
-            currentLineCount++;
-            canvas.AddText(x + 4, centerY, $"Rooms Cleared: {dungeon.Rooms.Count}", AsciiArtAssets.Colors.White);
-            centerY += 3;
-            currentLineCount += 3;
-            
-            // Status message
-            canvas.AddText(x + (width / 2) - 18, centerY, "Returning to the main menu...", AsciiArtAssets.Colors.White);
-            currentLineCount++;
-        }
-        
-        /// <summary>
-        /// Maps dungeon themes to their corresponding color template names
-        /// </summary>
-        private string GetDungeonThemeTemplate(string theme)
-        {
-            // Convert theme name to lowercase for template lookup
-            string templateName = theme.ToLower();
-            
-            // Check if the template exists, otherwise fall back to a generic one
-            if (ColorTemplateLibrary.HasTemplate(templateName))
-            {
-                return templateName;
-            }
-            
-            // Fallback for themes without specific templates
-            return "y"; // Default to grey color code
+            currentLineCount = dungeonCompletionRenderer.RenderDungeonCompletion(x, y, width, height, dungeon, player, xpGained, lootReceived);
         }
     }
 }
-

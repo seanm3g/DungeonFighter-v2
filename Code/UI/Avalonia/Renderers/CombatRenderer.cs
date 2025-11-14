@@ -3,6 +3,7 @@ using RPGGame.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.UI.Avalonia.Renderers
 {
@@ -40,36 +41,21 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
         
         /// <summary>
-        /// Renders the main combat screen with enemy info and combat log
+        /// Renders the main combat screen with combat log (enemy info moved to right panel)
         /// </summary>
         public void RenderCombat(int x, int y, int width, int height, Character player, Enemy enemy, List<string> combatLog)
         {
             currentLineCount = 0;
             int startY = y;
             
-            // Enemy info section (name and level - health is in left panel)
-            canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(AsciiArtAssets.UIText.EnemyHeader), AsciiArtAssets.Colors.Gold);
-            y += 2;
-            currentLineCount += 2;
-            
-            canvas.AddText(x + 2, y, $"{AsciiArtAssets.CombatIcons.Enemy} {enemy.Name}", AsciiArtAssets.Colors.White);
-            y++;
-            currentLineCount++;
-            canvas.AddText(x + 2, y, $"Level {enemy.Level}", AsciiArtAssets.Colors.White);
-            y += 3;
-            currentLineCount += 3;
-            
-            // Combat log section
-            canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(AsciiArtAssets.UIText.CombatLogHeader), AsciiArtAssets.Colors.Gold);
-            y += 2;
-            currentLineCount += 2;
+            // Combat log section - header removed per user request
             
             // Calculate available width for combat log
             int availableWidth = width - 4;
             
             foreach (var logEntry in combatLog.TakeLast(20))
             {
-                if (y < startY + height - 8)
+                if (y < startY + height - 2)
                 {
                     // Render with color markup and text wrapping
                     int linesRendered = textWriter.WriteLineColoredWrapped(logEntry, x + 2, y, availableWidth);
@@ -77,21 +63,6 @@ namespace RPGGame.UI.Avalonia.Renderers
                     currentLineCount += linesRendered;
                 }
             }
-            
-            // Actions at bottom
-            y = startY + height - 6;
-            canvas.AddText(x + 2, y, "═══ ACTIONS ═══", AsciiArtAssets.Colors.Gold);
-            y += 2;
-            currentLineCount += 2;
-            
-            canvas.AddMenuOption(x + 2, y, 1, "Attack", AsciiArtAssets.Colors.White);
-            y++;
-            currentLineCount++;
-            canvas.AddMenuOption(x + 2, y, 2, "Use Item", AsciiArtAssets.Colors.White);
-            y++;
-            currentLineCount++;
-            canvas.AddMenuOption(x + 2, y, 3, "Flee", AsciiArtAssets.Colors.White);
-            currentLineCount++;
         }
         
         /// <summary>

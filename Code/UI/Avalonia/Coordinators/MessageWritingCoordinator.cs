@@ -1,0 +1,211 @@
+using RPGGame;
+using RPGGame.UI;
+using RPGGame.UI.Avalonia.Managers;
+using RPGGame.UI.Avalonia.Renderers;
+using System.Collections.Generic;
+
+namespace RPGGame.UI.Avalonia.Coordinators
+{
+    /// <summary>
+    /// Consolidated coordinator for handling message writing, text rendering, and combat message operations
+    /// </summary>
+    public class MessageWritingCoordinator
+    {
+        private readonly ICanvasTextManager textManager;
+        private readonly CanvasRenderer renderer;
+        private readonly ICanvasContextManager contextManager;
+        
+        public MessageWritingCoordinator(ICanvasTextManager textManager, CanvasRenderer renderer, ICanvasContextManager contextManager)
+        {
+            this.textManager = textManager;
+            this.renderer = renderer;
+            this.contextManager = contextManager;
+        }
+        
+        /// <summary>
+        /// Writes a line with specified message type
+        /// </summary>
+        public void WriteLine(string message, UIMessageType messageType = UIMessageType.System)
+        {
+            textManager.AddToDisplayBuffer(message, messageType);
+            renderer.RenderDisplayBuffer(contextManager.GetCurrentContext());
+        }
+        
+        /// <summary>
+        /// Writes a message (alias for WriteLine)
+        /// </summary>
+        public void Write(string message)
+        {
+            WriteLine(message);
+        }
+        
+        /// <summary>
+        /// Writes a system message
+        /// </summary>
+        public void WriteSystemLine(string message)
+        {
+            WriteLine(message, UIMessageType.System);
+        }
+        
+        /// <summary>
+        /// Writes a menu message
+        /// </summary>
+        public void WriteMenuLine(string message)
+        {
+            textManager.AddToDisplayBuffer(message, UIMessageType.Menu);
+            renderer.RenderDisplayBuffer(contextManager.GetCurrentContext());
+        }
+        
+        /// <summary>
+        /// Writes a title message
+        /// </summary>
+        public void WriteTitleLine(string message)
+        {
+            WriteLine(message, UIMessageType.Title);
+        }
+        
+        /// <summary>
+        /// Writes a dungeon message
+        /// </summary>
+        public void WriteDungeonLine(string message)
+        {
+            WriteLine(message, UIMessageType.System);
+        }
+        
+        /// <summary>
+        /// Writes a room message
+        /// </summary>
+        public void WriteRoomLine(string message)
+        {
+            WriteLine(message, UIMessageType.System);
+        }
+        
+        /// <summary>
+        /// Writes an enemy message
+        /// </summary>
+        public void WriteEnemyLine(string message)
+        {
+            WriteLine(message, UIMessageType.System);
+        }
+        
+        /// <summary>
+        /// Writes a room cleared message
+        /// </summary>
+        public void WriteRoomClearedLine(string message)
+        {
+            WriteLine(message, UIMessageType.System);
+        }
+        
+        /// <summary>
+        /// Writes an effect message
+        /// </summary>
+        public void WriteEffectLine(string message)
+        {
+            WriteLine(message, UIMessageType.EffectMessage);
+        }
+        
+        /// <summary>
+        /// Writes a blank line
+        /// </summary>
+        public void WriteBlankLine()
+        {
+            textManager.AddToDisplayBuffer("", UIMessageType.System);
+        }
+        
+        /// <summary>
+        /// Writes chunked text with reveal animation
+        /// </summary>
+        public void WriteChunked(string message, UI.ChunkedTextReveal.RevealConfig? config = null)
+        {
+            textManager.WriteChunked(message, config);
+        }
+        
+        /// <summary>
+        /// Resets display buffer for new battle
+        /// </summary>
+        public void ResetForNewBattle()
+        {
+            textManager.ClearDisplayBuffer();
+            contextManager.RestoreDungeonContext();
+            foreach (var line in contextManager.GetDungeonContext())
+            {
+                textManager.AddToDisplayBuffer(line);
+            }
+        }
+        
+        /// <summary>
+        /// Resets menu delay counter
+        /// </summary>
+        public void ResetMenuDelayCounter()
+        {
+            // Handled by text manager
+        }
+        
+        /// <summary>
+        /// Gets consecutive menu line count
+        /// </summary>
+        public int GetConsecutiveMenuLineCount()
+        {
+            return 0; // Simplified for canvas UI
+        }
+        
+        /// <summary>
+        /// Gets base menu delay
+        /// </summary>
+        public int GetBaseMenuDelay()
+        {
+            return 0; // Simplified for canvas UI
+        }
+
+        // ===== TEXT RENDERING METHODS (merged from TextRenderingCoordinator) =====
+        
+        /// <summary>
+        /// Writes colored text at specified position
+        /// </summary>
+        public void WriteLineColored(string message, int x, int y)
+        {
+            textManager.WriteLineColored(message, x, y);
+        }
+        
+        /// <summary>
+        /// Writes colored text with wrapping at specified position
+        /// </summary>
+        public int WriteLineColoredWrapped(string message, int x, int y, int maxWidth)
+        {
+            return textManager.WriteLineColoredWrapped(message, x, y, maxWidth);
+        }
+
+        // ===== COMBAT MESSAGE METHODS (merged from CombatMessageCoordinator) =====
+        
+        /// <summary>
+        /// Adds victory message after defeating an enemy
+        /// </summary>
+        public void AddVictoryMessage(Enemy enemy, BattleNarrative? battleNarrative)
+        {
+            var messageHandler = new CombatMessageHandler(textManager);
+            messageHandler.AddVictoryMessage(enemy, battleNarrative);
+            renderer.RenderDisplayBuffer(contextManager.GetCurrentContext());
+        }
+        
+        /// <summary>
+        /// Adds defeat message when player is defeated
+        /// </summary>
+        public void AddDefeatMessage()
+        {
+            var messageHandler = new CombatMessageHandler(textManager);
+            messageHandler.AddDefeatMessage();
+            renderer.RenderDisplayBuffer(contextManager.GetCurrentContext());
+        }
+        
+        /// <summary>
+        /// Adds room cleared message
+        /// </summary>
+        public void AddRoomClearedMessage()
+        {
+            var messageHandler = new CombatMessageHandler(textManager);
+            messageHandler.AddRoomClearedMessage(contextManager.GetCurrentCharacter());
+            renderer.RenderDisplayBuffer(contextManager.GetCurrentContext());
+        }
+    }
+}
+

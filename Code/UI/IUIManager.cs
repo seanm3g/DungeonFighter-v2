@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
 {
@@ -27,5 +29,27 @@ namespace RPGGame
         /// Writes text with chunked reveal (progressive text display)
         /// </summary>
         void WriteChunked(string message, UI.ChunkedTextReveal.RevealConfig? config = null);
+        
+        // ===== NEW COLORED TEXT SYSTEM METHODS =====
+        
+        /// <summary>
+        /// Writes colored text using the new ColoredText system
+        /// </summary>
+        void WriteColoredText(ColoredText coloredText, UIMessageType messageType = UIMessageType.System);
+        
+        /// <summary>
+        /// Writes colored text using the new ColoredText system with newline
+        /// </summary>
+        void WriteLineColoredText(ColoredText coloredText, UIMessageType messageType = UIMessageType.System);
+        
+        /// <summary>
+        /// Writes colored text segments using the new ColoredText system
+        /// </summary>
+        void WriteColoredSegments(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System);
+        
+        /// <summary>
+        /// Writes colored text segments using the new ColoredText system with newline
+        /// </summary>
+        void WriteLineColoredSegments(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System);
     }
 }

@@ -2,6 +2,8 @@ using System;
 using System.Threading;
 using Avalonia.Threading;
 using RPGGame.UI.Avalonia;
+using RPGGame.UI.ColorSystem;
+using RPGGame.Utils;
 
 namespace RPGGame.UI.TitleScreen
 {
@@ -34,13 +36,13 @@ namespace RPGGame.UI.TitleScreen
 
     /// <summary>
     /// Renders title frames to the Canvas UI (Avalonia GUI)
-    /// Uses the existing CanvasUIManager for display
+    /// Uses the existing CanvasUICoordinator for display
     /// </summary>
     public class CanvasTitleRenderer : ITitleRenderer
     {
-        private readonly CanvasUIManager _canvasUI;
+        private readonly CanvasUICoordinator _canvasUI;
 
-        public CanvasTitleRenderer(CanvasUIManager canvasUI)
+        public CanvasTitleRenderer(CanvasUICoordinator canvasUI)
         {
             _canvasUI = canvasUI ?? throw new ArgumentNullException(nameof(canvasUI));
         }

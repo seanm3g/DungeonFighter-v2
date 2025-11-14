@@ -34,15 +34,15 @@ namespace RPGGame.UI.Avalonia
 
         private bool waitingForKeyAfterAnimation = false;
         
-        private async void InitializeGame()
+        private void InitializeGame()
         {
             try
             {
                 // Initialize the canvas UI manager
-                canvasUIManager = new CanvasUIManager(GameCanvas);
+                canvasUIManager = new CanvasUICoordinator(GameCanvas);
                 
                 // Set the close action for the UI manager
-                if (canvasUIManager is CanvasUIManager canvasUI)
+                if (canvasUIManager is CanvasUICoordinator canvasUI)
                 {
                     canvasUI.SetCloseAction(() =>
                     {
@@ -54,20 +54,29 @@ namespace RPGGame.UI.Avalonia
                 UIManager.SetCustomUIManager(canvasUIManager);
                 
                 // Show opening animation first (using the new animated title screen)
-                if (canvasUIManager is CanvasUIManager canvasUI2)
+                if (canvasUIManager is CanvasUICoordinator canvasUI2)
                 {
-                    await Task.Run(() =>
+                    // Run animation on UI thread to avoid deadlocks
+                    Dispatcher.UIThread.Post(async () =>
                     {
-                        // Step 1: Show black screen for 1 second
-                        System.Threading.Thread.Sleep(1000);
-                        
-                        // Step 2: Show the animated title screen with color transitions
-                        // This handles the full animation sequence including press key message
-                        TitleScreenHelper.ShowAnimatedTitleScreen();
-                    });
-                    
-                    // Set flag to wait for key press
-                    waitingForKeyAfterAnimation = true;
+                        try
+                        {
+                            // Step 1: Show black screen for 1 second
+                            await Task.Delay(1000);
+                            
+                            // Step 2: Show a simple static title screen
+                            TitleScreenHelper.ShowStaticTitleScreen();
+                            
+                            // Set flag to wait for key press
+                            waitingForKeyAfterAnimation = true;
+                        }
+                        catch (Exception ex)
+                        {
+                            UpdateStatus($"Error during title animation: {ex.Message}");
+                            // If animation fails, proceed to main menu
+                            InitializeGameAfterAnimation();
+                        }
+                    }, DispatcherPriority.Background);
                     
                     // Don't proceed to main menu yet - wait for key press
                     return;
@@ -79,6 +88,15 @@ namespace RPGGame.UI.Avalonia
             catch (Exception ex)
             {
                 UpdateStatus($"Error initializing game: {ex.Message}");
+                // If initialization fails, try to initialize without animation
+                try
+                {
+                    InitializeGameAfterAnimation();
+                }
+                catch (Exception ex2)
+                {
+                    UpdateStatus($"Critical error: {ex2.Message}");
+                }
             }
         }
         
@@ -97,7 +115,7 @@ namespace RPGGame.UI.Avalonia
                 game = new Game();
                 game.SetUIManager(canvasUIManager);
                 
-                // Show the main menu
+                // Show the main menu (now async)
                 game.ShowMainMenu();
                 
                 isInitialized = true;
@@ -185,7 +203,7 @@ namespace RPGGame.UI.Avalonia
         private void ToggleHelp()
         {
             // Toggle help display on canvas
-            if (canvasUIManager is CanvasUIManager canvasUI)
+            if (canvasUIManager is CanvasUICoordinator canvasUI)
             {
                 canvasUI.ToggleHelp();
             }
@@ -194,7 +212,7 @@ namespace RPGGame.UI.Avalonia
         private void UpdateStatus(string message)
         {
             // Update status on canvas
-            if (canvasUIManager is CanvasUIManager canvasUI)
+            if (canvasUIManager is CanvasUICoordinator canvasUI)
             {
                 canvasUI.UpdateStatus(message);
             }
@@ -233,7 +251,7 @@ namespace RPGGame.UI.Avalonia
 
         private void HandleMouseClick(Point position)
         {
-            if (canvasUIManager is CanvasUIManager canvasUI)
+            if (canvasUIManager is CanvasUICoordinator canvasUI)
             {
                 // Convert screen coordinates to character grid coordinates
                 var gridPos = ScreenToGrid(position);
@@ -250,7 +268,7 @@ namespace RPGGame.UI.Avalonia
 
         private void HandleMouseHover(Point position)
         {
-            if (canvasUIManager is CanvasUIManager canvasUI)
+            if (canvasUIManager is CanvasUICoordinator canvasUI)
             {
                 // Convert screen coordinates to character grid coordinates
                 var gridPos = ScreenToGrid(position);

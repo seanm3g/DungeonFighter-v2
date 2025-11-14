@@ -11,7 +11,7 @@ namespace RPGGame
     public static class ActionExecutor
     {
         // Flag to disable debug output during balance analysis
-        public static bool DisableCombatDebugOutput = false;
+        public static bool DisableCombatDebugOutput = false; // Temporarily enable debug output
 
         // Store the last action used by each entity
         private static readonly Dictionary<Entity, Action> _lastUsedActions = new Dictionary<Entity, Action>();

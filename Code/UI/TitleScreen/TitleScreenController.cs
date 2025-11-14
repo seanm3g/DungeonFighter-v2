@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using RPGGame;
 using RPGGame.UI.Avalonia;
+using RPGGame.UI.Animations;
 
 namespace RPGGame.UI.TitleScreen
 {
@@ -127,13 +128,43 @@ namespace RPGGame.UI.TitleScreen
         }
 
         /// <summary>
+        /// Shows a static title screen (final frame) without animation
+        /// Displays the final colored title screen immediately
+        /// </summary>
+        public static void ShowStaticTitleScreen()
+        {
+            var config = GetConfig();
+            var renderer = CreateRenderer();
+
+            if (renderer != null)
+            {
+                // Build the final frame directly (progress = 1.0 means fully transitioned)
+                var frameBuilder = new TitleFrameBuilder(config);
+                var finalFrame = frameBuilder.BuildTransitionFrame(1.0f);
+                
+                // Render the final frame
+                renderer.RenderFrame(finalFrame);
+                
+                // Show press key message
+                renderer.ShowPressKeyMessage();
+            }
+            else
+            {
+                // Fallback to legacy animation if no renderer available
+                ErrorHandler.LogWarning("TitleScreenHelper.ShowStaticTitleScreen", 
+                    "No renderer available, falling back to legacy OpeningAnimation");
+                OpeningAnimation.ShowOpeningAnimation();
+            }
+        }
+
+        /// <summary>
         /// Creates the appropriate renderer based on available UI manager
         /// </summary>
         private static ITitleRenderer? CreateRenderer()
         {
             var uiManager = UIManager.GetCustomUIManager();
 
-            if (uiManager is CanvasUIManager canvasUI)
+            if (uiManager is CanvasUICoordinator canvasUI)
             {
                 return new CanvasTitleRenderer(canvasUI);
             }

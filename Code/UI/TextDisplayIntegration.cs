@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using RPGGame.UI;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
 {
@@ -16,14 +18,52 @@ namespace RPGGame
         /// </summary>
         private static string ApplyKeywordColoring(string text)
         {
-            // Skip keyword coloring if text already has explicit color codes
-            // This prevents double-coloring and spacing issues
-            if (ColorParser.HasColorMarkup(text))
-            {
-                return text;
-            }
-            return KeywordColorSystem.Colorize(text);
+            // Return text as-is. Keyword coloring will be applied at render time if needed.
+            // This method is kept for compatibility but no longer modifies the text.
+            return text;
         }
+        
+        // ===== COLORED TEXT OVERLOADS =====
+        
+        /// <summary>
+        /// Displays a combat action using ColoredText for better color management
+        /// </summary>
+        public static void DisplayCombatAction(List<ColoredText> actionText, string rollInfo, List<ColoredText>? narrativeMessages = null, List<string>? statusEffects = null)
+        {
+            // Display the action block with ColoredText
+            BlockDisplayManager.DisplayActionBlock(actionText, rollInfo, statusEffects);
+            
+            // Display narrative messages as separate blocks
+            var validNarratives = narrativeMessages ?? new List<ColoredText>();
+            foreach (var narrative in validNarratives)
+            {
+                if (narrative != null)
+                {
+                    BlockDisplayManager.DisplayNarrativeBlock(new List<ColoredText> { narrative });
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Displays a combat action using ColoredText with list of narrative messages
+        /// </summary>
+        public static void DisplayCombatAction(List<ColoredText> actionText, string rollInfo, List<List<ColoredText>>? narrativeMessages = null, List<string>? statusEffects = null)
+        {
+            // Display the action block with ColoredText
+            BlockDisplayManager.DisplayActionBlock(actionText, rollInfo, statusEffects);
+            
+            // Display narrative messages as separate blocks
+            var validNarratives = narrativeMessages ?? new List<List<ColoredText>>();
+            foreach (var narrative in validNarratives)
+            {
+                if (narrative != null && narrative.Count > 0)
+                {
+                    BlockDisplayManager.DisplayNarrativeBlock(narrative);
+                }
+            }
+        }
+        
+        // ===== STRING-BASED METHODS (Legacy Support) =====
         
         /// <summary>
         /// Displays a combat action using the new block-based system
@@ -67,6 +107,7 @@ namespace RPGGame
             {
                 BlockDisplayManager.DisplayNarrativeBlock(narrative);
             }
+            
         }
 
         
