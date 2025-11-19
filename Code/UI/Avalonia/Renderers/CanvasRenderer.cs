@@ -87,9 +87,12 @@ namespace RPGGame.UI.Avalonia.Renderers
             }, context);
         }
 
-        public void RenderWeaponSelection(List<StartingWeapon> weapons)
+        public void RenderWeaponSelection(List<StartingWeapon> weapons, CanvasContext context)
         {
-            menuRenderer.RenderWeaponSelection(weapons);
+            RenderWithLayout(null, "WEAPON SELECTION", (contentX, contentY, contentWidth, contentHeight) =>
+            {
+                menuRenderer.RenderWeaponSelectionContent(contentX, contentY, contentWidth, contentHeight, weapons);
+            }, context);
         }
 
         public void RenderCharacterCreation(Character character, CanvasContext context)

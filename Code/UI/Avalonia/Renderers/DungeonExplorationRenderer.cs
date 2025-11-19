@@ -99,8 +99,10 @@ namespace RPGGame.UI.Avalonia.Renderers
         private void RenderWithLayout(Character character, string title, Action<int, int, int, int> renderContent, CanvasContext context)
         {
             interactionManager.ClearClickableElements();
-            // Render content directly without layout manager
-            renderContent(0, 0, (int)canvas.Width, (int)canvas.Height);
+            
+            // Use the persistent layout manager for proper three-panel layout
+            var layoutManager = new PersistentLayoutManager(canvas);
+            layoutManager.RenderLayout(character, renderContent, title, null, null, null);
         }
     }
 }

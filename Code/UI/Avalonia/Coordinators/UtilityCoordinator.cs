@@ -113,12 +113,14 @@ namespace RPGGame.UI.Avalonia.Coordinators
         }
         
         /// <summary>
-        /// Shows press key message
+        /// Shows press key message without clearing the existing display
+        /// (preserves the title screen or other content)
         /// </summary>
         public void ShowPressKeyMessage()
         {
-            canvas.Clear();
-            canvas.AddCenteredText(25, "Press any key to continue...", AsciiArtAssets.Colors.Gray);
+            // Don't clear - just add the message to the bottom of the existing display
+            // This preserves the title screen that was just rendered
+            canvas.AddCenteredText(50, "Press any key to continue...", AsciiArtAssets.Colors.Gray);
             canvas.Refresh();
         }
         

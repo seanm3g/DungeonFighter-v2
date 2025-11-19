@@ -418,19 +418,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
 
         /// <summary>
-        /// Renders the weapon selection screen (merged from WeaponSelectionRenderer)
-        /// </summary>
-        public void RenderWeaponSelection(List<StartingWeapon> weapons)
-        {
-            interactionManager.ClearClickableElements();
-            // Render weapon selection content directly
-            RenderWeaponSelectionContent(0, 0, (int)canvas.Width, (int)canvas.Height, weapons);
-        }
-        
-        /// <summary>
         /// Renders the weapon selection content with centered layout (merged from WeaponSelectionRenderer)
         /// </summary>
-        private void RenderWeaponSelectionContent(int x, int y, int width, int height, List<StartingWeapon> weapons)
+        public void RenderWeaponSelectionContent(int x, int y, int width, int height, List<StartingWeapon> weapons)
         {
             // Center the content vertically
             int centerY = y + (height / 2) - (weapons.Count * 3) / 2 - 2;
@@ -455,13 +445,12 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 int weaponNum = weapons.IndexOf(weapon) + 1;
                 string displayText = $"[{weaponNum}] {weapon.name}";
-                string coloredName = $"{{{{common|{weapon.name}}}}}";
                 
                 // Center each weapon option
                 int optionX = x + (width / 2) - (maxLength / 2);
                 
-                // Add clickable element (relative to canvas, not content area)
-                interactionManager.AddClickableElement(new ClickableElement
+                // Add clickable element
+                var option = new ClickableElement
                 {
                     X = optionX,
                     Y = centerY,
@@ -470,10 +459,12 @@ namespace RPGGame.UI.Avalonia.Renderers
                     Type = ElementType.MenuOption,
                     Value = weaponNum.ToString(),
                     DisplayText = displayText
-                });
+                };
+                clickableElements.Add(option);
+                interactionManager.AddClickableElement(option);
                 
-                // Display weapon name with color
-                textManager.WriteLineColored($"[{weaponNum}] {coloredName}", optionX, centerY);
+                // Display weapon option using canvas.AddMenuOption (same as main menu)
+                canvas.AddMenuOption(optionX, centerY, weaponNum, weapon.name, AsciiArtAssets.Colors.White, option.IsHovered);
                 centerY++;
                 
                 // Weapon stats (indented slightly)

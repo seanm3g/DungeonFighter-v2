@@ -15,7 +15,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         void RenderInventory(Character character, List<Item> inventory, CanvasContext context);
         void RenderItemSelectionPrompt(Character character, List<Item> inventory, string promptMessage, string actionType, CanvasContext context);
         void RenderSlotSelectionPrompt(Character character, CanvasContext context);
-        void RenderWeaponSelection(List<StartingWeapon> weapons);
+        void RenderWeaponSelection(List<StartingWeapon> weapons, CanvasContext context);
         void RenderCharacterCreation(Character character, CanvasContext context);
         void RenderSettings();
         void RenderDungeonSelection(Character player, List<Dungeon> dungeons, CanvasContext context);

@@ -78,20 +78,22 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.AddText(x + 2, y, "═══ ACTIONS ═══", AsciiArtAssets.Colors.Gold);
             y += 2;
             
-            var startButton = interactionManager.CreateButton(x + 4, y, 20, "1", "[1] Start Adventure");
+            var startButton = interactionManager.CreateButton(x + 4, y, 35, "1", "Press any button to Start Adventure");
             interactionManager.AddClickableElement(startButton);
             
-            canvas.AddMenuOption(x + 4, y, 1, "Start Adventure", AsciiArtAssets.Colors.White, startButton.IsHovered);
+            canvas.AddMenuOption(x + 4, y, 1, "Press any button to Start Adventure", AsciiArtAssets.Colors.White, startButton.IsHovered);
         }
         
         /// <summary>
-        /// Helper method to render with layout context
+        /// Helper method to render with layout context using PersistentLayoutManager
         /// </summary>
         private void RenderWithLayout(Character character, string title, Action<int, int, int, int> renderContent, CanvasContext context)
         {
             interactionManager.ClearClickableElements();
-            // Render content directly without layout manager
-            renderContent(0, 0, (int)canvas.Width, (int)canvas.Height);
+            
+            // Use the persistent layout manager for proper three-panel layout
+            var layoutManager = new PersistentLayoutManager(canvas);
+            layoutManager.RenderLayout(character, renderContent, title, null, null, null);
         }
     }
 }

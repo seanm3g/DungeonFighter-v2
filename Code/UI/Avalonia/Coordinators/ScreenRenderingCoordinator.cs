@@ -77,7 +77,7 @@ namespace RPGGame.UI.Avalonia.Coordinators
         /// </summary>
         public void RenderWeaponSelection(List<StartingWeapon> weapons)
         {
-            renderer.RenderWeaponSelection(weapons);
+            renderer.RenderWeaponSelection(weapons, contextManager.GetCurrentContext());
         }
         
         /// <summary>
