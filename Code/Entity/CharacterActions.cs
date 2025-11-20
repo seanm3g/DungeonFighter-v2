@@ -1,170 +1,168 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace RPGGame
 {
     /// <summary>
-    /// Manages character actions, combo system, and action-related mechanics
+    /// Coordinator for character action management
+    /// Delegates to specialized managers for different action responsibilities
+    /// Uses composition pattern with focused manager classes
     /// </summary>
     public class CharacterActions
     {
-        public List<Action> ComboSequence { get; private set; } = new List<Action>();
+        // Specialized managers using composition pattern
+        private readonly ComboSequenceManager _comboManager;
+        private readonly GearActionManager _gearManager;
+        private readonly ClassActionManager _classManager;
+        private readonly EnvironmentActionManager _environmentManager;
+        private readonly DefaultActionManager _defaultManager;
+
+        // Public property for backwards compatibility
+        public List<Action> ComboSequence => _comboManager.GetComboActions();
 
         public CharacterActions()
         {
+            _comboManager = new ComboSequenceManager();
+            _gearManager = new GearActionManager();
+            _classManager = new ClassActionManager();
+            _environmentManager = new EnvironmentActionManager();
+            _defaultManager = new DefaultActionManager();
         }
+
+        // ========== Combo System Delegation ==========
+        
+        public List<Action> GetComboActions()
+        {
+            return _comboManager.GetComboActions();
+        }
+
+        public void AddToCombo(Action action)
+        {
+            _comboManager.AddToCombo(action);
+        }
+
+        public void RemoveFromCombo(Action action)
+        {
+            _comboManager.RemoveFromCombo(action);
+        }
+
+        public void InitializeDefaultCombo(Actor actor, WeaponItem? weapon)
+        {
+            _comboManager.InitializeDefaultCombo(actor, weapon);
+        }
+
+        public void UpdateComboSequenceAfterGearChange(Actor actor)
+        {
+            _comboManager.UpdateComboSequenceAfterGearChange(actor);
+        }
+
+        // ========== Gear Actions Delegation ==========
+
+        public void AddWeaponActions(Actor actor, WeaponItem weapon)
+        {
+            _gearManager.AddWeaponActions(actor, weapon);
+        }
+
+        public void AddArmorActions(Actor actor, Item armor)
+        {
+            _gearManager.AddArmorActions(actor, armor);
+        }
+
+        public void RemoveWeaponActions(Actor actor, WeaponItem? weapon = null)
+        {
+            _gearManager.RemoveWeaponActions(actor, weapon);
+        }
+
+        public void RemoveArmorActions(Actor actor, Item? armor)
+        {
+            _gearManager.RemoveArmorActions(actor, armor);
+        }
+
+        public void ApplyRollBonusesFromGear(Actor actor, Item gear)
+        {
+            _gearManager.ApplyRollBonusesFromGear(actor, gear);
+        }
+
+        public void RemoveRollBonusesFromGear(Actor actor, Item gear)
+        {
+            _gearManager.RemoveRollBonusesFromGear(actor, gear);
+        }
+
+        // ========== Class Actions Delegation ==========
+
+        public void AddClassActions(Actor actor, CharacterProgression progression, WeaponType? weaponType)
+        {
+            _classManager.AddClassActions(actor, progression, weaponType);
+        }
+
+        // ========== Environment Actions Delegation ==========
+
+        public void AddEnvironmentActions(Actor actor, Environment environment)
+        {
+            _environmentManager.AddEnvironmentActions(actor, environment);
+        }
+
+        public void ClearEnvironmentActions(Actor actor)
+        {
+            _environmentManager.ClearEnvironmentActions(actor);
+        }
+
+        // ========== Default Actions Delegation ==========
+
+        public void AddDefaultActions(Actor actor)
+        {
+            _defaultManager.AddDefaultActions(actor);
+        }
+
+        public void EnsureBasicAttackAvailable(Actor actor)
+        {
+            _defaultManager.EnsureBasicAttackAvailable(actor);
+        }
+
+        public List<Action> GetAvailableUniqueActions(WeaponItem? weapon)
+        {
+            return _defaultManager.GetAvailableUniqueActions(weapon);
+        }
+
+        public void UpdateComboBonus(CharacterEquipment equipment)
+        {
+            _defaultManager.UpdateComboBonus(equipment);
+        }
+
+        // ========== Utility Methods ==========
 
         public double CalculateTurnsFromActionLength(double actionLength)
         {
-            // Basic action length to turns conversion
-            // 1.0 action length = 1 turn
-            return actionLength;
+            return actionLength / Character.DEFAULT_ACTION_LENGTH;
         }
 
-        public void RemoveItemActions(Actor Actor)
-        {
-            // Remove actions that were added from items
-            // Implementation tracks which actions came from items and removes them
-            RemoveClassActions(Actor);
-        }
-
-        public void AddDefaultActions(Actor Actor)
-        {
-            DebugLogger.LogMethodEntry("CharacterActions", "AddDefaultActions");
-            
-            // Ensure BASIC ATTACK is always available - this is critical for basic attack rolls (6-13)
-            EnsureBasicAttackAvailable(Actor);
-        }
-        
         /// <summary>
-        /// Ensures that BASIC ATTACK is always available in the Actor's action pool
-        /// This is critical for basic attack rolls (6-13) to work properly
+        /// Gets action pool with combo actions from actor
         /// </summary>
-        public void EnsureBasicAttackAvailable(Actor Actor)
+        public List<Action> GetActionPool(Actor actor)
         {
-            // Check if BASIC ATTACK is already in the action pool
-            bool hasBasicAttack = Actor.ActionPool.Any(a => 
-                string.Equals(a.action.Name, "BASIC ATTACK", StringComparison.OrdinalIgnoreCase));
-            
-            if (!hasBasicAttack)
+            var allActions = new List<Action>();
+            foreach (var (action, _) in actor.ActionPool)
             {
-                // Load BASIC ATTACK from JSON to get proper settings
-                var basicAttack = ActionLoader.GetAction("BASIC ATTACK");
-                if (basicAttack != null)
+                if (action.IsComboAction)
                 {
-                    Actor.AddAction(basicAttack, 1.0); // High probability for basic attack
-                    DebugLogger.Log("CharacterActions", "Added BASIC ATTACK to ActionPool from JSON");
-                }
-                else
-                {
-                    // Fallback if JSON loading fails - create a proper BASIC ATTACK
-                    var fallbackBasicAttack = new Action(
-                        name: "BASIC ATTACK",
-                        type: ActionType.Attack,
-                        targetType: TargetType.SingleTarget,
-                        baseValue: 0, // Damage comes from STR + weapon, not baseValue
-                        range: 1,
-                        cooldown: 0,
-                        description: "A standard physical attack using STR + weapon damage",
-                        comboOrder: 0,
-                        damageMultiplier: 1.0,
-                        length: 1.0,
-                        causesBleed: false,
-                        causesWeaken: false,
-                        isComboAction: false // BASIC ATTACK should NOT be a combo action
-                    );
-                    Actor.AddAction(fallbackBasicAttack, 1.0);
-                    DebugLogger.Log("CharacterActions", "Added fallback BASIC ATTACK to ActionPool");
+                    allActions.Add(action);
                 }
             }
-            else
+            return allActions;
+        }
+
+        /// <summary>
+        /// Removes all item actions and reinitializes defaults
+        /// </summary>
+        public void RemoveItemActions(Actor actor)
+        {
+            // Reset class actions - actor must be a Character to have Progression
+            if (actor is Character character)
             {
-                DebugLogger.Log("CharacterActions", "BASIC ATTACK already available in ActionPool");
+                _classManager.AddClassActions(actor, character.Progression, null);
             }
         }
-
-        public void AddClassActions(Actor Actor, CharacterProgression progression, WeaponType? weaponType)
-        {
-            DebugLogger.LogMethodEntry("CharacterActions", "AddClassActions");
-            
-            // Remove existing class actions first
-            RemoveClassActions(Actor);
-            
-            DebugLogger.LogClassPoints(progression.BarbarianPoints, progression.WarriorPoints, progression.RoguePoints, progression.WizardPoints);
-            
-            AddBarbarianActions(Actor, progression);
-            AddWarriorActions(Actor, progression);
-            AddRogueActions(Actor, progression);
-            AddWizardActions(Actor, progression, weaponType);
-            
-            DebugLogger.LogActionPoolChange(Actor.Name, Actor.ActionPool.Count, "After AddClassActions");
-        }
-
-        private void AddBarbarianActions(Actor Actor, CharacterProgression progression)
-        {
-            // Add special Barbarian class action when they have at least 5 points
-            if (progression.BarbarianPoints >= 5)
-            {
-                var berserkerRage = ActionLoader.GetAction("BERSERKER RAGE");
-                if (berserkerRage != null)
-                {
-                    Actor.AddAction(berserkerRage, 1.0);
-                }
-            }
-        }
-
-        private void AddWarriorActions(Actor Actor, CharacterProgression progression)
-        {
-            // Add special Warrior class actions when they have at least 5 points
-            if (progression.WarriorPoints >= 5)
-            {
-                var heroicStrike = ActionLoader.GetAction("HEROIC STRIKE");
-                if (heroicStrike != null)
-                {
-                    Actor.AddAction(heroicStrike, 1.0);
-                }
-                
-                var whirlwind = ActionLoader.GetAction("WHIRLWIND");
-                if (whirlwind != null)
-                {
-                    Actor.AddAction(whirlwind, 1.0);
-                }
-            }
-        }
-
-        private void AddRogueActions(Actor Actor, CharacterProgression progression)
-        {
-            // Add special Rogue class action when they have at least 5 points
-            if (progression.RoguePoints >= 5)
-            {
-                var shadowStrike = ActionLoader.GetAction("SHADOW STRIKE");
-                if (shadowStrike != null)
-                {
-                    Actor.AddAction(shadowStrike, 1.0);
-                }
-            }
-        }
-
-        private void AddWizardActions(Actor Actor, CharacterProgression progression, WeaponType? weaponType)
-        {
-            // Only add wizard actions if the character is actually a wizard class
-            bool isWizardClass = progression.IsWizardClass(weaponType);
-            
-            if (isWizardClass)
-            {
-                // Add FIREBALL as a basic wizard spell (available at 3+ wizard points)
-                if (progression.WizardPoints >= 3)
-                {
-                    var fireball = ActionLoader.GetAction("FIREBALL");
-                    if (fireball != null)
-                    {
-                        Actor.AddAction(fireball, 1.0);
-                    }
-                }
-                
-                // Add special Wizard class action when they have at least 5 points
-                if (progression.WizardPoints >= 5)
-                {
-                    var meteor = ActionLoader.GetAction("METEOR");
+    }
+}
