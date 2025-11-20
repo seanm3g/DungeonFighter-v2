@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace RPGGame
 {
@@ -16,7 +17,7 @@ namespace RPGGame
         /// <param name="player">The player character</param>
         /// <param name="combatManager">Combat manager for handling battles</param>
         /// <returns>True if player survived the dungeon, false if player died</returns>
-        public bool RunDungeon(Dungeon selectedDungeon, Character player, CombatManager combatManager)
+        public async Task<bool> RunDungeon(Dungeon selectedDungeon, Character player, CombatManager combatManager)
         {
             // Display dungeon entry with chunked reveal
             UIManager.WriteDungeonChunked($"==== ENTERING DUNGEON ====\n\nDungeon: {selectedDungeon.Name}\nLevel Range: {selectedDungeon.MinLevel} - {selectedDungeon.MaxLevel}\nTotal Rooms: {selectedDungeon.Rooms.Count}");
@@ -24,7 +25,7 @@ namespace RPGGame
             // Room Sequence
             foreach (Environment room in selectedDungeon.Rooms)
             {
-                if (!ProcessRoom(room, player, combatManager))
+                if (!await ProcessRoom(room, player, combatManager))
                 {
                     return false; // Player died
                 }
@@ -40,7 +41,7 @@ namespace RPGGame
         /// <param name="player">The player character</param>
         /// <param name="combatManager">Combat manager for handling battles</param>
         /// <returns>True if player survived the room, false if player died</returns>
-        private bool ProcessRoom(Environment room, Character player, CombatManager combatManager)
+        private async Task<bool> ProcessRoom(Environment room, Character player, CombatManager combatManager)
         {
             // Display room entry as a chunk
             UIManager.WriteRoomChunked($"Entering room: {room.Name}\n\n{room.Description}");
@@ -56,7 +57,7 @@ namespace RPGGame
                 Enemy? currentEnemy = room.GetNextLivingEnemy();
                 if (currentEnemy == null) break;
 
-                if (!ProcessEnemyEncounter(currentEnemy, player, room, combatManager))
+                if (!await ProcessEnemyEncounter(currentEnemy, player, room, combatManager))
                 {
                     return false; // Player died
                 }
@@ -74,7 +75,7 @@ namespace RPGGame
         /// <param name="room">The current room</param>
         /// <param name="combatManager">Combat manager for handling battles</param>
         /// <returns>True if player survived the encounter, false if player died</returns>
-        private bool ProcessEnemyEncounter(Enemy currentEnemy, Character player, Environment room, CombatManager combatManager)
+        private async Task<bool> ProcessEnemyEncounter(Enemy currentEnemy, Character player, Environment room, CombatManager combatManager)
         {
             DisplayEnemyEncounter(currentEnemy, player, combatManager);
             
@@ -85,7 +86,7 @@ namespace RPGGame
             player.ResetRerollCharges();
             
             // Run combat using CombatManager
-            bool playerSurvived = combatManager.RunCombat(player, currentEnemy, room);
+            bool playerSurvived = await combatManager.RunCombat(player, currentEnemy, room);
             
             if (!playerSurvived)
             {

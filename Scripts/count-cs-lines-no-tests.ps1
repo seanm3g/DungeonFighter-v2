@@ -41,11 +41,35 @@ $productionFiles = Get-ChildItem -Path Code -Filter *.cs -Recurse |
 
 $productionFiles | Format-Table File, Lines -AutoSize
 
+# Total for files above threshold
 $total = $productionFiles | Measure-Object -Property Lines -Sum | Select-Object -ExpandProperty Sum
 $count = $productionFiles | Measure-Object | Select-Object -ExpandProperty Count
 
-Write-Host "Production files above $threshold lines: $count" -ForegroundColor Green
-Write-Host "Total lines in production code: $total" -ForegroundColor Green
+# Total for ALL production files
+$allProductionFiles = Get-ChildItem -Path Code -Filter *.cs -Recurse | 
+    Where-Object { $_.FullName -notmatch 'bin\\|obj\\|Code_backup' } |
+    Where-Object { 
+        $isTestFile = $false
+        foreach ($testExclude in $testExclusions) {
+            if ($_.FullName -match $testExclude) {
+                $isTestFile = $true
+                break
+            }
+        }
+        -not $isTestFile
+    } |
+    ForEach-Object { 
+        (Get-Content $_.FullName -ErrorAction SilentlyContinue | Measure-Object -Line).Lines
+    }
+
+$totalAllLines = ($allProductionFiles | Measure-Object -Sum).Sum
+$totalFileCount = ($allProductionFiles | Measure-Object).Count
+
+Write-Host "Production files above ${threshold} lines: $count" -ForegroundColor Green
+Write-Host "Total lines in files above ${threshold}: $total" -ForegroundColor Green
+Write-Host ""
+Write-Host "ALL production files: $totalFileCount" -ForegroundColor Cyan
+Write-Host "Total lines in ALL production code: $totalAllLines" -ForegroundColor Cyan
 Write-Host ""
 
 # Show test files separately for reference

@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 
 namespace RPGGame
 {
@@ -108,7 +108,7 @@ namespace RPGGame
         /// <param name="currentEnemy">The current enemy</param>
         /// <param name="room">The current room/environment</param>
         /// <returns>True if combat completed successfully, false if player died</returns>
-        public bool RunCombat(Character player, Enemy currentEnemy, Environment room)
+        public async Task<bool> RunCombat(Character player, Enemy currentEnemy, Environment room)
         {
             DebugLogger.WriteCombatDebug("CombatManager", $"Starting combat: {player.Name} vs {currentEnemy.Name} in {room.Name}");
             
@@ -222,4 +222,5 @@ namespace RPGGame
         }
     }
 }
+
 

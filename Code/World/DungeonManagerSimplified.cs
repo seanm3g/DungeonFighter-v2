@@ -236,10 +236,10 @@ namespace RPGGame
         /// <param name="player">The player character</param>
         /// <param name="combatManager">Combat manager for handling battles</param>
         /// <returns>True if player survived the dungeon, false if player died</returns>
-        public bool RunDungeon(Dungeon selectedDungeon, Character player, CombatManager combatManager)
+        public async Task<bool> RunDungeon(Dungeon selectedDungeon, Character player, CombatManager combatManager)
         {
             // Delegate to DungeonRunner
-            return dungeonRunner.RunDungeon(selectedDungeon, player, combatManager);
+            return await dungeonRunner.RunDungeon(selectedDungeon, player, combatManager);
         }
     }
 }

@@ -1,12 +1,15 @@
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Media.Imaging;
 using Avalonia.Media;
 using Avalonia.Threading;
+using RPGGame;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.TitleScreen;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace RPGGame.UI.Avalonia
@@ -112,7 +115,7 @@ namespace RPGGame.UI.Avalonia
                 }
                 
                 // Initialize the game with canvas UI
-                game = new Game();
+                game = new Game(canvasUIManager);
                 game.SetUIManager(canvasUIManager);
                 
                 // Show the main menu (now async)
@@ -312,3 +315,6 @@ namespace RPGGame.UI.Avalonia
         }
     }
 }
+
+
+

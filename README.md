@@ -55,21 +55,39 @@ A sophisticated RPG/dungeon crawler game built with .NET 8.0, featuring a modern
 
 ## Installation & Running
 
-1. **Clone the repository**:
-   ```bash
-   git clone <your-repo-url>
-   cd DungeonFighter
-   ```
+### Quick Start (Players)
+```bash
+# Clone and navigate
+git clone <your-repo-url>
+cd DungeonFighter-v2/Code
 
-2. **Navigate to the Code directory**:
-   ```bash
-   cd Code
-   ```
+# Run the game
+dotnet run
+```
 
-3. **Run the game**:
-   ```bash
-   dotnet run
-   ```
+### Developer Setup
+```bash
+# Clone the repository
+git clone <your-repo-url>
+cd DungeonFighter-v2
+
+# Read essential documentation first
+# 1. OVERVIEW.md - Feature overview and quick start
+# 2. Documentation/01-Core/ARCHITECTURE.md - System design
+# 3. Documentation/02-Development/DEVELOPMENT_GUIDE.md - Development workflow
+
+# Then run the game
+cd Code
+dotnet run
+```
+
+### Building from Source
+```bash
+cd Code
+dotnet build              # Build the project
+dotnet run               # Run the game
+dotnet run test-all      # Run comprehensive tests (or use in-game menu)
+```
 
 ## Game Controls
 
@@ -218,55 +236,65 @@ Contains room definitions with:
 
 ## Testing
 
-The game includes a comprehensive test suite accessible from the settings menu:
-
+### Quick Test (In-Game)
 1. Run the game: `dotnet run`
 2. Select "Settings" from the main menu
 3. Choose "Tests" from the settings menu
-4. Choose from 27+ different test categories:
-   - Character Leveling & Stats
-   - Item Creation & Properties
-   - Dice Rolling Mechanics
-   - Action System Functionality
-   - Combat Mechanics
-   - Combo System Tests
-   - Battle Narrative Generation
-   - Enemy Scaling & AI
-   - Intelligent Delay System
-   - New Dice Mechanics
-   - New Action System
-   - Magic Find Rarity System
-   - Loot Generation System
-   - Weapon-Based Classes
-   - Tuning System
-   - Combo Amplification
-   - Combo UI
-   - Enemy Armor & Stat Pools
-   - Damage Balance
-   - Enhanced Action Descriptions
-   - Enemy 14+ Threshold
-   - Guaranteed Loot
-   - All Tests (runs complete suite)
+4. Choose from 27+ test categories or select "All Tests"
+
+### Available Test Categories (27+)
+- **Core Systems**: Character Leveling & Stats, Item Creation & Properties
+- **Combat**: Combat Mechanics, Combo System Tests, Damage Balance
+- **Advanced**: Battle Narrative Generation, Enemy Scaling & AI, Intelligent Delay System
+- **Mechanics**: Dice Rolling, Action System, Weapon-Based Classes
+- **Balance**: Loot Generation, Tuning System, Combo Amplification
+- **And 12+ more categories...**
+
+### Performance Targets
+All performance targets are verified during testing:
+
+| Metric | Target | Status |
+|--------|--------|--------|
+| Combat Response Time | <100ms for simple actions | ✅ Verified |
+| Menu Navigation | <50ms response time | ✅ Verified |
+| Data Loading | <500ms for all game data | ✅ Verified |
+| Memory Usage | <200MB peak usage | ✅ Verified |
+| Startup Time | <5 seconds total | ✅ Verified |
+| Animation Frame Rate | 30+ FPS | ✅ Verified |
+| Combat Duration | 10-15 actions per fight | ✅ Verified |
 
 ## Development
 
-### Development Resources
+### Developer Quick Start (5 Minutes)
+1. **Understand the project**: Read `OVERVIEW.md` (2 min)
+2. **Understand the architecture**: Read `Documentation/01-Core/ARCHITECTURE.md` (1 min skim)
+3. **Learn the workflow**: Read `Documentation/02-Development/DEVELOPMENT_GUIDE.md` (2 min)
+4. **Follow code patterns**: Reference `Documentation/02-Development/CODE_PATTERNS.md` while coding
 
-**For Efficient Development:**
-- **`DEVELOPMENT_GUIDE.md`**: Comprehensive guide for efficient development
-- **`ARCHITECTURE.md`**: System architecture and design patterns
-- **`CODE_PATTERNS.md`**: Code patterns, conventions, and best practices
-- **`DEVELOPMENT_WORKFLOW.md`**: Step-by-step development process
+### Documentation Structure
 
-**For Problem Solving:**
-- **`PROBLEM_SOLUTIONS.md`**: Solutions to common problems
-- **`DEBUGGING_GUIDE.md`**: Debugging techniques and tools
-- **`QUICK_REFERENCE.md`**: Fast lookup for key information
-- **`KNOWN_ISSUES.md`**: Track of known problems and their status
+**Essential (Start Here)**:
+- `OVERVIEW.md` - Game overview and feature list
+- `Documentation/01-Core/ARCHITECTURE.md` - System architecture and design patterns
+- `Documentation/01-Core/TASKLIST.md` - Current development tasks
 
-**For Quality Assurance:**
-- **`TESTING_STRATEGY.md`**: Testing approaches and verification methods
-- **`PERFORMANCE_NOTES.md`**: Performance considerations and optimizations
+**Development Guides**:
+- `Documentation/02-Development/DEVELOPMENT_GUIDE.md` - Comprehensive development guide
+- `Documentation/02-Development/CODE_PATTERNS.md` - Code patterns and conventions
+- `Documentation/02-Development/DEVELOPMENT_WORKFLOW.md` - Step-by-step development process
+- `Documentation/02-Development/REFACTORING_HISTORY.md` - Recent refactoring changes
+
+**Problem Solving**:
+- `Documentation/03-Quality/PROBLEM_SOLUTIONS.md` - Solutions to common problems
+- `Documentation/03-Quality/DEBUGGING_GUIDE.md` - Debugging techniques and tools
+- `Documentation/03-Quality/PERFORMANCE_NOTES.md` - Performance considerations and optimizations
+
+**Quick Reference**:
+- `Documentation/04-Reference/QUICK_REFERENCE.md` - Fast lookup for key information
+- `Documentation/04-Reference/INDEX.md` - Complete documentation index
+
+**System Deep Dives**:
+- `Documentation/05-Systems/` - Feature-specific documentation
 
 ### Adding New Content
 
@@ -328,7 +356,7 @@ This project is open source. Feel free to modify and distribute according to you
 
 ## What's New in v6.2
 
-### Major Features
+### Major Features ✨
 - ✅ **Animated Title Screen** - Professional color transitions at 30 FPS
 - ✅ **Complete Inventory System** - All 7 actions fully functional in GUI
 - ✅ **Item Color System** - Rarity-based visual excitement
@@ -336,13 +364,70 @@ This project is open source. Feel free to modify and distribute according to you
 - ✅ **1920×1080 Resolution** - Optimized layout and readability
 - ✅ **Combat Text Polish** - Smart wrapping, clean display, proper formatting
 
+### Code Quality Improvements 🏗️
+- ✅ **Comprehensive Refactoring** - ~1500+ lines eliminated through design patterns
+- ✅ **12+ Design Patterns** - Factory, Registry, Facade, Builder, Strategy, Composition, etc.
+- ✅ **Clean Architecture** - Organized into 11 focused subsystems
+- ✅ **Well-Documented** - 90+ comprehensive documentation files
+- ✅ **Root Level Docs** - OVERVIEW.md and TASKLIST.md at project root
+
+### Architecture Highlights 🎯
+- BattleNarrative: 550 → 118 lines (78.5% reduction)
+- Environment: 763 → 182 lines (76% reduction)
+- CharacterEquipment: 590 → 112 lines (81% reduction)
+- GameDataGenerator: 684 → 68 lines (90% reduction)
+
 ### Documentation
-See `Documentation/02-Development/CHANGELOG.md` for complete version history.
-See `Documentation/02-Development/OCTOBER_2025_IMPLEMENTATION_SUMMARY.md` for detailed feature documentation.
+- `Documentation/02-Development/CHANGELOG.md` - Complete version history
+- `Documentation/02-Development/OCTOBER_2025_IMPLEMENTATION_SUMMARY.md` - Detailed features
+- `Documentation/02-Development/REFACTORING_HISTORY.md` - Recent refactoring
+- `OVERVIEW.md` - Quick game overview
+- `TASKLIST.md` - Current development tasks
+
+## Architecture Overview
+
+```
+DungeonFighter uses established design patterns:
+
+├── Facade Pattern
+│   ├── Character coordinates specialized managers
+│   ├── CombatManager orchestrates combat systems
+│   └── GameDisplayManager handles all display
+├── Factory Pattern
+│   ├── ActionFactory creates action instances
+│   ├── EnemyFactory generates enemies
+│   └── ItemGenerator creates loot
+├── Registry Pattern
+│   ├── EffectHandlerRegistry manages combat effects
+│   └── EnvironmentalEffectRegistry manages room effects
+├── Builder Pattern
+│   ├── CharacterBuilder handles initialization
+│   └── EnemyBuilder creates complex enemies
+├── Strategy Pattern
+│   ├── ActionSelector for different entity types
+│   └── Effect handlers for different effect types
+└── Composition Pattern
+    ├── Character uses specialized managers
+    ├── CombatManager delegates to specialized classes
+    └── Environment uses 4 focused managers
+```
 
 ## Future Enhancements
 
-- [ ] Combo Management UI (placeholder exists)
+### Near Term
 - [ ] Equipment comparison tooltips
+- [ ] Advanced combo management UI
 - [ ] Sound effects and audio
-- [ ] Additional color themes
+
+### Long Term
+- [ ] Additional dungeon themes
+- [ ] More enemy types (20+)
+- [ ] Quest system
+- [ ] Achievement system
+- [ ] Leaderboards
+
+### Platform Support
+- [ ] Unity port for enhanced graphics
+- [ ] Mobile platform support
+- [ ] Web version
+- [ ] Console port

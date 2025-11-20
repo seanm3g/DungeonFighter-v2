@@ -1,4 +1,5 @@
 using Avalonia.Media;
+using Avalonia.Threading;
 using RPGGame;
 using RPGGame.UI.Avalonia.Managers;
 using System;
@@ -49,9 +50,24 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderDisplayBuffer(CanvasContext context)
         {
-            canvas.Clear();
-            textManager.RenderDisplayBufferFallback();
-            canvas.Refresh();
+            // Ensure UI updates happen on UI thread
+            if (Dispatcher.UIThread.CheckAccess())
+            {
+                // Already on UI thread
+                canvas.Clear();
+                textManager.RenderDisplayBufferFallback();
+                canvas.Refresh();
+            }
+            else
+            {
+                // Need to post to UI thread
+                Dispatcher.UIThread.Post(() =>
+                {
+                    canvas.Clear();
+                    textManager.RenderDisplayBufferFallback();
+                    canvas.Refresh();
+                });
+            }
         }
 
         public void RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel)

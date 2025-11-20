@@ -2,6 +2,50 @@
 
 This document contains solutions to common problems encountered during development. Use this as a quick reference when similar issues arise.
 
+## Recent Fixes
+
+### Issue: Combat Freeze During Battle (November 20, 2025)
+**Symptoms:**
+- Game shows "not responding" during combat
+- Enemy encounter screen freezes at start of combat
+- No error message, just hangs
+
+**Root Causes (2 Issues):**
+
+**Issue #1 - Non-existent Method Calls:**
+- CombatManager.cs was calling `WaitForMessageQueueCompletionAsync()` method that doesn't exist
+- Called 4 times during combat loop causing runtime errors
+
+**Issue #2 - Async/Await Deadlock (PRIMARY CAUSE):**
+- DungeonRunnerManager called synchronous `RunCombat()` wrapper from UI thread
+- `RunCombat()` used `Task.Run()` to move to background thread
+- `RunCombatAsync()` on background thread tried to access/post to UI
+- UI thread blocked waiting for `Task.Run()` to complete
+- Background thread blocked waiting for UI operations
+- **CIRCULAR DEADLOCK = FREEZE**
+
+**Solutions:**
+
+1. **CombatManager.cs (4 locations):**
+   - Replaced all `await canvasUI.WaitForMessageQueueCompletionAsync()` with `await Task.Delay(50)`
+   - Lines affected: Player turn (~200), Enemy turn (~220), Environment turn (~240), Battle end (~257)
+
+2. **DungeonRunnerManager.cs (Line 215):**
+   - Changed from: `combatManager.RunCombat(...)`
+   - Changed to: `await combatManager.RunCombatAsync(...)`
+   - Eliminates the `Task.Run()` wrapper that caused the deadlock
+
+**Why This Works:**
+- Calling `RunCombatAsync()` directly allows proper async flow without deadlock
+- No circular wait between UI thread and background thread
+- UI synchronization works naturally through await chains
+
+**Testing:**
+- Combat now flows without freezing
+- All actions display properly
+- Game responds to input during combat
+- Multiple consecutive combats work correctly
+
 ## Combat Balance Issues
 
 ### Problem: Enemies dying in 1 hit instead of target 10 actions

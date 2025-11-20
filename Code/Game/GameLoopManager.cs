@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using RPGGame;
 
 namespace RPGGame
@@ -26,7 +27,7 @@ namespace RPGGame
         /// <param name="availableDungeons">Available dungeons list</param>
         /// <param name="isLoadedCharacter">True if this is a loaded character, false if new</param>
         /// <returns>True if player wants to continue, false if they want to exit</returns>
-        public bool RunGameLoop(Character player, List<Item> inventory, List<Dungeon> availableDungeons, bool isLoadedCharacter = false)
+        public async Task<bool> RunGameLoop(Character player, List<Item> inventory, List<Dungeon> availableDungeons, bool isLoadedCharacter = false)
         {
             TextDisplayIntegration.DisplayBlankLine();
             TextDisplayIntegration.DisplayTitle(player.GetFullNameWithQualifier());
@@ -95,7 +96,7 @@ namespace RPGGame
                 }
 
                 // Execute dungeon selection and run
-                bool playerSurvived = ExecuteDungeonSequence(player, inventory, availableDungeons);
+                bool playerSurvived = await ExecuteDungeonSequence(player, inventory, availableDungeons);
                 
                 if (!playerSurvived)
                 {
@@ -111,7 +112,7 @@ namespace RPGGame
         /// <param name="inventory">Player's inventory</param>
         /// <param name="availableDungeons">Available dungeons list</param>
         /// <returns>True if player survived, false if they died</returns>
-        private bool ExecuteDungeonSequence(Character player, List<Item> inventory, List<Dungeon> availableDungeons)
+        private async Task<bool> ExecuteDungeonSequence(Character player, List<Item> inventory, List<Dungeon> availableDungeons)
         {
             // Regenerate dungeons based on current player level
             dungeonManager.RegenerateDungeons(player, availableDungeons);
@@ -121,7 +122,7 @@ namespace RPGGame
             selectedDungeon.Generate();
 
             // Run the complete dungeon
-            bool playerSurvivedDungeon = dungeonManager.RunDungeon(selectedDungeon, player, combatManager);
+            bool playerSurvivedDungeon = await dungeonManager.RunDungeon(selectedDungeon, player, combatManager);
             
             if (!playerSurvivedDungeon)
             {

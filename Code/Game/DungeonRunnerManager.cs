@@ -3,6 +3,7 @@ namespace RPGGame
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Avalonia.Threading;
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.ColorSystem;
 
@@ -210,9 +211,60 @@ namespace RPGGame
                 canvasUI2.RenderCombat(stateManager.CurrentPlayer, enemy, narrativeManager.DungeonLog);
             }
             
-            // Run combat
+            // Run combat on background thread to prevent UI blocking, but update UI on UI thread
             var room = stateManager.CurrentRoom;
-            bool playerWon = combatManager.RunCombat(stateManager.CurrentPlayer, enemy, room!);
+            var player = stateManager.CurrentPlayer;
+            var dungeonLog = narrativeManager.DungeonLog;
+            
+            // Run combat on background thread to prevent UI blocking
+            // Refresh UI only when combat log changes, with debouncing to reduce flickering
+            bool playerWon = false;
+            int lastLogCount = dungeonLog.Count; // Track combat log size to detect changes
+            System.DateTime lastRefreshTime = System.DateTime.MinValue;
+            const int minRefreshIntervalMs = 200; // Minimum time between refreshes to reduce flickering
+            
+            var combatTask = Task.Run(async () =>
+            {
+                return await combatManager.RunCombat(player, enemy, room!);
+            });
+            
+            // While combat is running, refresh UI only when combat log changes (with debouncing)
+            while (!combatTask.IsCompleted)
+            {
+                var now = System.DateTime.Now;
+                var timeSinceLastRefresh = (now - lastRefreshTime).TotalMilliseconds;
+                
+                // Only refresh if combat log has new entries AND enough time has passed since last refresh
+                if (dungeonLog.Count > lastLogCount && timeSinceLastRefresh >= minRefreshIntervalMs)
+                {
+                    lastLogCount = dungeonLog.Count;
+                    lastRefreshTime = now;
+                    
+                    // Refresh UI on UI thread
+                    if (customUIManager is CanvasUICoordinator canvasUI3)
+                    {
+                        await Dispatcher.UIThread.InvokeAsync(() =>
+                        {
+                            canvasUI3.RenderCombat(player, enemy, dungeonLog);
+                        });
+                    }
+                }
+                
+                // Check frequently for new log entries
+                await Task.Delay(50);
+            }
+            
+            // Final refresh to show complete combat log
+            if (customUIManager is CanvasUICoordinator canvasUI4)
+            {
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    canvasUI4.RenderCombat(player, enemy, dungeonLog);
+                });
+            }
+            
+            // Get the result
+            playerWon = await combatTask;
             
             if (!playerWon)
             {
