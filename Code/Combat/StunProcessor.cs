@@ -13,7 +13,7 @@ namespace RPGGame
         /// <typeparam name="T">Type of entity (Character or Enemy)</typeparam>
         /// <param name="entity">The stunned entity</param>
         /// <param name="stateManager">Combat state manager for turn tracking</param>
-        public static void ProcessStunnedEntity<T>(T entity, CombatStateManager stateManager) where T : Entity
+        public static void ProcessStunnedEntity<T>(T entity, CombatStateManager stateManager) where T : Actor
         {
             if (!CombatManager.DisableCombatUIOutput)
             {
@@ -44,7 +44,7 @@ namespace RPGGame
         /// <typeparam name="T">Type of entity</typeparam>
         /// <param name="entity">The entity</param>
         /// <returns>Action speed value</returns>
-        private static double GetEntityActionSpeed<T>(T entity) where T : Entity
+        private static double GetEntityActionSpeed<T>(T entity) where T : Actor
         {
             if (entity is Character character)
             {
@@ -61,3 +61,4 @@ namespace RPGGame
         }
     }
 }
+

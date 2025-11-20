@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using DungeonFighter.Game.Menu.Core;
 
 namespace DungeonFighter.Game.Menu.Commands
@@ -11,7 +11,7 @@ namespace DungeonFighter.Game.Menu.Commands
     {
         protected override string CommandName => "ConfirmCharacter";
 
-        protected override async Task ExecuteCommand(IMenuContext context)
+        protected override async Task ExecuteCommand(IMenuContext? context)
         {
             LogStep("Confirming character creation");
             
@@ -25,4 +25,5 @@ namespace DungeonFighter.Game.Menu.Commands
         }
     }
 }
+
 

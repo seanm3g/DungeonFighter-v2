@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using RPGGame.UI.ColorSystem;
 
@@ -13,8 +13,8 @@ namespace RPGGame
         /// <summary>
         /// Formats damage display with detailed breakdown
         /// </summary>
-        /// <param name="attacker">The attacking entity</param>
-        /// <param name="target">The target entity</param>
+        /// <param name="attacker">The attacking Actor</param>
+        /// <param name="target">The target Actor</param>
         /// <param name="rawDamage">Raw damage before armor (currently same as actual damage)</param>
         /// <param name="actualDamage">Actual damage after armor</param>
         /// <param name="action">The action performed</param>
@@ -23,7 +23,7 @@ namespace RPGGame
         /// <param name="rollBonus">Roll bonus applied</param>
         /// <param name="roll">The attack roll</param>
         /// <returns>Formatted damage display string</returns>
-        public static string FormatDamageDisplay(Entity attacker, Entity target, int rawDamage, int actualDamage, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0)
+        public static string FormatDamageDisplay(Actor attacker, Actor target, int rawDamage, int actualDamage, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0)
         {
             string actionName = action?.Name ?? "attack";
             
@@ -111,8 +111,8 @@ namespace RPGGame
         /// <summary>
         /// Formats damage display with separate damage text and roll info
         /// </summary>
-        /// <param name="attacker">The attacking entity</param>
-        /// <param name="target">The target entity</param>
+        /// <param name="attacker">The attacking Actor</param>
+        /// <param name="target">The target Actor</param>
         /// <param name="rawDamage">Raw damage before armor (currently same as actual damage)</param>
         /// <param name="actualDamage">Actual damage after armor</param>
         /// <param name="action">The action performed</param>
@@ -121,7 +121,7 @@ namespace RPGGame
         /// <param name="rollBonus">Roll bonus applied</param>
         /// <param name="roll">The attack roll</param>
         /// <returns>Tuple of (damageText, rollInfo)</returns>
-        public static (string damageText, string rollInfo) FormatDamageDisplaySeparated(Entity attacker, Entity target, int rawDamage, int actualDamage, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0)
+        public static (string damageText, string rollInfo) FormatDamageDisplaySeparated(Actor attacker, Actor target, int rawDamage, int actualDamage, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0)
         {
             string actionName = action?.Name ?? "attack";
             
@@ -222,14 +222,14 @@ namespace RPGGame
         /// <summary>
         /// Checks health milestones and returns notification messages
         /// </summary>
-        /// <param name="entity">The entity to check</param>
+        /// <param name="Actor">The Actor to check</param>
         /// <param name="damageDealt">Amount of damage dealt</param>
         /// <returns>List of health milestone notifications</returns>
-        public static List<string> CheckHealthMilestones(Entity entity, int damageDealt)
+        public static List<string> CheckHealthMilestones(Actor Actor, int damageDealt)
         {
             var notifications = new List<string>();
             
-            if (entity is Character character)
+            if (Actor is Character character)
             {
                 // Check for low health warnings
                 double healthPercentage = (double)character.CurrentHealth / character.GetEffectiveMaxHealth();
@@ -243,7 +243,7 @@ namespace RPGGame
                     notifications.Add($"{character.Name} is near death!");
                 }
             }
-            else if (entity is Enemy enemy)
+            else if (Actor is Enemy enemy)
             {
                 // Check for enemy health milestones
                 double healthPercentage = (double)enemy.CurrentHealth / enemy.GetEffectiveMaxHealth();
@@ -264,13 +264,13 @@ namespace RPGGame
         /// <summary>
         /// Formats non-attack action messages (buffs, debuffs, etc.)
         /// </summary>
-        /// <param name="source">The entity performing the action</param>
-        /// <param name="target">The target entity</param>
+        /// <param name="source">The Actor performing the action</param>
+        /// <param name="target">The target Actor</param>
         /// <param name="action">The action performed</param>
         /// <param name="roll">The action roll</param>
         /// <param name="rollBonus">Roll bonus applied</param>
         /// <returns>Formatted non-attack action message</returns>
-        public static string FormatNonAttackAction(Entity source, Entity target, Action action, int roll, int rollBonus)
+        public static string FormatNonAttackAction(Actor source, Actor target, Action action, int roll, int rollBonus)
         {
             // Wrap action name in natural template (green/environment color) so it's treated as one colored unit
             // Make "uses" explicitly white
@@ -309,13 +309,13 @@ namespace RPGGame
         /// <summary>
         /// Formats miss messages with detailed roll information
         /// </summary>
-        /// <param name="attacker">The attacking entity</param>
-        /// <param name="target">The target entity</param>
+        /// <param name="attacker">The attacking Actor</param>
+        /// <param name="target">The target Actor</param>
         /// <param name="action">The action attempted</param>
         /// <param name="roll">The attack roll</param>
         /// <param name="rollBonus">Roll bonus applied</param>
         /// <returns>Formatted miss message</returns>
-        public static string FormatMissMessage(Entity attacker, Entity target, Action action, int roll, int rollBonus)
+        public static string FormatMissMessage(Actor attacker, Actor target, Action action, int roll, int rollBonus)
         {
             // Check if this is a critical miss (total roll <= 1)
             int totalRoll = roll + rollBonus;
@@ -357,14 +357,14 @@ namespace RPGGame
         /// <summary>
         /// Executes an action with UI formatting and returns both main result and status effects
         /// </summary>
-        /// <param name="source">The entity performing the action</param>
-        /// <param name="target">The target entity</param>
+        /// <param name="source">The Actor performing the action</param>
+        /// <param name="target">The target Actor</param>
         /// <param name="action">The specific action to execute</param>
         /// <param name="environment">The environment affecting the action</param>
         /// <param name="lastPlayerAction">The last player action for DEJA VU functionality</param>
         /// <param name="battleNarrative">The battle narrative to add events to</param>
         /// <returns>A tuple containing the formatted main result and list of status effect messages</returns>
-        public static (string mainResult, List<string> statusEffects) ExecuteActionWithUIAndStatusEffects(Entity source, Entity target, Action? action, Environment? environment = null, Action? lastPlayerAction = null, BattleNarrative? battleNarrative = null)
+        public static (string mainResult, List<string> statusEffects) ExecuteActionWithUIAndStatusEffects(Actor source, Actor target, Action? action, Environment? environment = null, Action? lastPlayerAction = null, BattleNarrative? battleNarrative = null)
         {
             // Execute the action using CombatActions with the specific action
             var (mainResult, statusEffects) = ActionExecutor.ExecuteActionWithStatusEffects(source, target, environment, lastPlayerAction, action, battleNarrative);
@@ -376,31 +376,31 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Calculates the actual action speed by multiplying entity base speed by action length
+        /// Calculates the actual action speed by multiplying Actor base speed by action length
         /// </summary>
-        /// <param name="entity">The entity performing the action</param>
+        /// <param name="Actor">The Actor performing the action</param>
         /// <param name="action">The action being performed</param>
         /// <returns>The calculated action speed in seconds</returns>
-        private static double CalculateActualActionSpeed(Entity entity, Action action)
+        private static double CalculateActualActionSpeed(Actor Actor, Action action)
         {
-            // Get the entity's base attack speed
+            // Get the Actor's base attack speed
             double baseSpeed = 0;
-            if (entity is Character character)
+            if (Actor is Character character)
             {
                 baseSpeed = character.GetTotalAttackSpeed();
             }
-            else if (entity is Enemy enemy)
+            else if (Actor is Enemy enemy)
             {
                 baseSpeed = enemy.GetTotalAttackSpeed();
             }
-            else if (entity is Environment environment)
+            else if (Actor is Environment environment)
             {
                 // For environments, use a default base speed
                 baseSpeed = 15.0; // Same as used in CombatManager
             }
             
             // Apply critical miss penalty (doubles action speed)
-            if (entity.HasCriticalMissPenalty)
+            if (Actor.HasCriticalMissPenalty)
             {
                 baseSpeed *= 2.0;
             }
@@ -414,7 +414,7 @@ namespace RPGGame
         /// <summary>
         /// Formats damage display using the new ColoredText system
         /// </summary>
-        public static List<ColoredText> FormatDamageDisplayColored(Entity attacker, Entity target, int rawDamage, int actualDamage, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0)
+        public static List<ColoredText> FormatDamageDisplayColored(Actor attacker, Actor target, int rawDamage, int actualDamage, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0)
         {
             return CombatResultsColoredText.FormatDamageDisplayColored(attacker, target, rawDamage, actualDamage, action, comboAmplifier, damageMultiplier, rollBonus, roll);
         }
@@ -422,7 +422,7 @@ namespace RPGGame
         /// <summary>
         /// Formats miss message using the new ColoredText system
         /// </summary>
-        public static List<ColoredText> FormatMissMessageColored(Entity attacker, Entity target, Action action, int roll, int rollBonus)
+        public static List<ColoredText> FormatMissMessageColored(Actor attacker, Actor target, Action action, int roll, int rollBonus)
         {
             return CombatResultsColoredText.FormatMissMessageColored(attacker, target, action, roll, rollBonus);
         }
@@ -430,7 +430,7 @@ namespace RPGGame
         /// <summary>
         /// Formats non-attack action using the new ColoredText system
         /// </summary>
-        public static List<ColoredText> FormatNonAttackActionColored(Entity source, Entity target, Action action, int roll, int rollBonus)
+        public static List<ColoredText> FormatNonAttackActionColored(Actor source, Actor target, Action action, int roll, int rollBonus)
         {
             return CombatResultsColoredText.FormatNonAttackActionColored(source, target, action, roll, rollBonus);
         }
@@ -438,15 +438,15 @@ namespace RPGGame
         /// <summary>
         /// Formats health milestone using the new ColoredText system
         /// </summary>
-        public static List<ColoredText> FormatHealthMilestoneColored(Entity entity, double healthPercentage)
+        public static List<ColoredText> FormatHealthMilestoneColored(Actor Actor, double healthPercentage)
         {
-            return CombatResultsColoredText.FormatHealthMilestoneColored(entity, healthPercentage);
+            return CombatResultsColoredText.FormatHealthMilestoneColored(Actor, healthPercentage);
         }
         
         /// <summary>
         /// Formats block message using the new ColoredText system
         /// </summary>
-        public static List<ColoredText> FormatBlockMessageColored(Entity defender, Entity attacker, int damageBlocked)
+        public static List<ColoredText> FormatBlockMessageColored(Actor defender, Actor attacker, int damageBlocked)
         {
             return CombatResultsColoredText.FormatBlockMessageColored(defender, attacker, damageBlocked);
         }
@@ -454,7 +454,7 @@ namespace RPGGame
         /// <summary>
         /// Formats dodge message using the new ColoredText system
         /// </summary>
-        public static List<ColoredText> FormatDodgeMessageColored(Entity defender, Entity attacker)
+        public static List<ColoredText> FormatDodgeMessageColored(Actor defender, Actor attacker)
         {
             return CombatResultsColoredText.FormatDodgeMessageColored(defender, attacker);
         }
@@ -462,7 +462,7 @@ namespace RPGGame
         /// <summary>
         /// Formats status effect using the new ColoredText system
         /// </summary>
-        public static List<ColoredText> FormatStatusEffectColored(Entity target, string effectName, bool isApplied, int? duration = null, int? stackCount = null)
+        public static List<ColoredText> FormatStatusEffectColored(Actor target, string effectName, bool isApplied, int? duration = null, int? stackCount = null)
         {
             return CombatResultsColoredText.FormatStatusEffectColored(target, effectName, isApplied, duration, stackCount);
         }
@@ -470,7 +470,7 @@ namespace RPGGame
         /// <summary>
         /// Formats healing message using the new ColoredText system
         /// </summary>
-        public static List<ColoredText> FormatHealingMessageColored(Entity healer, Entity target, int healAmount)
+        public static List<ColoredText> FormatHealingMessageColored(Actor healer, Actor target, int healAmount)
         {
             return CombatResultsColoredText.FormatHealingMessageColored(healer, target, healAmount);
         }
@@ -478,7 +478,7 @@ namespace RPGGame
         /// <summary>
         /// Formats victory message using the new ColoredText system
         /// </summary>
-        public static List<ColoredText> FormatVictoryMessageColored(Entity victor, Entity defeated)
+        public static List<ColoredText> FormatVictoryMessageColored(Actor victor, Actor defeated)
         {
             return CombatResultsColoredText.FormatVictoryMessageColored(victor, defeated);
         }
@@ -486,9 +486,11 @@ namespace RPGGame
         /// <summary>
         /// Formats defeat message using the new ColoredText system
         /// </summary>
-        public static List<ColoredText> FormatDefeatMessageColored(Entity victor, Entity defeated)
+        public static List<ColoredText> FormatDefeatMessageColored(Actor victor, Actor defeated)
         {
             return CombatResultsColoredText.FormatDefeatMessageColored(victor, defeated);
         }
     }
 }
+
+

@@ -13,7 +13,19 @@ namespace RPGGame
         Sword,
         Dagger,
         Mace,
-        Wand
+        Wand,
+        Staff,
+        Axe,
+        Bow
+    }
+    
+    public enum ItemRarity
+    {
+        Common,
+        Uncommon,
+        Rare,
+        Epic,
+        Legendary
     }
 
     public class StatBonus

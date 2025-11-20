@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -197,15 +197,17 @@ namespace RPGGame
         /// Applies environmental debuffs to entities using the effect registry
         /// </summary>
         /// <param name="source">The source of the debuff (usually environment)</param>
-        /// <param name="target">The target entity</param>
+        /// <param name="target">The target Actor</param>
         /// <param name="action">The action causing the debuff</param>
         /// <param name="debuffType">Type of debuff to apply</param>
         /// <param name="results">List to add effect messages to</param>
         /// <returns>True if debuff was applied</returns>
-        public bool ApplyEnvironmentalDebuff(Entity source, Entity target, Action action, string debuffType, List<string> results)
+        public bool ApplyEnvironmentalDebuff(Actor source, Actor target, Action action, string debuffType, List<string> results)
         {
             // Use the environmental effect registry to apply effects
             return environmentalRegistry.ApplyEnvironmentalEffect(debuffType, target, action, results);
         }
     }
 }
+
+

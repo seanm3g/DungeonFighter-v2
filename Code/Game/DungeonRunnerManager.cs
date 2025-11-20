@@ -24,12 +24,16 @@ namespace RPGGame
         private CombatManager? combatManager;
         private IUIManager? customUIManager;
         
-        // Delegates
-        public delegate void OnDungeonCompleted();
+        // Delegates for dungeon completion with reward data
+        public delegate void OnDungeonCompleted(int xpGained, Item? lootReceived);
         public delegate void OnShowMainMenu();
         
         public event OnDungeonCompleted? DungeonCompletedEvent;
         public event OnShowMainMenu? ShowMainMenuEvent;
+        
+        // Store last reward data for completion screen
+        private int lastXPGained;
+        private Item? lastLootReceived;
 
         public DungeonRunnerManager(
             GameStateManager stateManager,
@@ -107,7 +111,7 @@ namespace RPGGame
             }
             
             // Dungeon completed successfully
-            CompleteDungeon();
+            await CompleteDungeon();
         }
 
         /// <summary>
@@ -224,13 +228,39 @@ namespace RPGGame
         /// <summary>
         /// Complete the dungeon run
         /// </summary>
-        private void CompleteDungeon()
+        private async Task CompleteDungeon()
         {
+            if (stateManager.CurrentPlayer == null || stateManager.CurrentDungeon == null) return;
+            
+            // Award rewards and get the data
+            var dungeonLevel = stateManager.CurrentDungeon.MaxLevel;
+            var dungeonManager = new DungeonManagerWithRegistry();
+            var (xpGained, lootReceived) = dungeonManager.AwardLootAndXPWithReturns(
+                stateManager.CurrentPlayer, 
+                stateManager.CurrentInventory, 
+                new List<Dungeon> { stateManager.CurrentDungeon }
+            );
+            
+            // Store reward data
+            lastXPGained = xpGained;
+            lastLootReceived = lootReceived;
+            
+            // Add a delay to let rewards display if in console
+            await Task.Delay(1500);
+            
             // Transition to completion state
             stateManager.TransitionToState(GameState.DungeonCompletion);
             
-            // Trigger event to handle UI display
-            DungeonCompletedEvent?.Invoke();
+            // Trigger event to handle UI display with reward data
+            DungeonCompletedEvent?.Invoke(xpGained, lootReceived);
+        }
+        
+        /// <summary>
+        /// Get the last reward data from dungeon completion
+        /// </summary>
+        public (int xpGained, Item? lootReceived) GetLastRewardData()
+        {
+            return (lastXPGained, lastLootReceived);
         }
 
         /// <summary>

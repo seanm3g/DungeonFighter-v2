@@ -11,7 +11,7 @@ namespace RPGGame
         int LastComboActionIdx { get; set; }
     }
 
-    public class Character : Entity, IComboMemory
+    public class Character : Actor, IComboMemory
     {
         // Flag to disable debug output during balance analysis
         public static bool DisableCharacterCreationDebug = false;
@@ -294,3 +294,4 @@ namespace RPGGame
         public string GetDefeatSummary() => SessionStats.GetDefeatSummary();
     }
 }
+

@@ -9,8 +9,31 @@ Track of known problems, their status, and potential solutions.
 
 ## High Priority Issues
 
+### Issue: NullReferenceException in DungeonSelectionRenderer
+**Status**: ✅ RESOLVED (November 20, 2025)
+**Priority**: HIGH
+**Description**: Application throws NullReferenceException when rendering dungeon selection screen at `DungeonSelectionRenderer.RenderDungeonSelection()` line 69.
+
+**Root Causes**:
+1. Missing null validation on `dungeons` parameter
+2. Missing validation for individual dungeon objects in the list
+3. `SequenceEqual` called on potentially null list
+
+**Solution**:
+1. Added null check for `dungeons` parameter - throws ArgumentNullException with clear message
+2. Added validation loop to ensure no null dungeon objects in list
+3. Exception thrown before attempting to use potentially null references
+
+**Files Modified**:
+- `Code/UI/Avalonia/Renderers/DungeonSelectionRenderer.cs` (lines 68-98)
+
+**Verification**:
+- Dungeon selection screen renders without error
+- Proper exceptions thrown for invalid input
+- Stack trace no longer occurs
+
 ### Issue: Validate enemy action sets include damage
-**Status**: IN_PROGRESS
+**Status**: ✅ RESOLVED
 **Priority**: HIGH
 **Description**: Some enemies defined only utility/debuff actions which could lead to unwinnable (for enemy) encounters.
 

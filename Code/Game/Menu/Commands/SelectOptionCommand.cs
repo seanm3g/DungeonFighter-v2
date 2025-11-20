@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using DungeonFighter.Game.Menu.Core;
 
 namespace DungeonFighter.Game.Menu.Commands
@@ -23,7 +23,7 @@ namespace DungeonFighter.Game.Menu.Commands
                 ? $"SelectOption({optionIndex})" 
                 : $"SelectOption({optionName})";
 
-        protected override async Task ExecuteCommand(IMenuContext context)
+        protected override async Task ExecuteCommand(IMenuContext? context)
         {
             LogStep($"Selecting option: {CommandName}");
             
@@ -37,4 +37,5 @@ namespace DungeonFighter.Game.Menu.Commands
         }
     }
 }
+
 

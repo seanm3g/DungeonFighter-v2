@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace RPGGame
@@ -8,7 +8,7 @@ namespace RPGGame
     /// </summary>
     public interface IEffectHandler
     {
-        bool Apply(Entity target, Action action, List<string> results);
+        bool Apply(Actor target, Action action, List<string> results);
         string GetEffectType();
     }
 
@@ -36,7 +36,7 @@ namespace RPGGame
         /// <summary>
         /// Applies a status effect using the appropriate handler
         /// </summary>
-        public bool ApplyEffect(string effectType, Entity target, Action action, List<string> results)
+        public bool ApplyEffect(string effectType, Actor target, Action action, List<string> results)
         {
             if (_handlers.TryGetValue(effectType.ToLower(), out var handler))
             {
@@ -83,7 +83,7 @@ namespace RPGGame
     /// </summary>
     public class BleedEffectHandler : IEffectHandler
     {
-        public bool Apply(Entity target, Action action, List<string> results)
+        public bool Apply(Actor target, Action action, List<string> results)
         {
             // Create a dummy attacker for the calculation
             var dummyAttacker = new Character("Dummy", 1);
@@ -105,7 +105,7 @@ namespace RPGGame
     /// </summary>
     public class WeakenEffectHandler : IEffectHandler
     {
-        public bool Apply(Entity target, Action action, List<string> results)
+        public bool Apply(Actor target, Action action, List<string> results)
         {
             // Create a dummy attacker for the calculation
             var dummyAttacker = new Character("Dummy", 1);
@@ -126,7 +126,7 @@ namespace RPGGame
     /// </summary>
     public class SlowEffectHandler : IEffectHandler
     {
-        public bool Apply(Entity target, Action action, List<string> results)
+        public bool Apply(Actor target, Action action, List<string> results)
         {
             // Create a dummy attacker for the calculation
             var dummyAttacker = new Character("Dummy", 1);
@@ -147,7 +147,7 @@ namespace RPGGame
     /// </summary>
     public class PoisonEffectHandler : IEffectHandler
     {
-        public bool Apply(Entity target, Action action, List<string> results)
+        public bool Apply(Actor target, Action action, List<string> results)
         {
             // Create a dummy attacker for the calculation
             var dummyAttacker = new Character("Dummy", 1);
@@ -169,7 +169,7 @@ namespace RPGGame
     /// </summary>
     public class StunEffectHandler : IEffectHandler
     {
-        public bool Apply(Entity target, Action action, List<string> results)
+        public bool Apply(Actor target, Action action, List<string> results)
         {
             // Create a dummy attacker for the calculation
             var dummyAttacker = new Character("Dummy", 1);
@@ -192,7 +192,7 @@ namespace RPGGame
     /// </summary>
     public class BurnEffectHandler : IEffectHandler
     {
-        public bool Apply(Entity target, Action action, List<string> results)
+        public bool Apply(Actor target, Action action, List<string> results)
         {
             // Create a dummy attacker for the calculation
             var dummyAttacker = new Character("Dummy", 1);
@@ -209,3 +209,5 @@ namespace RPGGame
         public string GetEffectType() => "Burning";
     }
 }
+
+

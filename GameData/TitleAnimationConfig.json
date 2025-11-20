@@ -8,8 +8,8 @@
     "FlashColor1": "W",
     "FlashColor2": "Y",
     "HoldColor": "Y",
-    "DungeonFinalColor": "Y",
-    "FighterFinalColor": "R",
+    "DungeonFinalColor": "X",
+    "FighterFinalColor": "Y",
     "TransitionFromColor": "Y"
   }
 }

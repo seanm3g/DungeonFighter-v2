@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,7 +11,7 @@ namespace RPGGame
     {
         private List<CombatEntity> entities = new List<CombatEntity>();
 
-        public void AddEntity(Entity entity, double baseSpeed)
+        public void AddEntity(Actor entity, double baseSpeed)
         {
             double currentTime = GameTicker.Instance.GetCurrentGameTime();
             entities.Add(new CombatEntity
@@ -22,12 +22,12 @@ namespace RPGGame
             });
         }
 
-        public void RemoveEntity(Entity entity)
+        public void RemoveEntity(Actor entity)
         {
             entities.RemoveAll(e => e.Entity == entity);
         }
 
-        public Entity? GetNextEntityToAct()
+        public Actor? GetNextEntityToAct()
         {
             double currentTime = GameTicker.Instance.GetCurrentGameTime();
             
@@ -43,7 +43,7 @@ namespace RPGGame
         }
 
         // Add method to advance an entity's turn even when stunned
-        public void AdvanceEntityTurn(Entity entity, double turnDuration = 1.0)
+        public void AdvanceEntityTurn(Actor entity, double turnDuration = 1.0)
         {
             var combatEntity = entities.FirstOrDefault(e => e.Entity == entity);
             if (combatEntity == null) return;
@@ -57,7 +57,7 @@ namespace RPGGame
             combatEntity.NextActionTime = currentTime + turnDuration + buffer;
         }
 
-        public double ExecuteAction(Entity entity, Action action, bool isBasicAttack = false)
+        public double ExecuteAction(Actor entity, Action action, bool isBasicAttack = false)
         {
             var combatEntity = entities.FirstOrDefault(e => e.Entity == entity);
             if (combatEntity == null) return 0.0;
@@ -120,7 +120,7 @@ namespace RPGGame
             return actionDuration;
         }
 
-        public bool IsEntityReady(Entity entity)
+        public bool IsEntityReady(Actor entity)
         {
             var combatEntity = entities.FirstOrDefault(e => e.Entity == entity);
             if (combatEntity == null) return false;
@@ -129,7 +129,7 @@ namespace RPGGame
             return combatEntity.NextActionTime <= currentTime;
         }
 
-        public double GetTimeUntilReady(Entity entity)
+        public double GetTimeUntilReady(Actor entity)
         {
             var combatEntity = entities.FirstOrDefault(e => e.Entity == entity);
             if (combatEntity == null) return 0.0;
@@ -193,7 +193,7 @@ namespace RPGGame
             return string.Join(" | ", info);
         }
 
-        private bool IsEntityAlive(Entity entity)
+        private bool IsEntityAlive(Actor entity)
         {
             if (entity is Character character)
                 return character.IsAlive;
@@ -206,8 +206,10 @@ namespace RPGGame
 
     public class CombatEntity
     {
-        public Entity Entity { get; set; } = null!;
+        public Actor Entity { get; set; } = null!;
         public double BaseSpeed { get; set; }
         public double NextActionTime { get; set; }
     }
 }
+
+

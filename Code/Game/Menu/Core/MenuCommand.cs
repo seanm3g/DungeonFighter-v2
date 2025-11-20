@@ -18,12 +18,15 @@ namespace DungeonFighter.Game.Menu.Core
         /// <summary>
         /// Executes the command with error handling and logging.
         /// </summary>
-        public async Task Execute(IMenuContext context)
+        public async Task Execute(IMenuContext? context)
         {
             try
             {
                 DebugLogger.Log("MenuCommand", $"Executing: {CommandName}");
-                await ExecuteCommand(context);
+                if (context != null)
+                {
+                    await ExecuteCommand(context);
+                }
                 DebugLogger.Log("MenuCommand", $"Completed: {CommandName}");
             }
             catch (Exception ex)
@@ -36,7 +39,7 @@ namespace DungeonFighter.Game.Menu.Core
         /// <summary>
         /// Override this method to implement the actual command logic.
         /// </summary>
-        protected abstract Task ExecuteCommand(IMenuContext context);
+        protected abstract Task ExecuteCommand(IMenuContext? context);
 
         /// <summary>
         /// Helper method for safe logging of command execution.

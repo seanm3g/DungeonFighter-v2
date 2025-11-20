@@ -65,6 +65,12 @@ namespace RPGGame.UI.Avalonia.Renderers
         {
             int currentLineCount = 0;
             
+            // Validate input - dungeons list must not be null
+            if (dungeons == null)
+            {
+                throw new ArgumentNullException(nameof(dungeons), "Dungeon list cannot be null");
+            }
+            
             // Only recreate ColoredText objects if the dungeon list has changed
             bool dungeonListChanged = lastDungeonList == null || 
                                       lastDungeonList.Count != dungeons.Count ||
@@ -84,6 +90,13 @@ namespace RPGGame.UI.Avalonia.Renderers
             for (int i = 0; i < dungeons.Count; i++)
             {
                 var dungeon = dungeons[i];
+                
+                // Validate dungeon object is not null
+                if (dungeon == null)
+                {
+                    throw new InvalidOperationException($"Dungeon at index {i} is null");
+                }
+                
                 var option = new ClickableElement
                 {
                     X = x + 4,

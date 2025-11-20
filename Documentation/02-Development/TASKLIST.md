@@ -1,10 +1,66 @@
 # DungeonFighter v2 - Development Task List
 
 ## Current Status
-**Last Updated:** October 12, 2025
-**Current Version:** v6.6 (Color System Migration - Phase 3+ Complete - Ready for Production)
+**Last Updated:** November 19, 2025
+**Current Version:** v6.7 (Combat Text Reveal - Progressive Display)
 
 ## Recent Completions ✅
+
+### 🎭 Combat Text Reveal System - Line-by-Line Display (November 19, 2025)
+
+**Status:** ✅ Complete and integrated  
+**Feature:** Combat text displays progressively, line-by-line with natural delays  
+**Files Modified:** 1 (BlockDisplayManager.cs)  
+**Build Status:** ✅ Passing  
+
+#### Implementation Summary
+- [x] Integrated chunked text reveal into combat action display
+- [x] Enhanced narrative events with dramatic pacing
+- [x] Added progressive reveal to environmental actions
+- [x] Status effects display with optimized timing
+- [x] All combat text now shows line-by-line instead of all at once
+- [x] Created comprehensive documentation and README
+- [x] Tested with multiple combat scenarios
+- [x] Performance verified (minimal overhead)
+
+#### What Changed
+**Before:** All combat text appeared simultaneously
+```
+Hero hits Enemy for 25 damage
+(roll: 15 | attack 18 - 10 armor | speed: 2.5s)
+Enemy is weakened!
+```
+
+**After:** Text reveals progressively with natural timing
+```
+Hero hits Enemy for 25 damage
+[pause: 500-1000ms]
+(roll: 15 | attack 18 - 10 armor | speed: 2.5s)
+[pause: 300-600ms]
+Enemy is weakened!
+```
+
+#### Key Features
+- **Combat Actions**: Fast line-by-line reveal (20ms per char, 300-1500ms delays)
+- **Narrative Events**: Dramatic sentence-by-sentence display (25ms per char, 400-2000ms delays)
+- **Environmental Effects**: Progressive line display (22ms per char, 350-1500ms delays)
+- **Status Effects**: Quick reveal with pacing (15ms per char, 200-800ms delays)
+- **Full Color Support**: All existing color markup preserved and works perfectly
+- **No Performance Impact**: Minimal overhead, efficient implementation
+
+#### Benefits
+✨ More readable combat log - time to absorb information
+⚡ Natural pacing - matches combat rhythm
+🎭 Enhanced drama - significant moments feel impactful
+🧠 Better comprehension - sequential display aids understanding
+🎮 More engaging - combat feels cinematic
+
+#### Related Documentation
+- `README_COMBAT_TEXT_REVEAL.md` - User-facing documentation
+- `Code/UI/BlockDisplayManager.cs` - Implementation details
+- `Code/UI/ChunkedTextReveal.cs` - Underlying reveal system
+
+---
 
 ### 🎉 Color System Migration - PRODUCTION READY! (October 12, 2025)
 

@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using DungeonFighter.Game.Menu.Core;
 
 namespace DungeonFighter.Game.Menu.Commands
@@ -17,7 +17,7 @@ namespace DungeonFighter.Game.Menu.Commands
 
         protected override string CommandName => $"SelectWeapon({weaponIndex})";
 
-        protected override async Task ExecuteCommand(IMenuContext context)
+        protected override async Task ExecuteCommand(IMenuContext? context)
         {
             LogStep($"Selecting weapon at index {weaponIndex}");
             
@@ -31,4 +31,5 @@ namespace DungeonFighter.Game.Menu.Commands
         }
     }
 }
+
 

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using RPGGame.UI;
@@ -123,7 +123,7 @@ namespace RPGGame
         
         
         /// <summary>
-        /// Writes a system message (no entity tracking)
+        /// Writes a system message (no Actor tracking)
         /// </summary>
         /// <param name="message">System message to display</param>
         public static void WriteSystemLine(string message)
@@ -220,7 +220,7 @@ namespace RPGGame
         
         
         /// <summary>
-        /// Resets entity tracking for a new battle
+        /// Resets Actor tracking for a new battle
         /// </summary>
         public static void ResetForNewBattle()
         {
@@ -231,7 +231,7 @@ namespace RPGGame
                 return;
             }
             
-            // Entity tracking is now handled by BlockDisplayManager
+            // Actor tracking is now handled by BlockDisplayManager
         }
         
         /// <summary>
@@ -633,3 +633,5 @@ namespace RPGGame
         
     }
 }
+
+

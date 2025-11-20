@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using DungeonFighter.Game.Menu.Core;
 
 namespace DungeonFighter.Game.Menu.Commands
@@ -11,7 +11,7 @@ namespace DungeonFighter.Game.Menu.Commands
     {
         protected override string CommandName => "Settings";
 
-        protected override async Task ExecuteCommand(IMenuContext context)
+        protected override async Task ExecuteCommand(IMenuContext? context)
         {
             LogStep("Transitioning to settings menu");
             
@@ -22,4 +22,5 @@ namespace DungeonFighter.Game.Menu.Commands
         }
     }
 }
+
 

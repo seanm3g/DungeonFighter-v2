@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Avalonia.Media;
 using RPGGame.UI.ColorSystem;
@@ -15,8 +15,8 @@ namespace RPGGame
         /// Formats damage display with the new ColoredText system
         /// </summary>
         public static List<ColoredText> FormatDamageDisplayColored(
-            Entity attacker, 
-            Entity target, 
+            Actor attacker, 
+            Actor target, 
             int rawDamage, 
             int actualDamage, 
             Action? action = null, 
@@ -119,8 +119,8 @@ namespace RPGGame
         /// Formats miss message with the new ColoredText system
         /// </summary>
         public static List<ColoredText> FormatMissMessageColored(
-            Entity attacker, 
-            Entity target, 
+            Actor attacker, 
+            Actor target, 
             Action action, 
             int roll, 
             int rollBonus)
@@ -154,8 +154,8 @@ namespace RPGGame
         /// Formats non-attack action messages with the new ColoredText system
         /// </summary>
         public static List<ColoredText> FormatNonAttackActionColored(
-            Entity source, 
-            Entity target, 
+            Actor source, 
+            Actor target, 
             Action action, 
             int roll, 
             int rollBonus)
@@ -180,11 +180,11 @@ namespace RPGGame
         /// <summary>
         /// Formats health milestone notifications with the new ColoredText system
         /// </summary>
-        public static List<ColoredText> FormatHealthMilestoneColored(Entity entity, double healthPercentage)
+        public static List<ColoredText> FormatHealthMilestoneColored(Actor Actor, double healthPercentage)
         {
             var builder = new ColoredTextBuilder();
             
-            builder.Add(entity.Name, entity is Character ? ColorPalette.Player : ColorPalette.Enemy);
+            builder.Add(Actor.Name, Actor is Character ? ColorPalette.Player : ColorPalette.Enemy);
             builder.Add(" is ", Colors.White);
             
             if (healthPercentage <= 0.1)
@@ -193,7 +193,7 @@ namespace RPGGame
             }
             else if (healthPercentage <= 0.25)
             {
-                if (entity is Character)
+                if (Actor is Character)
                 {
                     builder.Add("critically wounded", ColorPalette.Error);
                 }
@@ -216,8 +216,8 @@ namespace RPGGame
         /// Formats block message with the new ColoredText system
         /// </summary>
         public static List<ColoredText> FormatBlockMessageColored(
-            Entity defender, 
-            Entity attacker, 
+            Actor defender, 
+            Actor attacker, 
             int damageBlocked)
         {
             var builder = new ColoredTextBuilder();
@@ -238,8 +238,8 @@ namespace RPGGame
         /// Formats dodge message with the new ColoredText system
         /// </summary>
         public static List<ColoredText> FormatDodgeMessageColored(
-            Entity defender, 
-            Entity attacker)
+            Actor defender, 
+            Actor attacker)
         {
             var builder = new ColoredTextBuilder();
             
@@ -257,7 +257,7 @@ namespace RPGGame
         /// Formats status effect application with the new ColoredText system
         /// </summary>
         public static List<ColoredText> FormatStatusEffectColored(
-            Entity target, 
+            Actor target, 
             string effectName, 
             bool isApplied,
             int? duration = null,
@@ -302,8 +302,8 @@ namespace RPGGame
         /// Formats healing message with the new ColoredText system
         /// </summary>
         public static List<ColoredText> FormatHealingMessageColored(
-            Entity healer, 
-            Entity target, 
+            Actor healer, 
+            Actor target, 
             int healAmount)
         {
             var builder = new ColoredTextBuilder();
@@ -322,7 +322,7 @@ namespace RPGGame
         /// <summary>
         /// Formats combat victory message with the new ColoredText system
         /// </summary>
-        public static List<ColoredText> FormatVictoryMessageColored(Entity victor, Entity defeated)
+        public static List<ColoredText> FormatVictoryMessageColored(Actor victor, Actor defeated)
         {
             var builder = new ColoredTextBuilder();
             
@@ -337,7 +337,7 @@ namespace RPGGame
         /// <summary>
         /// Formats combat defeat message with the new ColoredText system
         /// </summary>
-        public static List<ColoredText> FormatDefeatMessageColored(Entity victor, Entity defeated)
+        public static List<ColoredText> FormatDefeatMessageColored(Actor victor, Actor defeated)
         {
             var builder = new ColoredTextBuilder();
             
@@ -350,3 +350,5 @@ namespace RPGGame
         }
     }
 }
+
+

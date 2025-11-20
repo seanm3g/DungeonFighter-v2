@@ -112,7 +112,7 @@ namespace RPGGame
                 if (envAction != null)
                 {
                     // Create list of all characters in the room (player and current enemy)
-                    var allTargets = new List<Entity> { player, currentEnemy };
+                    var allTargets = new List<Actor> { player, currentEnemy };
                     
                     // Use area of effect action to target all characters
                     string result = EnvironmentalActionHandler.ExecuteAreaOfEffectAction(room, allTargets, room, envAction);
@@ -260,3 +260,4 @@ namespace RPGGame
         }
     }
 }
+

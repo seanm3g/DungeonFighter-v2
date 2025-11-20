@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace RPGGame
 {
@@ -22,7 +22,7 @@ namespace RPGGame
         public double SlowMultiplier { get; set; } = 1.0;
         public int SlowTurns { get; set; } = 0;
         
-        // Poison and burn effects are now handled by Entity base class
+        // Poison and burn effects are now handled by Actor base class
         
         // Shield buff from Arcane SHIELD
         public bool HasShield { get; set; } = false;
@@ -38,7 +38,7 @@ namespace RPGGame
         public bool GuaranteeNextSuccess { get; set; } = false; // For True Strike
         public int ExtraAttacks { get; set; } = 0; // For Flurry/Precision Strike
         public int ExtraDamage { get; set; } = 0; // For Opening Volley
-        // DamageReduction is now handled by Entity base class
+        // DamageReduction is now handled by Actor base class
         public double LengthReduction { get; set; } = 0.0; // For Taunt
         public int LengthReductionTurns { get; set; } = 0;
         public double ComboAmplifierMultiplier { get; set; } = 1.0; // For Pretty Boy Swag
@@ -49,7 +49,7 @@ namespace RPGGame
         public bool UsedRerollThisTurn { get; set; } = false;
         public int RerollChargesUsed { get; set; } = 0;
 
-        // Stun, weaken, and roll penalty effects are now handled by Entity base class
+        // Stun, weaken, and roll penalty effects are now handled by Actor base class
 
         public void UpdateTempEffects(double actionLength = 1.0)
         {
@@ -142,7 +142,7 @@ namespace RPGGame
             SlowTurns = duration;
         }
 
-        // ApplyPoison and ApplyBurn are now handled by Entity base class
+        // ApplyPoison and ApplyBurn are now handled by Actor base class
 
         public void ApplyShield()
         {
@@ -238,3 +238,5 @@ namespace RPGGame
         }
     }
 }
+
+

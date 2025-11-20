@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace RPGGame
@@ -15,11 +15,11 @@ namespace RPGGame
         /// Applies status effects from an action to the target
         /// </summary>
         /// <param name="action">The action being performed</param>
-        /// <param name="attacker">The attacking entity</param>
-        /// <param name="target">The target entity</param>
+        /// <param name="attacker">The attacking Actor</param>
+        /// <param name="target">The target Actor</param>
         /// <param name="results">List to add effect messages to</param>
         /// <returns>True if any effects were applied</returns>
-        public static bool ApplyStatusEffects(Action action, Entity attacker, Entity target, List<string> results)
+        public static bool ApplyStatusEffects(Action action, Actor attacker, Actor target, List<string> results)
         {
             bool effectsApplied = false;
             var effectTypes = GetEffectTypesFromAction(action);
@@ -59,59 +59,59 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Processes all active status effects for an entity at the start of their turn
+        /// Processes all active status effects for an Actor at the start of their turn
         /// </summary>
-        /// <param name="entity">The entity to process effects for</param>
+        /// <param name="Actor">The Actor to process effects for</param>
         /// <param name="results">List to add effect messages to</param>
         /// <returns>Total damage dealt by effects</returns>
-        public static int ProcessStatusEffects(Entity entity, List<string> results)
+        public static int ProcessStatusEffects(Actor Actor, List<string> results)
         {
             int totalEffectDamage = 0;
             double currentTime = GameTicker.Instance.GetCurrentGameTime();
             
             // Process poison damage
-            if (entity.PoisonStacks > 0)
+            if (Actor.PoisonStacks > 0)
             {
-                int poisonDamage = entity.ProcessPoison(currentTime);
+                int poisonDamage = Actor.ProcessPoison(currentTime);
                 if (poisonDamage > 0)
                 {
                     totalEffectDamage += poisonDamage;
-                    string damageType = entity.GetDamageTypeText();
-                    results.Add($"[{entity.Name}] takes {poisonDamage} {damageType} damage");
+                    string damageType = Actor.GetDamageTypeText();
+                    results.Add($"[{Actor.Name}] takes {poisonDamage} {damageType} damage");
                 }
                 
                 // Check if effect ended (regardless of whether damage was dealt)
-                if (entity.PoisonStacks > 0)
+                if (Actor.PoisonStacks > 0)
                 {
-                    string damageType = entity.GetDamageTypeText();
-                    results.Add($"    ({damageType}: {entity.PoisonStacks} stacks remain)");
+                    string damageType = Actor.GetDamageTypeText();
+                    results.Add($"    ({damageType}: {Actor.PoisonStacks} stacks remain)");
                 }
                 else
                 {
-                    string damageType = entity.GetDamageTypeText();
+                    string damageType = Actor.GetDamageTypeText();
                     string effectEndMessage = damageType == "bleed" ? "bleeding" : "poisoned";
-                    results.Add($"    ([{entity.Name}] is no longer {effectEndMessage}!)");
+                    results.Add($"    ([{Actor.Name}] is no longer {effectEndMessage}!)");
                 }
             }
             
             // Process burn damage
-            if (entity.BurnStacks > 0)
+            if (Actor.BurnStacks > 0)
             {
-                int burnDamage = entity.ProcessBurn(currentTime);
+                int burnDamage = Actor.ProcessBurn(currentTime);
                 if (burnDamage > 0)
                 {
                     totalEffectDamage += burnDamage;
-                    results.Add($"[{entity.Name}] takes {burnDamage} burn damage");
+                    results.Add($"[{Actor.Name}] takes {burnDamage} burn damage");
                 }
                 
                 // Check if effect ended (regardless of whether damage was dealt)
-                if (entity.BurnStacks > 0)
+                if (Actor.BurnStacks > 0)
                 {
-                    results.Add($"    (burn: {entity.BurnStacks} stacks remain)");
+                    results.Add($"    (burn: {Actor.BurnStacks} stacks remain)");
                 }
                 else
                 {
-                    results.Add($"    ([{entity.Name}] is no longer burning!)");
+                    results.Add($"    ([{Actor.Name}] is no longer burning!)");
                 }
             }
             
@@ -119,17 +119,17 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Checks if an entity can act based on status effects
+        /// Checks if an Actor can act based on status effects
         /// </summary>
-        /// <param name="entity">The entity to check</param>
+        /// <param name="Actor">The Actor to check</param>
         /// <param name="results">List to add effect messages to</param>
-        /// <returns>True if the entity can act, false if stunned or otherwise incapacitated</returns>
-        public static bool CanEntityAct(Entity entity, List<string> results)
+        /// <returns>True if the Actor can act, false if stunned or otherwise incapacitated</returns>
+        public static bool CanEntityAct(Actor Actor, List<string> results)
         {
             // Check for stun effect
-            if (entity.IsStunned)
+            if (Actor.IsStunned)
             {
-                results.Add($"[{entity.Name}] is stunned and cannot act!");
+                results.Add($"[{Actor.Name}] is stunned and cannot act!");
                 return false;
             }
             
@@ -140,12 +140,12 @@ namespace RPGGame
         /// Applies environmental debuffs to entities using the effect registry
         /// </summary>
         /// <param name="source">The source of the debuff (usually environment)</param>
-        /// <param name="target">The target entity</param>
+        /// <param name="target">The target Actor</param>
         /// <param name="action">The action causing the debuff</param>
         /// <param name="debuffType">Type of debuff to apply</param>
         /// <param name="results">List to add effect messages to</param>
         /// <returns>True if debuff was applied</returns>
-        public static bool ApplyEnvironmentalDebuff(Entity source, Entity target, Action action, string debuffType, List<string> results)
+        public static bool ApplyEnvironmentalDebuff(Actor source, Actor target, Action action, string debuffType, List<string> results)
         {
             // Use the effect registry to apply environmental effects
             bool applied = _effectRegistry.ApplyEffect(debuffType, target, action, results);
@@ -167,9 +167,9 @@ namespace RPGGame
         /// Checks and applies bleed chance for critical hits
         /// </summary>
         /// <param name="attacker">The attacking character</param>
-        /// <param name="target">The target entity</param>
+        /// <param name="target">The target Actor</param>
         /// <param name="results">List to add effect messages to</param>
-        public static void CheckAndApplyBleedChance(Character attacker, Entity target, List<string> results)
+        public static void CheckAndApplyBleedChance(Character attacker, Actor target, List<string> results)
         {
             // For now, use a simple bleed chance calculation
             // This would need to be implemented based on equipment/modifications
@@ -200,10 +200,10 @@ namespace RPGGame
         /// Calculates effect duration based on attacker's stats
         /// </summary>
         /// <param name="baseDuration">Base duration of the effect</param>
-        /// <param name="attacker">The attacking entity</param>
-        /// <param name="target">The target entity</param>
+        /// <param name="attacker">The attacking Actor</param>
+        /// <param name="target">The target Actor</param>
         /// <returns>Modified duration</returns>
-        public static int CalculateEffectDuration(int baseDuration, Entity attacker, Entity target)
+        public static int CalculateEffectDuration(int baseDuration, Actor attacker, Actor target)
         {
             // Intelligence increases effect duration
             int intelligenceBonus = 0;
@@ -224,20 +224,22 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Clears all temporary effects from an entity
+        /// Clears all temporary effects from an Actor
         /// </summary>
-        /// <param name="entity">The entity to clear effects from</param>
+        /// <param name="Actor">The Actor to clear effects from</param>
         /// <param name="results">List to add effect messages to</param>
-        public static void ClearAllTemporaryEffects(Entity entity, List<string> results)
+        public static void ClearAllTemporaryEffects(Actor Actor, List<string> results)
         {
-            bool hadEffects = entity.PoisonStacks > 0 || entity.BurnStacks > 0 || entity.IsBleeding || 
-                             entity.IsStunned || entity.IsWeakened;
+            bool hadEffects = Actor.PoisonStacks > 0 || Actor.BurnStacks > 0 || Actor.IsBleeding || 
+                             Actor.IsStunned || Actor.IsWeakened;
             
             if (hadEffects)
             {
-                entity.ClearAllTempEffects();
-                results.Add($"[{entity.Name}]'s temporary effects are cleared!");
+                Actor.ClearAllTempEffects();
+                results.Add($"[{Actor.Name}]'s temporary effects are cleared!");
             }
         }
     }
 }
+
+

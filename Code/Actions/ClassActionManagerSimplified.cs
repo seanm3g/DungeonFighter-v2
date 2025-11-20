@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,32 +13,32 @@ namespace RPGGame
         /// <summary>
         /// Adds class-specific actions based on character progression and weapon type
         /// </summary>
-        /// <param name="entity">The entity to add actions to</param>
+        /// <param name="Actor">The Actor to add actions to</param>
         /// <param name="progression">The character's progression data</param>
         /// <param name="weaponType">The weapon type (optional)</param>
-        public static void AddClassActions(Entity entity, CharacterProgression progression, WeaponType? weaponType)
+        public static void AddClassActions(Actor Actor, CharacterProgression progression, WeaponType? weaponType)
         {
             DebugLogger.LogMethodEntry("ClassActionManagerSimplified", "AddClassActions");
             
             // Remove existing class actions first
-            RemoveClassActions(entity);
+            RemoveClassActions(Actor);
             
             DebugLogger.LogClassPoints(progression.BarbarianPoints, progression.WarriorPoints, progression.RoguePoints, progression.WizardPoints);
             
             // Add actions using the template system
-            AddBarbarianActions(entity, progression);
-            AddWarriorActions(entity, progression);
-            AddRogueActions(entity, progression);
-            AddWizardActions(entity, progression, weaponType);
+            AddBarbarianActions(Actor, progression);
+            AddWarriorActions(Actor, progression);
+            AddRogueActions(Actor, progression);
+            AddWizardActions(Actor, progression, weaponType);
             
-            DebugLogger.LogActionPoolChange(entity.Name, entity.ActionPool.Count, "After AddClassActions");
+            DebugLogger.LogActionPoolChange(Actor.Name, Actor.ActionPool.Count, "After AddClassActions");
         }
 
         /// <summary>
-        /// Removes all class-specific actions from the entity
+        /// Removes all class-specific actions from the Actor
         /// </summary>
-        /// <param name="entity">The entity to remove actions from</param>
-        public static void RemoveClassActions(Entity entity)
+        /// <param name="Actor">The Actor to remove actions from</param>
+        public static void RemoveClassActions(Actor Actor)
         {
             var classActions = GetClassActionNames();
             
@@ -47,7 +47,7 @@ namespace RPGGame
                 var action = ActionLoader.GetAction(actionName);
                 if (action != null)
                 {
-                    entity.RemoveAction(action);
+                    Actor.RemoveAction(action);
                 }
             }
         }
@@ -55,56 +55,56 @@ namespace RPGGame
         /// <summary>
         /// Adds Barbarian class actions using the template system
         /// </summary>
-        private static void AddBarbarianActions(Entity entity, CharacterProgression progression)
+        private static void AddBarbarianActions(Actor Actor, CharacterProgression progression)
         {
             var configs = ActionAdditionTemplate.GetStandardClassActionConfigs()["Barbarian"];
-            ActionAdditionTemplate.AddClassActions(entity, configs, progression.BarbarianPoints, "Barbarian");
+            ActionAdditionTemplate.AddClassActions(Actor, configs, progression.BarbarianPoints, "Barbarian");
         }
 
         /// <summary>
         /// Adds Warrior class actions using the template system
         /// </summary>
-        private static void AddWarriorActions(Entity entity, CharacterProgression progression)
+        private static void AddWarriorActions(Actor Actor, CharacterProgression progression)
         {
             var configs = ActionAdditionTemplate.GetStandardClassActionConfigs()["Warrior"];
-            ActionAdditionTemplate.AddClassActions(entity, configs, progression.WarriorPoints, "Warrior");
+            ActionAdditionTemplate.AddClassActions(Actor, configs, progression.WarriorPoints, "Warrior");
         }
 
         /// <summary>
         /// Adds Rogue class actions using the template system
         /// </summary>
-        private static void AddRogueActions(Entity entity, CharacterProgression progression)
+        private static void AddRogueActions(Actor Actor, CharacterProgression progression)
         {
             var configs = ActionAdditionTemplate.GetStandardClassActionConfigs()["Rogue"];
-            ActionAdditionTemplate.AddClassActions(entity, configs, progression.RoguePoints, "Rogue");
+            ActionAdditionTemplate.AddClassActions(Actor, configs, progression.RoguePoints, "Rogue");
         }
 
         /// <summary>
         /// Adds Wizard class actions using the template system with weapon-specific logic
         /// </summary>
-        private static void AddWizardActions(Entity entity, CharacterProgression progression, WeaponType? weaponType)
+        private static void AddWizardActions(Actor Actor, CharacterProgression progression, WeaponType? weaponType)
         {
             // Add standard wizard actions
             var standardConfigs = ActionAdditionTemplate.GetStandardClassActionConfigs()["Wizard"];
-            ActionAdditionTemplate.AddClassActions(entity, standardConfigs, progression.WizardPoints, "Wizard");
+            ActionAdditionTemplate.AddClassActions(Actor, standardConfigs, progression.WizardPoints, "Wizard");
 
             // Add weapon-specific wizard actions
             if (progression.WizardPoints >= 5)
             {
-                AddWeaponSpecificWizardActions(entity, weaponType, progression.WizardPoints);
+                AddWeaponSpecificWizardActions(Actor, weaponType, progression.WizardPoints);
             }
         }
 
         /// <summary>
         /// Adds weapon-specific wizard actions
         /// </summary>
-        private static void AddWeaponSpecificWizardActions(Entity entity, WeaponType? weaponType, int wizardPoints)
+        private static void AddWeaponSpecificWizardActions(Actor Actor, WeaponType? weaponType, int wizardPoints)
         {
             switch (weaponType)
             {
                 case WeaponType.Wand:
-                    ActionAdditionTemplate.AddClassAction(entity, "FIREBALL", 0.3, 5, wizardPoints, "Wizard");
-                    ActionAdditionTemplate.AddClassAction(entity, "LIGHTNING BOLT", 0.3, 5, wizardPoints, "Wizard");
+                    ActionAdditionTemplate.AddClassAction(Actor, "FIREBALL", 0.3, 5, wizardPoints, "Wizard");
+                    ActionAdditionTemplate.AddClassAction(Actor, "LIGHTNING BOLT", 0.3, 5, wizardPoints, "Wizard");
                     break;
                 // Note: The original code had both cases as Wand, which was likely a bug
                 // This implementation adds both spells for wand users
@@ -158,3 +158,5 @@ namespace RPGGame
         }
     }
 }
+
+

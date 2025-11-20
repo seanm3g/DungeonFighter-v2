@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace RPGGame
 {
     /// <summary>
-    /// Manages combat state including battle narrative, turn tracking, and entity management
+    /// Manages combat state including battle narrative, turn tracking, and Actor management
     /// Extracted from CombatManager.cs to improve maintainability and separation of concerns
     /// </summary>
     public class CombatStateManager
@@ -23,10 +23,10 @@ namespace RPGGame
         public void StartBattleNarrative(string playerName, string enemyName, string locationName, int playerHealth, int enemyHealth)
         {
             currentBattleNarrative = new BattleNarrative(playerName, enemyName, locationName, playerHealth, enemyHealth);
-            UIManager.ResetForNewBattle(); // Reset entity tracking for new battle
+            UIManager.ResetForNewBattle(); // Reset Actor tracking for new battle
             TextDisplayIntegration.ResetForNewBattle(); // Reset new text display system
             turnManager.InitializeBattle();
-            // Entity tracking is now handled by BlockDisplayManager
+            // Actor tracking is now handled by BlockDisplayManager
         }
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace RPGGame
             
             
             // Initialize health tracker for battle participants
-            var participants = new List<Entity> { player, enemy };
+            var participants = new List<Actor> { player, enemy };
             if (environment != null && environment.IsHostile)
             {
                 participants.Add(environment);
@@ -143,9 +143,9 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets the next entity that should act based on action speed
+        /// Gets the next Actor that should act based on action speed
         /// </summary>
-        public Entity? GetNextEntityToAct()
+        public Actor? GetNextEntityToAct()
         {
             var actionSpeedSystem = GetCurrentActionSpeedSystem();
             return actionSpeedSystem?.GetNextEntityToAct();
@@ -184,12 +184,12 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Handles entity change detection and adds blank lines when the acting entity changes
+        /// Handles Actor change detection and adds blank lines when the acting Actor changes
         /// </summary>
-        /// <param name="currentEntity">The entity that is about to act</param>
-        public void HandleEntityChange(Entity currentEntity)
+        /// <param name="currentEntity">The Actor that is about to act</param>
+        public void HandleEntityChange(Actor currentEntity)
         {
-            // Entity tracking and blank lines are now handled by BlockDisplayManager
+            // Actor tracking and blank lines are now handled by BlockDisplayManager
         }
 
         /// <summary>
@@ -201,3 +201,6 @@ namespace RPGGame
         }
     }
 }
+
+
+

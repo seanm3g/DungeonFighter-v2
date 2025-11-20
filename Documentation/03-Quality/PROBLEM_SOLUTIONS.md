@@ -29,6 +29,47 @@ This document contains solutions to common problems encountered during developme
 - Modify `EnableTextDisplayDelays` for pacing
 - Tune `NarrativeBalance` (0.0 = action-by-action, 1.0 = full narrative)
 
+## Null Reference Issues
+
+### Problem: NullReferenceException in Dungeon Selection Renderer
+**Symptoms:**
+- Application crashes with `System.NullReferenceException` in `DungeonSelectionRenderer.RenderDungeonSelection()`
+- Stack trace shows error at line 69
+- Occurs when attempting to render dungeon selection screen
+
+**Root Causes:**
+1. Missing null validation on `dungeons` parameter passed to renderer
+2. No check for null dungeon objects within the list
+3. `SequenceEqual()` method called on potentially null collections
+
+**Solution:**
+1. **Add Parameter Validation**: Validate dungeons list is not null at method entry
+2. **Add Element Validation**: Check each dungeon object before accessing properties
+3. **Throw Appropriate Exceptions**: Use ArgumentNullException for null parameter, InvalidOperationException for null elements
+
+```csharp
+// Validate input - dungeons list must not be null
+if (dungeons == null)
+{
+    throw new ArgumentNullException(nameof(dungeons), "Dungeon list cannot be null");
+}
+
+// Inside loop - validate dungeon object is not null
+if (dungeon == null)
+{
+    throw new InvalidOperationException($"Dungeon at index {i} is null");
+}
+```
+
+**Files Modified:**
+- `Code/UI/Avalonia/Renderers/DungeonSelectionRenderer.cs` (lines 68-98)
+
+**Prevention:**
+- Always validate parameters at method entry, especially collections
+- Add element validation in iteration loops
+- Use defensive programming for UI rendering operations
+- Test with null and invalid inputs
+
 ## Data Generation Issues
 
 ### Problem: Armor generation creating massive numbers (30,130,992)

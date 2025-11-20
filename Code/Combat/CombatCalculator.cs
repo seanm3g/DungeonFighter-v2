@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace RPGGame
 {
@@ -10,13 +10,13 @@ namespace RPGGame
         /// <summary>
         /// Calculates raw damage before armor reduction
         /// </summary>
-        /// <param name="attacker">The entity dealing damage</param>
+        /// <param name="attacker">The Actor dealing damage</param>
         /// <param name="action">The action being performed</param>
         /// <param name="comboAmplifier">Combo amplification multiplier</param>
         /// <param name="damageMultiplier">Additional damage multiplier</param>
         /// <param name="roll">The actual roll result</param>
         /// <returns>Raw damage before armor reduction</returns>
-        public static int CalculateRawDamage(Entity attacker, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int roll = 0)
+        public static int CalculateRawDamage(Actor attacker, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int roll = 0)
         {
             // Get base damage from attacker
             int baseDamage = 0;
@@ -101,8 +101,8 @@ namespace RPGGame
         /// <summary>
         /// Calculates damage dealt by an attacker to a target
         /// </summary>
-        /// <param name="attacker">The entity dealing damage</param>
-        /// <param name="target">The entity receiving damage</param>
+        /// <param name="attacker">The Actor dealing damage</param>
+        /// <param name="target">The Actor receiving damage</param>
         /// <param name="action">The action being performed</param>
         /// <param name="comboAmplifier">Combo amplification multiplier</param>
         /// <param name="damageMultiplier">Additional damage multiplier</param>
@@ -110,7 +110,7 @@ namespace RPGGame
         /// <param name="roll">The actual roll result</param>
         /// <param name="showWeakenedMessage">Whether to show weakened damage message</param>
         /// <returns>The calculated damage amount</returns>
-        public static int CalculateDamage(Entity attacker, Entity target, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, bool showWeakenedMessage = true)
+        public static int CalculateDamage(Actor attacker, Actor target, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, bool showWeakenedMessage = true)
         {
             // Calculate raw damage before armor
             int totalDamage = CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, roll);
@@ -149,12 +149,12 @@ namespace RPGGame
         /// Calculates hit/miss based on roll value only
         /// 1-5: Miss, 6-13: Regular attack, 14-19: Combo, 20: Combo + Critical
         /// </summary>
-        /// <param name="attacker">The attacking entity</param>
-        /// <param name="target">The target entity</param>
+        /// <param name="attacker">The attacking Actor</param>
+        /// <param name="target">The target Actor</param>
         /// <param name="rollBonus">Roll bonus for the attack</param>
         /// <param name="roll">The attack roll result</param>
         /// <returns>True if the attack hits, false if it misses</returns>
-        public static bool CalculateHit(Entity attacker, Entity target, int rollBonus, int roll)
+        public static bool CalculateHit(Actor attacker, Actor target, int rollBonus, int roll)
         {
             // Hit/miss is based on roll value only, not target defense
             // 1-5: Miss, 6-20: Hit
@@ -164,12 +164,12 @@ namespace RPGGame
         /// <summary>
         /// Calculates total roll bonus for an attack
         /// </summary>
-        /// <param name="attacker">The attacking entity</param>
+        /// <param name="attacker">The attacking Actor</param>
         /// <param name="action">The action being performed</param>
         /// <param name="comboActions">Current combo actions for scaling</param>
         /// <param name="comboStep">Current combo step</param>
         /// <returns>Total roll bonus</returns>
-        public static int CalculateRollBonus(Entity attacker, Action? action, List<Action> comboActions, int comboStep)
+        public static int CalculateRollBonus(Actor attacker, Action? action, List<Action> comboActions, int comboStep)
         {
             int totalBonus = 0;
             
@@ -220,10 +220,10 @@ namespace RPGGame
         /// <summary>
         /// Calculates critical hit chance and damage
         /// </summary>
-        /// <param name="attacker">The attacking entity</param>
+        /// <param name="attacker">The attacking Actor</param>
         /// <param name="roll">The attack roll</param>
         /// <returns>True if critical hit, false otherwise</returns>
-        public static bool IsCriticalHit(Entity attacker, int roll)
+        public static bool IsCriticalHit(Actor attacker, int roll)
         {
             // Natural 20 or higher is always a critical hit - FIXED: Allow 20+
             if (roll >= 20)
@@ -253,10 +253,10 @@ namespace RPGGame
         /// <summary>
         /// Calculates damage reduction from armor and other sources
         /// </summary>
-        /// <param name="target">The target entity</param>
+        /// <param name="target">The target Actor</param>
         /// <param name="damage">The incoming damage</param>
         /// <returns>The damage after reduction</returns>
-        public static int ApplyDamageReduction(Entity target, int damage)
+        public static int ApplyDamageReduction(Actor target, int damage)
         {
             // Get base armor reduction
             int armorReduction = 0;
@@ -287,10 +287,10 @@ namespace RPGGame
         /// Calculates status effect application chance
         /// </summary>
         /// <param name="action">The action being performed</param>
-        /// <param name="attacker">The attacking entity</param>
-        /// <param name="target">The target entity</param>
+        /// <param name="attacker">The attacking Actor</param>
+        /// <param name="target">The target Actor</param>
         /// <returns>True if status effect should be applied</returns>
-        public static bool CalculateStatusEffectChance(Action action, Entity attacker, Entity target)
+        public static bool CalculateStatusEffectChance(Action action, Actor attacker, Actor target)
         {
             // Check if action can cause any status effect
             if (!action.CausesBleed && !action.CausesWeaken && !action.CausesSlow && 
@@ -311,29 +311,29 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Calculates attack speed for any entity (shared logic)
+        /// Calculates attack speed for any Actor (shared logic)
         /// </summary>
-        /// <param name="entity">The entity to calculate attack speed for</param>
+        /// <param name="Actor">The Actor to calculate attack speed for</param>
         /// <returns>Attack speed in seconds</returns>
-        public static double CalculateAttackSpeed(Entity entity)
+        public static double CalculateAttackSpeed(Actor Actor)
         {
             var tuning = GameConfiguration.Instance;
             double baseAttackTime = tuning.Combat.BaseAttackTime;
             
             // Agility reduces attack time (makes you faster)
             double agilityReduction = 0;
-            if (entity is Character character)
+            if (Actor is Character character)
             {
                 agilityReduction = character.Agility * tuning.Combat.AgilitySpeedReduction;
             }
-            else if (entity is Enemy enemy)
+            else if (Actor is Enemy enemy)
             {
                 agilityReduction = enemy.Agility * tuning.Combat.AgilitySpeedReduction;
             }
             double agilityAdjustedTime = baseAttackTime - agilityReduction;
             
-            // Apply entity-specific modifiers
-            if (entity is Character charEntity)
+            // Apply Actor-specific modifiers
+            if (Actor is Character charEntity)
             {
                 // Calculate weapon speed using the equation: (base attack speed + weapon) × action speed
                 double weaponSpeedModifier = 0.0;
@@ -374,7 +374,7 @@ namespace RPGGame
                 
                 return finalResult;
             }
-            else if (entity is Enemy enemyEntity)
+            else if (Actor is Enemy enemyEntity)
             {
                 // Apply weapon speed modifier (same as characters)
                 double weaponSpeedModifier = 0.0;
@@ -397,9 +397,11 @@ namespace RPGGame
                 return Math.Max(tuning.Combat.MinimumAttackTime, finalAttackTime);
             }
             
-            // Fallback for other entity types
+            // Fallback for other Actor types
             return Math.Max(tuning.Combat.MinimumAttackTime, agilityAdjustedTime);
         }
 
     }
 }
+
+

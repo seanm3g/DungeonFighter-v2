@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 
 namespace RPGGame
 {
     /// <summary>
     /// Manages status effects for entities (stun, weaken, etc.)
-    /// Extracted from Entity.cs to improve maintainability and organization
+    /// Extracted from Actor.cs to improve maintainability and organization
     /// </summary>
     public class StatusEffectManager
     {
@@ -18,7 +18,7 @@ namespace RPGGame
         public double WeakenMultiplier { get; set; } = 0.5; // Damage reduction when weakened (50% outgoing damage)
 
         /// <summary>
-        /// Applies stun effect to the entity
+        /// Applies stun effect to the Actor
         /// </summary>
         /// <param name="turns">Number of turns to be stunned</param>
         public void ApplyStun(int turns)
@@ -28,7 +28,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Applies weaken debuff to the entity
+        /// Applies weaken debuff to the Actor
         /// </summary>
         /// <param name="turns">Number of turns to be weakened</param>
         public void ApplyWeaken(int turns)
@@ -77,9 +77,9 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Checks if the entity can act (not stunned)
+        /// Checks if the Actor can act (not stunned)
         /// </summary>
-        /// <returns>True if the entity can act, false if stunned</returns>
+        /// <returns>True if the Actor can act, false if stunned</returns>
         public bool CanAct()
         {
             return !IsStunned;
@@ -95,3 +95,5 @@ namespace RPGGame
         }
     }
 }
+
+

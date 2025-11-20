@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,7 +15,7 @@ namespace RPGGame
         /// </summary>
         /// <param name="source">The entity to get combo actions for</param>
         /// <returns>List of combo actions</returns>
-        public static List<Action> GetComboActions(Entity source)
+        public static List<Action> GetComboActions(Actor source)
         {
             if (source is Character character)
             {
@@ -33,7 +33,7 @@ namespace RPGGame
         /// </summary>
         /// <param name="source">The entity to get combo step for</param>
         /// <returns>Current combo step</returns>
-        public static int GetComboStep(Entity source)
+        public static int GetComboStep(Actor source)
         {
             if (source is Character character)
             {
@@ -51,7 +51,7 @@ namespace RPGGame
         /// <param name="source">The entity performing the action</param>
         /// <param name="action">The action being performed (optional)</param>
         /// <returns>Roll bonus value</returns>
-        public static int CalculateRollBonus(Entity source, Action? action = null)
+        public static int CalculateRollBonus(Actor source, Action? action = null)
         {
             return CombatCalculator.CalculateRollBonus(source, action, GetComboActions(source), GetComboStep(source));
         }
@@ -62,7 +62,7 @@ namespace RPGGame
         /// <param name="source">The entity performing the action</param>
         /// <param name="action">The action being performed</param>
         /// <returns>Damage multiplier value</returns>
-        public static double CalculateDamageMultiplier(Entity source, Action action)
+        public static double CalculateDamageMultiplier(Actor source, Action action)
         {
             if (source is Character character)
             {
@@ -89,7 +89,7 @@ namespace RPGGame
         /// <param name="source">The entity performing the healing</param>
         /// <param name="action">The healing action</param>
         /// <returns>Healing amount</returns>
-        public static int CalculateHealAmount(Entity source, Action action)
+        public static int CalculateHealAmount(Actor source, Action action)
         {
             // Base healing from action properties
             int baseHeal = action.HealAmount;
@@ -113,7 +113,7 @@ namespace RPGGame
         /// </summary>
         /// <param name="target">The entity receiving damage</param>
         /// <param name="damage">The amount of damage to apply</param>
-        public static void ApplyDamage(Entity target, int damage)
+        public static void ApplyDamage(Actor target, int damage)
         {
             if (target is Character targetCharacter)
             {
@@ -130,7 +130,7 @@ namespace RPGGame
         /// </summary>
         /// <param name="target">The entity receiving healing</param>
         /// <param name="amount">The amount of healing to apply</param>
-        public static void ApplyHealing(Entity target, int amount)
+        public static void ApplyHealing(Actor target, int amount)
         {
             if (target is Character character)
             {
@@ -148,7 +148,7 @@ namespace RPGGame
         /// </summary>
         /// <param name="entity">The entity to get health for</param>
         /// <returns>Current health value</returns>
-        public static int GetEntityHealth(Entity entity)
+        public static int GetEntityHealth(Actor entity)
         {
             return entity switch
             {
@@ -201,7 +201,7 @@ namespace RPGGame
         /// <param name="healAmount">Healing amount (0 for non-healing actions)</param>
         /// <param name="isCritical">Whether this was a critical hit</param>
         /// <param name="battleNarrative">The battle narrative to add the event to</param>
-        public static void CreateAndAddBattleEvent(Entity source, Entity target, Action action, int damage, int totalRoll, int rollBonus, bool isSuccess, bool isCombo, int comboStep, int healAmount, bool isCritical, BattleNarrative? battleNarrative)
+        public static void CreateAndAddBattleEvent(Actor source, Actor target, Action action, int damage, int totalRoll, int rollBonus, bool isSuccess, bool isCombo, int comboStep, int healAmount, bool isCritical, BattleNarrative? battleNarrative)
         {
             try
             {
@@ -245,3 +245,4 @@ namespace RPGGame
         }
     }
 }
+

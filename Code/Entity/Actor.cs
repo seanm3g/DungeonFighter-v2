@@ -1,6 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace RPGGame
 {
-    public abstract class Entity
+    public abstract class Actor
     {
         public List<(Action action, double probability)> ActionPool { get; private set; }
         public string Name { get; set; }
@@ -35,10 +39,10 @@ namespace RPGGame
         public bool HasCriticalMissPenalty { get; set; } = false;
         public int CriticalMissPenaltyTurns { get; set; } = 0;
 
-        protected Entity(string name)
+        protected Actor(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Entity name cannot be null or empty", nameof(name));
+                throw new ArgumentException("Actor name cannot be null or empty", nameof(name));
 
             Name = name;
             ActionPool = new List<(Action, double)>();
@@ -50,17 +54,17 @@ namespace RPGGame
                 throw new ArgumentException("Probability must be between 0 and 1", nameof(probability));
 
             // Remove any existing action with the same name
-            ActionPool.RemoveAll(a => a.action.Name == action.Name);
+            ActionPool.RemoveAll(item => item.action.Name == action.Name);
             ActionPool.Add((action, probability));
         }
 
         public virtual void RemoveAction(Action action)
         {
-            ActionPool.RemoveAll(a => a.action.Name == action.Name && a.action.ComboOrder == action.ComboOrder);
+            ActionPool.RemoveAll(item => item.action.Name == action.Name && item.action.ComboOrder == action.ComboOrder);
         }
         
         /// <summary>
-        /// Applies a roll penalty to the entity
+        /// Applies a roll penalty to the actor
         /// </summary>
         /// <param name="penalty">Amount to reduce rolls by</param>
         /// <param name="turns">Number of turns the penalty lasts</param>
@@ -75,15 +79,15 @@ namespace RPGGame
             if (ActionPool.Count == 0)
                 return null;
 
-            // Check if entity is stunned (now works for all entities since stun properties are in base class)
+            // Check if actor is stunned (now works for all actors since stun properties are in base class)
             if (IsStunned)
                 return null;
 
-            double totalProbability = ActionPool.Sum(a => a.probability);
+            double totalProbability = ActionPool.Sum(item => item.probability);
             double randomValue = new Random().NextDouble() * totalProbability;
             double cumulativeProbability = 0;
 
-            foreach (var (action, probability) in ActionPool)
+            foreach ((Action action, double probability) in ActionPool)
             {
                 cumulativeProbability += probability;
                 if (randomValue <= cumulativeProbability)
@@ -211,7 +215,7 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Applies poison damage to the entity
+        /// Applies poison damage to the actor
         /// </summary>
         /// <param name="damage">Base damage per stack</param>
         /// <param name="stacks">Number of stacks to apply</param>
@@ -228,7 +232,7 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Applies burn damage to the entity
+        /// Applies burn damage to the actor
         /// </summary>
         /// <param name="damage">Base damage per stack</param>
         /// <param name="stacks">Number of stacks to apply</param>
@@ -243,7 +247,7 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Applies weaken debuff to the entity
+        /// Applies weaken debuff to the actor
         /// </summary>
         /// <param name="turns">Number of turns to be weakened</param>
         public virtual void ApplyWeaken(int turns)
@@ -253,7 +257,7 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Clears all temporary effects from the entity
+        /// Clears all temporary effects from the actor
         /// </summary>
         public virtual void ClearAllTempEffects()
         {
@@ -292,3 +296,4 @@ namespace RPGGame
         }
     }
 }
+

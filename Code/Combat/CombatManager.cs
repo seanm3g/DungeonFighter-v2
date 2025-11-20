@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 
 namespace RPGGame
 {
@@ -72,7 +72,7 @@ namespace RPGGame
         /// <summary>
         /// Gets the next entity that should act based on action speed
         /// </summary>
-        public Entity? GetNextEntityToAct()
+        public Actor? GetNextEntityToAct()
         {
             return stateManager.GetNextEntityToAct();
         }
@@ -128,7 +128,7 @@ namespace RPGGame
             while (player.IsAlive && currentEnemy.IsAlive)
             {
                 // Get the next entity that should act based on action speed
-                Entity? nextEntity = GetNextEntityToAct();
+                Actor? nextEntity = GetNextEntityToAct();
                 
                 if (nextEntity == null)
                 {
@@ -222,3 +222,4 @@ namespace RPGGame
         }
     }
 }
+

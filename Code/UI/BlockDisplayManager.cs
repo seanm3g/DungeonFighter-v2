@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -109,7 +109,7 @@ namespace RPGGame
         
         /// <summary>
         /// Displays an ACTION BLOCK with consistent formatting
-        /// Format: [Entity] action [Target] for X damage
+        /// Format: [Actor] action [Target] for X damage
         ///         (roll: X | attack Y - Z armor | speed: X.Xs)
         ///         [Status effects if any]
         /// </summary>
@@ -123,11 +123,11 @@ namespace RPGGame
             // Manage spacing between block types
             ManageBlockSpacing("ActionBlock");
             
-            // Extract entity name from action text (format: [EntityName] ...)
+            // Extract Actor name from action text (format: [EntityName] ...)
             string? currentEntity = ExtractEntityNameFromMessage(actionText);
             
-            // Note: Entity switching spacing is now handled by centralized spacing rules
-            // We only track the entity for potential future use, but don't add manual spacing
+            // Note: Actor switching spacing is now handled by centralized spacing rules
+            // We only track the Actor for potential future use, but don't add manual spacing
             
             // Display the action with keyword coloring
             UIManager.WriteLine(ApplyKeywordColoring(actionText), UIMessageType.Combat);
@@ -142,7 +142,7 @@ namespace RPGGame
                 UIManager.WriteLine($"    {ApplyKeywordColoring(effect)}", UIMessageType.EffectMessage);
             }
             
-            // Update the last acting entity
+            // Update the last acting Actor
             if (currentEntity != null)
             {
                 lastActingEntity = currentEntity;
@@ -155,7 +155,7 @@ namespace RPGGame
         
         /// <summary>
         /// Displays an EFFECT BLOCK for status effects like stun
-        /// Format: [Entity] is stunned and cannot act!
+        /// Format: [Actor] is stunned and cannot act!
         ///         (X turns remaining)
         /// </summary>
         /// <param name="effectText">The main effect text</param>
@@ -299,7 +299,7 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Resets entity tracking for a new battle
+        /// Resets Actor tracking for a new battle
         /// </summary>
         public static void ResetForNewBattle()
         {
@@ -344,10 +344,10 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Extracts entity name from a message in the format [EntityName] ...
+        /// Extracts Actor name from a message in the format [EntityName] ...
         /// </summary>
-        /// <param name="message">Message to extract entity name from</param>
-        /// <returns>Entity name if found, null otherwise</returns>
+        /// <param name="message">Message to extract Actor name from</param>
+        /// <returns>Actor name if found, null otherwise</returns>
         private static string? ExtractEntityNameFromMessage(string message)
         {
             if (string.IsNullOrEmpty(message)) return null;
@@ -362,3 +362,6 @@ namespace RPGGame
         }
     }
 }
+
+
+

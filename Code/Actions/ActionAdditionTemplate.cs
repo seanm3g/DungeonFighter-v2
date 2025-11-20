@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace RPGGame
@@ -9,24 +9,24 @@ namespace RPGGame
     public static class ActionAdditionTemplate
     {
         /// <summary>
-        /// Adds a class action to an entity if the required points are met
+        /// Adds a class action to an Actor if the required points are met
         /// </summary>
-        /// <param name="entity">The entity to add the action to</param>
+        /// <param name="Actor">The Actor to add the action to</param>
         /// <param name="actionName">Name of the action to add</param>
         /// <param name="weight">Weight/chance of the action</param>
         /// <param name="requiredPoints">Required class points</param>
         /// <param name="currentPoints">Current class points</param>
         /// <param name="className">Name of the class (for logging)</param>
         /// <returns>True if action was added, false otherwise</returns>
-        public static bool AddClassAction(Entity entity, string actionName, double weight, int requiredPoints, int currentPoints, string className)
+        public static bool AddClassAction(Actor Actor, string actionName, double weight, int requiredPoints, int currentPoints, string className)
         {
             if (currentPoints >= requiredPoints)
             {
                 var action = ActionLoader.GetAction(actionName);
                 if (action != null)
                 {
-                    entity.AddAction(action, weight);
-                    DebugLogger.Log("ClassActionManager", $"Added {actionName} to {entity.Name} ({className} Points: {currentPoints})");
+                    Actor.AddAction(action, weight);
+                    DebugLogger.Log("ClassActionManager", $"Added {actionName} to {Actor.Name} ({className} Points: {currentPoints})");
                     return true;
                 }
             }
@@ -36,18 +36,18 @@ namespace RPGGame
         /// <summary>
         /// Adds multiple class actions based on a configuration list
         /// </summary>
-        /// <param name="entity">The entity to add actions to</param>
+        /// <param name="Actor">The Actor to add actions to</param>
         /// <param name="actionConfigs">List of action configurations</param>
         /// <param name="currentPoints">Current class points</param>
         /// <param name="className">Name of the class (for logging)</param>
         /// <returns>Number of actions added</returns>
-        public static int AddClassActions(Entity entity, List<ClassActionConfig> actionConfigs, int currentPoints, string className)
+        public static int AddClassActions(Actor Actor, List<ClassActionConfig> actionConfigs, int currentPoints, string className)
         {
             int actionsAdded = 0;
             
             foreach (var config in actionConfigs)
             {
-                if (AddClassAction(entity, config.ActionName, config.Weight, config.RequiredPoints, currentPoints, className))
+                if (AddClassAction(Actor, config.ActionName, config.Weight, config.RequiredPoints, currentPoints, className))
                 {
                     actionsAdded++;
                 }
@@ -103,3 +103,5 @@ namespace RPGGame
         }
     }
 }
+
+

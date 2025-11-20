@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -12,7 +12,7 @@ namespace RPGGame
         SpeedMultiplier   // e.g., +25% attack speed
     }
 
-    public class Environment : Entity
+    public class Environment : Actor
     {
         public string Description { get; private set; }
         public bool IsHostile { get; private set; }
@@ -724,7 +724,7 @@ namespace RPGGame
                 ["Mountain"] = new[] { "Mountain Giant", "Eagle Spirit", "Rock Elemental", "Summit Guardian", "Peak Beast", "Altitude Wraith" },
                 ["Temporal"] = new[] { "Time Wraith", "Chronos Beast", "Echo Spirit", "Paradox Guardian", "Temporal Mage", "Time Elemental" },
                 ["Dream"] = new[] { "Dream Walker", "Sleep Spirit", "Lucid Beast", "Nightmare Lord", "Dream Guardian", "Sleep Paralysis Demon" },
-                ["Void"] = new[] { "Void Beast", "Null Entity", "Void Walker", "Empty Spirit", "Void Guardian", "Null Wraith" },
+                ["Void"] = new[] { "Void Beast", "Null Actor", "Void Walker", "Empty Spirit", "Void Guardian", "Null Wraith" },
                 ["Dimensional"] = new[] { "Dimension Walker", "Portal Guardian", "Reality Beast", "Multiverse Spirit", "Plane Walker", "Dimension Mage" },
                 ["Divine"] = new[] { "Divine Guardian", "Celestial Being", "Angel Warrior", "Heavenly Spirit", "Divine Beast", "Sacred Guardian" }
             };
@@ -758,3 +758,5 @@ namespace RPGGame
     }
 
 } 
+
+

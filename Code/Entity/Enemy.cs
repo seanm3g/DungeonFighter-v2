@@ -1,4 +1,4 @@
-namespace RPGGame
+﻿namespace RPGGame
 {
     // Enemy data classes moved to EnemyData.cs
 
@@ -286,7 +286,7 @@ namespace RPGGame
         
         public new List<string> TakeDamageWithNotifications(int amount)
         {
-            // Apply damage reduction if active (now inherited from Entity base class)
+            // Apply damage reduction if active (now inherited from Actor base class)
             if (DamageReduction > 0)
             {
                 amount = (int)(amount * (1.0 - DamageReduction));

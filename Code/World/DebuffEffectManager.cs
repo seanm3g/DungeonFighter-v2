@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 
 namespace RPGGame
 {
     /// <summary>
     /// Manages debuff effects for entities (roll penalties, damage reduction, critical miss penalties)
-    /// Extracted from Entity.cs to improve maintainability and organization
+    /// Extracted from Actor.cs to improve maintainability and organization
     /// </summary>
     public class DebuffEffectManager
     {
@@ -20,7 +20,7 @@ namespace RPGGame
         public int CriticalMissPenaltyTurns { get; set; } = 0;
 
         /// <summary>
-        /// Applies a roll penalty to the entity
+        /// Applies a roll penalty to the Actor
         /// </summary>
         /// <param name="penalty">Amount to reduce rolls by</param>
         /// <param name="turns">Number of turns the penalty lasts</param>
@@ -31,7 +31,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Applies damage reduction to the entity
+        /// Applies damage reduction to the Actor
         /// </summary>
         /// <param name="reduction">Amount of damage reduction (0.0 = no reduction, 1.0 = complete immunity)</param>
         public void ApplyDamageReduction(double reduction)
@@ -40,7 +40,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Applies critical miss penalty to the entity
+        /// Applies critical miss penalty to the Actor
         /// </summary>
         /// <param name="turns">Number of turns the penalty lasts</param>
         public void ApplyCriticalMissPenalty(int turns)
@@ -119,12 +119,14 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Checks if the entity has any active debuff effects
+        /// Checks if the Actor has any active debuff effects
         /// </summary>
-        /// <returns>True if the entity has active debuff effects</returns>
+        /// <returns>True if the Actor has active debuff effects</returns>
         public bool HasActiveEffects()
         {
             return RollPenaltyTurns > 0 || DamageReduction > 0 || CriticalMissPenaltyTurns > 0;
         }
     }
 }
+
+

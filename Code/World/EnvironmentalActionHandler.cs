@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,13 +12,13 @@ namespace RPGGame
         /// <summary>
         /// Executes an area of effect action
         /// </summary>
-        /// <param name="source">The entity performing the action</param>
+        /// <param name="source">The Actor performing the action</param>
         /// <param name="targets">List of target entities</param>
         /// <param name="environment">The environment affecting the action</param>
         /// <param name="selectedAction">The action to perform (optional)</param>
         /// <param name="battleNarrative">The battle narrative to add events to</param>
         /// <returns>A string describing the results</returns>
-        public static string ExecuteAreaOfEffectAction(Entity source, List<Entity> targets, Environment? environment = null, Action? selectedAction = null, BattleNarrative? battleNarrative = null)
+        public static string ExecuteAreaOfEffectAction(Actor source, List<Actor> targets, Environment? environment = null, Action? selectedAction = null, BattleNarrative? battleNarrative = null)
         {
             var results = new List<string>();
             
@@ -65,10 +65,10 @@ namespace RPGGame
         /// <param name="action">The action to perform</param>
         /// <param name="environment">The environment context</param>
         /// <returns>A string describing the results</returns>
-        private static string ExecuteEnvironmentalAction(Entity source, List<Entity> targets, Action action, Environment? environment = null)
+        private static string ExecuteEnvironmentalAction(Actor source, List<Actor> targets, Action action, Environment? environment = null)
         {
             // Get list of alive targets
-            var aliveTargets = new List<Entity>();
+            var aliveTargets = new List<Actor>();
             foreach (var target in targets)
             {
                 bool isAlive = false;
@@ -90,7 +90,7 @@ namespace RPGGame
             }
             
             // Roll separately for each target and track which ones are affected
-            var affectedTargets = new List<(Entity target, int duration)>();
+            var affectedTargets = new List<(Actor target, int duration)>();
             
             foreach (var target in aliveTargets)
             {
@@ -142,10 +142,10 @@ namespace RPGGame
         /// Applies environmental effects to a target without adding messages to results list
         /// </summary>
         /// <param name="source">The environment source</param>
-        /// <param name="target">The target entity</param>
+        /// <param name="target">The target Actor</param>
         /// <param name="action">The action being applied</param>
         /// <param name="duration">Duration of the effect</param>
-        private static void ApplyEnvironmentalEffectSilent(Entity source, Entity target, Action action, int duration)
+        private static void ApplyEnvironmentalEffectSilent(Actor source, Actor target, Action action, int duration)
         {
             // Apply effects based on action type and properties
             if (action.CausesBleed)
@@ -193,11 +193,11 @@ namespace RPGGame
         /// Formats a single environmental effect message
         /// </summary>
         /// <param name="source">The environment source</param>
-        /// <param name="target">The target entity</param>
+        /// <param name="target">The target Actor</param>
         /// <param name="action">The action being applied</param>
         /// <param name="duration">Duration of the effect</param>
         /// <returns>Formatted message</returns>
-        private static string FormatEnvironmentalEffectMessage(Entity source, Entity target, Action action, int duration)
+        private static string FormatEnvironmentalEffectMessage(Actor source, Actor target, Action action, int duration)
         {
             string displayName = GetDisplayName(target);
             string coloredSourceName = $"{{{{natural|{source.Name}}}}}";
@@ -241,7 +241,7 @@ namespace RPGGame
         /// </summary>
         /// <param name="targets">List of target entities</param>
         /// <returns>Comma-separated list of unique target names</returns>
-        private static string GetUniqueTargetNames(List<Entity> targets)
+        private static string GetUniqueTargetNames(List<Actor> targets)
         {
             var uniqueNames = new HashSet<string>();
             
@@ -255,13 +255,13 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets the display name for an entity in environmental messages
+        /// Gets the display name for an Actor in environmental messages
         /// </summary>
-        /// <param name="entity">The entity to get display name for</param>
-        /// <returns>Display name with entity's actual name</returns>
-        private static string GetDisplayName(Entity entity)
+        /// <param name="Actor">The Actor to get display name for</param>
+        /// <returns>Display name with Actor's actual name</returns>
+        private static string GetDisplayName(Actor Actor)
         {
-            return entity.Name;
+            return Actor.Name;
         }
 
         /// <summary>
@@ -302,7 +302,7 @@ namespace RPGGame
         /// <summary>
         /// Calculates damage multiplier for environmental actions
         /// </summary>
-        private static double CalculateDamageMultiplier(Entity source, Action action)
+        private static double CalculateDamageMultiplier(Actor source, Action action)
         {
             if (source is Character character)
             {
@@ -324,9 +324,9 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Applies damage to target entity
+        /// Applies damage to target Actor
         /// </summary>
-        private static void ApplyDamage(Entity target, int damage)
+        private static void ApplyDamage(Actor target, int damage)
         {
             if (target is Character targetCharacter)
             {
@@ -339,3 +339,6 @@ namespace RPGGame
         }
     }
 }
+
+
+

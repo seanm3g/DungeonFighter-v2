@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 
 namespace RPGGame
 {
     /// <summary>
     /// Manages damage-over-time effects for entities (poison, burn, bleed)
-    /// Extracted from Entity.cs to improve maintainability and organization
+    /// Extracted from Actor.cs to improve maintainability and organization
     /// </summary>
     public class DamageEffectManager
     {
@@ -18,7 +18,7 @@ namespace RPGGame
         public double LastBurnTick { get; set; } = 0.0;
 
         /// <summary>
-        /// Applies poison damage to the entity
+        /// Applies poison damage to the Actor
         /// </summary>
         /// <param name="damage">Base damage per stack</param>
         /// <param name="stacks">Number of stacks to apply</param>
@@ -35,7 +35,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Applies burn damage to the entity
+        /// Applies burn damage to the Actor
         /// </summary>
         /// <param name="damage">Base damage per stack</param>
         /// <param name="stacks">Number of stacks to apply</param>
@@ -133,9 +133,9 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Checks if the entity has any active damage-over-time effects
+        /// Checks if the Actor has any active damage-over-time effects
         /// </summary>
-        /// <returns>True if the entity has active DoT effects</returns>
+        /// <returns>True if the Actor has active DoT effects</returns>
         public bool HasActiveEffects()
         {
             return PoisonStacks > 0 || BurnStacks > 0;
@@ -151,3 +151,5 @@ namespace RPGGame
         }
     }
 }
+
+

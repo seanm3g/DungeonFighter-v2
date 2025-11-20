@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace RPGGame
@@ -106,7 +106,7 @@ namespace RPGGame
             // Update base class effects directly (avoid circular call)
             _character.Stats.UpdateTempEffects(actionLength);
             _character.Effects.UpdateTempEffects(actionLength);
-            // Update base Entity effects (stun, weaken, roll penalty, poison, burn, damage reduction)
+            // Update base Actor effects (stun, weaken, roll penalty, poison, burn, damage reduction)
             double turnsPassed = actionLength / 1.0; // Using 1.0 as default action length
             
             // Update stun effects
@@ -175,7 +175,7 @@ namespace RPGGame
             _character.Stats.TempTechniqueBonus = 0;
             _character.Stats.TempIntelligenceBonus = 0;
             _character.Stats.TempStatBonusTurns = 0;
-            // Clear base Entity effects (poison, burn, stun, weaken, etc.)
+            // Clear base Actor effects (poison, burn, stun, weaken, etc.)
             _character.PoisonDamage = 0;
             _character.PoisonStacks = 0;
             _character.IsBleeding = false;
@@ -257,3 +257,5 @@ namespace RPGGame
         public Character Character => _character;
     }
 }
+
+

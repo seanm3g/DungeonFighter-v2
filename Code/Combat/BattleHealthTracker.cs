@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,22 +9,22 @@ namespace RPGGame
     /// </summary>
     public class BattleHealthTracker
     {
-        private Dictionary<Entity, HealthMilestone> entityMilestones;
-        private Entity? currentLeader;
-        private List<Entity> battleParticipants;
+        private Dictionary<Actor, HealthMilestone> entityMilestones;
+        private Actor? currentLeader;
+        private List<Actor> battleParticipants;
         private List<string> pendingNotifications;
         
         public BattleHealthTracker()
         {
-            entityMilestones = new Dictionary<Entity, HealthMilestone>();
-            battleParticipants = new List<Entity>();
+            entityMilestones = new Dictionary<Actor, HealthMilestone>();
+            battleParticipants = new List<Actor>();
             pendingNotifications = new List<string>();
         }
         
         /// <summary>
         /// Initialize tracking for a new battle
         /// </summary>
-        public void InitializeBattle(List<Entity> participants)
+        public void InitializeBattle(List<Actor> participants)
         {
             entityMilestones.Clear();
             battleParticipants.Clear();
@@ -33,9 +33,9 @@ namespace RPGGame
             currentLeader = null;
             
             // Initialize milestones for all participants
-            foreach (var entity in participants)
+            foreach (var Actor in participants)
             {
-                entityMilestones[entity] = new HealthMilestone();
+                entityMilestones[Actor] = new HealthMilestone();
             }
             
             // Set initial leader
@@ -45,21 +45,21 @@ namespace RPGGame
         /// <summary>
         /// Check for health milestones and leadership changes after damage is dealt
         /// </summary>
-        public List<string> CheckHealthMilestones(Entity entity, int damageDealt)
+        public List<string> CheckHealthMilestones(Actor Actor, int damageDealt)
         {
             var notifications = new List<string>();
             
-            if (!entityMilestones.ContainsKey(entity))
+            if (!entityMilestones.ContainsKey(Actor))
                 return notifications;
                 
-            var milestone = entityMilestones[entity];
+            var milestone = entityMilestones[Actor];
             double healthPercentage = 0;
             
-            if (entity is Character character)
+            if (Actor is Character character)
             {
                 healthPercentage = (double)character.CurrentHealth / character.MaxHealth * 100;
             }
-            else if (entity is Enemy enemy)
+            else if (Actor is Enemy enemy)
             {
                 healthPercentage = (double)enemy.CurrentHealth / enemy.MaxHealth * 100;
             }
@@ -68,7 +68,7 @@ namespace RPGGame
             if (healthPercentage <= 50 && !milestone.Reached50Percent)
             {
                 milestone.Reached50Percent = true;
-                var message = GetHealthMilestoneMessage(entity, 50);
+                var message = GetHealthMilestoneMessage(Actor, 50);
                 notifications.Add(message);
                 pendingNotifications.Add(message);
             }
@@ -76,7 +76,7 @@ namespace RPGGame
             if (healthPercentage <= 20 && !milestone.Reached20Percent)
             {
                 milestone.Reached20Percent = true;
-                var message = GetHealthMilestoneMessage(entity, 20);
+                var message = GetHealthMilestoneMessage(Actor, 20);
                 notifications.Add(message);
                 pendingNotifications.Add(message);
             }
@@ -84,7 +84,7 @@ namespace RPGGame
             if (healthPercentage <= 5 && !milestone.Reached5Percent)
             {
                 milestone.Reached5Percent = true;
-                var message = GetHealthMilestoneMessage(entity, 5);
+                var message = GetHealthMilestoneMessage(Actor, 5);
                 notifications.Add(message);
                 pendingNotifications.Add(message);
             }
@@ -116,9 +116,9 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Get the current leader (entity with most health)
+        /// Get the current leader (Actor with most health)
         /// </summary>
-        private Entity? GetCurrentLeader()
+        private Actor? GetCurrentLeader()
         {
             return battleParticipants
                 .Where(e => IsEntityAlive(e))
@@ -127,15 +127,15 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Get health value for an entity
+        /// Get health value for an Actor
         /// </summary>
-        private int GetEntityHealth(Entity entity)
+        private int GetEntityHealth(Actor Actor)
         {
-            if (entity is Character character)
+            if (Actor is Character character)
             {
                 return character.CurrentHealth;
             }
-            else if (entity is Enemy enemy)
+            else if (Actor is Enemy enemy)
             {
                 return enemy.CurrentHealth;
             }
@@ -153,33 +153,33 @@ namespace RPGGame
         /// <summary>
         /// Generate health milestone message
         /// </summary>
-        private string GetHealthMilestoneMessage(Entity entity, int percentage)
+        private string GetHealthMilestoneMessage(Actor Actor, int percentage)
         {
             var messages = new Dictionary<int, List<string>>
             {
                 [50] = new List<string>
                 {
-                    $"[{entity.Name}] is showing signs of fatigue!",
-                    $"[{entity.Name}]'s movements are becoming sluggish!",
-                    $"[{entity.Name}] is starting to struggle!",
-                    $"[{entity.Name}] looks wounded but determined!",
-                    $"[{entity.Name}] is bleeding but still fighting!"
+                    $"[{Actor.Name}] is showing signs of fatigue!",
+                    $"[{Actor.Name}]'s movements are becoming sluggish!",
+                    $"[{Actor.Name}] is starting to struggle!",
+                    $"[{Actor.Name}] looks wounded but determined!",
+                    $"[{Actor.Name}] is bleeding but still fighting!"
                 },
                 [20] = new List<string>
                 {
-                    $"[{entity.Name}] is severely wounded!",
-                    $"[{entity.Name}] is on the brink of collapse!",
-                    $"[{entity.Name}]'s life force is fading!",
-                    $"[{entity.Name}] is barely standing!",
-                    $"[{entity.Name}] is critically injured!"
+                    $"[{Actor.Name}] is severely wounded!",
+                    $"[{Actor.Name}] is on the brink of collapse!",
+                    $"[{Actor.Name}]'s life force is fading!",
+                    $"[{Actor.Name}] is barely standing!",
+                    $"[{Actor.Name}] is critically injured!"
                 },
                 [5] = new List<string>
                 {
-                    $"[{entity.Name}] is at death's door!",
-                    $"[{entity.Name}] is moments from defeat!",
-                    $"[{entity.Name}]'s final moments approach!",
-                    $"[{entity.Name}] is on the verge of death!",
-                    $"[{entity.Name}] is fighting for their last breath!"
+                    $"[{Actor.Name}] is at death's door!",
+                    $"[{Actor.Name}] is moments from defeat!",
+                    $"[{Actor.Name}]'s final moments approach!",
+                    $"[{Actor.Name}] is on the verge of death!",
+                    $"[{Actor.Name}] is fighting for their last breath!"
                 }
             };
             
@@ -191,7 +191,7 @@ namespace RPGGame
         /// <summary>
         /// Generate leadership change message
         /// </summary>
-        private string GetLeadershipChangeMessage(Entity oldLeader, Entity newLeader)
+        private string GetLeadershipChangeMessage(Actor oldLeader, Actor newLeader)
         {
             var messages = new List<string>
             {
@@ -208,15 +208,15 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Check if entity is alive
+        /// Check if Actor is alive
         /// </summary>
-        public bool IsEntityAlive(Entity entity)
+        public bool IsEntityAlive(Actor Actor)
         {
-            if (entity is Character character)
+            if (Actor is Character character)
             {
                 return character.IsAlive;
             }
-            else if (entity is Enemy enemy)
+            else if (Actor is Enemy enemy)
             {
                 return enemy.IsAlive;
             }
@@ -226,14 +226,14 @@ namespace RPGGame
         /// <summary>
         /// Get current battle leader
         /// </summary>
-        public Entity? GetCurrentBattleLeader()
+        public Actor? GetCurrentBattleLeader()
         {
             return currentLeader;
         }
     }
     
     /// <summary>
-    /// Tracks health milestones for an entity
+    /// Tracks health milestones for an Actor
     /// </summary>
     public class HealthMilestone
     {
@@ -242,3 +242,6 @@ namespace RPGGame
         public bool Reached5Percent { get; set; } = false;
     }
 }
+
+
+

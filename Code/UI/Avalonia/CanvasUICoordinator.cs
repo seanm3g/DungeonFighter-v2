@@ -244,6 +244,17 @@ namespace RPGGame.UI.Avalonia
 
         public void RenderDungeonSelection(Character player, List<Dungeon> dungeons)
         {
+            // Validate inputs
+            if (player == null)
+            {
+                throw new ArgumentNullException(nameof(player), "Player cannot be null");
+            }
+            
+            if (dungeons == null)
+            {
+                throw new ArgumentNullException(nameof(dungeons), "Dungeons list cannot be null");
+            }
+            
             screenRenderingCoordinator.RenderDungeonSelection(player, dungeons);
         }
 

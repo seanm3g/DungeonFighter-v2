@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace RPGGame
@@ -8,7 +8,7 @@ namespace RPGGame
     /// </summary>
     public interface IEnvironmentalEffectHandler
     {
-        bool Apply(Entity target, Action action, List<string> results);
+        bool Apply(Actor target, Action action, List<string> results);
         string GetEffectType();
     }
 
@@ -36,11 +36,11 @@ namespace RPGGame
         /// Applies an environmental effect using the appropriate handler
         /// </summary>
         /// <param name="debuffType">Type of environmental effect</param>
-        /// <param name="target">Target entity</param>
+        /// <param name="target">Target Actor</param>
         /// <param name="action">Action causing the effect</param>
         /// <param name="results">List to add effect messages to</param>
         /// <returns>True if effect was applied</returns>
-        public bool ApplyEnvironmentalEffect(string debuffType, Entity target, Action action, List<string> results)
+        public bool ApplyEnvironmentalEffect(string debuffType, Actor target, Action action, List<string> results)
         {
             if (_handlers.TryGetValue(debuffType.ToLower(), out var handler))
             {
@@ -55,7 +55,7 @@ namespace RPGGame
     /// </summary>
     public class EnvironmentalPoisonHandler : IEnvironmentalEffectHandler
     {
-        public bool Apply(Entity target, Action action, List<string> results)
+        public bool Apply(Actor target, Action action, List<string> results)
         {
             if (action.CausesPoison)
             {
@@ -74,7 +74,7 @@ namespace RPGGame
     /// </summary>
     public class EnvironmentalSlowHandler : IEnvironmentalEffectHandler
     {
-        public bool Apply(Entity target, Action action, List<string> results)
+        public bool Apply(Actor target, Action action, List<string> results)
         {
             if (action.CausesSlow)
             {
@@ -92,7 +92,7 @@ namespace RPGGame
     /// </summary>
     public class EnvironmentalWeakenHandler : IEnvironmentalEffectHandler
     {
-        public bool Apply(Entity target, Action action, List<string> results)
+        public bool Apply(Actor target, Action action, List<string> results)
         {
             if (action.CausesWeaken)
             {
@@ -111,7 +111,7 @@ namespace RPGGame
     /// </summary>
     public class EnvironmentalStunHandler : IEnvironmentalEffectHandler
     {
-        public bool Apply(Entity target, Action action, List<string> results)
+        public bool Apply(Actor target, Action action, List<string> results)
         {
             if (action.CausesStun)
             {
@@ -131,7 +131,7 @@ namespace RPGGame
     /// </summary>
     public class EnvironmentalBurnHandler : IEnvironmentalEffectHandler
     {
-        public bool Apply(Entity target, Action action, List<string> results)
+        public bool Apply(Actor target, Action action, List<string> results)
         {
             if (action.CausesBurn)
             {
@@ -169,3 +169,5 @@ namespace RPGGame
         }
     }
 }
+
+

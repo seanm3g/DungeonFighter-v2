@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Avalonia.Media;
 
@@ -72,7 +72,7 @@ namespace RPGGame.UI.ColorSystem
         Highlight,
         Disabled,
         
-        // Entity colors (semantic)
+        // Actor colors (semantic)
         Player,
         Enemy,
         NPC,
@@ -156,7 +156,7 @@ namespace RPGGame.UI.ColorSystem
             [ColorPalette.Highlight] = Color.FromRgb(255, 255, 0),
             [ColorPalette.Disabled] = Color.FromRgb(128, 128, 128),
             
-            // Entity colors (semantic)
+            // Actor colors (semantic)
             [ColorPalette.Player] = Colors.Cyan,
             [ColorPalette.Enemy] = Colors.Red,
             [ColorPalette.NPC] = Color.FromRgb(0, 255, 0),
@@ -195,3 +195,5 @@ namespace RPGGame.UI.ColorSystem
         }
     }
 }
+
+

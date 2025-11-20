@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace RPGGame
@@ -52,21 +52,21 @@ namespace RPGGame
         /// <param name="playerAction">The player's chosen action</param>
         /// <param name="enemyAction">The enemy's action</param>
         /// <returns>List of entities in turn order</returns>
-        public List<Entity> DetermineTurnOrder(Character player, Enemy enemy, Action playerAction, Action enemyAction)
+        public List<Actor> DetermineTurnOrder(Character player, Enemy enemy, Action playerAction, Action enemyAction)
         {
             if (actionSpeedSystem == null)
                 throw new InvalidOperationException("TurnManager not initialized. Call InitializeBattle() first.");
 
             // Use ActionSpeedSystem to determine turn order based on action speeds
-            var turnOrder = new List<Entity>();
+            var turnOrder = new List<Actor>();
             
-            // Get the next entity to act from the speed system
+            // Get the next Actor to act from the speed system
             var nextEntity = actionSpeedSystem.GetNextEntityToAct();
             if (nextEntity != null)
             {
                 turnOrder.Add(nextEntity);
                 
-                // Add the other entity
+                // Add the other Actor
                 if (nextEntity == player)
                 {
                     turnOrder.Add(enemy);
@@ -87,29 +87,29 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Executes a turn for an entity
+        /// Executes a turn for an Actor
         /// </summary>
-        /// <param name="entity">The entity taking the turn</param>
-        /// <param name="target">The target entity</param>
+        /// <param name="Actor">The Actor taking the turn</param>
+        /// <param name="target">The target Actor</param>
         /// <param name="action">The action to execute</param>
         /// <param name="environment">The environment affecting the action</param>
         /// <param name="battleNarrative">The battle narrative to add events to</param>
-        /// <returns>True if the entity is still alive after the turn</returns>
-        public bool ExecuteTurn(Entity entity, Entity target, Action action, Environment? environment = null, BattleNarrative? battleNarrative = null)
+        /// <returns>True if the Actor is still alive after the turn</returns>
+        public bool ExecuteTurn(Actor Actor, Actor target, Action action, Environment? environment = null, BattleNarrative? battleNarrative = null)
         {
             if (actionSpeedSystem == null || healthTracker == null)
                 throw new InvalidOperationException("TurnManager not initialized. Call InitializeBattle() first.");
 
             // Execute the action
-            var (result, statusEffects) = CombatResults.ExecuteActionWithUIAndStatusEffects(entity, target, action, environment, lastPlayerAction, battleNarrative);
+            var (result, statusEffects) = CombatResults.ExecuteActionWithUIAndStatusEffects(Actor, target, action, environment, lastPlayerAction, battleNarrative);
             if (!DisableCombatUIOutput)
             {
-                // Use TextDisplayIntegration for consistent entity tracking
-                TextDisplayIntegration.DisplayCombatAction(result, new List<string>(), statusEffects, entity.Name);
+                // Use TextDisplayIntegration for consistent Actor tracking
+                TextDisplayIntegration.DisplayCombatAction(result, new List<string>(), statusEffects, Actor.Name);
             }
 
             // Track last player action for DEJA VU functionality
-            if (entity is Character)
+            if (Actor is Character)
             {
                 lastPlayerAction = action;
             }
@@ -251,7 +251,7 @@ namespace RPGGame
                 if (actualRegen > 0)
                 {
                     player.Heal(actualRegen);
-                    // Use TextDisplayIntegration for consistent entity tracking
+                    // Use TextDisplayIntegration for consistent Actor tracking
                     string regenMessage = $"{player.Name} regenerates {actualRegen} health ({player.CurrentHealth}/{player.GetEffectiveMaxHealth()})";
                     TextDisplayIntegration.DisplayCombatAction(regenMessage, new List<string>(), new List<string>(), player.Name);
                     UIManager.WriteLine(""); // Add blank line after regeneration message
@@ -262,18 +262,18 @@ namespace RPGGame
         /// <summary>
         /// Checks health milestones and adds battle events
         /// </summary>
-        /// <param name="entity">The entity to check</param>
+        /// <param name="Actor">The Actor to check</param>
         /// <param name="damageAmount">The amount of damage taken</param>
-        public void CheckHealthMilestones(Entity entity, int damageAmount)
+        public void CheckHealthMilestones(Actor Actor, int damageAmount)
         {
             if (healthTracker == null)
                 return;
 
-            var events = healthTracker.CheckHealthMilestones(entity, damageAmount);
+            var events = healthTracker.CheckHealthMilestones(Actor, damageAmount);
             foreach (var evt in events)
             {
-                // Use TextDisplayIntegration for consistent entity tracking
-                TextDisplayIntegration.DisplayCombatAction(evt, new List<string>(), new List<string>(), entity.Name);
+                // Use TextDisplayIntegration for consistent Actor tracking
+                TextDisplayIntegration.DisplayCombatAction(evt, new List<string>(), new List<string>(), Actor.Name);
             }
         }
 
@@ -318,7 +318,7 @@ namespace RPGGame
         /// Initializes the health tracker for battle participants
         /// </summary>
         /// <param name="participants">List of entities participating in the battle</param>
-        public void InitializeHealthTracker(List<Entity> participants)
+        public void InitializeHealthTracker(List<Actor> participants)
         {
             if (healthTracker == null)
                 healthTracker = new BattleHealthTracker();
@@ -339,7 +339,7 @@ namespace RPGGame
         /// Records an action and increments the turn counter if needed
         /// Turns represent rounds of combat, not individual actions
         /// </summary>
-        /// <param name="entityName">Name of the entity that performed the action</param>
+        /// <param name="entityName">Name of the Actor that performed the action</param>
         /// <param name="actionName">Name of the action performed</param>
         /// <returns>True if a new turn was reached, false otherwise</returns>
         public bool RecordAction(string entityName, string actionName)
@@ -395,3 +395,6 @@ namespace RPGGame
         }
     }
 }
+
+
+

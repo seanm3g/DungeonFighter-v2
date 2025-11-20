@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,20 +13,20 @@ namespace RPGGame
         // Flag to disable debug output during balance analysis
         public static bool DisableCombatDebugOutput = false; // Temporarily enable debug output
 
-        // Store the last action used by each entity
-        private static readonly Dictionary<Entity, Action> _lastUsedActions = new Dictionary<Entity, Action>();
+        // Store the last action used by each Actor
+        private static readonly Dictionary<Actor, Action> _lastUsedActions = new Dictionary<Actor, Action>();
 
         /// <summary>
         /// Executes a single action with all its effects and returns both main result and status effects
         /// </summary>
-        /// <param name="source">The entity performing the action</param>
-        /// <param name="target">The target entity</param>
+        /// <param name="source">The Actor performing the action</param>
+        /// <param name="target">The target Actor</param>
         /// <param name="environment">The environment affecting the action</param>
         /// <param name="lastPlayerAction">The last player action for DEJA VU functionality</param>
         /// <param name="forcedAction">Forced action for combo system</param>
         /// <param name="battleNarrative">The battle narrative to add events to</param>
         /// <returns>A tuple containing the main result string and list of status effect messages</returns>
-        public static (string mainResult, List<string> statusEffects) ExecuteActionWithStatusEffects(Entity source, Entity target, Environment? environment = null, Action? lastPlayerAction = null, Action? forcedAction = null, BattleNarrative? battleNarrative = null)
+        public static (string mainResult, List<string> statusEffects) ExecuteActionWithStatusEffects(Actor source, Actor target, Environment? environment = null, Action? lastPlayerAction = null, Action? forcedAction = null, BattleNarrative? battleNarrative = null)
         {
             var actionResults = new List<string>();
             string mainResult = ExecuteActionInternal(source, target, environment, lastPlayerAction, forcedAction, battleNarrative, actionResults);
@@ -45,14 +45,14 @@ namespace RPGGame
         /// <summary>
         /// Executes a single action with all its effects
         /// </summary>
-        /// <param name="source">The entity performing the action</param>
-        /// <param name="target">The target entity</param>
+        /// <param name="source">The Actor performing the action</param>
+        /// <param name="target">The target Actor</param>
         /// <param name="environment">The environment affecting the action</param>
         /// <param name="lastPlayerAction">The last player action for DEJA VU functionality</param>
         /// <param name="forcedAction">Forced action for combo system</param>
         /// <param name="battleNarrative">The battle narrative to add events to</param>
         /// <returns>A string describing the result of the action</returns>
-        public static string ExecuteAction(Entity source, Entity target, Environment? environment = null, Action? lastPlayerAction = null, Action? forcedAction = null, BattleNarrative? battleNarrative = null)
+        public static string ExecuteAction(Actor source, Actor target, Environment? environment = null, Action? lastPlayerAction = null, Action? forcedAction = null, BattleNarrative? battleNarrative = null)
         {
             var actionResults = new List<string>();
             return ExecuteActionInternal(source, target, environment, lastPlayerAction, forcedAction, battleNarrative, actionResults);
@@ -61,14 +61,14 @@ namespace RPGGame
         /// <summary>
         /// Internal method that executes an action and populates the results list
         /// </summary>
-        private static string ExecuteActionInternal(Entity source, Entity target, Environment? environment, Action? lastPlayerAction, Action? forcedAction, BattleNarrative? battleNarrative, List<string> results)
+        private static string ExecuteActionInternal(Actor source, Actor target, Environment? environment, Action? lastPlayerAction, Action? forcedAction, BattleNarrative? battleNarrative, List<string> results)
         {
             if (!DisableCombatDebugOutput)
             {
                 DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} executing action against {target.Name}");
             }
             
-            // Use forced action if provided (for combo system), otherwise select action based on entity type
+            // Use forced action if provided (for combo system), otherwise select action based on Actor type
             var selectedAction = forcedAction ?? ActionSelector.SelectActionByEntityType(source);
             if (selectedAction == null)
             {
@@ -163,9 +163,9 @@ namespace RPGGame
         /// <summary>
         /// Executes an attack action
         /// </summary>
-        private static void ExecuteAttackAction(Entity source, Entity target, Action selectedAction, int baseRoll, int rollBonus, List<string> results, BattleNarrative? battleNarrative)
+        private static void ExecuteAttackAction(Actor source, Actor target, Action selectedAction, int baseRoll, int rollBonus, List<string> results, BattleNarrative? battleNarrative)
         {
-            // Calculate damage with entity-specific modifiers using shared utility
+            // Calculate damage with Actor-specific modifiers using shared utility
             double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, selectedAction);
             int totalRoll = baseRoll + rollBonus;
             int damage = CombatCalculator.CalculateDamage(source, target, selectedAction, damageMultiplier, 1.0, rollBonus, totalRoll);
@@ -220,7 +220,7 @@ namespace RPGGame
         /// <summary>
         /// Executes a heal action
         /// </summary>
-        private static void ExecuteHealAction(Entity source, Entity target, Action selectedAction, int baseRoll, int rollBonus, List<string> results, BattleNarrative? battleNarrative)
+        private static void ExecuteHealAction(Actor source, Actor target, Action selectedAction, int baseRoll, int rollBonus, List<string> results, BattleNarrative? battleNarrative)
         {
             // Handle healing actions using shared utility
             int healAmount = ActionUtilities.CalculateHealAmount(source, selectedAction);
@@ -248,9 +248,9 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets the last action used by an entity
+        /// Gets the last action used by an Actor
         /// </summary>
-        public static Action? GetLastUsedAction(Entity source)
+        public static Action? GetLastUsedAction(Actor source)
         {
             _lastUsedActions.TryGetValue(source, out Action? action);
             return action;
@@ -259,12 +259,12 @@ namespace RPGGame
         /// <summary>
         /// Executes multiple attacks per turn based on the source's attack speed
         /// </summary>
-        /// <param name="source">The entity performing the attacks</param>
-        /// <param name="target">The entity receiving the attacks</param>
+        /// <param name="source">The Actor performing the attacks</param>
+        /// <param name="target">The Actor receiving the attacks</param>
         /// <param name="environment">The environment affecting the attacks</param>
         /// <param name="battleNarrative">The battle narrative to add events to</param>
         /// <returns>A string describing the results of all attacks</returns>
-        public static string ExecuteMultiAttack(Entity source, Entity target, Environment? environment = null, BattleNarrative? battleNarrative = null)
+        public static string ExecuteMultiAttack(Actor source, Actor target, Environment? environment = null, BattleNarrative? battleNarrative = null)
         {
             if (source is Character character)
             {
@@ -299,3 +299,4 @@ namespace RPGGame
         }
     }
 }
+

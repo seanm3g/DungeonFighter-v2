@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace RPGGame
@@ -55,14 +55,14 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Ensures BASIC ATTACK is available in an entity's action pool
+        /// Ensures BASIC ATTACK is available in an Actor's action pool
         /// </summary>
-        /// <param name="entity">The entity to ensure has BASIC ATTACK</param>
+        /// <param name="Actor">The Actor to ensure has BASIC ATTACK</param>
         /// <returns>The BASIC ATTACK action (existing or newly created)</returns>
-        public static Action EnsureBasicAttackAvailable(Entity entity)
+        public static Action EnsureBasicAttackAvailable(Actor Actor)
         {
             // Check if BASIC ATTACK is already in the action pool
-            var existingBasicAttack = entity.ActionPool
+            var existingBasicAttack = Actor.ActionPool
                 .FirstOrDefault(a => string.Equals(a.action.Name, "BASIC ATTACK", StringComparison.OrdinalIgnoreCase));
 
             if (existingBasicAttack.action != null)
@@ -74,27 +74,27 @@ namespace RPGGame
             var loadedAction = ActionLoader.GetAction("BASIC ATTACK");
             if (loadedAction != null)
             {
-                entity.AddAction(loadedAction, 1.0);
-                DebugLogger.Log("ActionFactory", $"Added missing BASIC ATTACK to {entity.Name}'s action pool from JSON");
+                Actor.AddAction(loadedAction, 1.0);
+                DebugLogger.Log("ActionFactory", $"Added missing BASIC ATTACK to {Actor.Name}'s action pool from JSON");
                 return loadedAction;
             }
 
             // Create BASIC ATTACK as fallback
             var basicAttack = CreateBasicAttack();
-            entity.AddAction(basicAttack, 1.0);
-            DebugLogger.Log("ActionFactory", $"Created and added BASIC ATTACK to {entity.Name}'s action pool");
+            Actor.AddAction(basicAttack, 1.0);
+            DebugLogger.Log("ActionFactory", $"Created and added BASIC ATTACK to {Actor.Name}'s action pool");
             return basicAttack;
         }
 
         /// <summary>
-        /// Gets or creates BASIC ATTACK for an entity, with fallback creation
+        /// Gets or creates BASIC ATTACK for an Actor, with fallback creation
         /// </summary>
-        /// <param name="entity">The entity to get BASIC ATTACK for</param>
+        /// <param name="Actor">The Actor to get BASIC ATTACK for</param>
         /// <returns>BASIC ATTACK action</returns>
-        public static Action GetBasicAttack(Entity entity)
+        public static Action GetBasicAttack(Actor Actor)
         {
             // First try to find existing BASIC ATTACK
-            var existingBasicAttack = entity.ActionPool
+            var existingBasicAttack = Actor.ActionPool
                 .FirstOrDefault(a => string.Equals(a.action.Name, "BASIC ATTACK", StringComparison.OrdinalIgnoreCase));
 
             if (existingBasicAttack.action != null)
@@ -103,7 +103,9 @@ namespace RPGGame
             }
 
             // If not found, ensure it's available (will create if needed)
-            return EnsureBasicAttackAvailable(entity);
+            return EnsureBasicAttackAvailable(Actor);
         }
     }
 }
+
+

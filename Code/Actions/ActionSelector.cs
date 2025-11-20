@@ -1,24 +1,24 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace RPGGame
 {
     /// <summary>
-    /// Handles action selection logic for different entity types
+    /// Handles action selection logic for different Actor types
     /// Refactored to focus purely on selection using shared utilities
     /// </summary>
     public static class ActionSelector
     {
         // Store the last action selection roll for consistency
-        private static readonly Dictionary<Entity, int> _lastActionSelectionRolls = new Dictionary<Entity, int>();
+        private static readonly Dictionary<Actor, int> _lastActionSelectionRolls = new Dictionary<Actor, int>();
 
         /// <summary>
-        /// Selects an action based on entity type - heroes use roll-based logic, enemies use random selection
+        /// Selects an action based on Actor type - heroes use roll-based logic, enemies use random selection
         /// </summary>
-        /// <param name="source">The entity selecting the action</param>
+        /// <param name="source">The Actor selecting the action</param>
         /// <returns>The selected action or null if no action available</returns>
-        public static Action? SelectActionByEntityType(Entity source)
+        public static Action? SelectActionByEntityType(Actor source)
         {
             // Heroes/Characters use advanced roll-based system with combos
             if (source is Character character && !(character is Enemy))
@@ -35,14 +35,14 @@ namespace RPGGame
         /// <summary>
         /// Selects an action based on dice roll logic (6+ = BASIC ATTACK, 14+ = COMBO) - for heroes only
         /// </summary>
-        /// <param name="source">The entity selecting the action</param>
+        /// <param name="source">The Actor selecting the action</param>
         /// <returns>The selected action or null if no action available</returns>
-        public static Action? SelectActionBasedOnRoll(Entity source)
+        public static Action? SelectActionBasedOnRoll(Actor source)
         {
             if (source.ActionPool.Count == 0)
                 return null;
 
-            // Check if entity is stunned
+            // Check if Actor is stunned
             if (source.IsStunned)
                 return null;
 
@@ -82,9 +82,9 @@ namespace RPGGame
         /// <summary>
         /// Selects an enemy action based on roll thresholds
         /// </summary>
-        /// <param name="source">The enemy entity</param>
+        /// <param name="source">The enemy Actor</param>
         /// <returns>The selected action or null if no action available</returns>
-        public static Action? SelectEnemyActionBasedOnRoll(Entity source)
+        public static Action? SelectEnemyActionBasedOnRoll(Actor source)
         {
             if (source.ActionPool.Count == 0)
                 return null;
@@ -130,11 +130,11 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Selects a combo action for the given entity
+        /// Selects a combo action for the given Actor
         /// </summary>
-        /// <param name="source">The entity to select combo action for</param>
+        /// <param name="source">The Actor to select combo action for</param>
         /// <returns>Selected combo action or fallback to basic attack</returns>
-        private static Action SelectComboAction(Entity source)
+        private static Action SelectComboAction(Actor source)
         {
             var comboActions = ActionUtilities.GetComboActions(source);
             if (comboActions.Count > 0)
@@ -171,11 +171,11 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets the action roll for an entity - uses stored roll for both heroes and enemies
+        /// Gets the action roll for an Actor - uses stored roll for both heroes and enemies
         /// </summary>
-        /// <param name="source">The entity to get roll for</param>
+        /// <param name="source">The Actor to get roll for</param>
         /// <returns>The stored roll or a new roll if not found</returns>
-        public static int GetActionRoll(Entity source)
+        public static int GetActionRoll(Actor source)
         {
             // Both heroes and enemies use the stored roll from action selection
             if (_lastActionSelectionRolls.TryGetValue(source, out int roll))
@@ -198,3 +198,4 @@ namespace RPGGame
         }
     }
 }
+

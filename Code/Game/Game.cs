@@ -193,7 +193,7 @@ namespace RPGGame
             
             if (gameLoopInputHandler != null)
             {
-                gameLoopInputHandler.SelectDungeonEvent += () => dungeonSelectionHandler?.ShowDungeonSelection();
+                gameLoopInputHandler.SelectDungeonEvent += async () => await (dungeonSelectionHandler?.ShowDungeonSelection() ?? Task.CompletedTask);
                 gameLoopInputHandler.ShowInventoryEvent += ShowInventory;
                 gameLoopInputHandler.ShowCharacterInfoEvent += ShowCharacterInfo;
             }
@@ -220,7 +220,7 @@ namespace RPGGame
             
             if (dungeonRunnerManager != null)
             {
-                dungeonRunnerManager.DungeonCompletedEvent += ShowDungeonCompletion;
+                dungeonRunnerManager.DungeonCompletedEvent += (xpGained, lootReceived) => ShowDungeonCompletion(xpGained, lootReceived);
                 dungeonRunnerManager.ShowMainMenuEvent += ShowMainMenu;
             }
             
@@ -419,10 +419,24 @@ namespace RPGGame
             settingsMenuHandler?.ShowSettings();
         }
 
-        public void ShowDungeonCompletion()
+        public void ShowDungeonCompletion(int xpGained, Item? lootReceived)
         {
             stateManager.TransitionToState(GameState.DungeonCompletion);
-            // Display handled by dungeonCompletionHandler
+            
+            // Display the dungeon completion screen with reward data
+            if (customUIManager is CanvasUICoordinator canvasUI && stateManager.CurrentPlayer != null && stateManager.CurrentDungeon != null)
+            {
+                // Clear old interactive elements first
+                canvasUI.ClearClickableElements();
+                
+                // Render the completion screen with reward data
+                canvasUI.RenderDungeonCompletion(
+                    stateManager.CurrentDungeon, 
+                    stateManager.CurrentPlayer, 
+                    xpGained, 
+                    lootReceived
+                );
+            }
         }
 
         public void ShowMessage(string message)
