@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
 using RPGGame.Utils;
@@ -10,6 +9,12 @@ namespace RPGGame
     /// <summary>
     /// Centralized UI management system that handles all console output, formatting, and delays
     /// Supports Caves of Qud-style color markup
+    /// 
+    /// This is now a facade coordinating four specialized managers:
+    /// - UIOutputManager: Handles console/custom UI output
+    /// - UIDelayManager: Manages timing and delays
+    /// - UIColoredTextManager: Handles colored text operations
+    /// - UIMessageBuilder: Builds formatted combat/healing/effect messages
     /// </summary>
     public static class UIManager
     {
@@ -24,9 +29,11 @@ namespace RPGGame
         
         private static UIConfiguration? _uiConfig = null;
         
-        // Progressive delay system for menu lines
-        private static int consecutiveMenuLines = 0;
-        private static int baseMenuDelay = 0;
+        // Specialized managers
+        private static UIOutputManager? _outputManager = null;
+        private static UIDelayManager? _delayManager = null;
+        private static UIColoredTextManager? _coloredTextManager = null;
+        private static UIMessageBuilder? _messageBuilder = null;
         
         /// <summary>
         /// Gets the current UI configuration
@@ -42,6 +49,66 @@ namespace RPGGame
                 return _uiConfig;
             }
         }
+
+        /// <summary>
+        /// Gets or creates the UIOutputManager
+        /// </summary>
+        private static UIOutputManager OutputManager
+        {
+            get
+            {
+                if (_outputManager == null)
+                {
+                    _outputManager = new UIOutputManager(_customUIManager, UIConfig);
+                }
+                return _outputManager;
+            }
+        }
+
+        /// <summary>
+        /// Gets or creates the UIDelayManager
+        /// </summary>
+        private static UIDelayManager DelayManager
+        {
+            get
+            {
+                if (_delayManager == null)
+                {
+                    _delayManager = new UIDelayManager(UIConfig);
+                }
+                return _delayManager;
+            }
+        }
+
+        /// <summary>
+        /// Gets or creates the UIColoredTextManager
+        /// </summary>
+        private static UIColoredTextManager ColoredTextManager
+        {
+            get
+            {
+                if (_coloredTextManager == null)
+                {
+                    _coloredTextManager = new UIColoredTextManager(OutputManager, DelayManager);
+                }
+                return _coloredTextManager;
+            }
+        }
+
+        /// <summary>
+        /// Gets or creates the UIMessageBuilder
+        /// </summary>
+        private static UIMessageBuilder MessageBuilder
+        {
+            get
+            {
+                if (_messageBuilder == null)
+                {
+                    _messageBuilder = new UIMessageBuilder(ColoredTextManager);
+                }
+                return _messageBuilder;
+            }
+        }
         
         /// <summary>
         /// Sets a custom UI manager for non-console interfaces (like Avalonia)
@@ -49,6 +116,10 @@ namespace RPGGame
         public static void SetCustomUIManager(IUIManager? customUIManager)
         {
             _customUIManager = customUIManager;
+            // Reset managers to use the new custom manager
+            _outputManager = null;
+            _coloredTextManager = null;
+            _messageBuilder = null;
         }
         
         /// <summary>
@@ -65,6 +136,11 @@ namespace RPGGame
         public static void ReloadConfiguration()
         {
             _uiConfig = UIConfiguration.LoadFromFile();
+            // Reset managers to use the new configuration
+            _outputManager = null;
+            _delayManager = null;
+            _coloredTextManager = null;
+            _messageBuilder = null;
         }
         
         /// <summary>
@@ -76,23 +152,8 @@ namespace RPGGame
         {
             if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
             
-            // Use custom UI manager if one is set
-            if (_customUIManager != null)
-            {
-                _customUIManager.WriteLine(message, messageType);
-                return;
-            }
-            
-            if (EnableColorMarkup && ColorParser.HasColorMarkup(message))
-            {
-                ColoredConsoleWriter.WriteLine(message);
-            }
-            else
-            {
-                Console.WriteLine(message);
-            }
-            
-            ApplyDelay(messageType);
+            OutputManager.WriteLine(message, messageType);
+            DelayManager.ApplyDelay(messageType);
         }
         
         /// <summary>
@@ -103,21 +164,7 @@ namespace RPGGame
         {
             if (DisableAllUIOutput) return;
             
-            // Use custom UI manager if one is set
-            if (_customUIManager != null)
-            {
-                _customUIManager.Write(message);
-                return;
-            }
-            
-            if (EnableColorMarkup && ColorParser.HasColorMarkup(message))
-            {
-                ColoredConsoleWriter.Write(message);
-            }
-            else
-            {
-                Console.Write(message);
-            }
+            OutputManager.Write(message);
         }
         
         
@@ -140,23 +187,8 @@ namespace RPGGame
         {
             if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
             
-            // Use custom UI manager if one is set
-            if (_customUIManager != null)
-            {
-                _customUIManager.WriteMenuLine(message);
-                return;
-            }
-            
-            if (EnableColorMarkup && ColorParser.HasColorMarkup(message))
-            {
-                ColoredConsoleWriter.WriteLine(message);
-            }
-            else
-            {
-                Console.WriteLine(message);
-            }
-            
-            ApplyProgressiveMenuDelay();
+            OutputManager.WriteMenuLine(message);
+            DelayManager.ApplyProgressiveMenuDelay();
         }
         
         /// <summary>
@@ -167,8 +199,6 @@ namespace RPGGame
         {
             WriteLine(message, UIMessageType.Title);
         }
-        
-        
         
         /// <summary>
         /// Writes a dungeon-related message with system delay
@@ -206,7 +236,6 @@ namespace RPGGame
             WriteLine(message, UIMessageType.System);
         }
         
-        
         /// <summary>
         /// Writes a status effect message (stun, poison, bleed, etc.) with effect message delay
         /// </summary>
@@ -216,22 +245,12 @@ namespace RPGGame
             WriteLine(message, UIMessageType.EffectMessage);
         }
         
-        
-        
-        
         /// <summary>
         /// Resets Actor tracking for a new battle
         /// </summary>
         public static void ResetForNewBattle()
         {
-            // Use custom UI manager if one is set
-            if (_customUIManager != null)
-            {
-                _customUIManager.ResetForNewBattle();
-                return;
-            }
-            
-            // Actor tracking is now handled by BlockDisplayManager
+            OutputManager.ResetForNewBattle();
         }
         
         /// <summary>
@@ -240,52 +259,7 @@ namespace RPGGame
         /// <param name="messageType">Type of message for delay configuration</param>
         public static void ApplyDelay(UIMessageType messageType)
         {
-            int delayMs = UIConfig.GetEffectiveDelay(messageType);
-            
-            if (delayMs > 0)
-            {
-                Thread.Sleep(delayMs);
-            }
-        }
-        
-        /// <summary>
-        /// Applies progressive menu delay - reduces delay by 1ms for each consecutive menu line
-        /// After 20 lines, slowly ramps delay down by 1ms each line
-        /// </summary>
-        private static void ApplyProgressiveMenuDelay()
-        {
-            // Get base menu delay from configuration
-            int baseDelay = UIConfig.BeatTiming.GetMenuDelay();
-            
-            // Store base delay on first menu line
-            if (consecutiveMenuLines == 0)
-            {
-                baseMenuDelay = baseDelay;
-            }
-            
-            int progressiveDelay;
-            
-            if (consecutiveMenuLines < 20)
-            {
-                // First 20 lines: normal progressive reduction (base delay minus 1ms per line)
-                progressiveDelay = Math.Max(0, baseMenuDelay - consecutiveMenuLines);
-            }
-            else
-            {
-                // After 20 lines: slowly ramp down by 1ms each line
-                // Start from the delay at line 20, then reduce by 1ms each subsequent line
-                int delayAtLine20 = Math.Max(0, baseMenuDelay - 19); // Delay at line 20 (0-indexed, so line 20 is index 19)
-                progressiveDelay = Math.Max(0, delayAtLine20 - (consecutiveMenuLines - 20));
-            }
-            
-            // Apply the delay
-            if (progressiveDelay > 0)
-            {
-                Thread.Sleep(progressiveDelay);
-            }
-            
-            // Increment consecutive menu line counter
-            consecutiveMenuLines++;
+            DelayManager.ApplyDelay(messageType);
         }
         
         /// <summary>
@@ -293,8 +267,7 @@ namespace RPGGame
         /// </summary>
         public static void ResetMenuDelayCounter()
         {
-            consecutiveMenuLines = 0;
-            baseMenuDelay = 0;
+            DelayManager.ResetMenuDelayCounter();
         }
         
         /// <summary>
@@ -302,7 +275,7 @@ namespace RPGGame
         /// </summary>
         public static int GetConsecutiveMenuLineCount()
         {
-            return consecutiveMenuLines;
+            return DelayManager.GetConsecutiveMenuLineCount();
         }
         
         /// <summary>
@@ -310,9 +283,8 @@ namespace RPGGame
         /// </summary>
         public static int GetBaseMenuDelay()
         {
-            return baseMenuDelay;
+            return DelayManager.GetBaseMenuDelay();
         }
-        
         
         /// <summary>
         /// Writes a blank line without any delay
@@ -321,14 +293,7 @@ namespace RPGGame
         {
             if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
             
-            // Use custom UI manager if one is set
-            if (_customUIManager != null)
-            {
-                _customUIManager.WriteBlankLine();
-                return;
-            }
-            
-            Console.WriteLine();
+            OutputManager.WriteBlankLine();
         }
         
         /// <summary>
@@ -337,19 +302,11 @@ namespace RPGGame
         /// </summary>
         /// <param name="message">The text to reveal in chunks</param>
         /// <param name="config">Optional configuration for chunked reveal</param>
-        public static void WriteChunked(string message, UI.ChunkedTextReveal.RevealConfig? config = null)
+        public static void WriteChunked(string message, ChunkedTextReveal.RevealConfig? config = null)
         {
             if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
             
-            // Use custom UI manager if one is set
-            if (_customUIManager != null)
-            {
-                _customUIManager.WriteChunked(message, config);
-                return;
-            }
-            
-            // Use ChunkedTextReveal for console output
-            UI.ChunkedTextReveal.RevealText(message, config);
+            OutputManager.WriteChunked(message, config);
         }
         
         /// <summary>
@@ -358,9 +315,9 @@ namespace RPGGame
         /// <param name="message">The dungeon text to reveal</param>
         public static void WriteDungeonChunked(string message)
         {
-            WriteChunked(message, new UI.ChunkedTextReveal.RevealConfig
+            WriteChunked(message, new ChunkedTextReveal.RevealConfig
             {
-                Strategy = UI.ChunkedTextReveal.ChunkStrategy.Semantic,
+                Strategy = ChunkedTextReveal.ChunkStrategy.Semantic,
                 BaseDelayPerCharMs = 25,
                 MinDelayMs = 800,
                 MaxDelayMs = 3000
@@ -373,16 +330,16 @@ namespace RPGGame
         /// <param name="message">The room description to reveal</param>
         public static void WriteRoomChunked(string message)
         {
-            WriteChunked(message, new UI.ChunkedTextReveal.RevealConfig
+            WriteChunked(message, new ChunkedTextReveal.RevealConfig
             {
-                Strategy = UI.ChunkedTextReveal.ChunkStrategy.Sentence,
+                Strategy = ChunkedTextReveal.ChunkStrategy.Sentence,
                 BaseDelayPerCharMs = 30,
                 MinDelayMs = 1000,
                 MaxDelayMs = 3000
             });
         }
         
-        // ===== NEW COLORED TEXT SYSTEM METHODS =====
+        // ===== COLORED TEXT SYSTEM METHODS =====
         
         /// <summary>
         /// Writes colored text using the new ColoredText system
@@ -393,18 +350,7 @@ namespace RPGGame
         {
             if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
             
-            // Use custom UI manager if one is set
-            if (_customUIManager != null)
-            {
-                _customUIManager.WriteColoredText(coloredText, messageType);
-                return;
-            }
-            
-            // For console output, use the new system
-            var segments = new List<ColoredText> { coloredText };
-            ColoredConsoleWriter.WriteSegments(segments);
-            
-            ApplyDelay(messageType);
+            ColoredTextManager.WriteColoredText(coloredText, messageType);
         }
         
         /// <summary>
@@ -414,20 +360,7 @@ namespace RPGGame
         {
             if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
             
-            // Use custom UI manager if one is set
-            if (_customUIManager != null)
-            {
-                foreach (var coloredText in coloredTexts)
-                {
-                    _customUIManager.WriteColoredText(coloredText, messageType);
-                }
-                return;
-            }
-            
-            // For console output, use the new system
-            ColoredConsoleWriter.WriteSegments(coloredTexts);
-            
-            ApplyDelay(messageType);
+            ColoredTextManager.WriteColoredText(coloredTexts, messageType);
         }
         
         /// <summary>
@@ -439,19 +372,7 @@ namespace RPGGame
         {
             if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
             
-            // Use custom UI manager if one is set
-            if (_customUIManager != null)
-            {
-                _customUIManager.WriteLineColoredText(coloredText, messageType);
-                return;
-            }
-            
-            // For console output, use the new system
-            var segments = new List<ColoredText> { coloredText };
-            ColoredConsoleWriter.WriteSegments(segments);
-            Console.WriteLine();
-            
-            ApplyDelay(messageType);
+            ColoredTextManager.WriteLineColoredText(coloredText, messageType);
         }
         
         /// <summary>
@@ -463,17 +384,7 @@ namespace RPGGame
         {
             if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
             
-            // Use custom UI manager if one is set
-            if (_customUIManager != null)
-            {
-                _customUIManager.WriteColoredSegments(segments, messageType);
-                return;
-            }
-            
-            // For console output, use the new system
-            ColoredConsoleWriter.WriteSegments(segments);
-            
-            ApplyDelay(messageType);
+            ColoredTextManager.WriteColoredSegments(segments, messageType);
         }
         
         /// <summary>
@@ -485,18 +396,7 @@ namespace RPGGame
         {
             if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
             
-            // Use custom UI manager if one is set
-            if (_customUIManager != null)
-            {
-                _customUIManager.WriteLineColoredSegments(segments, messageType);
-                return;
-            }
-            
-            // For console output, use the new system
-            ColoredConsoleWriter.WriteSegments(segments);
-            Console.WriteLine();
-            
-            ApplyDelay(messageType);
+            ColoredTextManager.WriteLineColoredSegments(segments, messageType);
         }
         
         /// <summary>
@@ -508,8 +408,7 @@ namespace RPGGame
         {
             if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
             
-            var segments = builder.Build();
-            WriteColoredSegments(segments, messageType);
+            ColoredTextManager.WriteColoredTextBuilder(builder, messageType);
         }
         
         /// <summary>
@@ -521,9 +420,10 @@ namespace RPGGame
         {
             if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
             
-            var segments = builder.Build();
-            WriteLineColoredSegments(segments, messageType);
+            ColoredTextManager.WriteLineColoredTextBuilder(builder, messageType);
         }
+        
+        // ===== COMBAT MESSAGE BUILDING METHODS =====
         
         /// <summary>
         /// Creates a combat message using the new color system
@@ -539,45 +439,7 @@ namespace RPGGame
         public static void WriteCombatMessage(string attacker, string action, string target, int? damage = null, 
             bool isCritical = false, bool isMiss = false, bool isBlock = false, bool isDodge = false)
         {
-            var builder = new ColoredTextBuilder();
-            
-            // Attacker name
-            builder.Add(attacker, ColorPalette.Player);
-            builder.AddSpace();
-            
-            // Action
-            if (isMiss)
-            {
-                builder.AddWithPattern(action, "miss");
-            }
-            else if (isBlock)
-            {
-                builder.AddWithPattern(action, "block");
-            }
-            else if (isDodge)
-            {
-                builder.AddWithPattern(action, "dodge");
-            }
-            else
-            {
-                builder.AddWithPattern(action, "damage");
-            }
-            
-            builder.AddSpace();
-            
-            // Target name
-            builder.Add(target, ColorPalette.Enemy);
-            
-            // Damage amount
-            if (damage.HasValue)
-            {
-                builder.AddSpace();
-                builder.Add(damage.Value.ToString(), isCritical ? ColorPalette.Critical : ColorPalette.Damage);
-                builder.AddSpace();
-                builder.AddWithPattern("damage", "damage");
-            }
-            
-            WriteLineColoredTextBuilder(builder, UIMessageType.Combat);
+            MessageBuilder.WriteCombatMessage(attacker, action, target, damage, isCritical, isMiss, isBlock, isDodge);
         }
         
         /// <summary>
@@ -588,19 +450,7 @@ namespace RPGGame
         /// <param name="amount">Healing amount</param>
         public static void WriteHealingMessage(string healer, string target, int amount)
         {
-            var builder = new ColoredTextBuilder();
-            
-            builder.Add(healer, ColorPalette.Player);
-            builder.AddSpace();
-            builder.AddWithPattern("heals", "healing");
-            builder.AddSpace();
-            builder.Add(target, ColorPalette.Player);
-            builder.AddSpace();
-            builder.Add(amount.ToString(), ColorPalette.Healing);
-            builder.AddSpace();
-            builder.AddWithPattern("health", "healing");
-            
-            WriteLineColoredTextBuilder(builder, UIMessageType.Combat);
+            MessageBuilder.WriteHealingMessage(healer, target, amount);
         }
         
         /// <summary>
@@ -611,24 +461,7 @@ namespace RPGGame
         /// <param name="isApplied">Whether the effect is applied or removed</param>
         public static void WriteStatusEffectMessage(string target, string effect, bool isApplied = true)
         {
-            var builder = new ColoredTextBuilder();
-            
-            builder.Add(target, ColorPalette.Player);
-            builder.AddSpace();
-            
-            if (isApplied)
-            {
-                builder.AddWithPattern("is affected by", "warning");
-            }
-            else
-            {
-                builder.AddWithPattern("is no longer affected by", "success");
-            }
-            
-            builder.AddSpace();
-            builder.AddWithPattern(effect, "warning");
-            
-            WriteLineColoredTextBuilder(builder, UIMessageType.Combat);
+            MessageBuilder.WriteStatusEffectMessage(target, effect, isApplied);
         }
         
     }
