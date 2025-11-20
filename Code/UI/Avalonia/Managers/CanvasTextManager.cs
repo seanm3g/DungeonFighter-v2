@@ -45,6 +45,9 @@ namespace RPGGame.UI.Avalonia.Managers
         public void ClearDisplayBuffer()
         {
             displayBuffer.Clear();
+            // Reset render cache when buffer is cleared
+            layoutInitialized = false;
+            lastBufferCount = 0;
         }
         
         /// <summary>
@@ -241,43 +244,102 @@ namespace RPGGame.UI.Avalonia.Managers
             }, DispatcherPriority.Background);
         }
         
+        // Cache for layout state to avoid unnecessary full re-renders
+        private Character? lastRenderedCharacter;
+        private Enemy? lastRenderedEnemy;
+        private string? lastRenderedDungeonName;
+        private string? lastRenderedRoomName;
+        private bool layoutInitialized = false;
+        private int lastBufferCount = 0;
+        private System.Threading.Timer? debounceTimer;
+        private readonly object renderLock = new object();
+        
         /// <summary>
         /// Renders the display buffer with persistent layout (for combat and other game phases)
+        /// Optimized to only re-render what's necessary to prevent flickering
+        /// Uses debouncing to batch rapid text updates (waits 16ms to batch multiple updates)
         /// </summary>
         public void RenderDisplayBufferFallback()
         {
-            // Dispatch to UI thread to avoid cross-thread issues
-            Dispatcher.UIThread.Post(() =>
+            // Cancel any pending debounced render
+            lock (renderLock)
             {
-                // Use persistent layout system instead of simple fallback
-                // This ensures combat displays in the center panel while keeping character info visible
-                var persistentLayout = new PersistentLayoutManager(canvas);
-                var currentCharacter = GetCurrentCharacter();
-                var currentEnemy = GetCurrentEnemy();
-                var dungeonName = GetCurrentDungeonName();
-                var roomName = GetCurrentRoomName();
+                debounceTimer?.Dispose();
                 
+                // Debounce rapid updates - wait 16ms (60fps) before rendering
+                // This batches multiple text updates together to reduce flickering
+                debounceTimer = new System.Threading.Timer(_ =>
+                {
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        PerformRender();
+                    }, DispatcherPriority.Normal);
+                }, null, 16, System.Threading.Timeout.Infinite);
+            }
+        }
+        
+        /// <summary>
+        /// Performs the actual rendering operation
+        /// </summary>
+        private void PerformRender()
+        {
+            var currentCharacter = GetCurrentCharacter();
+            var currentEnemy = GetCurrentEnemy();
+            var dungeonName = GetCurrentDungeonName();
+            var roomName = GetCurrentRoomName();
+            
+            // Check if we need to re-render the full layout (character/enemy/dungeon changed)
+            bool needsFullRender = !layoutInitialized ||
+                !ReferenceEquals(currentCharacter, lastRenderedCharacter) ||
+                !ReferenceEquals(currentEnemy, lastRenderedEnemy) ||
+                dungeonName != lastRenderedDungeonName ||
+                roomName != lastRenderedRoomName;
+            
+            // Check if buffer changed (new text added)
+            bool bufferChanged = displayBuffer.Count != lastBufferCount;
+            
+            if (needsFullRender || bufferChanged)
+            {
+                // Clear and render everything
+                canvas.Clear();
+                var persistentLayout = new PersistentLayoutManager(canvas);
                 persistentLayout.RenderLayout(
                     currentCharacter,
                     (contentX, contentY, contentWidth, contentHeight) => {
                         // Render display buffer content in the center panel
-                        int y = contentY;
-                        foreach (var line in displayBuffer.TakeLast(maxLines))
-                        {
-                            if (y < contentY + contentHeight - 1)
-                            {
-                                // Parse and render color markup
-                                WriteLineColored(line, contentX + 1, y);
-                                y++;
-                            }
-                        }
+                        RenderCenterContent(contentX, contentY, contentWidth, contentHeight);
                     },
                     "COMBAT",
                     currentEnemy,
                     dungeonName,
                     roomName
                 );
-            }, DispatcherPriority.Background);
+                
+                // Update cache
+                lastRenderedCharacter = currentCharacter;
+                lastRenderedEnemy = currentEnemy;
+                lastRenderedDungeonName = dungeonName;
+                lastRenderedRoomName = roomName;
+                lastBufferCount = displayBuffer.Count;
+                layoutInitialized = true;
+            }
+        }
+        
+        /// <summary>
+        /// Renders the center content area (combat text)
+        /// </summary>
+        private void RenderCenterContent(int contentX, int contentY, int contentWidth, int contentHeight)
+        {
+            int y = contentY;
+            foreach (var line in displayBuffer.TakeLast(maxLines))
+            {
+                if (y < contentY + contentHeight - 1)
+                {
+                    // Parse and render color markup with text wrapping
+                    int linesRendered = WriteLineColoredWrapped(line, contentX + 1, y, contentWidth - 2);
+                    y += linesRendered;
+                }
+            }
         }
         
         /// <summary>
@@ -300,8 +362,24 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public void ClearDisplay()
         {
+            // Cancel any pending debounced renders
+            lock (renderLock)
+            {
+                debounceTimer?.Dispose();
+                debounceTimer = null;
+            }
+            
             canvas.Clear();
             displayBuffer.Clear();
+            
+            // Reset render cache
+            layoutInitialized = false;
+            lastBufferCount = 0;
+            lastRenderedCharacter = null;
+            lastRenderedEnemy = null;
+            lastRenderedDungeonName = null;
+            lastRenderedRoomName = null;
+            
             canvas.Refresh();
         }
         

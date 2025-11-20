@@ -23,19 +23,12 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// </summary>
         public void WriteLineColored(string message, int x, int y)
         {
-            // Check if message has old-style color markup (&X format)
-            if (CompatibilityLayer.HasColorMarkup(message))
-            {
-                // Use old-style parser for &X format
-                var coloredText = CompatibilityLayer.ConvertOldMarkup(message);
-                RenderSegments(coloredText, x, y);
-            }
-            else
-            {
-                // Parse the message using the new color system
-                var coloredText = ColoredTextParser.Parse(message);
-                RenderSegments(coloredText, x, y);
-            }
+            // Always use ColoredTextParser.Parse() which handles:
+            // - Old-style color codes (&X format)
+            // - Template syntax ({{template|text}})
+            // - New-style markup ([color:pattern]text[/color])
+            var coloredText = ColoredTextParser.Parse(message);
+            RenderSegments(coloredText, x, y);
         }
         
         /// <summary>
@@ -127,19 +120,66 @@ namespace RPGGame.UI.Avalonia.Renderers
         
         /// <summary>
         /// Converts Avalonia color to canvas color format
+        /// Maps colors by RGB values to handle ColorPalette colors properly
         /// </summary>
         private Color ConvertToCanvasColor(Color color)
         {
-            // Simple color mapping - you may need to adjust this based on your canvas color system
-            if (color == Colors.Red) return AsciiArtAssets.Colors.Red;
-            if (color == Colors.Green) return AsciiArtAssets.Colors.Green;
-            if (color == Colors.Blue) return AsciiArtAssets.Colors.Blue;
-            if (color == Colors.Yellow) return AsciiArtAssets.Colors.Yellow;
-            if (color == Colors.Cyan) return AsciiArtAssets.Colors.Cyan;
-            if (color == Colors.Magenta) return AsciiArtAssets.Colors.Magenta;
-            if (color == Colors.White) return AsciiArtAssets.Colors.White;
-            if (color == Colors.Black) return AsciiArtAssets.Colors.Black;
-            if (color == Colors.Gray) return AsciiArtAssets.Colors.Gray;
+            // Extract RGB values for comparison
+            byte r = color.R;
+            byte g = color.G;
+            byte b = color.B;
+            
+            // Map common colors by RGB values
+            // Basic colors
+            if (r == 255 && g == 255 && b == 255) return AsciiArtAssets.Colors.White;
+            if (r == 0 && g == 0 && b == 0) return AsciiArtAssets.Colors.Black;
+            if (r == 128 && g == 128 && b == 128) return AsciiArtAssets.Colors.Gray;
+            if (r == 64 && g == 64 && b == 64) return AsciiArtAssets.Colors.DarkGray;
+            
+            // Primary colors
+            if (r == 255 && g == 0 && b == 0) return AsciiArtAssets.Colors.Red;
+            if (r == 0 && g == 255 && b == 0) return AsciiArtAssets.Colors.Green;
+            if (r == 0 && g == 0 && b == 255) return AsciiArtAssets.Colors.Blue;
+            if (r == 255 && g == 255 && b == 0) return AsciiArtAssets.Colors.Yellow;
+            if (r == 0 && g == 255 && b == 255) return AsciiArtAssets.Colors.Cyan;
+            if (r == 255 && g == 0 && b == 255) return AsciiArtAssets.Colors.Magenta;
+            
+            // Dark variants
+            if (r == 139 && g == 0 && b == 0) return AsciiArtAssets.Colors.DarkRed;
+            if (r == 0 && g == 100 && b == 0) return AsciiArtAssets.Colors.DarkGreen;
+            if (r == 0 && g == 0 && b == 139) return AsciiArtAssets.Colors.DarkBlue;
+            
+            // Game-specific colors
+            if (r == 255 && g == 215 && b == 0) return AsciiArtAssets.Colors.Gold;
+            if (r == 192 && g == 192 && b == 192) return AsciiArtAssets.Colors.Silver;
+            if (r == 255 && g == 165 && b == 0) return AsciiArtAssets.Colors.Orange;
+            if (r == 128 && g == 0 && b == 128) return AsciiArtAssets.Colors.Purple;
+            
+            // Combat colors - map to closest available color
+            // Damage (220, 20, 60) - crimson red, map to Red
+            if (r == 220 && g == 20 && b == 60) return AsciiArtAssets.Colors.Red;
+            // Critical (255, 0, 0) - pure red
+            if (r == 255 && g == 0 && b == 0) return AsciiArtAssets.Colors.Red;
+            // Miss (128, 128, 128) - gray
+            if (r == 128 && g == 128 && b == 128) return AsciiArtAssets.Colors.Gray;
+            // Healing (0, 255, 127) - spring green, map to Green
+            if (r == 0 && g == 255 && b == 127) return AsciiArtAssets.Colors.Green;
+            
+            // Status colors
+            // Success (0, 128, 0) - dark green, map to DarkGreen
+            if (r == 0 && g == 128 && b == 0) return AsciiArtAssets.Colors.DarkGreen;
+            // Warning (255, 165, 0) - orange
+            if (r == 255 && g == 165 && b == 0) return AsciiArtAssets.Colors.Orange;
+            // Error (220, 20, 60) - crimson, map to Red
+            if (r == 220 && g == 20 && b == 60) return AsciiArtAssets.Colors.Red;
+            // Info (0, 191, 255) - deep sky blue, map to Cyan
+            if (r == 0 && g == 191 && b == 255) return AsciiArtAssets.Colors.Cyan;
+            
+            // Actor colors
+            // Player (0, 255, 255) - cyan
+            if (r == 0 && g == 255 && b == 255) return AsciiArtAssets.Colors.Cyan;
+            // Enemy (255, 0, 0) - red
+            if (r == 255 && g == 0 && b == 0) return AsciiArtAssets.Colors.Red;
             
             // Default to white for unknown colors
             return AsciiArtAssets.Colors.White;
@@ -232,20 +272,32 @@ namespace RPGGame.UI.Avalonia.Renderers
         
         /// <summary>
         /// Writes colored text with word wrapping
+        /// Handles newlines in the message by splitting on newlines first, then wrapping each line
         /// </summary>
         /// <returns>Number of lines written</returns>
         public int WriteLineColoredWrapped(string message, int x, int y, int maxWidth)
         {
-            var lines = WrapText(message, maxWidth);
+            if (string.IsNullOrEmpty(message))
+                return 0;
+            
+            // First, split on newlines to preserve line structure (e.g., for roll info indentation)
+            var newlineSplit = message.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
             int currentY = y;
+            int totalLines = 0;
 
-            foreach (var line in lines)
+            foreach (var line in newlineSplit)
             {
-                WriteLineColored(line, x, currentY);
-                currentY++;
+                // Wrap each line separately to preserve indentation
+                var wrappedLines = WrapText(line, maxWidth);
+                foreach (var wrappedLine in wrappedLines)
+                {
+                    WriteLineColored(wrappedLine, x, currentY);
+                    currentY++;
+                    totalLines++;
+                }
             }
             
-            return lines.Count;
+            return totalLines;
         }
 
         /// <summary>

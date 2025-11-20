@@ -120,14 +120,17 @@ namespace RPGGame
         {
             if (UIManager.UIConfig.DisableAllOutput) return;
             
-            // Manage spacing between block types
-            ManageBlockSpacing("ActionBlock");
-            
             // Extract Actor name from action text (format: [EntityName] ...)
             string? currentEntity = ExtractEntityNameFromMessage(actionText);
             
-            // Note: Actor switching spacing is now handled by centralized spacing rules
-            // We only track the Actor for potential future use, but don't add manual spacing
+            // Add blank line when switching between different actors
+            if (lastActingEntity != null && currentEntity != null && lastActingEntity != currentEntity)
+            {
+                UIManager.WriteBlankLine();
+            }
+            
+            // Manage spacing between block types
+            ManageBlockSpacing("ActionBlock");
             
             // Display the action with keyword coloring
             UIManager.WriteLine(ApplyKeywordColoring(actionText), UIMessageType.Combat);

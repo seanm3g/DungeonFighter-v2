@@ -86,7 +86,10 @@ namespace RPGGame.UI.ColorSystem
             ["chamber"] = ColorPalette.Purple,
             ["treasure"] = ColorPalette.Gold,
             ["exit"] = ColorPalette.Green,
-            ["entrance"] = ColorPalette.Cyan
+            ["entrance"] = ColorPalette.Cyan,
+            
+            // Environmental patterns
+            ["natural"] = ColorPalette.Green
         };
         
         /// <summary>

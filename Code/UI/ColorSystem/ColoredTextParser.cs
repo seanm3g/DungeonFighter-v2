@@ -30,6 +30,13 @@ namespace RPGGame.UI.ColorSystem
             RegexOptions.Compiled | RegexOptions.IgnoreCase
         );
         
+        // Pattern for template syntax: {{template|text}}
+        // Matches template name and text, ensuring we match up to the closing }}
+        private static readonly Regex TemplateRegex = new Regex(
+            @"\{\{([^|]+)\|(.*?)\}\}",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline
+        );
+        
         /// <summary>
         /// Parses text with color markup into ColoredText segments
         /// </summary>
@@ -43,6 +50,17 @@ namespace RPGGame.UI.ColorSystem
             
             // Find all color markup patterns
             var matches = new List<ColorMatch>();
+            
+            // Add template syntax matches ({{template|text}}) - process first to handle nested cases
+            matches.AddRange(TemplateRegex.Matches(text).Cast<Match>()
+                .Select(m => new ColorMatch
+                {
+                    Start = m.Index,
+                    End = m.Index + m.Length,
+                    ColorPattern = m.Groups[1].Value.Trim(),
+                    Text = m.Groups[2].Value,
+                    Type = ColorMatchType.Template
+                }));
             
             // Add explicit color markup matches
             matches.AddRange(ColorMarkupRegex.Matches(text).Cast<Match>()
@@ -162,13 +180,17 @@ namespace RPGGame.UI.ColorSystem
         {
             switch (match.Type)
             {
+                case ColorMatchType.Template:
+                case ColorMatchType.Explicit:
+                case ColorMatchType.Simple:
+                    // Use pattern-based color
+                    return GetColorForPattern(match.ColorPattern, characterName);
+                
                 case ColorMatchType.Character:
                     // Use character-specific color
                     var profile = CharacterColorManager.GetProfile(match.CharacterName);
                     return profile.GetColorForPattern(match.ColorPattern);
                 
-                case ColorMatchType.Explicit:
-                case ColorMatchType.Simple:
                 default:
                     // Use pattern-based color
                     return GetColorForPattern(match.ColorPattern, characterName);
@@ -231,6 +253,7 @@ namespace RPGGame.UI.ColorSystem
         
         private enum ColorMatchType
         {
+            Template,
             Explicit,
             Simple,
             Character

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.Avalonia;
 
 namespace RPGGame.UI.Avalonia.Renderers
 {
@@ -41,25 +42,91 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
         
         /// <summary>
-        /// Renders the main combat screen with combat log (enemy info moved to right panel)
+        /// Renders the main combat screen with dungeon/room/enemy info header at top and combat log below
         /// </summary>
-        public void RenderCombat(int x, int y, int width, int height, Character player, Enemy enemy, List<string> combatLog)
+        public void RenderCombat(int x, int y, int width, int height, Character player, Enemy enemy, List<string> combatLog, 
+            string? dungeonName = null, string? roomName = null, List<string>? dungeonContext = null)
         {
             currentLineCount = 0;
             int startY = y;
+            int currentY = y;
             
-            // Combat log section - header removed per user request
-            
-            // Calculate available width for combat log
+            // Calculate available width for content
             int availableWidth = width - 4;
             
+            // Render dungeon/room/enemy info header at the top
+            int headerLines = 0;
+            if (dungeonContext != null && dungeonContext.Count > 0)
+            {
+                // Render the dungeon context info (dungeon header, room info, enemy encounter)
+                // This includes dungeon name, room name, enemy stats, etc.
+                foreach (var contextLine in dungeonContext)
+                {
+                    if (!string.IsNullOrWhiteSpace(contextLine) && currentY < startY + height - 10)
+                    {
+                        // Render with color markup and text wrapping
+                        int linesRendered = textWriter.WriteLineColoredWrapped(contextLine, x + 2, currentY, availableWidth);
+                        currentY += linesRendered;
+                        headerLines += linesRendered;
+                        currentLineCount += linesRendered;
+                    }
+                }
+                
+                // Add a separator line after the header
+                if (headerLines > 0 && currentY < startY + height - 2)
+                {
+                    currentY++;
+                    headerLines++;
+                    currentLineCount++;
+                }
+            }
+            else
+            {
+                // Fallback: Show basic info if context is not available
+                if (!string.IsNullOrEmpty(dungeonName) || !string.IsNullOrEmpty(roomName) || enemy != null)
+                {
+                    if (!string.IsNullOrEmpty(dungeonName))
+                    {
+                        int linesRendered = textWriter.WriteLineColoredWrapped($"&CDungeon: {dungeonName}", x + 2, currentY, availableWidth);
+                        currentY += linesRendered;
+                        headerLines += linesRendered;
+                        currentLineCount += linesRendered;
+                    }
+                    if (!string.IsNullOrEmpty(roomName))
+                    {
+                        int linesRendered = textWriter.WriteLineColoredWrapped($"&CRoom: {roomName}", x + 2, currentY, availableWidth);
+                        currentY += linesRendered;
+                        headerLines += linesRendered;
+                        currentLineCount += linesRendered;
+                    }
+                    if (enemy != null)
+                    {
+                        string enemyWeaponInfo = enemy.Weapon != null 
+                            ? string.Format(AsciiArtAssets.UIText.WeaponSuffix, enemy.Weapon.Name)
+                            : "";
+                        int linesRendered = textWriter.WriteLineColoredWrapped($"&YEnemy: {enemy.Name}{enemyWeaponInfo}", x + 2, currentY, availableWidth);
+                        currentY += linesRendered;
+                        headerLines += linesRendered;
+                        currentLineCount += linesRendered;
+                    }
+                    currentY++;
+                    headerLines++;
+                    currentLineCount++;
+                }
+            }
+            
+            // Calculate remaining height for combat log
+            int remainingHeight = height - headerLines - 2;
+            int combatLogStartY = currentY;
+            
+            // Render combat log below the header
             foreach (var logEntry in combatLog.TakeLast(20))
             {
-                if (y < startY + height - 2)
+                if (currentY < startY + height - 2 && currentY < combatLogStartY + remainingHeight)
                 {
                     // Render with color markup and text wrapping
-                    int linesRendered = textWriter.WriteLineColoredWrapped(logEntry, x + 2, y, availableWidth);
-                    y += linesRendered;
+                    int linesRendered = textWriter.WriteLineColoredWrapped(logEntry, x + 2, currentY, availableWidth);
+                    currentY += linesRendered;
                     currentLineCount += linesRendered;
                 }
             }

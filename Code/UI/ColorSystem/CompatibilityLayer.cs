@@ -114,6 +114,10 @@ namespace RPGGame.UI.ColorSystem
             if (string.IsNullOrEmpty(text))
                 return false;
             
+            // Check for template syntax: {{template|text}}
+            if (text.Contains("{{") && text.Contains("}}"))
+                return true;
+            
             // Check for old-style color codes (both uppercase and lowercase)
             if (text.Contains("&R") || text.Contains("&G") || text.Contains("&B") || 
                 text.Contains("&Y") || text.Contains("&C") || text.Contains("&M") || 

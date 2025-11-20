@@ -186,9 +186,12 @@ namespace RPGGame
             string enemyWeaponInfo = enemy.Weapon != null 
                 ? string.Format(AsciiArtAssets.UIText.WeaponSuffix, enemy.Weapon.Name)
                 : "";
-            narrativeManager.LogDungeonEvent("&Y" + string.Format(AsciiArtAssets.UIText.EncounteredFormat, enemy.Name, enemyWeaponInfo));
-            narrativeManager.LogDungeonEvent("&C" + AsciiArtAssets.UIText.FormatEnemyStats(enemy.CurrentHealth, enemy.MaxHealth, enemy.Armor));
-            narrativeManager.LogDungeonEvent("&C" + AsciiArtAssets.UIText.FormatEnemyAttack(enemy.Strength, enemy.Agility, enemy.Technique, enemy.Intelligence));
+            string encounteredText = string.Format(AsciiArtAssets.UIText.EncounteredFormat, enemy.Name, enemyWeaponInfo);
+            narrativeManager.LogDungeonEvent($"{{{{common|{encounteredText}}}}}");
+            string statsText = AsciiArtAssets.UIText.FormatEnemyStats(enemy.CurrentHealth, enemy.MaxHealth, enemy.Armor);
+            narrativeManager.LogDungeonEvent($"{{{{enhanced_rare|{statsText}}}}}");
+            string attackText = AsciiArtAssets.UIText.FormatEnemyAttack(enemy.Strength, enemy.Agility, enemy.Technique, enemy.Intelligence);
+            narrativeManager.LogDungeonEvent($"{{{{enhanced_rare|{attackText}}}}}");
             narrativeManager.LogDungeonEvent("");
             
             // Show enemy encounter

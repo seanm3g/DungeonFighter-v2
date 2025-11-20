@@ -51,21 +51,19 @@ namespace RPGGame.UI.Avalonia.Renderers
         public void RenderDisplayBuffer(CanvasContext context)
         {
             // Ensure UI updates happen on UI thread
+            // Note: We don't clear the canvas here - RenderDisplayBufferFallback handles clearing
+            // only when necessary (full layout changes) to prevent flickering
             if (Dispatcher.UIThread.CheckAccess())
             {
                 // Already on UI thread
-                canvas.Clear();
                 textManager.RenderDisplayBufferFallback();
-                canvas.Refresh();
             }
             else
             {
                 // Need to post to UI thread
                 Dispatcher.UIThread.Post(() =>
                 {
-                    canvas.Clear();
                     textManager.RenderDisplayBufferFallback();
-                    canvas.Refresh();
                 });
             }
         }
@@ -158,7 +156,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         {
             RenderWithLayout(player, "COMBAT", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                combatRenderer.RenderCombat(contentX, contentY, contentWidth, contentHeight, player, enemy, combatLog);
+                // Pass dungeon context info to show at top of combat screen
+                combatRenderer.RenderCombat(contentX, contentY, contentWidth, contentHeight, player, enemy, combatLog,
+                    context.DungeonName, context.RoomName, context.DungeonContext);
             }, context, enemy, null, null);
         }
 

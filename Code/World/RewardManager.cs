@@ -117,9 +117,9 @@ namespace RPGGame
 
             if (reward != null)
             {
-                // Add to both inventories
+                // Add to inventory (player.AddToInventory already adds to player.Inventory, 
+                // and inventory parameter is a reference to the same list)
                 player.AddToInventory(reward);
-                inventory.Add(reward);
                 
                 // Track item collection statistics
                 player.RecordItemCollected(reward);
@@ -154,9 +154,9 @@ namespace RPGGame
 
             if (reward != null)
             {
-                // Add to both inventories
+                // Add to inventory (player.AddToInventory already adds to player.Inventory, 
+                // and inventory parameter is a reference to the same list)
                 player.AddToInventory(reward);
-                inventory.Add(reward);
                 
                 // Track item collection statistics
                 player.RecordItemCollected(reward);

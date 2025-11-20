@@ -678,140 +678,146 @@
     {
       "name": "lava",
       "shaderType": "sequence",
-      "colors": ["r", "R", "O", "R"],
+      "colors": ["r", "R", "O"],
       "description": "Lava environment"
     },
     {
       "name": "crypt",
       "shaderType": "sequence",
-      "colors": ["y", "m", "Y", "y"],
+      "colors": ["y", "m", "Y"],
       "description": "Crypt environment"
     },
     {
       "name": "crystal",
       "shaderType": "sequence",
-      "colors": ["m", "M", "C", "Y"],
+      "colors": ["m", "M", "C"],
       "description": "Crystal environment"
     },
     {
       "name": "temple",
       "shaderType": "sequence",
-      "colors": ["W", "Y", "w", "Y"],
+      "colors": ["W", "Y", "w"],
       "description": "Temple environment"
     },
     {
       "name": "ice",
       "shaderType": "sequence",
-      "colors": ["C", "B", "Y", "C"],
+      "colors": ["C", "B", "Y"],
       "description": "Ice environment"
     },
     {
       "name": "shadow",
       "shaderType": "sequence",
-      "colors": ["m", "M", "y", "m"],
+      "colors": ["m", "M", "y"],
       "description": "Shadow environment"
     },
     {
       "name": "steampunk",
       "shaderType": "sequence",
-      "colors": ["w", "o", "y", "w"],
+      "colors": ["w", "o", "y"],
       "description": "Steampunk environment"
     },
     {
       "name": "swamp",
       "shaderType": "sequence",
-      "colors": ["g", "w", "y", "g"],
+      "colors": ["g", "w", "y"],
       "description": "Swamp environment"
     },
     {
       "name": "astral",
       "shaderType": "sequence",
-      "colors": ["M", "B", "Y", "C"],
+      "colors": ["M", "B", "C"],
       "description": "Astral environment"
     },
     {
       "name": "underground",
       "shaderType": "sequence",
-      "colors": ["w", "y", "Y", "w"],
+      "colors": ["w", "y", "Y"],
       "description": "Underground environment"
     },
     {
       "name": "storm",
       "shaderType": "sequence",
-      "colors": ["C", "Y", "B", "Y"],
+      "colors": ["C", "Y", "B"],
       "description": "Storm environment"
     },
     {
       "name": "nature",
       "shaderType": "sequence",
-      "colors": ["g", "G", "Y", "G"],
+      "colors": ["g", "G", "Y"],
       "description": "Nature environment"
     },
     {
       "name": "arcane",
       "shaderType": "sequence",
-      "colors": ["m", "M", "C", "B"],
+      "colors": ["m", "M", "C"],
       "description": "Arcane environment"
     },
     {
       "name": "desert",
       "shaderType": "sequence",
-      "colors": ["W", "O", "Y", "w"],
+      "colors": ["W", "O", "Y"],
       "description": "Desert environment"
     },
     {
       "name": "volcano",
       "shaderType": "sequence",
-      "colors": ["R", "O", "r", "R"],
+      "colors": ["R", "O", "r"],
       "description": "Volcano environment"
     },
     {
       "name": "ruins",
       "shaderType": "sequence",
-      "colors": ["w", "y", "Y", "y"],
+      "colors": ["w", "y", "Y"],
       "description": "Ruins environment"
     },
     {
       "name": "ocean",
       "shaderType": "sequence",
-      "colors": ["b", "B", "C", "B"],
+      "colors": ["b", "B", "C"],
       "description": "Ocean environment"
     },
     {
       "name": "mountain",
       "shaderType": "sequence",
-      "colors": ["y", "Y", "C", "Y"],
+      "colors": ["y", "Y", "C"],
       "description": "Mountain environment"
     },
     {
       "name": "temporal",
       "shaderType": "sequence",
-      "colors": ["C", "M", "Y", "B"],
+      "colors": ["C", "M", "Y"],
       "description": "Temporal environment"
     },
     {
       "name": "dream",
       "shaderType": "sequence",
-      "colors": ["M", "C", "Y", "m"],
+      "colors": ["M", "C", "Y"],
       "description": "Dream environment"
     },
     {
       "name": "void",
       "shaderType": "sequence",
-      "colors": ["m", "M", "y", "m"],
+      "colors": ["m", "M", "y"],
       "description": "Void environment"
     },
     {
       "name": "dimensional",
       "shaderType": "sequence",
-      "colors": ["M", "C", "B", "Y"],
+      "colors": ["M", "C", "B"],
       "description": "Dimensional environment"
     },
     {
       "name": "divine",
       "shaderType": "sequence",
-      "colors": ["W", "Y", "M", "Y"],
+      "colors": ["W", "Y", "M"],
       "description": "Divine environment"
+    },
+    {
+      "name": "generic",
+      "shaderType": "sequence",
+      "colors": ["y", "Y"],
+      "description": "Generic environment - neutral grey to white"
     },
     {
       "name": "title_dungeon",
