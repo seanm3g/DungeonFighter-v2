@@ -65,6 +65,23 @@ namespace RPGGame
         /// </summary>
         public static void DisplayActionBlock(List<ColoredText> actionText, string rollInfo, List<string>? statusEffects = null)
         {
+            // Extract entity name from ColoredText for blank line tracking
+            string? currentEntity = null;
+            if (actionText != null && actionText.Count > 0)
+            {
+                string plainText = ColoredTextRenderer.RenderAsPlainText(actionText);
+                currentEntity = ExtractEntityNameFromMessage(plainText);
+            }
+            
+            // Add blank line when switching between different actors
+            if (lastActingEntity != null && currentEntity != null && lastActingEntity != currentEntity)
+            {
+                UIManager.WriteBlankLine();
+            }
+            
+            // Manage spacing between block types
+            ManageBlockSpacing("ActionBlock");
+            
             // Convert ColoredText to markup string for now (future: render directly)
             UIManager.WriteColoredText(actionText);
             UIManager.WriteLine($"    {rollInfo}", UIMessageType.RollInfo);
@@ -73,6 +90,12 @@ namespace RPGGame
             foreach (var effect in validEffects)
             {
                 UIManager.WriteLine($"    {ApplyKeywordColoring(effect)}", UIMessageType.EffectMessage);
+            }
+            
+            // Update the last acting Actor
+            if (currentEntity != null)
+            {
+                lastActingEntity = currentEntity;
             }
             
             ApplyBlockDelay("ActionBlock");
@@ -120,7 +143,7 @@ namespace RPGGame
         {
             if (UIManager.UIConfig.DisableAllOutput) return;
             
-            // Extract Actor name from action text (format: [EntityName] ...)
+            // Extract Actor name from action text (supports: [EntityName] ... or EntityName hits ...)
             string? currentEntity = ExtractEntityNameFromMessage(actionText);
             
             // Add blank line when switching between different actors
@@ -347,7 +370,8 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Extracts Actor name from a message in the format [EntityName] ...
+        /// Extracts Actor name from a message
+        /// Supports formats: "[EntityName] ..." or "EntityName hits ..."
         /// </summary>
         /// <param name="message">Message to extract Actor name from</param>
         /// <returns>Actor name if found, null otherwise</returns>
@@ -355,13 +379,39 @@ namespace RPGGame
         {
             if (string.IsNullOrEmpty(message)) return null;
             
+            // Try bracket format first: [EntityName] ...
             int startIndex = message.IndexOf('[');
-            if (startIndex == -1) return null;
+            if (startIndex != -1)
+            {
+                int endIndex = message.IndexOf(']', startIndex);
+                if (endIndex != -1)
+                {
+                    return message.Substring(startIndex + 1, endIndex - startIndex - 1);
+                }
+            }
             
-            int endIndex = message.IndexOf(']', startIndex);
-            if (endIndex == -1) return null;
+            // Try format without brackets: "EntityName hits ..."
+            int hitsIndex = message.IndexOf(" hits ");
+            if (hitsIndex > 0)
+            {
+                return message.Substring(0, hitsIndex).Trim();
+            }
             
-            return message.Substring(startIndex + 1, endIndex - startIndex - 1);
+            // Try format: "EntityName misses ..."
+            int missesIndex = message.IndexOf(" misses ");
+            if (missesIndex > 0)
+            {
+                return message.Substring(0, missesIndex).Trim();
+            }
+            
+            // Try format: "EntityName uses ..."
+            int usesIndex = message.IndexOf(" uses ");
+            if (usesIndex > 0)
+            {
+                return message.Substring(0, usesIndex).Trim();
+            }
+            
+            return null;
         }
     }
 }

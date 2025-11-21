@@ -100,9 +100,12 @@ namespace RPGGame
             narrativeManager.DungeonHeaderInfo.Add("");
             
             // Process all rooms
+            int roomNumber = 0;
+            int totalRooms = stateManager.CurrentDungeon.Rooms.Count;
             foreach (Environment room in stateManager.CurrentDungeon.Rooms)
             {
-                if (!await ProcessRoom(room))
+                roomNumber++;
+                if (!await ProcessRoom(room, roomNumber, totalRooms))
                 {
                     // Player died
                     stateManager.TransitionToState(GameState.MainMenu);
@@ -118,7 +121,7 @@ namespace RPGGame
         /// <summary>
         /// Process a single room in the dungeon
         /// </summary>
-        private async Task<bool> ProcessRoom(Environment room)
+        private async Task<bool> ProcessRoom(Environment room, int roomNumber, int totalRooms)
         {
             if (stateManager.CurrentPlayer == null || combatManager == null) return false;
             
@@ -132,6 +135,13 @@ namespace RPGGame
                 .Add(roomHeaderText, ColorPalette.Warning)
                 .Build();
             narrativeManager.CurrentRoomInfo.Add(ColoredTextRenderer.RenderAsPlainText(coloredRoomHeader));
+            
+            // Add room number information (e.g., "Room 1 of 5")
+            var roomNumberInfo = new ColoredTextBuilder()
+                .Add("Room Number: ", ColorPalette.Info)
+                .Add($"{roomNumber} of {totalRooms}", ColorPalette.Warning)
+                .Build();
+            narrativeManager.CurrentRoomInfo.Add(ColoredTextRenderer.RenderAsPlainText(roomNumberInfo));
             
             var roomNameInfo = new ColoredTextBuilder()
                 .Add("Room: ", ColorPalette.White)
@@ -182,7 +192,40 @@ namespace RPGGame
             narrativeManager.DungeonLog.AddRange(narrativeManager.DungeonHeaderInfo);
             narrativeManager.DungeonLog.AddRange(narrativeManager.CurrentRoomInfo);
             
-            // Add enemy encounter info
+            // Set combat context FIRST before adding to display buffer
+            // This ensures that when display buffer updates trigger renders, the context is already set
+            // This prevents unnecessary full clears when transitioning to combat
+            if (customUIManager is CanvasUICoordinator canvasUISetup)
+            {
+                canvasUISetup.SetDungeonContext(narrativeManager.DungeonLog);
+                canvasUISetup.SetCurrentEnemy(enemy);
+                canvasUISetup.SetDungeonName(stateManager.CurrentDungeon?.Name);
+                canvasUISetup.SetRoomName(stateManager.CurrentRoom?.Name);
+                canvasUISetup.SetCharacter(stateManager.CurrentPlayer);
+                canvasUISetup.ResetForNewBattle();
+            }
+            
+            // Add dungeon header and room info to display buffer
+            // This ensures comprehensive pre-combat information is visible during combat
+            // We add it for each encounter to ensure it's always visible (display buffer handles duplicates)
+            foreach (var headerLine in narrativeManager.DungeonHeaderInfo)
+            {
+                if (!string.IsNullOrWhiteSpace(headerLine))
+                {
+                    UIManager.WriteLine(headerLine, UIMessageType.System);
+                }
+            }
+            
+            // Add room info to display buffer
+            foreach (var roomLine in narrativeManager.CurrentRoomInfo)
+            {
+                if (!string.IsNullOrWhiteSpace(roomLine))
+                {
+                    UIManager.WriteLine(roomLine, UIMessageType.System);
+                }
+            }
+            
+            // Add enemy encounter info to dungeon log
             string enemyWeaponInfo = enemy.Weapon != null 
                 ? string.Format(AsciiArtAssets.UIText.WeaponSuffix, enemy.Weapon.Name)
                 : "";
@@ -194,25 +237,25 @@ namespace RPGGame
             narrativeManager.LogDungeonEvent($"{{{{enhanced_rare|{attackText}}}}}");
             narrativeManager.LogDungeonEvent("");
             
+            // Add encounter info to display buffer so it persists through combat
+            // This ensures the pre-combat information stays visible during combat
+            UIManager.WriteLine($"{{{{common|{encounteredText}}}}}", UIMessageType.System);
+            UIManager.WriteLine($"{{{{enhanced_rare|{statsText}}}}}", UIMessageType.System);
+            UIManager.WriteLine($"{{{{enhanced_rare|{attackText}}}}}", UIMessageType.System);
+            UIManager.WriteLine("", UIMessageType.System);
+            
             // Show enemy encounter
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
                 canvasUI.RenderEnemyEncounter(enemy, stateManager.CurrentPlayer, narrativeManager.DungeonLog, stateManager.CurrentDungeon?.Name, stateManager.CurrentRoom?.Name);
             }
             
-            await Task.Delay(1500);
+            // Increased delay to 3500ms to give players more time to read encounter info
+            await Task.Delay(3500);
             
-            // Prepare for combat
-            if (customUIManager is CanvasUICoordinator canvasUI2)
-            {
-                canvasUI2.SetDungeonContext(narrativeManager.DungeonLog);
-                canvasUI2.SetCurrentEnemy(enemy);
-                canvasUI2.SetDungeonName(stateManager.CurrentDungeon?.Name);
-                canvasUI2.SetRoomName(stateManager.CurrentRoom?.Name);
-                canvasUI2.ResetForNewBattle();
-                canvasUI2.SetCharacter(stateManager.CurrentPlayer);
-                canvasUI2.RenderCombat(stateManager.CurrentPlayer, enemy, narrativeManager.DungeonLog);
-            }
+            // Don't call RenderCombat - it would clear the screen
+            // The display buffer already has all pre-combat info, and combat text will be added to it
+            // The display will update naturally as combat text is added via UIManager.WriteLine()
             
             // Run combat on background thread to prevent UI blocking, but update UI on UI thread
             var room = stateManager.CurrentRoom;

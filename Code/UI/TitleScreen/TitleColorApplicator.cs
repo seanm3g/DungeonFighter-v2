@@ -1,31 +1,51 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
+using RPGGame.UI.ColorSystem;
+using Avalonia.Media;
 
 namespace RPGGame.UI.TitleScreen
 {
     /// <summary>
-    /// Handles color application to ASCII art text using the game's color markup system
+    /// Handles color application to ASCII art text using the game's color template system
     /// Supports solid colors and progressive character-by-character transitions
     /// </summary>
     public static class TitleColorApplicator
     {
         /// <summary>
-        /// Applies a solid color to text using modern single-prefix approach
-        /// Uses one color code at the start instead of per-character coloring
+        /// Applies a template to text using the color template system
         /// </summary>
         /// <param name="text">Text to colorize</param>
-        /// <param name="colorCode">Single-letter color code (e.g., "R", "G", "k")</param>
-        /// <returns>Text with color markup applied</returns>
-        public static string ApplySolidColor(string text, string colorCode)
+        /// <param name="templateName">Template name (e.g., "golden", "fiery")</param>
+        /// <returns>List of ColoredText segments</returns>
+        public static List<ColoredText> ApplyTemplate(string text, string templateName)
         {
-            if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(colorCode))
+            if (string.IsNullOrEmpty(text))
             {
-                return text;
+                return new List<ColoredText>();
             }
 
-            // Modern approach: Single color code at the start applies to entire line
-            // This is much more efficient than per-character coloring
-            return $"&{colorCode}{text}";
+            // Use the color template library to apply the template
+            return ColorTemplateLibrary.GetTemplate(templateName, text);
+        }
+
+        /// <summary>
+        /// Applies a solid color to text using a single color from the palette
+        /// Used for transitions and simple color application
+        /// </summary>
+        /// <param name="text">Text to colorize</param>
+        /// <param name="colorCode">Single-letter color code (e.g., "R", "G", "W")</param>
+        /// <returns>List of ColoredText segments</returns>
+        public static List<ColoredText> ApplySolidColor(string text, string colorCode)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return new List<ColoredText>();
+            }
+
+            // Convert color code to ColorPalette and use SingleColor template
+            var color = ConvertColorCodeToColor(colorCode);
+            return ColorTemplateLibrary.SingleColor(text, color);
         }
 
         /// <summary>
@@ -36,18 +56,19 @@ namespace RPGGame.UI.TitleScreen
         /// <param name="sourceColor">Color to transition from (e.g., "Y" for white)</param>
         /// <param name="targetColor">Color to transition to (e.g., "W" for gold or "O" for orange)</param>
         /// <param name="progress">Transition progress (0.0 to 1.0)</param>
-        /// <returns>Text with color markup applied</returns>
-        public static string ApplyTransitionColor(string text, string sourceColor, string targetColor, float progress)
+        /// <returns>List of ColoredText segments</returns>
+        public static List<ColoredText> ApplyTransitionColor(string text, string sourceColor, string targetColor, float progress)
         {
             if (string.IsNullOrEmpty(text))
             {
-                return text;
+                return new List<ColoredText>();
             }
 
             // Multi-stage color progression based on target color
-            string color = GetProgressiveColor(sourceColor, targetColor, progress);
+            string colorCode = GetProgressiveColor(sourceColor, targetColor, progress);
+            var color = ConvertColorCodeToColor(colorCode);
             
-            return $"&{color}{text}";
+            return ColorTemplateLibrary.SingleColor(text, color);
         }
 
         /// <summary>
@@ -121,6 +142,39 @@ namespace RPGGame.UI.TitleScreen
         public static bool IsValidColorCode(string colorCode)
         {
             return !string.IsNullOrEmpty(colorCode) && colorCode.Length == 1;
+        }
+
+        /// <summary>
+        /// Converts a color code to an Avalonia Color
+        /// Maps single-letter color codes to their corresponding colors
+        /// </summary>
+        private static Color ConvertColorCodeToColor(string colorCode)
+        {
+            if (string.IsNullOrEmpty(colorCode))
+                return Colors.White;
+
+            return colorCode.ToUpper() switch
+            {
+                "R" => ColorPalette.Red.GetColor(),
+                "r" => ColorPalette.DarkRed.GetColor(),
+                "G" => ColorPalette.Green.GetColor(),
+                "g" => ColorPalette.DarkGreen.GetColor(),
+                "B" => ColorPalette.Blue.GetColor(),
+                "b" => ColorPalette.DarkBlue.GetColor(),
+                "C" => ColorPalette.Cyan.GetColor(),
+                "c" => ColorPalette.DarkCyan.GetColor(),
+                "M" => ColorPalette.Magenta.GetColor(),
+                "m" => ColorPalette.DarkMagenta.GetColor(),
+                "O" => ColorPalette.Orange.GetColor(),
+                "o" => Color.FromRgb(200, 100, 0), // Dark orange
+                "W" => ColorPalette.Gold.GetColor(),
+                "w" => ColorPalette.Brown.GetColor(),
+                "Y" => Colors.White,
+                "y" => ColorPalette.Gray.GetColor(),
+                "K" => ColorPalette.DarkGray.GetColor(),
+                "k" => Colors.Black,
+                _ => Colors.White
+            };
         }
     }
 }

@@ -174,11 +174,12 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets colored item name with rarity
+        /// Gets colored item name with rarity, modifications, and proper element coloring
         /// </summary>
         public static string GetColoredItemName(Item item)
         {
-            var coloredText = ItemColorSystem.FormatSimpleItemDisplay(item);
+            // Use full item name formatting to include modifications with proper colors
+            var coloredText = ItemColorSystem.FormatFullItemName(item);
             return ColoredTextRenderer.RenderAsPlainText(coloredText);
         }
 

@@ -1,5 +1,6 @@
 using Avalonia.Media;
 using RPGGame.UI;
+using RPGGame.UI.ColorSystem;
 using System;
 using System.Collections.Generic;
 
@@ -11,11 +12,13 @@ namespace RPGGame.UI.Avalonia.Renderers
     public class DungeonCompletionRenderer
     {
         private readonly GameCanvasControl canvas;
+        private readonly ColoredTextWriter textWriter;
         private readonly List<ClickableElement> clickableElements;
         
-        public DungeonCompletionRenderer(GameCanvasControl canvas, List<ClickableElement> clickableElements)
+        public DungeonCompletionRenderer(GameCanvasControl canvas, ColoredTextWriter textWriter, List<ClickableElement> clickableElements)
         {
             this.canvas = canvas;
+            this.textWriter = textWriter;
             this.clickableElements = clickableElements;
         }
         
@@ -37,10 +40,23 @@ namespace RPGGame.UI.Avalonia.Renderers
             currentY += 2;
             currentLineCount += 2;
             
-            // Use theme color for dungeon name
+            // Health restoration message
+            int maxHealth = player.GetEffectiveMaxHealth();
+            if (player.CurrentHealth == maxHealth)
+            {
+                canvas.AddText(x + 4, currentY, "Fully Restored", AsciiArtAssets.Colors.Green);
+                currentY += 2;
+                currentLineCount += 2;
+            }
+            
+            // Use theme color for dungeon name - render as segments to ensure proper vertical alignment
             var themeColor = DungeonThemeColors.GetThemeColor(dungeon.Theme);
-            canvas.AddText(x + 4, currentY, "Dungeon: ", AsciiArtAssets.Colors.White);
-            canvas.AddText(x + 14, currentY, dungeon.Name, themeColor);
+            var segments = new List<ColoredText>
+            {
+                new ColoredText("Dungeon: ", AsciiArtAssets.Colors.White),
+                new ColoredText(dungeon.Name, themeColor)
+            };
+            textWriter.RenderSegments(segments, x + 4, currentY);
             currentY += 2;
             currentLineCount += 2;
             
@@ -73,24 +89,18 @@ namespace RPGGame.UI.Avalonia.Renderers
             currentLineCount += 2;
             
             canvas.AddText(x + 6, currentY, $"Experience Gained: {xpGained:N0} XP", AsciiArtAssets.Colors.White);
-            currentY++;
-            currentLineCount++;
-            
-            // Health restoration
-            int maxHealth = player.GetEffectiveMaxHealth();
-            if (player.CurrentHealth == maxHealth)
-            {
-                canvas.AddText(x + 6, currentY, "Health: Fully Restored", AsciiArtAssets.Colors.Green);
-                currentY++;
-                currentLineCount++;
-            }
+            currentY += 2;
+            currentLineCount += 2;
             
             if (lootReceived != null)
             {
-                canvas.AddText(x + 6, currentY, $"Loot Received: {lootReceived.Name}", AsciiArtAssets.Colors.White);
+                canvas.AddText(x + 6, currentY, "Loot Received:", AsciiArtAssets.Colors.White);
                 currentY++;
                 currentLineCount++;
-                canvas.AddText(x + 8, currentY, $"Rarity: {lootReceived.Rarity}", GetRarityColor(lootReceived.Rarity));
+                
+                // Format item name with rarity prefix: [Rarity] ItemName
+                string formattedItemName = $"[{lootReceived.Rarity}] {lootReceived.Name}";
+                canvas.AddText(x + 6, currentY, formattedItemName, GetRarityColor(lootReceived.Rarity));
                 currentY++;
                 currentLineCount++;
             }

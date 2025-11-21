@@ -93,7 +93,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 {
                     var item = inventory[i];
                     string coloredItemName = ItemDisplayFormatter.GetColoredItemName(item);
-                    string itemStats = GetItemStats(item, character);
+                    List<string> itemStats = GetItemStats(item, character);
                     
                     // Add clickable item
                     var itemElement = new ClickableElement
@@ -108,16 +108,22 @@ namespace RPGGame.UI.Avalonia.Renderers
                     };
                     clickableElements.Add(itemElement);
                     
-                    // Render item with color markup support
+                    // Render item name with color markup support
                     string displayLine = $"&y[{i + 1}] {coloredItemName}";
-                    if (!string.IsNullOrEmpty(itemStats))
-                    {
-                        displayLine += $" &y({itemStats})";
-                    }
-                    
                     textWriter.WriteLineColored(displayLine, x + 2, y);
                     y++;
                     currentLineCount++;
+                    
+                    // Render each stat on its own indented line
+                    if (itemStats.Count > 0)
+                    {
+                        foreach (var stat in itemStats)
+                        {
+                            textWriter.WriteLineColored($"    {stat}", x + 2, y);
+                            y++;
+                            currentLineCount++;
+                        }
+                    }
                 }
             }
             
@@ -153,9 +159,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
         
         /// <summary>
-        /// Gets formatted item stats for display
+        /// Gets formatted item stats for display as a list (one stat per line)
         /// </summary>
-        private string GetItemStats(Item item, Character character)
+        private List<string> GetItemStats(Item item, Character character)
         {
             var stats = new List<string>();
             
@@ -181,11 +187,26 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 foreach (var bonus in item.StatBonuses)
                 {
-                    stats.Add($"+{bonus.Value} {bonus.StatType}");
+                    // Format the stat value
+                    string formattedValue = bonus.StatType switch
+                    {
+                        "AttackSpeed" => $"+{bonus.Value:F3} AttackSpeed",
+                        _ => $"+{bonus.Value} {bonus.StatType}"
+                    };
+                    
+                    // Include the label (e.g., "of Lightning") if it exists
+                    if (!string.IsNullOrEmpty(bonus.Name))
+                    {
+                        stats.Add($"{bonus.Name}: {formattedValue}");
+                    }
+                    else
+                    {
+                        stats.Add(formattedValue);
+                    }
                 }
             }
             
-            return string.Join(", ", stats);
+            return stats;
         }
         
         /// <summary>
@@ -215,22 +236,28 @@ namespace RPGGame.UI.Avalonia.Renderers
                 {
                     var item = inventory[i];
                     string coloredItemName = ItemDisplayFormatter.GetColoredItemName(item);
-                    string itemStats = GetItemStats(item, character);
+                    List<string> itemStats = GetItemStats(item, character);
                     
                     // Create clickable button for each item (1-based numbering)
                     var itemButton = CreateButton(x + 2, y, width - 4, (i + 1).ToString(), $"[{i + 1}] {item.Name}");
                     clickableElements.Add(itemButton);
                     
-                    // Render item with color markup support
+                    // Render item name with color markup support
                     string displayLine = $"&y[{i + 1}] {coloredItemName}";
-                    if (!string.IsNullOrEmpty(itemStats))
-                    {
-                        displayLine += $" &y({itemStats})";
-                    }
-                    
                     canvas.AddMenuOption(x + 2, y, i + 1, displayLine, AsciiArtAssets.Colors.White, itemButton.IsHovered);
                     y++;
                     currentLineCount++;
+                    
+                    // Render each stat on its own indented line
+                    if (itemStats.Count > 0)
+                    {
+                        foreach (var stat in itemStats)
+                        {
+                            canvas.AddText(x + 2, y, $"    {stat}", AsciiArtAssets.Colors.White);
+                            y++;
+                            currentLineCount++;
+                        }
+                    }
                 }
                 y++;
                 currentLineCount++;
@@ -307,4 +334,6 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
     }
 }
+
+
 

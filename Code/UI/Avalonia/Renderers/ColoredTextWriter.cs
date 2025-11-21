@@ -121,9 +121,13 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>
         /// Converts Avalonia color to canvas color format
         /// Maps colors by RGB values to handle ColorPalette colors properly
+        /// Ensures colors are visible on black background
         /// </summary>
         private Color ConvertToCanvasColor(Color color)
         {
+            // Ensure color is visible on black background before mapping
+            color = ColorValidator.EnsureVisible(color);
+            
             // Extract RGB values for comparison
             byte r = color.R;
             byte g = color.G;
@@ -150,6 +154,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             if (r == 0 && g == 0 && b == 139) return AsciiArtAssets.Colors.DarkBlue;
             
             // Game-specific colors
+            // Gold: #cfc041 (207, 192, 65) per template rules
+            if (r == 207 && g == 192 && b == 65) return AsciiArtAssets.Colors.Gold;
+            // Also support standard gold (255, 215, 0) for backwards compatibility
             if (r == 255 && g == 215 && b == 0) return AsciiArtAssets.Colors.Gold;
             if (r == 192 && g == 192 && b == 192) return AsciiArtAssets.Colors.Silver;
             if (r == 255 && g == 165 && b == 0) return AsciiArtAssets.Colors.Orange;
@@ -241,12 +248,31 @@ namespace RPGGame.UI.Avalonia.Renderers
             if (string.IsNullOrEmpty(text))
                 return result;
             
-            var words = text.Split(' ');
-            var currentLine = "";
+            // Preserve leading spaces (important for indented text like roll info)
+            string leadingSpaces = "";
+            int leadingSpaceCount = 0;
+            for (int i = 0; i < text.Length && char.IsWhiteSpace(text[i]); i++)
+            {
+                leadingSpaces += text[i];
+                leadingSpaceCount++;
+            }
+            
+            // Get the text without leading spaces for word splitting
+            string textWithoutLeading = text.Substring(leadingSpaceCount);
+            
+            // If the entire text is just whitespace, return it as-is
+            if (string.IsNullOrEmpty(textWithoutLeading))
+            {
+                result.Add(text);
+                return result;
+            }
+            
+            var words = textWithoutLeading.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            var currentLine = leadingSpaces; // Start with leading spaces
             
             foreach (var word in words)
             {
-                var testLine = string.IsNullOrEmpty(currentLine) ? word : $"{currentLine} {word}";
+                var testLine = currentLine == leadingSpaces ? $"{currentLine}{word}" : $"{currentLine} {word}";
                 
                 if (testLine.Length <= maxWidth)
                 {
@@ -254,15 +280,18 @@ namespace RPGGame.UI.Avalonia.Renderers
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(currentLine))
+                    // Only add line if it has content beyond just leading spaces
+                    if (!string.IsNullOrEmpty(currentLine.Trim()))
                     {
                         result.Add(currentLine);
                     }
-                    currentLine = word;
+                    // Start new line with leading spaces preserved
+                    currentLine = leadingSpaces + word;
                 }
             }
             
-            if (!string.IsNullOrEmpty(currentLine))
+            // Add the last line if it has content
+            if (!string.IsNullOrEmpty(currentLine.Trim()))
             {
                 result.Add(currentLine);
             }

@@ -2,6 +2,7 @@ using RPGGame;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers;
+using RPGGame.UI.ColorSystem;
 using System.Collections.Generic;
 
 namespace RPGGame.UI.Avalonia.Coordinators
@@ -122,15 +123,17 @@ namespace RPGGame.UI.Avalonia.Coordinators
         
         /// <summary>
         /// Resets display buffer for new battle
+        /// Preserves pre-combat information (dungeon, room, room number, enemy encounter) 
+        /// so it remains visible during combat.
+        /// NOTE: Does NOT clear the display buffer - only ensures dungeon context is preserved.
+        /// The display should only be fully cleared when transitioning from dungeon completion
+        /// to dungeon selection or inventory.
         /// </summary>
         public void ResetForNewBattle()
         {
-            textManager.ClearDisplayBuffer();
+            // Ensure dungeon context is available for rendering
+            // Do NOT clear the display buffer - preserve all existing content
             contextManager.RestoreDungeonContext();
-            foreach (var line in contextManager.GetDungeonContext())
-            {
-                textManager.AddToDisplayBuffer(line);
-            }
         }
         
         /// <summary>
@@ -173,6 +176,14 @@ namespace RPGGame.UI.Avalonia.Coordinators
         public int WriteLineColoredWrapped(string message, int x, int y, int maxWidth)
         {
             return textManager.WriteLineColoredWrapped(message, x, y, maxWidth);
+        }
+        
+        /// <summary>
+        /// Writes colored text segments at specified position
+        /// </summary>
+        public void WriteLineColoredSegments(List<ColoredText> segments, int x, int y)
+        {
+            textManager.WriteLineColoredSegments(segments, x, y);
         }
 
         // ===== COMBAT MESSAGE METHODS (merged from CombatMessageCoordinator) =====

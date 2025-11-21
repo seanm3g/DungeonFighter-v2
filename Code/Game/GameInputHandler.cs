@@ -35,6 +35,7 @@ namespace RPGGame
         public event InputProcessorAsync? OnDungeonSelectionInput;
         public event InputProcessorAsync? OnDungeonCompletionInput;
         public event InputProcessorAsync? OnEscapeKey;
+        public event InputProcessor? OnCombatScrollInput;
 
         public GameInputHandler(GameStateManager stateManager)
         {
@@ -97,8 +98,13 @@ namespace RPGGame
 
                     case GameState.Dungeon:
                     case GameState.Combat:
-                        // During dungeon/combat, input is handled automatically
-                        // Ignore keyboard input to prevent interference
+                        // During dungeon/combat, allow scrolling with arrow keys
+                        // Other input is handled automatically
+                        if (input == "up" || input == "down")
+                        {
+                            // Allow scrolling - will be handled by Game.cs
+                            RaiseCombatScrollInput(input);
+                        }
                         break;
 
                     default:
@@ -213,6 +219,11 @@ namespace RPGGame
         {
             if (OnDungeonCompletionInput != null)
                 await OnDungeonCompletionInput(input);
+        }
+
+        private void RaiseCombatScrollInput(string input)
+        {
+            OnCombatScrollInput?.Invoke(input);
         }
 
         /// <summary>

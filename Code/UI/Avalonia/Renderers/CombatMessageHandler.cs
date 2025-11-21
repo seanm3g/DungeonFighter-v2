@@ -61,6 +61,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             textManager.AddToDisplayBuffer("", UIMessageType.Combat);
             textManager.AddToDisplayBuffer($"&G{AsciiArtAssets.UIText.RoomClearedMessage}", UIMessageType.Combat);
             textManager.AddToDisplayBuffer(AsciiArtAssets.UIText.Divider, UIMessageType.Combat);
+            textManager.AddToDisplayBuffer("", UIMessageType.Combat);
             
             if (character != null)
             {

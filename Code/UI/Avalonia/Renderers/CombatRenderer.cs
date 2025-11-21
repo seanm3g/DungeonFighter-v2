@@ -59,7 +59,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             if (dungeonContext != null && dungeonContext.Count > 0)
             {
                 // Render the dungeon context info (dungeon header, room info, enemy encounter)
-                // This includes dungeon name, room name, enemy stats, etc.
+                // This includes dungeon name, room name, room number, enemy stats, etc.
                 foreach (var contextLine in dungeonContext)
                 {
                     if (!string.IsNullOrWhiteSpace(contextLine) && currentY < startY + height - 10)
@@ -72,12 +72,25 @@ namespace RPGGame.UI.Avalonia.Renderers
                     }
                 }
                 
-                // Add a separator line after the header
+                // Add a clear separator/marker between pre-combat info and combat log
                 if (headerLines > 0 && currentY < startY + height - 2)
                 {
-                    currentY++;
-                    headerLines++;
-                    currentLineCount++;
+                    // Add blank lines for separation
+                    currentY += 2;
+                    headerLines += 2;
+                    currentLineCount += 2;
+                    
+                    // Add a visual separator line (gray color for subtle separation)
+                    string separator = new string('═', Math.Min(availableWidth - 4, 50));
+                    textWriter.WriteLineColoredWrapped($"&w{separator}", x + 2, currentY, availableWidth);
+                    currentY += 1;
+                    headerLines += 1;
+                    currentLineCount += 1;
+                    
+                    // Add another blank line
+                    currentY += 1;
+                    headerLines += 1;
+                    currentLineCount += 1;
                 }
             }
             else

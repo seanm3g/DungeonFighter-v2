@@ -13,8 +13,12 @@ namespace RPGGame.UI.Avalonia.Managers
         void RenderDisplayBufferFallback();
         void WriteLineColored(string message, int x, int y);
         int WriteLineColoredWrapped(string message, int x, int y, int maxWidth);
+        void WriteLineColoredSegments(System.Collections.Generic.List<RPGGame.UI.ColorSystem.ColoredText> segments, int x, int y);
         void WriteChunked(string message, UI.ChunkedTextReveal.RevealConfig? config = null);
         void ClearDisplay();
         int BufferLineCount { get; }
+        void ScrollUp(int lines = 3);
+        void ScrollDown(int lines = 3);
+        void ResetScroll();
     }
 }

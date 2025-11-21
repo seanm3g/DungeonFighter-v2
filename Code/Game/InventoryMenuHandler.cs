@@ -103,6 +103,19 @@ namespace RPGGame
                 return;
             }
             
+            // If waiting for item/slot selection but input is not numeric, ignore it
+            // This prevents non-numeric keys from triggering normal menu actions
+            if (waitingForItemSelection || waitingForSlotSelection)
+            {
+                // Only allow numeric input or cancel (0) when waiting for selection
+                if (!int.TryParse(input, out _))
+                {
+                    // Show error message for invalid input during selection
+                    ShowMessageEvent?.Invoke("Please enter a number to select an item, or 0 to cancel.");
+                    return;
+                }
+            }
+            
             // Normal menu actions
             switch (input)
             {
@@ -201,7 +214,19 @@ namespace RPGGame
         /// </summary>
         private void EquipItem(int itemIndex)
         {
-            if (stateManager.CurrentPlayer == null || itemIndex < 0 || itemIndex >= stateManager.CurrentInventory.Count) return;
+            if (stateManager.CurrentPlayer == null)
+            {
+                ShowMessageEvent?.Invoke("Error: No player character available.");
+                ShowInventoryEvent?.Invoke();
+                return;
+            }
+            
+            if (itemIndex < 0 || itemIndex >= stateManager.CurrentInventory.Count)
+            {
+                ShowMessageEvent?.Invoke($"Invalid item selection. Please choose a number between 1 and {stateManager.CurrentInventory.Count}.");
+                ShowInventoryEvent?.Invoke();
+                return;
+            }
             
             var item = stateManager.CurrentInventory[itemIndex];
             string slot = item.Type switch
@@ -212,6 +237,13 @@ namespace RPGGame
                 ItemType.Feet => "feet",
                 _ => ""
             };
+            
+            if (string.IsNullOrEmpty(slot))
+            {
+                ShowMessageEvent?.Invoke($"Cannot equip {item.Name}: Invalid item type.");
+                ShowInventoryEvent?.Invoke();
+                return;
+            }
             
             var previousItem = stateManager.CurrentPlayer.EquipItem(item, slot);
             stateManager.CurrentInventory.RemoveAt(itemIndex);

@@ -187,8 +187,10 @@ namespace RPGGame
             
             if (inventoryMenuHandler != null)
             {
+                inventoryMenuHandler.ShowInventoryEvent += ShowInventory;
                 inventoryMenuHandler.ShowGameLoopEvent += ShowGameLoop;
                 inventoryMenuHandler.ShowMainMenuEvent += ShowMainMenu;
+                inventoryMenuHandler.ShowMessageEvent += ShowMessage;
             }
             
             if (gameLoopInputHandler != null)
@@ -351,7 +353,12 @@ namespace RPGGame
                     break;
                 case GameState.Dungeon:
                 case GameState.Combat:
-                    // These are handled internally by the managers
+                    // Handle scrolling during combat
+                    if (input == "up" || input == "down")
+                    {
+                        HandleCombatScroll(input);
+                    }
+                    // Other input is handled internally by the managers
                     break;
                 default:
                     ShowMessage($"Unknown state: {stateManager.CurrentState}");
@@ -444,6 +451,25 @@ namespace RPGGame
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
                 canvasUI.ShowMessage(message);
+            }
+        }
+
+        /// <summary>
+        /// Handles scrolling during combat
+        /// </summary>
+        /// <param name="input">"up" to scroll up, "down" to scroll down</param>
+        private void HandleCombatScroll(string input)
+        {
+            if (customUIManager is CanvasUICoordinator canvasUI)
+            {
+                if (input == "up")
+                {
+                    canvasUI.ScrollUp();
+                }
+                else if (input == "down")
+                {
+                    canvasUI.ScrollDown();
+                }
             }
         }
 

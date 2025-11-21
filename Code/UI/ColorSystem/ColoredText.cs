@@ -7,6 +7,78 @@ using Avalonia.Media;
 namespace RPGGame.UI.ColorSystem
 {
     /// <summary>
+    /// Utility class for validating and ensuring colors are visible on black background
+    /// </summary>
+    public static class ColorValidator
+    {
+        /// <summary>
+        /// Minimum brightness threshold (0-255) to ensure visibility on black background
+        /// Colors below this threshold will be lightened
+        /// </summary>
+        private const int MIN_BRIGHTNESS = 50;
+        
+        /// <summary>
+        /// Calculates the perceived brightness (luminance) of a color
+        /// Uses the standard formula: 0.299*R + 0.587*G + 0.114*B
+        /// </summary>
+        public static double GetBrightness(Color color)
+        {
+            return 0.299 * color.R + 0.587 * color.G + 0.114 * color.B;
+        }
+        
+        /// <summary>
+        /// Checks if a color is too dark to be visible on a black background
+        /// </summary>
+        public static bool IsTooDark(Color color)
+        {
+            return GetBrightness(color) < MIN_BRIGHTNESS;
+        }
+        
+        /// <summary>
+        /// Ensures a color is visible on black background by lightening it if necessary
+        /// Preserves the color's hue while increasing brightness
+        /// </summary>
+        public static Color EnsureVisible(Color color)
+        {
+            if (!IsTooDark(color))
+                return color;
+            
+            // Calculate current brightness
+            double brightness = GetBrightness(color);
+            
+            // Calculate how much we need to lighten
+            double lightenFactor = MIN_BRIGHTNESS / brightness;
+            
+            // Lighten the color while preserving hue
+            // Use a blend with white to lighten while maintaining color character
+            double blendFactor = 0.5; // Blend 50% with white for very dark colors
+            
+            byte newR = (byte)Math.Min(255, color.R + (255 - color.R) * blendFactor);
+            byte newG = (byte)Math.Min(255, color.G + (255 - color.G) * blendFactor);
+            byte newB = (byte)Math.Min(255, color.B + (255 - color.B) * blendFactor);
+            
+            // If still too dark, use a minimum brightness approach
+            Color lightened = Color.FromRgb(newR, newG, newB);
+            if (IsTooDark(lightened))
+            {
+                // For extremely dark colors, use a gray that's definitely visible
+                // But try to preserve some color character
+                int minComponent = Math.Max(newR, Math.Max(newG, newB));
+                if (minComponent < MIN_BRIGHTNESS)
+                {
+                    // Scale up the brightest component to at least MIN_BRIGHTNESS
+                    double scale = MIN_BRIGHTNESS / (double)minComponent;
+                    newR = (byte)Math.Min(255, (int)(color.R * scale));
+                    newG = (byte)Math.Min(255, (int)(color.G * scale));
+                    newB = (byte)Math.Min(255, (int)(color.B * scale));
+                }
+            }
+            
+            return Color.FromRgb(newR, newG, newB);
+        }
+    }
+    
+    /// <summary>
     /// Represents a piece of text with a specific color
     /// </summary>
     public class ColoredText
@@ -40,7 +112,8 @@ namespace RPGGame.UI.ColorSystem
         public ColoredText(string text, Color color)
         {
             Text = text;
-            Color = color;
+            // Ensure color is visible on black background
+            Color = ColorValidator.EnsureVisible(color);
         }
         
         public ColoredText(string text) : this(text, Colors.White) { }
@@ -60,18 +133,7 @@ namespace RPGGame.UI.ColorSystem
         /// </summary>
         public static List<ColoredText> FromTemplate(string templateName, string text)
         {
-            return templateName.ToLower() switch
-            {
-                "fiery" => ColorTemplateLibrary.Fiery(text),
-                "icy" => ColorTemplateLibrary.Icy(text),
-                "toxic" => ColorTemplateLibrary.Toxic(text),
-                "crystalline" => ColorTemplateLibrary.Crystalline(text),
-                "golden" => ColorTemplateLibrary.Golden(text),
-                "holy" => ColorTemplateLibrary.Holy(text),
-                "shadow" => ColorTemplateLibrary.Shadow(text),
-                "electric" => ColorTemplateLibrary.Electric(text),
-                _ => new List<ColoredText> { new ColoredText(text) }
-            };
+            return ColorTemplateLibrary.GetTemplate(templateName, text);
         }
         
         /// <summary>
@@ -180,6 +242,7 @@ namespace RPGGame.UI.ColorSystem
         {
             if (!string.IsNullOrEmpty(text))
             {
+                // Color validation happens in ColoredText constructor
                 _segments.Add(new ColoredText(text, color));
             }
             return this;
@@ -209,6 +272,24 @@ namespace RPGGame.UI.ColorSystem
             if (segment != null)
             {
                 _segments.Add(segment);
+            }
+            return this;
+        }
+        
+        /// <summary>
+        /// Adds multiple ColoredText segments
+        /// </summary>
+        public ColoredTextBuilder AddRange(List<ColoredText> segments)
+        {
+            if (segments != null)
+            {
+                foreach (var segment in segments)
+                {
+                    if (segment != null)
+                    {
+                        _segments.Add(segment);
+                    }
+                }
             }
             return this;
         }

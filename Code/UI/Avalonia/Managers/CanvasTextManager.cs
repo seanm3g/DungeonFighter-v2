@@ -20,6 +20,12 @@ namespace RPGGame.UI.Avalonia.Managers
         private readonly int maxLines;
         private readonly ICanvasContextManager contextManager;
         
+        // Manual scroll offset for user-controlled scrolling
+        private int manualScrollOffset = 0;
+        private bool isManualScrolling = false;
+        private int lastBufferCountWhenScrolling = 0;
+        private int lastManualScrollOffset = -1; // Track scroll offset changes to force re-render
+        
         public CanvasTextManager(GameCanvasControl canvas, ColoredTextWriter textWriter, ICanvasContextManager contextManager, int maxLines = 100)
         {
             this.canvas = canvas;
@@ -45,6 +51,11 @@ namespace RPGGame.UI.Avalonia.Managers
         public void ClearDisplayBuffer()
         {
             displayBuffer.Clear();
+            // Reset scroll state when buffer is cleared
+            isManualScrolling = false;
+            manualScrollOffset = 0;
+            lastBufferCountWhenScrolling = 0;
+            lastManualScrollOffset = -1;
             // Reset render cache when buffer is cleared
             layoutInitialized = false;
             lastBufferCount = 0;
@@ -71,12 +82,22 @@ namespace RPGGame.UI.Avalonia.Managers
                 return; // Skip duplicate
             }
 
+            bool wasAtBottom = !isManualScrolling || (displayBuffer.Count == lastBufferCountWhenScrolling);
+            
             displayBuffer.Add(message);
             
             // Keep only the last maxLines
             if (displayBuffer.Count > maxLines)
             {
                 displayBuffer.RemoveAt(0);
+            }
+            
+            // If new text was added and user was at the bottom (or not manually scrolling), auto-scroll to bottom
+            if (wasAtBottom)
+            {
+                isManualScrolling = false;
+                manualScrollOffset = 0;
+                lastBufferCountWhenScrolling = displayBuffer.Count;
             }
         }
         
@@ -102,6 +123,11 @@ namespace RPGGame.UI.Avalonia.Managers
         public int WriteLineColoredWrapped(string message, int x, int y, int maxWidth)
         {
             return textWriter.WriteLineColoredWrapped(message, x, y, maxWidth);
+        }
+        
+        public void WriteLineColoredSegments(List<ColoredText> segments, int x, int y)
+        {
+            textWriter.RenderSegments(segments, x, y);
         }
         
         /// <summary>
@@ -176,16 +202,18 @@ namespace RPGGame.UI.Avalonia.Managers
                     
                 case UI.ChunkedTextReveal.ChunkStrategy.Line:
                     // Split by lines
+                    // Use TrimEnd() instead of Trim() to preserve leading spaces (e.g., for indented roll info)
                     chunks = text.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
-                        .Select(l => l.Trim())
+                        .Select(l => l.TrimEnd())
                         .Where(l => !string.IsNullOrEmpty(l))
                         .ToList();
                     break;
                     
                 case UI.ChunkedTextReveal.ChunkStrategy.Semantic:
                     // Split by semantic sections (simple version for now)
+                    // Use TrimEnd() instead of Trim() to preserve leading spaces (e.g., for indented roll info)
                     chunks = text.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
-                        .Select(l => l.Trim())
+                        .Select(l => l.TrimEnd())
                         .Where(l => !string.IsNullOrEmpty(l))
                         .ToList();
                     break;
@@ -226,16 +254,59 @@ namespace RPGGame.UI.Avalonia.Managers
             // Dispatch to UI thread to avoid cross-thread issues
             Dispatcher.UIThread.Post(() =>
             {
-                int y = contentY;
+                var linesToRender = displayBuffer.TakeLast(maxLines).ToList();
+                if (linesToRender.Count == 0)
+                {
+                    canvas.Refresh();
+                    return;
+                }
+                
                 int availableWidth = contentWidth - 4; // 2 chars padding on each side
                 
-                foreach (var line in displayBuffer.TakeLast(maxLines))
+                // Calculate total height needed for all lines (accounting for text wrapping and newlines)
+                int totalHeight = 0;
+                var lineHeights = new List<int>();
+                foreach (var line in linesToRender)
                 {
+                    int linesNeeded = CalculateWrappedLineCount(line, availableWidth);
+                    lineHeights.Add(linesNeeded);
+                    totalHeight += linesNeeded;
+                }
+                
+                // Calculate scroll offset: if content exceeds viewport, scroll to show bottom
+                int scrollOffset = 0;
+                if (totalHeight > contentHeight)
+                {
+                    // Scroll to bottom: start rendering from a position that shows the last contentHeight lines
+                    scrollOffset = totalHeight - contentHeight;
+                }
+                
+                // Render lines, starting from the scroll offset position
+                int y = contentY;
+                int currentHeight = 0;
+                for (int i = 0; i < linesToRender.Count; i++)
+                {
+                    var line = linesToRender[i];
+                    int linesNeeded = lineHeights[i];
+                    
+                    // Skip lines until we reach the scroll offset
+                    if (currentHeight + linesNeeded <= scrollOffset)
+                    {
+                        currentHeight += linesNeeded;
+                        continue; // Skip this line, it's above the viewport
+                    }
+                    
+                    // Render this line if it fits in the viewport
                     if (y < contentY + contentHeight - 1)
                     {
                         // Parse and render color markup with text wrapping
                         int linesRendered = WriteLineColoredWrapped(line, contentX + 2, y, availableWidth);
                         y += linesRendered;
+                    }
+                    else
+                    {
+                        // No more room in viewport
+                        break;
                     }
                 }
                 
@@ -298,22 +369,62 @@ namespace RPGGame.UI.Avalonia.Managers
             // Check if buffer changed (new text added)
             bool bufferChanged = displayBuffer.Count != lastBufferCount;
             
-            if (needsFullRender || bufferChanged)
+            // Check if scroll offset changed (user scrolled)
+            bool scrollChanged = manualScrollOffset != lastManualScrollOffset;
+            
+            // Determine if this is a major state change (different dungeon/room/character) vs minor (just enemy changed)
+            // For minor changes (like transitioning to combat in same dungeon/room), don't clear - just update
+            bool isMajorStateChange = !layoutInitialized ||
+                !ReferenceEquals(currentCharacter, lastRenderedCharacter) ||
+                dungeonName != lastRenderedDungeonName ||
+                roomName != lastRenderedRoomName;
+            
+            // Only clear canvas on major state changes (new dungeon, new room, new character)
+            // For combat transitions within same dungeon/room, preserve existing content
+            bool shouldClearCanvas = isMajorStateChange;
+            
+            // Re-render if: full render needed, buffer changed, or scroll position changed
+            if (needsFullRender || bufferChanged || scrollChanged)
             {
-                // Clear and render everything
-                canvas.Clear();
                 var persistentLayout = new PersistentLayoutManager(canvas);
-                persistentLayout.RenderLayout(
-                    currentCharacter,
-                    (contentX, contentY, contentWidth, contentHeight) => {
-                        // Render display buffer content in the center panel
-                        RenderCenterContent(contentX, contentY, contentWidth, contentHeight);
-                    },
-                    "COMBAT",
-                    currentEnemy,
-                    dungeonName,
-                    roomName
-                );
+                
+                // Only clear canvas and re-render full layout on major state changes
+                // For combat transitions within same dungeon/room, preserve existing content
+                if (shouldClearCanvas)
+                {
+                    // Major state change - clear and render full layout
+                    persistentLayout.RenderLayout(
+                        currentCharacter,
+                        (contentX, contentY, contentWidth, contentHeight) => {
+                            // Render display buffer content in the center panel
+                            RenderCenterContent(contentX, contentY, contentWidth, contentHeight);
+                        },
+                        "COMBAT",
+                        currentEnemy,
+                        dungeonName,
+                        roomName,
+                        clearCanvas: true
+                    );
+                }
+                else
+                {
+                    // Minor state change (just enemy changed or buffer updated)
+                    // Still do a full render, but the display buffer already contains all pre-combat info
+                    // This ensures everything is rendered correctly with the updated enemy info
+                    persistentLayout.RenderLayout(
+                        currentCharacter,
+                        (contentX, contentY, contentWidth, contentHeight) => {
+                            // Render display buffer content in the center panel
+                            // Display buffer already contains all pre-combat info, so it will all be rendered
+                            RenderCenterContent(contentX, contentY, contentWidth, contentHeight);
+                        },
+                        "COMBAT",
+                        currentEnemy,
+                        dungeonName,
+                        roomName,
+                        clearCanvas: true
+                    );
+                }
                 
                 // Update cache
                 lastRenderedCharacter = currentCharacter;
@@ -321,25 +432,206 @@ namespace RPGGame.UI.Avalonia.Managers
                 lastRenderedDungeonName = dungeonName;
                 lastRenderedRoomName = roomName;
                 lastBufferCount = displayBuffer.Count;
+                lastManualScrollOffset = manualScrollOffset; // Track scroll offset
                 layoutInitialized = true;
             }
         }
         
         /// <summary>
+        /// Calculates how many lines a message will take when wrapped
+        /// Accounts for newlines and text wrapping
+        /// </summary>
+        private int CalculateWrappedLineCount(string message, int maxWidth)
+        {
+            if (string.IsNullOrEmpty(message))
+                return 0;
+            
+            // Split on newlines first (like WriteLineColoredWrapped does)
+            var newlineSplit = message.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
+            int totalLines = 0;
+            
+            foreach (var line in newlineSplit)
+            {
+                if (string.IsNullOrEmpty(line))
+                {
+                    totalLines++; // Empty lines still take one line
+                    continue;
+                }
+                
+                // Calculate how many wrapped lines this line will take
+                // Use display length (excluding color markup) for accurate calculation
+                int displayLength = ColorParser.GetDisplayLength(line);
+                int wrappedLines = Math.Max(1, (int)Math.Ceiling((double)displayLength / maxWidth));
+                totalLines += wrappedLines;
+            }
+            
+            return totalLines;
+        }
+        
+        /// <summary>
         /// Renders the center content area (combat text)
+        /// Uses manual scroll offset if user is scrolling, otherwise auto-scrolls to bottom
         /// </summary>
         private void RenderCenterContent(int contentX, int contentY, int contentWidth, int contentHeight)
         {
-            int y = contentY;
-            foreach (var line in displayBuffer.TakeLast(maxLines))
+            var linesToRender = displayBuffer.TakeLast(maxLines).ToList();
+            if (linesToRender.Count == 0)
+                return;
+            
+            int availableWidth = contentWidth - 2;
+            
+            // Calculate total height needed for all lines (accounting for text wrapping and newlines)
+            int totalHeight = 0;
+            var lineHeights = new List<int>();
+            foreach (var line in linesToRender)
             {
-                if (y < contentY + contentHeight - 1)
+                int linesNeeded = CalculateWrappedLineCount(line, availableWidth);
+                lineHeights.Add(linesNeeded);
+                totalHeight += linesNeeded;
+            }
+            
+            // Calculate scroll offset
+            int scrollOffset = 0;
+            if (isManualScrolling)
+            {
+                // Use manual scroll offset, clamped to valid range
+                int maxScrollOffset = Math.Max(0, totalHeight - contentHeight);
+                scrollOffset = Math.Max(0, Math.Min(manualScrollOffset, maxScrollOffset));
+                // Update manualScrollOffset to the clamped value
+                manualScrollOffset = scrollOffset;
+            }
+            else if (totalHeight > contentHeight)
+            {
+                // Auto-scroll to bottom: start rendering from a position that shows the last contentHeight lines
+                scrollOffset = totalHeight - contentHeight;
+                manualScrollOffset = scrollOffset; // Keep manual offset in sync
+            }
+            else
+            {
+                // Content fits in viewport, no scrolling needed
+                manualScrollOffset = 0;
+            }
+            
+            // Render lines, starting from the scroll offset position
+            int y = contentY;
+            int currentHeight = 0;
+            for (int i = 0; i < linesToRender.Count; i++)
+            {
+                var line = linesToRender[i];
+                int linesNeeded = lineHeights[i];
+                
+                // Skip lines until we reach the scroll offset
+                if (currentHeight + linesNeeded <= scrollOffset)
+                {
+                    currentHeight += linesNeeded;
+                    continue; // Skip this line, it's above the viewport
+                }
+                
+                // Render this line if it fits in the viewport
+                if (y < contentY + contentHeight)
                 {
                     // Parse and render color markup with text wrapping
-                    int linesRendered = WriteLineColoredWrapped(line, contentX + 1, y, contentWidth - 2);
+                    int linesRendered = WriteLineColoredWrapped(line, contentX + 1, y, availableWidth);
                     y += linesRendered;
                 }
+                else
+                {
+                    // No more room in viewport
+                    break;
+                }
             }
+        }
+        
+        /// <summary>
+        /// Scrolls the display buffer up (shows older content)
+        /// </summary>
+        /// <param name="lines">Number of lines to scroll up</param>
+        public void ScrollUp(int lines = 3)
+        {
+            isManualScrolling = true;
+            lastBufferCountWhenScrolling = displayBuffer.Count;
+            
+            // Calculate current total height to determine max scroll
+            int contentHeight = CanvasLayoutManager.CONTENT_HEIGHT;
+            int availableWidth = CanvasLayoutManager.CONTENT_WIDTH - 2;
+            
+            var linesToRender = displayBuffer.TakeLast(maxLines).ToList();
+            int totalHeight = 0;
+            foreach (var line in linesToRender)
+            {
+                totalHeight += CalculateWrappedLineCount(line, availableWidth);
+            }
+            
+            int maxScrollOffset = Math.Max(0, totalHeight - contentHeight);
+            
+            // Scroll up by decreasing the offset (showing content higher up)
+            int oldOffset = manualScrollOffset;
+            manualScrollOffset = Math.Max(0, manualScrollOffset - lines);
+            
+            // Only trigger re-render if scroll offset actually changed
+            if (manualScrollOffset != oldOffset)
+            {
+                // Force immediate render for scroll operations (bypass debouncing)
+                Dispatcher.UIThread.Post(() =>
+                {
+                    PerformRender();
+                }, DispatcherPriority.Normal);
+            }
+        }
+        
+        /// <summary>
+        /// Scrolls the display buffer down (shows newer content)
+        /// </summary>
+        /// <param name="lines">Number of lines to scroll down</param>
+        public void ScrollDown(int lines = 3)
+        {
+            isManualScrolling = true;
+            lastBufferCountWhenScrolling = displayBuffer.Count;
+            
+            // Calculate current total height to determine max scroll
+            int contentHeight = CanvasLayoutManager.CONTENT_HEIGHT;
+            int availableWidth = CanvasLayoutManager.CONTENT_WIDTH - 2;
+            
+            var linesToRender = displayBuffer.TakeLast(maxLines).ToList();
+            int totalHeight = 0;
+            foreach (var line in linesToRender)
+            {
+                totalHeight += CalculateWrappedLineCount(line, availableWidth);
+            }
+            
+            int maxScrollOffset = Math.Max(0, totalHeight - contentHeight);
+            
+            // Scroll down by increasing the offset (showing content lower down)
+            int oldOffset = manualScrollOffset;
+            manualScrollOffset = Math.Min(maxScrollOffset, manualScrollOffset + lines);
+            
+            // If we've scrolled to the bottom, switch back to auto-scroll mode
+            if (manualScrollOffset >= maxScrollOffset)
+            {
+                isManualScrolling = false;
+                manualScrollOffset = 0;
+            }
+            
+            // Only trigger re-render if scroll offset actually changed
+            if (manualScrollOffset != oldOffset)
+            {
+                // Force immediate render for scroll operations (bypass debouncing)
+                Dispatcher.UIThread.Post(() =>
+                {
+                    PerformRender();
+                }, DispatcherPriority.Normal);
+            }
+        }
+        
+        /// <summary>
+        /// Resets scrolling to auto-scroll mode (scrolls to bottom)
+        /// </summary>
+        public void ResetScroll()
+        {
+            isManualScrolling = false;
+            manualScrollOffset = 0;
+            lastBufferCountWhenScrolling = displayBuffer.Count;
+            RenderDisplayBufferFallback();
         }
         
         /// <summary>
@@ -372,9 +664,15 @@ namespace RPGGame.UI.Avalonia.Managers
             canvas.Clear();
             displayBuffer.Clear();
             
+            // Reset scroll state
+            isManualScrolling = false;
+            manualScrollOffset = 0;
+            lastBufferCountWhenScrolling = 0;
+            
             // Reset render cache
             layoutInitialized = false;
             lastBufferCount = 0;
+            lastManualScrollOffset = -1;
             lastRenderedCharacter = null;
             lastRenderedEnemy = null;
             lastRenderedDungeonName = null;

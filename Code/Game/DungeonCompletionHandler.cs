@@ -2,6 +2,7 @@ namespace RPGGame
 {
     using System;
     using System.Threading.Tasks;
+    using RPGGame.UI;
 
     /// <summary>
     /// Handles dungeon completion screen and post-dungeon options.
@@ -43,17 +44,19 @@ namespace RPGGame
             switch (input)
             {
                 case "1":
-                    // Go to Dungeon Selection
+                    // Go to Dungeon Selection - clear display when leaving dungeon completion
+                    ClearDisplayIfNeeded();
                     if (StartDungeonSelectionEvent != null)
                         await StartDungeonSelectionEvent.Invoke();
                     break;
                 case "2":
-                    // Show Inventory Menu
+                    // Show Inventory Menu - clear display when leaving dungeon completion
+                    ClearDisplayIfNeeded();
                     stateManager.TransitionToState(GameState.Inventory);
                     ShowInventoryEvent?.Invoke();
                     break;
                 case "0":
-                    // Save and Exit
+                    // Save and Exit - do NOT clear display (going to main menu)
                     if (SaveGameEvent != null)
                         await SaveGameEvent.Invoke();
                     stateManager.TransitionToState(GameState.MainMenu);
@@ -62,6 +65,21 @@ namespace RPGGame
                 default:
                     ShowMessageEvent?.Invoke("Invalid choice. Please select 1, 2, or 0.");
                     break;
+            }
+        }
+        
+        /// <summary>
+        /// Clears the display buffer when transitioning from dungeon completion
+        /// to dungeon selection or inventory
+        /// </summary>
+        private void ClearDisplayIfNeeded()
+        {
+            // Access UI manager through a static reference or dependency injection
+            // For now, we'll need to get it from UIManager
+            var uiManager = UIManager.GetCustomUIManager();
+            if (uiManager is RPGGame.UI.Avalonia.CanvasUICoordinator canvasUI)
+            {
+                canvasUI.ClearDisplayBuffer();
             }
         }
     }

@@ -94,6 +94,7 @@ namespace RPGGame.UI.ColorSystem
         
         /// <summary>
         /// Gets the color for a specific pattern
+        /// Ensures the color is visible on black background
         /// </summary>
         public static Color GetColorForPattern(string pattern)
         {
@@ -102,13 +103,19 @@ namespace RPGGame.UI.ColorSystem
                 
             var normalizedPattern = pattern.ToLowerInvariant().Trim();
             
+            Color color;
             if (_patternColors.TryGetValue(normalizedPattern, out var palette))
             {
-                return palette.GetColor();
+                color = palette.GetColor();
+            }
+            else
+            {
+                // Default to white if pattern not found
+                color = ColorPalette.White.GetColor();
             }
             
-            // Default to white if pattern not found
-            return ColorPalette.White.GetColor();
+            // Ensure color is visible on black background
+            return ColorValidator.EnsureVisible(color);
         }
         
         /// <summary>

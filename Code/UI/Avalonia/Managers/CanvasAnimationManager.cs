@@ -99,13 +99,22 @@ namespace RPGGame.UI.Avalonia.Managers
         {
             if (isDungeonSelectionActive && dungeonSelectionPlayer != null && dungeonSelectionList != null && dungeonRenderer != null && reRenderCallback != null)
             {
+                // Capture local copies to avoid race conditions
+                var player = dungeonSelectionPlayer;
+                var dungeons = dungeonSelectionList;
+                var callback = reRenderCallback;
+                
                 // Update the undulation offset
                 dungeonRenderer.UpdateUndulation();
                 
                 // Re-render the dungeon selection on UI thread
                 Dispatcher.UIThread.Post(() =>
                 {
-                    reRenderCallback(dungeonSelectionPlayer, dungeonSelectionList);
+                    // Double-check that we still have valid data before rendering
+                    if (player != null && dungeons != null && callback != null)
+                    {
+                        callback(player, dungeons);
+                    }
                 }, DispatcherPriority.Background);
             }
         }
@@ -117,13 +126,22 @@ namespace RPGGame.UI.Avalonia.Managers
         {
             if (isDungeonSelectionActive && dungeonSelectionPlayer != null && dungeonSelectionList != null && dungeonRenderer != null && reRenderCallback != null)
             {
+                // Capture local copies to avoid race conditions
+                var player = dungeonSelectionPlayer;
+                var dungeons = dungeonSelectionList;
+                var callback = reRenderCallback;
+                
                 // Update the brightness mask offset
                 dungeonRenderer.UpdateBrightnessMask();
                 
                 // Re-render the dungeon selection on UI thread
                 Dispatcher.UIThread.Post(() =>
                 {
-                    reRenderCallback(dungeonSelectionPlayer, dungeonSelectionList);
+                    // Double-check that we still have valid data before rendering
+                    if (player != null && dungeons != null && callback != null)
+                    {
+                        callback(player, dungeons);
+                    }
                 }, DispatcherPriority.Background);
             }
         }

@@ -32,7 +32,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             
             // Initialize specialized renderers (only complex ones)
             this.selectionRenderer = new DungeonSelectionRenderer(canvas, textWriter, clickableElements);
-            this.dungeonCompletionRenderer = new DungeonCompletionRenderer(canvas, clickableElements);
+            this.dungeonCompletionRenderer = new DungeonCompletionRenderer(canvas, textWriter, clickableElements);
         }
         
         // IScreenRenderer implementation

@@ -54,7 +54,11 @@ namespace RPGGame.UI.Avalonia
             var dungeonRenderer = new DungeonRenderer(canvas, new Renderers.ColoredTextWriter(canvas), interactionManager.ClickableElements);
             Action<Character, List<Dungeon>> reRenderCallback = (player, dungeons) => 
             {
-                screenRenderingCoordinator.RenderDungeonSelection(player, dungeons);
+                // Defensive null check to prevent crashes from race conditions
+                if (player != null && dungeons != null)
+                {
+                    screenRenderingCoordinator.RenderDungeonSelection(player, dungeons);
+                }
             };
             animationManager.SetupAnimationManager(dungeonRenderer, reRenderCallback);
         }
@@ -356,6 +360,32 @@ namespace RPGGame.UI.Avalonia
             renderer.RenderDisplayBuffer(contextManager.GetCurrentContext());
         }
 
+        /// <summary>
+        /// Scrolls the combat display buffer up (shows older content)
+        /// </summary>
+        /// <param name="lines">Number of lines to scroll up</param>
+        public void ScrollUp(int lines = 3)
+        {
+            textManager.ScrollUp(lines);
+        }
+
+        /// <summary>
+        /// Scrolls the combat display buffer down (shows newer content)
+        /// </summary>
+        /// <param name="lines">Number of lines to scroll down</param>
+        public void ScrollDown(int lines = 3)
+        {
+            textManager.ScrollDown(lines);
+        }
+
+        /// <summary>
+        /// Resets scrolling to auto-scroll mode (scrolls to bottom)
+        /// </summary>
+        public void ResetScroll()
+        {
+            textManager.ResetScroll();
+        }
+
         public void ShowMessage(string message, Color color = default)
         {
             utilityCoordinator.ShowMessage(message, color);
@@ -446,6 +476,11 @@ namespace RPGGame.UI.Avalonia
         public int WriteLineColoredWrapped(string message, int x, int y, int maxWidth)
         {
             return messageWritingCoordinator.WriteLineColoredWrapped(message, x, y, maxWidth);
+        }
+        
+        public void WriteLineColoredSegments(List<ColoredText> segments, int x, int y)
+        {
+            messageWritingCoordinator.WriteLineColoredSegments(segments, x, y);
         }
 
         #endregion

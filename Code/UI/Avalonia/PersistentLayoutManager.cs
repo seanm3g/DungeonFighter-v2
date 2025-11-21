@@ -48,9 +48,13 @@ namespace RPGGame.UI.Avalonia
         /// <summary>
         /// Renders the complete persistent layout with character info and dynamic content
         /// </summary>
-        public void RenderLayout(Character? character, Action<int, int, int, int> renderCenterContent, string title = "DUNGEON FIGHTER", Enemy? enemy = null, string? dungeonName = null, string? roomName = null)
+        /// <param name="clearCanvas">Whether to clear the canvas before rendering. Set to false to preserve existing content when transitioning to combat.</param>
+        public void RenderLayout(Character? character, Action<int, int, int, int> renderCenterContent, string title = "DUNGEON FIGHTER", Enemy? enemy = null, string? dungeonName = null, string? roomName = null, bool clearCanvas = true)
         {
-            canvas.Clear();
+            if (clearCanvas)
+            {
+                canvas.Clear();
+            }
             
             // Render title bar
             canvas.AddTitle(TITLE_Y, title, AsciiArtAssets.Colors.Gold);

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.UI.TitleScreen
 {
@@ -9,11 +10,11 @@ namespace RPGGame.UI.TitleScreen
     /// </summary>
     public class TitleFrame
     {
-        public string[] Lines { get; set; }
+        public List<ColoredText>[] Lines { get; set; }
 
-        public TitleFrame(string[] lines)
+        public TitleFrame(List<ColoredText>[] lines)
         {
-            Lines = lines ?? Array.Empty<string>();
+            Lines = lines ?? Array.Empty<List<ColoredText>>();
         }
     }
 
@@ -31,7 +32,25 @@ namespace RPGGame.UI.TitleScreen
         }
 
         /// <summary>
-        /// Builds a frame with both words using solid colors
+        /// Builds a frame with both words using templates
+        /// </summary>
+        /// <param name="dungeonTemplate">Template name for DUNGEON text (e.g., "golden")</param>
+        /// <param name="fighterTemplate">Template name for FIGHTER text (e.g., "fiery")</param>
+        /// <returns>Complete title frame</returns>
+        public TitleFrame BuildTemplateFrame(string dungeonTemplate, string fighterTemplate)
+        {
+            // Apply templates to each line
+            var dungeonColoredLines = ApplyTemplateToLines(TitleArtAssets.DungeonLines, dungeonTemplate);
+            var fighterColoredLines = ApplyTemplateToLines(TitleArtAssets.FighterLines, fighterTemplate);
+
+            // Build complete frame with layout
+            var frameLines = BuildFrameLayout(dungeonColoredLines, fighterColoredLines);
+
+            return new TitleFrame(frameLines);
+        }
+
+        /// <summary>
+        /// Builds a frame with both words using solid colors (for transitions)
         /// </summary>
         /// <param name="dungeonColor">Color code for DUNGEON text</param>
         /// <param name="fighterColor">Color code for FIGHTER text</param>
@@ -43,7 +62,7 @@ namespace RPGGame.UI.TitleScreen
             var fighterColoredLines = ColorizeLines(TitleArtAssets.FighterLines, fighterColor);
 
             // Build complete frame with layout
-            string[] frameLines = BuildFrameLayout(dungeonColoredLines, fighterColoredLines);
+            var frameLines = BuildFrameLayout(dungeonColoredLines, fighterColoredLines);
 
             return new TitleFrame(frameLines);
         }
@@ -56,6 +75,12 @@ namespace RPGGame.UI.TitleScreen
         public TitleFrame BuildTransitionFrame(float progress)
         {
             var scheme = _config.ColorScheme;
+
+            // If progress is 1.0 (final state), use templates instead of solid colors
+            if (progress >= 1.0f)
+            {
+                return BuildTemplateFrame("golden", "fiery");
+            }
 
             // Apply transition colors to each line
             var dungeonTransitionLines = ColorizeTransitionLines(
@@ -73,17 +98,30 @@ namespace RPGGame.UI.TitleScreen
             );
 
             // Build complete frame with layout
-            string[] frameLines = BuildFrameLayout(dungeonTransitionLines, fighterTransitionLines);
+            var frameLines = BuildFrameLayout(dungeonTransitionLines, fighterTransitionLines);
 
             return new TitleFrame(frameLines);
         }
 
         /// <summary>
+        /// Applies a template to multiple lines
+        /// </summary>
+        private List<ColoredText>[] ApplyTemplateToLines(string[] lines, string templateName)
+        {
+            var coloredLines = new List<ColoredText>[lines.Length];
+            for (int i = 0; i < lines.Length; i++)
+            {
+                coloredLines[i] = TitleColorApplicator.ApplyTemplate(lines[i], templateName);
+            }
+            return coloredLines;
+        }
+
+        /// <summary>
         /// Applies a solid color to multiple lines
         /// </summary>
-        private string[] ColorizeLines(string[] lines, string colorCode)
+        private List<ColoredText>[] ColorizeLines(string[] lines, string colorCode)
         {
-            var coloredLines = new string[lines.Length];
+            var coloredLines = new List<ColoredText>[lines.Length];
             for (int i = 0; i < lines.Length; i++)
             {
                 coloredLines[i] = TitleColorApplicator.ApplySolidColor(lines[i], colorCode);
@@ -94,9 +132,9 @@ namespace RPGGame.UI.TitleScreen
         /// <summary>
         /// Applies transition colors to multiple lines
         /// </summary>
-        private string[] ColorizeTransitionLines(string[] lines, string sourceColor, string targetColor, float progress)
+        private List<ColoredText>[] ColorizeTransitionLines(string[] lines, string sourceColor, string targetColor, float progress)
         {
-            var coloredLines = new string[lines.Length];
+            var coloredLines = new List<ColoredText>[lines.Length];
             for (int i = 0; i < lines.Length; i++)
             {
                 coloredLines[i] = TitleColorApplicator.ApplyTransitionColor(
@@ -112,19 +150,19 @@ namespace RPGGame.UI.TitleScreen
         /// <summary>
         /// Builds the complete frame layout with padding, decoration, and tagline
         /// </summary>
-        private string[] BuildFrameLayout(string[] dungeonLines, string[] fighterLines)
+        private List<ColoredText>[] BuildFrameLayout(List<ColoredText>[] dungeonLines, List<ColoredText>[] fighterLines)
         {
-            var frameList = new List<string>();
+            var frameList = new List<List<ColoredText>>();
 
             // Top padding - empty lines
             for (int i = 0; i < 15; i++)
             {
-                frameList.Add("");
+                frameList.Add(new List<ColoredText>());
             }
 
             // Add blank lines before title
-            frameList.Add("");
-            frameList.Add("");
+            frameList.Add(new List<ColoredText>());
+            frameList.Add(new List<ColoredText>());
 
             // DUNGEON title lines
             foreach (var line in dungeonLines)
@@ -133,9 +171,11 @@ namespace RPGGame.UI.TitleScreen
             }
 
             // Spacing and decorator
-            frameList.Add("");
-            frameList.Add(TitleArtAssets.DecoratorLine);
-            frameList.Add("");
+            frameList.Add(new List<ColoredText>());
+            // Decorator line - use white color
+            var decoratorSegments = TitleColorApplicator.ApplySolidColor(TitleArtAssets.DecoratorLine, "Y");
+            frameList.Add(decoratorSegments);
+            frameList.Add(new List<ColoredText>());
 
             // FIGHTER title lines
             foreach (var line in fighterLines)
@@ -144,17 +184,18 @@ namespace RPGGame.UI.TitleScreen
             }
 
             // Bottom spacing
-            frameList.Add("");
-            frameList.Add("");
-            frameList.Add("");
+            frameList.Add(new List<ColoredText>());
+            frameList.Add(new List<ColoredText>());
+            frameList.Add(new List<ColoredText>());
 
-            // Tagline
-            frameList.Add(TitleArtAssets.Tagline);
+            // Tagline - use white color
+            var taglineSegments = TitleColorApplicator.ApplySolidColor(TitleArtAssets.Tagline, "Y");
+            frameList.Add(taglineSegments);
 
             // Final spacing
-            frameList.Add("");
-            frameList.Add("");
-            frameList.Add("");
+            frameList.Add(new List<ColoredText>());
+            frameList.Add(new List<ColoredText>());
+            frameList.Add(new List<ColoredText>());
 
             return frameList.ToArray();
         }

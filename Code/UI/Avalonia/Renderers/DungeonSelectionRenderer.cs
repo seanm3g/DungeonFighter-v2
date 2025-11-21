@@ -16,8 +16,8 @@ namespace RPGGame.UI.Avalonia.Renderers
         private readonly ColoredTextWriter textWriter;
         private readonly List<ClickableElement> clickableElements;
         
-        // Store dungeon name texts for animation
-        private readonly List<ColoredText> dungeonNameTexts = new();
+        // Store dungeon name text segments for animation (list of segments per dungeon)
+        private readonly List<List<ColoredText>> dungeonNameTextSegments = new();
         private List<Dungeon>? lastDungeonList = null;
         private readonly BrightnessMask? sharedBrightnessMask;
         private static readonly Random random = new Random();
@@ -41,11 +41,14 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// </summary>
         public void UpdateUndulation()
         {
-            foreach (var text in dungeonNameTexts)
+            foreach (var segments in dungeonNameTextSegments)
             {
-                if (text.IsUndulating)
+                foreach (var text in segments)
                 {
-                    text.AdvanceUndulation();
+                    if (text.IsUndulating)
+                    {
+                        text.AdvanceUndulation();
+                    }
                 }
             }
         }
@@ -78,7 +81,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             
             if (dungeonListChanged)
             {
-                dungeonNameTexts.Clear();
+                dungeonNameTextSegments.Clear();
                 lastDungeonList = new List<Dungeon>(dungeons);
             }
             
@@ -109,22 +112,23 @@ namespace RPGGame.UI.Avalonia.Renderers
                 };
                 clickableElements.Add(option);
                 
-                // Create or reuse the dungeon name ColoredText
-                ColoredText dungeonNameText;
+                // Create or reuse the dungeon name ColoredText segments
+                List<ColoredText> dungeonNameSegments;
                 if (dungeonListChanged)
                 {
                     var coloredTexts = ColoredText.FromTemplate(
                         GetDungeonThemeTemplate(dungeon.Theme),
                         dungeon.Name
                     );
-                    // Use the first segment as the dungeon name text
-                    dungeonNameText = coloredTexts.FirstOrDefault() ?? new ColoredText(dungeon.Name);
-                    // Note: BrightnessMask feature requires API updates to work with BrightnessMask class
-                    dungeonNameTexts.Add(dungeonNameText);
+                    // Store all segments (not just the first one!)
+                    dungeonNameSegments = coloredTexts.Count > 0 
+                        ? coloredTexts 
+                        : new List<ColoredText> { new ColoredText(dungeon.Name, Colors.White) };
+                    dungeonNameTextSegments.Add(dungeonNameSegments);
                 }
                 else
                 {
-                    dungeonNameText = dungeonNameTexts[i];
+                    dungeonNameSegments = dungeonNameTextSegments[i];
                 }
                 
                 // Build the dungeon display text using ColoredText pattern approach
@@ -139,7 +143,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                     // Build using ColoredTextBuilder - keeps text and patterns separate
                     var builder = new ColoredTextBuilder()
                         .Add($"[{i + 1}] ", ColorPalette.Gray)  // Grey bracket and number
-                        .Add(dungeonNameText)  // Use the stored ColoredText (will animate!)
+                        .AddRange(dungeonNameSegments)  // Use all stored segments (will animate!)
                         .Add($" (lvl {dungeon.MinLevel})", ColorPalette.White);  // White level info
                     
                     // Render segments directly - no parsing, no corruption

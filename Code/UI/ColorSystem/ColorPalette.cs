@@ -117,7 +117,7 @@ namespace RPGGame.UI.ColorSystem
             [ColorPalette.DarkMagenta] = Color.FromRgb(139, 0, 139),
             
             // Game-specific colors
-            [ColorPalette.Gold] = Color.FromRgb(255, 215, 0),
+            [ColorPalette.Gold] = Color.FromRgb(207, 192, 65), // #cfc041 per template rules
             [ColorPalette.Silver] = Color.FromRgb(192, 192, 192),
             [ColorPalette.Bronze] = Color.FromRgb(205, 127, 50),
             [ColorPalette.Orange] = Color.FromRgb(255, 165, 0),

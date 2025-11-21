@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Avalonia.Media;
 
 namespace RPGGame.UI.ColorSystem
@@ -51,7 +52,141 @@ namespace RPGGame.UI.ColorSystem
                 result.Add(new ColoredText(currentText, currentColor));
             }
             
-            return result;
+            // Merge adjacent segments with the same color to prevent extra spacing
+            return MergeAdjacentSegments(result);
+        }
+        
+        /// <summary>
+        /// Merges adjacent segments with the same color to prevent extra spacing issues
+        /// Normalizes spaces to ensure only single spaces between segments
+        /// </summary>
+        private static List<ColoredText> MergeAdjacentSegments(List<ColoredText> segments)
+        {
+            if (segments == null || segments.Count <= 1)
+                return segments;
+            
+            var merged = new List<ColoredText>();
+            ColoredText? currentSegment = null;
+            
+            foreach (var segment in segments)
+            {
+                // Skip empty segments
+                if (string.IsNullOrEmpty(segment.Text))
+                    continue;
+                
+                if (currentSegment == null)
+                {
+                    // First segment
+                    currentSegment = new ColoredText(segment.Text, segment.Color);
+                }
+                else if (AreColorsEqual(currentSegment.Color, segment.Color))
+                {
+                    // Same color - merge with current segment
+                    // Normalize spaces: if current ends with space and segment starts with space, use only one
+                    string currentText = currentSegment.Text;
+                    string segmentText = segment.Text;
+                    
+                    // Check if we need to normalize spaces at the boundary
+                    if (currentText.EndsWith(" ") && segmentText.StartsWith(" "))
+                    {
+                        // Remove one space to avoid double spacing
+                        currentText = currentText.TrimEnd() + " " + segmentText.TrimStart();
+                    }
+                    else
+                    {
+                        currentText = currentText + segmentText;
+                    }
+                    
+                    currentSegment = new ColoredText(currentText, currentSegment.Color);
+                }
+                else
+                {
+                    // Different color - add current segment and start new one
+                    merged.Add(currentSegment);
+                    currentSegment = new ColoredText(segment.Text, segment.Color);
+                }
+            }
+            
+            // Add the last segment
+            if (currentSegment != null)
+            {
+                merged.Add(currentSegment);
+            }
+            
+            // Normalize spaces between adjacent segments of different colors FIRST
+            // This prevents double spaces from being created when segments are merged
+            for (int i = 0; i < merged.Count - 1; i++)
+            {
+                var current = merged[i];
+                var next = merged[i + 1];
+                
+                // If both segments are just spaces, merge them into one
+                if (current.Text.Trim().Length == 0 && next.Text.Trim().Length == 0)
+                {
+                    // Both are space-only segments - merge into one white space segment
+                    merged[i] = new ColoredText(" ", Colors.White);
+                    merged.RemoveAt(i + 1);
+                    i--; // Adjust index after removal
+                    continue;
+                }
+                
+                // If current ends with space and next starts with space, remove one
+                if (current.Text.EndsWith(" ") && next.Text.StartsWith(" "))
+                {
+                    // Remove trailing space from current segment
+                    var trimmedCurrent = current.Text.TrimEnd();
+                    if (trimmedCurrent.Length > 0)
+                    {
+                        merged[i] = new ColoredText(trimmedCurrent, current.Color);
+                    }
+                    else
+                    {
+                        // If current becomes empty after trimming, check if we can merge with next
+                        // If next is also a space segment, merge them
+                        if (next.Text.Trim().Length == 0)
+                        {
+                            merged[i] = new ColoredText(" ", Colors.White);
+                            merged.RemoveAt(i + 1);
+                            i--; // Adjust index after removal
+                        }
+                        else
+                        {
+                            // Current is empty space, next is not - remove current
+                            merged.RemoveAt(i);
+                            i--; // Adjust index after removal
+                        }
+                        continue;
+                    }
+                }
+            }
+            
+            // Final pass: normalize any remaining double spaces within segments
+            for (int i = 0; i < merged.Count; i++)
+            {
+                var segment = merged[i];
+                // Replace multiple consecutive spaces with single space
+                var normalizedText = Regex.Replace(segment.Text, @"\s+", " ");
+                if (normalizedText != segment.Text)
+                {
+                    merged[i] = new ColoredText(normalizedText, segment.Color);
+                }
+            }
+            
+            // Final pass: remove any empty segments that might have been created
+            merged.RemoveAll(s => string.IsNullOrEmpty(s.Text));
+            
+            return merged;
+        }
+        
+        /// <summary>
+        /// Checks if two colors are equal (comparing RGB values)
+        /// </summary>
+        private static bool AreColorsEqual(Color color1, Color color2)
+        {
+            return color1.R == color2.R && 
+                   color1.G == color2.G && 
+                   color1.B == color2.B && 
+                   color1.A == color2.A;
         }
         
         /// <summary>
@@ -59,7 +194,7 @@ namespace RPGGame.UI.ColorSystem
         /// </summary>
         private static Color ConvertOldColorCode(char colorCode)
         {
-            return colorCode switch
+            Color color = colorCode switch
             {
                 'R' => ColorPalette.Damage.GetColor(),
                 'r' => ColorPalette.DarkRed.GetColor(),
@@ -72,15 +207,18 @@ namespace RPGGame.UI.ColorSystem
                 'c' => ColorPalette.DarkCyan.GetColor(),
                 'M' => ColorPalette.Magenta.GetColor(),
                 'm' => ColorPalette.DarkMagenta.GetColor(),
-                'W' => ColorPalette.White.GetColor(),
+                'W' => ColorPalette.Gold.GetColor(), // Gold/yellow per template rules
                 'w' => ColorPalette.Brown.GetColor(),
                 'O' => ColorPalette.Orange.GetColor(),
                 'o' => ColorPalette.Orange.GetColor(),
-                'K' => ColorPalette.Black.GetColor(),
+                'K' => ColorPalette.Black.GetColor(), // Will be lightened by ColorValidator
                 'k' => ColorPalette.DarkGray.GetColor(),
-                'y' => ColorPalette.White.GetColor(), // Reset to white
+                'y' => ColorPalette.Gray.GetColor(), // Grey per template rules
                 _ => ColorPalette.White.GetColor()
             };
+            
+            // Ensure color is visible on black background
+            return ColorValidator.EnsureVisible(color);
         }
         
         /// <summary>
@@ -219,16 +357,16 @@ namespace RPGGame.UI.ColorSystem
                 'Y' => Colors.Yellow,
                 'C' => Colors.Cyan,
                 'M' => Colors.Magenta,
-                'W' => Colors.White,
+                'W' => Colors.Gold, // Gold/yellow per template rules
                 'O' => Colors.Orange,
                 'K' => Colors.Black,
                 'r' => Colors.DarkRed,
                 'g' => Colors.DarkGreen,
                 'b' => Colors.DarkBlue,
-                'y' => Colors.DarkYellow,
+                'y' => Colors.Gray, // Grey per template rules
                 'c' => Colors.DarkCyan,
                 'm' => Colors.DarkMagenta,
-                'w' => Colors.LightGray,
+                'w' => Colors.Brown,
                 'k' => Colors.DarkGray,
                 _ => null
             };

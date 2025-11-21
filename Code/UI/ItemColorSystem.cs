@@ -94,28 +94,22 @@ namespace RPGGame.UI
         
         /// <summary>
         /// Formats a simple item display (name with rarity color)
+        /// Uses the new multi-theme system
         /// </summary>
         public static List<ColoredText> FormatSimpleItemDisplay(Item item)
         {
-            return ColorItemName(item.Name, item.Rarity);
+            // Use the new theme system for multi-color support
+            return ItemColorThemeSystem.FormatItemNameWithThemes(item, includeModifications: false);
         }
         
         /// <summary>
-        /// Formats full item name with rarity and type
+        /// Formats full item name with rarity, modifications, and type
+        /// Uses the new multi-theme system
         /// </summary>
         public static List<ColoredText> FormatFullItemName(Item item)
         {
-            var result = new List<ColoredText>();
-            
-            // Rarity indicator
-            result.Add(new ColoredText("[", Colors.Gray));
-            result.Add(new ColoredText(item.Rarity, GetRarityColor(item.Rarity)));
-            result.Add(new ColoredText("] ", Colors.Gray));
-            
-            // Item name
-            result.Add(new ColoredText(item.Name, GetRarityColor(item.Rarity)));
-            
-            return result;
+            // Use the new theme system for multi-color support
+            return ItemColorThemeSystem.FormatItemNameWithThemes(item, includeModifications: true);
         }
         
         /// <summary>
@@ -135,13 +129,15 @@ namespace RPGGame.UI
         }
         
         /// <summary>
-        /// Formats a modification
+        /// Formats a modification with its color theme
         /// </summary>
         public static List<ColoredText> FormatModification(Modification modification)
         {
             var result = new List<ColoredText>();
             
-            result.Add(new ColoredText(modification.Name, ColorPalette.Orange.GetColor()));
+            // Use the theme system to get modification color
+            var modTheme = ItemColorThemeSystem.GetModificationTheme(modification.Name.ToLower(), modification.ItemRank);
+            result.AddRange(modTheme);
             
             if (modification.RolledValue != 0)
             {

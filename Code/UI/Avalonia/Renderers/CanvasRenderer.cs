@@ -154,12 +154,10 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderCombat(Character player, Enemy enemy, List<string> combatLog, CanvasContext context)
         {
-            RenderWithLayout(player, "COMBAT", (contentX, contentY, contentWidth, contentHeight) =>
-            {
-                // Pass dungeon context info to show at top of combat screen
-                combatRenderer.RenderCombat(contentX, contentY, contentWidth, contentHeight, player, enemy, combatLog,
-                    context.DungeonName, context.RoomName, context.DungeonContext);
-            }, context, enemy, null, null);
+            // Render using the display buffer instead of the combatLog parameter
+            // The display buffer already contains pre-combat text and will contain combat text as it's added
+            // This ensures pre-combat text stays visible with combat text appearing below it
+            RenderDisplayBuffer(context);
         }
 
         public void RenderEnemyEncounter(Enemy enemy, Character player, List<string> dungeonLog, string? dungeonName, string? roomName, CanvasContext context)

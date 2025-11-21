@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Avalonia.Threading;
 using RPGGame.UI.Avalonia;
@@ -64,13 +65,21 @@ namespace RPGGame.UI.TitleScreen
 
                 for (int i = 0; i < frame.Lines.Length; i++)
                 {
-                    string line = frame.Lines[i];
-                    if (!string.IsNullOrEmpty(line))
+                    var lineSegments = frame.Lines[i];
+                    if (lineSegments != null && lineSegments.Count > 0)
                     {
+                        // Calculate visible length from segments
+                        int visibleLength = 0;
+                        foreach (var segment in lineSegments)
+                        {
+                            visibleLength += segment.Text?.Length ?? 0;
+                        }
+
                         // Center each line horizontally based on its visible length
-                        int visibleLength = ColorParser.GetDisplayLength(line);
                         int centerX = Math.Max(0, _canvasUI.CenterX - (visibleLength / 2));
-                        _canvasUI.WriteLineColored(line, centerX, startY + i);
+                        
+                        // Render the colored text segments
+                        _canvasUI.WriteLineColoredSegments(lineSegments, centerX, startY + i);
                     }
                 }
 
@@ -109,15 +118,17 @@ namespace RPGGame.UI.TitleScreen
 
             Console.Clear();
 
-            foreach (var line in frame.Lines)
+            foreach (var lineSegments in frame.Lines)
             {
-                if (UIManager.EnableColorMarkup && ColorParser.HasColorMarkup(line))
+                if (lineSegments != null && lineSegments.Count > 0)
                 {
-                    ColoredConsoleWriter.WriteLine(line);
+                    // Render colored text segments using WriteSegments
+                    ColoredConsoleWriter.WriteSegments(lineSegments);
+                    Console.WriteLine();
                 }
                 else
                 {
-                    Console.WriteLine(line);
+                    Console.WriteLine();
                 }
             }
         }
