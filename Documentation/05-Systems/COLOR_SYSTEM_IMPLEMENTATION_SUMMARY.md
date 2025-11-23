@@ -61,7 +61,7 @@ Successfully implemented a comprehensive Caves of Qud-inspired color system for 
 
 **Modified Files:**
 - `Code/UI/UIManager.cs` - Added color markup support
-- `Code/UI/Avalonia/CanvasUIManager.cs` - Added canvas color rendering
+- `Code/UI/Avalonia/CanvasUICoordinator.cs` - Added canvas color rendering
 
 **Features:**
 - Enable/disable flag: `UIManager.EnableColorMarkup`

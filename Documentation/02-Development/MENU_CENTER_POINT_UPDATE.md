@@ -28,8 +28,8 @@ public int CenterX => GridWidth / 2;  // = 50 for default 100-wide screen
 - Modified `AddText()` centering logic to use `CenterX - (text.Length / 2)` instead of `(GridWidth - text.Length) / 2`
 - Both formulas are mathematically equivalent, but the new approach explicitly references the center point
 
-### 2. CanvasUIManager.cs
-**Location:** `Code/UI/Avalonia/CanvasUIManager.cs`
+### 2. CanvasUICoordinator.cs
+**Location:** `Code/UI/Avalonia/CanvasUICoordinator.cs`
 
 **Added Constants:**
 ```csharp
@@ -132,7 +132,7 @@ int instructionsX = SCREEN_CENTER - (instructions.Length / 2);
 
 ## Files Modified
 1. `Code/UI/Avalonia/GameCanvasControl.cs` - Added `CenterX` property
-2. `Code/UI/Avalonia/CanvasUIManager.cs` - Added constants and updated centering logic
+2. `Code/UI/Avalonia/CanvasUICoordinator.cs` - Added constants and updated centering logic
 3. `Code/UI/Avalonia/PersistentLayoutManager.cs` - Added `SCREEN_CENTER` constant
 
 ## Technical Notes

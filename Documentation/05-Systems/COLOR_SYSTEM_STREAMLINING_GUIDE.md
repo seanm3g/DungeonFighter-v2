@@ -34,7 +34,7 @@
                     └────────────┬────────────┘
                                  │ List<ColoredSegment>
                     ┌────────────▼────────────┐
-                    │ CanvasUIManager         │
+                    │ CanvasUICoordinator         │
                     │ WriteLineColored()      │
                     │ Iterates segments       │
                     └────────────┬────────────┘
@@ -73,7 +73,7 @@
                     └────────────┬────────────┘
                                  │ List<ColoredSegment> (cached)
                     ┌────────────▼────────────┐
-                    │ CanvasUIManager         │
+                    │ CanvasUICoordinator         │
                     │ WriteLineColored()      │
                     │ Uses cached segments    │
                     └────────────┬────────────┘

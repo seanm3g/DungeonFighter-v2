@@ -232,5 +232,57 @@ namespace RPGGame.UI.Avalonia.Renderers
         {
             currentLineCount = dungeonCompletionRenderer.RenderDungeonCompletion(x, y, width, height, dungeon, player, xpGained, lootReceived);
         }
+        
+        /// <summary>
+        /// Renders the death screen with run statistics
+        /// </summary>
+        public void RenderDeathScreen(int x, int y, int width, int height, Character player, string defeatSummary)
+        {
+            int currentY = y + 2;
+            int startX = x + 4;
+            
+            // Death header
+            canvas.AddText(x + (width / 2) - 15, currentY, "═══════════════════════════════════════", AsciiArtAssets.Colors.Red);
+            currentY += 1;
+            canvas.AddText(x + (width / 2) - 7, currentY, "              YOU DIED", AsciiArtAssets.Colors.Red);
+            currentY += 1;
+            canvas.AddText(x + (width / 2) - 15, currentY, "═══════════════════════════════════════", AsciiArtAssets.Colors.Red);
+            currentY += 3;
+            
+            // Display defeat summary line by line
+            string[] summaryLines = defeatSummary.Split('\n');
+            foreach (string line in summaryLines)
+            {
+                if (!string.IsNullOrWhiteSpace(line))
+                {
+                    // Determine color based on line content
+                    Color lineColor = AsciiArtAssets.Colors.White;
+                    if (line.Contains("YOU DIED") || line.Contains("DEFEAT"))
+                    {
+                        lineColor = AsciiArtAssets.Colors.Red;
+                    }
+                    else if (line.Contains("═══") || line.Contains("STATISTICS"))
+                    {
+                        lineColor = AsciiArtAssets.Colors.Yellow;
+                    }
+                    else if (line.Contains("ACHIEVEMENTS"))
+                    {
+                        lineColor = AsciiArtAssets.Colors.Gold;
+                    }
+                    else if (line.Contains("✓"))
+                    {
+                        lineColor = AsciiArtAssets.Colors.Green;
+                    }
+                    
+                    canvas.AddText(startX, currentY, line, lineColor);
+                    currentY++;
+                }
+            }
+            
+            currentY += 2;
+            
+            // Prompt to continue
+            canvas.AddText(x + (width / 2) - 20, currentY, "Press any key to return to main menu...", AsciiArtAssets.Colors.Yellow);
+        }
     }
 }

@@ -25,14 +25,14 @@ This document consolidates all major implementation summaries and fixes from the
 
 ## Core Architecture Refactoring
 
-### CanvasUIManager Refactoring ✅
+### CanvasUICoordinator Refactoring ✅
 
-**Problem:** 1,700+ line "god object" with mixed responsibilities
-**Solution:** Modular architecture with 5 focused renderer classes
+**Problem:** 1,700+ line "god object" (CanvasUICoordinator) with mixed responsibilities
+**Solution:** Modular architecture with specialized coordinators and renderers
 
 #### Before → After
 ```
-CanvasUIManager.cs (1,797 lines)
+CanvasUICoordinator.cs (1,797 lines) - OLD CLASS NAME
 ├── Menu rendering (150+ lines)
 ├── Combat rendering (200+ lines)
 ├── Inventory rendering (180+ lines)
@@ -44,7 +44,7 @@ CanvasUIManager.cs (1,797 lines)
 
 ↓ REFACTORED TO ↓
 
-CanvasUIManager.cs (700 lines - Orchestrator only)
+CanvasUICoordinator.cs (~542 lines - Orchestrator/Coordinator)
 Renderers/
 ├── ColoredTextWriter.cs (200 lines - Text utilities)
 ├── MenuRenderer.cs (220 lines - Menu screens)
@@ -170,7 +170,7 @@ public class ColoredText
 4. `Code/UI/Avalonia/PersistentLayoutManager.cs` - Fixed equipment name wrapping
 5. `Code/UI/Avalonia/Renderers/DungeonRenderer.cs` - Fixed room description wrapping
 6. `Code/UI/Avalonia/Renderers/CombatRenderer.cs` - Fixed battle narrative truncation
-7. `Code/UI/Avalonia/CanvasUIManager.cs` - Fixed display buffer message truncation
+7. `Code/UI/Avalonia/CanvasUICoordinator.cs` - Fixed display buffer message truncation
 
 #### Solution Pattern
 ```csharp
@@ -273,7 +273,7 @@ Frame 3: C e l e s t i a l ...
 
 #### Files Modified
 - `Code/UI/Avalonia/Renderers/DungeonRenderer.cs` - Added undulation support
-- `Code/UI/Avalonia/CanvasUIManager.cs` - Added animation loop
+- `Code/UI/Avalonia/CanvasUICoordinator.cs` - Added animation loop
 - `Code/Game/Game.cs` - Added lifecycle management
 
 ### Inventory Button Fix ✅
@@ -289,7 +289,7 @@ Frame 3: C e l e s t i a l ...
 
 #### Files Modified
 - `Code/UI/Avalonia/Renderers/InventoryRenderer.cs` - Added selection rendering methods
-- `Code/UI/Avalonia/CanvasUIManager.cs` - Added public methods
+- `Code/UI/Avalonia/CanvasUICoordinator.cs` - Added public methods
 - `Code/Game/Game.cs` - Updated prompt methods
 
 ---
@@ -325,7 +325,7 @@ Frame 3: C e l e s t i a l ...
 - `Code/UI/IUIManager.cs` - Added `WriteChunked()` interface method
 - `Code/UI/UIManager.cs` - Added `WriteChunked()` method
 - `Code/UI/ConsoleUIManager.cs` - Implemented `WriteChunked()` interface method
-- `Code/UI/Avalonia/CanvasUIManager.cs` - Implemented `WriteChunked()` with GUI-specific logic
+- `Code/UI/Avalonia/CanvasUICoordinator.cs` - Implemented `WriteChunked()` with GUI-specific logic
 - `Code/World/DungeonRunner.cs` - Updated to use chunked reveal
 
 ### Combat Log Sequencing Fix ✅

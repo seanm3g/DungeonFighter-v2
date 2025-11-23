@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
+using RPGGame.Utils;
 
 namespace RPGGame
 {
@@ -62,8 +63,9 @@ namespace RPGGame
         
         /// <summary>
         /// Displays an ACTION BLOCK using ColoredText for better color management
+        /// This is the primary method - uses structured ColoredText for both action and roll info
         /// </summary>
-        public static void DisplayActionBlock(List<ColoredText> actionText, string rollInfo, List<string>? statusEffects = null)
+        public static void DisplayActionBlock(List<ColoredText> actionText, List<ColoredText> rollInfo, List<List<ColoredText>>? statusEffects = null, List<ColoredText>? criticalMissNarrative = null)
         {
             // Extract entity name from ColoredText for blank line tracking
             string? currentEntity = null;
@@ -82,14 +84,79 @@ namespace RPGGame
             // Manage spacing between block types
             ManageBlockSpacing("ActionBlock");
             
-            // Convert ColoredText to markup string for now (future: render directly)
-            UIManager.WriteColoredText(actionText);
-            UIManager.WriteLine($"    {rollInfo}", UIMessageType.RollInfo);
-            
-            var validEffects = statusEffects?.FindAll(e => !string.IsNullOrEmpty(e)) ?? new List<string>();
-            foreach (var effect in validEffects)
+            // Render both actionText and rollInfo together without delay between them
+            // Write both lines directly to the underlying UI manager to bypass delays
+            var customUIManager = UIManager.GetCustomUIManager();
+            if (customUIManager != null)
             {
-                UIManager.WriteLine($"    {ApplyKeywordColoring(effect)}", UIMessageType.EffectMessage);
+                // Write actionText directly to bypass delay
+                if (actionText != null && actionText.Count > 0)
+                {
+                    customUIManager.WriteColoredSegments(actionText, UIMessageType.Combat);
+                }
+                // Write rollInfo immediately after (on next line) without delay
+                if (rollInfo != null && rollInfo.Count > 0)
+                {
+                    customUIManager.WriteColoredSegments(rollInfo, UIMessageType.RollInfo);
+                }
+                // Write critical miss narrative immediately after roll info (on next line) without delay
+                if (criticalMissNarrative != null && criticalMissNarrative.Count > 0)
+                {
+                    customUIManager.WriteColoredSegments(criticalMissNarrative, UIMessageType.System);
+                }
+                // Render status effects if present
+                if (statusEffects != null)
+                {
+                    foreach (var effect in statusEffects)
+                    {
+                        if (effect != null && effect.Count > 0)
+                        {
+                            customUIManager.WriteColoredSegments(effect, UIMessageType.EffectMessage);
+                        }
+                    }
+                }
+                // Apply delay after all lines are written
+                if (UIManager.UIConfig.EnableDelays)
+                {
+                    CombatDelayManager.DelayAfterMessage();
+                }
+            }
+            else
+            {
+                // For console, write both lines directly to bypass delays
+                if (actionText != null && actionText.Count > 0)
+                {
+                    ColoredConsoleWriter.WriteSegments(actionText);
+                    Console.WriteLine();
+                }
+                if (rollInfo != null && rollInfo.Count > 0)
+                {
+                    ColoredConsoleWriter.WriteSegments(rollInfo);
+                    Console.WriteLine();
+                }
+                // Write critical miss narrative immediately after roll info (on next line) without delay
+                if (criticalMissNarrative != null && criticalMissNarrative.Count > 0)
+                {
+                    ColoredConsoleWriter.WriteSegments(criticalMissNarrative);
+                    Console.WriteLine();
+                }
+                // Render status effects if present
+                if (statusEffects != null)
+                {
+                    foreach (var effect in statusEffects)
+                    {
+                        if (effect != null && effect.Count > 0)
+                        {
+                            ColoredConsoleWriter.WriteSegments(effect);
+                            Console.WriteLine();
+                        }
+                    }
+                }
+                // Apply delay after all lines are written
+                if (UIManager.UIConfig.EnableDelays)
+                {
+                    CombatDelayManager.DelayAfterMessage();
+                }
             }
             
             // Update the last acting Actor

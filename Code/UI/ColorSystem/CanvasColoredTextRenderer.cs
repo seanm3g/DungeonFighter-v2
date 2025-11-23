@@ -208,17 +208,33 @@ namespace RPGGame.UI.ColorSystem
                         currentLength = 0;
                     }
                     
-                    // If segment is longer than maxWidth, split it
+                    // If segment is longer than maxWidth, split it at word boundaries
                     if (segmentLength > maxWidth)
                     {
                         var remainingText = segment.Text;
                         while (remainingText.Length > maxWidth)
                         {
-                            var chunk = remainingText.Substring(0, maxWidth);
-                            currentLine.Add(new ColoredText(chunk, segment.Color));
+                            // Try to find the last space before maxWidth to split at word boundary
+                            int splitPoint = maxWidth;
+                            int lastSpace = remainingText.LastIndexOf(' ', maxWidth - 1);
+                            
+                            if (lastSpace > 0 && lastSpace > maxWidth / 2)
+                            {
+                                // Split at word boundary
+                                splitPoint = lastSpace + 1; // Include the space
+                            }
+                            
+                            var chunk = remainingText.Substring(0, splitPoint);
+                            if (chunk.Length > 0)
+                            {
+                                currentLine.Add(new ColoredText(chunk, segment.Color));
+                            }
                             lines.Add(new List<ColoredText>(currentLine));
                             currentLine.Clear();
-                            remainingText = remainingText.Substring(maxWidth);
+                            currentLength = 0;
+                            
+                            // Remove the chunk (and trailing space if we split at word boundary)
+                            remainingText = remainingText.Substring(splitPoint).TrimStart();
                         }
                         
                         if (remainingText.Length > 0)

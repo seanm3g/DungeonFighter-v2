@@ -35,7 +35,7 @@ Added the ability to delete saved character data from the Settings menu in both 
 
 ### Modified Files
 
-#### 1. `Code/UI/Avalonia/CanvasUIManager.cs`
+#### 1. `Code/UI/Avalonia/CanvasUICoordinator.cs`
 **Changes:**
 - Updated `RenderSettings()` method to:
   - Check for saved character existence
@@ -52,7 +52,7 @@ Added the ability to delete saved character data from the Settings menu in both 
   - Handle option "1" (Back to Main Menu)
   - Handle option "2" (Delete Saved Character)
   - Cancel confirmation on any other input
-- Added `HandleDeleteCharacter(CanvasUIManager)` method:
+- Added `HandleDeleteCharacter(CanvasUICoordinator)` method:
   - Checks for save file existence
   - Implements two-step confirmation logic
   - Calls `CharacterSaveManager.DeleteSaveFile()`

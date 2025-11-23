@@ -19,17 +19,21 @@ namespace RPGGame.UI.ColorSystem
             // OLD WAY (problematic):
             // UIManager.WriteLine("&RPlayer&y deals &G25&y damage to &BEnemy&y!");
             
-            // NEW WAY (clean and readable):
+            // NEW WAY (clean and readable) - Preferred: Use builder pattern directly
             var combatMessage = new ColoredTextBuilder()
                 .Add("Player", ColorPalette.Player)
                 .Add(" deals ", Colors.White)
                 .Add("25", ColorPalette.Damage)
                 .Add(" damage to ", Colors.White)
                 .Add("Enemy", ColorPalette.Enemy)
-                .Add("!", Colors.White)
-                .Build();
+                .Add("!", Colors.White);
             
-            UIManager.WriteLineColoredSegments(combatMessage, UIMessageType.Combat);
+            // Preferred: Use WriteLineColoredTextBuilder (most efficient)
+            UIManager.WriteLineColoredTextBuilder(combatMessage, UIMessageType.Combat);
+            
+            // Alternative: Build first, then write segments (also works)
+            // var segments = combatMessage.Build();
+            // UIManager.WriteLineColoredSegments(segments, UIMessageType.Combat);
         }
         
         /// <summary>
@@ -40,17 +44,17 @@ namespace RPGGame.UI.ColorSystem
             // OLD WAY:
             // UIManager.WriteLine("&RPlayer&y uses &Ghealing&y potion for &C50&y health!");
             
-            // NEW WAY:
+            // NEW WAY - Preferred: Use builder pattern directly
             var healingMessage = new ColoredTextBuilder()
                 .Add("Player", ColorPalette.Player)
                 .Add(" uses ", Colors.White)
                 .AddWithPattern("healing", "healing")
                 .Add(" potion for ", Colors.White)
                 .Add("50", ColorPalette.Healing)
-                .Add(" health!", Colors.White)
-                .Build();
+                .Add(" health!", Colors.White);
             
-            UIManager.WriteLineColoredSegments(healingMessage, UIMessageType.Combat);
+            // Preferred: Use WriteLineColoredTextBuilder (most efficient)
+            UIManager.WriteLineColoredTextBuilder(healingMessage, UIMessageType.Combat);
         }
         
         /// <summary>
@@ -106,7 +110,7 @@ namespace RPGGame.UI.ColorSystem
             // OLD WAY (very hard to read and maintain):
             // UIManager.WriteLine("&RPlayer&y found a &P[Legendary]&y &G+5&y &BSteel Sword&y of &R+3&y &YFire&y damage!");
             
-            // NEW WAY (clear and maintainable):
+            // NEW WAY (clear and maintainable) - Preferred: Use builder pattern directly
             var itemMessage = new ColoredTextBuilder()
                 .Add("Player", ColorPalette.Player)
                 .Add(" found a ", Colors.White)
@@ -119,10 +123,10 @@ namespace RPGGame.UI.ColorSystem
                 .Add("+3", ColorPalette.Success)
                 .Add(" ", Colors.White)
                 .AddWithPattern("Fire", "fire")
-                .Add(" damage!", Colors.White)
-                .Build();
+                .Add(" damage!", Colors.White);
             
-            UIManager.WriteLineColoredSegments(itemMessage, UIMessageType.System);
+            // Preferred: Use WriteLineColoredTextBuilder (most efficient)
+            UIManager.WriteLineColoredTextBuilder(itemMessage, UIMessageType.System);
         }
         
         /// <summary>
@@ -141,10 +145,10 @@ namespace RPGGame.UI.ColorSystem
             var message = new ColoredTextBuilder()
                 .Add("Player", ColorPalette.Player)
                 .Add(" deals ", Colors.White)
-                .AddWithPattern("damage", "damage") // Will use orange instead of red
-                .Build();
+                .AddWithPattern("damage", "damage"); // Will use orange instead of red
             
-            UIManager.WriteLineColoredSegments(message, UIMessageType.Combat);
+            // Preferred: Use WriteLineColoredTextBuilder (most efficient)
+            UIManager.WriteLineColoredTextBuilder(message, UIMessageType.Combat);
         }
         
         /// <summary>
@@ -212,20 +216,20 @@ namespace RPGGame.UI.ColorSystem
             // Convert old markup to new system
             var convertedSegments = CompatibilityLayer.ConvertOldMarkup(oldMarkup);
             
-            // Use the converted segments
+            // Use the converted segments (when converting from old markup, segments are already built)
             UIManager.WriteLineColoredSegments(convertedSegments, UIMessageType.Combat);
             
-            // Or create new content using the new system
+            // Or create new content using the new system - Preferred: Use builder pattern directly
             var newMessage = new ColoredTextBuilder()
                 .Add("Player", ColorPalette.Player)
                 .Add(" deals ", Colors.White)
                 .Add("25", ColorPalette.Damage)
                 .Add(" damage to ", Colors.White)
                 .Add("Enemy", ColorPalette.Enemy)
-                .Add("!", Colors.White)
-                .Build();
+                .Add("!", Colors.White);
             
-            UIManager.WriteLineColoredSegments(newMessage, UIMessageType.Combat);
+            // Preferred: Use WriteLineColoredTextBuilder (most efficient)
+            UIManager.WriteLineColoredTextBuilder(newMessage, UIMessageType.Combat);
         }
     }
 }

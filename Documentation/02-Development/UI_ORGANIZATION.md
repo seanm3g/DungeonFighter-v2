@@ -7,7 +7,7 @@ This document describes the organization of the UI system after the rewrite to c
 
 ### Core UI Files
 - **`Code/UI/Avalonia/AsciiArtAssets.cs`** - Centralized UI assets and constants
-- **`Code/UI/Avalonia/CanvasUIManager.cs`** - Main UI rendering manager
+- **`Code/UI/Avalonia/CanvasUICoordinator.cs`** - Main UI rendering coordinator (refactored from CanvasUIManager)
 - **`Code/UI/Avalonia/PersistentLayoutManager.cs`** - Handles persistent left panel layout
 - **`Code/UI/Avalonia/GameCanvasControl.cs`** - Low-level canvas rendering
 - **`Code/UI/OpeningAnimation.cs`** - Opening title screen animation
@@ -98,7 +98,7 @@ string enemyIcon = AsciiArtAssets.CombatIcons.Enemy; // 👹
 string weaponIcon = AsciiArtAssets.GetWeaponIcon("sword"); // ⚔
 ```
 
-## CanvasUIManager.cs Organization
+## CanvasUICoordinator.cs Organization
 
 ### Purpose
 Main UI rendering manager that handles all game screens using the persistent layout system.

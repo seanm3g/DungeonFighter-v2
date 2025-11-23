@@ -5,7 +5,7 @@
 ### 1. **Color Markup Codes Showing as Text**
 **Problem:** Color markup codes like `{{G|`, `{{W|`, `{{Y|` were displaying as visible text instead of being rendered as colors.
 
-**Solution:** Created a dedicated `RenderOpeningAnimation()` method in `CanvasUIManager` that properly parses and renders color markup codes using the existing `WriteLineColored()` method.
+**Solution:** Created a dedicated `RenderOpeningAnimation()` method in `CanvasUICoordinator` that properly parses and renders color markup codes using the existing `WriteLineColored()` method.
 
 ### 2. **Animation Not Centered**
 **Problem:** The opening animation was left-aligned instead of centered on the screen, making it look off-balance.
@@ -33,7 +33,7 @@
 
 ## Files Modified
 
-### `Code/UI/Avalonia/CanvasUIManager.cs`
+### `Code/UI/Avalonia/CanvasUICoordinator.cs`
 **Added Methods:**
 - `RenderOpeningAnimation()` - Renders the opening animation with proper color parsing and centering
 - `GetVisibleLength(string text)` - Calculates visible text length excluding markup codes

@@ -47,7 +47,7 @@ Code/UI/TitleScreenAnimator.cs
   - Background thread execution (non-blocking)
 
 // Updated Classes
-Code/UI/Avalonia/CanvasUIManager.cs
+Code/UI/Avalonia/CanvasUICoordinator.cs
   - Clear() - Public canvas clearing
   - Refresh() - Public canvas refresh
   
@@ -108,7 +108,7 @@ Code/UI/ItemDisplayFormatter.cs
 
 // Integration Points
 Code/UI/GameDisplayManager.cs - Console display
-Code/UI/Avalonia/CanvasUIManager.cs - GUI display
+Code/UI/Avalonia/CanvasUICoordinator.cs - GUI display
 ```
 
 #### Why It Matters
@@ -138,7 +138,7 @@ All 7 inventory actions now fully functional in GUI:
 #### Technical Details
 ```csharp
 // Updated Classes
-Code/UI/Avalonia/CanvasUIManager.cs
+Code/UI/Avalonia/CanvasUICoordinator.cs
   - RenderInventoryContent() - All 7 buttons displayed
   - Two-column layout for better organization
   
@@ -238,7 +238,7 @@ Code/UI/Avalonia/GameCanvasControl.cs
   - GridWidth: 210, GridHeight: 60
   - CenterX: 105
   
-Code/UI/Avalonia/CanvasUIManager.cs
+Code/UI/Avalonia/CanvasUICoordinator.cs
   - SCREEN_WIDTH: 210, SCREEN_CENTER: 105
   - CONTENT_WIDTH: 206, CONTENT_HEIGHT: 56
   
@@ -281,7 +281,7 @@ Code/UI/Avalonia/PersistentLayoutManager.cs
 #### Technical Details
 ```csharp
 // Main Menu Positioning
-Code/UI/Avalonia/CanvasUIManager.cs
+Code/UI/Avalonia/CanvasUICoordinator.cs
   - RenderMainMenu() - menuStartY: 50 → 12
 
 // Auto-Load Character
@@ -291,7 +291,7 @@ Code/Game/Game.cs
   - Loads inventory
 
 // Combat Log Persistence
-Code/UI/Avalonia/CanvasUIManager.cs
+Code/UI/Avalonia/CanvasUICoordinator.cs
   - AddVictoryMessage() - Add to log (no clear)
   - AddDefeatMessage() - Add to log (no clear)
   - AddRoomClearedMessage() - Add to log (no clear)
@@ -340,7 +340,7 @@ Code/UI/KeywordColorSystem.cs
   - Later refined to natural color flow
 
 // Text Wrapping
-Code/UI/Avalonia/CanvasUIManager.cs
+Code/UI/Avalonia/CanvasUICoordinator.cs
   - WriteLineColoredWrapped() - New method for wrapped text
   - WrapText() - Updated to use ColorParser.GetDisplayLength()
   - SplitPreservingMarkup() - Preserves color templates

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Avalonia.Media;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
 {
@@ -177,9 +179,13 @@ namespace RPGGame
                     {
                         int randomIndex = availableUniqueActions.Count > 1 ? Dice.Roll(1, availableUniqueActions.Count) - 1 : 0;
                         selectedAction = availableUniqueActions[randomIndex];
-                        // Use TextDisplayIntegration for consistent entity tracking
-                        string uniqueActionMessage = $"{character.Name} channels unique power and uses {selectedAction.Name}!";
-                        TextDisplayIntegration.DisplayCombatAction(uniqueActionMessage, new List<string>(), new List<string>(), character.Name);
+                        // Use ColoredText for unique action message
+                        var uniqueBuilder = new ColoredTextBuilder();
+                        uniqueBuilder.Add(character.Name, ColorPalette.Player);
+                        uniqueBuilder.Add(" channels unique power and uses ", Colors.White);
+                        uniqueBuilder.Add(selectedAction.Name, ColorPalette.Warning);
+                        uniqueBuilder.Add("!", Colors.White);
+                        TextDisplayIntegration.DisplayCombatAction(uniqueBuilder.Build(), new List<ColoredText>(), null, null);
                     }
                 }
             }

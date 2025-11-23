@@ -70,7 +70,7 @@ ItemDisplayFormatter.FormatItemBonusesWithColor(item, UIManager.WriteMenuLine);
 The GUI automatically uses the color system when rendering inventory:
 
 ```csharp
-// In CanvasUIManager.RenderInventoryContent
+// In CanvasUICoordinator.RenderInventoryContent
 string coloredItemName = ItemDisplayFormatter.GetColoredItemName(item);
 string displayLine = $"&y[{i + 1}] {coloredItemName}";
 WriteLineColored(displayLine, x + 2, y);
@@ -120,7 +120,7 @@ Iron Sword (Damage: 10, Speed: 0.5s)
 2. **Code/UI/ItemColorSystem.cs** - New class for item color formatting
 3. **Code/UI/ItemDisplayFormatter.cs** - Added color formatting methods
 4. **Code/UI/GameDisplayManager.cs** - Updated to use colored item display
-5. **Code/UI/Avalonia/CanvasUIManager.cs** - Updated GUI inventory rendering
+5. **Code/UI/Avalonia/CanvasUICoordinator.cs** - Updated GUI inventory rendering
 6. **Code/UI/Avalonia/AsciiArtAssets.cs** - Added Transcendent rarity color
 
 ### Color System Integration

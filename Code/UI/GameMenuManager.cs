@@ -128,7 +128,8 @@ namespace RPGGame
         public void RunGame(Character player, List<Item> inventory, List<Dungeon> availableDungeons, bool isLoadedCharacter = false)
         {
             // Delegate to GameLoopManager for the actual game loop logic
-            gameLoopManager.RunGameLoop(player, inventory, availableDungeons, isLoadedCharacter);
+            // Fire and forget - the game loop runs asynchronously
+            _ = gameLoopManager.RunGameLoop(player, inventory, availableDungeons, isLoadedCharacter);
         }
 
         /// <summary>

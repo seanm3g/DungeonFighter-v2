@@ -23,8 +23,8 @@ A new layout management system that:
 - Configurable layout dimensions
 - Automatic text truncation for long item names
 
-### 2. Refactored CanvasUIManager ✅
-**File:** `Code/UI/Avalonia/CanvasUIManager.cs`
+### 2. Refactored CanvasUICoordinator ✅
+**File:** `Code/UI/Avalonia/CanvasUICoordinator.cs`
 
 **Major Changes:**
 - Integrated `PersistentLayoutManager` instance
@@ -192,7 +192,7 @@ This ensures the character panel is always populated with the current player's i
 4. `PERSISTENT_LAYOUT_IMPLEMENTATION_SUMMARY.md` - This file
 
 ### Modified Files
-1. `Code/UI/Avalonia/CanvasUIManager.cs` - Integrated persistent layout
+1. `Code/UI/Avalonia/CanvasUICoordinator.cs` - Integrated persistent layout
 2. `Code/Game/Game.cs` - Added character set calls
 
 ## How to Use
@@ -226,7 +226,7 @@ private void RenderNewPhaseContent(int x, int y, int width, int height)
 
 #### Updating Character Display
 ```csharp
-if (customUIManager is CanvasUIManager canvasUI)
+if (customUIManager is CanvasUICoordinator canvasUI)
 {
     canvasUI.SetCharacter(updatedCharacter);
 }

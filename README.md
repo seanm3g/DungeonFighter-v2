@@ -89,6 +89,26 @@ dotnet run               # Run the game
 dotnet run test-all      # Run comprehensive tests (or use in-game menu)
 ```
 
+### Fixing Build Cache Issues
+
+If you encounter build errors where the compiler can't find methods that clearly exist in your code, use these commands:
+
+```bash
+# Quick fix (fastest)
+.\Scripts\quick-clean.bat
+
+# Thorough fix (when quick doesn't work)
+.\Scripts\fix-build.bat
+
+# Most thorough (last resort)
+.\Scripts\clean-all.bat
+
+# Interactive menu
+.\Scripts\build-fix.bat
+```
+
+**When to use:** Build errors that randomly fix themselves, after Git branch switches, or when IDE and command line builds disagree. See `Scripts/README_BUILD_COMMANDS.md` for details.
+
 ## Game Controls
 
 ### Main Menu

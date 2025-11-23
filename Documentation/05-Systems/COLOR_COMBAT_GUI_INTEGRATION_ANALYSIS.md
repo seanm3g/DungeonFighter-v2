@@ -32,7 +32,7 @@ TextDisplayIntegration.cs
 ColorParser.Parse()
     ↓ expands {{templates}}
     ↓ creates ColoredSegment objects
-CanvasUIManager.WriteLineColored()
+CanvasUICoordinator.WriteLineColored()
     ↓ renders segments to canvas
 GameCanvasControl
     ↓ displays to screen
@@ -81,7 +81,7 @@ GameCanvasControl
 - **Strength:** Rich narrative generation
 - **Issue:** Text not pre-colored, relies on keyword system
 
-#### 5. **GUI Rendering** (`Code/UI/Avalonia/CanvasUIManager.cs`)
+#### 5. **GUI Rendering** (`Code/UI/Avalonia/CanvasUICoordinator.cs`)
 - **Purpose:** Render text to canvas with color support
 - **Methods:**
   - `WriteLineColored()` - Parse markup and render segments
@@ -183,7 +183,7 @@ public static List<ColoredSegment> Parse(string text)
 
 **Current Solution:** `ColorParser.GetDisplayLength()` strips markup using regex
 
-**Example:** `Code/UI/Avalonia/CanvasUIManager.cs` line 1549
+**Example:** `Code/UI/Avalonia/CanvasUICoordinator.cs` line 1549
 ```csharp
 wordLengths[i] = ColorParser.GetDisplayLength(words[i]);
 ```
@@ -220,7 +220,7 @@ wordLengths[i] = ColorParser.GetDisplayLength(words[i]);
 - Combat messages: In `CombatResults.FormatDamageDisplay()`
 - Item names: In `ItemDisplayFormatter.GetColoredItemName()`
 - Enemy names: Via keyword system
-- Dungeon names: In `CanvasUIManager.GetDungeonThemeTemplate()`
+- Dungeon names: In `CanvasUICoordinator.GetDungeonThemeTemplate()`
 
 **Impact:**
 - Hard to track where colors come from

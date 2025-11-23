@@ -261,7 +261,7 @@ TextFadeAnimatorExamples.DemoCombatUsage();
 
 If you want to extend this system, consider:
 
-1. **Canvas Integration**: Add fade animation support to `CanvasUIManager` for Avalonia UI
+1. **Canvas Integration**: Add fade animation support to `CanvasUICoordinator` for Avalonia UI
 2. **Fade In**: Implement reverse fade (text appearing)
 3. **Wave Effects**: Make letters oscillate while fading
 4. **Sound Integration**: Tie fade animations to sound effects

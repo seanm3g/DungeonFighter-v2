@@ -15,7 +15,7 @@ Comprehensive analysis of how the color system, combat text generation, and GUI 
 - Combat message formatting (`CombatResults.cs`)
 - Battle narrative generation (`BattleNarrative.cs`)
 - Keyword auto-coloring (`KeywordColorSystem.cs`)
-- GUI rendering (`CanvasUIManager.cs`)
+- GUI rendering (`CanvasUICoordinator.cs`)
 
 ---
 

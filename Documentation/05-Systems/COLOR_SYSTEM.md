@@ -491,7 +491,7 @@ foreach (var theme in allThemes)
 The dungeon selection screen automatically displays dungeons in their theme colors:
 
 ```csharp
-// CanvasUIManager automatically applies theme colors
+// CanvasUICoordinator automatically applies theme colors
 for (int i = 0; i < dungeons.Count; i++)
 {
     var dungeon = dungeons[i];
@@ -573,11 +573,11 @@ UIManager.WriteMenuLine("{{legendary|Legendary Item}} found!");
 
 ### Canvas UI Integration
 
-The CanvasUIManager includes color support for Avalonia:
+The CanvasUICoordinator includes color support for Avalonia:
 
 ```csharp
 var canvas = new GameCanvasControl();
-var uiManager = new CanvasUIManager(canvas);
+var uiManager = new CanvasUICoordinator(canvas);
 
 // Use WriteLineColored for markup support
 uiManager.WriteLineColored("{{fiery|Fire Attack}}", x: 10, y: 5);

@@ -229,7 +229,7 @@ private static string ApplyKeywordColoring(string text)
 | `Code/UI/KeywordColorSystem.cs` | Applies keyword colors | 🔴 High |
 | `Code/UI/ColorParser.cs` | Parses markup, expands templates | 🟡 Medium |
 | `Code/UI/BlockDisplayManager.cs` | Displays combat blocks | 🟡 Medium |
-| `Code/UI/Avalonia/CanvasUIManager.cs` | Renders to canvas | 🟢 Low |
+| `Code/UI/Avalonia/CanvasUICoordinator.cs` | Renders to canvas | 🟢 Low |
 | `Code/Combat/CombatResults.cs` | Constructs messages | 🟢 Low (verified correct) |
 
 ---

@@ -22,59 +22,109 @@ namespace RPGGame.UI
 
         /// <summary>
         /// Writes colored text using the new ColoredText system
+        /// Routes to custom UI manager if available, otherwise uses console
         /// </summary>
         public void WriteColoredText(ColoredText coloredText, UIMessageType messageType = UIMessageType.System)
         {
-            // For console output, use the new system
-            var segments = new List<ColoredText> { coloredText };
-            ColoredConsoleWriter.WriteSegments(segments);
+            var customUIManager = _outputManager.GetCustomUIManager();
+            if (customUIManager != null)
+            {
+                // Route to custom UI manager (e.g., CanvasUICoordinator)
+                customUIManager.WriteColoredText(coloredText, messageType);
+            }
+            else
+            {
+                // For console output, use the new system
+                var segments = new List<ColoredText> { coloredText };
+                ColoredConsoleWriter.WriteSegments(segments);
+            }
 
             _delayManager.ApplyDelay(messageType);
         }
 
         /// <summary>
         /// Writes a list of colored text segments
+        /// Routes to custom UI manager if available, otherwise uses console
         /// </summary>
         public void WriteColoredText(List<ColoredText> coloredTexts, UIMessageType messageType = UIMessageType.System)
         {
-            // For console output, use the new system
-            ColoredConsoleWriter.WriteSegments(coloredTexts);
+            var customUIManager = _outputManager.GetCustomUIManager();
+            if (customUIManager != null)
+            {
+                // Route to custom UI manager (e.g., CanvasUICoordinator)
+                customUIManager.WriteColoredSegments(coloredTexts, messageType);
+            }
+            else
+            {
+                // For console output, use the new system
+                ColoredConsoleWriter.WriteSegments(coloredTexts);
+            }
 
             _delayManager.ApplyDelay(messageType);
         }
 
         /// <summary>
         /// Writes colored text using the new ColoredText system with newline
+        /// Routes to custom UI manager if available, otherwise uses console
         /// </summary>
         public void WriteLineColoredText(ColoredText coloredText, UIMessageType messageType = UIMessageType.System)
         {
-            // For console output, use the new system
-            var segments = new List<ColoredText> { coloredText };
-            ColoredConsoleWriter.WriteSegments(segments);
-            Console.WriteLine();
+            var customUIManager = _outputManager.GetCustomUIManager();
+            if (customUIManager != null)
+            {
+                // Route to custom UI manager (e.g., CanvasUICoordinator)
+                customUIManager.WriteLineColoredText(coloredText, messageType);
+            }
+            else
+            {
+                // For console output, use the new system
+                var segments = new List<ColoredText> { coloredText };
+                ColoredConsoleWriter.WriteSegments(segments);
+                Console.WriteLine();
+            }
 
             _delayManager.ApplyDelay(messageType);
         }
 
         /// <summary>
         /// Writes colored text segments using the new ColoredText system
+        /// Routes to custom UI manager if available, otherwise uses console
         /// </summary>
         public void WriteColoredSegments(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System)
         {
-            // For console output, use the new system
-            ColoredConsoleWriter.WriteSegments(segments);
+            var customUIManager = _outputManager.GetCustomUIManager();
+            if (customUIManager != null)
+            {
+                // Route to custom UI manager (e.g., CanvasUICoordinator)
+                customUIManager.WriteColoredSegments(segments, messageType);
+            }
+            else
+            {
+                // For console output, use the new system
+                ColoredConsoleWriter.WriteSegments(segments);
+            }
 
             _delayManager.ApplyDelay(messageType);
         }
 
         /// <summary>
         /// Writes colored text segments using the new ColoredText system with newline
+        /// Routes to custom UI manager if available, otherwise uses console
         /// </summary>
         public void WriteLineColoredSegments(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System)
         {
-            // For console output, use the new system
-            ColoredConsoleWriter.WriteSegments(segments);
-            Console.WriteLine();
+            var customUIManager = _outputManager.GetCustomUIManager();
+            if (customUIManager != null)
+            {
+                // Route to custom UI manager (e.g., CanvasUICoordinator)
+                customUIManager.WriteLineColoredSegments(segments, messageType);
+            }
+            else
+            {
+                // For console output, use the new system
+                ColoredConsoleWriter.WriteSegments(segments);
+                Console.WriteLine();
+            }
 
             _delayManager.ApplyDelay(messageType);
         }

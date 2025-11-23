@@ -10,7 +10,7 @@
   - Phase 2: Warm/Cool → Final colors (Gold & Red) - 1 second
   - Professional, polished intro experience
 - **New Class**: `TitleScreenAnimator` for dedicated animation control
-- **API Additions**: `CanvasUIManager.Clear()` and `CanvasUIManager.Refresh()` made public
+- **API Additions**: `UtilityCoordinator.Clear()` and `UtilityCoordinator.Refresh()` available via `CanvasUICoordinator` (Note: Class was refactored from `CanvasUICoordinator` to `CanvasUICoordinator`)
 - **Files**: `Code/UI/TitleScreenAnimator.cs` (new), `MainWindow.axaml.cs` (updated)
 
 #### Item Color System
@@ -43,7 +43,7 @@
   7. Exit Game - Application exit
 - **Multi-Step Actions**: Proper state management for item/slot selection
 - **Visual Layout**: Two-column button layout with clear action labels
-- **Files**: `CanvasUIManager.cs`, `Game.cs` (HandleInventoryInput enhanced)
+- **Files**: `CanvasUICoordinator.cs`, `Game.cs` (HandleInventoryInput enhanced)
 
 #### Color Configuration System
 - **Data-Driven Colors**: All color templates and keywords moved to JSON
@@ -61,7 +61,7 @@
 - **Character Grid**: Expanded from 100×40 to 220×65 characters
 - **Center Point**: Updated from 50 to 110 characters
 - **Panel Widths**: Scaled proportionally to new dimensions
-- **Files**: `MainWindow.axaml`, `GameCanvasControl.cs`, `CanvasUIManager.cs`, `PersistentLayoutManager.cs`
+- **Files**: `MainWindow.axaml`, `GameCanvasControl.cs`, `CanvasUICoordinator.cs`, `PersistentLayoutManager.cs`
 
 #### Layout Balance Optimization
 - **Center Panel**: Increased from 146 to 162 characters (16 char wider)
@@ -75,7 +75,7 @@
 - **Better UX**: Options immediately visible below title
 - **Positioning**: Menu starts at Y=12 (4 lines below "MAIN MENU" title)
 - **Instructions**: Dynamically positioned 2 lines below menu
-- **Files**: `CanvasUIManager.cs` (RenderMainMenu)
+- **Files**: `CanvasUICoordinator.cs` (RenderMainMenu)
 
 ### Bug Fixes & Quality Improvements
 
@@ -90,7 +90,7 @@
 - **Victory Messages**: Added to combat log instead of full-screen overlay
 - **Room Cleared**: Shows in combat log with health info
 - **New Methods**: `AddVictoryMessage()`, `AddDefeatMessage()`, `AddRoomClearedMessage()`
-- **Files**: `CanvasUIManager.cs`, `Game.cs`
+- **Files**: `CanvasUICoordinator.cs`, `Game.cs`
 
 #### Combat Text Display Fixes
 - **Color Bleeding Fix**: Keywords now reset to white after coloring
@@ -99,7 +99,7 @@
 - **Bracket Removal**: Removed all brackets from entity names (cleaner display)
 - **Indentation Fix**: Continuation lines use minimal 2-space indent
 - **New Method**: `WriteLineColoredWrapped()` for wrapped text rendering
-- **Files**: `KeywordColorSystem.cs`, `CanvasUIManager.cs`, `CombatResults.cs`, `ActionExecutor.cs`
+- **Files**: `KeywordColorSystem.cs`, `CanvasUICoordinator.cs`, `CombatResults.cs`, `ActionExecutor.cs`
 
 #### Console Output Leak Fix
 - **Fixed**: Loot messages no longer appear in terminal during GUI mode

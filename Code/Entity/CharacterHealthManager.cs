@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Avalonia.Media;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
 {
@@ -48,10 +50,14 @@ namespace RPGGame
                 character.Effects.HasShield = false; // Consume the shield
                 shieldUsed = true;
 
-                // Display shield message
-                // Use TextDisplayIntegration for consistent entity tracking
-                string shieldMessage = $"[{character.Name}]'s Arcane Shield reduces damage by {shieldReduction}!";
-                TextDisplayIntegration.DisplayCombatAction(shieldMessage, new List<string>(), new List<string>(), character.Name);
+                // Display shield message using ColoredText
+                var shieldBuilder = new ColoredTextBuilder();
+                shieldBuilder.Add("[", Colors.White);
+                shieldBuilder.Add(character.Name, ColorPalette.Player);
+                shieldBuilder.Add("]'s Arcane Shield reduces damage by ", Colors.White);
+                shieldBuilder.Add(shieldReduction.ToString(), ColorPalette.Success);
+                shieldBuilder.Add("!", Colors.White);
+                TextDisplayIntegration.DisplayCombatAction(shieldBuilder.Build(), new List<ColoredText>(), null, null);
             }
 
             // Apply damage reduction if active

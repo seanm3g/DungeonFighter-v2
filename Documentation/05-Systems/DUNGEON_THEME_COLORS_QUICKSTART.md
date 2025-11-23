@@ -117,7 +117,7 @@ The system automatically colors dungeon names in:
 `Code/UI/DungeonThemeColors.cs`
 
 ### Modified Files
-- `Code/UI/Avalonia/CanvasUIManager.cs` - Added theme color usage in dungeon screens
+- `Code/UI/Avalonia/CanvasUICoordinator.cs` - Added theme color usage in dungeon screens
 
 ### Methods Available
 - `GetThemeColor(string theme)` - Gets the main theme color

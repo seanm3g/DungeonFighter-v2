@@ -20,14 +20,14 @@ Successfully implemented the recommended short-term optimizations for the color 
 
 ### ✅ Fix 1: Consolidate Length Calculations
 
-**Problem:** Duplicate `GetVisibleLength()` method in `CanvasUIManager.cs` that reimplemented markup stripping logic already present in `ColorParser.GetDisplayLength()`.
+**Problem:** Duplicate `GetVisibleLength()` method in `CanvasUICoordinator.cs` that reimplemented markup stripping logic already present in `ColorParser.GetDisplayLength()`.
 
 **Solution:**
 - Replaced the one call to `GetVisibleLength()` with `ColorParser.GetDisplayLength()`
 - Removed the duplicate `GetVisibleLength()` method (47 lines of code)
 
 **Files Changed:**
-- `Code/UI/Avalonia/CanvasUIManager.cs`
+- `Code/UI/Avalonia/CanvasUICoordinator.cs`
 
 **Benefits:**
 - ✅ Eliminated code duplication
@@ -59,7 +59,7 @@ int visibleLength = ColorParser.GetDisplayLength(message);
 - Reduced O(n²) regex calls to O(n)
 
 **Files Changed:**
-- `Code/UI/Avalonia/CanvasUIManager.cs` (lines 1541-1590)
+- `Code/UI/Avalonia/CanvasUICoordinator.cs` (lines 1541-1590)
 
 **Performance Impact:**
 - **Before:** For 100-word text block = ~10,000 regex operations
@@ -319,7 +319,7 @@ All tests passed! ✓
 
 | File | Lines Changed | Type | Risk |
 |------|---------------|------|------|
-| `Code/UI/Avalonia/CanvasUIManager.cs` | -47, +35 | Optimization | Low |
+| `Code/UI/Avalonia/CanvasUICoordinator.cs` | -47, +35 | Optimization | Low |
 | `Code/UI/ColorParserTest.cs` | +490 | New Test File | None |
 | `Code/Utils/TestManager.cs` | +38 | Integration | None |
 | `Documentation/02-Development/COLOR_AND_TEXT_SYSTEM_ANALYSIS.md` | +730 | Documentation | None |

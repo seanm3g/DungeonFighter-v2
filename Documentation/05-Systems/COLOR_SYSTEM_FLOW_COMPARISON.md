@@ -41,7 +41,7 @@
                │
                ▼
 ┌──────────────────────────────────────────┐
-│    CanvasUIManager.WriteLineColored()   │
+│    CanvasUICoordinator.WriteLineColored()   │
 │  Iterates segments, calls AddText()      │
 └──────────────┬───────────────────────────┘
                │
@@ -124,7 +124,7 @@
                │
                ▼
 ┌──────────────────────────────────────────┐
-│    CanvasUIManager.WriteLineColored()   │
+│    CanvasUICoordinator.WriteLineColored()   │
 │  Iterates segments, calls AddText()      │
 └──────────────┬───────────────────────────┘
                │

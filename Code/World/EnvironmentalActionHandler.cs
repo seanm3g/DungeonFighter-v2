@@ -227,7 +227,8 @@ namespace RPGGame
                 // For environmental attacks, calculate damage normally
                 double damageMultiplier = CalculateDamageMultiplier(source, action);
                 int damage = CombatCalculator.CalculateDamage(source, target, action, damageMultiplier, 1.0, 0, 0);
-                return CombatResults.FormatDamageDisplay(source, target, damage, damage, action, 1.0, damageMultiplier, 0, 0);
+                var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, damage, damage, action, 1.0, damageMultiplier, 0, 0);
+                return RPGGame.UI.ColorSystem.ColoredTextRenderer.RenderAsMarkup(damageText) + "\n" + RPGGame.UI.ColorSystem.ColoredTextRenderer.RenderAsMarkup(rollInfo);
             }
             else
             {

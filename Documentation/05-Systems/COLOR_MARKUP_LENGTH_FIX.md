@@ -167,7 +167,7 @@ Strip markup before truncating to avoid breaking markup codes.
 **Files Modified:**
 - `Code/UI/Avalonia/Renderers/CombatRenderer.cs`
 
-### 7. CanvasUIManager.AddToDisplayBuffer() - Line 514-516
+### 7. CanvasUICoordinator.AddToDisplayBuffer() - Line 514-516
 **Problem:**
 ```csharp
 // BEFORE (incorrect):
@@ -192,7 +192,7 @@ if (ColorParser.GetDisplayLength(message) > CONTENT_WIDTH)
 Use display length for check and strip markup before truncating.
 
 **Files Modified:**
-- `Code/UI/Avalonia/CanvasUIManager.cs`
+- `Code/UI/Avalonia/CanvasUICoordinator.cs`
 
 ---
 
@@ -274,7 +274,7 @@ To verify the fix works:
 - `Code/UI/Avalonia/PersistentLayoutManager.cs` - Equipment wrapping
 - `Code/UI/Avalonia/Renderers/DungeonRenderer.cs` - Description wrapping check
 - `Code/UI/Avalonia/Renderers/CombatRenderer.cs` - Narrative truncation
-- `Code/UI/Avalonia/CanvasUIManager.cs` - Display buffer truncation
+- `Code/UI/Avalonia/CanvasUICoordinator.cs` - Display buffer truncation
 
 ---
 

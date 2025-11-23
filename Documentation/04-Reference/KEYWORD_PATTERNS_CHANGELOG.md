@@ -93,7 +93,7 @@ KeywordColorExamples.DemoExpandedEnemies();
 - Keywords are matched as whole words only
 - Already colored text is not re-colored
 - No breaking changes to existing code
-- Pre-existing CanvasUIManager compilation errors unrelated to these changes
+- Pre-existing CanvasUICoordinator compilation errors unrelated to these changes
 
 ---
 

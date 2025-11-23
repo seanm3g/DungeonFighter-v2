@@ -134,7 +134,7 @@ The color system migration is complete! We now have a robust, maintainable, prod
 - [x] Added sentence, paragraph, line, and semantic chunking modes
 - [x] Integrated with color markup system for seamless formatting
 - [x] Created `IUIManager.WriteChunked()` interface method
-- [x] Implemented in `UIManager`, `ConsoleUIManager`, and `CanvasUIManager`
+- [x] Implemented in `UIManager`, `ConsoleUIManager`, and `CanvasUICoordinator`
 - [x] Added optimized presets: `WriteDungeonChunked()` and `WriteRoomChunked()`
 
 #### Dungeon Integration
@@ -173,7 +173,7 @@ The color system migration is complete! We now have a robust, maintainable, prod
 - [x] Implemented smooth color transitions at 30 FPS
 - [x] Phase 1: White to warm white (DUNGEON) and cool white (FIGHTER) - 1 second
 - [x] Phase 2: Warm/cool to final colors (gold and red) - 1 second
-- [x] Added `Clear()` and `Refresh()` public methods to CanvasUIManager
+- [x] Added `Clear()` and `Refresh()` public methods to CanvasUICoordinator
 - [x] Updated MainWindow.axaml.cs to use animated title screen
 - [x] Created comprehensive documentation
 
@@ -183,7 +183,7 @@ The color system migration is complete! We now have a robust, maintainable, prod
 - [x] Implemented prefix/suffix color coding for item Modifications
 - [x] Updated ItemDisplayFormatter with color support methods
 - [x] Integrated colored items in GameDisplayManager (console)
-- [x] Integrated colored items in CanvasUIManager (GUI)
+- [x] Integrated colored items in CanvasUICoordinator (GUI)
 - [x] Added Transcendent rarity colors to AsciiArtAssets
 - [x] Created comprehensive documentation (ITEM_COLOR_SYSTEM.md)
 
@@ -235,7 +235,7 @@ The color system migration is complete! We now have a robust, maintainable, prod
 
 ### Persistent Layout System (October 11, 2025)
 - [x] Created `PersistentLayoutManager` class for unified layout management
-- [x] Refactored `CanvasUIManager` to use persistent layout system
+- [x] Refactored `CanvasUICoordinator` to use persistent layout system
 - [x] Character information (health, stats, armor) now always visible on left panel
 - [x] Center content area dynamically switches between different game phases
 - [x] Updated all render methods:

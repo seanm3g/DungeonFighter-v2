@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
 {
@@ -100,12 +101,12 @@ namespace RPGGame
             if (actionSpeedSystem == null || healthTracker == null)
                 throw new InvalidOperationException("TurnManager not initialized. Call InitializeBattle() first.");
 
-            // Execute the action
-            var (result, statusEffects) = CombatResults.ExecuteActionWithUIAndStatusEffects(Actor, target, action, environment, lastPlayerAction, battleNarrative);
+            // Execute the action using the new ColoredText system
+            var ((actionText, rollInfo), statusEffects) = CombatResults.ExecuteActionWithUIAndStatusEffectsColored(Actor, target, action, environment, lastPlayerAction, battleNarrative);
             if (!DisableCombatUIOutput)
             {
-                // Use TextDisplayIntegration for consistent Actor tracking
-                TextDisplayIntegration.DisplayCombatAction(result, new List<string>(), statusEffects, Actor.Name);
+                // Use TextDisplayIntegration for consistent Actor tracking with ColoredText
+                TextDisplayIntegration.DisplayCombatAction(actionText, rollInfo, statusEffects, null);
             }
 
             // Track last player action for DEJA VU functionality
@@ -251,9 +252,10 @@ namespace RPGGame
                 if (actualRegen > 0)
                 {
                     player.Heal(actualRegen);
-                    // Use TextDisplayIntegration for consistent Actor tracking
-                    string regenMessage = $"{player.Name} regenerates {actualRegen} health ({player.CurrentHealth}/{player.GetEffectiveMaxHealth()})";
-                    TextDisplayIntegration.DisplayCombatAction(regenMessage, new List<string>(), new List<string>(), player.Name);
+                    // Use ColoredText for regeneration message
+                    var regenText = CombatFlowColoredText.FormatHealthRegenerationColored(
+                        player.Name, actualRegen, player.CurrentHealth, player.GetEffectiveMaxHealth());
+                    TextDisplayIntegration.DisplayCombatAction(regenText, new List<ColoredText>(), null, null);
                     UIManager.WriteLine(""); // Add blank line after regeneration message
                 }
             }
@@ -272,8 +274,12 @@ namespace RPGGame
             var events = healthTracker.CheckHealthMilestones(Actor, damageAmount);
             foreach (var evt in events)
             {
-                // Use TextDisplayIntegration for consistent Actor tracking
-                TextDisplayIntegration.DisplayCombatAction(evt, new List<string>(), new List<string>(), Actor.Name);
+                // Parse string message to ColoredText for consistent display
+                var coloredEvent = ColoredTextParser.Parse(evt);
+                if (coloredEvent.Count > 0)
+                {
+                    TextDisplayIntegration.DisplayCombatAction(coloredEvent, new List<ColoredText>(), null, null);
+                }
             }
         }
 

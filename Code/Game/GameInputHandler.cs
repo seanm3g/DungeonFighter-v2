@@ -34,6 +34,7 @@ namespace RPGGame
         public event InputProcessorAsync? OnGameLoopInput;
         public event InputProcessorAsync? OnDungeonSelectionInput;
         public event InputProcessorAsync? OnDungeonCompletionInput;
+        public event InputProcessorAsync? OnDeathScreenInput;
         public event InputProcessorAsync? OnEscapeKey;
         public event InputProcessor? OnCombatScrollInput;
 
@@ -94,6 +95,10 @@ namespace RPGGame
 
                     case GameState.DungeonCompletion:
                         await RaiseDungeonCompletionInput(input);
+                        break;
+
+                    case GameState.Death:
+                        await RaiseDeathScreenInput(input);
                         break;
 
                     case GameState.Dungeon:
@@ -219,6 +224,12 @@ namespace RPGGame
         {
             if (OnDungeonCompletionInput != null)
                 await OnDungeonCompletionInput(input);
+        }
+
+        private async Task RaiseDeathScreenInput(string input)
+        {
+            if (OnDeathScreenInput != null)
+                await OnDeathScreenInput(input);
         }
 
         private void RaiseCombatScrollInput(string input)

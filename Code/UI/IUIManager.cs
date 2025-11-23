@@ -51,5 +51,15 @@ namespace RPGGame
         /// Writes colored text segments using the new ColoredText system with newline
         /// </summary>
         void WriteLineColoredSegments(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System);
+        
+        /// <summary>
+        /// Writes colored text using the builder pattern
+        /// </summary>
+        void WriteColoredTextBuilder(ColoredTextBuilder builder, UIMessageType messageType = UIMessageType.System);
+        
+        /// <summary>
+        /// Writes colored text using the builder pattern with newline
+        /// </summary>
+        void WriteLineColoredTextBuilder(ColoredTextBuilder builder, UIMessageType messageType = UIMessageType.System);
     }
 }

@@ -19,7 +19,8 @@ namespace RPGGame
         DungeonSelection,
         Dungeon,
         Combat,
-        DungeonCompletion
+        DungeonCompletion,
+        Death
     }
 
     /// <summary>
@@ -52,6 +53,7 @@ namespace RPGGame
         private DungeonSelectionHandler? dungeonSelectionHandler;
         private DungeonRunnerManager? dungeonRunnerManager;
         private DungeonCompletionHandler? dungeonCompletionHandler;
+        private DeathScreenHandler? deathScreenHandler;
         private TestingSystemHandler? testingSystemHandler;
         
         // Game loop state
@@ -147,6 +149,7 @@ namespace RPGGame
             dungeonSelectionHandler = new DungeonSelectionHandler(stateManager, dungeonManager, uiManager);
             dungeonRunnerManager = new DungeonRunnerManager(stateManager, narrativeManager, combatManager, uiManager);
             dungeonCompletionHandler = new DungeonCompletionHandler(stateManager);
+            deathScreenHandler = new DeathScreenHandler(stateManager);
             testingSystemHandler = new TestingSystemHandler(stateManager, uiManager);
             
             // NEW: Initialize Menu Input Framework (Phase 3 Refactoring)
@@ -224,6 +227,7 @@ namespace RPGGame
             {
                 dungeonRunnerManager.DungeonCompletedEvent += (xpGained, lootReceived) => ShowDungeonCompletion(xpGained, lootReceived);
                 dungeonRunnerManager.ShowMainMenuEvent += ShowMainMenu;
+                dungeonRunnerManager.ShowDeathScreenEvent += (player) => ShowDeathScreen(player);
             }
             
             if (dungeonCompletionHandler != null)
@@ -232,6 +236,11 @@ namespace RPGGame
                 dungeonCompletionHandler.ShowInventoryEvent += ShowInventory;
                 dungeonCompletionHandler.ShowMainMenuEvent += ShowMainMenu;
                 dungeonCompletionHandler.SaveGameEvent += async () => { SaveGame(); await Task.CompletedTask; };
+            }
+            
+            if (deathScreenHandler != null)
+            {
+                deathScreenHandler.ShowMainMenuEvent += ShowMainMenu;
             }
             
             if (testingSystemHandler != null)
@@ -335,6 +344,10 @@ namespace RPGGame
                 case GameState.DungeonCompletion:
                     if (dungeonCompletionHandler != null)
                         await dungeonCompletionHandler.HandleMenuInput(input);
+                    break;
+                case GameState.Death:
+                    if (deathScreenHandler != null)
+                        await deathScreenHandler.HandleMenuInput(input);
                     break;
                 case GameState.Testing:
                     if (testingSystemHandler != null)
@@ -444,6 +457,14 @@ namespace RPGGame
                     lootReceived
                 );
             }
+        }
+
+        public void ShowDeathScreen(Character player)
+        {
+            stateManager.TransitionToState(GameState.Death);
+            
+            // Display the death screen with statistics
+            deathScreenHandler?.ShowDeathScreen(player);
         }
 
         public void ShowMessage(string message)

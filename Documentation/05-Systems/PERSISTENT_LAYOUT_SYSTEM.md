@@ -92,8 +92,8 @@ RIGHT_PANEL_WIDTH = 27
 RIGHT_PANEL_HEIGHT = 56
 ```
 
-#### 2. CanvasUIManager (Refactored)
-**Location:** `Code/UI/Avalonia/CanvasUIManager.cs`
+#### 2. CanvasUICoordinator (Refactored)
+**Location:** `Code/UI/Avalonia/CanvasUICoordinator.cs`
 
 **Changes:**
 - Added `PersistentLayoutManager` instance
@@ -232,7 +232,7 @@ private void RenderCustomContent(int x, int y, int width, int height)
 ### Updating Character Display
 ```csharp
 // When character state changes (level up, health change, equipment change)
-if (customUIManager is CanvasUIManager canvasUI)
+if (customUIManager is CanvasUICoordinator canvasUI)
 {
     canvasUI.SetCharacter(currentPlayer);
 }

@@ -297,6 +297,11 @@ namespace RPGGame.UI.Avalonia
             screenRenderingCoordinator.RenderDungeonCompletion(dungeon, player, xpGained, lootReceived);
         }
 
+        public void RenderDeathScreen(Character player, string defeatSummary)
+        {
+            screenRenderingCoordinator.RenderDeathScreen(player, defeatSummary);
+        }
+
         public void RenderDungeonExploration(Character player, string currentLocation, List<string> availableActions, List<string> recentEvents)
         {
             screenRenderingCoordinator.RenderDungeonExploration(player, currentLocation, availableActions, recentEvents);
@@ -485,30 +490,71 @@ namespace RPGGame.UI.Avalonia
 
         #endregion
 
-        // ===== NEW COLORED TEXT SYSTEM METHODS =====
+        // ===== NEW COLORED TEXT SYSTEM METHODS (PRIMARY API) =====
         
+        /// <summary>
+        /// Writes ColoredText directly - converts to markup string to preserve colors in display buffer
+        /// </summary>
         public void WriteColoredText(ColoredText coloredText, UIMessageType messageType = UIMessageType.System)
         {
-            // Convert ColoredText to string for now (backward compatibility)
-            var plainText = ColoredTextRenderer.RenderAsPlainText(new List<ColoredText> { coloredText });
-            messageWritingCoordinator.WriteLine(plainText, messageType);
+            // Convert ColoredText to markup string to preserve color information
+            var markup = ColoredTextRenderer.RenderAsMarkup(new List<ColoredText> { coloredText });
+            messageWritingCoordinator.WriteLine(markup, messageType);
         }
         
+        /// <summary>
+        /// Writes ColoredText with newline - converts to markup string to preserve colors
+        /// </summary>
         public void WriteLineColoredText(ColoredText coloredText, UIMessageType messageType = UIMessageType.System)
         {
             WriteColoredText(coloredText, messageType);
         }
         
+        /// <summary>
+        /// Writes ColoredText segments directly - converts to markup string to preserve colors
+        /// This is the primary method for writing structured ColoredText
+        /// </summary>
         public void WriteColoredSegments(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System)
         {
-            // Convert ColoredText segments to string for now (backward compatibility)
-            var plainText = ColoredTextRenderer.RenderAsPlainText(segments);
-            messageWritingCoordinator.WriteLine(plainText, messageType);
+            if (segments == null || segments.Count == 0)
+                return;
+            
+            // Convert ColoredText segments to markup string to preserve color information
+            // The markup will be parsed back to ColoredText when rendering, maintaining colors
+            var markup = ColoredTextRenderer.RenderAsMarkup(segments);
+            messageWritingCoordinator.WriteLine(markup, messageType);
         }
         
+        /// <summary>
+        /// Writes ColoredText segments with newline - converts to markup string to preserve colors
+        /// </summary>
         public void WriteLineColoredSegments(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System)
         {
             WriteColoredSegments(segments, messageType);
+        }
+        
+        /// <summary>
+        /// Writes colored text using the builder pattern - converts to markup string to preserve colors
+        /// </summary>
+        public void WriteColoredTextBuilder(ColoredTextBuilder builder, UIMessageType messageType = UIMessageType.System)
+        {
+            if (builder == null)
+                return;
+            
+            var segments = builder.Build();
+            WriteColoredSegments(segments, messageType);
+        }
+        
+        /// <summary>
+        /// Writes colored text using the builder pattern with newline - converts to markup string to preserve colors
+        /// </summary>
+        public void WriteLineColoredTextBuilder(ColoredTextBuilder builder, UIMessageType messageType = UIMessageType.System)
+        {
+            if (builder == null)
+                return;
+            
+            var segments = builder.Build();
+            WriteLineColoredSegments(segments, messageType);
         }
 
         public void Dispose()

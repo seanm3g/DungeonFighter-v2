@@ -28,9 +28,11 @@ namespace RPGGame
         // Delegates for dungeon completion with reward data
         public delegate void OnDungeonCompleted(int xpGained, Item? lootReceived);
         public delegate void OnShowMainMenu();
+        public delegate void OnShowDeathScreen(Character player);
         
         public event OnDungeonCompleted? DungeonCompletedEvent;
         public event OnShowMainMenu? ShowMainMenuEvent;
+        public event OnShowDeathScreen? ShowDeathScreenEvent;
         
         // Store last reward data for completion screen
         private int lastXPGained;
@@ -99,6 +101,14 @@ namespace RPGGame
             narrativeManager.DungeonHeaderInfo.Add(ColoredTextRenderer.RenderAsPlainText(roomInfo));
             narrativeManager.DungeonHeaderInfo.Add("");
             
+            // Show dungeon start screen with narrative beat (only for first room)
+            if (stateManager.CurrentPlayer != null && customUIManager is CanvasUICoordinator canvasUIStart)
+            {
+                canvasUIStart.RenderDungeonStart(stateManager.CurrentDungeon, stateManager.CurrentPlayer);
+                // Brief delay to show dungeon information
+                await Task.Delay(1500);
+            }
+            
             // Process all rooms
             int roomNumber = 0;
             int totalRooms = stateManager.CurrentDungeon.Rooms.Count;
@@ -107,9 +117,12 @@ namespace RPGGame
                 roomNumber++;
                 if (!await ProcessRoom(room, roomNumber, totalRooms))
                 {
-                    // Player died
-                    stateManager.TransitionToState(GameState.MainMenu);
-                    ShowMainMenuEvent?.Invoke();
+                    // Player died - transition to death screen
+                    if (stateManager.CurrentPlayer != null)
+                    {
+                        stateManager.TransitionToState(GameState.Death);
+                        ShowDeathScreenEvent?.Invoke(stateManager.CurrentPlayer);
+                    }
                     return;
                 }
             }
@@ -154,6 +167,14 @@ namespace RPGGame
                 .Build();
             narrativeManager.CurrentRoomInfo.Add(ColoredTextRenderer.RenderAsPlainText(roomDescription));
             narrativeManager.CurrentRoomInfo.Add("");
+            
+            // Show room entry screen with narrative beat
+            if (customUIManager is CanvasUICoordinator canvasUIRoom)
+            {
+                canvasUIRoom.RenderRoomEntry(room, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
+                // Delay to show room information (3.5 seconds to reach ~5 seconds total with dungeon start)
+                await Task.Delay(3500);
+            }
             
             // Clear temporary effects
             stateManager.CurrentPlayer.ClearAllTempEffects();
@@ -314,7 +335,15 @@ namespace RPGGame
             
             if (!playerWon)
             {
-                // Player died - return to main menu
+                // Player died - transition to death screen
+                if (stateManager.CurrentPlayer != null)
+                {
+                    // Delete save file when character dies
+                    Character.DeleteSaveFile();
+                    
+                    stateManager.TransitionToState(GameState.Death);
+                    ShowDeathScreenEvent?.Invoke(stateManager.CurrentPlayer);
+                }
                 return false;
             }
             

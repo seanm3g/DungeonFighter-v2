@@ -177,7 +177,7 @@ Potential additions documented in OPENING_ANIMATION.md:
 
 ## Notes
 
-- Pre-existing build errors in `CanvasUIManager.cs` are unrelated to this feature
+- Pre-existing build errors in `CanvasUICoordinator.cs` are unrelated to this feature
 - The opening animation code compiles without errors
 - Full color support depends on terminal capabilities
 - Animation can be skipped by user in console mode

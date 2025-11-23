@@ -63,7 +63,7 @@ namespace RPGGame.UI.ColorSystem
         private static List<ColoredText> MergeAdjacentSegments(List<ColoredText> segments)
         {
             if (segments == null || segments.Count <= 1)
-                return segments;
+                return segments ?? new List<ColoredText>();
             
             var merged = new List<ColoredText>();
             ColoredText? currentSegment = null;

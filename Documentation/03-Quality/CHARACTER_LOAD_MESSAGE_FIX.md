@@ -107,7 +107,7 @@ All paths go through `CharacterSaveManager`, so the fix covers all loading scena
 
 ### UI Manager Architecture
 - **Console Mode**: `UIManager.GetCustomUIManager()` returns `null`
-- **Avalonia Mode**: `UIManager.GetCustomUIManager()` returns `CanvasUIManager`
+- **Avalonia Mode**: `UIManager.GetCustomUIManager()` returns `CanvasUICoordinator`
 - The fix uses this to determine which mode is active
 
 ## Benefits

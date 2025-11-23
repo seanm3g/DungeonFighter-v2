@@ -11,104 +11,6 @@ namespace RPGGame
     {
 
         /// <summary>
-        /// Formats damage display with detailed breakdown
-        /// </summary>
-        /// <param name="attacker">The attacking Actor</param>
-        /// <param name="target">The target Actor</param>
-        /// <param name="rawDamage">Raw damage before armor (currently same as actual damage)</param>
-        /// <param name="actualDamage">Actual damage after armor</param>
-        /// <param name="action">The action performed</param>
-        /// <param name="comboAmplifier">Combo amplification multiplier</param>
-        /// <param name="damageMultiplier">Additional damage multiplier</param>
-        /// <param name="rollBonus">Roll bonus applied</param>
-        /// <param name="roll">The attack roll</param>
-        /// <returns>Formatted damage display string</returns>
-        public static string FormatDamageDisplay(Actor attacker, Actor target, int rawDamage, int actualDamage, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0)
-        {
-            string actionName = action?.Name ?? "attack";
-            
-            // Check if this is a critical hit (total roll of 20 or higher)
-            int totalRoll = roll + rollBonus;
-            bool isCritical = totalRoll >= 20;
-            
-            // Add CRITICAL prefix to action name if it's a critical hit
-            if (isCritical)
-            {
-                actionName = $"CRITICAL {actionName}";
-            }
-            
-            // Determine if this is a combo action (anything that's not BASIC ATTACK)
-            bool isComboAction = actionName != "BASIC ATTACK" && actionName != "CRITICAL BASIC ATTACK";
-            
-            // First line: Different format for basic attacks vs combo actions
-            // Using template-based coloring {{damage|number}} for proper spacing
-            string damageText;
-            if (isComboAction)
-            {
-                damageText = $"{attacker.Name} hits {target.Name} with {actionName} for {actualDamage} damage";
-            }
-            else
-            {
-                damageText = $"{attacker.Name} hits {target.Name} for {actualDamage} damage";
-            }
-            
-            // Build the detailed roll and damage information
-            var rollInfo = new List<string>();
-            
-            // Roll information: roll + buffs - debuffs = total (only show = if there are modifiers)
-            string rollDisplay = roll.ToString();
-            if (rollBonus > 0)
-            {
-                rollDisplay += $" + {rollBonus} = {totalRoll}";
-            }
-            else if (rollBonus < 0)
-            {
-                rollDisplay += $" - {-rollBonus} = {totalRoll}"; // Add proper spacing around minus sign
-            }
-            // If rollBonus is 0, don't add the = total part (totalRoll will equal roll)
-            rollInfo.Add($"roll: {rollDisplay}");
-            
-            // Attack vs Defense information: attack X - Y defense
-            int targetDefense = 0;
-            if (target is Enemy targetEnemy)
-            {
-                // For enemies, use the Armor property directly to avoid inheritance issues
-                targetDefense = targetEnemy.Armor;
-            }
-            else if (target is Character targetCharacter)
-            {
-                targetDefense = targetCharacter.GetTotalArmor();
-            }
-            
-            // Calculate actual raw damage before armor reduction
-            int actualRawDamage = CombatCalculator.CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, roll);
-            rollInfo.Add($"attack {actualRawDamage} - {targetDefense} armor");
-            
-            // Speed information - calculate actual action speed
-            if (action != null && action.Length > 0)
-            {
-                double actualSpeed = CalculateActualActionSpeed(attacker, action);
-                rollInfo.Add($"speed: {actualSpeed:F1}s");
-            }
-            
-            // Add combo info to rollInfo if present - show amp prominently
-            if (comboAmplifier > 1.0)
-            {
-                rollInfo.Add($"amp: {comboAmplifier:F1}x");
-            }
-            else if (action != null && action.IsComboAction)
-            {
-                // Show amp:1.0x for first combo action
-                rollInfo.Add("amp: 1.0x");
-            }
-            
-            // Add the detailed information on the next line with indentation and parentheses
-            damageText += "\n    (" + string.Join(" | ", rollInfo) + ")";
-            
-            return damageText;
-        }
-
-        /// <summary>
         /// Formats damage display with separate damage text and roll info
         /// </summary>
         /// <param name="attacker">The attacking Actor</param>
@@ -201,22 +103,9 @@ namespace RPGGame
             }
             
             // Return the roll information as a separate string
-            string rollInfoText = "    (" + string.Join(" | ", rollInfo) + ")";
+            string rollInfoText = "     (" + string.Join(" | ", rollInfo) + ")";
             
             return (damageText, rollInfoText);
-        }
-
-
-        /// <summary>
-        /// Formats combat message with action duration timing
-        /// </summary>
-        /// <param name="originalMessage">The original combat message</param>
-        /// <param name="actionDuration">Duration of the action in seconds</param>
-        /// <returns>Formatted message with timing</returns>
-        public static string FormatCombatMessage(string originalMessage, double actionDuration)
-        {
-            // Action duration is now handled in FormatDamageDisplay, so just return the original message
-            return originalMessage;
         }
 
         /// <summary>
@@ -262,7 +151,8 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Formats non-attack action messages (buffs, debuffs, etc.)
+        /// [DEPRECATED] Formats non-attack action messages (buffs, debuffs, etc.)
+        /// Use FormatNonAttackActionColored() instead for better reliability and no spacing issues
         /// </summary>
         /// <param name="source">The Actor performing the action</param>
         /// <param name="target">The target Actor</param>
@@ -270,6 +160,7 @@ namespace RPGGame
         /// <param name="roll">The action roll</param>
         /// <param name="rollBonus">Roll bonus applied</param>
         /// <returns>Formatted non-attack action message</returns>
+        [Obsolete("Use FormatNonAttackActionColored() instead. This method will be removed in a future version.")]
         public static string FormatNonAttackAction(Actor source, Actor target, Action action, int roll, int rollBonus)
         {
             // Wrap action name in natural template (green/environment color) so it's treated as one colored unit
@@ -301,61 +192,14 @@ namespace RPGGame
             }
             
             // Add the detailed information on the next line with indentation and parentheses
-            actionText += "\n    (" + string.Join(" | ", rollInfo) + ")";
+            actionText += "\n     (" + string.Join(" | ", rollInfo) + ")";
             
             return actionText;
         }
 
         /// <summary>
-        /// Formats miss messages with detailed roll information
-        /// </summary>
-        /// <param name="attacker">The attacking Actor</param>
-        /// <param name="target">The target Actor</param>
-        /// <param name="action">The action attempted</param>
-        /// <param name="roll">The attack roll</param>
-        /// <param name="rollBonus">Roll bonus applied</param>
-        /// <returns>Formatted miss message</returns>
-        public static string FormatMissMessage(Actor attacker, Actor target, Action action, int roll, int rollBonus)
-        {
-            // Check if this is a critical miss (total roll <= 1)
-            int totalRoll = roll + rollBonus;
-            bool isCriticalMiss = totalRoll <= 1;
-            
-            string missText = isCriticalMiss ? 
-                $"{attacker.Name} {{{{critical|CRITICAL}}}} {{{{miss|MISS}}}} &yon {target.Name}" : 
-                $"{attacker.Name} {{{{miss|misses}}}} {target.Name}";
-            
-            // Build the detailed roll information
-            var rollInfo = new List<string>();
-            
-            // Roll information: roll + buffs - debuffs = total (only show = if there are modifiers)
-            string rollDisplay = roll.ToString();
-            if (rollBonus > 0)
-            {
-                rollDisplay += $" + {rollBonus} = {totalRoll}";
-            }
-            else if (rollBonus < 0)
-            {
-                rollDisplay += $" - {-rollBonus} = {totalRoll}"; // Add proper spacing around minus sign
-            }
-            // If rollBonus is 0, don't add the = total part (totalRoll will equal roll)
-            rollInfo.Add($"roll: {rollDisplay}");
-            
-            // Speed information - calculate actual action speed
-            if (action != null && action.Length > 0)
-            {
-                double actualSpeed = CalculateActualActionSpeed(attacker, action);
-                rollInfo.Add($"speed: {actualSpeed:F1}s");
-            }
-            
-            // Add the detailed information on the next line with indentation and parentheses
-            missText += "\n    (" + string.Join(" | ", rollInfo) + ")";
-            
-            return missText;
-        }
-
-        /// <summary>
-        /// Executes an action with UI formatting and returns both main result and status effects
+        /// Executes an action with UI formatting and returns both main result and status effects as ColoredText
+        /// This is the primary method - uses structured ColoredText for better reliability
         /// </summary>
         /// <param name="source">The Actor performing the action</param>
         /// <param name="target">The target Actor</param>
@@ -363,18 +207,13 @@ namespace RPGGame
         /// <param name="environment">The environment affecting the action</param>
         /// <param name="lastPlayerAction">The last player action for DEJA VU functionality</param>
         /// <param name="battleNarrative">The battle narrative to add events to</param>
-        /// <returns>A tuple containing the formatted main result and list of status effect messages</returns>
-        public static (string mainResult, List<string> statusEffects) ExecuteActionWithUIAndStatusEffects(Actor source, Actor target, Action? action, Environment? environment = null, Action? lastPlayerAction = null, BattleNarrative? battleNarrative = null)
+        /// <returns>A tuple containing the formatted main result as ColoredText tuple and list of status effect messages as ColoredText</returns>
+        public static ((List<ColoredText> actionText, List<ColoredText> rollInfo) mainResult, List<List<ColoredText>> statusEffects) ExecuteActionWithUIAndStatusEffectsColored(Actor source, Actor target, Action? action, Environment? environment = null, Action? lastPlayerAction = null, BattleNarrative? battleNarrative = null)
         {
-            // Execute the action using CombatActions with the specific action
-            var (mainResult, statusEffects) = ActionExecutor.ExecuteActionWithStatusEffects(source, target, environment, lastPlayerAction, action, battleNarrative);
-            
-            // Format the combat message with action duration
-            string formattedResult = FormatCombatMessage(mainResult, action?.Length ?? 1.0);
-            
-            return (formattedResult, statusEffects);
+            // Execute the action using the ColoredText version
+            return ActionExecutor.ExecuteActionWithStatusEffectsColored(source, target, environment, lastPlayerAction, action, battleNarrative);
         }
-
+        
         /// <summary>
         /// Calculates the actual action speed by multiplying Actor base speed by action length
         /// </summary>
@@ -409,28 +248,36 @@ namespace RPGGame
             return baseSpeed * action.Length;
         }
         
-        // ===== NEW COLORED TEXT SYSTEM WRAPPERS =====
+        // ===== NEW COLORED TEXT SYSTEM (PRIMARY API) =====
         
         /// <summary>
         /// Formats damage display using the new ColoredText system
+        /// Returns both damage text and roll info as separate ColoredText lists
         /// </summary>
-        public static List<ColoredText> FormatDamageDisplayColored(Actor attacker, Actor target, int rawDamage, int actualDamage, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0)
+        public static (List<ColoredText> damageText, List<ColoredText> rollInfo) FormatDamageDisplayColored(
+            Actor attacker, Actor target, int rawDamage, int actualDamage, Action? action = null, 
+            double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0)
         {
-            return CombatResultsColoredText.FormatDamageDisplayColored(attacker, target, rawDamage, actualDamage, action, comboAmplifier, damageMultiplier, rollBonus, roll);
+            return CombatResultsColoredText.FormatDamageDisplayColored(attacker, target, rawDamage, actualDamage, 
+                action, comboAmplifier, damageMultiplier, rollBonus, roll);
         }
         
         /// <summary>
         /// Formats miss message using the new ColoredText system
+        /// Returns both miss text and roll info as separate ColoredText lists
         /// </summary>
-        public static List<ColoredText> FormatMissMessageColored(Actor attacker, Actor target, Action action, int roll, int rollBonus)
+        public static (List<ColoredText> missText, List<ColoredText> rollInfo) FormatMissMessageColored(
+            Actor attacker, Actor target, Action action, int roll, int rollBonus)
         {
             return CombatResultsColoredText.FormatMissMessageColored(attacker, target, action, roll, rollBonus);
         }
         
         /// <summary>
         /// Formats non-attack action using the new ColoredText system
+        /// Returns both action text and roll info as separate ColoredText lists
         /// </summary>
-        public static List<ColoredText> FormatNonAttackActionColored(Actor source, Actor target, Action action, int roll, int rollBonus)
+        public static (List<ColoredText> actionText, List<ColoredText> rollInfo) FormatNonAttackActionColored(
+            Actor source, Actor target, Action action, int roll, int rollBonus)
         {
             return CombatResultsColoredText.FormatNonAttackActionColored(source, target, action, roll, rollBonus);
         }

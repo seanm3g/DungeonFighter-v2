@@ -124,7 +124,7 @@ Comment out line 99:
 - ✅ Console mode ready
 - ✅ Custom UI compatible
 
-**Note:** There are pre-existing build errors in `CanvasUIManager.cs` that are unrelated to this feature. The opening animation code itself has zero errors.
+**Note:** There are pre-existing build errors in `CanvasUICoordinator.cs` that are unrelated to this feature. The opening animation code itself has zero errors.
 
 ## Documentation
 

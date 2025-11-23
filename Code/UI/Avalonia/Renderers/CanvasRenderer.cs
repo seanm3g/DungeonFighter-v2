@@ -192,6 +192,14 @@ namespace RPGGame.UI.Avalonia.Renderers
             }, context);
         }
 
+        public void RenderDeathScreen(Character player, string defeatSummary, CanvasContext context)
+        {
+            RenderWithLayout(player, "YOU DIED", (contentX, contentY, contentWidth, contentHeight) =>
+            {
+                dungeonRenderer.RenderDeathScreen(contentX, contentY, contentWidth, contentHeight, player, defeatSummary);
+            }, context);
+        }
+
         public void RenderDungeonExploration(Character player, string currentLocation, List<string> availableActions, List<string> recentEvents, CanvasContext context)
         {
             dungeonExplorationRenderer.RenderDungeonExploration(player, currentLocation, availableActions, recentEvents, context);

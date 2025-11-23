@@ -71,7 +71,7 @@ Every screen now follows this structure:
 
 ### Core Components
 1. **PersistentLayoutManager** - Manages layout structure
-2. **CanvasUIManager** - Integrates layout with all screens
+2. **CanvasUICoordinator** - Integrates layout with all screens
 3. **Content Renderers** - Specialized methods for each phase
 
 ### Pattern Used

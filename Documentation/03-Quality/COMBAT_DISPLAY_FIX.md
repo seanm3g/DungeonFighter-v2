@@ -6,17 +6,17 @@ Combat output was not being displayed properly:
 2. Colors were not being rendered - raw color markup syntax (like `{{red|Kobold}}` and `{{critical|CRITICAL}}`) was showing instead of colored text
 
 ## Root Cause
-The `RenderDisplayBuffer()` method in `CanvasUIManager.cs` was:
+The `RenderDisplayBuffer()` method in `CanvasUICoordinator.cs` was:
 1. Not using the persistent layout system during combat
 2. Not parsing color markup when rendering text to the canvas
 3. Rendering directly to a simple bordered area without proper structure
 
-During combat, `UIManager.WriteLine()` calls were going to `CanvasUIManager.WriteLine()`, which added text to the display buffer and called `RenderDisplayBuffer()`. This method was rendering combat text outside the persistent layout and without color parsing.
+During combat, `UIManager.WriteLine()` calls were going to `CanvasUICoordinator.WriteLine()`, which added text to the display buffer and called `RenderDisplayBuffer()`. This method was rendering combat text outside the persistent layout and without color parsing.
 
 ## Solution
 
 ### 1. Updated `RenderDisplayBuffer()` Method
-Modified `Code/UI/Avalonia/CanvasUIManager.cs` to:
+Modified `Code/UI/Avalonia/CanvasUICoordinator.cs` to:
 - Check if a character is set (indicating we're in combat or active gameplay)
 - If character is set, use the persistent layout system to render in the center content area
 - Always parse color markup using `WriteLineColored()` instead of plain `AddText()`
@@ -72,7 +72,7 @@ private async Task<bool> ProcessEnemyEncounter(Enemy enemy)
     // ... show enemy encounter ...
     
     // Prepare for combat - clear display buffer and ensure character is set
-    if (customUIManager is CanvasUIManager canvasUI2)
+    if (customUIManager is CanvasUICoordinator canvasUI2)
     {
         canvasUI2.ResetForNewBattle();
         canvasUI2.SetCharacter(currentPlayer);
@@ -105,7 +105,7 @@ private async Task<bool> ProcessEnemyEncounter(Enemy enemy)
 - 🔄 Manual testing needed: Run game and enter combat to verify layout and colors
 
 ## Files Modified
-1. `Code/UI/Avalonia/CanvasUIManager.cs` - Updated `RenderDisplayBuffer()` method
+1. `Code/UI/Avalonia/CanvasUICoordinator.cs` - Updated `RenderDisplayBuffer()` method
 2. `Code/Game/Game.cs` - Updated `ProcessEnemyEncounter()` method
 
 ## Related Documentation

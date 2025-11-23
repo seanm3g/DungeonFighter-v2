@@ -110,5 +110,15 @@ namespace RPGGame
         {
             UIManager.WriteLineColoredSegments(segments, messageType);
         }
+        
+        public void WriteColoredTextBuilder(ColoredTextBuilder builder, UIMessageType messageType = UIMessageType.System)
+        {
+            UIManager.WriteColoredTextBuilder(builder, messageType);
+        }
+        
+        public void WriteLineColoredTextBuilder(ColoredTextBuilder builder, UIMessageType messageType = UIMessageType.System)
+        {
+            UIManager.WriteLineColoredTextBuilder(builder, messageType);
+        }
     }
 }

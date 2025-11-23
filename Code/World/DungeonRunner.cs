@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
 {
@@ -142,8 +143,10 @@ namespace RPGGame
         /// </summary>
         private void HandlePlayerDefeat(Character player)
         {
-            // Use TextDisplayIntegration for consistent entity tracking
-            TextDisplayIntegration.DisplayCombatAction("\nYou have been defeated!", new List<string>(), new List<string>(), "System");
+            // Use ColoredText for defeat message
+            var defeatBuilder = new ColoredTextBuilder();
+            defeatBuilder.Add("\nYou have been defeated!", ColorPalette.Error);
+            TextDisplayIntegration.DisplayCombatAction(defeatBuilder.Build(), new List<ColoredText>(), null, null);
             
             // Display comprehensive defeat statistics
             string defeatSummary = player.GetDefeatSummary();
@@ -158,9 +161,11 @@ namespace RPGGame
         /// </summary>
         private void HandleEnemyDefeat(Enemy currentEnemy, Character player)
         {
-            // Use TextDisplayIntegration for consistent entity tracking
-            string defeatMessage = $"{currentEnemy.Name} has been defeated!";
-            TextDisplayIntegration.DisplayCombatAction(defeatMessage, new List<string>(), new List<string>(), "System");
+            // Use ColoredText for defeat message
+            var defeatBuilder = new ColoredTextBuilder();
+            defeatBuilder.Add(currentEnemy.Name, ColorPalette.Enemy);
+            defeatBuilder.Add(" has been defeated!", ColorPalette.Success);
+            TextDisplayIntegration.DisplayCombatAction(defeatBuilder.Build(), new List<ColoredText>(), null, null);
             player.AddXP(currentEnemy.XPReward);
             
             // Track statistics

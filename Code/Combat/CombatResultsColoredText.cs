@@ -13,8 +13,9 @@ namespace RPGGame
     {
         /// <summary>
         /// Formats damage display with the new ColoredText system
+        /// Returns both the main damage text and roll info as separate ColoredText lists
         /// </summary>
-        public static List<ColoredText> FormatDamageDisplayColored(
+        public static (List<ColoredText> damageText, List<ColoredText> rollInfo) FormatDamageDisplayColored(
             Actor attacker, 
             Actor target, 
             int rawDamage, 
@@ -42,11 +43,11 @@ namespace RPGGame
             bool isComboAction = actionName != "BASIC ATTACK" && actionName != "CRITICAL BASIC ATTACK";
             
             // Attacker name
-            builder.Add(attacker.Name, ColorPalette.Player);
+            builder.Add(attacker.Name, attacker is Character ? ColorPalette.Player : ColorPalette.Enemy);
             builder.Add(" hits ", Colors.White);
             
             // Target name
-            builder.Add(target.Name, ColorPalette.Enemy);
+            builder.Add(target.Name, target is Character ? ColorPalette.Player : ColorPalette.Enemy);
             
             // Action name for combo actions
             if (isComboAction)
@@ -60,7 +61,57 @@ namespace RPGGame
             builder.Add(actualDamage.ToString(), isCritical ? ColorPalette.Critical : ColorPalette.Damage);
             builder.Add(" damage", Colors.White);
             
-            return builder.Build();
+            var damageText = builder.Build();
+            
+            // Calculate roll info
+            int targetDefense = 0;
+            if (target is Enemy targetEnemy)
+            {
+                targetDefense = targetEnemy.Armor;
+            }
+            else if (target is Character targetCharacter)
+            {
+                targetDefense = targetCharacter.GetTotalArmor();
+            }
+            
+            int actualRawDamage = CombatCalculator.CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, roll);
+            
+            double actualSpeed = 0;
+            if (action != null && action.Length > 0)
+            {
+                actualSpeed = CalculateActualActionSpeed(attacker, action);
+            }
+            
+            var rollInfo = FormatRollInfoColored(roll, rollBonus, actualRawDamage, targetDefense, actualSpeed, comboAmplifier, action);
+            
+            return (damageText, rollInfo);
+        }
+        
+        /// <summary>
+        /// Helper method to calculate actual action speed
+        /// </summary>
+        private static double CalculateActualActionSpeed(Actor actor, Action action)
+        {
+            double baseSpeed = 0;
+            if (actor is Character character)
+            {
+                baseSpeed = character.GetTotalAttackSpeed();
+            }
+            else if (actor is Enemy enemy)
+            {
+                baseSpeed = enemy.GetTotalAttackSpeed();
+            }
+            else if (actor is Environment environment)
+            {
+                baseSpeed = 15.0;
+            }
+            
+            if (actor.HasCriticalMissPenalty)
+            {
+                baseSpeed *= 2.0;
+            }
+            
+            return baseSpeed * action.Length;
         }
         
         /// <summary>
@@ -71,11 +122,13 @@ namespace RPGGame
             int rollBonus,
             int attack,
             int defense,
-            double actualSpeed)
+            double actualSpeed,
+            double? comboAmplifier = null,
+            Action? action = null)
         {
             var builder = new ColoredTextBuilder();
             
-            builder.Add("    (", Colors.Gray);
+            builder.Add("     (", Colors.Gray);
             
             // Roll information
             builder.Add("roll: ", ColorPalette.Info);
@@ -99,16 +152,36 @@ namespace RPGGame
             
             // Attack vs Defense
             builder.Add(" | ", Colors.Gray);
-            builder.Add("attack: ", ColorPalette.Info);
+            builder.Add("attack ", ColorPalette.Info);
             builder.Add(attack.ToString(), Colors.White);
             builder.Add(" - ", Colors.White);
             builder.Add(defense.ToString(), Colors.White);
-            builder.Add(" defense", Colors.White);
+            builder.Add(" armor", Colors.White);
             
             // Speed information
-            builder.Add(" | ", Colors.Gray);
-            builder.Add("speed: ", ColorPalette.Info);
-            builder.Add($"{actualSpeed:F1}s", Colors.White);
+            if (actualSpeed > 0)
+            {
+                builder.Add(" | ", Colors.Gray);
+                builder.Add("speed: ", ColorPalette.Info);
+                builder.Add($"{actualSpeed:F1}s", Colors.White);
+            }
+            
+            // Combo amplifier information
+            if (comboAmplifier.HasValue)
+            {
+                if (comboAmplifier.Value > 1.0)
+                {
+                    builder.Add(" | ", Colors.Gray);
+                    builder.Add("amp: ", ColorPalette.Info);
+                    builder.Add($"{comboAmplifier.Value:F1}x", Colors.White);
+                }
+                else if (action != null && action.IsComboAction)
+                {
+                    builder.Add(" | ", Colors.Gray);
+                    builder.Add("amp: ", ColorPalette.Info);
+                    builder.Add("1.0x", Colors.White);
+                }
+            }
             
             builder.Add(")", Colors.Gray);
             
@@ -117,8 +190,9 @@ namespace RPGGame
         
         /// <summary>
         /// Formats miss message with the new ColoredText system
+        /// Returns both the main miss text and roll info as separate ColoredText lists
         /// </summary>
-        public static List<ColoredText> FormatMissMessageColored(
+        public static (List<ColoredText> missText, List<ColoredText> rollInfo) FormatMissMessageColored(
             Actor attacker, 
             Actor target, 
             Action action, 
@@ -131,7 +205,7 @@ namespace RPGGame
             bool isCriticalMiss = totalRoll <= 1;
             
             // Attacker name
-            builder.Add(attacker.Name, ColorPalette.Player);
+            builder.Add(attacker.Name, attacker is Character ? ColorPalette.Player : ColorPalette.Enemy);
             builder.Add(" ", Colors.White);
             
             if (isCriticalMiss)
@@ -145,15 +219,27 @@ namespace RPGGame
             }
             
             builder.Add(" ", Colors.White);
-            builder.Add(target.Name, ColorPalette.Enemy);
+            builder.Add(target.Name, target is Character ? ColorPalette.Player : ColorPalette.Enemy);
             
-            return builder.Build();
+            var missText = builder.Build();
+            
+            // Calculate roll info
+            double actualSpeed = 0;
+            if (action != null && action.Length > 0)
+            {
+                actualSpeed = CalculateActualActionSpeed(attacker, action);
+            }
+            
+            var rollInfo = FormatRollInfoColored(roll, rollBonus, 0, 0, actualSpeed);
+            
+            return (missText, rollInfo);
         }
         
         /// <summary>
         /// Formats non-attack action messages with the new ColoredText system
+        /// Returns both the main action text and roll info as separate ColoredText lists
         /// </summary>
-        public static List<ColoredText> FormatNonAttackActionColored(
+        public static (List<ColoredText> actionText, List<ColoredText> rollInfo) FormatNonAttackActionColored(
             Actor source, 
             Actor target, 
             Action action, 
@@ -163,7 +249,7 @@ namespace RPGGame
             var builder = new ColoredTextBuilder();
             
             // Source name
-            builder.Add(source.Name, ColorPalette.Player);
+            builder.Add(source.Name, source is Character ? ColorPalette.Player : ColorPalette.Enemy);
             builder.Add(" uses ", Colors.White);
             
             // Action name
@@ -172,9 +258,20 @@ namespace RPGGame
             builder.Add(" on ", Colors.White);
             
             // Target name
-            builder.Add(target.Name, ColorPalette.Enemy);
+            builder.Add(target.Name, target is Character ? ColorPalette.Player : ColorPalette.Enemy);
             
-            return builder.Build();
+            var actionText = builder.Build();
+            
+            // Calculate roll info
+            double actualSpeed = 0;
+            if (action != null && action.Length > 0)
+            {
+                actualSpeed = CalculateActualActionSpeed(source, action);
+            }
+            
+            var rollInfo = FormatRollInfoColored(roll, rollBonus, 0, 0, actualSpeed);
+            
+            return (actionText, rollInfo);
         }
         
         /// <summary>

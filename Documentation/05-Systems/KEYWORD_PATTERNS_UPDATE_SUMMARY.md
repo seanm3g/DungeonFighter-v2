@@ -150,7 +150,7 @@ KeywordColorSystem.AddKeywordsToGroup("environment", "observatory", "workshop");
 ### UI System
 - Works with existing ColoredConsoleWriter
 - Integrates with ColorParser markup
-- Compatible with CanvasUIManager
+- Compatible with CanvasUICoordinator
 
 ## Testing
 

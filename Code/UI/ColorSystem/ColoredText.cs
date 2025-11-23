@@ -321,10 +321,123 @@ namespace RPGGame.UI.ColorSystem
         
         /// <summary>
         /// Builds the final colored text collection
+        /// Normalizes spaces to prevent double spacing issues
         /// </summary>
         public List<ColoredText> Build()
         {
-            return new List<ColoredText>(_segments);
+            if (_segments.Count == 0)
+                return new List<ColoredText>();
+            
+            // Normalize spaces in the built segments
+            var normalized = new List<ColoredText>();
+            ColoredText? currentSegment = null;
+            
+            foreach (var segment in _segments)
+            {
+                if (string.IsNullOrEmpty(segment.Text))
+                    continue;
+                
+                if (currentSegment == null)
+                {
+                    currentSegment = new ColoredText(segment.Text, segment.Color);
+                }
+                else if (AreColorsEqual(currentSegment.Color, segment.Color))
+                {
+                    // Same color - merge segments, normalizing spaces
+                    string currentText = currentSegment.Text;
+                    string segmentText = segment.Text;
+                    
+                    if (currentText.EndsWith(" ") && segmentText.StartsWith(" "))
+                    {
+                        currentText = currentText.TrimEnd() + " " + segmentText.TrimStart();
+                    }
+                    else
+                    {
+                        currentText = currentText + segmentText;
+                    }
+                    
+                    currentSegment = new ColoredText(currentText, currentSegment.Color);
+                }
+                else
+                {
+                    // Different color - add current and start new
+                    normalized.Add(currentSegment);
+                    currentSegment = new ColoredText(segment.Text, segment.Color);
+                }
+            }
+            
+            if (currentSegment != null)
+            {
+                normalized.Add(currentSegment);
+            }
+            
+            // Normalize spaces between adjacent segments of different colors
+            for (int i = 0; i < normalized.Count - 1; i++)
+            {
+                var current = normalized[i];
+                var next = normalized[i + 1];
+                
+                string currentText = current.Text;
+                string nextText = next.Text;
+                
+                // If one ends with space and next starts with space, remove one
+                if (currentText.EndsWith(" ") && nextText.StartsWith(" "))
+                {
+                    var trimmedCurrent = currentText.TrimEnd();
+                    if (trimmedCurrent.Length > 0)
+                    {
+                        normalized[i] = new ColoredText(trimmedCurrent, current.Color);
+                    }
+                    else
+                    {
+                        normalized.RemoveAt(i);
+                        i--;
+                        continue;
+                    }
+                }
+            }
+            
+            // Normalize multiple spaces within segments
+            for (int i = 0; i < normalized.Count; i++)
+            {
+                var segment = normalized[i];
+                var normalizedText = System.Text.RegularExpressions.Regex.Replace(segment.Text, @"\s+", " ");
+                if (normalizedText != segment.Text)
+                {
+                    normalized[i] = new ColoredText(normalizedText, segment.Color);
+                }
+            }
+            
+            // Final pass: normalize boundaries again after internal normalization
+            for (int i = 0; i < normalized.Count - 1; i++)
+            {
+                var current = normalized[i];
+                var next = normalized[i + 1];
+                
+                if (current.Text.EndsWith(" ") && next.Text.StartsWith(" "))
+                {
+                    var trimmedCurrent = current.Text.TrimEnd();
+                    if (trimmedCurrent.Length > 0)
+                    {
+                        normalized[i] = new ColoredText(trimmedCurrent, current.Color);
+                    }
+                    else
+                    {
+                        normalized.RemoveAt(i);
+                        i--;
+                    }
+                }
+            }
+            
+            return normalized;
+        }
+        
+        /// <summary>
+        /// Checks if two colors are equal
+        /// </summary>
+        private static bool AreColorsEqual(Color color1, Color color2)
+        {
+            return color1.R == color2.R && color1.G == color2.G && color1.B == color2.B && color1.A == color2.A;
         }
         
         /// <summary>

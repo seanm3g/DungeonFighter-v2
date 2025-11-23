@@ -673,145 +673,145 @@
       "name": "forest",
       "shaderType": "sequence",
       "colors": ["g", "G", "w"],
-      "description": "Forest environment"
+      "description": "Forest environment - Dark green/green/brown (3 shades)"
     },
     {
       "name": "lava",
       "shaderType": "sequence",
-      "colors": ["r", "R", "O"],
-      "description": "Lava environment"
+      "colors": ["r", "R", "O", "R"],
+      "description": "Lava environment - Dark red/red/orange/red (4 shades)"
     },
     {
       "name": "crypt",
       "shaderType": "sequence",
-      "colors": ["y", "m", "Y"],
-      "description": "Crypt environment"
+      "colors": ["K", "k", "y", "K"],
+      "description": "Crypt environment - Dark/very dark/grey/dark (4 shades)"
     },
     {
       "name": "crystal",
       "shaderType": "sequence",
-      "colors": ["m", "M", "C"],
-      "description": "Crystal environment"
+      "colors": ["m", "M", "C", "Y"],
+      "description": "Crystal environment - Dark magenta/magenta/cyan/white (4 shades)"
     },
     {
       "name": "temple",
       "shaderType": "sequence",
-      "colors": ["W", "Y", "w"],
-      "description": "Temple environment"
+      "colors": ["W", "Y", "w", "Y"],
+      "description": "Temple environment - Gold/white/brown/white (4 shades)"
     },
     {
       "name": "ice",
       "shaderType": "sequence",
-      "colors": ["C", "B", "Y"],
-      "description": "Ice environment"
+      "colors": ["C", "B", "Y", "C"],
+      "description": "Ice environment - Cyan/blue/white/cyan (4 shades)"
     },
     {
       "name": "shadow",
       "shaderType": "sequence",
-      "colors": ["m", "M", "y"],
-      "description": "Shadow environment"
+      "colors": ["K", "k", "m", "k"],
+      "description": "Shadow environment - Dark/very dark/dark magenta/very dark (4 shades)"
     },
     {
       "name": "steampunk",
       "shaderType": "sequence",
-      "colors": ["w", "o", "y"],
-      "description": "Steampunk environment"
+      "colors": ["w", "o", "K", "y"],
+      "description": "Steampunk environment - Brown/dark orange/dark/grey (4 shades)"
     },
     {
       "name": "swamp",
       "shaderType": "sequence",
-      "colors": ["g", "w", "y"],
-      "description": "Swamp environment"
+      "colors": ["g", "w", "k", "g"],
+      "description": "Swamp environment - Dark green/brown/dark/dark green (4 shades)"
     },
     {
       "name": "astral",
       "shaderType": "sequence",
-      "colors": ["M", "B", "C"],
-      "description": "Astral environment"
+      "colors": ["M", "B", "Y", "C"],
+      "description": "Astral environment - Magenta/blue/white/cyan (4 shades)"
     },
     {
       "name": "underground",
       "shaderType": "sequence",
-      "colors": ["w", "y", "Y"],
-      "description": "Underground environment"
+      "colors": ["K", "w", "y", "k"],
+      "description": "Underground environment - Dark/brown/grey/very dark (4 shades)"
     },
     {
       "name": "storm",
       "shaderType": "sequence",
-      "colors": ["C", "Y", "B"],
-      "description": "Storm environment"
+      "colors": ["C", "Y", "B", "Y"],
+      "description": "Storm environment - Cyan/white/blue/white (4 shades)"
     },
     {
       "name": "nature",
       "shaderType": "sequence",
-      "colors": ["g", "G", "Y"],
-      "description": "Nature environment"
+      "colors": ["g", "G", "Y", "G"],
+      "description": "Nature environment - Dark green/green/white/green (4 shades)"
     },
     {
       "name": "arcane",
       "shaderType": "sequence",
-      "colors": ["m", "M", "C"],
-      "description": "Arcane environment"
+      "colors": ["m", "M", "C", "B"],
+      "description": "Arcane environment - Dark magenta/magenta/cyan/blue (4 shades)"
     },
     {
       "name": "desert",
       "shaderType": "sequence",
-      "colors": ["W", "O", "Y"],
-      "description": "Desert environment"
+      "colors": ["W", "O", "Y", "w"],
+      "description": "Desert environment - Gold/orange/white/brown (4 shades)"
     },
     {
       "name": "volcano",
       "shaderType": "sequence",
-      "colors": ["R", "O", "r"],
-      "description": "Volcano environment"
+      "colors": ["R", "O", "K", "R"],
+      "description": "Volcano environment - Red/orange/dark/red (4 shades)"
     },
     {
       "name": "ruins",
       "shaderType": "sequence",
-      "colors": ["w", "y", "Y"],
-      "description": "Ruins environment"
+      "colors": ["K", "w", "y", "k"],
+      "description": "Ruins environment - Dark/brown/grey/very dark (4 shades)"
     },
     {
       "name": "ocean",
       "shaderType": "sequence",
-      "colors": ["b", "B", "C"],
-      "description": "Ocean environment"
+      "colors": ["b", "B", "C", "B"],
+      "description": "Ocean environment - Dark blue/blue/cyan/blue (4 shades)"
     },
     {
       "name": "mountain",
       "shaderType": "sequence",
-      "colors": ["y", "Y", "C"],
-      "description": "Mountain environment"
+      "colors": ["K", "y", "Y", "y"],
+      "description": "Mountain environment - Dark/grey/white/grey (4 shades)"
     },
     {
       "name": "temporal",
       "shaderType": "sequence",
-      "colors": ["C", "M", "Y"],
-      "description": "Temporal environment"
+      "colors": ["C", "M", "Y", "B"],
+      "description": "Temporal environment - Cyan/magenta/white/blue (4 shades)"
     },
     {
       "name": "dream",
       "shaderType": "sequence",
-      "colors": ["M", "C", "Y"],
-      "description": "Dream environment"
+      "colors": ["M", "C", "Y", "m"],
+      "description": "Dream environment - Magenta/cyan/white/dark magenta (4 shades)"
     },
     {
       "name": "void",
       "shaderType": "sequence",
-      "colors": ["m", "M", "y"],
-      "description": "Void environment"
+      "colors": ["k", "K", "m", "K"],
+      "description": "Void environment - Very dark/dark/dark magenta/dark (4 shades)"
     },
     {
       "name": "dimensional",
       "shaderType": "sequence",
-      "colors": ["M", "C", "B"],
-      "description": "Dimensional environment"
+      "colors": ["M", "C", "B", "Y"],
+      "description": "Dimensional environment - Magenta/cyan/blue/white (4 shades)"
     },
     {
       "name": "divine",
       "shaderType": "sequence",
-      "colors": ["W", "Y", "M"],
-      "description": "Divine environment"
+      "colors": ["W", "Y", "M", "Y"],
+      "description": "Divine environment - Gold/white/magenta/white (4 shades)"
     },
     {
       "name": "generic",

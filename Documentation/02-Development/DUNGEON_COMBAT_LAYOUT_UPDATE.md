@@ -186,7 +186,7 @@ Back to Game Menu ← [Character Panel Visible]
 ## Files Modified
 
 ### Code Files
-- `Code/UI/Avalonia/CanvasUIManager.cs`
+- `Code/UI/Avalonia/CanvasUICoordinator.cs`
   - Updated 8 render methods
   - Added 8 content renderer methods
   - Added `WrapText()` helper method

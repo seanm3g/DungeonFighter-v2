@@ -30,7 +30,7 @@ Updated methods:
 
 ### 3. Main Menu Integration
 
-**File:** `Code/UI/Avalonia/CanvasUIManager.cs`
+**File:** `Code/UI/Avalonia/CanvasUICoordinator.cs`
 
 **Before:**
 ```csharp

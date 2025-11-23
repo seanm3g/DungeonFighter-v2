@@ -25,7 +25,7 @@ UIManager.WriteLine($"Body: {(player.Body != null ? ItemDisplayFormatter.GetColo
 UIManager.WriteLine($"Feet: {(player.Feet != null ? ItemDisplayFormatter.GetColoredItemName(player.Feet) : "None")}");
 ```
 
-### 2. CanvasUIManager.cs (Avalonia UI)
+### 2. CanvasUICoordinator.cs (Avalonia UI)
 **Location:** Lines 1031-1048  
 **Change:** Updated starting equipment summary to use colored item names with WriteLineColored
 ```csharp
@@ -133,7 +133,7 @@ public string Rarity { get; set; } = "Common";
 
 ## Related Files
 - `Code/UI/GameDisplayManager.cs`
-- `Code/UI/Avalonia/CanvasUIManager.cs`
+- `Code/UI/Avalonia/CanvasUICoordinator.cs`
 - `Code/UI/Avalonia/PersistentLayoutManager.cs`
 - `Code/UI/EquipmentDisplayService.cs`
 - `Code/UI/ItemDisplayFormatter.cs` (existing helper)

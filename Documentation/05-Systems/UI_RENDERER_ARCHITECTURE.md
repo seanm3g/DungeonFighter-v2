@@ -2,7 +2,7 @@
 
 ## Overview
 
-The DungeonFighter-v2 UI rendering system uses a modular architecture with specialized renderers for different screen types. This document describes the current architecture after the CanvasUIManager refactoring.
+The DungeonFighter-v2 UI rendering system uses a modular architecture with specialized renderers for different screen types. This document describes the current architecture after the CanvasUICoordinator refactoring (previously known as CanvasUICoordinator).
 
 ## Architecture Diagram
 
@@ -14,7 +14,7 @@ The DungeonFighter-v2 UI rendering system uses a modular architecture with speci
                            │
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                       CanvasUIManager.cs                         │
+│                    CanvasUICoordinator.cs                        │
 │                         (Orchestrator)                           │
 │                                                                   │
 │  Responsibilities:                                                │
@@ -43,9 +43,9 @@ The DungeonFighter-v2 UI rendering system uses a modular architecture with speci
 
 ## Component Responsibilities
 
-### CanvasUIManager (Orchestrator)
-**File**: `Code/UI/Avalonia/CanvasUIManager.cs`
-**Lines**: ~700 (reduced from 1,797)
+### CanvasUICoordinator (Orchestrator)
+**File**: `Code/UI/Avalonia/CanvasUICoordinator.cs`
+**Lines**: ~542 (refactored from monolithic CanvasUICoordinator)
 **Role**: High-level coordinator
 
 **Responsibilities**:
@@ -182,11 +182,11 @@ The DungeonFighter-v2 UI rendering system uses a modular architecture with speci
 ```
 1. GameLoop calls: canvasUIManager.RenderCombat(player, enemy, combatLog)
                    ↓
-2. CanvasUIManager: RenderWithLayout(player, "COMBAT", renderContent, enemy)
+2. CanvasUICoordinator: RenderWithLayout(player, "COMBAT", renderContent, enemy)
                    ↓
 3. PersistentLayoutManager: Renders character panel + health bars
                    ↓
-4. CanvasUIManager: Calls renderContent callback with content coordinates
+4. CanvasUICoordinator: Calls renderContent callback with content coordinates
                    ↓
 5. renderContent: combatRenderer.RenderCombat(x, y, width, height, ...)
                    ↓
@@ -226,7 +226,7 @@ Rendered to canvas
                    ↓
 3. Calls: canvasUIManager.GetElementAt(charX, charY)
                    ↓
-4. CanvasUIManager searches clickableElements list
+4. CanvasUICoordinator searches clickableElements list
                    ↓
 5. Returns matching ClickableElement (or null)
                    ↓
@@ -297,12 +297,12 @@ namespace RPGGame.UI.Avalonia.Renderers
     }
 }
 
-// 2. Add to CanvasUIManager
-public class CanvasUIManager : IUIManager
+// 2. Add to CanvasUICoordinator
+public class CanvasUICoordinator : IUIManager
 {
     private readonly Renderers.CharacterSheetRenderer characterSheetRenderer;
     
-    public CanvasUIManager(GameCanvasControl canvas)
+    public CanvasUICoordinator(GameCanvasControl canvas)
     {
         // ... existing initialization ...
         this.characterSheetRenderer = new Renderers.CharacterSheetRenderer(canvas, textWriter);
@@ -387,7 +387,7 @@ public class RenderPipeline
 
 ## Related Documentation
 
-- **[CanvasUIManager Refactoring](../02-Development/CANVASUIMANAGER_REFACTORING.md)** - Detailed refactoring guide
+- **[CanvasUICoordinator Refactoring](../02-Development/CANVASUIMANAGER_REFACTORING.md)** - Detailed refactoring guide
 - **[Color System](COLOR_LAYER_SYSTEM.md)** - Color temperature and layer system
 - **[White Temperature Implementation](WHITE_TEMPERATURE_IMPLEMENTATION.md)** - WhiteTemperatureIntensity parameter
 - **[Avalonia UI Guide](../02-Development/AVALONIA_UI_GUIDE.md)** - Avalonia-specific patterns
@@ -401,5 +401,5 @@ The renderer architecture provides:
 - ✅ Maintainable codebase
 - ✅ Consistent rendering patterns
 
-Each renderer focuses on a specific screen type, uses shared utilities (`ColoredTextWriter`), and is coordinated by `CanvasUIManager` for a clean, modular UI system.
+Each renderer focuses on a specific screen type, uses shared utilities (`ColoredTextWriter`), and is coordinated by `CanvasUICoordinator` for a clean, modular UI system.
 

@@ -6,7 +6,7 @@ Updated the dungeon selection screen to display dungeon names with themed color 
 ## Changes Made
 
 ### File Modified
-- `Code/UI/Avalonia/CanvasUIManager.cs`
+- `Code/UI/Avalonia/CanvasUICoordinator.cs`
 
 ### Key Modifications
 

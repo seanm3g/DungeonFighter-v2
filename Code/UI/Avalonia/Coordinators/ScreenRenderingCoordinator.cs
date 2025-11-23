@@ -170,6 +170,14 @@ namespace RPGGame.UI.Avalonia.Coordinators
         }
         
         /// <summary>
+        /// Renders death screen with statistics
+        /// </summary>
+        public void RenderDeathScreen(Character player, string defeatSummary)
+        {
+            renderer.RenderDeathScreen(player, defeatSummary, contextManager.GetCurrentContext());
+        }
+        
+        /// <summary>
         /// Renders dungeon exploration screen
         /// </summary>
         public void RenderDungeonExploration(Character player, string currentLocation, List<string> availableActions, List<string> recentEvents)

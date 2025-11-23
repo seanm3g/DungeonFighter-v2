@@ -87,7 +87,7 @@ public enum ChunkStrategy
 
 - **UIManager**: Static methods for chunked output
 - **IUIManager**: Interface for custom UI implementations
-- **CanvasUIManager**: GUI-specific chunked reveal
+- **CanvasUICoordinator**: GUI-specific chunked reveal
 - **DungeonRunner**: Uses chunked reveal for dungeon/room descriptions
 
 ## Usage

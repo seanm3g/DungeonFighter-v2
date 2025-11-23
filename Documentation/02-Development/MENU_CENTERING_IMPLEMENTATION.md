@@ -24,8 +24,8 @@ This document describes the implementation of center-justified main menu display
 - Gracefully handles invalid console width
 - Uses `Console.WindowWidth` to dynamically adapt to screen size
 
-### 2. Avalonia UI (CanvasUIManager.cs)
-**Location:** `Code/UI/Avalonia/CanvasUIManager.cs`
+### 2. Avalonia UI (CanvasUICoordinator.cs)
+**Location:** `Code/UI/Avalonia/CanvasUICoordinator.cs`
 
 **Changes:**
 - Modified `RenderMainMenu()` method to center all menu elements
@@ -79,7 +79,7 @@ To test Avalonia centering:
 
 ## Files Modified
 - `Code/UI/TextDisplayIntegration.cs` - Added centering logic for console menus
-- `Code/UI/Avalonia/CanvasUIManager.cs` - Updated main menu rendering to center elements
+- `Code/UI/Avalonia/CanvasUICoordinator.cs` - Updated main menu rendering to center elements
 
 ## Notes
 - Console centering is dynamic and adapts to window size changes

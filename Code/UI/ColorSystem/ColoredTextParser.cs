@@ -266,7 +266,7 @@ namespace RPGGame.UI.ColorSystem
         private static List<ColoredText> MergeAdjacentSegments(List<ColoredText> segments)
         {
             if (segments == null || segments.Count <= 1)
-                return segments;
+                return segments ?? new List<ColoredText>();
             
             var merged = new List<ColoredText>();
             ColoredText? currentSegment = null;
@@ -375,7 +375,34 @@ namespace RPGGame.UI.ColorSystem
                 }
             }
             
-            // Final pass: remove any empty segments that might have been created
+            // Final pass: normalize spaces between adjacent segments again (after internal normalization)
+            // This catches any remaining boundary issues after normalizing within segments
+            for (int i = 0; i < merged.Count - 1; i++)
+            {
+                var current = merged[i];
+                var next = merged[i + 1];
+                
+                string currentText = current.Text;
+                string nextText = next.Text;
+                
+                // If one segment ends with space and next starts with space, remove one
+                if (currentText.EndsWith(" ") && nextText.StartsWith(" "))
+                {
+                    var trimmedCurrent = currentText.TrimEnd();
+                    if (trimmedCurrent.Length > 0)
+                    {
+                        merged[i] = new ColoredText(trimmedCurrent, current.Color);
+                    }
+                    else
+                    {
+                        merged.RemoveAt(i);
+                        i--;
+                        continue;
+                    }
+                }
+            }
+            
+            // Remove any empty segments that might have been created
             merged.RemoveAll(s => string.IsNullOrEmpty(s.Text));
             
             return merged;

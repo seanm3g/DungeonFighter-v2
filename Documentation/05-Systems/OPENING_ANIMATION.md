@@ -224,7 +224,7 @@ The opening animation fully integrates with the game's keyword color system, sup
 ### UI Configuration
 The animation respects the `UIManager` configuration:
 - Honors `DisableAllOutput` flag if set
-- Works with custom UI managers (like CanvasUIManager)
+- Works with custom UI managers (like CanvasUICoordinator)
 - Uses `UIMessageType.Title` for proper delay configuration
 
 ### Game Initialization

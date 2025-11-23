@@ -23,38 +23,60 @@ namespace RPGGame
             return text;
         }
         
-        // ===== COLORED TEXT OVERLOADS =====
+        // ===== COLORED TEXT METHODS (PRIMARY API) =====
         
         /// <summary>
         /// Displays a combat action using ColoredText for better color management
+        /// This is the primary method - uses structured ColoredText for action, roll info, and status effects
         /// </summary>
-        public static void DisplayCombatAction(List<ColoredText> actionText, string rollInfo, List<ColoredText>? narrativeMessages = null, List<string>? statusEffects = null)
+        public static void DisplayCombatAction(
+            List<ColoredText> actionText, 
+            List<ColoredText> rollInfo, 
+            List<List<ColoredText>>? statusEffects = null,
+            List<List<ColoredText>>? narrativeMessages = null)
         {
-            // Display the action block with ColoredText
-            BlockDisplayManager.DisplayActionBlock(actionText, rollInfo, statusEffects);
+            // Check if this is a critical miss and extract critical miss narrative
+            List<ColoredText>? criticalMissNarrative = null;
+            var remainingNarratives = new List<List<ColoredText>>();
             
-            // Display narrative messages as separate blocks
-            var validNarratives = narrativeMessages ?? new List<ColoredText>();
-            foreach (var narrative in validNarratives)
+            if (narrativeMessages != null)
             {
-                if (narrative != null)
+                // Check if action text contains "CRITICAL MISS" or "misses"
+                string actionPlainText = ColoredTextRenderer.RenderAsPlainText(actionText);
+                bool isCriticalMiss = actionPlainText.Contains("CRITICAL MISS", StringComparison.OrdinalIgnoreCase) || 
+                                     actionPlainText.Contains("misses", StringComparison.OrdinalIgnoreCase);
+                
+                foreach (var narrative in narrativeMessages)
                 {
-                    BlockDisplayManager.DisplayNarrativeBlock(new List<ColoredText> { narrative });
+                    if (narrative != null && narrative.Count > 0)
+                    {
+                        string narrativeText = ColoredTextRenderer.RenderAsPlainText(narrative);
+                        // Check if this is a critical miss narrative (contains keywords like "wild swing", "misses completely", etc.)
+                        bool isCriticalMissNarrative = narrativeText.Contains("wild swing", StringComparison.OrdinalIgnoreCase) ||
+                                                      narrativeText.Contains("misses completely", StringComparison.OrdinalIgnoreCase) ||
+                                                      narrativeText.Contains("goes wide", StringComparison.OrdinalIgnoreCase) ||
+                                                      narrativeText.Contains("fails spectacularly", StringComparison.OrdinalIgnoreCase) ||
+                                                      narrativeText.Contains("critical miss", StringComparison.OrdinalIgnoreCase);
+                        
+                        // If this is a critical miss action and the narrative is a critical miss narrative, include it in the action block
+                        if (isCriticalMiss && isCriticalMissNarrative && criticalMissNarrative == null)
+                        {
+                            criticalMissNarrative = narrative;
+                        }
+                        else
+                        {
+                            // Keep other narratives to display separately
+                            remainingNarratives.Add(narrative);
+                        }
+                    }
                 }
             }
-        }
-        
-        /// <summary>
-        /// Displays a combat action using ColoredText with list of narrative messages
-        /// </summary>
-        public static void DisplayCombatAction(List<ColoredText> actionText, string rollInfo, List<List<ColoredText>>? narrativeMessages = null, List<string>? statusEffects = null)
-        {
-            // Display the action block with ColoredText
-            BlockDisplayManager.DisplayActionBlock(actionText, rollInfo, statusEffects);
             
-            // Display narrative messages as separate blocks
-            var validNarratives = narrativeMessages ?? new List<List<ColoredText>>();
-            foreach (var narrative in validNarratives)
+            // Display the action block with ColoredText, including critical miss narrative if present
+            BlockDisplayManager.DisplayActionBlock(actionText, rollInfo, statusEffects, criticalMissNarrative);
+            
+            // Display remaining narrative messages as separate blocks
+            foreach (var narrative in remainingNarratives)
             {
                 if (narrative != null && narrative.Count > 0)
                 {
@@ -63,53 +85,6 @@ namespace RPGGame
             }
         }
         
-        // ===== STRING-BASED METHODS (Legacy Support) =====
-        
-        /// <summary>
-        /// Displays a combat action using the new block-based system
-        /// </summary>
-        /// <param name="combatResult">The combat result message</param>
-        /// <param name="narrativeMessages">Narrative messages triggered by this action</param>
-        /// <param name="statusEffects">Status effect messages</param>
-        /// <param name="entityName">The entity performing the action</param>
-        public static void DisplayCombatAction(string combatResult, List<string> narrativeMessages, List<string> statusEffects, string entityName)
-        {
-            // Parse the combat result to extract action text and roll info
-            string actionText = "";
-            string rollInfo = "";
-            
-            if (!string.IsNullOrEmpty(combatResult) && combatResult.Contains('\n') && combatResult.Contains("("))
-            {
-                // Split the result into damage text and roll info
-                var lines = combatResult.Split('\n');
-                if (lines.Length >= 2)
-                {
-                    actionText = lines[0];
-                    rollInfo = lines[1].Trim(); // Remove the 4-space indentation
-                }
-            }
-            else if (!string.IsNullOrEmpty(combatResult))
-            {
-                // Simple combat result without roll info
-                actionText = combatResult;
-                rollInfo = ""; // Will be handled by the action system
-            }
-            
-            // Display the action block
-            var validEffects = statusEffects?.FindAll(m => !string.IsNullOrEmpty(m)) ?? new List<string>();
-            // Remove existing indentation from status effects since BlockDisplayManager will add it
-            var trimmedEffects = validEffects.Select(e => e.TrimStart()).ToList();
-            BlockDisplayManager.DisplayActionBlock(actionText, rollInfo, trimmedEffects);
-            
-            // Display narrative messages as separate blocks (no extra spacing)
-            var validNarratives = narrativeMessages?.FindAll(m => !string.IsNullOrEmpty(m)) ?? new List<string>();
-            foreach (var narrative in validNarratives)
-            {
-                BlockDisplayManager.DisplayNarrativeBlock(narrative);
-            }
-            
-        }
-
         
         /// <summary>
         /// Displays a menu with title and options

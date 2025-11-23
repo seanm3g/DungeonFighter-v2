@@ -93,7 +93,7 @@ DungeonFighter is a sophisticated turn-based RPG/dungeon crawler game written in
 - **`BattleHealthTracker`**: Health tracking for battle narrative system
 
 ### UI System (Modern GUI)
-- **`CanvasUIManager`**: Modern Avalonia-based GUI with ASCII canvas rendering and persistent layout
+- **`CanvasUICoordinator`**: Modern Avalonia-based GUI with ASCII canvas rendering and persistent layout (refactored from CanvasUIManager)
 - **`GameCanvasControl`**: Avalonia control for rendering ASCII art and game content
 - **`PersistentLayoutManager`**: Always-visible character panel with stats, health, and equipment
 - **`UIManager`**: Centralized UI output and display with beat-based timing

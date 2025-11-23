@@ -53,7 +53,7 @@ The current color pattern and text UI system is **well-architected overall** but
 ┌──────────────────────────────────────────────────────────────┐
 │            RENDERING                                          │
 │  Console: ColoredConsoleWriter                               │
-│  Avalonia: CanvasUIManager.WriteLineColored                  │
+│  Avalonia: CanvasUICoordinator.WriteLineColored              │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -66,7 +66,7 @@ The current color pattern and text UI system is **well-architected overall** but
 | `ColorDefinitions.cs` | Color code mappings | 150 | Low |
 | `KeywordColorSystem.cs` | Automatic keyword coloring | 413 | Medium-High |
 | `ColoredConsoleWriter.cs` | Console rendering | 77 | Low |
-| `CanvasUIManager.cs` | Avalonia rendering | 1900+ | High |
+| `CanvasUICoordinator.cs` | Avalonia rendering | ~542 | High |
 
 ---
 
@@ -131,7 +131,7 @@ segments = ParseColorCodes(text);  // &Xtext → List<ColoredSegment>
 
 **Found in codebase:**
 1. `ColorParser.GetDisplayLength()` - Uses `StripColorMarkup()`
-2. `CanvasUIManager.GetVisibleLength()` - Custom implementation
+2. `CanvasUICoordinator` (via coordinators) - Custom implementation
 3. Manual length checks throughout code
 
 **Problems:**
@@ -142,7 +142,7 @@ public static int GetDisplayLength(string text)
     return StripColorMarkup(text).Length;
 }
 
-// Example 2: CanvasUIManager.cs
+// Example 2: CanvasUICoordinator.cs
 private int GetVisibleLength(string text)
 {
     // Custom implementation that manually parses markup
@@ -490,7 +490,7 @@ public class LazyFormattedText
 
 ### Issue 1: GetVisibleLength() Duplication
 
-**Location:** `Code/UI/Avalonia/CanvasUIManager.cs:170-206`
+**Location:** `Code/UI/Avalonia/CanvasUICoordinator.cs` (refactored - see coordinators)
 
 **Problem:** Duplicate implementation of markup stripping logic.
 
@@ -519,7 +519,7 @@ private int GetVisibleLength(string text)
 
 ### Issue 2: Text Wrapping Performance
 
-**Location:** `Code/UI/Avalonia/CanvasUIManager.cs:1568-1626`
+**Location:** `Code/UI/Avalonia/CanvasUICoordinator.cs` (refactored - see coordinators)
 
 **Problem:** `ColorParser.GetDisplayLength()` called for every word during wrapping.
 
@@ -557,7 +557,7 @@ for (int i = 0; i < words.Count; i++)
 
 ### Issue 3: Word Splitting with Markup
 
-**Location:** `Code/UI/Avalonia/CanvasUIManager.cs:1628-1679`
+**Location:** `Code/UI/Avalonia/CanvasUICoordinator.cs` (refactored - see coordinators)
 
 **Problem:** Word splitting doesn't account for markup inside words.
 

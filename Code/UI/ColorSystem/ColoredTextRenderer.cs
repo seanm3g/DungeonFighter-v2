@@ -23,6 +23,130 @@ namespace RPGGame.UI.ColorSystem
         }
         
         /// <summary>
+        /// Renders colored text as markup string (old-style &X format) for backward compatibility
+        /// This allows ColoredText to be stored in string buffers and parsed back
+        /// </summary>
+        public static string RenderAsMarkup(IEnumerable<ColoredText> segments)
+        {
+            if (segments == null)
+                return "";
+            
+            var markup = new StringBuilder();
+            Color? currentColor = null;
+            
+            foreach (var segment in segments)
+            {
+                if (string.IsNullOrEmpty(segment.Text))
+                    continue;
+                
+                // Only add color code if color changed
+                if (!currentColor.HasValue || !AreColorsEqual(currentColor.Value, segment.Color))
+                {
+                    // Add color code
+                    char colorCode = GetColorCode(segment.Color);
+                    markup.Append($"&{colorCode}");
+                    currentColor = segment.Color;
+                }
+                
+                markup.Append(segment.Text);
+            }
+            
+            // Reset to white at the end
+            if (currentColor.HasValue && !AreColorsEqual(currentColor.Value, Colors.White))
+            {
+                markup.Append("&y");
+            }
+            
+            return markup.ToString();
+        }
+        
+        /// <summary>
+        /// Checks if two colors are equal
+        /// </summary>
+        private static bool AreColorsEqual(Color color1, Color color2)
+        {
+            return color1.R == color2.R && color1.G == color2.G && color1.B == color2.B && color1.A == color2.A;
+        }
+        
+        /// <summary>
+        /// Gets the old-style color code for a color
+        /// Uses reverse mapping from CompatibilityLayer's color code system
+        /// </summary>
+        private static char GetColorCode(Color color)
+        {
+            // Use reverse mapping from CompatibilityLayer
+            // Try to match by RGB values to ColorPalette colors
+            var colorPalette = GetColorPaletteForColor(color);
+            return GetColorCodeForPalette(colorPalette);
+        }
+        
+        /// <summary>
+        /// Gets the ColorPalette enum value that best matches a color
+        /// </summary>
+        private static ColorPalette GetColorPaletteForColor(Color color)
+        {
+            // Try to match by RGB values - this is approximate
+            // Check common ColorPalette colors
+            if (AreColorsEqual(color, ColorPalette.Damage.GetColor()) || 
+                AreColorsEqual(color, ColorPalette.Error.GetColor()) ||
+                AreColorsEqual(color, ColorPalette.Red.GetColor()))
+                return ColorPalette.Damage;
+            
+            if (AreColorsEqual(color, ColorPalette.Success.GetColor()) ||
+                AreColorsEqual(color, ColorPalette.Green.GetColor()) ||
+                AreColorsEqual(color, ColorPalette.Healing.GetColor()))
+                return ColorPalette.Success;
+            
+            if (AreColorsEqual(color, ColorPalette.Info.GetColor()) ||
+                AreColorsEqual(color, ColorPalette.Cyan.GetColor()) ||
+                AreColorsEqual(color, ColorPalette.Blue.GetColor()))
+                return ColorPalette.Info;
+            
+            if (AreColorsEqual(color, ColorPalette.Warning.GetColor()) ||
+                AreColorsEqual(color, ColorPalette.Yellow.GetColor()) ||
+                AreColorsEqual(color, ColorPalette.Orange.GetColor()))
+                return ColorPalette.Warning;
+            
+            if (AreColorsEqual(color, ColorPalette.Gold.GetColor()))
+                return ColorPalette.Gold;
+            
+            if (AreColorsEqual(color, ColorPalette.Gray.GetColor()) ||
+                AreColorsEqual(color, ColorPalette.Brown.GetColor()))
+                return ColorPalette.Gray;
+            
+            // Default to white
+            return ColorPalette.White;
+        }
+        
+        /// <summary>
+        /// Gets the old-style color code for a ColorPalette
+        /// </summary>
+        private static char GetColorCodeForPalette(ColorPalette palette)
+        {
+            // Reverse mapping from CompatibilityLayer.ConvertOldColorCode
+            return palette switch
+            {
+                ColorPalette.Damage or ColorPalette.Error or ColorPalette.Red => 'R',
+                ColorPalette.DarkRed => 'r',
+                ColorPalette.Success or ColorPalette.Green or ColorPalette.Healing => 'G',
+                ColorPalette.DarkGreen => 'g',
+                ColorPalette.Info or ColorPalette.Cyan or ColorPalette.Blue => 'B',
+                ColorPalette.DarkBlue => 'b',
+                ColorPalette.Warning or ColorPalette.Yellow => 'Y',
+                ColorPalette.Orange => 'O',
+                ColorPalette.Gold => 'W',
+                ColorPalette.Brown => 'w',
+                ColorPalette.Gray => 'y',
+                ColorPalette.DarkGray => 'k',
+                ColorPalette.Magenta => 'M',
+                ColorPalette.DarkMagenta => 'm',
+                ColorPalette.DarkCyan => 'c',
+                ColorPalette.Black => 'K',
+                _ => 'y' // Default to white/gray
+            };
+        }
+        
+        /// <summary>
         /// Renders colored text as HTML
         /// </summary>
         public static string RenderAsHtml(IEnumerable<ColoredText> segments)

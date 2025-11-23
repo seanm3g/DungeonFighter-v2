@@ -56,7 +56,7 @@ DUNGEON FIGHTER
 
 **Files Modified:**
 - `Code/UI/TextDisplayIntegration.cs` - Console centering
-- `Code/UI/Avalonia/CanvasUIManager.cs` - Avalonia centering
+- `Code/UI/Avalonia/CanvasUICoordinator.cs` - Avalonia centering
 
 **Key Features:**
 - ✅ Dynamic screen width detection (Console)

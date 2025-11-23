@@ -24,22 +24,22 @@
 
 3. UI MANAGER
    └─> UIManager.WriteLine(message, messageType)
-       - Forwards to CanvasUIManager.WriteLine()
+       - Forwards to CanvasUICoordinator.WriteLine()
        └─> No processing here, just routing
 
 4. CANVAS UI MANAGER
-   └─> CanvasUIManager.WriteLine(message, messageType)
+   └─> CanvasUICoordinator.WriteLine(message, messageType)
        - LINE 167-171: Adds to displayBuffer
        - Calls RenderDisplayBuffer()
        └─> No text processing here
 
 5. RENDER DISPLAY BUFFER
-   └─> CanvasUIManager.RenderDisplayBuffer()
+   └─> CanvasUICoordinator.RenderDisplayBuffer()
        - LINE 572: Calls WriteLineColoredWrapped() for each line
        └─> This is where color parsing happens
 
 6. WRITE LINE COLORED
-   └─> CanvasUIManager.WriteLineColored(message, x, y)
+   └─> CanvasUICoordinator.WriteLineColored(message, x, y)
        - LINE 178: Checks if message has color markup
        - LINE 180: Calls ColorParser.Parse(message)  ⚠️ PROBLEM #3
        └─> Renders segments to canvas
@@ -247,7 +247,7 @@ After fixes, verify:
 | `BlockDisplayManager.cs` | Displays blocks | **Applies keyword coloring AFTER explicit colors** |
 | `KeywordColorSystem.cs` | Auto-colors keywords | **Doesn't check for existing colors** |
 | `ColorParser.cs` | Parses color codes | **Template expansion might add spaces** |
-| `CanvasUIManager.cs` | Renders to canvas | Processes final text |
+| `CanvasUICoordinator.cs` | Renders to canvas | Processes final text |
 
 ---
 

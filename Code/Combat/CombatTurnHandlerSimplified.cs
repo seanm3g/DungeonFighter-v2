@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
 {
@@ -52,13 +53,13 @@ namespace RPGGame
             }
             else
             {
-                // Use the new ActionExecutor system for consistent action handling
-                var (result, statusEffects) = CombatResults.ExecuteActionWithUIAndStatusEffects(
+                // Use the new ActionExecutor system for consistent action handling with ColoredText
+                var ((actionText, rollInfo), statusEffects) = CombatResults.ExecuteActionWithUIAndStatusEffectsColored(
                     currentEnemy, player, null, room, 
                     stateManager.GetLastPlayerAction(), 
                     stateManager.GetCurrentBattleNarrative());
                 
-                bool textDisplayed = !string.IsNullOrEmpty(result);
+                bool textDisplayed = actionText != null && actionText.Count > 0;
                 
                 // Get the action that was actually used for turn counting
                 var usedAction = ActionExecutor.GetLastUsedAction(currentEnemy);
@@ -71,15 +72,27 @@ namespace RPGGame
                     // Turn separator line removed for cleaner combat logs
                 }
                 
-            // Get triggered narratives and display everything together
-            var battleNarrative = stateManager.GetCurrentBattleNarrative();
-            if (textDisplayed && battleNarrative != null)
-            {
-                var narratives = battleNarrative.GetTriggeredNarratives();
-                // Add proper indentation to status effects
-                var indentedStatusEffects = statusEffects.Select(effect => $"    {effect}").ToList();
-                TextDisplayIntegration.DisplayCombatAction(result, narratives, indentedStatusEffects, currentEnemy.Name);
-            }
+                // Get triggered narratives and display everything together
+                var battleNarrative = stateManager.GetCurrentBattleNarrative();
+                if (textDisplayed && actionText != null && rollInfo != null && battleNarrative != null)
+                {
+                    var narratives = battleNarrative.GetTriggeredNarratives();
+                    // Convert narrative strings to ColoredText
+                    var narrativeColored = new List<List<ColoredText>>();
+                    foreach (var narrative in narratives)
+                    {
+                        if (!string.IsNullOrEmpty(narrative))
+                        {
+                            var parsed = ColoredTextParser.Parse(narrative);
+                            if (parsed.Count > 0)
+                            {
+                                narrativeColored.Add(parsed);
+                            }
+                        }
+                    }
+                    // Display using the new ColoredText method
+                    TextDisplayIntegration.DisplayCombatAction(actionText, rollInfo, statusEffects, narrativeColored);
+                }
                 
                 // Update enemy's action timing in the action speed system
                 var actionSpeedSystem = stateManager.GetCurrentActionSpeedSystem();
@@ -186,13 +199,13 @@ namespace RPGGame
         /// </summary>
         private void ProcessPlayerAction(Character player, Enemy currentEnemy, Environment room)
         {
-            // Use the new ActionSelector system to select and execute the action
-            var (result, statusEffects) = CombatResults.ExecuteActionWithUIAndStatusEffects(
+            // Use the new ColoredText system to execute the action
+            var ((actionText, rollInfo), statusEffects) = CombatResults.ExecuteActionWithUIAndStatusEffectsColored(
                 player, currentEnemy, null, room, 
                 stateManager.GetLastPlayerAction(), 
                 stateManager.GetCurrentBattleNarrative());
             
-            bool textDisplayed = !string.IsNullOrEmpty(result);
+            bool textDisplayed = actionText != null && actionText.Count > 0;
             
             // Get the action that was actually used for turn counting
             var usedAction = ActionExecutor.GetLastUsedAction(player);
@@ -207,12 +220,24 @@ namespace RPGGame
             
             // Get triggered narratives and display everything together
             var battleNarrative = stateManager.GetCurrentBattleNarrative();
-            if (textDisplayed && battleNarrative != null)
+            if (textDisplayed && actionText != null && rollInfo != null && battleNarrative != null)
             {
                 var narratives = battleNarrative.GetTriggeredNarratives();
-                // Add proper indentation to status effects
-                var indentedStatusEffects = statusEffects.Select(effect => $"    {effect}").ToList();
-                TextDisplayIntegration.DisplayCombatAction(result, narratives, indentedStatusEffects, player.Name);
+                // Convert narrative strings to ColoredText
+                var narrativeColored = new List<List<ColoredText>>();
+                foreach (var narrative in narratives)
+                {
+                    if (!string.IsNullOrEmpty(narrative))
+                    {
+                        var parsed = ColoredTextParser.Parse(narrative);
+                        if (parsed.Count > 0)
+                        {
+                            narrativeColored.Add(parsed);
+                        }
+                    }
+                }
+                // Display using the new ColoredText method
+                TextDisplayIntegration.DisplayCombatAction(actionText, rollInfo, statusEffects, narrativeColored);
             }
             
             // End turn for statistics tracking
