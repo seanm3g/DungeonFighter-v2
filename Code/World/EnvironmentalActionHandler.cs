@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Avalonia.Media;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
 {
@@ -85,8 +87,12 @@ namespace RPGGame
             
             if (aliveTargets.Count == 0)
             {
-                string coloredSourceName = $"{{{{natural|{source.Name}}}}}";
-                return $"{coloredSourceName}'s {action.Name} has no effect!";
+                var builder = new ColoredTextBuilder();
+                builder.Add(source.Name, ColorPalette.Green);
+                builder.Add("'s ", Colors.White);
+                builder.Add(action.Name, ColorPalette.Success);
+                builder.Add(" has no effect!", Colors.White);
+                return ColoredTextRenderer.RenderAsMarkup(builder.Build());
             }
             
             // Roll separately for each target and track which ones are affected
@@ -108,8 +114,12 @@ namespace RPGGame
             // If no targets were affected, show no effect message
             if (affectedTargets.Count == 0)
             {
-                string coloredSourceName = $"{{{{natural|{source.Name}}}}}";
-                return $"{coloredSourceName}'s {action.Name} has no effect!";
+                var builder = new ColoredTextBuilder();
+                builder.Add(source.Name, ColorPalette.Green);
+                builder.Add("'s ", Colors.White);
+                builder.Add(action.Name, ColorPalette.Success);
+                builder.Add(" has no effect!", Colors.White);
+                return ColoredTextRenderer.RenderAsMarkup(builder.Build());
             }
             
             // Format the message based on number of affected targets
@@ -123,15 +133,26 @@ namespace RPGGame
             {
                 // Multiple targets affected - format as area of effect with individual results
                 var targetNames = GetUniqueTargetNames(aliveTargets);
-                string coloredSourceName = $"{{{{natural|{source.Name}}}}}";
-                var result = $"{coloredSourceName} uses {action.Name} on {targetNames}!";
+                var mainBuilder = new ColoredTextBuilder();
+                mainBuilder.Add(source.Name, ColorPalette.Green);
+                mainBuilder.Add(" uses ", Colors.White);
+                mainBuilder.Add(action.Name, ColorPalette.Success);
+                mainBuilder.Add(" on ", Colors.White);
+                mainBuilder.Add(targetNames, Colors.White);
+                mainBuilder.Add("!", Colors.White);
+                var result = ColoredTextRenderer.RenderAsMarkup(mainBuilder.Build());
                 
                 // Add individual effect messages for each affected target
                 foreach (var (target, duration) in affectedTargets)
                 {
                     string displayName = GetDisplayName(target);
-                    string effectMessage = GetEnvironmentalEffectMessage(action, duration);
-                    result += $"\n    {displayName} &Yaffected by&y {effectMessage}";
+                    var effectMessage = GetEnvironmentalEffectMessageColored(action, duration);
+                    var builder = new ColoredTextBuilder();
+                    builder.Add("    ", Colors.White);
+                    builder.Add(displayName, target is Character ? ColorPalette.Player : ColorPalette.Enemy);
+                    builder.Add(" affected by ", ColorPalette.Warning);
+                    builder.AddRange(effectMessage);
+                    result += "\n" + ColoredTextRenderer.RenderAsMarkup(builder.Build());
                 }
                 
                 return result;
@@ -200,27 +221,42 @@ namespace RPGGame
         private static string FormatEnvironmentalEffectMessage(Actor source, Actor target, Action action, int duration)
         {
             string displayName = GetDisplayName(target);
-            string coloredSourceName = $"{{{{natural|{source.Name}}}}}";
-            // Use explicit color codes to prevent keyword coloring interference and spacing issues
+            
+            // Build main action line
+            var mainBuilder = new ColoredTextBuilder();
+            mainBuilder.Add(source.Name, ColorPalette.Green);
+            mainBuilder.Add(" uses ", Colors.White);
+            mainBuilder.Add(action.Name, ColorPalette.Success);
+            mainBuilder.Add(" on ", Colors.White);
+            mainBuilder.Add(displayName, target is Character ? ColorPalette.Player : ColorPalette.Enemy);
+            mainBuilder.Add("!", Colors.White);
+            string mainLine = ColoredTextRenderer.RenderAsMarkup(mainBuilder.Build());
+            
+            // Build effect line
+            var effectBuilder = new ColoredTextBuilder();
+            effectBuilder.Add("    ", Colors.White);
+            effectBuilder.Add(displayName, target is Character ? ColorPalette.Player : ColorPalette.Enemy);
+            effectBuilder.Add(" is ", ColorPalette.Warning);
+            
             if (action.CausesBleed)
             {
-                return $"{coloredSourceName} uses {action.Name} on {displayName}!\n    {displayName} &Yis &RBLEEDING &Yfor {duration} turns!&y";
+                effectBuilder.Add("BLEEDING", ColorPalette.Error);
             }
             else if (action.CausesWeaken)
             {
-                return $"{coloredSourceName} uses {action.Name} on {displayName}!\n    {displayName} &Yis &OWEAKENED &Yfor {duration} turns!&y";
+                effectBuilder.Add("WEAKENED", ColorPalette.Orange);
             }
             else if (action.CausesSlow)
             {
-                return $"{coloredSourceName} uses {action.Name} on {displayName}!\n    {displayName} &Yis &CSLOWED &Yfor {duration} turns!&y";
+                effectBuilder.Add("SLOWED", ColorPalette.Cyan);
             }
             else if (action.CausesPoison)
             {
-                return $"{coloredSourceName} uses {action.Name} on {displayName}!\n    {displayName} &Yis &GPOISONED &Yfor {duration} turns!&y";
+                effectBuilder.Add("POISONED", ColorPalette.Green);
             }
             else if (action.CausesStun)
             {
-                return $"{coloredSourceName} uses {action.Name} on {displayName}!\n    {displayName} &Yis &MSTUNNED &Yfor {duration} turns!&y";
+                effectBuilder.Add("STUNNED", ColorPalette.Magenta);
             }
             else if (action.Type == ActionType.Attack)
             {
@@ -228,13 +264,25 @@ namespace RPGGame
                 double damageMultiplier = CalculateDamageMultiplier(source, action);
                 int damage = CombatCalculator.CalculateDamage(source, target, action, damageMultiplier, 1.0, 0, 0);
                 var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, damage, damage, action, 1.0, damageMultiplier, 0, 0);
-                return RPGGame.UI.ColorSystem.ColoredTextRenderer.RenderAsMarkup(damageText) + "\n" + RPGGame.UI.ColorSystem.ColoredTextRenderer.RenderAsMarkup(rollInfo);
+                return ColoredTextRenderer.RenderAsMarkup(damageText) + "\n" + ColoredTextRenderer.RenderAsMarkup(rollInfo);
             }
             else
             {
                 // Generic environmental effect
-                return $"{coloredSourceName} uses {action.Name} on {displayName}!\n    &YEffect lasts for {duration} turns!&y";
+                effectBuilder.Add("affected", ColorPalette.Warning);
+                effectBuilder.Add(" by effect", Colors.White);
             }
+            
+            if (action.Type != ActionType.Attack)
+            {
+                effectBuilder.Add(" for ", ColorPalette.Warning);
+                effectBuilder.Add(duration.ToString(), Colors.White);
+                effectBuilder.Add(" turns!", Colors.White);
+                string effectLine = ColoredTextRenderer.RenderAsMarkup(effectBuilder.Build());
+                return mainLine + "\n" + effectLine;
+            }
+            
+            return mainLine;
         }
 
         /// <summary>
@@ -266,38 +314,45 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets the environmental effect message for area-of-effect actions
+        /// Gets the environmental effect message for area-of-effect actions as ColoredText
         /// </summary>
         /// <param name="action">The action being applied</param>
         /// <param name="duration">Duration of the effect</param>
-        /// <returns>Effect message</returns>
-        private static string GetEnvironmentalEffectMessage(Action action, int duration)
+        /// <returns>Effect message as ColoredText</returns>
+        private static List<ColoredText> GetEnvironmentalEffectMessageColored(Action action, int duration)
         {
-            // Use explicit color codes to prevent keyword coloring interference
+            var builder = new ColoredTextBuilder();
+            
             if (action.CausesBleed)
             {
-                return $"&RBLEED&Y for {duration} turns&y";
+                builder.Add("BLEED", ColorPalette.Error);
             }
             else if (action.CausesWeaken)
             {
-                return $"&OWEAKEN&Y for {duration} turns&y";
+                builder.Add("WEAKEN", ColorPalette.Orange);
             }
             else if (action.CausesSlow)
             {
-                return $"&CSLOW&Y for {duration} turns&y";
+                builder.Add("SLOW", ColorPalette.Cyan);
             }
             else if (action.CausesPoison)
             {
-                return $"&GPOISON&Y for {duration} turns&y";
+                builder.Add("POISON", ColorPalette.Green);
             }
             else if (action.CausesStun)
             {
-                return $"&MSTUN&Y for {duration} turns&y";
+                builder.Add("STUN", ColorPalette.Magenta);
             }
             else
             {
-                return $"&YEFFECT&Y for {duration} turns&y";
+                builder.Add("EFFECT", ColorPalette.Warning);
             }
+            
+            builder.Add(" for ", ColorPalette.Warning);
+            builder.Add(duration.ToString(), Colors.White);
+            builder.Add(" turns", Colors.White);
+            
+            return builder.Build();
         }
 
         /// <summary>

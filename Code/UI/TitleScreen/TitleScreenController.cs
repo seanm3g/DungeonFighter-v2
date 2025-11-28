@@ -3,6 +3,7 @@ using System.Threading;
 using RPGGame;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Animations;
+using RPGGame.Data;
 
 namespace RPGGame.UI.TitleScreen
 {
@@ -29,27 +30,52 @@ namespace RPGGame.UI.TitleScreen
 
         /// <summary>
         /// Plays the complete title screen animation sequence
+        /// Uses async/await for proper timing with UI thread
         /// </summary>
-        public void PlayAnimation()
+        public async System.Threading.Tasks.Task PlayAnimationAsync()
         {
             foreach (var step in _animation.GenerateAnimationSequence())
             {
+                // Render the frame (this will wait for UI thread to complete)
                 _renderer.RenderFrame(step.Frame);
-                Thread.Sleep(step.DurationMs);
+                
+                // Wait for the specified duration before next frame
+                // Ensure minimum delay of 50ms to allow UI thread to process and display the frame
+                // This prevents frames from being skipped due to UI thread being busy
+                int delayMs = Math.Max(step.DurationMs, 50);
+                await System.Threading.Tasks.Task.Delay(delayMs);
             }
+        }
+
+        /// <summary>
+        /// Plays the complete title screen animation sequence (synchronous version)
+        /// </summary>
+        public void PlayAnimation()
+        {
+            // For synchronous calls, run async version and wait
+            PlayAnimationAsync().GetAwaiter().GetResult();
         }
 
         /// <summary>
         /// Shows the complete animated title screen with press key message
         /// This is the main entry point for displaying the title screen
         /// </summary>
-        public void ShowAnimatedTitleScreen()
+        public async System.Threading.Tasks.Task ShowAnimatedTitleScreenAsync()
         {
             // Play the animation sequence
-            PlayAnimation();
+            await PlayAnimationAsync();
 
             // Show press key message
             _renderer.ShowPressKeyMessage();
+        }
+
+        /// <summary>
+        /// Shows the complete animated title screen with press key message (synchronous version)
+        /// </summary>
+        public void ShowAnimatedTitleScreen()
+        {
+            // For synchronous calls, run async version and wait
+            ShowAnimatedTitleScreenAsync().GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -93,7 +119,7 @@ namespace RPGGame.UI.TitleScreen
         /// Shows the animated title screen using the appropriate renderer
         /// Automatically detects whether to use Canvas or Console renderer
         /// </summary>
-        public static void ShowAnimatedTitleScreen()
+        public static async System.Threading.Tasks.Task ShowAnimatedTitleScreenAsync()
         {
             var config = GetConfig();
             var renderer = CreateRenderer();
@@ -101,7 +127,7 @@ namespace RPGGame.UI.TitleScreen
             if (renderer != null)
             {
                 var controller = new TitleScreenController(config, renderer);
-                controller.ShowAnimatedTitleScreen();
+                await controller.ShowAnimatedTitleScreenAsync();
             }
             else
             {
@@ -110,6 +136,15 @@ namespace RPGGame.UI.TitleScreen
                     "No renderer available, falling back to legacy OpeningAnimation");
                 OpeningAnimation.ShowOpeningAnimation();
             }
+        }
+
+        /// <summary>
+        /// Shows the animated title screen using the appropriate renderer (synchronous version)
+        /// </summary>
+        public static void ShowAnimatedTitleScreen()
+        {
+            // For synchronous calls, run async version and wait
+            ShowAnimatedTitleScreenAsync().GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -130,17 +165,26 @@ namespace RPGGame.UI.TitleScreen
         /// <summary>
         /// Shows a static title screen (final frame) without animation
         /// Displays the final colored title screen immediately
+        /// Yellow text for DUNGEON, red text for FIGHTER
         /// </summary>
         public static void ShowStaticTitleScreen()
         {
+            // Preload color codes to ensure they're available before rendering
+            // This prevents white default colors from appearing initially
+            _ = RPGGame.Data.ColorCodeLoader.GetColor("W"); // Preload yellow
+            _ = RPGGame.Data.ColorCodeLoader.GetColor("o"); // Preload dark orange (orange-red)
+            
             var config = GetConfig();
             var renderer = CreateRenderer();
 
             if (renderer != null)
             {
-                // Build the final frame directly (progress = 1.0 means fully transitioned)
+                // Clear any existing content first
+                renderer.Clear();
+                
+                // Build the static frame with solid colors: yellow (W) for DUNGEON, dark orange (o) for FIGHTER
                 var frameBuilder = new TitleFrameBuilder(config);
-                var finalFrame = frameBuilder.BuildTransitionFrame(1.0f);
+                var finalFrame = frameBuilder.BuildSolidColorFrame("W", "o");
                 
                 // Render the final frame
                 renderer.RenderFrame(finalFrame);

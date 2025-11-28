@@ -311,6 +311,16 @@ UIManager.ReloadConfiguration();
 - Use StringBuilder for string concatenation
 - Monitor JSON loading and caching
 
+### Critical: Non-Blocking Delays
+**⚠️ NEVER use `Thread.Sleep()` for delays** - it blocks the thread and freezes the UI.
+
+**Use Instead**:
+- **Async methods**: `await Task.Delay(milliseconds)` (non-blocking)
+- **UI timing**: Use the beat-based timing system or async timers
+- **Game loops**: Use time-based updates instead of fixed delays
+
+See `CODE_PATTERNS.md` → Performance Patterns → Non-Blocking Delays for details.
+
 ## Error Handling Patterns
 
 ### Standard Error Handling

@@ -183,11 +183,13 @@ namespace RPGGame.UI
             
             Console.WriteLine("\n=== UTILITY FUNCTIONS ===\n");
             
-            string markup = "{{fiery|Blazing}} &RSword&y of &BIce&y";
+            string markup = "{{fiery|Blazing}} Sword of Ice";
             Console.WriteLine($"Original: {markup}");
-            Console.WriteLine($"Stripped: {ColorParser.StripColorMarkup(markup)}");
-            Console.WriteLine($"Display Length: {ColorParser.GetDisplayLength(markup)}");
-            Console.WriteLine($"Has Markup: {ColorParser.HasColorMarkup(markup)}");
+            var segments = ColoredTextParser.Parse(markup);
+            Console.WriteLine($"Stripped: {ColoredTextRenderer.RenderAsPlainText(segments)}");
+            Console.WriteLine($"Display Length: {ColoredTextRenderer.GetDisplayLength(segments)}");
+            bool hasMarkup = markup.Contains("{{") && markup.Contains("}}") || (markup.Contains("[") && markup.Contains("]"));
+            Console.WriteLine($"Has Markup: {hasMarkup}");
             
             Console.WriteLine("\nPress any key to continue...");
             Console.ReadKey();
@@ -214,12 +216,12 @@ namespace RPGGame.UI
             foreach (var test in testCases)
             {
                 Console.WriteLine($"Input: '{test}'");
-                var segments = ColorParser.Parse(test);
+                var segments = ColoredTextParser.Parse(test);
                 Console.WriteLine($"  Segments: {segments.Count}");
                 
                 foreach (var segment in segments)
                 {
-                    Console.WriteLine($"    Text: '{segment.Text}', FG: {segment.Foreground?.ToString() ?? "null"}, BG: {segment.Background?.ToString() ?? "null"}");
+                    Console.WriteLine($"    Text: '{segment.Text}', Color: RGB({segment.Color.R},{segment.Color.G},{segment.Color.B})");
                 }
                 
                 Console.WriteLine();
@@ -249,7 +251,7 @@ namespace RPGGame.UI
                 
                 for (int i = 0; i < iterations; i++)
                 {
-                    ColorParser.Parse(testString);
+                    ColoredTextParser.Parse(testString);
                 }
                 
                 var elapsed = (DateTime.Now - startTime).TotalMilliseconds;

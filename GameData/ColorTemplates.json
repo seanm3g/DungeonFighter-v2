@@ -2,30 +2,6 @@
   "$schema": "ColorTemplates Schema",
   "description": "Color templates for Caves of Qud-style text coloring",
   
-  "colorCodes": {
-    "description": "Single-letter color codes: & for foreground, ^ for background",
-    "codes": {
-      "r": "dark red / crimson (#a64a2e)",
-      "R": "red / scarlet (#d74200)",
-      "o": "dark orange (#f15f22)",
-      "O": "orange (#e99f10)",
-      "w": "brown (#98875f)",
-      "W": "gold / yellow (#cfc041)",
-      "g": "dark green (#009403)",
-      "G": "green (#00c420)",
-      "b": "dark blue (#0048bd)",
-      "B": "blue / azure (#0096ff)",
-      "c": "dark cyan / teal (#40a4b9)",
-      "C": "cyan (#77bfcf)",
-      "m": "dark magenta / purple (#b154cf)",
-      "M": "magenta (#da5bd6)",
-      "k": "very dark (#0f3b3a)",
-      "K": "dark grey / black (#155352)",
-      "y": "grey (#b1c9c3)",
-      "Y": "white (#ffffff)"
-    }
-  },
-
   "templates": [
     {
       "name": "fiery",
@@ -830,6 +806,18 @@
       "shaderType": "sequence",
       "colors": ["k", "K", "y", "O", "o"],
       "description": "Title screen FIGHTER gradient - black to warm orange to vibrant orange"
+    },
+    {
+      "name": "title_dungeon_yellow_orange",
+      "shaderType": "sequence",
+      "colors": ["W", "O", "W", "O"],
+      "description": "Title screen DUNGEON - yellow and orange gradient (no white)"
+    },
+    {
+      "name": "title_fighter_yellow_orange",
+      "shaderType": "sequence",
+      "colors": ["O", "W", "O", "W"],
+      "description": "Title screen FIGHTER - orange and yellow gradient (no white)"
     },
     {
       "name": "weapon_class",

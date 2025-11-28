@@ -1,0 +1,117 @@
+{
+  "$schema": "ColorCodes Schema",
+  "description": "Color code definitions for single-letter color codes used in templates and inline coloring",
+  "version": "1.0",
+  
+  "colorCodes": [
+    {
+      "code": "r",
+      "name": "dark red / crimson",
+      "rgb": [166, 74, 46],
+      "hex": "#a64a2e"
+    },
+    {
+      "code": "R",
+      "name": "red / scarlet",
+      "rgb": [215, 66, 0],
+      "hex": "#d74200"
+    },
+    {
+      "code": "o",
+      "name": "dark orange",
+      "rgb": [241, 95, 34],
+      "hex": "#f15f22"
+    },
+    {
+      "code": "O",
+      "name": "orange",
+      "rgb": [233, 159, 16],
+      "hex": "#e99f10"
+    },
+    {
+      "code": "w",
+      "name": "brown",
+      "rgb": [152, 135, 95],
+      "hex": "#98875f"
+    },
+    {
+      "code": "W",
+      "name": "gold / yellow",
+      "rgb": [207, 192, 65],
+      "hex": "#cfc041"
+    },
+    {
+      "code": "g",
+      "name": "dark green",
+      "rgb": [0, 148, 3],
+      "hex": "#009403"
+    },
+    {
+      "code": "G",
+      "name": "green",
+      "rgb": [0, 196, 32],
+      "hex": "#00c420"
+    },
+    {
+      "code": "b",
+      "name": "dark blue",
+      "rgb": [0, 72, 189],
+      "hex": "#0048bd"
+    },
+    {
+      "code": "B",
+      "name": "blue / azure",
+      "rgb": [0, 150, 255],
+      "hex": "#0096ff"
+    },
+    {
+      "code": "c",
+      "name": "dark cyan / teal",
+      "rgb": [64, 164, 185],
+      "hex": "#40a4b9"
+    },
+    {
+      "code": "C",
+      "name": "cyan",
+      "rgb": [119, 191, 207],
+      "hex": "#77bfcf"
+    },
+    {
+      "code": "m",
+      "name": "dark magenta / purple",
+      "rgb": [177, 84, 207],
+      "hex": "#b154cf"
+    },
+    {
+      "code": "M",
+      "name": "magenta",
+      "rgb": [218, 91, 214],
+      "hex": "#da5bd6"
+    },
+    {
+      "code": "k",
+      "name": "very dark",
+      "rgb": [15, 59, 58],
+      "hex": "#0f3b3a"
+    },
+    {
+      "code": "K",
+      "name": "dark grey / black",
+      "rgb": [21, 83, 82],
+      "hex": "#155352"
+    },
+    {
+      "code": "y",
+      "name": "grey",
+      "rgb": [177, 201, 195],
+      "hex": "#b1c9c3"
+    },
+    {
+      "code": "Y",
+      "name": "white",
+      "rgb": [255, 255, 255],
+      "hex": "#ffffff"
+    }
+  ]
+}
+

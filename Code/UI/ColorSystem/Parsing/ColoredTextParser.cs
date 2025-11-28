@@ -37,19 +37,25 @@ namespace RPGGame.UI.ColorSystem
             RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline
         );
         
+        // Pattern for legacy color codes: &X where X is a color code character
+        private static readonly Regex LegacyColorCodeRegex = new Regex(
+            @"&([RGYBCMWKrygbocmw])",
+            RegexOptions.Compiled
+        );
+        
         /// <summary>
         /// Parses text with color markup into ColoredText segments
+        /// Supports both new markup format and legacy &X format codes
         /// </summary>
         public static List<ColoredText> Parse(string text, string? characterName = null)
         {
             if (string.IsNullOrEmpty(text))
                 return new List<ColoredText>();
             
-            // Check if text contains old-style color codes (&X format)
-            // If so, use the compatibility layer to convert them
-            if (CompatibilityLayer.HasColorMarkup(text) && ContainsOldStyleColorCodes(text))
+            // Check if text contains legacy color codes - if so, parse them first
+            if (LegacyColorCodeRegex.IsMatch(text))
             {
-                return CompatibilityLayer.ConvertOldMarkup(text);
+                return ParseLegacyColorCodes(text);
             }
             
             var segments = new List<ColoredText>();
@@ -81,7 +87,10 @@ namespace RPGGame.UI.ColorSystem
                 }));
             
             // Add simple color markup matches
+            // Only match if the pattern inside brackets is a valid color pattern
+            // This prevents entity names like [Joren Blackthorn] from being treated as markup
             matches.AddRange(SimpleColorRegex.Matches(text).Cast<Match>()
+                .Where(m => ColorPatterns.HasPattern(m.Groups[1].Value))
                 .Select(m => new ColorMatch
                 {
                     Start = m.Index,
@@ -146,11 +155,12 @@ namespace RPGGame.UI.ColorSystem
             }
             
             // Merge adjacent segments with the same color to prevent extra spacing
-            return MergeAdjacentSegments(segments);
+            return ColoredTextMerger.MergeAdjacentSegments(segments);
         }
         
         /// <summary>
         /// Parses text with simple pattern-based coloring
+        /// Preserves original spacing in the text
         /// </summary>
         public static List<ColoredText> ParseWithPatterns(string text, string? characterName = null)
         {
@@ -158,31 +168,36 @@ namespace RPGGame.UI.ColorSystem
                 return new List<ColoredText>();
             
             var segments = new List<ColoredText>();
-            var words = text.Split(' ');
+            var words = text.Split(new[] { ' ' }, StringSplitOptions.None);
             
-            foreach (var word in words)
+            for (int i = 0; i < words.Length; i++)
             {
-                var cleanWord = word.Trim();
-                if (string.IsNullOrEmpty(cleanWord))
+                var word = words[i];
+                
+                // Skip empty words (they represent spaces between words)
+                if (string.IsNullOrEmpty(word))
                 {
-                    segments.Add(new ColoredText(" ", Colors.White));
+                    // Only add space if this isn't the last empty segment (which would be trailing)
+                    if (i < words.Length - 1)
+                    {
+                        segments.Add(new ColoredText(" ", Colors.White));
+                    }
                     continue;
                 }
                 
                 // Check if this word matches any patterns
-                var color = GetColorForWord(cleanWord, characterName);
-                segments.Add(new ColoredText(cleanWord, color));
-                segments.Add(new ColoredText(" ", Colors.White));
-            }
-            
-            // Remove trailing space
-            if (segments.Count > 0 && segments.Last().Text == " ")
-            {
-                segments.RemoveAt(segments.Count - 1);
+                var color = GetColorForWord(word, characterName);
+                segments.Add(new ColoredText(word, color));
+                
+                // Add space after word if not the last word
+                if (i < words.Length - 1)
+                {
+                    segments.Add(new ColoredText(" ", Colors.White));
+                }
             }
             
             // Merge adjacent segments with the same color to prevent extra spacing
-            return MergeAdjacentSegments(segments);
+            return ColoredTextMerger.MergeAdjacentSegments(segments);
         }
         
         /// <summary>
@@ -259,181 +274,86 @@ namespace RPGGame.UI.ColorSystem
             return Colors.White;
         }
         
+        // Merging logic has been moved to ColoredTextMerger for centralized maintenance
+        
         /// <summary>
-        /// Merges adjacent segments with the same color to prevent extra spacing issues
-        /// Normalizes spaces to ensure only single spaces between segments
+        /// Parses legacy &X format color codes
         /// </summary>
-        private static List<ColoredText> MergeAdjacentSegments(List<ColoredText> segments)
+        private static List<ColoredText> ParseLegacyColorCodes(string text)
         {
-            if (segments == null || segments.Count <= 1)
-                return segments ?? new List<ColoredText>();
+            var segments = new List<ColoredText>();
+            var currentIndex = 0;
+            Color currentColor = Colors.White;
             
-            var merged = new List<ColoredText>();
-            ColoredText? currentSegment = null;
+            var matches = LegacyColorCodeRegex.Matches(text);
             
-            foreach (var segment in segments)
+            foreach (Match match in matches)
             {
-                // Skip empty segments
-                if (string.IsNullOrEmpty(segment.Text))
-                    continue;
+                // Add text before the color code (with current color)
+                if (match.Index > currentIndex)
+                {
+                    var beforeText = text.Substring(currentIndex, match.Index - currentIndex);
+                    if (!string.IsNullOrEmpty(beforeText))
+                    {
+                        segments.Add(new ColoredText(beforeText, currentColor));
+                    }
+                }
                 
-                if (currentSegment == null)
+                // Update current color based on the color code
+                char colorCode = match.Groups[1].Value[0];
+                currentColor = GetColorFromLegacyCode(colorCode);
+                
+                // Move past the color code
+                currentIndex = match.Index + match.Length;
+            }
+            
+            // Add remaining text after the last color code
+            if (currentIndex < text.Length)
+            {
+                var remainingText = text.Substring(currentIndex);
+                if (!string.IsNullOrEmpty(remainingText))
                 {
-                    // First segment
-                    currentSegment = new ColoredText(segment.Text, segment.Color);
-                }
-                else if (AreColorsEqual(currentSegment.Color, segment.Color))
-                {
-                    // Same color - merge with current segment
-                    // Normalize spaces: if current ends with space and segment starts with space, use only one
-                    string currentText = currentSegment.Text;
-                    string segmentText = segment.Text;
-                    
-                    // Check if we need to normalize spaces at the boundary
-                    if (currentText.EndsWith(" ") && segmentText.StartsWith(" "))
-                    {
-                        // Remove one space to avoid double spacing
-                        currentText = currentText.TrimEnd() + " " + segmentText.TrimStart();
-                    }
-                    else
-                    {
-                        currentText = currentText + segmentText;
-                    }
-                    
-                    currentSegment = new ColoredText(currentText, currentSegment.Color);
-                }
-                else
-                {
-                    // Different color - add current segment and start new one
-                    merged.Add(currentSegment);
-                    currentSegment = new ColoredText(segment.Text, segment.Color);
+                    segments.Add(new ColoredText(remainingText, currentColor));
                 }
             }
             
-            // Add the last segment
-            if (currentSegment != null)
+            // If no color codes were found, return the whole text as white
+            if (segments.Count == 0 && !string.IsNullOrEmpty(text))
             {
-                merged.Add(currentSegment);
+                segments.Add(new ColoredText(text, Colors.White));
             }
             
-            // Normalize spaces between adjacent segments of different colors FIRST
-            // This prevents double spaces from being created when segments are merged
-            for (int i = 0; i < merged.Count - 1; i++)
-            {
-                var current = merged[i];
-                var next = merged[i + 1];
-                
-                // If both segments are just spaces, merge them into one
-                if (current.Text.Trim().Length == 0 && next.Text.Trim().Length == 0)
-                {
-                    // Both are space-only segments - merge into one white space segment
-                    merged[i] = new ColoredText(" ", Colors.White);
-                    merged.RemoveAt(i + 1);
-                    i--; // Adjust index after removal
-                    continue;
-                }
-                
-                // If current ends with space and next starts with space, remove one
-                if (current.Text.EndsWith(" ") && next.Text.StartsWith(" "))
-                {
-                    // Remove trailing space from current segment
-                    var trimmedCurrent = current.Text.TrimEnd();
-                    if (trimmedCurrent.Length > 0)
-                    {
-                        merged[i] = new ColoredText(trimmedCurrent, current.Color);
-                    }
-                    else
-                    {
-                        // If current becomes empty after trimming, check if we can merge with next
-                        // If next is also a space segment, merge them
-                        if (next.Text.Trim().Length == 0)
-                        {
-                            merged[i] = new ColoredText(" ", Colors.White);
-                            merged.RemoveAt(i + 1);
-                            i--; // Adjust index after removal
-                        }
-                        else
-                        {
-                            // Current is empty space, next is not - remove current
-                            merged.RemoveAt(i);
-                            i--; // Adjust index after removal
-                        }
-                        continue;
-                    }
-                }
-            }
-            
-            // Final pass: normalize any remaining double spaces within segments
-            for (int i = 0; i < merged.Count; i++)
-            {
-                var segment = merged[i];
-                // Replace multiple consecutive spaces with single space
-                var normalizedText = System.Text.RegularExpressions.Regex.Replace(segment.Text, @"\s+", " ");
-                if (normalizedText != segment.Text)
-                {
-                    merged[i] = new ColoredText(normalizedText, segment.Color);
-                }
-            }
-            
-            // Final pass: normalize spaces between adjacent segments again (after internal normalization)
-            // This catches any remaining boundary issues after normalizing within segments
-            for (int i = 0; i < merged.Count - 1; i++)
-            {
-                var current = merged[i];
-                var next = merged[i + 1];
-                
-                string currentText = current.Text;
-                string nextText = next.Text;
-                
-                // If one segment ends with space and next starts with space, remove one
-                if (currentText.EndsWith(" ") && nextText.StartsWith(" "))
-                {
-                    var trimmedCurrent = currentText.TrimEnd();
-                    if (trimmedCurrent.Length > 0)
-                    {
-                        merged[i] = new ColoredText(trimmedCurrent, current.Color);
-                    }
-                    else
-                    {
-                        merged.RemoveAt(i);
-                        i--;
-                        continue;
-                    }
-                }
-            }
-            
-            // Remove any empty segments that might have been created
-            merged.RemoveAll(s => string.IsNullOrEmpty(s.Text));
-            
-            return merged;
+            // Merge adjacent segments with the same color
+            return ColoredTextMerger.MergeAdjacentSegments(segments);
         }
         
         /// <summary>
-        /// Checks if two colors are equal (comparing RGB values)
+        /// Converts a legacy color code character to a Color
         /// </summary>
-        private static bool AreColorsEqual(Color color1, Color color2)
+        private static Color GetColorFromLegacyCode(char colorCode)
         {
-            return color1.R == color2.R && 
-                   color1.G == color2.G && 
-                   color1.B == color2.B && 
-                   color1.A == color2.A;
-        }
-        
-        /// <summary>
-        /// Checks if text contains old-style color codes (&X format)
-        /// </summary>
-        private static bool ContainsOldStyleColorCodes(string text)
-        {
-            if (string.IsNullOrEmpty(text))
-                return false;
-            
-            // Check for old-style color codes (both uppercase and lowercase)
-            return text.Contains("&R") || text.Contains("&G") || text.Contains("&B") || 
-                   text.Contains("&Y") || text.Contains("&C") || text.Contains("&M") || 
-                   text.Contains("&W") || text.Contains("&K") || text.Contains("&y") ||
-                   text.Contains("&r") || text.Contains("&g") || text.Contains("&b") || 
-                   text.Contains("&o") || text.Contains("&O") || text.Contains("&w") ||
-                   text.Contains("&c") || text.Contains("&m") || text.Contains("&k");
+            return colorCode switch
+            {
+                'R' => ColorPalette.Error.GetColor(),
+                'r' => ColorPalette.DarkRed.GetColor(),
+                'G' => ColorPalette.Success.GetColor(),
+                'g' => ColorPalette.DarkGreen.GetColor(),
+                'B' => ColorPalette.Info.GetColor(),
+                'b' => ColorPalette.DarkBlue.GetColor(),
+                'Y' => ColorPalette.Warning.GetColor(),
+                'y' => Colors.White, // White/default
+                'C' => ColorPalette.Cyan.GetColor(),
+                'c' => ColorPalette.DarkCyan.GetColor(),
+                'M' => ColorPalette.Magenta.GetColor(),
+                'm' => ColorPalette.DarkMagenta.GetColor(),
+                'W' => ColorPalette.Gold.GetColor(),
+                'w' => ColorPalette.Brown.GetColor(),
+                'O' => ColorPalette.Orange.GetColor(),
+                'o' => ColorPalette.DarkYellow.GetColor(),
+                'K' => ColorPalette.DarkGray.GetColor(),
+                'k' => Colors.Black,
+                _ => Colors.White
+            };
         }
         
         private class ColorMatch

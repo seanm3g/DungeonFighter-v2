@@ -212,8 +212,41 @@ namespace RPGGame
                 {
                     dungeonSelectionHandler.StartDungeonEvent += async () => 
                     {
-                        DebugLogger.Log("Game", "StartDungeonEvent fired - calling DungeonRunnerManager.RunDungeon()");
-                        await dungeonRunnerManager.RunDungeon();
+                        try
+                        {
+                            DebugLogger.Log("Game", "StartDungeonEvent fired - calling DungeonRunnerManager.RunDungeon()");
+                            await dungeonRunnerManager.RunDungeon();
+                            DebugLogger.Log("Game", "DungeonRunnerManager.RunDungeon() completed");
+                            
+                            // If we're still in Dungeon state after RunDungeon completes, something went wrong
+                            // This shouldn't happen normally (should transition to DungeonCompletion or Death)
+                            // But if it does, return to dungeon selection
+                            if (stateManager.CurrentState == GameState.Dungeon || stateManager.CurrentState == GameState.Combat)
+                            {
+                                DebugLogger.Log("Game", "WARNING: Still in Dungeon/Combat state after RunDungeon completed. Returning to dungeon selection.");
+                                stateManager.TransitionToState(GameState.DungeonSelection);
+                                if (customUIManager is CanvasUICoordinator canvasUI && stateManager.CurrentPlayer != null)
+                                {
+                                    canvasUI.RenderDungeonSelection(stateManager.CurrentPlayer, stateManager.AvailableDungeons);
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            DebugLogger.Log("Game", $"ERROR: Exception in StartDungeonEvent handler: {ex.Message}");
+                            DebugLogger.Log("Game", $"Stack trace: {ex.StackTrace}");
+                            if (customUIManager is CanvasUICoordinator canvasUIError)
+                            {
+                                canvasUIError.WriteLine($"ERROR: Failed to start dungeon: {ex.Message}", UIMessageType.System);
+                            }
+                            
+                            // Return to dungeon selection on error
+                            stateManager.TransitionToState(GameState.DungeonSelection);
+                            if (customUIManager is CanvasUICoordinator canvasUIError2 && stateManager.CurrentPlayer != null)
+                            {
+                                canvasUIError2.RenderDungeonSelection(stateManager.CurrentPlayer, stateManager.AvailableDungeons);
+                            }
+                        }
                     };
                     DebugLogger.Log("Game", "StartDungeonEvent subscribed to DungeonRunnerManager.RunDungeon()");
                 }
@@ -226,7 +259,6 @@ namespace RPGGame
             if (dungeonRunnerManager != null)
             {
                 dungeonRunnerManager.DungeonCompletedEvent += (xpGained, lootReceived) => ShowDungeonCompletion(xpGained, lootReceived);
-                dungeonRunnerManager.ShowMainMenuEvent += ShowMainMenu;
                 dungeonRunnerManager.ShowDeathScreenEvent += (player) => ShowDeathScreen(player);
             }
             
@@ -429,6 +461,8 @@ namespace RPGGame
             var player = stateManager.CurrentPlayer;
             if (customUIManager is CanvasUICoordinator canvasUI && player != null)
             {
+                // Ensure character is set in UI coordinator for persistent display
+                canvasUI.SetCharacter(player);
                 canvasUI.RenderGameMenu(player, stateManager.CurrentInventory);
             }
             stateManager.TransitionToState(GameState.GameLoop);

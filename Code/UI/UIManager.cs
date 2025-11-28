@@ -27,28 +27,14 @@ namespace RPGGame
         // Custom UI Manager for non-console interfaces (like Avalonia)
         private static IUIManager? _customUIManager = null;
         
-        private static UIConfiguration? _uiConfig = null;
+        // Flag to enable/disable delays
+        public static bool EnableDelays = true;
         
         // Specialized managers
         private static UIOutputManager? _outputManager = null;
         private static UIDelayManager? _delayManager = null;
         private static UIColoredTextManager? _coloredTextManager = null;
         private static UIMessageBuilder? _messageBuilder = null;
-        
-        /// <summary>
-        /// Gets the current UI configuration
-        /// </summary>
-        public static UIConfiguration UIConfig
-        {
-            get
-            {
-                if (_uiConfig == null)
-                {
-                    _uiConfig = UIConfiguration.LoadFromFile();
-                }
-                return _uiConfig;
-            }
-        }
 
         /// <summary>
         /// Gets or creates the UIOutputManager
@@ -59,7 +45,7 @@ namespace RPGGame
             {
                 if (_outputManager == null)
                 {
-                    _outputManager = new UIOutputManager(_customUIManager, UIConfig);
+                    _outputManager = new UIOutputManager(_customUIManager);
                 }
                 return _outputManager;
             }
@@ -74,7 +60,7 @@ namespace RPGGame
             {
                 if (_delayManager == null)
                 {
-                    _delayManager = new UIDelayManager(UIConfig);
+                    _delayManager = new UIDelayManager();
                 }
                 return _delayManager;
             }
@@ -131,12 +117,11 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Reloads the UI configuration from file
+        /// Reloads the UI configuration (resets managers)
         /// </summary>
         public static void ReloadConfiguration()
         {
-            _uiConfig = UIConfiguration.LoadFromFile();
-            // Reset managers to use the new configuration
+            // Reset managers to reinitialize with current settings
             _outputManager = null;
             _delayManager = null;
             _coloredTextManager = null;
@@ -150,7 +135,7 @@ namespace RPGGame
         /// <param name="messageType">Type of message for delay configuration</param>
         public static void WriteLine(string message, UIMessageType messageType = UIMessageType.System)
         {
-            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
+            if (DisableAllUIOutput) return;
             
             OutputManager.WriteLine(message, messageType);
             DelayManager.ApplyDelay(messageType);
@@ -185,7 +170,7 @@ namespace RPGGame
         /// <param name="message">Menu message to display (supports &X and {{template|text}} markup)</param>
         public static void WriteMenuLine(string message)
         {
-            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
+            if (DisableAllUIOutput) return;
             
             OutputManager.WriteMenuLine(message);
             DelayManager.ApplyProgressiveMenuDelay();
@@ -291,7 +276,7 @@ namespace RPGGame
         /// </summary>
         public static void WriteBlankLine()
         {
-            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
+            if (DisableAllUIOutput) return;
             
             OutputManager.WriteBlankLine();
         }
@@ -304,7 +289,7 @@ namespace RPGGame
         /// <param name="config">Optional configuration for chunked reveal</param>
         public static void WriteChunked(string message, ChunkedTextReveal.RevealConfig? config = null)
         {
-            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
+            if (DisableAllUIOutput) return;
             
             OutputManager.WriteChunked(message, config);
         }
@@ -348,7 +333,7 @@ namespace RPGGame
         /// <param name="messageType">Type of message for delay configuration</param>
         public static void WriteColoredText(ColoredText coloredText, UIMessageType messageType = UIMessageType.System)
         {
-            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
+            if (DisableAllUIOutput) return;
             
             ColoredTextManager.WriteColoredText(coloredText, messageType);
         }
@@ -358,7 +343,7 @@ namespace RPGGame
         /// </summary>
         public static void WriteColoredText(List<ColoredText> coloredTexts, UIMessageType messageType = UIMessageType.System)
         {
-            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
+            if (DisableAllUIOutput) return;
             
             ColoredTextManager.WriteColoredText(coloredTexts, messageType);
         }
@@ -370,7 +355,7 @@ namespace RPGGame
         /// <param name="messageType">Type of message for delay configuration</param>
         public static void WriteLineColoredText(ColoredText coloredText, UIMessageType messageType = UIMessageType.System)
         {
-            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
+            if (DisableAllUIOutput) return;
             
             ColoredTextManager.WriteLineColoredText(coloredText, messageType);
         }
@@ -382,7 +367,7 @@ namespace RPGGame
         /// <param name="messageType">Type of message for delay configuration</param>
         public static void WriteColoredSegments(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System)
         {
-            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
+            if (DisableAllUIOutput) return;
             
             ColoredTextManager.WriteColoredSegments(segments, messageType);
         }
@@ -394,7 +379,7 @@ namespace RPGGame
         /// <param name="messageType">Type of message for delay configuration</param>
         public static void WriteLineColoredSegments(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System)
         {
-            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
+            if (DisableAllUIOutput) return;
             
             ColoredTextManager.WriteLineColoredSegments(segments, messageType);
         }
@@ -406,7 +391,7 @@ namespace RPGGame
         /// <param name="messageType">Type of message for delay configuration</param>
         public static void WriteColoredTextBuilder(ColoredTextBuilder builder, UIMessageType messageType = UIMessageType.System)
         {
-            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
+            if (DisableAllUIOutput) return;
             
             ColoredTextManager.WriteColoredTextBuilder(builder, messageType);
         }
@@ -418,7 +403,7 @@ namespace RPGGame
         /// <param name="messageType">Type of message for delay configuration</param>
         public static void WriteLineColoredTextBuilder(ColoredTextBuilder builder, UIMessageType messageType = UIMessageType.System)
         {
-            if (DisableAllUIOutput || UIConfig.DisableAllOutput) return;
+            if (DisableAllUIOutput) return;
             
             ColoredTextManager.WriteLineColoredTextBuilder(builder, messageType);
         }

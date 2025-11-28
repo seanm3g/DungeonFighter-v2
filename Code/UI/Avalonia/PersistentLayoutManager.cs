@@ -13,6 +13,7 @@ namespace RPGGame.UI.Avalonia
     public class PersistentLayoutManager
     {
         private readonly GameCanvasControl canvas;
+        private string lastRenderedTitle = "";
         
         // Layout constants for persistent panels
         private const int SCREEN_WIDTH = 210;
@@ -51,31 +52,71 @@ namespace RPGGame.UI.Avalonia
         /// <param name="clearCanvas">Whether to clear the canvas before rendering. Set to false to preserve existing content when transitioning to combat.</param>
         public void RenderLayout(Character? character, Action<int, int, int, int> renderCenterContent, string title = "DUNGEON FIGHTER", Enemy? enemy = null, string? dungeonName = null, string? roomName = null, bool clearCanvas = true)
         {
-            if (clearCanvas)
+            // Clear canvas if title changed - this ensures clean transitions when title changes
+            bool titleChanged = title != lastRenderedTitle;
+            if (titleChanged)
             {
                 canvas.Clear();
+                clearCanvas = true; // Force full render when title changes
             }
             
-            // Render title bar
-            canvas.AddTitle(TITLE_Y, title, AsciiArtAssets.Colors.Gold);
-            
-            // Render left panel (Character Info) - Always visible
-            if (character != null)
+            if (clearCanvas)
             {
-                RenderCharacterPanel(character);
+                // Clear the title line before rendering new title to prevent overlay
+                // This is important when transitioning between screens with different title lengths
+                canvas.ClearTextInRange(TITLE_Y, TITLE_Y);
+                
+                // Render title bar
+                canvas.AddTitle(TITLE_Y, title, AsciiArtAssets.Colors.Gold);
+                
+                // Render left panel (Character Info) - Always visible
+                if (character != null)
+                {
+                    RenderCharacterPanel(character);
+                }
+                else
+                {
+                    RenderEmptyCharacterPanel();
+                }
+                
+                // Render center panel border (only when clearing)
+                canvas.AddBorder(CENTER_PANEL_X, CENTER_PANEL_Y, CENTER_PANEL_WIDTH, CENTER_PANEL_HEIGHT, AsciiArtAssets.Colors.Cyan);
+                
+                // Explicitly clear the center panel content area to ensure clean rendering
+                // This prevents old content from showing when transitioning between screens
+                int centerContentX = CENTER_PANEL_X + 1;
+                int centerContentY = CENTER_PANEL_Y + 1;
+                int centerContentWidth = CENTER_PANEL_WIDTH - 2;
+                int centerContentHeight = CENTER_PANEL_HEIGHT - 2;
+                canvas.ClearTextInArea(centerContentX, centerContentY, centerContentWidth, centerContentHeight);
+                canvas.ClearProgressBarsInArea(centerContentX, centerContentY, centerContentWidth, centerContentHeight);
             }
             else
             {
-                RenderEmptyCharacterPanel();
+                // When not clearing, only update title if it changed, and update panels that need updating
+                // Don't re-render center panel border - preserve existing content
+                // Clear the title line before updating to prevent overlay from different title lengths
+                if (titleChanged)
+                {
+                    canvas.ClearTextInRange(TITLE_Y, TITLE_Y);
+                }
+                canvas.AddTitle(TITLE_Y, title, AsciiArtAssets.Colors.Gold);
+                
+                // Update left panel (Character Info) - may have changed
+                if (character != null)
+                {
+                    RenderCharacterPanel(character);
+                }
             }
             
-            // Render center panel (Dynamic Content)
-            canvas.AddBorder(CENTER_PANEL_X, CENTER_PANEL_Y, CENTER_PANEL_WIDTH, CENTER_PANEL_HEIGHT, AsciiArtAssets.Colors.Cyan);
+            // Track the last rendered title
+            lastRenderedTitle = title;
             
-            // Call the content renderer for the center area
+            // Always call the content renderer for the center area
+            // When clearCanvas is false, this will render from display buffer which contains all content
             renderCenterContent?.Invoke(CENTER_PANEL_X + 1, CENTER_PANEL_Y + 1, CENTER_PANEL_WIDTH - 2, CENTER_PANEL_HEIGHT - 2);
             
-            // Render right panel (Dungeon/Enemy Info)
+            // Render right panel (Dungeon/Enemy Info) - always update to show current enemy
             RenderRightPanel(enemy, dungeonName, roomName);
             
             canvas.Refresh();
@@ -108,7 +149,15 @@ namespace RPGGame.UI.Avalonia
             y += 2;
             canvas.AddText(x, y, "HP:", AsciiArtAssets.Colors.White);
             y++;
-            canvas.AddHealthBar(x, y, LEFT_PANEL_WIDTH - 8, character.CurrentHealth, character.GetEffectiveMaxHealth());
+            
+            // Clear the health bar and HP value area before redrawing to prevent text overlap
+            int healthBarWidth = LEFT_PANEL_WIDTH - 8;
+            int healthBarY = y;
+            int hpValueY = y + 1;
+            canvas.ClearProgressBarsInArea(x, healthBarY, healthBarWidth, 1);
+            canvas.ClearTextInArea(x, hpValueY, healthBarWidth, 1);
+            
+            canvas.AddHealthBar(x, y, healthBarWidth, character.CurrentHealth, character.GetEffectiveMaxHealth());
             canvas.AddText(x, y + 1, $"{character.CurrentHealth}/{character.GetEffectiveMaxHealth()}", AsciiArtAssets.Colors.White);
             y += 3;
             
@@ -183,7 +232,9 @@ namespace RPGGame.UI.Avalonia
             }
             
             // Use display length (excluding markup) for comparison
-            if (ColorParser.GetDisplayLength(text) <= maxWidth)
+            var segments = ColoredTextParser.Parse(text);
+            int displayLength = ColoredTextRenderer.GetDisplayLength(segments);
+            if (displayLength <= maxWidth)
             {
                 lines.Add(text);
                 return lines;
@@ -196,7 +247,8 @@ namespace RPGGame.UI.Avalonia
             
             foreach (string word in words)
             {
-                int wordDisplayLength = ColorParser.GetDisplayLength(word);
+                var wordSegments = ColoredTextParser.Parse(word);
+                int wordDisplayLength = ColoredTextRenderer.GetDisplayLength(wordSegments);
                 
                 // If adding this word would exceed the max width
                 if (currentLineDisplayLength > 0 && (currentLineDisplayLength + 1 + wordDisplayLength) > maxWidth)
@@ -246,6 +298,15 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         private void RenderRightPanel(Enemy? enemy, string? dungeonName, string? roomName)
         {
+            // Clear the right panel content area before rendering to prevent text overlap
+            int contentX = RIGHT_PANEL_X + 2;
+            int contentY = RIGHT_PANEL_Y + 1;
+            int contentWidth = RIGHT_PANEL_WIDTH - 4;  // Account for left and right borders
+            int contentHeight = RIGHT_PANEL_HEIGHT - 2; // Account for top and bottom borders
+            
+            canvas.ClearTextInArea(contentX, contentY, contentWidth, contentHeight);
+            canvas.ClearProgressBarsInArea(contentX, contentY, contentWidth, contentHeight);
+            
             // Main border for right panel
             canvas.AddBorder(RIGHT_PANEL_X, RIGHT_PANEL_Y, RIGHT_PANEL_WIDTH - 2, RIGHT_PANEL_HEIGHT, AsciiArtAssets.Colors.Purple);
             
@@ -306,7 +367,9 @@ namespace RPGGame.UI.Avalonia
                 // Enemy health bar
                 canvas.AddText(x, y, "HP:", AsciiArtAssets.Colors.White);
                 y++;
-                canvas.AddHealthBar(x, y, RIGHT_PANEL_WIDTH - 6, enemy.CurrentHealth, enemy.MaxHealth, AsciiArtAssets.Colors.Green, AsciiArtAssets.Colors.DarkGreen);
+                
+                int enemyHealthBarWidth = RIGHT_PANEL_WIDTH - 6;
+                canvas.AddHealthBar(x, y, enemyHealthBarWidth, enemy.CurrentHealth, enemy.MaxHealth, AsciiArtAssets.Colors.Green, AsciiArtAssets.Colors.DarkGreen);
                 canvas.AddText(x, y + 1, $"{enemy.CurrentHealth}/{enemy.MaxHealth}", AsciiArtAssets.Colors.White);
                 y += 3;
                 

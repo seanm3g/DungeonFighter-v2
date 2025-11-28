@@ -1,6 +1,8 @@
 using Avalonia.Media;
 using RPGGame;
 using RPGGame.UI;
+using RPGGame.UI.Avalonia.Display;
+using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.ColorSystem;
 using System;
 using System.Collections.Generic;
@@ -105,99 +107,163 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
         
         /// <summary>
-        /// Renders the dungeon start screen (merged from DungeonStartRenderer)
+        /// Renders the dungeon start screen using the display buffer system
+        /// All content is rendered from the display buffer for consistency
         /// </summary>
-        public void RenderDungeonStart(int x, int y, int width, int height, Dungeon dungeon)
+        public void RenderDungeonStart(int x, int y, int width, int height, Dungeon dungeon, ICanvasTextManager textManager, List<string>? dungeonHeaderInfo = null)
         {
-            currentLineCount = 0;
-            int centerY = y + (height / 2) - 8;
-            
-            // Dungeon info
-            canvas.AddText(x + (width / 2) - 15, centerY, "═══ DUNGEON INFORMATION ═══", AsciiArtAssets.Colors.Gold);
-            centerY += 3;
-            currentLineCount += 3;
-            
-            // Use theme color for dungeon name
-            var themeColor = DungeonThemeColors.GetThemeColor(dungeon.Theme);
-            canvas.AddText(x + 4, centerY, "Dungeon: ", AsciiArtAssets.Colors.White);
-            canvas.AddText(x + 14, centerY, dungeon.Name, themeColor);
-            centerY++;
-            currentLineCount++;
-            canvas.AddText(x + 4, centerY, $"Level Range: {dungeon.MinLevel} - {dungeon.MaxLevel}", AsciiArtAssets.Colors.White);
-            centerY++;
-            currentLineCount++;
-            canvas.AddText(x + 4, centerY, $"Total Rooms: {dungeon.Rooms.Count}", AsciiArtAssets.Colors.White);
-            centerY += 3;
-            currentLineCount += 3;
-            
-            // Status messages
-            canvas.AddText(x + (width / 2) - 15, centerY, "Preparing for adventure...", AsciiArtAssets.Colors.White);
-            centerY += 2;
-            currentLineCount += 2;
-            canvas.AddText(x + (width / 2) - 20, centerY, "The dungeon awaits your challenge!", AsciiArtAssets.Colors.White);
-            currentLineCount++;
-        }
-        
-        /// <summary>
-        /// Renders the room entry screen (merged from RoomEntryRenderer)
-        /// </summary>
-        public void RenderRoomEntry(int x, int y, int width, int height, Environment room)
-        {
-            currentLineCount = 0;
-            
-            // Room description
-            canvas.AddText(x + 2, y, "═══ ROOM DESCRIPTION ═══", AsciiArtAssets.Colors.Gold);
-            y += 2;
-            currentLineCount += 2;
-            
-            // Split description into multiple lines if needed
-            string[] descriptionLines = room.Description.Split('\n');
-            foreach (var line in descriptionLines.Take(Math.Min(descriptionLines.Length, 15)))
+            // Use the display buffer system which handles scrolling and message ordering
+            // The display buffer contains all messages in order
+            if (textManager is CanvasTextManager canvasTextManager)
             {
-                // Word wrap long lines (use display length to handle color markup)
-                if (ColorParser.GetDisplayLength(line) > width - 8)
-                {
-                    var wrappedLines = textWriter.WrapText(line, width - 8);
-                    foreach (var wrappedLine in wrappedLines)
-                    {
-                        canvas.AddText(x + 4, y, wrappedLine, AsciiArtAssets.Colors.White);
-                        y++;
-                        currentLineCount++;
-                    }
-                }
-                else
-                {
-                    canvas.AddText(x + 4, y, line, AsciiArtAssets.Colors.White);
-                    y++;
-                    currentLineCount++;
-                }
-            }
-            
-            y += 2;
-            currentLineCount += 2;
-            
-            // Show room status and next action
-            if (room.HasLivingEnemies())
-            {
-                canvas.AddText(x + 2, y, "═══ THREATS DETECTED ═══", AsciiArtAssets.Colors.Red);
-                y += 2;
-                currentLineCount += 2;
-                canvas.AddText(x + 4, y, "Enemies detected in this room", AsciiArtAssets.Colors.White);
-                y += 2;
-                currentLineCount += 2;
-                canvas.AddText(x + 4, y, "Press any key to engage in combat...", AsciiArtAssets.Colors.Yellow);
-                currentLineCount++;
+                // Get the display buffer from the display manager
+                var displayManager = canvasTextManager.DisplayManager;
+                var buffer = displayManager.Buffer;
+                
+                // Create a display renderer to render the buffer with scrolling support
+                var displayRenderer = new DisplayRenderer(textWriter);
+                
+                // Render the display buffer - it will handle scrolling automatically
+                // The DisplayRenderer clears the content area internally and renders with proper scrolling
+                displayRenderer.Render(buffer, x, y, width, height);
             }
             else
             {
-                canvas.AddText(x + 2, y, "═══ ROOM CLEAR ═══", AsciiArtAssets.Colors.Green);
-                y += 2;
-                currentLineCount += 2;
-                canvas.AddText(x + 4, y, "No enemies remain in this room.", AsciiArtAssets.Colors.White);
-                y += 2;
-                currentLineCount += 2;
-                canvas.AddText(x + 4, y, "Press any key to continue to the next room...", AsciiArtAssets.Colors.Yellow);
-                currentLineCount++;
+                // Fallback: render display buffer directly if not using CanvasTextManager
+                var displayBuffer = textManager.DisplayBuffer;
+                int currentY = y;
+                int availableWidth = width - 2;
+                int textX = x + 1;
+                
+                // Clear the content area
+                for (int clearY = y; clearY < y + height; clearY++)
+                {
+                    canvas.AddText(x, clearY, new string(' ', width), AsciiArtAssets.Colors.White);
+                }
+                
+                // Render all messages from the buffer in order
+                foreach (var message in displayBuffer)
+                {
+                    if (currentY >= y + height)
+                        break;
+                    
+                    int linesRendered = textWriter.WriteLineColoredWrapped(message, textX, currentY, availableWidth);
+                    currentY += linesRendered;
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Prepares the room entry screen (pure reactive mode)
+        /// In pure reactive mode, this method does NOT render - it only ensures data is ready.
+        /// The CenterPanelDisplayManager will handle all rendering reactively when the buffer changes.
+        /// </summary>
+        /// <param name="startFromBufferIndex">Not used in reactive mode - kept for API compatibility</param>
+        public void RenderRoomEntry(int x, int y, int width, int height, Environment room, ICanvasTextManager textManager, int? startFromBufferIndex = null)
+        {
+            // Pure reactive mode: Do NOT render here
+            // The CenterPanelDisplayManager will automatically render when buffer changes
+            // This method is kept for API compatibility but is now a no-op for rendering
+            // The layout is set up by RenderWithLayout() in CanvasRenderer, and the reactive
+            // system (CenterPanelDisplayManager.PerformRender()) will render the buffer
+            
+            // No rendering code - let the reactive system handle it
+        }
+        
+        /// <summary>
+        /// Renders the enemy encounter screen using the display buffer system
+        /// All content is rendered from the display buffer for consistency
+        /// </summary>
+        public void RenderEnemyEncounter(int x, int y, int width, int height, Enemy enemy, ICanvasTextManager textManager, List<string>? dungeonContext = null)
+        {
+            // Use the display buffer system which handles scrolling and message ordering
+            // The display buffer contains all messages in order (dungeon info, room info, enemy encounter, etc.)
+            if (textManager is CanvasTextManager canvasTextManager)
+            {
+                // Get the display buffer from the display manager
+                var displayManager = canvasTextManager.DisplayManager;
+                var buffer = displayManager.Buffer;
+                
+                // Create a display renderer to render the buffer with scrolling support
+                var displayRenderer = new DisplayRenderer(textWriter);
+                
+                // Render the display buffer - it will handle scrolling automatically
+                // The DisplayRenderer clears the content area internally and renders with proper scrolling
+                displayRenderer.Render(buffer, x, y, width, height);
+            }
+            else
+            {
+                // Fallback: render display buffer directly if not using CanvasTextManager
+                var displayBuffer = textManager.DisplayBuffer;
+                int currentY = y;
+                int availableWidth = width - 2;
+                int textX = x + 1;
+                
+                // Clear the content area
+                for (int clearY = y; clearY < y + height; clearY++)
+                {
+                    canvas.AddText(x, clearY, new string(' ', width), AsciiArtAssets.Colors.White);
+                }
+                
+                // Render all messages from the buffer in order
+                foreach (var message in displayBuffer)
+                {
+                    if (currentY >= y + height)
+                        break;
+                    
+                    int linesRendered = textWriter.WriteLineColoredWrapped(message, textX, currentY, availableWidth);
+                    currentY += linesRendered;
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Renders the complete combat screen by rendering the display buffer
+        /// The display buffer already contains all messages in order (dungeon info, room info, enemy encounter, combat log)
+        /// and handles scrolling automatically. Messages are added to the bottom and scroll when necessary.
+        /// </summary>
+        public void RenderCombatScreen(int x, int y, int width, int height, Dungeon? dungeon, Environment? room, Enemy enemy, ICanvasTextManager textManager, List<string>? dungeonContext = null)
+        {
+            // Use the display buffer system which already handles scrolling and message ordering
+            // The display buffer contains all messages in order: dungeon info, room info, enemy encounter, combat log
+            // Messages are added to the bottom and the buffer automatically scrolls when content exceeds viewport
+            if (textManager is CanvasTextManager canvasTextManager)
+            {
+                // Get the display buffer from the display manager
+                var displayManager = canvasTextManager.DisplayManager;
+                var buffer = displayManager.Buffer;
+                
+                // Create a display renderer to render the buffer with scrolling support
+                var displayRenderer = new DisplayRenderer(textWriter);
+                
+                // Render the display buffer - it will handle scrolling automatically
+                // The DisplayRenderer clears the content area internally and renders with proper scrolling
+                displayRenderer.Render(buffer, x, y, width, height);
+            }
+            else
+            {
+                // Fallback: render display buffer directly if not using CanvasTextManager
+                var displayBuffer = textManager.DisplayBuffer;
+                int currentY = y;
+                int availableWidth = width - 2;
+                int textX = x + 1;
+                
+                // Clear the content area
+                for (int clearY = y; clearY < y + height; clearY++)
+                {
+                    canvas.AddText(x, clearY, new string(' ', width), AsciiArtAssets.Colors.White);
+                }
+                
+                // Render all messages from the buffer in order
+                // This will naturally scroll as content exceeds the viewport
+                foreach (var message in displayBuffer)
+                {
+                    if (currentY >= y + height)
+                        break;
+                    
+                    int linesRendered = textWriter.WriteLineColoredWrapped(message, textX, currentY, availableWidth);
+                    currentY += linesRendered;
+                }
             }
         }
         

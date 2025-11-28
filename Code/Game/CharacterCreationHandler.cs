@@ -38,6 +38,8 @@ namespace RPGGame
         {
             if (customUIManager is CanvasUICoordinator canvasUI && stateManager.CurrentPlayer != null)
             {
+                // Ensure character is set in UI coordinator for persistent display
+                canvasUI.SetCharacter(stateManager.CurrentPlayer);
                 // Render the character creation screen showing character details
                 canvasUI.RenderCharacterCreation(stateManager.CurrentPlayer);
                 DebugLogger.Log("CharacterCreationHandler", $"Displaying character creation for {stateManager.CurrentPlayer.Name}");
@@ -74,6 +76,12 @@ namespace RPGGame
             {
                 DebugLogger.Log("CharacterCreationHandler", "Starting game loop");
                 ShowMessageEvent?.Invoke($"Welcome, {stateManager.CurrentPlayer.Name}!");
+                
+                // Ensure character is set in UI coordinator for persistent display
+                if (customUIManager is CanvasUICoordinator canvasUI)
+                {
+                    canvasUI.SetCharacter(stateManager.CurrentPlayer);
+                }
                 
                 // Transition to game loop
                 stateManager.TransitionToState(GameState.GameLoop);

@@ -6,8 +6,10 @@
       "type": "shell",
       "command": "powershell",
       "args": [
-        "-ExecutionPolicy", "Bypass",
-        "-File", "${workspaceFolder}/Scripts/count-cs-lines-no-tests.ps1"
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/Scripts/count-cs-lines-no-tests.ps1"
       ],
       "presentation": {
         "reveal": "always",
@@ -16,7 +18,8 @@
       "group": {
         "kind": "test",
         "isDefault": false
-      }
+      },
+      "problemMatcher": []
     }
   ]
 }

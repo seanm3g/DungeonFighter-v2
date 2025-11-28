@@ -23,7 +23,7 @@ namespace RPGGame
             var builder = new ColoredTextBuilder();
             
             builder.Add(entityName, ColorPalette.Player);
-            builder.Add(" regenerates ", ColorPalette.Healing);
+            builder.Add("regenerates", ColorPalette.Healing);
             builder.Add(regenAmount.ToString(), ColorPalette.Healing);
             builder.Add(" health (", Colors.White);
             builder.Add(currentHealth.ToString(), ColorPalette.Success);
@@ -53,16 +53,30 @@ namespace RPGGame
         public static List<ColoredText> FormatCombatStartColored(
             string playerName, 
             string enemyName, 
-            string locationName)
+            string locationName,
+            string? environmentTheme = null)
         {
             var builder = new ColoredTextBuilder();
             
-            builder.Add("⚔️ Combat begins: ", ColorPalette.Warning);
+            builder.Add("⚔️", ColorPalette.Warning);
+            builder.Add("Combat", ColorPalette.Warning);
+            builder.Add("begins:", ColorPalette.Warning);
             builder.Add(playerName, ColorPalette.Player);
-            builder.Add(" vs ", Colors.White);
+            builder.Add("vs", Colors.White);
             builder.Add(enemyName, ColorPalette.Enemy);
-            builder.Add(" in ", Colors.White);
-            builder.Add(locationName, ColorPalette.Info);
+            builder.Add("in", Colors.White);
+            
+            // Use environment color template if theme is provided, otherwise use default color
+            if (!string.IsNullOrEmpty(environmentTheme))
+            {
+                string themeTemplate = environmentTheme.ToLower().Replace(" ", "");
+                var environmentNameColored = ColorTemplateLibrary.GetTemplate(themeTemplate, locationName);
+                builder.AddRange(environmentNameColored);
+            }
+            else
+            {
+                builder.Add(locationName, ColorPalette.Info);
+            }
             
             return builder.Build();
         }
@@ -77,9 +91,10 @@ namespace RPGGame
         {
             var builder = new ColoredTextBuilder();
             
-            builder.Add("⚔️ Combat ended: ", ColorPalette.Info);
+            builder.Add("⚔️", ColorPalette.Info);
+            builder.Add("Combat", ColorPalette.Info);
+            builder.Add("ended:", ColorPalette.Info);
             builder.Add(playerName, ColorPalette.Player);
-            builder.Add(" ", Colors.White);
             
             if (playerSurvived)
             {
@@ -90,7 +105,7 @@ namespace RPGGame
                 builder.Add("died", ColorPalette.Error);
             }
             
-            builder.Add(" vs ", Colors.White);
+            builder.Add("vs", Colors.White);
             builder.Add(enemyName, ColorPalette.Enemy);
             
             return builder.Build();
@@ -116,7 +131,8 @@ namespace RPGGame
         public static List<ColoredText> FormatEntityActionHeaderColored(
             string entityName, 
             bool isPlayer, 
-            bool isEnvironment = false)
+            bool isEnvironment = false,
+            string? environmentTheme = null)
         {
             var builder = new ColoredTextBuilder();
             
@@ -124,7 +140,17 @@ namespace RPGGame
             
             if (isEnvironment)
             {
-                builder.Add(entityName, ColorPalette.Green);
+                // Use environment color template if theme is provided, otherwise use default color
+                if (!string.IsNullOrEmpty(environmentTheme))
+                {
+                    string themeTemplate = environmentTheme.ToLower().Replace(" ", "");
+                    var environmentNameColored = ColorTemplateLibrary.GetTemplate(themeTemplate, entityName);
+                    builder.AddRange(environmentNameColored);
+                }
+                else
+                {
+                    builder.Add(entityName, ColorPalette.Green);
+                }
                 builder.Add("'s turn", Colors.White);
             }
             else if (isPlayer)
@@ -153,7 +179,7 @@ namespace RPGGame
             
             builder.Add("💫 ", ColorPalette.Warning);
             builder.Add(entityName, isPlayer ? ColorPalette.Player : ColorPalette.Enemy);
-            builder.Add(" is ", Colors.White);
+            builder.Add("is", Colors.White);
             builder.Add("stunned", ColorPalette.Warning);
             builder.Add($" ({turnsRemaining} turn{(turnsRemaining > 1 ? "s" : "")} remaining)", Colors.Gray);
             
@@ -173,9 +199,10 @@ namespace RPGGame
             
             builder.Add("🩸 ", ColorPalette.Error);
             builder.Add(entityName, isPlayer ? ColorPalette.Player : ColorPalette.Enemy);
-            builder.Add(" takes ", Colors.White);
+            builder.Add("takes", Colors.White);
             builder.Add(damage.ToString(), ColorPalette.Damage);
-            builder.Add(" damage from ", Colors.White);
+            builder.Add("damage", Colors.White);
+            builder.Add("from", Colors.White);
             builder.Add(effectName, ColorPalette.Warning);
             
             return builder.Build();
@@ -192,16 +219,22 @@ namespace RPGGame
         {
             var builder = new ColoredTextBuilder();
             
-            builder.Add("📊 Battle Summary:", ColorPalette.Info);
+            builder.Add("📊", ColorPalette.Info);
+            builder.Add("Battle", ColorPalette.Info);
+            builder.Add("Summary:", ColorPalette.Info);
             builder.Add("\n", Colors.White);
-            builder.Add("Total damage dealt: ", Colors.White);
+            builder.Add("Total", Colors.White);
+            builder.Add("damage", Colors.White);
+            builder.Add("dealt:", Colors.White);
             builder.Add(totalPlayerDamage.ToString(), ColorPalette.Player);
-            builder.Add(" vs ", Colors.White);
+            builder.Add("vs", Colors.White);
             builder.Add(totalEnemyDamage.ToString(), ColorPalette.Enemy);
-            builder.Add(" received\n", Colors.White);
-            builder.Add("Combos executed: ", Colors.White);
+            builder.Add("received", Colors.White);
+            builder.Add("\n", Colors.White);
+            builder.Add("Combos", Colors.White);
+            builder.Add("executed:", Colors.White);
             builder.Add(playerComboCount.ToString(), ColorPalette.Success);
-            builder.Add(" vs ", Colors.White);
+            builder.Add("vs", Colors.White);
             builder.Add(enemyComboCount.ToString(), ColorPalette.Warning);
             
             return builder.Build();
@@ -229,13 +262,26 @@ namespace RPGGame
         /// </summary>
         public static List<ColoredText> FormatEnvironmentalActionNotificationColored(
             string environmentName, 
-            string actionName)
+            string actionName,
+            string? environmentTheme = null)
         {
             var builder = new ColoredTextBuilder();
             
             builder.Add("🌍 ", ColorPalette.Green);
-            builder.Add(environmentName, ColorPalette.Cyan);
-            builder.Add(" uses ", Colors.White);
+            
+            // Use environment color template if theme is provided, otherwise use default color
+            if (!string.IsNullOrEmpty(environmentTheme))
+            {
+                string themeTemplate = environmentTheme.ToLower().Replace(" ", "");
+                var environmentNameColored = ColorTemplateLibrary.GetTemplate(themeTemplate, environmentName);
+                builder.AddRange(environmentNameColored);
+            }
+            else
+            {
+                builder.Add(environmentName, ColorPalette.Cyan);
+            }
+            
+            builder.Add("uses", Colors.White);
             builder.Add(actionName, ColorPalette.Green);
             
             return builder.Build();

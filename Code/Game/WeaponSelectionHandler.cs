@@ -132,6 +132,12 @@ namespace RPGGame
                 // Initialize character with weapon choice
                 initializationManager.InitializeNewCharacter(stateManager.CurrentPlayer, weaponChoice);
                 
+                // Ensure character is set in UI coordinator for persistent display
+                if (customUIManager is CanvasUICoordinator canvasUI)
+                {
+                    canvasUI.SetCharacter(stateManager.CurrentPlayer);
+                }
+                
                 ShowMessageEvent?.Invoke($"You selected weapon {weaponChoice}.");
                 
                 // Move to character creation (class selection, etc.)

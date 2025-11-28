@@ -82,7 +82,10 @@ namespace RPGGame.UI.Avalonia.Renderers
                     
                     // Add a visual separator line (gray color for subtle separation)
                     string separator = new string('═', Math.Min(availableWidth - 4, 50));
-                    textWriter.WriteLineColoredWrapped($"&w{separator}", x + 2, currentY, availableWidth);
+                    var separatorSegments = new ColoredTextBuilder()
+                        .Add(separator, ColorPalette.Gray)
+                        .Build();
+                    textWriter.WriteLineColoredWrapped(separatorSegments, x + 2, currentY, availableWidth);
                     currentY += 1;
                     headerLines += 1;
                     currentLineCount += 1;
@@ -100,14 +103,22 @@ namespace RPGGame.UI.Avalonia.Renderers
                 {
                     if (!string.IsNullOrEmpty(dungeonName))
                     {
-                        int linesRendered = textWriter.WriteLineColoredWrapped($"&CDungeon: {dungeonName}", x + 2, currentY, availableWidth);
+                        var dungeonSegments = new ColoredTextBuilder()
+                            .Add("Dungeon: ", ColorPalette.Info)
+                            .Add(dungeonName, ColorPalette.Info)
+                            .Build();
+                        int linesRendered = textWriter.WriteLineColoredWrapped(dungeonSegments, x + 2, currentY, availableWidth);
                         currentY += linesRendered;
                         headerLines += linesRendered;
                         currentLineCount += linesRendered;
                     }
                     if (!string.IsNullOrEmpty(roomName))
                     {
-                        int linesRendered = textWriter.WriteLineColoredWrapped($"&CRoom: {roomName}", x + 2, currentY, availableWidth);
+                        var roomSegments = new ColoredTextBuilder()
+                            .Add("Room: ", ColorPalette.Info)
+                            .Add(roomName, ColorPalette.Info)
+                            .Build();
+                        int linesRendered = textWriter.WriteLineColoredWrapped(roomSegments, x + 2, currentY, availableWidth);
                         currentY += linesRendered;
                         headerLines += linesRendered;
                         currentLineCount += linesRendered;
@@ -117,7 +128,11 @@ namespace RPGGame.UI.Avalonia.Renderers
                         string enemyWeaponInfo = enemy.Weapon != null 
                             ? string.Format(AsciiArtAssets.UIText.WeaponSuffix, enemy.Weapon.Name)
                             : "";
-                        int linesRendered = textWriter.WriteLineColoredWrapped($"&YEnemy: {enemy.Name}{enemyWeaponInfo}", x + 2, currentY, availableWidth);
+                        var enemySegments = new ColoredTextBuilder()
+                            .Add("Enemy: ", ColorPalette.Warning)
+                            .Add($"{enemy.Name}{enemyWeaponInfo}", ColorPalette.Warning)
+                            .Build();
+                        int linesRendered = textWriter.WriteLineColoredWrapped(enemySegments, x + 2, currentY, availableWidth);
                         currentY += linesRendered;
                         headerLines += linesRendered;
                         currentLineCount += linesRendered;
@@ -131,6 +146,14 @@ namespace RPGGame.UI.Avalonia.Renderers
             // Calculate remaining height for combat log
             int remainingHeight = height - headerLines - 2;
             int combatLogStartY = currentY;
+            
+            // Clear the combat log area before rendering to prevent text overlap
+            // Clear from the start of combat log to the end of the render area
+            if (combatLogStartY < startY + height)
+            {
+                int clearHeight = Math.Min(startY + height - combatLogStartY, remainingHeight + 2);
+                textWriter.ClearTextInArea(x, combatLogStartY, width, clearHeight);
+            }
             
             // Render combat log below the header
             foreach (var logEntry in combatLog.TakeLast(20))
@@ -200,10 +223,12 @@ namespace RPGGame.UI.Avalonia.Renderers
                         {
                             string narrativeLine = line;
                             // Use display length to handle color markup correctly
-                            if (ColorParser.GetDisplayLength(narrativeLine) > width - 8)
+                            var segments = ColoredTextParser.Parse(narrativeLine);
+                            int displayLength = ColoredTextRenderer.GetDisplayLength(segments);
+                            if (displayLength > width - 8)
                             {
                                 // Strip markup before truncating to avoid cutting markup in the middle
-                                string strippedLine = ColorParser.StripColorMarkup(narrativeLine);
+                                string strippedLine = ColoredTextRenderer.RenderAsPlainText(segments);
                                 narrativeLine = strippedLine.Substring(0, Math.Min(strippedLine.Length, width - 11)) + "...";
                             }
                             canvas.AddText(x + 2, y, narrativeLine, AsciiArtAssets.Colors.Cyan);

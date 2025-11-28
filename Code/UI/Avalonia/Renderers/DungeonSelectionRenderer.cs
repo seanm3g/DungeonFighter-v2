@@ -28,12 +28,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             this.textWriter = textWriter;
             this.clickableElements = clickableElements;
             
-            // Initialize brightness mask from configuration
-            var maskConfig = UIManager.UIConfig.BrightnessMask;
-            if (maskConfig.Enabled)
-            {
-                sharedBrightnessMask = new BrightnessMask(maskConfig.Intensity, maskConfig.WaveLength);
-            }
+            // Initialize brightness mask with default values (no config file dependency)
+            // Default: enabled with intensity 8.0 and wave length 3.0
+            sharedBrightnessMask = new BrightnessMask(8.0f, 3.0f);
         }
         
         /// <summary>
@@ -140,14 +137,20 @@ namespace RPGGame.UI.Avalonia.Renderers
                 }
                 else
                 {
-                    // Build using ColoredTextBuilder - keeps text and patterns separate
-                    var builder = new ColoredTextBuilder()
-                        .Add($"[{i + 1}] ", ColorPalette.Gray)  // Grey bracket and number
-                        .AddRange(dungeonNameSegments)  // Use all stored segments (will animate!)
-                        .Add($" (lvl {dungeon.MinLevel})", ColorPalette.White);  // White level info
+                    // Build segments manually to preserve exact text from template
+                    // Don't use Build() as it trims spaces and adds automatic spacing which corrupts template segments
+                    var segments = new List<ColoredText>();
                     
-                    // Render segments directly - no parsing, no corruption
-                    var segments = builder.Build();
+                    // Add bracket and number
+                    segments.Add(new ColoredText($"[{i + 1}] ", ColorPalette.Gray.GetColor()));
+                    
+                    // Add dungeon name segments exactly as they are (from template)
+                    segments.AddRange(dungeonNameSegments);
+                    
+                    // Add level info
+                    segments.Add(new ColoredText($" (lvl {dungeon.MinLevel})", Colors.White));
+                    
+                    // Render segments directly - preserves exact text and spacing
                     textWriter.RenderSegments(segments, x + 4, y);
                 }
                 y++;

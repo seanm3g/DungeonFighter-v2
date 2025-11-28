@@ -42,13 +42,23 @@ namespace RPGGame.UI.Avalonia.Renderers
         
         /// <summary>
         /// Renders a list of colored text segments to the canvas
+        /// Uses actual measured text width for accurate positioning
+        /// This fixes spacing issues caused by the mismatch between character-based
+        /// positioning and pixel-based rendering in Avalonia's FormattedText
         /// </summary>
         public void RenderSegments(List<ColoredText> segments, int x, int y)
         {
             if (segments == null || segments.Count == 0)
                 return;
             
-            int currentX = x;
+            // Check if this is primarily single-character segments (template-based rendering)
+            // If most segments are single characters, use integer-based positioning for all
+            int singleCharCount = segments.Count(s => !string.IsNullOrEmpty(s.Text) && s.Text.Length == 1);
+            bool isTemplateRendering = singleCharCount > segments.Count / 2;
+            
+            int currentX = x; // Use integer positioning for character-based rendering
+            int lastRenderedX = int.MinValue; // Track last rendered position
+            Color? lastColor = null; // Track last color
             
             foreach (var segment in segments)
             {
@@ -58,148 +68,103 @@ namespace RPGGame.UI.Avalonia.Renderers
                 // Convert Avalonia color to the canvas color format
                 var canvasColor = ConvertToCanvasColor(segment.Color);
                 
-                // Add text to canvas
-                canvas.AddText(currentX, y, segment.Text, canvasColor);
+                // For template-based rendering (mostly single-character segments), always use integer positioning
+                // This ensures proper alignment and prevents overlap
+                bool isSingleChar = segment.Text.Length == 1;
                 
-                // Calculate next position (simple character-based positioning)
-                currentX += segment.Text.Length;
-            }
-        }
-        
-        /// <summary>
-        /// Renders colored text with word-based positioning
-        /// </summary>
-        public void RenderSegmentsWithWordPositioning(List<ColoredText> segments, int x, int y)
-        {
-            if (segments == null || segments.Count == 0)
-                return;
-            
-            int currentX = x;
-            
-            foreach (var segment in segments)
-            {
-                if (string.IsNullOrEmpty(segment.Text))
-                    continue;
+                if (isTemplateRendering || isSingleChar)
+                {
+                    // Template-based or single character - use integer positioning
+                    // Ensure currentX is an integer (round if needed when transitioning from multi-char)
+                    if (!isTemplateRendering && lastRenderedX != int.MinValue && !isSingleChar)
+                    {
+                        // Transitioning from multi-char to single-char - align to integer
+                        currentX = (int)Math.Round((double)currentX);
+                    }
+                    
+                    // If same position and different color, advance to prevent overlap
+                    if (currentX == lastRenderedX && lastRenderedX != int.MinValue && canvasColor != lastColor)
+                    {
+                        currentX = lastRenderedX + 1;
+                    }
+                    
+                    // For multi-character segments in template rendering, use character count
+                    if (isTemplateRendering && !isSingleChar)
+                    {
+                        // In template rendering, use character count for multi-char segments too
+                        int roundedX = currentX;
+                        canvas.AddText(roundedX, y, segment.Text, canvasColor);
+                        lastRenderedX = roundedX;
+                        currentX += segment.Text.Length; // Advance by character count
+                    }
+                    else
+                    {
+                        // Single character - render and advance by exactly 1
+                        canvas.AddText(currentX, y, segment.Text, canvasColor);
+                        lastRenderedX = currentX;
+                        currentX++;
+                    }
+                }
+                else
+                {
+                    // Multi-character segment in non-template rendering - measure width for accurate positioning
+                    double segmentWidth = canvas.MeasureTextWidth(segment.Text);
+                    double preciseX = currentX;
+                    int roundedX = (int)Math.Round(preciseX);
+                    
+                    // If this segment would overlap with the previous position and has a different color,
+                    // ensure it's positioned at least 1 character unit after the previous position
+                    if (roundedX == lastRenderedX && lastRenderedX != int.MinValue && canvasColor != lastColor)
+                    {
+                        // Different color at same rounded position - advance to next position to prevent overlap
+                        roundedX = lastRenderedX + 1;
+                        preciseX = roundedX;
+                    }
+                    
+                    // Only combine segments if they're at the exact same rounded position AND same color
+                    if (roundedX == lastRenderedX && lastRenderedX != int.MinValue && canvasColor == lastColor)
+                    {
+                        // Same position and color - combine segments using AppendText
+                        canvas.AppendText(roundedX, y, segment.Text, canvasColor);
+                        // Advance using measured width
+                        preciseX += segmentWidth;
+                    }
+                    else
+                    {
+                        // Different position or color - render normally at calculated position
+                        canvas.AddText(roundedX, y, segment.Text, canvasColor);
+                        // Advance position using actual measured width
+                        preciseX += segmentWidth;
+                    }
+                    
+                    lastRenderedX = roundedX;
+                    currentX = (int)Math.Round(preciseX);
+                }
                 
-                // Convert Avalonia color to the canvas color format
-                var canvasColor = ConvertToCanvasColor(segment.Color);
-                
-                // Add text to canvas
-                canvas.AddText(currentX, y, segment.Text, canvasColor);
-                
-                // Calculate next position using measured width
-                currentX += MeasureTextWidth(segment.Text);
-            }
-        }
-        
-        /// <summary>
-        /// Renders colored text with character-based positioning (for title screen)
-        /// </summary>
-        public void RenderSegmentsWithCharacterPositioning(List<ColoredText> segments, int x, int y)
-        {
-            if (segments == null || segments.Count == 0)
-                return;
-            
-            int currentX = x;
-            
-            foreach (var segment in segments)
-            {
-                if (string.IsNullOrEmpty(segment.Text))
-                    continue;
-                
-                // Convert Avalonia color to the canvas color format
-                var canvasColor = ConvertToCanvasColor(segment.Color);
-                
-                // Add text to canvas
-                canvas.AddText(currentX, y, segment.Text, canvasColor);
-                
-                // Calculate next position (character-based)
-                currentX += segment.Text.Length;
+                // Track the last color
+                lastColor = canvasColor;
             }
         }
         
         /// <summary>
         /// Converts Avalonia color to canvas color format
-        /// Maps colors by RGB values to handle ColorPalette colors properly
-        /// Ensures colors are visible on black background
+        /// 
+        /// This method does NOT store or hardcode color values. It relies entirely on the
+        /// color configuration system (ColorPalette.json, ColorCodes.json) which are loaded
+        /// dynamically. Colors passed to this method should already be resolved through:
+        /// - ColorPalette.GetColor() - loads from ColorPalette.json
+        /// - ColorCodeLoader.GetColor() - loads from ColorCodes.json
+        /// - ColorPatterns.GetColorForPattern() - uses pattern-based mapping
+        /// 
+        /// The only processing done here is ensuring visibility on black background.
+        /// The canvas supports any RGB color value directly, so no mapping is needed.
         /// </summary>
         private Color ConvertToCanvasColor(Color color)
         {
-            // Ensure color is visible on black background before mapping
-            color = ColorValidator.EnsureVisible(color);
-            
-            // Extract RGB values for comparison
-            byte r = color.R;
-            byte g = color.G;
-            byte b = color.B;
-            
-            // Map common colors by RGB values
-            // Basic colors
-            if (r == 255 && g == 255 && b == 255) return AsciiArtAssets.Colors.White;
-            if (r == 0 && g == 0 && b == 0) return AsciiArtAssets.Colors.Black;
-            if (r == 128 && g == 128 && b == 128) return AsciiArtAssets.Colors.Gray;
-            if (r == 64 && g == 64 && b == 64) return AsciiArtAssets.Colors.DarkGray;
-            
-            // Primary colors
-            if (r == 255 && g == 0 && b == 0) return AsciiArtAssets.Colors.Red;
-            if (r == 0 && g == 255 && b == 0) return AsciiArtAssets.Colors.Green;
-            if (r == 0 && g == 0 && b == 255) return AsciiArtAssets.Colors.Blue;
-            if (r == 255 && g == 255 && b == 0) return AsciiArtAssets.Colors.Yellow;
-            if (r == 0 && g == 255 && b == 255) return AsciiArtAssets.Colors.Cyan;
-            if (r == 255 && g == 0 && b == 255) return AsciiArtAssets.Colors.Magenta;
-            
-            // Dark variants
-            if (r == 139 && g == 0 && b == 0) return AsciiArtAssets.Colors.DarkRed;
-            if (r == 0 && g == 100 && b == 0) return AsciiArtAssets.Colors.DarkGreen;
-            if (r == 0 && g == 0 && b == 139) return AsciiArtAssets.Colors.DarkBlue;
-            
-            // Game-specific colors
-            // Gold: #cfc041 (207, 192, 65) per template rules
-            if (r == 207 && g == 192 && b == 65) return AsciiArtAssets.Colors.Gold;
-            // Also support standard gold (255, 215, 0) for backwards compatibility
-            if (r == 255 && g == 215 && b == 0) return AsciiArtAssets.Colors.Gold;
-            if (r == 192 && g == 192 && b == 192) return AsciiArtAssets.Colors.Silver;
-            if (r == 255 && g == 165 && b == 0) return AsciiArtAssets.Colors.Orange;
-            if (r == 128 && g == 0 && b == 128) return AsciiArtAssets.Colors.Purple;
-            
-            // Combat colors - map to closest available color
-            // Damage (220, 20, 60) - crimson red, map to Red
-            if (r == 220 && g == 20 && b == 60) return AsciiArtAssets.Colors.Red;
-            // Critical (255, 0, 0) - pure red
-            if (r == 255 && g == 0 && b == 0) return AsciiArtAssets.Colors.Red;
-            // Miss (128, 128, 128) - gray
-            if (r == 128 && g == 128 && b == 128) return AsciiArtAssets.Colors.Gray;
-            // Healing (0, 255, 127) - spring green, map to Green
-            if (r == 0 && g == 255 && b == 127) return AsciiArtAssets.Colors.Green;
-            
-            // Status colors
-            // Success (0, 128, 0) - dark green, map to DarkGreen
-            if (r == 0 && g == 128 && b == 0) return AsciiArtAssets.Colors.DarkGreen;
-            // Warning (255, 165, 0) - orange
-            if (r == 255 && g == 165 && b == 0) return AsciiArtAssets.Colors.Orange;
-            // Error (220, 20, 60) - crimson, map to Red
-            if (r == 220 && g == 20 && b == 60) return AsciiArtAssets.Colors.Red;
-            // Info (0, 191, 255) - deep sky blue, map to Cyan
-            if (r == 0 && g == 191 && b == 255) return AsciiArtAssets.Colors.Cyan;
-            
-            // Actor colors
-            // Player (0, 255, 255) - cyan
-            if (r == 0 && g == 255 && b == 255) return AsciiArtAssets.Colors.Cyan;
-            // Enemy (255, 0, 0) - red
-            if (r == 255 && g == 0 && b == 0) return AsciiArtAssets.Colors.Red;
-            
-            // Default to white for unknown colors
-            return AsciiArtAssets.Colors.White;
-        }
-        
-        /// <summary>
-        /// Measures text width (placeholder implementation)
-        /// </summary>
-        private int MeasureTextWidth(string text)
-        {
-            // This is a placeholder - you may need to implement proper text measurement
-            // based on your canvas system
-            return text.Length;
+            // Ensure color is visible on black background, then return as-is
+            // All color values come from the JSON configuration system, not hardcoded here
+            // The canvas can render any RGB color value directly
+            return ColorValidator.EnsureVisible(color);
         }
         
         /// <summary>
@@ -307,7 +272,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         public int WriteLineColoredWrapped(string message, int x, int y, int maxWidth)
         {
             if (string.IsNullOrEmpty(message))
-                return 0;
+                return 1; // Return 1 for blank lines to preserve spacing between sections
             
             // First, split on newlines to preserve line structure (e.g., for roll info indentation)
             var newlineSplit = message.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
@@ -318,11 +283,22 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 // Wrap each line separately to preserve indentation
                 var wrappedLines = WrapText(line, maxWidth);
-                foreach (var wrappedLine in wrappedLines)
+                
+                // If the line is empty, wrappedLines will be empty, but we still need to advance Y
+                // to preserve blank line spacing between sections
+                if (wrappedLines.Count == 0)
                 {
-                    WriteLineColored(wrappedLine, x, currentY);
                     currentY++;
                     totalLines++;
+                }
+                else
+                {
+                    foreach (var wrappedLine in wrappedLines)
+                    {
+                        WriteLineColored(wrappedLine, x, currentY);
+                        currentY++;
+                        totalLines++;
+                    }
                 }
             }
             
@@ -331,22 +307,127 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         /// <summary>
         /// Writes colored text with word wrapping using List of ColoredText
+        /// Preserves colors while wrapping text across multiple lines
         /// </summary>
         /// <returns>Number of lines written</returns>
         public int WriteLineColoredWrapped(List<ColoredText> segments, int x, int y, int maxWidth)
         {
-            // Combine segments into plain text for wrapping
-            var plainText = string.Join("", segments.Select(s => s.Text));
-            var lines = WrapText(plainText, maxWidth);
-
+            if (segments == null || segments.Count == 0)
+                return 1; // Return 1 for blank lines to preserve spacing
+            
+            // Wrap segments while preserving colors
+            var wrappedLines = WrapColoredSegments(segments, maxWidth);
+            
             int currentY = y;
-            foreach (var line in lines)
+            foreach (var lineSegments in wrappedLines)
             {
-                WriteLineColored(line, x, currentY);
+                if (lineSegments != null && lineSegments.Count > 0)
+                {
+                    RenderSegments(lineSegments, x, currentY);
+                }
                 currentY++;
             }
             
-            return lines.Count;
+            return wrappedLines.Count;
+        }
+        
+        /// <summary>
+        /// Wraps ColoredText segments while preserving their colors
+        /// </summary>
+        private List<List<ColoredText>> WrapColoredSegments(List<ColoredText> segments, int maxWidth)
+        {
+            var wrappedLines = new List<List<ColoredText>>();
+            var currentLine = new List<ColoredText>();
+            int currentLineWidth = 0;
+            
+            foreach (var segment in segments)
+            {
+                if (string.IsNullOrEmpty(segment.Text))
+                    continue;
+                
+                // Measure segment width
+                int segmentWidth = (int)canvas.MeasureTextWidth(segment.Text);
+                
+                // Check if adding this segment would exceed max width
+                if (currentLineWidth + segmentWidth > maxWidth && currentLine.Count > 0)
+                {
+                    // Current line is full, start a new line
+                    wrappedLines.Add(currentLine);
+                    currentLine = new List<ColoredText>();
+                    currentLineWidth = 0;
+                }
+                
+                // If segment itself is too long, split it
+                if (segmentWidth > maxWidth)
+                {
+                    // Split the segment text and create new segments with same color
+                    var words = segment.Text.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var word in words)
+                    {
+                        int wordWidth = (int)canvas.MeasureTextWidth(word);
+                        int spaceWidth = (int)canvas.MeasureTextWidth(" ");
+                        
+                        // Check if word fits on current line
+                        if (currentLineWidth + wordWidth > maxWidth && currentLine.Count > 0)
+                        {
+                            wrappedLines.Add(currentLine);
+                            currentLine = new List<ColoredText>();
+                            currentLineWidth = 0;
+                        }
+                        
+                        // Add space before word if not first on line
+                        if (currentLine.Count > 0 && currentLineWidth > 0)
+                        {
+                            currentLine.Add(new ColoredText(" ", segment.Color));
+                            currentLineWidth += spaceWidth;
+                        }
+                        
+                        // Add word
+                        currentLine.Add(new ColoredText(word, segment.Color));
+                        currentLineWidth += wordWidth;
+                    }
+                }
+                else
+                {
+                    // Segment fits, add it to current line
+                    currentLine.Add(segment);
+                    currentLineWidth += segmentWidth;
+                }
+            }
+            
+            // Add the last line if it has content
+            if (currentLine.Count > 0)
+            {
+                wrappedLines.Add(currentLine);
+            }
+            
+            // If no lines were created, add an empty line
+            if (wrappedLines.Count == 0)
+            {
+                wrappedLines.Add(new List<ColoredText>());
+            }
+            
+            return wrappedLines;
+        }
+        
+        /// <summary>
+        /// Clears text elements within a specific Y range (inclusive)
+        /// Clears ALL text in the Y range across the entire canvas width
+        /// This is the standard method for clearing panels/areas - always clears full width
+        /// </summary>
+        public void ClearTextInRange(int startY, int endY)
+        {
+            canvas.ClearTextInRange(startY, endY);
+        }
+        
+        /// <summary>
+        /// Clears text elements within a specific rectangular area (inclusive)
+        /// Use this only when you need to clear a specific rectangular region (e.g., center panel only)
+        /// For clearing full-width panels, use ClearTextInRange() instead
+        /// </summary>
+        public void ClearTextInArea(int startX, int startY, int width, int height)
+        {
+            canvas.ClearTextInArea(startX, startY, width, height);
         }
     }
 }

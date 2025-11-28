@@ -133,6 +133,15 @@ namespace RPGGame.UI.ColorSystem
         }
         
         /// <summary>
+        /// Clears the color pattern cache
+        /// Call this after reloading ColorTemplates.json to pick up new template colors
+        /// </summary>
+        public static void ClearColorPatternCache()
+        {
+            _colorPatterns.Clear();
+        }
+        
+        /// <summary>
         /// Colors text using keyword coloring (alias for Colorize)
         /// </summary>
         public static List<ColoredText> ColorText(string text)
@@ -204,26 +213,43 @@ namespace RPGGame.UI.ColorSystem
         
         private static Color GetColorFromPattern(string pattern)
         {
+            if (string.IsNullOrEmpty(pattern))
+                return Colors.White;
+            
+            // Check cache first
             if (_colorPatterns.TryGetValue(pattern, out var existingColor))
                 return existingColor;
             
-            var color = pattern.ToLower() switch
-            {
-                "damage" => ColorPalette.Damage.GetColor(),
-                "healing" => ColorPalette.Healing.GetColor(),
-                "enemy" => ColorPalette.Enemy.GetColor(),
-                "fire" => ColorPalette.Orange.GetColor(),
-                "ice" => ColorPalette.Cyan.GetColor(),
-                "poison" => ColorPalette.Green.GetColor(),
-                "class" => ColorPalette.Purple.GetColor(),
-                "status" => ColorPalette.Yellow.GetColor(),
-                "progression" => ColorPalette.Gold.GetColor(),
-                "loot" => ColorPalette.Gold.GetColor(),
-                "cyan" => ColorPalette.Cyan.GetColor(),
-                "golden" => ColorPalette.Gold.GetColor(),
-                _ => ColorPalette.White.GetColor()
-            };
+            Color color;
             
+            // First, check if this is a template name in ColorTemplateLibrary
+            // This allows KeywordColorGroups.json to reference templates from ColorTemplates.json
+            if (ColorTemplateLibrary.HasTemplate(pattern))
+            {
+                color = ColorTemplateLibrary.GetRepresentativeColorFromTemplate(pattern);
+            }
+            // Fall back to hardcoded mappings for backward compatibility
+            else
+            {
+                color = pattern.ToLower() switch
+                {
+                    "damage" => ColorPalette.Damage.GetColor(),
+                    "healing" => ColorPalette.Healing.GetColor(),
+                    "enemy" => ColorPalette.Enemy.GetColor(),
+                    "fire" => ColorPalette.Orange.GetColor(),
+                    "ice" => ColorPalette.Cyan.GetColor(),
+                    "poison" => ColorPalette.Green.GetColor(),
+                    "class" => ColorPalette.Purple.GetColor(),
+                    "status" => ColorPalette.Yellow.GetColor(),
+                    "progression" => ColorPalette.Gold.GetColor(),
+                    "loot" => ColorPalette.Gold.GetColor(),
+                    "cyan" => ColorPalette.Cyan.GetColor(),
+                    "golden" => ColorPalette.Gold.GetColor(),
+                    _ => ColorPalette.White.GetColor()
+                };
+            }
+            
+            // Cache the result
             _colorPatterns[pattern] = color;
             return color;
         }

@@ -166,16 +166,22 @@ namespace RPGGame.UI.ColorSystem
         {
             Console.WriteLine("=== 5. Compatibility Demo ===");
             
-            // Convert old-style color codes
-            var oldStyleText = "&RDanger&y is &Gahead&y!";
-            var coloredText = CompatibilityLayer.ConvertOldMarkup(oldStyleText);
+            // Legacy color codes are no longer supported - use ColoredTextBuilder instead
+            // Old way (no longer works): "&RDanger&y is &Gahead&y!"
+            // New way:
+            var coloredText = new ColoredTextBuilder()
+                .Add("Danger", ColorPalette.Damage)
+                .Add(" is ", Colors.White)
+                .Add("ahead", ColorPalette.Success)
+                .Add("!", Colors.White)
+                .Build();
             
             var plainText = ColoredTextRenderer.RenderAsPlainText(coloredText);
-            Console.WriteLine($"Old Style: {oldStyleText}");
-            Console.WriteLine($"Converted: {plainText}");
+            Console.WriteLine($"New Style: {plainText}");
             
-            // Check for color markup
-            var hasMarkup = CompatibilityLayer.HasColorMarkup("[damage]25[/damage]");
+            // Check for color markup (templates or new markup)
+            bool hasMarkup = "[damage]25[/damage]".Contains("{{") && "[damage]25[/damage]".Contains("}}") || 
+                            ("[damage]25[/damage]".Contains("[") && "[damage]25[/damage]".Contains("]"));
             Console.WriteLine($"Has markup: {hasMarkup}");
             Console.WriteLine();
         }

@@ -227,11 +227,13 @@ namespace RPGGame.UI.ColorSystem
         {
             var builder = new ColoredTextBuilder();
             
-            builder.Add("★ ", ColorPalette.Gold);
+            builder.Add("★", ColorPalette.Gold);
             builder.Add(characterName, ColorPalette.Player);
-            builder.Add(" reached level ", Colors.White);
+            builder.Add("reached", Colors.White);
+            builder.Add("level", Colors.White);
             builder.Add(newLevel.ToString(), ColorPalette.Success);
-            builder.Add("! ★", ColorPalette.Gold);
+            builder.Add("!", Colors.White);
+            builder.Add("★", ColorPalette.Gold);
             
             return builder.Build();
         }

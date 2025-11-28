@@ -1,3 +1,85 @@
+# Ideas Categorization Summary
+
+This document contains game design ideas organized by category:
+
+## Balance & Testing
+- Monte-carlo statistical analysis of game balance and death chances
+- Attack speed diminishing returns curves
+- Live balance tuning with beta progression based on dead fighters
+
+## Item System
+- Prefix/suffix mechanics with rarity-based dice rolling
+- Loot selection (pick from 1 of 3 items)
+- Weapon action guarantees and randomization
+- Post-creation gear modification
+- Hidden items with partial information reveal
+- Gear sacrifice and demonic transformation
+- Blessed/empowered gear system with tokens
+- Junk gear with chaotic actions
+
+## Combat System
+- Action economy (attacks per turn, multi-turn actions)
+- Dice manipulation mechanics
+- Range vs melee distance mechanics
+- Combo chance replacing miss chance
+- Critical hit amplification above thresholds
+- Amplification applying to effects, not just damage
+- Multi-attacks per action
+- Status effects (disarm, stun, debuffs)
+- Environmental response actions
+- Movement/navigation between actions
+- Target priority for multiple enemies
+- Flat damage with percentage-based reduction
+- Action-specific thresholds
+- Action speed affecting display timing
+
+## Character Progression & Class Design
+- Tutorial mechanics (swapped actions, starter dummy fight)
+- Spell synergy (Meteor + fire spells)
+- Dungeon selection influencing character affinity
+- Meta-progression (% of project with fighters)
+- Class-specific core actions (Barbarian armor ignore)
+- Attribute-based titles
+- Class selection at level 2
+- Weapon leveling bonuses
+
+## Enemy Design
+- Unique enemy mechanics (treant sap bleeding)
+- Enemy archetypes/modifiers
+- Enemy weapon generation
+- Enemy attributes (hands, blood, intelligence, etc.)
+- Enemy flags affecting environmental interactions
+- Enemy taunts and personality
+- Elemental resistances/weaknesses
+
+## Narrative & UI
+- Contextual narrative beats
+- Increased narrative flavor near battle end
+- Environment action narrative slots
+- Menu navigation improvements
+- Narrative triggers (combos, health thresholds, crits)
+
+## Status Effects & Environmental Interactions
+- Comprehensive status effect system
+- Character-triggered environmental effects
+- Stun mechanics
+- Debuff mechanics (roll 2 dice, take lowest)
+- Enemy bonus manipulation
+- Armor reduction/ignore effects
+- Temporary stat bonuses (shrines/auras)
+
+## Dungeon & World Systems
+- Non-combat encounters
+- Dungeon selection and scaling
+- Special dungeon types (Abandoned Temple)
+- Flowchart/system documentation
+
+## Math & Systems
+- Threshold-to-exponential conversion mechanics
+- Fractional damage as dice-roll thresholds
+
+---
+
 1. Do a monte-carlo stats on the default random chance of playing the game.  Is it possible to die in Round 1? What if you always equip items every time and choose the easiest dungeon, what about when you choose the hardest dungeon (everytime, but also just in the first time) What do we want those chance to be?
 2. What if the items could only get one prefix and one suffix, but the more rare the roll the more dice you roll to determine which one you get, either but adding them, or just multiplying your chances of getting a rarer stat. 
 3. Start with the actions swapped backwards to incentivize you to swap them at level 2. (teach the idea)

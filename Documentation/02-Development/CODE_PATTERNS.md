@@ -763,6 +763,70 @@ public class EnemyPool
 }
 ```
 
+### 3. Non-Blocking Delays
+**Purpose**: Avoid blocking the UI thread or game loop with synchronous delays
+
+**CRITICAL RULE**: **NEVER use `Thread.Sleep()` for delays** - it blocks the thread and causes UI freezing, unresponsive gameplay, and poor user experience.
+
+**Why Avoid Thread.Sleep**:
+- Blocks the entire thread, freezing the UI
+- Makes the application unresponsive
+- Prevents other operations from executing
+- Causes poor user experience in GUI applications
+- Can cause timing issues in game loops
+
+**Correct Approaches**:
+
+**For Async Methods** - Use `Task.Delay()`:
+```csharp
+// ✅ CORRECT: Non-blocking async delay
+public async Task ProcessCombatTurn()
+{
+    await Task.Delay(1000); // Non-blocking, allows other operations
+    // Continue processing...
+}
+```
+
+**For UI Timing** - Use async timers or the beat-based timing system:
+```csharp
+// ✅ CORRECT: Use the existing beat-based timing system
+public static void WriteCombatLine(string message)
+{
+    Console.WriteLine(message);
+    // Timing handled by rendering system, not blocking delays
+    ApplyDelay(UIMessageType.Combat);
+}
+
+// ✅ CORRECT: Use async timers for UI animations
+private async Task AnimateText()
+{
+    var timer = new System.Timers.Timer(100);
+    timer.Elapsed += (s, e) => UpdateAnimation();
+    timer.Start();
+    await Task.Delay(1000);
+    timer.Stop();
+}
+```
+
+**For Game Loops** - Use time-based updates instead of fixed delays:
+```csharp
+// ✅ CORRECT: Time-based updates
+private DateTime _lastUpdate = DateTime.Now;
+private const int UpdateIntervalMs = 100;
+
+public void Update()
+{
+    var now = DateTime.Now;
+    if ((now - _lastUpdate).TotalMilliseconds >= UpdateIntervalMs)
+    {
+        ProcessUpdate();
+        _lastUpdate = now;
+    }
+}
+```
+
+**Legacy Code Note**: Some existing code may still use `Thread.Sleep()` for console-only operations. When refactoring or creating new code, always use non-blocking alternatives.
+
 ## Testing Patterns
 
 ### 1. Test Data Builder

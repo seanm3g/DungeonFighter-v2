@@ -304,29 +304,47 @@ namespace RPGGame.UI
                 builder.Add(remainingName, tierColor);
             }
             
-            // 6. Add modification suffix (if found)
+            // 6. Add modification suffix (if found) - only color the keyword
             if (!string.IsNullOrEmpty(modificationSuffix))
             {
                 builder.AddSpace();
+                var (prefix, keyword) = ExtractKeyword(modificationSuffix);
+                
+                // Add prefix in white (e.g., "of the ")
+                if (!string.IsNullOrEmpty(prefix))
+                {
+                    builder.Add(prefix, Colors.White);
+                }
+                
+                // Color only the keyword
                 if (themes.ModificationThemes.TryGetValue(modificationSuffix, out var modTheme))
                 {
-                    foreach (var segment in modTheme)
-                    {
-                        builder.Add(segment);
-                    }
+                    // Get the color from the first segment of the theme
+                    var color = modTheme.Count > 0 ? modTheme[0].Color : ColorPalette.Magenta.GetColor();
+                    builder.Add(keyword, color);
+                }
+                else
+                {
+                    builder.Add(keyword, ColorPalette.Magenta.GetColor());
                 }
             }
             
-            // 7. Add stat bonus suffix (if found)
+            // 7. Add stat bonus suffix (if found) - only color the keyword
             if (!string.IsNullOrEmpty(statBonusSuffix))
             {
                 builder.AddSpace();
-                // Use modification theme system for stat bonuses
-                var statBonusTheme = GetModificationTheme(statBonusSuffix.ToLower(), item.Rarity);
-                foreach (var segment in statBonusTheme)
+                var (prefix, keyword) = ExtractKeyword(statBonusSuffix);
+                
+                // Add prefix in white (e.g., "of the ")
+                if (!string.IsNullOrEmpty(prefix))
                 {
-                    builder.Add(segment);
+                    builder.Add(prefix, Colors.White);
                 }
+                
+                // Color only the keyword
+                var statBonusTheme = GetModificationTheme(statBonusSuffix.ToLower(), item.Rarity);
+                var color = statBonusTheme.Count > 0 ? statBonusTheme[0].Color : ColorPalette.Info.GetColor();
+                builder.Add(keyword, color);
             }
             
             return builder.Build();
@@ -417,7 +435,7 @@ namespace RPGGame.UI
         }
         
         /// <summary>
-        /// Formats modifications list with their color themes
+        /// Formats modifications list with their color themes (only colors the keyword)
         /// </summary>
         public static List<ColoredText> FormatModificationsList(Item item)
         {
@@ -434,17 +452,27 @@ namespace RPGGame.UI
             for (int i = 0; i < item.Modifications.Count; i++)
             {
                 var mod = item.Modifications[i];
+                var (prefix, keyword) = ExtractKeyword(mod.Name);
+                
+                // Add prefix in white (e.g., "of the ")
+                if (!string.IsNullOrEmpty(prefix))
+                {
+                    builder.Add(prefix, Colors.White);
+                }
+                
+                // Try to get theme for the full name, but only apply color to keyword
                 if (themes.ModificationThemes.TryGetValue(mod.Name, out var modTheme))
                 {
-                    // Add each segment of the mod theme
-                    foreach (var segment in modTheme)
-                    {
-                        builder.Add(segment);
-                    }
+                    // Get the color from the first segment of the theme (or use default)
+                    var color = modTheme.Count > 0 ? modTheme[0].Color : Colors.White;
+                    builder.Add(keyword, color);
                 }
                 else
                 {
-                    builder.Add(mod.Name, Colors.White);
+                    // No theme found, use default color based on suffix/prefix
+                    bool isSuffix = mod.Name.StartsWith("of ", StringComparison.OrdinalIgnoreCase);
+                    var color = isSuffix ? ColorPalette.Magenta.GetColor() : ColorPalette.Success.GetColor();
+                    builder.Add(keyword, color);
                 }
                 
                 if (i < item.Modifications.Count - 1)
@@ -454,6 +482,34 @@ namespace RPGGame.UI
             }
             
             return builder.Build();
+        }
+        
+        /// <summary>
+        /// Extracts the keyword from a modification or stat bonus name
+        /// For "of the X" patterns, returns only "X" (the keyword)
+        /// For other patterns, returns the full name
+        /// </summary>
+        private static (string prefix, string keyword) ExtractKeyword(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return ("", "");
+            
+            // Check for "of the X" pattern
+            if (name.StartsWith("of the ", StringComparison.OrdinalIgnoreCase))
+            {
+                string keyword = name.Substring(7); // "of the " is 7 characters
+                return ("of the ", keyword);
+            }
+            
+            // Check for "of X" pattern (without "the")
+            if (name.StartsWith("of ", StringComparison.OrdinalIgnoreCase))
+            {
+                string keyword = name.Substring(3); // "of " is 3 characters
+                return ("of ", keyword);
+            }
+            
+            // No prefix pattern, return full name as keyword
+            return ("", name);
         }
     }
 }

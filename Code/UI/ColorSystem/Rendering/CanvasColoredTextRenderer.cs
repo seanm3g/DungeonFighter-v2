@@ -19,24 +19,30 @@ namespace RPGGame.UI.ColorSystem
         
         /// <summary>
         /// Renders colored text segments to the canvas
+        /// Uses actual measured text width for accurate positioning
         /// </summary>
         public void Render(IEnumerable<ColoredText> segments, int x, int y)
         {
             if (segments == null)
                 return;
                 
-            var currentX = x;
+            double currentX = x; // Use double for precise positioning
             
             foreach (var segment in segments)
             {
                 if (string.IsNullOrEmpty(segment.Text))
                     continue;
                     
-                // Render the text segment with its color
-                canvas.DrawText(segment.Text, currentX, y, segment.Color);
+                // Measure the actual rendered width of this segment
+                // MeasureTextWidth returns width in character units (pixels / charWidth)
+                double segmentWidth = canvas.MeasureTextWidth(segment.Text);
+                    
+                // Render the text segment with its color at the calculated position
+                canvas.AddText((int)Math.Round(currentX), y, segment.Text, segment.Color);
                 
-                // Move cursor position for next segment
-                currentX += segment.Text.Length;
+                // Advance position using actual measured width (not character count)
+                // This ensures segments align perfectly regardless of font rendering differences
+                currentX += segmentWidth;
             }
         }
         

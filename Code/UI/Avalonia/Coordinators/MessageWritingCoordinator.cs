@@ -25,11 +25,12 @@ namespace RPGGame.UI.Avalonia.Coordinators
         
         /// <summary>
         /// Writes a line with specified message type
+        /// Uses unified display system - rendering is handled automatically
         /// </summary>
         public void WriteLine(string message, UIMessageType messageType = UIMessageType.System)
         {
             textManager.AddToDisplayBuffer(message, messageType);
-            renderer.RenderDisplayBuffer(contextManager.GetCurrentContext());
+            // Rendering is now handled automatically by the unified display system
         }
         
         /// <summary>
@@ -54,7 +55,7 @@ namespace RPGGame.UI.Avalonia.Coordinators
         public void WriteMenuLine(string message)
         {
             textManager.AddToDisplayBuffer(message, UIMessageType.Menu);
-            renderer.RenderDisplayBuffer(contextManager.GetCurrentContext());
+            // Rendering is now handled automatically by the unified display system
         }
         
         /// <summary>
@@ -111,6 +112,32 @@ namespace RPGGame.UI.Avalonia.Coordinators
         public void WriteBlankLine()
         {
             textManager.AddToDisplayBuffer("", UIMessageType.System);
+        }
+        
+        /// <summary>
+        /// Adds multiple messages to the display buffer as a single batch
+        /// Schedules a single render after all messages are added, with an optional delay
+        /// </summary>
+        public void AddMessageBatch(IEnumerable<string> messages, int delayAfterBatchMs = 0)
+        {
+            textManager.AddMessageBatch(messages, delayAfterBatchMs);
+        }
+        
+        /// <summary>
+        /// Adds multiple messages to the display buffer as a single batch and waits for the delay
+        /// This async version allows the combat loop to wait for each action's display to complete
+        /// </summary>
+        public async System.Threading.Tasks.Task AddMessageBatchAsync(IEnumerable<string> messages, int delayAfterBatchMs = 0)
+        {
+            if (textManager is CanvasTextManager canvasTextManager)
+            {
+                await canvasTextManager.AddMessageBatchAsync(messages, delayAfterBatchMs);
+            }
+            else
+            {
+                // Fallback to synchronous version for non-CanvasTextManager implementations
+                textManager.AddMessageBatch(messages, delayAfterBatchMs);
+            }
         }
         
         /// <summary>
@@ -195,7 +222,7 @@ namespace RPGGame.UI.Avalonia.Coordinators
         {
             var messageHandler = new CombatMessageHandler(textManager);
             messageHandler.AddVictoryMessage(enemy, battleNarrative);
-            renderer.RenderDisplayBuffer(contextManager.GetCurrentContext());
+            // Rendering is now handled automatically by the unified display system
         }
         
         /// <summary>
@@ -205,7 +232,7 @@ namespace RPGGame.UI.Avalonia.Coordinators
         {
             var messageHandler = new CombatMessageHandler(textManager);
             messageHandler.AddDefeatMessage();
-            renderer.RenderDisplayBuffer(contextManager.GetCurrentContext());
+            // Rendering is now handled automatically by the unified display system
         }
         
         /// <summary>
@@ -215,7 +242,7 @@ namespace RPGGame.UI.Avalonia.Coordinators
         {
             var messageHandler = new CombatMessageHandler(textManager);
             messageHandler.AddRoomClearedMessage(contextManager.GetCurrentCharacter());
-            renderer.RenderDisplayBuffer(contextManager.GetCurrentContext());
+            // Rendering is now handled automatically by the unified display system
         }
     }
 }

@@ -11,12 +11,10 @@ namespace RPGGame.UI
     public class UIOutputManager
     {
         private readonly IUIManager? _customUIManager;
-        private readonly UIConfiguration _uiConfig;
 
-        public UIOutputManager(IUIManager? customUIManager, UIConfiguration uiConfig)
+        public UIOutputManager(IUIManager? customUIManager)
         {
             _customUIManager = customUIManager;
-            _uiConfig = uiConfig;
         }
 
         /// <summary>
@@ -32,7 +30,10 @@ namespace RPGGame.UI
             }
 
             // Console output with color support
-            if (UIManager.EnableColorMarkup && ColorParser.HasColorMarkup(message))
+            // Check if message has color markup (templates or new markup)
+            bool hasColorMarkup = message.Contains("{{") && message.Contains("}}") || 
+                                  (message.Contains("[") && message.Contains("]"));
+            if (UIManager.EnableColorMarkup && hasColorMarkup)
             {
                 ColoredConsoleWriter.WriteLine(message);
             }
@@ -55,7 +56,10 @@ namespace RPGGame.UI
             }
 
             // Console output with color support
-            if (UIManager.EnableColorMarkup && ColorParser.HasColorMarkup(message))
+            // Check if message has color markup (templates or new markup)
+            bool hasColorMarkup = message.Contains("{{") && message.Contains("}}") || 
+                                  (message.Contains("[") && message.Contains("]"));
+            if (UIManager.EnableColorMarkup && hasColorMarkup)
             {
                 ColoredConsoleWriter.Write(message);
             }
@@ -109,7 +113,10 @@ namespace RPGGame.UI
             }
 
             // Console output with color support
-            if (UIManager.EnableColorMarkup && ColorParser.HasColorMarkup(message))
+            // Check if message has color markup (templates or new markup)
+            bool hasColorMarkup = message.Contains("{{") && message.Contains("}}") || 
+                                  (message.Contains("[") && message.Contains("]"));
+            if (UIManager.EnableColorMarkup && hasColorMarkup)
             {
                 ColoredConsoleWriter.WriteLine(message);
             }

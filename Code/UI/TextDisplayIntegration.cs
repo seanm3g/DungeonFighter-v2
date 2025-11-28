@@ -72,17 +72,61 @@ namespace RPGGame
                 }
             }
             
-            // Display the action block with ColoredText, including critical miss narrative if present
-            BlockDisplayManager.DisplayActionBlock(actionText, rollInfo, statusEffects, criticalMissNarrative);
+            // Display the action block with ColoredText, including critical miss narrative and all other narratives
+            // All narratives are included in the turn block to ensure each character's turn is displayed as a single unit
+            BlockDisplayManager.DisplayActionBlock(actionText, rollInfo, statusEffects, criticalMissNarrative, remainingNarratives);
+        }
+        
+        /// <summary>
+        /// Displays a combat action using ColoredText (async version)
+        /// This version waits for the display delay to complete, allowing the combat loop to wait for each action
+        /// </summary>
+        public static async System.Threading.Tasks.Task DisplayCombatActionAsync(
+            List<ColoredText> actionText, 
+            List<ColoredText> rollInfo, 
+            List<List<ColoredText>>? statusEffects = null,
+            List<List<ColoredText>>? narrativeMessages = null)
+        {
+            // Check if this is a critical miss and extract critical miss narrative
+            List<ColoredText>? criticalMissNarrative = null;
+            var remainingNarratives = new List<List<ColoredText>>();
             
-            // Display remaining narrative messages as separate blocks
-            foreach (var narrative in remainingNarratives)
+            if (narrativeMessages != null)
             {
-                if (narrative != null && narrative.Count > 0)
+                // Check if action text contains "CRITICAL MISS" or "misses"
+                string actionPlainText = ColoredTextRenderer.RenderAsPlainText(actionText);
+                bool isCriticalMiss = actionPlainText.Contains("CRITICAL MISS", StringComparison.OrdinalIgnoreCase) || 
+                                     actionPlainText.Contains("misses", StringComparison.OrdinalIgnoreCase);
+                
+                foreach (var narrative in narrativeMessages)
                 {
-                    BlockDisplayManager.DisplayNarrativeBlock(narrative);
+                    if (narrative != null && narrative.Count > 0)
+                    {
+                        string narrativeText = ColoredTextRenderer.RenderAsPlainText(narrative);
+                        // Check if this is a critical miss narrative (contains keywords like "wild swing", "misses completely", etc.)
+                        bool isCriticalMissNarrative = narrativeText.Contains("wild swing", StringComparison.OrdinalIgnoreCase) ||
+                                                      narrativeText.Contains("misses completely", StringComparison.OrdinalIgnoreCase) ||
+                                                      narrativeText.Contains("goes wide", StringComparison.OrdinalIgnoreCase) ||
+                                                      narrativeText.Contains("fails spectacularly", StringComparison.OrdinalIgnoreCase) ||
+                                                      narrativeText.Contains("critical miss", StringComparison.OrdinalIgnoreCase);
+                        
+                        // If this is a critical miss action and the narrative is a critical miss narrative, include it in the action block
+                        if (isCriticalMiss && isCriticalMissNarrative && criticalMissNarrative == null)
+                        {
+                            criticalMissNarrative = narrative;
+                        }
+                        else
+                        {
+                            // Keep other narratives to display separately
+                            remainingNarratives.Add(narrative);
+                        }
+                    }
                 }
             }
+            
+            // Display the action block with ColoredText, including critical miss narrative and all other narratives
+            // All narratives are included in the turn block to ensure each character's turn is displayed as a single unit
+            await BlockDisplayManager.DisplayActionBlockAsync(actionText, rollInfo, statusEffects, criticalMissNarrative, remainingNarratives);
         }
         
         

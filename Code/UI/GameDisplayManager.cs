@@ -101,7 +101,7 @@ namespace RPGGame
             // Get next amplification (what will be applied when combo executes)
             double nextAmplification = player.GetNextComboAmplification();
             int magicFind = player.GetMagicFind();
-            UIManager.WriteMenuLine($"Damage: {damage} (STR:{player.GetEffectiveStrength()} + Weapon:{weaponDamage} + Equipment:{equipmentDamageBonus} + Mods:{modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  Amplification: {nextAmplification:F2}x  Roll Bonus: +{totalRollBonus}  Armor: {armor}");
+            UIManager.WriteMenuLine($"Damage: {damage} (STR: {player.GetEffectiveStrength()} + Weapon: {weaponDamage} + Equipment: {equipmentDamageBonus} + Mods: {modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  Amplification: {nextAmplification:F2}x  Roll Bonus: +{totalRollBonus}  Armor: {armor}");
             if (magicFind > 0)
             {
                 UIManager.WriteMenuLine($"Magic Find: +{magicFind} (improves rare item drop chances)");

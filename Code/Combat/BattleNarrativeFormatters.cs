@@ -7,6 +7,14 @@ namespace RPGGame
     /// <summary>
     /// Specialized formatters for different types of battle narratives.
     /// Each formatter handles a specific narrative pattern, reducing code duplication.
+    /// 
+    /// 📖 FOR COMPLETE FORMATTING GUIDE: See Documentation/04-Reference/FORMATTING_SYSTEM_GUIDE.md
+    /// 
+    /// Quick Reference:
+    /// - Each formatter returns List&lt;ColoredText&gt; for consistent output
+    /// - Use NarrativeTextBuilder for building formatted text
+    /// - Use ColorPalette enum for colors (not raw color codes)
+    /// - All formatters follow the pattern: Format() → returns List&lt;ColoredText&gt;
     /// </summary>
 
     // ============================================================================

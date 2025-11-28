@@ -134,7 +134,7 @@ The color system migration is complete! We now have a robust, maintainable, prod
 - [x] Added sentence, paragraph, line, and semantic chunking modes
 - [x] Integrated with color markup system for seamless formatting
 - [x] Created `IUIManager.WriteChunked()` interface method
-- [x] Implemented in `UIManager`, `ConsoleUIManager`, and `CanvasUICoordinator`
+- [x] Implemented in `UIManager`, `ConsoleUIManager` (removed as unused legacy), and `CanvasUICoordinator`
 - [x] Added optimized presets: `WriteDungeonChunked()` and `WriteRoomChunked()`
 
 #### Dungeon Integration

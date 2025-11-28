@@ -276,7 +276,8 @@ namespace RPGGame
             // Create a simple roll info for healing (no attack/defense, just roll and speed)
             var rollInfoBuilder = new ColoredTextBuilder();
             rollInfoBuilder.Add("    (", Colors.Gray);
-            rollInfoBuilder.Add("roll: ", ColorPalette.Info);
+            rollInfoBuilder.Add("roll:", ColorPalette.Info);
+            rollInfoBuilder.AddSpace();
             rollInfoBuilder.Add(baseRoll.ToString(), Colors.White);
             if (rollBonus != 0)
             {
@@ -306,7 +307,8 @@ namespace RPGGame
                 }
                 if (actualSpeed > 0)
                 {
-                    rollInfoBuilder.Add(" | ", Colors.Gray);
+                    rollInfoBuilder.Add("|", Colors.Gray);
+                    rollInfoBuilder.AddSpace();
                     rollInfoBuilder.Add("speed: ", ColorPalette.Info);
                     rollInfoBuilder.Add($"{actualSpeed:F1}s", Colors.White);
                 }
@@ -394,7 +396,7 @@ namespace RPGGame
                 {
                     // For non-damage actions, just show the action was successful
                     var (actionText, actionRollInfo) = CombatResults.FormatNonAttackActionColored(source, target, selectedAction, baseRoll, rollBonus);
-                    string actionString = ColoredTextRenderer.RenderAsPlainText(actionText) + "\n" + ColoredTextRenderer.RenderAsPlainText(actionRollInfo);
+                    string actionString = ColoredTextRenderer.RenderAsMarkup(actionText) + "\n" + ColoredTextRenderer.RenderAsMarkup(actionRollInfo);
                     results.Add(actionString);
                     
                     // Create and add BattleEvent for narrative system (non-damage action)
@@ -431,7 +433,7 @@ namespace RPGGame
                 ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, 0, baseRoll + rollBonus, rollBonus, false, false, 0, 0, false, battleNarrative);
                 
                 var (missText, missRollInfo) = CombatResults.FormatMissMessageColored(source, target, selectedAction, baseRoll, rollBonus);
-                string missString = ColoredTextRenderer.RenderAsPlainText(missText) + "\n" + ColoredTextRenderer.RenderAsPlainText(missRollInfo);
+                string missString = ColoredTextRenderer.RenderAsMarkup(missText) + "\n" + ColoredTextRenderer.RenderAsMarkup(missRollInfo);
                 results.Add(missString);
             }
             
@@ -491,10 +493,10 @@ namespace RPGGame
             bool isCriticalHit = totalRoll >= 20; // Critical hit on natural 20 or higher
             ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, damage, totalRoll, rollBonus, true, isCombo, 0, 0, isCriticalHit, battleNarrative);
             
-            // Add damage message - use the new ColoredText system, then convert to string for backward compatibility
+            // Add damage message - use the new ColoredText system, convert to markup for string-based API
             var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, damage, damage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll);
-            // Convert ColoredText to plain string for backward compatibility (old API)
-            string damageString = ColoredTextRenderer.RenderAsPlainText(damageText) + "\n" + ColoredTextRenderer.RenderAsPlainText(rollInfo);
+            // Convert ColoredText to markup string (preserves colors for display)
+            string damageString = ColoredTextRenderer.RenderAsMarkup(damageText) + "\n" + ColoredTextRenderer.RenderAsMarkup(rollInfo);
             results.Add(damageString);
         }
 

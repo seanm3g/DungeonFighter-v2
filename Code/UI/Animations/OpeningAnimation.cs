@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using RPGGame.UI;
 using RPGGame.UI.Avalonia;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.UI.Animations
 {
@@ -40,7 +42,9 @@ namespace RPGGame.UI.Animations
             if (UIManager.GetCustomUIManager() == null)
             {
                 UIManager.WriteLine("", UIMessageType.Title);
-                UIManager.WriteLine("&Y                    [Press any key to continue]", UIMessageType.Title);
+                var promptBuilder = new ColoredTextBuilder();
+                promptBuilder.Add("                    [Press any key to continue]", ColorPalette.Yellow);
+                UIManager.WriteLine(ColoredTextRenderer.RenderAsMarkup(promptBuilder.Build()), UIMessageType.Title);
                 Console.ReadKey(true);
                 Console.Clear();
             }

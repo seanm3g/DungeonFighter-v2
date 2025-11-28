@@ -130,6 +130,8 @@ namespace RPGGame
         /// <param name="enemy">The enemy</param>
         public void ProcessDamageOverTimeEffects(Character player, Enemy enemy)
         {
+            bool blankLineAdded = false;
+            
             // Process effects for player
             var playerResults = new List<string>();
             int playerDamage = CombatEffectsSimplified.ProcessStatusEffects(player, playerResults);
@@ -139,6 +141,13 @@ namespace RPGGame
             }
             if (playerResults.Count > 0)
             {
+                // Apply spacing for poison damage (context-aware)
+                if (!DisableCombatUIOutput)
+                {
+                    TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.PoisonDamage);
+                    blankLineAdded = true;
+                }
+                
                 // Group related messages together - display damage and status effects as one block
                 var damageMessages = new List<string>();
                 var statusMessages = new List<string>();
@@ -162,6 +171,8 @@ namespace RPGGame
                     // Combine damage and status messages into one block
                     string combinedMessage = string.Join("\n", damageMessages.Concat(statusMessages));
                     BlockDisplayManager.DisplaySystemBlock(combinedMessage);
+                    // Record as poison damage block for spacing system
+                    TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.PoisonDamage);
                 }
                 else if (damageMessages.Count > 0)
                 {
@@ -170,6 +181,8 @@ namespace RPGGame
                     {
                         BlockDisplayManager.DisplaySystemBlock(damage);
                     }
+                    // Record as poison damage block for spacing system
+                    TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.PoisonDamage);
                 }
                 else if (statusMessages.Count > 0)
                 {
@@ -178,6 +191,8 @@ namespace RPGGame
                     {
                         BlockDisplayManager.DisplaySystemBlock(status);
                     }
+                    // Record as poison damage block for spacing system
+                    TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.PoisonDamage);
                 }
             }
             
@@ -192,6 +207,12 @@ namespace RPGGame
                 }
                 if (enemyResults.Count > 0)
                 {
+                    // Apply spacing for poison damage (context-aware, avoids double spacing)
+                    if (!DisableCombatUIOutput && !blankLineAdded)
+                    {
+                        TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.PoisonDamage);
+                    }
+                    
                     // Group related messages together - display damage and status effects as one block
                     var damageMessages = new List<string>();
                     var statusMessages = new List<string>();
@@ -215,6 +236,8 @@ namespace RPGGame
                         // Combine damage and status messages into one block
                         string combinedMessage = string.Join("\n", damageMessages.Concat(statusMessages));
                         BlockDisplayManager.DisplaySystemBlock(combinedMessage);
+                        // Record as poison damage block for spacing system
+                        TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.PoisonDamage);
                     }
                     else if (damageMessages.Count > 0)
                     {
@@ -223,6 +246,8 @@ namespace RPGGame
                         {
                             BlockDisplayManager.DisplaySystemBlock(damage);
                         }
+                        // Record as poison damage block for spacing system
+                        TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.PoisonDamage);
                     }
                     else if (statusMessages.Count > 0)
                     {
@@ -231,6 +256,8 @@ namespace RPGGame
                         {
                             BlockDisplayManager.DisplaySystemBlock(status);
                         }
+                        // Record as poison damage block for spacing system
+                        TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.PoisonDamage);
                     }
                 }
             }

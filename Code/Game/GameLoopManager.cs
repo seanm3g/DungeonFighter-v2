@@ -112,7 +112,7 @@ namespace RPGGame
         /// <param name="inventory">Player's inventory</param>
         /// <param name="availableDungeons">Available dungeons list</param>
         /// <returns>True if player survived, false if they died</returns>
-        private async Task<bool> ExecuteDungeonSequence(Character player, List<Item> inventory, List<Dungeon> availableDungeons)
+        private Task<bool> ExecuteDungeonSequence(Character player, List<Item> inventory, List<Dungeon> availableDungeons)
         {
             // Regenerate dungeons based on current player level
             dungeonManager.RegenerateDungeons(player, availableDungeons);
@@ -121,18 +121,19 @@ namespace RPGGame
             Dungeon selectedDungeon = dungeonManager.ChooseDungeon(availableDungeons);
             selectedDungeon.Generate();
 
+            // LEGACY CODE: This method is deprecated. The current game flow uses DungeonRunnerManager instead.
+            // TODO: Update this to use DungeonRunnerManager or remove if GameLoopManager is no longer used.
+            // The old RunDungeon method has been removed - this code path needs to be updated to use DungeonRunnerManager
+            // For now, returning false to prevent compilation errors, but this should be properly refactored
             // Run the complete dungeon
-            bool playerSurvivedDungeon = await dungeonManager.RunDungeon(selectedDungeon, player, combatManager);
-            
-            if (!playerSurvivedDungeon)
-            {
-                return false; // Player died, game ends
-            }
-
+            // bool playerSurvivedDungeon = await dungeonManager.RunDungeon(selectedDungeon, player, combatManager);
+            // if (!playerSurvivedDungeon)
+            // {
+            //     return false; // Player died, game ends
+            // }
             // Dungeon Completion
-            dungeonManager.AwardLootAndXP(player, inventory, availableDungeons);
-            
-            return true; // Player survived, continue game loop
+            // dungeonManager.AwardLootAndXP(player, inventory, availableDungeons);
+            return Task.FromResult(false); // TODO: Implement using DungeonRunnerManager
         }
     }
 }

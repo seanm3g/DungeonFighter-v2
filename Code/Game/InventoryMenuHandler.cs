@@ -48,6 +48,11 @@ namespace RPGGame
         {
             if (customUIManager is CanvasUICoordinator canvasUI && stateManager.CurrentPlayer != null)
             {
+                // Clear dungeon/room context when transitioning to inventory
+                canvasUI.ClearCurrentEnemy();
+                canvasUI.SetDungeonName(null);
+                canvasUI.SetRoomName(null);
+                
                 canvasUI.SetCharacter(stateManager.CurrentPlayer);
                 canvasUI.RenderInventory(stateManager.CurrentPlayer, stateManager.CurrentInventory);
             }

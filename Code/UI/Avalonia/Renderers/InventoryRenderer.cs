@@ -110,7 +110,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                     clickableElements.Add(itemElement);
                     
                     // Render item name with color markup support
-                    string displayLine = $"&y[{i + 1}] {coloredItemName}";
+                    string displayLine = $"[{i + 1}] {coloredItemName}";
                     textWriter.WriteLineColored(displayLine, x + 2, y);
                     y++;
                     currentLineCount++;

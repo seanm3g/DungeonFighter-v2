@@ -71,9 +71,9 @@ namespace RPGGame.UI.TitleScreen
         public string DungeonFinalColor { get; set; } = "W";
 
         /// <summary>
-        /// Final color for FIGHTER text (default: "R" = bright red)
+        /// Final color for FIGHTER text (default: "O" = orange)
         /// </summary>
-        public string FighterFinalColor { get; set; } = "R";
+        public string FighterFinalColor { get; set; } = "O";
 
         /// <summary>
         /// Transition source color (default: "Y" = white, what we transition from)

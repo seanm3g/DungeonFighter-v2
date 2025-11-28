@@ -150,52 +150,6 @@ namespace RPGGame
             return notifications;
         }
 
-        /// <summary>
-        /// [DEPRECATED] Formats non-attack action messages (buffs, debuffs, etc.)
-        /// Use FormatNonAttackActionColored() instead for better reliability and no spacing issues
-        /// </summary>
-        /// <param name="source">The Actor performing the action</param>
-        /// <param name="target">The target Actor</param>
-        /// <param name="action">The action performed</param>
-        /// <param name="roll">The action roll</param>
-        /// <param name="rollBonus">Roll bonus applied</param>
-        /// <returns>Formatted non-attack action message</returns>
-        [Obsolete("Use FormatNonAttackActionColored() instead. This method will be removed in a future version.")]
-        public static string FormatNonAttackAction(Actor source, Actor target, Action action, int roll, int rollBonus)
-        {
-            // Wrap action name in natural template (green/environment color) so it's treated as one colored unit
-            // Make "uses" explicitly white
-            string actionText = $"{source.Name} uses {action.Name} on {target.Name}";
-            
-            // Build the detailed roll information
-            var rollInfo = new List<string>();
-            
-            // Roll information: roll + buffs - debuffs = total (only show = if there are modifiers)
-            string rollDisplay = roll.ToString();
-            int totalRoll = roll + rollBonus;
-            if (rollBonus > 0)
-            {
-                rollDisplay += $" + {rollBonus} = {totalRoll}";
-            }
-            else if (rollBonus < 0)
-            {
-                rollDisplay += $" - {-rollBonus} = {totalRoll}"; // Add proper spacing around minus sign
-            }
-            // If rollBonus is 0, don't add the = total part (totalRoll will equal roll)
-            rollInfo.Add($"roll: {rollDisplay}");
-            
-            // Speed information - calculate actual action speed
-            if (action != null && action.Length > 0)
-            {
-                double actualSpeed = CalculateActualActionSpeed(source, action);
-                rollInfo.Add($"speed: {actualSpeed:F1}s");
-            }
-            
-            // Add the detailed information on the next line with indentation and parentheses
-            actionText += "\n     (" + string.Join(" | ", rollInfo) + ")";
-            
-            return actionText;
-        }
 
         /// <summary>
         /// Executes an action with UI formatting and returns both main result and status effects as ColoredText

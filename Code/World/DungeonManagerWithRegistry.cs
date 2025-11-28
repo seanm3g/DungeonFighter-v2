@@ -179,19 +179,8 @@ namespace RPGGame
             return dungeonLevel;
         }
 
-        /// <summary>
-        /// Runs a complete dungeon with all its rooms (delegates to DungeonRunner)
-        /// </summary>
-        /// <param name="selectedDungeon">The dungeon to run</param>
-        /// <param name="player">The player character</param>
-        /// <param name="combatManager">Combat manager for handling battles</param>
-        /// <returns>True if player survived the dungeon, false if player died</returns>
-        public async Task<bool> RunDungeon(Dungeon selectedDungeon, Character player, CombatManager combatManager)
-        {
-            // Delegate to DungeonRunner
-            var dungeonRunner = new DungeonRunner();
-            return await dungeonRunner.RunDungeon(selectedDungeon, player, combatManager);
-        }
+        // NOTE: RunDungeon method removed - use DungeonRunnerManager.RunDungeon() instead
+        // This method was legacy code that used the old DungeonRunner class with chunked text methods
 
         /// <summary>
         /// Applies environmental debuffs to entities using the effect registry

@@ -208,7 +208,7 @@ namespace RPGGame
             double nextAmplification = GetNextComboAmplification();
             int magicFind = GetMagicFind();
 
-            string stats = $"Damage: {damage} (STR:{character.GetEffectiveStrength()} + Weapon:{weaponDamage} + Equipment:{equipmentDamageBonus} + Mods:{modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  Amplification: {nextAmplification:F2}x  Roll Bonus: +{totalRollBonus}  Armor: {armor}";
+            string stats = $"Damage: {damage} (STR: {character.GetEffectiveStrength()} + Weapon: {weaponDamage} + Equipment: {equipmentDamageBonus} + Mods: {modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  Amplification: {nextAmplification:F2}x  Roll Bonus: +{totalRollBonus}  Armor: {armor}";
             
             if (magicFind > 0)
             {

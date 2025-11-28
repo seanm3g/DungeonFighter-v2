@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using RPGGame.UI.ColorSystem;
-using Avalonia.Media;
 
 namespace RPGGame.UI.TitleScreen
 {
     /// <summary>
-    /// Handles color application to ASCII art text using the game's color template system
-    /// Supports solid colors and progressive character-by-character transitions
+    /// Handles color application to ASCII art text using the game's modern color template system
+    /// Delegates to ColorTemplateLibrary for all color operations
     /// </summary>
     public static class TitleColorApplicator
     {
@@ -16,7 +14,7 @@ namespace RPGGame.UI.TitleScreen
         /// Applies a template to text using the color template system
         /// </summary>
         /// <param name="text">Text to colorize</param>
-        /// <param name="templateName">Template name (e.g., "golden", "fiery")</param>
+        /// <param name="templateName">Template name (e.g., "golden", "title_fighter")</param>
         /// <returns>List of ColoredText segments</returns>
         public static List<ColoredText> ApplyTemplate(string text, string templateName)
         {
@@ -25,13 +23,13 @@ namespace RPGGame.UI.TitleScreen
                 return new List<ColoredText>();
             }
 
-            // Use the color template library to apply the template
+            // Use the color template library directly
             return ColorTemplateLibrary.GetTemplate(templateName, text);
         }
 
         /// <summary>
-        /// Applies a solid color to text using a single color from the palette
-        /// Used for transitions and simple color application
+        /// Applies a solid color to text using a single color code
+        /// Uses the modern color system's color code conversion
         /// </summary>
         /// <param name="text">Text to colorize</param>
         /// <param name="colorCode">Single-letter color code (e.g., "R", "G", "W")</param>
@@ -43,14 +41,15 @@ namespace RPGGame.UI.TitleScreen
                 return new List<ColoredText>();
             }
 
-            // Convert color code to ColorPalette and use SingleColor template
-            var color = ConvertColorCodeToColor(colorCode);
+            // Use ColorTemplateLibrary's public helper method
+            var color = ColorTemplateLibrary.ColorCodeToColor(colorCode);
             return ColorTemplateLibrary.SingleColor(text, color);
         }
 
         /// <summary>
         /// Applies a transitioning color to text using multi-stage progression
         /// Creates smooth transitions by progressing through intermediate colors
+        /// Uses the modern color system for all color conversions
         /// </summary>
         /// <param name="text">Text to colorize</param>
         /// <param name="sourceColor">Color to transition from (e.g., "Y" for white)</param>
@@ -66,13 +65,14 @@ namespace RPGGame.UI.TitleScreen
 
             // Multi-stage color progression based on target color
             string colorCode = GetProgressiveColor(sourceColor, targetColor, progress);
-            var color = ConvertColorCodeToColor(colorCode);
             
+            // Use ColorTemplateLibrary's public helper method
+            var color = ColorTemplateLibrary.ColorCodeToColor(colorCode);
             return ColorTemplateLibrary.SingleColor(text, color);
         }
 
         /// <summary>
-        /// Determines the appropriate color for a given progress value
+        /// Determines the appropriate color code for a given progress value
         /// Implements multi-stage transitions for smooth color progression
         /// </summary>
         private static string GetProgressiveColor(string sourceColor, string targetColor, float progress)
@@ -84,22 +84,23 @@ namespace RPGGame.UI.TitleScreen
             // This creates smooth visual transitions that match the game's aesthetic
             
             // Transition to warm colors (W = gold/yellow)
+            // Skip white - go directly from grey to yellow/orange
             if (targetColor == "W")
             {
-                if (progress < 0.40f) return "Y";  // White (0-40%)
-                if (progress < 0.70f) return "y";  // Pale grey (40-70%)
-                if (progress < 0.85f) return "y";  // Grey (70-85%)
-                return "W";                         // Gold (85-100%)
+                if (progress < 0.50f) return "y";  // Grey (0-50%)
+                if (progress < 0.75f) return "W";  // Yellow (50-75%)
+                if (progress < 0.90f) return "W";  // Yellow (75-90%)
+                return "W";                         // Gold (90-100%)
             }
             
             // Transition to orange (O)
+            // Skip white - go directly from grey/yellow to orange
             if (targetColor == "O")
             {
-                if (progress < 0.30f) return "Y";  // White (0-30%)
-                if (progress < 0.50f) return "y";  // Grey (30-50%)
-                if (progress < 0.70f) return "W";  // Yellow/Warm (50-70%)
-                if (progress < 0.85f) return "o";  // Light orange (70-85%)
-                return "O";                         // Full orange (85-100%)
+                if (progress < 0.40f) return "y";  // Grey (0-40%)
+                if (progress < 0.60f) return "W";  // Yellow/Warm (40-60%)
+                if (progress < 0.80f) return "o";  // Light orange (60-80%)
+                return "O";                         // Full orange (80-100%)
             }
             
             // Transition to red (R)  
@@ -132,49 +133,6 @@ namespace RPGGame.UI.TitleScreen
             
             // Default: simple binary transition for other colors
             return progress < 0.5f ? sourceColor : targetColor;
-        }
-
-        /// <summary>
-        /// Validates that a color code is a single character
-        /// </summary>
-        /// <param name="colorCode">Color code to validate</param>
-        /// <returns>True if valid, false otherwise</returns>
-        public static bool IsValidColorCode(string colorCode)
-        {
-            return !string.IsNullOrEmpty(colorCode) && colorCode.Length == 1;
-        }
-
-        /// <summary>
-        /// Converts a color code to an Avalonia Color
-        /// Maps single-letter color codes to their corresponding colors
-        /// </summary>
-        private static Color ConvertColorCodeToColor(string colorCode)
-        {
-            if (string.IsNullOrEmpty(colorCode))
-                return Colors.White;
-
-            return colorCode.ToUpper() switch
-            {
-                "R" => ColorPalette.Red.GetColor(),
-                "r" => ColorPalette.DarkRed.GetColor(),
-                "G" => ColorPalette.Green.GetColor(),
-                "g" => ColorPalette.DarkGreen.GetColor(),
-                "B" => ColorPalette.Blue.GetColor(),
-                "b" => ColorPalette.DarkBlue.GetColor(),
-                "C" => ColorPalette.Cyan.GetColor(),
-                "c" => ColorPalette.DarkCyan.GetColor(),
-                "M" => ColorPalette.Magenta.GetColor(),
-                "m" => ColorPalette.DarkMagenta.GetColor(),
-                "O" => ColorPalette.Orange.GetColor(),
-                "o" => Color.FromRgb(200, 100, 0), // Dark orange
-                "W" => ColorPalette.Gold.GetColor(),
-                "w" => ColorPalette.Brown.GetColor(),
-                "Y" => Colors.White,
-                "y" => ColorPalette.Gray.GetColor(),
-                "K" => ColorPalette.DarkGray.GetColor(),
-                "k" => Colors.Black,
-                _ => Colors.White
-            };
         }
     }
 }

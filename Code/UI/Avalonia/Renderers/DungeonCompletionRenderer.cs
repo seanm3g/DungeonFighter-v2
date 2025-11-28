@@ -44,7 +44,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             int maxHealth = player.GetEffectiveMaxHealth();
             if (player.CurrentHealth == maxHealth)
             {
-                canvas.AddText(x + 4, currentY, "Fully Restored", AsciiArtAssets.Colors.Green);
+                canvas.AddText(x + 4, currentY, "Health Fully Restored", AsciiArtAssets.Colors.Green);
                 currentY += 2;
                 currentLineCount += 2;
             }
@@ -98,9 +98,9 @@ namespace RPGGame.UI.Avalonia.Renderers
                 currentY++;
                 currentLineCount++;
                 
-                // Format item name with rarity prefix: [Rarity] ItemName
-                string formattedItemName = $"[{lootReceived.Rarity}] {lootReceived.Name}";
-                canvas.AddText(x + 6, currentY, formattedItemName, GetRarityColor(lootReceived.Rarity));
+                // Format item name with colored elements: [Rarity] ItemName (each element colored)
+                var lootSegments = ItemDisplayColoredText.FormatLootForCompletion(lootReceived);
+                textWriter.RenderSegments(lootSegments, x + 6, currentY);
                 currentY++;
                 currentLineCount++;
             }

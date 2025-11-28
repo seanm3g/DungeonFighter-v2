@@ -28,20 +28,44 @@ namespace RPGGame
             var dungeonConfig = Game.GetDungeonGenerationConfig();
             
             int roomCount = Math.Max(dungeonScaling.RoomCountBase, (int)Math.Ceiling(MinLevel * dungeonScaling.RoomCountPerLevel));
+            DebugLogger.Log("Dungeon", $"Generating dungeon '{Name}' with {roomCount} rooms (MinLevel: {MinLevel}, MaxLevel: {MaxLevel})");
             Rooms.Clear();
 
             for (int i = 0; i < roomCount; i++)
             {
-                // Determine room type and difficulty
-                bool isHostile = random.NextDouble() < dungeonConfig.hostileRoomChance;
-                int roomLevel = random.Next(MinLevel, MaxLevel + 1);
+                try
+                {
+                    // Determine room type and difficulty
+                    bool isHostile = random.NextDouble() < dungeonConfig.hostileRoomChance;
+                    int roomLevel = random.Next(MinLevel, MaxLevel + 1);
 
-                // Use RoomGenerator to create theme-appropriate rooms
-                var room = RoomGenerator.GenerateRoom(Theme, roomLevel, isHostile);
+                    // Use RoomGenerator to create theme-appropriate rooms
+                    var room = RoomGenerator.GenerateRoom(Theme, roomLevel, isHostile);
+                    
+                    if (room == null)
+                    {
+                        DebugLogger.Log("Dungeon", $"ERROR: RoomGenerator.GenerateRoom returned null for room {i + 1}");
+                        continue;
+                    }
 
-                // Generate enemies with scaled levels and dungeon-specific enemy list
-                room.GenerateEnemies(roomLevel, PossibleEnemies);
-                Rooms.Add(room);
+                    // Generate enemies with scaled levels and dungeon-specific enemy list
+                    room.GenerateEnemies(roomLevel, PossibleEnemies);
+                    Rooms.Add(room);
+                    DebugLogger.Log("Dungeon", $"Generated room {i + 1}/{roomCount}: {room.Name} (Hostile: {isHostile}, Level: {roomLevel})");
+                }
+                catch (Exception ex)
+                {
+                    DebugLogger.Log("Dungeon", $"ERROR: Failed to generate room {i + 1}: {ex.Message}");
+                    DebugLogger.Log("Dungeon", $"Stack trace: {ex.StackTrace}");
+                    // Continue generating other rooms even if one fails
+                }
+            }
+            
+            DebugLogger.Log("Dungeon", $"Dungeon generation complete. Created {Rooms.Count} rooms out of {roomCount} requested.");
+            
+            if (Rooms.Count == 0)
+            {
+                DebugLogger.Log("Dungeon", $"ERROR: No rooms were generated for dungeon '{Name}'!");
             }
         }
 

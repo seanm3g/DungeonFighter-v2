@@ -1,5 +1,6 @@
 using RPGGame;
 using RPGGame.UI.Avalonia.Managers;
+using RPGGame.UI.ColorSystem;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,7 +25,17 @@ namespace RPGGame.UI.Avalonia.Renderers
             
             // Add victory message
             string victoryMsg = string.Format(AsciiArtAssets.UIText.VictoryPrefix, enemy.Name);
-            textManager.AddToDisplayBuffer($"&G{victoryMsg}", UIMessageType.Combat);
+            var victorySegments = new ColoredTextBuilder()
+                .Add(victoryMsg, ColorPalette.Success)
+                .Build();
+            if (textManager is CanvasTextManager canvasTextManager)
+            {
+                canvasTextManager.DisplayManager.AddMessage(victorySegments, UIMessageType.Combat);
+            }
+            else
+            {
+                textManager.AddToDisplayBuffer(victoryMsg, UIMessageType.Combat);
+            }
             textManager.AddToDisplayBuffer(AsciiArtAssets.UIText.Divider, UIMessageType.Combat);
             
             // Add battle narrative highlights if available
@@ -34,12 +45,33 @@ namespace RPGGame.UI.Avalonia.Renderers
                 if (narrativeLines != null && narrativeLines.Count > 0)
                 {
                     textManager.AddToDisplayBuffer("", UIMessageType.Combat);
-                    textManager.AddToDisplayBuffer("&C" + AsciiArtAssets.UIText.CreateHeader(AsciiArtAssets.UIText.BattleHighlightsHeader), UIMessageType.Combat);
+                    var headerSegments = new ColoredTextBuilder()
+                        .Add(AsciiArtAssets.UIText.CreateHeader(AsciiArtAssets.UIText.BattleHighlightsHeader), ColorPalette.Info)
+                        .Build();
+                    if (textManager is CanvasTextManager canvasTextManager2)
+                    {
+                        canvasTextManager2.DisplayManager.AddMessage(headerSegments, UIMessageType.Combat);
+                    }
+                    else
+                    {
+                        textManager.AddToDisplayBuffer(AsciiArtAssets.UIText.CreateHeader(AsciiArtAssets.UIText.BattleHighlightsHeader), UIMessageType.Combat);
+                    }
                     foreach (var line in narrativeLines.Take(3))
                     {
                         if (!string.IsNullOrWhiteSpace(line))
                         {
-                            textManager.AddToDisplayBuffer($"&C  {line}", UIMessageType.Combat);
+                            var lineSegments = new ColoredTextBuilder()
+                                .Add("  ", ColorPalette.Info)
+                                .Add(line, ColorPalette.Info)
+                                .Build();
+                            if (textManager is CanvasTextManager canvasTextManager3)
+                            {
+                                canvasTextManager3.DisplayManager.AddMessage(lineSegments, UIMessageType.Combat);
+                            }
+                            else
+                            {
+                                textManager.AddToDisplayBuffer($"  {line}", UIMessageType.Combat);
+                            }
                         }
                     }
                 }
@@ -51,15 +83,41 @@ namespace RPGGame.UI.Avalonia.Renderers
         public void AddDefeatMessage()
         {
             textManager.AddToDisplayBuffer("", UIMessageType.Combat);
-            textManager.AddToDisplayBuffer($"&R{AsciiArtAssets.UIText.DefeatMessage}", UIMessageType.Combat);
+            var defeatSegments = new ColoredTextBuilder()
+                .Add(AsciiArtAssets.UIText.DefeatMessage, ColorPalette.Damage)
+                .Build();
+            if (textManager is CanvasTextManager canvasTextManager)
+            {
+                canvasTextManager.DisplayManager.AddMessage(defeatSegments, UIMessageType.Combat);
+            }
+            else
+            {
+                textManager.AddToDisplayBuffer(AsciiArtAssets.UIText.DefeatMessage, UIMessageType.Combat);
+            }
             textManager.AddToDisplayBuffer(AsciiArtAssets.UIText.Divider, UIMessageType.Combat);
             textManager.AddToDisplayBuffer("", UIMessageType.Combat);
         }
 
         public void AddRoomClearedMessage(Character? character)
         {
-            textManager.AddToDisplayBuffer("", UIMessageType.Combat);
-            textManager.AddToDisplayBuffer($"&G{AsciiArtAssets.UIText.RoomClearedMessage}", UIMessageType.Combat);
+            // Use TextSpacingSystem to apply proper spacing before room cleared message
+            int spacingBefore = TextSpacingSystem.GetSpacingBefore(TextSpacingSystem.BlockType.RoomCleared);
+            for (int i = 0; i < spacingBefore; i++)
+            {
+                textManager.AddToDisplayBuffer("", UIMessageType.Combat);
+            }
+            
+            var roomClearedSegments = new ColoredTextBuilder()
+                .Add(AsciiArtAssets.UIText.RoomClearedMessage, ColorPalette.Success)
+                .Build();
+            if (textManager is CanvasTextManager canvasTextManager)
+            {
+                canvasTextManager.DisplayManager.AddMessage(roomClearedSegments, UIMessageType.Combat);
+            }
+            else
+            {
+                textManager.AddToDisplayBuffer(AsciiArtAssets.UIText.RoomClearedMessage, UIMessageType.Combat);
+            }
             textManager.AddToDisplayBuffer(AsciiArtAssets.UIText.Divider, UIMessageType.Combat);
             textManager.AddToDisplayBuffer("", UIMessageType.Combat);
             
@@ -67,10 +125,23 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 string healthMsg = string.Format(AsciiArtAssets.UIText.RemainingHealth, 
                     character.CurrentHealth, character.GetEffectiveMaxHealth());
-                textManager.AddToDisplayBuffer($"&W{healthMsg}", UIMessageType.Combat);
+                var healthSegments = new ColoredTextBuilder()
+                    .Add(healthMsg, ColorPalette.Gold)
+                    .Build();
+                if (textManager is CanvasTextManager canvasTextManager2)
+                {
+                    canvasTextManager2.DisplayManager.AddMessage(healthSegments, UIMessageType.Combat);
+                }
+                else
+                {
+                    textManager.AddToDisplayBuffer(healthMsg, UIMessageType.Combat);
+                }
             }
             
             textManager.AddToDisplayBuffer("", UIMessageType.Combat);
+            
+            // Record that room cleared was displayed
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.RoomCleared);
         }
     }
 }

@@ -1,0 +1,345 @@
+{
+  "$schema": "ColorPalette Schema",
+  "description": "Color palette definitions for the ColorPalette enum. Maps enum values to RGB color values.",
+  "version": "1.0",
+  
+  "paletteColors": [
+    {
+      "name": "White",
+      "rgb": [255, 255, 255],
+      "hex": "#ffffff",
+      "category": "basic"
+    },
+    {
+      "name": "Black",
+      "rgb": [0, 0, 0],
+      "hex": "#000000",
+      "category": "basic"
+    },
+    {
+      "name": "Gray",
+      "rgb": [128, 128, 128],
+      "hex": "#808080",
+      "category": "basic"
+    },
+    {
+      "name": "DarkGray",
+      "rgb": [64, 64, 64],
+      "hex": "#404040",
+      "category": "basic"
+    },
+    {
+      "name": "LightGray",
+      "rgb": [211, 211, 211],
+      "hex": "#d3d3d3",
+      "category": "basic"
+    },
+    {
+      "name": "Red",
+      "colorCode": "R",
+      "hex": "#d74200",
+      "category": "primary"
+    },
+    {
+      "name": "Green",
+      "colorCode": "G",
+      "hex": "#00c420",
+      "category": "primary"
+    },
+    {
+      "name": "Blue",
+      "colorCode": "B",
+      "hex": "#0096ff",
+      "category": "primary"
+    },
+    {
+      "name": "Yellow",
+      "rgb": [255, 255, 0],
+      "hex": "#ffff00",
+      "category": "primary"
+    },
+    {
+      "name": "Cyan",
+      "rgb": [0, 255, 255],
+      "hex": "#00ffff",
+      "category": "primary"
+    },
+    {
+      "name": "Magenta",
+      "rgb": [255, 0, 255],
+      "hex": "#ff00ff",
+      "category": "primary"
+    },
+    {
+      "name": "DarkRed",
+      "colorCode": "r",
+      "hex": "#a64a2e",
+      "category": "dark"
+    },
+    {
+      "name": "DarkGreen",
+      "colorCode": "g",
+      "hex": "#009403",
+      "category": "dark"
+    },
+    {
+      "name": "DarkBlue",
+      "colorCode": "b",
+      "hex": "#0048bd",
+      "category": "dark"
+    },
+    {
+      "name": "DarkYellow",
+      "rgb": [184, 134, 11],
+      "hex": "#b8860b",
+      "category": "dark"
+    },
+    {
+      "name": "DarkCyan",
+      "rgb": [0, 139, 139],
+      "hex": "#008b8b",
+      "category": "dark"
+    },
+    {
+      "name": "DarkMagenta",
+      "rgb": [139, 0, 139],
+      "hex": "#8b008b",
+      "category": "dark"
+    },
+    {
+      "name": "Gold",
+      "colorCode": "W",
+      "hex": "#cfc041",
+      "category": "game-specific"
+    },
+    {
+      "name": "Silver",
+      "rgb": [192, 192, 192],
+      "hex": "#c0c0c0",
+      "category": "game-specific"
+    },
+    {
+      "name": "Bronze",
+      "rgb": [205, 127, 50],
+      "hex": "#cd7f32",
+      "category": "game-specific"
+    },
+    {
+      "name": "Orange",
+      "rgb": [255, 165, 0],
+      "hex": "#ffa500",
+      "category": "game-specific"
+    },
+    {
+      "name": "Purple",
+      "rgb": [128, 0, 128],
+      "hex": "#800080",
+      "category": "game-specific"
+    },
+    {
+      "name": "Pink",
+      "rgb": [255, 192, 203],
+      "hex": "#ffc0cb",
+      "category": "game-specific"
+    },
+    {
+      "name": "Brown",
+      "rgb": [165, 42, 42],
+      "hex": "#a52a2a",
+      "category": "game-specific"
+    },
+    {
+      "name": "Lime",
+      "rgb": [0, 255, 0],
+      "hex": "#00ff00",
+      "category": "game-specific"
+    },
+    {
+      "name": "Navy",
+      "rgb": [0, 0, 128],
+      "hex": "#000080",
+      "category": "game-specific"
+    },
+    {
+      "name": "Teal",
+      "rgb": [0, 128, 128],
+      "hex": "#008080",
+      "category": "game-specific"
+    },
+    {
+      "name": "Success",
+      "reference": "Green",
+      "hex": "#00c420",
+      "category": "status"
+    },
+    {
+      "name": "Warning",
+      "rgb": [255, 165, 0],
+      "hex": "#ffa500",
+      "category": "status"
+    },
+    {
+      "name": "Error",
+      "reference": "Damage",
+      "hex": "#dc143c",
+      "category": "status"
+    },
+    {
+      "name": "Info",
+      "rgb": [0, 191, 255],
+      "hex": "#00bfff",
+      "category": "status"
+    },
+    {
+      "name": "Damage",
+      "colorCode": "R",
+      "hex": "#d74200",
+      "category": "combat"
+    },
+    {
+      "name": "Healing",
+      "colorCode": "G",
+      "hex": "#00c420",
+      "category": "combat"
+    },
+    {
+      "name": "Critical",
+      "colorCode": "R",
+      "hex": "#d74200",
+      "category": "combat"
+    },
+    {
+      "name": "Miss",
+      "rgb": [128, 128, 128],
+      "hex": "#808080",
+      "category": "combat"
+    },
+    {
+      "name": "Block",
+      "rgb": [0, 191, 255],
+      "hex": "#00bfff",
+      "category": "combat"
+    },
+    {
+      "name": "Dodge",
+      "rgb": [255, 255, 0],
+      "hex": "#ffff00",
+      "category": "combat"
+    },
+    {
+      "name": "Common",
+      "colorCode": "Y",
+      "hex": "#ffffff",
+      "category": "rarity"
+    },
+    {
+      "name": "Uncommon",
+      "colorCode": "G",
+      "hex": "#00c420",
+      "category": "rarity"
+    },
+    {
+      "name": "Rare",
+      "colorCode": "B",
+      "hex": "#0096ff",
+      "category": "rarity"
+    },
+    {
+      "name": "Epic",
+      "colorCode": "M",
+      "hex": "#da5bd6",
+      "category": "rarity"
+    },
+    {
+      "name": "Legendary",
+      "rgb": [255, 215, 0],
+      "hex": "#ffd700",
+      "category": "rarity"
+    },
+    {
+      "name": "Background",
+      "rgb": [25, 25, 25],
+      "hex": "#191919",
+      "category": "ui"
+    },
+    {
+      "name": "Foreground",
+      "rgb": [255, 255, 255],
+      "hex": "#ffffff",
+      "category": "ui"
+    },
+    {
+      "name": "Border",
+      "rgb": [64, 64, 64],
+      "hex": "#404040",
+      "category": "ui"
+    },
+    {
+      "name": "Highlight",
+      "rgb": [255, 255, 0],
+      "hex": "#ffff00",
+      "category": "ui"
+    },
+    {
+      "name": "Disabled",
+      "rgb": [128, 128, 128],
+      "hex": "#808080",
+      "category": "ui"
+    },
+    {
+      "name": "Player",
+      "rgb": [0, 255, 255],
+      "hex": "#00ffff",
+      "category": "actor"
+    },
+    {
+      "name": "Enemy",
+      "colorCode": "R",
+      "hex": "#d74200",
+      "category": "actor"
+    },
+    {
+      "name": "NPC",
+      "rgb": [0, 255, 0],
+      "hex": "#00ff00",
+      "category": "actor"
+    },
+    {
+      "name": "Boss",
+      "rgb": [128, 0, 128],
+      "hex": "#800080",
+      "category": "actor"
+    },
+    {
+      "name": "Minion",
+      "rgb": [255, 165, 0],
+      "hex": "#ffa500",
+      "category": "actor"
+    },
+    {
+      "name": "Weapon",
+      "rgb": [192, 192, 192],
+      "hex": "#c0c0c0",
+      "category": "item"
+    },
+    {
+      "name": "Armor",
+      "rgb": [0, 0, 255],
+      "hex": "#0000ff",
+      "category": "item"
+    },
+    {
+      "name": "Potion",
+      "rgb": [0, 128, 0],
+      "hex": "#008000",
+      "category": "item"
+    },
+    {
+      "name": "Scroll",
+      "rgb": [255, 0, 255],
+      "hex": "#ff00ff",
+      "category": "item"
+    }
+  ]
+}
+

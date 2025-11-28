@@ -79,9 +79,11 @@ Defines keyword groups and their associated color patterns. Keywords in text are
 
 **Properties:**
 - `name` - Unique identifier for the group
-- `colorPattern` - Template name or color code to apply (must exist in ColorTemplates.json)
+- `colorPattern` - Template name from ColorTemplates.json (e.g., "natural", "crystalline", "fiery") or legacy color code
 - `caseSensitive` - Whether keyword matching is case-sensitive
 - `keywords` - Array of keywords to match (whole words only)
+
+**Note:** The `colorPattern` can reference any template defined in `ColorTemplates.json`. The system will automatically extract a representative color from the template for keyword highlighting. This allows keyword groups to use the same rich color templates used elsewhere in the game.
 
 **Pre-defined Groups:**
 - **Combat:** `damage`, `critical`, `heal`, `action`, `stun`, `blood`
@@ -187,11 +189,15 @@ If loading fails, the system falls back to hardcoded defaults.
 To reload configuration at runtime (useful for testing):
 
 ```csharp
-// Reload color templates
-ColorTemplateLibrary.ReloadFromConfig();
+// Reload color templates (also clears KeywordColorSystem cache)
+ColorTemplateLibrary.Reload();
 
 // Reload keyword groups
-KeywordColorSystem.ReloadFromConfig();
+KeywordColorLoader.Reload();
+KeywordColorLoader.LoadAndRegisterKeywordGroups();
+
+// Or clear keyword cache manually if templates changed
+KeywordColorSystem.ClearColorPatternCache();
 ```
 
 ## Best Practices

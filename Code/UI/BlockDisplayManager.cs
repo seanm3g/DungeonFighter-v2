@@ -9,8 +9,8 @@ using RPGGame.Utils;
 namespace RPGGame
 {
     /// <summary>
-    /// Manages block-based display system for consistent combat output formatting
-    /// Each block type has its own delay and spacing rules
+    /// Manages block-based display system for consistent combat output formatting.
+    /// Uses TextSpacingSystem for context-aware spacing that maps directly to reference output.
     /// </summary>
     public static class BlockDisplayManager
     {
@@ -25,49 +25,16 @@ namespace RPGGame
             return text;
         }
         private static string? lastActingEntity = null;
-        private static string? lastBlockType = null;
-
-        /// <summary>
-        /// Defines spacing rules for each block type
-        /// </summary>
-        private struct SpacingRule
-        {
-            public int Before { get; set; }  // Blank lines before this block type
-            public int After { get; set; }   // Blank lines after this block type
-        }
-
-        /// <summary>
-        /// Centralized spacing rules for all block types
-        /// Based on UI reference patterns:
-        /// 
-        /// Spacing Rules (matching UI reference):
-        /// - ActionBlock: No spacing before, 1 line after (separates actions)
-        /// - EnvironmentalBlock: No spacing before, 1 line after (follows action blocks)
-        /// - EffectBlock: No spacing before, 1 line after (follows environmental blocks)
-        /// - NarrativeBlock: No spacing before, 1 line after (follows action blocks)
-        /// - SystemBlock: No spacing before, 1 line after (follows other blocks)
-        /// - StatsBlock: No spacing (for consecutive stats display)
-        /// - MenuBlock: No spacing (compact menu items)
-        /// </summary>
-        private static readonly Dictionary<string, SpacingRule> BlockSpacingRules = new()
-        {
-            ["ActionBlock"] = new SpacingRule { Before = 0, After = 1 },
-            ["EnvironmentalBlock"] = new SpacingRule { Before = 0, After = 1 },
-            ["EffectBlock"] = new SpacingRule { Before = 0, After = 1 },
-            ["NarrativeBlock"] = new SpacingRule { Before = 0, After = 1 },
-            ["SystemBlock"] = new SpacingRule { Before = 0, After = 1 },
-            ["StatsBlock"] = new SpacingRule { Before = 0, After = 0 },
-            ["MenuBlock"] = new SpacingRule { Before = 0, After = 0 }
-        };
         // ===== COLORED TEXT OVERLOADS =====
         
         /// <summary>
         /// Displays an ACTION BLOCK using ColoredText for better color management
         /// This is the primary method - uses structured ColoredText for both action and roll info
+        /// All narratives are included in the turn block to ensure each character's turn is displayed as a single unit
         /// </summary>
-        public static void DisplayActionBlock(List<ColoredText> actionText, List<ColoredText> rollInfo, List<List<ColoredText>>? statusEffects = null, List<ColoredText>? criticalMissNarrative = null)
+        public static void DisplayActionBlock(List<ColoredText> actionText, List<ColoredText> rollInfo, List<List<ColoredText>>? statusEffects = null, List<ColoredText>? criticalMissNarrative = null, List<List<ColoredText>>? narratives = null)
         {
-            // Extract entity name from ColoredText for blank line tracking
+            // Extract entity name from ColoredText for tracking (but don't add blank lines between actor changes)
             string? currentEntity = null;
             if (actionText != null && actionText.Count > 0)
             {
@@ -75,20 +42,75 @@ namespace RPGGame
                 currentEntity = ExtractEntityNameFromMessage(plainText);
             }
             
-            // Add blank line when switching between different actors
-            if (lastActingEntity != null && currentEntity != null && lastActingEntity != currentEntity)
-            {
-                UIManager.WriteBlankLine();
-            }
+            // Apply context-aware spacing based on what came before
+            TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.CombatAction);
             
-            // Manage spacing between block types
-            ManageBlockSpacing("ActionBlock");
-            
-            // Render both actionText and rollInfo together without delay between them
-            // Write both lines directly to the underlying UI manager to bypass delays
+            // Render both actionText and rollInfo together as a single batch
+            // All lines of a combat action block are added together, then rendered as one unit
             var customUIManager = UIManager.GetCustomUIManager();
-            if (customUIManager != null)
+            if (customUIManager != null && customUIManager is UI.Avalonia.CanvasUICoordinator canvasCoordinator)
             {
+                // Collect all messages for this combat action block
+                var messageGroups = new List<(List<ColoredText> segments, UIMessageType messageType)>();
+                
+                // Add action text
+                if (actionText != null && actionText.Count > 0)
+                {
+                    messageGroups.Add((actionText, UIMessageType.Combat));
+                }
+                
+                // Add roll info
+                if (rollInfo != null && rollInfo.Count > 0)
+                {
+                    messageGroups.Add((rollInfo, UIMessageType.RollInfo));
+                }
+                
+                // Add critical miss narrative
+                if (criticalMissNarrative != null && criticalMissNarrative.Count > 0)
+                {
+                    messageGroups.Add((criticalMissNarrative, UIMessageType.System));
+                }
+                
+                // Add status effects
+                if (statusEffects != null)
+                {
+                    foreach (var effect in statusEffects)
+                    {
+                        if (effect != null && effect.Count > 0)
+                        {
+                            messageGroups.Add((effect, UIMessageType.EffectMessage));
+                        }
+                    }
+                }
+                
+                // Add all narratives (all part of the same turn block)
+                if (narratives != null)
+                {
+                    foreach (var narrative in narratives)
+                    {
+                        if (narrative != null && narrative.Count > 0)
+                        {
+                            messageGroups.Add((narrative, UIMessageType.System));
+                        }
+                    }
+                }
+                
+                // Calculate delay after batch (use ActionDelayMs for complete action blocks)
+                int delayAfterBatchMs = 0;
+                if (UIManager.EnableDelays)
+                {
+                    delayAfterBatchMs = CombatDelayManager.Config.ActionDelayMs;
+                }
+                
+                // Write all messages as a single batch (synchronous - for backward compatibility)
+                if (messageGroups.Count > 0)
+                {
+                    canvasCoordinator.WriteColoredSegmentsBatch(messageGroups, delayAfterBatchMs);
+                }
+            }
+            else if (customUIManager != null)
+            {
+                // Fallback for non-CanvasUICoordinator UI managers
                 // Write actionText directly to bypass delay
                 if (actionText != null && actionText.Count > 0)
                 {
@@ -115,8 +137,19 @@ namespace RPGGame
                         }
                     }
                 }
+                // Write all narratives (all part of the same turn block)
+                if (narratives != null)
+                {
+                    foreach (var narrative in narratives)
+                    {
+                        if (narrative != null && narrative.Count > 0)
+                        {
+                            customUIManager.WriteColoredSegments(narrative, UIMessageType.System);
+                        }
+                    }
+                }
                 // Apply delay after all lines are written
-                if (UIManager.UIConfig.EnableDelays)
+                if (UIManager.EnableDelays)
                 {
                     CombatDelayManager.DelayAfterMessage();
                 }
@@ -152,8 +185,20 @@ namespace RPGGame
                         }
                     }
                 }
+                // Write all narratives (all part of the same turn block)
+                if (narratives != null)
+                {
+                    foreach (var narrative in narratives)
+                    {
+                        if (narrative != null && narrative.Count > 0)
+                        {
+                            ColoredConsoleWriter.WriteSegments(narrative);
+                            Console.WriteLine();
+                        }
+                    }
+                }
                 // Apply delay after all lines are written
-                if (UIManager.UIConfig.EnableDelays)
+                if (UIManager.EnableDelays)
                 {
                     CombatDelayManager.DelayAfterMessage();
                 }
@@ -165,8 +210,121 @@ namespace RPGGame
                 lastActingEntity = currentEntity;
             }
             
-            ApplyBlockDelay("ActionBlock");
-            ApplyBlockSpacing("ActionBlock");
+            // Record that this block was displayed for spacing system
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.CombatAction);
+            
+            // Delay and spacing are now handled by the batch method for GUI
+            // For console, still apply delay and spacing
+            if (customUIManager == null)
+            {
+                ApplyBlockDelay("ActionBlock");
+            }
+        }
+        
+        /// <summary>
+        /// Displays an ACTION BLOCK using ColoredText (async version)
+        /// This version waits for the display delay to complete, allowing the combat loop to wait for each action
+        /// </summary>
+        public static async System.Threading.Tasks.Task DisplayActionBlockAsync(List<ColoredText> actionText, List<ColoredText> rollInfo, List<List<ColoredText>>? statusEffects = null, List<ColoredText>? criticalMissNarrative = null, List<List<ColoredText>>? narratives = null)
+        {
+            // Extract entity name from ColoredText for tracking (but don't add blank lines between actor changes)
+            string? currentEntity = null;
+            if (actionText != null && actionText.Count > 0)
+            {
+                string plainText = ColoredTextRenderer.RenderAsPlainText(actionText);
+                currentEntity = ExtractEntityNameFromMessage(plainText);
+            }
+            
+            // Apply context-aware spacing based on what came before
+            TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.CombatAction);
+            
+            // Render both actionText and rollInfo together as a single batch
+            // All lines of a combat action block are added together, then rendered as one unit
+            var customUIManager = UIManager.GetCustomUIManager();
+            if (customUIManager != null && customUIManager is UI.Avalonia.CanvasUICoordinator canvasCoordinator)
+            {
+                // Collect all messages for this combat action block
+                var messageGroups = new List<(List<ColoredText> segments, UIMessageType messageType)>();
+                
+                // Add action text
+                if (actionText != null && actionText.Count > 0)
+                {
+                    messageGroups.Add((actionText, UIMessageType.Combat));
+                }
+                
+                // Add roll info
+                if (rollInfo != null && rollInfo.Count > 0)
+                {
+                    messageGroups.Add((rollInfo, UIMessageType.RollInfo));
+                }
+                
+                // Add critical miss narrative
+                if (criticalMissNarrative != null && criticalMissNarrative.Count > 0)
+                {
+                    messageGroups.Add((criticalMissNarrative, UIMessageType.System));
+                }
+                
+                // Add status effects
+                if (statusEffects != null)
+                {
+                    foreach (var effect in statusEffects)
+                    {
+                        if (effect != null && effect.Count > 0)
+                        {
+                            messageGroups.Add((effect, UIMessageType.EffectMessage));
+                        }
+                    }
+                }
+                
+                // Add all narratives (all part of the same turn block)
+                if (narratives != null)
+                {
+                    foreach (var narrative in narratives)
+                    {
+                        if (narrative != null && narrative.Count > 0)
+                        {
+                            messageGroups.Add((narrative, UIMessageType.System));
+                        }
+                    }
+                }
+                
+                // Calculate delay after batch (use ActionDelayMs for complete action blocks)
+                int delayAfterBatchMs = 0;
+                if (UIManager.EnableDelays)
+                {
+                    delayAfterBatchMs = CombatDelayManager.Config.ActionDelayMs;
+                }
+                
+                // Write all messages as a single batch and wait for delay
+                if (messageGroups.Count > 0)
+                {
+                    await canvasCoordinator.WriteColoredSegmentsBatchAsync(messageGroups, delayAfterBatchMs);
+                }
+            }
+            else
+            {
+                // For non-CanvasUICoordinator or console, use synchronous version
+                if (actionText != null && rollInfo != null)
+                {
+                    DisplayActionBlock(actionText, rollInfo, statusEffects, criticalMissNarrative, narratives);
+                }
+            }
+            
+            // Update the last acting Actor
+            if (currentEntity != null)
+            {
+                lastActingEntity = currentEntity;
+            }
+            
+            // Record that this block was displayed for spacing system
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.CombatAction);
+            
+            // Delay and spacing are now handled by the batch method for GUI
+            // For console, still apply delay and spacing
+            if (customUIManager == null)
+            {
+                ApplyBlockDelay("ActionBlock");
+            }
         }
         
         /// <summary>
@@ -174,12 +332,16 @@ namespace RPGGame
         /// </summary>
         public static void DisplayNarrativeBlock(List<ColoredText> narrativeText)
         {
-            if (UIManager.UIConfig.DisableAllOutput || narrativeText == null || narrativeText.Count == 0) return;
+            if (UIManager.DisableAllUIOutput || narrativeText == null || narrativeText.Count == 0) return;
             
-            ManageBlockSpacing("NarrativeBlock");
+            // Apply context-aware spacing
+            TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.Narrative);
+            
             UIManager.WriteColoredText(narrativeText);
             ApplyBlockDelay("NarrativeBlock");
-            ApplyBlockSpacing("NarrativeBlock");
+            
+            // Record that this block was displayed
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.Narrative);
         }
         
         /// <summary>
@@ -187,12 +349,16 @@ namespace RPGGame
         /// </summary>
         public static void DisplaySystemBlock(List<ColoredText> systemText)
         {
-            if (UIManager.UIConfig.DisableAllOutput || systemText == null || systemText.Count == 0) return;
+            if (UIManager.DisableAllUIOutput || systemText == null || systemText.Count == 0) return;
             
-            ManageBlockSpacing("SystemBlock");
+            // Apply context-aware spacing (defaults to 0, can be overridden for specific cases)
+            TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.SystemMessage);
+            
             UIManager.WriteColoredText(systemText);
             ApplyBlockDelay("SystemBlock");
-            ApplyBlockSpacing("SystemBlock");
+            
+            // Record that this block was displayed
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.SystemMessage);
         }
         
         // ===== STRING-BASED METHODS (Legacy Support) =====
@@ -208,19 +374,13 @@ namespace RPGGame
         /// <param name="statusEffects">Status effects (only shown if present)</param>
         public static void DisplayActionBlock(string actionText, string rollInfo, List<string>? statusEffects = null)
         {
-            if (UIManager.UIConfig.DisableAllOutput) return;
+            if (UIManager.DisableAllUIOutput) return;
             
             // Extract Actor name from action text (supports: [EntityName] ... or EntityName hits ...)
             string? currentEntity = ExtractEntityNameFromMessage(actionText);
             
-            // Add blank line when switching between different actors
-            if (lastActingEntity != null && currentEntity != null && lastActingEntity != currentEntity)
-            {
-                UIManager.WriteBlankLine();
-            }
-            
-            // Manage spacing between block types
-            ManageBlockSpacing("ActionBlock");
+            // Apply context-aware spacing based on what came before
+            TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.CombatAction);
             
             // Display the action with keyword coloring
             UIManager.WriteLine(ApplyKeywordColoring(actionText), UIMessageType.Combat);
@@ -241,9 +401,11 @@ namespace RPGGame
                 lastActingEntity = currentEntity;
             }
             
-            // Apply block delay and spacing
+            // Record that this block was displayed
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.CombatAction);
+            
+            // Apply block delay
             ApplyBlockDelay("ActionBlock");
-            ApplyBlockSpacing("ActionBlock");
         }
         
         /// <summary>
@@ -255,10 +417,10 @@ namespace RPGGame
         /// <param name="details">Additional details (like turn count)</param>
         public static void DisplayEffectBlock(string effectText, string? details = null)
         {
-            if (UIManager.UIConfig.DisableAllOutput) return;
+            if (UIManager.DisableAllUIOutput) return;
             
-            // Manage spacing between block types
-            ManageBlockSpacing("EffectBlock");
+            // Apply context-aware spacing based on what came before
+            TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.StatusEffect);
             
             // Display the effect with keyword coloring
             UIManager.WriteLine(ApplyKeywordColoring(effectText), UIMessageType.EffectMessage);
@@ -269,9 +431,9 @@ namespace RPGGame
                 UIManager.WriteLine($"    ({ApplyKeywordColoring(details)})", UIMessageType.EffectMessage);
             }
             
-            // Apply block delay and spacing
+            // Record that this block was displayed (StatusEffect doesn't affect spacing, so it's not recorded)
+            // Apply block delay
             ApplyBlockDelay("EffectBlock");
-            ApplyBlockSpacing("EffectBlock");
         }
         
         /// <summary>
@@ -283,17 +445,19 @@ namespace RPGGame
         /// <param name="narrativeText">The narrative message</param>
         public static void DisplayNarrativeBlock(string narrativeText)
         {
-            if (UIManager.UIConfig.DisableAllOutput || string.IsNullOrEmpty(narrativeText)) return;
+            if (UIManager.DisableAllUIOutput || string.IsNullOrEmpty(narrativeText)) return;
             
-            // Manage spacing between block types
-            ManageBlockSpacing("NarrativeBlock");
+            // Apply context-aware spacing
+            TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.Narrative);
             
             // Display the narrative with keyword coloring
             UIManager.WriteLine(ApplyKeywordColoring(narrativeText), UIMessageType.System);
             
-            // Apply block delay and spacing
+            // Record that this block was displayed
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.Narrative);
+            
+            // Apply block delay
             ApplyBlockDelay("NarrativeBlock");
-            ApplyBlockSpacing("NarrativeBlock");
         }
         
         /// <summary>
@@ -305,42 +469,55 @@ namespace RPGGame
         /// <param name="effects">Environmental effects</param>
         public static void DisplayEnvironmentalBlock(string environmentalText, List<string>? effects = null)
         {
-            if (UIManager.UIConfig.DisableAllOutput) return;
+            if (UIManager.DisableAllUIOutput) return;
             
-            // Manage spacing between block types
-            ManageBlockSpacing("EnvironmentalBlock");
+            // Apply context-aware spacing (blank line before environmental actions)
+            TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.EnvironmentalAction);
             
             // Display the environmental action with keyword coloring
             UIManager.WriteLine(ApplyKeywordColoring(environmentalText), UIMessageType.Environmental);
             
-            // Display effects if present
+            // Display effects if present (part of environmental block, no spacing)
             var validEffects = effects?.FindAll(e => !string.IsNullOrEmpty(e)) ?? new List<string>();
             foreach (var effect in validEffects)
             {
                 UIManager.WriteLine($"    {ApplyKeywordColoring(effect)}", UIMessageType.EffectMessage);
+                // Status effects are part of the environmental block, don't record separately
             }
             
-            // Apply block delay and spacing
+            // Record that this block was displayed
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.EnvironmentalAction);
+            
+            // Apply block delay
             ApplyBlockDelay("EnvironmentalBlock");
-            ApplyBlockSpacing("EnvironmentalBlock");
         }
         
         /// <summary>
         /// Displays a SYSTEM BLOCK for system messages
         /// </summary>
-        /// <param name="systemText">The system message</param>
+        /// <param name="systemText">The system message (supports multi-line with \n)</param>
         public static void DisplaySystemBlock(string systemText)
         {
-            if (UIManager.UIConfig.DisableAllOutput || string.IsNullOrEmpty(systemText)) return;
+            if (UIManager.DisableAllUIOutput || string.IsNullOrEmpty(systemText)) return;
             
-            // Manage spacing between block types
-            ManageBlockSpacing("SystemBlock");
+            // Apply context-aware spacing (defaults to 0, can be overridden for specific cases)
+            TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.SystemMessage);
             
-            UIManager.WriteLine(ApplyKeywordColoring(systemText), UIMessageType.System);
+            // Split multi-line strings and write each line separately to ensure proper rendering
+            string[] lines = systemText.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string line in lines)
+            {
+                if (!string.IsNullOrWhiteSpace(line))
+                {
+                    UIManager.WriteLine(ApplyKeywordColoring(line), UIMessageType.System);
+                }
+            }
             
-            // Apply block delay and spacing
+            // Record that this block was displayed
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.SystemMessage);
+            
+            // Apply block delay
             ApplyBlockDelay("SystemBlock");
-            ApplyBlockSpacing("SystemBlock");
         }
         
         /// <summary>
@@ -349,16 +526,19 @@ namespace RPGGame
         /// <param name="statsText">The stats text</param>
         public static void DisplayStatsBlock(string statsText)
         {
-            if (UIManager.UIConfig.DisableAllOutput || string.IsNullOrEmpty(statsText)) return;
+            if (UIManager.DisableAllUIOutput || string.IsNullOrEmpty(statsText)) return;
             
-            // Manage spacing between block types
-            ManageBlockSpacing("StatsBlock");
+            // Stats blocks have no spacing (consecutive display)
+            // Apply context-aware spacing (defaults to 0 for stats)
+            TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.StatsBlock);
             
             UIManager.WriteLine(ApplyKeywordColoring(statsText), UIMessageType.System);
             
-            // Apply block delay and spacing
+            // Record that this block was displayed
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.StatsBlock);
+            
+            // Apply block delay
             ApplyBlockDelay("StatsBlock");
-            ApplyBlockSpacing("StatsBlock");
         }
         
         /// <summary>
@@ -367,16 +547,18 @@ namespace RPGGame
         /// <param name="menuText">The menu text</param>
         public static void DisplayMenuBlock(string menuText)
         {
-            if (UIManager.UIConfig.DisableAllOutput || string.IsNullOrEmpty(menuText)) return;
+            if (UIManager.DisableAllUIOutput || string.IsNullOrEmpty(menuText)) return;
             
-            // Manage spacing between block types
-            ManageBlockSpacing("MenuBlock");
+            // Menu blocks have no spacing (compact display)
+            TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.MenuBlock);
             
             UIManager.WriteLine(ApplyKeywordColoring(menuText), UIMessageType.Menu);
             
-            // Apply block delay and spacing
+            // Record that this block was displayed
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.MenuBlock);
+            
+            // Apply block delay
             ApplyBlockDelay("MenuBlock");
-            ApplyBlockSpacing("MenuBlock");
         }
         
         /// <summary>
@@ -385,7 +567,7 @@ namespace RPGGame
         /// <param name="blockType">The type of block for delay calculation</param>
         private static void ApplyBlockDelay(string blockType)
         {
-            if (!UIManager.UIConfig.EnableDelays) return;
+            if (!UIManager.EnableDelays) return;
             
             // Use centralized delay system for individual messages
             CombatDelayManager.DelayAfterMessage();
@@ -397,43 +579,7 @@ namespace RPGGame
         public static void ResetForNewBattle()
         {
             lastActingEntity = null;
-            lastBlockType = null;
-        }
-        
-        /// <summary>
-        /// Manages spacing between different block types using centralized rules
-        /// </summary>
-        /// <param name="currentBlockType">The type of block being displayed</param>
-        private static void ManageBlockSpacing(string currentBlockType)
-        {
-            // Get spacing rule for current block type
-            if (BlockSpacingRules.TryGetValue(currentBlockType, out SpacingRule currentRule))
-            {
-                // Add blank lines before this block type
-                for (int i = 0; i < currentRule.Before; i++)
-                {
-                    UIManager.WriteBlankLine();
-                }
-            }
-            
-            lastBlockType = currentBlockType;
-        }
-
-        /// <summary>
-        /// Applies spacing after a block type is displayed
-        /// </summary>
-        /// <param name="blockType">The type of block that was just displayed</param>
-        private static void ApplyBlockSpacing(string blockType)
-        {
-            // Get spacing rule for this block type
-            if (BlockSpacingRules.TryGetValue(blockType, out SpacingRule rule))
-            {
-                // Add blank lines after this block type
-                for (int i = 0; i < rule.After; i++)
-                {
-                    UIManager.WriteBlankLine();
-                }
-            }
+            TextSpacingSystem.Reset();
         }
         
         /// <summary>

@@ -882,9 +882,11 @@ namespace RPGGame
             foreach (var (testName, success, message) in results)
             {
                 string status = success ? "✓ PASS" : "✗ FAIL";
-                string statusColor = success ? "&G" : "&R";
-                
-                TextDisplayIntegration.DisplaySystem($"{statusColor}{status}&y {testName}");
+                // Use template syntax for colored status
+                string statusText = success 
+                    ? $"{{{{success|{status}}}}} {testName}"
+                    : $"{{{{damage|{status}}}}} {testName}";
+                TextDisplayIntegration.DisplaySystem(statusText);
                 TextDisplayIntegration.DisplaySystem($"    {message}");
                 
                 if (success)
@@ -895,16 +897,16 @@ namespace RPGGame
             
             TextDisplayIntegration.DisplaySystem(new string('-', 60));
             TextDisplayIntegration.DisplaySystem($"Total Tests: {results.Count}");
-            TextDisplayIntegration.DisplaySystem($"&GPassed: {passedTests}&y");
-            TextDisplayIntegration.DisplaySystem($"&RFailed: {failedTests}&y");
+            TextDisplayIntegration.DisplaySystem($"{{{{success|Passed: {passedTests}}}}}");
+            TextDisplayIntegration.DisplaySystem($"{{{{damage|Failed: {failedTests}}}}}");
             
             if (failedTests == 0)
             {
-                TextDisplayIntegration.DisplaySystem("\n&G🎉 ALL TESTS PASSED! 🎉&y");
+                TextDisplayIntegration.DisplaySystem($"\n{{{{success|🎉 ALL TESTS PASSED! 🎉}}}}");
             }
             else
             {
-                TextDisplayIntegration.DisplaySystem($"\n&R⚠️  {failedTests} test(s) failed. Please review the errors above.&y");
+                TextDisplayIntegration.DisplaySystem($"\n{{{{damage|⚠️  {failedTests} test(s) failed. Please review the errors above.}}}}");
             }
         }
 
@@ -936,17 +938,17 @@ namespace RPGGame
             var testCases = new[]
             {
                 "Simple text",
-                "Text with &Rred&y color",
-                "Text with &R^gred on green&y background",
+                "Text with {{damage|red}} color",
+                "Text with {{damage|red}} on {{success|green}} background",
                 "Text with {{fiery|fire effect}}",
-                "Mixed &Rred&y and {{icy|ice}} effects"
+                "Mixed {{damage|red}} and {{icy|ice}} effects"
             };
             
             foreach (var test in testCases)
             {
                 try
                 {
-                    var segments = ColorParser.Parse(test);
+                    var segments = ColoredTextParser.Parse(test);
                     TextDisplayIntegration.DisplaySystem($"  ✓ '{test}' -> {segments.Count} segments");
                 }
                 catch (Exception ex)
@@ -978,7 +980,7 @@ namespace RPGGame
             {
                 try
                 {
-                    var segments = ColorParser.Parse(template);
+                    var segments = ColoredTextParser.Parse(template);
                     TextDisplayIntegration.DisplaySystem($"  ✓ '{template}' -> {segments.Count} segments");
                 }
                 catch (Exception ex)
@@ -998,16 +1000,17 @@ namespace RPGGame
             var testCases = new[]
             {
                 ("Simple text", 11),
-                ("&RRed&y text", 9),
+                ("{{damage|Red}} text", 9),
                 ("{{fiery|Fire}}", 4),
-                ("Mixed &Rred&y and {{icy|ice}}", 19)
+                ("Mixed {{damage|red}} and {{icy|ice}}", 19)
             };
             
             foreach (var (text, expectedLength) in testCases)
             {
                 try
                 {
-                    var actualLength = ColorParser.GetDisplayLength(text);
+                    var segments = ColoredTextParser.Parse(text);
+                    var actualLength = ColoredTextRenderer.GetDisplayLength(segments);
                     var status = actualLength == expectedLength ? "✓" : "✗";
                     TextDisplayIntegration.DisplaySystem($"  {status} '{text}' -> Expected: {expectedLength}, Actual: {actualLength}");
                 }
@@ -1028,11 +1031,9 @@ namespace RPGGame
             var edgeCases = new[]
             {
                 "", // Empty string
-                "&", // Incomplete color code
                 "{{", // Incomplete template
                 "{{invalid|template}}", // Invalid template
-                "&X", // Invalid color code
-                "Text with &R", // Incomplete color at end
+                "Text with {{", // Incomplete template at end
                 "{{fiery|", // Incomplete template
                 "Normal text with no markup"
             };
@@ -1041,7 +1042,7 @@ namespace RPGGame
             {
                 try
                 {
-                    var segments = ColorParser.Parse(test);
+                    var segments = ColoredTextParser.Parse(test);
                     TextDisplayIntegration.DisplaySystem($"  ✓ '{test}' -> {segments.Count} segments (handled gracefully)");
                 }
                 catch (Exception ex)

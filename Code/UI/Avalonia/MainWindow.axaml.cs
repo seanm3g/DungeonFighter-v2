@@ -1,4 +1,4 @@
-﻿using Avalonia;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media.Imaging;
@@ -56,30 +56,23 @@ namespace RPGGame.UI.Avalonia
                 // Set the UI manager for the static UIManager class
                 UIManager.SetCustomUIManager(canvasUIManager);
                 
-                // Show opening animation first (using the new animated title screen)
+                // Show static title screen (no animation)
                 if (canvasUIManager is CanvasUICoordinator canvasUI2)
                 {
-                    // Run animation on UI thread to avoid deadlocks
-                    Dispatcher.UIThread.Post(async () =>
+                    // Show the static title screen immediately
+                    try
                     {
-                        try
-                        {
-                            // Step 1: Show black screen for 1 second
-                            await Task.Delay(1000);
-                            
-                            // Step 2: Show a simple static title screen
-                            TitleScreenHelper.ShowStaticTitleScreen();
-                            
-                            // Set flag to wait for key press
-                            waitingForKeyAfterAnimation = true;
-                        }
-                        catch (Exception ex)
-                        {
-                            UpdateStatus($"Error during title animation: {ex.Message}");
-                            // If animation fails, proceed to main menu
-                            InitializeGameAfterAnimation();
-                        }
-                    }, DispatcherPriority.Background);
+                        TitleScreenHelper.ShowStaticTitleScreen();
+                        
+                        // Set flag to wait for key press
+                        waitingForKeyAfterAnimation = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        UpdateStatus($"Error displaying title screen: {ex.Message}");
+                        // If title screen fails, proceed to main menu
+                        InitializeGameAfterAnimation();
+                    }
                     
                     // Don't proceed to main menu yet - wait for key press
                     return;
@@ -122,7 +115,6 @@ namespace RPGGame.UI.Avalonia
                 game.ShowMainMenu();
                 
                 isInitialized = true;
-                UpdateStatus("Game initialized. Press H for help.");
             }
             catch (Exception ex)
             {

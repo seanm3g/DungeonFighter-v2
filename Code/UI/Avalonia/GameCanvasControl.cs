@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.UI.Avalonia
@@ -138,18 +139,75 @@ namespace RPGGame.UI.Avalonia
             boxElements.Clear();
             progressBars.Clear();
         }
+        
+        /// <summary>
+        /// Clears text elements within a specific Y range (inclusive)
+        /// Clears ALL text in the Y range across the entire canvas width
+        /// This is the standard method for clearing panels/areas - always clears full width
+        /// </summary>
+        public void ClearTextInRange(int startY, int endY)
+        {
+            textElements.RemoveAll(text => text.Y >= startY && text.Y <= endY);
+        }
+        
+        /// <summary>
+        /// Clears text elements within a specific rectangular area (inclusive)
+        /// Use this only when you need to clear a specific rectangular region (e.g., center panel only)
+        /// For clearing full-width panels, use ClearTextInRange() instead
+        /// </summary>
+        public void ClearTextInArea(int startX, int startY, int width, int height)
+        {
+            int endX = startX + width;
+            int endY = startY + height;
+            textElements.RemoveAll(text => 
+                text.X >= startX && text.X < endX && 
+                text.Y >= startY && text.Y < endY);
+        }
+        
+        /// <summary>
+        /// Clears progress bars within a specific rectangular area (inclusive)
+        /// Used to clear specific areas of the canvas without affecting other panels
+        /// </summary>
+        public void ClearProgressBarsInArea(int startX, int startY, int width, int height)
+        {
+            int endX = startX + width;
+            int endY = startY + height;
+            progressBars.RemoveAll(bar => 
+                bar.X >= startX && bar.X < endX && 
+                bar.Y >= startY && bar.Y < endY);
+        }
 
+        /// <summary>
+        /// Adds text to the canvas at the specified position
+        /// Automatically removes any existing text at the exact same position to prevent overlap
+        /// </summary>
         public void AddText(int x, int y, string text, Color color)
         {
+            // Remove any existing text at the exact same position to prevent overlap
+            // This is especially important for animated content like the title screen
+            textElements.RemoveAll(t => t.X == x && t.Y == y);
+            
             textElements.Add(new CanvasText { X = x, Y = y, Content = text, Color = color });
         }
         
         /// <summary>
-        /// Alias for AddText for compatibility
+        /// Adds text to the canvas at the specified position without removing existing text
+        /// This is used for rendering multi-segment colored text where segments may round to the same position
         /// </summary>
-        public void DrawText(string text, int x, int y, Color color)
+        public void AppendText(int x, int y, string text, Color color)
         {
-            AddText(x, y, text, color);
+            // Find existing text at this position and append to it, or create new
+            var existing = textElements.FirstOrDefault(t => t.X == x && t.Y == y);
+            if (existing != null && existing.Color == color)
+            {
+                // Append to existing text with same color
+                existing.Content += text;
+            }
+            else
+            {
+                // Create new text element
+                textElements.Add(new CanvasText { X = x, Y = y, Content = text, Color = color });
+            }
         }
         
         /// <summary>
@@ -175,7 +233,9 @@ namespace RPGGame.UI.Avalonia
             {
                 // Use CenterX (105 for 210-wide screen) as the center point
                 // Use GetDisplayLength to exclude color markup characters from the length calculation
-                x = CenterX - (ColorParser.GetDisplayLength(text) / 2);
+                var segments = ColoredTextParser.Parse(text);
+                int displayLength = ColoredTextRenderer.GetDisplayLength(segments);
+                x = CenterX - (displayLength / 2);
             }
             AddText(x, y, text, color);
         }

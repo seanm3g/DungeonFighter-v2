@@ -44,7 +44,7 @@ namespace RPGGame
             
             // Attacker name
             builder.Add(attacker.Name, attacker is Character ? ColorPalette.Player : ColorPalette.Enemy);
-            builder.Add(" hits ", Colors.White);
+            builder.Add("hits", Colors.White);
             
             // Target name
             builder.Add(target.Name, target is Character ? ColorPalette.Player : ColorPalette.Enemy);
@@ -52,14 +52,14 @@ namespace RPGGame
             // Action name for combo actions
             if (isComboAction)
             {
-                builder.Add(" with ", Colors.White);
+                builder.Add("with", Colors.White);
                 builder.Add(actionName, isCritical ? ColorPalette.Critical : ColorPalette.Warning);
             }
             
             // Damage amount
-            builder.Add(" for ", Colors.White);
+            builder.Add("for", Colors.White);
             builder.Add(actualDamage.ToString(), isCritical ? ColorPalette.Critical : ColorPalette.Damage);
-            builder.Add(" damage", Colors.White);
+            builder.Add("damage", Colors.White);
             
             var damageText = builder.Build();
             
@@ -131,7 +131,8 @@ namespace RPGGame
             builder.Add("     (", Colors.Gray);
             
             // Roll information
-            builder.Add("roll: ", ColorPalette.Info);
+            builder.Add("roll:", ColorPalette.Info);
+            builder.AddSpace();
             builder.Add(roll.ToString(), Colors.White);
             
             int totalRoll = roll + rollBonus;
@@ -152,7 +153,8 @@ namespace RPGGame
             
             // Attack vs Defense
             builder.Add(" | ", Colors.Gray);
-            builder.Add("attack ", ColorPalette.Info);
+            builder.Add("attack", ColorPalette.Info);
+            builder.AddSpace();
             builder.Add(attack.ToString(), Colors.White);
             builder.Add(" - ", Colors.White);
             builder.Add(defense.ToString(), Colors.White);
@@ -162,7 +164,8 @@ namespace RPGGame
             if (actualSpeed > 0)
             {
                 builder.Add(" | ", Colors.Gray);
-                builder.Add("speed: ", ColorPalette.Info);
+                builder.Add("speed:", ColorPalette.Info);
+                builder.AddSpace();
                 builder.Add($"{actualSpeed:F1}s", Colors.White);
             }
             
@@ -172,13 +175,15 @@ namespace RPGGame
                 if (comboAmplifier.Value > 1.0)
                 {
                     builder.Add(" | ", Colors.Gray);
-                    builder.Add("amp: ", ColorPalette.Info);
+                    builder.Add("amp:", ColorPalette.Info);
+                    builder.AddSpace();
                     builder.Add($"{comboAmplifier.Value:F1}x", Colors.White);
                 }
                 else if (action != null && action.IsComboAction)
                 {
                     builder.Add(" | ", Colors.Gray);
-                    builder.Add("amp: ", ColorPalette.Info);
+                    builder.Add("amp:", ColorPalette.Info);
+                    builder.AddSpace();
                     builder.Add("1.0x", Colors.White);
                 }
             }
@@ -206,19 +211,18 @@ namespace RPGGame
             
             // Attacker name
             builder.Add(attacker.Name, attacker is Character ? ColorPalette.Player : ColorPalette.Enemy);
-            builder.Add(" ", Colors.White);
             
             if (isCriticalMiss)
             {
-                builder.Add("CRITICAL ", ColorPalette.Critical);
+                builder.Add("CRITICAL", ColorPalette.Critical);
                 builder.Add("MISS", ColorPalette.Miss);
             }
             else
             {
                 builder.Add("misses", ColorPalette.Miss);
+                builder.AddSpace();
             }
             
-            builder.Add(" ", Colors.White);
             builder.Add(target.Name, target is Character ? ColorPalette.Player : ColorPalette.Enemy);
             
             var missText = builder.Build();
@@ -250,12 +254,12 @@ namespace RPGGame
             
             // Source name
             builder.Add(source.Name, source is Character ? ColorPalette.Player : ColorPalette.Enemy);
-            builder.Add(" uses ", Colors.White);
+            builder.Add("uses", Colors.White);
             
             // Action name
             builder.Add(action.Name, ColorPalette.Success);
             
-            builder.Add(" on ", Colors.White);
+            builder.Add("on", Colors.White);
             
             // Target name
             builder.Add(target.Name, target is Character ? ColorPalette.Player : ColorPalette.Enemy);
@@ -282,7 +286,7 @@ namespace RPGGame
             var builder = new ColoredTextBuilder();
             
             builder.Add(Actor.Name, Actor is Character ? ColorPalette.Player : ColorPalette.Enemy);
-            builder.Add(" is ", Colors.White);
+            builder.Add("is", Colors.White);
             
             if (healthPercentage <= 0.1)
             {
@@ -320,11 +324,10 @@ namespace RPGGame
             var builder = new ColoredTextBuilder();
             
             builder.Add(defender.Name, ColorPalette.Player);
-            builder.Add(" ", Colors.White);
             builder.Add("blocks", ColorPalette.Block);
-            builder.Add(" ", Colors.White);
             builder.Add(damageBlocked.ToString(), ColorPalette.Block);
-            builder.Add(" damage from ", Colors.White);
+            builder.Add("damage", Colors.White);
+            builder.Add("from", Colors.White);
             builder.Add(attacker.Name, ColorPalette.Enemy);
             builder.Add("!", Colors.White);
             
@@ -341,11 +344,10 @@ namespace RPGGame
             var builder = new ColoredTextBuilder();
             
             builder.Add(defender.Name, ColorPalette.Player);
-            builder.Add(" ", Colors.White);
             builder.Add("dodges", ColorPalette.Dodge);
-            builder.Add(" ", Colors.White);
             builder.Add(attacker.Name, ColorPalette.Enemy);
-            builder.Add("'s attack!", Colors.White);
+            builder.Add("'s", Colors.White);
+            builder.Add("attack!", Colors.White);
             
             return builder.Build();
         }
@@ -363,30 +365,31 @@ namespace RPGGame
             var builder = new ColoredTextBuilder();
             
             builder.Add(target.Name, target is Character ? ColorPalette.Player : ColorPalette.Enemy);
-            builder.Add(" ", Colors.White);
             
             if (isApplied)
             {
-                builder.Add("is affected by", ColorPalette.Warning);
-                builder.Add(" ", Colors.White);
+                builder.Add("is", Colors.White);
+                builder.Add("affected", ColorPalette.Warning);
+                builder.Add("by", Colors.White);
                 builder.Add(effectName, ColorPalette.Error);
                 
                 if (stackCount.HasValue && stackCount.Value > 1)
                 {
-                    builder.Add(" ", Colors.White);
                     builder.Add($"(x{stackCount.Value})", ColorPalette.Warning);
                 }
                 
                 if (duration.HasValue)
                 {
-                    builder.Add(" ", Colors.White);
                     builder.Add($"[{duration.Value} turns]", Colors.Gray);
                 }
             }
             else
             {
-                builder.Add("is no longer affected by", ColorPalette.Success);
-                builder.Add(" ", Colors.White);
+                builder.Add("is", Colors.White);
+                builder.Add("no", Colors.White);
+                builder.Add("longer", Colors.White);
+                builder.Add("affected", ColorPalette.Success);
+                builder.Add("by", Colors.White);
                 builder.Add(effectName, ColorPalette.Info);
             }
             
@@ -406,11 +409,11 @@ namespace RPGGame
             var builder = new ColoredTextBuilder();
             
             builder.Add(healer.Name, ColorPalette.Player);
-            builder.Add(" heals ", Colors.White);
+            builder.Add("heals", Colors.White);
             builder.Add(target.Name, target is Character ? ColorPalette.Player : ColorPalette.Enemy);
-            builder.Add(" for ", Colors.White);
+            builder.Add("for", Colors.White);
             builder.Add(healAmount.ToString(), ColorPalette.Healing);
-            builder.Add(" health", ColorPalette.Healing);
+            builder.Add("health", ColorPalette.Healing);
             builder.Add("!", Colors.White);
             
             return builder.Build();
@@ -424,7 +427,8 @@ namespace RPGGame
             var builder = new ColoredTextBuilder();
             
             builder.Add(victor.Name, ColorPalette.Player);
-            builder.Add(" has defeated ", Colors.White);
+            builder.Add("has", Colors.White);
+            builder.Add("defeated", Colors.White);
             builder.Add(defeated.Name, ColorPalette.Enemy);
             builder.Add("!", ColorPalette.Success);
             
@@ -439,7 +443,10 @@ namespace RPGGame
             var builder = new ColoredTextBuilder();
             
             builder.Add(defeated.Name, ColorPalette.Player);
-            builder.Add(" has been defeated by ", Colors.White);
+            builder.Add("has", Colors.White);
+            builder.Add("been", Colors.White);
+            builder.Add("defeated", Colors.White);
+            builder.Add("by", Colors.White);
             builder.Add(victor.Name, ColorPalette.Enemy);
             builder.Add("!", ColorPalette.Error);
             

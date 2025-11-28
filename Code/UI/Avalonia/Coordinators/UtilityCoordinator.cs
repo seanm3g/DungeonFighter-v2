@@ -139,6 +139,26 @@ namespace RPGGame.UI.Avalonia.Coordinators
         {
             contextManager.SetDeleteConfirmationPending(pending);
         }
+        
+        /// <summary>
+        /// Clears text elements within a specific Y range (inclusive)
+        /// Clears ALL text in the Y range across the entire canvas width
+        /// This is the standard method for clearing panels/areas - always clears full width
+        /// </summary>
+        public void ClearTextInRange(int startY, int endY)
+        {
+            canvas.ClearTextInRange(startY, endY);
+        }
+        
+        /// <summary>
+        /// Clears text elements within a specific rectangular area (inclusive)
+        /// Use this only when you need to clear a specific rectangular region (e.g., center panel only)
+        /// For clearing full-width panels, use ClearTextInRange() instead
+        /// </summary>
+        public void ClearTextInArea(int startX, int startY, int width, int height)
+        {
+            canvas.ClearTextInArea(startX, startY, width, height);
+        }
     }
 }
 

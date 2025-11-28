@@ -67,7 +67,8 @@ namespace RPGGame.UI.Animations
             config ??= new FadeConfig();
             
             // Strip any existing color markup to work with plain text
-            string plainText = ColorParser.StripColorMarkup(text);
+            var segments = ColoredTextParser.Parse(text);
+            string plainText = ColoredTextRenderer.RenderAsPlainText(segments);
             
             // Generate animation frames
             var frames = GenerateFadeFrames(plainText, config);
@@ -341,7 +342,8 @@ namespace RPGGame.UI.Animations
             
             // Generate frames using custom color progression
             var frames = new List<string>();
-            string plainText = ColorParser.StripColorMarkup(text);
+            var segments = ColoredTextParser.Parse(text);
+            string plainText = ColoredTextRenderer.RenderAsPlainText(segments);
             var letterSequence = GenerateLetterSequence(plainText, pattern);
             
             for (int frame = 0; frame < config.TotalFrames; frame++)

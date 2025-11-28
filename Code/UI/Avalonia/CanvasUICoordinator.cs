@@ -272,9 +272,9 @@ namespace RPGGame.UI.Avalonia
             screenRenderingCoordinator.RenderDungeonStart(dungeon, player);
         }
 
-        public void RenderRoomEntry(Environment room, Character player, string? dungeonName = null)
+        public void RenderRoomEntry(Environment room, Character player, string? dungeonName = null, int? startFromBufferIndex = null)
         {
-            screenRenderingCoordinator.RenderRoomEntry(room, player, dungeonName);
+            screenRenderingCoordinator.RenderRoomEntry(room, player, dungeonName, startFromBufferIndex);
         }
 
         public void RenderEnemyEncounter(Enemy enemy, Character player, List<string> dungeonLog, string? dungeonName = null, string? roomName = null)
@@ -353,6 +353,21 @@ namespace RPGGame.UI.Avalonia
         public void ClearDisplayBuffer()
         {
             textManager.ClearDisplayBuffer();
+        }
+        
+        /// <summary>
+        /// Starts a batch transaction for adding multiple messages
+        /// Messages are added to the buffer but render is only triggered when transaction completes
+        /// </summary>
+        /// <param name="autoRender">If true, automatically triggers render when transaction completes. If false, caller must call Render() explicitly.</param>
+        public Display.DisplayBatchTransaction StartBatch(bool autoRender = true)
+        {
+            if (textManager is Managers.CanvasTextManager canvasTextManager)
+            {
+                return canvasTextManager.StartBatch(autoRender);
+            }
+            // Fallback: create a no-op transaction if not using CanvasTextManager
+            return new Display.DisplayBatchTransaction(null, autoRender);
         }
 
         public int GetDisplayBufferCount()
@@ -446,6 +461,26 @@ namespace RPGGame.UI.Avalonia
             utilityCoordinator.SetDeleteConfirmationPending(pending);
         }
 
+        /// <summary>
+        /// Clears text elements within a specific Y range (inclusive)
+        /// Clears ALL text in the Y range across the entire canvas width
+        /// This is the standard method for clearing panels/areas - always clears full width
+        /// </summary>
+        public void ClearTextInRange(int startY, int endY)
+        {
+            utilityCoordinator.ClearTextInRange(startY, endY);
+        }
+
+        /// <summary>
+        /// Clears text elements within a specific rectangular area (inclusive)
+        /// Use this only when you need to clear a specific rectangular region (e.g., center panel only)
+        /// For clearing full-width panels, use ClearTextInRange() instead
+        /// </summary>
+        public void ClearTextInArea(int startX, int startY, int width, int height)
+        {
+            utilityCoordinator.ClearTextInArea(startX, startY, width, height);
+        }
+
         #endregion
 
         #region Mouse Interaction - Direct implementation (merged from InteractionCoordinator)
@@ -493,17 +528,26 @@ namespace RPGGame.UI.Avalonia
         // ===== NEW COLORED TEXT SYSTEM METHODS (PRIMARY API) =====
         
         /// <summary>
-        /// Writes ColoredText directly - converts to markup string to preserve colors in display buffer
+        /// Writes ColoredText directly - stores structured data to eliminate round-trip conversions
         /// </summary>
         public void WriteColoredText(ColoredText coloredText, UIMessageType messageType = UIMessageType.System)
         {
-            // Convert ColoredText to markup string to preserve color information
-            var markup = ColoredTextRenderer.RenderAsMarkup(new List<ColoredText> { coloredText });
-            messageWritingCoordinator.WriteLine(markup, messageType);
+            // Store structured ColoredText directly - no conversion needed
+            var segments = new List<ColoredText> { coloredText };
+            if (textManager is CanvasTextManager canvasTextManager)
+            {
+                canvasTextManager.DisplayManager.AddMessage(segments, messageType);
+            }
+            else
+            {
+                // Fallback: convert to string for non-CanvasTextManager implementations
+                var markup = ColoredTextRenderer.RenderAsMarkup(segments);
+                messageWritingCoordinator.WriteLine(markup, messageType);
+            }
         }
         
         /// <summary>
-        /// Writes ColoredText with newline - converts to markup string to preserve colors
+        /// Writes ColoredText with newline - stores structured data to eliminate round-trip conversions
         /// </summary>
         public void WriteLineColoredText(ColoredText coloredText, UIMessageType messageType = UIMessageType.System)
         {
@@ -511,7 +555,7 @@ namespace RPGGame.UI.Avalonia
         }
         
         /// <summary>
-        /// Writes ColoredText segments directly - converts to markup string to preserve colors
+        /// Writes ColoredText segments directly - stores structured data to eliminate round-trip conversions
         /// This is the primary method for writing structured ColoredText
         /// </summary>
         public void WriteColoredSegments(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System)
@@ -519,10 +563,17 @@ namespace RPGGame.UI.Avalonia
             if (segments == null || segments.Count == 0)
                 return;
             
-            // Convert ColoredText segments to markup string to preserve color information
-            // The markup will be parsed back to ColoredText when rendering, maintaining colors
-            var markup = ColoredTextRenderer.RenderAsMarkup(segments);
-            messageWritingCoordinator.WriteLine(markup, messageType);
+            // Store structured ColoredText directly - no conversion needed
+            if (textManager is CanvasTextManager canvasTextManager)
+            {
+                canvasTextManager.DisplayManager.AddMessage(segments, messageType);
+            }
+            else
+            {
+                // Fallback: convert to string for non-CanvasTextManager implementations
+                var markup = ColoredTextRenderer.RenderAsMarkup(segments);
+                messageWritingCoordinator.WriteLine(markup, messageType);
+            }
         }
         
         /// <summary>
@@ -555,6 +606,82 @@ namespace RPGGame.UI.Avalonia
             
             var segments = builder.Build();
             WriteLineColoredSegments(segments, messageType);
+        }
+        
+        /// <summary>
+        /// Writes multiple ColoredText segment lists as a single batch
+        /// All messages are added to the buffer together, then a single render is scheduled
+        /// This ensures combat action blocks appear as a single unit
+        /// Stores structured data directly to eliminate round-trip conversions
+        /// </summary>
+        /// <param name="messageGroups">List of tuples containing (segments, messageType) to write</param>
+        /// <param name="delayAfterBatchMs">Optional delay in milliseconds after the batch is added (for combat timing)</param>
+        public void WriteColoredSegmentsBatch(List<(List<ColoredText> segments, UIMessageType messageType)> messageGroups, int delayAfterBatchMs = 0)
+        {
+            if (messageGroups == null || messageGroups.Count == 0)
+                return;
+            
+            // Extract segments (ignore messageType for now - all go to same buffer)
+            var segmentsList = new List<List<ColoredText>>();
+            foreach (var (segments, messageType) in messageGroups)
+            {
+                if (segments != null && segments.Count > 0)
+                {
+                    segmentsList.Add(segments);
+                }
+            }
+            
+            if (segmentsList.Count == 0)
+                return;
+            
+            // Store structured data directly - no conversion needed
+            if (textManager is CanvasTextManager canvasTextManager)
+            {
+                canvasTextManager.DisplayManager.AddMessageBatch(segmentsList, delayAfterBatchMs);
+            }
+            else
+            {
+                // Fallback: convert to strings for non-CanvasTextManager implementations
+                var markupMessages = segmentsList.Select(segments => ColoredTextRenderer.RenderAsMarkup(segments)).ToList();
+                messageWritingCoordinator.AddMessageBatch(markupMessages, delayAfterBatchMs);
+            }
+        }
+        
+        /// <summary>
+        /// Writes multiple ColoredText segment lists as a single batch and waits for the delay
+        /// This async version allows the combat loop to wait for each action's display to complete
+        /// </summary>
+        /// <param name="messageGroups">List of tuples containing (segments, messageType) to write</param>
+        /// <param name="delayAfterBatchMs">Optional delay in milliseconds after the batch is added (for combat timing)</param>
+        public async System.Threading.Tasks.Task WriteColoredSegmentsBatchAsync(List<(List<ColoredText> segments, UIMessageType messageType)> messageGroups, int delayAfterBatchMs = 0)
+        {
+            if (messageGroups == null || messageGroups.Count == 0)
+                return;
+            
+            // Extract segments (ignore messageType for now - all go to same buffer)
+            var segmentsList = new List<List<ColoredText>>();
+            foreach (var (segments, messageType) in messageGroups)
+            {
+                if (segments != null && segments.Count > 0)
+                {
+                    segmentsList.Add(segments);
+                }
+            }
+            
+            if (segmentsList.Count == 0)
+                return;
+            
+            // Store structured data directly - no conversion needed
+            if (textManager is CanvasTextManager canvasTextManager)
+            {
+                await canvasTextManager.DisplayManager.AddMessageBatchAsync(segmentsList, delayAfterBatchMs);
+            }
+            else
+            {
+                // Fallback: convert to strings for non-CanvasTextManager implementations
+                var markupMessages = segmentsList.Select(segments => ColoredTextRenderer.RenderAsMarkup(segments)).ToList();
+                await messageWritingCoordinator.AddMessageBatchAsync(markupMessages, delayAfterBatchMs);
+            }
         }
 
         public void Dispose()

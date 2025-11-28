@@ -67,7 +67,7 @@ namespace RPGGame.Utils
             foreach (var test in testStrings)
             {
                 Console.WriteLine($"Input:  {test}");
-                var parsed = ColorParser.Parse(test);
+                var parsed = ColoredTextParser.Parse(test);
                 Console.WriteLine($"Output: {parsed.Count} segments");
                 Console.WriteLine();
             }
@@ -108,23 +108,23 @@ namespace RPGGame.Utils
             Console.WriteLine("=== Color Templates Test ===");
             Console.WriteLine();
             
-            var templates = new (string name, Func<string, List<ColoredText>> func)[]
+            var templateNames = new[]
             {
-                ("Fiery", ColorTemplateLibrary.Fiery),
-                ("Icy", ColorTemplateLibrary.Icy),
-                ("Toxic", ColorTemplateLibrary.Toxic),
-                ("Crystalline", ColorTemplateLibrary.Crystalline),
-                ("Golden", ColorTemplateLibrary.Golden),
-                ("Holy", ColorTemplateLibrary.Holy),
-                ("Shadow", ColorTemplateLibrary.Shadow)
+                "fiery",
+                "icy",
+                "toxic",
+                "crystalline",
+                "golden",
+                "holy",
+                "shadow"
             };
             
             const string testText = "Test Text";
             
-            foreach (var (name, func) in templates)
+            foreach (var templateName in templateNames)
             {
-                Console.WriteLine($"{name}: ");
-                var result = func(testText);
+                Console.WriteLine($"{templateName}: ");
+                var result = ColorTemplateLibrary.GetTemplate(templateName, testText);
                 Console.WriteLine($"  Segments: {result.Count}");
                 Console.WriteLine();
             }
@@ -150,7 +150,7 @@ namespace RPGGame.Utils
             foreach (var message in combatMessages)
             {
                 Console.WriteLine($"Message: {message}");
-                var parsed = ColorParser.Parse(message);
+                var parsed = ColoredTextParser.Parse(message);
                 Console.WriteLine($"Segments: {parsed.Count}");
                 Console.WriteLine();
             }

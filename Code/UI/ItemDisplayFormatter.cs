@@ -1,13 +1,22 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Avalonia.Media;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
 {
     /// <summary>
-    /// Centralized formatter for item display logic to eliminate duplication between display managers
+    /// Centralized formatter for item display logic to eliminate duplication between display managers.
+    /// 
+    /// 📖 FOR COMPLETE FORMATTING GUIDE: See Documentation/04-Reference/FORMATTING_SYSTEM_GUIDE.md
+    /// 
+    /// Quick Reference:
+    /// - Format item name: GetColoredItemName() or GetColoredFullItemName()
+    /// - Format item stats: GetItemStatsDisplay()
+    /// - Format bonuses: FormatItemBonusesWithColor()
+    /// - All methods use the new ColoredText system for consistent output
     /// </summary>
     public static class ItemDisplayFormatter
     {
@@ -207,13 +216,31 @@ namespace RPGGame
                     string formatted = FormatStatBonus(b);
                     return $"{coloredName} ({formatted})";
                 });
-                writeLine($"    &CStats:&y {string.Join(", ", bonusTexts)}");
+                var statsBuilder = new ColoredTextBuilder();
+                statsBuilder.Add("    ", Colors.White);
+                statsBuilder.Add("Stats:", ColorPalette.Cyan);
+                statsBuilder.Add(" ", Colors.White);
+                statsBuilder.Add(string.Join(", ", bonusTexts), Colors.White);
+                writeLine(ColoredTextRenderer.RenderAsMarkup(statsBuilder.Build()));
             }
             
             // Show action bonuses (legacy system)
             if (item.ActionBonuses.Count > 0)
             {
-                writeLine($"    &CActions:&y {string.Join(", ", item.ActionBonuses.Select(b => $"&G{b.Name}&y +{b.Weight}"))}");
+                var actionsBuilder = new ColoredTextBuilder();
+                actionsBuilder.Add("    ", Colors.White);
+                actionsBuilder.Add("Actions:", ColorPalette.Cyan);
+                actionsBuilder.Add(" ", Colors.White);
+                var actionParts = item.ActionBonuses.Select(b => 
+                {
+                    var partBuilder = new ColoredTextBuilder();
+                    partBuilder.Add(b.Name, ColorPalette.Green);
+                    partBuilder.Add(" +", Colors.White);
+                    partBuilder.Add(b.Weight.ToString(), Colors.White);
+                    return ColoredTextRenderer.RenderAsPlainText(partBuilder.Build());
+                });
+                actionsBuilder.Add(string.Join(", ", actionParts), Colors.White);
+                writeLine(ColoredTextRenderer.RenderAsMarkup(actionsBuilder.Build()));
             }
             
             // Show modifications with color
@@ -224,9 +251,19 @@ namespace RPGGame
                     var coloredNameList = ItemColorSystem.FormatModification(m);
                     string coloredName = ColoredTextRenderer.RenderAsPlainText(coloredNameList);
                     string details = GetModificationDisplayText(m);
-                    return $"{coloredName} &y({details.Substring(m.Name.Length + 1)})"; // Remove name from details since we already colored it
+                    var modBuilder = new ColoredTextBuilder();
+                    modBuilder.AddRange(coloredNameList);
+                    modBuilder.Add(" (", Colors.White);
+                    modBuilder.Add(details.Substring(m.Name.Length + 1), Colors.White);
+                    modBuilder.Add(")", Colors.White);
+                    return ColoredTextRenderer.RenderAsPlainText(modBuilder.Build());
                 });
-                writeLine($"    &CModifiers:&y {string.Join(", ", modificationTexts)}");
+                var modifiersBuilder = new ColoredTextBuilder();
+                modifiersBuilder.Add("    ", Colors.White);
+                modifiersBuilder.Add("Modifiers:", ColorPalette.Cyan);
+                modifiersBuilder.Add(" ", Colors.White);
+                modifiersBuilder.Add(string.Join(", ", modificationTexts), Colors.White);
+                writeLine(ColoredTextRenderer.RenderAsMarkup(modifiersBuilder.Build()));
             }
         }
         

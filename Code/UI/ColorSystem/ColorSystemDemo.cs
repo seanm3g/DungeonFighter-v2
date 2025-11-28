@@ -121,13 +121,18 @@ namespace RPGGame.UI.ColorSystem
         {
             Console.WriteLine("=== Compatibility Demo ===");
             
-            // Convert old-style color codes
-            var oldStyleText = "&RDanger&y is &Gahead&y!";
-            var coloredText = CompatibilityLayer.ConvertOldMarkup(oldStyleText);
+            // Legacy color codes are no longer supported - use ColoredTextBuilder instead
+            // Old way (no longer works): "&RDanger&y is &Gahead&y!"
+            // New way:
+            var coloredText = new ColoredTextBuilder()
+                .Add("Danger", ColorPalette.Damage)
+                .Add(" is ", Colors.White)
+                .Add("ahead", ColorPalette.Success)
+                .Add("!", Colors.White)
+                .Build();
             
             var plainText = ColoredTextRenderer.RenderAsPlainText(coloredText);
-            Console.WriteLine($"Old Style: {oldStyleText}");
-            Console.WriteLine($"Converted: {plainText}");
+            Console.WriteLine($"New Style: {plainText}");
             Console.WriteLine();
         }
         

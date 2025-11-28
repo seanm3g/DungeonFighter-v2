@@ -2,6 +2,7 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using RPGGame;
 using RPGGame.UI.Avalonia.Managers;
+using RPGGame.UI.Avalonia.Display;
 using System;
 using System.Collections.Generic;
 
@@ -50,22 +51,9 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderDisplayBuffer(CanvasContext context)
         {
-            // Ensure UI updates happen on UI thread
-            // Note: We don't clear the canvas here - RenderDisplayBufferFallback handles clearing
-            // only when necessary (full layout changes) to prevent flickering
-            if (Dispatcher.UIThread.CheckAccess())
-            {
-                // Already on UI thread
-                textManager.RenderDisplayBufferFallback();
-            }
-            else
-            {
-                // Need to post to UI thread
-                Dispatcher.UIThread.Post(() =>
-                {
-                    textManager.RenderDisplayBufferFallback();
-                });
-            }
+            // Rendering is now handled automatically by the unified display system
+            // This method is kept for backward compatibility but does nothing
+            // The display manager handles all rendering automatically
         }
 
         public void RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel)
@@ -138,38 +126,116 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderDungeonStart(Dungeon dungeon, Character player, CanvasContext context)
         {
-            RenderWithLayout(player, $"ENTERING DUNGEON: {dungeon.Name.ToUpper()}", (contentX, contentY, contentWidth, contentHeight) =>
+            // Use generic title - the actual "ENTERING DUNGEON" text comes from the display buffer content
+            RenderWithLayout(player, "DUNGEON FIGHTER", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                dungeonRenderer.RenderDungeonStart(contentX, contentY, contentWidth, contentHeight, dungeon);
+                dungeonRenderer.RenderDungeonStart(contentX, contentY, contentWidth, contentHeight, dungeon, textManager, context.DungeonContext);
             }, context);
         }
 
-        public void RenderRoomEntry(Environment room, Character player, string? dungeonName, CanvasContext context)
+        /// <summary>
+        /// Renders the room entry screen.
+        /// The display buffer should already be populated via ShowRoomEntry() or AddCurrentInfoToDisplayBuffer().
+        /// Uses clearCanvas: false to preserve existing content and only update what's needed.
+        /// The DisplayRenderer will clear the content area before rendering new content.
+        /// </summary>
+        public void RenderRoomEntry(Environment room, Character player, string? dungeonName, CanvasContext context, int? startFromBufferIndex = null)
         {
-            RenderWithLayout(player, $"ENTERING ROOM: {room.Name.ToUpper()}", (contentX, contentY, contentWidth, contentHeight) =>
-            {
-                dungeonRenderer.RenderRoomEntry(contentX, contentY, contentWidth, contentHeight, room);
-            }, context);
+            // Use context values if parameters are null (context should be up-to-date after SetUIContext())
+            string? displayDungeonName = dungeonName ?? context.DungeonName;
+            string? displayRoomName = room?.Name ?? context.RoomName;
+            
+            // Use clearCanvas: false to prevent clearing the entire canvas
+            // This avoids clearing content that was just rendered by the reactive system
+            // The DisplayRenderer will handle clearing just the content area before rendering
+            RenderWithLayout(
+                player,
+                "DUNGEON FIGHTER",
+                (contentX, contentY, contentWidth, contentHeight) =>
+                {
+                    // Render the display buffer content (dungeon header + room info)
+                    // DisplayRenderer.Render() will clear the content area before rendering
+                    if (textManager is CanvasTextManager canvasTextManager)
+                    {
+                        var displayManager = canvasTextManager.DisplayManager;
+                        var buffer = displayManager.Buffer;
+                        var renderer = new DisplayRenderer(new ColoredTextWriter(canvas));
+                        renderer.Render(buffer, contentX, contentY, contentWidth, contentHeight, clearContent: true);
+                    }
+                },
+                context,
+                null, // no enemy yet
+                displayDungeonName,
+                displayRoomName,
+                clearCanvas: false  // Don't clear full canvas - preserve layout, only clear content area
+            );
         }
 
         public void RenderCombat(Character player, Enemy enemy, List<string> combatLog, CanvasContext context)
         {
-            // Render using the display buffer instead of the combatLog parameter
-            // The display buffer already contains pre-combat text and will contain combat text as it's added
-            // This ensures pre-combat text stays visible with combat text appearing below it
-            RenderDisplayBuffer(context);
+            // Enable combat mode for proper timing and disable auto-rendering
+            if (textManager is CanvasTextManager canvasTextManager)
+            {
+                canvasTextManager.DisplayManager.SetMode(new Display.CombatDisplayMode());
+                
+                // Set up callback to re-render combat screen when new messages are added
+                System.Action renderCallback = () =>
+                {
+                    if (Dispatcher.UIThread.CheckAccess())
+                    {
+                        RenderCombatScreenOnly(player, enemy, context);
+                    }
+                    else
+                    {
+                        Dispatcher.UIThread.Post(() => RenderCombatScreenOnly(player, enemy, context));
+                    }
+                };
+                
+                canvasTextManager.DisplayManager.SetExternalRenderCallback(renderCallback);
+            }
+            
+            // Render complete combat screen with all structured content + combat log
+            RenderCombatScreenOnly(player, enemy, context);
+        }
+        
+        /// <summary>
+        /// Renders just the combat screen (called from RenderCombat and from callback)
+        /// </summary>
+        private void RenderCombatScreenOnly(Character player, Enemy enemy, CanvasContext context)
+        {
+            // Use enemy from context if available (it's always up-to-date), otherwise fall back to parameter
+            Enemy currentEnemy = context.Enemy ?? enemy;
+            
+            // Canvas will be cleared automatically if title changes (handled by PersistentLayoutManager)
+            // Subsequent updates during combat don't need to clear - they just update the combat log
+            RenderWithLayout(player, "COMBAT", (contentX, contentY, contentWidth, contentHeight) =>
+            {
+                // Use the unified combat screen renderer with dungeon context
+                dungeonRenderer.RenderCombatScreen(contentX, contentY, contentWidth, contentHeight, 
+                    null, null, currentEnemy, textManager, context.DungeonContext);
+            }, context, currentEnemy, context.DungeonName, context.RoomName, clearCanvas: false);
         }
 
         public void RenderEnemyEncounter(Enemy enemy, Character player, List<string> dungeonLog, string? dungeonName, string? roomName, CanvasContext context)
         {
-            RenderWithLayout(player, "PREPARING FOR COMBAT", (contentX, contentY, contentWidth, contentHeight) =>
+            // Render enemy encounter using structured format, below dungeon and room info
+            // Canvas will be cleared automatically if title changes (handled by PersistentLayoutManager)
+            RenderWithLayout(player, "COMBAT", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                combatRenderer.RenderEnemyEncounter(contentX, contentY, contentWidth, contentHeight, dungeonLog);
-            }, context, enemy, dungeonName, roomName);
+                dungeonRenderer.RenderEnemyEncounter(contentX, contentY, contentWidth, contentHeight, enemy, textManager, context.DungeonContext);
+            }, context, enemy, dungeonName, roomName, clearCanvas: false);
         }
 
         public void RenderCombatResult(bool playerSurvived, Character player, Enemy enemy, BattleNarrative? battleNarrative, string? dungeonName, string? roomName, CanvasContext context)
         {
+            // Switch back to standard mode and re-enable auto-rendering when combat ends
+            if (textManager is CanvasTextManager canvasTextManager)
+            {
+                canvasTextManager.DisplayManager.SetMode(new Display.StandardDisplayMode());
+                canvasTextManager.DisplayManager.SetExternalRenderCallback(null);
+            }
+            
+            // Canvas will be cleared automatically if title changes (handled by PersistentLayoutManager)
             RenderWithLayout(player, "COMBAT RESULT", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 combatRenderer.RenderCombatResult(contentX, contentY, contentWidth, contentHeight, playerSurvived, enemy, battleNarrative);
@@ -194,10 +260,19 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderDeathScreen(Character player, string defeatSummary, CanvasContext context)
         {
+            // Switch back to standard mode and disable external render callback when showing death screen
+            if (textManager is CanvasTextManager canvasTextManager)
+            {
+                canvasTextManager.DisplayManager.SetMode(new Display.StandardDisplayMode());
+                canvasTextManager.DisplayManager.SetExternalRenderCallback(null);
+            }
+            
             RenderWithLayout(player, "YOU DIED", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 dungeonRenderer.RenderDeathScreen(contentX, contentY, contentWidth, contentHeight, player, defeatSummary);
             }, context);
+            // Ensure canvas is refreshed to display the death screen
+            canvas.Refresh();
         }
 
         public void RenderDungeonExploration(Character player, string currentLocation, List<string> availableActions, List<string> recentEvents, CanvasContext context)
@@ -275,13 +350,13 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, title, renderContent, context, null, null, null);
         }
 
-        private void RenderWithLayout(Character? character, string title, Action<int, int, int, int> renderContent, CanvasContext context, Enemy? enemy, string? dungeonName, string? roomName)
+        private void RenderWithLayout(Character? character, string title, Action<int, int, int, int> renderContent, CanvasContext context, Enemy? enemy, string? dungeonName, string? roomName, bool clearCanvas = true)
         {
             interactionManager.ClearClickableElements();
             
             // Use the persistent layout manager for proper three-panel layout
             var layoutManager = new PersistentLayoutManager(canvas);
-            layoutManager.RenderLayout(character, renderContent, title, enemy, dungeonName, roomName);
+            layoutManager.RenderLayout(character, renderContent, title, enemy, dungeonName, roomName, clearCanvas);
         }
 
         #endregion

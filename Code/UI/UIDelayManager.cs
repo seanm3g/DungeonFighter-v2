@@ -6,26 +6,42 @@ namespace RPGGame.UI
     /// <summary>
     /// Manages all UI timing and delay logic
     /// Handles message-type-specific delays and progressive menu delays
+    /// Uses default values instead of loading from configuration file
     /// </summary>
     public class UIDelayManager
     {
-        private readonly UIConfiguration _uiConfig;
+        // Default delay values (in milliseconds)
+        private const int DefaultCombatDelay = 100;
+        private const int DefaultSystemDelay = 100;
+        private const int DefaultMenuDelay = 25;
+        private const int DefaultTitleDelay = 400;
+        private const int DefaultMainTitleDelay = 400;
+        private const int DefaultEnvironmentalDelay = 150;
+        private const int DefaultEffectMessageDelay = 50;
+        private const int DefaultDamageOverTimeDelay = 50;
+        private const int DefaultEncounterDelay = 67;
+        private const int DefaultRollInfoDelay = 5;
 
         // Progressive delay system for menu lines
         private int _consecutiveMenuLines = 0;
         private int _baseMenuDelay = 0;
 
-        public UIDelayManager(UIConfiguration uiConfig)
+        public UIDelayManager()
         {
-            _uiConfig = uiConfig;
         }
 
         /// <summary>
-        /// Applies appropriate delay based on message type using the beat-based timing system
+        /// Applies appropriate delay based on message type using default values
         /// </summary>
         public void ApplyDelay(UIMessageType messageType)
         {
-            int delayMs = _uiConfig.GetEffectiveDelay(messageType);
+            // Check if delays are enabled globally
+            if (!UIManager.EnableDelays)
+            {
+                return;
+            }
+
+            int delayMs = GetDelayForMessageType(messageType);
 
             if (delayMs > 0)
             {
@@ -34,18 +50,42 @@ namespace RPGGame.UI
         }
 
         /// <summary>
+        /// Gets the delay for a specific message type
+        /// </summary>
+        private int GetDelayForMessageType(UIMessageType messageType)
+        {
+            return messageType switch
+            {
+                UIMessageType.Combat => DefaultCombatDelay,
+                UIMessageType.System => DefaultSystemDelay,
+                UIMessageType.Menu => DefaultMenuDelay,
+                UIMessageType.Title => DefaultTitleDelay,
+                UIMessageType.MainTitle => DefaultMainTitleDelay,
+                UIMessageType.Environmental => DefaultEnvironmentalDelay,
+                UIMessageType.EffectMessage => DefaultEffectMessageDelay,
+                UIMessageType.DamageOverTime => DefaultDamageOverTimeDelay,
+                UIMessageType.Encounter => DefaultEncounterDelay,
+                UIMessageType.RollInfo => DefaultRollInfoDelay,
+                _ => 0
+            };
+        }
+
+        /// <summary>
         /// Applies progressive menu delay - reduces delay by 1ms for each consecutive menu line
         /// After 20 lines, slowly ramps delay down by 1ms each line
         /// </summary>
         public void ApplyProgressiveMenuDelay()
         {
-            // Get base menu delay from configuration
-            int baseDelay = _uiConfig.BeatTiming.GetMenuDelay();
+            // Check if delays are enabled globally
+            if (!UIManager.EnableDelays)
+            {
+                return;
+            }
 
             // Store base delay on first menu line
             if (_consecutiveMenuLines == 0)
             {
-                _baseMenuDelay = baseDelay;
+                _baseMenuDelay = DefaultMenuDelay;
             }
 
             int progressiveDelay;

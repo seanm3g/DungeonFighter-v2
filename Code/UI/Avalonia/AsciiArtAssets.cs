@@ -368,8 +368,8 @@ namespace RPGGame.UI.Avalonia
             // Stats display
             public const string RemainingHealth = "Remaining Health: {0}/{1}";
             public const string EnemyStatsFormat = "Enemy Stats - Health: {0}/{1}, Armor: {2}";
-            public const string EnemyAttackFormat = "             Attack: STR {0}, AGI {1}, TEC {2}, INT {3}";
-            public const string EncounteredFormat = "Encountered [{0}]{1}!";
+            public const string EnemyAttackFormat = "             Attack: STR{0}, AGI{1}, TEC{2}, INT{3}";
+            public const string EncounteredFormat = "A {0}{1} appears.";
             public const string WeaponSuffix = " with {0}";
             
             // Helper methods

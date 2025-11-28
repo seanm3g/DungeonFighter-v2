@@ -21,7 +21,7 @@ namespace RPGGame
         /// <summary>
         /// Processes a single player turn using the new ActionSelector system
         /// </summary>
-        public bool ProcessPlayerTurn(Character player, Enemy currentEnemy, Environment room)
+        public async System.Threading.Tasks.Task<bool> ProcessPlayerTurnAsync(Character player, Enemy currentEnemy, Environment room)
         {
             // Check if player is stunned
             if (player.StunTurnsRemaining > 0)
@@ -31,7 +31,7 @@ namespace RPGGame
             else
             {
                 // Use the new ActionSelector system for action selection and execution
-                ProcessPlayerAction(player, currentEnemy, room);
+                await ProcessPlayerActionAsync(player, currentEnemy, room);
             }
             
             // Process health regeneration for player after they act
@@ -44,7 +44,7 @@ namespace RPGGame
         /// <summary>
         /// Processes a single enemy turn using the new ActionSelector system
         /// </summary>
-        public bool ProcessEnemyTurn(Character player, Enemy currentEnemy, Environment room)
+        public async System.Threading.Tasks.Task<bool> ProcessEnemyTurnAsync(Character player, Enemy currentEnemy, Environment room)
         {
             // Check if enemy is stunned
             if (currentEnemy.StunTurnsRemaining > 0)
@@ -90,8 +90,8 @@ namespace RPGGame
                             }
                         }
                     }
-                    // Display using the new ColoredText method
-                    TextDisplayIntegration.DisplayCombatAction(actionText, rollInfo, statusEffects, narrativeColored);
+                    // Display using the new ColoredText method (async to wait for display delay)
+                    await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, narrativeColored);
                 }
                 
                 // Update enemy's action timing in the action speed system
@@ -197,7 +197,7 @@ namespace RPGGame
         /// <summary>
         /// Processes a player action using the new ActionSelector system
         /// </summary>
-        private void ProcessPlayerAction(Character player, Enemy currentEnemy, Environment room)
+        private async System.Threading.Tasks.Task ProcessPlayerActionAsync(Character player, Enemy currentEnemy, Environment room)
         {
             // Use the new ColoredText system to execute the action
             var ((actionText, rollInfo), statusEffects) = CombatResults.ExecuteActionWithUIAndStatusEffectsColored(
@@ -236,11 +236,11 @@ namespace RPGGame
                         }
                     }
                 }
-                // Display using the new ColoredText method
-                TextDisplayIntegration.DisplayCombatAction(actionText, rollInfo, statusEffects, narrativeColored);
-            }
-            
-            // End turn for statistics tracking
+                    // Display using the new ColoredText method (async to wait for display delay)
+                    await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, narrativeColored);
+                }
+                
+                // End turn for statistics tracking
             player.EndTurn();
             
             // Update last player action for DEJA VU functionality

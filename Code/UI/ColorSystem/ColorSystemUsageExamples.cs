@@ -210,16 +210,11 @@ namespace RPGGame.UI.ColorSystem
         /// </summary>
         public static void Example10_MigrationFromOldSystem()
         {
-            // OLD SYSTEM (problematic):
-            string oldMarkup = "&RPlayer&y deals &G25&y damage to &BEnemy&y!";
+            // OLD SYSTEM (no longer supported - legacy color codes removed):
+            // string oldMarkup = "&RPlayer&y deals &G25&y damage to &BEnemy&y!";
+            // Legacy color codes are no longer supported - use ColoredTextBuilder instead
             
-            // Convert old markup to new system
-            var convertedSegments = CompatibilityLayer.ConvertOldMarkup(oldMarkup);
-            
-            // Use the converted segments (when converting from old markup, segments are already built)
-            UIManager.WriteLineColoredSegments(convertedSegments, UIMessageType.Combat);
-            
-            // Or create new content using the new system - Preferred: Use builder pattern directly
+            // NEW SYSTEM - Use builder pattern directly (Preferred):
             var newMessage = new ColoredTextBuilder()
                 .Add("Player", ColorPalette.Player)
                 .Add(" deals ", Colors.White)

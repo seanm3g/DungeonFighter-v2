@@ -78,18 +78,18 @@ namespace RPGGame
         
         /// <summary>
         /// Applies delay after a complete action is processed and displayed
-        /// Uses minimal delay for GUI to prevent freezing while maintaining readability
+        /// For GUI, delays are handled by the rendering system, so we skip blocking delays here
         /// </summary>
         public static void DelayAfterAction()
         {
             LoadConfig();
             if (!ShouldApplyDelay()) return;
             
-            // For GUI, use minimal delay to prevent freezing while maintaining readability
+            // For GUI, skip blocking delays - timing is handled by the rendering system
             if (UIManager.GetCustomUIManager() != null)
             {
-                // Use very short delay for GUI to prevent freezing
-                Thread.Sleep(Math.Min(Config.ActionDelayMs, 100));
+                // No blocking delay for GUI - rendering system handles timing
+                return;
             }
             else
             {
@@ -100,18 +100,18 @@ namespace RPGGame
         
         /// <summary>
         /// Applies delay after individual messages within an action
-        /// Uses minimal delay for GUI to prevent freezing while maintaining readability
+        /// For GUI, delays are handled by the rendering system, so we skip blocking delays here
         /// </summary>
         public static void DelayAfterMessage()
         {
             LoadConfig();
             if (!ShouldApplyDelay()) return;
             
-            // For GUI, use minimal delay to prevent freezing while maintaining readability
+            // For GUI, skip blocking delays - timing is handled by the rendering system
             if (UIManager.GetCustomUIManager() != null)
             {
-                // Use very short delay for GUI to prevent freezing
-                Thread.Sleep(Math.Min(Config.MessageDelayMs, 50));
+                // No blocking delay for GUI - rendering system handles timing
+                return;
             }
             else
             {

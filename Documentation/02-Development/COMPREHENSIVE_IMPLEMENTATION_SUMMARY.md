@@ -324,7 +324,7 @@ Frame 3: C e l e s t i a l ...
 #### Files Modified
 - `Code/UI/IUIManager.cs` - Added `WriteChunked()` interface method
 - `Code/UI/UIManager.cs` - Added `WriteChunked()` method
-- `Code/UI/ConsoleUIManager.cs` - Implemented `WriteChunked()` interface method
+- `Code/UI/ConsoleUIManager.cs` - Implemented `WriteChunked()` interface method (removed as unused legacy code)
 - `Code/UI/Avalonia/CanvasUICoordinator.cs` - Implemented `WriteChunked()` with GUI-specific logic
 - `Code/World/DungeonRunner.cs` - Updated to use chunked reveal
 

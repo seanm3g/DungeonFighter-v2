@@ -132,9 +132,9 @@ namespace RPGGame.UI.Avalonia.Coordinators
         /// <summary>
         /// Renders room entry screen
         /// </summary>
-        public void RenderRoomEntry(Environment room, Character player, string? dungeonName = null)
+        public void RenderRoomEntry(Environment room, Character player, string? dungeonName = null, int? startFromBufferIndex = null)
         {
-            renderer.RenderRoomEntry(room, player, dungeonName, contextManager.GetCurrentContext());
+            renderer.RenderRoomEntry(room, player, dungeonName, contextManager.GetCurrentContext(), startFromBufferIndex);
         }
         
         /// <summary>
@@ -190,6 +190,8 @@ namespace RPGGame.UI.Avalonia.Coordinators
         /// </summary>
         public void RenderGameMenu(Character player, List<Item> inventory)
         {
+            // Ensure character is set in context manager for persistent display
+            contextManager.SetCurrentCharacter(player);
             renderer.RenderGameMenu(player, inventory, contextManager.GetCurrentContext());
         }
     }

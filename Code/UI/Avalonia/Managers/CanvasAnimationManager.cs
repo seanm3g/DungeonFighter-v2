@@ -35,9 +35,9 @@ namespace RPGGame.UI.Avalonia.Managers
             this.dungeonRenderer = dungeonRenderer;
             this.reRenderCallback = reRenderCallback;
             
-            // Get animation intervals from configuration
-            this.undulationInterval = UIManager.UIConfig.UndulationTimerMs;
-            this.brightnessMaskInterval = UIManager.UIConfig.BrightnessMask.UpdateIntervalMs;
+            // Use default animation intervals (no config file dependency)
+            this.undulationInterval = 1000; // Default: 1000ms
+            this.brightnessMaskInterval = 50; // Default: 50ms
             
             // Start animation timers
             StartAnimationTimers();

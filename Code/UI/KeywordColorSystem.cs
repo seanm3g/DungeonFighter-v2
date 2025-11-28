@@ -75,12 +75,12 @@ namespace RPGGame.UI
         /// <summary>
         /// Colors text by applying keyword coloring
         /// </summary>
-        public static List<ColorDefinitions.ColoredSegment> ColorText(string text)
+        public static List<ColoredText> ColorText(string text)
         {
             if (!_initialized)
                 Initialize();
                 
-            var result = new List<ColorDefinitions.ColoredSegment>();
+            var result = new List<ColoredText>();
             var words = text.Split(' ');
             
             for (int i = 0; i < words.Length; i++)
@@ -92,18 +92,18 @@ namespace RPGGame.UI
                 {
                     // Apply color based on group
                     var color = GetColorForGroup(group);
-                    result.Add(new ColorDefinitions.ColoredSegment(word, color));
+                    result.Add(new ColoredText(word, color));
                 }
                 else
                 {
                     // No keyword match, use default color
-                    result.Add(new ColorDefinitions.ColoredSegment(word));
+                    result.Add(new ColoredText(word, Colors.White));
                 }
                 
                 // Add space between words (except last word)
                 if (i < words.Length - 1)
                 {
-                    result.Add(new ColorDefinitions.ColoredSegment(" "));
+                    result.Add(new ColoredText(" ", Colors.White));
                 }
             }
             
@@ -135,7 +135,7 @@ namespace RPGGame.UI
         /// <summary>
         /// Colorizes text using keyword coloring (alias for ColorText)
         /// </summary>
-        public static List<ColorDefinitions.ColoredSegment> Colorize(string text)
+        public static List<ColoredText> Colorize(string text)
         {
             return ColorText(text);
         }

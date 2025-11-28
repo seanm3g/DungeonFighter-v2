@@ -71,22 +71,17 @@ namespace RPGGame
 
         /// <summary>
         /// Generates an item name with bonuses and modifications
+        /// Note: Rarity is NOT included in the name - it should be displayed separately in brackets
         /// </summary>
         /// <param name="item">The item to generate a name for</param>
-        /// <returns>The generated item name</returns>
+        /// <returns>The generated item name (without rarity prefix)</returns>
         public static string GenerateItemNameWithBonuses(Item item)
         {
             string baseName = GetBaseItemName(item);
             var nameParts = new List<string>();
             
-            // Add rarity prefix based on number of bonuses
-            int totalBonuses = item.StatBonuses.Count + item.ActionBonuses.Count + item.Modifications.Count;
-            string rarityPrefix = GetRarityPrefix(totalBonuses);
-            
-            if (!string.IsNullOrEmpty(rarityPrefix))
-            {
-                nameParts.Add(rarityPrefix);
-            }
+            // Do NOT add rarity prefix - rarity should only come from item.Rarity property
+            // and be displayed separately in brackets, not as part of the name
             
             // Add modification names as prefixes (like "Balanced", "Sharp", etc.)
             foreach (var modification in item.Modifications)
@@ -110,23 +105,6 @@ namespace RPGGame
             }
             
             return string.Join(" ", nameParts);
-        }
-
-        /// <summary>
-        /// Gets the rarity prefix based on the number of bonuses
-        /// </summary>
-        /// <param name="totalBonuses">The total number of bonuses</param>
-        /// <returns>The rarity prefix string</returns>
-        private static string GetRarityPrefix(int totalBonuses)
-        {
-            return totalBonuses switch
-            {
-                >= 5 => "Legendary",
-                >= 4 => "Epic", 
-                >= 3 => "Rare",
-                >= 2 => "Uncommon",
-                _ => ""
-            };
         }
 
         /// <summary>

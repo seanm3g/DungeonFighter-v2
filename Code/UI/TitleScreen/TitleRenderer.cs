@@ -55,21 +55,36 @@ namespace RPGGame.UI.TitleScreen
                 return;
             }
 
-            // Use Invoke instead of Post to ensure frame is rendered before continuing
-            // This makes the animation synchronous and prevents frame skipping
+            // Use Invoke to ensure frame is rendered on UI thread synchronously
+            // This blocks until the UI thread has processed the render
             Dispatcher.UIThread.Invoke(() =>
             {
+                // Clear the entire canvas for title screen animation
+                // This ensures no text from previous frames remains
                 _canvasUI.Clear();
 
                 int startY = TitleArtAssets.TitleStartY;
+                
+                // Calculate title line ranges in the frame
+                // Frame structure: 15 top padding + 2 blank + 6 DUNGEON + 1 blank + 1 decorator + 1 blank + 6 FIGHTER + ...
+                const int dungeonStartIndex = 17; // 15 padding + 2 blank lines
+                const int dungeonEndIndex = 22;    // dungeonStartIndex + 6 lines - 1
+                const int fighterStartIndex = 26; // dungeonEndIndex + 1 blank + 1 decorator + 1 blank + 1
+                const int fighterEndIndex = 31;   // fighterStartIndex + 6 lines - 1
+                const int titleOffset = 4; // Offset to shift title right
 
                 for (int i = 0; i < frame.Lines.Length; i++)
                 {
                     var lineSegments = frame.Lines[i];
+                    int currentY = startY + i;
+                    
                     if (lineSegments != null && lineSegments.Count > 0)
                     {
-                        // Calculate visible length from segments
+                        // Calculate visible length from segments (excluding leading spaces for centering)
                         int visibleLength = 0;
+                        bool isTitleLine = (i >= dungeonStartIndex && i <= dungeonEndIndex) || 
+                                         (i >= fighterStartIndex && i <= fighterEndIndex);
+                        
                         foreach (var segment in lineSegments)
                         {
                             visibleLength += segment.Text?.Length ?? 0;
@@ -78,12 +93,24 @@ namespace RPGGame.UI.TitleScreen
                         // Center each line horizontally based on its visible length
                         int centerX = Math.Max(0, _canvasUI.CenterX - (visibleLength / 2));
                         
+                        // Add offset for title lines to shift them right
+                        if (isTitleLine)
+                        {
+                            centerX += titleOffset;
+                        }
+                        
                         // Render the colored text segments
-                        _canvasUI.WriteLineColoredSegments(lineSegments, centerX, startY + i);
+                        _canvasUI.WriteLineColoredSegments(lineSegments, centerX, currentY);
                     }
                 }
 
+                // Refresh to display the new frame
+                // InvalidateVisual() schedules a render, but we need to ensure it happens
                 _canvasUI.Refresh();
+                
+                // Force the UI thread to process pending operations
+                // This helps ensure the frame is actually rendered before we continue
+                Dispatcher.UIThread.RunJobs(DispatcherPriority.Render);
             });
         }
 

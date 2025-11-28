@@ -149,6 +149,12 @@ namespace RPGGame
                     {
                         DebugLogger.Log("MainMenuHandler", "Character is not null, proceeding with setup");
                         
+                        // Set character in UI manager for persistent display
+                        if (customUIManager is CanvasUICoordinator canvasUI)
+                        {
+                            canvasUI.SetCharacter(stateManager.CurrentPlayer);
+                        }
+                        
                         // Apply health multiplier if configured
                         var settings = GameSettings.Instance;
                         if (settings.PlayerHealthMultiplier != 1.0)

@@ -2,7 +2,9 @@ namespace RPGGame
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Threading.Tasks;
+    using Avalonia.Media;
     using Avalonia.Threading;
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.ColorSystem;
@@ -24,14 +26,13 @@ namespace RPGGame
         private GameNarrativeManager narrativeManager;
         private CombatManager? combatManager;
         private IUIManager? customUIManager;
+        private DungeonDisplayManager displayManager;
         
         // Delegates for dungeon completion with reward data
         public delegate void OnDungeonCompleted(int xpGained, Item? lootReceived);
-        public delegate void OnShowMainMenu();
         public delegate void OnShowDeathScreen(Character player);
         
         public event OnDungeonCompleted? DungeonCompletedEvent;
-        public event OnShowMainMenu? ShowMainMenuEvent;
         public event OnShowDeathScreen? ShowDeathScreenEvent;
         
         // Store last reward data for completion screen
@@ -48,6 +49,7 @@ namespace RPGGame
             this.narrativeManager = narrativeManager ?? throw new ArgumentNullException(nameof(narrativeManager));
             this.combatManager = combatManager;
             this.customUIManager = customUIManager;
+            this.displayManager = new DungeonDisplayManager(narrativeManager, customUIManager);
         }
 
         /// <summary>
@@ -63,124 +65,159 @@ namespace RPGGame
             if (stateManager.CurrentPlayer == null || stateManager.CurrentDungeon == null || combatManager == null)
             {
                 DebugLogger.Log("DungeonRunnerManager", "ERROR: Cannot run dungeon - missing required components");
+                if (customUIManager is CanvasUICoordinator canvasUIError)
+                {
+                    canvasUIError.WriteLine("ERROR: Cannot start dungeon - missing required components.", UIMessageType.System);
+                }
+                // Return to dungeon selection on error
+                stateManager.TransitionToState(GameState.DungeonSelection);
+                if (customUIManager is CanvasUICoordinator canvasUIError2 && stateManager.CurrentPlayer != null)
+                {
+                    canvasUIError2.RenderDungeonSelection(stateManager.CurrentPlayer, stateManager.AvailableDungeons);
+                }
                 return;
+            }
+            
+            // Validate dungeon has been generated and has rooms
+            if (stateManager.CurrentDungeon.Rooms == null || stateManager.CurrentDungeon.Rooms.Count == 0)
+            {
+                DebugLogger.Log("DungeonRunnerManager", $"ERROR: Dungeon '{stateManager.CurrentDungeon.Name}' has no rooms! Regenerating...");
+                
+                // Try to regenerate the dungeon
+                try
+                {
+                    stateManager.CurrentDungeon.Generate();
+                    DebugLogger.Log("DungeonRunnerManager", $"Dungeon regenerated. Room count: {stateManager.CurrentDungeon?.Rooms?.Count ?? 0}");
+                }
+                catch (Exception ex)
+                {
+                    DebugLogger.Log("DungeonRunnerManager", $"ERROR: Failed to generate dungeon: {ex.Message}");
+                    if (customUIManager is CanvasUICoordinator canvasUIError2)
+                    {
+                        canvasUIError2.WriteLine($"ERROR: Failed to generate dungeon: {ex.Message}", UIMessageType.System);
+                    }
+                    // Return to dungeon selection on error
+                    stateManager.TransitionToState(GameState.DungeonSelection);
+                    if (customUIManager is CanvasUICoordinator canvasUIError3 && stateManager.CurrentPlayer != null)
+                    {
+                        canvasUIError3.RenderDungeonSelection(stateManager.CurrentPlayer, stateManager.AvailableDungeons);
+                    }
+                    return;
+                }
+                
+                // Check again after regeneration
+                if (stateManager.CurrentDungeon?.Rooms == null || stateManager.CurrentDungeon.Rooms.Count == 0)
+                {
+                    DebugLogger.Log("DungeonRunnerManager", "ERROR: Dungeon still has no rooms after regeneration!");
+                    if (customUIManager is CanvasUICoordinator canvasUIError3)
+                    {
+                        canvasUIError3.WriteLine("ERROR: Dungeon generation failed - no rooms created.", UIMessageType.System);
+                    }
+                    // Return to dungeon selection on error
+                    stateManager.TransitionToState(GameState.DungeonSelection);
+                    if (customUIManager is CanvasUICoordinator canvasUIError4 && stateManager.CurrentPlayer != null)
+                    {
+                        canvasUIError4.RenderDungeonSelection(stateManager.CurrentPlayer, stateManager.AvailableDungeons);
+                    }
+                    return;
+                }
             }
             
             // Set game state to Dungeon
             DebugLogger.Log("DungeonRunnerManager", "Transitioning to Dungeon state");
             stateManager.TransitionToState(GameState.Dungeon);
             
-            // Create dungeon header info
-            narrativeManager.DungeonHeaderInfo.Clear();
-            
-            var headerText = AsciiArtAssets.UIText.CreateHeader(AsciiArtAssets.UIText.EnteringDungeonHeader);
-            var coloredHeader = new ColoredTextBuilder()
-                .Add(headerText, ColorPalette.Warning)
-                .Build();
-            narrativeManager.DungeonHeaderInfo.Add(ColoredTextRenderer.RenderAsPlainText(coloredHeader));
-            
-            char themeColorCode = DungeonThemeColors.GetThemeColorCode(stateManager.CurrentDungeon.Theme);
-            var dungeonNameColor = GetColorFromThemeCode(themeColorCode);
-            
-            var dungeonInfo = new ColoredTextBuilder()
-                .Add("Dungeon: ", ColorPalette.Warning)
-                .Add(stateManager.CurrentDungeon.Name, dungeonNameColor)
-                .Build();
-            narrativeManager.DungeonHeaderInfo.Add(ColoredTextRenderer.RenderAsPlainText(dungeonInfo));
-            
-            var levelInfo = new ColoredTextBuilder()
-                .Add("Level Range: ", ColorPalette.Warning)
-                .Add($"{stateManager.CurrentDungeon.MinLevel} - {stateManager.CurrentDungeon.MaxLevel}", ColorPalette.Info)
-                .Build();
-            narrativeManager.DungeonHeaderInfo.Add(ColoredTextRenderer.RenderAsPlainText(levelInfo));
-            
-            var roomInfo = new ColoredTextBuilder()
-                .Add("Total Rooms: ", ColorPalette.Warning)
-                .Add(stateManager.CurrentDungeon.Rooms.Count.ToString(), ColorPalette.Info)
-                .Build();
-            narrativeManager.DungeonHeaderInfo.Add(ColoredTextRenderer.RenderAsPlainText(roomInfo));
-            narrativeManager.DungeonHeaderInfo.Add("");
-            
-            // Show dungeon start screen with narrative beat (only for first room)
-            if (stateManager.CurrentPlayer != null && customUIManager is CanvasUICoordinator canvasUIStart)
-            {
-                canvasUIStart.RenderDungeonStart(stateManager.CurrentDungeon, stateManager.CurrentPlayer);
-                // Brief delay to show dungeon information
-                await Task.Delay(1500);
-            }
+            // Start dungeon using unified display manager
+            // This prepares the dungeon data but doesn't add content to buffer yet
+            // Content (including dungeon header) will be added in ProcessRoom() for the first room
+            displayManager.StartDungeon(stateManager.CurrentDungeon, stateManager.CurrentPlayer);
             
             // Process all rooms
-            int roomNumber = 0;
-            int totalRooms = stateManager.CurrentDungeon.Rooms.Count;
-            foreach (Environment room in stateManager.CurrentDungeon.Rooms)
+            try
             {
-                roomNumber++;
-                if (!await ProcessRoom(room, roomNumber, totalRooms))
+                int roomNumber = 0;
+                int totalRooms = stateManager.CurrentDungeon.Rooms.Count;
+                DebugLogger.Log("DungeonRunnerManager", $"Starting dungeon with {totalRooms} rooms");
+                bool isFirstRoom = true;
+                foreach (Environment room in stateManager.CurrentDungeon.Rooms)
                 {
-                    // Player died - transition to death screen
-                    if (stateManager.CurrentPlayer != null)
+                    roomNumber++;
+                    DebugLogger.Log("DungeonRunnerManager", $"Processing room {roomNumber} of {totalRooms}");
+                    if (!await ProcessRoom(room, roomNumber, totalRooms, isFirstRoom))
                     {
-                        stateManager.TransitionToState(GameState.Death);
-                        ShowDeathScreenEvent?.Invoke(stateManager.CurrentPlayer);
+                        // Player died - transition to death screen
+                        if (stateManager.CurrentPlayer != null)
+                        {
+                            stateManager.TransitionToState(GameState.Death);
+                            ShowDeathScreenEvent?.Invoke(stateManager.CurrentPlayer);
+                        }
+                        return;
                     }
-                    return;
+                    isFirstRoom = false;
                 }
+                
+                // Dungeon completed successfully
+                DebugLogger.Log("DungeonRunnerManager", "Dungeon completed successfully");
+                await CompleteDungeon();
             }
-            
-            // Dungeon completed successfully
-            await CompleteDungeon();
+            catch (Exception ex)
+            {
+                DebugLogger.Log("DungeonRunnerManager", $"ERROR: Exception in RunDungeon: {ex.Message}");
+                DebugLogger.Log("DungeonRunnerManager", $"Stack trace: {ex.StackTrace}");
+                if (customUIManager is CanvasUICoordinator canvasUIError)
+                {
+                    canvasUIError.WriteLine($"ERROR: Failed to run dungeon: {ex.Message}", UIMessageType.System);
+                }
+                throw; // Re-throw to ensure caller knows about the failure
+            }
         }
 
         /// <summary>
         /// Process a single room in the dungeon
         /// </summary>
-        private async Task<bool> ProcessRoom(Environment room, int roomNumber, int totalRooms)
+        private async Task<bool> ProcessRoom(Environment room, int roomNumber, int totalRooms, bool isFirstRoom)
         {
             if (stateManager.CurrentPlayer == null || combatManager == null) return false;
             
             stateManager.SetCurrentRoom(room);
             
-            // Set up room info
-            narrativeManager.CurrentRoomInfo.Clear();
-            
-            var roomHeaderText = AsciiArtAssets.UIText.CreateHeader(AsciiArtAssets.UIText.EnteringRoomHeader);
-            var coloredRoomHeader = new ColoredTextBuilder()
-                .Add(roomHeaderText, ColorPalette.Warning)
-                .Build();
-            narrativeManager.CurrentRoomInfo.Add(ColoredTextRenderer.RenderAsPlainText(coloredRoomHeader));
-            
-            // Add room number information (e.g., "Room 1 of 5")
-            var roomNumberInfo = new ColoredTextBuilder()
-                .Add("Room Number: ", ColorPalette.Info)
-                .Add($"{roomNumber} of {totalRooms}", ColorPalette.Warning)
-                .Build();
-            narrativeManager.CurrentRoomInfo.Add(ColoredTextRenderer.RenderAsPlainText(roomNumberInfo));
-            
-            var roomNameInfo = new ColoredTextBuilder()
-                .Add("Room: ", ColorPalette.White)
-                .Add(room.Name, ColorPalette.White)
-                .Build();
-            narrativeManager.CurrentRoomInfo.Add(ColoredTextRenderer.RenderAsPlainText(roomNameInfo));
-            
-            var roomDescription = new ColoredTextBuilder()
-                .Add(room.Description, ColorPalette.White)
-                .Build();
-            narrativeManager.CurrentRoomInfo.Add(ColoredTextRenderer.RenderAsPlainText(roomDescription));
-            narrativeManager.CurrentRoomInfo.Add("");
-            
-            // Show room entry screen with narrative beat
-            if (customUIManager is CanvasUICoordinator canvasUIRoom)
+            // Show room entry screen (handles entering room, adding to buffer, and rendering)
+            if (stateManager.CurrentPlayer != null && customUIManager is CanvasUICoordinator canvasUI)
             {
-                canvasUIRoom.RenderRoomEntry(room, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
-                // Delay to show room information (3.5 seconds to reach ~5 seconds total with dungeon start)
+                // Simplified: one method call handles everything
+                displayManager.ShowRoomEntry(room, roomNumber, totalRooms, isFirstRoom);
+                
+                // Render the room entry screen
+                canvasUI.RenderRoomEntry(room, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
+                
+                // Delay to show dungeon and room information
                 await Task.Delay(3500);
             }
             
             // Clear temporary effects
-            stateManager.CurrentPlayer.ClearAllTempEffects();
+            if (stateManager.CurrentPlayer != null)
+            {
+                stateManager.CurrentPlayer.ClearAllTempEffects();
+            }
+            
+            // Check if room is empty (no enemies)
+            bool roomWasHostile = room.IsHostile;
+            if (!room.HasLivingEnemies())
+            {
+                // Room is empty - display safe message
+                if (customUIManager is CanvasUICoordinator canvasUISafe && stateManager.CurrentPlayer != null)
+                {
+                    // Add blank line before safe message (after room info)
+                    displayManager.AddCombatEvent("");
+                    displayManager.AddCombatEvent("It appears you are safe... for now.");
+                    // Re-render room entry to show the safe message
+                    canvasUISafe.RenderRoomEntry(room, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
+                    await Task.Delay(2000);
+                }
+                return true; // Player survived the room (no enemies to fight)
+            }
             
             // Process all enemies in the room
-            bool roomWasHostile = room.IsHostile;
             while (room.HasLivingEnemies())
             {
                 Enemy? currentEnemy = room.GetNextLivingEnemy();
@@ -208,130 +245,135 @@ namespace RPGGame
         {
             if (stateManager.CurrentPlayer == null || combatManager == null) return false;
             
-            // Build context for this encounter
-            narrativeManager.DungeonLog.Clear();
-            narrativeManager.DungeonLog.AddRange(narrativeManager.DungeonHeaderInfo);
-            narrativeManager.DungeonLog.AddRange(narrativeManager.CurrentRoomInfo);
+            // Start enemy encounter using unified display manager
+            displayManager.StartEnemyEncounter(enemy);
             
-            // Set combat context FIRST before adding to display buffer
-            // This ensures that when display buffer updates trigger renders, the context is already set
-            // This prevents unnecessary full clears when transitioning to combat
+            // Reset for new battle
             if (customUIManager is CanvasUICoordinator canvasUISetup)
             {
-                canvasUISetup.SetDungeonContext(narrativeManager.DungeonLog);
-                canvasUISetup.SetCurrentEnemy(enemy);
-                canvasUISetup.SetDungeonName(stateManager.CurrentDungeon?.Name);
-                canvasUISetup.SetRoomName(stateManager.CurrentRoom?.Name);
-                canvasUISetup.SetCharacter(stateManager.CurrentPlayer);
                 canvasUISetup.ResetForNewBattle();
             }
             
-            // Add dungeon header and room info to display buffer
-            // This ensures comprehensive pre-combat information is visible during combat
-            // We add it for each encounter to ensure it's always visible (display buffer handles duplicates)
-            foreach (var headerLine in narrativeManager.DungeonHeaderInfo)
+            // Render enemy encounter screen to show enemy information after room info
+            // This ensures the enemy encounter information is visible before combat starts
+            if (customUIManager is CanvasUICoordinator canvasUIEnemy)
             {
-                if (!string.IsNullOrWhiteSpace(headerLine))
-                {
-                    UIManager.WriteLine(headerLine, UIMessageType.System);
-                }
+                canvasUIEnemy.RenderEnemyEncounter(enemy, stateManager.CurrentPlayer, displayManager.CompleteDisplayLog, 
+                    stateManager.CurrentDungeon?.Name, stateManager.CurrentRoom?.Name);
+                // Brief delay to show enemy encounter information
+                await Task.Delay(2000);
             }
             
-            // Add room info to display buffer
-            foreach (var roomLine in narrativeManager.CurrentRoomInfo)
+            // Initial render of combat screen with structured content
+            // This sets up the layout and enables structured combat mode
+            if (customUIManager is CanvasUICoordinator canvasUIInitial)
             {
-                if (!string.IsNullOrWhiteSpace(roomLine))
-                {
-                    UIManager.WriteLine(roomLine, UIMessageType.System);
-                }
+                canvasUIInitial.RenderCombat(stateManager.CurrentPlayer, enemy, displayManager.CompleteDisplayLog);
             }
-            
-            // Add enemy encounter info to dungeon log
-            string enemyWeaponInfo = enemy.Weapon != null 
-                ? string.Format(AsciiArtAssets.UIText.WeaponSuffix, enemy.Weapon.Name)
-                : "";
-            string encounteredText = string.Format(AsciiArtAssets.UIText.EncounteredFormat, enemy.Name, enemyWeaponInfo);
-            narrativeManager.LogDungeonEvent($"{{{{common|{encounteredText}}}}}");
-            string statsText = AsciiArtAssets.UIText.FormatEnemyStats(enemy.CurrentHealth, enemy.MaxHealth, enemy.Armor);
-            narrativeManager.LogDungeonEvent($"{{{{enhanced_rare|{statsText}}}}}");
-            string attackText = AsciiArtAssets.UIText.FormatEnemyAttack(enemy.Strength, enemy.Agility, enemy.Technique, enemy.Intelligence);
-            narrativeManager.LogDungeonEvent($"{{{{enhanced_rare|{attackText}}}}}");
-            narrativeManager.LogDungeonEvent("");
-            
-            // Add encounter info to display buffer so it persists through combat
-            // This ensures the pre-combat information stays visible during combat
-            UIManager.WriteLine($"{{{{common|{encounteredText}}}}}", UIMessageType.System);
-            UIManager.WriteLine($"{{{{enhanced_rare|{statsText}}}}}", UIMessageType.System);
-            UIManager.WriteLine($"{{{{enhanced_rare|{attackText}}}}}", UIMessageType.System);
-            UIManager.WriteLine("", UIMessageType.System);
-            
-            // Show enemy encounter
-            if (customUIManager is CanvasUICoordinator canvasUI)
-            {
-                canvasUI.RenderEnemyEncounter(enemy, stateManager.CurrentPlayer, narrativeManager.DungeonLog, stateManager.CurrentDungeon?.Name, stateManager.CurrentRoom?.Name);
-            }
-            
-            // Increased delay to 3500ms to give players more time to read encounter info
-            await Task.Delay(3500);
-            
-            // Don't call RenderCombat - it would clear the screen
-            // The display buffer already has all pre-combat info, and combat text will be added to it
-            // The display will update naturally as combat text is added via UIManager.WriteLine()
             
             // Run combat on background thread to prevent UI blocking, but update UI on UI thread
             var room = stateManager.CurrentRoom;
             var player = stateManager.CurrentPlayer;
-            var dungeonLog = narrativeManager.DungeonLog;
             
-            // Run combat on background thread to prevent UI blocking
-            // Refresh UI only when combat log changes, with debouncing to reduce flickering
-            bool playerWon = false;
-            int lastLogCount = dungeonLog.Count; // Track combat log size to detect changes
+            // Event-driven UI updates with debouncing (replaces polling)
             System.DateTime lastRefreshTime = System.DateTime.MinValue;
+            Timer? debounceTimer = null;
             const int minRefreshIntervalMs = 200; // Minimum time between refreshes to reduce flickering
+            object refreshLock = new object();
             
-            var combatTask = Task.Run(async () =>
+            // Handler for combat event updates - uses debouncing to batch rapid updates
+            void OnCombatEventAdded()
             {
-                return await combatManager.RunCombat(player, enemy, room!);
-            });
-            
-            // While combat is running, refresh UI only when combat log changes (with debouncing)
-            while (!combatTask.IsCompleted)
-            {
-                var now = System.DateTime.Now;
-                var timeSinceLastRefresh = (now - lastRefreshTime).TotalMilliseconds;
-                
-                // Only refresh if combat log has new entries AND enough time has passed since last refresh
-                if (dungeonLog.Count > lastLogCount && timeSinceLastRefresh >= minRefreshIntervalMs)
+                lock (refreshLock)
                 {
-                    lastLogCount = dungeonLog.Count;
-                    lastRefreshTime = now;
+                    var now = System.DateTime.Now;
+                    var timeSinceLastRefresh = (now - lastRefreshTime).TotalMilliseconds;
                     
-                    // Refresh UI on UI thread
-                    if (customUIManager is CanvasUICoordinator canvasUI3)
+                    // If enough time has passed, refresh immediately
+                    if (timeSinceLastRefresh >= minRefreshIntervalMs)
                     {
-                        await Dispatcher.UIThread.InvokeAsync(() =>
+                        lastRefreshTime = now;
+                        
+                        // Cancel any pending debounced refresh
+                        debounceTimer?.Dispose();
+                        debounceTimer = null;
+                        
+                        // Refresh UI on UI thread (use Post to avoid blocking)
+                        if (customUIManager is CanvasUICoordinator canvasUI)
                         {
-                            canvasUI3.RenderCombat(player, enemy, dungeonLog);
-                        });
+                            Dispatcher.UIThread.Post(() =>
+                            {
+                                canvasUI.RenderCombat(player, enemy, displayManager.CompleteDisplayLog);
+                            });
+                        }
+                    }
+                    else
+                    {
+                        // Schedule a debounced refresh
+                        var delayMs = minRefreshIntervalMs - (int)timeSinceLastRefresh;
+                        
+                        // Cancel any existing timer
+                        debounceTimer?.Dispose();
+                        
+                        // Create new timer for debounced refresh
+                        debounceTimer = new Timer(_ =>
+                        {
+                            lock (refreshLock)
+                            {
+                                lastRefreshTime = System.DateTime.Now;
+                                debounceTimer?.Dispose();
+                                debounceTimer = null;
+                                
+                                // Refresh UI on UI thread
+                                if (customUIManager is CanvasUICoordinator canvasUI)
+                                {
+                                    Dispatcher.UIThread.Post(() =>
+                                    {
+                                        canvasUI.RenderCombat(player, enemy, displayManager.CompleteDisplayLog);
+                                    });
+                                }
+                            }
+                        }, null, delayMs, Timeout.Infinite);
                     }
                 }
-                
-                // Check frequently for new log entries
-                await Task.Delay(50);
             }
             
-            // Final refresh to show complete combat log
+            // Subscribe to combat event updates
+            displayManager.CombatEventAdded += OnCombatEventAdded;
+            
+            bool playerWon = false;
+            try
+            {
+                // Run combat on background thread
+                var combatTask = Task.Run(async () =>
+                {
+                    return await combatManager.RunCombat(player, enemy, room!);
+                });
+                
+                // Wait for combat to complete (no polling needed - events handle UI updates)
+                playerWon = await combatTask;
+            }
+            finally
+            {
+                // Unsubscribe from events and clean up timer
+                displayManager.CombatEventAdded -= OnCombatEventAdded;
+                lock (refreshLock)
+                {
+                    debounceTimer?.Dispose();
+                    debounceTimer = null;
+                }
+            }
+            
+            // Final refresh to show complete combat log (use Post to avoid blocking)
             if (customUIManager is CanvasUICoordinator canvasUI4)
             {
-                await Dispatcher.UIThread.InvokeAsync(() =>
+                Dispatcher.UIThread.Post(() =>
                 {
-                    canvasUI4.RenderCombat(player, enemy, dungeonLog);
+                    canvasUI4.RenderCombat(player, enemy, displayManager.CompleteDisplayLog);
                 });
+                // Small delay to ensure the final render completes
+                await Task.Delay(100);
             }
-            
-            // Get the result
-            playerWon = await combatTask;
             
             if (!playerWon)
             {
@@ -347,7 +389,19 @@ namespace RPGGame
                 return false;
             }
             
-            // Enemy defeated - small delay before next
+            // Enemy defeated - add victory message with proper spacing
+            if (enemy != null)
+            {
+                // Add blank line for spacing after informational summary
+                displayManager.AddCombatEvent("");
+                displayManager.AddCombatEvent("");
+                var victoryBuilder = new ColoredTextBuilder();
+                victoryBuilder.Add(enemy.Name, ColorPalette.Enemy);
+                victoryBuilder.Add(" has been defeated!", ColorPalette.Success);
+                displayManager.AddCombatEvent(ColoredTextRenderer.RenderAsMarkup(victoryBuilder.Build()));
+            }
+            
+            // Small delay before next
             await Task.Delay(1000);
             return true; // Player survived this encounter
         }
@@ -390,20 +444,6 @@ namespace RPGGame
             return (lastXPGained, lastLootReceived);
         }
 
-        /// <summary>
-        /// Get color from theme code
-        /// </summary>
-        private ColorPalette GetColorFromThemeCode(char themeCode)
-        {
-            return themeCode switch
-            {
-                'R' => ColorPalette.Error,
-                'G' => ColorPalette.Success,
-                'B' => ColorPalette.Info,
-                'Y' => ColorPalette.Warning,
-                _ => ColorPalette.White
-            };
-        }
     }
 }
 

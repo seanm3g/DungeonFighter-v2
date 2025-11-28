@@ -33,6 +33,7 @@ Testing, debugging, performance, and issue tracking:
 
 ### 04-Reference/
 Quick reference materials and change tracking:
+- **`FORMATTING_SYSTEM_GUIDE.md`** ✨ **NEW** - Complete guide for working with all formatting systems (spacing, colors, text)
 - **`IMPLEMENTATION_QUICK_REFERENCE.md`** ✨ **NEW** - Quick reference for all major implementations
 - **`QUICK_REFERENCE.md`** - Fast lookup for key information and commands
 - **`INDEX.md`** - Complete index of all documentation files
@@ -41,6 +42,7 @@ Quick reference materials and change tracking:
 ### 05-Systems/
 System-specific documentation for various game systems:
 - **`INTENTIONAL_COLOR_SCHEME.md`** ✨ **NEW** - Comprehensive intentional color scheme system for items, classes, and modifications
+- **`TEXT_DISPLAY_RULES.md`** ✨ **NEW** - Complete rules and guidelines for text display formatting, spacing, and section separation
 - **`UI_CONFIGURATION_GUIDE.md`** - UI system configuration
 - **`TEXT_DISPLAY_SYSTEM.md`** - Text display system documentation
 - **`README_TEXT_DISPLAY_SYSTEM.md`** - Text display system guide

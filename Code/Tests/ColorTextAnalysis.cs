@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Text;
+using Avalonia.Media;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
 
@@ -16,18 +17,18 @@ namespace RPGGame.Tests
             Console.WriteLine($"\n{'='} ANALYZING: '{text}' with template '{templateName}' {'='}");
             Console.WriteLine();
             
-            // Step 1: Create the markup
-            var coloredSegments = ColorParser.Colorize(text);
-            string markup = string.Join("", coloredSegments.Select(s => s.Text));
-            Console.WriteLine($"Step 1 - ColorParser.Colorize() produces:");
+            // Step 1: Create the markup using keyword coloring
+            var coloredSegments = RPGGame.UI.ColorSystem.KeywordColorSystem.ColorText(text);
+            string markup = ColoredTextRenderer.RenderAsPlainText(coloredSegments);
+            Console.WriteLine($"Step 1 - KeywordColorSystem.ColorText() produces:");
             Console.WriteLine($"  \"{markup}\"");
             Console.WriteLine($"  Length: {markup.Length} chars");
             ShowCharacterBreakdown(markup);
             Console.WriteLine();
             
-            // Step 2: Parse the markup
-            var segments = ColorParser.Parse(markup);
-            Console.WriteLine($"Step 2 - ColorParser.Parse() produces {segments.Count} segments:");
+            // Step 2: Parse the markup (if it has templates, parse it)
+            var segments = ColoredTextParser.Parse(markup);
+            Console.WriteLine($"Step 2 - ColoredTextParser.Parse() produces {segments.Count} segments:");
             
             int totalChars = 0;
             for (int i = 0; i < segments.Count; i++)
@@ -37,9 +38,7 @@ namespace RPGGame.Tests
                 
                 if (i < 20 || i >= segments.Count - 5) // Show first 20 and last 5
                 {
-                    string fgColor = seg.Foreground.HasValue ? 
-                        $"RGB({seg.Foreground.Value.R},{seg.Foreground.Value.G},{seg.Foreground.Value.B})" : 
-                        "none";
+                    string fgColor = $"RGB({seg.Color.R},{seg.Color.G},{seg.Color.B})";
                     string segText = seg.Text?.Replace(" ", "·") ?? "null";
                     Console.WriteLine($"  [{i,3}] '{segText}' (len={seg.Text?.Length ?? 0}) fg={fgColor}");
                 }
@@ -52,7 +51,7 @@ namespace RPGGame.Tests
             Console.WriteLine();
             
             // Step 3: Reconstruct the text
-            string reconstructed = string.Concat(segments.Select(s => s.Text ?? ""));
+            string reconstructed = ColoredTextRenderer.RenderAsPlainText(segments);
             Console.WriteLine($"Step 3 - Reconstructed text:");
             Console.WriteLine($"  \"{reconstructed}\"");
             Console.WriteLine($"  Length: {reconstructed.Length} chars");
@@ -85,10 +84,10 @@ namespace RPGGame.Tests
                 Console.WriteLine($"  ⚠️  {emptySegments.Count} empty segments found");
             }
             
-            var segmentsWithoutColor = segments.Where(s => !s.Foreground.HasValue && !s.Background.HasValue).ToList();
-            if (segmentsWithoutColor.Any())
+            var segmentsWithWhiteColor = segments.Where(s => s.Color == Colors.White).ToList();
+            if (segmentsWithWhiteColor.Any())
             {
-                Console.WriteLine($"  ℹ️  {segmentsWithoutColor.Count} segments without color (whitespace?)");
+                Console.WriteLine($"  ℹ️  {segmentsWithWhiteColor.Count} segments with white color (default/whitespace?)");
             }
             
             Console.WriteLine();

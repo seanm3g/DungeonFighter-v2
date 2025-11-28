@@ -10,7 +10,6 @@ namespace RPGGame.UI.Avalonia.Managers
         void AddToDisplayBuffer(string message, UIMessageType messageType = UIMessageType.System);
         void ClearDisplayBuffer();
         void RenderDisplayBuffer(int x, int y, int width, int height);
-        void RenderDisplayBufferFallback();
         void WriteLineColored(string message, int x, int y);
         int WriteLineColoredWrapped(string message, int x, int y, int maxWidth);
         void WriteLineColoredSegments(System.Collections.Generic.List<RPGGame.UI.ColorSystem.ColoredText> segments, int x, int y);
@@ -20,5 +19,8 @@ namespace RPGGame.UI.Avalonia.Managers
         void ScrollUp(int lines = 3);
         void ScrollDown(int lines = 3);
         void ResetScroll();
+        List<string> DisplayBuffer { get; }
+        
+        void AddMessageBatch(System.Collections.Generic.IEnumerable<string> messages, int delayAfterBatchMs = 0);
     }
 }

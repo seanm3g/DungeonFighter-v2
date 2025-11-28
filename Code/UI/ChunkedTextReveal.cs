@@ -272,7 +272,8 @@ namespace RPGGame.UI
         private static int CalculateDelay(string chunk, RevealConfig config)
         {
             // Get the display length (excluding color markup)
-            int displayLength = ColorParser.GetDisplayLength(chunk);
+            var segments = ColoredTextParser.Parse(chunk);
+            int displayLength = ColoredTextRenderer.GetDisplayLength(segments);
             
             // Calculate delay: base delay per character * number of characters
             int calculatedDelay = displayLength * config.BaseDelayPerCharMs;

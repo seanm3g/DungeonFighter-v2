@@ -180,7 +180,8 @@ namespace RPGGame
                 // Player acts
                 if (nextEntity == player && player.IsAlive)
                 {
-                    if (!turnHandler.ProcessPlayerTurn(player, currentEnemy, room))
+                    bool combatContinues = await turnHandler.ProcessPlayerTurnAsync(player, currentEnemy, room);
+                    if (!combatContinues)
                     {
                         break; // Combat ended
                     }
@@ -191,7 +192,8 @@ namespace RPGGame
                 // Enemy acts
                 else if (nextEntity == currentEnemy && currentEnemy.IsAlive)
                 {
-                    if (!turnHandler.ProcessEnemyTurn(player, currentEnemy, room))
+                    bool combatContinues = await turnHandler.ProcessEnemyTurnAsync(player, currentEnemy, room);
+                    if (!combatContinues)
                     {
                         break; // Combat ended
                     }
