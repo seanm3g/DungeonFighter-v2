@@ -1,16 +1,14 @@
 using System.Threading.Tasks;
 using RPGGame;
-using DungeonFighter.Game.Menu.Commands;
 using DungeonFighter.Game.Menu.Core;
 
 namespace DungeonFighter.Game.Menu.Handlers
 {
     /// <summary>
-    /// Refactored Main Menu Handler using the unified menu framework.
+    /// Refactored Main Menu Handler using direct method calls.
     /// Handles input for: New Game (1), Load Game (2), Settings (3), Exit (0)
     /// 
-    /// BEFORE: ~200 lines with scattered logic
-    /// AFTER: ~80 lines with clear separation of concerns
+    /// Simplified from command pattern to direct handler methods for better maintainability.
     /// </summary>
     public class MainMenuHandler : MenuHandlerBase
     {
@@ -18,46 +16,89 @@ namespace DungeonFighter.Game.Menu.Handlers
         protected override string HandlerName => "MainMenu";
 
         /// <summary>
-        /// Parse input into appropriate Main Menu command.
+        /// Handle input directly and return next game state.
         /// </summary>
-        protected override IMenuCommand? ParseInput(string input)
+        protected override async Task<GameState?> HandleInputDirect(string input)
         {
             return input.Trim() switch
             {
-                "1" => new StartNewGameCommand(),
-                "2" => new LoadGameCommand(),
-                "3" => new SettingsCommand(),
-                "0" => new ExitGameCommand(),
+                "1" => await StartNewGame(),
+                "2" => await LoadGame(),
+                "3" => GameState.Settings,
+                "0" => await ExitGame(),
                 _ => null
             };
         }
 
-        /// <summary>
-        /// Execute command and return next game state.
-        /// </summary>
-        protected override async Task<GameState?> ExecuteCommand(IMenuCommand command)
+        private Task<GameState?> StartNewGame()
         {
-            // Create context with real state manager
-            if (StateManager != null)
+            LogStep("Starting new game");
+            
+            if (StateManager == null)
             {
-                var context = new MenuContext(StateManager);
-                await command.Execute(context);
+                LogError("StateManager is null");
+                return Task.FromResult<GameState?>(null);
+            }
+
+            // Create new character (null triggers random name generation)
+            var newCharacter = new Character(null, 1);
+            StateManager.SetCurrentPlayer(newCharacter);
+            
+            // Apply health multiplier if configured
+            var settings = GameSettings.Instance;
+            if (settings.PlayerHealthMultiplier != 1.0)
+            {
+                newCharacter.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
+            }
+            
+            LogStep("New character created");
+            return Task.FromResult<GameState?>(GameState.WeaponSelection);
+        }
+
+        private Task<GameState?> LoadGame()
+        {
+            LogStep("Loading game");
+            
+            if (StateManager == null)
+            {
+                LogError("StateManager is null");
+                return Task.FromResult<GameState?>(null);
+            }
+
+            var savedCharacter = Character.LoadCharacter();
+            if (savedCharacter != null)
+            {
+                StateManager.SetCurrentPlayer(savedCharacter);
+                
+                // Apply health multiplier if configured
+                var settings = GameSettings.Instance;
+                if (settings.PlayerHealthMultiplier != 1.0)
+                {
+                    savedCharacter.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
+                }
+                
+                LogStep("Game loaded successfully");
+                return Task.FromResult<GameState?>(GameState.GameLoop);
             }
             else
             {
-                DebugLogger.Log(HandlerName, "WARNING: StateManager is null, executing command with null context");
-                await command.Execute(null);
+                LogError("No saved game found");
+                return Task.FromResult<GameState?>(null);
             }
+        }
 
-            // Determine next state based on command type
-            return command switch
+        private Task<GameState?> ExitGame()
+        {
+            LogStep("Exiting game");
+            
+            if (StateManager?.CurrentPlayer != null)
             {
-                StartNewGameCommand => GameState.WeaponSelection,
-                LoadGameCommand => GameState.GameLoop,
-                SettingsCommand => GameState.Settings,
-                ExitGameCommand => (GameState?)null, // ExitGameCommand handles exit logic internally
-                _ => (GameState?)null
-            };
+                // Save character before exit
+                StateManager.CurrentPlayer.SaveCharacter();
+                LogStep("Game saved before exit");
+            }
+            
+            return Task.FromResult<GameState?>(null); // Signal exit
         }
     }
 }

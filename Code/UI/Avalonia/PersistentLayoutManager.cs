@@ -62,8 +62,9 @@ namespace RPGGame.UI.Avalonia
             
             if (clearCanvas)
             {
-                // Clear the title line before rendering new title to prevent overlay
-                // This is important when transitioning between screens with different title lengths
+                // Always clear the entire title line before rendering new title to prevent overlay
+                // This is critical when transitioning between screens with different title lengths
+                // Clear a wider range to ensure we remove any partial text from longer titles
                 canvas.ClearTextInRange(TITLE_Y, TITLE_Y);
                 
                 // Render title bar
@@ -88,7 +89,8 @@ namespace RPGGame.UI.Avalonia
                 int centerContentY = CENTER_PANEL_Y + 1;
                 int centerContentWidth = CENTER_PANEL_WIDTH - 2;
                 int centerContentHeight = CENTER_PANEL_HEIGHT - 2;
-                canvas.ClearTextInArea(centerContentX, centerContentY, centerContentWidth, centerContentHeight);
+                // Clear with height + 1 to ensure we clear the full area (endY is exclusive)
+                canvas.ClearTextInArea(centerContentX, centerContentY, centerContentWidth, centerContentHeight + 1);
                 canvas.ClearProgressBarsInArea(centerContentX, centerContentY, centerContentWidth, centerContentHeight);
             }
             else
@@ -107,6 +109,11 @@ namespace RPGGame.UI.Avalonia
                 {
                     RenderCharacterPanel(character);
                 }
+                
+                // Note: We do NOT clear the center content area here when clearCanvas=false
+                // The DisplayRenderer (or other content renderer) is responsible for clearing
+                // its own content area before rendering. This avoids redundant clearing and
+                // ensures proper separation of concerns.
             }
             
             // Track the last rendered title
@@ -206,7 +213,7 @@ namespace RPGGame.UI.Avalonia
             
             // Wrap text if it's too long (max width of 17 characters)
             const int maxWidth = 17;
-            List<string> wrappedLines = WrapText(displayName, maxWidth);
+            List<string> wrappedLines = TextWrapper.WrapText(displayName, maxWidth);
             
             foreach (string line in wrappedLines)
             {
@@ -217,80 +224,6 @@ namespace RPGGame.UI.Avalonia
             y += spacingAfter;
         }
         
-        /// <summary>
-        /// Wraps text to fit within a specified width, breaking at spaces when possible
-        /// Handles color markup properly by using display length instead of raw length
-        /// </summary>
-        private List<string> WrapText(string text, int maxWidth)
-        {
-            var lines = new List<string>();
-            
-            if (string.IsNullOrEmpty(text))
-            {
-                lines.Add(text ?? "");
-                return lines;
-            }
-            
-            // Use display length (excluding markup) for comparison
-            var segments = ColoredTextParser.Parse(text);
-            int displayLength = ColoredTextRenderer.GetDisplayLength(segments);
-            if (displayLength <= maxWidth)
-            {
-                lines.Add(text);
-                return lines;
-            }
-            
-            // Break text into words
-            string[] words = text.Split(' ');
-            string currentLine = "";
-            int currentLineDisplayLength = 0;
-            
-            foreach (string word in words)
-            {
-                var wordSegments = ColoredTextParser.Parse(word);
-                int wordDisplayLength = ColoredTextRenderer.GetDisplayLength(wordSegments);
-                
-                // If adding this word would exceed the max width
-                if (currentLineDisplayLength > 0 && (currentLineDisplayLength + 1 + wordDisplayLength) > maxWidth)
-                {
-                    // Add the current line and start a new one
-                    lines.Add(currentLine);
-                    currentLine = word;
-                    currentLineDisplayLength = wordDisplayLength;
-                }
-                else
-                {
-                    // Add the word to the current line
-                    if (currentLineDisplayLength > 0)
-                    {
-                        currentLine += " " + word;
-                        currentLineDisplayLength += 1 + wordDisplayLength;
-                    }
-                    else
-                    {
-                        currentLine = word;
-                        currentLineDisplayLength = wordDisplayLength;
-                    }
-                }
-                
-                // If a single word is longer than maxWidth, we need to break it
-                // Note: This is a simplification - proper character-level breaking with markup is complex
-                if (currentLineDisplayLength > maxWidth)
-                {
-                    lines.Add(currentLine);
-                    currentLine = "";
-                    currentLineDisplayLength = 0;
-                }
-            }
-            
-            // Add the last line if there's anything left
-            if (currentLineDisplayLength > 0)
-            {
-                lines.Add(currentLine);
-            }
-            
-            return lines;
-        }
         
         /// <summary>
         /// Renders the dungeon and enemy information panel (right side)

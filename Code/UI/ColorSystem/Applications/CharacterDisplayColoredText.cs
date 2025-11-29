@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Avalonia.Media;
 using RPGGame;
+using RPGGame.UI.ColorSystem.Applications;
 
 namespace RPGGame.UI.ColorSystem
 {

@@ -135,11 +135,9 @@ namespace RPGGame.UI.Avalonia.Renderers
                 int availableWidth = width - 2;
                 int textX = x + 1;
                 
-                // Clear the content area
-                for (int clearY = y; clearY < y + height; clearY++)
-                {
-                    canvas.AddText(x, clearY, new string(' ', width), AsciiArtAssets.Colors.White);
-                }
+                // Clear the content area using efficient ClearTextInArea method
+                // Use height + 1 to ensure full area is cleared (endY is exclusive)
+                canvas.ClearTextInArea(x, y, width, height + 1);
                 
                 // Render all messages from the buffer in order
                 foreach (var message in displayBuffer)
@@ -199,11 +197,9 @@ namespace RPGGame.UI.Avalonia.Renderers
                 int availableWidth = width - 2;
                 int textX = x + 1;
                 
-                // Clear the content area
-                for (int clearY = y; clearY < y + height; clearY++)
-                {
-                    canvas.AddText(x, clearY, new string(' ', width), AsciiArtAssets.Colors.White);
-                }
+                // Clear the content area using efficient ClearTextInArea method
+                // Use height + 1 to ensure full area is cleared (endY is exclusive)
+                canvas.ClearTextInArea(x, y, width, height + 1);
                 
                 // Render all messages from the buffer in order
                 foreach (var message in displayBuffer)
@@ -248,11 +244,9 @@ namespace RPGGame.UI.Avalonia.Renderers
                 int availableWidth = width - 2;
                 int textX = x + 1;
                 
-                // Clear the content area
-                for (int clearY = y; clearY < y + height; clearY++)
-                {
-                    canvas.AddText(x, clearY, new string(' ', width), AsciiArtAssets.Colors.White);
-                }
+                // Clear the content area using efficient ClearTextInArea method
+                // Use height + 1 to ensure full area is cleared (endY is exclusive)
+                canvas.ClearTextInArea(x, y, width, height + 1);
                 
                 // Render all messages from the buffer in order
                 // This will naturally scroll as content exceeds the viewport

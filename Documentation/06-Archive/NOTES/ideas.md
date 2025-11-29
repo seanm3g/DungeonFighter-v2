@@ -148,3 +148,5 @@ two dimensions - level and the specific dungeon
 109. Flat damage, but % chance to trigger flat damage reduction.  Armor has a higher or lower chance to trigger.
 110. Different actions have different thresholds.  Consistent actions with low miss/low action, high chance of big hit or miss.
 111. Have action speed affect time but not in absolute, as relative to a default time of like 1s. So a fast thing woud be like .8 seconds per line.
+112. Stat display enhancement: When a secondary stat is either required (for an action/equipment) or you have it, or it's relevant to the circumstance (like it's required), that stat should show  on the left. Provide two ways of sorting stats: by primary/secondary, or by highest to lowest. 
+113. Have the crit for each primary attribute do something different.

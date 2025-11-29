@@ -303,88 +303,7 @@ namespace RPGGame
         /// </summary>
         public string GetDefeatSummary()
         {
-            EndSession();
-            
-            var summary = new List<string>();
-            summary.Add("═══════════════════════════════════════");
-            summary.Add("           DEFEAT STATISTICS");
-            summary.Add("═══════════════════════════════════════");
-            summary.Add("");
-            
-            // Character progression
-            summary.Add("📈 CHARACTER PROGRESSION:");
-            summary.Add($"   Level: {StartingLevel} → {FinalLevel} (+{LevelsGained})");
-            summary.Add($"   Total XP Gained: {TotalXP:N0}");
-            summary.Add($"   Play Time: {TotalPlayTimeMinutes} minutes");
-            summary.Add("");
-            
-            // Combat performance
-            summary.Add("⚔️  COMBAT PERFORMANCE:");
-            summary.Add($"   Enemies Defeated: {EnemiesDefeated}");
-            summary.Add($"   Total Damage Dealt: {TotalDamageDealt:N0}");
-            summary.Add($"   Total Damage Received: {TotalDamageReceived:N0}");
-            summary.Add($"   Total Healing Received: {TotalHealingReceived:N0}");
-            summary.Add($"   Hit Rate: {HitRate:F1}%");
-            summary.Add($"   Critical Hit Rate: {CriticalHitRate:F1}%");
-            summary.Add("");
-            
-            // Damage records
-            summary.Add("💥 DAMAGE RECORDS:");
-            summary.Add($"   Highest Single Hit: {HighestSingleHitDamage}");
-            summary.Add($"   Highest Turn Damage: {HighestTurnDamage}");
-            summary.Add($"   Average Damage per Action: {AverageDamagePerAction:F1}");
-            summary.Add("");
-            
-            // Combo statistics
-            summary.Add("🔥 COMBO MASTERY:");
-            summary.Add($"   Total Combos Executed: {TotalCombosExecuted}");
-            summary.Add($"   Highest Combo Step: {HighestComboStep}");
-            summary.Add($"   Total Combo Damage: {TotalComboDamage:N0}");
-            summary.Add($"   Combo Success Rate: {ComboSuccessRate:F1}%");
-            summary.Add("");
-            
-            // Item collection
-            summary.Add("🎒 ITEM COLLECTION:");
-            summary.Add($"   Items Collected: {ItemsCollected}");
-            summary.Add($"   Items Equipped: {ItemsEquipped}");
-            summary.Add($"   Rare Items: {RareItemsFound}");
-            summary.Add($"   Epic Items: {EpicItemsFound}");
-            summary.Add($"   Legendary Items: {LegendaryItemsFound}");
-            summary.Add("");
-            
-            // Exploration
-            summary.Add("🗺️  EXPLORATION:");
-            summary.Add($"   Dungeons Completed: {DungeonsCompleted}");
-            summary.Add($"   Rooms Explored: {RoomsExplored}");
-            summary.Add($"   Encounters Survived: {EncountersSurvived}");
-            summary.Add("");
-            
-            // Achievements
-            var achievements = new List<string>();
-            if (SurvivedNearDeath) achievements.Add("Near Death Survivor");
-            if (PerfectCombat) achievements.Add("Perfect Combat");
-            if (MassiveCombo) achievements.Add("Combo Master");
-            if (OneShotKill) achievements.Add("One-Shot Wonder");
-            if (HighestComboStep >= 3) achievements.Add("Combo Expert");
-            if (TotalCriticalHits >= 10) achievements.Add("Critical Striker");
-            if (ItemsCollected >= 20) achievements.Add("Treasure Hunter");
-            if (EnemiesDefeated >= 10) achievements.Add("Monster Slayer");
-            
-            if (achievements.Count > 0)
-            {
-                summary.Add("🏆 ACHIEVEMENTS UNLOCKED:");
-                foreach (var achievement in achievements)
-                {
-                    summary.Add($"   ✓ {achievement}");
-                }
-                summary.Add("");
-            }
-            
-            summary.Add("═══════════════════════════════════════");
-            summary.Add("        Better luck next time!");
-            summary.Add("═══════════════════════════════════════");
-            
-            return string.Join("\n", summary);
+            return StatisticsFormatter.FormatDefeatSummary(this);
         }
         
         /// <summary>
@@ -393,26 +312,7 @@ namespace RPGGame
         /// <param name="filename">The filename to save to</param>
         public void SaveSessionStatistics(string? filename = null)
         {
-            try
-            {
-                if (string.IsNullOrEmpty(filename))
-                {
-                    filename = "session_stats.json";
-                }
-                
-                var options = new JsonSerializerOptions
-                {
-                    WriteIndented = true,
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                };
-                
-                string json = JsonSerializer.Serialize(this, options);
-                File.WriteAllText(filename, json);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Failed to save session statistics: {ex.Message}");
-            }
+            StatisticsSerializer.SaveSessionStatistics(this, filename);
         }
         
         /// <summary>
@@ -422,32 +322,7 @@ namespace RPGGame
         /// <returns>Loaded session statistics or new instance if file doesn't exist</returns>
         public static SessionStatistics LoadSessionStatistics(string? filename = null)
         {
-            try
-            {
-                if (string.IsNullOrEmpty(filename))
-                {
-                    filename = "session_stats.json";
-                }
-                
-                if (!File.Exists(filename))
-                {
-                    return new SessionStatistics();
-                }
-                
-                string json = File.ReadAllText(filename);
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                };
-                
-                var stats = JsonSerializer.Deserialize<SessionStatistics>(json, options);
-                return stats ?? new SessionStatistics();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Failed to load session statistics: {ex.Message}");
-                return new SessionStatistics();
-            }
+            return StatisticsSerializer.LoadSessionStatistics(filename);
         }
     }
 }

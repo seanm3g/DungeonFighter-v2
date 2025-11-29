@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Avalonia.Media;
+using RPGGame.Combat.Formatting;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
@@ -8,6 +9,12 @@ namespace RPGGame
     /// <summary>
     /// Enhanced combat result formatting using the new ColoredText system
     /// Provides cleaner, more maintainable colored combat messages
+    /// Refactored to use extracted formatters
+    /// 
+    /// SPACING STANDARDIZATION:
+    /// Uses ColoredTextBuilder which automatically handles spacing via CombatLogSpacingManager.
+    /// Manual spaces in operators (e.g., " + ", " - ", " | ") are intentional for display.
+    /// See Documentation/05-Systems/COMBAT_LOG_SPACING_STANDARD.md for spacing guidelines.
     /// </summary>
     public static class CombatResultsColoredText
     {
@@ -26,92 +33,7 @@ namespace RPGGame
             int rollBonus = 0, 
             int roll = 0)
         {
-            var builder = new ColoredTextBuilder();
-            
-            string actionName = action?.Name ?? "attack";
-            
-            // Check if this is a critical hit
-            int totalRoll = roll + rollBonus;
-            bool isCritical = totalRoll >= 20;
-            
-            if (isCritical)
-            {
-                actionName = $"CRITICAL {actionName}";
-            }
-            
-            // Determine if this is a combo action
-            bool isComboAction = actionName != "BASIC ATTACK" && actionName != "CRITICAL BASIC ATTACK";
-            
-            // Attacker name
-            builder.Add(attacker.Name, attacker is Character ? ColorPalette.Player : ColorPalette.Enemy);
-            builder.Add("hits", Colors.White);
-            
-            // Target name
-            builder.Add(target.Name, target is Character ? ColorPalette.Player : ColorPalette.Enemy);
-            
-            // Action name for combo actions
-            if (isComboAction)
-            {
-                builder.Add("with", Colors.White);
-                builder.Add(actionName, isCritical ? ColorPalette.Critical : ColorPalette.Warning);
-            }
-            
-            // Damage amount
-            builder.Add("for", Colors.White);
-            builder.Add(actualDamage.ToString(), isCritical ? ColorPalette.Critical : ColorPalette.Damage);
-            builder.Add("damage", Colors.White);
-            
-            var damageText = builder.Build();
-            
-            // Calculate roll info
-            int targetDefense = 0;
-            if (target is Enemy targetEnemy)
-            {
-                targetDefense = targetEnemy.Armor;
-            }
-            else if (target is Character targetCharacter)
-            {
-                targetDefense = targetCharacter.GetTotalArmor();
-            }
-            
-            int actualRawDamage = CombatCalculator.CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, roll);
-            
-            double actualSpeed = 0;
-            if (action != null && action.Length > 0)
-            {
-                actualSpeed = CalculateActualActionSpeed(attacker, action);
-            }
-            
-            var rollInfo = FormatRollInfoColored(roll, rollBonus, actualRawDamage, targetDefense, actualSpeed, comboAmplifier, action);
-            
-            return (damageText, rollInfo);
-        }
-        
-        /// <summary>
-        /// Helper method to calculate actual action speed
-        /// </summary>
-        private static double CalculateActualActionSpeed(Actor actor, Action action)
-        {
-            double baseSpeed = 0;
-            if (actor is Character character)
-            {
-                baseSpeed = character.GetTotalAttackSpeed();
-            }
-            else if (actor is Enemy enemy)
-            {
-                baseSpeed = enemy.GetTotalAttackSpeed();
-            }
-            else if (actor is Environment environment)
-            {
-                baseSpeed = 15.0;
-            }
-            
-            if (actor.HasCriticalMissPenalty)
-            {
-                baseSpeed *= 2.0;
-            }
-            
-            return baseSpeed * action.Length;
+            return DamageFormatter.FormatDamageDisplayColored(attacker, target, rawDamage, actualDamage, action, comboAmplifier, damageMultiplier, rollBonus, roll);
         }
         
         /// <summary>
@@ -210,20 +132,23 @@ namespace RPGGame
             bool isCriticalMiss = totalRoll <= 1;
             
             // Attacker name
-            builder.Add(attacker.Name, attacker is Character ? ColorPalette.Player : ColorPalette.Enemy);
+            builder.Add(attacker.Name, attacker is Character ? ColorPalette.Gold : ColorPalette.Enemy);
             
             if (isCriticalMiss)
             {
+                builder.AddSpace(); // Explicit space between attacker name and "CRITICAL"
                 builder.Add("CRITICAL", ColorPalette.Critical);
+                builder.AddSpace(); // Explicit space between "CRITICAL" and "MISS"
                 builder.Add("MISS", ColorPalette.Miss);
             }
             else
             {
+                builder.AddSpace(); // Explicit space between attacker name and "misses"
                 builder.Add("misses", ColorPalette.Miss);
-                builder.AddSpace();
             }
             
-            builder.Add(target.Name, target is Character ? ColorPalette.Player : ColorPalette.Enemy);
+            builder.AddSpace(); // Explicit space between "MISS"/"misses" and target name
+            builder.Add(target.Name, target is Character ? ColorPalette.Gold : ColorPalette.Enemy);
             
             var missText = builder.Build();
             
@@ -231,10 +156,10 @@ namespace RPGGame
             double actualSpeed = 0;
             if (action != null && action.Length > 0)
             {
-                actualSpeed = CalculateActualActionSpeed(attacker, action);
+                actualSpeed = ActionSpeedCalculator.CalculateActualActionSpeed(attacker, action);
             }
             
-            var rollInfo = FormatRollInfoColored(roll, rollBonus, 0, 0, actualSpeed);
+            var rollInfo = RollInfoFormatter.FormatRollInfoColored(roll, rollBonus, 0, 0, actualSpeed, null, action);
             
             return (missText, rollInfo);
         }
@@ -253,7 +178,7 @@ namespace RPGGame
             var builder = new ColoredTextBuilder();
             
             // Source name
-            builder.Add(source.Name, source is Character ? ColorPalette.Player : ColorPalette.Enemy);
+            builder.Add(source.Name, source is Character ? ColorPalette.Gold : ColorPalette.Enemy);
             builder.Add("uses", Colors.White);
             
             // Action name
@@ -262,7 +187,7 @@ namespace RPGGame
             builder.Add("on", Colors.White);
             
             // Target name
-            builder.Add(target.Name, target is Character ? ColorPalette.Player : ColorPalette.Enemy);
+            builder.Add(target.Name, target is Character ? ColorPalette.Gold : ColorPalette.Enemy);
             
             var actionText = builder.Build();
             
@@ -270,10 +195,10 @@ namespace RPGGame
             double actualSpeed = 0;
             if (action != null && action.Length > 0)
             {
-                actualSpeed = CalculateActualActionSpeed(source, action);
+                actualSpeed = ActionSpeedCalculator.CalculateActualActionSpeed(source, action);
             }
             
-            var rollInfo = FormatRollInfoColored(roll, rollBonus, 0, 0, actualSpeed);
+            var rollInfo = RollInfoFormatter.FormatRollInfoColored(roll, rollBonus, 0, 0, actualSpeed, null, action);
             
             return (actionText, rollInfo);
         }
@@ -364,13 +289,17 @@ namespace RPGGame
         {
             var builder = new ColoredTextBuilder();
             
-            builder.Add(target.Name, target is Character ? ColorPalette.Player : ColorPalette.Enemy);
+            builder.Add(target.Name, target is Character ? ColorPalette.Gold : ColorPalette.Enemy);
             
             if (isApplied)
             {
+                builder.AddSpace(); // Explicit space between target name and "is"
                 builder.Add("is", Colors.White);
+                builder.AddSpace(); // Explicit space between "is" and "affected"
                 builder.Add("affected", ColorPalette.Warning);
+                builder.AddSpace(); // Explicit space between "affected" and "by"
                 builder.Add("by", Colors.White);
+                builder.AddSpace(); // Explicit space between "by" and effect name
                 builder.Add(effectName, ColorPalette.Error);
                 
                 if (stackCount.HasValue && stackCount.Value > 1)
@@ -385,11 +314,17 @@ namespace RPGGame
             }
             else
             {
+                builder.AddSpace(); // Explicit space between target name and "is"
                 builder.Add("is", Colors.White);
+                builder.AddSpace(); // Explicit space between "is" and "no"
                 builder.Add("no", Colors.White);
+                builder.AddSpace(); // Explicit space between "no" and "longer"
                 builder.Add("longer", Colors.White);
+                builder.AddSpace(); // Explicit space between "longer" and "affected"
                 builder.Add("affected", ColorPalette.Success);
+                builder.AddSpace(); // Explicit space between "affected" and "by"
                 builder.Add("by", Colors.White);
+                builder.AddSpace(); // Explicit space between "by" and effect name
                 builder.Add(effectName, ColorPalette.Info);
             }
             
@@ -410,7 +345,7 @@ namespace RPGGame
             
             builder.Add(healer.Name, ColorPalette.Player);
             builder.Add("heals", Colors.White);
-            builder.Add(target.Name, target is Character ? ColorPalette.Player : ColorPalette.Enemy);
+            builder.Add(target.Name, target is Character ? ColorPalette.Gold : ColorPalette.Enemy);
             builder.Add("for", Colors.White);
             builder.Add(healAmount.ToString(), ColorPalette.Healing);
             builder.Add("health", ColorPalette.Healing);

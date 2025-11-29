@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Avalonia.Media;
+using RPGGame.UI;
 
 namespace RPGGame.UI.ColorSystem
 {
@@ -23,7 +24,7 @@ namespace RPGGame.UI.ColorSystem
         }
         
         /// <summary>
-        /// Renders colored text as markup string (old-style &X format) for backward compatibility
+        /// Renders colored text as template syntax markup string ({{pattern|text}} format)
         /// This allows ColoredText to be stored in string buffers and parsed back
         /// Ensures proper spacing between segments - each segment gets a space after it (unless punctuation/newline)
         /// </summary>
@@ -36,6 +37,11 @@ namespace RPGGame.UI.ColorSystem
             if (segmentList.Count == 0)
                 return "";
             
+            // Check if all segments form a single continuous word (no spaces between them)
+            // This is important for multi-color templates like room names where each character
+            // or character group is a separate segment but they form one word
+            bool isSingleWord = IsSingleWord(segmentList);
+            
             var markup = new StringBuilder();
             Color? currentColor = null;
             
@@ -46,186 +52,141 @@ namespace RPGGame.UI.ColorSystem
                 if (string.IsNullOrEmpty(segment.Text))
                     continue;
                 
-                // Only add color code if color changed
-                if (!currentColor.HasValue || !ColorValidator.AreColorsEqual(currentColor.Value, segment.Color))
+                // Only add template markup if color changed or is not white
+                bool needsColor = !currentColor.HasValue || !ColorValidator.AreColorsEqual(currentColor.Value, segment.Color);
+                bool isWhite = ColorValidator.AreColorsEqual(segment.Color, Colors.White);
+                
+                if (needsColor && !isWhite)
                 {
-                    // Add color code
-                    char colorCode = GetColorCode(segment.Color);
-                    markup.Append($"&{colorCode}");
+                    // Get pattern name for this color
+                    string pattern = GetPatternForColor(segment.Color);
+                    markup.Append($"{{{{{pattern}|");
                     currentColor = segment.Color;
                 }
                 
                 // Add the segment text
                 markup.Append(segment.Text);
                 
+                // Close template if we opened one
+                if (needsColor && !isWhite)
+                {
+                    markup.Append("}}");
+                }
+                
                 // Ensure space after segment (unless it's the last segment, ends with punctuation/newline, or next starts with punctuation/newline)
                 // This ensures each item has a space after it leading to the next item
-                if (i < segmentList.Count - 1)
+                // BUT: skip spacing if all segments form a single word (prevents spacing in multi-color templates)
+                if (i < segmentList.Count - 1 && !isSingleWord)
                 {
                     var nextSegment = segmentList[i + 1];
                     if (!string.IsNullOrEmpty(nextSegment.Text))
                     {
-                        bool needsSpace = ShouldAddSpaceBetweenSegments(segment.Text, nextSegment.Text);
+                        // Use centralized spacing manager with word boundary detection for multi-color templates
+                        bool needsSpace = CombatLogSpacingManager.ShouldAddSpaceBetween(segment.Text, nextSegment.Text, checkWordBoundary: true);
                         if (needsSpace)
                         {
-                            // Add space - use current color to maintain color context
-                            // The space will be part of the current color segment
-                            markup.Append(" ");
+                            // Add space as plain text (white)
+                            markup.Append(CombatLogSpacingManager.SingleSpace);
                         }
                     }
                 }
-            }
-            
-            // Reset to white at the end
-            if (currentColor.HasValue && !ColorValidator.AreColorsEqual(currentColor.Value, Colors.White))
-            {
-                markup.Append("&y");
             }
             
             return markup.ToString();
         }
         
         /// <summary>
-        /// Determines if a space should be added between two text segments.
-        /// Returns false for punctuation boundaries, newlines, or if either segment is empty.
-        /// Also returns false for segments that are part of the same word (prevents spacing issues with multi-color templates).
+        /// Checks if all segments form a single continuous word (no spaces between segments).
+        /// This is used to prevent spacing issues in multi-color templates like room names.
         /// </summary>
-        private static bool ShouldAddSpaceBetweenSegments(string currentText, string nextText)
+        private static bool IsSingleWord(List<ColoredText> segments)
         {
-            if (string.IsNullOrEmpty(currentText) || string.IsNullOrEmpty(nextText))
+            if (segments == null || segments.Count <= 1)
                 return false;
             
-            // Don't add space if both segments are single characters that are part of the same word
-            // This prevents spacing issues when multi-color templates split words into character-by-character segments
-            if (currentText.Length == 1 && nextText.Length == 1)
+            // Check if all non-empty segments are letters/digits with no whitespace
+            // and adjacent segments have letter/digit boundaries (forming a continuous word)
+            for (int i = 0; i < segments.Count; i++)
             {
-                char currentChar = currentText[0];
-                char nextChar = nextText[0];
+                var segment = segments[i];
+                if (string.IsNullOrEmpty(segment.Text))
+                    continue;
                 
-                // If both are letters or alphanumeric, they're part of the same word - don't add space
-                if (char.IsLetterOrDigit(currentChar) && char.IsLetterOrDigit(nextChar))
+                // If any segment contains whitespace, it's not a single word
+                if (segment.Text.Any(char.IsWhiteSpace))
                     return false;
+                
+                // Check boundary with next segment
+                if (i < segments.Count - 1)
+                {
+                    var nextSegment = segments[i + 1];
+                    if (!string.IsNullOrEmpty(nextSegment.Text))
+                    {
+                        char lastChar = segment.Text[segment.Text.Length - 1];
+                        char firstChar = nextSegment.Text[0];
+                        
+                        // If both boundary characters are letters/digits, they're part of the same word
+                        // If either is not a letter/digit, there might be a word boundary
+                        if (!char.IsLetterOrDigit(lastChar) || !char.IsLetterOrDigit(firstChar))
+                        {
+                            // Check if it's punctuation that's part of the word (like apostrophe or hyphen)
+                            if (lastChar != '\'' && lastChar != '-' && firstChar != '\'' && firstChar != '-')
+                                return false;
+                        }
+                    }
+                }
             }
             
-            // Don't add space if both segments contain only letters/digits (part of the same word)
-            // This handles merged segments from multi-color templates (e.g., "ua" + "n" should not have space)
-            // Check if current ends with a letter/digit and next starts with a letter/digit
-            char currentLast = currentText[currentText.Length - 1];
-            char nextFirst = nextText[0];
-            
-            // If both boundary characters are letters/digits and neither segment contains whitespace,
-            // they're part of the same word - don't add space
-            if (char.IsLetterOrDigit(currentLast) && char.IsLetterOrDigit(nextFirst))
-            {
-                // Check that neither segment contains whitespace (which would indicate word boundary)
-                bool currentHasNoWhitespace = !currentText.Any(char.IsWhiteSpace);
-                bool nextHasNoWhitespace = !nextText.Any(char.IsWhiteSpace);
-                
-                // If both segments have no whitespace, they're part of the same word
-                if (currentHasNoWhitespace && nextHasNoWhitespace)
-                    return false;
-            }
-            
-            // Don't add space if current ends with punctuation that shouldn't have space after
-            if (currentLast == '!' || currentLast == '?' || currentLast == '.' || currentLast == ',' || 
-                currentLast == ':' || currentLast == ';' || currentLast == '\n' || currentLast == '\r')
-                return false;
-            
-            // Don't add space if current ends with space (already has spacing)
-            if (char.IsWhiteSpace(currentLast))
-                return false;
-            
-            // Don't add space if next starts with punctuation that shouldn't have space before
-            if (nextFirst == '!' || nextFirst == '?' || nextFirst == '.' || 
-                nextFirst == ',' || nextFirst == ':' || nextFirst == ';' ||
-                nextFirst == '\n' || nextFirst == '\r')
-                return false;
-            
-            // Don't add space if next starts with space (already has spacing)
-            if (char.IsWhiteSpace(nextFirst))
-                return false;
-            
-            // Add space for all other cases
+            // All segments form a continuous word
             return true;
         }
         
+        // Spacing logic has been moved to CombatLogSpacingManager for centralized management.
+        // Use CombatLogSpacingManager.ShouldAddSpaceBetween() with checkWordBoundary: true
+        // for renderer-specific spacing that handles multi-color templates.
         
         /// <summary>
-        /// Gets the old-style color code for a color
-        /// Uses reverse mapping from LegacyColorConverter's color code system
+        /// Gets a pattern name for a color by finding the closest matching ColorPalette
         /// </summary>
-        private static char GetColorCode(Color color)
+        private static string GetPatternForColor(Color color)
         {
-            // Use reverse mapping from LegacyColorConverter
-            // Try to match by RGB values to ColorPalette colors
-            var colorPalette = GetColorPaletteForColor(color);
-            return GetColorCodeForPalette(colorPalette);
-        }
-        
-        /// <summary>
-        /// Gets the ColorPalette enum value that best matches a color
-        /// </summary>
-        private static ColorPalette GetColorPaletteForColor(Color color)
-        {
-            // Try to match by RGB values - this is approximate
-            // Check common ColorPalette colors
-            if (ColorValidator.AreColorsEqual(color, ColorPalette.Damage.GetColor()) || 
-                ColorValidator.AreColorsEqual(color, ColorPalette.Error.GetColor()) ||
-                ColorValidator.AreColorsEqual(color, ColorPalette.Red.GetColor()))
-                return ColorPalette.Damage;
+            // Find the closest ColorPalette match
+            ColorPalette closestPalette = ColorPalette.White;
+            double minDistance = double.MaxValue;
             
-            if (ColorValidator.AreColorsEqual(color, ColorPalette.Success.GetColor()) ||
-                ColorValidator.AreColorsEqual(color, ColorPalette.Green.GetColor()) ||
-                ColorValidator.AreColorsEqual(color, ColorPalette.Healing.GetColor()))
-                return ColorPalette.Success;
-            
-            if (ColorValidator.AreColorsEqual(color, ColorPalette.Info.GetColor()) ||
-                ColorValidator.AreColorsEqual(color, ColorPalette.Cyan.GetColor()) ||
-                ColorValidator.AreColorsEqual(color, ColorPalette.Blue.GetColor()))
-                return ColorPalette.Info;
-            
-            if (ColorValidator.AreColorsEqual(color, ColorPalette.Warning.GetColor()) ||
-                ColorValidator.AreColorsEqual(color, ColorPalette.Yellow.GetColor()) ||
-                ColorValidator.AreColorsEqual(color, ColorPalette.Orange.GetColor()))
-                return ColorPalette.Warning;
-            
-            if (ColorValidator.AreColorsEqual(color, ColorPalette.Gold.GetColor()))
-                return ColorPalette.Gold;
-            
-            if (ColorValidator.AreColorsEqual(color, ColorPalette.Gray.GetColor()) ||
-                ColorValidator.AreColorsEqual(color, ColorPalette.Brown.GetColor()))
-                return ColorPalette.Gray;
-            
-            // Default to white
-            return ColorPalette.White;
-        }
-        
-        /// <summary>
-        /// Gets the old-style color code for a ColorPalette
-        /// </summary>
-        private static char GetColorCodeForPalette(ColorPalette palette)
-        {
-            // Reverse mapping from LegacyColorConverter.ConvertOldColorCode
-            return palette switch
+            foreach (ColorPalette palette in Enum.GetValues(typeof(ColorPalette)))
             {
-                ColorPalette.Damage or ColorPalette.Error or ColorPalette.Red => 'R',
-                ColorPalette.DarkRed => 'r',
-                ColorPalette.Success or ColorPalette.Green or ColorPalette.Healing => 'G',
-                ColorPalette.DarkGreen => 'g',
-                ColorPalette.Info or ColorPalette.Cyan or ColorPalette.Blue => 'B',
-                ColorPalette.DarkBlue => 'b',
-                ColorPalette.Warning or ColorPalette.Yellow => 'Y',
-                ColorPalette.Orange => 'O',
-                ColorPalette.Gold => 'W',
-                ColorPalette.Brown => 'w',
-                ColorPalette.Gray => 'y',
-                ColorPalette.DarkGray => 'k',
-                ColorPalette.Magenta => 'M',
-                ColorPalette.DarkMagenta => 'm',
-                ColorPalette.DarkCyan => 'c',
-                ColorPalette.Black => 'K',
-                _ => 'y' // Default to white/gray
-            };
+                var paletteColor = palette.GetColor();
+                double distance = ColorDistance(color, paletteColor);
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    closestPalette = palette;
+                }
+            }
+            
+            // Find a pattern that maps to this palette
+            foreach (var pattern in ColorPatterns.GetAllPatterns())
+            {
+                if (ColorPatterns.GetPaletteForPattern(pattern) == closestPalette)
+                {
+                    return pattern;
+                }
+            }
+            
+            // Fallback to "info" if no pattern found
+            return "info";
+        }
+        
+        /// <summary>
+        /// Calculates color distance using RGB values
+        /// </summary>
+        private static double ColorDistance(Color a, Color b)
+        {
+            double rDiff = a.R - b.R;
+            double gDiff = a.G - b.G;
+            double bDiff = a.B - b.B;
+            return Math.Sqrt(rDiff * rDiff + gDiff * gDiff + bDiff * bDiff);
         }
         
         /// <summary>
@@ -233,23 +194,7 @@ namespace RPGGame.UI.ColorSystem
         /// </summary>
         public static string RenderAsHtml(IEnumerable<ColoredText> segments)
         {
-            if (segments == null)
-                return "";
-                
-            var html = new StringBuilder();
-            
-            foreach (var segment in segments)
-            {
-                if (string.IsNullOrEmpty(segment.Text))
-                    continue;
-                    
-                var colorHex = ColorToHex(segment.Color);
-                var escapedText = EscapeHtml(segment.Text);
-                
-                html.Append($"<span style=\"color: {colorHex}\">{escapedText}</span>");
-            }
-            
-            return html.ToString();
+            return FormatRenderer.RenderAsHtml(segments);
         }
         
         /// <summary>
@@ -257,23 +202,7 @@ namespace RPGGame.UI.ColorSystem
         /// </summary>
         public static string RenderAsAnsi(IEnumerable<ColoredText> segments)
         {
-            if (segments == null)
-                return "";
-                
-            var ansi = new StringBuilder();
-            
-            foreach (var segment in segments)
-            {
-                if (string.IsNullOrEmpty(segment.Text))
-                    continue;
-                    
-                var ansiCode = ColorToAnsi(segment.Color);
-                var escapedText = EscapeAnsi(segment.Text);
-                
-                ansi.Append($"\x1b[{ansiCode}m{escapedText}\x1b[0m");
-            }
-            
-            return ansi.ToString();
+            return FormatRenderer.RenderAsAnsi(segments);
         }
         
         /// <summary>
@@ -281,21 +210,7 @@ namespace RPGGame.UI.ColorSystem
         /// </summary>
         public static string RenderAsDebug(IEnumerable<ColoredText> segments)
         {
-            if (segments == null)
-                return "";
-                
-            var debug = new StringBuilder();
-            
-            foreach (var segment in segments)
-            {
-                if (string.IsNullOrEmpty(segment.Text))
-                    continue;
-                    
-                var colorName = GetColorName(segment.Color);
-                debug.Append($"[{colorName}]{segment.Text}[/{colorName}]");
-            }
-            
-            return debug.ToString();
+            return FormatRenderer.RenderAsDebug(segments);
         }
         
         /// <summary>
@@ -394,58 +309,5 @@ namespace RPGGame.UI.ColorSystem
             return result;
         }
         
-        private static string ColorToHex(Color color)
-        {
-            return $"#{color.R:X2}{color.G:X2}{color.B:X2}";
-        }
-        
-        private static string ColorToAnsi(Color color)
-        {
-            // Simple ANSI color mapping
-            if (color == Colors.Red) return "31";
-            if (color == Colors.Green) return "32";
-            if (color == Colors.Blue) return "34";
-            if (color == Colors.Yellow) return "33";
-            if (color == Colors.Cyan) return "36";
-            if (color == Colors.Magenta) return "35";
-            if (color == Colors.White) return "37";
-            if (color == Colors.Black) return "30";
-            if (color == Colors.Gray) return "90";
-            
-            // Default to white
-            return "37";
-        }
-        
-        private static string EscapeHtml(string text)
-        {
-            return text
-                .Replace("&", "&amp;")
-                .Replace("<", "&lt;")
-                .Replace(">", "&gt;")
-                .Replace("\"", "&quot;")
-                .Replace("'", "&#39;");
-        }
-        
-        private static string EscapeAnsi(string text)
-        {
-            // ANSI doesn't need much escaping, but we'll handle basic cases
-            return text.Replace("\x1b", "\\x1b");
-        }
-        
-        private static string GetColorName(Color color)
-        {
-            // Simple color name mapping for debug output
-            if (color == Colors.Red) return "Red";
-            if (color == Colors.Green) return "Green";
-            if (color == Colors.Blue) return "Blue";
-            if (color == Colors.Yellow) return "Yellow";
-            if (color == Colors.Cyan) return "Cyan";
-            if (color == Colors.Magenta) return "Magenta";
-            if (color == Colors.White) return "White";
-            if (color == Colors.Black) return "Black";
-            if (color == Colors.Gray) return "Gray";
-            
-            return $"RGB({color.R},{color.G},{color.B})";
-        }
     }
 }

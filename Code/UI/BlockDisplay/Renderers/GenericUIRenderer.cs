@@ -1,0 +1,57 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using RPGGame.UI;
+using RPGGame.UI.ColorSystem;
+using RPGGame.Utils;
+
+namespace RPGGame.UI.BlockDisplay.Renderers
+{
+    /// <summary>
+    /// Renderer for generic UI managers - writes segments individually
+    /// </summary>
+    public class GenericUIRenderer : IBlockRenderer
+    {
+        private readonly IUIManager uiManager;
+        
+        public GenericUIRenderer(IUIManager uiManager)
+        {
+            this.uiManager = uiManager ?? throw new ArgumentNullException(nameof(uiManager));
+        }
+        
+        public void RenderMessageGroups(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs)
+        {
+            try
+            {
+                if (groups != null)
+                {
+                    foreach (var (segments, messageType) in groups)
+                    {
+                        if (segments != null && segments.Count > 0)
+                        {
+                            uiManager.WriteColoredSegments(segments, messageType);
+                        }
+                    }
+                }
+                
+                // Apply delay after all lines are written
+                if (UIManager.EnableDelays)
+                {
+                    CombatDelayManager.DelayAfterMessage();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't throw - allow combat to continue
+                System.Diagnostics.Debug.WriteLine($"Error in GenericUIRenderer.RenderMessageGroups: {ex.Message}");
+            }
+        }
+        
+        public Task RenderMessageGroupsAsync(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs)
+        {
+            RenderMessageGroups(groups, delayMs);
+            return Task.CompletedTask;
+        }
+    }
+}
+

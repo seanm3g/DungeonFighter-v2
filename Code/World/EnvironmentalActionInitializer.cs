@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
 {
@@ -81,7 +82,7 @@ namespace RPGGame
             }
             catch (Exception ex)
             {
-                BlockDisplayManager.DisplaySystemBlock($"Error loading environmental actions from JSON: {ex.Message}");
+                BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse($"Error loading environmental actions from JSON: {ex.Message}"));
             }
 
             return loadedActions;

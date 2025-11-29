@@ -97,6 +97,11 @@ namespace RPGGame.UI.TitleScreen
                         if (isTitleLine)
                         {
                             centerX += titleOffset;
+                            // Move FIGHTER one character to the left (relative to DUNGEON)
+                            if (i >= fighterStartIndex && i <= fighterEndIndex)
+                            {
+                                centerX -= 1;
+                            }
                         }
                         
                         // Render the colored text segments

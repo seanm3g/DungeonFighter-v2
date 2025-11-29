@@ -1,35 +1,55 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using DungeonFighter.Game.Menu.Core;
 
 namespace DungeonFighter.Game.Menu.Commands
 {
     /// <summary>
-    /// Command for increasing a character stat during creation.
+    /// Command for increasing a character stat.
     /// </summary>
     public class IncreaseStatCommand : MenuCommand
     {
         private readonly string statName;
 
-        public IncreaseStatCommand(string stat)
+        public IncreaseStatCommand(string statName)
         {
-            statName = stat;
+            this.statName = statName;
         }
 
-        protected override string CommandName => $"IncreaseStat({statName})";
+        protected override string CommandName => "IncreaseStat";
 
         protected override async Task ExecuteCommand(IMenuContext? context)
         {
             LogStep($"Increasing {statName}");
             
-            // TODO: When integrating with Game.cs:
-            // 1. Validate stat can be increased
-            // 2. Increase stat value
-            // 3. Update UI display
+            if (context?.StateManager?.CurrentPlayer != null)
+            {
+                var player = context.StateManager.CurrentPlayer;
+                
+                switch (statName.ToLower())
+                {
+                    case "strength":
+                        player.Strength++;
+                        break;
+                    case "agility":
+                        player.Agility++;
+                        break;
+                    case "technique":
+                        player.Technique++;
+                        break;
+                    case "intelligence":
+                        player.Intelligence++;
+                        break;
+                    case "health":
+                        player.MaxHealth += 10;
+                        player.CurrentHealth += 10;
+                        break;
+                }
+                
+                LogStep($"{statName} increased");
+            }
             
-            LogStep($"{statName} increased");
             await Task.CompletedTask;
         }
     }
 }
-
 

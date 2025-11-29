@@ -1,4 +1,5 @@
 using System;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
 {
@@ -17,11 +18,10 @@ namespace RPGGame
         {
             if (!CombatManager.DisableCombatUIOutput)
             {
-                // Use the new block-based system for stun messages
-                BlockDisplayManager.DisplayEffectBlock(
-                    $"[{entity.Name}] is stunned and cannot act!", 
-                    $"{entity.StunTurnsRemaining} turns remaining"
-                );
+                // Use the new block-based system for stun messages with ColoredText
+                var effectText = ColoredTextParser.Parse($"[{entity.Name}] is stunned and cannot act!");
+                var detailsText = ColoredTextParser.Parse($"{entity.StunTurnsRemaining} turns remaining");
+                BlockDisplayManager.DisplayEffectBlock(effectText, detailsText);
             }
             
             // Get the entity's action speed to calculate proper stun reduction

@@ -45,25 +45,22 @@ namespace DungeonFighter.Game.Menu.Core
                     return MenuInputResult.Failure("Input cannot be empty");
                 }
 
-                LogStep($"Input is valid, parsing...");
+                LogStep($"Input is valid, processing...");
 
-                // 2. Parse input into command
-                var command = ParseInput(input);
-                if (command == null)
+                // 2. Handle input directly and get result
+                var nextState = await HandleInputDirect(input);
+                
+                if (nextState == null && input.Trim() != "0")
                 {
-                    LogError($"Failed to parse input: '{input}'");
+                    // If no state change and not exit, input was invalid
+                    LogError($"Invalid input: '{input}'");
                     return MenuInputResult.Failure("Invalid input option");
                 }
 
-                LogStep($"Input parsed successfully, executing command...");
+                LogStep($"Input processed, returning result");
 
-                // 3. Execute command and get result
-                var nextState = await ExecuteCommand(command);
-
-                LogStep($"Command executed, returning result");
-
-                // 4. Return result with optional state transition
-                return MenuInputResult.Success(nextState, command);
+                // 3. Return result with optional state transition
+                return MenuInputResult.Success(nextState, null);
             }
             catch (Exception ex)
             {
@@ -73,20 +70,12 @@ namespace DungeonFighter.Game.Menu.Core
         }
 
         /// <summary>
-        /// Parse the input string into a menu command.
-        /// Subclasses must override this to implement their specific input parsing logic.
+        /// Handle input and return the next game state (if any).
+        /// Subclasses must override this to implement their specific input handling logic.
         /// </summary>
-        /// <param name="input">The input string to parse</param>
-        /// <returns>The parsed command, or null if input is invalid</returns>
-        protected abstract IMenuCommand? ParseInput(string input);
-
-        /// <summary>
-        /// Execute a command and return the next game state (if any).
-        /// Subclasses must override this to implement their specific command execution logic.
-        /// </summary>
-        /// <param name="command">The command to execute</param>
+        /// <param name="input">The input string to handle</param>
         /// <returns>The next game state, or null if no state change</returns>
-        protected abstract Task<GameState?> ExecuteCommand(IMenuCommand command);
+        protected abstract Task<GameState?> HandleInputDirect(string input);
 
         /// <summary>
         /// Helper method for safe logging of handler steps.

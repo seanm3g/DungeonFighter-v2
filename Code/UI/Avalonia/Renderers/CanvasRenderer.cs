@@ -67,10 +67,11 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderInventory(Character character, List<Item> inventory, CanvasContext context)
         {
+            // Always clear canvas when rendering inventory to ensure clean transition from other screens
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderInventory(contentX, contentY, contentWidth, contentHeight, character, inventory);
-            }, context);
+            }, context, null, null, null, clearCanvas: true);
         }
 
         public void RenderItemSelectionPrompt(Character character, List<Item> inventory, string promptMessage, string actionType, CanvasContext context)

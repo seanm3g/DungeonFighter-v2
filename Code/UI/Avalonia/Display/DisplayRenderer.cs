@@ -31,15 +31,17 @@ namespace RPGGame.UI.Avalonia.Display
         /// <param name="clearContent">Whether to clear the content area before rendering. Defaults to true.</param>
         public void Render(DisplayBuffer buffer, int contentX, int contentY, int contentWidth, int contentHeight, bool clearContent = true)
         {
-            // Clear the content area by filling it with spaces (unless explicitly disabled)
-            if (clearContent)
-            {
-                ClearContentArea(contentX, contentY, contentWidth, contentHeight);
-            }
-            
             var linesToRender = buffer.GetLast(buffer.MaxLines);
             if (linesToRender.Count == 0)
+            {
+                // Even if no content, clear the area to remove old text
+                if (clearContent)
+                {
+                    // Use contentHeight + 1 to ensure we clear the full area (endY is exclusive)
+                    ClearContentArea(contentX, contentY, contentWidth, contentHeight + 1);
+                }
                 return;
+            }
             
             int availableWidth = contentWidth - 2;
             
@@ -56,7 +58,18 @@ namespace RPGGame.UI.Avalonia.Display
             // Calculate scroll offset
             int scrollOffset = CalculateScrollOffset(buffer, totalHeight, contentHeight);
             
+            // Clear the content area BEFORE calculating render positions
+            // Clear a bit more area to ensure we catch any text that might be above due to scroll offset
+            // This prevents old text from showing when content is rendered at a different Y position
+            if (clearContent)
+            {
+                // Clear the full content area plus a small buffer above to catch any overflow
+                // Use contentHeight + 1 to ensure we clear the full area (endY is exclusive)
+                ClearContentArea(contentX, contentY, contentWidth, contentHeight + 1);
+            }
+            
             // Render lines, starting from the scroll offset position
+            // Always start at contentY to ensure consistent positioning
             int y = contentY;
             int currentHeight = 0;
             for (int i = 0; i < linesToRender.Count; i++)
@@ -130,12 +143,18 @@ namespace RPGGame.UI.Avalonia.Display
         /// Clears the content area by removing text elements in the specified rectangular area
         /// This properly removes existing text instead of just overlaying spaces
         /// Only clears the center panel area, preserving left and right panels
+        /// 
+        /// Note: contentHeight should include any buffer needed (e.g., contentHeight + 1)
+        /// to ensure the full area is cleared since endY is exclusive
         /// </summary>
         private void ClearContentArea(int contentX, int contentY, int contentWidth, int contentHeight)
         {
             // Clear text elements only in the specified rectangular area
             // This removes existing text elements (like room information) before rendering combat
             // while preserving the left panel (character info) and right panel (location/enemy info)
+            // 
+            // ClearTextInArea uses exclusive endY, so we need to ensure we clear the full height
+            // by potentially adding 1 to contentHeight when calling this method
             textWriter.ClearTextInArea(contentX, contentY, contentWidth, contentHeight);
         }
     }

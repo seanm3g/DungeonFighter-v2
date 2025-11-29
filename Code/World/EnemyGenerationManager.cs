@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
 {
@@ -58,7 +59,7 @@ namespace RPGGame
             }
 
             // Fallback: Create basic enemies if JSON loading fails
-            BlockDisplayManager.DisplaySystemBlock("Warning: Could not load enemy data from JSON, creating basic enemies");
+            BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse("Warning: Could not load enemy data from JSON, creating basic enemies"));
             var tuning = GameConfiguration.Instance;
             var basicEnemies = new[] {
                 new { Name = "Basic Enemy", BaseHealth = 80, BaseStrength = 8, BaseAgility = 6, BaseTechnique = 4, BaseIntelligence = 3, Primary = PrimaryAttribute.Strength }
@@ -126,12 +127,12 @@ namespace RPGGame
                 }
                 else
                 {
-                    BlockDisplayManager.DisplaySystemBlock($"Warning: Enemies.json not found. Tried paths: {string.Join(", ", possiblePaths)}");
+                    BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse($"Warning: Enemies.json not found. Tried paths: {string.Join(", ", possiblePaths)}"));
                 }
             }
             catch (Exception ex)
             {
-                BlockDisplayManager.DisplaySystemBlock($"Error loading enemy data from JSON: {ex.Message}");
+                BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse($"Error loading enemy data from JSON: {ex.Message}"));
             }
             return null;
         }
@@ -158,13 +159,13 @@ namespace RPGGame
 
             if (availableEnemies.Count == 0)
             {
-                BlockDisplayManager.DisplaySystemBlock($"Warning: No theme-appropriate enemies found for theme '{theme}', using all available enemies");
+                BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse($"Warning: No theme-appropriate enemies found for theme '{theme}', using all available enemies"));
                 availableEnemies = enemyData;
             }
 
             if (availableEnemies.Count == 0)
             {
-                BlockDisplayManager.DisplaySystemBlock("Error: No enemy data available, cannot generate enemies");
+                BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse("Error: No enemy data available, cannot generate enemies"));
                 return;
             }
 
@@ -180,7 +181,7 @@ namespace RPGGame
                 }
                 else
                 {
-                    BlockDisplayManager.DisplaySystemBlock($"Warning: Could not create enemy {enemyTemplate.Name} from EnemyLoader, creating basic enemy");
+                    BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse($"Warning: Could not create enemy {enemyTemplate.Name} from EnemyLoader, creating basic enemy"));
                     var basicEnemy = new Enemy(
                         enemyTemplate.Name,
                         enemyLevel,

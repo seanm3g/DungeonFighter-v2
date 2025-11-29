@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Avalonia.Threading;
 using RPGGame;
 using RPGGame.UI;
+using RPGGame.UI.Avalonia.Display.Helpers;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.UI.ColorSystem;
@@ -149,97 +151,28 @@ namespace RPGGame.UI.Avalonia.Display
             TriggerRender();
         }
         
-        /// <summary>
-        /// Adds multiple messages to the display buffer as a single batch
-        /// Schedules a single render after all messages are added, with an optional delay
-        /// This ensures all messages in a combat action block appear together
-        /// </summary>
         public void AddMessageBatch(IEnumerable<string> messages, int delayAfterBatchMs = 0)
         {
             buffer.AddRange(messages);
-            
-            // Schedule a single render after all messages are added
-            if (delayAfterBatchMs > 0)
-            {
-                // Use a timer to delay the render
-                System.Threading.Timer? delayTimer = null;
-                delayTimer = new System.Threading.Timer(_ =>
-                {
-                    delayTimer?.Dispose();
-                    TriggerRender();
-                }, null, delayAfterBatchMs, Timeout.Infinite);
-            }
-            else
-            {
-                // Render immediately (but still batched)
-                TriggerRender();
-            }
+            BatchOperationHelper.ScheduleRenderWithDelay(TriggerRender, delayAfterBatchMs);
         }
         
-        /// <summary>
-        /// Adds multiple structured ColoredText segment lists to the display buffer as a single batch
-        /// Schedules a single render after all messages are added, with an optional delay
-        /// This eliminates round-trip conversions by storing structured data directly
-        /// </summary>
         public void AddMessageBatch(IEnumerable<List<ColoredText>> segmentsList, int delayAfterBatchMs = 0)
         {
             buffer.AddRange(segmentsList);
-            
-            // Schedule a single render after all messages are added
-            if (delayAfterBatchMs > 0)
-            {
-                // Use a timer to delay the render
-                System.Threading.Timer? delayTimer = null;
-                delayTimer = new System.Threading.Timer(_ =>
-                {
-                    delayTimer?.Dispose();
-                    TriggerRender();
-                }, null, delayAfterBatchMs, Timeout.Infinite);
-            }
-            else
-            {
-                // Render immediately (but still batched)
-                TriggerRender();
-            }
+            BatchOperationHelper.ScheduleRenderWithDelay(TriggerRender, delayAfterBatchMs);
         }
         
-        /// <summary>
-        /// Adds multiple messages to the display buffer as a single batch and waits for the delay
-        /// This async version allows the combat loop to wait for each action's display to complete
-        /// </summary>
-        public async System.Threading.Tasks.Task AddMessageBatchAsync(IEnumerable<string> messages, int delayAfterBatchMs = 0)
+        public async Task AddMessageBatchAsync(IEnumerable<string> messages, int delayAfterBatchMs = 0)
         {
             buffer.AddRange(messages);
-            
-            // Schedule a single render after all messages are added
-            if (delayAfterBatchMs > 0)
-            {
-                // Wait for the delay before scheduling render
-                await System.Threading.Tasks.Task.Delay(delayAfterBatchMs);
-            }
-            
-            // Schedule render after delay (or immediately if no delay)
-            TriggerRender();
+            await BatchOperationHelper.ScheduleRenderWithDelayAsync(TriggerRender, delayAfterBatchMs);
         }
         
-        /// <summary>
-        /// Adds multiple structured ColoredText segment lists to the display buffer as a single batch and waits for the delay
-        /// This async version allows the combat loop to wait for each action's display to complete
-        /// This eliminates round-trip conversions by storing structured data directly
-        /// </summary>
-        public async System.Threading.Tasks.Task AddMessageBatchAsync(IEnumerable<List<ColoredText>> segmentsList, int delayAfterBatchMs = 0)
+        public async Task AddMessageBatchAsync(IEnumerable<List<ColoredText>> segmentsList, int delayAfterBatchMs = 0)
         {
             buffer.AddRange(segmentsList);
-            
-            // Schedule a single render after all messages are added
-            if (delayAfterBatchMs > 0)
-            {
-                // Wait for the delay before scheduling render
-                await System.Threading.Tasks.Task.Delay(delayAfterBatchMs);
-            }
-            
-            // Schedule render after delay (or immediately if no delay)
-            TriggerRender();
+            await BatchOperationHelper.ScheduleRenderWithDelayAsync(TriggerRender, delayAfterBatchMs);
         }
         
         /// <summary>
@@ -390,53 +323,11 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         private string DetermineTitle(Character? character, Enemy? enemy)
         {
-            if (enemy != null)
-                return "COMBAT";
-            if (character != null)
-                return "DUNGEON FIGHTER";
-            return "DUNGEON FIGHTER";
+            return TitleResolver.DetermineTitle(character, enemy);
         }
         
-        /// <summary>
-        /// Splits text into chunks based on strategy (from ChunkedTextReveal)
-        /// </summary>
-        private List<string> SplitIntoChunks(string text, UI.ChunkedTextReveal.ChunkStrategy strategy)
-        {
-            var chunks = new List<string>();
-            
-            switch (strategy)
-            {
-                case UI.ChunkedTextReveal.ChunkStrategy.Sentence:
-                    chunks = System.Text.RegularExpressions.Regex.Split(text, @"(?<=[.!?])\s+(?=[A-Z\n])")
-                        .Select(s => s.Trim())
-                        .Where(s => !string.IsNullOrEmpty(s))
-                        .ToList();
-                    break;
-                    
-                case UI.ChunkedTextReveal.ChunkStrategy.Paragraph:
-                    chunks = text.Split(new[] { "\n\n", "\r\n\r\n" }, StringSplitOptions.RemoveEmptyEntries)
-                        .Select(p => p.Trim())
-                        .Where(p => !string.IsNullOrEmpty(p))
-                        .ToList();
-                    break;
-                    
-                case UI.ChunkedTextReveal.ChunkStrategy.Line:
-                    chunks = text.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
-                        .Select(l => l.TrimEnd())
-                        .Where(l => !string.IsNullOrEmpty(l))
-                        .ToList();
-                    break;
-                    
-                case UI.ChunkedTextReveal.ChunkStrategy.Semantic:
-                    chunks = text.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
-                        .Select(l => l.TrimEnd())
-                        .Where(l => !string.IsNullOrEmpty(l))
-                        .ToList();
-                    break;
-            }
-            
-            return chunks;
-        }
+        private List<string> SplitIntoChunks(string text, UI.ChunkedTextReveal.ChunkStrategy strategy) 
+            => ChunkSplitterHelper.SplitIntoChunks(text, strategy);
     }
 }
 

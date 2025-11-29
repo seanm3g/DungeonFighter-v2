@@ -1,5 +1,6 @@
 using Avalonia.Media;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.Avalonia.Renderers.SegmentRenderers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,15 +8,20 @@ using System.Linq;
 namespace RPGGame.UI.Avalonia.Renderers
 {
     /// <summary>
-    /// Handles colored text rendering with the new color system
+    /// Handles colored text rendering with the new color system.
+    /// Uses Strategy pattern for different rendering approaches (template vs standard).
     /// </summary>
     public class ColoredTextWriter
     {
         private readonly GameCanvasControl canvas;
+        private readonly ISegmentRenderer templateRenderer;
+        private readonly ISegmentRenderer standardRenderer;
         
         public ColoredTextWriter(GameCanvasControl canvas)
         {
             this.canvas = canvas;
+            this.templateRenderer = new TemplateSegmentRenderer(canvas);
+            this.standardRenderer = new StandardSegmentRenderer(canvas);
         }
         
         /// <summary>
@@ -41,107 +47,39 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
         
         /// <summary>
-        /// Renders a list of colored text segments to the canvas
-        /// Uses actual measured text width for accurate positioning
-        /// This fixes spacing issues caused by the mismatch between character-based
-        /// positioning and pixel-based rendering in Avalonia's FormattedText
+        /// Renders a list of colored text segments to the canvas.
+        /// Uses Strategy pattern to select appropriate renderer (template vs standard).
         /// </summary>
         public void RenderSegments(List<ColoredText> segments, int x, int y)
         {
             if (segments == null || segments.Count == 0)
                 return;
             
-            // Check if this is primarily single-character segments (template-based rendering)
-            // If most segments are single characters, use integer-based positioning for all
-            int singleCharCount = segments.Count(s => !string.IsNullOrEmpty(s.Text) && s.Text.Length == 1);
-            bool isTemplateRendering = singleCharCount > segments.Count / 2;
+            // Select appropriate renderer using Strategy pattern
+            ISegmentRenderer renderer = templateRenderer.ShouldUseRenderer(segments) 
+                ? templateRenderer 
+                : standardRenderer;
             
-            int currentX = x; // Use integer positioning for character-based rendering
-            int lastRenderedX = int.MinValue; // Track last rendered position
-            Color? lastColor = null; // Track last color
+            int currentX = x;
+            int lastRenderedX = int.MinValue;
+            Color? lastColor = null;
             
             foreach (var segment in segments)
             {
                 if (string.IsNullOrEmpty(segment.Text))
                     continue;
                 
-                // Convert Avalonia color to the canvas color format
                 var canvasColor = ConvertToCanvasColor(segment.Color);
+                int renderedX = int.MinValue;
                 
-                // For template-based rendering (mostly single-character segments), always use integer positioning
-                // This ensures proper alignment and prevents overlap
-                bool isSingleChar = segment.Text.Length == 1;
+                // Use selected renderer to render segment
+                currentX = renderer.RenderSegment(segment, canvasColor, currentX, 
+                    lastRenderedX, lastColor, y, ref renderedX);
                 
-                if (isTemplateRendering || isSingleChar)
+                if (renderedX != int.MinValue)
                 {
-                    // Template-based or single character - use integer positioning
-                    // Ensure currentX is an integer (round if needed when transitioning from multi-char)
-                    if (!isTemplateRendering && lastRenderedX != int.MinValue && !isSingleChar)
-                    {
-                        // Transitioning from multi-char to single-char - align to integer
-                        currentX = (int)Math.Round((double)currentX);
-                    }
-                    
-                    // If same position and different color, advance to prevent overlap
-                    if (currentX == lastRenderedX && lastRenderedX != int.MinValue && canvasColor != lastColor)
-                    {
-                        currentX = lastRenderedX + 1;
-                    }
-                    
-                    // For multi-character segments in template rendering, use character count
-                    if (isTemplateRendering && !isSingleChar)
-                    {
-                        // In template rendering, use character count for multi-char segments too
-                        int roundedX = currentX;
-                        canvas.AddText(roundedX, y, segment.Text, canvasColor);
-                        lastRenderedX = roundedX;
-                        currentX += segment.Text.Length; // Advance by character count
-                    }
-                    else
-                    {
-                        // Single character - render and advance by exactly 1
-                        canvas.AddText(currentX, y, segment.Text, canvasColor);
-                        lastRenderedX = currentX;
-                        currentX++;
-                    }
+                    lastRenderedX = renderedX;
                 }
-                else
-                {
-                    // Multi-character segment in non-template rendering - measure width for accurate positioning
-                    double segmentWidth = canvas.MeasureTextWidth(segment.Text);
-                    double preciseX = currentX;
-                    int roundedX = (int)Math.Round(preciseX);
-                    
-                    // If this segment would overlap with the previous position and has a different color,
-                    // ensure it's positioned at least 1 character unit after the previous position
-                    if (roundedX == lastRenderedX && lastRenderedX != int.MinValue && canvasColor != lastColor)
-                    {
-                        // Different color at same rounded position - advance to next position to prevent overlap
-                        roundedX = lastRenderedX + 1;
-                        preciseX = roundedX;
-                    }
-                    
-                    // Only combine segments if they're at the exact same rounded position AND same color
-                    if (roundedX == lastRenderedX && lastRenderedX != int.MinValue && canvasColor == lastColor)
-                    {
-                        // Same position and color - combine segments using AppendText
-                        canvas.AppendText(roundedX, y, segment.Text, canvasColor);
-                        // Advance using measured width
-                        preciseX += segmentWidth;
-                    }
-                    else
-                    {
-                        // Different position or color - render normally at calculated position
-                        canvas.AddText(roundedX, y, segment.Text, canvasColor);
-                        // Advance position using actual measured width
-                        preciseX += segmentWidth;
-                    }
-                    
-                    lastRenderedX = roundedX;
-                    currentX = (int)Math.Round(preciseX);
-                }
-                
-                // Track the last color
                 lastColor = canvasColor;
             }
         }

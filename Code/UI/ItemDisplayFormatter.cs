@@ -4,6 +4,7 @@ using System.Linq;
 using Avalonia.Media;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.ColorSystem.Applications;
 
 namespace RPGGame
 {

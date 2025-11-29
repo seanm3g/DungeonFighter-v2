@@ -53,6 +53,9 @@ namespace RPGGame
                 canvasUI.SetDungeonName(null);
                 canvasUI.SetRoomName(null);
                 
+                // Clear display buffer to ensure clean transition from other screens (e.g., dungeon completion)
+                canvasUI.ClearDisplayBuffer();
+                
                 canvasUI.SetCharacter(stateManager.CurrentPlayer);
                 canvasUI.RenderInventory(stateManager.CurrentPlayer, stateManager.CurrentInventory);
             }

@@ -1,11 +1,11 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
+using RPGGame;
 using DungeonFighter.Game.Menu.Core;
 
 namespace DungeonFighter.Game.Menu.Commands
 {
     /// <summary>
-    /// Command for randomizing character stats during creation.
-    /// Generates random stat allocation.
+    /// Command for randomizing character stats.
     /// </summary>
     public class RandomizeCharacterCommand : MenuCommand
     {
@@ -13,17 +13,29 @@ namespace DungeonFighter.Game.Menu.Commands
 
         protected override async Task ExecuteCommand(IMenuContext? context)
         {
-            LogStep("Randomizing character stats");
+            LogStep("Randomizing character");
             
-            // TODO: When integrating with Game.cs:
-            // 1. Generate random stat values
-            // 2. Apply to character
-            // 3. Update UI display
+            if (context?.StateManager?.CurrentPlayer != null)
+            {
+                var player = context.StateManager.CurrentPlayer;
+                
+                // Randomize stats (keeping them within reasonable bounds)
+                player.Strength = RandomUtility.Next(5, 16);
+                player.Agility = RandomUtility.Next(5, 16);
+                player.Technique = RandomUtility.Next(5, 16);
+                player.Intelligence = RandomUtility.Next(5, 16);
+                
+                // Randomize health (base 100, +/- 50)
+                int baseHealth = 100;
+                int healthVariation = RandomUtility.Next(-50, 51);
+                player.MaxHealth = baseHealth + healthVariation;
+                player.CurrentHealth = player.MaxHealth;
+                
+                LogStep("Character randomized");
+            }
             
-            LogStep("Character stats randomized");
             await Task.CompletedTask;
         }
     }
 }
-
 

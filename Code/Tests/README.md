@@ -6,7 +6,8 @@ This directory contains all test files organized by type and purpose.
 
 ### `Unit/`
 Contains unit tests for specific components:
-- **`ColorParserTest.cs`** - Tests for color parsing functionality
+- **`BattleNarrativeManagersTest.cs`** - Tests for battle narrative managers
+- **`CombatLogSpacingTest.cs`** - Comprehensive tests for combat log spacing system
 - **`GameDataGeneratorTest.cs`** - Tests for game data generation system
 - **`TierDistributionTest.cs`** - Tests for item tier distribution
 - **`TuningSystemTest.cs`** - Tests for tuning and balance system
@@ -31,7 +32,8 @@ Call test methods directly:
 TestManager.RunAllTests();
 
 // Run specific tests
-ColorParserTest.RunAllTests();
+BattleNarrativeManagersTest.RunAllTests();
+CombatLogSpacingTest.RunAllTests();
 GameDataGeneratorTest.TestRefactoredGenerator();
 TierDistributionTest.RunTierDistributionTest();
 TuningSystemTest.RunTuningSystemTests();

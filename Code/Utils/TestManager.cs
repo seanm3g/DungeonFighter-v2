@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;
 using RPGGame.Utils;
 using RPGGame.UI.ColorSystem;
+using RPGGame.Tests.Unit;
 
 namespace RPGGame
 {
@@ -12,6 +13,14 @@ namespace RPGGame
     /// </summary>
     public static class TestManager
     {
+        /// <summary>
+        /// Helper method to create template syntax strings without quadruple braces
+        /// Uses string.Format to avoid escaping issues in string interpolation
+        /// </summary>
+        private static string ApplyTemplate(string templateName, string text)
+        {
+            return string.Format("{{{{0}|{1}}}}", templateName, text);
+        }
         /// <summary>
         /// Runs Test 1: Item generation analysis across levels 1-20
         /// Generates 100 items at each level and analyzes rarity, mod, and tier distribution
@@ -753,6 +762,28 @@ namespace RPGGame
         }
         
         /// <summary>
+        /// Runs Test 7: Combat Log Spacing Test
+        /// Comprehensive tests for the combat log spacing system
+        /// </summary>
+        public static void RunCombatLogSpacingTest()
+        {
+            TextDisplayIntegration.DisplaySystem("=== Test 7: Combat Log Spacing Test ===");
+            TextDisplayIntegration.DisplaySystem("Running comprehensive spacing system tests...");
+            TextDisplayIntegration.DisplaySystem("");
+            
+            try
+            {
+                CombatLogSpacingTest.RunAllTests();
+                TextDisplayIntegration.DisplaySystem("\n✓ Combat Log Spacing Test completed successfully!");
+            }
+            catch (Exception ex)
+            {
+                TextDisplayIntegration.DisplaySystem($"\n✗ Combat Log Spacing Test failed: {ex.Message}");
+                TextDisplayIntegration.DisplaySystem($"Stack trace: {ex.StackTrace}");
+            }
+        }
+        
+        /// <summary>
         /// Runs all available tests in sequence
         /// This is the main test runner that ensures all tests are completed
         /// </summary>
@@ -850,6 +881,18 @@ namespace RPGGame
                     testResults.Add(("Color Debug Test", false, $"Failed: {ex.Message}"));
                 }
                 
+                // Test 7: Combat Log Spacing Test
+                TextDisplayIntegration.DisplaySystem("\nRunning Test 7: Combat Log Spacing Test...");
+                try
+                {
+                    RunCombatLogSpacingTest();
+                    testResults.Add(("Combat Log Spacing Test", true, "Completed successfully"));
+                }
+                catch (Exception ex)
+                {
+                    testResults.Add(("Combat Log Spacing Test", false, $"Failed: {ex.Message}"));
+                }
+                
             }
             catch (Exception ex)
             {
@@ -884,8 +927,8 @@ namespace RPGGame
                 string status = success ? "✓ PASS" : "✗ FAIL";
                 // Use template syntax for colored status
                 string statusText = success 
-                    ? $"{{{{success|{status}}}}} {testName}"
-                    : $"{{{{damage|{status}}}}} {testName}";
+                    ? $"{ApplyTemplate("success", status)} {testName}"
+                    : $"{ApplyTemplate("damage", status)} {testName}";
                 TextDisplayIntegration.DisplaySystem(statusText);
                 TextDisplayIntegration.DisplaySystem($"    {message}");
                 
@@ -897,16 +940,16 @@ namespace RPGGame
             
             TextDisplayIntegration.DisplaySystem(new string('-', 60));
             TextDisplayIntegration.DisplaySystem($"Total Tests: {results.Count}");
-            TextDisplayIntegration.DisplaySystem($"{{{{success|Passed: {passedTests}}}}}");
-            TextDisplayIntegration.DisplaySystem($"{{{{damage|Failed: {failedTests}}}}}");
+            TextDisplayIntegration.DisplaySystem(ApplyTemplate("success", $"Passed: {passedTests}"));
+            TextDisplayIntegration.DisplaySystem(ApplyTemplate("damage", $"Failed: {failedTests}"));
             
             if (failedTests == 0)
             {
-                TextDisplayIntegration.DisplaySystem($"\n{{{{success|🎉 ALL TESTS PASSED! 🎉}}}}");
+                TextDisplayIntegration.DisplaySystem($"\n{ApplyTemplate("success", "🎉 ALL TESTS PASSED! 🎉")}");
             }
             else
             {
-                TextDisplayIntegration.DisplaySystem($"\n{{{{damage|⚠️  {failedTests} test(s) failed. Please review the errors above.}}}}");
+                TextDisplayIntegration.DisplaySystem($"\n{ApplyTemplate("damage", $"⚠️  {failedTests} test(s) failed. Please review the errors above.")}");
             }
         }
 

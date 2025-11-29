@@ -1,18 +1,18 @@
 {
   "name": "Joren Blackthorn",
-  "level": 4,
-  "xp": 266,
+  "level": 6,
+  "xp": 79,
   "currentHealth": 60,
   "maxHealth": 60,
-  "strength": 6,
-  "agility": 12,
-  "technique": 6,
-  "intelligence": 6,
+  "strength": 8,
+  "agility": 18,
+  "technique": 8,
+  "intelligence": 8,
   "barbarianPoints": 0,
-  "warriorPoints": 3,
+  "warriorPoints": 5,
   "roguePoints": 0,
   "wizardPoints": 0,
-  "comboStep": 4,
+  "comboStep": 0,
   "comboBonus": 0,
   "tempComboBonus": 0,
   "tempComboBonusTurns": 0,
@@ -204,6 +204,151 @@
       "bonusDamage": 2,
       "bonusAttackSpeed": 0,
       "gearAction": null,
+      "isStarterItem": false
+    },
+    {
+      "name": "Iron Boots",
+      "type": 1,
+      "tier": 1,
+      "comboBonus": 0,
+      "rarity": "Common",
+      "statBonuses": [],
+      "actionBonuses": [],
+      "modifications": [],
+      "armorStatuses": [],
+      "bonusDamage": 0,
+      "bonusAttackSpeed": 0,
+      "gearAction": "COUNTER",
+      "isStarterItem": false
+    },
+    {
+      "name": "Sharp Cloth Cap of the Hawk of Immortality",
+      "type": 0,
+      "tier": 1,
+      "comboBonus": 0,
+      "rarity": "Uncommon",
+      "statBonuses": [
+        {
+          "name": "of the Hawk",
+          "description": "\u002B3 Technique, \u002B2 damage",
+          "value": 3,
+          "weight": 5,
+          "statType": "TEC"
+        },
+        {
+          "name": "of Immortality",
+          "description": "\u002B50 maximum health",
+          "value": 50,
+          "weight": 2,
+          "statType": "Health"
+        }
+      ],
+      "actionBonuses": [
+        {
+          "name": "DUNGEON COLLAPSE",
+          "description": "The ancient dungeon ceiling begins to collapse, raining debris and stunning all combatants",
+          "weight": 1
+        }
+      ],
+      "modifications": [
+        {
+          "diceResult": 5,
+          "itemRank": "Uncommon",
+          "name": "Sharp",
+          "description": "\u002B2 damage",
+          "effect": "damage",
+          "minValue": 2,
+          "maxValue": 2,
+          "rolledValue": 2
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 0,
+      "bonusAttackSpeed": 0,
+      "gearAction": "WHIRLWIND",
+      "isStarterItem": false
+    },
+    {
+      "name": "Cloth Robe",
+      "type": 2,
+      "tier": 1,
+      "comboBonus": 0,
+      "rarity": "Common",
+      "statBonuses": [],
+      "actionBonuses": [],
+      "modifications": [],
+      "armorStatuses": [],
+      "bonusDamage": 0,
+      "bonusAttackSpeed": 0,
+      "gearAction": "SHIELD WALL",
+      "isStarterItem": false
+    },
+    {
+      "name": "Dull Iron Boots of Power",
+      "type": 1,
+      "tier": 1,
+      "comboBonus": 0,
+      "rarity": "Common",
+      "statBonuses": [
+        {
+          "name": "of Power",
+          "description": "\u002B3 base damage",
+          "value": 3,
+          "weight": 15,
+          "statType": "Damage"
+        }
+      ],
+      "actionBonuses": [],
+      "modifications": [
+        {
+          "diceResult": 2,
+          "itemRank": "Common",
+          "name": "Dull",
+          "description": "5% slower attack speed",
+          "effect": "speedMultiplier",
+          "minValue": 0.95,
+          "maxValue": 0.95,
+          "rolledValue": 0.95
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 0,
+      "bonusAttackSpeed": 0,
+      "gearAction": "POISON COATING",
+      "isStarterItem": false
+    },
+    {
+      "name": "Agile Iron Chestplate of Technique",
+      "type": 2,
+      "tier": 1,
+      "comboBonus": 0,
+      "rarity": "Common",
+      "statBonuses": [
+        {
+          "name": "of Technique",
+          "description": "\u002B2 Technique stat",
+          "value": 2,
+          "weight": 15,
+          "statType": "TEC"
+        }
+      ],
+      "actionBonuses": [],
+      "modifications": [
+        {
+          "diceResult": 10,
+          "itemRank": "Rare",
+          "name": "Agile",
+          "description": "20% faster attack speed",
+          "effect": "speedMultiplier",
+          "minValue": 1.2,
+          "maxValue": 1.2,
+          "rolledValue": 1.2
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 0,
+      "bonusAttackSpeed": 0,
+      "gearAction": "PROBE",
       "isStarterItem": false
     }
   ],

@@ -37,26 +37,29 @@ namespace RPGGame.UI.ColorSystem
             RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline
         );
         
-        // Pattern for legacy color codes: &X where X is a color code character
-        private static readonly Regex LegacyColorCodeRegex = new Regex(
-            @"&([RGYBCMWKrygbocmw])",
-            RegexOptions.Compiled
-        );
-        
         /// <summary>
-        /// Parses text with color markup into ColoredText segments
-        /// Supports both new markup format and legacy &X format codes
+        /// Parses text with color markup into ColoredText segments.
+        /// Supports new markup format ({{template|text}}, [color:pattern]text[/color]).
+        /// 
+        /// ⚠️ MIGRATION NOTE: For new code, prefer using ColoredTextBuilder instead of string parsing:
+        ///   - ColoredTextBuilder provides type-safe, readable API
+        ///   - No string parsing overhead
+        ///   - Better IDE support and refactoring
+        ///   
+        /// Example:
+        ///   // Old way (still works):
+        ///   var segments = ColoredTextParser.Parse("{{damage|15}} damage");
+        ///   
+        ///   // New way (preferred):
+        ///   var segments = new ColoredTextBuilder()
+        ///       .Add("15", ColorPalette.Damage)
+        ///       .Plain(" damage")
+        ///       .Build();
         /// </summary>
         public static List<ColoredText> Parse(string text, string? characterName = null)
         {
             if (string.IsNullOrEmpty(text))
                 return new List<ColoredText>();
-            
-            // Check if text contains legacy color codes - if so, parse them first
-            if (LegacyColorCodeRegex.IsMatch(text))
-            {
-                return ParseLegacyColorCodes(text);
-            }
             
             var segments = new List<ColoredText>();
             var currentIndex = 0;
@@ -275,86 +278,6 @@ namespace RPGGame.UI.ColorSystem
         }
         
         // Merging logic has been moved to ColoredTextMerger for centralized maintenance
-        
-        /// <summary>
-        /// Parses legacy &X format color codes
-        /// </summary>
-        private static List<ColoredText> ParseLegacyColorCodes(string text)
-        {
-            var segments = new List<ColoredText>();
-            var currentIndex = 0;
-            Color currentColor = Colors.White;
-            
-            var matches = LegacyColorCodeRegex.Matches(text);
-            
-            foreach (Match match in matches)
-            {
-                // Add text before the color code (with current color)
-                if (match.Index > currentIndex)
-                {
-                    var beforeText = text.Substring(currentIndex, match.Index - currentIndex);
-                    if (!string.IsNullOrEmpty(beforeText))
-                    {
-                        segments.Add(new ColoredText(beforeText, currentColor));
-                    }
-                }
-                
-                // Update current color based on the color code
-                char colorCode = match.Groups[1].Value[0];
-                currentColor = GetColorFromLegacyCode(colorCode);
-                
-                // Move past the color code
-                currentIndex = match.Index + match.Length;
-            }
-            
-            // Add remaining text after the last color code
-            if (currentIndex < text.Length)
-            {
-                var remainingText = text.Substring(currentIndex);
-                if (!string.IsNullOrEmpty(remainingText))
-                {
-                    segments.Add(new ColoredText(remainingText, currentColor));
-                }
-            }
-            
-            // If no color codes were found, return the whole text as white
-            if (segments.Count == 0 && !string.IsNullOrEmpty(text))
-            {
-                segments.Add(new ColoredText(text, Colors.White));
-            }
-            
-            // Merge adjacent segments with the same color
-            return ColoredTextMerger.MergeAdjacentSegments(segments);
-        }
-        
-        /// <summary>
-        /// Converts a legacy color code character to a Color
-        /// </summary>
-        private static Color GetColorFromLegacyCode(char colorCode)
-        {
-            return colorCode switch
-            {
-                'R' => ColorPalette.Error.GetColor(),
-                'r' => ColorPalette.DarkRed.GetColor(),
-                'G' => ColorPalette.Success.GetColor(),
-                'g' => ColorPalette.DarkGreen.GetColor(),
-                'B' => ColorPalette.Info.GetColor(),
-                'b' => ColorPalette.DarkBlue.GetColor(),
-                'Y' => ColorPalette.Warning.GetColor(),
-                'y' => Colors.White, // White/default
-                'C' => ColorPalette.Cyan.GetColor(),
-                'c' => ColorPalette.DarkCyan.GetColor(),
-                'M' => ColorPalette.Magenta.GetColor(),
-                'm' => ColorPalette.DarkMagenta.GetColor(),
-                'W' => ColorPalette.Gold.GetColor(),
-                'w' => ColorPalette.Brown.GetColor(),
-                'O' => ColorPalette.Orange.GetColor(),
-                'o' => ColorPalette.DarkYellow.GetColor(),
-                'K' => ColorPalette.DarkGray.GetColor(),
-                'k' => Colors.Black,
-                _ => Colors.White
-            };
-        }
         
         private class ColorMatch
         {

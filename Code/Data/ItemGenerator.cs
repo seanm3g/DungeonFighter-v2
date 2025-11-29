@@ -179,31 +179,25 @@ namespace RPGGame
         /// <param name="level">The level to scale for</param>
         private static void ApplyArmorScaling(Item armor, ItemScalingConfig scalingConfig, int level)
         {
-            string slot = armor switch
+            if (scalingConfig == null) return;
+
+            // Apply tier-based armor scaling using ArmorValuePerTier
+            int armorValuePerTier = scalingConfig.ArmorValuePerTier;
+            
+            // Cast to appropriate armor type to access Armor property
+            switch (armor)
             {
-                HeadItem => "Head",
-                ChestItem => "Chest",
-                FeetItem => "Feet",
-                _ => "Unknown"
-            };
-
-            // TODO: Fix armor scaling - Item class doesn't have Armor property
-            // if (scalingConfig.ArmorTypes.TryGetValue(slot, out var armorConfig))
-            // {
-            //     var variables = new Dictionary<string, double>
-            //     {
-            //         ["BaseArmor"] = armor.Armor, // Item doesn't have Armor property
-            //         ["Tier"] = armor.Tier,
-            //         ["Level"] = level,
-            //         ["BaseChance"] = 0.1
-            //     };
-
-            //     if (!string.IsNullOrEmpty(armorConfig.ArmorFormula))
-            //     {
-            //         double scaledArmor = FormulaEvaluator.Evaluate(armorConfig.ArmorFormula, variables);
-            //         armor.Armor = (int)Math.Round(scaledArmor); // Item doesn't have Armor property
-            //     }
-            // }
+                case HeadItem headItem:
+                    // Apply tier-based scaling: base armor + (tier - 1) * armor per tier
+                    headItem.Armor += (headItem.Tier - 1) * armorValuePerTier;
+                    break;
+                case ChestItem chestItem:
+                    chestItem.Armor += (chestItem.Tier - 1) * armorValuePerTier;
+                    break;
+                case FeetItem feetItem:
+                    feetItem.Armor += (feetItem.Tier - 1) * armorValuePerTier;
+                    break;
+            }
         }
 
         /// <summary>
@@ -213,8 +207,48 @@ namespace RPGGame
         /// <returns>A random tier</returns>
         public static int GenerateRandomTier(List<TierDistribution> tierDistributions)
         {
-            // TODO: Fix tier distribution logic - TierDistribution doesn't have Probability property
-            // For now, return a random tier between 1-5
+            if (tierDistributions == null || tierDistributions.Count == 0)
+            {
+                // Fallback: return random tier between 1-5 if no distribution provided
+                return RandomUtility.Next(1, 6);
+            }
+
+            // Use the first distribution (or could use level-based selection)
+            var distribution = tierDistributions[0];
+            
+            // Create weighted probabilities from Tier1-Tier5 properties
+            var weights = new List<(int tier, double weight)>
+            {
+                (1, distribution.Tier1),
+                (2, distribution.Tier2),
+                (3, distribution.Tier3),
+                (4, distribution.Tier4),
+                (5, distribution.Tier5)
+            };
+
+            // Calculate total weight
+            double totalWeight = weights.Sum(w => w.weight);
+            if (totalWeight <= 0)
+            {
+                // Fallback if all weights are zero
+                return RandomUtility.Next(1, 6);
+            }
+
+            // Generate random value between 0 and totalWeight
+            double randomValue = RandomUtility.NextDouble() * totalWeight;
+            
+            // Find which tier this random value falls into
+            double cumulativeWeight = 0;
+            foreach (var (tier, weight) in weights)
+            {
+                cumulativeWeight += weight;
+                if (randomValue <= cumulativeWeight)
+                {
+                    return tier;
+                }
+            }
+
+            // Fallback (shouldn't reach here)
             return RandomUtility.Next(1, 6);
         }
 

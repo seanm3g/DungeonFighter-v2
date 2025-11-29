@@ -89,7 +89,8 @@ namespace RPGGame
             {
                 var builder = new ColoredTextBuilder();
                 builder.Add(source.Name, ColorPalette.Green);
-                builder.Add("'s ", Colors.White);
+                builder.Add("'s", Colors.White); // Apostrophe without trailing space - spacing will be handled automatically
+                builder.AddSpace(); // Explicit space between "'s" and action name
                 builder.Add(action.Name, ColorPalette.Success);
                 builder.Add(" has no effect!", Colors.White);
                 return ColoredTextRenderer.RenderAsMarkup(builder.Build());
@@ -116,7 +117,8 @@ namespace RPGGame
             {
                 var builder = new ColoredTextBuilder();
                 builder.Add(source.Name, ColorPalette.Green);
-                builder.Add("'s ", Colors.White);
+                builder.Add("'s", Colors.White); // Apostrophe without trailing space - spacing will be handled automatically
+                builder.AddSpace(); // Explicit space between "'s" and action name
                 builder.Add(action.Name, ColorPalette.Success);
                 builder.Add(" has no effect!", Colors.White);
                 return ColoredTextRenderer.RenderAsMarkup(builder.Build());
@@ -132,13 +134,11 @@ namespace RPGGame
             else
             {
                 // Multiple targets affected - format as area of effect with individual results
-                var targetNames = GetUniqueTargetNames(aliveTargets);
                 var mainBuilder = new ColoredTextBuilder();
                 mainBuilder.Add(source.Name, ColorPalette.Green);
-                mainBuilder.Add(" uses ", Colors.White);
+                mainBuilder.Add("uses", Colors.White);
+                mainBuilder.AddSpace(); // Explicit space between "uses" and action name
                 mainBuilder.Add(action.Name, ColorPalette.Success);
-                mainBuilder.Add(" on ", Colors.White);
-                mainBuilder.Add(targetNames, Colors.White);
                 mainBuilder.Add("!", Colors.White);
                 var result = ColoredTextRenderer.RenderAsMarkup(mainBuilder.Build());
                 
@@ -149,8 +149,12 @@ namespace RPGGame
                     var effectMessage = GetEnvironmentalEffectMessageColored(action, duration);
                     var builder = new ColoredTextBuilder();
                     builder.Add("    ", Colors.White);
-                    builder.Add(displayName, target is Character ? ColorPalette.Player : ColorPalette.Enemy);
-                    builder.Add(" affected by ", ColorPalette.Warning);
+                    builder.Add(displayName, target is Character ? ColorPalette.Gold : ColorPalette.Enemy);
+                    builder.AddSpace(); // Explicit space between display name and "affected"
+                    builder.Add("affected", Colors.White);
+                    builder.AddSpace(); // Explicit space between "affected" and "by"
+                    builder.Add("by", Colors.White);
+                    builder.AddSpace(); // Explicit space between "by" and effect name
                     builder.AddRange(effectMessage);
                     result += "\n" + ColoredTextRenderer.RenderAsMarkup(builder.Build());
                 }
@@ -222,41 +226,44 @@ namespace RPGGame
         {
             string displayName = GetDisplayName(target);
             
-            // Build main action line
+            // Build main action line - just "uses Ancient Trap!" without target
             var mainBuilder = new ColoredTextBuilder();
             mainBuilder.Add(source.Name, ColorPalette.Green);
-            mainBuilder.Add(" uses ", Colors.White);
+            mainBuilder.Add("uses", Colors.White);
+            mainBuilder.AddSpace(); // Explicit space between "uses" and action name
             mainBuilder.Add(action.Name, ColorPalette.Success);
-            mainBuilder.Add(" on ", Colors.White);
-            mainBuilder.Add(displayName, target is Character ? ColorPalette.Player : ColorPalette.Enemy);
             mainBuilder.Add("!", Colors.White);
             string mainLine = ColoredTextRenderer.RenderAsMarkup(mainBuilder.Build());
             
-            // Build effect line
+            // Build effect line - "affected by BLEED for x turns"
             var effectBuilder = new ColoredTextBuilder();
             effectBuilder.Add("    ", Colors.White);
-            effectBuilder.Add(displayName, target is Character ? ColorPalette.Player : ColorPalette.Enemy);
-            effectBuilder.Add(" is ", ColorPalette.Warning);
+            effectBuilder.Add(displayName, target is Character ? ColorPalette.Gold : ColorPalette.Enemy);
+            effectBuilder.AddSpace(); // Explicit space between display name and "affected"
+            effectBuilder.Add("affected", Colors.White);
+            effectBuilder.AddSpace(); // Explicit space between "affected" and "by"
+            effectBuilder.Add("by", Colors.White);
             
+            effectBuilder.AddSpace(); // Explicit space between "by" and effect name
             if (action.CausesBleed)
             {
-                effectBuilder.Add("BLEEDING", ColorPalette.Error);
+                effectBuilder.Add("BLEED", ColorPalette.Error);
             }
             else if (action.CausesWeaken)
             {
-                effectBuilder.Add("WEAKENED", ColorPalette.Orange);
+                effectBuilder.Add("WEAKEN", ColorPalette.Orange);
             }
             else if (action.CausesSlow)
             {
-                effectBuilder.Add("SLOWED", ColorPalette.Cyan);
+                effectBuilder.Add("SLOW", ColorPalette.Cyan);
             }
             else if (action.CausesPoison)
             {
-                effectBuilder.Add("POISONED", ColorPalette.Green);
+                effectBuilder.Add("POISON", ColorPalette.Green);
             }
             else if (action.CausesStun)
             {
-                effectBuilder.Add("STUNNED", ColorPalette.Magenta);
+                effectBuilder.Add("STUN", ColorPalette.Magenta);
             }
             else if (action.Type == ActionType.Attack)
             {
@@ -269,15 +276,17 @@ namespace RPGGame
             else
             {
                 // Generic environmental effect
-                effectBuilder.Add("affected", ColorPalette.Warning);
-                effectBuilder.Add(" by effect", Colors.White);
+                effectBuilder.Add("EFFECT", ColorPalette.Warning);
             }
             
             if (action.Type != ActionType.Attack)
             {
-                effectBuilder.Add(" for ", ColorPalette.Warning);
+                effectBuilder.AddSpace(); // Explicit space between effect name and "for"
+                effectBuilder.Add("for", Colors.White);
+                effectBuilder.AddSpace(); // Explicit space between "for" and duration
                 effectBuilder.Add(duration.ToString(), Colors.White);
-                effectBuilder.Add(" turns!", Colors.White);
+                effectBuilder.AddSpace(); // Explicit space between duration and "turns"
+                effectBuilder.Add("turns", Colors.White);
                 string effectLine = ColoredTextRenderer.RenderAsMarkup(effectBuilder.Build());
                 return mainLine + "\n" + effectLine;
             }
@@ -348,9 +357,9 @@ namespace RPGGame
                 builder.Add("EFFECT", ColorPalette.Warning);
             }
             
-            builder.Add(" for ", ColorPalette.Warning);
+            builder.Add("for", Colors.White);
             builder.Add(duration.ToString(), Colors.White);
-            builder.Add(" turns", Colors.White);
+            builder.Add("turns", Colors.White);
             
             return builder.Build();
         }

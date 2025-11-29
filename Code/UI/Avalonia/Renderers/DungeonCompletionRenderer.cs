@@ -1,6 +1,7 @@
 using Avalonia.Media;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.ColorSystem.Applications;
 using System;
 using System.Collections.Generic;
 

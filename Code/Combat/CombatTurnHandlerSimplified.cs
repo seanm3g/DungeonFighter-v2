@@ -162,7 +162,19 @@ namespace RPGGame
                             }
                         }
                         
-                        BlockDisplayManager.DisplayEnvironmentalBlock(mainText, effects);
+                        // Convert to ColoredText
+                        var mainTextColored = ColoredTextParser.Parse(mainText);
+                        var effectsColored = new List<List<ColoredText>>();
+                        foreach (var effect in effects)
+                        {
+                            var effectColored = ColoredTextParser.Parse(effect);
+                            if (effectColored.Count > 0)
+                            {
+                                effectsColored.Add(effectColored);
+                            }
+                        }
+                        
+                        BlockDisplayManager.DisplayEnvironmentalBlock(mainTextColored, effectsColored);
                     }
                     
                     // Update environment's action timing in the action speed system

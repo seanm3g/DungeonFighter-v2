@@ -130,137 +130,7 @@ namespace RPGGame
         /// <param name="enemy">The enemy</param>
         public void ProcessDamageOverTimeEffects(Character player, Enemy enemy)
         {
-            bool blankLineAdded = false;
-            
-            // Process effects for player
-            var playerResults = new List<string>();
-            int playerDamage = CombatEffectsSimplified.ProcessStatusEffects(player, playerResults);
-            if (playerDamage > 0)
-            {
-                player.TakeDamage(playerDamage);
-            }
-            if (playerResults.Count > 0)
-            {
-                // Apply spacing for poison damage (context-aware)
-                if (!DisableCombatUIOutput)
-                {
-                    TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.PoisonDamage);
-                    blankLineAdded = true;
-                }
-                
-                // Group related messages together - display damage and status effects as one block
-                var damageMessages = new List<string>();
-                var statusMessages = new List<string>();
-                
-                for (int i = 0; i < playerResults.Count; i++)
-                {
-                    var result = playerResults[i];
-                    if (result.StartsWith("    ")) // Status effect message (indented)
-                    {
-                        statusMessages.Add(result); // Keep indentation for proper formatting
-                    }
-                    else // Damage message
-                    {
-                        damageMessages.Add(result);
-                    }
-                }
-                
-                // Combine damage and status messages into single blocks to avoid spacing issues
-                if (damageMessages.Count > 0 && statusMessages.Count > 0)
-                {
-                    // Combine damage and status messages into one block
-                    string combinedMessage = string.Join("\n", damageMessages.Concat(statusMessages));
-                    BlockDisplayManager.DisplaySystemBlock(combinedMessage);
-                    // Record as poison damage block for spacing system
-                    TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.PoisonDamage);
-                }
-                else if (damageMessages.Count > 0)
-                {
-                    // Only damage messages
-                    foreach (var damage in damageMessages)
-                    {
-                        BlockDisplayManager.DisplaySystemBlock(damage);
-                    }
-                    // Record as poison damage block for spacing system
-                    TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.PoisonDamage);
-                }
-                else if (statusMessages.Count > 0)
-                {
-                    // Only status messages
-                    foreach (var status in statusMessages)
-                    {
-                        BlockDisplayManager.DisplaySystemBlock(status);
-                    }
-                    // Record as poison damage block for spacing system
-                    TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.PoisonDamage);
-                }
-            }
-            
-            // Process effects for enemy (only if living)
-            if (enemy.IsLiving)
-            {
-                var enemyResults = new List<string>();
-                int enemyDamage = CombatEffectsSimplified.ProcessStatusEffects(enemy, enemyResults);
-                if (enemyDamage > 0)
-                {
-                    enemy.TakeDamage(enemyDamage);
-                }
-                if (enemyResults.Count > 0)
-                {
-                    // Apply spacing for poison damage (context-aware, avoids double spacing)
-                    if (!DisableCombatUIOutput && !blankLineAdded)
-                    {
-                        TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.PoisonDamage);
-                    }
-                    
-                    // Group related messages together - display damage and status effects as one block
-                    var damageMessages = new List<string>();
-                    var statusMessages = new List<string>();
-                    
-                    for (int i = 0; i < enemyResults.Count; i++)
-                    {
-                        var result = enemyResults[i];
-                        if (result.StartsWith("    ")) // Status effect message (indented)
-                        {
-                            statusMessages.Add(result); // Keep indentation for proper formatting
-                        }
-                        else // Damage message
-                        {
-                            damageMessages.Add(result);
-                        }
-                    }
-                    
-                    // Combine damage and status messages into single blocks to avoid spacing issues
-                    if (damageMessages.Count > 0 && statusMessages.Count > 0)
-                    {
-                        // Combine damage and status messages into one block
-                        string combinedMessage = string.Join("\n", damageMessages.Concat(statusMessages));
-                        BlockDisplayManager.DisplaySystemBlock(combinedMessage);
-                        // Record as poison damage block for spacing system
-                        TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.PoisonDamage);
-                    }
-                    else if (damageMessages.Count > 0)
-                    {
-                        // Only damage messages
-                        foreach (var damage in damageMessages)
-                        {
-                            BlockDisplayManager.DisplaySystemBlock(damage);
-                        }
-                        // Record as poison damage block for spacing system
-                        TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.PoisonDamage);
-                    }
-                    else if (statusMessages.Count > 0)
-                    {
-                        // Only status messages
-                        foreach (var status in statusMessages)
-                        {
-                            BlockDisplayManager.DisplaySystemBlock(status);
-                        }
-                        // Record as poison damage block for spacing system
-                        TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.PoisonDamage);
-                    }
-                }
-            }
+            Combat.Turn.StatusEffectProcessor.ProcessDamageOverTimeEffects(player, enemy);
         }
 
         /// <summary>
@@ -271,19 +141,28 @@ namespace RPGGame
         {
             if (player.CurrentHealth < player.GetEffectiveMaxHealth())
             {
-                var tuning = GameConfiguration.Instance;
-                // TODO: Fix player regeneration - PlayerRegenPerTurn property doesn't exist
-                int regenAmount = 1; // Default regeneration
-                int actualRegen = Math.Min(regenAmount, player.GetEffectiveMaxHealth() - player.CurrentHealth);
-                
-                if (actualRegen > 0)
+                // Get regeneration from equipment bonuses (same approach as CombatTurnHandlerSimplified)
+                int regenAmount = player.GetEquipmentHealthRegenBonus();
+                if (regenAmount > 0)
                 {
-                    player.Heal(actualRegen);
-                    // Use ColoredText for regeneration message
-                    var regenText = CombatFlowColoredText.FormatHealthRegenerationColored(
-                        player.Name, actualRegen, player.CurrentHealth, player.GetEffectiveMaxHealth());
-                    TextDisplayIntegration.DisplayCombatAction(regenText, new List<ColoredText>(), null, null);
-                    UIManager.WriteLine(""); // Add blank line after regeneration message
+                    int oldHealth = player.CurrentHealth;
+                    // Use negative damage to heal (TakeDamage with negative value heals)
+                    player.TakeDamage(-regenAmount);
+                    // Cap at max health
+                    if (player.CurrentHealth > player.GetEffectiveMaxHealth())
+                    {
+                        player.TakeDamage(player.CurrentHealth - player.GetEffectiveMaxHealth());
+                    }
+                    int actualRegen = player.CurrentHealth - oldHealth;
+                    
+                    if (actualRegen > 0)
+                    {
+                        // Use ColoredText for regeneration message
+                        var regenText = CombatFlowColoredText.FormatHealthRegenerationColored(
+                            player.Name, actualRegen, player.CurrentHealth, player.GetEffectiveMaxHealth());
+                        TextDisplayIntegration.DisplayCombatAction(regenText, new List<ColoredText>(), null, null);
+                        UIManager.WriteLine(""); // Add blank line after regeneration message
+                    }
                 }
             }
         }
@@ -295,19 +174,7 @@ namespace RPGGame
         /// <param name="damageAmount">The amount of damage taken</param>
         public void CheckHealthMilestones(Actor Actor, int damageAmount)
         {
-            if (healthTracker == null)
-                return;
-
-            var events = healthTracker.CheckHealthMilestones(Actor, damageAmount);
-            foreach (var evt in events)
-            {
-                // Parse string message to ColoredText for consistent display
-                var coloredEvent = ColoredTextParser.Parse(evt);
-                if (coloredEvent.Count > 0)
-                {
-                    TextDisplayIntegration.DisplayCombatAction(coloredEvent, new List<ColoredText>(), null, null);
-                }
-            }
+            Combat.Turn.HealthMilestoneTracker.CheckHealthMilestones(Actor, damageAmount, healthTracker);
         }
 
         /// <summary>
@@ -316,7 +183,9 @@ namespace RPGGame
         /// <returns>List of pending health notifications</returns>
         public List<string> GetPendingHealthNotifications()
         {
-            // TODO: Fix health notifications - GetAndClearPendingHealthNotifications method doesn't exist
+            // Health notifications are handled by BattleHealthTracker.CheckHealthMilestones()
+            // which returns events directly. This method is kept for compatibility but returns empty list
+            // as health milestone events are processed immediately when CheckHealthMilestones is called.
             return new List<string>();
         }
 

@@ -1,10 +1,11 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
+using RPGGame;
 using DungeonFighter.Game.Menu.Core;
 
 namespace DungeonFighter.Game.Menu.Commands
 {
     /// <summary>
-    /// Command for loading a saved game.
+    /// Command for loading an existing game.
     /// Loads character from save file and transitions to game loop.
     /// </summary>
     public class LoadGameCommand : MenuCommand
@@ -13,17 +14,32 @@ namespace DungeonFighter.Game.Menu.Commands
 
         protected override async Task ExecuteCommand(IMenuContext? context)
         {
-            LogStep("Loading saved game");
+            LogStep("Loading game");
             
-            // TODO: When integrating with Game.cs:
-            // 1. Load character from save file
-            // 2. Validate save data
-            // 3. Initialize game state
+            if (context?.StateManager != null)
+            {
+                var savedCharacter = Character.LoadCharacter();
+                if (savedCharacter != null)
+                {
+                    context.StateManager.SetCurrentPlayer(savedCharacter);
+                    
+                    // Apply health multiplier if configured
+                    var settings = GameSettings.Instance;
+                    if (settings.PlayerHealthMultiplier != 1.0)
+                    {
+                        savedCharacter.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
+                    }
+                    
+                    LogStep("Game loaded successfully");
+                }
+                else
+                {
+                    LogError("No saved game found");
+                }
+            }
             
-            LogStep("Game loaded successfully");
             await Task.CompletedTask;
         }
     }
 }
-
 

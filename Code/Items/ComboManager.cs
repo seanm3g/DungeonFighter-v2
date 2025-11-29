@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.Items.Helpers;
 
 namespace RPGGame
 {
@@ -57,17 +58,13 @@ namespace RPGGame
                         case 5:
                             return;
                         default:
-                            UIManager.WriteMenuLine("Invalid option.");
-                            UIManager.WriteMenuLine("Press any key to continue...");
-                            Console.ReadKey();
+                            MenuDisplayHelper.ShowErrorAndWait("Invalid option.");
                             break;
                     }
                 }
                 else
                 {
-                    UIManager.WriteMenuLine("Invalid input.");
-                    UIManager.WriteMenuLine("Press any key to continue...");
-                    Console.ReadKey();
+                    MenuDisplayHelper.ShowErrorAndWait("Invalid input.");
                 }
             }
         }
@@ -85,9 +82,7 @@ namespace RPGGame
             
             if (availableActions.Count == 0)
             {
-                UIManager.WriteMenuLine("\nNo actions available to add to combo.");
-                UIManager.WriteMenuLine("Press any key to continue...");
-                Console.ReadKey();
+                MenuDisplayHelper.ShowErrorAndWait("No actions available to add to combo.");
                 return;
             }
             
@@ -99,38 +94,18 @@ namespace RPGGame
                 int timesAvailable = actionPool.Count(ap => ap.Name == action.Name);
                 string usageInfo = timesInCombo > 0 ? $" [In combo: {timesInCombo}/{timesAvailable}]" : "";
                 UIManager.WriteMenuLine($"  {i + 1}. {action.Name}{usageInfo}");
-                
-                // Calculate speed percentage
-                double speedPercentage = CalculateActionSpeedPercentage(action);
-                string speedText = GetSpeedDescription(speedPercentage);
-                
-                // Build action stats line
-                string statsLine = $"      {action.Description} | Damage: {action.DamageMultiplier:F1}x | Speed: {speedPercentage:F0}% ({speedText})";
-                
-                // Add any special effects
-                if (action.CausesBleed) statsLine += ", Causes Bleed";
-                if (action.CausesWeaken) statsLine += ", Causes Weaken";
-                if (action.CausesSlow) statsLine += ", Causes Slow";
-                if (action.CausesPoison) statsLine += ", Causes Poison";
-                if (action.CausesStun) statsLine += ", Causes Stun";
-                
-                UIManager.WriteMenuLine(statsLine);
+                UIManager.WriteMenuLine(ActionDisplayFormatter.FormatActionStats(action, timesInCombo, timesAvailable));
             }
             
             UIManager.Write($"\nEnter action number to add (1-{availableActions.Count}): ");
             if (int.TryParse(Console.ReadLine(), out int choice) && choice >= 1 && choice <= availableActions.Count)
             {
-                var selectedAction = availableActions[choice - 1];
-                player.AddToCombo(selectedAction);
-                UIManager.WriteMenuLine($"Added {selectedAction.Name} to combo sequence.");
-                UIManager.WriteMenuLine("Press any key to continue...");
-                Console.ReadKey();
+                player.AddToCombo(availableActions[choice - 1]);
+                MenuDisplayHelper.ShowSuccessAndWait($"Added {availableActions[choice - 1].Name} to combo sequence.");
             }
             else
             {
-                UIManager.WriteMenuLine("Invalid choice.");
-                UIManager.WriteMenuLine("Press any key to continue...");
-                Console.ReadKey();
+                MenuDisplayHelper.ShowErrorAndWait("Invalid choice.");
             }
         }
         
@@ -143,9 +118,7 @@ namespace RPGGame
             
             if (comboActions.Count == 0)
             {
-                UIManager.WriteMenuLine("\nNo actions in combo sequence to remove.");
-                UIManager.WriteMenuLine("Press any key to continue...");
-                Console.ReadKey();
+                MenuDisplayHelper.ShowErrorAndWait("No actions in combo sequence to remove.");
                 return;
             }
             
@@ -163,15 +136,11 @@ namespace RPGGame
             {
                 var selectedAction = comboActions[choice - 1];
                 player.RemoveFromCombo(selectedAction);
-                UIManager.WriteMenuLine($"Removed {selectedAction.Name} from combo sequence.");
-                UIManager.WriteMenuLine("Press any key to continue...");
-                Console.ReadKey();
+                MenuDisplayHelper.ShowSuccessAndWait($"Removed {selectedAction.Name} from combo sequence.");
             }
             else
             {
-                UIManager.WriteMenuLine("Invalid choice.");
-                UIManager.WriteMenuLine("Press any key to continue...");
-                Console.ReadKey();
+                MenuDisplayHelper.ShowErrorAndWait("Invalid choice.");
             }
         }
 
@@ -185,32 +154,23 @@ namespace RPGGame
             
             if (actionPool.Count == 0)
             {
-                UIManager.WriteMenuLine("\nNo actions available in action pool to add to combo.");
-                UIManager.WriteMenuLine("Press any key to continue...");
-                Console.ReadKey();
+                MenuDisplayHelper.ShowErrorAndWait("No actions available in action pool to add to combo.");
                 return;
             }
             
-            // Filter out actions that are already in the combo sequence
             var actionsToAdd = actionPool.Where(action => 
                 !comboActions.Any(comboAction => comboAction.Name == action.Name)).ToList();
             
             if (actionsToAdd.Count == 0)
             {
-                UIManager.WriteMenuLine("\nAll available actions are already in your combo sequence.");
-                UIManager.WriteMenuLine("Press any key to continue...");
-                Console.ReadKey();
+                MenuDisplayHelper.ShowErrorAndWait("All available actions are already in your combo sequence.");
                 return;
             }
             
-            // Show confirmation dialog
             UIManager.WriteMenuLine($"\nThis will add {actionsToAdd.Count} new actions to your combo sequence.");
             UIManager.WriteMenuLine("Actions to add:");
-            
             foreach (var action in actionsToAdd)
-            {
                 UIManager.WriteMenuLine($"  - {action.Name}");
-            }
             
             UIManager.WriteMenuLine("\nAre you sure you want to add these actions? (y/n): ");
             string confirmation = Console.ReadLine()?.Trim().ToLower() ?? "";
@@ -223,16 +183,11 @@ namespace RPGGame
                     player.AddToCombo(action);
                     addedCount++;
                 }
-                
-                UIManager.WriteMenuLine($"\nSuccessfully added {addedCount} actions to combo sequence!");
-                UIManager.WriteMenuLine("Press any key to continue...");
-                Console.ReadKey();
+                MenuDisplayHelper.ShowSuccessAndWait($"Successfully added {addedCount} actions to combo sequence!");
             }
             else
             {
-                UIManager.WriteMenuLine("Operation cancelled.");
-                UIManager.WriteMenuLine("Press any key to continue...");
-                Console.ReadKey();
+                MenuDisplayHelper.ShowMessageAndWait("Operation cancelled.");
             }
         }
 
@@ -245,9 +200,7 @@ namespace RPGGame
             
             if (comboActions.Count < 2)
             {
-                UIManager.WriteMenuLine("\nYou need at least 2 actions to reorder them.");
-                UIManager.WriteMenuLine("Press any key to continue...");
-                Console.ReadKey();
+                MenuDisplayHelper.ShowErrorAndWait("You need at least 2 actions to reorder them.");
                 return;
             }
             
@@ -287,11 +240,8 @@ namespace RPGGame
             }
             else
             {
-                UIManager.WriteMenuLine("Invalid input. Please enter numbers 1-" + comboActions.Count + " in any order (e.g., 15324).");
+                MenuDisplayHelper.ShowErrorAndWait($"Invalid input. Please enter numbers 1-{comboActions.Count} in any order (e.g., 15324).");
             }
-            
-            UIManager.WriteMenuLine("Press any key to continue...");
-            Console.ReadKey();
         }
         
         /// <summary>
@@ -407,25 +357,5 @@ namespace RPGGame
             }
         }
 
-        /// <summary>
-        /// Calculates the speed percentage for an action
-        /// </summary>
-        private double CalculateActionSpeedPercentage(Action action)
-        {
-            // This is a simplified calculation - the actual implementation would need to be moved from the original class
-            return 100.0 / action.Length;
-        }
-
-        /// <summary>
-        /// Gets a description of the action speed
-        /// </summary>
-        private string GetSpeedDescription(double speedPercentage)
-        {
-            if (speedPercentage >= 150) return "Very Fast";
-            if (speedPercentage >= 120) return "Fast";
-            if (speedPercentage >= 100) return "Normal";
-            if (speedPercentage >= 80) return "Slow";
-            return "Very Slow";
-        }
     }
 }

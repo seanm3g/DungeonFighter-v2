@@ -1,16 +1,12 @@
 using System.Threading.Tasks;
 using RPGGame;
-using DungeonFighter.Game.Menu.Commands;
 using DungeonFighter.Game.Menu.Core;
 
 namespace DungeonFighter.Game.Menu.Handlers
 {
     /// <summary>
-    /// Refactored Character Creation Menu Handler using the unified menu framework.
+    /// Refactored Character Creation Menu Handler using direct method calls.
     /// Handles stat modification and character confirmation.
-    /// 
-    /// BEFORE: ~150 lines with inconsistent patterns
-    /// AFTER: ~85 lines with clear command pattern
     /// </summary>
     public class CharacterCreationMenuHandler : MenuHandlerBase
     {
@@ -18,10 +14,9 @@ namespace DungeonFighter.Game.Menu.Handlers
         protected override string HandlerName => "CharacterCreation";
 
         /// <summary>
-        /// Parse input into character creation command.
-        /// Supports: 1-9 for stat selection, actions like r, c, e, h
+        /// Handle input directly and return next game state.
         /// </summary>
-        protected override IMenuCommand? ParseInput(string input)
+        protected override async Task<GameState?> HandleInputDirect(string input)
         {
             string cleaned = input.Trim().ToLower();
 
@@ -30,49 +25,102 @@ namespace DungeonFighter.Game.Menu.Handlers
 
             return cleaned switch
             {
-                // Stat increases (1-9 could map to different stats)
-                "1" => new IncreaseStatCommand("Strength"),
-                "2" => new DecreaseStatCommand("Strength"),
-                "3" => new IncreaseStatCommand("Agility"),
-                "4" => new DecreaseStatCommand("Agility"),
-                "5" => new IncreaseStatCommand("Technique"),
-                "6" => new DecreaseStatCommand("Technique"),
-                "7" => new IncreaseStatCommand("Intelligence"),
-                "8" => new DecreaseStatCommand("Intelligence"),
-                "9" => new IncreaseStatCommand("Health"),
-                
-                // Actions
-                "r" => new RandomizeCharacterCommand(),
-                "c" => new ConfirmCharacterCommand(),
-                "0" => new CancelCommand("CharacterCreation"),
-                
+                "1" => await ModifyStat("Strength", true),
+                "2" => await ModifyStat("Strength", false),
+                "3" => await ModifyStat("Agility", true),
+                "4" => await ModifyStat("Agility", false),
+                "5" => await ModifyStat("Technique", true),
+                "6" => await ModifyStat("Technique", false),
+                "7" => await ModifyStat("Intelligence", true),
+                "8" => await ModifyStat("Intelligence", false),
+                "9" => await ModifyStat("Health", true),
+                "r" => await RandomizeCharacter(),
+                "c" => await ConfirmCharacter(),
+                "0" => GameState.MainMenu,
                 _ => null
             };
         }
 
-        /// <summary>
-        /// Execute command and determine next state.
-        /// </summary>
-        protected override async Task<GameState?> ExecuteCommand(IMenuCommand command)
+        private Task<GameState?> ModifyStat(string statName, bool increase)
         {
-            if (StateManager != null)
+            if (StateManager?.CurrentPlayer == null)
             {
-                var context = new MenuContext(StateManager);
-                await command.Execute(context);
-            }
-            else
-            {
-                DebugLogger.Log(HandlerName, "WARNING: StateManager is null, executing command with null context");
-                await command.Execute(null);
+                LogError("StateManager or CurrentPlayer is null");
+                return Task.FromResult<GameState?>(null);
             }
 
-            // Determine state transition
-            return command switch
+            var player = StateManager.CurrentPlayer;
+            var action = increase ? "Increasing" : "Decreasing";
+            LogStep($"{action} {statName}");
+
+            switch (statName.ToLower())
             {
-                ConfirmCharacterCommand => GameState.GameLoop,
-                CancelCommand => GameState.MainMenu,
-                _ => (GameState?)null  // Stay in character creation
-            };
+                case "strength":
+                    if (increase) player.Strength++;
+                    else if (player.Strength > 1) player.Strength--;
+                    break;
+                case "agility":
+                    if (increase) player.Agility++;
+                    else if (player.Agility > 1) player.Agility--;
+                    break;
+                case "technique":
+                    if (increase) player.Technique++;
+                    else if (player.Technique > 1) player.Technique--;
+                    break;
+                case "intelligence":
+                    if (increase) player.Intelligence++;
+                    else if (player.Intelligence > 1) player.Intelligence--;
+                    break;
+                case "health":
+                    if (increase)
+                    {
+                        player.MaxHealth += 10;
+                        player.CurrentHealth += 10;
+                    }
+                    else if (player.MaxHealth > 10)
+                    {
+                        player.MaxHealth -= 10;
+                        if (player.CurrentHealth > player.MaxHealth)
+                            player.CurrentHealth = player.MaxHealth;
+                    }
+                    break;
+            }
+
+            return Task.FromResult<GameState?>(null); // Stay in character creation
+        }
+
+        private Task<GameState?> RandomizeCharacter()
+        {
+            if (StateManager?.CurrentPlayer == null)
+            {
+                LogError("StateManager or CurrentPlayer is null");
+                return Task.FromResult<GameState?>(null);
+            }
+
+            LogStep("Randomizing character");
+            var player = StateManager.CurrentPlayer;
+
+            // Randomize stats (keeping them within reasonable bounds)
+            player.Strength = RandomUtility.Next(5, 16);
+            player.Agility = RandomUtility.Next(5, 16);
+            player.Technique = RandomUtility.Next(5, 16);
+            player.Intelligence = RandomUtility.Next(5, 16);
+
+            // Randomize health (base 100, +/- 50)
+            int baseHealth = 100;
+            int healthVariation = RandomUtility.Next(-50, 51);
+            player.MaxHealth = baseHealth + healthVariation;
+            player.CurrentHealth = player.MaxHealth;
+
+            LogStep("Character randomized");
+            return Task.FromResult<GameState?>(null); // Stay in character creation
+        }
+
+        private Task<GameState?> ConfirmCharacter()
+        {
+            LogStep("Confirming character creation");
+            // Character is already created, just transition to game loop
+            return Task.FromResult<GameState?>(GameState.GameLoop);
         }
     }
 }

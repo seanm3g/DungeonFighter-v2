@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
 {
@@ -47,7 +48,7 @@ namespace RPGGame
                     if (!string.IsNullOrEmpty(summary))
                     {
                         // Use system block for combat summary
-                        BlockDisplayManager.DisplaySystemBlock(summary);
+                        BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse(summary));
                     }
                 }
                 
@@ -77,7 +78,7 @@ namespace RPGGame
                     if (!string.IsNullOrEmpty(summary))
                     {
                         // Use system block for combat summary
-                        BlockDisplayManager.DisplaySystemBlock(summary);
+                        BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse(summary));
                     }
                 }
                 

@@ -8,6 +8,10 @@ namespace RPGGame
     /// <summary>
     /// Enhanced combat flow message formatting using the new ColoredText system
     /// Provides cleaner, more maintainable colored system messages
+    /// 
+    /// SPACING STANDARDIZATION:
+    /// Uses ColoredTextBuilder which automatically handles spacing via CombatLogSpacingManager.
+    /// See Documentation/05-Systems/COMBAT_LOG_SPACING_STANDARD.md for spacing guidelines.
     /// </summary>
     public static class CombatFlowColoredText
     {
@@ -281,7 +285,7 @@ namespace RPGGame
                 builder.Add(environmentName, ColorPalette.Cyan);
             }
             
-            builder.Add("uses", Colors.White);
+            builder.Add("uses ", Colors.White);
             builder.Add(actionName, ColorPalette.Green);
             
             return builder.Build();

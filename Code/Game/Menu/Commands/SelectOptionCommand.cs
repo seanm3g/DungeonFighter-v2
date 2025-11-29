@@ -1,41 +1,33 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using DungeonFighter.Game.Menu.Core;
 
 namespace DungeonFighter.Game.Menu.Commands
 {
     /// <summary>
-    /// Generic command for selecting a menu option by index.
-    /// Used in menus with numbered options.
+    /// Command for selecting a menu option.
+    /// Used for generic option selection across different menus.
     /// </summary>
     public class SelectOptionCommand : MenuCommand
     {
         private readonly int optionIndex;
-        private readonly string optionName;
+        private readonly string optionType;
 
-        public SelectOptionCommand(int index, string name = "")
+        public SelectOptionCommand(int optionIndex, string optionType)
         {
-            optionIndex = index;
-            optionName = name;
+            this.optionIndex = optionIndex;
+            this.optionType = optionType;
         }
 
-        protected override string CommandName => 
-            string.IsNullOrEmpty(optionName) 
-                ? $"SelectOption({optionIndex})" 
-                : $"SelectOption({optionName})";
+        protected override string CommandName => "SelectOption";
 
         protected override async Task ExecuteCommand(IMenuContext? context)
         {
-            LogStep($"Selecting option: {CommandName}");
+            LogStep($"Selecting {optionType} option: {optionIndex}");
             
-            // TODO: When integrating with Game.cs:
-            // 1. Validate option index
-            // 2. Get option data
-            // 3. Execute option
+            // Option selection logic is handled by the specific menu handler
+            // This command just marks the selection
             
-            LogStep($"Option selected: {CommandName}");
             await Task.CompletedTask;
         }
     }
 }
-
-

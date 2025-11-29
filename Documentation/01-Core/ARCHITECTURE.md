@@ -157,6 +157,66 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 - **`Code/Items/BasicGearConfig.cs`** - Configuration for basic gear and equipment
 
 ### **UI System (Refactored Architecture - Coordinator Pattern)**
+
+#### Block Display System (Refactored)
+- **`Code/UI/BlockDisplayManager.cs`** - Facade coordinator for block-based display (258 lines, down from 629)
+  - Delegates to specialized renderers, message collector, and delay manager
+- **`Code/UI/BlockDisplay/`** - Extracted components:
+  - **`IBlockRenderer.cs`** - Interface for rendering message groups
+  - **`BlockRendererFactory.cs`** - Factory for creating appropriate renderers
+  - **`BlockMessageCollector.cs`** - Collects messages for action blocks
+  - **`EntityNameExtractor.cs`** - Extracts entity names from messages
+  - **`BlockDelayManager.cs`** - Manages delays for block display
+  - **`Renderers/CanvasUIRenderer.cs`** - Renderer for CanvasUICoordinator
+  - **`Renderers/GenericUIRenderer.cs`** - Renderer for generic UI managers
+  - **`Renderers/ConsoleRenderer.cs`** - Renderer for console output
+
+#### Item Display System (Refactored)
+- **`Code/UI/ColorSystem/Applications/ItemDisplayColoredText.cs`** - Facade for item formatting (258 lines, down from 599)
+  - Delegates to specialized formatters and parsers
+- **`Code/UI/ColorSystem/Applications/ItemFormatting/`** - Extracted components:
+  - **`ItemKeywordExtractor.cs`** - Shared utility for extracting keywords from modifications
+  - **`ItemNameParser.cs`** - Parses item names to extract components
+  - **`ItemNameFormatter.cs`** - Formats item names with proper coloring
+  - **`ItemStatsFormatter.cs`** - Formats item statistics and bonuses
+  - **`ItemComparisonFormatter.cs`** - Formats item comparisons for equip decisions
+- **`Code/UI/ColorSystem/Themes/`** - Extracted theme components:
+  - **`ItemThemeProvider.cs`** - Provides color themes for item properties
+  - **`ItemThemeFormatter.cs`** - Formats item names using color themes
+
+#### Combat Results Formatting (Refactored)
+- **`Code/Combat/CombatResultsColoredText.cs`** - Facade for combat result formatting (~200 lines, down from 459)
+  - Delegates to specialized formatters
+- **`Code/Combat/Formatting/`** - Extracted components:
+  - **`DamageFormatter.cs`** - Formats damage display messages
+  - **`RollInfoFormatter.cs`** - Formats roll information for combat results
+  - **`ActionSpeedCalculator.cs`** - Calculates actual action speed
+
+#### Action Execution System (Refactored)
+- **`Code/Actions/ActionExecutor.cs`** - Orchestrator for action execution (~300 lines, down from 576)
+  - Delegates to specialized executors and trackers
+- **`Code/Actions/Execution/`** - Extracted components:
+  - **`ActionStatisticsTracker.cs`** - Tracks statistics for action execution
+  - **`ActionStatusEffectApplier.cs`** - Applies status effects from actions
+  - **`AttackActionExecutor.cs`** - Executes attack actions
+  - **`HealActionExecutor.cs`** - Executes heal actions
+
+#### Dungeon Display System (Refactored)
+- **`Code/Game/DungeonDisplayManager.cs`** - Coordinator for dungeon display (~350 lines, down from 573)
+  - Uses extracted builders and display buffer
+- **`Code/Game/Display/Dungeon/`** - Extracted components:
+  - **`DungeonHeaderBuilder.cs`** - Builds dungeon header display
+  - **`RoomInfoBuilder.cs`** - Builds room information display
+  - **`EnemyInfoBuilder.cs`** - Builds enemy information display
+  - **`DungeonDisplayBuffer.cs`** - Manages display buffer for dungeon information
+
+#### Configuration Organization (Refactored)
+- **`Code/Config/EnemyConfig.cs`** - Main enemy configuration file (reorganized)
+- **`Code/Config/Enemy/`** - Split configuration classes:
+  - **`EnemyScalingConfig.cs`** - Enemy scaling configuration
+  - **`EnemyBalanceConfig.cs`** - Enemy balance configuration
+  - **`EnemyArchetypesConfig.cs`** - Enemy archetypes configuration
+  - **`EnemyDPSConfig.cs`** - Enemy DPS configuration
 - **`Code/UI/UIManager.cs`** - Centralized UI output and display with beat-based timing
 - **`Code/UI/GameMenuManager.cs`** - Manages game menus, UI interactions, and game flow
 - **`Code/UI/GameDisplayManager.cs`** - Unified display manager for inventory, character stats, and equipment
@@ -183,7 +243,14 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 - **`Code/UI/Avalonia/Renderers/ICanvasRenderer.cs`** - Interface for unified rendering
 - **`Code/UI/Avalonia/Renderers/CanvasRenderer.cs`** - Main renderer that delegates to specialized renderers
 - **`Code/UI/Avalonia/Renderers/CombatMessageHandler.cs`** - Handles combat-related messages
-- **`Code/UI/Avalonia/Renderers/MenuRenderer.cs`** - Specialized menu rendering
+- **`Code/UI/Avalonia/Renderers/MenuRenderer.cs`** - Menu rendering coordinator (165 lines, down from 485) - Delegates to screen-specific renderers
+  - **`Code/UI/Avalonia/Renderers/Menu/`** - Extracted screen renderers:
+    - **`MainMenuRenderer.cs`** - Main menu rendering
+    - **`SettingsMenuRenderer.cs`** - Settings menu rendering
+    - **`WeaponSelectionRenderer.cs`** - Weapon selection rendering
+    - **`GameMenuRenderer.cs`** - In-game menu rendering
+    - **`TestingMenuRenderer.cs`** - Testing menu rendering
+    - **`MenuLayoutCalculator.cs`** - Layout calculation utilities
 - **`Code/UI/Avalonia/Renderers/InventoryRenderer.cs`** - Specialized inventory rendering
 - **`Code/UI/Avalonia/Renderers/CombatRenderer.cs`** - Specialized combat rendering
 - **`Code/UI/Avalonia/Renderers/DungeonRenderer.cs`** - Specialized dungeon rendering
@@ -485,6 +552,14 @@ JSON Files → Loaders → Data Classes → Managers → Game Logic → UI Displ
   - **Character**: 539 → 250 lines (54% reduction)
   - **Enemy**: 493 → 321 lines (35% reduction)
   - **GameConfiguration**: 1000+ → 205 lines (80% reduction)
+  - **BlockDisplayManager**: 629 → 258 lines (59% reduction) - Extracted renderers, message collector, entity name extractor, delay manager
+  - **ActionExecutor**: 576 → ~300 lines (48% reduction) - Extracted statistics tracker, status effect applier, attack/heal executors
+  - **ItemDisplayColoredText**: 599 → 258 lines (57% reduction) - Extracted name parser, formatters, shared keyword extractor
+  - **ItemColorThemeSystem**: 517 → ~100 lines (81% reduction) - Extracted theme provider, formatter, shared keyword extractor
+  - **DungeonDisplayManager**: 573 → ~350 lines (39% reduction) - Extracted section builders, display buffer
+  - **CombatResultsColoredText**: 459 → ~200 lines (56% reduction) - Extracted damage formatter, roll info formatter, speed calculator
+  - **MenuRenderer**: 485 → 165 lines (66% reduction) - Extracted screen-specific renderers (MainMenu, Settings, WeaponSelection, GameMenu, Testing) and layout calculator
+  - **EnemyConfig**: 489 lines → Split into separate files - Reorganized configuration classes into focused files (EnemyScalingConfig, EnemyBalanceConfig, EnemyArchetypesConfig, EnemyDPSConfig)
 - Eliminated code duplication across display managers
 - Registry pattern eliminates large switch statements
 

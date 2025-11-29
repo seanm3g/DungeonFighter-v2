@@ -6,23 +6,6 @@ namespace RPGGame
     using DungeonFighter.Game.Menu.Routing;
     using DungeonFighter.Game.Menu.Core;
 
-    public enum GameState
-    {
-        MainMenu,
-        WeaponSelection,
-        CharacterCreation,
-        GameLoop,
-        Inventory,
-        CharacterInfo,
-        Settings,
-        Testing,
-        DungeonSelection,
-        Dungeon,
-        Combat,
-        DungeonCompletion,
-        Death
-    }
-
     /// <summary>
     /// Main Game coordinator class.
     /// Orchestrates 10 specialized managers to handle different game aspects.
@@ -57,12 +40,10 @@ namespace RPGGame
         private TestingSystemHandler? testingSystemHandler;
         
         // Game loop state
-        private GameLoopManager? gameLoopManager;
         private DungeonManagerWithRegistry? dungeonManager;
         private CombatManager? combatManager;
         
         // Other managers
-        private GameMenuManager menuManager;
         private GameInitializer gameInitializer;
         private IUIManager? customUIManager;
         
@@ -74,12 +55,10 @@ namespace RPGGame
         public Game()
         {
             GameTicker.Instance.Start();
-            menuManager = new GameMenuManager();
             gameInitializer = new GameInitializer();
             
             // Initialize core managers
             inputHandler = new GameInputHandler(stateManager);
-            gameLoopManager = new GameLoopManager();
             dungeonManager = new DungeonManagerWithRegistry();
             combatManager = new CombatManager();
             
@@ -94,12 +73,10 @@ namespace RPGGame
             customUIManager = uiManager;
             UIManager.SetCustomUIManager(uiManager);
             
-            menuManager = new GameMenuManager();
             gameInitializer = new GameInitializer();
             
             // Initialize core managers
             inputHandler = new GameInputHandler(stateManager);
-            gameLoopManager = new GameLoopManager();
             dungeonManager = new DungeonManagerWithRegistry();
             combatManager = new CombatManager();
             
@@ -117,13 +94,11 @@ namespace RPGGame
             }
             
             GameTicker.Instance.Start();
-            menuManager = new GameMenuManager();
             gameInitializer = new GameInitializer();
             
             // Initialize core managers
             inputHandler = new GameInputHandler(stateManager);
             stateManager.SetCurrentPlayer(existingCharacter);
-            gameLoopManager = new GameLoopManager();
             dungeonManager = new DungeonManagerWithRegistry();
             combatManager = new CombatManager();
             
@@ -139,174 +114,36 @@ namespace RPGGame
         // Initialize all 11 handler managers
         private void InitializeHandlers(IUIManager? uiManager)
         {
-            mainMenuHandler = new MainMenuHandler(stateManager, initializationManager, uiManager, gameInitializer);
-            characterMenuHandler = new CharacterMenuHandler(stateManager, uiManager);
-            settingsMenuHandler = new SettingsMenuHandler(stateManager, uiManager);
-            inventoryMenuHandler = new InventoryMenuHandler(stateManager, uiManager);
-            weaponSelectionHandler = new WeaponSelectionHandler(stateManager, initializationManager, uiManager);
-            characterCreationHandler = new CharacterCreationHandler(stateManager, uiManager);
-            gameLoopInputHandler = new GameLoopInputHandler(stateManager);
-            dungeonSelectionHandler = new DungeonSelectionHandler(stateManager, dungeonManager, uiManager);
-            dungeonRunnerManager = new DungeonRunnerManager(stateManager, narrativeManager, combatManager, uiManager);
-            dungeonCompletionHandler = new DungeonCompletionHandler(stateManager);
-            deathScreenHandler = new DeathScreenHandler(stateManager);
-            testingSystemHandler = new TestingSystemHandler(stateManager, uiManager);
+            // Create handlers using HandlerInitializer
+            var handlerResult = RPGGame.Handlers.HandlerInitializer.CreateHandlers(
+                stateManager, initializationManager, gameInitializer, dungeonManager!, 
+                combatManager!, narrativeManager, uiManager);
             
-            // NEW: Initialize Menu Input Framework (Phase 3 Refactoring)
-            InitializeMenuInputFramework();
+            // Assign to instance fields
+            mainMenuHandler = handlerResult.MainMenuHandler;
+            characterMenuHandler = handlerResult.CharacterMenuHandler;
+            settingsMenuHandler = handlerResult.SettingsMenuHandler;
+            inventoryMenuHandler = handlerResult.InventoryMenuHandler;
+            weaponSelectionHandler = handlerResult.WeaponSelectionHandler;
+            characterCreationHandler = handlerResult.CharacterCreationHandler;
+            gameLoopInputHandler = handlerResult.GameLoopInputHandler;
+            dungeonSelectionHandler = handlerResult.DungeonSelectionHandler;
+            dungeonRunnerManager = handlerResult.DungeonRunnerManager;
+            dungeonCompletionHandler = handlerResult.DungeonCompletionHandler;
+            deathScreenHandler = handlerResult.DeathScreenHandler;
+            testingSystemHandler = handlerResult.TestingSystemHandler;
             
             // Wire up handler events
-            if (mainMenuHandler != null)
-            {
-                mainMenuHandler.ShowGameLoopEvent += ShowGameLoop;
-                mainMenuHandler.ShowWeaponSelectionEvent += () => weaponSelectionHandler?.ShowWeaponSelection();
-                mainMenuHandler.ShowSettingsEvent += () => settingsMenuHandler?.ShowSettings();
-                mainMenuHandler.ExitGameEvent += ExitGame;
-                mainMenuHandler.ShowMessageEvent += ShowMessage;
-            }
+            RPGGame.Handlers.HandlerInitializer.WireHandlerEvents(
+                handlerResult, stateManager, customUIManager,
+                ShowGameLoop, ShowMainMenu, ShowInventory, ShowCharacterInfo, ShowMessage, ExitGame,
+                async () => await (dungeonSelectionHandler?.ShowDungeonSelection() ?? Task.CompletedTask),
+                ShowDungeonCompletion, ShowDeathScreen, SaveGame);
             
-            if (characterMenuHandler != null)
-            {
-                characterMenuHandler.ShowMainMenuEvent += ShowMainMenu;
-            }
-            
-            if (settingsMenuHandler != null)
-            {
-                settingsMenuHandler.ShowMainMenuEvent += ShowMainMenu;
-                settingsMenuHandler.ShowTestingMenuEvent += () => testingSystemHandler?.ShowTestingMenu();
-            }
-            
-            if (weaponSelectionHandler != null)
-            {
-                weaponSelectionHandler.ShowCharacterCreationEvent += () => characterCreationHandler?.ShowCharacterCreation();
-                weaponSelectionHandler.ShowMessageEvent += ShowMessage;
-            }
-            
-            if (characterCreationHandler != null)
-            {
-                characterCreationHandler.StartGameLoopEvent += ShowGameLoop;
-                characterCreationHandler.ShowMessageEvent += ShowMessage;
-            }
-            
-            if (inventoryMenuHandler != null)
-            {
-                inventoryMenuHandler.ShowInventoryEvent += ShowInventory;
-                inventoryMenuHandler.ShowGameLoopEvent += ShowGameLoop;
-                inventoryMenuHandler.ShowMainMenuEvent += ShowMainMenu;
-                inventoryMenuHandler.ShowMessageEvent += ShowMessage;
-            }
-            
-            if (gameLoopInputHandler != null)
-            {
-                gameLoopInputHandler.SelectDungeonEvent += async () => await (dungeonSelectionHandler?.ShowDungeonSelection() ?? Task.CompletedTask);
-                gameLoopInputHandler.ShowInventoryEvent += ShowInventory;
-                gameLoopInputHandler.ShowCharacterInfoEvent += ShowCharacterInfo;
-            }
-            
-            if (dungeonSelectionHandler != null)
-            {
-                dungeonSelectionHandler.ShowGameLoopEvent += ShowGameLoop;
-                dungeonSelectionHandler.ShowMessageEvent += ShowMessage;
-                // Wire up dungeon start to the dungeon runner manager
-                if (dungeonRunnerManager != null)
-                {
-                    dungeonSelectionHandler.StartDungeonEvent += async () => 
-                    {
-                        try
-                        {
-                            DebugLogger.Log("Game", "StartDungeonEvent fired - calling DungeonRunnerManager.RunDungeon()");
-                            await dungeonRunnerManager.RunDungeon();
-                            DebugLogger.Log("Game", "DungeonRunnerManager.RunDungeon() completed");
-                            
-                            // If we're still in Dungeon state after RunDungeon completes, something went wrong
-                            // This shouldn't happen normally (should transition to DungeonCompletion or Death)
-                            // But if it does, return to dungeon selection
-                            if (stateManager.CurrentState == GameState.Dungeon || stateManager.CurrentState == GameState.Combat)
-                            {
-                                DebugLogger.Log("Game", "WARNING: Still in Dungeon/Combat state after RunDungeon completed. Returning to dungeon selection.");
-                                stateManager.TransitionToState(GameState.DungeonSelection);
-                                if (customUIManager is CanvasUICoordinator canvasUI && stateManager.CurrentPlayer != null)
-                                {
-                                    canvasUI.RenderDungeonSelection(stateManager.CurrentPlayer, stateManager.AvailableDungeons);
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            DebugLogger.Log("Game", $"ERROR: Exception in StartDungeonEvent handler: {ex.Message}");
-                            DebugLogger.Log("Game", $"Stack trace: {ex.StackTrace}");
-                            if (customUIManager is CanvasUICoordinator canvasUIError)
-                            {
-                                canvasUIError.WriteLine($"ERROR: Failed to start dungeon: {ex.Message}", UIMessageType.System);
-                            }
-                            
-                            // Return to dungeon selection on error
-                            stateManager.TransitionToState(GameState.DungeonSelection);
-                            if (customUIManager is CanvasUICoordinator canvasUIError2 && stateManager.CurrentPlayer != null)
-                            {
-                                canvasUIError2.RenderDungeonSelection(stateManager.CurrentPlayer, stateManager.AvailableDungeons);
-                            }
-                        }
-                    };
-                    DebugLogger.Log("Game", "StartDungeonEvent subscribed to DungeonRunnerManager.RunDungeon()");
-                }
-                else
-                {
-                    DebugLogger.Log("Game", "ERROR: dungeonRunnerManager is null!");
-                }
-            }
-            
-            if (dungeonRunnerManager != null)
-            {
-                dungeonRunnerManager.DungeonCompletedEvent += (xpGained, lootReceived) => ShowDungeonCompletion(xpGained, lootReceived);
-                dungeonRunnerManager.ShowDeathScreenEvent += (player) => ShowDeathScreen(player);
-            }
-            
-            if (dungeonCompletionHandler != null)
-            {
-                dungeonCompletionHandler.StartDungeonSelectionEvent += () => { dungeonSelectionHandler?.ShowDungeonSelection(); return Task.CompletedTask; };
-                dungeonCompletionHandler.ShowInventoryEvent += ShowInventory;
-                dungeonCompletionHandler.ShowMainMenuEvent += ShowMainMenu;
-                dungeonCompletionHandler.SaveGameEvent += async () => { SaveGame(); await Task.CompletedTask; };
-            }
-            
-            if (deathScreenHandler != null)
-            {
-                deathScreenHandler.ShowMainMenuEvent += ShowMainMenu;
-            }
-            
-            if (testingSystemHandler != null)
-            {
-                testingSystemHandler.ShowMainMenuEvent += () => settingsMenuHandler?.ShowSettings();
-            }
-        }
-
-        /// <summary>
-        /// Initialize the Menu Input Framework (Phase 3 Refactoring).
-        /// Sets up the router, validators, and handlers for unified input processing.
-        /// </summary>
-        private void InitializeMenuInputFramework()
-        {
-            try
-            {
-                // Create validator and router
-                menuInputValidator = new MenuInputValidator();
-                menuInputRouter = new MenuInputRouter(menuInputValidator);
-                
-                // Register validation rules for each menu
-                menuInputValidator.RegisterRules(GameState.MainMenu, new MainMenuValidationRules());
-                menuInputValidator.RegisterRules(GameState.CharacterCreation, new CharacterCreationValidationRules());
-                menuInputValidator.RegisterRules(GameState.WeaponSelection, new WeaponSelectionValidationRules(4));
-                menuInputValidator.RegisterRules(GameState.Inventory, new InventoryValidationRules());
-                menuInputValidator.RegisterRules(GameState.Settings, new SettingsValidationRules());
-                menuInputValidator.RegisterRules(GameState.DungeonSelection, new DungeonSelectionValidationRules(10));
-                
-                DebugLogger.Log("Game", "Menu Input Framework initialized successfully");
-            }
-            catch (Exception ex)
-            {
-                DebugLogger.Log("Game", $"Error initializing Menu Input Framework: {ex.Message}");
-            }
+            // Initialize Menu Input Framework
+            var menuInputResult = RPGGame.Menu.MenuInputFrameworkInitializer.Initialize();
+            menuInputRouter = menuInputResult.MenuInputRouter;
+            menuInputValidator = menuInputResult.MenuInputValidator;
         }
 
         // Static delegates for compatibility

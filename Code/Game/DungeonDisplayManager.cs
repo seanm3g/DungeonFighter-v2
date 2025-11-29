@@ -4,8 +4,11 @@ namespace RPGGame
     using System.Collections.Generic;
     using System.Linq;
     using Avalonia.Media;
+    using RPGGame.Display.Dungeon;
+    using RPGGame.GameCore.Display.Helpers;
     using RPGGame.UI;
     using RPGGame.UI.Avalonia;
+    using RPGGame.UI.Avalonia.Display;
     using RPGGame.UI.ColorSystem;
 
     /// <summary>
@@ -14,12 +17,14 @@ namespace RPGGame
     /// 
     /// This manager eliminates the need to manually sync between GameNarrativeManager,
     /// display buffer, and context manager by providing a single source of truth.
+    /// Refactored to use extracted builders and display buffer.
     /// </summary>
     public class DungeonDisplayManager
     {
         private readonly GameNarrativeManager narrativeManager;
         private readonly IUIManager? uiManager;
         private readonly CanvasUICoordinator? canvasUI;
+        private readonly RPGGame.Display.Dungeon.DungeonDisplayBuffer displayBuffer;
 
         // Current state
         private Dungeon? currentDungeon;
@@ -30,12 +35,6 @@ namespace RPGGame
         private int totalRooms;
         private bool dungeonHeaderAddedToBuffer = false; // Track if header has been added to prevent duplicates
 
-        // Display sections (in order of display)
-        private readonly List<string> dungeonHeader = new List<string>();
-        private readonly List<string> roomInfo = new List<string>();
-        private readonly List<string> enemyInfo = new List<string>();
-        private readonly List<string> combatLog = new List<string>();
-
         /// <summary>
         /// Event fired when a combat event is added to the combat log.
         /// Allows subscribers to react immediately to combat log changes without polling.
@@ -45,29 +44,19 @@ namespace RPGGame
         /// <summary>
         /// Gets the complete display log (all sections combined in order)
         /// </summary>
-        public List<string> CompleteDisplayLog
-        {
-            get
-            {
-                var log = new List<string>();
-                log.AddRange(dungeonHeader);
-                log.AddRange(roomInfo);
-                log.AddRange(enemyInfo);
-                log.AddRange(combatLog);
-                return log;
-            }
-        }
+        public List<string> CompleteDisplayLog => displayBuffer.CompleteDisplayLog;
 
         /// <summary>
         /// Gets just the combat log (for combat screen rendering)
         /// </summary>
-        public List<string> CombatLog => new List<string>(combatLog);
+        public List<string> CombatLog => displayBuffer.CombatLog;
 
         public DungeonDisplayManager(GameNarrativeManager narrativeManager, IUIManager? uiManager = null)
         {
             this.narrativeManager = narrativeManager ?? throw new ArgumentNullException(nameof(narrativeManager));
             this.uiManager = uiManager;
             this.canvasUI = uiManager as CanvasUICoordinator;
+            this.displayBuffer = new DungeonDisplayBuffer();
         }
 
         /// <summary>
@@ -102,7 +91,8 @@ namespace RPGGame
             totalRooms = dungeon.Rooms.Count;
 
             // Build dungeon header (in memory only - not added to buffer yet)
-            BuildDungeonHeader(dungeon);
+            var header = DungeonHeaderBuilder.BuildDungeonHeader(dungeon);
+            displayBuffer.SetDungeonHeader(header);
 
             // Sync to narrative manager (for internal tracking)
             SyncToNarrativeManager();
@@ -112,36 +102,6 @@ namespace RPGGame
             // This ensures context matches the actual buffer state
         }
 
-        /// <summary>
-        /// Enters a new room. Clears room and enemy info, sets up new room information.
-        /// </summary>
-        public void EnterRoom(Environment room, int roomNumber, int totalRooms, bool isFirstRoom)
-        {
-            if (room == null) throw new ArgumentNullException(nameof(room));
-
-            // Clear room-specific info (but keep dungeon header)
-            roomInfo.Clear();
-            enemyInfo.Clear();
-            combatLog.Clear();
-
-            // Store current state
-            currentRoom = room;
-            currentRoomNumber = roomNumber;
-            this.totalRooms = totalRooms;
-            currentEnemy = null;
-
-            // Build room info
-            BuildRoomInfo(room, roomNumber, totalRooms);
-
-            // Sync to narrative manager
-            SyncToNarrativeManager();
-
-            // Set UI context
-            SetUIContext();
-
-            // Don't add to display buffer here - let the render methods handle it
-            // This prevents duplicate messages when both RenderDungeonStart and RenderRoomEntry are called
-        }
 
         /// <summary>
         /// Simplified method to show room entry screen.
@@ -158,9 +118,9 @@ namespace RPGGame
 
             // Step 1: Set up room state (but don't set UI context yet - that triggers reactive rendering)
             // Clear room-specific info (but keep dungeon header)
-            roomInfo.Clear();
-            enemyInfo.Clear();
-            combatLog.Clear();
+            displayBuffer.ClearRoomInfo();
+            displayBuffer.ClearEnemyInfo();
+            displayBuffer.ClearCombatLog();
 
             // Store current state
             currentRoom = room;
@@ -169,7 +129,8 @@ namespace RPGGame
             currentEnemy = null;
 
             // Build room info
-            BuildRoomInfo(room, roomNumber, totalRooms);
+            var roomInfo = RoomInfoBuilder.BuildRoomInfo(room, roomNumber, totalRooms);
+            displayBuffer.SetRoomInfo(roomInfo);
 
             // Sync to narrative manager (but don't set UI context yet)
             SyncToNarrativeManager();
@@ -201,11 +162,12 @@ namespace RPGGame
             currentEnemy = enemy;
 
             // Clear previous enemy info and combat log
-            enemyInfo.Clear();
-            combatLog.Clear();
+            displayBuffer.ClearEnemyInfo();
+            displayBuffer.ClearCombatLog();
 
             // Build enemy info
-            BuildEnemyInfo(enemy);
+            var enemyInfo = EnemyInfoBuilder.BuildEnemyInfo(enemy);
+            displayBuffer.SetEnemyInfo(enemyInfo);
 
             // Sync to narrative manager (combine header + room + enemy for dungeon log)
             SyncToNarrativeManager();
@@ -213,83 +175,39 @@ namespace RPGGame
             // Set UI context
             SetUIContext();
 
-            // Add enemy info to display buffer with proper spacing
-            // Use batch transaction to ensure proper spacing between sections
+            var enemyInfoList = displayBuffer.EnemyInfo;
             if (canvasUI != null && canvasUI is CanvasUICoordinator coordinator)
             {
                 using (var batch = coordinator.StartBatch(autoRender: true))
                 {
-                    // Apply spacing before enemy appearance (after room info)
-                    int spacingBefore = TextSpacingSystem.GetSpacingBefore(TextSpacingSystem.BlockType.EnemyAppearance);
-                    for (int i = 0; i < spacingBefore; i++)
+                    if (enemyInfoList.Count > 0)
                     {
-                        batch.Add("");
-                    }
-                    
-                    // Add enemy appearance line (first line of enemyInfo)
-                    if (enemyInfo.Count > 0)
-                    {
-                        batch.Add(enemyInfo[0]);
+                        SpacingApplier.ApplySpacingBefore(batch, TextSpacingSystem.BlockType.EnemyAppearance);
+                        batch.Add(enemyInfoList[0]);
                         TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.EnemyAppearance);
-                    }
-                    
-                    // Apply spacing before enemy stats (after enemy appearance)
-                    int spacingBeforeStats = TextSpacingSystem.GetSpacingBefore(TextSpacingSystem.BlockType.EnemyStats);
-                    for (int i = 0; i < spacingBeforeStats; i++)
-                    {
-                        batch.Add("");
-                    }
-                    
-                    // Add enemy stats lines (remaining lines of enemyInfo)
-                    for (int i = 1; i < enemyInfo.Count; i++)
-                    {
-                        batch.Add(enemyInfo[i]);
-                    }
-                    
-                    // Record that enemy stats were displayed (after all stats lines)
-                    if (enemyInfo.Count > 1)
-                    {
-                        TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.EnemyStats);
+                        
+                        if (enemyInfoList.Count > 1)
+                        {
+                            SpacingApplier.ApplySpacingBefore(batch, TextSpacingSystem.BlockType.EnemyStats);
+                            for (int i = 1; i < enemyInfoList.Count; i++)
+                                batch.Add(enemyInfoList[i]);
+                            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.EnemyStats);
+                        }
                     }
                 }
             }
-            else
+            else if (uiManager != null && enemyInfoList.Count > 0)
             {
-                // Fallback to old method if coordinator not available
-                if (uiManager != null)
+                SpacingApplier.ApplySpacingBefore(uiManager, TextSpacingSystem.BlockType.EnemyAppearance);
+                uiManager.WriteLine(enemyInfoList[0], UIMessageType.System);
+                TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.EnemyAppearance);
+                
+                if (enemyInfoList.Count > 1)
                 {
-                    // Apply spacing before enemy appearance
-                    int spacingBefore = TextSpacingSystem.GetSpacingBefore(TextSpacingSystem.BlockType.EnemyAppearance);
-                    for (int i = 0; i < spacingBefore; i++)
-                    {
-                        uiManager.WriteLine("", UIMessageType.System);
-                    }
-                    
-                    // Add enemy appearance
-                    if (enemyInfo.Count > 0)
-                    {
-                        uiManager.WriteLine(enemyInfo[0], UIMessageType.System);
-                        TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.EnemyAppearance);
-                    }
-                    
-                    // Apply spacing before enemy stats
-                    int spacingBeforeStats = TextSpacingSystem.GetSpacingBefore(TextSpacingSystem.BlockType.EnemyStats);
-                    for (int i = 0; i < spacingBeforeStats; i++)
-                    {
-                        uiManager.WriteLine("", UIMessageType.System);
-                    }
-                    
-                    // Add enemy stats
-                    for (int i = 1; i < enemyInfo.Count; i++)
-                    {
-                        uiManager.WriteLine(enemyInfo[i], UIMessageType.System);
-                    }
-                    
-                    // Record enemy stats
-                    if (enemyInfo.Count > 1)
-                    {
-                        TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.EnemyStats);
-                    }
+                    SpacingApplier.ApplySpacingBefore(uiManager, TextSpacingSystem.BlockType.EnemyStats);
+                    for (int i = 1; i < enemyInfoList.Count; i++)
+                        uiManager.WriteLine(enemyInfoList[i], UIMessageType.System);
+                    TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.EnemyStats);
                 }
             }
         }
@@ -302,7 +220,7 @@ namespace RPGGame
         {
             if (!string.IsNullOrWhiteSpace(message))
             {
-                combatLog.Add(message);
+                displayBuffer.AddCombatEvent(message);
                 
                 // Add to narrative manager's dungeon log
                 narrativeManager.LogDungeonEvent(message);
@@ -337,7 +255,7 @@ namespace RPGGame
         /// </summary>
         public void ClearCombatLog()
         {
-            combatLog.Clear();
+            displayBuffer.ClearCombatLog();
             narrativeManager.ClearDungeonLog();
         }
 
@@ -346,10 +264,7 @@ namespace RPGGame
         /// </summary>
         public void ClearAll()
         {
-            dungeonHeader.Clear();
-            roomInfo.Clear();
-            enemyInfo.Clear();
-            combatLog.Clear();
+            displayBuffer.ClearAll();
 
             currentDungeon = null;
             currentRoom = null;
@@ -384,108 +299,16 @@ namespace RPGGame
 
         #region Private Methods
 
-        private void BuildDungeonHeader(Dungeon dungeon)
-        {
-            dungeonHeader.Clear();
-
-            var headerText = AsciiArtAssets.UIText.CreateHeader(AsciiArtAssets.UIText.EnteringDungeonHeader);
-            var coloredHeader = new ColoredTextBuilder()
-                .Add(headerText, ColorPalette.Gold)
-                .Build();
-            dungeonHeader.Add(ColoredTextRenderer.RenderAsMarkup(coloredHeader));
-
-            char themeColorCode = DungeonThemeColors.GetThemeColorCode(dungeon.Theme);
-            var dungeonNameColor = GetColorFromThemeCode(themeColorCode);
-
-            var dungeonInfo = new ColoredTextBuilder()
-                .Add("Dungeon: ", ColorPalette.Warning)
-                .Add(dungeon.Name, dungeonNameColor)
-                .Build();
-            dungeonHeader.Add(ColoredTextRenderer.RenderAsMarkup(dungeonInfo));
-
-            var levelInfo = new ColoredTextBuilder()
-                .Add("Level Range: ", ColorPalette.Warning)
-                .Add($"{dungeon.MinLevel} - {dungeon.MaxLevel}", ColorPalette.Info)
-                .Build();
-            dungeonHeader.Add(ColoredTextRenderer.RenderAsMarkup(levelInfo));
-
-            var roomInfo = new ColoredTextBuilder()
-                .Add("Total Rooms: ", ColorPalette.Warning)
-                .Add(dungeon.Rooms.Count.ToString(), ColorPalette.Info)
-                .Build();
-            dungeonHeader.Add(ColoredTextRenderer.RenderAsMarkup(roomInfo));
-            dungeonHeader.Add("");
-        }
-
-        private void BuildRoomInfo(Environment room, int roomNumber, int totalRooms)
-        {
-            roomInfo.Clear();
-
-            var roomHeaderText = AsciiArtAssets.UIText.CreateHeader(AsciiArtAssets.UIText.EnteringRoomHeader);
-            var coloredRoomHeader = new ColoredTextBuilder()
-                .Add(roomHeaderText, ColorPalette.Gold)
-                .Build();
-            roomInfo.Add(ColoredTextRenderer.RenderAsMarkup(coloredRoomHeader));
-
-            var roomNumberInfo = new ColoredTextBuilder()
-                .Add("Room Number: ", ColorPalette.Info)
-                .Add($"{roomNumber} of {totalRooms}", ColorPalette.Warning)
-                .Build();
-            roomInfo.Add(ColoredTextRenderer.RenderAsMarkup(roomNumberInfo));
-
-            // Get environment color template based on theme
-            string themeTemplate = string.IsNullOrEmpty(room.Theme) 
-                ? "" 
-                : room.Theme.ToLower().Replace(" ", "");
-            var environmentNameColored = ColorTemplateLibrary.GetTemplate(themeTemplate, room.Name);
-            
-            var roomNameInfo = new ColoredTextBuilder()
-                .Add("Room: ", ColorPalette.White)
-                .AddRange(environmentNameColored)
-                .Build();
-            roomInfo.Add(ColoredTextRenderer.RenderAsMarkup(roomNameInfo));
-
-            var roomDescription = new ColoredTextBuilder()
-                .Add(room.Description, ColorPalette.White)
-                .Build();
-            roomInfo.Add(ColoredTextRenderer.RenderAsMarkup(roomDescription));
-            roomInfo.Add("");
-        }
-
-        private void BuildEnemyInfo(Enemy enemy)
-        {
-            enemyInfo.Clear();
-
-            string enemyWeaponInfo = enemy.Weapon != null
-                ? string.Format(AsciiArtAssets.UIText.WeaponSuffix, enemy.Weapon.Name)
-                : "";
-            string encounteredText = string.Format(AsciiArtAssets.UIText.EncounteredFormat, enemy.Name, enemyWeaponInfo);
-            enemyInfo.Add($"{{{{common|{encounteredText}}}}}");
-
-            string statsText = AsciiArtAssets.UIText.FormatEnemyStats(enemy.CurrentHealth, enemy.MaxHealth, enemy.Armor);
-            var statsBuilder = new ColoredTextBuilder();
-            statsBuilder.Add(statsText, Colors.White);
-            enemyInfo.Add(ColoredTextRenderer.RenderAsMarkup(statsBuilder.Build()));
-
-            string attackText = AsciiArtAssets.UIText.FormatEnemyAttack(enemy.Strength, enemy.Agility, enemy.Technique, enemy.Intelligence);
-            enemyInfo.Add($"{{{{enhanced_rare|{attackText}}}}}");
-            enemyInfo.Add("");
-        }
-
         private void SyncToNarrativeManager()
         {
             // Sync dungeon header
-            narrativeManager.SetDungeonHeaderInfo(new List<string>(dungeonHeader));
+            narrativeManager.SetDungeonHeaderInfo(displayBuffer.DungeonHeader);
 
             // Sync room info
-            narrativeManager.SetRoomInfo(new List<string>(roomInfo));
+            narrativeManager.SetRoomInfo(displayBuffer.RoomInfo);
 
             // Build dungeon log (header + room + enemy + combat log)
-            var dungeonLog = new List<string>();
-            dungeonLog.AddRange(dungeonHeader);
-            dungeonLog.AddRange(roomInfo);
-            dungeonLog.AddRange(enemyInfo);
-            dungeonLog.AddRange(combatLog);
+            var dungeonLog = displayBuffer.CompleteDisplayLog;
 
             // Clear and rebuild narrative manager's dungeon log
             narrativeManager.ClearDungeonLog();
@@ -537,64 +360,25 @@ namespace RPGGame
             // When autoRender=true, reactive system will handle rendering
             using (var batch = coordinator.StartBatch(autoRender: autoRender))
             {
-                // Add dungeon header if requested, available, and not already added
+                var dungeonHeader = displayBuffer.DungeonHeader;
                 if (includeDungeonHeader && dungeonHeader.Count > 0 && !dungeonHeaderAlreadyAdded)
                 {
-                    // Apply spacing before dungeon header (if needed)
-                    int spacingBefore = TextSpacingSystem.GetSpacingBefore(TextSpacingSystem.BlockType.DungeonHeader);
-                    for (int i = 0; i < spacingBefore; i++)
-                    {
-                        batch.Add("");
-                    }
-                    
-                    // Add dungeon header lines
+                    SpacingApplier.ApplySpacingBefore(batch, TextSpacingSystem.BlockType.DungeonHeader);
                     batch.AddRange(dungeonHeader);
-                    
-                    // Record that dungeon header was displayed
                     TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.DungeonHeader);
-                    
-                    // Mark that header has been added to prevent duplicates
                     dungeonHeaderAddedToBuffer = true;
                 }
 
-                // Add room info if requested and available
+                var roomInfo = displayBuffer.RoomInfo;
                 if (includeRoomInfo && roomInfo.Count > 0)
                 {
-                    // Apply spacing before room header (if needed, e.g., after dungeon header)
-                    // Use RoomHeader for spacing calculation since that's what the spacing rules expect
-                    int spacingBefore = TextSpacingSystem.GetSpacingBefore(TextSpacingSystem.BlockType.RoomHeader);
-                    for (int i = 0; i < spacingBefore; i++)
-                    {
-                        batch.Add("");
-                    }
-                    
-                    // Add room info lines (includes room header + room details)
+                    SpacingApplier.ApplySpacingBefore(batch, TextSpacingSystem.BlockType.RoomHeader);
                     batch.AddRange(roomInfo);
-                    
-                    // Record that room info was displayed
-                    // Note: roomInfo includes both RoomHeader ("=== ENTERING ROOM ===") and RoomInfo (room details)
-                    // We record RoomInfo since that's the main block type for the complete room information
                     TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.RoomInfo);
                 }
             }
         }
 
-        /// <summary>
-        /// Adds lines to display buffer and triggers render.
-        /// For cases where RenderRoomEntry will handle rendering, use AddCurrentInfoToDisplayBuffer instead.
-        /// </summary>
-        private void AddToDisplayBuffer(List<string> lines)
-        {
-            if (uiManager == null) return;
-
-            foreach (var line in lines)
-            {
-                if (!string.IsNullOrWhiteSpace(line))
-                {
-                    uiManager.WriteLine(line, UIMessageType.System);
-                }
-            }
-        }
 
         private ColorPalette GetColorFromThemeCode(char themeCode)
         {

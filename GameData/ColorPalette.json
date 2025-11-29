@@ -228,8 +228,8 @@
     },
     {
       "name": "Common",
-      "colorCode": "Y",
-      "hex": "#ffffff",
+      "reference": "LightGray",
+      "hex": "#d3d3d3",
       "category": "rarity"
     },
     {

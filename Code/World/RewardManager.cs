@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
 {
@@ -19,7 +20,7 @@ namespace RPGGame
         /// <param name="dungeonLevel">Level of the completed dungeon</param>
         public void AwardLootAndXP(Character player, List<Item> inventory, int dungeonLevel)
         {
-            BlockDisplayManager.DisplaySystemBlock("\nDungeon completed!");
+            BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse("Dungeon completed!"));
             
             // Track dungeon completion statistics
             player.RecordDungeonCompleted();
@@ -68,7 +69,7 @@ namespace RPGGame
             if (healthRestored > 0)
             {
                 player.Heal(healthRestored);
-                BlockDisplayManager.DisplaySystemBlock($"You have been fully healed! (+{healthRestored} health)");
+                BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse($"You have been fully healed! (+{healthRestored} health)"));
             }
         }
 
@@ -80,7 +81,7 @@ namespace RPGGame
             var tuning = GameConfiguration.Instance;
             int xpReward = random.Next(tuning.Progression.EnemyXPBase, tuning.Progression.EnemyXPBase + 50) * player.Level;
             player.AddXP(xpReward);
-            BlockDisplayManager.DisplaySystemBlock($"Gained {xpReward} XP!");
+            BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse($"Gained {xpReward} XP!"));
             UIManager.WriteBlankLine(); // Blank line between XP and loot
 
             if (player.Level > 1)
@@ -134,7 +135,7 @@ namespace RPGGame
             else
             {
                 // This should never happen with the fallback, but just in case
-                BlockDisplayManager.DisplaySystemBlock("You found no loot this time.");
+                BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse("You found no loot this time."));
             }
         }
         
@@ -191,13 +192,13 @@ namespace RPGGame
                 // Ultimate fallback if weapon data loading fails
                 reward = new WeaponItem("Basic Sword", player.Level, 5 + player.Level, 1.0, WeaponType.Sword);
                 reward.Rarity = "Common";
-                BlockDisplayManager.DisplaySystemBlock("   Created emergency fallback weapon to prevent game breaking.");
+                BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse("   Created emergency fallback weapon to prevent game breaking."));
             }
             else
             {
-                BlockDisplayManager.DisplaySystemBlock($"   Created fallback weapon: {reward.Name} (from weapon database)");
+                BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse($"   Created fallback weapon: {reward.Name} (from weapon database)"));
             }
-            BlockDisplayManager.DisplaySystemBlock("");
+            BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse(""));
             return reward;
         }
 

@@ -6,6 +6,7 @@ namespace RPGGame
     using System.Threading.Tasks;
     using Avalonia.Media;
     using Avalonia.Threading;
+    using RPGGame.GameCore.Helpers;
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.ColorSystem;
 
@@ -64,17 +65,7 @@ namespace RPGGame
             
             if (stateManager.CurrentPlayer == null || stateManager.CurrentDungeon == null || combatManager == null)
             {
-                DebugLogger.Log("DungeonRunnerManager", "ERROR: Cannot run dungeon - missing required components");
-                if (customUIManager is CanvasUICoordinator canvasUIError)
-                {
-                    canvasUIError.WriteLine("ERROR: Cannot start dungeon - missing required components.", UIMessageType.System);
-                }
-                // Return to dungeon selection on error
-                stateManager.TransitionToState(GameState.DungeonSelection);
-                if (customUIManager is CanvasUICoordinator canvasUIError2 && stateManager.CurrentPlayer != null)
-                {
-                    canvasUIError2.RenderDungeonSelection(stateManager.CurrentPlayer, stateManager.AvailableDungeons);
-                }
+                DungeonErrorHandler.HandleMissingComponents(stateManager, customUIManager);
                 return;
             }
             
@@ -91,34 +82,13 @@ namespace RPGGame
                 }
                 catch (Exception ex)
                 {
-                    DebugLogger.Log("DungeonRunnerManager", $"ERROR: Failed to generate dungeon: {ex.Message}");
-                    if (customUIManager is CanvasUICoordinator canvasUIError2)
-                    {
-                        canvasUIError2.WriteLine($"ERROR: Failed to generate dungeon: {ex.Message}", UIMessageType.System);
-                    }
-                    // Return to dungeon selection on error
-                    stateManager.TransitionToState(GameState.DungeonSelection);
-                    if (customUIManager is CanvasUICoordinator canvasUIError3 && stateManager.CurrentPlayer != null)
-                    {
-                        canvasUIError3.RenderDungeonSelection(stateManager.CurrentPlayer, stateManager.AvailableDungeons);
-                    }
+                    DungeonErrorHandler.HandleDungeonGenerationError(stateManager, customUIManager, $"Failed to generate dungeon: {ex.Message}");
                     return;
                 }
                 
-                // Check again after regeneration
                 if (stateManager.CurrentDungeon?.Rooms == null || stateManager.CurrentDungeon.Rooms.Count == 0)
                 {
-                    DebugLogger.Log("DungeonRunnerManager", "ERROR: Dungeon still has no rooms after regeneration!");
-                    if (customUIManager is CanvasUICoordinator canvasUIError3)
-                    {
-                        canvasUIError3.WriteLine("ERROR: Dungeon generation failed - no rooms created.", UIMessageType.System);
-                    }
-                    // Return to dungeon selection on error
-                    stateManager.TransitionToState(GameState.DungeonSelection);
-                    if (customUIManager is CanvasUICoordinator canvasUIError4 && stateManager.CurrentPlayer != null)
-                    {
-                        canvasUIError4.RenderDungeonSelection(stateManager.CurrentPlayer, stateManager.AvailableDungeons);
-                    }
+                    DungeonErrorHandler.HandleDungeonGenerationError(stateManager, customUIManager, "Dungeon generation failed - no rooms created.");
                     return;
                 }
             }
@@ -162,13 +132,8 @@ namespace RPGGame
             }
             catch (Exception ex)
             {
-                DebugLogger.Log("DungeonRunnerManager", $"ERROR: Exception in RunDungeon: {ex.Message}");
-                DebugLogger.Log("DungeonRunnerManager", $"Stack trace: {ex.StackTrace}");
-                if (customUIManager is CanvasUICoordinator canvasUIError)
-                {
-                    canvasUIError.WriteLine($"ERROR: Failed to run dungeon: {ex.Message}", UIMessageType.System);
-                }
-                throw; // Re-throw to ensure caller knows about the failure
+                DungeonErrorHandler.HandleException(ex, customUIManager);
+                throw;
             }
         }
 
@@ -271,108 +236,30 @@ namespace RPGGame
                 canvasUIInitial.RenderCombat(stateManager.CurrentPlayer, enemy, displayManager.CompleteDisplayLog);
             }
             
-            // Run combat on background thread to prevent UI blocking, but update UI on UI thread
             var room = stateManager.CurrentRoom;
             var player = stateManager.CurrentPlayer;
             
-            // Event-driven UI updates with debouncing (replaces polling)
-            System.DateTime lastRefreshTime = System.DateTime.MinValue;
-            Timer? debounceTimer = null;
-            const int minRefreshIntervalMs = 200; // Minimum time between refreshes to reduce flickering
-            object refreshLock = new object();
-            
-            // Handler for combat event updates - uses debouncing to batch rapid updates
-            void OnCombatEventAdded()
+            // Create debouncer for UI updates
+            CombatEventDebouncer? debouncer = null;
+            if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                lock (refreshLock)
-                {
-                    var now = System.DateTime.Now;
-                    var timeSinceLastRefresh = (now - lastRefreshTime).TotalMilliseconds;
-                    
-                    // If enough time has passed, refresh immediately
-                    if (timeSinceLastRefresh >= minRefreshIntervalMs)
-                    {
-                        lastRefreshTime = now;
-                        
-                        // Cancel any pending debounced refresh
-                        debounceTimer?.Dispose();
-                        debounceTimer = null;
-                        
-                        // Refresh UI on UI thread (use Post to avoid blocking)
-                        if (customUIManager is CanvasUICoordinator canvasUI)
-                        {
-                            Dispatcher.UIThread.Post(() =>
-                            {
-                                canvasUI.RenderCombat(player, enemy, displayManager.CompleteDisplayLog);
-                            });
-                        }
-                    }
-                    else
-                    {
-                        // Schedule a debounced refresh
-                        var delayMs = minRefreshIntervalMs - (int)timeSinceLastRefresh;
-                        
-                        // Cancel any existing timer
-                        debounceTimer?.Dispose();
-                        
-                        // Create new timer for debounced refresh
-                        debounceTimer = new Timer(_ =>
-                        {
-                            lock (refreshLock)
-                            {
-                                lastRefreshTime = System.DateTime.Now;
-                                debounceTimer?.Dispose();
-                                debounceTimer = null;
-                                
-                                // Refresh UI on UI thread
-                                if (customUIManager is CanvasUICoordinator canvasUI)
-                                {
-                                    Dispatcher.UIThread.Post(() =>
-                                    {
-                                        canvasUI.RenderCombat(player, enemy, displayManager.CompleteDisplayLog);
-                                    });
-                                }
-                            }
-                        }, null, delayMs, Timeout.Infinite);
-                    }
-                }
+                debouncer = new CombatEventDebouncer(200, () =>
+                    canvasUI.RenderCombat(player, enemy, displayManager.CompleteDisplayLog));
+                displayManager.CombatEventAdded += debouncer.TriggerRefresh;
             }
-            
-            // Subscribe to combat event updates
-            displayManager.CombatEventAdded += OnCombatEventAdded;
             
             bool playerWon = false;
             try
             {
-                // Run combat on background thread
-                var combatTask = Task.Run(async () =>
-                {
-                    return await combatManager.RunCombat(player, enemy, room!);
-                });
-                
-                // Wait for combat to complete (no polling needed - events handle UI updates)
-                playerWon = await combatTask;
+                playerWon = await Task.Run(async () => await combatManager.RunCombat(player, enemy, room!));
             }
             finally
             {
-                // Unsubscribe from events and clean up timer
-                displayManager.CombatEventAdded -= OnCombatEventAdded;
-                lock (refreshLock)
+                if (debouncer != null)
                 {
-                    debounceTimer?.Dispose();
-                    debounceTimer = null;
+                    displayManager.CombatEventAdded -= debouncer.TriggerRefresh;
+                    debouncer.Dispose();
                 }
-            }
-            
-            // Final refresh to show complete combat log (use Post to avoid blocking)
-            if (customUIManager is CanvasUICoordinator canvasUI4)
-            {
-                Dispatcher.UIThread.Post(() =>
-                {
-                    canvasUI4.RenderCombat(player, enemy, displayManager.CompleteDisplayLog);
-                });
-                // Small delay to ensure the final render completes
-                await Task.Delay(100);
             }
             
             if (!playerWon)
@@ -389,7 +276,8 @@ namespace RPGGame
                 return false;
             }
             
-            // Enemy defeated - add victory message with proper spacing
+            // Enemy defeated - add victory message with proper spacing BEFORE final render
+            // This ensures the victory message is included in the final render and prevents overlapping text
             if (enemy != null)
             {
                 // Add blank line for spacing after informational summary
@@ -399,6 +287,22 @@ namespace RPGGame
                 victoryBuilder.Add(enemy.Name, ColorPalette.Enemy);
                 victoryBuilder.Add(" has been defeated!", ColorPalette.Success);
                 displayManager.AddCombatEvent(ColoredTextRenderer.RenderAsMarkup(victoryBuilder.Build()));
+            }
+            
+            // Wait for any reactive renders triggered by AddCombatEvent to complete before final render
+            // This prevents text from overlapping when multiple renders happen in quick succession
+            await Task.Delay(250);
+            
+            // Final refresh to show complete combat log including victory message (use Post to avoid blocking)
+            // This single render will replace any previous renders and show the complete state
+            if (customUIManager is CanvasUICoordinator canvasUI4 && enemy != null)
+            {
+                Dispatcher.UIThread.Post(() =>
+                {
+                    canvasUI4.RenderCombat(player, enemy, displayManager.CompleteDisplayLog);
+                });
+                // Small delay to ensure the final render completes before continuing
+                await Task.Delay(100);
             }
             
             // Small delay before next

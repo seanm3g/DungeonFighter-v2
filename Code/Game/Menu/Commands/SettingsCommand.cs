@@ -1,11 +1,10 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using DungeonFighter.Game.Menu.Core;
 
 namespace DungeonFighter.Game.Menu.Commands
 {
     /// <summary>
-    /// Command for opening the settings menu.
-    /// Transitions to settings menu state.
+    /// Command for opening settings menu.
     /// </summary>
     public class SettingsCommand : MenuCommand
     {
@@ -13,14 +12,9 @@ namespace DungeonFighter.Game.Menu.Commands
 
         protected override async Task ExecuteCommand(IMenuContext? context)
         {
-            LogStep("Transitioning to settings menu");
-            
-            // No special logic needed - state transition handled by handler
-            
-            LogStep("Settings menu opened");
+            LogStep("Opening settings menu");
             await Task.CompletedTask;
         }
     }
 }
-
 

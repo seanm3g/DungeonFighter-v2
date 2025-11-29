@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.Helpers;
 using RPGGame.Utils;
 
 namespace RPGGame
@@ -135,164 +136,44 @@ namespace RPGGame
         /// <param name="messageType">Type of message for delay configuration</param>
         public static void WriteLine(string message, UIMessageType messageType = UIMessageType.System)
         {
-            if (DisableAllUIOutput) return;
-            
-            OutputManager.WriteLine(message, messageType);
-            DelayManager.ApplyDelay(messageType);
+            UIMethodHelper.ExecuteIfEnabled(DisableAllUIOutput, () =>
+            {
+                OutputManager.WriteLine(message, messageType);
+                DelayManager.ApplyDelay(messageType);
+            });
         }
         
-        /// <summary>
-        /// Writes text to console without newline with color markup support
-        /// </summary>
-        /// <param name="message">Message to display (supports &X and {{template|text}} markup)</param>
-        public static void Write(string message)
-        {
-            if (DisableAllUIOutput) return;
-            
-            OutputManager.Write(message);
-        }
+        public static void Write(string message) 
+            => UIMethodHelper.ExecuteIfEnabled(DisableAllUIOutput, () => OutputManager.Write(message));
         
-        
-        
-        /// <summary>
-        /// Writes a system message (no Actor tracking)
-        /// </summary>
-        /// <param name="message">System message to display</param>
-        public static void WriteSystemLine(string message)
-        {
-            WriteLine(message, UIMessageType.System);
-        }
-        
-        /// <summary>
-        /// Writes a menu line with progressive delay reduction (speeds up with each consecutive line)
-        /// Supports color markup
-        /// </summary>
-        /// <param name="message">Menu message to display (supports &X and {{template|text}} markup)</param>
+        public static void WriteSystemLine(string message) => WriteLine(message, UIMessageType.System);
         public static void WriteMenuLine(string message)
         {
-            if (DisableAllUIOutput) return;
-            
-            OutputManager.WriteMenuLine(message);
-            DelayManager.ApplyProgressiveMenuDelay();
+            UIMethodHelper.ExecuteIfEnabled(DisableAllUIOutput, () =>
+            {
+                OutputManager.WriteMenuLine(message);
+                DelayManager.ApplyProgressiveMenuDelay();
+            });
         }
-        
-        /// <summary>
-        /// Writes a title line with title delay
-        /// </summary>
-        /// <param name="message">Title message to display</param>
-        public static void WriteTitleLine(string message)
-        {
-            WriteLine(message, UIMessageType.Title);
-        }
-        
-        /// <summary>
-        /// Writes a dungeon-related message with system delay
-        /// </summary>
-        /// <param name="message">Dungeon message to display</param>
-        public static void WriteDungeonLine(string message)
-        {
-            WriteLine(message, UIMessageType.System);
-        }
-        
-        /// <summary>
-        /// Writes a room-related message with system delay
-        /// </summary>
-        /// <param name="message">Room message to display</param>
-        public static void WriteRoomLine(string message)
-        {
-            WriteLine(message, UIMessageType.System);
-        }
-        
-        /// <summary>
-        /// Writes an enemy encounter message with system delay
-        /// </summary>
-        /// <param name="message">Enemy encounter message to display</param>
-        public static void WriteEnemyLine(string message)
-        {
-            WriteLine(message, UIMessageType.System);
-        }
-        
-        /// <summary>
-        /// Writes a room cleared message with system delay
-        /// </summary>
-        /// <param name="message">Room cleared message to display</param>
-        public static void WriteRoomClearedLine(string message)
-        {
-            WriteLine(message, UIMessageType.System);
-        }
-        
-        /// <summary>
-        /// Writes a status effect message (stun, poison, bleed, etc.) with effect message delay
-        /// </summary>
-        /// <param name="message">Status effect message to display</param>
-        public static void WriteEffectLine(string message)
-        {
-            WriteLine(message, UIMessageType.EffectMessage);
-        }
+        public static void WriteTitleLine(string message) => WriteLine(message, UIMessageType.Title);
+        public static void WriteDungeonLine(string message) => WriteLine(message, UIMessageType.System);
+        public static void WriteRoomLine(string message) => WriteLine(message, UIMessageType.System);
+        public static void WriteEnemyLine(string message) => WriteLine(message, UIMessageType.System);
+        public static void WriteRoomClearedLine(string message) => WriteLine(message, UIMessageType.System);
+        public static void WriteEffectLine(string message) => WriteLine(message, UIMessageType.EffectMessage);
         
         /// <summary>
         /// Resets Actor tracking for a new battle
         /// </summary>
-        public static void ResetForNewBattle()
-        {
-            OutputManager.ResetForNewBattle();
-        }
-        
-        /// <summary>
-        /// Applies appropriate delay based on message type using the beat-based timing system
-        /// </summary>
-        /// <param name="messageType">Type of message for delay configuration</param>
-        public static void ApplyDelay(UIMessageType messageType)
-        {
-            DelayManager.ApplyDelay(messageType);
-        }
-        
-        /// <summary>
-        /// Resets the progressive menu delay counter (call when menu section is complete)
-        /// </summary>
-        public static void ResetMenuDelayCounter()
-        {
-            DelayManager.ResetMenuDelayCounter();
-        }
-        
-        /// <summary>
-        /// Gets the current consecutive menu line count (for testing/debugging)
-        /// </summary>
-        public static int GetConsecutiveMenuLineCount()
-        {
-            return DelayManager.GetConsecutiveMenuLineCount();
-        }
-        
-        /// <summary>
-        /// Gets the current base menu delay (for testing/debugging)
-        /// </summary>
-        public static int GetBaseMenuDelay()
-        {
-            return DelayManager.GetBaseMenuDelay();
-        }
-        
-        /// <summary>
-        /// Writes a blank line without any delay
-        /// </summary>
-        public static void WriteBlankLine()
-        {
-            if (DisableAllUIOutput) return;
-            
-            OutputManager.WriteBlankLine();
-        }
-        
-        /// <summary>
-        /// Writes text with chunked reveal (progressive text display)
-        /// Text appears chunk by chunk with delays proportional to chunk length
-        /// </summary>
-        /// <param name="message">The text to reveal in chunks</param>
-        /// <param name="config">Optional configuration for chunked reveal</param>
-        public static void WriteChunked(string message, ChunkedTextReveal.RevealConfig? config = null)
-        {
-            if (DisableAllUIOutput) return;
-            
-            OutputManager.WriteChunked(message, config);
-        }
+        public static void ResetForNewBattle() => OutputManager.ResetForNewBattle();
+        public static void ApplyDelay(UIMessageType messageType) => DelayManager.ApplyDelay(messageType);
+        public static void ResetMenuDelayCounter() => DelayManager.ResetMenuDelayCounter();
+        public static int GetConsecutiveMenuLineCount() => DelayManager.GetConsecutiveMenuLineCount();
+        public static int GetBaseMenuDelay() => DelayManager.GetBaseMenuDelay();
+        public static void WriteBlankLine() 
+            => UIMethodHelper.ExecuteIfEnabled(DisableAllUIOutput, () => OutputManager.WriteBlankLine());
+        public static void WriteChunked(string message, ChunkedTextReveal.RevealConfig? config = null) 
+            => UIMethodHelper.ExecuteIfEnabled(DisableAllUIOutput, () => OutputManager.WriteChunked(message, config));
         
         /// <summary>
         /// Writes dungeon exploration text with chunked reveal (optimized for dungeon content)
@@ -326,87 +207,20 @@ namespace RPGGame
         
         // ===== COLORED TEXT SYSTEM METHODS =====
         
-        /// <summary>
-        /// Writes colored text using the new ColoredText system
-        /// </summary>
-        /// <param name="coloredText">ColoredText object to display</param>
-        /// <param name="messageType">Type of message for delay configuration</param>
-        public static void WriteColoredText(ColoredText coloredText, UIMessageType messageType = UIMessageType.System)
-        {
-            if (DisableAllUIOutput) return;
-            
-            ColoredTextManager.WriteColoredText(coloredText, messageType);
-        }
-        
-        /// <summary>
-        /// Writes a list of colored text segments
-        /// </summary>
-        public static void WriteColoredText(List<ColoredText> coloredTexts, UIMessageType messageType = UIMessageType.System)
-        {
-            if (DisableAllUIOutput) return;
-            
-            ColoredTextManager.WriteColoredText(coloredTexts, messageType);
-        }
-        
-        /// <summary>
-        /// Writes colored text using the new ColoredText system with newline
-        /// </summary>
-        /// <param name="coloredText">ColoredText object to display</param>
-        /// <param name="messageType">Type of message for delay configuration</param>
-        public static void WriteLineColoredText(ColoredText coloredText, UIMessageType messageType = UIMessageType.System)
-        {
-            if (DisableAllUIOutput) return;
-            
-            ColoredTextManager.WriteLineColoredText(coloredText, messageType);
-        }
-        
-        /// <summary>
-        /// Writes colored text segments using the new ColoredText system
-        /// </summary>
-        /// <param name="segments">List of ColoredText segments to display</param>
-        /// <param name="messageType">Type of message for delay configuration</param>
-        public static void WriteColoredSegments(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System)
-        {
-            if (DisableAllUIOutput) return;
-            
-            ColoredTextManager.WriteColoredSegments(segments, messageType);
-        }
-        
-        /// <summary>
-        /// Writes colored text segments using the new ColoredText system with newline
-        /// </summary>
-        /// <param name="segments">List of ColoredText segments to display</param>
-        /// <param name="messageType">Type of message for delay configuration</param>
-        public static void WriteLineColoredSegments(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System)
-        {
-            if (DisableAllUIOutput) return;
-            
-            ColoredTextManager.WriteLineColoredSegments(segments, messageType);
-        }
-        
-        /// <summary>
-        /// Writes colored text using the builder pattern
-        /// </summary>
-        /// <param name="builder">ColoredTextBuilder to build and display</param>
-        /// <param name="messageType">Type of message for delay configuration</param>
-        public static void WriteColoredTextBuilder(ColoredTextBuilder builder, UIMessageType messageType = UIMessageType.System)
-        {
-            if (DisableAllUIOutput) return;
-            
-            ColoredTextManager.WriteColoredTextBuilder(builder, messageType);
-        }
-        
-        /// <summary>
-        /// Writes colored text using the builder pattern with newline
-        /// </summary>
-        /// <param name="builder">ColoredTextBuilder to build and display</param>
-        /// <param name="messageType">Type of message for delay configuration</param>
-        public static void WriteLineColoredTextBuilder(ColoredTextBuilder builder, UIMessageType messageType = UIMessageType.System)
-        {
-            if (DisableAllUIOutput) return;
-            
-            ColoredTextManager.WriteLineColoredTextBuilder(builder, messageType);
-        }
+        public static void WriteColoredText(ColoredText coloredText, UIMessageType messageType = UIMessageType.System) 
+            => UIMethodHelper.ExecuteIfEnabled(DisableAllUIOutput, () => ColoredTextManager.WriteColoredText(coloredText, messageType));
+        public static void WriteColoredText(List<ColoredText> coloredTexts, UIMessageType messageType = UIMessageType.System) 
+            => UIMethodHelper.ExecuteIfEnabled(DisableAllUIOutput, () => ColoredTextManager.WriteColoredText(coloredTexts, messageType));
+        public static void WriteLineColoredText(ColoredText coloredText, UIMessageType messageType = UIMessageType.System) 
+            => UIMethodHelper.ExecuteIfEnabled(DisableAllUIOutput, () => ColoredTextManager.WriteLineColoredText(coloredText, messageType));
+        public static void WriteColoredSegments(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System) 
+            => UIMethodHelper.ExecuteIfEnabled(DisableAllUIOutput, () => ColoredTextManager.WriteColoredSegments(segments, messageType));
+        public static void WriteLineColoredSegments(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System) 
+            => UIMethodHelper.ExecuteIfEnabled(DisableAllUIOutput, () => ColoredTextManager.WriteLineColoredSegments(segments, messageType));
+        public static void WriteColoredTextBuilder(ColoredTextBuilder builder, UIMessageType messageType = UIMessageType.System) 
+            => UIMethodHelper.ExecuteIfEnabled(DisableAllUIOutput, () => ColoredTextManager.WriteColoredTextBuilder(builder, messageType));
+        public static void WriteLineColoredTextBuilder(ColoredTextBuilder builder, UIMessageType messageType = UIMessageType.System) 
+            => UIMethodHelper.ExecuteIfEnabled(DisableAllUIOutput, () => ColoredTextManager.WriteLineColoredTextBuilder(builder, messageType));
         
         // ===== COMBAT MESSAGE BUILDING METHODS =====
         
@@ -422,32 +236,12 @@ namespace RPGGame
         /// <param name="isBlock">Whether this is blocked</param>
         /// <param name="isDodge">Whether this is dodged</param>
         public static void WriteCombatMessage(string attacker, string action, string target, int? damage = null, 
-            bool isCritical = false, bool isMiss = false, bool isBlock = false, bool isDodge = false)
-        {
-            MessageBuilder.WriteCombatMessage(attacker, action, target, damage, isCritical, isMiss, isBlock, isDodge);
-        }
-        
-        /// <summary>
-        /// Creates a healing message using the new color system
-        /// </summary>
-        /// <param name="healer">Name of the healer</param>
-        /// <param name="target">Name of the target</param>
-        /// <param name="amount">Healing amount</param>
-        public static void WriteHealingMessage(string healer, string target, int amount)
-        {
-            MessageBuilder.WriteHealingMessage(healer, target, amount);
-        }
-        
-        /// <summary>
-        /// Creates a status effect message using the new color system
-        /// </summary>
-        /// <param name="target">Name of the target</param>
-        /// <param name="effect">Effect name</param>
-        /// <param name="isApplied">Whether the effect is applied or removed</param>
-        public static void WriteStatusEffectMessage(string target, string effect, bool isApplied = true)
-        {
-            MessageBuilder.WriteStatusEffectMessage(target, effect, isApplied);
-        }
+            bool isCritical = false, bool isMiss = false, bool isBlock = false, bool isDodge = false) 
+            => MessageBuilder.WriteCombatMessage(attacker, action, target, damage, isCritical, isMiss, isBlock, isDodge);
+        public static void WriteHealingMessage(string healer, string target, int amount) 
+            => MessageBuilder.WriteHealingMessage(healer, target, amount);
+        public static void WriteStatusEffectMessage(string target, string effect, bool isApplied = true) 
+            => MessageBuilder.WriteStatusEffectMessage(target, effect, isApplied);
         
     }
 }

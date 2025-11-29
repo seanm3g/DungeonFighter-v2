@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
+using RPGGame;
 using DungeonFighter.Game.Menu.Core;
 
 namespace DungeonFighter.Game.Menu.Commands
@@ -15,15 +16,24 @@ namespace DungeonFighter.Game.Menu.Commands
         {
             LogStep("Starting new game flow");
             
-            // TODO: When integrating with Game.cs:
-            // 1. Create new character
-            // 2. Initialize character data
-            // 3. Prepare for weapon selection
+            if (context?.StateManager != null)
+            {
+                // Create new character (null triggers random name generation)
+                var newCharacter = new Character(null, 1);
+                context.StateManager.SetCurrentPlayer(newCharacter);
+                
+                // Apply health multiplier if configured
+                var settings = GameSettings.Instance;
+                if (settings.PlayerHealthMultiplier != 1.0)
+                {
+                    newCharacter.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
+                }
+                
+                LogStep("New character created, transitioning to weapon selection");
+            }
             
-            LogStep("New game initialized");
             await Task.CompletedTask;
         }
     }
 }
-
 

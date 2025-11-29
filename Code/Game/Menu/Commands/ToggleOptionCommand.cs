@@ -1,36 +1,31 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using DungeonFighter.Game.Menu.Core;
 
 namespace DungeonFighter.Game.Menu.Commands
 {
     /// <summary>
-    /// Generic command for toggling settings/options.
-    /// Can be used in Settings menu and similar.
+    /// Command for toggling a settings option.
     /// </summary>
     public class ToggleOptionCommand : MenuCommand
     {
         private readonly string optionName;
 
-        public ToggleOptionCommand(string option)
+        public ToggleOptionCommand(string optionName)
         {
-            optionName = option;
+            this.optionName = optionName;
         }
 
-        protected override string CommandName => $"ToggleOption({optionName})";
+        protected override string CommandName => "ToggleOption";
 
         protected override async Task ExecuteCommand(IMenuContext? context)
         {
-            LogStep($"Toggling option: {optionName}");
+            LogStep($"Toggling {optionName} option");
             
-            // TODO: When integrating with Game.cs:
-            // 1. Get current option value
-            // 2. Toggle the value
-            // 3. Save setting
+            // Settings toggle logic would be handled by SettingsManager
+            // This command just marks the action
             
-            LogStep($"{optionName} toggled");
             await Task.CompletedTask;
         }
     }
 }
-
 

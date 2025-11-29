@@ -1,6 +1,8 @@
 using Avalonia.Media;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.ColorSystem.Applications;
+using RPGGame.UI.Avalonia.Renderers.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -74,6 +76,8 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// </summary>
         public void RenderInventory(int x, int y, int width, int height, Character character, List<Item> inventory)
         {
+            // Clear previous state before rendering
+            clickableElements.Clear();
             currentLineCount = 0;
             int startY = y;
             
@@ -93,11 +97,10 @@ namespace RPGGame.UI.Avalonia.Renderers
                 for (int i = 0; i < maxItems; i++)
                 {
                     var item = inventory[i];
-                    string coloredItemName = ItemDisplayFormatter.GetColoredItemName(item);
-                    List<string> itemStats = GetItemStats(item, character);
+                    var itemStats = ItemStatFormatter.GetItemStats(item, character);
                     
                     // Add clickable item
-                    var itemElement = new ClickableElement
+                    clickableElements.Add(new ClickableElement
                     {
                         X = x + 2,
                         Y = y,
@@ -106,25 +109,15 @@ namespace RPGGame.UI.Avalonia.Renderers
                         Type = ElementType.Item,
                         Value = i.ToString(),
                         DisplayText = $"[{i + 1}] {item.Name}"
-                    };
-                    clickableElements.Add(itemElement);
+                    });
                     
-                    // Render item name with color markup support
-                    string displayLine = $"[{i + 1}] {coloredItemName}";
-                    textWriter.WriteLineColored(displayLine, x + 2, y);
+                    // Render item name
+                    ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, i, item, useColoredText: false);
                     y++;
                     currentLineCount++;
                     
-                    // Render each stat on its own indented line
-                    if (itemStats.Count > 0)
-                    {
-                        foreach (var stat in itemStats)
-                        {
-                            textWriter.WriteLineColored($"    {stat}", x + 2, y);
-                            y++;
-                            currentLineCount++;
-                        }
-                    }
+                    // Render stats
+                    ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, itemStats, ref y, ref currentLineCount, useColoredText: false);
                 }
             }
             
@@ -160,57 +153,6 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
         
         /// <summary>
-        /// Gets formatted item stats for display as a list (one stat per line)
-        /// </summary>
-        private List<string> GetItemStats(Item item, Character character)
-        {
-            var stats = new List<string>();
-            
-            if (item is WeaponItem weapon)
-            {
-                stats.Add($"Damage: {weapon.GetTotalDamage()}");
-                stats.Add($"Speed: {weapon.GetTotalAttackSpeed():F1}s");
-            }
-            else if (item is HeadItem headItem)
-            {
-                stats.Add($"Armor: +{headItem.GetTotalArmor()}");
-            }
-            else if (item is FeetItem feetItem)
-            {
-                stats.Add($"Armor: +{feetItem.GetTotalArmor()}");
-            }
-            else if (item is ChestItem chestItem)
-            {
-                stats.Add($"Armor: +{chestItem.GetTotalArmor()}");
-            }
-            
-            if (item.StatBonuses.Count > 0)
-            {
-                foreach (var bonus in item.StatBonuses)
-                {
-                    // Format the stat value
-                    string formattedValue = bonus.StatType switch
-                    {
-                        "AttackSpeed" => $"+{bonus.Value:F3} AttackSpeed",
-                        _ => $"+{bonus.Value} {bonus.StatType}"
-                    };
-                    
-                    // Include the label (e.g., "of Lightning") if it exists
-                    if (!string.IsNullOrEmpty(bonus.Name))
-                    {
-                        stats.Add($"{bonus.Name}: {formattedValue}");
-                    }
-                    else
-                    {
-                        stats.Add(formattedValue);
-                    }
-                }
-            }
-            
-            return stats;
-        }
-        
-        /// <summary>
         /// Renders item selection prompt for equip/discard actions
         /// </summary>
         public void RenderItemSelectionPrompt(int x, int y, int width, int height, Character character, List<Item> inventory, string promptMessage, string actionType)
@@ -236,38 +178,18 @@ namespace RPGGame.UI.Avalonia.Renderers
                 for (int i = 0; i < maxItems; i++)
                 {
                     var item = inventory[i];
-                    List<string> itemStats = GetItemStats(item, character);
+                    var itemStats = ItemStatFormatter.GetItemStats(item, character);
                     
-                    // Create clickable button for each item (1-based numbering)
-                    var itemButton = CreateButton(x + 2, y, width - 4, (i + 1).ToString(), $"[{i + 1}] {item.Name}");
-                    clickableElements.Add(itemButton);
+                    // Create clickable button for each item
+                    clickableElements.Add(CreateButton(x + 2, y, width - 4, (i + 1).ToString(), $"[{i + 1}] {item.Name}"));
                     
-                    // Build colored text for item selection line using new color system
-                    var displayBuilder = new ColoredTextBuilder();
-                    displayBuilder.Add($"[{i + 1}] ", Colors.White);
-                    
-                    // Add item name with proper colors
-                    var itemNameSegments = ItemDisplayColoredText.FormatFullItemName(item);
-                    displayBuilder.AddRange(itemNameSegments);
-                    
-                    // Render the colored text
-                    var displaySegments = displayBuilder.Build();
-                    textWriter.RenderSegments(displaySegments, x + 2, y);
+                    // Render item name with colored text
+                    ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, i, item, useColoredText: true);
                     y++;
                     currentLineCount++;
                     
-                    // Render each stat on its own indented line with colors
-                    if (itemStats.Count > 0)
-                    {
-                        foreach (var stat in itemStats)
-                        {
-                            // Parse stat string and format with colors
-                            var statSegments = FormatStatLine(stat);
-                            textWriter.RenderSegments(statSegments, x + 2, y);
-                            y++;
-                            currentLineCount++;
-                        }
-                    }
+                    // Render stats with colored text
+                    ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, itemStats, ref y, ref currentLineCount, useColoredText: true);
                 }
                 y++;
                 currentLineCount++;
@@ -278,89 +200,6 @@ namespace RPGGame.UI.Avalonia.Renderers
             clickableElements.Add(cancelButton);
             canvas.AddMenuOption(x + 2, y, 0, "Cancel", AsciiArtAssets.Colors.White, cancelButton.IsHovered);
             currentLineCount++;
-        }
-        
-        /// <summary>
-        /// Formats a stat line string into colored text segments
-        /// </summary>
-        private List<ColoredText> FormatStatLine(string stat)
-        {
-            var builder = new ColoredTextBuilder();
-            builder.Add("    ", Colors.White); // Indentation
-            
-            // Parse common stat formats and apply colors
-            if (stat.StartsWith("Armor: +"))
-            {
-                var parts = stat.Split(new[] { ": +" }, StringSplitOptions.None);
-                if (parts.Length == 2)
-                {
-                    builder.Add("Armor: +", ColorPalette.Info);
-                    builder.Add(parts[1], ColorPalette.Success);
-                }
-                else
-                {
-                    builder.Add(stat, Colors.White);
-                }
-            }
-            else if (stat.StartsWith("Damage: "))
-            {
-                var parts = stat.Split(new[] { ": " }, StringSplitOptions.None);
-                if (parts.Length == 2)
-                {
-                    builder.Add("Damage: ", ColorPalette.Info);
-                    builder.Add(parts[1], ColorPalette.Damage);
-                }
-                else
-                {
-                    builder.Add(stat, Colors.White);
-                }
-            }
-            else if (stat.StartsWith("Speed: "))
-            {
-                var parts = stat.Split(new[] { ": " }, StringSplitOptions.None);
-                if (parts.Length == 2)
-                {
-                    builder.Add("Speed: ", ColorPalette.Info);
-                    builder.Add(parts[1], Colors.White);
-                }
-                else
-                {
-                    builder.Add(stat, Colors.White);
-                }
-            }
-            else
-            {
-                // Default: check for stat bonus patterns
-                if (stat.Contains("+") && stat.Contains(" "))
-                {
-                    var plusIndex = stat.IndexOf("+");
-                    if (plusIndex > 0)
-                    {
-                        builder.Add(stat.Substring(0, plusIndex), ColorPalette.Info);
-                        var rest = stat.Substring(plusIndex);
-                        var spaceIndex = rest.IndexOf(" ");
-                        if (spaceIndex > 0)
-                        {
-                            builder.Add(rest.Substring(0, spaceIndex + 1), ColorPalette.Success);
-                            builder.Add(rest.Substring(spaceIndex + 1), Colors.White);
-                        }
-                        else
-                        {
-                            builder.Add(rest, ColorPalette.Success);
-                        }
-                    }
-                    else
-                    {
-                        builder.Add(stat, Colors.White);
-                    }
-                }
-                else
-                {
-                    builder.Add(stat, Colors.White);
-                }
-            }
-            
-            return builder.Build();
         }
         
         /// <summary>
