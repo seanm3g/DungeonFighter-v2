@@ -287,6 +287,16 @@ namespace RPGGame
                 victoryBuilder.Add(enemy.Name, ColorPalette.Enemy);
                 victoryBuilder.Add(" has been defeated!", ColorPalette.Success);
                 displayManager.AddCombatEvent(ColoredTextRenderer.RenderAsMarkup(victoryBuilder.Build()));
+                
+                // Add remaining health right after defeat message
+                if (player != null)
+                {
+                    string healthMsg = string.Format(AsciiArtAssets.UIText.RemainingHealth, 
+                        player.CurrentHealth, player.GetEffectiveMaxHealth());
+                    var healthBuilder = new ColoredTextBuilder();
+                    healthBuilder.Add(healthMsg, ColorPalette.Gold);
+                    displayManager.AddCombatEvent(ColoredTextRenderer.RenderAsMarkup(healthBuilder.Build()));
+                }
             }
             
             // Wait for any reactive renders triggered by AddCombatEvent to complete before final render
@@ -295,7 +305,7 @@ namespace RPGGame
             
             // Final refresh to show complete combat log including victory message (use Post to avoid blocking)
             // This single render will replace any previous renders and show the complete state
-            if (customUIManager is CanvasUICoordinator canvasUI4 && enemy != null)
+            if (customUIManager is CanvasUICoordinator canvasUI4 && enemy != null && player != null)
             {
                 Dispatcher.UIThread.Post(() =>
                 {

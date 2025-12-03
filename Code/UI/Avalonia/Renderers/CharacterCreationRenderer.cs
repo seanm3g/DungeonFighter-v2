@@ -41,7 +41,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             int centerY = y + (height / 2) - 8;
             
             // Welcome message
-            canvas.AddText(x + (width / 2) - 20, centerY, "═══ YOUR HERO HAS BEEN CREATED! ═══", AsciiArtAssets.Colors.Gold);
+            canvas.AddText(x + (width / 2) - 20, centerY, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.YourHeroHasBeenCreated), AsciiArtAssets.Colors.Gold);
             centerY += 3;
             
             canvas.AddText(x + 4, centerY, $"Welcome, {character.Name}!", AsciiArtAssets.Colors.White);
@@ -75,13 +75,13 @@ namespace RPGGame.UI.Avalonia.Renderers
             
             // Action buttons at bottom
             y = startY + height - 6;
-            canvas.AddText(x + 2, y, "═══ ACTIONS ═══", AsciiArtAssets.Colors.Gold);
+            canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Actions), AsciiArtAssets.Colors.Gold);
             y += 2;
             
-            var startButton = interactionManager.CreateButton(x + 4, y, 35, "1", "Press any button to Start Adventure");
+            var startButton = interactionManager.CreateButton(x + 4, y, 35, "1", MenuOptionFormatter.Format(1, UIConstants.Messages.PressAnyButton));
             interactionManager.AddClickableElement(startButton);
             
-            canvas.AddMenuOption(x + 4, y, 1, "Press any button to Start Adventure", AsciiArtAssets.Colors.White, startButton.IsHovered);
+            canvas.AddMenuOption(x + 4, y, 1, UIConstants.Messages.PressAnyButton, AsciiArtAssets.Colors.White, startButton.IsHovered);
         }
         
         /// <summary>

@@ -42,24 +42,19 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Display the inventory menu
+        /// Display the inventory menu.
+        /// 
+        /// NOTE: This method now delegates to Game.ShowInventory() via the
+        /// ShowInventoryEvent, which uses GameScreenCoordinator for rendering.
+        /// This keeps all screen rendering logic centralized.
         /// </summary>
         public void ShowInventory()
         {
-            if (customUIManager is CanvasUICoordinator canvasUI && stateManager.CurrentPlayer != null)
-            {
-                // Clear dungeon/room context when transitioning to inventory
-                canvasUI.ClearCurrentEnemy();
-                canvasUI.SetDungeonName(null);
-                canvasUI.SetRoomName(null);
-                
-                // Clear display buffer to ensure clean transition from other screens (e.g., dungeon completion)
-                canvasUI.ClearDisplayBuffer();
-                
-                canvasUI.SetCharacter(stateManager.CurrentPlayer);
-                canvasUI.RenderInventory(stateManager.CurrentPlayer, stateManager.CurrentInventory);
-            }
-            stateManager.TransitionToState(GameState.Inventory);
+            // Trigger the event, which will call Game.ShowInventory(),
+            // which delegates to GameScreenCoordinator.ShowInventory().
+            // This ensures all inventory screen rendering goes through
+            // the centralized coordinator.
+            ShowInventoryEvent?.Invoke();
         }
 
         /// <summary>

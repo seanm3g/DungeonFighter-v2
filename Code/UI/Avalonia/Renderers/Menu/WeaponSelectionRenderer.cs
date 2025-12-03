@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using RPGGame;
 using RPGGame.UI;
+using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Managers;
 
 namespace RPGGame.UI.Avalonia.Renderers.Menu
@@ -41,7 +42,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             int maxLength = 0;
             foreach (var weapon in weapons)
             {
-                string displayText = $"[{weapons.IndexOf(weapon) + 1}] {weapon.name}";
+                string displayText = MenuOptionFormatter.Format(weapons.IndexOf(weapon) + 1, weapon.name);
                 if (displayText.Length > maxLength)
                     maxLength = displayText.Length;
             }
@@ -50,7 +51,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             foreach (var weapon in weapons)
             {
                 int weaponNum = weapons.IndexOf(weapon) + 1;
-                string displayText = $"[{weaponNum}] {weapon.name}";
+                string displayText = MenuOptionFormatter.Format(weaponNum, weapon.name);
                 
                 // Center each weapon option
                 int optionX = MenuLayoutCalculator.CalculateCenteredTextX(x, width, maxLength);
@@ -82,7 +83,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             
             // Instructions at bottom
             centerY += 2;
-            string bottomInstructions = "Press the number key or click to select your weapon";
+            string bottomInstructions = UIConstants.Messages.PressNumberOrClick;
             int bottomX = MenuLayoutCalculator.CalculateCenteredTextX(x, width, bottomInstructions.Length);
             canvas.AddText(bottomX, centerY, bottomInstructions, AsciiArtAssets.Colors.White);
             

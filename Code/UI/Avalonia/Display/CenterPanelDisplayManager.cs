@@ -10,6 +10,7 @@ using RPGGame.UI.Avalonia.Display.Helpers;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.UI.ColorSystem;
+using RPGGame.Utils;
 
 namespace RPGGame.UI.Avalonia.Display
 {
@@ -224,11 +225,26 @@ namespace RPGGame.UI.Avalonia.Display
         }
         
         /// <summary>
+        /// Clears the display buffer without triggering a render
+        /// Used when switching to menu screens that handle their own rendering
+        /// </summary>
+        public void ClearWithoutRender()
+        {
+            buffer.Clear();
+            renderStateManager.Reset();
+            // Don't trigger a render - let the menu screen handle its own rendering
+        }
+        
+        /// <summary>
         /// Scrolls the display up
         /// </summary>
         public void ScrollUp(int lines = 3)
         {
-            buffer.ScrollUp(lines);
+            // Calculate max scroll offset to ensure we don't scroll beyond valid range
+            int maxOffset = CalculateMaxScrollOffset();
+            ScrollDebugLogger.Log($"CenterPanelDisplayManager.ScrollUp: lines={lines}, maxOffset={maxOffset}, currentOffset={buffer.ManualScrollOffset}, buffer.Count={buffer.Count}");
+            buffer.ScrollUp(lines, maxOffset);
+            ScrollDebugLogger.Log($"CenterPanelDisplayManager.ScrollUp: newOffset={buffer.ManualScrollOffset}, isManualScrolling={buffer.IsManualScrolling}");
             timing.ForceRender(new System.Action(PerformRender));
         }
         
@@ -239,7 +255,9 @@ namespace RPGGame.UI.Avalonia.Display
         {
             // Calculate max scroll offset based on current content
             int maxOffset = CalculateMaxScrollOffset();
+            ScrollDebugLogger.Log($"CenterPanelDisplayManager.ScrollDown: lines={lines}, maxOffset={maxOffset}, currentOffset={buffer.ManualScrollOffset}, buffer.Count={buffer.Count}");
             buffer.ScrollDown(lines, maxOffset);
+            ScrollDebugLogger.Log($"CenterPanelDisplayManager.ScrollDown: newOffset={buffer.ManualScrollOffset}, isManualScrolling={buffer.IsManualScrolling}");
             timing.ForceRender(new System.Action(PerformRender));
         }
         
@@ -261,61 +279,114 @@ namespace RPGGame.UI.Avalonia.Display
         }
         
         /// <summary>
+        /// Forces a full layout render by resetting render state
+        /// This ensures the layout is fully rendered even if state manager thinks nothing changed
+        /// </summary>
+        public void ForceFullLayoutRender()
+        {
+            renderStateManager.Reset();
+            timing.ForceRender(new System.Action(PerformRender));
+        }
+        
+        /// <summary>
+        /// Cancels any pending renders
+        /// Used when switching to menu screens that handle their own rendering
+        /// </summary>
+        public void CancelPendingRenders()
+        {
+            timing.CancelPending();
+        }
+        
+        // Render guard to prevent concurrent renders
+        private bool isRendering = false;
+        private readonly object renderLock = new object();
+        
+        /// <summary>
         /// Performs the actual rendering operation
         /// Uses RenderStateManager to determine what needs rendering
         /// </summary>
         private void PerformRender()
         {
+            // Prevent concurrent renders
+            lock (renderLock)
+            {
+                if (isRendering)
+                {
+                    // Already rendering, skip this call
+                    return;
+                }
+                isRendering = true;
+            }
+            
             var state = renderStateManager.GetRenderState(buffer, contextManager);
             
             if (!state.NeedsRender)
             {
-                return; // Nothing to render
+                // Nothing to render, release lock
+                lock (renderLock)
+                {
+                    isRendering = false;
+                }
+                return;
             }
             
             Dispatcher.UIThread.Post(() =>
             {
-                // Get center content area dimensions from layout manager
-                var (contentX, contentY, contentWidth, contentHeight) = layoutManager.GetCenterContentArea();
-                
-                // Determine if we should clear canvas
-                bool shouldClearCanvas = renderStateManager.ShouldClearCanvas(state, currentMode);
-                
-                if (shouldClearCanvas || state.NeedsFullLayout)
+                try
                 {
-                    // Full layout render
-                    string title = DetermineTitle(state.CurrentCharacter, state.CurrentEnemy);
-                    layoutManager.RenderLayout(
-                        state.CurrentCharacter,
-                        (x, y, w, h) => renderer.Render(buffer, x, y, w, h),
-                        title,
-                        state.CurrentEnemy,
-                        state.DungeonName,
-                        state.RoomName,
-                        clearCanvas: shouldClearCanvas
-                    );
+                    // Get center content area dimensions from layout manager
+                    var (contentX, contentY, contentWidth, contentHeight) = layoutManager.GetCenterContentArea();
+                    
+                    // Determine if we should clear canvas
+                    bool shouldClearCanvas = renderStateManager.ShouldClearCanvas(state, currentMode);
+                    
+                    if (shouldClearCanvas || state.NeedsFullLayout)
+                    {
+                        // Full layout render
+                        string title = DetermineTitle(state.CurrentCharacter, state.CurrentEnemy);
+                        layoutManager.RenderLayout(
+                            state.CurrentCharacter,
+                            (x, y, w, h) => renderer.Render(buffer, x, y, w, h),
+                            title,
+                            state.CurrentEnemy,
+                            state.DungeonName,
+                            state.RoomName,
+                            clearCanvas: shouldClearCanvas
+                        );
+                    }
+                    else
+                    {
+                        // Just update center content
+                        renderer.Render(buffer, contentX, contentY, contentWidth, contentHeight);
+                        canvas.Refresh();
+                    }
+                    
+                    // Record that render was performed
+                    renderStateManager.RecordRender(buffer, contextManager);
                 }
-                else
+                finally
                 {
-                    // Just update center content
-                    renderer.Render(buffer, contentX, contentY, contentWidth, contentHeight);
-                    canvas.Refresh();
+                    // Release render lock when done (on UI thread)
+                    lock (renderLock)
+                    {
+                        isRendering = false;
+                    }
                 }
-                
-                // Record that render was performed
-                renderStateManager.RecordRender(buffer, contextManager);
             }, DispatcherPriority.Background);
         }
         
         /// <summary>
         /// Calculates the maximum scroll offset based on current buffer content
+        /// Uses the same calculation logic as DisplayRenderer for accuracy
         /// </summary>
         private int CalculateMaxScrollOffset()
         {
-            // This is a simplified calculation - in practice, we'd need to calculate
-            // the total height of all wrapped lines. For now, return a reasonable estimate.
-            // The actual calculation happens in DisplayRenderer.Render()
-            return Math.Max(0, buffer.Count * 2 - 50); // Rough estimate
+            // Get center content area dimensions from layout manager
+            var (contentX, contentY, contentWidth, contentHeight) = layoutManager.GetCenterContentArea();
+            
+            // Use DisplayRenderer's calculation method for accurate results
+            // This matches the actual rendering logic
+            return renderer.CalculateMaxScrollOffset(buffer, contentWidth, contentHeight);
         }
         
         /// <summary>

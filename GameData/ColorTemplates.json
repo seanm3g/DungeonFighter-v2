@@ -648,8 +648,8 @@
     {
       "name": "forest",
       "shaderType": "sequence",
-      "colors": ["g", "G", "w"],
-      "description": "Forest environment - Dark green/green/brown (3 shades)"
+      "colors": ["g", "G", "Y", "w"],
+      "description": "Ancient Forest - Dark green/green/golden/brown (ancient mystical forest)"
     },
     {
       "name": "lava",
@@ -660,20 +660,20 @@
     {
       "name": "crypt",
       "shaderType": "sequence",
-      "colors": ["K", "k", "y", "K"],
-      "description": "Crypt environment - Dark/very dark/grey/dark (4 shades)"
+      "colors": ["K", "k", "m", "K"],
+      "description": "Haunted Crypt - Dark/very dark/purple/dark (supernatural undead)"
     },
     {
       "name": "crystal",
       "shaderType": "sequence",
-      "colors": ["m", "M", "C", "Y"],
-      "description": "Crystal environment - Dark magenta/magenta/cyan/white (4 shades)"
+      "colors": ["m", "M", "C", "Y", "C", "M"],
+      "description": "Crystal Caverns - Dark magenta/magenta/cyan/white/cyan/magenta (prismatic crystal shimmer)"
     },
     {
       "name": "temple",
       "shaderType": "sequence",
-      "colors": ["W", "Y", "w", "Y"],
-      "description": "Temple environment - Gold/white/brown/white (4 shades)"
+      "colors": ["W", "y", "w", "Y"],
+      "description": "Abandoned Temple - Gold/grey/brown/white (decayed sacred ruins)"
     },
     {
       "name": "ice",
@@ -684,26 +684,26 @@
     {
       "name": "shadow",
       "shaderType": "sequence",
-      "colors": ["K", "k", "m", "k"],
-      "description": "Shadow environment - Dark/very dark/dark magenta/very dark (4 shades)"
+      "colors": ["K", "m", "M", "k"],
+      "description": "Shadow Realm - Dark/purple/magenta/very dark (mystical shadow realm)"
     },
     {
       "name": "steampunk",
       "shaderType": "sequence",
-      "colors": ["w", "o", "K", "y"],
-      "description": "Steampunk environment - Brown/dark orange/dark/grey (4 shades)"
+      "colors": ["w", "o", "R", "y"],
+      "description": "Mechanical Foundry - Brown/dark orange/red/grey (fiery mechanical forge)"
     },
     {
       "name": "swamp",
       "shaderType": "sequence",
-      "colors": ["g", "w", "k", "g"],
-      "description": "Swamp environment - Dark green/brown/dark/dark green (4 shades)"
+      "colors": ["g", "G", "Y", "g"],
+      "description": "Poisoned Swamp - Dark green/bright green/yellow/dark green (toxic poisonous swamp)"
     },
     {
       "name": "astral",
       "shaderType": "sequence",
-      "colors": ["M", "B", "Y", "C"],
-      "description": "Astral environment - Magenta/blue/white/cyan (4 shades)"
+      "colors": ["Y", "M", "B", "W"],
+      "description": "Celestial Observatory - White/magenta/blue/gold (starry celestial cosmos)"
     },
     {
       "name": "underground",
@@ -714,86 +714,86 @@
     {
       "name": "storm",
       "shaderType": "sequence",
-      "colors": ["C", "Y", "B", "Y"],
-      "description": "Storm environment - Cyan/white/blue/white (4 shades)"
+      "colors": ["C", "Y", "B", "C"],
+      "description": "Stormy Cliffs - Cyan/white/blue/cyan (electric stormy weather)"
     },
     {
       "name": "nature",
       "shaderType": "sequence",
-      "colors": ["g", "G", "Y", "G"],
-      "description": "Nature environment - Dark green/green/white/green (4 shades)"
+      "colors": ["g", "G", "Y", "M"],
+      "description": "Mystical Garden - Dark green/green/white/magenta (mystical enchanted nature)"
     },
     {
       "name": "arcane",
       "shaderType": "sequence",
-      "colors": ["m", "M", "C", "B"],
-      "description": "Arcane environment - Dark magenta/magenta/cyan/blue (4 shades)"
+      "colors": ["m", "M", "Y", "B"],
+      "description": "Ancient Library - Dark magenta/magenta/white/blue (ancient arcane knowledge)"
     },
     {
       "name": "desert",
       "shaderType": "sequence",
-      "colors": ["W", "O", "Y", "w"],
-      "description": "Desert environment - Gold/orange/white/brown (4 shades)"
+      "colors": ["W", "O", "C", "Y", "w"],
+      "description": "Desert Oasis - Gold/orange/cyan/white/brown (desert heat with oasis water)"
     },
     {
       "name": "volcano",
       "shaderType": "sequence",
-      "colors": ["R", "O", "K", "R"],
-      "description": "Volcano environment - Red/orange/dark/red (4 shades)"
+      "colors": ["R", "O", "Y", "O", "R"],
+      "description": "Volcanic Crater - Red/orange/white/orange/red (intense volcanic heat)"
     },
     {
       "name": "ruins",
       "shaderType": "sequence",
-      "colors": ["K", "w", "y", "k"],
-      "description": "Ruins environment - Dark/brown/grey/very dark (4 shades)"
+      "colors": ["K", "w", "y", "Y", "y"],
+      "description": "Mystic Ruins - Dark/brown/grey/white/grey (ancient mystical ruins)"
     },
     {
       "name": "ocean",
       "shaderType": "sequence",
-      "colors": ["b", "B", "C", "B"],
-      "description": "Ocean environment - Dark blue/blue/cyan/blue (4 shades)"
+      "colors": ["b", "B", "C", "K"],
+      "description": "Ocean Depths - Dark blue/blue/cyan/dark (deep abyssal depths)"
     },
     {
       "name": "mountain",
       "shaderType": "sequence",
-      "colors": ["K", "y", "Y", "y"],
-      "description": "Mountain environment - Dark/grey/white/grey (4 shades)"
+      "colors": ["K", "y", "Y", "C"],
+      "description": "Mountain Summit - Dark/grey/white/cyan (snowy peak with sky)"
     },
     {
       "name": "temporal",
       "shaderType": "sequence",
-      "colors": ["C", "M", "Y", "B"],
-      "description": "Temporal environment - Cyan/magenta/white/blue (4 shades)"
+      "colors": ["C", "M", "Y", "M"],
+      "description": "Time Distortion - Cyan/magenta/white/magenta (time-bending temporal effects)"
     },
     {
       "name": "dream",
       "shaderType": "sequence",
-      "colors": ["M", "C", "Y", "m"],
-      "description": "Dream environment - Magenta/cyan/white/dark magenta (4 shades)"
+      "colors": ["M", "C", "Y", "B"],
+      "description": "Dreamscape - Magenta/cyan/white/blue (surreal dreamlike realm)"
     },
     {
       "name": "void",
       "shaderType": "sequence",
-      "colors": ["k", "K", "m", "K"],
-      "description": "Void environment - Very dark/dark/dark magenta/dark (4 shades)"
+      "colors": ["k", "K", "m", "k"],
+      "description": "Void Nexus - Very dark/dark/dark magenta/very dark (absolute emptiness)"
     },
     {
       "name": "dimensional",
       "shaderType": "sequence",
-      "colors": ["M", "C", "B", "Y"],
-      "description": "Dimensional environment - Magenta/cyan/blue/white (4 shades)"
+      "colors": ["M", "C", "B", "R"],
+      "description": "Reality Rift - Magenta/cyan/blue/red (reality-bending dimensional chaos)"
     },
     {
       "name": "divine",
       "shaderType": "sequence",
-      "colors": ["W", "Y", "M", "Y"],
-      "description": "Divine environment - Gold/white/magenta/white (4 shades)"
+      "colors": ["W", "Y", "W", "Y"],
+      "description": "Final Sanctum - Gold/white/gold/white (divine holy radiance)"
     },
     {
       "name": "generic",
       "shaderType": "sequence",
-      "colors": ["y", "Y"],
-      "description": "Generic environment - neutral grey to white"
+      "colors": ["w", "o", "y", "w"],
+      "description": "Bandit Hideout - Brown/dark orange/grey/brown (rustic earthy hideout)"
     },
     {
       "name": "title_dungeon",

@@ -3,6 +3,7 @@ using RPGGame;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.UI.Avalonia.Coordinators
 {
@@ -115,12 +116,22 @@ namespace RPGGame.UI.Avalonia.Coordinators
         /// <summary>
         /// Shows press key message without clearing the existing display
         /// (preserves the title screen or other content)
+        /// Applies the same -6 left shift as the title screen for consistency
         /// </summary>
         public void ShowPressKeyMessage()
         {
             // Don't clear - just add the message to the bottom of the existing display
             // This preserves the title screen that was just rendered
-            canvas.AddCenteredText(50, "Press any key to continue...", AsciiArtAssets.Colors.Gray);
+            const int globalLeftShift = -6; // Match the title screen left shift
+            string message = "Press any key to continue...";
+            
+            // Calculate centered position and apply left shift
+            var segments = ColoredTextParser.Parse(message);
+            int displayLength = ColoredTextRenderer.GetDisplayLength(segments);
+            int centerX = Math.Max(0, canvas.CenterX - (displayLength / 2));
+            centerX += globalLeftShift;
+            
+            canvas.AddText(centerX, 50, message, AsciiArtAssets.Colors.Gray);
             canvas.Refresh();
         }
         

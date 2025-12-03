@@ -69,9 +69,11 @@ namespace RPGGame.UI.TitleScreen
                 // Frame structure: 15 top padding + 2 blank + 6 DUNGEON + 1 blank + 1 decorator + 1 blank + 6 FIGHTER + ...
                 const int dungeonStartIndex = 17; // 15 padding + 2 blank lines
                 const int dungeonEndIndex = 22;    // dungeonStartIndex + 6 lines - 1
-                const int fighterStartIndex = 26; // dungeonEndIndex + 1 blank + 1 decorator + 1 blank + 1
+                // const int decoratorIndex = 24; // dungeonEndIndex + 1 blank + 1 (reserved for future use)
+                const int fighterStartIndex = 26; // decoratorIndex + 1 blank + 1
                 const int fighterEndIndex = 31;   // fighterStartIndex + 6 lines - 1
-                const int titleOffset = 4; // Offset to shift title right
+                const int titleOffset = 2; // Offset to shift title right
+                const int globalLeftShift = -6; // Shift all lines 6 spaces to the left
 
                 for (int i = 0; i < frame.Lines.Length; i++)
                 {
@@ -92,6 +94,9 @@ namespace RPGGame.UI.TitleScreen
 
                         // Center each line horizontally based on its visible length
                         int centerX = Math.Max(0, _canvasUI.CenterX - (visibleLength / 2));
+                        
+                        // Apply global left shift to all lines
+                        centerX += globalLeftShift;
                         
                         // Add offset for title lines to shift them right
                         if (isTitleLine)

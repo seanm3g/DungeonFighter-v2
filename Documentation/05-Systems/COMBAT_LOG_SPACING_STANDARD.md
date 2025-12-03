@@ -84,7 +84,7 @@ List<string> ValidateSpacing(string text)
 var builder = new ColoredTextBuilder();
 builder.Add("hits", Colors.White);
 builder.Add("target", ColorPalette.Enemy);
-builder.Add("for", Colors.White);
+builder.Add("for ", Colors.White);
 builder.Add("42", ColorPalette.Damage);
 builder.Add("damage", Colors.White);
 var result = builder.Build(); // Automatically adds spaces between segments
@@ -108,7 +108,7 @@ var builder = new ColoredTextBuilder();
 builder.Add(attacker.Name, ColorPalette.Player);
 builder.Add("hits", Colors.White);
 builder.Add(target.Name, ColorPalette.Enemy);
-builder.Add("for", Colors.White);
+builder.Add("for ", Colors.White);
 builder.Add(damage.ToString(), ColorPalette.Damage);
 builder.Add("damage", Colors.White);
 var coloredText = builder.Build(); // Spacing handled automatically

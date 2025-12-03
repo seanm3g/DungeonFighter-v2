@@ -218,10 +218,16 @@ namespace RPGGame
         /// </summary>
         public void AddCombatEvent(string message)
         {
+            // Allow empty strings (for blank lines) but filter out null or whitespace-only strings
+            if (message == null)
+                return;
+            
+            // Add to display buffer (allows empty strings for blank lines)
+            displayBuffer.AddCombatEvent(message);
+            
+            // Only add to narrative manager and UI if not empty (narrative doesn't need blank lines)
             if (!string.IsNullOrWhiteSpace(message))
             {
-                displayBuffer.AddCombatEvent(message);
-                
                 // Add to narrative manager's dungeon log
                 narrativeManager.LogDungeonEvent(message);
                 
@@ -230,10 +236,15 @@ namespace RPGGame
                 {
                     uiManager.WriteLine(message, UIMessageType.System);
                 }
-                
-                // Notify subscribers that a combat event was added
-                CombatEventAdded?.Invoke();
             }
+            else if (message == "" && uiManager != null)
+            {
+                // Empty string - add blank line to UI for spacing
+                uiManager.WriteLine("", UIMessageType.System);
+            }
+            
+            // Notify subscribers that a combat event was added (even for blank lines)
+            CombatEventAdded?.Invoke();
         }
 
         /// <summary>

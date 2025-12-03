@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Media;
 using RPGGame.UI.ColorSystem;
+using static RPGGame.Combat.Formatting.DamageFormatter;
 
 namespace RPGGame
 {
@@ -136,9 +137,7 @@ namespace RPGGame
                 // Multiple targets affected - format as area of effect with individual results
                 var mainBuilder = new ColoredTextBuilder();
                 mainBuilder.Add(source.Name, ColorPalette.Green);
-                mainBuilder.Add("uses", Colors.White);
-                mainBuilder.AddSpace(); // Explicit space between "uses" and action name
-                mainBuilder.Add(action.Name, ColorPalette.Success);
+                AddUsesAction(mainBuilder, action.Name, ColorPalette.Success);
                 mainBuilder.Add("!", Colors.White);
                 var result = ColoredTextRenderer.RenderAsMarkup(mainBuilder.Build());
                 
@@ -229,9 +228,7 @@ namespace RPGGame
             // Build main action line - just "uses Ancient Trap!" without target
             var mainBuilder = new ColoredTextBuilder();
             mainBuilder.Add(source.Name, ColorPalette.Green);
-            mainBuilder.Add("uses", Colors.White);
-            mainBuilder.AddSpace(); // Explicit space between "uses" and action name
-            mainBuilder.Add(action.Name, ColorPalette.Success);
+            AddUsesAction(mainBuilder, action.Name, ColorPalette.Success);
             mainBuilder.Add("!", Colors.White);
             string mainLine = ColoredTextRenderer.RenderAsMarkup(mainBuilder.Build());
             
@@ -281,12 +278,7 @@ namespace RPGGame
             
             if (action.Type != ActionType.Attack)
             {
-                effectBuilder.AddSpace(); // Explicit space between effect name and "for"
-                effectBuilder.Add("for", Colors.White);
-                effectBuilder.AddSpace(); // Explicit space between "for" and duration
-                effectBuilder.Add(duration.ToString(), Colors.White);
-                effectBuilder.AddSpace(); // Explicit space between duration and "turns"
-                effectBuilder.Add("turns", Colors.White);
+                AddForAmountUnit(effectBuilder, duration.ToString(), ColorPalette.White, "turns", ColorPalette.White);
                 string effectLine = ColoredTextRenderer.RenderAsMarkup(effectBuilder.Build());
                 return mainLine + "\n" + effectLine;
             }
@@ -357,9 +349,7 @@ namespace RPGGame
                 builder.Add("EFFECT", ColorPalette.Warning);
             }
             
-            builder.Add("for", Colors.White);
-            builder.Add(duration.ToString(), Colors.White);
-            builder.Add("turns", Colors.White);
+            AddForAmountUnit(builder, duration.ToString(), ColorPalette.White, "turns", ColorPalette.White);
             
             return builder.Build();
         }

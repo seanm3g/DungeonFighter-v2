@@ -76,17 +76,28 @@ namespace RPGGame.UI.ColorSystem
                 // Ensure space after segment (unless it's the last segment, ends with punctuation/newline, or next starts with punctuation/newline)
                 // This ensures each item has a space after it leading to the next item
                 // BUT: skip spacing if all segments form a single word (prevents spacing in multi-color templates)
-                if (i < segmentList.Count - 1 && !isSingleWord)
+                // IMPORTANT: Don't add space if current segment IS whitespace or already ends with whitespace
+                bool currentIsWhitespace = segment.Text.Trim().Length == 0 && segment.Text.Length > 0;
+                bool currentEndsWithSpace = segment.Text.Length > 0 && char.IsWhiteSpace(segment.Text[segment.Text.Length - 1]);
+                
+                if (i < segmentList.Count - 1 && !isSingleWord && !currentIsWhitespace && !currentEndsWithSpace)
                 {
                     var nextSegment = segmentList[i + 1];
                     if (!string.IsNullOrEmpty(nextSegment.Text))
                     {
-                        // Use centralized spacing manager with word boundary detection for multi-color templates
-                        bool needsSpace = CombatLogSpacingManager.ShouldAddSpaceBetween(segment.Text, nextSegment.Text, checkWordBoundary: true);
-                        if (needsSpace)
+                        // Also check if next segment starts with whitespace
+                        bool nextStartsWithSpace = char.IsWhiteSpace(nextSegment.Text[0]);
+                        
+                        // Only add space if neither segment has whitespace at the boundary
+                        if (!nextStartsWithSpace)
                         {
-                            // Add space as plain text (white)
-                            markup.Append(CombatLogSpacingManager.SingleSpace);
+                            // Use centralized spacing manager with word boundary detection for multi-color templates
+                            bool needsSpace = CombatLogSpacingManager.ShouldAddSpaceBetween(segment.Text, nextSegment.Text, checkWordBoundary: true);
+                            if (needsSpace)
+                            {
+                                // Add space as plain text (white)
+                                markup.Append(CombatLogSpacingManager.SingleSpace);
+                            }
                         }
                     }
                 }

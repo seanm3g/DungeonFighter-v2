@@ -21,6 +21,7 @@ namespace RPGGame.UI.Avalonia.Display
         private int manualScrollOffset = 0;
         private bool isManualScrolling = false;
         private int lastBufferCountWhenScrolling = 0;
+        private bool isStuckAtTop = false; // Track if user scrolled to top and wants to stay there
         
         public DisplayBuffer(int maxLines = 100, int maxLineWidth = 152)
         {
@@ -92,6 +93,7 @@ namespace RPGGame.UI.Avalonia.Display
             }
             
             bool wasAtBottom = !isManualScrolling || (messages.Count == lastBufferCountWhenScrolling);
+            bool wasAtTop = isManualScrolling && manualScrollOffset == 0 && !wasAtBottom;
             
             messages.Add(new List<ColoredText>(segments));
             
@@ -101,11 +103,29 @@ namespace RPGGame.UI.Avalonia.Display
                 messages.RemoveAt(0);
             }
             
-            // If new text was added and user was at the bottom (or not manually scrolling), auto-scroll to bottom
-            if (wasAtBottom)
+            // Preserve scroll position based on where user was:
+            // - If at top, stay at top (offset = 0)
+            // - If at bottom, stay at bottom (auto-scroll)
+            // - If in middle, keep current offset
+            if (wasAtTop || isStuckAtTop)
             {
+                // User is at top - keep them at top
+                isManualScrolling = true;
+                manualScrollOffset = 0;
+                isStuckAtTop = true;
+                lastBufferCountWhenScrolling = messages.Count;
+            }
+            else if (wasAtBottom)
+            {
+                // User is at bottom - keep auto-scroll
                 isManualScrolling = false;
                 manualScrollOffset = 0;
+                isStuckAtTop = false;
+                lastBufferCountWhenScrolling = messages.Count;
+            }
+            else
+            {
+                // User is in middle - keep current offset (don't change scroll state)
                 lastBufferCountWhenScrolling = messages.Count;
             }
         }
@@ -134,6 +154,7 @@ namespace RPGGame.UI.Avalonia.Display
             messages.Add(new List<ColoredText>());
             
             bool wasAtBottom = !isManualScrolling || (messages.Count == lastBufferCountWhenScrolling);
+            bool wasAtTop = isManualScrolling && manualScrollOffset == 0 && !wasAtBottom;
             
             // Keep only the last maxLines
             if (messages.Count > maxLines)
@@ -141,11 +162,29 @@ namespace RPGGame.UI.Avalonia.Display
                 messages.RemoveAt(0);
             }
             
-            // If new text was added and user was at the bottom (or not manually scrolling), auto-scroll to bottom
-            if (wasAtBottom)
+            // Preserve scroll position based on where user was:
+            // - If at top, stay at top (offset = 0)
+            // - If at bottom, stay at bottom (auto-scroll)
+            // - If in middle, keep current offset
+            if (wasAtTop || isStuckAtTop)
             {
+                // User is at top - keep them at top
+                isManualScrolling = true;
+                manualScrollOffset = 0;
+                isStuckAtTop = true;
+                lastBufferCountWhenScrolling = messages.Count;
+            }
+            else if (wasAtBottom)
+            {
+                // User is at bottom - keep auto-scroll
                 isManualScrolling = false;
                 manualScrollOffset = 0;
+                isStuckAtTop = false;
+                lastBufferCountWhenScrolling = messages.Count;
+            }
+            else
+            {
+                // User is in middle - keep current offset (don't change scroll state)
                 lastBufferCountWhenScrolling = messages.Count;
             }
         }
@@ -183,8 +222,9 @@ namespace RPGGame.UI.Avalonia.Display
             var segmentsListToAdd = segmentsList.ToList();
             if (segmentsListToAdd.Count == 0) return;
             
-            // Check if we were at the bottom before adding
+            // Check if we were at the bottom or top before adding
             bool wasAtBottom = !isManualScrolling || (messages.Count == lastBufferCountWhenScrolling);
+            bool wasAtTop = isManualScrolling && manualScrollOffset == 0 && !wasAtBottom;
             
             // Process all messages in batch
             foreach (var segments in segmentsListToAdd)
@@ -223,11 +263,29 @@ namespace RPGGame.UI.Avalonia.Display
                 messages.RemoveRange(0, removeCount);
             }
             
-            // If new text was added and user was at the bottom (or not manually scrolling), auto-scroll to bottom
-            if (wasAtBottom)
+            // Preserve scroll position based on where user was:
+            // - If at top, stay at top (offset = 0)
+            // - If at bottom, stay at bottom (auto-scroll)
+            // - If in middle, keep current offset
+            if (wasAtTop || isStuckAtTop)
             {
+                // User is at top - keep them at top
+                isManualScrolling = true;
+                manualScrollOffset = 0;
+                isStuckAtTop = true;
+                lastBufferCountWhenScrolling = messages.Count;
+            }
+            else if (wasAtBottom)
+            {
+                // User is at bottom - keep auto-scroll
                 isManualScrolling = false;
                 manualScrollOffset = 0;
+                isStuckAtTop = false;
+                lastBufferCountWhenScrolling = messages.Count;
+            }
+            else
+            {
+                // User is in middle - keep current offset (don't change scroll state)
                 lastBufferCountWhenScrolling = messages.Count;
             }
         }
@@ -259,6 +317,7 @@ namespace RPGGame.UI.Avalonia.Display
             messages.Clear();
             isManualScrolling = false;
             manualScrollOffset = 0;
+            isStuckAtTop = false;
             lastBufferCountWhenScrolling = 0;
         }
         
@@ -285,11 +344,41 @@ namespace RPGGame.UI.Avalonia.Display
         /// <summary>
         /// Scrolls up (shows older content)
         /// </summary>
-        public void ScrollUp(int lines = 3)
+        public void ScrollUp(int lines = 3, int maxScrollOffset = 0)
         {
-            isManualScrolling = true;
             lastBufferCountWhenScrolling = messages.Count;
-            manualScrollOffset = Math.Max(0, manualScrollOffset - lines);
+            
+            // If we're transitioning from auto-scroll mode (not manually scrolling yet), 
+            // start from the bottom (maxOffset) and immediately scroll up by lines
+            // This only happens when first starting to scroll up from auto-scroll
+            if (!isManualScrolling && maxScrollOffset > 0)
+            {
+                // Transitioning from auto-scroll - start from bottom and scroll up
+                isManualScrolling = true;
+                manualScrollOffset = Math.Max(0, maxScrollOffset - lines);
+                isStuckAtTop = false;
+            }
+            else
+            {
+                // Already in manual scroll mode - just scroll up
+                isManualScrolling = true;
+                
+                // Calculate new offset
+                int newOffset = manualScrollOffset - lines;
+                
+                // Stop at top (0) - don't wrap around
+                if (newOffset < 0)
+                {
+                    manualScrollOffset = 0;
+                    isStuckAtTop = true; // User scrolled to top, mark as stuck
+                }
+                else
+                {
+                    // Clamp to valid range: 0 to maxScrollOffset
+                    manualScrollOffset = Math.Max(0, Math.Min(maxScrollOffset, newOffset));
+                    isStuckAtTop = false; // Not at top anymore
+                }
+            }
         }
         
         /// <summary>
@@ -297,15 +386,32 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public void ScrollDown(int lines = 3, int maxScrollOffset = 0)
         {
-            isManualScrolling = true;
             lastBufferCountWhenScrolling = messages.Count;
-            manualScrollOffset = Math.Min(maxScrollOffset, manualScrollOffset + lines);
+            isStuckAtTop = false; // Clear top-stuck flag when user manually scrolls
             
-            // If we've scrolled to the bottom, switch back to auto-scroll mode
-            if (manualScrollOffset >= maxScrollOffset)
+            // If we're at top and not in manual scroll mode yet, start manual scrolling
+            if (!isManualScrolling)
             {
+                // Already at top in auto-scroll mode - can't scroll down from here
+                // Stay in auto-scroll mode
+                return;
+            }
+            
+            // Calculate new offset
+            int newOffset = manualScrollOffset + lines;
+            
+            // Stop at bottom (maxScrollOffset) - don't wrap around
+            if (newOffset >= maxScrollOffset)
+            {
+                // Reached bottom - switch back to auto-scroll mode
                 isManualScrolling = false;
                 manualScrollOffset = 0;
+                isStuckAtTop = false; // At bottom, not top
+            }
+            else
+            {
+                // Clamp to valid range: 0 to maxScrollOffset
+                manualScrollOffset = Math.Max(0, Math.Min(maxScrollOffset, newOffset));
             }
         }
         
@@ -316,23 +422,40 @@ namespace RPGGame.UI.Avalonia.Display
         {
             isManualScrolling = false;
             manualScrollOffset = 0;
+            isStuckAtTop = false;
             lastBufferCountWhenScrolling = messages.Count;
         }
         
         /// <summary>
         /// Sets the manual scroll offset (used when calculating scroll position)
+        /// Only updates if the offset is actually different to prevent unnecessary state changes
         /// </summary>
         public void SetScrollOffset(int offset, int maxOffset)
         {
+            // Only update if offset actually changed to prevent resetting scroll state
+            if (offset == manualScrollOffset && isManualScrolling)
+            {
+                return; // No change needed
+            }
+            
             if (offset >= maxOffset)
             {
-                isManualScrolling = false;
-                manualScrollOffset = 0;
+                // At or past bottom - switch to auto-scroll only if we weren't already there
+                if (isManualScrolling)
+                {
+                    isManualScrolling = false;
+                    manualScrollOffset = 0;
+                }
             }
             else
             {
-                isManualScrolling = true;
-                manualScrollOffset = Math.Max(0, Math.Min(maxOffset, offset));
+                // Clamp to valid range and maintain manual scrolling state
+                int clampedOffset = Math.Max(0, Math.Min(maxOffset, offset));
+                if (clampedOffset != manualScrollOffset)
+                {
+                    isManualScrolling = true;
+                    manualScrollOffset = clampedOffset;
+                }
             }
         }
     }

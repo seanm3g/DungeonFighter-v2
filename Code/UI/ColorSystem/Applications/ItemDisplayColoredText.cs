@@ -206,8 +206,8 @@ namespace RPGGame.UI.ColorSystem.Applications
             
             // Add rarity in brackets with rarity color
             // Manually construct to avoid automatic spacing between bracket and rarity
-            // Use TrimEnd() to ensure no trailing spaces before the closing bracket
-            var rarityText = item.Rarity?.TrimEnd() ?? "Common";
+            // Use Trim() to ensure no leading or trailing spaces before the closing bracket
+            var rarityText = (item.Rarity?.Trim() ?? "Common");
             var rarityColor = GetRarityColor(rarityText);
             result.Add(new ColoredText("[", Colors.Gray));
             result.Add(new ColoredText(rarityText, rarityColor.GetColor()));

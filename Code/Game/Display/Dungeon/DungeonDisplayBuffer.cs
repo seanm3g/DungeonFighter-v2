@@ -79,10 +79,12 @@ namespace RPGGame.Display.Dungeon
 
         /// <summary>
         /// Adds a combat event to the combat log
+        /// Allows empty strings for blank lines (spacing between sections)
         /// </summary>
         public void AddCombatEvent(string message)
         {
-            if (!string.IsNullOrWhiteSpace(message))
+            // Allow empty strings (for blank lines) but filter out null
+            if (message != null)
             {
                 combatLog.Add(message);
             }

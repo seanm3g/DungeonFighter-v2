@@ -89,6 +89,16 @@
 - [ ] Add export/import features
 - [ ] Document tuning workflow
 
+### 5. Screen Flow Coordination ✅
+**Status**: Completed (Phase 1)  
+**Description**: Centralize high-level screen transitions through a dedicated coordinator to simplify UI flow and debugging  
+**Tasks**:
+- [x] Create `GameScreenCoordinator` to manage core screen transitions (GameLoop, DungeonCompletion, Inventory)  
+- [x] Wire `Game.ShowGameLoop`, `Game.ShowDungeonCompletion`, and `Game.ShowInventory` through `GameScreenCoordinator`  
+- [x] Simplify `InventoryMenuHandler.ShowInventory()` to delegate through the coordinator  
+- [x] Document the new screen coordination pattern in `UI_RENDERER_ARCHITECTURE.md`  
+- [ ] Gradually migrate remaining display entry points (e.g., dungeon selection, death screen) to use `GameScreenCoordinator` (Future)  
+
 ---
 
 ## 📚 DOCUMENTATION TASKS

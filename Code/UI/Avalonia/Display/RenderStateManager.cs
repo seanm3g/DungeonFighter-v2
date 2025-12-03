@@ -16,6 +16,8 @@ namespace RPGGame.UI.Avalonia.Display
         private string? lastRenderedRoomName;
         private bool layoutInitialized = false;
         private int lastBufferCount = 0;
+        private int lastScrollOffset = 0;
+        private bool lastIsManualScrolling = false;
         
         /// <summary>
         /// Determines if a render is needed based on current state
@@ -37,6 +39,10 @@ namespace RPGGame.UI.Avalonia.Display
             // Check if buffer changed
             bool bufferChanged = buffer.Count != lastBufferCount;
             
+            // Check if scroll state changed (scroll offset or manual scrolling flag)
+            bool scrollChanged = buffer.ManualScrollOffset != lastScrollOffset || 
+                                 buffer.IsManualScrolling != lastIsManualScrolling;
+            
             // Determine if this is a major state change
             bool isMajorStateChange = !layoutInitialized ||
                 !ReferenceEquals(currentCharacter, lastRenderedCharacter) ||
@@ -45,7 +51,7 @@ namespace RPGGame.UI.Avalonia.Display
             
             return new RenderState
             {
-                NeedsRender = needsFullRender || bufferChanged,
+                NeedsRender = needsFullRender || bufferChanged || scrollChanged,
                 NeedsFullLayout = needsFullRender,
                 IsMajorStateChange = isMajorStateChange,
                 CurrentCharacter = currentCharacter,
@@ -66,6 +72,8 @@ namespace RPGGame.UI.Avalonia.Display
             lastRenderedDungeonName = contextManager.GetDungeonName();
             lastRenderedRoomName = contextManager.GetRoomName();
             lastBufferCount = buffer.Count;
+            lastScrollOffset = buffer.ManualScrollOffset;
+            lastIsManualScrolling = buffer.IsManualScrolling;
             layoutInitialized = true;
         }
         
@@ -76,6 +84,8 @@ namespace RPGGame.UI.Avalonia.Display
         {
             layoutInitialized = false;
             lastBufferCount = 0;
+            lastScrollOffset = 0;
+            lastIsManualScrolling = false;
             lastRenderedCharacter = null;
             lastRenderedEnemy = null;
             lastRenderedDungeonName = null;

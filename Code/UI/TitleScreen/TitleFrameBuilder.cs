@@ -264,8 +264,8 @@ namespace RPGGame.UI.TitleScreen
             var taglineSegments = TitleColorApplicator.ApplySolidColor(TitleArtAssets.Tagline, "Y");
             // Ensure spaces are preserved between segments
             var taglineWithSpaces = EnsureSpacesBetweenSegments(taglineSegments);
-            // Add 10 spaces to the right to move the tagline
-            var taglineWithIndent = PrependSpaces(taglineWithSpaces, 10);
+            // Add 6 spaces to the right to move the tagline
+            var taglineWithIndent = PrependSpaces(taglineWithSpaces, 6);
             frameList.Add(taglineWithIndent);
 
             // Final spacing

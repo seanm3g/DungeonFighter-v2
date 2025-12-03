@@ -121,25 +121,6 @@ namespace RPGGame.UI.Avalonia.Renderers
             textManager.AddToDisplayBuffer(AsciiArtAssets.UIText.Divider, UIMessageType.Combat);
             textManager.AddToDisplayBuffer("", UIMessageType.Combat);
             
-            if (character != null)
-            {
-                string healthMsg = string.Format(AsciiArtAssets.UIText.RemainingHealth, 
-                    character.CurrentHealth, character.GetEffectiveMaxHealth());
-                var healthSegments = new ColoredTextBuilder()
-                    .Add(healthMsg, ColorPalette.Gold)
-                    .Build();
-                if (textManager is CanvasTextManager canvasTextManager2)
-                {
-                    canvasTextManager2.DisplayManager.AddMessage(healthSegments, UIMessageType.Combat);
-                }
-                else
-                {
-                    textManager.AddToDisplayBuffer(healthMsg, UIMessageType.Combat);
-                }
-            }
-            
-            textManager.AddToDisplayBuffer("", UIMessageType.Combat);
-            
             // Record that room cleared was displayed
             TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.RoomCleared);
         }

@@ -1,13 +1,17 @@
 using Avalonia.Media;
 using System.Collections.Generic;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.UI.Avalonia
 {
     /// <summary>
     /// Maps dungeon themes to their thematic color palettes for UI display
+    /// Uses custom theme-specific colors while delegating fallback to ColorPalette
     /// </summary>
     public static class DungeonThemeColors
     {
+        // Theme-specific colors (custom RGB values for thematic accuracy)
+        // These are kept separate from ColorPalette as they are theme-specific
         private static readonly Dictionary<string, Color> themeColorMap = new()
         {
             // Natural themes
@@ -57,16 +61,16 @@ namespace RPGGame.UI.Avalonia
         };
 
         /// <summary>
-        /// Gets the theme color for a dungeon. Returns white if theme not found.
+        /// Gets the theme color for a dungeon. Returns ColorPalette.White if theme not found.
         /// </summary>
         public static Color GetThemeColor(string theme)
         {
             if (string.IsNullOrEmpty(theme))
-                return AsciiArtAssets.Colors.White;
+                return ColorPalette.White.GetColor();
 
             return themeColorMap.TryGetValue(theme, out Color color) 
                 ? color 
-                : AsciiArtAssets.Colors.White;
+                : ColorPalette.White.GetColor();
         }
 
         /// <summary>
@@ -89,9 +93,9 @@ namespace RPGGame.UI.Avalonia
         {
             Color baseColor = GetThemeColor(theme);
             return Color.FromRgb(
-                (byte)Math.Min(255, baseColor.R + 50),
-                (byte)Math.Min(255, baseColor.G + 50),
-                (byte)Math.Min(255, baseColor.B + 50)
+                (byte)System.Math.Min(255, baseColor.R + 50),
+                (byte)System.Math.Min(255, baseColor.G + 50),
+                (byte)System.Math.Min(255, baseColor.B + 50)
             );
         }
 

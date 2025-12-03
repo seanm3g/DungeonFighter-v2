@@ -1,8 +1,10 @@
 using Avalonia.Media;
+using Avalonia.Threading;
 using RPGGame;
 using System;
 using System.Collections.Generic;
 using RPGGame.UI.ColorSystem;
+using RPGGame.Utils;
 
 namespace RPGGame.UI.Avalonia
 {
@@ -17,26 +19,26 @@ namespace RPGGame.UI.Avalonia
         
         // Layout constants for persistent panels
         private const int SCREEN_WIDTH = 210;
-        private const int SCREEN_HEIGHT = 60;
+        private const int SCREEN_HEIGHT = 52;  // Reduced from 60 to make panels less tall
         private const int SCREEN_CENTER = SCREEN_WIDTH / 2;  // The center point for menus
         
-        // Left panel (Character Info) - 13% of width
+        // Left panel (Character Info) - wider for better visibility
         private const int LEFT_PANEL_X = 0;
         private const int LEFT_PANEL_Y = 2;
-        private const int LEFT_PANEL_WIDTH = 27;  // 13% of 210
-        private const int LEFT_PANEL_HEIGHT = 56; // 60 - 4 margins
+        private const int LEFT_PANEL_WIDTH = 30;  // Increased from 27
+        private const int LEFT_PANEL_HEIGHT = 48; // 52 - 4 margins (reduced from 56)
         
-        // Center panel (Dynamic Content) - 74% of width
-        private const int CENTER_PANEL_X = 28;     // After left panel + 1 space
+        // Center panel (Dynamic Content) - narrower to give more space to side panels
+        private const int CENTER_PANEL_X = 31;     // After left panel + 1 space
         private const int CENTER_PANEL_Y = 2;
-        private const int CENTER_PANEL_WIDTH = 154; // Middle space (wider center)
-        private const int CENTER_PANEL_HEIGHT = 56; // 60 - 4 margins
+        private const int CENTER_PANEL_WIDTH = 136; // Further reduced from 148 to prevent right panel cutoff
+        private const int CENTER_PANEL_HEIGHT = 48; // 52 - 4 margins (reduced from 56)
         
-        // Right panel (Dungeon/Enemy Info) - 13% of width
-        private const int RIGHT_PANEL_X = 183;     // 210 - 27
+        // Right panel (Dungeon/Enemy Info) - wider for better visibility, positioned after center panel
+        private const int RIGHT_PANEL_X = 168;     // After center panel (31 + 142 + 1 gap)
         private const int RIGHT_PANEL_Y = 2;
-        private const int RIGHT_PANEL_WIDTH = 27;  // Same as left panel
-        private const int RIGHT_PANEL_HEIGHT = 56; // 60 - 4 margins
+        private const int RIGHT_PANEL_WIDTH = 30;  // Increased from 27
+        private const int RIGHT_PANEL_HEIGHT = 48; // 52 - 4 margins (reduced from 56)
         
         // Top bar for title
         private const int TITLE_Y = 0;
@@ -121,12 +123,26 @@ namespace RPGGame.UI.Avalonia
             
             // Always call the content renderer for the center area
             // When clearCanvas is false, this will render from display buffer which contains all content
-            renderCenterContent?.Invoke(CENTER_PANEL_X + 1, CENTER_PANEL_Y + 1, CENTER_PANEL_WIDTH - 2, CENTER_PANEL_HEIGHT - 2);
+            int centerX = CENTER_PANEL_X + 1;
+            int centerY = CENTER_PANEL_Y + 1;
+            int centerW = CENTER_PANEL_WIDTH - 2;
+            int centerH = CENTER_PANEL_HEIGHT - 2;
+            ScrollDebugLogger.Log($"PersistentLayoutManager: About to invoke renderCenterContent with x={centerX}, y={centerY}, width={centerW}, height={centerH}");
+            renderCenterContent?.Invoke(centerX, centerY, centerW, centerH);
+            ScrollDebugLogger.Log($"PersistentLayoutManager: renderCenterContent invoked");
             
             // Render right panel (Dungeon/Enemy Info) - always update to show current enemy
             RenderRightPanel(enemy, dungeonName, roomName);
             
-            canvas.Refresh();
+            // Ensure refresh happens on UI thread and after all rendering is complete
+            if (Dispatcher.UIThread.CheckAccess())
+            {
+                canvas.Refresh();
+            }
+            else
+            {
+                Dispatcher.UIThread.Post(() => canvas.Refresh());
+            }
         }
         
         /// <summary>
@@ -141,7 +157,7 @@ namespace RPGGame.UI.Avalonia
             int x = LEFT_PANEL_X + 4;
             
             // Character name and level
-            canvas.AddText(x, y, "═══ HERO ═══", AsciiArtAssets.Colors.Gold);
+            canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Hero), AsciiArtAssets.Colors.Gold);
             y += 2;
             
             canvas.AddText(x, y, character.Name, AsciiArtAssets.Colors.White);
@@ -152,7 +168,7 @@ namespace RPGGame.UI.Avalonia
             y += 2;
             
             // Health bar
-            canvas.AddText(x, y, "══ HEALTH ══", AsciiArtAssets.Colors.Gold);
+            canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Health), AsciiArtAssets.Colors.Gold);
             y += 2;
             canvas.AddText(x, y, "HP:", AsciiArtAssets.Colors.White);
             y++;
@@ -169,7 +185,7 @@ namespace RPGGame.UI.Avalonia
             y += 3;
             
             // Stats section
-            canvas.AddText(x, y, "══ STATS ══", AsciiArtAssets.Colors.Gold);
+            canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Stats), AsciiArtAssets.Colors.Gold);
             y += 2;
             
             // Determine primary stat based on class points
@@ -190,7 +206,7 @@ namespace RPGGame.UI.Avalonia
             y += 2;
             
             // Equipment section
-            canvas.AddText(x, y, "══ GEAR ══", AsciiArtAssets.Colors.Gold);
+            canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Gear), AsciiArtAssets.Colors.Gold);
             y += 2;
             
             // Render all equipment slots with increased spacing for text wrapping
@@ -247,7 +263,7 @@ namespace RPGGame.UI.Avalonia
             int x = RIGHT_PANEL_X + 2;
             
             // Location section - always shown
-            canvas.AddText(x, y, "══ LOCATION ══", AsciiArtAssets.Colors.Gold);
+            canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Location), AsciiArtAssets.Colors.Gold);
             y += 2;
             
             // Dungeon - always shown
@@ -283,7 +299,7 @@ namespace RPGGame.UI.Avalonia
             y += 2;
             
             // Enemy section - always shown
-            canvas.AddText(x, y, "══ ENEMY ══", AsciiArtAssets.Colors.Gold);
+            canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Enemy), AsciiArtAssets.Colors.Gold);
             y += 2;
             
             if (enemy != null)

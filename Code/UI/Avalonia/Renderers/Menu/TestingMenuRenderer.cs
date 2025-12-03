@@ -46,10 +46,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             canvas.AddText(x + 2, textY, "• Data Loading, UI, Save/Load, Actions", AsciiArtAssets.Colors.White);
             textY++;
             currentLineCount++;
-            canvas.AddText(x + 2, textY, "• Color System, Performance, Integration", AsciiArtAssets.Colors.White);
+            canvas.AddText(x + 2, textY, "• Color System, Text System Accuracy", AsciiArtAssets.Colors.White);
             textY++;
             currentLineCount++;
-            canvas.AddText(x + 2, textY, "• Combat UI Fixes and System Validation", AsciiArtAssets.Colors.White);
+            canvas.AddText(x + 2, textY, "• Performance, Integration, UI Fixes", AsciiArtAssets.Colors.White);
             currentLineCount++;
             
             // Test options panel (middle section)

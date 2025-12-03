@@ -1,6 +1,8 @@
 using Avalonia.Media;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.Avalonia.Managers;
+using RPGGame.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,81 +11,49 @@ namespace RPGGame.UI.Avalonia.Renderers
 {
     /// <summary>
     /// Specialized renderer for dungeon selection screen
+    /// Uses centralized animation state for brightness mask and undulation effects
     /// </summary>
     public class DungeonSelectionRenderer
     {
         private readonly GameCanvasControl canvas;
         private readonly ColoredTextWriter textWriter;
         private readonly List<ClickableElement> clickableElements;
+        private readonly DungeonSelectionAnimationState animationState;
         
-        // Store dungeon name text segments for animation (list of segments per dungeon)
-        private readonly List<List<ColoredText>> dungeonNameTextSegments = new();
-        private List<Dungeon>? lastDungeonList = null;
-        private readonly BrightnessMask? sharedBrightnessMask;
-        private static readonly Random random = new Random();
+        // Cache template segments per dungeon (no animation state stored here)
+        private readonly Dictionary<string, List<ColoredText>> dungeonTemplateCache = new();
         
         public DungeonSelectionRenderer(GameCanvasControl canvas, ColoredTextWriter textWriter, List<ClickableElement> clickableElements)
         {
             this.canvas = canvas;
             this.textWriter = textWriter;
             this.clickableElements = clickableElements;
-            
-            // Initialize brightness mask with default values (no config file dependency)
-            // Default: enabled with intensity 8.0 and wave length 3.0
-            sharedBrightnessMask = new BrightnessMask(8.0f, 3.0f);
-        }
-        
-        /// <summary>
-        /// Updates the undulation animation for dungeon names
-        /// </summary>
-        public void UpdateUndulation()
-        {
-            foreach (var segments in dungeonNameTextSegments)
-            {
-                foreach (var text in segments)
-                {
-                    if (text.IsUndulating)
-                    {
-                        text.AdvanceUndulation();
-                    }
-                }
-            }
-        }
-        
-        /// <summary>
-        /// Updates the brightness mask animation
-        /// </summary>
-        public void UpdateBrightnessMask()
-        {
-            sharedBrightnessMask?.Advance();
+            this.animationState = DungeonSelectionAnimationState.Instance;
         }
         
         /// <summary>
         /// Renders the dungeon selection screen
+        /// Applies animation effects (brightness mask and undulation) during rendering using centralized state
         /// </summary>
         public int RenderDungeonSelection(int x, int y, int width, int height, List<Dungeon> dungeons)
         {
             int currentLineCount = 0;
             
-            // Validate input - dungeons list must not be null
+            // Validate input
             if (dungeons == null)
             {
                 throw new ArgumentNullException(nameof(dungeons), "Dungeon list cannot be null");
             }
             
-            // Only recreate ColoredText objects if the dungeon list has changed
-            bool dungeonListChanged = lastDungeonList == null || 
-                                      lastDungeonList.Count != dungeons.Count ||
-                                      !lastDungeonList.SequenceEqual(dungeons);
+            // Clear the dungeon list area before rendering to ensure animations are visible
+            int dungeonListStartY = y + 2;
+            int dungeonListEndY = dungeonListStartY + dungeons.Count;
+            int dungeonListX = x + 4;
+            int dungeonListWidth = width - 8;
+            canvas.ClearTextInArea(dungeonListX, dungeonListStartY, dungeonListWidth, dungeonListEndY - dungeonListStartY + 1);
             
-            if (dungeonListChanged)
-            {
-                dungeonNameTextSegments.Clear();
-                lastDungeonList = new List<Dungeon>(dungeons);
-            }
-            
-            // Available dungeons
-            canvas.AddText(x + 2, y, "═══ AVAILABLE DUNGEONS ═══", AsciiArtAssets.Colors.Gold);
+            // Available dungeons header
+            canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.AvailableDungeons), AsciiArtAssets.Colors.Gold);
             y += 2;
             currentLineCount += 2;
             
@@ -91,12 +61,12 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 var dungeon = dungeons[i];
                 
-                // Validate dungeon object is not null
                 if (dungeon == null)
                 {
                     throw new InvalidOperationException($"Dungeon at index {i} is null");
                 }
                 
+                string displayText = MenuOptionFormatter.FormatDungeon(i + 1, dungeon.Name, dungeon.MinLevel);
                 var option = new ClickableElement
                 {
                     X = x + 4,
@@ -105,62 +75,80 @@ namespace RPGGame.UI.Avalonia.Renderers
                     Height = 1,
                     Type = ElementType.MenuOption,
                     Value = (i + 1).ToString(),
-                    DisplayText = $"[{i + 1}] {dungeon.Name} (lvl {dungeon.MinLevel})"
+                    DisplayText = displayText
                 };
                 clickableElements.Add(option);
                 
-                // Create or reuse the dungeon name ColoredText segments
-                List<ColoredText> dungeonNameSegments;
-                if (dungeonListChanged)
+                // Get or create template segments for this dungeon (cached, no animation state)
+                List<ColoredText>? templateSegments;
+                string cacheKey = $"{dungeon.Theme}_{dungeon.Name}";
+                if (!dungeonTemplateCache.TryGetValue(cacheKey, out templateSegments) || templateSegments == null)
                 {
-                    var coloredTexts = ColoredText.FromTemplate(
+                    templateSegments = ColoredText.FromTemplate(
                         GetDungeonThemeTemplate(dungeon.Theme),
                         dungeon.Name
                     );
-                    // Store all segments (not just the first one!)
-                    dungeonNameSegments = coloredTexts.Count > 0 
-                        ? coloredTexts 
-                        : new List<ColoredText> { new ColoredText(dungeon.Name, Colors.White) };
-                    dungeonNameTextSegments.Add(dungeonNameSegments);
-                }
-                else
-                {
-                    dungeonNameSegments = dungeonNameTextSegments[i];
+                    if (templateSegments.Count == 0)
+                    {
+                        templateSegments = new List<ColoredText> { new ColoredText(dungeon.Name, Colors.White) };
+                    }
+                    dungeonTemplateCache[cacheKey] = templateSegments;
                 }
                 
-                // Build the dungeon display text using ColoredText pattern approach
+                // Render the dungeon option
                 if (option.IsHovered)
                 {
-                    // When hovered, use yellow color for everything
-                    var hoveredText = new ColoredText($"[{i + 1}] {dungeon.Name} (lvl {dungeon.MinLevel})", ColorPalette.Yellow.GetColor());
+                    // When hovered, use yellow color
+                    var hoveredText = new ColoredText(displayText, ColorPalette.Yellow.GetColor());
                     textWriter.WriteLineColored(hoveredText, x + 4, y);
                 }
                 else
                 {
-                    // Build segments manually to preserve exact text from template
-                    // Don't use Build() as it trims spaces and adds automatic spacing which corrupts template segments
+                    // Build segments with animation effects applied during rendering
                     var segments = new List<ColoredText>();
                     
-                    // Add bracket and number
+                    // Add bracket and number (no animation)
                     segments.Add(new ColoredText($"[{i + 1}] ", ColorPalette.Gray.GetColor()));
                     
-                    // Add dungeon name segments exactly as they are (from template)
-                    segments.AddRange(dungeonNameSegments);
+                    // Apply animation effects to dungeon name character-by-character
+                    int charPosition = $"[{i + 1}] ".Length;
+                    foreach (var templateSegment in templateSegments)
+                    {
+                        foreach (char c in templateSegment.Text)
+                        {
+                            // Get brightness mask adjustment from centralized state
+                            float brightnessAdjustment = animationState.GetBrightnessAt(charPosition, y);
+                            double brightnessFactor = 1.0 + (brightnessAdjustment / 100.0) * 2.0;
+                            brightnessFactor = Math.Max(0.3, Math.Min(2.0, brightnessFactor));
+                            
+                            // Get undulation brightness from centralized state
+                            double undulationBrightness = animationState.GetUndulationBrightness();
+                            brightnessFactor += undulationBrightness * 3.0;
+                            brightnessFactor = Math.Max(0.3, Math.Min(2.0, brightnessFactor));
+                            
+                            // Apply brightness adjustments to color
+                            Color adjustedColor = AdjustColorBrightness(templateSegment.Color, brightnessFactor);
+                            segments.Add(new ColoredText(c.ToString(), adjustedColor));
+                            
+                            charPosition++;
+                        }
+                    }
                     
-                    // Add level info
-                    segments.Add(new ColoredText($" (lvl {dungeon.MinLevel})", Colors.White));
+                    // Add level info (no animation)
+                    segments.Add(new ColoredText($" (lvl {dungeon.MinLevel})", ColorPalette.Gray.GetColor()));
                     
-                    // Render segments directly - preserves exact text and spacing
+                    // Render all segments
                     textWriter.RenderSegments(segments, x + 4, y);
                 }
+                
                 y++;
                 currentLineCount++;
             }
             
-            // Return option
-            y += 2;
-            currentLineCount += 2;
-            canvas.AddText(x + 2, y, "═══ OPTIONS ═══", AsciiArtAssets.Colors.Gold);
+            // Options section
+            y += 1;
+            currentLineCount += 1;
+            canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Options), AsciiArtAssets.Colors.Gold);
             y += 2;
             currentLineCount += 2;
             
@@ -172,14 +160,28 @@ namespace RPGGame.UI.Avalonia.Renderers
                 Height = 1,
                 Type = ElementType.MenuOption,
                 Value = "0",
-                DisplayText = "[0] Return to Menu"
+                DisplayText = MenuOptionFormatter.Format(0, UIConstants.MenuOptions.ReturnToMenu)
             };
             clickableElements.Add(returnOption);
             
-            canvas.AddMenuOption(x + 4, y, 0, "Return to Menu", AsciiArtAssets.Colors.White, returnOption.IsHovered);
+            canvas.AddMenuOption(x + 4, y, 0, UIConstants.MenuOptions.ReturnToMenu, AsciiArtAssets.Colors.White, returnOption.IsHovered);
             currentLineCount++;
             
             return currentLineCount;
+        }
+        
+        /// <summary>
+        /// Adjusts the brightness of a color by a factor
+        /// </summary>
+        private Color AdjustColorBrightness(Color color, double factor)
+        {
+            factor = Math.Max(0.0, Math.Min(2.0, factor)); // Clamp between 0 and 2
+            
+            byte r = (byte)Math.Min(255, (int)(color.R * factor));
+            byte g = (byte)Math.Min(255, (int)(color.G * factor));
+            byte b = (byte)Math.Min(255, (int)(color.B * factor));
+            
+            return Color.FromRgb(r, g, b);
         }
         
         /// <summary>

@@ -32,16 +32,16 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             
             // Build menu options dynamically
             string loadGameText = hasSavedGame && characterName != null 
-                ? $"Load Game - *{characterName} - lvl {characterLevel}*"
-                : "Load Game";
+                ? string.Format(UIConstants.Formats.LoadGameWithCharacter, characterName, characterLevel)
+                : UIConstants.MenuOptions.LoadGame;
             
             // Warm white to cold white gradient using ColorLayerSystem
             var menuConfig = new[]
             {
-                (1, "New Game", ColorLayerSystem.GetWhite(WhiteTemperature.Warm)),
+                (1, UIConstants.MenuOptions.NewGame, ColorLayerSystem.GetWhite(WhiteTemperature.Warm)),
                 (2, loadGameText, ColorLayerSystem.GetWhiteByDepth(2)),
-                (3, "Settings", ColorLayerSystem.GetWhiteByDepth(3)),
-                (0, "Quit", ColorLayerSystem.GetWhite(WhiteTemperature.Cool))
+                (3, UIConstants.MenuOptions.Settings, ColorLayerSystem.GetWhiteByDepth(3)),
+                (0, UIConstants.MenuOptions.Quit, ColorLayerSystem.GetWhite(WhiteTemperature.Cool))
             };
             
             // Position menu at top-left of center panel
@@ -51,7 +51,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             for (int i = 0; i < menuConfig.Length; i++)
             {
                 var (number, text, color) = menuConfig[i];
-                string displayText = $"[{number}] {text}";
+                string displayText = MenuOptionFormatter.Format(number, text);
                 
                 var option = new ClickableElement
                 {
@@ -71,7 +71,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             
             // Add instruction text at bottom of center panel
             int instructionY = y + height - 3;
-            canvas.AddText(x + 2, instructionY, "Click on options or press number keys. Press H for help", AsciiArtAssets.Colors.Gray);
+            canvas.AddText(x + 2, instructionY, UIConstants.Messages.ClickOrPressNumber, AsciiArtAssets.Colors.Gray);
             
             return currentLineCount;
         }
@@ -91,23 +91,23 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             
             // Build menu options dynamically
             string loadGameText = hasSavedGame && characterName != null 
-                ? $"Load Game - *{characterName} - lvl {characterLevel}*"
-                : "Load Game";
+                ? string.Format(UIConstants.Formats.LoadGameWithCharacter, characterName, characterLevel)
+                : UIConstants.MenuOptions.LoadGame;
             
             // Warm white to cold white gradient using ColorLayerSystem
             var menuConfig = new[]
             {
-                (1, "New Game", ColorLayerSystem.GetWhite(WhiteTemperature.Warm)),
+                (1, UIConstants.MenuOptions.NewGame, ColorLayerSystem.GetWhite(WhiteTemperature.Warm)),
                 (2, loadGameText, ColorLayerSystem.GetWhiteByDepth(2)),
-                (3, "Settings", ColorLayerSystem.GetWhiteByDepth(3)),
-                (0, "Quit", ColorLayerSystem.GetWhite(WhiteTemperature.Cool))
+                (3, UIConstants.MenuOptions.Settings, ColorLayerSystem.GetWhiteByDepth(3)),
+                (0, UIConstants.MenuOptions.Quit, ColorLayerSystem.GetWhite(WhiteTemperature.Cool))
             };
             
             // Find the longest menu option for centering
             int maxOptionLength = 0;
             foreach (var (number, text, _) in menuConfig)
             {
-                int length = $"[{number}] {text}".Length;
+                int length = MenuOptionFormatter.Format(number, text).Length;
                 if (length > maxOptionLength)
                     maxOptionLength = length;
             }
@@ -120,7 +120,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             for (int i = 0; i < menuConfig.Length; i++)
             {
                 var (number, text, color) = menuConfig[i];
-                string displayText = $"[{number}] {text}";
+                string displayText = MenuOptionFormatter.Format(number, text);
                 
                 var option = new ClickableElement
                 {
@@ -141,7 +141,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             }
             
             // Instructions
-            string instructions = "Click on options or press number keys. Press H for help";
+            string instructions = UIConstants.Messages.ClickOrPressNumber;
             int instructionsX = MenuLayoutCalculator.CalculateCenteredTextX(0, MenuLayoutCalculator.SCREEN_WIDTH, instructions.Length);
             canvas.AddText(instructionsX, menuStartY + menuConfig.Length + 2, instructions, AsciiArtAssets.Colors.White);
             currentLineCount += 3; // +2 for spacing, +1 for instruction line

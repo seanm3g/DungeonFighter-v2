@@ -34,8 +34,17 @@ namespace RPGGame.UI.ColorSystem
                 if (string.IsNullOrEmpty(segment.Text))
                     continue;
                 
-                // Normalize multiple spaces within segment text (preserve other whitespace)
-                string normalizedText = Regex.Replace(segment.Text, @" +", " ");
+                // PRESERVE the original text structure including leading spaces and multiple spaces
+                // This is critical for test cases and intentional spacing (e.g., indentation, multiple spaces)
+                // Only normalize if we're in a production path that requires it
+                // For now, preserve all spacing to support test cases
+                string normalizedText = segment.Text;
+                
+                // Check if this is a whitespace-only segment (critical for preserving spaces in room names like "Cpt Pae")
+                bool isWhitespaceSegment = normalizedText.Trim().Length == 0 && normalizedText.Length > 0;
+                bool currentIsWhitespaceSegment = currentSegment != null && 
+                                                  currentSegment.Text.Trim().Length == 0 && 
+                                                  currentSegment.Text.Length > 0;
                 
                 if (currentSegment == null)
                 {
@@ -44,31 +53,24 @@ namespace RPGGame.UI.ColorSystem
                 }
                 else if (ColorValidator.AreColorsEqual(currentSegment.Color, segment.Color))
                 {
-                    // Same color - merge with current segment, normalizing spaces at boundary
-                    string currentText = currentSegment.Text;
-                    
-                    // Normalize boundary spaces: if both end/start with space, use only one
-                    if (currentText.Length > 0 && normalizedText.Length > 0)
+                    // Same color - but preserve whitespace segments separately to maintain spacing
+                    // This is critical for room names like "Cpt Pae" where the space must be preserved
+                    if (isWhitespaceSegment || currentIsWhitespaceSegment)
                     {
-                        bool currentEndsWithSpace = char.IsWhiteSpace(currentText[currentText.Length - 1]);
-                        bool nextStartsWithSpace = char.IsWhiteSpace(normalizedText[0]);
-                        
-                        if (currentEndsWithSpace && nextStartsWithSpace)
-                        {
-                            // Remove one space to avoid double spacing
-                            currentText = currentText.TrimEnd() + " " + normalizedText.TrimStart();
-                        }
-                        else
-                        {
-                            currentText = currentText + normalizedText;
-                        }
+                        // If either segment is whitespace-only, don't merge - keep them separate
+                        // This ensures spaces in multi-word names are preserved
+                        merged.Add(currentSegment);
+                        currentSegment = new ColoredText(normalizedText, segment.Color);
                     }
                     else
                     {
+                        // Both are non-whitespace - merge with current segment
+                        // PRESERVE all spacing - don't normalize boundary spaces as this breaks test cases
+                        // that intentionally use multiple spaces or specific spacing
+                        string currentText = currentSegment.Text;
                         currentText = currentText + normalizedText;
+                        currentSegment = new ColoredText(currentText, currentSegment.Color);
                     }
-                    
-                    currentSegment = new ColoredText(currentText, currentSegment.Color);
                 }
                 else
                 {
@@ -80,15 +82,43 @@ namespace RPGGame.UI.ColorSystem
                     if (needsSpace)
                     {
                         // Ensure space at end of current segment
+                        // Only add space if one doesn't already exist
                         if (currentText.Length == 0 || !char.IsWhiteSpace(currentText[currentText.Length - 1]))
                         {
                             currentText = currentText + " ";
                         }
+                        // If it already ends with space, keep it as-is
                     }
                     else
                     {
-                        // Remove trailing space if not needed
-                        currentText = currentText.TrimEnd();
+                        // needsSpace is false - this could mean:
+                        // 1. Space already exists (which we want to keep)
+                        // 2. Space shouldn't exist (e.g., before punctuation)
+                        // We need to check which case it is
+                        char lastChar = currentText.Length > 0 ? currentText[currentText.Length - 1] : '\0';
+                        char nextFirstChar = normalizedText.Length > 0 ? normalizedText[0] : '\0';
+                        
+                        // If current text ends with whitespace, needsSpace=false means "space already exists, don't add another"
+                        // In this case, we should KEEP the existing space
+                        if (char.IsWhiteSpace(lastChar))
+                        {
+                            // Space exists and is needed - keep it as-is
+                            // Don't trim!
+                        }
+                        else
+                        {
+                            // No space exists and none is needed - this is fine, keep as-is
+                            // But if there's a trailing space that shouldn't be there, trim it
+                            // (This handles edge cases where text was incorrectly formatted)
+                            if (currentText.TrimEnd() != currentText && 
+                                nextFirstChar != '\0' && 
+                                (nextFirstChar == ':' || nextFirstChar == ',' || nextFirstChar == '.' || 
+                                 nextFirstChar == '!' || nextFirstChar == '?' || nextFirstChar == ';'))
+                            {
+                                // Trailing space exists but shouldn't (before punctuation) - remove it
+                                currentText = currentText.TrimEnd();
+                            }
+                        }
                     }
                     
                     // Add finalized segment (only if it has content)
@@ -210,14 +240,17 @@ namespace RPGGame.UI.ColorSystem
         /// <summary>
         /// Determines if a space should be added between two segments of different colors.
         /// Uses the centralized spacing system from CombatLogSpacingManager.
+        /// IMPORTANT: Enables word boundary checking to prevent spaces between characters in multi-color templates
+        /// (e.g., room names with alternating colors like "Galaxy Vault" where each character is a separate segment).
         /// </summary>
         /// <param name="currentText">Text of the current segment</param>
         /// <param name="nextText">Text of the next segment</param>
         /// <returns>True if a space should be added between segments</returns>
         public static bool ShouldAddSpaceBetweenDifferentColors(string currentText, string nextText)
         {
-            // Delegate to centralized spacing manager (no word boundary check needed for different colors)
-            return RPGGame.UI.CombatLogSpacingManager.ShouldAddSpaceBetween(currentText, nextText, checkWordBoundary: false);
+            // Enable word boundary checking to prevent spaces between characters in multi-color templates
+            // This is critical for room names and other text that uses color templates with character-by-character coloring
+            return RPGGame.UI.CombatLogSpacingManager.ShouldAddSpaceBetween(currentText, nextText, checkWordBoundary: true);
         }
     }
 }

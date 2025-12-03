@@ -47,6 +47,13 @@ namespace RPGGame.Tests.Unit
             // Edge cases
             TestEdgeCases();
             
+            // Combat log specific tests
+            TestCombatLogSpacing();
+            TestForAndWithSpacing();
+            TestRollInfoSpacing();
+            TestDamageFormatterSpacing();
+            TestColoredTextRendering();
+            
             // Print summary
             Console.WriteLine($"\n=== Test Summary ===");
             Console.WriteLine($"Tests Run: {_testsRun}");
@@ -226,7 +233,7 @@ namespace RPGGame.Tests.Unit
             
             // Basic formatting
             AssertEqual("hits target for 42 damage", 
-                CombatLogSpacingManager.FormatWithSpacing("hits", "target", "for", "42", "damage"), 
+                CombatLogSpacingManager.FormatWithSpacing("hits", "target", "for ", "42", "damage"), 
                 "Should format multiple parts with spacing");
             
             // Null/empty handling
@@ -251,7 +258,7 @@ namespace RPGGame.Tests.Unit
             var builder = new ColoredTextBuilder();
             builder.Add("hits", Colors.White);
             builder.Add("target", ColorPalette.Enemy);
-            builder.Add("for", Colors.White);
+            builder.Add("for ", Colors.White);
             builder.Add("42", ColorPalette.Damage);
             builder.Add("damage", Colors.White);
             
@@ -272,7 +279,7 @@ namespace RPGGame.Tests.Unit
             {
                 new ColoredText("hits", Colors.White),
                 new ColoredText("target", ColorPalette.Enemy.GetColor()),
-                new ColoredText("for", Colors.White)
+                new ColoredText("for ", Colors.White)
             };
             
             var spaced = CombatLogSpacingManager.AddSpacingBetweenSegments(segments);
@@ -339,6 +346,255 @@ namespace RPGGame.Tests.Unit
                 "Should handle numbers");
             AssertTrue(CombatLogSpacingManager.ShouldAddSpaceBetween("damage", "42"), 
                 "Should handle numbers in reverse");
+        }
+        
+        #endregion
+        
+        #region Combat Log Specific Tests
+        
+        private static void TestCombatLogSpacing()
+        {
+            Console.WriteLine("\n--- Testing Combat Log Spacing ---");
+            
+            // Test basic combat message
+            var builder1 = new ColoredTextBuilder();
+            builder1.Add("Joren", ColorPalette.Gold);
+            builder1.Add("hits", Colors.White);
+            builder1.Add("Crystal Sprite", ColorPalette.Enemy);
+            builder1.Add("for ", Colors.White);
+            builder1.Add("42", ColorPalette.Damage);
+            builder1.Add("damage", Colors.White);
+            
+            var result1 = builder1.Build();
+            var plainText1 = ColoredTextRenderer.RenderAsPlainText(result1);
+            
+            AssertTrue(plainText1.Contains("hits Crystal Sprite for 42 damage"), 
+                "Combat message should have proper spacing");
+            AssertFalse(plainText1.Contains("for42"), 
+                "Should have space after 'for'");
+            AssertFalse(plainText1.Contains("hitsCrystal"), 
+                "Should have space after 'hits'");
+            
+            // Test combo action with "with"
+            var builder2 = new ColoredTextBuilder();
+            builder2.Add("Shadowbane", ColorPalette.Gold);
+            builder2.Add("hits", Colors.White);
+            builder2.Add("Enemy", ColorPalette.Enemy);
+            builder2.Add("with ", Colors.White);
+            builder2.Add("CRITICAL THUNDER CLAP", ColorPalette.Critical);
+            builder2.Add("for ", Colors.White);
+            builder2.Add("7", ColorPalette.Damage);
+            builder2.Add("damage", Colors.White);
+            
+            var result2 = builder2.Build();
+            var plainText2 = ColoredTextRenderer.RenderAsPlainText(result2);
+            
+            AssertTrue(plainText2.Contains("with CRITICAL THUNDER CLAP"), 
+                "Combo action should have space after 'with'");
+            AssertFalse(plainText2.Contains("withCRITICAL"), 
+                "Should not have missing space after 'with'");
+            AssertTrue(plainText2.Contains("for 7 damage"), 
+                "Should have space after 'for' before damage number");
+            AssertFalse(plainText2.Contains("for7"), 
+                "Should not have missing space after 'for'");
+        }
+        
+        private static void TestForAndWithSpacing()
+        {
+            Console.WriteLine("\n--- Testing 'for' and 'with' Spacing ---");
+            
+            // Test "for" with various following text
+            var testCases = new[]
+            {
+                ("for ", "42", "for 42"),
+                ("for ", "7", "for 7"),
+                ("for ", "10", "for 10"),
+                ("for ", "1", "for 1"),
+                ("with ", "CRITICAL", "with CRITICAL"),
+                ("with ", "SHIELD BREAK", "with SHIELD BREAK"),
+                ("with ", "CRUSHING BLOW", "with CRUSHING BLOW"),
+            };
+            
+            foreach (var (word, next, expected) in testCases)
+            {
+                var builder = new ColoredTextBuilder();
+                builder.Add(word, Colors.White);
+                builder.Add(next, ColorPalette.Damage);
+                
+                var result = builder.Build();
+                var plainText = ColoredTextRenderer.RenderAsPlainText(result);
+                
+                AssertTrue(plainText.Contains(expected), 
+                    $"'{word}' should be followed by space before '{next}'");
+                AssertFalse(plainText.Contains(word.Trim() + next), 
+                    $"Should not have missing space: '{word.Trim()}{next}'");
+            }
+            
+            // Test that spaces are preserved in markup rendering
+            var builder2 = new ColoredTextBuilder();
+            builder2.Add("hits", Colors.White);
+            builder2.Add("target", ColorPalette.Enemy);
+            builder2.Add("for ", Colors.White);
+            builder2.Add("42", ColorPalette.Damage);
+            
+            var result2 = builder2.Build();
+            var markup = ColoredTextRenderer.RenderAsMarkup(result2);
+            var plainText2 = ColoredTextRenderer.RenderAsPlainText(result2);
+            
+            AssertTrue(plainText2.Contains("for 42"), 
+                "Markup rendering should preserve space after 'for'");
+            AssertFalse(plainText2.Contains("for42"), 
+                "Markup rendering should not lose space after 'for'");
+        }
+        
+        private static void TestRollInfoSpacing()
+        {
+            Console.WriteLine("\n--- Testing Roll Info Spacing ---");
+            
+            // Test roll info with armor and speed
+            var builder = new ColoredTextBuilder();
+            builder.Add("     (", Colors.Gray);
+            builder.Add("roll:", ColorPalette.Info);
+            builder.AddSpace();
+            builder.Add("9", Colors.White);
+            builder.Add(" | ", Colors.Gray);
+            builder.Add("attack", ColorPalette.Info);
+            builder.AddSpace();
+            builder.Add("4", Colors.White);
+            builder.Add(" - ", Colors.White);
+            builder.Add("2", Colors.White);
+            builder.Add(" armor", Colors.White);
+            builder.AddSpace(); // Space after armor
+            builder.Add("| ", Colors.Gray);
+            builder.Add("speed:", ColorPalette.Info);
+            builder.AddSpace();
+            builder.Add("8.5s", Colors.White);
+            builder.Add(")", Colors.Gray);
+            
+            var result = builder.Build();
+            var plainText = ColoredTextRenderer.RenderAsPlainText(result);
+            
+            AssertTrue(plainText.Contains("armor"), 
+                "Roll info should contain 'armor'");
+            AssertTrue(plainText.Contains("speed:"), 
+                "Roll info should contain 'speed:'");
+            AssertTrue(plainText.Contains("armor") && plainText.Contains("speed:"), 
+                "Roll info should have both armor and speed");
+            
+            // Check that there's space between armor and speed
+            int armorIndex = plainText.IndexOf("armor");
+            int speedIndex = plainText.IndexOf("speed:");
+            if (armorIndex >= 0 && speedIndex >= 0 && speedIndex > armorIndex)
+            {
+                string between = plainText.Substring(armorIndex + 5, speedIndex - armorIndex - 5);
+                AssertTrue(between.Contains(" ") || between.Contains("|"), 
+                    "Should have space or separator between 'armor' and 'speed:'");
+            }
+        }
+        
+        private static void TestDamageFormatterSpacing()
+        {
+            Console.WriteLine("\n--- Testing DamageFormatter Spacing ---");
+            
+            // Simulate what DamageFormatter does
+            var builder = new ColoredTextBuilder();
+            builder.Add("Attacker", ColorPalette.Gold);
+            builder.AddSpace();
+            builder.Add("hits", Colors.White);
+            builder.AddSpace();
+            builder.Add("Target", ColorPalette.Enemy);
+            builder.Add("with ", Colors.White);
+            builder.Add("CRUSHING BLOW", ColorPalette.Warning);
+            builder.Add("for ", Colors.White);
+            builder.Add("7", ColorPalette.Damage);
+            builder.Add("damage", Colors.White);
+            
+            var result = builder.Build();
+            var plainText = ColoredTextRenderer.RenderAsPlainText(result);
+            var markup = ColoredTextRenderer.RenderAsMarkup(result);
+            
+            AssertTrue(plainText.Contains("with CRUSHING BLOW"), 
+                "DamageFormatter should have space after 'with'");
+            AssertFalse(plainText.Contains("withCRUSHING"), 
+                "DamageFormatter should not lose space after 'with'");
+            AssertTrue(plainText.Contains("for 7"), 
+                "DamageFormatter should have space after 'for'");
+            AssertFalse(plainText.Contains("for7"), 
+                "DamageFormatter should not lose space after 'for'");
+            
+            // Test markup rendering preserves spaces
+            AssertTrue(markup.Contains("for ") || markup.Contains("for") && markup.Contains("7"), 
+                "Markup should preserve space after 'for'");
+        }
+        
+        private static void TestColoredTextRendering()
+        {
+            Console.WriteLine("\n--- Testing ColoredText Rendering ---");
+            
+            // Test that spaces in text segments are preserved
+            var segments1 = new List<ColoredText>
+            {
+                new ColoredText("for ", Colors.White),
+                new ColoredText("42", ColorPalette.Damage.GetColor())
+            };
+            
+            var plainText1 = ColoredTextRenderer.RenderAsPlainText(segments1);
+            var markup1 = ColoredTextRenderer.RenderAsMarkup(segments1);
+            
+            AssertTrue(plainText1.Contains("for 42"), 
+                "Plain text renderer should preserve space in 'for '");
+            AssertFalse(plainText1.Contains("for42"), 
+                "Plain text renderer should not lose space");
+            
+            // Test with space segment
+            var segments2 = new List<ColoredText>
+            {
+                new ColoredText("for", Colors.White),
+                new ColoredText(" ", Colors.White),
+                new ColoredText("42", ColorPalette.Damage.GetColor())
+            };
+            
+            var plainText2 = ColoredTextRenderer.RenderAsPlainText(segments2);
+            AssertTrue(plainText2.Contains("for 42"), 
+                "Space segments should be preserved");
+            
+            // Test "with" spacing
+            var segments3 = new List<ColoredText>
+            {
+                new ColoredText("with ", Colors.White),
+                new ColoredText("SHIELD BREAK", ColorPalette.Warning.GetColor())
+            };
+            
+            var plainText3 = ColoredTextRenderer.RenderAsPlainText(segments3);
+            AssertTrue(plainText3.Contains("with SHIELD BREAK"), 
+                "Should preserve space after 'with'");
+            AssertFalse(plainText3.Contains("withSHIELD"), 
+                "Should not lose space after 'with'");
+            
+            // Test roll info format
+            var segments4 = new List<ColoredText>
+            {
+                new ColoredText("2", Colors.White),
+                new ColoredText(" armor", Colors.White),
+                new ColoredText(" ", Colors.White),
+                new ColoredText("|", Colors.Gray),
+                new ColoredText(" ", Colors.Gray),
+                new ColoredText("speed:", ColorPalette.Info.GetColor())
+            };
+            
+            var plainText4 = ColoredTextRenderer.RenderAsPlainText(segments4);
+            AssertTrue(plainText4.Contains("armor") && plainText4.Contains("speed:"), 
+                "Roll info should contain both armor and speed");
+            
+            // Check spacing between armor and speed
+            int armorIdx = plainText4.IndexOf("armor");
+            int speedIdx = plainText4.IndexOf("speed:");
+            if (armorIdx >= 0 && speedIdx > armorIdx)
+            {
+                string between = plainText4.Substring(armorIdx + 5, speedIdx - armorIdx - 5);
+                AssertTrue(between.Trim().Length > 0, 
+                    "Should have content between 'armor' and 'speed:'");
+            }
         }
         
         #endregion

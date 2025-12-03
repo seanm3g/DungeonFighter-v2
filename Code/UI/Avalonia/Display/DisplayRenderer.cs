@@ -59,19 +59,25 @@ namespace RPGGame.UI.Avalonia.Display
             int scrollOffset = CalculateScrollOffset(buffer, totalHeight, contentHeight);
             
             // Clear the content area BEFORE calculating render positions
+            // Always clear to ensure old text doesn't show through when scrolling
             // Clear a bit more area to ensure we catch any text that might be above due to scroll offset
             // This prevents old text from showing when content is rendered at a different Y position
             if (clearContent)
             {
-                // Clear the full content area plus a small buffer above to catch any overflow
+                // Clear the full content area plus a buffer above and below to catch any overflow
                 // Use contentHeight + 1 to ensure we clear the full area (endY is exclusive)
-                ClearContentArea(contentX, contentY, contentWidth, contentHeight + 1);
+                // Clear from slightly above contentY to slightly below to catch any text that might shift
+                int clearStartY = Math.Max(0, contentY - 2); // Clear 2 lines above to catch any overflow
+                int clearEndY = contentY + contentHeight + 2; // Clear 2 lines below as well
+                int clearHeight = clearEndY - clearStartY + 1;
+                ClearContentArea(contentX, clearStartY, contentWidth, clearHeight);
             }
             
             // Render lines, starting from the scroll offset position
             // Always start at contentY to ensure consistent positioning
             int y = contentY;
             int currentHeight = 0;
+            
             for (int i = 0; i < linesToRender.Count; i++)
             {
                 var segments = linesToRender[i];
@@ -84,11 +90,35 @@ namespace RPGGame.UI.Avalonia.Display
                     continue;
                 }
                 
+                // Handle partial line scrolling: if scroll offset is in the middle of this line
+                int partialOffset = scrollOffset - currentHeight;
+                if (partialOffset > 0 && partialOffset < linesNeeded)
+                {
+                    // We're scrolling into the middle of this wrapped message
+                    // For now, skip the partial lines and start from the next full line
+                    // This prevents text offset issues
+                    currentHeight += linesNeeded;
+                    continue;
+                }
+                
                 // Render this line if it fits in the viewport
                 if (y < contentY + contentHeight)
                 {
-                    int linesRendered = textWriter.WriteLineColoredWrapped(segments, contentX + 1, y, availableWidth);
-                    y += linesRendered;
+                    // Use consistent X position - always contentX + 1 to match non-scrolled rendering
+                    // This ensures text doesn't shift horizontally when scrolling
+                    // Use exact integer values to prevent floating point rounding issues
+                    int renderX = contentX + 1;
+                    int renderY = y;
+                    
+                    // Ensure we're using exact coordinates, not calculated positions
+                    int linesRendered = textWriter.WriteLineColoredWrapped(segments, renderX, renderY, availableWidth);
+                    
+                    // Only advance y if we actually rendered something
+                    if (linesRendered > 0)
+                    {
+                        y += linesRendered;
+                    }
+                    currentHeight += linesNeeded;
                 }
                 else
                 {
@@ -103,18 +133,20 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         private int CalculateScrollOffset(DisplayBuffer buffer, int totalHeight, int contentHeight)
         {
+            int maxScrollOffset = Math.Max(0, totalHeight - contentHeight);
+            
             if (buffer.IsManualScrolling)
             {
                 // Use manual scroll offset, clamped to valid range
-                int maxScrollOffset = Math.Max(0, totalHeight - contentHeight);
+                // Don't call SetScrollOffset here as it can reset the state incorrectly
+                // The offset should only be set by explicit scroll actions, not during rendering
                 int scrollOffset = Math.Max(0, Math.Min(buffer.ManualScrollOffset, maxScrollOffset));
-                buffer.SetScrollOffset(scrollOffset, maxScrollOffset);
                 return scrollOffset;
             }
             else if (totalHeight > contentHeight)
             {
                 // Auto-scroll to bottom
-                return totalHeight - contentHeight;
+                return maxScrollOffset;
             }
             else
             {
@@ -125,18 +157,40 @@ namespace RPGGame.UI.Avalonia.Display
         
         /// <summary>
         /// Calculates how many lines a message will take when wrapped
-        /// Now uses structured ColoredText segments directly
+        /// Uses the same wrapping logic as WriteLineColoredWrapped for accuracy
         /// </summary>
         private int CalculateWrappedLineCount(List<ColoredText> segments, int maxWidth)
         {
             if (segments == null || segments.Count == 0)
                 return 1; // Empty lines still take one line
             
-            // Calculate display length from segments
-            int displayLength = ColoredTextRenderer.GetDisplayLength(segments);
-            int wrappedLines = Math.Max(1, (int)Math.Ceiling((double)displayLength / maxWidth));
+            // Use actual wrapping logic to get accurate line count
+            // This matches the behavior of WriteLineColoredWrapped
+            var wrappedLines = textWriter.WrapColoredSegments(segments, maxWidth);
+            return wrappedLines.Count;
+        }
+        
+        /// <summary>
+        /// Calculates the maximum scroll offset for the given buffer
+        /// This is the total height of all wrapped lines minus the viewport height
+        /// </summary>
+        public int CalculateMaxScrollOffset(DisplayBuffer buffer, int contentWidth, int contentHeight)
+        {
+            var linesToRender = buffer.GetLast(buffer.MaxLines);
+            if (linesToRender.Count == 0)
+                return 0;
             
-            return wrappedLines;
+            int availableWidth = contentWidth - 2;
+            
+            // Calculate total height needed for all lines (accounting for text wrapping)
+            int totalHeight = 0;
+            foreach (var segments in linesToRender)
+            {
+                int linesNeeded = CalculateWrappedLineCount(segments, availableWidth);
+                totalHeight += linesNeeded;
+            }
+            
+            return Math.Max(0, totalHeight - contentHeight);
         }
         
         /// <summary>

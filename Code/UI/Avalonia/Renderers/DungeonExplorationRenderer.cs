@@ -40,13 +40,13 @@ namespace RPGGame.UI.Avalonia.Renderers
             int startY = y; // Store initial Y position for bottom calculations
             
             // Current location
-            canvas.AddText(x + 2, y, "═══ CURRENT LOCATION ═══", AsciiArtAssets.Colors.Gold);
+            canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.CurrentLocation), AsciiArtAssets.Colors.Gold);
             y += 2;
             canvas.AddText(x + 2, y, currentLocation, AsciiArtAssets.Colors.White);
             y += 3;
             
             // Recent events
-            canvas.AddText(x + 2, y, "═══ RECENT EVENTS ═══", AsciiArtAssets.Colors.Gold);
+            canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.RecentEvents), AsciiArtAssets.Colors.Gold);
             y += 2;
             
             if (recentEvents.Count == 0)
@@ -69,13 +69,13 @@ namespace RPGGame.UI.Avalonia.Renderers
             y += 2;
             
             // Available actions
-            canvas.AddText(x + 2, y, "═══ AVAILABLE ACTIONS ═══", AsciiArtAssets.Colors.Gold);
+            canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.AvailableActions), AsciiArtAssets.Colors.Gold);
             y += 2;
             
             for (int i = 0; i < Math.Min(availableActions.Count, 5); i++)
             {
                 var action = availableActions[i];
-                var actionElement = interactionManager.CreateButton(x + 2, y, width - 4, (i + 1).ToString(), $"[{i + 1}] {action}");
+                var actionElement = interactionManager.CreateButton(x + 2, y, width - 4, (i + 1).ToString(), MenuOptionFormatter.Format(i + 1, action));
                 interactionManager.AddClickableElement(actionElement);
                 
                 canvas.AddMenuOption(x + 2, y, i + 1, action, AsciiArtAssets.Colors.White, actionElement.IsHovered);
@@ -84,7 +84,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             
             // Quick actions at bottom
             y = startY + height - 4;
-            canvas.AddText(x + 2, y, "═══ QUICK ACTIONS ═══", AsciiArtAssets.Colors.Gold);
+            canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.QuickActions), AsciiArtAssets.Colors.Gold);
             y += 2;
             
             var inventoryButton = interactionManager.CreateButton(x + 2, y, 15, "inventory", "[I] Inventory");

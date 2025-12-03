@@ -2,6 +2,7 @@ namespace RPGGame
 {
     using System;
     using RPGGame.UI.Avalonia;
+    using RPGGame.Utils;
 
     /// <summary>
     /// Handles settings menu display and input.
@@ -32,11 +33,24 @@ namespace RPGGame
         /// </summary>
         public void ShowSettings()
         {
+            ScrollDebugLogger.Log("SettingsMenuHandler: ShowSettings called");
+            DebugLogger.Log("SettingsMenuHandler", "ShowSettings called");
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
+                ScrollDebugLogger.Log("SettingsMenuHandler: UI manager is CanvasUICoordinator, suppressing display buffer rendering and rendering settings");
+                // Suppress display buffer auto-rendering FIRST to prevent any pending renders
+                canvasUI.SuppressDisplayBufferRendering();
+                // Clear buffer without triggering a render (since we're suppressing rendering anyway)
+                canvasUI.ClearDisplayBufferWithoutRender();
                 canvasUI.RenderSettings();
+                ScrollDebugLogger.Log("SettingsMenuHandler: RenderSettings completed");
+            }
+            else
+            {
+                ScrollDebugLogger.Log($"SettingsMenuHandler: UI manager is not CanvasUICoordinator (type={customUIManager?.GetType().Name ?? "null"})");
             }
             stateManager.TransitionToState(GameState.Settings);
+            ScrollDebugLogger.Log("SettingsMenuHandler: State transitioned to Settings");
         }
 
         /// <summary>

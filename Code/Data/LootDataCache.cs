@@ -174,6 +174,11 @@ namespace RPGGame
                         PropertyNameCaseInsensitive = true
                     };
                     RarityData = JsonSerializer.Deserialize<List<RarityData>>(json, options) ?? new List<RarityData>();
+                    // Normalize rarity names to remove any whitespace
+                    foreach (var rarity in RarityData)
+                    {
+                        rarity.Name = rarity.Name?.Trim() ?? "";
+                    }
                 }
                 else
                 {

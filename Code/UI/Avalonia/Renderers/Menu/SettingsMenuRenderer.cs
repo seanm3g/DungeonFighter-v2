@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Managers;
+using RPGGame.Utils;
 
 namespace RPGGame.UI.Avalonia.Renderers.Menu
 {
@@ -25,6 +26,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         /// </summary>
         public int RenderSettingsContent(int x, int y, int width, int height, bool hasSavedCharacter, string? characterName, int characterLevel)
         {
+            ScrollDebugLogger.Log($"SettingsMenuRenderer: RenderSettingsContent called with x={x}, y={y}, width={width}, height={height}");
             clickableElements.Clear();
             int currentLineCount = 0;
             
@@ -34,6 +36,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             // Title
             string title = "=== SETTINGS ===";
             int titleX = MenuLayoutCalculator.CalculateCenteredTextX(x, width, title.Length);
+            ScrollDebugLogger.Log($"SettingsMenuRenderer: Rendering title '{title}' at x={titleX}, y={menuStartY}");
             canvas.AddText(titleX, menuStartY, title, AsciiArtAssets.Colors.Gold);
             menuStartY += 3;
             
@@ -46,21 +49,25 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             
             foreach (var (number, text, color) in menuOptions)
             {
+                string displayText = MenuOptionFormatter.Format(number, text);
                 var option = new ClickableElement
                 {
                     X = menuStartX,
                     Y = menuStartY,
-                    Width = text.Length + 4,
+                    Width = displayText.Length,
                     Height = 1,
                     Type = ElementType.MenuOption,
                     Value = number.ToString(),
-                    DisplayText = $"[{number}] {text}"
+                    DisplayText = displayText
                 };
                 clickableElements.Add(option);
                 
-                canvas.AddText(menuStartX, menuStartY, $"[{number}] {text}", color);
+                ScrollDebugLogger.Log($"SettingsMenuRenderer: Rendering option '{option.DisplayText}' at x={menuStartX}, y={menuStartY}");
+                canvas.AddText(menuStartX, menuStartY, displayText, color);
                 menuStartY++;
             }
+            
+            ScrollDebugLogger.Log($"SettingsMenuRenderer: Finished rendering {menuOptions.Length} options");
             
             // Show saved character info if available
             if (hasSavedCharacter && characterName != null)

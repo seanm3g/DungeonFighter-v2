@@ -15,7 +15,7 @@ namespace RPGGame.UI.ColorSystem
         
         // Undulation properties for animated effects
         private double _undulationPhase = 0;
-        private double _undulationSpeed = 0.1;
+        private double _undulationSpeed = 0.005;
         private bool _isUndulating = false;
         
         // Brightness mask properties
@@ -102,9 +102,9 @@ namespace RPGGame.UI.ColorSystem
         /// <summary>
         /// Enables undulation effect on this text.
         /// </summary>
-        /// <param name="speed">The speed of the undulation animation (default: 0.1)</param>
+        /// <param name="speed">The speed of the undulation animation (default: 0.005)</param>
         /// <returns>This instance for method chaining</returns>
-        public ColoredText Undulate(double speed = 0.1)
+        public ColoredText Undulate(double speed = 0.005)
         {
             _isUndulating = true;
             _undulationSpeed = speed;

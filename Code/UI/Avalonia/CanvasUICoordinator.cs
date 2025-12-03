@@ -138,9 +138,14 @@ namespace RPGGame.UI.Avalonia
 
         public void RenderDungeonSelection(Character player, List<Dungeon> dungeons)
         {
+            RPGGame.Utils.ScrollDebugLogger.Log($"[RENDER] CanvasUICoordinator.RenderDungeonSelection called - player: {player != null}, dungeons: {dungeons?.Count ?? 0}, screenRenderingCoordinator: {screenRenderingCoordinator != null}");
             ValidationHelper.ValidatePlayer(player);
             ValidationHelper.ValidateDungeonsList(dungeons);
-            screenRenderingCoordinator.RenderDungeonSelection(player, dungeons);
+            if (screenRenderingCoordinator != null)
+            {
+                // After validation, player and dungeons are guaranteed to be non-null
+                screenRenderingCoordinator.RenderDungeonSelection(player!, dungeons!);
+            }
         }
 
         public void StopDungeonSelectionAnimation() => screenRenderingCoordinator.StopDungeonSelectionAnimation();
@@ -182,6 +187,12 @@ namespace RPGGame.UI.Avalonia
         public void ClearDisplayBuffer() => textManager.ClearDisplayBuffer();
         
         /// <summary>
+        /// Clears the display buffer without triggering a render
+        /// Used when switching to menu screens that handle their own rendering
+        /// </summary>
+        public void ClearDisplayBufferWithoutRender() => textManager.ClearDisplayBufferWithoutRender();
+        
+        /// <summary>
         /// Starts a batch transaction for adding multiple messages
         /// Messages are added to the buffer but render is only triggered when transaction completes
         /// </summary>
@@ -194,6 +205,50 @@ namespace RPGGame.UI.Avalonia
 
         public int GetDisplayBufferCount() => textManager.BufferLineCount;
         public void RenderDisplayBuffer() => renderer.RenderDisplayBuffer(contextManager.GetCurrentContext());
+        public void ForceRenderDisplayBuffer()
+        {
+            // Force immediate render of display buffer
+            if (textManager is Managers.CanvasTextManager canvasTextManager)
+            {
+                canvasTextManager.DisplayManager.ForceRender();
+            }
+        }
+        
+        public void ForceFullLayoutRender()
+        {
+            // Force a full layout render by resetting render state
+            if (textManager is Managers.CanvasTextManager canvasTextManager)
+            {
+                canvasTextManager.DisplayManager.ForceFullLayoutRender();
+            }
+        }
+        
+        /// <summary>
+        /// Cancels any pending display buffer renders and prevents auto-rendering
+        /// Used when showing menu screens that handle their own rendering
+        /// </summary>
+        public void SuppressDisplayBufferRendering()
+        {
+            if (textManager is Managers.CanvasTextManager canvasTextManager)
+            {
+                canvasTextManager.DisplayManager.CancelPendingRenders();
+                // Set external render callback to do nothing - this prevents auto-rendering
+                canvasTextManager.DisplayManager.SetExternalRenderCallback(() => { });
+            }
+        }
+        
+        /// <summary>
+        /// Restores normal display buffer auto-rendering
+        /// </summary>
+        public void RestoreDisplayBufferRendering()
+        {
+            if (textManager is Managers.CanvasTextManager canvasTextManager)
+            {
+                // Clear external render callback to restore normal auto-rendering
+                canvasTextManager.DisplayManager.SetExternalRenderCallback(null);
+            }
+        }
+        
         public void ScrollUp(int lines = 3) => textManager.ScrollUp(lines);
         public void ScrollDown(int lines = 3) => textManager.ScrollDown(lines);
         public void ResetScroll() => textManager.ResetScroll();

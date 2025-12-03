@@ -1,5 +1,6 @@
 using System;
 using RPGGame.UI.ColorSystem;
+using static RPGGame.UI.Avalonia.AsciiArtAssets;
 
 namespace RPGGame
 {
@@ -19,8 +20,33 @@ namespace RPGGame
             if (!CombatManager.DisableCombatUIOutput)
             {
                 // Use the new block-based system for stun messages with ColoredText
-                var effectText = ColoredTextParser.Parse($"[{entity.Name}] is stunned and cannot act!");
-                var detailsText = ColoredTextParser.Parse($"{entity.StunTurnsRemaining} turns remaining");
+                // Build properly colored stun message with actor name and stunned template
+                var builder = new ColoredTextBuilder();
+                
+                // Add opening bracket
+                builder.Add("[", Colors.White);
+                // Add actor name with appropriate color
+                builder.Add(entity.Name, entity is Character ? ColorPalette.Gold : ColorPalette.Enemy);
+                // Add closing bracket
+                builder.Add("]", Colors.White);
+                // Add "is" with space
+                builder.AddSpace();
+                builder.Add("is", Colors.White);
+                // Add "stunned" using the stunned template
+                builder.AddSpace();
+                var stunnedSegments = ColorTemplateLibrary.GetTemplate("stunned", "stunned");
+                builder.AddRange(stunnedSegments);
+                // Add "and cannot act!"
+                builder.AddSpace();
+                builder.Add("and cannot act!", Colors.White);
+                
+                var effectText = builder.Build();
+                
+                // Build details text
+                var detailsBuilder = new ColoredTextBuilder();
+                detailsBuilder.Add($"{entity.StunTurnsRemaining} turns remaining", Colors.White);
+                var detailsText = detailsBuilder.Build();
+                
                 BlockDisplayManager.DisplayEffectBlock(effectText, detailsText);
             }
             

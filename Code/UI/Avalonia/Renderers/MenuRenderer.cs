@@ -4,6 +4,7 @@ using RPGGame.UI;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers.Menu;
 using RPGGame.UI.ColorSystem;
+using RPGGame.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -110,6 +111,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// </summary>
         public void RenderSettings()
         {
+            RPGGame.Utils.ScrollDebugLogger.Log("MenuRenderer: RenderSettings called");
             // Use the persistent layout system for consistent 3-panel design
             var layoutManager = new PersistentLayoutManager(canvas);
             
@@ -117,6 +119,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             var (characterName, characterLevel) = CharacterSaveManager.GetSavedCharacterInfo();
             bool hasSavedCharacter = characterName != null;
             
+            ScrollDebugLogger.Log($"MenuRenderer: About to call RenderLayout with title='SETTINGS'");
             // Render the layout with settings content
             layoutManager.RenderLayout(
                 character: null, // No character in settings
@@ -124,8 +127,14 @@ namespace RPGGame.UI.Avalonia.Renderers
                 title: "SETTINGS",
                 enemy: null,
                 dungeonName: null,
-                roomName: null
+                roomName: null,
+                clearCanvas: true // Always clear canvas when showing settings
             );
+            
+            ScrollDebugLogger.Log("MenuRenderer: RenderLayout completed, refreshing canvas");
+            // Ensure canvas is refreshed to display the settings menu
+            canvas.Refresh();
+            ScrollDebugLogger.Log("MenuRenderer: Canvas refreshed");
         }
         
         /// <summary>

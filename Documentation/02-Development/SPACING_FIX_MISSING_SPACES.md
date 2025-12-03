@@ -53,7 +53,7 @@ To verify the fix works:
    - Result: ✅ Should now have space
 
 2. **Test Case 2:** Combo action
-   - Input: `builder.Add("with", Colors.White); builder.Add("PARRY", ColorPalette.Warning);`
+   - Input: `builder.Add("with ", Colors.White); builder.Add("PARRY", ColorPalette.Warning);`
    - Expected: "with PARRY" (with space)
    - Result: ✅ Should now have space
 

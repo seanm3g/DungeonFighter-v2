@@ -79,7 +79,11 @@ namespace RPGGame
             var uiManager = UIManager.GetCustomUIManager();
             if (uiManager is RPGGame.UI.Avalonia.CanvasUICoordinator canvasUI)
             {
-                canvasUI.ClearDisplayBuffer();
+                // Suppress display buffer rendering first to prevent any auto-renders
+                // that might interfere with the next screen transition
+                canvasUI.SuppressDisplayBufferRendering();
+                // Clear buffer without triggering a render
+                canvasUI.ClearDisplayBufferWithoutRender();
             }
         }
     }

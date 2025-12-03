@@ -9,6 +9,7 @@ namespace RPGGame.UI
     public class BrightnessMask
     {
         private int offset = 0;
+        private readonly object offsetLock = new object();
         private readonly float intensity;
         private readonly float waveLength;
         
@@ -32,11 +33,18 @@ namespace RPGGame.UI
         /// <returns>Brightness adjustment percentage (-intensity to +intensity)</returns>
         public float GetBrightnessAt(int position, int lineOffset = 0)
         {
+            // Read offset with lock to ensure thread-safety
+            int currentOffset;
+            lock (offsetLock)
+            {
+                currentOffset = offset;
+            }
+            
             // Use sine wave to create smooth brightness variations
             // Combine two waves at different frequencies for a more organic, cloud-like effect
             // lineOffset creates independence between lines
-            float wave1 = (float)Math.Sin((position + offset + lineOffset) * Math.PI / waveLength);
-            float wave2 = (float)Math.Sin((position + offset * 0.7 + lineOffset * 0.8) * Math.PI / (waveLength * 1.5)) * 0.5f;
+            float wave1 = (float)Math.Sin((position + currentOffset + lineOffset) * Math.PI / waveLength);
+            float wave2 = (float)Math.Sin((position + currentOffset * 0.7 + lineOffset * 0.8) * Math.PI / (waveLength * 1.5)) * 0.5f;
             
             float combinedWave = (wave1 + wave2) / 1.5f; // Normalize
             
@@ -49,13 +57,25 @@ namespace RPGGame.UI
         /// </summary>
         public void Advance()
         {
-            offset++;
+            lock (offsetLock)
+            {
+                offset++;
+            }
         }
         
         /// <summary>
-        /// Gets the current offset
+        /// Gets the current offset (thread-safe)
         /// </summary>
-        public int Offset => offset;
+        public int Offset
+        {
+            get
+            {
+                lock (offsetLock)
+                {
+                    return offset;
+                }
+            }
+        }
         
         /// <summary>
         /// Resets the offset to zero

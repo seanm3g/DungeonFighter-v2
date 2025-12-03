@@ -42,39 +42,58 @@ namespace RPGGame.UI.Avalonia.Renderers.SegmentRenderers
             return validSegments > 0 && (singleCharSegments * 2) > validSegments;
         }
         
-        public int RenderSegment(ColoredText segment, Color canvasColor, int currentX, 
+        public double RenderSegment(ColoredText segment, Color canvasColor, int currentX, 
             int lastRenderedX, Color? lastColor, int y, ref int lastRenderedXOut)
         {
-            bool isSingleChar = segment.Text.Length == 1;
-            int alignedX = currentX;
+            // Use character count for positioning (monospace font = 1 char = 1 position)
+            // This eliminates floating point precision issues that cause text shifting
+            int segmentCharWidth = segment.Text.Length;
             
-            // Align to integer when transitioning from multi-char to single-char
-            if (!isSingleChar && lastRenderedX != int.MinValue)
+            // Check if this is a whitespace segment - these should always be rendered separately
+            // to preserve spacing in multi-word names like "Celestial Observatory"
+            bool isWhitespaceSegment = segment.Text.Trim().Length == 0 && segment.Text.Length > 0;
+            
+            // Use integer X position directly (no rounding needed)
+            int renderX = currentX;
+            
+            // CRITICAL: Ensure segments are positioned sequentially to prevent overwrites
+            // If this would render at the same position as the last segment, we need to handle it carefully
+            // Note: lastRenderedX is the START position of the previous segment
+            // currentX should already be the correct next position (lastRenderedX + previous segment length)
+            if (lastRenderedX != int.MinValue && renderX == lastRenderedX)
             {
-                alignedX = (int)System.Math.Round((double)currentX);
+                // Same position - check if we can append or need to offset
+                if (canvasColor == lastColor && !isWhitespaceSegment)
+                {
+                    // Same color, not whitespace - safe to append (text will be concatenated)
+                    canvas.AppendText(renderX, y, segment.Text, canvasColor);
+                    // Advance position by character count
+                    // CRITICAL: Use renderX (actual rendered position) + segmentCharWidth for next position
+                    lastRenderedXOut = renderX;
+                    return (double)(renderX + segmentCharWidth); // Return as double for interface compatibility
+                }
+                else
+                {
+                    // Different color or whitespace - must render at different position to avoid overwrite
+                    // Use currentX (which should be the correct next position) instead of lastRenderedX + 1
+                    // This ensures we position after the previous segment, not just 1 position after its start
+                    renderX = currentX;
+                }
             }
             
-            // Prevent overlap for different colors at same position
-            if (alignedX == lastRenderedX && lastRenderedX != int.MinValue && canvasColor != lastColor)
-            {
-                alignedX = lastRenderedX + 1;
-            }
+            // Render at calculated position
+            // IMPORTANT: AddText removes existing text at this position, so we've ensured
+            // this position is unique or we're appending above
+            canvas.AddText(renderX, y, segment.Text, canvasColor);
             
-            // Render segment
-            if (!isSingleChar)
-            {
-                // Multi-char in template rendering - use character count
-                canvas.AddText(alignedX, y, segment.Text, canvasColor);
-                lastRenderedXOut = alignedX;
-                return currentX + segment.Text.Length;
-            }
-            else
-            {
-                // Single character - render and advance by exactly 1
-                canvas.AddText(alignedX, y, segment.Text, canvasColor);
-                lastRenderedXOut = alignedX;
-                return alignedX + 1;
-            }
+            // Advance position by character count (no floating point needed)
+            // CRITICAL: Use renderX (actual rendered position) + segmentCharWidth for next position
+            // This ensures correct positioning even when renderX was adjusted
+            lastRenderedXOut = renderX;
+            
+            // Return the position AFTER this segment (renderX + segment length)
+            // This is the correct next position for the next segment
+            return (double)(renderX + segmentCharWidth);
         }
     }
 }

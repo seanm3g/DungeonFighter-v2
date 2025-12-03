@@ -26,7 +26,7 @@ namespace RPGGame.UI.Avalonia.Managers
         (int x, int y) CalculateMenuOptionPosition(int menuStartX, int menuStartY, int optionIndex, int maxOptionLength);
         (int x, int y) CalculateButtonPosition(int buttonAreaX, int buttonAreaY, int buttonIndex, int buttonsPerRow, int buttonWidth, int buttonSpacing = 2);
         (int x, int y, int width) CalculateTextArea(int contentX, int contentY, int contentWidth, int padding = 2);
-        bool IsPositionValid(int x, int y, int width, int height, int screenWidth = 210, int screenHeight = 60);
-        (int x, int y) ClampPosition(int x, int y, int width, int height, int screenWidth = 210, int screenHeight = 60);
+        bool IsPositionValid(int x, int y, int width, int height, int screenWidth = 210, int screenHeight = 52);
+        (int x, int y) ClampPosition(int x, int y, int width, int height, int screenWidth = 210, int screenHeight = 52);
     }
 }

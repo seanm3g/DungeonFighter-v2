@@ -16,7 +16,7 @@ namespace RPGGame
             
             var summary = new List<string>();
             summary.Add("═══════════════════════════════════════");
-            summary.Add("           DEFEAT STATISTICS");
+            summary.Add("DEFEAT STATISTICS");
             summary.Add("═══════════════════════════════════════");
             summary.Add("");
             
@@ -90,7 +90,7 @@ namespace RPGGame
             }
             
             summary.Add("═══════════════════════════════════════");
-            summary.Add("        Better luck next time!");
+            summary.Add("Better luck next time!");
             summary.Add("═══════════════════════════════════════");
             
             return string.Join("\n", summary);

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using RPGGame.Combat.Formatting;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
 {
@@ -77,20 +79,45 @@ namespace RPGGame
                 {
                     totalEffectDamage += poisonDamage;
                     string damageType = Actor.GetDamageTypeText();
-                    results.Add($"[{Actor.Name}] takes {poisonDamage} {damageType} damage");
+                    
+                    // Use ColoredTextBuilder for proper spacing
+                    var builder = new ColoredTextBuilder();
+                    ColorPalette actorColor = Actor is Character ? ColorPalette.Gold : ColorPalette.Enemy;
+                    DamageFormatter.AddBracketedActorTakesDamage(builder, Actor.Name, actorColor, poisonDamage, damageType);
+                    var coloredText = builder.Build();
+                    
+                    // Convert to markup string for results list
+                    results.Add(ColoredTextRenderer.RenderAsMarkup(coloredText));
                 }
                 
                 // Check if effect ended (regardless of whether damage was dealt)
                 if (Actor.PoisonStacks > 0)
                 {
                     string damageType = Actor.GetDamageTypeText();
-                    results.Add($"    ({damageType}: {Actor.PoisonStacks} stacks remain)");
+                    
+                    // Use ColoredTextBuilder for proper spacing
+                    var builder = new ColoredTextBuilder();
+                    ColorPalette effectColor = damageType == "bleed" ? ColorPalette.Error : ColorPalette.Green;
+                    DamageFormatter.AddEffectStacksRemain(builder, damageType, effectColor, Actor.PoisonStacks);
+                    var coloredText = builder.Build();
+                    
+                    // Convert to markup string for results list
+                    results.Add(ColoredTextRenderer.RenderAsMarkup(coloredText));
                 }
                 else
                 {
                     string damageType = Actor.GetDamageTypeText();
                     string effectEndMessage = damageType == "bleed" ? "bleeding" : "poisoned";
-                    results.Add($"    ([{Actor.Name}] is no longer {effectEndMessage}!)");
+                    
+                    // Use ColoredTextBuilder for proper spacing
+                    var builder = new ColoredTextBuilder();
+                    ColorPalette actorColor = Actor is Character ? ColorPalette.Gold : ColorPalette.Enemy;
+                    ColorPalette effectColor = damageType == "bleed" ? ColorPalette.Error : ColorPalette.Green;
+                    DamageFormatter.AddBracketedActorNoLongerAffected(builder, Actor.Name, actorColor, effectEndMessage, effectColor);
+                    var coloredText = builder.Build();
+                    
+                    // Convert to markup string for results list
+                    results.Add(ColoredTextRenderer.RenderAsMarkup(coloredText));
                 }
             }
             
@@ -101,17 +128,38 @@ namespace RPGGame
                 if (burnDamage > 0)
                 {
                     totalEffectDamage += burnDamage;
-                    results.Add($"[{Actor.Name}] takes {burnDamage} burn damage");
+                    
+                    // Use ColoredTextBuilder for proper spacing
+                    var builder = new ColoredTextBuilder();
+                    ColorPalette actorColor = Actor is Character ? ColorPalette.Gold : ColorPalette.Enemy;
+                    DamageFormatter.AddBracketedActorTakesDamage(builder, Actor.Name, actorColor, burnDamage, "burn");
+                    var coloredText = builder.Build();
+                    
+                    // Convert to markup string for results list
+                    results.Add(ColoredTextRenderer.RenderAsMarkup(coloredText));
                 }
                 
                 // Check if effect ended (regardless of whether damage was dealt)
                 if (Actor.BurnStacks > 0)
                 {
-                    results.Add($"    (burn: {Actor.BurnStacks} stacks remain)");
+                    // Use ColoredTextBuilder for proper spacing
+                    var builder = new ColoredTextBuilder();
+                    DamageFormatter.AddEffectStacksRemain(builder, "burn", ColorPalette.Orange, Actor.BurnStacks);
+                    var coloredText = builder.Build();
+                    
+                    // Convert to markup string for results list
+                    results.Add(ColoredTextRenderer.RenderAsMarkup(coloredText));
                 }
                 else
                 {
-                    results.Add($"    ([{Actor.Name}] is no longer burning!)");
+                    // Use ColoredTextBuilder for proper spacing
+                    var builder = new ColoredTextBuilder();
+                    ColorPalette actorColor = Actor is Character ? ColorPalette.Gold : ColorPalette.Enemy;
+                    DamageFormatter.AddBracketedActorNoLongerAffected(builder, Actor.Name, actorColor, "burning", ColorPalette.Orange);
+                    var coloredText = builder.Build();
+                    
+                    // Convert to markup string for results list
+                    results.Add(ColoredTextRenderer.RenderAsMarkup(coloredText));
                 }
             }
             
@@ -129,7 +177,8 @@ namespace RPGGame
             // Check for stun effect
             if (Actor.IsStunned)
             {
-                results.Add($"[{Actor.Name}] is stunned and cannot act!");
+                // Use markup syntax with stunned template for proper colorization
+                results.Add($"[{Actor.Name}] is {{stunned|stunned}} and cannot act!");
                 return false;
             }
             

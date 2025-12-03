@@ -3,6 +3,7 @@ namespace RPGGame
     using System;
     using System.Threading.Tasks;
     using RPGGame.UI.Avalonia;
+    using RPGGame.Utils;
     using DungeonFighter.Game.Menu.Routing;
     using DungeonFighter.Game.Menu.Core;
 
@@ -46,6 +47,7 @@ namespace RPGGame
         // Other managers
         private GameInitializer gameInitializer;
         private IUIManager? customUIManager;
+        private GameScreenCoordinator screenCoordinator;
         
         // NEW: Menu Input Framework (Phase 3 Refactoring)
         private MenuInputRouter? menuInputRouter;
@@ -56,6 +58,7 @@ namespace RPGGame
         {
             GameTicker.Instance.Start();
             gameInitializer = new GameInitializer();
+            screenCoordinator = new GameScreenCoordinator(stateManager);
             
             // Initialize core managers
             inputHandler = new GameInputHandler(stateManager);
@@ -79,7 +82,10 @@ namespace RPGGame
             inputHandler = new GameInputHandler(stateManager);
             dungeonManager = new DungeonManagerWithRegistry();
             combatManager = new CombatManager();
-            
+
+            // Initialize screen coordinator after managers are ready
+            screenCoordinator = new GameScreenCoordinator(stateManager);
+
             // Initialize all handlers with UI
             InitializeHandlers(uiManager);
         }
@@ -95,6 +101,7 @@ namespace RPGGame
             
             GameTicker.Instance.Start();
             gameInitializer = new GameInitializer();
+            screenCoordinator = new GameScreenCoordinator(stateManager);
             
             // Initialize core managers
             inputHandler = new GameInputHandler(stateManager);
@@ -173,6 +180,7 @@ namespace RPGGame
             
             // Debug: Log input and state for troubleshooting
             DebugLogger.Log("Game", $"HandleInput: input='{input}', state={stateManager.CurrentState}, mainMenuHandler={mainMenuHandler != null}");
+            ScrollDebugLogger.Log($"Game.HandleInput: input='{input}', state={stateManager.CurrentState}");
             
             switch (stateManager.CurrentState)
             {
@@ -219,8 +227,19 @@ namespace RPGGame
                         await deathScreenHandler.HandleMenuInput(input);
                     break;
                 case GameState.Testing:
-                    if (testingSystemHandler != null)
+                    // Allow scrolling during testing to view test results
+                    if (input == "up" || input == "down")
+                    {
+                        ScrollDebugLogger.Log($"Testing state: Handling scroll input '{input}'");
+                        DebugLogger.Log("Game", $"Testing state: Handling scroll input '{input}'");
+                        // Don't show message - it replaces the content we're trying to scroll
+                        HandleCombatScroll(input);
+                        return; // Don't process other input when scrolling
+                    }
+                    else if (testingSystemHandler != null)
+                    {
                         await testingSystemHandler.HandleMenuInput(input);
+                    }
                     break;
                 case GameState.CharacterCreation:
                     if (characterCreationHandler != null)
@@ -290,19 +309,16 @@ namespace RPGGame
 
         public void ShowInventory()
         {
-            inventoryMenuHandler?.ShowInventory();
+            // Delegate to centralized screen coordinator to keep
+            // all Inventory screen logic in one place.
+            screenCoordinator.ShowInventory();
         }
 
         public void ShowGameLoop()
         {
-            var player = stateManager.CurrentPlayer;
-            if (customUIManager is CanvasUICoordinator canvasUI && player != null)
-            {
-                // Ensure character is set in UI coordinator for persistent display
-                canvasUI.SetCharacter(player);
-                canvasUI.RenderGameMenu(player, stateManager.CurrentInventory);
-            }
-            stateManager.TransitionToState(GameState.GameLoop);
+            // Delegate to centralized screen coordinator to keep
+            // all GameLoop screen logic in one place.
+            screenCoordinator.ShowGameLoop();
         }
 
         public void ShowSettings()
@@ -312,22 +328,10 @@ namespace RPGGame
 
         public void ShowDungeonCompletion(int xpGained, Item? lootReceived)
         {
-            stateManager.TransitionToState(GameState.DungeonCompletion);
-            
-            // Display the dungeon completion screen with reward data
-            if (customUIManager is CanvasUICoordinator canvasUI && stateManager.CurrentPlayer != null && stateManager.CurrentDungeon != null)
-            {
-                // Clear old interactive elements first
-                canvasUI.ClearClickableElements();
-                
-                // Render the completion screen with reward data
-                canvasUI.RenderDungeonCompletion(
-                    stateManager.CurrentDungeon, 
-                    stateManager.CurrentPlayer, 
-                    xpGained, 
-                    lootReceived
-                );
-            }
+            // Delegate to centralized screen coordinator so that
+            // dungeon completion rendering and state logic live
+            // in a single, testable component.
+            screenCoordinator.ShowDungeonCompletion(xpGained, lootReceived);
         }
 
         public void ShowDeathScreen(Character player)
@@ -347,21 +351,32 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Handles scrolling during combat
+        /// Handles scrolling during combat and testing
         /// </summary>
         /// <param name="input">"up" to scroll up, "down" to scroll down</param>
         private void HandleCombatScroll(string input)
         {
+            ScrollDebugLogger.Log($"HandleCombatScroll: input='{input}', UI manager type={customUIManager?.GetType().Name ?? "null"}");
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
+                DebugLogger.Log("Game", $"HandleCombatScroll: input='{input}', UI manager type={customUIManager?.GetType().Name}");
                 if (input == "up")
                 {
+                    ScrollDebugLogger.Log("HandleCombatScroll: Calling canvasUI.ScrollUp()");
+                    DebugLogger.Log("Game", "Scrolling up");
                     canvasUI.ScrollUp();
                 }
                 else if (input == "down")
                 {
+                    ScrollDebugLogger.Log("HandleCombatScroll: Calling canvasUI.ScrollDown()");
+                    DebugLogger.Log("Game", "Scrolling down");
                     canvasUI.ScrollDown();
                 }
+            }
+            else
+            {
+                ScrollDebugLogger.Log($"HandleCombatScroll: ERROR - customUIManager is not CanvasUICoordinator (type={customUIManager?.GetType().Name ?? "null"})");
+                DebugLogger.Log("Game", $"HandleCombatScroll: customUIManager is not CanvasUICoordinator (type={customUIManager?.GetType().Name ?? "null"})");
             }
         }
 

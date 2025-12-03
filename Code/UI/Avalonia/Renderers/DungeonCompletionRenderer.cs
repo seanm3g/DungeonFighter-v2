@@ -33,7 +33,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             int currentY = startY;
             
             // Victory message
-            canvas.AddText(x + (width / 2) - 15, currentY, "═══ VICTORY! ═══", AsciiArtAssets.Colors.Gold);
+            canvas.AddText(x + (width / 2) - 15, currentY, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Victory), AsciiArtAssets.Colors.Gold);
             currentY += 3;
             currentLineCount += 3;
             
@@ -62,7 +62,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             currentLineCount += 2;
             
             // Dungeon Statistics Section
-            canvas.AddText(x + 4, currentY, "═══ DUNGEON STATISTICS ═══", AsciiArtAssets.Colors.Green);
+            canvas.AddText(x + 4, currentY, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.DungeonStatistics), AsciiArtAssets.Colors.Green);
             currentY += 2;
             currentLineCount += 2;
             
@@ -85,7 +85,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             currentLineCount++;
             
             // Rewards Section
-            canvas.AddText(x + 4, currentY, "═══ REWARDS EARNED ═══", AsciiArtAssets.Colors.Yellow);
+            canvas.AddText(x + 4, currentY, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.RewardsEarned), AsciiArtAssets.Colors.Yellow);
             currentY += 2;
             currentLineCount += 2;
             
@@ -116,7 +116,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             currentLineCount += 2;
             
             // Menu choices
-            canvas.AddText(x + 4, currentY, "═══ WHAT WOULD YOU LIKE TO DO? ═══", AsciiArtAssets.Colors.Gold);
+            canvas.AddText(x + 4, currentY, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.WhatWouldYouLikeToDo), AsciiArtAssets.Colors.Gold);
             currentY += 3;
             currentLineCount += 3;
             
@@ -131,7 +131,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 Height = 1,
                 Type = ElementType.MenuOption,
                 Value = "1",
-                DisplayText = "[1] Go to Dungeon"
+                DisplayText = MenuOptionFormatter.Format(1, UIConstants.MenuOptions.GoToDungeon)
             };
             
             var option2 = new ClickableElement
@@ -142,7 +142,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 Height = 1,
                 Type = ElementType.MenuOption,
                 Value = "2",
-                DisplayText = "[2] Show Inventory"
+                DisplayText = MenuOptionFormatter.Format(2, UIConstants.MenuOptions.ShowInventory)
             };
             
             var option3 = new ClickableElement
@@ -153,16 +153,16 @@ namespace RPGGame.UI.Avalonia.Renderers
                 Height = 1,
                 Type = ElementType.MenuOption,
                 Value = "0",
-                DisplayText = "[0] Save & Exit"
+                DisplayText = MenuOptionFormatter.Format(0, UIConstants.MenuOptions.SaveAndExit)
             };
             
             clickableElements.AddRange(new[] { option1, option2, option3 });
             
-            canvas.AddMenuOption(menuX, currentY, 1, "Go to Dungeon", AsciiArtAssets.Colors.White, option1.IsHovered);
+            canvas.AddMenuOption(menuX, currentY, 1, UIConstants.MenuOptions.GoToDungeon, AsciiArtAssets.Colors.White, option1.IsHovered);
             currentLineCount++;
-            canvas.AddMenuOption(menuX, currentY + 1, 2, "Show Inventory", AsciiArtAssets.Colors.White, option2.IsHovered);
+            canvas.AddMenuOption(menuX, currentY + 1, 2, UIConstants.MenuOptions.ShowInventory, AsciiArtAssets.Colors.White, option2.IsHovered);
             currentLineCount++;
-            canvas.AddMenuOption(menuX, currentY + 2, 0, "Save & Exit", AsciiArtAssets.Colors.White, option3.IsHovered);
+            canvas.AddMenuOption(menuX, currentY + 2, 0, UIConstants.MenuOptions.SaveAndExit, AsciiArtAssets.Colors.White, option3.IsHovered);
             currentLineCount++;
             
             return currentLineCount;

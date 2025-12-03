@@ -455,5 +455,116 @@ A: Use `ColoredTextBuilder` to build custom `List<ColoredText>`
 
 ---
 
+## 🔍 Spacing Accuracy Guidelines
+
+### Word Spacing
+- **Always use single spaces** between words
+- **No double spaces** - use `CombatLogSpacingManager.NormalizeSpacing()` if needed
+- **Proper punctuation spacing** - no space before punctuation, space after (usually)
+
+### Blank Line Spacing
+- **Follow TextSpacingSystem rules** - don't manually add blank lines
+- **Use ApplySpacingBefore()** before displaying blocks
+- **Use RecordBlockDisplayed()** after displaying blocks
+
+### Validation
+Use `TextSpacingValidator` to check spacing:
+```csharp
+var result = TextSpacingValidator.ValidateWordSpacing(text);
+if (!result.IsValid)
+{
+    Console.WriteLine(TextSpacingValidator.GenerateReport(result));
+}
+```
+
+---
+
+## 🎨 Color Application Guidelines
+
+### When to Apply Colors
+- **Damage numbers** → `ColorPalette.Damage`
+- **Player names** → `ColorPalette.Player`
+- **Enemy names** → `ColorPalette.Enemy`
+- **Item names** → Rarity-based colors
+- **Status effects** → Appropriate status colors
+
+### Avoiding Double-Coloring
+- **Don't apply keyword coloring** to text that already has explicit colors
+- **Use ColoredTextBuilder** instead of string concatenation with color codes
+- **Check for existing colors** before applying keyword coloring
+
+### Validation
+Use `ColorApplicationValidator` to check colors:
+```csharp
+var result = ColorApplicationValidator.ValidateNoDoubleColoring(text);
+if (!result.IsValid)
+{
+    Console.WriteLine(ColorApplicationValidator.GenerateReport(result));
+}
+```
+
+---
+
+## 🚫 Overlap Prevention Guidelines
+
+### Best Practices
+- **Use ColoredTextWriter** for rendering colored text
+- **Let segment renderers handle positioning** - don't manually calculate positions
+- **Check debug output** for overlap warnings in debug mode
+
+### Detection
+Overlap detection is automatic in:
+- `GameCanvasControl.AddText()` - detects same-position overlaps
+- `ColoredTextWriter.RenderSegments()` - detects near-overlaps
+
+---
+
+## 🧪 Testing Your Changes
+
+### Automated Tests
+Run the test suite:
+```csharp
+TextSystemAccuracyTests.RunAllTests();
+```
+
+### Visual Testing
+1. Run the game
+2. Trigger the text you changed
+3. Verify spacing, colors, and overlap
+4. Compare against reference output
+
+### Validation Tools
+- `TextSpacingValidator` - Check spacing accuracy
+- `ColorApplicationValidator` - Check color application
+- `TextSpacingSystem.ValidateSpacingRules()` - Check blank line rules
+
+---
+
+## 📚 Troubleshooting
+
+### Double Spaces
+**Problem:** Text has double spaces  
+**Solution:** Use `CombatLogSpacingManager.NormalizeSpacing()` before displaying
+
+### Missing Blank Lines
+**Problem:** No blank line between blocks  
+**Solution:** Check `TextSpacingSystem` rules, ensure `ApplySpacingBefore()` is called
+
+### Text Overlapping
+**Problem:** Text overlaps with other text  
+**Solution:** Check debug output, verify position calculations, use `MeasureTextWidth()`
+
+### Missing Colors
+**Problem:** Text doesn't have expected colors  
+**Solution:** Use `ColoredTextBuilder` with appropriate `ColorPalette` values
+
+### Double-Coloring
+**Problem:** Text has conflicting color codes  
+**Solution:** Don't apply keyword coloring to text with explicit colors
+
+---
+
 **Remember:** The formatting system is designed to be declarative and easy to modify. When in doubt, check the existing formatters for patterns and examples!
+
+For detailed tuning instructions, see `Documentation/02-Development/TEXT_SYSTEM_TUNING_GUIDE.md`
 

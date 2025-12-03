@@ -5,6 +5,7 @@ using System.IO;
 using RPGGame.Utils;
 using RPGGame.UI.ColorSystem;
 using RPGGame.Tests.Unit;
+using RPGGame.Tests;
 
 namespace RPGGame
 {
@@ -784,6 +785,29 @@ namespace RPGGame
         }
         
         /// <summary>
+        /// Test 8: Text System Accuracy Tests
+        /// Tests word spacing, blank line spacing, overlap prevention, and color application
+        /// </summary>
+        public static void RunTextSystemAccuracyTests()
+        {
+            TextDisplayIntegration.DisplaySystem("=== Test 8: Text System Accuracy Test ===");
+            TextDisplayIntegration.DisplaySystem("Running comprehensive text system accuracy tests...");
+            TextDisplayIntegration.DisplaySystem("Testing: word spacing, blank lines, overlap, colors");
+            TextDisplayIntegration.DisplaySystem("");
+            
+            try
+            {
+                TextSystemAccuracyTests.RunAllTests();
+                TextDisplayIntegration.DisplaySystem("\n✓ Text System Accuracy Test completed successfully!");
+            }
+            catch (Exception ex)
+            {
+                TextDisplayIntegration.DisplaySystem($"\n✗ Text System Accuracy Test failed: {ex.Message}");
+                TextDisplayIntegration.DisplaySystem($"Stack trace: {ex.StackTrace}");
+            }
+        }
+        
+        /// <summary>
         /// Runs all available tests in sequence
         /// This is the main test runner that ensures all tests are completed
         /// </summary>
@@ -891,6 +915,18 @@ namespace RPGGame
                 catch (Exception ex)
                 {
                     testResults.Add(("Combat Log Spacing Test", false, $"Failed: {ex.Message}"));
+                }
+                
+                // Test 8: Text System Accuracy Test
+                TextDisplayIntegration.DisplaySystem("\nRunning Test 8: Text System Accuracy Test...");
+                try
+                {
+                    RunTextSystemAccuracyTests();
+                    testResults.Add(("Text System Accuracy Test", true, "Completed successfully"));
+                }
+                catch (Exception ex)
+                {
+                    testResults.Add(("Text System Accuracy Test", false, $"Failed: {ex.Message}"));
                 }
                 
             }

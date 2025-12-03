@@ -36,9 +36,19 @@
   "WhiteTemperatureIntensity": 1.1,
   "UndulationTimerMs": 1000,
   "BrightnessMask": {
-    "Enabled": true,
-    "Intensity": 8.0,
-    "WaveLength": 3.0,
+    "Enabled": false,
+    "Intensity": 4.0,
+    "WaveLength": 2.0,
     "UpdateIntervalMs": 100
+  },
+  "DungeonSelectionAnimation": {
+    "UndulationSpeed": 0.05,
+    "UndulationIntervalMs": 50,
+    "BrightnessMask": {
+      "Enabled": false,
+      "Intensity": 10.0,
+      "WaveLength": 5.0,
+      "UpdateIntervalMs": 1000
+    }
   }
 }

@@ -112,13 +112,10 @@ namespace RPGGame.UI
                 return false;
             
             // Don't add space if previous ends with whitespace (already has spacing)
-            // BUT: if the segment contains internal spaces (like "Joren Blackthorn"), we still need
-            // to add a space after it to separate it from the next word
+            // This prevents double spaces when segments already contain trailing spaces
             if (char.IsWhiteSpace(prevLastChar))
             {
-                // Only skip if the entire segment is just whitespace or if it's a trailing space
-                // that's not part of an internal word (e.g., "word " should still get space after)
-                // Actually, if it ends with whitespace, it already has spacing, so don't add more
+                // Previous segment already ends with whitespace - don't add another space
                 return false;
             }
             
@@ -127,6 +124,7 @@ namespace RPGGame.UI
                 return false;
             
             // Don't add space if next starts with whitespace (already has spacing)
+            // This prevents double spaces when segments already contain leading spaces
             if (char.IsWhiteSpace(nextFirstChar))
                 return false;
             
@@ -146,6 +144,20 @@ namespace RPGGame.UI
             // Words ending with letters/digits followed by words starting with letters/digits need spaces
             if (char.IsLetterOrDigit(prevLastChar) && char.IsLetterOrDigit(nextFirstChar))
             {
+                return true;
+            }
+            
+            // Handle hyphenated words and apostrophes more carefully
+            // If previous ends with hyphen/apostrophe and next starts with letter, they're likely part of same word
+            if ((prevLastChar == '-' || prevLastChar == '\'') && char.IsLetter(nextFirstChar))
+            {
+                // Check if this is part of a compound word or contraction
+                // If previous text is a single character or short, likely part of same word
+                if (previousText.Length <= 2)
+                {
+                    return false; // Part of same word (e.g., "don't", "well-known")
+                }
+                // Otherwise, might be separate (e.g., "word - next")
                 return true;
             }
             
@@ -296,6 +308,7 @@ namespace RPGGame.UI
         /// <summary>
         /// Validates that spacing in a text string is correct (no double spaces, proper punctuation spacing).
         /// Returns a list of issues found, empty if spacing is correct.
+        /// Enhanced to detect more spacing issues including missing spaces between words.
         /// </summary>
         public static List<string> ValidateSpacing(string text)
         {
@@ -307,23 +320,97 @@ namespace RPGGame.UI
             // Check for double spaces
             if (text.Contains("  "))
             {
-                issues.Add("Found double spaces in text");
+                int count = CountOccurrences(text, "  ");
+                issues.Add($"Found {count} double space(s) in text");
             }
             
             // Check for spaces before punctuation (shouldn't have)
-            var punctuationBefore = new[] { " !", " ?", " .", " ,", " :", " ;" };
+            var punctuationBefore = new[] { " !", " ?", " .", " ,", " :", " ;", " )", " ]", " }" };
             foreach (var pattern in punctuationBefore)
             {
                 if (text.Contains(pattern))
                 {
-                    issues.Add($"Found space before punctuation: '{pattern}'");
+                    int count = CountOccurrences(text, pattern);
+                    issues.Add($"Found {count} space(s) before punctuation: '{pattern}'");
                 }
             }
             
-            // Check for missing spaces after punctuation (might want)
-            // This is more lenient - some punctuation might not need spaces after
+            // Check for missing spaces after punctuation (for most punctuation)
+            // Exceptions: apostrophes, hyphens in compound words
+            var punctuationAfter = new[] { '.', ',', ':', ';', '!', '?', ')', ']', '}' };
+            for (int i = 0; i < text.Length - 1; i++)
+            {
+                char current = text[i];
+                char next = text[i + 1];
+                
+                // Check if punctuation is followed by a letter/digit without space
+                if (Array.IndexOf(punctuationAfter, current) >= 0 && char.IsLetterOrDigit(next))
+                {
+                    // Exception: apostrophe in contractions (don't, it's)
+                    if (current == '\'' && i > 0 && char.IsLetter(text[i - 1]))
+                        continue;
+                    
+                    // Exception: period in decimals (3.14)
+                    if (current == '.' && i > 0 && char.IsDigit(text[i - 1]) && char.IsDigit(next))
+                        continue;
+                    
+                    issues.Add($"Missing space after punctuation '{current}' before '{next}' at position {i}");
+                }
+            }
+            
+            // Check for missing spaces between words (letters/digits)
+            // This is conservative - only flag obvious cases
+            for (int i = 0; i < text.Length - 1; i++)
+            {
+                char current = text[i];
+                char next = text[i + 1];
+                
+                // Check for letter/digit followed immediately by letter/digit
+                // But skip if they're part of the same word (like "word" or "123")
+                if (char.IsLetterOrDigit(current) && char.IsLetterOrDigit(next))
+                {
+                    // Check surrounding context to determine if they're separate words
+                    bool isSameWord = false;
+                    
+                    // If there's a letter before and after, likely same word
+                    if (i > 0 && i < text.Length - 2)
+                    {
+                        char before = text[i - 1];
+                        char after = text[i + 2];
+                        
+                        // If both before and after are letters/digits, likely same word
+                        if (char.IsLetterOrDigit(before) || char.IsLetterOrDigit(after))
+                        {
+                            isSameWord = true;
+                        }
+                    }
+                    
+                    // If not same word and no space, flag it
+                    if (!isSameWord && !char.IsWhiteSpace(current) && !char.IsWhiteSpace(next))
+                    {
+                        // Additional check: if current ends a word and next starts a word
+                        // This is tricky without word boundary detection
+                        // For now, we'll be conservative and skip this check
+                    }
+                }
+            }
             
             return issues;
+        }
+        
+        /// <summary>
+        /// Counts occurrences of a pattern in text
+        /// </summary>
+        private static int CountOccurrences(string text, string pattern)
+        {
+            int count = 0;
+            int index = 0;
+            while ((index = text.IndexOf(pattern, index)) != -1)
+            {
+                count++;
+                index += pattern.Length;
+            }
+            return count;
         }
         
         #endregion

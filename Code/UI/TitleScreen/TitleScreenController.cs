@@ -2,7 +2,6 @@ using System;
 using System.Threading;
 using RPGGame;
 using RPGGame.UI.Avalonia;
-using RPGGame.UI.Animations;
 using RPGGame.Data;
 
 namespace RPGGame.UI.TitleScreen
@@ -131,10 +130,9 @@ namespace RPGGame.UI.TitleScreen
             }
             else
             {
-                // Fallback to legacy animation if no renderer available
+                // No renderer available - skip title screen
                 ErrorHandler.LogWarning("TitleScreenHelper.ShowAnimatedTitleScreen", 
-                    "No renderer available, falling back to legacy OpeningAnimation");
-                OpeningAnimation.ShowOpeningAnimation();
+                    "No renderer available, skipping title screen");
             }
         }
 
@@ -194,10 +192,9 @@ namespace RPGGame.UI.TitleScreen
             }
             else
             {
-                // Fallback to legacy animation if no renderer available
+                // No renderer available - skip title screen
                 ErrorHandler.LogWarning("TitleScreenHelper.ShowStaticTitleScreen", 
-                    "No renderer available, falling back to legacy OpeningAnimation");
-                OpeningAnimation.ShowOpeningAnimation();
+                    "No renderer available, skipping title screen");
             }
         }
 

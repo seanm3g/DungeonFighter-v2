@@ -36,11 +36,14 @@ namespace RPGGame
             // Get defeat summary
             string defeatSummary = player.GetDefeatSummary();
             
-            // Clear display buffer
+            // Clear display buffer and suppress auto-rendering to prevent blank screen
             var uiManager = UIManager.GetCustomUIManager();
             if (uiManager is RPGGame.UI.Avalonia.CanvasUICoordinator canvasUI)
             {
-                canvasUI.ClearDisplayBuffer();
+                // Suppress display buffer auto-rendering FIRST to prevent any pending renders
+                canvasUI.SuppressDisplayBufferRendering();
+                // Clear buffer without triggering a render (since we're suppressing rendering anyway)
+                canvasUI.ClearDisplayBufferWithoutRender();
                 canvasUI.ClearClickableElements();
                 
                 // Render death screen using the canvas UI
@@ -90,6 +93,13 @@ namespace RPGGame
             // Clear player reference (character is dead)
             stateManager.SetCurrentPlayer(null);
             
+            // Clear enemy from UI to prevent it from showing when starting a new game
+            var uiManager = UIManager.GetCustomUIManager();
+            if (uiManager is RPGGame.UI.Avalonia.CanvasUICoordinator canvasUI)
+            {
+                canvasUI.ClearCurrentEnemy();
+            }
+            
             // Transition to main menu
             stateManager.TransitionToState(GameState.MainMenu);
             
@@ -104,12 +114,15 @@ namespace RPGGame
         
         /// <summary>
         /// Clears the display buffer when transitioning from death screen
+        /// Also restores display buffer rendering for the main menu
         /// </summary>
         private void ClearDisplayIfNeeded()
         {
             var uiManager = UIManager.GetCustomUIManager();
             if (uiManager is RPGGame.UI.Avalonia.CanvasUICoordinator canvasUI)
             {
+                // Restore display buffer rendering for main menu
+                canvasUI.RestoreDisplayBufferRendering();
                 canvasUI.ClearDisplayBuffer();
             }
         }

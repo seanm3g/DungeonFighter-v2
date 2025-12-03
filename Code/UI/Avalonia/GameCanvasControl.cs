@@ -16,23 +16,81 @@ namespace RPGGame.UI.Avalonia
         
         // Grid properties
         public int GridWidth { get; set; } = 210;
-        public int GridHeight { get; set; } = 60;
+        public int GridHeight { get; set; } = 52;  // Reduced from 60 to match panel height adjustment
         public int ViewportWidth { get; set; } = 210;
-        public int ViewportHeight { get; set; } = 60;
+        public int ViewportHeight { get; set; } = 52;  // Reduced from 60 to match panel height adjustment
         
         // Center point (half of GridWidth)
         public int CenterX => GridWidth / 2;  // = 105 for default 210-wide screen
         
-        // Font properties
-        private readonly Typeface typeface = new("Consolas, Courier New, monospace");
-        private const double fontSize = 14;
-        private const double charWidth = 9; // Width for monospace
-        private const double charHeight = 16; // Approximate height for monospace
+        // Font properties - using explicit monospace font
+        // "Courier New" is a guaranteed monospace font available on all systems
+        // It's a serif, typewriter-style monospace font
+        private readonly Typeface typeface = new("Courier New");
+        private const double fontSize = 16; // Increased from 14 for better readability
+        private double charWidth; // Actual measured width of a character
+        private double charHeight; // Actual measured height of a character
+        
+        // Measure actual character width and height on first use
+        private void EnsureCharWidthMeasured()
+        {
+            if (charWidth == 0)
+            {
+                // Measure actual width and height of a single character in the monospace font
+                var testText = new FormattedText(
+                    "M", // Use 'M' as it's typically the widest character
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    FlowDirection.LeftToRight,
+                    typeface,
+                    fontSize,
+                    Brushes.White
+                )
+                {
+                    MaxTextWidth = double.PositiveInfinity,
+                    MaxTextHeight = double.PositiveInfinity,
+                    Trimming = TextTrimming.None
+                };
+                charWidth = testText.Width;
+                charHeight = testText.Height;
+            }
+        }
 
         public GameCanvasControl()
         {
             // Enable focus for keyboard input
             Focusable = true;
+        }
+
+        /// <summary>
+        /// Measures the control size based on grid dimensions and character size
+        /// </summary>
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            EnsureCharWidthMeasured();
+            
+            // Calculate size based on grid dimensions and measured character size
+            double width = GridWidth * charWidth;
+            double height = GridHeight * charHeight;
+            
+            return new Size(width, height);
+        }
+
+        /// <summary>
+        /// Exposes character width for coordinate conversion
+        /// </summary>
+        public double GetCharWidth()
+        {
+            EnsureCharWidthMeasured();
+            return charWidth;
+        }
+
+        /// <summary>
+        /// Exposes character height for coordinate conversion
+        /// </summary>
+        public double GetCharHeight()
+        {
+            EnsureCharWidthMeasured();
+            return charHeight;
         }
 
         public override void Render(DrawingContext context)
@@ -109,10 +167,13 @@ namespace RPGGame.UI.Avalonia
 
         private void RenderText(DrawingContext context, CanvasText text)
         {
+            EnsureCharWidthMeasured();
+            
             double x = text.X * charWidth;
             double y = text.Y * charHeight;
 
             // Create FormattedText with MaxTextWidth set to prevent letter-spacing issues
+            // Using explicit monospace font (Courier New) ensures consistent character widths
             var formatted = new FormattedText(
                 text.Content,
                 System.Globalization.CultureInfo.InvariantCulture,
@@ -180,12 +241,51 @@ namespace RPGGame.UI.Avalonia
         /// <summary>
         /// Adds text to the canvas at the specified position
         /// Automatically removes any existing text at the exact same position to prevent overlap
+        /// Enhanced to detect and handle near-overlaps (adjacent positions)
+        /// Merges adjacent text elements on the same line with the same color to prevent gaps
         /// </summary>
         public void AddText(int x, int y, string text, Color color)
         {
             // Remove any existing text at the exact same position to prevent overlap
             // This is especially important for animated content like the title screen
             textElements.RemoveAll(t => t.X == x && t.Y == y);
+            
+            // Check for adjacent text elements on the same line that can be merged (same color)
+            // This prevents gaps between adjacent segments
+            var adjacentText = textElements.FirstOrDefault(t => 
+                t.Y == y && 
+                t.Color == color &&
+                (t.X + t.Content.Length == x || x + text.Length == t.X));
+            
+            if (adjacentText != null)
+            {
+                // Merge with adjacent text element
+                if (adjacentText.X + adjacentText.Content.Length == x)
+                {
+                    // Current text comes after adjacent text - append to it
+                    adjacentText.Content += text;
+                    return;
+                }
+                else if (x + text.Length == adjacentText.X)
+                {
+                    // Current text comes before adjacent text - prepend to it
+                    adjacentText.Content = text + adjacentText.Content;
+                    adjacentText.X = x;
+                    return;
+                }
+            }
+            
+            // Check for potential overlaps at adjacent positions (within 1 character)
+            // This helps catch rounding issues that might cause near-overlaps
+            var nearbyText = textElements.FirstOrDefault(t => 
+                t.Y == y && 
+                Math.Abs(t.X - x) <= 1 && 
+                t.X != x);
+            
+            if (nearbyText != null)
+            {
+                // If same color, we could merge, but for now just skip
+            }
             
             textElements.Add(new CanvasText { X = x, Y = y, Content = text, Color = color });
         }
@@ -216,6 +316,8 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         public double MeasureTextWidth(string text)
         {
+            EnsureCharWidthMeasured();
+            
             var formatted = new FormattedText(
                 text,
                 System.Globalization.CultureInfo.InvariantCulture,
@@ -223,7 +325,12 @@ namespace RPGGame.UI.Avalonia
                 typeface,
                 fontSize,
                 Brushes.White
-            );
+            )
+            {
+                MaxTextWidth = double.PositiveInfinity,
+                MaxTextHeight = double.PositiveInfinity,
+                Trimming = TextTrimming.None
+            };
             return formatted.Width / charWidth;
         }
 

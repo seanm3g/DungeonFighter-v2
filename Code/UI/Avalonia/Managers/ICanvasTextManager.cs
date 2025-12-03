@@ -9,6 +9,7 @@ namespace RPGGame.UI.Avalonia.Managers
     {
         void AddToDisplayBuffer(string message, UIMessageType messageType = UIMessageType.System);
         void ClearDisplayBuffer();
+        void ClearDisplayBufferWithoutRender();
         void RenderDisplayBuffer(int x, int y, int width, int height);
         void WriteLineColored(string message, int x, int y);
         int WriteLineColoredWrapped(string message, int x, int y, int maxWidth);

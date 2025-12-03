@@ -79,10 +79,24 @@ namespace RPGGame.UI.Avalonia.Renderers
             // Clear previous state before rendering
             clickableElements.Clear();
             currentLineCount = 0;
+            
+            // Clear the center panel content area to ensure clean rendering
+            // This is important because the PersistentLayoutManager may have cleared the canvas
+            // but we want to ensure our specific area is clean
+            canvas.ClearTextInArea(x, y, width, height);
+            canvas.ClearProgressBarsInArea(x, y, width, height);
+            
             int startY = y;
             
+            // Null check for inventory
+            if (inventory == null)
+            {
+                canvas.AddText(x + 2, y, "ERROR: Inventory is null", AsciiArtAssets.Colors.Red);
+                return;
+            }
+            
             // Inventory items section
-            canvas.AddText(x + 2, y, "═══ INVENTORY ITEMS ═══", AsciiArtAssets.Colors.Gold);
+            canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.InventoryItems), AsciiArtAssets.Colors.Gold);
             y += 2;
             currentLineCount += 2;
             
@@ -108,7 +122,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                         Height = 1,
                         Type = ElementType.Item,
                         Value = i.ToString(),
-                        DisplayText = $"[{i + 1}] {item.Name}"
+                        DisplayText = MenuOptionFormatter.FormatItem(i + 1, item.Name)
                     });
                     
                     // Render item name
@@ -123,32 +137,32 @@ namespace RPGGame.UI.Avalonia.Renderers
             
             // Actions section at bottom
             y = startY + height - 10;
-            canvas.AddText(x + 2, y, "═══ ACTIONS ═══", AsciiArtAssets.Colors.Gold);
+            canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Actions), AsciiArtAssets.Colors.Gold);
             y += 2;
             currentLineCount += 2;
             
             // Create inventory action buttons
-            var equipButton = CreateButton(x + 2, y, 28, "1", "[1] Equip Item");
-            var unequipButton = CreateButton(x + 32, y, 28, "2", "[2] Unequip Item");
-            var discardButton = CreateButton(x + 2, y + 1, 28, "3", "[3] Discard Item");
-            var comboButton = CreateButton(x + 32, y + 1, 28, "4", "[4] Manage Combo Actions");
-            var dungeonButton = CreateButton(x + 2, y + 2, 28, "5", "[5] Continue to Dungeon");
-            var mainMenuButton = CreateButton(x + 32, y + 2, 28, "6", "[6] Return to Main Menu");
-            var exitButton = CreateButton(x + 2, y + 3, 28, "0", "[0] Exit Game");
+            var equipButton = CreateButton(x + 2, y, 28, "1", MenuOptionFormatter.Format(1, UIConstants.MenuOptions.EquipItem));
+            var unequipButton = CreateButton(x + 32, y, 28, "2", MenuOptionFormatter.Format(2, UIConstants.MenuOptions.UnequipItem));
+            var discardButton = CreateButton(x + 2, y + 1, 28, "3", MenuOptionFormatter.Format(3, UIConstants.MenuOptions.DiscardItem));
+            var comboButton = CreateButton(x + 32, y + 1, 28, "4", MenuOptionFormatter.Format(4, UIConstants.MenuOptions.ManageComboActions));
+            var dungeonButton = CreateButton(x + 2, y + 2, 28, "5", MenuOptionFormatter.Format(5, UIConstants.MenuOptions.ContinueToDungeon));
+            var mainMenuButton = CreateButton(x + 32, y + 2, 28, "6", MenuOptionFormatter.Format(6, UIConstants.MenuOptions.ReturnToMainMenu));
+            var exitButton = CreateButton(x + 2, y + 3, 28, "0", MenuOptionFormatter.Format(0, UIConstants.MenuOptions.ExitGame));
             
             clickableElements.AddRange(new[] { equipButton, unequipButton, discardButton, comboButton, dungeonButton, mainMenuButton, exitButton });
             
             // Render buttons in two columns
-            canvas.AddMenuOption(x + 2, y, 1, "Equip Item", AsciiArtAssets.Colors.White, equipButton.IsHovered);
-            canvas.AddMenuOption(x + 32, y, 2, "Unequip Item", AsciiArtAssets.Colors.White, unequipButton.IsHovered);
+            canvas.AddMenuOption(x + 2, y, 1, UIConstants.MenuOptions.EquipItem, AsciiArtAssets.Colors.White, equipButton.IsHovered);
+            canvas.AddMenuOption(x + 32, y, 2, UIConstants.MenuOptions.UnequipItem, AsciiArtAssets.Colors.White, unequipButton.IsHovered);
             currentLineCount++;
-            canvas.AddMenuOption(x + 2, y + 1, 3, "Discard Item", AsciiArtAssets.Colors.White, discardButton.IsHovered);
-            canvas.AddMenuOption(x + 32, y + 1, 4, "Manage Combo Actions", AsciiArtAssets.Colors.White, comboButton.IsHovered);
+            canvas.AddMenuOption(x + 2, y + 1, 3, UIConstants.MenuOptions.DiscardItem, AsciiArtAssets.Colors.White, discardButton.IsHovered);
+            canvas.AddMenuOption(x + 32, y + 1, 4, UIConstants.MenuOptions.ManageComboActions, AsciiArtAssets.Colors.White, comboButton.IsHovered);
             currentLineCount++;
-            canvas.AddMenuOption(x + 2, y + 2, 5, "Continue to Dungeon", AsciiArtAssets.Colors.White, dungeonButton.IsHovered);
-            canvas.AddMenuOption(x + 32, y + 2, 6, "Return to Main Menu", AsciiArtAssets.Colors.White, mainMenuButton.IsHovered);
+            canvas.AddMenuOption(x + 2, y + 2, 5, UIConstants.MenuOptions.ContinueToDungeon, AsciiArtAssets.Colors.White, dungeonButton.IsHovered);
+            canvas.AddMenuOption(x + 32, y + 2, 6, UIConstants.MenuOptions.ReturnToMainMenu, AsciiArtAssets.Colors.White, mainMenuButton.IsHovered);
             currentLineCount++;
-            canvas.AddMenuOption(x + 2, y + 3, 0, "Exit Game", AsciiArtAssets.Colors.White, exitButton.IsHovered);
+            canvas.AddMenuOption(x + 2, y + 3, 0, UIConstants.MenuOptions.ExitGame, AsciiArtAssets.Colors.White, exitButton.IsHovered);
             currentLineCount++;
         }
         
@@ -161,7 +175,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             int startY = y;
             
             // Show prompt message
-            canvas.AddText(x + 2, y, "═══ " + promptMessage.ToUpper() + " ═══", AsciiArtAssets.Colors.Gold);
+            canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(promptMessage.ToUpper()), AsciiArtAssets.Colors.Gold);
             y += 2;
             currentLineCount += 2;
             
@@ -181,7 +195,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                     var itemStats = ItemStatFormatter.GetItemStats(item, character);
                     
                     // Create clickable button for each item
-                    clickableElements.Add(CreateButton(x + 2, y, width - 4, (i + 1).ToString(), $"[{i + 1}] {item.Name}"));
+                    clickableElements.Add(CreateButton(x + 2, y, width - 4, (i + 1).ToString(), MenuOptionFormatter.FormatItem(i + 1, item.Name)));
                     
                     // Render item name with colored text
                     ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, i, item, useColoredText: true);
@@ -196,9 +210,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
             
             // Add cancel button
-            var cancelButton = CreateButton(x + 2, y, 28, "0", "[0] Cancel");
+            var cancelButton = CreateButton(x + 2, y, 28, "0", MenuOptionFormatter.Format(0, UIConstants.MenuOptions.Cancel));
             clickableElements.Add(cancelButton);
-            canvas.AddMenuOption(x + 2, y, 0, "Cancel", AsciiArtAssets.Colors.White, cancelButton.IsHovered);
+            canvas.AddMenuOption(x + 2, y, 0, UIConstants.MenuOptions.Cancel, AsciiArtAssets.Colors.White, cancelButton.IsHovered);
             currentLineCount++;
         }
         
@@ -210,7 +224,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             currentLineCount = 0;
             
             // Show prompt message
-            canvas.AddText(x + 2, y, "═══ SELECT SLOT TO UNEQUIP ═══", AsciiArtAssets.Colors.Gold);
+            canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.MenuOptions.SelectSlotToUnequip), AsciiArtAssets.Colors.Gold);
             y += 2;
             currentLineCount += 2;
             
@@ -242,9 +256,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             currentLineCount++;
             
             // Add cancel button
-            var cancelButton = CreateButton(x + 2, y, 28, "0", "[0] Cancel");
+            var cancelButton = CreateButton(x + 2, y, 28, "0", MenuOptionFormatter.Format(0, UIConstants.MenuOptions.Cancel));
             clickableElements.Add(cancelButton);
-            canvas.AddMenuOption(x + 2, y, 0, "Cancel", AsciiArtAssets.Colors.White, cancelButton.IsHovered);
+            canvas.AddMenuOption(x + 2, y, 0, UIConstants.MenuOptions.Cancel, AsciiArtAssets.Colors.White, cancelButton.IsHovered);
             currentLineCount++;
         }
 

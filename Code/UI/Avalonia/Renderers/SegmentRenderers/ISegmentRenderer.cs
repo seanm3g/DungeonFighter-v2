@@ -20,8 +20,8 @@ namespace RPGGame.UI.Avalonia.Renderers.SegmentRenderers
         /// <param name="lastColor">Last rendered color (for overlap detection)</param>
         /// <param name="y">Y position</param>
         /// <param name="lastRenderedXOut">Output parameter for the rendered X position</param>
-        /// <returns>Next X position after rendering</returns>
-        int RenderSegment(ColoredText segment, Color canvasColor, int currentX, 
+        /// <returns>Next X position after rendering (as double for precision, will be rounded by caller)</returns>
+        double RenderSegment(ColoredText segment, Color canvasColor, int currentX, 
             int lastRenderedX, Color? lastColor, int y, ref int lastRenderedXOut);
         
         /// <summary>

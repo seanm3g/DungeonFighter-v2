@@ -3,6 +3,7 @@ namespace RPGGame
     using System;
     using System.Threading.Tasks;
     using RPGGame.UI.Avalonia;
+    using RPGGame.Utils;
 
     /// <summary>
     /// Handles main menu display and input processing.
@@ -105,6 +106,13 @@ namespace RPGGame
             try
             {
                 DebugLogger.Log("MainMenuHandler", "StartNewGame called");
+                
+                // Clear any existing enemy from previous game session
+                if (customUIManager is CanvasUICoordinator canvasUIClear)
+                {
+                    canvasUIClear.ClearCurrentEnemy();
+                    DebugLogger.Log("MainMenuHandler", "Cleared current enemy from UI");
+                }
                 
                 // Check if we have a saved character
                 var savedCharacter = Character.LoadCharacter();
@@ -262,8 +270,12 @@ namespace RPGGame
         /// </summary>
         private void HandleSettingsSelection()
         {
+            DebugLogger.Log("MainMenuHandler", "HandleSettingsSelection: Transitioning to Settings state");
+            ScrollDebugLogger.Log("MainMenuHandler: HandleSettingsSelection called");
             stateManager.TransitionToState(GameState.Settings);
+            ScrollDebugLogger.Log($"MainMenuHandler: State transitioned, ShowSettingsEvent is {(ShowSettingsEvent != null ? "not null" : "null")}");
             ShowSettingsEvent?.Invoke();
+            ScrollDebugLogger.Log("MainMenuHandler: ShowSettingsEvent invoked");
         }
 
         /// <summary>

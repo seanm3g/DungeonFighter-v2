@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Avalonia.Media;
 using RPGGame.UI.ColorSystem;
+using static RPGGame.Combat.Formatting.DamageFormatter;
 
 namespace RPGGame
 {
@@ -183,7 +184,9 @@ namespace RPGGame
             
             builder.Add("💫 ", ColorPalette.Warning);
             builder.Add(entityName, isPlayer ? ColorPalette.Player : ColorPalette.Enemy);
+            builder.AddSpace();
             builder.Add("is", Colors.White);
+            builder.AddSpace();
             builder.Add("stunned", ColorPalette.Warning);
             builder.Add($" ({turnsRemaining} turn{(turnsRemaining > 1 ? "s" : "")} remaining)", Colors.Gray);
             
@@ -203,11 +206,7 @@ namespace RPGGame
             
             builder.Add("🩸 ", ColorPalette.Error);
             builder.Add(entityName, isPlayer ? ColorPalette.Player : ColorPalette.Enemy);
-            builder.Add("takes", Colors.White);
-            builder.Add(damage.ToString(), ColorPalette.Damage);
-            builder.Add("damage", Colors.White);
-            builder.Add("from", Colors.White);
-            builder.Add(effectName, ColorPalette.Warning);
+            AddTakesDamageFrom(builder, damage, effectName, ColorPalette.Warning);
             
             return builder.Build();
         }
@@ -285,8 +284,7 @@ namespace RPGGame
                 builder.Add(environmentName, ColorPalette.Cyan);
             }
             
-            builder.Add("uses ", Colors.White);
-            builder.Add(actionName, ColorPalette.Green);
+            AddUsesAction(builder, actionName, ColorPalette.Green);
             
             return builder.Build();
         }

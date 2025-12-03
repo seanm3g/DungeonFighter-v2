@@ -385,6 +385,63 @@ public class RenderPipeline
 **Issue**: Screen not refreshing
 **Solution**: Ensure `canvas.Refresh()` is called after all rendering operations
 
+## Screen Coordination Pattern
+
+### GameScreenCoordinator
+
+**File**: `Code/Game/GameScreenCoordinator.cs`  
+**Role**: Central coordinator for high-level screen transitions
+
+#### Purpose
+
+The `GameScreenCoordinator` provides a **single place** to manage how core game screens are rendered and how state transitions occur. This pattern addresses the problem of screen rendering logic being scattered across multiple handlers and the `Game` class.
+
+#### Benefits
+
+1. **Single Source of Truth**: All screen transitions for core flows (GameLoop, Inventory, DungeonCompletion) are defined in one place
+2. **Easier Debugging**: When a screen doesn't render, you know exactly where to look
+3. **Explicit Invariants**: The coordinator validates required state (player, dungeon, UI manager) before rendering
+4. **Reduced Duplication**: No need to repeat "clear context, set character, render screen" logic in multiple handlers
+
+#### Current Implementation
+
+The coordinator currently handles three core screens:
+
+- **`ShowGameLoop()`**: Renders the main in-game menu with persistent character panel
+- **`ShowDungeonCompletion(int xpGained, Item? lootReceived)`**: Renders dungeon completion screen with rewards
+- **`ShowInventory()`**: Renders inventory screen with clean transitions from other screens
+
+#### Usage Pattern
+
+```csharp
+// In Game.cs
+public void ShowInventory()
+{
+    // Delegate to centralized coordinator
+    screenCoordinator.ShowInventory();
+}
+
+// Handlers trigger events that call Game methods
+// Game methods delegate to GameScreenCoordinator
+// Coordinator handles all CanvasUICoordinator calls
+```
+
+#### Migration Strategy
+
+When adding new screens or refactoring existing ones:
+
+1. **Add method to `GameScreenCoordinator`** that handles all rendering logic
+2. **Update `Game.ShowX()` method** to delegate to the coordinator
+3. **Simplify handlers** to just trigger events (or call `Game.ShowX()` directly)
+4. **Document the screen** in this section
+
+#### Future Enhancements
+
+- Add `ShowDungeonSelection()` for dungeon selection screen
+- Add `ShowDeathScreen()` for death screen
+- Add `ShowCharacterInfo()` for character info screen
+- Consider adding a `ScreenContext` record type to carry required data for each screen
+
 ## Related Documentation
 
 - **[CanvasUICoordinator Refactoring](../02-Development/CANVASUIMANAGER_REFACTORING.md)** - Detailed refactoring guide

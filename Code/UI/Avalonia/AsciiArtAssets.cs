@@ -1,68 +1,72 @@
 using Avalonia.Media;
 using System.Collections.Generic;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.UI.Avalonia
 {
     public static class AsciiArtAssets
     {
-        // Color definitions
+        // Color definitions - Now delegates to ColorPalette for consistency
+        // Maintains backward compatibility while using centralized color system
         public static class Colors
         {
-            public static readonly Color White = Color.FromRgb(255, 255, 255);
-            public static readonly Color Gray = Color.FromRgb(128, 128, 128);
-            public static readonly Color DarkGray = Color.FromRgb(64, 64, 64);
-            public static readonly Color Black = Color.FromRgb(0, 0, 0);
-            public static readonly Color Red = Color.FromRgb(255, 0, 0);
-            public static readonly Color DarkRed = Color.FromRgb(139, 0, 0);
-            public static readonly Color Green = Color.FromRgb(0, 255, 0);
-            public static readonly Color DarkGreen = Color.FromRgb(0, 100, 0);
-            public static readonly Color Blue = Color.FromRgb(0, 0, 255);
-            public static readonly Color DarkBlue = Color.FromRgb(0, 0, 139);
-            public static readonly Color Yellow = Color.FromRgb(255, 255, 0);
-            public static readonly Color Orange = Color.FromRgb(255, 165, 0);
-            public static readonly Color Purple = Color.FromRgb(128, 0, 128);
-            public static readonly Color Cyan = Color.FromRgb(0, 255, 255);
-            public static readonly Color Magenta = Color.FromRgb(255, 0, 255);
-            public static readonly Color Gold = Color.FromRgb(255, 215, 0);
-            public static readonly Color Silver = Color.FromRgb(192, 192, 192);
-            public static readonly Color Bronze = Color.FromRgb(205, 127, 50);
+            public static Color White => ColorPalette.White.GetColor();
+            public static Color Gray => ColorPalette.Gray.GetColor();
+            public static Color DarkGray => ColorPalette.DarkGray.GetColor();
+            public static Color Black => ColorPalette.Black.GetColor();
+            public static Color Red => ColorPalette.Red.GetColor();
+            public static Color DarkRed => ColorPalette.DarkRed.GetColor();
+            public static Color Green => ColorPalette.Green.GetColor();
+            public static Color DarkGreen => ColorPalette.DarkGreen.GetColor();
+            public static Color Blue => ColorPalette.Blue.GetColor();
+            public static Color DarkBlue => ColorPalette.DarkBlue.GetColor();
+            public static Color Yellow => ColorPalette.Yellow.GetColor();
+            public static Color Orange => ColorPalette.Orange.GetColor();
+            public static Color Purple => ColorPalette.Purple.GetColor();
+            public static Color Cyan => ColorPalette.Cyan.GetColor();
+            public static Color Magenta => ColorPalette.Magenta.GetColor();
+            public static Color Gold => ColorPalette.Gold.GetColor();
+            public static Color Silver => ColorPalette.Silver.GetColor();
+            public static Color Bronze => ColorPalette.Bronze.GetColor();
         }
 
-        // Equipment Icons
+        // Equipment Icons - Now delegates to IconRegistry
+        // Maintains backward compatibility
         public static class EquipmentIcons
         {
-            public const string Sword = "⚔";
-            public const string Shield = "🛡";
-            public const string Bow = "🏹";
-            public const string Wand = "🔮";
-            public const string Staff = "⛏";
-            public const string Mace = "🔨";
-            public const string Dagger = "🗡";
-            public const string Armor = "🛡";
-            public const string Helmet = "⛑";
-            public const string Boots = "👢";
-            public const string Ring = "💍";
-            public const string Amulet = "📿";
-            public const string Potion = "🧪";
-            public const string Scroll = "📜";
-            public const string Gem = "💎";
+            public const string Sword = IconRegistry.Sword;
+            public const string Shield = IconRegistry.Shield;
+            public const string Bow = IconRegistry.Bow;
+            public const string Wand = IconRegistry.Wand;
+            public const string Staff = IconRegistry.Staff;
+            public const string Mace = IconRegistry.Mace;
+            public const string Dagger = IconRegistry.Dagger;
+            public const string Armor = IconRegistry.Armor;
+            public const string Helmet = IconRegistry.Helmet;
+            public const string Boots = IconRegistry.Boots;
+            public const string Ring = IconRegistry.Ring;
+            public const string Amulet = IconRegistry.Amulet;
+            public const string Potion = IconRegistry.Potion;
+            public const string Scroll = IconRegistry.Scroll;
+            public const string Gem = IconRegistry.Gem;
         }
 
-        // Status Effect Icons
+        // Status Effect Icons - Now delegates to IconRegistry
+        // Maintains backward compatibility
         public static class StatusIcons
         {
-            public const string Burn = "🔥";
-            public const string Freeze = "❄";
-            public const string Poison = "💀";
-            public const string Stun = "⚡";
-            public const string Bleed = "🩸";
-            public const string Heal = "💚";
-            public const string Shield = "🛡";
-            public const string Speed = "💨";
-            public const string Strength = "💪";
-            public const string Magic = "✨";
-            public const string Weak = "😵";
-            public const string Confused = "😵‍💫";
+            public const string Burn = IconRegistry.Burn;
+            public const string Freeze = IconRegistry.Freeze;
+            public const string Poison = IconRegistry.Poison;
+            public const string Stun = IconRegistry.Stun;
+            public const string Bleed = IconRegistry.Bleed;
+            public const string Heal = IconRegistry.Heal;
+            public const string Shield = IconRegistry.Shield;
+            public const string Speed = IconRegistry.Speed;
+            public const string Strength = IconRegistry.Strength;
+            public const string Magic = IconRegistry.Magic;
+            public const string Weak = IconRegistry.Weak;
+            public const string Confused = IconRegistry.Confused;
         }
 
         // UI Elements
@@ -101,47 +105,49 @@ namespace RPGGame.UI.Avalonia
             public const string Club = "♣";
         }
 
-        // Combat Elements
+        // Combat Elements - Now delegates to IconRegistry
+        // Maintains backward compatibility
         public static class CombatIcons
         {
-            public const string Player = "👤";
-            public const string Enemy = "👹";
-            public const string Boss = "👑";
-            public const string Damage = "💥";
-            public const string Critical = "💢";
-            public const string Miss = "💨";
-            public const string Block = "🛡";
-            public const string Dodge = "💨";
-            public const string Parry = "⚔";
-            public const string Combo = "⚡";
-            public const string Magic = "✨";
-            public const string Heal = "💚";
-            public const string Death = "💀";
-            public const string Victory = "🏆";
-            public const string Defeat = "💔";
+            public const string Player = IconRegistry.Player;
+            public const string Enemy = IconRegistry.Enemy;
+            public const string Boss = IconRegistry.Boss;
+            public const string Damage = IconRegistry.Damage;
+            public const string Critical = IconRegistry.Critical;
+            public const string Miss = IconRegistry.Miss;
+            public const string Block = IconRegistry.Block;
+            public const string Dodge = IconRegistry.Dodge;
+            public const string Parry = IconRegistry.Parry;
+            public const string Combo = IconRegistry.Combo;
+            public const string Magic = IconRegistry.Magic;
+            public const string Heal = IconRegistry.Heal;
+            public const string Death = IconRegistry.Death;
+            public const string Victory = IconRegistry.Victory;
+            public const string Defeat = IconRegistry.Defeat;
         }
 
-        // Dungeon Elements
+        // Dungeon Elements - Now delegates to IconRegistry
+        // Maintains backward compatibility
         public static class DungeonIcons
         {
-            public const string Room = "🏠";
-            public const string Door = "🚪";
-            public const string Chest = "📦";
-            public const string Trap = "⚠";
-            public const string Secret = "❓";
-            public const string Exit = "🚪";
-            public const string Stairs = "🪜";
-            public const string Portal = "🌀";
-            public const string Altar = "⛩";
-            public const string Fountain = "⛲";
-            public const string Fire = "🔥";
-            public const string Ice = "❄";
-            public const string Lava = "🌋";
-            public const string Water = "💧";
-            public const string Forest = "🌲";
-            public const string Desert = "🏜";
-            public const string Mountain = "⛰";
-            public const string Cave = "🕳";
+            public const string Room = IconRegistry.Room;
+            public const string Door = IconRegistry.Door;
+            public const string Chest = IconRegistry.Chest;
+            public const string Trap = IconRegistry.Trap;
+            public const string Secret = IconRegistry.Secret;
+            public const string Exit = IconRegistry.Exit;
+            public const string Stairs = IconRegistry.Stairs;
+            public const string Portal = IconRegistry.Portal;
+            public const string Altar = IconRegistry.Altar;
+            public const string Fountain = IconRegistry.Fountain;
+            public const string Fire = IconRegistry.Fire;
+            public const string Ice = IconRegistry.Ice;
+            public const string Lava = IconRegistry.Lava;
+            public const string Water = IconRegistry.Water;
+            public const string Forest = IconRegistry.Forest;
+            public const string Desert = IconRegistry.Desert;
+            public const string Mountain = IconRegistry.Mountain;
+            public const string Cave = IconRegistry.Cave;
         }
 
         // Rarity Colors
@@ -156,54 +162,22 @@ namespace RPGGame.UI.Avalonia
             public static readonly Color Transcendent = Colors.Cyan;
         }
 
-        // Get equipment icon by weapon type
+        // Get equipment icon by weapon type - Delegates to IconRegistry
         public static string GetWeaponIcon(string weaponType)
         {
-            return weaponType.ToLower() switch
-            {
-                "sword" => EquipmentIcons.Sword,
-                "bow" => EquipmentIcons.Bow,
-                "wand" => EquipmentIcons.Wand,
-                "staff" => EquipmentIcons.Staff,
-                "mace" => EquipmentIcons.Mace,
-                "dagger" => EquipmentIcons.Dagger,
-                _ => EquipmentIcons.Sword
-            };
+            return IconRegistry.GetWeaponIcon(weaponType);
         }
 
-        // Get armor icon by armor type
+        // Get armor icon by armor type - Delegates to IconRegistry
         public static string GetArmorIcon(string armorType)
         {
-            return armorType.ToLower() switch
-            {
-                "helmet" or "head" => EquipmentIcons.Helmet,
-                "armor" or "body" or "chest" => EquipmentIcons.Armor,
-                "boots" or "feet" => EquipmentIcons.Boots,
-                "ring" => EquipmentIcons.Ring,
-                "amulet" or "necklace" => EquipmentIcons.Amulet,
-                _ => EquipmentIcons.Armor
-            };
+            return IconRegistry.GetArmorIcon(armorType);
         }
 
-        // Get status effect icon
+        // Get status effect icon - Delegates to IconRegistry
         public static string GetStatusIcon(string statusEffect)
         {
-            return statusEffect.ToLower() switch
-            {
-                "burn" or "burning" => StatusIcons.Burn,
-                "freeze" or "frozen" => StatusIcons.Freeze,
-                "poison" or "poisoned" => StatusIcons.Poison,
-                "stun" or "stunned" => StatusIcons.Stun,
-                "bleed" or "bleeding" => StatusIcons.Bleed,
-                "heal" or "healing" => StatusIcons.Heal,
-                "shield" or "protected" => StatusIcons.Shield,
-                "speed" or "haste" => StatusIcons.Speed,
-                "strength" or "strong" => StatusIcons.Strength,
-                "magic" or "enchanted" => StatusIcons.Magic,
-                "weak" or "weakened" => StatusIcons.Weak,
-                "confused" or "confusion" => StatusIcons.Confused,
-                _ => "?"
-            };
+            return IconRegistry.GetStatusIcon(statusEffect);
         }
 
         // Get rarity color
@@ -279,65 +253,6 @@ namespace RPGGame.UI.Avalonia
             string rarityPrefix = string.IsNullOrEmpty(rarity) ? "" : $"[{rarity.TrimEnd().ToUpper()}] ";
             string statsSuffix = string.IsNullOrEmpty(stats) ? "" : $" - {stats}";
             return $"[{number}] {rarityPrefix}{name}{statsSuffix}";
-        }
-
-        // Title Screen ASCII Art
-        public static class TitleArt
-        {
-            // Main title screen with DUNGEON FIGHTER logo
-            // 75 chars wide (including border)
-            public static readonly string[] DungeonFighterTitle = new string[]
-            {
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "{{success|                                                                                  }}",
-                "{{success|                                                                                    }}",
-                "{{success|                                                                          }}{{title|██████╗  ██╗   ██╗███╗   ██╗ ██████╗ ███████╗ ██████╗ ███╗   ██╗}}",
-                "{{success|                                                                          }}{{title|██╔═══██╗██║   ██║████╗  ██║██╔════╝ ██╔════╝██╔═══██╗████╗  ██║}}",
-                "{{success|                                                                          }}{{title|██║   ██║██║   ██║██╔██╗ ██║██║  ███╗█████╗  ██║   ██║██╔██╗ ██║}}",
-                "{{success|                                                                          }}{{title|██║   ██║██║   ██║██║╚██╗██║██║   ██║██╔══╝  ██║   ██║██║╚██╗██║}}",
-                "{{success|                                                                          }}{{title|╚██████╔╝╚██████╔╝██║ ╚████║╚██████╔╝███████╗╚██████╔╝██║ ╚████║}}",
-                "{{success|                                                                           }}{{title|╚═════╝  ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝ ╚══════╝ ╚═════╝ ╚═╝  ╚═══╝}}",
-                "{{success|                                                                                                                                                        }}",
-                "{{success|                                                                                                               ◈━━━━━━━━━━━━━━━◈                     }}",
-                "{{success|                                                                                                                                                        }}",
-                "{{success|                                                                                      }}{{error|███████╗██╗ ██████╗ ██╗  ██╗████████╗███████╗██████╗     }}",
-                "{{success|                                                                                      }}{{error|██╔════╝██║██╔════╝ ██║  ██║╚══██╔══╝██╔════╝██╔══██╗    }}",
-                "{{success|                                                                                      }}{{error|█████╗  ██║██║  ███╗███████║   ██║   █████╗  ██████╔╝     }}",
-                "{{success|                                                                                      }}{{error|██╔══╝  ██║██║   ██║██╔══██║   ██║   ██╔══╝  ██╔══██╗     }}",
-                "{{success|                                                                                      }}{{error|██║     ██║╚██████╔╝██║  ██║   ██║   ███████╗██║  ██║     }}",
-                "{{success|                                                                                      }}{{error|╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝     }}",
-                "{{success|                                                                                                                                                       }}",
-                "{{success|                                                                                 }}",
-                "{{success|                                                                                                                                                        }}",
-                "{{success|                                                                                    }}{{info|◈ Enter the depths. Face the darkness. Claim your glory. ◈       }}",
-                "{{success|                                                                                                                                                        }}",
-                "{{success|                                                                                 }}",
-                "{{success|                                                                                                                                                        }}",
-                "{{success|                                                                                                                                                        }}",
-                "{{success|                                                                                                                                                        }}",
-                "{{success|                                                                                                                                                        }}",
-                "{{success|                                                                                                                                                        }}",
-                "{{success|                                                                                                                                                        }}",
-                "{{success|                                                                                                                                                        ",
-                "{{success|                                                                                                                                                        ",
-                "{{success|                                                                                              }}{{warning|[ Press any key to continue ]       }}",
-                "{{success|                                                                                                                                                        ",
-                "",
-            };
         }
 
         // UI Text Constants

@@ -156,7 +156,7 @@ namespace RPGGame
 
             // ROLL 6: Rarity (determines number of bonuses)
             var rarity = RarityProcessor.RollRarity(0.0, playerLevel);
-            item.Rarity = rarity.Name;
+            item.Rarity = rarity.Name?.Trim() ?? "Common";
             RarityProcessor.ApplyRarityScaling(item, rarity);
 
             // ROLL 7: Bonus selection

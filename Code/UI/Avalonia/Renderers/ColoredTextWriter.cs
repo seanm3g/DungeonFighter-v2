@@ -49,6 +49,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>
         /// Renders a list of colored text segments to the canvas.
         /// Uses Strategy pattern to select appropriate renderer (template vs standard).
+        /// Enhanced with overlap detection and validation.
         /// </summary>
         public void RenderSegments(List<ColoredText> segments, int x, int y)
         {
@@ -60,6 +61,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                 ? templateRenderer 
                 : standardRenderer;
             
+            // Use integer X positions throughout (character grid system)
+            // No floating point needed - monospace font means 1 char = 1 position
             int currentX = x;
             int lastRenderedX = int.MinValue;
             Color? lastColor = null;
@@ -73,8 +76,12 @@ namespace RPGGame.UI.Avalonia.Renderers
                 int renderedX = int.MinValue;
                 
                 // Use selected renderer to render segment
-                currentX = renderer.RenderSegment(segment, canvasColor, currentX, 
+                // Renderer returns double for interface compatibility, but value is always integer
+                double newXDouble = renderer.RenderSegment(segment, canvasColor, currentX, 
                     lastRenderedX, lastColor, y, ref renderedX);
+                
+                // Convert back to int (should always be exact since renderer uses character count)
+                currentX = (int)System.Math.Round(newXDouble);
                 
                 if (renderedX != int.MinValue)
                 {
@@ -272,7 +279,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>
         /// Wraps ColoredText segments while preserving their colors
         /// </summary>
-        private List<List<ColoredText>> WrapColoredSegments(List<ColoredText> segments, int maxWidth)
+        public List<List<ColoredText>> WrapColoredSegments(List<ColoredText> segments, int maxWidth)
         {
             var wrappedLines = new List<List<ColoredText>>();
             var currentLine = new List<ColoredText>();
@@ -283,11 +290,11 @@ namespace RPGGame.UI.Avalonia.Renderers
                 if (string.IsNullOrEmpty(segment.Text))
                     continue;
                 
-                // Measure segment width
-                int segmentWidth = (int)canvas.MeasureTextWidth(segment.Text);
+                // Use character count for width calculation (monospace font)
+                int segmentCharWidth = segment.Text.Length;
                 
                 // Check if adding this segment would exceed max width
-                if (currentLineWidth + segmentWidth > maxWidth && currentLine.Count > 0)
+                if (currentLineWidth + segmentCharWidth > maxWidth && currentLine.Count > 0)
                 {
                     // Current line is full, start a new line
                     wrappedLines.Add(currentLine);
@@ -296,17 +303,17 @@ namespace RPGGame.UI.Avalonia.Renderers
                 }
                 
                 // If segment itself is too long, split it
-                if (segmentWidth > maxWidth)
+                if (segmentCharWidth > maxWidth)
                 {
                     // Split the segment text and create new segments with same color
                     var words = segment.Text.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                     foreach (var word in words)
                     {
-                        int wordWidth = (int)canvas.MeasureTextWidth(word);
-                        int spaceWidth = (int)canvas.MeasureTextWidth(" ");
+                        int wordCharWidth = word.Length;
+                        int spaceCharWidth = 1; // Space is 1 character
                         
-                        // Check if word fits on current line
-                        if (currentLineWidth + wordWidth > maxWidth && currentLine.Count > 0)
+                        // Check if word fits on current line (use character count)
+                        if (currentLineWidth + wordCharWidth > maxWidth && currentLine.Count > 0)
                         {
                             wrappedLines.Add(currentLine);
                             currentLine = new List<ColoredText>();
@@ -317,19 +324,19 @@ namespace RPGGame.UI.Avalonia.Renderers
                         if (currentLine.Count > 0 && currentLineWidth > 0)
                         {
                             currentLine.Add(new ColoredText(" ", segment.Color));
-                            currentLineWidth += spaceWidth;
+                            currentLineWidth += spaceCharWidth;
                         }
                         
                         // Add word
                         currentLine.Add(new ColoredText(word, segment.Color));
-                        currentLineWidth += wordWidth;
+                        currentLineWidth += wordCharWidth;
                     }
                 }
                 else
                 {
                     // Segment fits, add it to current line
                     currentLine.Add(segment);
-                    currentLineWidth += segmentWidth;
+                    currentLineWidth += segmentCharWidth;
                 }
             }
             

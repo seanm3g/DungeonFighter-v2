@@ -154,7 +154,13 @@ namespace RPGGame.UI.Avalonia
                 string? input = ConvertKeyToInput(e.Key, e.KeyModifiers);
                 if (input != null)
                 {
+                    // Debug: Log key press for troubleshooting
+                    RPGGame.Utils.ScrollDebugLogger.Log($"MainWindow: Key pressed: {e.Key} -> input: '{input}'");
                     await game.HandleInput(input);
+                }
+                else
+                {
+                    RPGGame.Utils.ScrollDebugLogger.Log($"MainWindow: Key {e.Key} not converted to input");
                 }
             }
             catch (Exception ex)
@@ -276,12 +282,16 @@ namespace RPGGame.UI.Avalonia
         private (int X, int Y) ScreenToGrid(Point screenPosition)
         {
             // Convert screen coordinates to character grid coordinates
-            // Assuming monospace font with 9.5px width and 16px height
-            const double charWidth = 9;
-            const double charHeight = 16;
+            // Use actual measured character dimensions from the canvas
+            double charWidth = GameCanvas.GetCharWidth();
+            double charHeight = GameCanvas.GetCharHeight();
             
-            int gridX = (int)(screenPosition.X / charWidth);
-            int gridY = (int)(screenPosition.Y / charHeight);
+            // Account for the margin (10px) in the XAML
+            double adjustedX = screenPosition.X - 10;
+            double adjustedY = screenPosition.Y - 10;
+            
+            int gridX = (int)(adjustedX / charWidth);
+            int gridY = (int)(adjustedY / charHeight);
             
             return (gridX, gridY);
         }

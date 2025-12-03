@@ -4,6 +4,7 @@ using System.Threading;
 using Avalonia.Threading;
 using RPGGame;
 using RPGGame.UI.Avalonia.Renderers;
+using RPGGame.Utils;
 
 namespace RPGGame.UI.Avalonia.Managers
 {
@@ -28,6 +29,12 @@ namespace RPGGame.UI.Avalonia.Managers
         // Animation configuration
         private readonly int undulationInterval;
         private readonly int brightnessMaskInterval;
+        private readonly UIConfiguration uiConfig;
+        
+        // Render throttling to prevent excessive renders
+        private DateTime lastRenderTime = DateTime.MinValue;
+        private readonly int minRenderIntervalMs = 42; // ~24fps max render rate (1/24th of a second ≈ 41.67ms, rounded to 42ms)
+        private readonly object renderThrottleLock = new object();
         
         public CanvasAnimationManager(GameCanvasControl canvas, DungeonRenderer? dungeonRenderer, Action<Character, List<Dungeon>>? reRenderCallback)
         {
@@ -35,9 +42,12 @@ namespace RPGGame.UI.Avalonia.Managers
             this.dungeonRenderer = dungeonRenderer;
             this.reRenderCallback = reRenderCallback;
             
-            // Use default animation intervals (no config file dependency)
-            this.undulationInterval = 1000; // Default: 1000ms
-            this.brightnessMaskInterval = 50; // Default: 50ms
+            // Load animation intervals from UIConfiguration
+            this.uiConfig = UIConfiguration.LoadFromFile();
+            var animConfig = this.uiConfig.DungeonSelectionAnimation;
+            
+            this.undulationInterval = animConfig.UndulationIntervalMs;
+            this.brightnessMaskInterval = animConfig.BrightnessMask.UpdateIntervalMs;
             
             // Start animation timers
             StartAnimationTimers();
@@ -48,11 +58,15 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         private void StartAnimationTimers()
         {
-            // Start undulation animation timer
+            // Start undulation animation timer (always enabled for dungeon selection)
             undulationTimer = new Timer(UpdateUndulation, null, undulationInterval, undulationInterval);
             
-            // Start brightness mask timer (separate speed for cloud movement)
-            brightnessMaskTimer = new Timer(UpdateBrightnessMask, null, brightnessMaskInterval, brightnessMaskInterval);
+            // Start brightness mask timer only if enabled in configuration
+            var dungeonAnimConfig = uiConfig.DungeonSelectionAnimation;
+            if (dungeonAnimConfig?.BrightnessMask?.Enabled == true)
+            {
+                brightnessMaskTimer = new Timer(UpdateBrightnessMask, null, brightnessMaskInterval, brightnessMaskInterval);
+            }
         }
         
         /// <summary>
@@ -62,6 +76,7 @@ namespace RPGGame.UI.Avalonia.Managers
         /// <param name="dungeons">List of available dungeons</param>
         public void StartDungeonSelectionAnimation(Character player, List<Dungeon> dungeons)
         {
+            ScrollDebugLogger.Log($"[ANIMATION] StartDungeonSelectionAnimation called - player: {player != null}, dungeons: {dungeons?.Count ?? 0}");
             isDungeonSelectionActive = true;
             dungeonSelectionPlayer = player;
             dungeonSelectionList = dungeons;
@@ -93,19 +108,34 @@ namespace RPGGame.UI.Avalonia.Managers
         public List<Dungeon>? DungeonSelectionList => dungeonSelectionList;
         
         /// <summary>
-        /// Update callback for undulation animation
+        /// Throttled render method that prevents excessive renders
+        /// Only renders if enough time has passed since last render
         /// </summary>
-        private void UpdateUndulation(object? state)
+        private void ThrottledRender()
         {
-            if (isDungeonSelectionActive && dungeonSelectionPlayer != null && dungeonSelectionList != null && dungeonRenderer != null && reRenderCallback != null)
+            lock (renderThrottleLock)
+            {
+                var now = DateTime.Now;
+                var timeSinceLastRender = (now - lastRenderTime).TotalMilliseconds;
+                
+                // If we rendered recently, skip this render
+                if (timeSinceLastRender < minRenderIntervalMs)
+                {
+                    ScrollDebugLogger.Log($"[ANIMATION] ThrottledRender skipped - only {timeSinceLastRender}ms since last render");
+                    return;
+                }
+                
+                lastRenderTime = now;
+            }
+            
+            // Perform the actual render
+            ScrollDebugLogger.Log($"[ANIMATION] ThrottledRender - isDungeonSelectionActive: {isDungeonSelectionActive}, player: {dungeonSelectionPlayer != null}, dungeons: {dungeonSelectionList != null}, callback: {reRenderCallback != null}");
+            if (isDungeonSelectionActive && dungeonSelectionPlayer != null && dungeonSelectionList != null && reRenderCallback != null)
             {
                 // Capture local copies to avoid race conditions
                 var player = dungeonSelectionPlayer;
                 var dungeons = dungeonSelectionList;
                 var callback = reRenderCallback;
-                
-                // Update the undulation offset
-                dungeonRenderer.UpdateUndulation();
                 
                 // Re-render the dungeon selection on UI thread
                 Dispatcher.UIThread.Post(() =>
@@ -113,9 +143,26 @@ namespace RPGGame.UI.Avalonia.Managers
                     // Double-check that we still have valid data before rendering
                     if (player != null && dungeons != null && callback != null)
                     {
+                        ScrollDebugLogger.Log($"[ANIMATION] Calling re-render callback");
                         callback(player, dungeons);
                     }
                 }, DispatcherPriority.Background);
+            }
+        }
+        
+        /// <summary>
+        /// Update callback for undulation animation
+        /// </summary>
+        private void UpdateUndulation(object? state)
+        {
+            if (isDungeonSelectionActive)
+            {
+                // Update centralized animation state
+                var animationState = Managers.DungeonSelectionAnimationState.Instance;
+                animationState.AdvanceUndulation();
+                
+                // Trigger throttled render
+                ThrottledRender();
             }
         }
         
@@ -124,25 +171,16 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         private void UpdateBrightnessMask(object? state)
         {
-            if (isDungeonSelectionActive && dungeonSelectionPlayer != null && dungeonSelectionList != null && dungeonRenderer != null && reRenderCallback != null)
+            if (isDungeonSelectionActive)
             {
-                // Capture local copies to avoid race conditions
-                var player = dungeonSelectionPlayer;
-                var dungeons = dungeonSelectionList;
-                var callback = reRenderCallback;
+                // Update centralized animation state
+                var animationState = Managers.DungeonSelectionAnimationState.Instance;
+                int oldOffset = animationState.BrightnessMaskOffset;
+                animationState.AdvanceBrightnessMask();
+                ScrollDebugLogger.Log($"[ANIMATION] Brightness mask offset: {oldOffset} -> {animationState.BrightnessMaskOffset}");
                 
-                // Update the brightness mask offset
-                dungeonRenderer.UpdateBrightnessMask();
-                
-                // Re-render the dungeon selection on UI thread
-                Dispatcher.UIThread.Post(() =>
-                {
-                    // Double-check that we still have valid data before rendering
-                    if (player != null && dungeons != null && callback != null)
-                    {
-                        callback(player, dungeons);
-                    }
-                }, DispatcherPriority.Background);
+                // Trigger throttled render
+                ThrottledRender();
             }
         }
         

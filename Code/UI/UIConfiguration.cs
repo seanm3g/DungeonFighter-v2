@@ -97,6 +97,12 @@ namespace RPGGame
         public BrightnessMaskConfig BrightnessMask { get; set; } = new BrightnessMaskConfig();
         
         /// <summary>
+        /// Configuration for dungeon selection screen animations
+        /// All parameters can be adjusted in UIConfiguration.json
+        /// </summary>
+        public DungeonSelectionAnimationConfig DungeonSelectionAnimation { get; set; } = new DungeonSelectionAnimationConfig();
+        
+        /// <summary>
         /// Loads configuration from a JSON file
         /// Uses the centralized GameData path finding from GameConstants
         /// This ensures all builds (Debug, Release, dist) reference the same GameData folder
@@ -290,4 +296,5 @@ namespace RPGGame
             return delay;
         }
     }
+    
 }

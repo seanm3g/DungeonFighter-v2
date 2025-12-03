@@ -15,10 +15,11 @@ namespace RPGGame.UI.Avalonia.Managers
         public const int TOP_MARGIN = 2;
         public const int BOTTOM_MARGIN = 2;
         public const int CONTENT_WIDTH = 206; // 210 - 4 margins
-        public const int CONTENT_HEIGHT = 56; // 60 - 4 margins
+        public const int CONTENT_HEIGHT = 48; // 52 - 4 margins (reduced from 56)
         
         // Screen dimensions and center point
         public const int SCREEN_WIDTH = 210;  // Total character width of the screen
+        public const int SCREEN_HEIGHT = 52;  // Total character height of the screen (reduced from 60)
         public const int SCREEN_CENTER = SCREEN_WIDTH / 2;  // The center point for menus
         
         
@@ -138,7 +139,7 @@ namespace RPGGame.UI.Avalonia.Managers
         /// <param name="screenWidth">Screen width</param>
         /// <param name="screenHeight">Screen height</param>
         /// <returns>True if the position is valid</returns>
-        public static bool IsPositionValid(int x, int y, int width, int height, int screenWidth = SCREEN_WIDTH, int screenHeight = 60)
+        public static bool IsPositionValid(int x, int y, int width, int height, int screenWidth = SCREEN_WIDTH, int screenHeight = SCREEN_HEIGHT)
         {
             return x >= 0 && y >= 0 && 
                    x + width <= screenWidth && 
@@ -155,7 +156,7 @@ namespace RPGGame.UI.Avalonia.Managers
         /// <param name="screenWidth">Screen width</param>
         /// <param name="screenHeight">Screen height</param>
         /// <returns>Tuple of (clampedX, clampedY)</returns>
-        public static (int x, int y) ClampPosition(int x, int y, int width, int height, int screenWidth = SCREEN_WIDTH, int screenHeight = 60)
+        public static (int x, int y) ClampPosition(int x, int y, int width, int height, int screenWidth = SCREEN_WIDTH, int screenHeight = SCREEN_HEIGHT)
         {
             int clampedX = Math.Max(0, Math.Min(x, screenWidth - width));
             int clampedY = Math.Max(0, Math.Min(y, screenHeight - height));

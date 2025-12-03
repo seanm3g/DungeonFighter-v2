@@ -50,7 +50,6 @@ namespace RPGGame
                 // Check if we're waiting for any key to return to test menu
                 if (waitingForTestMenuReturn)
                 {
-                    canvasUI.ClearDisplayBuffer();
                     waitingForTestMenuReturn = false;
                     ShowTestingMenu();
                     return;
@@ -73,12 +72,32 @@ namespace RPGGame
                         await RunSystemTests(testRunner, "Combat");
                         break;
                     case "4":
-                        // Item System Tests
-                        await RunSystemTests(testRunner, "Item");
+                        // Inventory System Tests
+                        await RunSystemTests(testRunner, "Inventory");
                         break;
                     case "5":
-                        // Balance Tests
-                        await RunSystemTests(testRunner, "Balance");
+                        // Dungeon System Tests
+                        await RunSystemTests(testRunner, "Dungeon");
+                        break;
+                    case "6":
+                        // Data System Tests
+                        await RunSystemTests(testRunner, "Data");
+                        break;
+                    case "7":
+                        // UI System Tests
+                        canvasUI.ClearDisplayBuffer();
+                        canvasUI.WriteLine("=== UI SYSTEM TESTS ===");
+                        canvasUI.WriteLine("Starting UI system tests...");
+                        canvasUI.WriteBlankLine();
+                        await RunSystemTests(testRunner, "ui");
+                        break;
+                    case "8":
+                        // Combat UI Fixes
+                        await RunSystemTests(testRunner, "CombatUI");
+                        break;
+                    case "9":
+                        // Integration Tests
+                        await RunSystemTests(testRunner, "Integration");
                         break;
                     case "0":
                         // Return to Settings
@@ -86,7 +105,7 @@ namespace RPGGame
                         ShowMainMenuEvent?.Invoke();
                         break;
                     default:
-                        ShowMessageEvent?.Invoke("Invalid choice. Please select 1-6 or 0 to return.");
+                        ShowMessageEvent?.Invoke("Invalid choice. Please select 1-9 or 0 to return.");
                         break;
                 }
             }

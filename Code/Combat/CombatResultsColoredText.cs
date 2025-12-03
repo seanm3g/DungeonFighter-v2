@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Avalonia.Media;
 using RPGGame.Combat.Formatting;
 using RPGGame.UI.ColorSystem;
+using static RPGGame.Combat.Formatting.DamageFormatter;
 
 namespace RPGGame
 {
@@ -74,21 +75,12 @@ namespace RPGGame
             }
             
             // Attack vs Defense
-            builder.Add(" | ", Colors.Gray);
-            builder.Add("attack", ColorPalette.Info);
-            builder.AddSpace();
-            builder.Add(attack.ToString(), Colors.White);
-            builder.Add(" - ", Colors.White);
-            builder.Add(defense.ToString(), Colors.White);
-            builder.Add(" armor", Colors.White);
+            AddAttackVsArmor(builder, attack, defense);
             
             // Speed information
             if (actualSpeed > 0)
             {
-                builder.Add(" | ", Colors.Gray);
-                builder.Add("speed:", ColorPalette.Info);
-                builder.AddSpace();
-                builder.Add($"{actualSpeed:F1}s", Colors.White);
+                AddSpeedInfo(builder, actualSpeed);
             }
             
             // Combo amplifier information
@@ -96,17 +88,11 @@ namespace RPGGame
             {
                 if (comboAmplifier.Value > 1.0)
                 {
-                    builder.Add(" | ", Colors.Gray);
-                    builder.Add("amp:", ColorPalette.Info);
-                    builder.AddSpace();
-                    builder.Add($"{comboAmplifier.Value:F1}x", Colors.White);
+                    AddAmpInfo(builder, comboAmplifier.Value);
                 }
                 else if (action != null && action.IsComboAction)
                 {
-                    builder.Add(" | ", Colors.Gray);
-                    builder.Add("amp:", ColorPalette.Info);
-                    builder.AddSpace();
-                    builder.Add("1.0x", Colors.White);
+                    AddAmpInfo(builder, 1.0);
                 }
             }
             
@@ -179,10 +165,7 @@ namespace RPGGame
             
             // Source name
             builder.Add(source.Name, source is Character ? ColorPalette.Gold : ColorPalette.Enemy);
-            builder.Add("uses", Colors.White);
-            
-            // Action name
-            builder.Add(action.Name, ColorPalette.Success);
+            AddUsesAction(builder, action.Name, ColorPalette.Success);
             
             builder.Add("on", Colors.White);
             
@@ -344,11 +327,11 @@ namespace RPGGame
             var builder = new ColoredTextBuilder();
             
             builder.Add(healer.Name, ColorPalette.Player);
+            builder.AddSpace();
             builder.Add("heals", Colors.White);
+            builder.AddSpace();
             builder.Add(target.Name, target is Character ? ColorPalette.Gold : ColorPalette.Enemy);
-            builder.Add("for", Colors.White);
-            builder.Add(healAmount.ToString(), ColorPalette.Healing);
-            builder.Add("health", ColorPalette.Healing);
+            AddForAmountUnit(builder, healAmount.ToString(), ColorPalette.Healing, "health", ColorPalette.Healing);
             builder.Add("!", Colors.White);
             
             return builder.Build();

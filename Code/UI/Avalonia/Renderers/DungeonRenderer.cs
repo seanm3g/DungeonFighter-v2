@@ -50,22 +50,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             currentLineCount = 0;
         }
         
-        /// <summary>
-        /// Updates the undulation animation for dungeon names
-        /// Call this each frame to create a shimmering effect
-        /// </summary>
-        public void UpdateUndulation()
-        {
-            selectionRenderer.UpdateUndulation();
-        }
-        
-        /// <summary>
-        /// Updates the brightness mask animation (separate from undulation)
-        /// </summary>
-        public void UpdateBrightnessMask()
-        {
-            selectionRenderer.UpdateBrightnessMask();
-        }
+        // Animation updates are now handled by centralized state - no methods needed here
         
         public int GetLineCount()
         {
@@ -301,12 +286,19 @@ namespace RPGGame.UI.Avalonia.Renderers
             int currentY = y + 2;
             int startX = x + 4;
             
-            // Death header
-            canvas.AddText(x + (width / 2) - 15, currentY, "═══════════════════════════════════════", AsciiArtAssets.Colors.Red);
+            // Death header - properly center the divider lines (39 characters)
+            string divider = "═══════════════════════════════════════";
+            int dividerX = x + (width / 2) - (divider.Length / 2);
+            canvas.AddText(dividerX, currentY, divider, AsciiArtAssets.Colors.Red);
             currentY += 1;
-            canvas.AddText(x + (width / 2) - 7, currentY, "              YOU DIED", AsciiArtAssets.Colors.Red);
+            
+            // Center "YOU DIED" properly (trim leading spaces and center based on actual text)
+            string youDiedText = "YOU DIED";
+            int youDiedX = x + (width / 2) - (youDiedText.Length / 2);
+            canvas.AddText(youDiedX, currentY, youDiedText, AsciiArtAssets.Colors.Red);
             currentY += 1;
-            canvas.AddText(x + (width / 2) - 15, currentY, "═══════════════════════════════════════", AsciiArtAssets.Colors.Red);
+            
+            canvas.AddText(dividerX, currentY, divider, AsciiArtAssets.Colors.Red);
             currentY += 3;
             
             // Display defeat summary line by line
@@ -315,6 +307,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 if (!string.IsNullOrWhiteSpace(line))
                 {
+                    // Trim leading/trailing spaces for proper centering
+                    string trimmedLine = line.Trim();
+                    
                     // Determine color based on line content
                     Color lineColor = AsciiArtAssets.Colors.White;
                     if (line.Contains("YOU DIED") || line.Contains("DEFEAT"))
@@ -334,15 +329,24 @@ namespace RPGGame.UI.Avalonia.Renderers
                         lineColor = AsciiArtAssets.Colors.Green;
                     }
                     
-                    canvas.AddText(startX, currentY, line, lineColor);
+                    // Center "DEFEAT STATISTICS" and divider lines, left-align everything else
+                    int lineX = startX;
+                    if (trimmedLine == "DEFEAT STATISTICS" || trimmedLine == divider || trimmedLine == "Better luck next time!")
+                    {
+                        lineX = x + (width / 2) - (trimmedLine.Length / 2);
+                    }
+                    
+                    canvas.AddText(lineX, currentY, trimmedLine, lineColor);
                     currentY++;
                 }
             }
             
             currentY += 2;
             
-            // Prompt to continue
-            canvas.AddText(x + (width / 2) - 20, currentY, "Press any key to return to main menu...", AsciiArtAssets.Colors.Yellow);
+            // Prompt to continue - properly center
+            string promptText = "Press any key to return to main menu...";
+            int promptX = x + (width / 2) - (promptText.Length / 2);
+            canvas.AddText(promptX, currentY, promptText, AsciiArtAssets.Colors.Yellow);
         }
     }
 }

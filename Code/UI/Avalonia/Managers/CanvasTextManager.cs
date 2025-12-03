@@ -66,6 +66,15 @@ namespace RPGGame.UI.Avalonia.Managers
         }
         
         /// <summary>
+        /// Clears the display buffer without triggering a render
+        /// Used when switching to menu screens that handle their own rendering
+        /// </summary>
+        public void ClearDisplayBufferWithoutRender()
+        {
+            displayManager.ClearWithoutRender();
+        }
+        
+        /// <summary>
         /// Renders the display buffer to the specified area (legacy method)
         /// </summary>
         public void RenderDisplayBuffer(int x, int y, int width, int height)
