@@ -118,7 +118,7 @@ namespace RPGGame
                     // Handle combo advancement
                     if (source is Character comboCharacter && !(comboCharacter is Enemy))
                     {
-                        comboCharacter.ComboStep++;
+                        comboCharacter.IncrementComboStep();
                     }
                     
                     return (actionText, actionRollInfo);
@@ -239,7 +239,7 @@ namespace RPGGame
                 // Handle combo advancement for characters
                 if (source is Character comboCharacter && !(comboCharacter is Enemy))
                 {
-                    comboCharacter.ComboStep++;
+                    comboCharacter.IncrementComboStep();
                 }
             }
             else

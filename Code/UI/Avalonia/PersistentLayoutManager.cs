@@ -3,6 +3,7 @@ using Avalonia.Threading;
 using RPGGame;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.ColorSystem.Applications;
 using RPGGame.UI.Avalonia.Renderers;
@@ -57,6 +58,14 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         /// <param name="clearCanvas">Whether to clear the canvas before rendering. Set to false to preserve existing content when transitioning to combat.</param>
         public void RenderLayout(Character? character, Action<int, int, int, int> renderCenterContent, string title = "DUNGEON FIGHTER", Enemy? enemy = null, string? dungeonName = null, string? roomName = null, bool clearCanvas = true)
+        {
+            RenderLayout(character, renderCenterContent, title, enemy, dungeonName, roomName, clearCanvas, character);
+        }
+        
+        /// <summary>
+        /// Internal method that handles the actual rendering
+        /// </summary>
+        private void RenderLayout(Character? character, Action<int, int, int, int> renderCenterContent, string title, Enemy? enemy, string? dungeonName, string? roomName, bool clearCanvas, Character? characterForRightPanel)
         {
             // Clear canvas if title changed - this ensures clean transitions when title changes
             bool titleChanged = title != lastRenderedTitle;
@@ -135,8 +144,8 @@ namespace RPGGame.UI.Avalonia
             renderCenterContent?.Invoke(centerX, centerY, centerW, centerH);
             ScrollDebugLogger.Log($"PersistentLayoutManager: renderCenterContent invoked");
             
-            // Render right panel (Dungeon/Enemy Info) - always update to show current enemy
-            RenderRightPanel(enemy, dungeonName, roomName);
+            // Render right panel (Dungeon/Enemy Info or Inventory Actions) - always update
+            RenderRightPanel(enemy, dungeonName, roomName, title, characterForRightPanel);
             
             // Ensure refresh happens on UI thread and after all rendering is complete
             if (Dispatcher.UIThread.CheckAccess())
@@ -261,9 +270,9 @@ namespace RPGGame.UI.Avalonia
         
         /// <summary>
         /// Renders the dungeon and enemy information panel (right side)
-        /// Always shows all sections (Location, Room, Enemy) even when empty
+        /// Shows combo sequence and action pool when on inventory page, otherwise shows location/enemy info
         /// </summary>
-        private void RenderRightPanel(Enemy? enemy, string? dungeonName, string? roomName)
+        private void RenderRightPanel(Enemy? enemy, string? dungeonName, string? roomName, string title, Character? character)
         {
             // Clear the right panel content area before rendering to prevent text overlap
             int contentX = RIGHT_PANEL_X + 2;
@@ -280,6 +289,106 @@ namespace RPGGame.UI.Avalonia
             int y = RIGHT_PANEL_Y + 1;
             int x = RIGHT_PANEL_X + 2;
             
+            // Check if we're on the inventory page
+            if (title == "INVENTORY" && character != null)
+            {
+                // Render combo sequence and action pool for inventory page
+                RenderInventoryRightPanel(x, y, character);
+            }
+            else
+            {
+                // Render location and enemy info for other pages
+                RenderLocationEnemyPanel(x, y, enemy, dungeonName, roomName);
+            }
+        }
+        
+        /// <summary>
+        /// Renders combo sequence and action pool for inventory page
+        /// </summary>
+        private void RenderInventoryRightPanel(int x, int y, Character character)
+        {
+            // Combo Sequence section
+            canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader("COMBO SEQUENCE"), AsciiArtAssets.Colors.Gold);
+            y += 2;
+            
+            var comboActions = character.GetComboActions();
+            if (comboActions.Count > 0)
+            {
+                int currentStepInSequence = (character.ComboStep % comboActions.Count) + 1;
+                canvas.AddText(x, y, $"Step: {currentStepInSequence}/{comboActions.Count}", AsciiArtAssets.Colors.White);
+                y += 2;
+                
+                // Show combo sequence (limit to fit in panel)
+                int maxDisplay = Math.Min(comboActions.Count, 8); // Limit to 8 to fit in panel
+                for (int i = 0; i < maxDisplay; i++)
+                {
+                    var action = comboActions[i];
+                    string currentStep = (character.ComboStep % comboActions.Count == i) ? " ←" : "";
+                    string actionName = action.Name;
+                    if (actionName.Length > 20)
+                        actionName = actionName.Substring(0, 17) + "...";
+                    canvas.AddText(x, y, $"{i + 1}. {actionName}{currentStep}", AsciiArtAssets.Colors.White);
+                    y++;
+                }
+                
+                if (comboActions.Count > maxDisplay)
+                {
+                    canvas.AddText(x, y, $"... +{comboActions.Count - maxDisplay} more", AsciiArtAssets.Colors.Gray);
+                    y++;
+                }
+            }
+            else
+            {
+                canvas.AddText(x, y, "(No combo set)", AsciiArtAssets.Colors.DarkGray);
+                y += 2;
+            }
+            
+            y += 1; // Spacing
+            
+            // Action Pool section
+            canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader("ACTION POOL"), AsciiArtAssets.Colors.Gold);
+            y += 2;
+            
+            var actionPool = character.GetActionPool();
+            if (actionPool.Count > 0)
+            {
+                canvas.AddText(x, y, $"Total: {actionPool.Count}", AsciiArtAssets.Colors.White);
+                y += 2;
+                
+                // Group actions by name and show unique actions
+                var uniqueActions = actionPool.GroupBy(a => a.Name)
+                    .Select(g => new { Name = g.Key, Count = g.Count() })
+                    .OrderBy(a => a.Name)
+                    .Take(6) // Limit to 6 to fit in panel
+                    .ToList();
+                
+                foreach (var actionGroup in uniqueActions)
+                {
+                    string actionName = actionGroup.Name;
+                    if (actionName.Length > 20)
+                        actionName = actionName.Substring(0, 17) + "...";
+                    string countText = actionGroup.Count > 1 ? $" x{actionGroup.Count}" : "";
+                    canvas.AddText(x, y, $"{actionName}{countText}", AsciiArtAssets.Colors.Cyan);
+                    y++;
+                }
+                
+                if (actionPool.Count > uniqueActions.Sum(a => a.Count))
+                {
+                    int remaining = actionPool.Count - uniqueActions.Sum(a => a.Count);
+                    canvas.AddText(x, y, $"... +{remaining} more", AsciiArtAssets.Colors.Gray);
+                }
+            }
+            else
+            {
+                canvas.AddText(x, y, "(No actions)", AsciiArtAssets.Colors.DarkGray);
+            }
+        }
+        
+        /// <summary>
+        /// Renders location and enemy information panel
+        /// </summary>
+        private void RenderLocationEnemyPanel(int x, int y, Enemy? enemy, string? dungeonName, string? roomName)
+        {
             // Location section - always shown
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Location), AsciiArtAssets.Colors.Gold);
             y += 2;

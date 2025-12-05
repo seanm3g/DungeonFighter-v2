@@ -84,7 +84,7 @@ namespace RPGGame
                 return;
             }
             
-            // Handle comparison choice (1=new item, 2=old item, 0=cancel)
+            // Handle comparison choice (1=old item, 2=new item, 0=cancel)
             if (waitingForComparisonChoice && int.TryParse(input, out int comparisonChoice))
             {
                 waitingForComparisonChoice = false;
@@ -100,17 +100,17 @@ namespace RPGGame
                 
                 if (comparisonChoice == 1)
                 {
-                    // Equip new item
-                    ConfirmEquipItem(selectedItemIndex, selectedSlot, equipNew: true);
-                }
-                else if (comparisonChoice == 2)
-                {
                     // Keep old item
                     ConfirmEquipItem(selectedItemIndex, selectedSlot, equipNew: false);
                 }
+                else if (comparisonChoice == 2)
+                {
+                    // Equip new item
+                    ConfirmEquipItem(selectedItemIndex, selectedSlot, equipNew: true);
+                }
                 else
                 {
-                    ShowMessageEvent?.Invoke("Invalid choice. Please select 1 (new item), 2 (old item), or 0 (cancel).");
+                    ShowMessageEvent?.Invoke("Invalid choice. Please select 1 (keep current), 2 (equip new), or 0 (cancel).");
                     waitingForComparisonChoice = true;
                     return;
                 }
@@ -172,7 +172,7 @@ namespace RPGGame
                     // Show error message for invalid input during selection
                     if (waitingForComparisonChoice)
                     {
-                        ShowMessageEvent?.Invoke("Please enter 1 (new item), 2 (old item), or 0 (cancel).");
+                        ShowMessageEvent?.Invoke("Please enter 1 (keep current), 2 (equip new), or 0 (cancel).");
                     }
                     else
                     {

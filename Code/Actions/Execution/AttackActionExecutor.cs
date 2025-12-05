@@ -58,7 +58,7 @@ namespace RPGGame.Actions.Execution
             // Handle combo advancement
             if (source is Character comboCharacter && !(comboCharacter is Enemy))
             {
-                comboCharacter.ComboStep++;
+                comboCharacter.IncrementComboStep();
             }
             
             return (damageText, rollInfo);

@@ -137,6 +137,23 @@ namespace RPGGame
 
         // Effects accessors (delegated to Facade)
         public int ComboStep { get => Facade.Properties.ComboStep; set => Facade.Properties.ComboStep = value; }
+        
+        /// <summary>
+        /// Increments ComboStep and wraps it within the combo sequence bounds
+        /// </summary>
+        public void IncrementComboStep()
+        {
+            var comboActions = GetComboActions();
+            if (comboActions.Count > 0)
+            {
+                ComboStep = (ComboStep + 1) % comboActions.Count;
+            }
+            else
+            {
+                // If no combo actions, just increment (shouldn't happen in normal gameplay)
+                ComboStep++;
+            }
+        }
         public double ComboAmplifier => Facade.Properties.ComboAmplifier;
         public int ComboBonus => Facade.Properties.ComboBonus;
         public int TempComboBonus => Facade.Properties.TempComboBonus;

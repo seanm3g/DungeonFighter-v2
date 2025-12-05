@@ -346,14 +346,14 @@ namespace RPGGame.UI.Avalonia.Renderers
             currentLineCount += 2;
             
             // Create buttons for choices
-            var newItemButton = CreateButton(x + 2, y, 28, "1", MenuOptionFormatter.Format(1, "Equip new item"));
-            var oldItemButton = CreateButton(x + 32, y, 28, "2", MenuOptionFormatter.Format(2, "Keep current item"));
+            var newItemButton = CreateButton(x + 2, y, 28, "2", MenuOptionFormatter.Format(2, "Equip new item"));
+            var oldItemButton = CreateButton(x + 32, y, 28, "1", MenuOptionFormatter.Format(1, "Keep current item"));
             var cancelButton = CreateButton(x + 2, y + 1, 28, "0", MenuOptionFormatter.Format(0, UIConstants.MenuOptions.Cancel));
             
             clickableElements.AddRange(new[] { newItemButton, oldItemButton, cancelButton });
             
-            canvas.AddMenuOption(x + 2, y, 1, "Equip new item", AsciiArtAssets.Colors.White, newItemButton.IsHovered);
-            canvas.AddMenuOption(x + 32, y, 2, "Keep current item", AsciiArtAssets.Colors.White, oldItemButton.IsHovered);
+            canvas.AddMenuOption(x + 2, y, 2, "Equip new item", AsciiArtAssets.Colors.White, newItemButton.IsHovered);
+            canvas.AddMenuOption(x + 32, y, 1, "Keep current item", AsciiArtAssets.Colors.White, oldItemButton.IsHovered);
             currentLineCount++;
             canvas.AddMenuOption(x + 2, y + 1, 0, UIConstants.MenuOptions.Cancel, AsciiArtAssets.Colors.White, cancelButton.IsHovered);
             currentLineCount++;
