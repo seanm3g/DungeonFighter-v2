@@ -195,6 +195,37 @@ namespace RPGGame.UI.ColorSystem
             
             foreach (var segment in segments)
             {
+                // First, check if segment contains newlines - if so, split on newlines first
+                if (segment.Text.Contains("\r\n") || segment.Text.Contains("\n") || segment.Text.Contains("\r"))
+                {
+                    // Split on newlines to preserve line breaks
+                    var newlineSplit = segment.Text.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
+                    
+                    for (int i = 0; i < newlineSplit.Length; i++)
+                    {
+                        var part = newlineSplit[i];
+                        
+                        // If this is not the first part, finish the current line and start a new one
+                        if (i > 0)
+                        {
+                            if (currentLine.Count > 0)
+                            {
+                                lines.Add(new List<ColoredText>(currentLine));
+                                currentLine.Clear();
+                                currentLength = 0;
+                            }
+                        }
+                        
+                        // Process this part (which may still need word wrapping)
+                        if (!string.IsNullOrEmpty(part))
+                        {
+                            ProcessSegmentPartForCanvas(part, segment.Color, ref currentLine, ref currentLength, maxWidth, ref lines);
+                        }
+                    }
+                    
+                    continue;
+                }
+                
                 var segmentLength = segment.Text.Length;
                 
                 if (currentLength + segmentLength <= maxWidth)
@@ -265,6 +296,71 @@ namespace RPGGame.UI.ColorSystem
             }
             
             return lines;
+        }
+        
+        /// <summary>
+        /// Helper method to process a segment part (after splitting on newlines) for Canvas renderer
+        /// Handles word wrapping for the part
+        /// </summary>
+        private void ProcessSegmentPartForCanvas(string part, global::Avalonia.Media.Color color, ref List<ColoredText> currentLine, ref int currentLength, int maxWidth, ref List<List<ColoredText>> lines)
+        {
+            int partLength = part.Length;
+            
+            // If part fits on current line, add it
+            if (currentLength + partLength <= maxWidth)
+            {
+                currentLine.Add(new ColoredText(part, color));
+                currentLength += partLength;
+            }
+            else if (partLength > maxWidth)
+            {
+                // Part is too long, split at word boundaries
+                var remainingText = part;
+                while (remainingText.Length > maxWidth)
+                {
+                    // Try to find the last space before maxWidth to split at word boundary
+                    int splitPoint = maxWidth;
+                    int lastSpace = remainingText.LastIndexOf(' ', maxWidth - 1);
+                    
+                    if (lastSpace > 0 && lastSpace > maxWidth / 2)
+                    {
+                        // Split at word boundary
+                        splitPoint = lastSpace + 1; // Include the space
+                    }
+                    
+                    var chunk = remainingText.Substring(0, splitPoint);
+                    if (chunk.Length > 0)
+                    {
+                        currentLine.Add(new ColoredText(chunk, color));
+                    }
+                    lines.Add(new List<ColoredText>(currentLine));
+                    currentLine.Clear();
+                    currentLength = 0;
+                    
+                    // Remove the chunk (and trailing space if we split at word boundary)
+                    remainingText = remainingText.Substring(splitPoint).TrimStart();
+                }
+                
+                if (remainingText.Length > 0)
+                {
+                    currentLine.Add(new ColoredText(remainingText, color));
+                    currentLength = remainingText.Length;
+                }
+            }
+            else
+            {
+                // Part doesn't fit, start new line
+                if (currentLine.Count > 0)
+                {
+                    lines.Add(new List<ColoredText>(currentLine));
+                    currentLine.Clear();
+                    currentLength = 0;
+                }
+                
+                // Add part to new line
+                currentLine.Add(new ColoredText(part, color));
+                currentLength += partLength;
+            }
         }
     }
 }

@@ -65,6 +65,30 @@ namespace RPGGame.UI.Avalonia.Coordinators
         }
         
         /// <summary>
+        /// Renders combo management menu
+        /// </summary>
+        public void RenderComboManagement(Character character)
+        {
+            renderer.RenderComboManagement(character, contextManager.GetCurrentContext());
+        }
+        
+        /// <summary>
+        /// Renders combo action selection prompt
+        /// </summary>
+        public void RenderComboActionSelection(Character character, string actionType)
+        {
+            renderer.RenderComboActionSelection(character, actionType, contextManager.GetCurrentContext());
+        }
+        
+        /// <summary>
+        /// Renders combo reorder prompt
+        /// </summary>
+        public void RenderComboReorderPrompt(Character character, string currentSequence = "")
+        {
+            renderer.RenderComboReorderPrompt(character, currentSequence, contextManager.GetCurrentContext());
+        }
+        
+        /// <summary>
         /// Renders combat screen
         /// </summary>
         public void RenderCombat(Character player, Enemy enemy, List<string> combatLog)

@@ -40,6 +40,7 @@ namespace RPGGame.Display.Dungeon
                 .AddRange(environmentNameColored)
                 .Build();
             info.Add(ColoredTextRenderer.RenderAsMarkup(roomNameInfo));
+            info.Add(""); // Blank line after room name
 
             var roomDescription = new ColoredTextBuilder()
                 .Add(room.Description, ColorPalette.White)

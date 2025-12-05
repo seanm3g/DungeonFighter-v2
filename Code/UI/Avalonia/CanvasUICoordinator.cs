@@ -127,6 +127,12 @@ namespace RPGGame.UI.Avalonia
             => screenRenderingCoordinator.RenderItemSelectionPrompt(character, inventory, promptMessage, actionType);
         public void RenderSlotSelectionPrompt(Character character) 
             => screenRenderingCoordinator.RenderSlotSelectionPrompt(character);
+        public void RenderComboManagement(Character character) 
+            => screenRenderingCoordinator.RenderComboManagement(character);
+        public void RenderComboActionSelection(Character character, string actionType) 
+            => screenRenderingCoordinator.RenderComboActionSelection(character, actionType);
+        public void RenderComboReorderPrompt(Character character, string currentSequence = "") 
+            => screenRenderingCoordinator.RenderComboReorderPrompt(character, currentSequence);
         public void RenderCombat(Character player, Enemy enemy, List<string> combatLog) 
             => screenRenderingCoordinator.RenderCombat(player, enemy, combatLog);
         public void RenderWeaponSelection(List<StartingWeapon> weapons) 

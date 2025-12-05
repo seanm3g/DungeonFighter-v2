@@ -67,7 +67,8 @@ namespace RPGGame.UI.ColorSystem.Helpers
                     // Only check if we need space if current doesn't already end with space
                     if (!currentEndsWithSpace)
                     {
-                        bool needsSpace = CombatLogSpacingManager.ShouldAddSpaceBetween(currentSegment.Text, processedText);
+                        // Use word boundary detection to prevent spaces between letters in multi-color templates (e.g., room names)
+                        bool needsSpace = CombatLogSpacingManager.ShouldAddSpaceBetween(currentSegment.Text, processedText, checkWordBoundary: true);
                         
                         if (needsSpace)
                         {
@@ -112,7 +113,8 @@ namespace RPGGame.UI.ColorSystem.Helpers
                     else
                     {
                         // Check if we need to add a space between them
-                        bool needsSpaceBetween = CombatLogSpacingManager.ShouldAddSpaceBetween(currentSegment.Text, processedText);
+                        // Use word boundary detection to prevent spaces between letters in multi-color templates (e.g., room names)
+                        bool needsSpaceBetween = CombatLogSpacingManager.ShouldAddSpaceBetween(currentSegment.Text, processedText, checkWordBoundary: true);
                         if (needsSpaceBetween)
                         {
                             currentSegment = new ColoredText(currentSegment.Text + CombatLogSpacingManager.SingleSpace + processedText, currentSegment.Color);

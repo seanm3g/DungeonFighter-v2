@@ -148,7 +148,7 @@ namespace RPGGame
                     var effectMessage = GetEnvironmentalEffectMessageColored(action, duration);
                     var builder = new ColoredTextBuilder();
                     builder.Add("    ", Colors.White);
-                    builder.Add(displayName, target is Character ? ColorPalette.Gold : ColorPalette.Enemy);
+                    builder.Add(displayName, target is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
                     builder.AddSpace(); // Explicit space between display name and "affected"
                     builder.Add("affected", Colors.White);
                     builder.AddSpace(); // Explicit space between "affected" and "by"
@@ -235,7 +235,7 @@ namespace RPGGame
             // Build effect line - "affected by BLEED for x turns"
             var effectBuilder = new ColoredTextBuilder();
             effectBuilder.Add("    ", Colors.White);
-            effectBuilder.Add(displayName, target is Character ? ColorPalette.Gold : ColorPalette.Enemy);
+            effectBuilder.Add(displayName, target is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
             effectBuilder.AddSpace(); // Explicit space between display name and "affected"
             effectBuilder.Add("affected", Colors.White);
             effectBuilder.AddSpace(); // Explicit space between "affected" and "by"

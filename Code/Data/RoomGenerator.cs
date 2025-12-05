@@ -31,15 +31,15 @@ namespace RPGGame
 
             if (hostileRooms.Count > 0)
             {
-                // Use a theme-specific room from JSON
+                // Use a theme-specific room from JSON that matches the desired hostility
                 string selectedRoomName = hostileRooms[random.Next(hostileRooms.Count)];
-                return RoomLoader.CreateRoom(selectedRoomName, dungeonTheme);
+                return RoomLoader.CreateRoom(selectedRoomName, dungeonTheme, isHostile);
             }
             else if (themeRooms.Count > 0)
             {
-                // Use any theme-specific room if no matching hostility found
+                // Use any theme-specific room but override hostility to match what was requested
                 string selectedRoomName = themeRooms[random.Next(themeRooms.Count)];
-                return RoomLoader.CreateRoom(selectedRoomName, dungeonTheme);
+                return RoomLoader.CreateRoom(selectedRoomName, dungeonTheme, isHostile);
             }
             else
             {

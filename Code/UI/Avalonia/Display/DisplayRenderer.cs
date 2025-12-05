@@ -104,7 +104,8 @@ namespace RPGGame.UI.Avalonia.Display
                 // Render this line if it fits in the viewport
                 if (y < contentY + contentHeight)
                 {
-                    // Use consistent X position - always contentX + 1 to match non-scrolled rendering
+                    // Use consistent X position - contentX is the content area start,
+                    // add 1 for left padding to match availableWidth calculation (contentWidth - 2)
                     // This ensures text doesn't shift horizontally when scrolling
                     // Use exact integer values to prevent floating point rounding issues
                     int renderX = contentX + 1;

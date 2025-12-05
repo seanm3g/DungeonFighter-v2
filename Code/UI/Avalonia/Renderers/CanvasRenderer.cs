@@ -89,6 +89,30 @@ namespace RPGGame.UI.Avalonia.Renderers
                 inventoryRenderer.RenderSlotSelectionPrompt(contentX, contentY, contentWidth, contentHeight, character);
             }, context);
         }
+        
+        public void RenderComboManagement(Character character, CanvasContext context)
+        {
+            RenderWithLayout(character, "COMBO MANAGEMENT", (contentX, contentY, contentWidth, contentHeight) =>
+            {
+                inventoryRenderer.RenderComboManagement(contentX, contentY, contentWidth, contentHeight, character);
+            }, context);
+        }
+        
+        public void RenderComboActionSelection(Character character, string actionType, CanvasContext context)
+        {
+            RenderWithLayout(character, "COMBO MANAGEMENT", (contentX, contentY, contentWidth, contentHeight) =>
+            {
+                inventoryRenderer.RenderComboActionSelection(contentX, contentY, contentWidth, contentHeight, character, actionType);
+            }, context);
+        }
+        
+        public void RenderComboReorderPrompt(Character character, string currentSequence, CanvasContext context)
+        {
+            RenderWithLayout(character, "COMBO MANAGEMENT", (contentX, contentY, contentWidth, contentHeight) =>
+            {
+                inventoryRenderer.RenderComboReorderPrompt(contentX, contentY, contentWidth, contentHeight, character, currentSequence);
+            }, context);
+        }
 
         public void RenderWeaponSelection(List<StartingWeapon> weapons, CanvasContext context)
         {

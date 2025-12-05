@@ -117,8 +117,8 @@ namespace RPGGame
             int totalRoll = roll + rollBonus;
             bool isCriticalMiss = totalRoll <= 1;
             
-            // Attacker name
-            builder.Add(attacker.Name, attacker is Character ? ColorPalette.Gold : ColorPalette.Enemy);
+            // Attacker name (check Enemy first since Enemy inherits from Character)
+            builder.Add(attacker.Name, attacker is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
             
             if (isCriticalMiss)
             {
@@ -134,7 +134,7 @@ namespace RPGGame
             }
             
             builder.AddSpace(); // Explicit space between "MISS"/"misses" and target name
-            builder.Add(target.Name, target is Character ? ColorPalette.Gold : ColorPalette.Enemy);
+            builder.Add(target.Name, target is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
             
             var missText = builder.Build();
             
@@ -164,13 +164,13 @@ namespace RPGGame
             var builder = new ColoredTextBuilder();
             
             // Source name
-            builder.Add(source.Name, source is Character ? ColorPalette.Gold : ColorPalette.Enemy);
+            builder.Add(source.Name, source is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
             AddUsesAction(builder, action.Name, ColorPalette.Success);
             
             builder.Add("on", Colors.White);
             
             // Target name
-            builder.Add(target.Name, target is Character ? ColorPalette.Gold : ColorPalette.Enemy);
+            builder.Add(target.Name, target is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
             
             var actionText = builder.Build();
             
@@ -193,7 +193,7 @@ namespace RPGGame
         {
             var builder = new ColoredTextBuilder();
             
-            builder.Add(Actor.Name, Actor is Character ? ColorPalette.Player : ColorPalette.Enemy);
+            builder.Add(Actor.Name, Actor is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
             builder.Add("is", Colors.White);
             
             if (healthPercentage <= 0.1)
@@ -272,7 +272,7 @@ namespace RPGGame
         {
             var builder = new ColoredTextBuilder();
             
-            builder.Add(target.Name, target is Character ? ColorPalette.Gold : ColorPalette.Enemy);
+            builder.Add(target.Name, target is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
             
             if (isApplied)
             {
@@ -330,7 +330,7 @@ namespace RPGGame
             builder.AddSpace();
             builder.Add("heals", Colors.White);
             builder.AddSpace();
-            builder.Add(target.Name, target is Character ? ColorPalette.Gold : ColorPalette.Enemy);
+            builder.Add(target.Name, target is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
             AddForAmountUnit(builder, healAmount.ToString(), ColorPalette.Healing, "health", ColorPalette.Healing);
             builder.Add("!", Colors.White);
             

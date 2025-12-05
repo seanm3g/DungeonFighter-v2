@@ -294,8 +294,8 @@
     },
     {
       "name": "Enemy",
-      "colorCode": "R",
-      "hex": "#d74200",
+      "rgb": [255, 165, 0],
+      "hex": "#ffa500",
       "category": "actor"
     },
     {

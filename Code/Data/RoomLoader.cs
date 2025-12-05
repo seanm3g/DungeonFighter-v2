@@ -147,15 +147,18 @@ namespace RPGGame
             return _rooms?.Values.ToList() ?? new List<RoomData>();
         }
 
-        public static Environment CreateRoom(string roomName, string dungeonTheme)
+        public static Environment CreateRoom(string roomName, string dungeonTheme, bool? overrideIsHostile = null)
         {
             var roomData = GetRoomData(roomName);
             if (roomData != null)
             {
+                // Use override value if provided, otherwise use JSON value
+                bool isHostile = overrideIsHostile ?? roomData.IsHostile;
+                
                 var room = new Environment(
                     name: roomData.Name,
                     description: roomData.Description,
-                    isHostile: roomData.IsHostile,
+                    isHostile: isHostile,
                     theme: dungeonTheme
                 );
 
@@ -176,7 +179,7 @@ namespace RPGGame
             return new Environment(
                 name: roomName,
                 description: "A mysterious room with an unknown purpose.",
-                isHostile: true,
+                isHostile: overrideIsHostile ?? true,
                 theme: dungeonTheme
             );
         }

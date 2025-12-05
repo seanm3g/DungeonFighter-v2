@@ -26,7 +26,7 @@ namespace RPGGame
                 // Add opening bracket
                 builder.Add("[", Colors.White);
                 // Add actor name with appropriate color
-                builder.Add(entity.Name, entity is Character ? ColorPalette.Gold : ColorPalette.Enemy);
+                builder.Add(entity.Name, entity is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
                 // Add closing bracket
                 builder.Add("]", Colors.White);
                 // Add "is" with space

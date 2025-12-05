@@ -66,52 +66,26 @@ namespace RPGGame.Combat.Turn
                     blankLineAdded = true;
                 }
                 
-                // Group related messages together - display damage and status effects as one block
-                var damageMessages = new List<string>();
-                var statusMessages = new List<string>();
-                
+                // Combine ALL status effect messages into a single block
+                // Parse each message separately and combine with explicit newlines to ensure proper line breaks
+                var combinedSegments = new List<ColoredText>();
                 for (int i = 0; i < results.Count; i++)
                 {
-                    var result = results[i];
-                    if (result.StartsWith("    ")) // Status effect message (indented)
+                    if (i > 0)
                     {
-                        statusMessages.Add(result); // Keep indentation for proper formatting
+                        // Add explicit newline segment between messages to ensure proper line breaks
+                        // This prevents the "no longer affected" message from wrapping onto the previous line
+                        combinedSegments.Add(new ColoredText(System.Environment.NewLine, Avalonia.Media.Colors.White));
                     }
-                    else // Damage message
-                    {
-                        damageMessages.Add(result);
-                    }
+                    
+                    // Parse each message separately
+                    var messageSegments = ColoredTextParser.Parse(results[i]);
+                    combinedSegments.AddRange(messageSegments);
                 }
                 
-                // Combine damage and status messages into single blocks to avoid spacing issues
-                if (damageMessages.Count > 0 && statusMessages.Count > 0)
-                {
-                    // Combine damage and status messages into one block
-                    string combinedMessage = string.Join("\n", damageMessages.Concat(statusMessages));
-                    BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse(combinedMessage));
-                    // Record as poison damage block for spacing system
-                    TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.PoisonDamage);
-                }
-                else if (damageMessages.Count > 0)
-                {
-                    // Only damage messages
-                    foreach (var damageMsg in damageMessages)
-                    {
-                        BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse(damageMsg));
-                    }
-                    // Record as poison damage block for spacing system
-                    TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.PoisonDamage);
-                }
-                else if (statusMessages.Count > 0)
-                {
-                    // Only status messages
-                    foreach (var status in statusMessages)
-                    {
-                        BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse(status));
-                    }
-                    // Record as poison damage block for spacing system
-                    TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.PoisonDamage);
-                }
+                BlockDisplayManager.DisplaySystemBlock(combinedSegments);
+                // Record as poison damage block for spacing system (only once for the entire block)
+                TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.PoisonDamage);
             }
         }
     }

@@ -278,6 +278,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         
         /// <summary>
         /// Wraps ColoredText segments while preserving their colors
+        /// Handles newlines within segments by splitting them first
         /// </summary>
         public List<List<ColoredText>> WrapColoredSegments(List<ColoredText> segments, int maxWidth)
         {
@@ -289,6 +290,37 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 if (string.IsNullOrEmpty(segment.Text))
                     continue;
+                
+                // First, check if segment contains newlines - if so, split on newlines first
+                if (segment.Text.Contains("\r\n") || segment.Text.Contains("\n") || segment.Text.Contains("\r"))
+                {
+                    // Split on newlines to preserve line breaks
+                    var newlineSplit = segment.Text.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
+                    
+                    for (int i = 0; i < newlineSplit.Length; i++)
+                    {
+                        var part = newlineSplit[i];
+                        
+                        // If this is not the first part, finish the current line and start a new one
+                        if (i > 0)
+                        {
+                            if (currentLine.Count > 0)
+                            {
+                                wrappedLines.Add(currentLine);
+                                currentLine = new List<ColoredText>();
+                                currentLineWidth = 0;
+                            }
+                        }
+                        
+                        // Process this part (which may still need word wrapping)
+                        if (!string.IsNullOrEmpty(part))
+                        {
+                            ProcessSegmentPart(part, segment.Color, ref currentLine, ref currentLineWidth, maxWidth, ref wrappedLines);
+                        }
+                    }
+                    
+                    continue;
+                }
                 
                 // Use character count for width calculation (monospace font)
                 int segmentCharWidth = segment.Text.Length;
@@ -353,6 +385,65 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
             
             return wrappedLines;
+        }
+        
+        /// <summary>
+        /// Helper method to process a segment part (after splitting on newlines)
+        /// Handles word wrapping for the part
+        /// </summary>
+        private void ProcessSegmentPart(string part, global::Avalonia.Media.Color color, ref List<ColoredText> currentLine, ref int currentLineWidth, int maxWidth, ref List<List<ColoredText>> wrappedLines)
+        {
+            int partCharWidth = part.Length;
+            
+            // If part fits on current line, add it
+            if (currentLineWidth + partCharWidth <= maxWidth)
+            {
+                currentLine.Add(new ColoredText(part, color));
+                currentLineWidth += partCharWidth;
+            }
+            else if (partCharWidth > maxWidth)
+            {
+                // Part is too long, split by words
+                var words = part.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var word in words)
+                {
+                    int wordCharWidth = word.Length;
+                    int spaceCharWidth = 1;
+                    
+                    // Check if word fits on current line
+                    if (currentLineWidth + wordCharWidth > maxWidth && currentLine.Count > 0)
+                    {
+                        wrappedLines.Add(currentLine);
+                        currentLine = new List<ColoredText>();
+                        currentLineWidth = 0;
+                    }
+                    
+                    // Add space before word if not first on line
+                    if (currentLine.Count > 0 && currentLineWidth > 0)
+                    {
+                        currentLine.Add(new ColoredText(" ", color));
+                        currentLineWidth += spaceCharWidth;
+                    }
+                    
+                    // Add word
+                    currentLine.Add(new ColoredText(word, color));
+                    currentLineWidth += wordCharWidth;
+                }
+            }
+            else
+            {
+                // Part doesn't fit, start new line
+                if (currentLine.Count > 0)
+                {
+                    wrappedLines.Add(currentLine);
+                    currentLine = new List<ColoredText>();
+                    currentLineWidth = 0;
+                }
+                
+                // Add part to new line
+                currentLine.Add(new ColoredText(part, color));
+                currentLineWidth += partCharWidth;
+            }
         }
         
         /// <summary>

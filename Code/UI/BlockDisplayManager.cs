@@ -28,12 +28,18 @@ namespace RPGGame
         {
             try
             {
-                // Extract entity name from ColoredText for tracking (but don't add blank lines between actor changes)
+                // Extract entity name from ColoredText for tracking
                 string? currentEntity = null;
                 if (actionText != null && actionText.Count > 0)
                 {
                     string plainText = ColoredTextRenderer.RenderAsPlainText(actionText);
                     currentEntity = EntityNameExtractor.ExtractEntityNameFromMessage(plainText);
+                }
+                
+                // Add blank line before action block when actor changes
+                if (lastActingEntity != null && currentEntity != null && currentEntity != lastActingEntity)
+                {
+                    UIManager.WriteBlankLine();
                 }
                 
                 // Apply context-aware spacing based on what came before
@@ -86,12 +92,18 @@ namespace RPGGame
         {
             try
             {
-                // Extract entity name from ColoredText for tracking (but don't add blank lines between actor changes)
+                // Extract entity name from ColoredText for tracking
                 string? currentEntity = null;
                 if (actionText != null && actionText.Count > 0)
                 {
                     string plainText = ColoredTextRenderer.RenderAsPlainText(actionText);
                     currentEntity = EntityNameExtractor.ExtractEntityNameFromMessage(plainText);
+                }
+                
+                // Add blank line before action block when actor changes
+                if (lastActingEntity != null && currentEntity != null && currentEntity != lastActingEntity)
+                {
+                    UIManager.WriteBlankLine();
                 }
                 
                 // Apply context-aware spacing based on what came before

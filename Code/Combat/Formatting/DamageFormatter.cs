@@ -149,19 +149,69 @@ namespace RPGGame.Combat.Formatting
         }
         
         /// <summary>
+        /// Adds "Actor takes X [damageType] damage" pattern to a ColoredTextBuilder with proper spacing
+        /// Used for poison/bleed damage over time messages, matching primary action block format (no brackets)
+        /// </summary>
+        public static void AddActorTakesDamage(ColoredTextBuilder builder, string actorName, ColorPalette actorColor, int damage, string damageType)
+        {
+            // Add actor name (matching primary action block format - no brackets)
+            builder.Add(actorName, actorColor);
+            // Add "takes" with proper spacing
+            builder.AddSpace();
+            builder.Add("takes", Colors.White);
+            // Add damage amount with proper spacing
+            builder.AddSpace();
+            builder.Add(damage.ToString(), ColorPalette.Damage);
+            // Add damage type with proper spacing
+            builder.AddSpace();
+            builder.Add(damageType, Colors.White);
+            // Add "damage" with proper spacing
+            builder.AddSpace();
+            builder.Add("damage", Colors.White);
+        }
+        
+        /// <summary>
         /// Adds "[Actor] is no longer [effect]!" pattern to a ColoredTextBuilder with proper spacing
         /// Used for status effect end messages (e.g., "no longer poisoned", "no longer burning")
+        /// Message is formatted on its own line with indentation
+        /// Note: Newlines between messages are handled by the caller when combining messages
         /// </summary>
         public static void AddBracketedActorNoLongerAffected(ColoredTextBuilder builder, string actorName, ColorPalette actorColor, string effectName, ColorPalette effectColor)
         {
-            // Add indentation (4 spaces)
-            builder.Add("    (", Colors.White);
-            // Add opening bracket
-            builder.Add("[", Colors.White);
+            // Add indentation (4 spaces), opening parenthesis, and opening bracket
+            // Note: No newline here - caller handles newlines when combining multiple messages
+            builder.Add("    ([", Colors.White);
             // Add actor name
             builder.Add(actorName, actorColor);
             // Add closing bracket
             builder.Add("]", Colors.White);
+            // Add "is no longer" with proper spacing
+            builder.AddSpace();
+            builder.Add("is", Colors.White);
+            builder.AddSpace();
+            builder.Add("no", Colors.White);
+            builder.AddSpace();
+            builder.Add("longer", Colors.White);
+            builder.AddSpace();
+            // Add effect name
+            builder.Add(effectName, effectColor);
+            // Add exclamation mark and closing parenthesis
+            builder.Add("!)", Colors.White);
+        }
+        
+        /// <summary>
+        /// Adds "(Actor is no longer [effect]!)" pattern to a ColoredTextBuilder with proper spacing
+        /// Used for status effect end messages, matching primary action block format (no brackets around name)
+        /// Message is formatted on its own line with indentation
+        /// Note: Newlines between messages are handled by the caller when combining messages
+        /// </summary>
+        public static void AddActorNoLongerAffected(ColoredTextBuilder builder, string actorName, ColorPalette actorColor, string effectName, ColorPalette effectColor)
+        {
+            // Add indentation (4 spaces) and opening parenthesis
+            // Note: No newline here - caller handles newlines when combining multiple messages
+            builder.Add("    (", Colors.White);
+            // Add actor name (matching primary action block format - no brackets)
+            builder.Add(actorName, actorColor);
             // Add "is no longer" with proper spacing
             builder.AddSpace();
             builder.Add("is", Colors.White);
@@ -229,11 +279,11 @@ namespace RPGGame.Combat.Formatting
             // Determine if this is a combo action
             bool isComboAction = actionName != "BASIC ATTACK" && actionName != "CRITICAL BASIC ATTACK";
             
-            // Attacker name
-            builder.Add(attacker.Name, attacker is Character ? ColorPalette.Gold : ColorPalette.Enemy);
+            // Attacker name (check Enemy first since Enemy inherits from Character)
+            builder.Add(attacker.Name, attacker is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
             
-            // Target name with "hits" verb
-            AddHitsTarget(builder, target.Name, target is Character ? ColorPalette.Gold : ColorPalette.Enemy);
+            // Target name with "hits" verb (check Enemy first since Enemy inherits from Character)
+            AddHitsTarget(builder, target.Name, target is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
             
             // Action name for combo actions
             if (isComboAction)

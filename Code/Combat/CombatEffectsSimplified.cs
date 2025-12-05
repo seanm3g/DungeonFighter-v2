@@ -82,8 +82,8 @@ namespace RPGGame
                     
                     // Use ColoredTextBuilder for proper spacing
                     var builder = new ColoredTextBuilder();
-                    ColorPalette actorColor = Actor is Character ? ColorPalette.Gold : ColorPalette.Enemy;
-                    DamageFormatter.AddBracketedActorTakesDamage(builder, Actor.Name, actorColor, poisonDamage, damageType);
+                    ColorPalette actorColor = Actor is Enemy ? ColorPalette.Enemy : ColorPalette.Player;
+                    DamageFormatter.AddActorTakesDamage(builder, Actor.Name, actorColor, poisonDamage, damageType);
                     var coloredText = builder.Build();
                     
                     // Convert to markup string for results list
@@ -111,9 +111,9 @@ namespace RPGGame
                     
                     // Use ColoredTextBuilder for proper spacing
                     var builder = new ColoredTextBuilder();
-                    ColorPalette actorColor = Actor is Character ? ColorPalette.Gold : ColorPalette.Enemy;
+                    ColorPalette actorColor = Actor is Enemy ? ColorPalette.Enemy : ColorPalette.Player;
                     ColorPalette effectColor = damageType == "bleed" ? ColorPalette.Error : ColorPalette.Green;
-                    DamageFormatter.AddBracketedActorNoLongerAffected(builder, Actor.Name, actorColor, effectEndMessage, effectColor);
+                    DamageFormatter.AddActorNoLongerAffected(builder, Actor.Name, actorColor, effectEndMessage, effectColor);
                     var coloredText = builder.Build();
                     
                     // Convert to markup string for results list
@@ -131,8 +131,8 @@ namespace RPGGame
                     
                     // Use ColoredTextBuilder for proper spacing
                     var builder = new ColoredTextBuilder();
-                    ColorPalette actorColor = Actor is Character ? ColorPalette.Gold : ColorPalette.Enemy;
-                    DamageFormatter.AddBracketedActorTakesDamage(builder, Actor.Name, actorColor, burnDamage, "burn");
+                    ColorPalette actorColor = Actor is Enemy ? ColorPalette.Enemy : ColorPalette.Player;
+                    DamageFormatter.AddActorTakesDamage(builder, Actor.Name, actorColor, burnDamage, "burn");
                     var coloredText = builder.Build();
                     
                     // Convert to markup string for results list
@@ -154,8 +154,8 @@ namespace RPGGame
                 {
                     // Use ColoredTextBuilder for proper spacing
                     var builder = new ColoredTextBuilder();
-                    ColorPalette actorColor = Actor is Character ? ColorPalette.Gold : ColorPalette.Enemy;
-                    DamageFormatter.AddBracketedActorNoLongerAffected(builder, Actor.Name, actorColor, "burning", ColorPalette.Orange);
+                    ColorPalette actorColor = Actor is Enemy ? ColorPalette.Enemy : ColorPalette.Player;
+                    DamageFormatter.AddActorNoLongerAffected(builder, Actor.Name, actorColor, "burning", ColorPalette.Orange);
                     var coloredText = builder.Build();
                     
                     // Convert to markup string for results list

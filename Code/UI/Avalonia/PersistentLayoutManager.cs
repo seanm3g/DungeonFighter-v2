@@ -4,6 +4,8 @@ using RPGGame;
 using System;
 using System.Collections.Generic;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.ColorSystem.Applications;
+using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.Utils;
 
 namespace RPGGame.UI.Avalonia
@@ -15,6 +17,7 @@ namespace RPGGame.UI.Avalonia
     public class PersistentLayoutManager
     {
         private readonly GameCanvasControl canvas;
+        private readonly ColoredTextWriter textWriter;
         private string lastRenderedTitle = "";
         
         // Layout constants for persistent panels
@@ -46,6 +49,7 @@ namespace RPGGame.UI.Avalonia
         public PersistentLayoutManager(GameCanvasControl canvas)
         {
             this.canvas = canvas;
+            this.textWriter = new ColoredTextWriter(canvas);
         }
         
         /// <summary>
@@ -160,7 +164,7 @@ namespace RPGGame.UI.Avalonia
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Hero), AsciiArtAssets.Colors.Gold);
             y += 2;
             
-            canvas.AddText(x, y, character.Name, AsciiArtAssets.Colors.White);
+            canvas.AddText(x, y, character.Name, ColorPalette.Player.GetColor());
             y++;
             canvas.AddText(x, y, $"Lvl {character.Level}", AsciiArtAssets.Colors.Yellow);
             y++;
@@ -218,22 +222,36 @@ namespace RPGGame.UI.Avalonia
         
         /// <summary>
         /// Helper method to render a single equipment slot with consistent formatting and text wrapping
+        /// Uses colored text system to show item colors based on type and modifiers
         /// </summary>
         private void RenderEquipmentSlot(int x, ref int y, string slotName, Item? item, int spacingAfter = 1)
         {
-            string displayName = item?.Name ?? "None";
-            Color color = item != null ? AsciiArtAssets.GetRarityColor(item.Rarity) : AsciiArtAssets.Colors.Gray;
-            
             canvas.AddText(x, y, $"{slotName}:", AsciiArtAssets.Colors.Gray);
             y++;
             
-            // Wrap text if it's too long (max width of 17 characters)
-            const int maxWidth = 17;
-            List<string> wrappedLines = TextWrapper.WrapText(displayName, maxWidth);
-            
-            foreach (string line in wrappedLines)
+            if (item != null)
             {
-                canvas.AddText(x, y, line, color);
+                // Get colored item name segments
+                var itemNameSegments = ItemDisplayColoredText.FormatFullItemName(item);
+                
+                // Wrap text if it's too long (max width of 17 characters)
+                const int maxWidth = 17;
+                var wrappedLines = textWriter.WrapColoredSegments(itemNameSegments, maxWidth);
+                
+                // Render each wrapped line with proper colors
+                foreach (var lineSegments in wrappedLines)
+                {
+                    if (lineSegments.Count > 0)
+                    {
+                        textWriter.RenderSegments(lineSegments, x, y);
+                    }
+                    y++;
+                }
+            }
+            else
+            {
+                // Empty slot - show "None" in gray
+                canvas.AddText(x, y, "None", AsciiArtAssets.Colors.Gray);
                 y++;
             }
             
@@ -308,7 +326,7 @@ namespace RPGGame.UI.Avalonia
                 if (enemyName.Length > 20)
                     enemyName = enemyName.Substring(0, 17) + "...";
                 
-                canvas.AddText(x, y, enemyName, AsciiArtAssets.Colors.White);
+                canvas.AddText(x, y, enemyName, ColorPalette.Enemy.GetColor());
                 y++;
                 canvas.AddText(x, y, $"Lvl {enemy.Level}", AsciiArtAssets.Colors.Yellow);
                 y += 2;
@@ -394,10 +412,11 @@ namespace RPGGame.UI.Avalonia
         
         /// <summary>
         /// Gets the center content area dimensions
+        /// Returns the same coordinates that RenderLayout uses for consistency
         /// </summary>
         public (int x, int y, int width, int height) GetCenterContentArea()
         {
-            return (CENTER_PANEL_X + 2, CENTER_PANEL_Y + 2, CENTER_PANEL_WIDTH - 4, CENTER_PANEL_HEIGHT - 4);
+            return (CENTER_PANEL_X + 1, CENTER_PANEL_Y + 1, CENTER_PANEL_WIDTH - 2, CENTER_PANEL_HEIGHT - 2);
         }
     }
 }

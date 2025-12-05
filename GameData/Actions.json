@@ -1,84 +1,24 @@
 [
   {
+    "name": "BASIC ATTACK",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 1.0,
+    "description": "A standard physical attack",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["character", "basic"]
+  },
+  {
     "name": "JAB",
     "type": "Attack",
     "damageMultiplier": 1.0,
     "length": 1.0,
     "description": "Quick jab that resets enemy combo",
-    "comboOrder": 2,
-    "isComboAction": true
-  },
-  {
-    "name": "TAUNT",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Quick taunt that gives combo bonus for next 2 actions",
     "comboOrder": 1,
     "isComboAction": true,
-    "comboBonusAmount": 2,
-    "comboBonusDuration": 2
-  },
-  {
-    "name": "STUN",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Quick stun that weakens enemy",
-    "comboOrder": 3,
-    "isComboAction": true,
-    "causesWeaken": true
-  },
-  {
-    "name": "CRIT",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Do 140% damage",
-    "comboOrder": 4,
-    "isComboAction": true
-  },
-  {
-    "name": "FLURRY",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Fast flurry that adds +1 to next action",
-    "comboOrder": 4,
-    "isComboAction": true,
-    "rollBonus": 1
-  },
-  {
-    "name": "PRECISION STRIKE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Precise strike that adds +1 to next action",
-    "comboOrder": 5,
-    "isComboAction": true,
-    "rollBonus": 1
-  },
-  {
-    "name": "MOMENTUM BASH",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Gain 1 STR for the duration of this dungeon",
-    "comboOrder": 6,
-    "isComboAction": true,
-    "statBonus": 1,
-    "statBonusType": "STR",
-    "statBonusDuration": -1
-  },
-  {
-    "name": "LUCKY STRIKE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Quick lucky strike that adds +1 to next roll",
-    "comboOrder": 7,
-    "isComboAction": true,
-    "rollBonus": 1
+    "resetEnemyCombo": true,
+    "tags": ["character", "combo"]
   },
   {
     "name": "CLEAVE",
@@ -86,698 +26,22 @@
     "damageMultiplier": 1.0,
     "length": 1.0,
     "description": "Fast cleave that hits 3 times for 35% damage each",
-    "comboOrder": 8,
+    "comboOrder": 2,
     "isComboAction": true,
     "multiHitCount": 3,
-    "multiHitDamagePercent": 0.35
+    "multiHitDamagePercent": 0.35,
+    "tags": ["character", "combo"]
   },
   {
-    "name": "DRUNKEN BRAWLER",
+    "name": "LUCKY STRIKE",
     "type": "Attack",
     "damageMultiplier": 1.0,
     "length": 1.0,
-    "description": "Chaotic strike that affects both combatants",
-    "comboOrder": 9,
+    "description": "Quick lucky strike that adds +2 to next roll",
+    "comboOrder": 3,
     "isComboAction": true,
-    "rollBonus": -5
-  },
-  {
-    "name": "OVERKILL",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Quick setup that adds +2 to next action",
-    "comboOrder": 10,
-    "isComboAction": true,
-    "rollBonus": 2
-  },
-  {
-    "name": "DANCE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Gain 1 AGI for the duration of this dungeon",
-    "comboOrder": 11,
-    "isComboAction": true,
-    "statBonus": 1,
-    "statBonusType": "AGI",
-    "statBonusDuration": -1
-  },
-  {
-    "name": "SHIELD BASH",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "double STR if below 25% health.",
-    "comboOrder": 12,
-    "isComboAction": true
-  },
-  {
-    "name": "OPENING VOLLEY",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Fast opening that deals extra damage",
-    "comboOrder": 13,
-    "isComboAction": true
-  },
-  {
-    "name": "FOCUS",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Gain 1 Technique for the duration of this dungeon",
-    "comboOrder": 14,
-    "isComboAction": true,
-    "statBonus": 1,
-    "statBonusType": "TEC",
-    "statBonusDuration": -1
-  },
-  {
-    "name": "READ BOOK",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Gain 1 INT for the duration of this dungeon",
-    "comboOrder": 15,
-    "isComboAction": true,
-    "statBonus": 1,
-    "statBonusType": "INT",
-    "statBonusDuration": -1
-  },
-  {
-    "name": "SHARP EDGE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "reduce damage by 50% each turn",
-    "comboOrder": 16,
-    "isComboAction": true
-  },
-  {
-    "name": "BLOOD FRENZY",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Deal double damage if health is below 25%",
-    "comboOrder": 17,
-    "isComboAction": true
-  },
-  {
-    "name": "DEAL WITH THE DEVIL",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "do 5% damage to yourself",
-    "comboOrder": 18,
-    "isComboAction": true,
-    "selfDamagePercent": 5
-  },
-  {
-    "name": "BERZERK",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "double STR if below 25% health.",
-    "comboOrder": 19,
-    "isComboAction": true
-  },
-  {
-    "name": "SWING FOR THE FENCES",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "50% chance to attack yourself",
-    "comboOrder": 20,
-    "isComboAction": true
-  },
-  {
-    "name": "TRUE STRIKE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "skip turn, but guarantee next action is successful",
-    "comboOrder": 21,
-    "isComboAction": true,
-    "skipNextTurn": true
-  },
-  {
-    "name": "LAST GRASP",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "+10 to roll if health is below 5%",
-    "comboOrder": 22,
-    "isComboAction": true,
-    "rollBonus": 10
-  },
-  {
-    "name": "SECOND WIND",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "If 2nd slot, heal for 5 health.",
-    "comboOrder": 23,
-    "isComboAction": true
-  },
-  {
-    "name": "QUICK REFLEXES",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "if your action fails, -5 to next enemies roll.",
-    "comboOrder": 24,
-    "isComboAction": true,
-    "rollBonus": 1
-  },
-  {
-    "name": "DEJA VU",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Quick repeat of the previous action",
-    "comboOrder": 25,
-    "isComboAction": true,
-    "repeatLastAction": true
-  },
-  {
-    "name": "FIRST BLOOD",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Fast strike that doubles damage if enemy is at full health",
-    "comboOrder": 26,
-    "isComboAction": true
-  },
-  {
-    "name": "POWER OVERWHELMING",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Quick strike that doubles damage if STR ≥ 10",
-    "comboOrder": 27,
-    "isComboAction": true
-  },
-  {
-    "name": "PRETTY BOY SWAG",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "If full health, double combo AMP",
-    "comboOrder": 28,
-    "isComboAction": true
-  },
-  {
-    "name": "DIRTY BOY SWAG",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "If 1 health, quadrable damage",
-    "comboOrder": 29,
-    "isComboAction": true
-  },
-  {
-    "name": "FALLING BRANCH",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "A heavy branch crashes down from the ancient canopy above",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "forest"]
-  },
-  {
-    "name": "THORN VINES",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Thorny vines lash out, leaving deep bleeding cuts",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "forest"],
-    "causesBleed": true
-  },
-  {
-    "name": "LAVA SPLASH",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Molten lava erupts from cracks in the ground, searing everything nearby",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "lava"]
-  },
-  {
-    "name": "STEAM BURST",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Superheated steam erupts from volcanic vents, obscuring vision",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "lava"],
-    "enemyRollPenalty": 1
-  },
-  {
-    "name": "CURSE OF THE CRYPT",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Ancient necromantic curse drains the life force from all present",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "crypt"],
-    "causesWeaken": true
-  },
-  {
-    "name": "GHOSTLY WHISPER",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Ethereal voices drain your life force",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "crypt"]
-  },
-  {
-    "name": "SPIDER WEB",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Sticky webs slow your movements",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "forest"]
-  },
-  {
-    "name": "BAT SWARM",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "A swarm of bats attacks from above",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "lava"]
-  },
-  {
-    "name": "SKELETON HAND",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Bony hands reach up from the ground",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "crypt"]
-  },
-  {
-    "name": "DUNGEON COLLAPSE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "The ancient dungeon ceiling begins to collapse, raining debris and stunning all combatants",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "causesStun": true,
-    "tags": ["environment", "generic"]
-  },
-  {
-    "name": "POISONOUS GAS",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Toxic fumes fill the air, poisoning all combatants",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "causesPoison": true,
-    "tags": ["environment", "generic"]
-  },
-  {
-    "name": "TRAP SPRING",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "A hidden trap activates, launching projectiles",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "generic"]
-  },
-  {
-    "name": "MAGICAL BARRIER",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "A magical barrier weakens all combatants",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "causesWeaken": true,
-    "tags": ["environment", "generic"]
-  },
-  {
-    "name": "TREASURE GUARDIAN",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "An ancient guardian spirit attacks those who disturb the treasure",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "generic"]
-  },
-  {
-    "name": "ANCIENT CURSE",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "An ancient curse weakens all who enter this sacred place",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "causesWeaken": true,
-    "tags": ["environment", "generic"]
-  },
-  {
-    "name": "FOREST SPIRITS",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Mystical forest spirits swirl around, dealing ethereal damage",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "forest"]
-  },
-  {
-    "name": "ROOT TRAP",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Ancient roots entangle your feet, severely slowing movement",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "forest"],
-    "causesWeaken": true
-  },
-  {
-    "name": "POLLEN CLOUD",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Thick pollen clouds obscure vision and cause severe sneezing",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "forest"],
-    "enemyRollPenalty": 1
-  },
-  {
-    "name": "TREE SAP",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Sticky tree sap coats your weapons, reducing effectiveness",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "forest"],
-    "enemyRollPenalty": 1
-  },
-  {
-    "name": "LAVA SURGE",
-    "type": "Attack",
-    "damageMultiplier": 1.5,
-    "length": 1.0,
-    "description": "Molten lava surges up from the ground in a violent eruption",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "lava"]
-  },
-  {
-    "name": "MAGMA GEYSER",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "A massive geyser of molten rock erupts with devastating force",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "lava"]
-  },
-  {
-    "name": "HEAT WAVE",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Intense heat waves cause exhaustion and dehydration",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "lava"],
-    "causesWeaken": true
-  },
-  {
-    "name": "TOXIC FUMES",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Poisonous volcanic gases fill the air, causing choking damage",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "lava"],
-    "causesBleed": true
-  },
-  {
-    "name": "FALLING ROCKS",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Unstable ceiling causes rocks to fall from above",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "lava"]
-  },
-  {
-    "name": "RISING DEAD",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Undead creatures rise from their graves to attack the living",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "crypt"]
-  },
-  {
-    "name": "DEATH CHILL",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "A bone-chilling cold from beyond the grave slows all movement",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "crypt"],
-    "causesWeaken": true
-  },
-  {
-    "name": "SOUL DRAIN",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Malevolent spirits attempt to drain the life essence from the living",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "wraith"]
-  },
-  {
-    "name": "PHASE",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "The wraith phases through reality, becoming ethereal and harder to hit",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "enemyRollPenalty": 2,
-    "tags": ["enemy", "wraith"]
-  },
-  {
-    "name": "CURSE OF AGONY",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "A curse of eternal suffering wracks the body with pain",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "crypt"],
-    "causesBleed": true
-  },
-  {
-    "name": "BOSS RAGE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "The boss's rage causes the very chamber to tremble and attack",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "generic"]
-  },
-  {
-    "name": "EARTHQUAKE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "The ground shakes violently, causing massive structural damage",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "generic"]
-  },
-  {
-    "name": "DARKNESS",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Magical darkness envelops the area, reducing visibility and accuracy",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "generic"],
-    "enemyRollPenalty": 1
-  },
-  {
-    "name": "MAGICAL STORM",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Chaotic magical energy swirls through the air, striking randomly",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "generic"]
-  },
-  {
-    "name": "CRYSTAL SHARDS",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Sharp crystal shards explode from the walls",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "causesBleed": true,
-    "tags": ["environment", "crystal"]
-  },
-  {
-    "name": "PRISM REFRACTION",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Light refracts through crystals, creating a blinding attack",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "crystal"]
-  },
-  {
-    "name": "CRYSTAL RESONANCE",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Harmonic crystal vibrations disorient all combatants",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "causesWeaken": true,
-    "tags": ["environment", "crystal"]
-  },
-  {
-    "name": "CRYSTAL IMPLOSION",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "A massive crystal formation implodes, sending deadly shards in all directions",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "crystal"]
-  },
-  {
-    "name": "PRISM BLIND",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Intense prismatic light blinds all combatants, reducing accuracy",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "crystal"],
-    "enemyRollPenalty": 2
-  },
-  {
-    "name": "CRYSTAL GROWTH",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Crystals rapidly grow from the ground, impaling anything in their path",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "crystal"],
-    "causesBleed": true
-  },
-  {
-    "name": "DIVINE WRATH",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "The temple's divine power strikes down the unworthy",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "temple"]
-  },
-  {
-    "name": "SACRED FLAMES",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Holy flames erupt from the temple's sacred braziers",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "temple"]
-  },
-  {
-    "name": "TEMPLE BLESSING",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "The temple's blessing strengthens all who fight within its walls",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "temple"]
-  },
-  {
-    "name": "DIVINE JUDGMENT",
-    "type": "Attack",
-    "damageMultiplier": 1.2,
-    "length": 1.0,
-    "description": "The gods themselves pass judgment, striking down the unworthy with divine lightning",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "temple"]
-  },
-  {
-    "name": "HOLY RADIANCE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Blinding holy light burns the wicked and heals the righteous",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "temple"]
-  },
-  {
-    "name": "SACRED GROUND",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "The sacred ground of the temple enhances all abilities",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "temple"],
-    "rollBonus": 1
-  },
-  {
-    "name": "PARRY",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Defensive technique that makes the enemy's next action miss",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "rollBonus": 1,
-    "enemyRollPenalty": 15,
-    "tags": ["weapon", "sword"]
+    "rollBonus": 2,
+    "tags": ["character", "combo"]
   },
   {
     "name": "SWORD SLASH",
@@ -792,33 +56,12 @@
   {
     "name": "CRUSHING BLOW",
     "type": "Attack",
-    "damageMultiplier": 1.0,
+    "damageMultiplier": 1.2,
     "length": 1.0,
     "description": "A devastating overhead strike with a mace",
     "comboOrder": 0,
     "isComboAction": true,
     "tags": ["weapon", "mace"]
-  },
-  {
-    "name": "SHIELD BREAK",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "A focused strike designed to break through defenses",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["weapon", "mace"]
-  },
-  {
-    "name": "QUICK STAB",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Ultra-fast thrust with a dagger",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "rollBonus": 2,
-    "tags": ["weapon", "dagger"]
   },
   {
     "name": "POISON BLADE",
@@ -828,7 +71,7 @@
     "description": "Quick dagger strike that applies poison",
     "comboOrder": 0,
     "isComboAction": true,
-    "causesBleed": true,
+    "causesPoison": true,
     "tags": ["weapon", "dagger"]
   },
   {
@@ -843,986 +86,50 @@
     "tags": ["weapon", "wand"]
   },
   {
-    "name": "ARCANE SHIELD",
-    "type": "Spell",
-    "damageMultiplier": 0.5,
-    "length": 1.0,
-    "description": "Quick protective barrier that reduces the next incoming attack damage by half and weakens enemies",
-    "comboOrder": 1,
-    "isComboAction": true,
-    "enemyRollPenalty": 3,
-    "tags": ["weapon", "wand"]
-  },
-  {
     "name": "HEADBUTT",
     "type": "Attack",
     "damageMultiplier": 1.0,
     "length": 1.0,
-    "description": "Quick head strike that stuns enemy briefly",
+    "description": "Quick head strike that weakens enemy",
     "comboOrder": 0,
     "isComboAction": true,
     "causesWeaken": true,
     "tags": ["armor"]
   },
   {
-    "name": "CHEST BASH",
+    "name": "MOMENTUM BASH",
     "type": "Attack",
     "damageMultiplier": 1.0,
     "length": 1.0,
-    "description": "Quick body slam that pushes enemy back",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["armor"]
-  },
-  {
-    "name": "KICK",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Ultra-fast kick that interrupts enemy",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "enemyRollPenalty": 1,
-    "tags": ["armor"]
-  },
-  {
-    "name": "SHIELD BASH",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Quick shield bash that stuns enemy",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesWeaken": true,
-    "tags": ["armor"]
-  },
-  {
-    "name": "HELMET RAM",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Quick helmet ram that dazes enemy",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesWeaken": true,
-    "tags": ["armor"]
-  },
-  {
-    "name": "BOOT STOMP",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Fast stomp that trips enemy",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "enemyRollPenalty": 1,
-    "tags": ["armor"]
-  },
-  {
-    "name": "ACID SPIT",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Spits corrosive acid that burns over time",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesBleed": true,
-    "tags": ["enemy", "slime"]
-  },
-  {
-    "name": "SWOOP ATTACK",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Fast aerial attack with high accuracy",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "rollBonus": 3,
-    "tags": ["enemy", "bat"]
-  },
-  {
-    "name": "BONE STRIKE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Strikes with ancient bone weapons",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "skeleton"]
-  },
-  {
-    "name": "SHAMBLE ATTACK",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Slow but devastating zombie attack",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "zombie"]
-  },
-  {
-    "name": "CRYSTAL SLAM",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Powerful slam with crystalline fists",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "crystal", "golem"]
-  },
-  {
-    "name": "PRISM BEAM",
-    "type": "Spell",
-    "damageMultiplier": 1.8,
-    "length": 1.0,
-    "description": "Focused light beam through crystal body",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "crystal", "golem"]
-  },
-  {
-    "name": "LIGHT REFRACTION",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Bends light to confuse and disorient",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "rollBonus": -2,
-    "tags": ["enemy", "crystal", "spider"]
-  },
-  {
-    "name": "WEB TRAP",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Creates crystalline web that slows movement",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "crystal", "spider"]
-  },
-  {
-    "name": "SHARD VOLLEY",
-    "type": "Attack",
-    "damageMultiplier": 1.4,
-    "length": 1.0,
-    "description": "Launches multiple crystal shards",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "multiHitCount": 3,
-    "multiHitDamagePercent": 0.47,
-    "tags": ["enemy", "crystal", "beast"]
-  },
-  {
-    "name": "CRYSTAL CHARGE",
-    "type": "Attack",
-    "damageMultiplier": 1.8,
-    "length": 1.0,
-    "description": "Charges forward with crystal spikes",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "crystal", "beast"]
-  },
-  {
-    "name": "GUARDIAN STRIKE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Ancient guardian's protective strike",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "temple", "guardian"]
-  },
-  {
-    "name": "STONE SHIELD",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Raises stone barrier for protection",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "temple", "guardian"]
-  },
-  {
-    "name": "ANCIENT CURSE",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Invokes ancient curse that weakens enemies",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesWeaken": true,
-    "tags": ["enemy", "temple", "warden"]
-  },
-  {
-    "name": "SACRED BOLT",
-    "type": "Spell",
-    "damageMultiplier": 1.4,
-    "length": 1.0,
-    "description": "Divine energy bolt from the temple",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "temple", "warden"]
-  },
-  {
-    "name": "SENTINEL BEAM",
-    "type": "Spell",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Devastating beam from ancient sentinel",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "temple", "sentinel"]
-  },
-  {
-    "name": "DIVINE WRATH",
-    "type": "Attack",
-    "damageMultiplier": 1.8,
-    "length": 1.0,
-    "description": "Ultimate attack channeling divine power",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "temple", "sentinel"]
-  },
-  {
-    "name": "SWORDMASTER STRIKE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Precise sword technique that deals massive damage and has a chance to crit",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "rollBonus": 2,
-    "tags": ["weapon", "sword", "unique"]
-  },
-  {
-    "name": "CRUSHING MOMENTUM",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Heavy mace attack that builds momentum, increasing damage for next action",
-    "comboOrder": 0,
+    "description": "Gain 1 STR for the duration of this dungeon",
+    "comboOrder": 4,
     "isComboAction": true,
     "statBonus": 1,
-    "statBonusType": "Damage",
-    "statBonusDuration": 1,
-    "tags": ["weapon", "mace", "unique"]
+    "statBonusType": "STR",
+    "statBonusDuration": -1,
+    "tags": ["character", "combo"]
   },
   {
-    "name": "VENOMOUS ASSASSIN",
+    "name": "DEAL WITH THE DEVIL",
     "type": "Attack",
     "damageMultiplier": 1.0,
     "length": 1.0,
-    "description": "Swift dagger strike that applies poison and causes bleeding",
-    "comboOrder": 0,
+    "description": "Do 5% damage to yourself",
+    "comboOrder": 5,
     "isComboAction": true,
-    "causesBleed": true,
-    "tags": ["weapon", "dagger", "unique"]
+    "selfDamagePercent": 5,
+    "tags": ["character", "combo"]
   },
   {
-    "name": "ARCANE FURY",
-    "type": "Spell",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Powerful magical attack that scales with intelligence and can chain to nearby enemies",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "multiHitCount": 2,
-    "multiHitDamagePercent": 75,
-    "tags": ["weapon", "wand", "unique"]
-  },
-  {
-    "name": "BERSERKER RAGE",
+    "name": "SECOND WIND",
     "type": "Attack",
     "damageMultiplier": 1.0,
     "length": 1.0,
-    "description": "Enter a berserker rage, dealing massive damage but taking 10% self-damage. Damage scales with combo amplification.",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "selfDamagePercent": 10,
-    "tags": ["class", "barbarian", "unique", "comboAmplificationScaling"]
-  },
-  {
-    "name": "HEROIC STRIKE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "A powerful strike that gains roll bonus based on combo step position",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "rollBonus": 0,
-    "tags": ["class", "warrior", "unique", "comboStepScaling"]
-  },
-  {
-    "name": "SHADOW STRIKE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "A swift strike from the shadows with roll bonus based on combo length and causes bleeding",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "rollBonus": 0,
-    "causesBleed": true,
-    "tags": ["class", "rogue", "unique", "comboScaling"]
-  },
-  {
-    "name": "METEOR",
-    "type": "Spell",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Summon a devastating meteor that deals massive damage with roll bonus based on combo length",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "rollBonus": 0,
-    "tags": ["class", "wizard", "unique", "comboScaling"]
-  },
-  {
-    "name": "BASIC ATTACK",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "A standard physical attack",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["enemy", "basic"]
-  },
-  {
-    "name": "HAUNTING WAIL",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "A ghostly wail that chills the soul",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "wraith"]
-  },
-  {
-    "name": "POISON BITE",
-    "type": "Attack",
-    "damageMultiplier": 1.6,
-    "length": 1.5,
-    "description": "A venomous bite that poisons the target",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesBleed": true,
-    "tags": ["enemy", "spider"]
-  },
-  {
-    "name": "JAB",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "A quick, light attack",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "basic"]
-  },
-  {
-    "name": "PACK HOWL",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Howls to rally pack members, increasing their ferocity",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "wolf"]
-  },
-  {
-    "name": "BITE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Sharp teeth clamp down with savage force",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesBleed": true,
-    "tags": ["enemy", "wolf", "spider"]
-  },
-  {
-    "name": "CLAW SWIPE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Powerful claws tear through flesh",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesBleed": true,
-    "tags": ["enemy", "bear"]
-  },
-  {
-    "name": "ROAR",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "A terrifying roar that intimidates enemies",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesWeaken": true,
-    "tags": ["enemy", "bear"]
-  },
-  {
-    "name": "ROOT STRIKE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Ancient roots lash out from the ground",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "treant"]
-  },
-  {
-    "name": "BARK ARMOR",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Thick bark hardens, providing protection",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "treant"]
-  },
-  {
-    "name": "FLAME BURST",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Explosive burst of searing flames",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "fire"]
-  },
-  {
-    "name": "HEAT WAVE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Waves of intense heat radiate outward",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "fire"]
-  },
-  {
-    "name": "MAGMA PUNCH",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Molten fist strikes with devastating force",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "lava"]
-  },
-  {
-    "name": "LAVA SPIT",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Spits molten lava at enemies",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesBleed": true,
-    "tags": ["enemy", "lava"]
-  },
-  {
-    "name": "FIRE BREATH",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Breathes a cone of scorching flames",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "salamander"]
-  },
-  {
-    "name": "TAIL WHIP",
-    "type": "Attack",
-    "damageMultiplier": 1.2,
-    "length": 1.2,
-    "description": "Whips with a prehensile tail",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "salamander"]
-  },
-  {
-    "name": "DEATH RAY",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Dark energy beam that drains life force",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "lich"]
-  },
-  {
-    "name": "BONE SHIELD",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Raises a barrier of floating bones for protection",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "lich"]
-  },
-  {
-    "name": "CLAW ATTACK",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Sharp claws tear at the target",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesBleed": true,
-    "tags": ["enemy", "ghoul"]
-  },
-  {
-    "name": "PARALYZING TOUCH",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Touch that freezes the target in place",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesSlow": true,
-    "tags": ["enemy", "ghoul"]
-  },
-  {
-    "name": "LIFE DRAIN",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Drains life energy to heal itself",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "wight"]
-  },
-  {
-    "name": "FEAR AURA",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Aura of terror weakens nearby enemies",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesWeaken": true,
-    "tags": ["enemy", "wight"]
-  },
-  {
-    "name": "CRYSTAL SHARD",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Launches sharp crystal fragments",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesBleed": true,
-    "tags": ["enemy", "crystal", "sprite"]
-  },
-  {
-    "name": "SPARKLE",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Dazzling light confuses and disorients",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "rollBonus": -2,
-    "tags": ["enemy", "crystal", "sprite"]
-  },
-  {
-    "name": "CRYSTAL BURST",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Explodes in a shower of crystal shards",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesBleed": true,
-    "tags": ["enemy", "crystal", "beast"]
-  },
-  {
-    "name": "HARDENED SHELL",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Crystal shell hardens, providing protection",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "crystal", "beast"]
-  },
-  {
-    "name": "CRYSTAL BREATH",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Breathes a cone of crystallizing energy",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "crystal", "wyrm"]
-  },
-  {
-    "name": "TAIL CRUSH",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Massive tail slams down with crushing force",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "crystal", "wyrm"]
-  },
-  {
-    "name": "DIVINE STRIKE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Weapon glows with divine energy",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "temple", "guard"]
-  },
-  {
-    "name": "SHIELD BASH",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Uses shield as a weapon to stun",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "temple", "guard"]
-  },
-  {
-    "name": "HEAL",
-    "type": "Heal",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Divine healing restores health",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "temple", "priest"]
-  },
-  {
-    "name": "SMITE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Divine power strikes down the wicked",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "temple", "priest"]
-  },
-  {
-    "name": "HOLY STRIKE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Weapon blessed with holy power",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "temple", "paladin"]
-  },
-  {
-    "name": "DIVINE PROTECTION",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Divine aura protects from harm",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "temple", "paladin"]
-  },
-  {
-    "name": "DIRTY STRIKE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Underhanded attack with a dirty weapon",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "causesBleed": true,
-    "tags": ["enemy", "bandit"]
-  },
-  {
-    "name": "INTIMIDATE",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Threatening display weakens enemy resolve",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "causesWeaken": true,
-    "tags": ["enemy", "bandit"]
-  },
-  {
-    "name": "BRUTAL STRIKE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Savage attack with overwhelming force",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "orc"]
-  },
-  {
-    "name": "WAR CRY",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Battle cry that inspires allies and terrifies enemies",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesWeaken": true,
-    "tags": ["enemy", "orc"]
-  },
-  {
-    "name": "REGENERATE",
-    "type": "Heal",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Trollish regeneration restores health over time",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "troll"]
-  },
-  {
-    "name": "CLUB SMASH",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Massive club crushes with bone-breaking force",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "troll"]
-  },
-  {
-    "name": "SNEAK ATTACK",
-    "type": "Attack",
-    "damageMultiplier": 1.3,
-    "length": 1.0,
-    "description": "Quick strike from the shadows",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "rollBonus": 2,
-    "tags": ["enemy", "kobold"]
-  },
-  {
-    "name": "TRAP",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Sets a cunning trap to hinder enemies",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "causesWeaken": true,
-    "tags": ["enemy", "kobold"]
-  },
-  {
-    "name": "FEINT",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Quick feint that confuses enemy and adds +2 to next action",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "rollBonus": 2,
-    "enemyRollPenalty": 1,
-    "tags": ["tactical", "rogue"]
-  },
-  {
-    "name": "DISTRACT",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Instant distraction that reduces enemy next roll by 3",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "enemyRollPenalty": 3,
-    "tags": ["tactical", "rogue"]
-  },
-  {
-    "name": "QUICK STEP",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Instant movement that adds +1 to next 2 actions",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "rollBonus": 1,
-    "tags": ["tactical", "agility"]
-  },
-  {
-    "name": "BRACE",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Defensive stance that reduces incoming damage by 25%",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "damageReduction": 0.25,
-    "tags": ["tactical", "defensive"]
-  },
-  {
-    "name": "WIND UP",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Prepare for next action, adding +3 damage to next attack",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "nextActionDamageBonus": 3,
-    "tags": ["tactical", "setup"]
-  },
-  {
-    "name": "PROBE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Ultra-fast probe that reveals enemy weaknesses",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "rollBonus": 1,
-    "tags": ["tactical", "scout"]
-  },
-  {
-    "name": "DISENGAGE",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Quick retreat that heals 5 health and adds +1 to next action",
-    "comboOrder": 0,
+    "description": "If 2nd slot, heal for 5 health",
+    "comboOrder": 6,
     "isComboAction": true,
     "healAmount": 5,
-    "rollBonus": 1,
-    "tags": ["tactical", "defensive"]
-  },
-  {
-    "name": "COUNTER",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Instant counter that triggers when enemy attacks",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "reactive": true,
-    "tags": ["tactical", "reactive"]
-  },
-  {
-    "name": "MOMENTUM",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Build momentum, each subsequent action this turn gets +0.1x damage",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "momentumBonus": 0.1,
-    "tags": ["tactical", "momentum"]
-  },
-  {
-    "name": "WHIRLWIND",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Spinning attack that hits all nearby enemies for 60% damage each",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "multiHitCount": 3,
-    "multiHitDamagePercent": 0.6,
-    "tags": ["warrior"]
-  },
-  {
-    "name": "THUNDER CLAP",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Powerful mace strike that stuns enemies and causes area damage",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesWeaken": true,
-    "tags": ["weapon", "mace"]
-  },
-  {
-    "name": "SHADOW STEP",
-    "type": "Attack",
-    "damageMultiplier": 1.1,
-    "length": 1.0,
-    "description": "Teleport behind enemy and strike with dagger, gaining +3 to roll",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "rollBonus": 3,
-    "tags": ["weapon", "dagger"]
-  },
-  {
-    "name": "FIREBALL",
-    "type": "Spell",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Explosive fire spell that deals area damage and causes burning",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesBurn": true,
-    "tags": ["class", "wizard"]
-  },
-  {
-    "name": "HELMET SPIKE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Headbutt with spiked helmet that causes bleeding",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesBleed": true,
-    "tags": ["armor"]
-  },
-  {
-    "name": "CHEST PLATE RAM",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Body slam with reinforced chest plate that pushes enemy back",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "enemyRollPenalty": 1,
-    "tags": ["armor"]
-  },
-  {
-    "name": "SPIKED BOOT KICK",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Kick with spiked boots that causes bleeding and interrupts",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesBleed": true,
-    "enemyRollPenalty": 1,
-    "tags": ["armor"]
-  },
-  {
-    "name": "BATTLE CRY",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Inspiring battle cry that adds +2 to next 3 actions",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "rollBonus": 2,
-    "tags": ["tactical", "inspiration"]
-  },
-  {
-    "name": "BERSERKER CHARGE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Charging attack that deals extra damage if health is below 50%",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["tactical", "berserker"]
-  },
-  {
-    "name": "PRECISION AIM",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Take careful aim, next attack has +4 to roll and guaranteed hit",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "rollBonus": 4,
-    "tags": ["tactical", "precision"]
+    "tags": ["character", "combo"]
   },
   {
     "name": "VAMPIRE STRIKE",
@@ -1836,57 +143,14 @@
     "tags": ["tactical", "lifesteal"]
   },
   {
-    "name": "EXECUTE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Devastating finishing move that deals double damage to low health enemies",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["tactical", "finisher"]
-  },
-  {
-    "name": "RIPOSTE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Counter-attack that triggers when enemy misses, deals 150% damage",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "reactive": true,
-    "tags": ["tactical", "counter"]
-  },
-  {
-    "name": "ADRENALINE RUSH",
+    "name": "BRACE",
     "type": "Buff",
     "damageMultiplier": 1.0,
     "length": 1.0,
-    "description": "Enter adrenaline rush, all actions this turn have +2 to roll",
+    "description": "Defensive stance that reduces incoming damage by 25%",
     "comboOrder": 0,
     "isComboAction": true,
-    "rollBonus": 2,
-    "tags": ["tactical", "adrenaline"]
-  },
-  {
-    "name": "POISON COATING",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Coat weapon with poison, next 3 attacks cause bleeding",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesBleed": true,
-    "tags": ["tactical", "poison"]
-  },
-  {
-    "name": "SHIELD WALL",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Raise defensive wall, reduce all incoming damage by 40%",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "damageReduction": 0.4,
+    "damageReduction": 0.25,
     "tags": ["tactical", "defensive"]
   },
   {
@@ -1901,240 +165,324 @@
     "tags": ["tactical", "speed"]
   },
   {
-    "name": "DEATH STRIKE",
+    "name": "RIPOSTE",
+    "type": "Attack",
+    "damageMultiplier": 1.5,
+    "length": 1.0,
+    "description": "Counter-attack that triggers when enemy misses, deals 150% damage",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "reactive": true,
+    "tags": ["tactical", "counter"]
+  },
+  {
+    "name": "BERSERKER RAGE",
     "type": "Attack",
     "damageMultiplier": 1.0,
     "length": 1.0,
-    "description": "Powerful strike that deals massive damage but costs 10% health",
+    "description": "Enter a berserker rage, dealing massive damage but taking 10% self-damage. Damage scales with combo amplification.",
     "comboOrder": 0,
     "isComboAction": true,
     "selfDamagePercent": 10,
-    "tags": ["tactical", "sacrifice"]
+    "tags": ["class", "barbarian", "tier1", "unique", "comboAmplificationScaling"]
   },
   {
-    "name": "MIRROR IMAGE",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Create mirror images that confuse enemies, -3 to enemy rolls",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "enemyRollPenalty": 3,
-    "tags": ["tactical", "illusion"]
-  },
-  {
-    "name": "QUICK STRIKE",
+    "name": "HEROIC STRIKE",
     "type": "Attack",
     "damageMultiplier": 1.0,
     "length": 1.0,
-    "description": "Fast strike with increased accuracy",
+    "description": "A powerful strike that gains roll bonus based on combo step position",
     "comboOrder": 0,
     "isComboAction": true,
-    "rollBonus": 2,
-    "tags": ["enemy", "bandit"]
+    "rollBonus": 0,
+    "tags": ["class", "warrior", "tier1", "unique", "comboStepScaling"]
   },
   {
-    "name": "DODGE",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Quick dodge that increases evasion",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "rollBonus": 1,
-    "tags": ["enemy", "bandit"]
-  },
-  {
-    "name": "RATTLE",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Bone-rattling sound that intimidates enemies",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesWeaken": true,
-    "tags": ["enemy", "skeleton"]
-  },
-  {
-    "name": "DARK BOLT",
-    "type": "Spell",
-    "damageMultiplier": 1.2,
-    "length": 1.0,
-    "description": "Dark magical projectile",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "cultist"]
-  },
-  {
-    "name": "CURSE",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Dark curse that weakens the target",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesWeaken": true,
-    "tags": ["enemy", "cultist"]
-  },
-  {
-    "name": "HOWL",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Pack howl that rallies allies",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "rollBonus": 1,
-    "tags": ["enemy", "wolf"]
-  },
-  {
-    "name": "ENTANGLE",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Roots entangle the target, slowing movement",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesWeaken": true,
-    "tags": ["enemy", "treant"]
-  },
-  {
-    "name": "FIRE BOLT",
-    "type": "Spell",
-    "damageMultiplier": 1.2,
-    "length": 1.0,
-    "description": "Magical fire projectile",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "fire"]
-  },
-  {
-    "name": "GROAN",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Unsettling groan that chills the soul",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesWeaken": true,
-    "tags": ["enemy", "zombie"]
-  },
-  {
-    "name": "STONE CRUSH",
+    "name": "SHADOW STRIKE",
     "type": "Attack",
     "damageMultiplier": 1.0,
     "length": 1.0,
-    "description": "Powerful stone crushing attack",
+    "description": "A swift strike from the shadows with roll bonus based on combo length and causes bleeding",
     "comboOrder": 0,
     "isComboAction": true,
-    "tags": ["enemy", "stone"]
-  },
-  {
-    "name": "NATURE'S WRATH",
-    "type": "Attack",
-    "damageMultiplier": 1.2,
-    "length": 1.0,
-    "description": "Nature's fury strikes with overwhelming force",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "nature"]
-  },
-  {
-    "name": "HEALING TOUCH",
-    "type": "Heal",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Natural healing energy restores health",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "nature"]
-  },
-  {
-    "name": "POLLEN BURST",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Explosive pollen cloud that causes sneezing and reduces accuracy",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "enemyRollPenalty": 2,
-    "tags": ["enemy", "nature"]
-  },
-  {
-    "name": "THORN STRIKE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Sharp thorns pierce the target, causing bleeding",
-    "comboOrder": 0,
-    "isComboAction": true,
+    "rollBonus": 0,
     "causesBleed": true,
-    "tags": ["enemy", "nature"]
+    "tags": ["class", "rogue", "tier1", "unique", "comboScaling"]
   },
   {
-    "name": "VINE WHIP",
+    "name": "METEOR",
+    "type": "Spell",
+    "damageMultiplier": 1.0,
+    "length": 1.0,
+    "description": "Summon a devastating meteor that deals massive damage with roll bonus based on combo length",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "rollBonus": 0,
+    "tags": ["class", "wizard", "tier1", "unique", "comboScaling"]
+  },
+  {
+    "name": "BARBARIAN TIER 2",
+    "type": "Attack",
+    "damageMultiplier": 1.2,
+    "length": 1.0,
+    "description": "Furious strike that increases damage based on missing health",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "tags": ["class", "barbarian", "tier2"]
+  },
+  {
+    "name": "BARBARIAN TIER 3",
+    "type": "Attack",
+    "damageMultiplier": 1.5,
+    "length": 1.0,
+    "description": "Ultimate berserker attack that deals massive damage and heals on kill",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "lifesteal": 0.5,
+    "tags": ["class", "barbarian", "tier3"]
+  },
+  {
+    "name": "WARRIOR TIER 2",
+    "type": "Attack",
+    "damageMultiplier": 1.1,
+    "length": 1.0,
+    "description": "Shield bash that stuns enemies and provides damage reduction",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "causesStun": true,
+    "damageReduction": 0.2,
+    "tags": ["class", "warrior", "tier2"]
+  },
+  {
+    "name": "WARRIOR TIER 3",
+    "type": "Attack",
+    "damageMultiplier": 1.4,
+    "length": 1.0,
+    "description": "Charging strike that deals extra damage and grants armor bonus",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "armorBonus": 2,
+    "armorBonusDuration": 3,
+    "tags": ["class", "warrior", "tier3"]
+  },
+  {
+    "name": "ROGUE TIER 2",
     "type": "Attack",
     "damageMultiplier": 1.0,
     "length": 1.0,
-    "description": "Living vines lash out with whip-like force",
+    "description": "Backstab that deals critical damage from behind",
     "comboOrder": 0,
     "isComboAction": true,
-    "tags": ["enemy", "nature"]
-  },
-  {
-    "name": "NATURE'S BLESSING",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Natural blessing enhances abilities and heals",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "rollBonus": 1,
-    "tags": ["enemy", "nature"]
-  },
-  {
-    "name": "SPRITE DART",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Quick darting attack with magical speed",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "rollBonus": 2,
-    "tags": ["enemy", "nature"]
-  },
-  {
-    "name": "THORN BITE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Bite with thorn-covered teeth that causes bleeding",
-    "comboOrder": 0,
-    "isComboAction": true,
+    "rollBonus": 5,
     "causesBleed": true,
-    "tags": ["enemy", "nature"]
+    "tags": ["class", "rogue", "tier2"]
   },
   {
-    "name": "PETAL STORM",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Swirling storm of razor-sharp petals",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "multiHitCount": 3,
-    "multiHitDamagePercent": 0.4,
-    "tags": ["enemy", "nature"]
-  },
-  {
-    "name": "BLOOM BURST",
+    "name": "ROGUE TIER 3",
     "type": "Attack",
     "damageMultiplier": 1.3,
     "length": 1.0,
-    "description": "Explosive burst of floral energy",
+    "description": "Assassinate that deals massive damage to low health enemies",
     "comboOrder": 0,
     "isComboAction": true,
-    "tags": ["enemy", "nature"]
+    "causesBleed": true,
+    "tags": ["class", "rogue", "tier3"]
+  },
+  {
+    "name": "WIZARD TIER 2",
+    "type": "Spell",
+    "damageMultiplier": 1.2,
+    "length": 1.0,
+    "description": "Chain lightning that bounces between multiple enemies",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "multiHitCount": 3,
+    "multiHitDamagePercent": 0.6,
+    "tags": ["class", "wizard", "tier2"]
+  },
+  {
+    "name": "WIZARD TIER 3",
+    "type": "Spell",
+    "damageMultiplier": 1.6,
+    "length": 1.0,
+    "description": "Arcane explosion that deals massive area damage and weakens all enemies",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "causesWeaken": true,
+    "tags": ["class", "wizard", "tier3"]
+  },
+  {
+    "name": "ENEMY BASIC ATTACK",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 1.0,
+    "description": "A standard physical attack",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["enemy", "basic"]
+  },
+  {
+    "name": "ENEMY BLEED ATTACK",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 1.0,
+    "description": "Sharp claws tear through flesh causing bleeding",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "causesBleed": true,
+    "tags": ["enemy", "basic"]
+  },
+  {
+    "name": "ENEMY POISON ATTACK",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 1.0,
+    "description": "A venomous bite that poisons the target",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "causesPoison": true,
+    "tags": ["enemy", "basic"]
+  },
+  {
+    "name": "ENEMY WEAKEN ATTACK",
+    "type": "Debuff",
+    "damageMultiplier": 1.0,
+    "length": 1.0,
+    "description": "A terrifying roar that intimidates and weakens enemies",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "causesWeaken": true,
+    "tags": ["enemy", "basic"]
+  },
+  {
+    "name": "ENEMY STUN ATTACK",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 1.0,
+    "description": "Powerful attack that stuns the target",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "causesStun": true,
+    "tags": ["enemy", "basic"]
+  },
+  {
+    "name": "ENEMY SLOW ATTACK",
+    "type": "Debuff",
+    "damageMultiplier": 1.0,
+    "length": 1.0,
+    "description": "Touch that freezes the target in place",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "causesSlow": true,
+    "tags": ["enemy", "basic"]
+  },
+  {
+    "name": "ENEMY BURN ATTACK",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 1.0,
+    "description": "Explosive fire spell that causes burning",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "causesBurn": true,
+    "tags": ["enemy", "basic"]
+  },
+  {
+    "name": "ENEMY HEAL",
+    "type": "Heal",
+    "damageMultiplier": 1.0,
+    "length": 1.0,
+    "description": "Divine healing restores health",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "healAmount": 15,
+    "tags": ["enemy", "basic"]
+  },
+  {
+    "name": "ENEMY MULTI-HIT",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 1.0,
+    "description": "Launches multiple attacks",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "multiHitCount": 3,
+    "multiHitDamagePercent": 0.47,
+    "tags": ["enemy", "basic"]
+  },
+  {
+    "name": "ENEMY ROLL PENALTY",
+    "type": "Debuff",
+    "damageMultiplier": 1.0,
+    "length": 1.0,
+    "description": "Attack that reduces enemy accuracy",
+    "comboOrder": 0,
+    "isComboAction": true,
+    "enemyRollPenalty": 2,
+    "tags": ["enemy", "basic"]
+  },
+  {
+    "name": "FALLING BRANCH",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 1.0,
+    "description": "A heavy branch crashes down from the ancient canopy above",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["environment", "forest"]
+  },
+  {
+    "name": "LAVA SPLASH",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 1.0,
+    "description": "Molten lava erupts from cracks in the ground, searing everything nearby",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["environment", "lava"]
+  },
+  {
+    "name": "CURSE OF THE CRYPT",
+    "type": "Debuff",
+    "damageMultiplier": 1.0,
+    "length": 1.0,
+    "description": "Ancient necromantic curse drains the life force from all present",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "causesWeaken": true,
+    "tags": ["environment", "crypt"]
+  },
+  {
+    "name": "CRYSTAL SHARDS",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 1.0,
+    "description": "Sharp crystal shards explode from the walls",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "causesBleed": true,
+    "tags": ["environment", "crystal"]
+  },
+  {
+    "name": "DIVINE WRATH",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 1.0,
+    "description": "The temple's divine power strikes down the unworthy",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "tags": ["environment", "temple"]
+  },
+  {
+    "name": "DUNGEON COLLAPSE",
+    "type": "Attack",
+    "damageMultiplier": 1.0,
+    "length": 1.0,
+    "description": "The ancient dungeon ceiling begins to collapse, raining debris and stunning all combatants",
+    "comboOrder": 0,
+    "isComboAction": false,
+    "causesStun": true,
+    "tags": ["environment", "generic"]
   },
   {
     "name": "ICE SHARDS",
@@ -2148,75 +496,11 @@
     "tags": ["environment", "ice"]
   },
   {
-    "name": "BLIZZARD",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Fierce blizzard reduces visibility and causes damage",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "enemyRollPenalty": 2,
-    "tags": ["environment", "ice"]
-  },
-  {
-    "name": "FROST AURA",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Freezing aura slows all movement and weakens combatants",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "causesWeaken": true,
-    "tags": ["environment", "ice"]
-  },
-  {
-    "name": "CRACKING ICE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "The frozen surface cracks and breaks beneath your feet",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "ice"]
-  },
-  {
-    "name": "FROZEN BREATH",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Extreme cold makes breathing difficult and weakens all",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "causesWeaken": true,
-    "tags": ["environment", "ice"]
-  },
-  {
     "name": "SHADOW GRASP",
     "type": "Attack",
     "damageMultiplier": 1.0,
     "length": 1.0,
     "description": "Dark shadows reach out to grasp and drain life force",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "shadow"]
-  },
-  {
-    "name": "SHADOW VEIL",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Shadows obscure vision and reduce accuracy",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "enemyRollPenalty": 2,
-    "tags": ["environment", "shadow"]
-  },
-  {
-    "name": "VOID TOUCH",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "The void itself reaches out to consume existence",
     "comboOrder": 0,
     "isComboAction": false,
     "tags": ["environment", "shadow"]
@@ -2232,28 +516,6 @@
     "tags": ["environment", "steampunk"]
   },
   {
-    "name": "GEAR TRAP",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Mechanical gears snap shut with crushing force",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "causesBleed": true,
-    "tags": ["environment", "steampunk"]
-  },
-  {
-    "name": "MECHANICAL WHIR",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Constant mechanical noise disorients and weakens",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "causesWeaken": true,
-    "tags": ["environment", "steampunk"]
-  },
-  {
     "name": "QUICKSAND",
     "type": "Debuff",
     "damageMultiplier": 1.0,
@@ -2265,16 +527,6 @@
     "tags": ["environment", "swamp"]
   },
   {
-    "name": "MARSH SPIRITS",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Ethereal spirits of the marsh swirl around dealing damage",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "swamp"]
-  },
-  {
     "name": "COSMIC RAY",
     "type": "Attack",
     "damageMultiplier": 1.0,
@@ -2282,28 +534,6 @@
     "description": "Powerful cosmic energy strikes from the stars above",
     "comboOrder": 0,
     "isComboAction": false,
-    "tags": ["environment", "astral"]
-  },
-  {
-    "name": "GRAVITY WELL",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Intense gravitational forces slow and weaken all combatants",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "causesWeaken": true,
-    "tags": ["environment", "astral"]
-  },
-  {
-    "name": "STELLAR ALIGNMENT",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Cosmic alignment enhances all abilities and heals",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "rollBonus": 1,
     "tags": ["environment", "astral"]
   },
   {
@@ -2318,27 +548,6 @@
     "tags": ["environment", "underground"]
   },
   {
-    "name": "ROCKFALL",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Rocks fall from the unstable ceiling above",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "underground"]
-  },
-  {
-    "name": "ECHOING SILENCE",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Deafening silence disorients and weakens all",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "causesWeaken": true,
-    "tags": ["environment", "underground"]
-  },
-  {
     "name": "LIGHTNING STRIKE",
     "type": "Attack",
     "damageMultiplier": 1.0,
@@ -2349,27 +558,6 @@
     "tags": ["environment", "storm"]
   },
   {
-    "name": "WIND GUST",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Powerful winds buffet and damage all combatants",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "tags": ["environment", "storm"]
-  },
-  {
-    "name": "STORM'S EYE",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "The calm center of the storm provides clarity and strength",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "rollBonus": 1,
-    "tags": ["environment", "storm"]
-  },
-  {
     "name": "HEALING WATERS",
     "type": "Heal",
     "damageMultiplier": 1.0,
@@ -2377,28 +565,7 @@
     "description": "Pure natural waters restore health and vitality",
     "comboOrder": 0,
     "isComboAction": false,
-    "tags": ["environment", "nature"]
-  },
-  {
-    "name": "NATURE'S BLESSING",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Nature's blessing enhances all abilities and heals",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "rollBonus": 1,
-    "tags": ["environment", "nature"]
-  },
-  {
-    "name": "POLLEN CLOUD",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Thick pollen clouds obscure vision and cause sneezing",
-    "comboOrder": 0,
-    "isComboAction": false,
-    "enemyRollPenalty": 1,
+    "healAmount": 10,
     "tags": ["environment", "nature"]
   },
   {
@@ -2412,444 +579,15 @@
     "tags": ["environment", "arcane"]
   },
   {
-    "name": "FROZEN BITE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Ice-cold bite that freezes the target",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesBleed": true,
-    "tags": ["enemy", "ice"]
-  },
-  {
-    "name": "ICE CLAW",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Sharp ice claws tear through flesh",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesBleed": true,
-    "tags": ["enemy", "ice"]
-  },
-  {
-    "name": "ICE CRUSH",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Massive ice fists crush with devastating force",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "ice"]
-  },
-  {
-    "name": "FROST ARMOR",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Thick ice armor provides protection",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "ice"]
-  },
-  {
-    "name": "CHILLING TOUCH",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Freezing touch that chills the soul",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesWeaken": true,
-    "tags": ["enemy", "ice"]
-  },
-  {
-    "name": "ICE SHROUD",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Shroud of ice provides protection and stealth",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "ice"]
-  },
-  {
-    "name": "SNOW STORM",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Blinding snow storm that damages and disorients",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "enemyRollPenalty": 2,
-    "tags": ["enemy", "ice"]
-  },
-  {
-    "name": "WEB STRIKE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Sticky web attack that slows movement",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesWeaken": true,
-    "tags": ["enemy", "spider"]
-  },
-  {
-    "name": "SLIME COAT",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Acidic slime coating provides protection",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "slime"]
-  },
-  {
-    "name": "SCREECH",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Piercing screech that disorients enemies",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesWeaken": true,
-    "tags": ["enemy", "bat"]
-  },
-  {
-    "name": "TERRIFY",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Terrifying presence that weakens all enemies",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesWeaken": true,
-    "tags": ["enemy", "nightmare"]
-  },
-  {
-    "name": "DREAM CLAW",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Claws that tear through reality and dreams",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesBleed": true,
-    "tags": ["enemy", "nightmare"]
-  },
-  {
-    "name": "SHADOW BLAST",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Explosive blast of pure shadow energy",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "umbra"]
-  },
-  {
-    "name": "DARK AURA",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Dark aura that enhances shadow abilities",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "umbra"]
-  },
-  {
-    "name": "GEAR STRIKE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Mechanical gears strike with crushing force",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "steampunk"]
-  },
-  {
-    "name": "SWAMP CLAW",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Claws covered in swamp muck and disease",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesBleed": true,
-    "tags": ["enemy", "swamp"]
-  },
-  {
-    "name": "POISON SPIT",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Deadly poison spit from a toxic frog",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesPoison": true,
-    "tags": ["enemy", "swamp"]
-  },
-  {
-    "name": "LEAP",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Powerful leap attack",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "swamp"]
-  },
-  {
-    "name": "POISON CLOUD",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Toxic cloud that poisons all enemies",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesPoison": true,
-    "tags": ["enemy", "swamp"]
-  },
-  {
-    "name": "CONSTRICT",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Crushing constriction attack",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesStun": true,
-    "tags": ["enemy", "swamp"]
-  },
-  {
-    "name": "TOXIC CLOUD",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Extremely toxic cloud that weakens enemies",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesWeaken": true,
-    "tags": ["enemy", "swamp"]
-  },
-  {
-    "name": "VENOM BITE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Bite with extremely potent venom",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesPoison": true,
-    "tags": ["enemy", "swamp"]
-  },
-  {
-    "name": "STAR BURST",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Explosive burst of stellar energy",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "astral"]
-  },
-  {
-    "name": "STELLAR SHIELD",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Protective shield of stellar energy",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "astral"]
-  },
-  {
-    "name": "COMET STRIKE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Devastating strike like a falling comet",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "astral"]
-  },
-  {
-    "name": "COSMIC TAIL",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Tail strike infused with cosmic energy",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "astral"]
-  },
-  {
-    "name": "GALACTIC STRIKE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Strike with the power of an entire galaxy",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "astral"]
-  },
-  {
-    "name": "PICKAXE STRIKE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Powerful strike with a mining pickaxe",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "underground"]
-  },
-  {
-    "name": "DISEASE BITE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Bite that spreads disease",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesPoison": true,
-    "tags": ["enemy", "underground"]
-  },
-  {
-    "name": "SWARM",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Overwhelming swarm attack",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "underground"]
-  },
-  {
-    "name": "TUNNEL STRIKE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Attack from underground tunnel",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "underground"]
-  },
-  {
-    "name": "BURROW",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Burrow underground for protection",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "underground"]
-  },
-  {
-    "name": "GUARDIAN STRIKE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Strike from a guardian spirit",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "underground"]
-  },
-  {
-    "name": "THUNDER CLAP",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Deafening thunder clap attack",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesStun": true,
-    "tags": ["enemy", "storm"]
-  },
-  {
-    "name": "ARCANE MISSILE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Magical missile that never misses",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "arcane"]
-  },
-  {
-    "name": "PAPER CUT",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Surprisingly painful paper cut",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesBleed": true,
-    "tags": ["enemy", "arcane"]
-  },
-  {
-    "name": "WISDOM BOLT",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Bolt of pure wisdom and knowledge",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "arcane"]
-  },
-  {
-    "name": "SCROLL STRIKE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Strike with a magical scroll",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "arcane"]
-  },
-  {
-    "name": "SILENCE",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Silence that prevents spellcasting",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesStun": true,
-    "tags": ["enemy", "arcane"]
-  },
-  {
     "name": "SANDSTORM",
     "type": "Attack",
     "damageMultiplier": 1.0,
     "length": 1.0,
     "description": "Blinding sandstorm attack",
     "comboOrder": 0,
-    "isComboAction": true,
+    "isComboAction": false,
     "causesWeaken": true,
-    "tags": ["enemy", "desert"]
-  },
-  {
-    "name": "DESERT BLESSING",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Blessing from the desert spirits",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "desert"]
-  },
-  {
-    "name": "HEAT MIRAGE",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Confusing heat mirage that disorients",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesWeaken": true,
-    "tags": ["enemy", "desert"]
+    "tags": ["environment", "desert"]
   },
   {
     "name": "LAVA SURGE",
@@ -2858,39 +596,8 @@
     "length": 1.0,
     "description": "Surge of molten lava",
     "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "volcano"]
-  },
-  {
-    "name": "ASH CLOUD",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Blinding cloud of volcanic ash",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesWeaken": true,
-    "tags": ["enemy", "volcano"]
-  },
-  {
-    "name": "LAVA SPLASH",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Splash of molten lava",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "volcano"]
-  },
-  {
-    "name": "STEAM BURST",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Explosive burst of superheated steam",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "volcano"]
+    "isComboAction": false,
+    "tags": ["environment", "volcano"]
   },
   {
     "name": "FALLING DEBRIS",
@@ -2899,39 +606,8 @@
     "length": 1.0,
     "description": "Debris falling from crumbling ruins",
     "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "ruins"]
-  },
-  {
-    "name": "RUINS BLESSING",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Blessing from ancient ruins",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "ruins"]
-  },
-  {
-    "name": "ANCIENT CURSE",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Ancient curse that weakens enemies",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesWeaken": true,
-    "tags": ["enemy", "ruins"]
-  },
-  {
-    "name": "STONE CRUSH",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Crushing attack with stone",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "ruins"]
+    "isComboAction": false,
+    "tags": ["environment", "ruins"]
   },
   {
     "name": "TIDAL WAVE",
@@ -2940,29 +616,8 @@
     "length": 1.0,
     "description": "Massive tidal wave attack",
     "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "ocean"]
-  },
-  {
-    "name": "OCEAN CURRENT",
-    "type": "Debuff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Powerful ocean current that pulls enemies",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "causesStun": true,
-    "tags": ["enemy", "ocean"]
-  },
-  {
-    "name": "OCEAN BLESSING",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Blessing from the ocean spirits",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "ocean"]
+    "isComboAction": false,
+    "tags": ["environment", "ocean"]
   },
   {
     "name": "AVALANCHE",
@@ -2971,18 +626,8 @@
     "length": 1.0,
     "description": "Devastating avalanche attack",
     "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "mountain"]
-  },
-  {
-    "name": "MOUNTAIN BLESSING",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Blessing from mountain spirits",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "mountain"]
+    "isComboAction": false,
+    "tags": ["environment", "mountain"]
   },
   {
     "name": "TIME STOP",
@@ -2991,39 +636,9 @@
     "length": 1.0,
     "description": "Stops time for all enemies",
     "comboOrder": 0,
-    "isComboAction": true,
+    "isComboAction": false,
     "causesStun": true,
-    "tags": ["enemy", "temporal"]
-  },
-  {
-    "name": "TEMPORAL RIFT",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Attack through a rift in time",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "temporal"]
-  },
-  {
-    "name": "TEMPORAL BLESSING",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Blessing that manipulates time",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "temporal"]
-  },
-  {
-    "name": "DREAM BLESSING",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Blessing from dream spirits",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "dream"]
+    "tags": ["environment", "temporal"]
   },
   {
     "name": "NIGHTMARE",
@@ -3032,9 +647,9 @@
     "length": 1.0,
     "description": "Terrifying nightmare that weakens enemies",
     "comboOrder": 0,
-    "isComboAction": true,
+    "isComboAction": false,
     "causesWeaken": true,
-    "tags": ["enemy", "dream"]
+    "tags": ["environment", "dream"]
   },
   {
     "name": "DIMENSIONAL RIFT",
@@ -3043,28 +658,8 @@
     "length": 1.0,
     "description": "Attack through a dimensional rift",
     "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "dimensional"]
-  },
-  {
-    "name": "REALITY TEAR",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Tears reality itself to attack",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "dimensional"]
-  },
-  {
-    "name": "DIMENSIONAL BLESSING",
-    "type": "Buff",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "Blessing that transcends dimensions",
-    "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "dimensional"]
+    "isComboAction": false,
+    "tags": ["environment", "dimensional"]
   },
   {
     "name": "DIVINE BLESSING",
@@ -3073,160 +668,19 @@
     "length": 1.0,
     "description": "Blessing from divine powers",
     "comboOrder": 0,
-    "isComboAction": true,
-    "tags": ["enemy", "divine"]
+    "isComboAction": false,
+    "rollBonus": 2,
+    "tags": ["environment", "divine"]
   },
   {
-    "name": "HOLY BLESSING",
-    "type": "Buff",
-    "damageMultiplier": 0.0,
-    "length": 1.0,
-    "description": "Blesses allies with divine protection",
-    "healAmount": 15,
-    "armorBonus": 2,
-    "armorBonusDuration": 3,
-    "tags": ["enemy", "divine"]
-  },
-  {
-    "name": "FROST BITE",
-    "type": "Attack",
-    "damageMultiplier": 1.2,
-    "length": 1.0,
-    "description": "A cold bite that freezes the target",
-    "causesSlow": true,
-    "slowDuration": 2,
-    "tags": ["enemy", "ice"]
-  },
-  {
-    "name": "WINTER HOWL",
+    "name": "VOID NULLIFICATION",
     "type": "Debuff",
     "damageMultiplier": 0.0,
     "length": 1.0,
-    "description": "A chilling howl that weakens enemies",
+    "description": "The void nullifies all abilities and weakens combatants",
+    "comboOrder": 0,
+    "isComboAction": false,
     "causesWeaken": true,
-    "weakenDuration": 3,
-    "tags": ["enemy", "ice"]
-  },
-  {
-    "name": "SNOW CRUSH",
-    "type": "Attack",
-    "damageMultiplier": 1.4,
-    "length": 1.0,
-    "description": "A massive crushing attack with snow and ice",
-    "causesStun": true,
-    "stunDuration": 1,
-    "tags": ["enemy", "ice"]
-  },
-  {
-    "name": "SWAMP CRUSH",
-    "type": "Attack",
-    "damageMultiplier": 1.3,
-    "length": 1.0,
-    "description": "A crushing attack that creates quicksand",
-    "causesSlow": true,
-    "slowDuration": 2,
-    "tags": ["enemy", "swamp"]
-  },
-  {
-    "name": "POISON DART",
-    "type": "Attack",
-    "damageMultiplier": 0.8,
-    "length": 1.0,
-    "description": "A quick dart attack that poisons the target",
-    "causesPoison": true,
-    "poisonDuration": 3,
-    "poisonDamage": 5,
-    "tags": ["enemy", "swamp"]
-  },
-  {
-    "name": "SERPENT STRIKE",
-    "type": "Attack",
-    "damageMultiplier": 1.2,
-    "length": 1.0,
-    "description": "A serpentine strike that constricts the target",
-    "causesSlow": true,
-    "slowDuration": 2,
-    "tags": ["enemy", "swamp"]
-  },
-  {
-    "name": "ACIDIC SPLASH",
-    "type": "Attack",
-    "damageMultiplier": 1.1,
-    "length": 1.0,
-    "description": "Splashes acid that burns through armor",
-    "armorReduction": 1,
-    "armorReductionDuration": 2,
-    "tags": ["enemy", "swamp"]
-  },
-  {
-    "name": "VENOMOUS BITE",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "description": "A venomous bite that poisons the target",
-    "causesPoison": true,
-    "poisonDuration": 4,
-    "poisonDamage": 3,
-    "tags": ["enemy", "swamp"]
-  },
-  {
-    "name": "TIME DISTORTION",
-    "type": "Debuff",
-    "damageMultiplier": 0.0,
-    "length": 1.0,
-    "description": "Distorts time around the target",
-    "causesSlow": true,
-    "slowDuration": 3,
-    "tags": ["enemy", "temporal"]
-  },
-  {
-    "name": "DREAM WEAVE",
-    "type": "Debuff",
-    "damageMultiplier": 0.0,
-    "length": 1.0,
-    "description": "Weaves dreams that confuse the target",
-    "causesConfusion": true,
-    "confusionDuration": 2,
-    "tags": ["enemy", "dream"]
-  },
-  {
-    "name": "VOID BLESSING",
-    "type": "Buff",
-    "damageMultiplier": 0.0,
-    "length": 1.0,
-    "description": "Blessing from the void",
-    "armorBonus": 1,
-    "armorBonusDuration": 3,
-    "tags": ["enemy", "void"]
-  },
-  {
-    "name": "NULLIFICATION",
-    "type": "Debuff",
-    "damageMultiplier": 0.0,
-    "length": 1.0,
-    "description": "Nullifies the target's abilities",
-    "causesSilence": true,
-    "silenceDuration": 2,
-    "tags": ["enemy", "void"]
-  },
-  {
-    "name": "DIMENSIONAL SHIFT",
-    "type": "Debuff",
-    "damageMultiplier": 0.0,
-    "length": 1.0,
-    "description": "Shifts the target between dimensions",
-    "causesDisplacement": true,
-    "displacementDuration": 1,
-    "tags": ["enemy", "dimensional"]
-  },
-  {
-    "name": "REALITY TEAR",
-    "type": "Attack",
-    "damageMultiplier": 1.3,
-    "length": 1.0,
-    "description": "Tears through reality itself",
-    "causesStun": true,
-    "stunDuration": 1,
-    "tags": ["enemy", "dimensional"]
+    "tags": ["environment", "void"]
   }
-] 
+]

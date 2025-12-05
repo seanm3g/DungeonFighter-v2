@@ -14,15 +14,33 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
     public static class ItemRendererHelper
     {
         /// <summary>
+        /// Gets the slot name for an item type
+        /// </summary>
+        private static string GetSlotName(ItemType itemType)
+        {
+            return itemType switch
+            {
+                ItemType.Weapon => "Weapon",
+                ItemType.Head => "Head",
+                ItemType.Chest => "Body",
+                ItemType.Feet => "Feet",
+                _ => "Item"
+            };
+        }
+
+        /// <summary>
         /// Renders an item name with colored text support
         /// </summary>
         public static void RenderItemName(ColoredTextWriter textWriter, GameCanvasControl canvas, 
             int x, int y, int itemIndex, Item item, bool useColoredText = true)
         {
+            string slotName = GetSlotName(item.Type);
+            
             if (useColoredText)
             {
                 var displayBuilder = new ColoredTextBuilder();
                 displayBuilder.Add($"[{itemIndex + 1}] ", Colors.White);
+                displayBuilder.Add($"[{slotName}] ", Colors.Gray);
                 var itemNameSegments = ItemDisplayColoredText.FormatFullItemName(item);
                 displayBuilder.AddRange(itemNameSegments);
                 textWriter.RenderSegments(displayBuilder.Build(), x, y);
@@ -30,7 +48,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             else
             {
                 string coloredItemName = ItemDisplayFormatter.GetColoredItemName(item);
-                string displayLine = $"[{itemIndex + 1}] {coloredItemName}";
+                string displayLine = $"[{itemIndex + 1}] [{slotName}] {coloredItemName}";
                 var coloredSegments = ColoredTextParser.Parse(displayLine);
                 if (coloredSegments != null && coloredSegments.Count > 0)
                 {
@@ -38,7 +56,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 }
                 else
                 {
-                    canvas.AddText(x, y, $"[{itemIndex + 1}] {item.Name}", AsciiArtAssets.Colors.White);
+                    canvas.AddText(x, y, $"[{itemIndex + 1}] [{slotName}] {item.Name}", AsciiArtAssets.Colors.White);
                 }
             }
         }

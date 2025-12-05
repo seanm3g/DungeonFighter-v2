@@ -276,6 +276,12 @@ namespace RPGGame
                 return false;
             }
             
+            // Record enemy defeat in session statistics
+            if (player != null)
+            {
+                player.RecordEnemyDefeat();
+            }
+            
             // Enemy defeated - add victory message with proper spacing BEFORE final render
             // This ensures the victory message is included in the final render and prevents overlapping text
             if (enemy != null)
