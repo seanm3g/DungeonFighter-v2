@@ -65,6 +65,14 @@ namespace RPGGame.UI.Avalonia.Coordinators
         }
         
         /// <summary>
+        /// Renders item comparison screen
+        /// </summary>
+        public void RenderItemComparison(Character character, Item newItem, Item? currentItem, string slot)
+        {
+            renderer.RenderItemComparison(character, newItem, currentItem, slot, contextManager.GetCurrentContext());
+        }
+        
+        /// <summary>
         /// Renders combo management menu
         /// </summary>
         public void RenderComboManagement(Character character)

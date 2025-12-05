@@ -23,7 +23,10 @@ namespace RPGGame
         // State tracking for multi-step actions
         private bool waitingForItemSelection = false;
         private bool waitingForSlotSelection = false;
+        private bool waitingForComparisonChoice = false;
         private string itemSelectionAction = "";
+        private int selectedItemIndex = -1;
+        private string selectedSlot = "";
         
         // Combo management state
         private bool inComboManagement = false;
@@ -81,6 +84,42 @@ namespace RPGGame
                 return;
             }
             
+            // Handle comparison choice (1=new item, 2=old item, 0=cancel)
+            if (waitingForComparisonChoice && int.TryParse(input, out int comparisonChoice))
+            {
+                waitingForComparisonChoice = false;
+                
+                if (comparisonChoice == 0)
+                {
+                    ShowMessageEvent?.Invoke("Cancelled.");
+                    ShowInventoryEvent?.Invoke();
+                    selectedItemIndex = -1;
+                    selectedSlot = "";
+                    return;
+                }
+                
+                if (comparisonChoice == 1)
+                {
+                    // Equip new item
+                    ConfirmEquipItem(selectedItemIndex, selectedSlot, equipNew: true);
+                }
+                else if (comparisonChoice == 2)
+                {
+                    // Keep old item
+                    ConfirmEquipItem(selectedItemIndex, selectedSlot, equipNew: false);
+                }
+                else
+                {
+                    ShowMessageEvent?.Invoke("Invalid choice. Please select 1 (new item), 2 (old item), or 0 (cancel).");
+                    waitingForComparisonChoice = true;
+                    return;
+                }
+                
+                selectedItemIndex = -1;
+                selectedSlot = "";
+                return;
+            }
+            
             // Handle multi-step actions (item selection, slot selection)
             if (waitingForItemSelection && int.TryParse(input, out int itemIndex))
             {
@@ -97,7 +136,7 @@ namespace RPGGame
                 
                 if (itemSelectionAction == "equip")
                 {
-                    EquipItem(itemIndex);
+                    ShowItemComparison(itemIndex);
                 }
                 else if (itemSelectionAction == "discard")
                 {
@@ -123,15 +162,22 @@ namespace RPGGame
                 return;
             }
             
-            // If waiting for item/slot selection but input is not numeric, ignore it
+            // If waiting for item/slot selection or comparison choice but input is not numeric, ignore it
             // This prevents non-numeric keys from triggering normal menu actions
-            if (waitingForItemSelection || waitingForSlotSelection)
+            if (waitingForItemSelection || waitingForSlotSelection || waitingForComparisonChoice)
             {
                 // Only allow numeric input or cancel (0) when waiting for selection
                 if (!int.TryParse(input, out _))
                 {
                     // Show error message for invalid input during selection
-                    ShowMessageEvent?.Invoke("Please enter a number to select an item, or 0 to cancel.");
+                    if (waitingForComparisonChoice)
+                    {
+                        ShowMessageEvent?.Invoke("Please enter 1 (new item), 2 (old item), or 0 (cancel).");
+                    }
+                    else
+                    {
+                        ShowMessageEvent?.Invoke("Please enter a number to select an item, or 0 to cancel.");
+                    }
                     return;
                 }
             }
@@ -231,9 +277,9 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Equip a specific item
+        /// Show item comparison screen before equipping
         /// </summary>
-        private void EquipItem(int itemIndex)
+        private void ShowItemComparison(int itemIndex)
         {
             if (stateManager.CurrentPlayer == null)
             {
@@ -249,8 +295,8 @@ namespace RPGGame
                 return;
             }
             
-            var item = stateManager.CurrentInventory[itemIndex];
-            string slot = item.Type switch
+            var newItem = stateManager.CurrentInventory[itemIndex];
+            string slot = newItem.Type switch
             {
                 ItemType.Weapon => "weapon",
                 ItemType.Head => "head",
@@ -261,21 +307,73 @@ namespace RPGGame
             
             if (string.IsNullOrEmpty(slot))
             {
-                ShowMessageEvent?.Invoke($"Cannot equip {item.Name}: Invalid item type.");
+                ShowMessageEvent?.Invoke($"Cannot equip {newItem.Name}: Invalid item type.");
                 ShowInventoryEvent?.Invoke();
                 return;
             }
             
-            var previousItem = stateManager.CurrentPlayer.EquipItem(item, slot);
-            stateManager.CurrentInventory.RemoveAt(itemIndex);
-            
-            if (previousItem != null)
+            // Get currently equipped item for this slot
+            Item? currentItem = slot switch
             {
-                ShowMessageEvent?.Invoke($"Unequipped and destroyed {previousItem.Name}. Equipped {item.Name}.");
+                "weapon" => stateManager.CurrentPlayer.Weapon,
+                "head" => stateManager.CurrentPlayer.Head,
+                "body" => stateManager.CurrentPlayer.Body,
+                "feet" => stateManager.CurrentPlayer.Feet,
+                _ => null
+            };
+            
+            // Store selection for later confirmation
+            selectedItemIndex = itemIndex;
+            selectedSlot = slot;
+            waitingForComparisonChoice = true;
+            
+            // Render comparison screen
+            if (customUIManager is CanvasUICoordinator canvasUI)
+            {
+                canvasUI.RenderItemComparison(stateManager.CurrentPlayer, newItem, currentItem, slot);
+            }
+        }
+        
+        /// <summary>
+        /// Confirm equip choice after comparison
+        /// </summary>
+        private void ConfirmEquipItem(int itemIndex, string slot, bool equipNew)
+        {
+            if (stateManager.CurrentPlayer == null)
+            {
+                ShowMessageEvent?.Invoke("Error: No player character available.");
+                ShowInventoryEvent?.Invoke();
+                return;
+            }
+            
+            if (itemIndex < 0 || itemIndex >= stateManager.CurrentInventory.Count)
+            {
+                ShowMessageEvent?.Invoke("Error: Invalid item selection.");
+                ShowInventoryEvent?.Invoke();
+                return;
+            }
+            
+            var newItem = stateManager.CurrentInventory[itemIndex];
+            
+            if (equipNew)
+            {
+                // Equip the new item
+                var previousItem = stateManager.CurrentPlayer.EquipItem(newItem, slot);
+                stateManager.CurrentInventory.RemoveAt(itemIndex);
+                
+                if (previousItem != null)
+                {
+                    ShowMessageEvent?.Invoke($"Unequipped and destroyed {previousItem.Name}. Equipped {newItem.Name}.");
+                }
+                else
+                {
+                    ShowMessageEvent?.Invoke($"Equipped {newItem.Name}.");
+                }
             }
             else
             {
-                ShowMessageEvent?.Invoke($"Equipped {item.Name}.");
+                // Keep the old item, do nothing
+                ShowMessageEvent?.Invoke("Kept current equipment.");
             }
             
             ShowInventoryEvent?.Invoke();

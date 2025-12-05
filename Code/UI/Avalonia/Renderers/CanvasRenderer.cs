@@ -89,6 +89,14 @@ namespace RPGGame.UI.Avalonia.Renderers
                 inventoryRenderer.RenderSlotSelectionPrompt(contentX, contentY, contentWidth, contentHeight, character);
             }, context);
         }
+
+        public void RenderItemComparison(Character character, Item newItem, Item? currentItem, string slot, CanvasContext context)
+        {
+            RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
+            {
+                inventoryRenderer.RenderItemComparison(contentX, contentY, contentWidth, contentHeight, character, newItem, currentItem, slot);
+            }, context);
+        }
         
         public void RenderComboManagement(Character character, CanvasContext context)
         {

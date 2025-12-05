@@ -81,10 +81,31 @@ namespace RPGGame.UI
             if (checkWordBoundary)
             {
                 // If both segments are single characters that are letters/digits, they're part of the same word
+                // This is the most common case for multi-color templates (e.g., "T" + "i" in "Time Chamber")
                 if (previousText.Length == 1 && nextText.Length == 1)
                 {
                     if (char.IsLetterOrDigit(prevLastChar) && char.IsLetterOrDigit(nextFirstChar))
                         return false;
+                }
+                
+                // If one segment is a single character and the other is also a single character or short,
+                // and both are letters/digits, they're likely part of the same word
+                // This handles cases like "T" (single char) + "i" (single char) or "Ma" (2 chars) + "g" (single char)
+                if ((previousText.Length == 1 || previousText.Length <= 2) && 
+                    (nextText.Length == 1 || nextText.Length <= 2))
+                {
+                    if (char.IsLetterOrDigit(prevLastChar) && char.IsLetterOrDigit(nextFirstChar))
+                    {
+                        // Check that neither segment contains whitespace (which would indicate word boundary)
+                        bool prevHasNoWhitespace = !previousText.Any(char.IsWhiteSpace);
+                        bool nextHasNoWhitespace = !nextText.Any(char.IsWhiteSpace);
+                        
+                        // If both segments have no whitespace, they're part of the same word
+                        if (prevHasNoWhitespace && nextHasNoWhitespace)
+                        {
+                            return false;
+                        }
+                    }
                 }
                 
                 // Check if boundary characters are letters/digits (part of same word)
