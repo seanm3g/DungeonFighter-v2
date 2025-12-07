@@ -154,11 +154,14 @@ namespace RPGGame
                         var effects = new List<string>();
                         
                         // Extract any effects from additional lines
+                        // Preserve leading spaces (for indentation) but check for empty lines
                         for (int i = 1; i < lines.Length; i++)
                         {
-                            if (!string.IsNullOrEmpty(lines[i].Trim()))
+                            // Only trim trailing whitespace to preserve leading indentation
+                            string line = lines[i].TrimEnd();
+                            if (!string.IsNullOrWhiteSpace(line))
                             {
-                                effects.Add(lines[i].Trim());
+                                effects.Add(line);
                             }
                         }
                         

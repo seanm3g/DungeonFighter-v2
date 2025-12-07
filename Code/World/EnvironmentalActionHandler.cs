@@ -147,6 +147,7 @@ namespace RPGGame
                     string displayName = GetDisplayName(target);
                     var effectMessage = GetEnvironmentalEffectMessageColored(action, duration);
                     var builder = new ColoredTextBuilder();
+                    // Add 4 spaces for indentation (status effects should be indented 4 spaces)
                     builder.Add("    ", Colors.White);
                     builder.Add(displayName, target is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
                     builder.AddSpace(); // Explicit space between display name and "affected"
@@ -233,6 +234,7 @@ namespace RPGGame
             string mainLine = ColoredTextRenderer.RenderAsMarkup(mainBuilder.Build());
             
             // Build effect line - "affected by BLEED for x turns"
+            // Add 4 spaces for indentation (status effects should be indented 4 spaces)
             var effectBuilder = new ColoredTextBuilder();
             effectBuilder.Add("    ", Colors.White);
             effectBuilder.Add(displayName, target is Enemy ? ColorPalette.Enemy : ColorPalette.Player);

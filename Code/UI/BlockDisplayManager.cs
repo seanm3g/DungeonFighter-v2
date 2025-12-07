@@ -214,6 +214,10 @@ namespace RPGGame
                 UIManager.WriteColoredText(detailsBuilder.Build());
             }
             
+            // Record that this standalone status effect block was displayed
+            // (DisplayEffectBlock is only used for standalone status effects like stun messages)
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.StatusEffect);
+            
             // Apply block delay
             BlockDelayManager.ApplyBlockDelay();
         }

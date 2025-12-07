@@ -14,13 +14,13 @@ namespace RPGGame
         // Delegates for different menu options
         public delegate Task OnSelectDungeon();
         public delegate void OnShowInventory();
-        public delegate void OnShowCharacterInfo();
         public delegate void OnShowMessage(string message);
+        public delegate void OnExitGame();
         
         public event OnSelectDungeon? SelectDungeonEvent;
         public event OnShowInventory? ShowInventoryEvent;
-        public event OnShowCharacterInfo? ShowCharacterInfoEvent;
         public event OnShowMessage? ShowMessageEvent;
+        public event OnExitGame? ExitGameEvent;
 
         public GameLoopInputHandler(GameStateManager stateManager)
         {
@@ -49,12 +49,17 @@ namespace RPGGame
                     // Show Inventory
                     ShowInventoryEvent?.Invoke();
                     break;
-                case "3":
-                    // Show Character Info
-                    ShowCharacterInfoEvent?.Invoke();
+                case "0":
+                    // Save & Exit
+                    if (stateManager.CurrentPlayer != null)
+                    {
+                        // Save character before exit
+                        stateManager.CurrentPlayer.SaveCharacter();
+                    }
+                    ExitGameEvent?.Invoke();
                     break;
                 default:
-                    ShowMessageEvent?.Invoke("Invalid choice. Press 1 (Dungeon), 2 (Inventory), 3 (Character Info), or ESC to return.");
+                    ShowMessageEvent?.Invoke("Invalid choice. Press 1 (Dungeon), 2 (Inventory), or 0 (Save & Exit).");
                     break;
             }
         }

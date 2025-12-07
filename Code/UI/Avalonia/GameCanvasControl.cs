@@ -5,14 +5,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.Avalonia.Canvas;
 
 namespace RPGGame.UI.Avalonia
 {
+    /// <summary>
+    /// Canvas control for rendering game UI elements.
+    /// Facade coordinator that delegates to specialized canvas components.
+    /// </summary>
     public class GameCanvasControl : Control
     {
-        private readonly List<CanvasText> textElements = new();
-        private readonly List<CanvasBox> boxElements = new();
-        private readonly List<CanvasProgressBar> progressBars = new();
+        // Specialized canvas components using composition pattern
+        private readonly CanvasElementManager elementManager;
+        private readonly CanvasCoordinateConverter coordinateConverter;
+        private readonly CanvasRenderer renderer;
         
         // Grid properties
         public int GridWidth { get; set; } = 210;
@@ -22,43 +28,16 @@ namespace RPGGame.UI.Avalonia
         
         // Center point (half of GridWidth)
         public int CenterX => GridWidth / 2;  // = 105 for default 210-wide screen
-        
-        // Font properties - using explicit monospace font
-        // "Courier New" is a guaranteed monospace font available on all systems
-        // It's a serif, typewriter-style monospace font
-        private readonly Typeface typeface = new("Courier New");
-        private const double fontSize = 16; // Increased from 14 for better readability
-        private double charWidth; // Actual measured width of a character
-        private double charHeight; // Actual measured height of a character
-        
-        // Measure actual character width and height on first use
-        private void EnsureCharWidthMeasured()
-        {
-            if (charWidth == 0)
-            {
-                // Measure actual width and height of a single character in the monospace font
-                var testText = new FormattedText(
-                    "M", // Use 'M' as it's typically the widest character
-                    System.Globalization.CultureInfo.InvariantCulture,
-                    FlowDirection.LeftToRight,
-                    typeface,
-                    fontSize,
-                    Brushes.White
-                )
-                {
-                    MaxTextWidth = double.PositiveInfinity,
-                    MaxTextHeight = double.PositiveInfinity,
-                    Trimming = TextTrimming.None
-                };
-                charWidth = testText.Width;
-                charHeight = testText.Height;
-            }
-        }
 
         public GameCanvasControl()
         {
             // Enable focus for keyboard input
             Focusable = true;
+            
+            // Initialize specialized components
+            this.coordinateConverter = new CanvasCoordinateConverter();
+            this.elementManager = new CanvasElementManager();
+            this.renderer = new CanvasRenderer(coordinateConverter);
         }
 
         /// <summary>
@@ -66,11 +45,11 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         protected override Size MeasureOverride(Size availableSize)
         {
-            EnsureCharWidthMeasured();
+            coordinateConverter.EnsureCharWidthMeasured();
             
             // Calculate size based on grid dimensions and measured character size
-            double width = GridWidth * charWidth;
-            double height = GridHeight * charHeight;
+            double width = GridWidth * coordinateConverter.GetCharWidth();
+            double height = GridHeight * coordinateConverter.GetCharHeight();
             
             return new Size(width, height);
         }
@@ -80,8 +59,7 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         public double GetCharWidth()
         {
-            EnsureCharWidthMeasured();
-            return charWidth;
+            return coordinateConverter.GetCharWidth();
         }
 
         /// <summary>
@@ -89,116 +67,25 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         public double GetCharHeight()
         {
-            EnsureCharWidthMeasured();
-            return charHeight;
+            return coordinateConverter.GetCharHeight();
         }
 
         public override void Render(DrawingContext context)
         {
-            // Clear the canvas
-            context.FillRectangle(Brushes.Black, new Rect(0, 0, Bounds.Width, Bounds.Height));
-
-            // Render all elements
-            RenderBoxes(context);
-            RenderProgressBars(context);
-            RenderText(context);
-        }
-
-        private void RenderBoxes(DrawingContext context)
-        {
-            foreach (var box in boxElements)
-            {
-                RenderBox(context, box);
-            }
-        }
-
-        private void RenderBox(DrawingContext context, CanvasBox box)
-        {
-            double x = box.X * charWidth;
-            double y = box.Y * charHeight;
-            double width = box.Width * charWidth;
-            double height = box.Height * charHeight;
-
-            // Draw border
-            var pen = new Pen(new SolidColorBrush(box.BorderColor), 1);
-            context.DrawRectangle(null, pen, new Rect(x, y, width, height));
-
-            // Fill background if specified
-            if (box.BackgroundColor != Colors.Transparent)
-            {
-                context.FillRectangle(new SolidColorBrush(box.BackgroundColor), new Rect(x, y, width, height));
-            }
-        }
-
-        private void RenderProgressBars(DrawingContext context)
-        {
-            foreach (var progressBar in progressBars)
-            {
-                RenderProgressBar(context, progressBar);
-            }
-        }
-
-        private void RenderProgressBar(DrawingContext context, CanvasProgressBar progressBar)
-        {
-            double x = progressBar.X * charWidth;
-            double y = progressBar.Y * charHeight;
-            double width = progressBar.Width * charWidth;
-            double height = charHeight;
-
-            // Background
-            context.FillRectangle(new SolidColorBrush(progressBar.BackgroundColor), new Rect(x, y, width, height));
-
-            // Progress
-            double progressWidth = width * progressBar.Progress;
-            context.FillRectangle(new SolidColorBrush(progressBar.ForegroundColor), new Rect(x, y, progressWidth, height));
-
-            // Border
-            var pen = new Pen(new SolidColorBrush(progressBar.BorderColor), 1);
-            context.DrawRectangle(null, pen, new Rect(x, y, width, height));
-        }
-
-        private void RenderText(DrawingContext context)
-        {
-            foreach (var text in textElements)
-            {
-                RenderText(context, text);
-            }
-        }
-
-        private void RenderText(DrawingContext context, CanvasText text)
-        {
-            EnsureCharWidthMeasured();
-            
-            double x = text.X * charWidth;
-            double y = text.Y * charHeight;
-
-            // Create FormattedText with MaxTextWidth set to prevent letter-spacing issues
-            // Using explicit monospace font (Courier New) ensures consistent character widths
-            var formatted = new FormattedText(
-                text.Content,
-                System.Globalization.CultureInfo.InvariantCulture,
-                FlowDirection.LeftToRight,
-                typeface,
-                fontSize,
-                new SolidColorBrush(text.Color)
-            )
-            {
-                // Prevent text wrapping which can add extra spacing
-                MaxTextWidth = double.PositiveInfinity,
-                MaxTextHeight = double.PositiveInfinity,
-                // Ensure no letter-spacing is applied
-                Trimming = TextTrimming.None
-            };
-
-            context.DrawText(formatted, new Point(x, y));
+            // Render all elements using renderer
+            renderer.Render(
+                context,
+                Bounds.Width,
+                Bounds.Height,
+                elementManager.TextElements.ToList(),
+                elementManager.BoxElements.ToList(),
+                elementManager.ProgressBars.ToList());
         }
 
         // Public methods for adding elements
         public void Clear()
         {
-            textElements.Clear();
-            boxElements.Clear();
-            progressBars.Clear();
+            elementManager.Clear();
         }
         
         /// <summary>
@@ -208,7 +95,7 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         public void ClearTextInRange(int startY, int endY)
         {
-            textElements.RemoveAll(text => text.Y >= startY && text.Y <= endY);
+            elementManager.ClearTextInRange(startY, endY);
         }
         
         /// <summary>
@@ -218,11 +105,7 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         public void ClearTextInArea(int startX, int startY, int width, int height)
         {
-            int endX = startX + width;
-            int endY = startY + height;
-            textElements.RemoveAll(text => 
-                text.X >= startX && text.X < endX && 
-                text.Y >= startY && text.Y < endY);
+            elementManager.ClearTextInArea(startX, startY, width, height);
         }
         
         /// <summary>
@@ -231,11 +114,7 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         public void ClearProgressBarsInArea(int startX, int startY, int width, int height)
         {
-            int endX = startX + width;
-            int endY = startY + height;
-            progressBars.RemoveAll(bar => 
-                bar.X >= startX && bar.X < endX && 
-                bar.Y >= startY && bar.Y < endY);
+            elementManager.ClearProgressBarsInArea(startX, startY, width, height);
         }
 
         /// <summary>
@@ -248,11 +127,11 @@ namespace RPGGame.UI.Avalonia
         {
             // Remove any existing text at the exact same position to prevent overlap
             // This is especially important for animated content like the title screen
-            textElements.RemoveAll(t => t.X == x && t.Y == y);
+            elementManager.RemoveText(t => t.X == x && t.Y == y);
             
             // Check for adjacent text elements on the same line that can be merged (same color)
             // This prevents gaps between adjacent segments
-            var adjacentText = textElements.FirstOrDefault(t => 
+            var adjacentText = elementManager.GetFirstText(t => 
                 t.Y == y && 
                 t.Color == color &&
                 (t.X + t.Content.Length == x || x + text.Length == t.X));
@@ -277,7 +156,7 @@ namespace RPGGame.UI.Avalonia
             
             // Check for potential overlaps at adjacent positions (within 1 character)
             // This helps catch rounding issues that might cause near-overlaps
-            var nearbyText = textElements.FirstOrDefault(t => 
+            var nearbyText = elementManager.GetFirstText(t => 
                 t.Y == y && 
                 Math.Abs(t.X - x) <= 1 && 
                 t.X != x);
@@ -287,7 +166,7 @@ namespace RPGGame.UI.Avalonia
                 // If same color, we could merge, but for now just skip
             }
             
-            textElements.Add(new CanvasText { X = x, Y = y, Content = text, Color = color });
+            elementManager.AddText(new CanvasText { X = x, Y = y, Content = text, Color = color });
         }
         
         /// <summary>
@@ -297,7 +176,7 @@ namespace RPGGame.UI.Avalonia
         public void AppendText(int x, int y, string text, Color color)
         {
             // Find existing text at this position and append to it, or create new
-            var existing = textElements.FirstOrDefault(t => t.X == x && t.Y == y);
+            var existing = elementManager.GetFirstText(t => t.X == x && t.Y == y);
             if (existing != null && existing.Color == color)
             {
                 // Append to existing text with same color
@@ -306,7 +185,7 @@ namespace RPGGame.UI.Avalonia
             else
             {
                 // Create new text element
-                textElements.Add(new CanvasText { X = x, Y = y, Content = text, Color = color });
+                elementManager.AddText(new CanvasText { X = x, Y = y, Content = text, Color = color });
             }
         }
         
@@ -316,22 +195,7 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         public double MeasureTextWidth(string text)
         {
-            EnsureCharWidthMeasured();
-            
-            var formatted = new FormattedText(
-                text,
-                System.Globalization.CultureInfo.InvariantCulture,
-                FlowDirection.LeftToRight,
-                typeface,
-                fontSize,
-                Brushes.White
-            )
-            {
-                MaxTextWidth = double.PositiveInfinity,
-                MaxTextHeight = double.PositiveInfinity,
-                Trimming = TextTrimming.None
-            };
-            return formatted.Width / charWidth;
+            return coordinateConverter.MeasureTextWidth(text);
         }
 
         public void AddText(int x, int y, string text, Color color, bool centered = false)
@@ -350,7 +214,7 @@ namespace RPGGame.UI.Avalonia
         public void AddBox(int x, int y, int width, int height, Color borderColor, Color backgroundColor = default)
         {
             if (backgroundColor == default) backgroundColor = Colors.Transparent;
-            boxElements.Add(new CanvasBox 
+            elementManager.AddBox(new CanvasBox 
             { 
                 X = x, Y = y, Width = width, Height = height, 
                 BorderColor = borderColor, BackgroundColor = backgroundColor 
@@ -359,7 +223,7 @@ namespace RPGGame.UI.Avalonia
 
         public void AddProgressBar(int x, int y, int width, double progress, Color foregroundColor, Color backgroundColor, Color borderColor)
         {
-            progressBars.Add(new CanvasProgressBar
+            elementManager.AddProgressBar(new CanvasProgressBar
             {
                 X = x, Y = y, Width = width, Progress = progress,
                 ForegroundColor = foregroundColor, BackgroundColor = backgroundColor, BorderColor = borderColor

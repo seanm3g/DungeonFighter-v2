@@ -82,6 +82,8 @@ namespace RPGGame.UI.ColorSystem
                     bool currentIsWhitespace = segment.Text.Trim().Length == 0 && segment.Text.Length > 0;
                     bool currentEndsWithSpace = segment.Text.Length > 0 && char.IsWhiteSpace(segment.Text[segment.Text.Length - 1]);
                     
+                    // CRITICAL: Never add space if current segment ends with whitespace (prevents double spacing)
+                    // This fixes issues like "Room: " + "Magma Chamber" where "Room: " already has a trailing space
                     if (i < segmentList.Count - 1 && !currentIsWhitespace && !currentEndsWithSpace)
                     {
                         var nextSegment = segmentList[i + 1];

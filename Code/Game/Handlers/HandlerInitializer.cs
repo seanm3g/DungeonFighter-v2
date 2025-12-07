@@ -120,7 +120,7 @@ namespace RPGGame.Handlers
             {
                 handlers.GameLoopInputHandler.SelectDungeonEvent += async () => await (showDungeonSelection?.Invoke() ?? Task.CompletedTask);
                 handlers.GameLoopInputHandler.ShowInventoryEvent += () => showInventory();
-                handlers.GameLoopInputHandler.ShowCharacterInfoEvent += () => showCharacterInfo();
+                handlers.GameLoopInputHandler.ExitGameEvent += () => exitGame();
             }
             
             if (handlers.DungeonSelectionHandler != null)

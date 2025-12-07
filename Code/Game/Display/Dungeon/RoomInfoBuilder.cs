@@ -29,15 +29,13 @@ namespace RPGGame.Display.Dungeon
                 .Build();
             info.Add(ColoredTextRenderer.RenderAsMarkup(roomNumberInfo));
 
-            // Get environment color template based on theme
-            string themeTemplate = string.IsNullOrEmpty(room.Theme) 
-                ? "" 
-                : room.Theme.ToLower().Replace(" ", "");
-            var environmentNameColored = ColorTemplateLibrary.GetTemplate(themeTemplate, room.Name);
+            // Get room name color based on theme (single color, not template)
+            char themeColorCode = DungeonThemeColors.GetThemeColorCode(room.Theme);
+            var roomNameColor = GetColorFromThemeCode(themeColorCode);
             
             var roomNameInfo = new ColoredTextBuilder()
                 .Add("Room: ", ColorPalette.White)
-                .AddRange(environmentNameColored)
+                .Add(room.Name, roomNameColor)
                 .Build();
             info.Add(ColoredTextRenderer.RenderAsMarkup(roomNameInfo));
             info.Add(""); // Blank line after room name
@@ -49,6 +47,18 @@ namespace RPGGame.Display.Dungeon
             info.Add("");
 
             return info;
+        }
+        
+        private static ColorPalette GetColorFromThemeCode(char themeCode)
+        {
+            return themeCode switch
+            {
+                'R' => ColorPalette.Error,
+                'G' => ColorPalette.Success,
+                'B' => ColorPalette.Info,
+                'Y' => ColorPalette.Warning,
+                _ => ColorPalette.White
+            };
         }
     }
 }

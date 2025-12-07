@@ -61,10 +61,12 @@ namespace RPGGame.UI.ColorSystem.Helpers
                 if (currentSegment != null && !previousWasSpace)
                 {
                     // Check if current segment already ends with whitespace
+                    // CRITICAL: This check prevents double spacing when segments like "Room: " already have trailing spaces
                     bool currentEndsWithSpace = currentSegment.Text.Length > 0 && 
                                                 char.IsWhiteSpace(currentSegment.Text[currentSegment.Text.Length - 1]);
                     
                     // Only check if we need space if current doesn't already end with space
+                    // This is essential to prevent extra spaces before room names like "Magma Chamber"
                     if (!currentEndsWithSpace)
                     {
                         // Use word boundary detection to prevent spaces between letters in multi-color templates (e.g., room names)
@@ -79,6 +81,8 @@ namespace RPGGame.UI.ColorSystem.Helpers
                             continue;
                         }
                     }
+                    // If currentEndsWithSpace is true, we skip adding a space and continue processing
+                    // This ensures "Room: " + "Magma Chamber" doesn't get an extra space
                 }
                 
                 if (isSpaceOnly)
@@ -129,9 +133,14 @@ namespace RPGGame.UI.ColorSystem.Helpers
                 else
                 {
                     // Different color - finalize current segment and start new one
+                    // CRITICAL: Check if current segment ends with whitespace to prevent double spacing
+                    // This ensures "Room: " + room name doesn't get an extra space
+                    bool currentEndsWithWhitespace = currentSegment.Text.Length > 0 && 
+                                                     char.IsWhiteSpace(currentSegment.Text[currentSegment.Text.Length - 1]);
                     result.Add(currentSegment);
                     currentSegment = new ColoredText(processedText, segment.Color);
-                    previousWasSpace = false;
+                    // Set previousWasSpace based on whether current segment ended with whitespace
+                    previousWasSpace = currentEndsWithWhitespace;
                 }
             }
             

@@ -109,7 +109,7 @@ namespace RPGGame
             // Status effects (part of action block, no spacing)
             { (BlockType.CombatAction, BlockType.StatusEffect), 0 },
             { (BlockType.EnvironmentalAction, BlockType.StatusEffect), 0 },
-            { (BlockType.StatusEffect, BlockType.StatusEffect), 0 },
+            { (BlockType.StatusEffect, BlockType.StatusEffect), 1 },  // Blank line between consecutive standalone status effect blocks
             
             // Poison damage (appears between combat actions)
             { (BlockType.CombatAction, BlockType.PoisonDamage), 1 },
@@ -222,9 +222,11 @@ namespace RPGGame
         /// <param name="blockType">The type of block that was just displayed</param>
         public static void RecordBlockDisplayed(BlockType blockType)
         {
-            // Don't record status effects or critical miss narratives as separate blocks
+            // Don't record critical miss narratives as separate blocks
             // They're part of the action block and don't affect spacing
-            if (blockType != BlockType.StatusEffect && blockType != BlockType.CriticalMissNarrative)
+            // StatusEffect blocks are now recorded when they're standalone (like stun messages)
+            // Status effects that are part of action blocks don't call this method
+            if (blockType != BlockType.CriticalMissNarrative)
             {
                 lastBlockType = blockType;
             }

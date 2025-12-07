@@ -99,7 +99,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Start a new game (or continue existing game)
+        /// Start a new game - always creates a new character
         /// </summary>
         private async Task StartNewGame()
         {
@@ -114,73 +114,38 @@ namespace RPGGame
                     DebugLogger.Log("MainMenuHandler", "Cleared current enemy from UI");
                 }
                 
-                // Check if we have a saved character
-                var savedCharacter = Character.LoadCharacter();
-                DebugLogger.Log("MainMenuHandler", $"SavedCharacter loaded: {savedCharacter != null}");
+                DebugLogger.Log("MainMenuHandler", "Creating new character");
+                // Create new character (without equipment yet)
+                stateManager.SetCurrentPlayer(new Character(null, 1)); // null triggers random name generation
+                DebugLogger.Log("MainMenuHandler", $"New character created: {stateManager.CurrentPlayer?.Name}");
                 
-                if (savedCharacter != null)
+                if (stateManager.CurrentPlayer != null)
                 {
-                    DebugLogger.Log("MainMenuHandler", "Loading existing character");
-                    // Load existing character
-                    stateManager.SetCurrentPlayer(savedCharacter);
-                    if (stateManager.CurrentPlayer != null)
-                    {
-                        gameInitializer.InitializeExistingGame(stateManager.CurrentPlayer, stateManager.AvailableDungeons);
+                    DebugLogger.Log("MainMenuHandler", "Character is not null, proceeding with setup");
                     
-                        // Set character in UI manager for persistent display
-                        if (customUIManager is CanvasUICoordinator canvasUI)
-                        {
-                            canvasUI.SetCharacter(stateManager.CurrentPlayer);
-                        }
-                        
-                        // Apply health multiplier if configured
-                        var settings = GameSettings.Instance;
-                        if (settings.PlayerHealthMultiplier != 1.0)
-                        {
-                            stateManager.CurrentPlayer.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
-                        }
+                    // Set character in UI manager for persistent display
+                    if (customUIManager is CanvasUICoordinator canvasUI)
+                    {
+                        canvasUI.SetCharacter(stateManager.CurrentPlayer);
                     }
                     
-                    // Go directly to game loop for existing character
-                    DebugLogger.Log("MainMenuHandler", "Going to GameLoop for existing character");
-                    stateManager.TransitionToState(GameState.GameLoop);
-                    ShowGameLoopEvent?.Invoke();
+                    // Apply health multiplier if configured
+                    var settings = GameSettings.Instance;
+                    if (settings.PlayerHealthMultiplier != 1.0)
+                    {
+                        stateManager.CurrentPlayer.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
+                    }
+                    
+                    // Go to weapon selection first
+                    DebugLogger.Log("MainMenuHandler", "Transitioning to WeaponSelection");
+                    stateManager.TransitionToState(GameState.WeaponSelection);
+                    DebugLogger.Log("MainMenuHandler", "Firing ShowWeaponSelectionEvent");
+                    ShowWeaponSelectionEvent?.Invoke();
+                    DebugLogger.Log("MainMenuHandler", "ShowWeaponSelectionEvent fired");
                 }
                 else
                 {
-                    DebugLogger.Log("MainMenuHandler", "Creating new character");
-                    // Create new character (without equipment yet)
-                    stateManager.SetCurrentPlayer(new Character(null, 1)); // null triggers random name generation
-                    DebugLogger.Log("MainMenuHandler", $"New character created: {stateManager.CurrentPlayer?.Name}");
-                    
-                    if (stateManager.CurrentPlayer != null)
-                    {
-                        DebugLogger.Log("MainMenuHandler", "Character is not null, proceeding with setup");
-                        
-                        // Set character in UI manager for persistent display
-                        if (customUIManager is CanvasUICoordinator canvasUI)
-                        {
-                            canvasUI.SetCharacter(stateManager.CurrentPlayer);
-                        }
-                        
-                        // Apply health multiplier if configured
-                        var settings = GameSettings.Instance;
-                        if (settings.PlayerHealthMultiplier != 1.0)
-                        {
-                            stateManager.CurrentPlayer.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
-                        }
-                        
-                        // Go to weapon selection first
-                        DebugLogger.Log("MainMenuHandler", "Transitioning to WeaponSelection");
-                        stateManager.TransitionToState(GameState.WeaponSelection);
-                        DebugLogger.Log("MainMenuHandler", "Firing ShowWeaponSelectionEvent");
-                        ShowWeaponSelectionEvent?.Invoke();
-                        DebugLogger.Log("MainMenuHandler", "ShowWeaponSelectionEvent fired");
-                    }
-                    else
-                    {
-                        DebugLogger.Log("MainMenuHandler", "ERROR: CurrentPlayer is null!");
-                    }
+                    DebugLogger.Log("MainMenuHandler", "ERROR: CurrentPlayer is null!");
                 }
             }
             catch (Exception ex)

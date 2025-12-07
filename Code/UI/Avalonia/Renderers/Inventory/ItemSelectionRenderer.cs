@@ -1,0 +1,146 @@
+namespace RPGGame.UI.Avalonia.Renderers.Inventory
+{
+    using System;
+    using System.Collections.Generic;
+    using RPGGame.UI;
+    using RPGGame.UI.Avalonia;
+    using RPGGame.UI.Avalonia.Renderers.Helpers;
+    using RPGGame.Items.Helpers;
+
+    /// <summary>
+    /// Renders item selection prompts for equip/discard actions and slot selection
+    /// </summary>
+    public class ItemSelectionRenderer
+    {
+        private readonly GameCanvasControl canvas;
+        private readonly ColoredTextWriter textWriter;
+        private readonly List<ClickableElement> clickableElements;
+        
+        public ItemSelectionRenderer(
+            GameCanvasControl canvas,
+            ColoredTextWriter textWriter,
+            List<ClickableElement> clickableElements)
+        {
+            this.canvas = canvas;
+            this.textWriter = textWriter;
+            this.clickableElements = clickableElements;
+        }
+        
+        /// <summary>
+        /// Gets the slot name for an item type
+        /// </summary>
+        private static string GetSlotName(ItemType itemType)
+        {
+            return itemType switch
+            {
+                ItemType.Weapon => "Weapon",
+                ItemType.Head => "Head",
+                ItemType.Chest => "Body",
+                ItemType.Feet => "Feet",
+                _ => "Item"
+            };
+        }
+        
+        /// <summary>
+        /// Renders item selection prompt for equip/discard actions
+        /// </summary>
+        public int RenderItemSelectionPrompt(int x, int y, int width, int height, Character character, List<Item> inventory, string promptMessage, string actionType)
+        {
+            int currentLineCount = 0;
+            int startY = y;
+            
+            // Show prompt message
+            canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(promptMessage.ToUpper()), AsciiArtAssets.Colors.Gold);
+            y += 2;
+            currentLineCount += 2;
+            
+            // Show inventory items as clickable buttons
+            if (inventory.Count == 0)
+            {
+                canvas.AddText(x + 2, y, "No items in inventory", AsciiArtAssets.Colors.White);
+                y += 2;
+                currentLineCount += 2;
+            }
+            else
+            {
+                int maxItems = Math.Min(inventory.Count, 20);
+                for (int i = 0; i < maxItems; i++)
+                {
+                    var item = inventory[i];
+                    var itemStats = ItemStatFormatter.GetItemStats(item, character);
+                    
+                    // Create clickable button for each item
+                    string slotName = GetSlotName(item.Type);
+                    clickableElements.Add(InventoryButtonFactory.CreateButton(x + 2, y, width - 4, (i + 1).ToString(), $"[{i + 1}] [{slotName}] {item.Name}"));
+                    
+                    // Render item name with colored text
+                    ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, i, item, useColoredText: true);
+                    y++;
+                    currentLineCount++;
+                    
+                    // Render stats with colored text
+                    ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, itemStats, ref y, ref currentLineCount, useColoredText: true);
+                }
+                y++;
+                currentLineCount++;
+            }
+            
+            // Add cancel button
+            var cancelButton = InventoryButtonFactory.CreateButton(x + 2, y, 28, "0", MenuOptionFormatter.Format(0, UIConstants.MenuOptions.Cancel));
+            clickableElements.Add(cancelButton);
+            canvas.AddMenuOption(x + 2, y, 0, UIConstants.MenuOptions.Cancel, AsciiArtAssets.Colors.White, cancelButton.IsHovered);
+            currentLineCount++;
+            
+            return currentLineCount;
+        }
+        
+        /// <summary>
+        /// Renders slot selection prompt for unequip action
+        /// </summary>
+        public int RenderSlotSelectionPrompt(int x, int y, int width, int height, Character character)
+        {
+            int currentLineCount = 0;
+            
+            // Show prompt message
+            canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.MenuOptions.SelectSlotToUnequip), AsciiArtAssets.Colors.Gold);
+            y += 2;
+            currentLineCount += 2;
+            
+            canvas.AddText(x + 2, y, "Choose which equipment slot to unequip:", AsciiArtAssets.Colors.White);
+            y += 2;
+            currentLineCount += 2;
+            
+            // Create clickable buttons for each slot
+            var slots = new[]
+            {
+                (1, "Weapon", character.Weapon?.Name ?? "(empty)"),
+                (2, "Head", character.Head?.Name ?? "(empty)"),
+                (3, "Body", character.Body?.Name ?? "(empty)"),
+                (4, "Feet", character.Feet?.Name ?? "(empty)")
+            };
+            
+            foreach (var (number, slotName, itemName) in slots)
+            {
+                var slotButton = InventoryButtonFactory.CreateButton(x + 2, y, 40, number.ToString(), $"[{number}] {slotName}: {itemName}");
+                clickableElements.Add(slotButton);
+                
+                string displayText = $"{slotName}: {itemName}";
+                canvas.AddMenuOption(x + 2, y, number, displayText, AsciiArtAssets.Colors.White, slotButton.IsHovered);
+                y++;
+                currentLineCount++;
+            }
+            
+            y++;
+            currentLineCount++;
+            
+            // Add cancel button
+            var cancelButton = InventoryButtonFactory.CreateButton(x + 2, y, 28, "0", MenuOptionFormatter.Format(0, UIConstants.MenuOptions.Cancel));
+            clickableElements.Add(cancelButton);
+            canvas.AddMenuOption(x + 2, y, 0, UIConstants.MenuOptions.Cancel, AsciiArtAssets.Colors.White, cancelButton.IsHovered);
+            currentLineCount++;
+            
+            return currentLineCount;
+        }
+    }
+}
+

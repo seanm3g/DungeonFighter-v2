@@ -7,6 +7,8 @@ using Avalonia.Threading;
 using RPGGame;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Display.Helpers;
+using RPGGame.UI.Avalonia.Display.Mode;
+using RPGGame.UI.Avalonia.Display.Render;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.UI.ColorSystem;
@@ -28,9 +30,10 @@ namespace RPGGame.UI.Avalonia.Display
         // Core components
         private DisplayBuffer buffer;
         private DisplayRenderer renderer;
-        private DisplayTiming timing;
-        private DisplayMode currentMode;
         private RenderStateManager renderStateManager;
+        
+        private readonly DisplayModeManager modeManager;
+        private readonly RenderCoordinator renderCoordinator;
         
         // Callback to trigger combat screen re-render when new messages are added
         // Used when external renderer (like combat screen) handles rendering
@@ -48,11 +51,19 @@ namespace RPGGame.UI.Avalonia.Display
             this.layoutManager = new PersistentLayoutManager(canvas);
             
             // Initialize with standard mode
-            this.currentMode = new StandardDisplayMode();
             this.buffer = new DisplayBuffer(maxLines);
             this.renderer = new DisplayRenderer(textWriter);
-            this.timing = new DisplayTiming(currentMode);
             this.renderStateManager = new RenderStateManager();
+            
+            this.modeManager = new DisplayModeManager(new StandardDisplayMode());
+            this.renderCoordinator = new RenderCoordinator(
+                canvas,
+                renderer,
+                layoutManager,
+                renderStateManager,
+                contextManager,
+                buffer,
+                modeManager.CurrentMode);
         }
         
         /// <summary>
@@ -65,16 +76,7 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public void SetMode(DisplayMode mode)
         {
-            if (mode == null) return;
-            
-            // If switching modes, cancel any pending renders
-            if (mode.GetType() != currentMode.GetType())
-            {
-                timing.CancelPending();
-            }
-            
-            currentMode = mode;
-            timing = new DisplayTiming(mode);
+            modeManager.SetMode(mode, () => modeManager.Timing.CancelPending());
         }
         
         /// <summary>
@@ -102,16 +104,8 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         internal void TriggerRender()
         {
-            if (externalRenderCallback != null)
-            {
-                // External renderer handles rendering (e.g., combat screen)
-                timing.ScheduleRender(externalRenderCallback);
-            }
-            else
-            {
-                // Standard auto-render
-                timing.ScheduleRender(new System.Action(PerformRender));
-            }
+            renderCoordinator.SetExternalRenderCallback(externalRenderCallback);
+            renderCoordinator.TriggerRender(modeManager.Timing);
         }
         
         /// <summary>
@@ -221,7 +215,7 @@ namespace RPGGame.UI.Avalonia.Display
         {
             buffer.Clear();
             renderStateManager.Reset();
-            timing.ForceRender(new System.Action(PerformRender));
+            modeManager.Timing.ForceRender(new System.Action(renderCoordinator.PerformRender));
         }
         
         /// <summary>
@@ -241,11 +235,11 @@ namespace RPGGame.UI.Avalonia.Display
         public void ScrollUp(int lines = 3)
         {
             // Calculate max scroll offset to ensure we don't scroll beyond valid range
-            int maxOffset = CalculateMaxScrollOffset();
+            int maxOffset = renderCoordinator.CalculateMaxScrollOffset();
             ScrollDebugLogger.Log($"CenterPanelDisplayManager.ScrollUp: lines={lines}, maxOffset={maxOffset}, currentOffset={buffer.ManualScrollOffset}, buffer.Count={buffer.Count}");
             buffer.ScrollUp(lines, maxOffset);
             ScrollDebugLogger.Log($"CenterPanelDisplayManager.ScrollUp: newOffset={buffer.ManualScrollOffset}, isManualScrolling={buffer.IsManualScrolling}");
-            timing.ForceRender(new System.Action(PerformRender));
+            modeManager.Timing.ForceRender(new System.Action(renderCoordinator.PerformRender));
         }
         
         /// <summary>
@@ -254,11 +248,11 @@ namespace RPGGame.UI.Avalonia.Display
         public void ScrollDown(int lines = 3)
         {
             // Calculate max scroll offset based on current content
-            int maxOffset = CalculateMaxScrollOffset();
+            int maxOffset = renderCoordinator.CalculateMaxScrollOffset();
             ScrollDebugLogger.Log($"CenterPanelDisplayManager.ScrollDown: lines={lines}, maxOffset={maxOffset}, currentOffset={buffer.ManualScrollOffset}, buffer.Count={buffer.Count}");
             buffer.ScrollDown(lines, maxOffset);
             ScrollDebugLogger.Log($"CenterPanelDisplayManager.ScrollDown: newOffset={buffer.ManualScrollOffset}, isManualScrolling={buffer.IsManualScrolling}");
-            timing.ForceRender(new System.Action(PerformRender));
+            modeManager.Timing.ForceRender(new System.Action(renderCoordinator.PerformRender));
         }
         
         /// <summary>
@@ -267,7 +261,7 @@ namespace RPGGame.UI.Avalonia.Display
         public void ResetScroll()
         {
             buffer.ResetScroll();
-            timing.ScheduleRender(new System.Action(PerformRender));
+            modeManager.Timing.ScheduleRender(new System.Action(renderCoordinator.PerformRender));
         }
         
         /// <summary>
@@ -275,7 +269,7 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public void ForceRender()
         {
-            timing.ForceRender(new System.Action(PerformRender));
+            modeManager.Timing.ForceRender(new System.Action(renderCoordinator.PerformRender));
         }
         
         /// <summary>
@@ -285,7 +279,7 @@ namespace RPGGame.UI.Avalonia.Display
         public void ForceFullLayoutRender()
         {
             renderStateManager.Reset();
-            timing.ForceRender(new System.Action(PerformRender));
+            modeManager.Timing.ForceRender(new System.Action(renderCoordinator.PerformRender));
         }
         
         /// <summary>
@@ -294,107 +288,7 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public void CancelPendingRenders()
         {
-            timing.CancelPending();
-        }
-        
-        // Render guard to prevent concurrent renders
-        private bool isRendering = false;
-        private readonly object renderLock = new object();
-        
-        /// <summary>
-        /// Performs the actual rendering operation
-        /// Uses RenderStateManager to determine what needs rendering
-        /// </summary>
-        private void PerformRender()
-        {
-            // Prevent concurrent renders
-            lock (renderLock)
-            {
-                if (isRendering)
-                {
-                    // Already rendering, skip this call
-                    return;
-                }
-                isRendering = true;
-            }
-            
-            var state = renderStateManager.GetRenderState(buffer, contextManager);
-            
-            if (!state.NeedsRender)
-            {
-                // Nothing to render, release lock
-                lock (renderLock)
-                {
-                    isRendering = false;
-                }
-                return;
-            }
-            
-            Dispatcher.UIThread.Post(() =>
-            {
-                try
-                {
-                    // Get center content area dimensions from layout manager
-                    var (contentX, contentY, contentWidth, contentHeight) = layoutManager.GetCenterContentArea();
-                    
-                    // Determine if we should clear canvas
-                    bool shouldClearCanvas = renderStateManager.ShouldClearCanvas(state, currentMode);
-                    
-                    if (shouldClearCanvas || state.NeedsFullLayout)
-                    {
-                        // Full layout render
-                        string title = DetermineTitle(state.CurrentCharacter, state.CurrentEnemy);
-                        layoutManager.RenderLayout(
-                            state.CurrentCharacter,
-                            (x, y, w, h) => renderer.Render(buffer, x, y, w, h),
-                            title,
-                            state.CurrentEnemy,
-                            state.DungeonName,
-                            state.RoomName,
-                            clearCanvas: shouldClearCanvas
-                        );
-                    }
-                    else
-                    {
-                        // Just update center content
-                        renderer.Render(buffer, contentX, contentY, contentWidth, contentHeight);
-                        canvas.Refresh();
-                    }
-                    
-                    // Record that render was performed
-                    renderStateManager.RecordRender(buffer, contextManager);
-                }
-                finally
-                {
-                    // Release render lock when done (on UI thread)
-                    lock (renderLock)
-                    {
-                        isRendering = false;
-                    }
-                }
-            }, DispatcherPriority.Background);
-        }
-        
-        /// <summary>
-        /// Calculates the maximum scroll offset based on current buffer content
-        /// Uses the same calculation logic as DisplayRenderer for accuracy
-        /// </summary>
-        private int CalculateMaxScrollOffset()
-        {
-            // Get center content area dimensions from layout manager
-            var (contentX, contentY, contentWidth, contentHeight) = layoutManager.GetCenterContentArea();
-            
-            // Use DisplayRenderer's calculation method for accurate results
-            // This matches the actual rendering logic
-            return renderer.CalculateMaxScrollOffset(buffer, contentWidth, contentHeight);
-        }
-        
-        /// <summary>
-        /// Determines the title based on current game state
-        /// </summary>
-        private string DetermineTitle(Character? character, Enemy? enemy)
-        {
-            return TitleResolver.DetermineTitle(character, enemy);
+            modeManager.Timing.CancelPending();
         }
         
         private List<string> SplitIntoChunks(string text, UI.ChunkedTextReveal.ChunkStrategy strategy) 
