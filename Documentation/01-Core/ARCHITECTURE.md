@@ -135,6 +135,75 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 - **`Code/Actions/ActionSpeedSystem.cs`** - Intelligent delay system for optimal user experience
 - **`Code/Actions/ActionEnhancer.cs`** - Enhances action descriptions with modifier information (NEW)
 
+### **Advanced Action Mechanics System (v7.0+)**
+
+#### Roll Modification System
+- **`Code/Actions/RollModification/IRollModifier.cs`** - Interface for roll modifiers
+- **`Code/Actions/RollModification/RollModifierRegistry.cs`** - Registry pattern for managing roll modifiers
+- **`Code/Actions/RollModification/RollModifiers.cs`** - Concrete implementations:
+  - AdditiveRollModifier - Flat +/- values
+  - MultiplicativeRollModifier - Multipliers
+  - ClampRollModifier - Min/max clamping
+  - RerollModifier - Conditional rerolls
+  - ExplodingDiceModifier - Exploding dice mechanics
+- **`Code/Actions/RollModification/MultiDiceRoller.cs`** - Multiple dice handling (take lowest/highest/average/sum)
+- **`Code/Actions/RollModification/RollModificationManager.cs`** - Integration manager for roll modifications
+- **`Code/Actions/RollModification/RollModificationContext.cs`** - Context object for modifier execution
+
+#### Event System
+- **`Code/Combat/Events/CombatEventBus.cs`** - Event bus for conditional triggers (Observer pattern, Singleton)
+- **`Code/Combat/Events/CombatEventTypes.cs`** - Event type definitions and base event class
+
+#### Conditional Triggers
+- **`Code/Actions/Conditional/ConditionalTriggerEvaluator.cs`** - Evaluates trigger conditions
+- **`Code/Actions/Conditional/TriggerConditions.cs`** - Condition definitions and factory
+
+#### Threshold Management
+- **`Code/Combat/ThresholdManager.cs`** - Dynamic threshold adjustment (crit, combo, hit) per actor
+
+#### Advanced Status Effects
+- **`Code/Combat/Effects/AdvancedStatusEffects/`** - 17 new status effect handlers:
+  - VulnerabilityEffectHandler, HardenEffectHandler, FortifyEffectHandler
+  - FocusEffectHandler, ExposeEffectHandler, HPRegenEffectHandler
+  - ArmorBreakEffectHandler, PierceEffectHandler, ReflectEffectHandler
+  - SilenceEffectHandler, StatDrainEffectHandler, AbsorbEffectHandler
+  - TemporaryHPEffectHandler, ConfusionEffectHandler, CleanseEffectHandler
+  - MarkEffectHandler, DisruptEffectHandler
+- All handlers registered in `EffectHandlerRegistry.cs` using Strategy pattern
+
+#### Tag System
+- **`Code/World/Tags/TagRegistry.cs`** - Central repository for all tags (Singleton)
+- **`Code/World/Tags/TagMatcher.cs`** - Efficient tag matching algorithms
+- **`Code/World/Tags/TagAggregator.cs`** - Combines tags from multiple sources
+- **`Code/World/Tags/TagModifier.cs`** - Temporary tag addition/removal with duration tracking
+
+#### Combo Routing
+- **`Code/Entity/Actions/ComboRouting/ComboRouter.cs`** - Combo flow control system:
+  - Jump to slot N
+  - Skip next action
+  - Repeat previous action
+  - Loop to slot 1
+  - Stop combo early
+  - Random next action
+
+#### Outcome Handlers
+- **`Code/Combat/Outcomes/OutcomeHandler.cs`** - Base interface for outcome handlers
+- **`Code/Combat/Outcomes/ConditionalOutcomeHandler.cs`** - Handles conditional outcomes:
+  - Enemy death triggers
+  - HP threshold triggers (50%, 25%, 10%)
+  - Combo end triggers
+
+#### Meta-Progression
+- **`Code/Game/Progression/ActionUsageTracker.cs`** - Tracks action usage for scaling outcomes
+- **`Code/Game/Progression/ConditionalXPGain.cs`** - Conditional XP gain system
+
+**Integration Points**:
+- Roll modifications integrated into `ActionExecutor.cs` (lines 78-82)
+- Threshold manager integrated into `CombatCalculator.cs` (line 69)
+- Event bus integrated into `ActionExecutor.cs` (lines 101-109, 117-125, 166-173)
+- Status effects registered in `EffectHandlerRegistry.cs` (lines 34-50)
+- All new status effect properties added to `Actor.cs` (lines 43-82)
+
 ### **World & Environment System (Refactored Architecture)**
 - **`Code/World/Dungeon.cs`** - Procedurally generates themed room sequences and manages progression
 - **`Code/World/DungeonManagerWithRegistry.cs`** - Simplified dungeon management using registry pattern

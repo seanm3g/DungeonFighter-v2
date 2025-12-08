@@ -154,6 +154,30 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Gets all actions available to the character (combo actions + action pool)
+        /// </summary>
+        public List<Action> GetAllActions(Actor actor)
+        {
+            var allActions = new HashSet<Action>();
+            
+            // Add combo actions
+            var comboActions = GetComboActions();
+            foreach (var action in comboActions)
+            {
+                allActions.Add(action);
+            }
+            
+            // Add action pool actions
+            var actionPool = GetActionPool(actor);
+            foreach (var action in actionPool)
+            {
+                allActions.Add(action);
+            }
+            
+            return allActions.ToList();
+        }
+
+        /// <summary>
         /// Removes all item actions and reinitializes defaults
         /// </summary>
         public void RemoveItemActions(Actor actor)

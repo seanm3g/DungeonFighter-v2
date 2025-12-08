@@ -199,7 +199,19 @@ namespace RPGGame
                     characterMenuHandler?.HandleMenuInput(input);
                     break;
                 case GameState.Settings:
-                    settingsMenuHandler?.HandleMenuInput(input);
+                    DebugLogger.Log("Game", $"Settings state: input='{input}', handler is {(settingsMenuHandler != null ? "not null" : "NULL")}");
+                    ScrollDebugLogger.Log($"Game: Settings state - input='{input}', handler is {(settingsMenuHandler != null ? "not null" : "NULL")}");
+                    if (settingsMenuHandler != null)
+                    {
+                        DebugLogger.Log("Game", $"Calling SettingsMenuHandler.HandleMenuInput('{input}')");
+                        ScrollDebugLogger.Log($"Game: Calling SettingsMenuHandler.HandleMenuInput('{input}')");
+                        settingsMenuHandler.HandleMenuInput(input);
+                    }
+                    else
+                    {
+                        DebugLogger.Log("Game", "ERROR: settingsMenuHandler is null!");
+                        ScrollDebugLogger.Log("Game: ERROR - settingsMenuHandler is null!");
+                    }
                     break;
                 case GameState.Inventory:
                     inventoryMenuHandler?.HandleMenuInput(input);
@@ -227,6 +239,8 @@ namespace RPGGame
                         await deathScreenHandler.HandleMenuInput(input);
                     break;
                 case GameState.Testing:
+                    DebugLogger.Log("Game", $"Testing state: input='{input}', handler is {(testingSystemHandler != null ? "not null" : "NULL")}");
+                    ScrollDebugLogger.Log($"Game: Testing state - input='{input}', handler is {(testingSystemHandler != null ? "not null" : "NULL")}");
                     // Allow scrolling during testing to view test results
                     if (input == "up" || input == "down")
                     {
@@ -238,7 +252,14 @@ namespace RPGGame
                     }
                     else if (testingSystemHandler != null)
                     {
+                        DebugLogger.Log("Game", $"Calling TestingSystemHandler.HandleMenuInput('{input}')");
+                        ScrollDebugLogger.Log($"Game: Calling TestingSystemHandler.HandleMenuInput('{input}')");
                         await testingSystemHandler.HandleMenuInput(input);
+                    }
+                    else
+                    {
+                        DebugLogger.Log("Game", "ERROR: testingSystemHandler is null!");
+                        ScrollDebugLogger.Log("Game: ERROR - testingSystemHandler is null!");
                     }
                     break;
                 case GameState.CharacterCreation:

@@ -4,6 +4,7 @@ using System.Linq;
 using Avalonia.Media;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.Avalonia.Display.Buffer;
+using RPGGame.Utils;
 
 namespace RPGGame.UI.Avalonia.Display
 {
@@ -18,7 +19,7 @@ namespace RPGGame.UI.Avalonia.Display
         private readonly BufferStorage storage;
         private readonly ScrollStateManager scrollManager;
         
-        public DisplayBuffer(int maxLines = 100, int maxLineWidth = 152)
+        public DisplayBuffer(int maxLines = RPGGame.Utils.GameConstants.DISPLAY_BUFFER_MAX_LINES, int maxLineWidth = 152)
         {
             this.storage = new BufferStorage(maxLines, maxLineWidth);
             this.scrollManager = new ScrollStateManager();

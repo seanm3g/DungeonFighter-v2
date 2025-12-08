@@ -78,6 +78,7 @@ namespace RPGGame
         public List<ArmorStatus> ArmorStatuses { get; set; } = new List<ArmorStatus>();
         public int BonusDamage { get; set; } = 0;
         public int BonusAttackSpeed { get; set; } = 0;
+        public List<string> Tags { get; set; } = new List<string>();
         
         // The specific action this gear provides (assigned when created)
         public string? GearAction { get; set; } = null;

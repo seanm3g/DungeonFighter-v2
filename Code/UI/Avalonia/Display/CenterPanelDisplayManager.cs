@@ -13,6 +13,7 @@ using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.UI.ColorSystem;
 using RPGGame.Utils;
+using static RPGGame.Utils.GameConstants;
 
 namespace RPGGame.UI.Avalonia.Display
 {
@@ -43,7 +44,7 @@ namespace RPGGame.UI.Avalonia.Display
             GameCanvasControl canvas,
             ColoredTextWriter textWriter,
             ICanvasContextManager contextManager,
-            int maxLines = 100)
+            int maxLines = DISPLAY_BUFFER_MAX_LINES)
         {
             this.canvas = canvas;
             this.textWriter = textWriter;

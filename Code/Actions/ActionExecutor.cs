@@ -3,10 +3,34 @@ using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Media;
 using RPGGame.Actions.Execution;
+using RPGGame.Actions.RollModification;
+using RPGGame.Combat.Events;
+using RPGGame.Combat.Outcomes;
+using RPGGame.Actions.Conditional;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
 {
+    /// <summary>
+    /// Result of action execution - contains all execution data
+    /// </summary>
+    internal class ActionExecutionResult
+    {
+        public Action? SelectedAction { get; set; }
+        public int BaseRoll { get; set; }
+        public int ModifiedBaseRoll { get; set; }
+        public int RollBonus { get; set; }
+        public int AttackRoll { get; set; }
+        public bool IsCriticalMiss { get; set; }
+        public bool IsCombo { get; set; }
+        public bool IsCritical { get; set; }
+        public bool Hit { get; set; }
+        public int Damage { get; set; }
+        public int HealAmount { get; set; }
+        public List<string> StatusEffectMessages { get; set; } = new List<string>();
+        public List<List<ColoredText>> ColoredStatusEffects { get; set; } = new List<List<ColoredText>>();
+    }
+
     /// <summary>
     /// Handles action execution logic, damage application, and effect processing
     /// Refactored to focus purely on orchestration using extracted execution components
@@ -18,6 +42,363 @@ namespace RPGGame
 
         // Store the last action used by each Actor
         private static readonly Dictionary<Actor, Action> _lastUsedActions = new Dictionary<Actor, Action>();
+
+        /// <summary>
+        /// Core execution logic shared between string and ColoredText methods
+        /// </summary>
+        private static ActionExecutionResult ExecuteActionCore(Actor source, Actor target, Environment? environment, Action? lastPlayerAction, Action? forcedAction, BattleNarrative? battleNarrative)
+        {
+            var result = new ActionExecutionResult();
+            
+            if (!DisableCombatDebugOutput)
+            {
+                DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} executing action against {target.Name}");
+            }
+            
+            // Use forced action if provided (for combo system), otherwise select action based on Actor type
+            result.SelectedAction = forcedAction ?? ActionSelector.SelectActionByEntityType(source);
+            if (result.SelectedAction == null)
+            {
+                return result;
+            }
+            
+            // Store the action that will be used
+            _lastUsedActions[source] = result.SelectedAction;
+            
+            // Handle unique action chance for characters (not enemies)
+            if (source is Character character && !(character is Enemy) && forcedAction == null)
+            {
+                result.SelectedAction = ActionUtilities.HandleUniqueActionChance(character, result.SelectedAction);
+            }
+            
+            // Use the same roll that was used for action selection
+            result.BaseRoll = ActionSelector.GetActionRoll(source);
+            
+            // Apply roll modifications from action
+            result.ModifiedBaseRoll = RollModificationManager.ApplyActionRollModifications(
+                result.BaseRoll, result.SelectedAction, source, target);
+            
+            // Apply threshold overrides
+            RollModificationManager.ApplyThresholdOverrides(result.SelectedAction, source);
+            
+            result.RollBonus = ActionUtilities.CalculateRollBonus(source, result.SelectedAction);
+            result.AttackRoll = result.ModifiedBaseRoll + result.RollBonus;
+            
+            // Check for critical miss (use modified roll)
+            result.IsCriticalMiss = (result.ModifiedBaseRoll + result.RollBonus) <= 1;
+            if (result.IsCriticalMiss)
+            {
+                source.HasCriticalMissPenalty = true;
+                source.CriticalMissPenaltyTurns = 1;
+            }
+            
+            // Determine if this is a combo or critical
+            result.IsCombo = result.SelectedAction.Name != "BASIC ATTACK";
+            result.IsCritical = result.AttackRoll >= RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
+            
+            // Publish action executed event for conditional triggers
+            var actionEvent = new CombatEvent(CombatEventType.ActionExecuted, source)
+            {
+                Target = target,
+                Action = result.SelectedAction,
+                RollValue = result.AttackRoll,
+                IsCombo = result.IsCombo,
+                IsCritical = result.IsCritical
+            };
+            CombatEventBus.Instance.Publish(actionEvent);
+            
+            // Check for hit
+            result.Hit = CombatCalculator.CalculateHit(source, target, result.RollBonus, result.AttackRoll);
+            
+            if (result.Hit)
+            {
+                // Publish hit event
+                var hitEvent = new CombatEvent(CombatEventType.ActionHit, source)
+                {
+                    Target = target,
+                    Action = result.SelectedAction,
+                    RollValue = result.AttackRoll,
+                    IsCombo = result.IsCombo,
+                    IsCritical = result.IsCritical
+                };
+                CombatEventBus.Instance.Publish(hitEvent);
+                
+                // Apply damage for Attack-type and Spell-type actions
+                if (result.SelectedAction.Type == ActionType.Attack || result.SelectedAction.Type == ActionType.Spell)
+                {
+                    double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, result.SelectedAction);
+                    int totalRoll = result.ModifiedBaseRoll + result.RollBonus;
+                    result.Damage = CombatCalculator.CalculateDamage(source, target, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, totalRoll);
+                    ActionUtilities.ApplyDamage(target, result.Damage);
+                    
+                    if (!DisableCombatDebugOutput)
+                    {
+                        DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} dealt {result.Damage} damage to {target.Name} with {result.SelectedAction.Name}");
+                    }
+                    
+                    // Track statistics
+                    if (source is Character sourceCharacter)
+                    {
+                        ActionStatisticsTracker.RecordAttackAction(sourceCharacter, totalRoll, result.ModifiedBaseRoll, result.RollBonus, result.Damage, result.SelectedAction, target as Enemy);
+                    }
+                    if (target is Character targetCharacter)
+                    {
+                        ActionStatisticsTracker.RecordDamageReceived(targetCharacter, result.Damage);
+                    }
+                    
+                    bool isCriticalHit = totalRoll >= 20;
+                    ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction, result.Damage, totalRoll, result.RollBonus, true, result.IsCombo, 0, 0, isCriticalHit, battleNarrative);
+                }
+                else if (result.SelectedAction.Type == ActionType.Heal)
+                {
+                    result.HealAmount = ActionUtilities.CalculateHealAmount(source, result.SelectedAction);
+                    ActionUtilities.ApplyHealing(target, result.HealAmount);
+                    
+                    if (!DisableCombatDebugOutput)
+                    {
+                        DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} healed {target.Name} for {result.HealAmount} health with {result.SelectedAction.Name}");
+                    }
+                    
+                    if (target is Character targetCharacterHeal)
+                    {
+                        ActionStatisticsTracker.RecordHealingReceived(targetCharacterHeal, result.HealAmount);
+                    }
+                    
+                    int totalRoll = result.BaseRoll + result.RollBonus;
+                    ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction, 0, totalRoll, result.RollBonus, true, result.IsCombo, 0, result.HealAmount, false, battleNarrative);
+                }
+                else
+                {
+                    // For non-damage actions
+                    ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction, 0, result.ModifiedBaseRoll + result.RollBonus, result.RollBonus, true, result.IsCombo, 0, 0, false, battleNarrative);
+                }
+                
+                // Apply status effects (with conditional support)
+                CombatEffectsSimplified.ApplyStatusEffects(result.SelectedAction, source, target, result.StatusEffectMessages, hitEvent);
+                
+                // Apply enemy roll penalty if the action has one
+                if (result.SelectedAction.Advanced.EnemyRollPenalty > 0 && target is Enemy targetEnemy)
+                {
+                    targetEnemy.ApplyRollPenalty(result.SelectedAction.Advanced.EnemyRollPenalty, 1);
+                    result.StatusEffectMessages.Add($"    {target.Name} suffers a -{result.SelectedAction.Advanced.EnemyRollPenalty} roll penalty!");
+                }
+                
+                // Check for enemy death and HP thresholds
+                if (target is Enemy enemyTarget)
+                {
+                    // Check for death
+                    if (enemyTarget.CurrentHealth <= 0)
+                    {
+                        var deathEvent = new CombatEvent(CombatEventType.EnemyDied, source)
+                        {
+                            Target = target,
+                            Action = result.SelectedAction,
+                            Damage = result.Damage
+                        };
+                        CombatEventBus.Instance.Publish(deathEvent);
+                        OutcomeHandlerRegistry.Instance.ProcessOutcomes(result.SelectedAction, deathEvent, source, target);
+                    }
+                    else
+                    {
+                        // Check for HP thresholds (50%, 25%, 10%)
+                        double healthPercentage = (double)enemyTarget.CurrentHealth / enemyTarget.MaxHealth;
+                        if (healthPercentage <= 0.5 && healthPercentage > 0.25)
+                        {
+                            var thresholdEvent = new CombatEvent(CombatEventType.EnemyHealthThreshold, source)
+                            {
+                                Target = target,
+                                Action = result.SelectedAction,
+                                HealthPercentage = 0.5
+                            };
+                            CombatEventBus.Instance.Publish(thresholdEvent);
+                            OutcomeHandlerRegistry.Instance.ProcessOutcomes(result.SelectedAction, thresholdEvent, source, target);
+                        }
+                        else if (healthPercentage <= 0.25 && healthPercentage > 0.1)
+                        {
+                            var thresholdEvent = new CombatEvent(CombatEventType.EnemyHealthThreshold, source)
+                            {
+                                Target = target,
+                                Action = result.SelectedAction,
+                                HealthPercentage = 0.25
+                            };
+                            CombatEventBus.Instance.Publish(thresholdEvent);
+                            OutcomeHandlerRegistry.Instance.ProcessOutcomes(result.SelectedAction, thresholdEvent, source, target);
+                        }
+                        else if (healthPercentage <= 0.1)
+                        {
+                            var thresholdEvent = new CombatEvent(CombatEventType.EnemyHealthThreshold, source)
+                            {
+                                Target = target,
+                                Action = result.SelectedAction,
+                                HealthPercentage = 0.1
+                            };
+                            CombatEventBus.Instance.Publish(thresholdEvent);
+                            OutcomeHandlerRegistry.Instance.ProcessOutcomes(result.SelectedAction, thresholdEvent, source, target);
+                        }
+                    }
+                }
+                
+                // Handle combo advancement for characters (with routing support)
+                if (source is Character comboCharacter && !(comboCharacter is Enemy))
+                {
+                    comboCharacter.IncrementComboStep(result.SelectedAction);
+                }
+            }
+            else
+            {
+                // Publish miss event
+                var missEvent = new CombatEvent(CombatEventType.ActionMiss, source)
+                {
+                    Target = target,
+                    Action = result.SelectedAction,
+                    RollValue = result.AttackRoll,
+                    IsMiss = true
+                };
+                CombatEventBus.Instance.Publish(missEvent);
+                
+                // Track miss statistics for player
+                if (source is Character characterMiss)
+                {
+                    ActionStatisticsTracker.RecordMissAction(characterMiss, result.ModifiedBaseRoll, result.RollBonus);
+                }
+                
+                ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction, 0, result.ModifiedBaseRoll + result.RollBonus, result.RollBonus, false, false, 0, 0, false, battleNarrative);
+            }
+            
+            return result;
+        }
+
+        /// <summary>
+        /// Formats execution result as ColoredText
+        /// </summary>
+        private static (List<ColoredText> actionText, List<ColoredText> rollInfo) FormatAsColoredText(ActionExecutionResult result, Actor source, Actor target)
+        {
+            if (result.SelectedAction == null)
+            {
+                var builder = new ColoredTextBuilder();
+                builder.Add($"{source.Name} has no actions available.", Colors.White);
+                var noActionText = builder.Build();
+                return (noActionText, new List<ColoredText>());
+            }
+            
+            if (result.Hit)
+            {
+                if (result.SelectedAction.Type == ActionType.Attack || result.SelectedAction.Type == ActionType.Spell)
+                {
+                    double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, result.SelectedAction);
+                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll);
+                    return (damageText, rollInfo);
+                }
+                else if (result.SelectedAction.Type == ActionType.Heal)
+                {
+                    // Format healing message (healing already applied in ExecuteActionCore)
+                    var healingText = CombatResults.FormatHealingMessageColored(source, target, result.HealAmount);
+                    
+                    // Create roll info for healing
+                    var rollInfoBuilder = new ColoredTextBuilder();
+                    rollInfoBuilder.Add("    (", Colors.Gray);
+                    rollInfoBuilder.Add("roll:", ColorPalette.Info);
+                    rollInfoBuilder.AddSpace();
+                    rollInfoBuilder.Add(result.BaseRoll.ToString(), Colors.White);
+                    
+                    if (result.RollBonus != 0)
+                    {
+                        if (result.RollBonus > 0)
+                        {
+                            rollInfoBuilder.Add(" + ", Colors.White);
+                            rollInfoBuilder.Add(result.RollBonus.ToString(), ColorPalette.Success);
+                        }
+                        else
+                        {
+                            rollInfoBuilder.Add(" - ", Colors.White);
+                            rollInfoBuilder.Add((-result.RollBonus).ToString(), ColorPalette.Error);
+                        }
+                        rollInfoBuilder.Add(" = ", Colors.White);
+                        rollInfoBuilder.Add((result.BaseRoll + result.RollBonus).ToString(), Colors.White);
+                    }
+                    
+                    if (result.SelectedAction.Length > 0)
+                    {
+                        double actualSpeed = 0;
+                        if (source is Character charSource)
+                        {
+                            actualSpeed = charSource.GetTotalAttackSpeed() * result.SelectedAction.Length;
+                        }
+                        else if (source is Enemy enemySource)
+                        {
+                            actualSpeed = enemySource.GetTotalAttackSpeed() * result.SelectedAction.Length;
+                        }
+                        
+                        if (actualSpeed > 0)
+                        {
+                            rollInfoBuilder.Add("|", Colors.Gray);
+                            rollInfoBuilder.AddSpace();
+                            rollInfoBuilder.Add("speed: ", ColorPalette.Info);
+                            rollInfoBuilder.Add($"{actualSpeed:F1}s", Colors.White);
+                        }
+                    }
+                    
+                    rollInfoBuilder.Add(")", Colors.Gray);
+                    
+                    return (healingText, rollInfoBuilder.Build());
+                }
+                else
+                {
+                    var (actionText, actionRollInfo) = CombatResults.FormatNonAttackActionColored(source, target, result.SelectedAction, result.ModifiedBaseRoll, result.RollBonus);
+                    return (actionText, actionRollInfo);
+                }
+            }
+            else
+            {
+                var (missText, missRollInfo) = CombatResults.FormatMissMessageColored(source, target, result.SelectedAction, result.ModifiedBaseRoll, result.RollBonus);
+                return (missText, missRollInfo);
+            }
+        }
+
+        /// <summary>
+        /// Formats execution result as string
+        /// </summary>
+        private static string FormatAsString(ActionExecutionResult result, Actor source, Actor target)
+        {
+            if (result.SelectedAction == null)
+            {
+                return $"{source.Name} has no actions available.";
+            }
+            
+            var results = new List<string>();
+            
+            if (result.Hit)
+            {
+                if (result.SelectedAction.Type == ActionType.Attack || result.SelectedAction.Type == ActionType.Spell)
+                {
+                    double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, result.SelectedAction);
+                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll);
+                    string damageString = ColoredTextRenderer.RenderAsMarkup(damageText) + "\n" + ColoredTextRenderer.RenderAsMarkup(rollInfo);
+                    results.Add(damageString);
+                }
+                else if (result.SelectedAction.Type == ActionType.Heal)
+                {
+                    results.Add($"{source.Name} heals {target.Name} for {result.HealAmount} health with {result.SelectedAction.Name}");
+                }
+                else
+                {
+                    var (actionText, actionRollInfo) = CombatResults.FormatNonAttackActionColored(source, target, result.SelectedAction, result.ModifiedBaseRoll, result.RollBonus);
+                    string actionString = ColoredTextRenderer.RenderAsMarkup(actionText) + "\n" + ColoredTextRenderer.RenderAsMarkup(actionRollInfo);
+                    results.Add(actionString);
+                }
+                
+                // Add status effect messages
+                results.AddRange(result.StatusEffectMessages);
+            }
+            else
+            {
+                var (missText, missRollInfo) = CombatResults.FormatMissMessageColored(source, target, result.SelectedAction, result.ModifiedBaseRoll, result.RollBonus);
+                string missString = ColoredTextRenderer.RenderAsMarkup(missText) + "\n" + ColoredTextRenderer.RenderAsMarkup(missRollInfo);
+                results.Add(missString);
+            }
+            
+            return results.Count > 0 ? results[0] : "";
+        }
 
         /// <summary>
         /// Executes a single action with all its effects and returns both main result and status effects as ColoredText
@@ -32,10 +413,17 @@ namespace RPGGame
         /// <returns>A tuple containing the main result as ColoredText tuple (actionText, rollInfo) and list of status effect messages as ColoredText</returns>
         public static ((List<ColoredText> actionText, List<ColoredText> rollInfo) mainResult, List<List<ColoredText>> statusEffects) ExecuteActionWithStatusEffectsColored(Actor source, Actor target, Environment? environment = null, Action? lastPlayerAction = null, Action? forcedAction = null, BattleNarrative? battleNarrative = null)
         {
+            var result = ExecuteActionCore(source, target, environment, lastPlayerAction, forcedAction, battleNarrative);
             var coloredStatusEffects = new List<List<ColoredText>>();
             
-            var mainResult = ExecuteActionInternalColored(source, target, environment, lastPlayerAction, forcedAction, battleNarrative, coloredStatusEffects);
+            // Apply status effects as ColoredText
+            if (result.SelectedAction != null && result.Hit)
+            {
+                ActionStatusEffectApplier.ApplyStatusEffectsColored(result.SelectedAction, source, target, coloredStatusEffects);
+                ActionStatusEffectApplier.ApplyEnemyRollPenaltyColored(result.SelectedAction, target, coloredStatusEffects);
+            }
             
+            var mainResult = FormatAsColoredText(result, source, target);
             return (mainResult, coloredStatusEffects);
         }
         
@@ -44,99 +432,16 @@ namespace RPGGame
         /// </summary>
         private static (List<ColoredText> actionText, List<ColoredText> rollInfo) ExecuteActionInternalColored(Actor source, Actor target, Environment? environment, Action? lastPlayerAction, Action? forcedAction, BattleNarrative? battleNarrative, List<List<ColoredText>> coloredStatusEffects)
         {
-            if (!DisableCombatDebugOutput)
+            var result = ExecuteActionCore(source, target, environment, lastPlayerAction, forcedAction, battleNarrative);
+            
+            // Apply status effects as ColoredText
+            if (result.SelectedAction != null && result.Hit)
             {
-                DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} executing action against {target.Name}");
+                ActionStatusEffectApplier.ApplyStatusEffectsColored(result.SelectedAction, source, target, coloredStatusEffects);
+                ActionStatusEffectApplier.ApplyEnemyRollPenaltyColored(result.SelectedAction, target, coloredStatusEffects);
             }
             
-            // Use forced action if provided (for combo system), otherwise select action based on Actor type
-            var selectedAction = forcedAction ?? ActionSelector.SelectActionByEntityType(source);
-            if (selectedAction == null)
-            {
-                var builder = new ColoredTextBuilder();
-                builder.Add($"{source.Name} has no actions available.", Colors.White);
-                var noActionText = builder.Build();
-                return (noActionText, new List<ColoredText>());
-            }
-            
-            // Store the action that will be used
-            _lastUsedActions[source] = selectedAction;
-            
-            // Handle unique action chance for characters (not enemies)
-            if (source is Character character && !(character is Enemy) && forcedAction == null)
-            {
-                selectedAction = ActionUtilities.HandleUniqueActionChance(character, selectedAction);
-            }
-            
-            // Use the same roll that was used for action selection
-            int baseRoll = ActionSelector.GetActionRoll(source);
-            int rollBonus = ActionUtilities.CalculateRollBonus(source, selectedAction);
-            int attackRoll = baseRoll + rollBonus;
-            int cappedRoll = Math.Min(attackRoll, 20);
-            
-            // Check for critical miss
-            bool isCriticalMiss = (baseRoll + rollBonus) <= 1;
-            if (isCriticalMiss)
-            {
-                source.HasCriticalMissPenalty = true;
-                source.CriticalMissPenaltyTurns = 1;
-            }
-            
-            // Check for hit
-            bool hit = CombatCalculator.CalculateHit(source, target, rollBonus, attackRoll);
-            
-            if (hit)
-            {
-                // Apply damage for Attack-type and Spell-type actions
-                if (selectedAction.Type == ActionType.Attack || selectedAction.Type == ActionType.Spell)
-                {
-                    var result = AttackActionExecutor.ExecuteAttackActionColored(source, target, selectedAction, baseRoll, rollBonus, battleNarrative);
-                    // Apply status effects
-                    ActionStatusEffectApplier.ApplyStatusEffectsColored(selectedAction, source, target, coloredStatusEffects);
-                    return result;
-                }
-                else if (selectedAction.Type == ActionType.Heal)
-                {
-                    var result = HealActionExecutor.ExecuteHealActionColored(source, target, selectedAction, baseRoll, rollBonus, battleNarrative);
-                    // Apply status effects
-                    ActionStatusEffectApplier.ApplyStatusEffectsColored(selectedAction, source, target, coloredStatusEffects);
-                    return result;
-                }
-                else
-                {
-                    // For non-damage actions
-                    var (actionText, actionRollInfo) = CombatResults.FormatNonAttackActionColored(source, target, selectedAction, baseRoll, rollBonus);
-                    bool isCombo = selectedAction.Name != "BASIC ATTACK";
-                    ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, 0, baseRoll + rollBonus, rollBonus, true, isCombo, 0, 0, false, battleNarrative);
-                    
-                    // Apply status effects
-                    ActionStatusEffectApplier.ApplyStatusEffectsColored(selectedAction, source, target, coloredStatusEffects);
-                    
-                    // Handle enemy roll penalty
-                    ActionStatusEffectApplier.ApplyEnemyRollPenaltyColored(selectedAction, target, coloredStatusEffects);
-                    
-                    // Handle combo advancement
-                    if (source is Character comboCharacter && !(comboCharacter is Enemy))
-                    {
-                        comboCharacter.IncrementComboStep();
-                    }
-                    
-                    return (actionText, actionRollInfo);
-                }
-            }
-            else
-            {
-                // Miss
-                if (source is Character characterMiss)
-                {
-                    ActionStatisticsTracker.RecordMissAction(characterMiss, baseRoll, rollBonus);
-                }
-                
-                ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, 0, baseRoll + rollBonus, rollBonus, false, false, 0, 0, false, battleNarrative);
-                
-                var (missText, missRollInfo) = CombatResults.FormatMissMessageColored(source, target, selectedAction, baseRoll, rollBonus);
-                return (missText, missRollInfo);
-            }
+            return FormatAsColoredText(result, source, target);
         }
         
         
@@ -152,185 +457,10 @@ namespace RPGGame
         /// <returns>A string describing the result of the action</returns>
         public static string ExecuteAction(Actor source, Actor target, Environment? environment = null, Action? lastPlayerAction = null, Action? forcedAction = null, BattleNarrative? battleNarrative = null)
         {
-            var actionResults = new List<string>();
-            return ExecuteActionInternal(source, target, environment, lastPlayerAction, forcedAction, battleNarrative, actionResults);
+            var result = ExecuteActionCore(source, target, environment, lastPlayerAction, forcedAction, battleNarrative);
+            return FormatAsString(result, source, target);
         }
 
-        /// <summary>
-        /// Internal method that executes an action and populates the results list
-        /// </summary>
-        private static string ExecuteActionInternal(Actor source, Actor target, Environment? environment, Action? lastPlayerAction, Action? forcedAction, BattleNarrative? battleNarrative, List<string> results)
-        {
-            if (!DisableCombatDebugOutput)
-            {
-                DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} executing action against {target.Name}");
-            }
-            
-            // Use forced action if provided (for combo system), otherwise select action based on Actor type
-            var selectedAction = forcedAction ?? ActionSelector.SelectActionByEntityType(source);
-            if (selectedAction == null)
-            {
-                return $"{source.Name} has no actions available.";
-            }
-            
-            // Store the action that will be used
-            _lastUsedActions[source] = selectedAction;
-            
-            // Handle unique action chance for characters (not enemies)
-            // Only apply unique action chance if no forced action was provided
-            if (source is Character character && !(character is Enemy) && forcedAction == null)
-            {
-                selectedAction = ActionUtilities.HandleUniqueActionChance(character, selectedAction);
-            }
-            
-            // Use the same roll that was used for action selection (for both heroes and enemies)
-            int baseRoll = ActionSelector.GetActionRoll(source);
-            
-            // Calculate roll bonus using the selected action (this may be different from selection bonus)
-            int rollBonus = ActionUtilities.CalculateRollBonus(source, selectedAction);
-            int attackRoll = baseRoll + rollBonus;
-            int cappedRoll = Math.Min(attackRoll, 20);
-            
-            // Check for critical miss (total roll <= 1)
-            bool isCriticalMiss = (baseRoll + rollBonus) <= 1;
-            if (isCriticalMiss)
-            {
-                // Apply critical miss penalty - doubles action speed for next turn
-                source.HasCriticalMissPenalty = true;
-                source.CriticalMissPenaltyTurns = 1;
-            }
-            
-            // Check for hit
-            bool hit = CombatCalculator.CalculateHit(source, target, rollBonus, attackRoll);
-            
-            if (hit)
-            {
-                // Apply damage for Attack-type and Spell-type actions
-                if (selectedAction.Type == ActionType.Attack || selectedAction.Type == ActionType.Spell)
-                {
-                    ExecuteAttackAction(source, target, selectedAction, baseRoll, rollBonus, results, battleNarrative);
-                }
-                else if (selectedAction.Type == ActionType.Heal)
-                {
-                    ExecuteHealAction(source, target, selectedAction, baseRoll, rollBonus, results, battleNarrative);
-                }
-                else
-                {
-                    // For non-damage actions, just show the action was successful
-                    var (actionText, actionRollInfo) = CombatResults.FormatNonAttackActionColored(source, target, selectedAction, baseRoll, rollBonus);
-                    string actionString = ColoredTextRenderer.RenderAsMarkup(actionText) + "\n" + ColoredTextRenderer.RenderAsMarkup(actionRollInfo);
-                    results.Add(actionString);
-                    
-                    // Create and add BattleEvent for narrative system (non-damage action)
-                    bool isCombo = selectedAction.Name != "BASIC ATTACK"; // Any non-basic action counts as combo
-                    ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, 0, baseRoll + rollBonus, rollBonus, true, isCombo, 0, 0, false, battleNarrative);
-                }
-                
-                // Apply status effects for all action types
-                CombatEffectsSimplified.ApplyStatusEffects(selectedAction, source, target, results);
-                
-                // Apply enemy roll penalty if the action has one
-                if (selectedAction.EnemyRollPenalty > 0 && target is Enemy targetEnemy)
-                {
-                    targetEnemy.ApplyRollPenalty(selectedAction.EnemyRollPenalty, 1); // Apply for 1 turn
-                    results.Add($"    {target.Name} suffers a -{selectedAction.EnemyRollPenalty} roll penalty!");
-                }
-                
-                // Handle combo advancement for characters
-                if (source is Character comboCharacter && !(comboCharacter is Enemy))
-                {
-                    comboCharacter.IncrementComboStep();
-                }
-            }
-            else
-            {
-            // Track miss statistics for player
-            if (source is Character characterMiss)
-            {
-                ActionStatisticsTracker.RecordMissAction(characterMiss, baseRoll, rollBonus);
-            }
-                
-                // Create and add BattleEvent for miss
-                ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, 0, baseRoll + rollBonus, rollBonus, false, false, 0, 0, false, battleNarrative);
-                
-                var (missText, missRollInfo) = CombatResults.FormatMissMessageColored(source, target, selectedAction, baseRoll, rollBonus);
-                string missString = ColoredTextRenderer.RenderAsMarkup(missText) + "\n" + ColoredTextRenderer.RenderAsMarkup(missRollInfo);
-                results.Add(missString);
-            }
-            
-            return results.Count > 0 ? results[0] : "";
-        }
-
-        /// <summary>
-        /// Executes an attack action
-        /// </summary>
-        private static void ExecuteAttackAction(Actor source, Actor target, Action selectedAction, int baseRoll, int rollBonus, List<string> results, BattleNarrative? battleNarrative)
-        {
-            // Calculate damage with Actor-specific modifiers using shared utility
-            double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, selectedAction);
-            int totalRoll = baseRoll + rollBonus;
-            int damage = CombatCalculator.CalculateDamage(source, target, selectedAction, damageMultiplier, 1.0, rollBonus, totalRoll);
-            
-            // Apply damage using shared utility
-            ActionUtilities.ApplyDamage(target, damage);
-            if (!DisableCombatDebugOutput)
-            {
-                DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} dealt {damage} damage to {target.Name} with {selectedAction.Name}");
-            }
-            
-            // Track statistics for player actions
-            if (source is Character character)
-            {
-                ActionStatisticsTracker.RecordAttackAction(character, totalRoll, baseRoll, rollBonus, damage, selectedAction, target as Enemy);
-            }
-            
-            // Track damage received for player
-            if (target is Character targetCharacter)
-            {
-                ActionStatisticsTracker.RecordDamageReceived(targetCharacter, damage);
-            }
-            
-            // Create and add BattleEvent for narrative system using shared utility
-            bool isCombo = selectedAction.Name != "BASIC ATTACK"; // Any non-basic attack counts as combo
-            bool isCriticalHit = totalRoll >= 20; // Critical hit on natural 20 or higher
-            ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, damage, totalRoll, rollBonus, true, isCombo, 0, 0, isCriticalHit, battleNarrative);
-            
-            // Add damage message - use the new ColoredText system, convert to markup for string-based API
-            var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, damage, damage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll);
-            // Convert ColoredText to markup string (preserves colors for display)
-            string damageString = ColoredTextRenderer.RenderAsMarkup(damageText) + "\n" + ColoredTextRenderer.RenderAsMarkup(rollInfo);
-            results.Add(damageString);
-        }
-
-        /// <summary>
-        /// Executes a heal action
-        /// </summary>
-        private static void ExecuteHealAction(Actor source, Actor target, Action selectedAction, int baseRoll, int rollBonus, List<string> results, BattleNarrative? battleNarrative)
-        {
-            // Handle healing actions using shared utility
-            int healAmount = ActionUtilities.CalculateHealAmount(source, selectedAction);
-            int totalRoll = baseRoll + rollBonus;
-            
-            // Apply healing using shared utility
-            ActionUtilities.ApplyHealing(target, healAmount);
-            if (!DisableCombatDebugOutput)
-            {
-                DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} healed {target.Name} for {healAmount} health with {selectedAction.Name}");
-            }
-            
-            // Track healing statistics for player
-            if (target is Character character)
-            {
-                ActionStatisticsTracker.RecordHealingReceived(character, healAmount);
-            }
-            
-            // Create and add BattleEvent for narrative system using shared utility
-            bool isCombo = selectedAction.Name != "BASIC ATTACK"; // Any non-basic action counts as combo
-            ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, 0, totalRoll, rollBonus, true, isCombo, 0, healAmount, false, battleNarrative);
-            
-            // Add healing message
-            results.Add($"{source.Name} heals {target.Name} for {healAmount} health with {selectedAction.Name}");
-        }
 
         /// <summary>
         /// Gets the last action used by an Actor

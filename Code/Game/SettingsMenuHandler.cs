@@ -58,27 +58,41 @@ namespace RPGGame
         /// </summary>
         public void HandleMenuInput(string input)
         {
+            DebugLogger.Log("SettingsMenuHandler", $"HandleMenuInput called with input: '{input}'");
+            ScrollDebugLogger.Log($"SettingsMenuHandler.HandleMenuInput: input='{input}', state={stateManager.CurrentState}");
+            
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
                 switch (input)
                 {
                     case "1":
                         // Run Tests
-                        stateManager.TransitionToState(GameState.Testing);
+                        DebugLogger.Log("SettingsMenuHandler", "Showing testing menu");
+                        ScrollDebugLogger.Log("SettingsMenuHandler: Showing testing menu");
+                        // ShowTestingMenu will transition the state, so don't do it here
                         ShowTestingMenuEvent?.Invoke();
                         break;
                     case "0":
                         // Back to Main Menu
+                        DebugLogger.Log("SettingsMenuHandler", "Returning to Main Menu");
+                        ScrollDebugLogger.Log("SettingsMenuHandler: Returning to Main Menu");
                         canvasUI.ResetDeleteConfirmation();
                         stateManager.TransitionToState(GameState.MainMenu);
                         ShowMainMenuEvent?.Invoke();
                         break;
                     default:
                         // Any other input goes back to settings
+                        DebugLogger.Log("SettingsMenuHandler", $"Unknown input '{input}', refreshing settings");
+                        ScrollDebugLogger.Log($"SettingsMenuHandler: Unknown input '{input}', refreshing settings");
                         canvasUI.ResetDeleteConfirmation();
                         ShowSettings();
                         break;
                 }
+            }
+            else
+            {
+                DebugLogger.Log("SettingsMenuHandler", "ERROR: customUIManager is not CanvasUICoordinator");
+                ScrollDebugLogger.Log($"SettingsMenuHandler: ERROR - customUIManager is not CanvasUICoordinator (type={customUIManager?.GetType().Name ?? "null"})");
             }
         }
 

@@ -4,6 +4,7 @@ using RPGGame.UI;
 using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.UI.ColorSystem;
+using static RPGGame.Utils.GameConstants;
 
 namespace RPGGame.UI.Avalonia.Managers
 {
@@ -17,7 +18,7 @@ namespace RPGGame.UI.Avalonia.Managers
         private readonly CenterPanelDisplayManager displayManager;
         private readonly ColoredTextWriter textWriter;
         
-        public CanvasTextManager(GameCanvasControl canvas, ColoredTextWriter textWriter, ICanvasContextManager contextManager, int maxLines = 100)
+        public CanvasTextManager(GameCanvasControl canvas, ColoredTextWriter textWriter, ICanvasContextManager contextManager, int maxLines = DISPLAY_BUFFER_MAX_LINES)
         {
             this.textWriter = textWriter;
             this.displayManager = new CenterPanelDisplayManager(canvas, textWriter, contextManager, maxLines);

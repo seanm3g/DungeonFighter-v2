@@ -24,7 +24,9 @@ namespace RPGGame.Display.Dungeon
             string encounteredText = string.Format(AsciiArtAssets.UIText.EncounteredFormat, enemy.Name, enemyWeaponInfo);
             var encounteredBuilder = new ColoredTextBuilder();
             encounteredBuilder.Add(encounteredText, ColorPalette.Common);
-            info.Add(ColoredTextRenderer.RenderAsMarkup(encounteredBuilder.Build()));
+            string renderedText = ColoredTextRenderer.RenderAsMarkup(encounteredBuilder.Build());
+            // Trim any leading spaces that might be added during rendering
+            info.Add(renderedText.TrimStart());
 
             string statsText = AsciiArtAssets.UIText.FormatEnemyStats(enemy.CurrentHealth, enemy.MaxHealth, enemy.Armor);
             var statsBuilder = new ColoredTextBuilder();

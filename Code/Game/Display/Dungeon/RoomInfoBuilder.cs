@@ -44,7 +44,7 @@ namespace RPGGame.Display.Dungeon
                 .Add(room.Description, ColorPalette.White)
                 .Build();
             info.Add(ColoredTextRenderer.RenderAsMarkup(roomDescription));
-            info.Add("");
+            // Note: No trailing blank line - spacing system handles transitions
 
             return info;
         }

@@ -167,18 +167,18 @@ namespace RPGGame
             action.CausesSlow = data.CausesSlow;
             action.CausesPoison = data.CausesPoison;
             
-            // Set additional properties
-            action.RollBonus = data.RollBonus;
-            action.StatBonus = data.StatBonus;
-            action.StatBonusType = data.StatBonusType;
-            action.StatBonusDuration = data.StatBonusDuration;
-            action.MultiHitCount = data.MultiHitCount;
-            action.MultiHitDamagePercent = data.MultiHitDamagePercent;
-            action.SelfDamagePercent = data.SelfDamagePercent;
-            action.SkipNextTurn = data.SkipNextTurn;
-            action.RepeatLastAction = data.RepeatLastAction;
+            // Set additional properties (using nested property structure)
+            action.Advanced.RollBonus = data.RollBonus;
+            action.Advanced.StatBonus = data.StatBonus;
+            action.Advanced.StatBonusType = data.StatBonusType;
+            action.Advanced.StatBonusDuration = data.StatBonusDuration;
+            action.Advanced.MultiHitCount = data.MultiHitCount;
+            action.Advanced.MultiHitDamagePercent = data.MultiHitDamagePercent;
+            action.Advanced.SelfDamagePercent = data.SelfDamagePercent;
+            action.Advanced.SkipNextTurn = data.SkipNextTurn;
+            action.Advanced.RepeatLastAction = data.RepeatLastAction;
             action.Tags = data.Tags ?? new List<string>();
-            action.EnemyRollPenalty = data.EnemyRollPenalty;
+            action.Advanced.EnemyRollPenalty = data.EnemyRollPenalty;
             
             return action;
         }

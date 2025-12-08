@@ -94,7 +94,7 @@ namespace RPGGame
         public static int CalculateHealAmount(Actor source, Action action)
         {
             // Base healing from action properties
-            int baseHeal = action.HealAmount;
+            int baseHeal = action.Advanced.HealAmount;
             
             // Add technique-based healing for characters
             if (source is Character character)

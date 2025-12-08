@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using RPGGame.UI;
+using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Managers;
 
 namespace RPGGame.UI.Avalonia.Renderers.Menu
@@ -49,7 +50,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             canvas.AddText(x + 2, textY, "• Color System, Text System Accuracy", AsciiArtAssets.Colors.White);
             textY++;
             currentLineCount++;
-            canvas.AddText(x + 2, textY, "• Performance, Integration, UI Fixes", AsciiArtAssets.Colors.White);
+            canvas.AddText(x + 2, textY, "• Performance, Integration, Advanced Mechanics", AsciiArtAssets.Colors.White);
             currentLineCount++;
             
             // Test options panel (middle section)
@@ -61,21 +62,36 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             textY = currentY + 3;
             var testOptions = new[]
             {
-                "[1] Run All Tests (Complete Suite)",
-                "[2] Character System Tests",
-                "[3] Combat System Tests",
-                "[4] Inventory System Tests",
-                "[5] Dungeon System Tests",
-                "[6] Data System Tests",
-                "[7] UI System Tests",
-                "[8] Combat UI Fixes",
-                "[9] Integration Tests",
-                "[0] Back to Settings"
+                (1, "Run All Tests (Complete Suite)"),
+                (2, "Character System Tests"),
+                (3, "Combat System Tests (includes UI Fixes)"),
+                (4, "Inventory System Tests"),
+                (5, "Dungeon System Tests"),
+                (6, "Data System Tests"),
+                (7, "UI System Tests"),
+                (8, "Advanced Mechanics"),
+                (9, "Integration Tests"),
+                (0, "Back to Settings")
             };
             
-            foreach (var option in testOptions)
+            foreach (var (number, text) in testOptions)
             {
-                canvas.AddText(x + 2, textY, option, AsciiArtAssets.Colors.White);
+                string displayText = $"[{number}] {text}";
+                
+                // Create clickable element for this menu option
+                var option = new ClickableElement
+                {
+                    X = x + 2,
+                    Y = textY,
+                    Width = displayText.Length,
+                    Height = 1,
+                    Type = ElementType.MenuOption,
+                    Value = number.ToString(),
+                    DisplayText = displayText
+                };
+                clickableElements.Add(option);
+                
+                canvas.AddText(x + 2, textY, displayText, AsciiArtAssets.Colors.White);
                 textY++;
                 currentLineCount++;
             }

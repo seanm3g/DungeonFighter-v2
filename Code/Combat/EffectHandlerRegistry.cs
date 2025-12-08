@@ -29,7 +29,25 @@ namespace RPGGame
                 { "slow", new SlowEffectHandler() },
                 { "poison", new PoisonEffectHandler() },
                 { "stun", new StunEffectHandler() },
-                { "burn", new BurnEffectHandler() }
+                { "burn", new BurnEffectHandler() },
+                // Advanced status effects (Phase 2)
+                { "vulnerability", new Combat.Effects.AdvancedStatusEffects.VulnerabilityEffectHandler() },
+                { "harden", new Combat.Effects.AdvancedStatusEffects.HardenEffectHandler() },
+                { "fortify", new Combat.Effects.AdvancedStatusEffects.FortifyEffectHandler() },
+                { "focus", new Combat.Effects.AdvancedStatusEffects.FocusEffectHandler() },
+                { "expose", new Combat.Effects.AdvancedStatusEffects.ExposeEffectHandler() },
+                { "hpregen", new Combat.Effects.AdvancedStatusEffects.HPRegenEffectHandler() },
+                { "armorbreak", new Combat.Effects.AdvancedStatusEffects.ArmorBreakEffectHandler() },
+                { "pierce", new Combat.Effects.AdvancedStatusEffects.PierceEffectHandler() },
+                { "reflect", new Combat.Effects.AdvancedStatusEffects.ReflectEffectHandler() },
+                { "silence", new Combat.Effects.AdvancedStatusEffects.SilenceEffectHandler() },
+                { "statdrain", new Combat.Effects.AdvancedStatusEffects.StatDrainEffectHandler() },
+                { "absorb", new Combat.Effects.AdvancedStatusEffects.AbsorbEffectHandler() },
+                { "temporaryhp", new Combat.Effects.AdvancedStatusEffects.TemporaryHPEffectHandler() },
+                { "confusion", new Combat.Effects.AdvancedStatusEffects.ConfusionEffectHandler() },
+                { "cleanse", new Combat.Effects.AdvancedStatusEffects.CleanseEffectHandler() },
+                { "mark", new Combat.Effects.AdvancedStatusEffects.MarkEffectHandler() },
+                { "disrupt", new Combat.Effects.AdvancedStatusEffects.DisruptEffectHandler() }
             };
         }
 

@@ -378,11 +378,157 @@ Actions are selected based on:
 
 ---
 
+## Advanced Mechanics (v7.0+)
+
+### Roll Modification System
+
+Actions can modify dice rolls through various mechanisms:
+
+| Property | Type | Description | Example |
+|----------|------|-------------|---------|
+| `rollModifierAdditive` | int | Flat bonus/penalty to roll | +5, -3 |
+| `rollModifierMultiplier` | double | Multiplier for roll value | 1.5x, 0.8x |
+| `rollModifierMin` | int | Minimum roll value (clamp) | 5 |
+| `rollModifierMax` | int | Maximum roll value (clamp) | 18 |
+| `allowReroll` | bool | Allows rerolling the dice | true |
+| `rerollChance` | double | Probability of reroll (0.0-1.0) | 0.5 (50%) |
+| `explodingDice` | bool | Enables exploding dice mechanic | true |
+| `explodingDiceThreshold` | int | Roll value that triggers explosion | 20 |
+| `multipleDiceCount` | int | Number of dice to roll | 2, 3 |
+| `multipleDiceMode` | string | How to combine dice ("Sum", "TakeLowest", "TakeHighest", "TakeAverage") | "Sum" |
+
+**Examples**:
+- **Advantage**: `multipleDiceCount: 2, multipleDiceMode: "TakeHighest"` (roll 2d20, take higher)
+- **Disadvantage**: `multipleDiceCount: 2, multipleDiceMode: "TakeLowest"` (roll 2d20, take lower)
+- **Exploding Dice**: `explodingDice: true, explodingDiceThreshold: 20` (on 20, roll again and add)
+
+### Threshold Overrides
+
+Actions can modify critical hit, combo, and hit thresholds:
+
+| Property | Type | Description | Example |
+|----------|------|-------------|---------|
+| `criticalHitThresholdOverride` | int | Override critical hit threshold (0 = use default) | 18 |
+| `comboThresholdOverride` | int | Override combo threshold (0 = use default) | 12 |
+| `hitThresholdOverride` | int | Override hit threshold (0 = use default) | 4 |
+
+**Note**: Threshold overrides apply to the actor using the action, not globally.
+
+### Conditional Triggers
+
+Actions can trigger based on combat events:
+
+| Property | Type | Description | Example |
+|----------|------|-------------|---------|
+| `triggerConditions` | string[] | List of conditions to check | ["OnMiss", "OnCritical"] |
+| `exactRollTriggerValue` | int | Trigger on exact roll value (0 = disabled) | 20 |
+| `requiredTag` | string | Required tag for trigger | "FIRE" |
+
+**Available Conditions**:
+- `OnMiss`: Triggers when action misses
+- `OnHit`: Triggers when action hits
+- `OnCritical`: Triggers on critical hit
+- `OnCombo`: Triggers during combo
+- `OnEnemyDeath`: Triggers when enemy dies
+- `OnHPThreshold`: Triggers at health threshold
+
+### Advanced Status Effects
+
+New status effects beyond the basic 6:
+
+| Effect | Property | Description |
+|--------|----------|-------------|
+| **Vulnerability** | `causesVulnerability` | Target takes more damage |
+| **Harden** | `causesHarden` | Target takes less damage |
+| **Fortify** | `causesFortify` | Increases target's armor |
+| **Focus** | `causesFocus` | Increases outgoing damage |
+| **Expose** | `causesExpose` | Reduces target's armor |
+| **HP Regen** | `causesHPRegen` | Heals target over time |
+| **Armor Break** | `causesArmorBreak` | Significantly reduces armor |
+| **Pierce** | `causesPierce` | Ignores armor |
+| **Reflect** | `causesReflect` | Returns damage to attacker |
+| **Silence** | `causesSilence` | Disables combo |
+| **Stat Drain** | `causesStatDrain` | Steals stats from target |
+| **Absorb** | `causesAbsorb` | Stores damage, releases at threshold |
+| **Temporary HP** | `causesTemporaryHP` | Overheal/shields |
+| **Confusion** | `causesConfusion` | Chance to attack self/ally |
+| **Cleanse** | `causesCleanse` | Reduces negative effect stacks |
+| **Mark** | `causesMark` | Next hit guaranteed crit |
+| **Disrupt** | `causesDisrupt` | Resets combo |
+
+**Note**: These effects use the same registry system as basic effects and can be stacked.
+
+### Combo Routing
+
+Actions can control combo flow:
+
+| Property | Type | Description | Example |
+|----------|------|-------------|---------|
+| `comboJumpToSlot` | int | Jump to slot N in combo (0 = disabled) | 1 |
+| `comboSkipNext` | bool | Skip next action in combo | true |
+| `comboRepeatPrevious` | bool | Repeat previous action | true |
+| `comboLoopToStart` | bool | Loop back to slot 1 | true |
+| `comboStopEarly` | bool | Stop combo early | true |
+| `comboDisableSlot` | bool | Disable this slot | true |
+| `comboRandomAction` | bool | Random next action | true |
+| `comboTriggerOnlyInSlot` | int | Only trigger if in slot N (0 = always) | 2 |
+
+**Examples**:
+- **Loop Combo**: `comboLoopToStart: true` - After this action, restart combo from beginning
+- **Skip Weak Action**: `comboSkipNext: true` - Skip the next action in sequence
+- **Random Combo**: `comboRandomAction: true` - Next action chosen randomly from combo pool
+
+### Tag System
+
+Actions and entities can have tags for matching and filtering:
+
+| Property | Type | Description | Example |
+|----------|------|-------------|---------|
+| `tags` | string[] | List of tags for the action | ["FIRE", "WIZARD", "EPIC"] |
+
+**Common Tags**:
+- **Elements**: FIRE, WATER, ICE, EARTH, AIR, LIGHTNING
+- **Classes**: WIZARD, WARRIOR, ROGUE, BARBARIAN
+- **Rarities**: COMMON, UNCOMMON, RARE, EPIC, LEGENDARY, MYTHIC, TRANSCENDENT
+- **Weapons**: SWORD, MACE, DAGGER, WAND
+- **Scaling**: comboScaling, comboStepScaling, comboAmplificationScaling
+
+Tags can be used for:
+- Damage modification (fire vs ice)
+- Action filtering
+- Conditional effects
+- Equipment matching
+
+### Outcome Handlers
+
+Actions can trigger outcomes based on combat results:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `outcomeHandlers` | object[] | List of outcome handlers |
+
+**Outcome Types**:
+- **Enemy Death**: Triggers when enemy dies
+- **HP Threshold**: Triggers at 50%, 25%, 10% health
+- **Combo End**: Triggers when combo ends
+- **Conditional XP**: Grants XP on specific conditions
+
+**Note**: Outcome handlers are configured in JSON and processed by the outcome system.
+
+---
+
 ## Summary
 
 The action system supports:
 - **5 Action Types**: Attack, Spell, Heal, Buff, Debuff
-- **6 Status Effects**: Bleed, Poison, Weaken, Stun, Slow, Burn
+- **6 Basic Status Effects**: Bleed, Poison, Weaken, Stun, Slow, Burn
+- **17 Advanced Status Effects**: Vulnerability, Harden, Fortify, Focus, Expose, HP Regen, Armor Break, Pierce, Reflect, Silence, Stat Drain, Absorb, Temporary HP, Confusion, Cleanse, Mark, Disrupt
+- **Roll Modification**: Additive, multiplicative, clamp, reroll, exploding dice, multiple dice
+- **Threshold Overrides**: Dynamic critical hit, combo, and hit thresholds
+- **Conditional Triggers**: Event-driven action effects
+- **Combo Routing**: Jump, skip, repeat, loop, stop, random actions
+- **Tag System**: Flexible matching and filtering
+- **Outcome Handlers**: Conditional effects based on combat results
 - **Multiple Damage Modifiers**: Multipliers, multi-hit, conditional scaling
 - **Combo System**: Chained actions with scaling bonuses
 - **4 Weapon Types**: Sword, Mace, Dagger, Wand

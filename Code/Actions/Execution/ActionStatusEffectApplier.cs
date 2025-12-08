@@ -42,15 +42,15 @@ namespace RPGGame.Actions.Execution
         {
             if (selectedAction == null || target == null || coloredStatusEffects == null) return;
             
-            if (selectedAction.EnemyRollPenalty > 0 && target is Enemy targetEnemy)
+            if (selectedAction.Advanced.EnemyRollPenalty > 0 && target is Enemy targetEnemy)
             {
-                targetEnemy.ApplyRollPenalty(selectedAction.EnemyRollPenalty, 1);
+                targetEnemy.ApplyRollPenalty(selectedAction.Advanced.EnemyRollPenalty, 1);
                 
                 var penaltyBuilder = new ColoredTextBuilder();
                 penaltyBuilder.Add("    ", Colors.White);
                 penaltyBuilder.Add(target.Name, target is Character ? ColorPalette.Player : ColorPalette.Enemy);
                 penaltyBuilder.Add(" suffers a -", Colors.White);
-                penaltyBuilder.Add(selectedAction.EnemyRollPenalty.ToString(), ColorPalette.Error);
+                penaltyBuilder.Add(selectedAction.Advanced.EnemyRollPenalty.ToString(), ColorPalette.Error);
                 penaltyBuilder.Add(" roll penalty!", Colors.White);
                 coloredStatusEffects.Add(penaltyBuilder.Build());
             }

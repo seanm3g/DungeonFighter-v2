@@ -213,6 +213,19 @@ namespace RPGGame.UI.Avalonia
 
         public int GetDisplayBufferCount() => textManager.BufferLineCount;
         public void RenderDisplayBuffer() => renderer.RenderDisplayBuffer(contextManager.GetCurrentContext());
+        
+        /// <summary>
+        /// Gets the display buffer text as a single string
+        /// </summary>
+        public string GetDisplayBufferText()
+        {
+            if (textManager is Managers.CanvasTextManager canvasTextManager)
+            {
+                var messages = canvasTextManager.DisplayManager.Buffer.MessagesAsStrings;
+                return string.Join(System.Environment.NewLine, messages);
+            }
+            return "";
+        }
         public void ForceRenderDisplayBuffer()
         {
             // Force immediate render of display buffer

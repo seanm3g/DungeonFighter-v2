@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using RPGGame.Combat.Formatting;
 using RPGGame.UI.ColorSystem;
+using RPGGame.Combat.Events;
 
 namespace RPGGame
 {
@@ -20,11 +21,42 @@ namespace RPGGame
         /// <param name="attacker">The attacking Actor</param>
         /// <param name="target">The target Actor</param>
         /// <param name="results">List to add effect messages to</param>
+        /// <param name="combatEvent">Optional combat event for conditional status application</param>
         /// <returns>True if any effects were applied</returns>
-        public static bool ApplyStatusEffects(Action action, Actor attacker, Actor target, List<string> results)
+        public static bool ApplyStatusEffects(Action action, Actor attacker, Actor target, List<string> results, Combat.Events.CombatEvent? combatEvent = null)
         {
             bool effectsApplied = false;
             var effectTypes = GetEffectTypesFromAction(action);
+            
+            // Check if status effects should be conditionally applied
+            bool shouldApplyEffects = true;
+            if (action.Triggers.TriggerConditions != null && action.Triggers.TriggerConditions.Count > 0 && combatEvent != null)
+            {
+                // Check if any condition matches the current event
+                shouldApplyEffects = false;
+                foreach (var conditionStr in action.Triggers.TriggerConditions)
+                {
+                    var upper = conditionStr.ToUpper();
+                    bool matches = upper switch
+                    {
+                        "ONMISS" => combatEvent.IsMiss || combatEvent.Type == CombatEventType.ActionMiss,
+                        "ONHIT" or "ONNORMALHIT" => combatEvent.Type == CombatEventType.ActionHit && !combatEvent.IsCombo && !combatEvent.IsCritical,
+                        "ONCOMBO" or "ONCOMBOHIT" => combatEvent.IsCombo,
+                        "ONCRITICAL" or "ONCRITICALHIT" => combatEvent.IsCritical,
+                        _ => false
+                    };
+                    if (matches)
+                    {
+                        shouldApplyEffects = true;
+                        break; // At least one condition matches
+                    }
+                }
+            }
+            
+            if (!shouldApplyEffects)
+            {
+                return false; // Conditions not met, don't apply effects
+            }
             
             foreach (var effectType in effectTypes)
             {
@@ -50,12 +82,32 @@ namespace RPGGame
         {
             var effects = new List<string>();
             
+            // Basic status effects
             if (action.CausesBleed) effects.Add("bleed");
             if (action.CausesWeaken) effects.Add("weaken");
             if (action.CausesSlow) effects.Add("slow");
             if (action.CausesPoison) effects.Add("poison");
             if (action.CausesStun) effects.Add("stun");
             if (action.CausesBurn) effects.Add("burn");
+            
+            // Advanced status effects (Phase 2)
+            if (action.CausesVulnerability) effects.Add("vulnerability");
+            if (action.CausesHarden) effects.Add("harden");
+            if (action.CausesFortify) effects.Add("fortify");
+            if (action.CausesFocus) effects.Add("focus");
+            if (action.CausesExpose) effects.Add("expose");
+            if (action.CausesHPRegen) effects.Add("hpregen");
+            if (action.CausesArmorBreak) effects.Add("armorbreak");
+            if (action.CausesPierce) effects.Add("pierce");
+            if (action.CausesReflect) effects.Add("reflect");
+            if (action.CausesSilence) effects.Add("silence");
+            if (action.CausesStatDrain) effects.Add("statdrain");
+            if (action.CausesAbsorb) effects.Add("absorb");
+            if (action.CausesTemporaryHP) effects.Add("temporaryhp");
+            if (action.CausesConfusion) effects.Add("confusion");
+            if (action.CausesCleanse) effects.Add("cleanse");
+            if (action.CausesMark) effects.Add("mark");
+            if (action.CausesDisrupt) effects.Add("disrupt");
             
             return effects;
         }

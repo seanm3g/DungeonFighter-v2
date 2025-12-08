@@ -38,6 +38,48 @@ namespace RPGGame
         // Critical miss system - doubles action speed for next turn
         public bool HasCriticalMissPenalty { get; set; } = false;
         public int CriticalMissPenaltyTurns { get; set; } = 0;
+        
+        // Advanced status effects (Phase 2)
+        public int? VulnerabilityStacks { get; set; } = null;
+        public int VulnerabilityTurns { get; set; } = 0;
+        public int? HardenStacks { get; set; } = null;
+        public int HardenTurns { get; set; } = 0;
+        public int? FortifyStacks { get; set; } = null;
+        public int FortifyTurns { get; set; } = 0;
+        public int? FortifyArmorBonus { get; set; } = null;
+        public int? FocusStacks { get; set; } = null;
+        public int FocusTurns { get; set; } = 0;
+        public int? ExposeStacks { get; set; } = null;
+        public int ExposeTurns { get; set; } = 0;
+        public int? ExposeArmorReduction { get; set; } = null;
+        public int? HPRegenStacks { get; set; } = null;
+        public int HPRegenTurns { get; set; } = 0;
+        public int? HPRegenAmount { get; set; } = null;
+        public int? ArmorBreakStacks { get; set; } = null;
+        public int ArmorBreakTurns { get; set; } = 0;
+        public int? ArmorBreakReduction { get; set; } = null;
+        public bool HasPierce { get; set; } = false;
+        public int PierceTurns { get; set; } = 0;
+        public int? ReflectStacks { get; set; } = null;
+        public int ReflectTurns { get; set; } = 0;
+        public int? ReflectPercentage { get; set; } = null;
+        public bool IsSilenced { get; set; } = false;
+        public int SilenceTurns { get; set; } = 0;
+        public int? StatDrainStacks { get; set; } = null;
+        public int StatDrainTurns { get; set; } = 0;
+        public int? StatDrainAmount { get; set; } = null;
+        public bool HasAbsorb { get; set; } = false;
+        public int AbsorbTurns { get; set; } = 0;
+        public int AbsorbThreshold { get; set; } = 0;
+        public int AbsorbedDamage { get; set; } = 0;
+        public int? TemporaryHP { get; set; } = null;
+        public int TemporaryHPTurns { get; set; } = 0;
+        public bool IsConfused { get; set; } = false;
+        public int ConfusionTurns { get; set; } = 0;
+        public double ConfusionChance { get; set; } = 0.0;
+        public bool IsMarked { get; set; } = false;
+        public int MarkTurns { get; set; } = 0;
+        public int BleedStacks { get; set; } = 0; // For bleed tracking
 
         protected Actor(string name)
         {

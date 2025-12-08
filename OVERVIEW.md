@@ -1,6 +1,6 @@
 # DungeonFighter Game Overview
 
-**Version 6.2** - *Production Ready*
+**Version 7.0** - *Advanced Mechanics*
 
 ## General Description
 
@@ -31,6 +31,12 @@ dotnet run
 - **Turn-based Combat:** Strategic combat with cooldown-based action timing
 - **Action Combo System:** Chain actions together for increased damage (1.85x multiplier per combo step)
 - **Dice-based Mechanics:** 1d20 roll system with strategic thresholds
+- **Roll Modification System:** Additive, multiplicative, clamp, reroll, exploding dice, multiple dice modes
+- **Dynamic Thresholds:** Per-actor critical hit, combo, and hit threshold overrides
+- **Conditional Triggers:** Event-driven action effects (OnMiss, OnHit, OnCritical, etc.)
+- **Combo Routing:** Jump, skip, repeat, loop, stop, and random combo flow control
+- **Tag System:** Flexible tag-based matching for damage modification and filtering
+- **Outcome Handlers:** Conditional effects based on combat results (enemy death, HP thresholds)
 - **Environmental Actions:** Room-specific effects that impact combat
 - **Intelligent Delay System:** Optimized pacing matching action intensity
 
@@ -71,7 +77,9 @@ dotnet run
 
 ### 🔧 Technical Features
 - **Data-Driven Architecture:** All game data stored in JSON for easy modification
-- **Design Patterns:** Facade, Factory, Registry, Builder, Strategy, Composition
+- **Design Patterns:** Facade, Factory, Registry, Builder, Strategy, Composition, Observer
+- **Advanced Mechanics System:** Roll modification, event-driven triggers, combo routing, tag system
+- **Status Effect System:** 23 total effects (6 basic + 17 advanced) with stacking and duration tracking
 - **Dynamic Tuning System:** Real-time parameter adjustment with FormulaEvaluator
 - **Comprehensive Testing:** 27+ test categories with balance analysis
 - **Cross-Platform:** Runs on Windows, macOS, and Linux
@@ -124,23 +132,34 @@ DungeonFighter-v2/
     └── ... (additional scripts)
 ```
 
-## Recent Refactoring (v6.2)
+## Recent Updates
 
-### Code Organization Improvements
+### Advanced Mechanics Implementation (v7.0)
+- **Roll Modification System**: 9 new files for dice manipulation (additive, multiplicative, clamp, reroll, exploding, multi-dice)
+- **Event System**: Observer pattern event bus for conditional triggers
+- **Advanced Status Effects**: 17 new effect handlers (Vulnerability, Harden, Fortify, Focus, Expose, HP Regen, Armor Break, Pierce, Reflect, Silence, Stat Drain, Absorb, Temporary HP, Confusion, Cleanse, Mark, Disrupt)
+- **Tag System**: 4 files for flexible tag-based matching and filtering
+- **Combo Routing**: Flow control system for combo sequences
+- **Outcome Handlers**: Conditional effects based on combat results
+- **Total New Files**: ~35 files across 4 implementation phases
+
+### Code Organization Improvements (v6.2)
 - **BattleNarrative**: 550 → 118 lines (78.5% reduction)
 - **Environment**: 763 → 182 lines (76% reduction)
 - **CharacterEquipment**: 590 → 112 lines (81% reduction)
 - **GameDataGenerator**: 684 → 68 lines (90% reduction)
 - **Character**: 539 → 250 lines (54% reduction)
 
-### New Architecture Patterns
-- **Registry Pattern**: EffectHandlerRegistry, EnvironmentalEffectRegistry
+### Architecture Patterns
+- **Registry Pattern**: EffectHandlerRegistry, EnvironmentalEffectRegistry, RollModifierRegistry, TagRegistry
 - **Facade Pattern**: Enhanced with specialized managers
 - **Builder Pattern**: CharacterBuilder, EnemyBuilder
 - **Strategy Pattern**: Effect handlers and environmental effects
+- **Observer Pattern**: CombatEventBus for event-driven mechanics
+- **Singleton Pattern**: TagRegistry, CombatEventBus, ActionUsageTracker
 - **Composition Pattern**: Throughout codebase for better modularity
 
-See `Documentation/02-Development/REFACTORING_HISTORY.md` for detailed changes.
+See `Documentation/02-Development/REFACTORING_HISTORY.md` and `Documentation/04-Systems/ADVANCED_MECHANICS_IMPLEMENTATION.md` for detailed changes.
 
 ## Development Resources
 

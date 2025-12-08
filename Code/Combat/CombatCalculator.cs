@@ -1,4 +1,5 @@
 ﻿using System;
+using RPGGame.Actions.RollModification;
 
 namespace RPGGame
 {
@@ -61,8 +62,15 @@ namespace RPGGame
             // Apply roll-based damage scaling
             if (roll > 0)
             {
-                // Critical hit on total roll of 20 or higher (baseRoll + rollBonus) - FIXED: Allow 20+
-                if (roll >= combatConfig.CriticalHitThreshold)
+                // Get threshold from threshold manager if available, otherwise use config
+                int criticalThreshold = combatConfig.CriticalHitThreshold;
+                if (attacker != null)
+                {
+                    criticalThreshold = RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(attacker);
+                }
+                
+                // Critical hit on total roll of threshold or higher - FIXED: Allow 20+
+                if (roll >= criticalThreshold)
                 {
                     if (GameConfiguration.IsDebugEnabled)
                     {
@@ -114,6 +122,13 @@ namespace RPGGame
         {
             // Calculate raw damage before armor
             int totalDamage = CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, roll);
+            
+            // Apply tag-based damage modification
+            if (action != null)
+            {
+                double tagModifier = Combat.TagDamageCalculator.GetDamageModifier(action, target);
+                totalDamage = (int)(totalDamage * tagModifier);
+            }
             
             // Get target's armor
             int targetArmor = 0;
@@ -176,7 +191,7 @@ namespace RPGGame
             // Base action roll bonus
             if (action != null)
             {
-                totalBonus += action.RollBonus;
+                totalBonus += action.Advanced.RollBonus;
                 
                 // Apply combo scaling bonuses
                 if (action.Tags.Contains("comboScaling"))
@@ -292,9 +307,15 @@ namespace RPGGame
         /// <returns>True if status effect should be applied</returns>
         public static bool CalculateStatusEffectChance(Action action, Actor attacker, Actor target)
         {
-            // Check if action can cause any status effect
+            // Check if action can cause any status effect (basic or advanced)
             if (!action.CausesBleed && !action.CausesWeaken && !action.CausesSlow && 
-                !action.CausesPoison && !action.CausesStun && !action.CausesBurn)
+                !action.CausesPoison && !action.CausesStun && !action.CausesBurn &&
+                !action.CausesVulnerability && !action.CausesHarden && !action.CausesFortify &&
+                !action.CausesFocus && !action.CausesExpose && !action.CausesHPRegen &&
+                !action.CausesArmorBreak && !action.CausesPierce && !action.CausesReflect &&
+                !action.CausesSilence && !action.CausesStatDrain && !action.CausesAbsorb &&
+                !action.CausesTemporaryHP && !action.CausesConfusion && !action.CausesCleanse &&
+                !action.CausesMark && !action.CausesDisrupt)
             {
                 return false; // No status effects possible
             }

@@ -69,6 +69,7 @@ namespace RPGGame.Utils
         public const int DEFAULT_TEXT_DELAY_MS = 50;
         public const int MAX_TEXT_DELAY_MS = 1000;
         public const int MIN_TEXT_DELAY_MS = 0;
+        public const int DISPLAY_BUFFER_MAX_LINES = 50000; // Large buffer to preserve all test output and allow full scrolling
         
         // Animation System Constants
         public const int DEFAULT_ANIMATION_DURATION_MS = 500;

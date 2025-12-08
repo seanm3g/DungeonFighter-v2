@@ -50,15 +50,15 @@ namespace RPGGame.Actions.Execution
             var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, damage, damage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll);
             
             // Handle enemy roll penalty
-            if (selectedAction.EnemyRollPenalty > 0 && target is Enemy targetEnemy)
+            if (selectedAction.Advanced.EnemyRollPenalty > 0 && target is Enemy targetEnemy)
             {
-                targetEnemy.ApplyRollPenalty(selectedAction.EnemyRollPenalty, 1);
+                targetEnemy.ApplyRollPenalty(selectedAction.Advanced.EnemyRollPenalty, 1);
             }
             
-            // Handle combo advancement
+            // Handle combo advancement (with routing support)
             if (source is Character comboCharacter && !(comboCharacter is Enemy))
             {
-                comboCharacter.IncrementComboStep();
+                comboCharacter.IncrementComboStep(selectedAction);
             }
             
             return (damageText, rollInfo);

@@ -140,18 +140,56 @@ namespace RPGGame
         
         /// <summary>
         /// Increments ComboStep and wraps it within the combo sequence bounds
+        /// Applies combo routing if the last action had routing properties
         /// </summary>
-        public void IncrementComboStep()
+        /// <param name="lastAction">The action that was just executed (for routing)</param>
+        public void IncrementComboStep(Action? lastAction = null)
         {
             var comboActions = GetComboActions();
-            if (comboActions.Count > 0)
-            {
-                ComboStep = (ComboStep + 1) % comboActions.Count;
-            }
-            else
+            if (comboActions.Count == 0)
             {
                 // If no combo actions, just increment (shouldn't happen in normal gameplay)
                 ComboStep++;
+                return;
+            }
+            
+            // Apply combo routing if action has routing properties
+            if (lastAction != null && this is Character character)
+            {
+                int currentSlotIndex = ComboStep % comboActions.Count;
+                var routingResult = Entity.Actions.ComboRouting.ComboRouter.RouteCombo(character, lastAction, currentSlotIndex, comboActions);
+                
+                if (!routingResult.ContinueCombo)
+                {
+                    // Stop combo early - reset to 0
+                    ComboStep = 0;
+                    return;
+                }
+                
+                // Apply routing to determine next slot
+                int nextSlotIndex = routingResult.NextSlotIndex;
+                if (nextSlotIndex < 0) nextSlotIndex = 0;
+                if (nextSlotIndex >= comboActions.Count) nextSlotIndex = comboActions.Count - 1;
+                
+                // Update ComboStep to point to the next slot
+                // ComboStep tracks absolute position, so we need to calculate the new absolute step
+                // Find the action at nextSlotIndex and set ComboStep to match
+                if (nextSlotIndex < comboActions.Count)
+                {
+                    // Calculate new ComboStep: find how many full cycles we've done, then add the slot index
+                    int cycles = ComboStep / comboActions.Count;
+                    ComboStep = (cycles * comboActions.Count) + nextSlotIndex;
+                }
+                else
+                {
+                    // Default: just increment and wrap
+                    ComboStep = (ComboStep + 1) % comboActions.Count;
+                }
+            }
+            else
+            {
+                // Default: just increment and wrap
+                ComboStep = (ComboStep + 1) % comboActions.Count;
             }
         }
         public double ComboAmplifier => Facade.Properties.ComboAmplifier;

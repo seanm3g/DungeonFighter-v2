@@ -49,6 +49,7 @@ namespace RPGGame
             await RunTest("Save/Load System", TestSaveLoadSystem);
             await RunTest("Action System", TestActionSystem);
             await RunTest("Color System", TestColorSystem);
+            await RunTest("Advanced Action Mechanics", TestAdvancedActionMechanics);
 
             // Combat UI Fixes (from previous implementation)
             await RunTest("Combat Panel Containment", TestCombatPanelContainment);
@@ -134,6 +135,10 @@ namespace RPGGame
                     await RunTest("Performance Integration", TestPerformanceIntegration);
                     break;
                     
+                case "advancedmechanics":
+                    await RunTest("Advanced Action Mechanics", TestAdvancedActionMechanics);
+                    break;
+                    
                 default:
                     return new List<TestResult> { new TestResult(systemName, false, "Unknown system category") };
             }
@@ -192,6 +197,9 @@ namespace RPGGame
                 // Integration Tests
                 "Game Flow Integration" => await RunTest(testName, TestGameFlowIntegration),
                 "Performance Integration" => await RunTest(testName, TestPerformanceIntegration),
+                
+                // Advanced Action Mechanics
+                "Advanced Action Mechanics" => await RunTest(testName, TestAdvancedActionMechanics),
                 
                 _ => new TestResult(testName, false, "Unknown test name")
             };
@@ -1810,6 +1818,49 @@ namespace RPGGame
             catch (Exception ex)
             {
                 return Task.FromResult(new TestResult("Action System", false, $"Exception: {ex.Message}"));
+            }
+        }
+
+        private Task<TestResult> TestAdvancedActionMechanics()
+        {
+            try
+            {
+                uiCoordinator.WriteLine("=== Advanced Action Mechanics Tests ===");
+                uiCoordinator.WriteLine("Running comprehensive tests for all phases...");
+                uiCoordinator.WriteBlankLine();
+                
+                // Capture console output
+                var originalOut = Console.Out;
+                using (var stringWriter = new System.IO.StringWriter())
+                {
+                    Console.SetOut(stringWriter);
+                    
+                    try
+                    {
+                        RPGGame.Tests.Unit.AdvancedMechanicsTest.RunAllTests();
+                        string output = stringWriter.ToString();
+                        
+                        // Display output
+                        foreach (var line in output.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None))
+                        {
+                            if (!string.IsNullOrWhiteSpace(line))
+                            {
+                                uiCoordinator.WriteLine(line);
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        Console.SetOut(originalOut);
+                    }
+                }
+                
+                return Task.FromResult(new TestResult("Advanced Action Mechanics", true, 
+                    "All phases tested: Roll Modification, Status Effects, Tag System, Outcome Handlers"));
+            }
+            catch (Exception ex)
+            {
+                return Task.FromResult(new TestResult("Advanced Action Mechanics", false, $"Exception: {ex.Message}"));
             }
         }
 

@@ -31,6 +31,11 @@ namespace RPGGame.UI.Avalonia
             GameCanvas.PointerMoved += OnCanvasPointerMoved;
             GameCanvas.PointerReleased += OnCanvasPointerReleased;
             
+            // Add mouse event handling
+            GameCanvas.PointerPressed += OnCanvasPointerPressed;
+            GameCanvas.PointerMoved += OnCanvasPointerMoved;
+            GameCanvas.PointerReleased += OnCanvasPointerReleased;
+            
             // Initialize the game and UI
             InitializeGame();
         }
@@ -155,11 +160,15 @@ namespace RPGGame.UI.Avalonia
                 if (input != null)
                 {
                     // Debug: Log key press for troubleshooting
+                    DebugLogger.Log("MainWindow", $"Key pressed: {e.Key} -> input: '{input}'");
                     RPGGame.Utils.ScrollDebugLogger.Log($"MainWindow: Key pressed: {e.Key} -> input: '{input}'");
+                    DebugLogger.Log("MainWindow", $"Calling game.HandleInput('{input}')");
                     await game.HandleInput(input);
+                    DebugLogger.Log("MainWindow", $"game.HandleInput('{input}') completed");
                 }
                 else
                 {
+                    DebugLogger.Log("MainWindow", $"Key {e.Key} not converted to input");
                     RPGGame.Utils.ScrollDebugLogger.Log($"MainWindow: Key {e.Key} not converted to input");
                 }
             }
@@ -217,6 +226,15 @@ namespace RPGGame.UI.Avalonia
             {
                 canvasUI.UpdateStatus(message);
             }
+            
+            // Also update the status text block in XAML as a fallback
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (StatusText != null)
+                {
+                    StatusText.Text = message;
+                }
+            });
         }
 
         public void UpdateGameState(string status, string help = "")
@@ -315,8 +333,93 @@ namespace RPGGame.UI.Avalonia
                     break;
             }
         }
+
+        private async Task CopyCenterPanelToClipboard()
+        {
+            try
+            {
+                System.Console.WriteLine("[COPY] CopyCenterPanelToClipboard called");
+                
+                // Update status text block directly for immediate feedback
+                Dispatcher.UIThread.Post(() =>
+                {
+                    if (StatusText != null)
+                    {
+                        StatusText.Text = "Copying to clipboard...";
+                    }
+                });
+                
+                if (canvasUIManager == null)
+                {
+                    System.Console.WriteLine("[COPY] canvasUIManager is null");
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        if (StatusText != null) StatusText.Text = "UI Manager not available";
+                    });
+                    UpdateStatus("UI Manager not available");
+                    return;
+                }
+
+                if (canvasUIManager is CanvasUICoordinator canvasUI)
+                {
+                    string bufferText = canvasUI.GetDisplayBufferText();
+                    System.Console.WriteLine($"[COPY] Buffer text length: {bufferText?.Length ?? 0}");
+                    
+                    if (string.IsNullOrWhiteSpace(bufferText))
+                    {
+                        Dispatcher.UIThread.Post(() =>
+                        {
+                            if (StatusText != null) StatusText.Text = "No text to copy";
+                        });
+                        UpdateStatus("No text to copy");
+                        return;
+                    }
+
+                    // Get the clipboard from the top-level window
+                    var topLevel = TopLevel.GetTopLevel(this);
+                    if (topLevel?.Clipboard != null)
+                    {
+                        await topLevel.Clipboard.SetTextAsync(bufferText);
+                        int lineCount = bufferText.Split(new[] { System.Environment.NewLine, "\n", "\r\n" }, StringSplitOptions.None).Length;
+                        string message = $"Copied {lineCount} lines to clipboard";
+                        Dispatcher.UIThread.Post(() =>
+                        {
+                            if (StatusText != null) StatusText.Text = message;
+                        });
+                        UpdateStatus(message);
+                        System.Console.WriteLine($"[COPY] Successfully copied {lineCount} lines to clipboard");
+                    }
+                    else
+                    {
+                        System.Console.WriteLine("[COPY] Clipboard is null");
+                        Dispatcher.UIThread.Post(() =>
+                        {
+                            if (StatusText != null) StatusText.Text = "Clipboard not available";
+                        });
+                        UpdateStatus("Clipboard not available");
+                    }
+                }
+                else
+                {
+                    System.Console.WriteLine($"[COPY] canvasUIManager is not CanvasUICoordinator, type: {canvasUIManager.GetType().Name}");
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        if (StatusText != null) StatusText.Text = "Canvas UI not available";
+                    });
+                    UpdateStatus("Canvas UI not available");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"[COPY] Exception: {ex.Message}\n{ex.StackTrace}");
+                string errorMsg = $"Error: {ex.Message}";
+                Dispatcher.UIThread.Post(() =>
+                {
+                    if (StatusText != null) StatusText.Text = errorMsg;
+                });
+                UpdateStatus(errorMsg);
+            }
+        }
+
     }
 }
-
-
-
