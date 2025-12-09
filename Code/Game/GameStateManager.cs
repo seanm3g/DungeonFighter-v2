@@ -15,6 +15,7 @@ namespace RPGGame
     /// - Track current dungeon and room
     /// - Validate state transitions
     /// - Provide clean API for state operations
+    /// - Notify subscribers of state changes via events
     /// </summary>
     public class GameStateManager
     {
@@ -25,6 +26,12 @@ namespace RPGGame
         private List<Dungeon> availableDungeons = new();
         private Dungeon? currentDungeon;
         private Environment? currentRoom;
+        
+        /// <summary>
+        /// Event fired when game state transitions occur.
+        /// Allows systems (like UI animations) to react to state changes.
+        /// </summary>
+        public event EventHandler<StateChangedEventArgs>? StateChanged;
 
         /// <summary>
         /// Gets or sets the current game state.
@@ -98,7 +105,7 @@ namespace RPGGame
 
         /// <summary>
         /// Transitions the game to a new state.
-        /// Validates the transition before applying.
+        /// Validates the transition before applying and fires StateChanged event.
         /// </summary>
         /// <param name="newState">The new state to transition to.</param>
         /// <returns>True if transition was successful, false if invalid.</returns>
@@ -106,7 +113,12 @@ namespace RPGGame
         {
             if (ValidateStateTransition(currentState, newState))
             {
+                var previousState = currentState;
                 CurrentState = newState;
+                
+                // Fire state change event to notify subscribers (e.g., UI animations)
+                StateChanged?.Invoke(this, new StateChangedEventArgs(previousState, newState));
+                
                 return true;
             }
 
@@ -214,6 +226,21 @@ namespace RPGGame
                    $"Player: {CurrentPlayer?.Name ?? "None"}, " +
                    $"Dungeon: {CurrentDungeon?.Theme ?? "None"}, " +
                    $"Room: {CurrentRoom?.Name ?? "None"}";
+        }
+    }
+    
+    /// <summary>
+    /// Event arguments for state change events.
+    /// </summary>
+    public class StateChangedEventArgs : EventArgs
+    {
+        public GameState PreviousState { get; }
+        public GameState NewState { get; }
+        
+        public StateChangedEventArgs(GameState previousState, GameState newState)
+        {
+            PreviousState = previousState;
+            NewState = newState;
         }
     }
 }

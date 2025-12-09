@@ -17,12 +17,17 @@ namespace RPGGame.UI.ColorSystem.Themes
         /// </summary>
         public static ItemColorThemes GetItemThemes(Item item)
         {
+            if (item == null)
+            {
+                throw new ArgumentNullException(nameof(item));
+            }
+            
             var themes = new ItemColorThemes
             {
-                RarityTheme = GetRarityTheme(item.Rarity),
+                RarityTheme = GetRarityTheme(item.Rarity ?? "Common"),
                 TierTheme = GetTierTheme(item.Tier),
                 ItemTypeTheme = GetItemTypeTheme(item.Type),
-                ModificationThemes = GetModificationThemes(item.Modifications)
+                ModificationThemes = GetModificationThemes(item.Modifications ?? new List<Modification>())
             };
             
             // Add weapon type theme if applicable
@@ -39,6 +44,11 @@ namespace RPGGame.UI.ColorSystem.Themes
         /// </summary>
         public static List<ColoredText> GetRarityTheme(string rarity)
         {
+            if (string.IsNullOrEmpty(rarity))
+            {
+                return ColoredText.FromColor("Common", Colors.White);
+            }
+            
             var rarityLower = rarity.ToLower();
             
             // Use color templates from ColorTemplates.json where available
@@ -84,10 +94,20 @@ namespace RPGGame.UI.ColorSystem.Themes
         {
             var themes = new Dictionary<string, List<ColoredText>>();
             
+            if (modifications == null)
+            {
+                return themes;
+            }
+            
             foreach (var mod in modifications)
             {
+                if (mod == null || string.IsNullOrEmpty(mod.Name))
+                {
+                    continue;
+                }
+                
                 var modNameLower = mod.Name.ToLower();
-                var theme = GetModificationTheme(modNameLower, mod.ItemRank);
+                var theme = GetModificationTheme(modNameLower, mod.ItemRank ?? "");
                 themes[mod.Name] = theme;
             }
             

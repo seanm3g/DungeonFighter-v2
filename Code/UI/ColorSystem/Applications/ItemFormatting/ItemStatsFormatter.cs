@@ -2,11 +2,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Media;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.ColorSystem.Themes;
 
 namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
 {
     /// <summary>
     /// Formats item statistics and bonuses
+    /// Each modifier gets its own unique color from the theme system
     /// </summary>
     public static class ItemStatsFormatter
     {
@@ -98,11 +100,12 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
                 lines.Add(actionsLine.Build());
             }
             
-            // Modifications (only color the keyword)
+            // Modifications (only color the keyword) - each gets its own unique color
             if (item.Modifications.Count > 0)
             {
                 var modsLine = new ColoredTextBuilder();
                 modsLine.Add("  Modifiers: ", ColorPalette.Info);
+                var themes = ItemThemeProvider.GetItemThemes(item);
                 
                 for (int i = 0; i < item.Modifications.Count; i++)
                 {
@@ -115,10 +118,19 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
                         modsLine.Add(prefix, Colors.White);
                     }
                     
-                    // Color only the keyword
-                    bool isSuffix = mod.Name.StartsWith("of ", System.StringComparison.OrdinalIgnoreCase);
-                    var modColor = isSuffix ? ColorPalette.Magenta : ColorPalette.Success;
-                    modsLine.Add(keyword, modColor);
+                    // Color only the keyword with its unique color
+                    Color keywordColor;
+                    if (themes.ModificationThemes.TryGetValue(mod.Name, out var modTheme))
+                    {
+                        keywordColor = modTheme.Count > 0 ? modTheme[0].Color : ColorPalette.Success.GetColor();
+                    }
+                    else
+                    {
+                        // Fallback: get theme directly from ItemThemeProvider
+                        var fallbackTheme = ItemThemeProvider.GetModificationTheme(mod.Name.ToLower(), item.Rarity);
+                        keywordColor = fallbackTheme.Count > 0 ? fallbackTheme[0].Color : ColorPalette.Success.GetColor();
+                    }
+                    modsLine.Add(keyword, keywordColor);
                     
                     if (i < item.Modifications.Count - 1)
                     {
@@ -148,8 +160,9 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
         
         /// <summary>
         /// Formats an item modification (only colors the keyword)
+        /// Uses unique color from theme system for each modifier
         /// </summary>
-        public static List<ColoredText> FormatModification(Modification mod)
+        public static List<ColoredText> FormatModification(Modification mod, string itemRarity = "Common")
         {
             var builder = new ColoredTextBuilder();
             
@@ -161,10 +174,10 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
                 builder.Add(prefix, Colors.White);
             }
             
-            // Color only the keyword
-            bool isSuffix = mod.Name.StartsWith("of ", System.StringComparison.OrdinalIgnoreCase);
-            var color = isSuffix ? ColorPalette.Magenta : ColorPalette.Success;
-            builder.Add(keyword, color);
+            // Color only the keyword with its unique color
+            var modTheme = ItemThemeProvider.GetModificationTheme(mod.Name.ToLower(), itemRarity);
+            var keywordColor = modTheme.Count > 0 ? modTheme[0].Color : ColorPalette.Success.GetColor();
+            builder.Add(keyword, keywordColor);
             
             return builder.Build();
         }

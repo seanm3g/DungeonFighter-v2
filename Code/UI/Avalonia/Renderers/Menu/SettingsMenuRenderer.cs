@@ -44,6 +44,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             var menuOptions = new[]
             {
                 (1, "Testing", AsciiArtAssets.Colors.White),
+                (2, "Developer Menu", AsciiArtAssets.Colors.Yellow),
                 (0, "Back to Main Menu", AsciiArtAssets.Colors.White)
             };
             

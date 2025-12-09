@@ -22,25 +22,31 @@ namespace RPGGame
         /// <summary>
         /// Ensures basic attack is available in the action pool
         /// </summary>
+        /// <exception cref="InvalidOperationException">Thrown when basic attack is not found in Actions.json</exception>
         public void EnsureBasicAttackAvailable(Actor entity)
         {
+            string basicAttackName = GameConstants.BasicAttackName;
             bool hasBasicAttack = entity.ActionPool.Any(a => 
-                string.Equals(a.action.Name, "BASIC ATTACK", StringComparison.OrdinalIgnoreCase));
+                string.Equals(a.action.Name, basicAttackName, StringComparison.OrdinalIgnoreCase));
             
             if (!hasBasicAttack)
             {
-                var basicAttack = ActionLoader.GetAction("BASIC ATTACK");
-                if (basicAttack != null)
+                var basicAttack = ActionLoader.GetAction(basicAttackName);
+                if (basicAttack == null)
                 {
-                    entity.AddAction(basicAttack, 1.0);
-                    DebugLogger.Log("DefaultActionManager", "Added BASIC ATTACK to ActionPool from JSON");
+                    throw new InvalidOperationException($"{basicAttackName} action not found in Actions.json. Please ensure Actions.json contains a {basicAttackName} action.");
                 }
-                else
+                
+                // CRITICAL: Mark BASIC ATTACK as combo action so it appears in GetActionPool()
+                // The GetActionPool() method only returns actions with IsComboAction == true
+                if (!basicAttack.IsComboAction)
                 {
-                    var fallbackBasicAttack = CreateFallbackBasicAttack();
-                    entity.AddAction(fallbackBasicAttack, 1.0);
-                    DebugLogger.Log("DefaultActionManager", "Added fallback BASIC ATTACK to ActionPool");
+                    basicAttack.IsComboAction = true;
+                    DebugLogger.Log("DefaultActionManager", $"Marked {basicAttackName} as combo action");
                 }
+                
+                entity.AddAction(basicAttack, 1.0);
+                DebugLogger.Log("DefaultActionManager", $"Added {basicAttackName} to ActionPool from JSON (isComboAction: {basicAttack.IsComboAction})");
             }
         }
 
@@ -105,27 +111,6 @@ namespace RPGGame
             }
         }
 
-        /// <summary>
-        /// Creates a fallback basic attack when none is available in JSON
-        /// </summary>
-        private Action CreateFallbackBasicAttack()
-        {
-            return new Action(
-                name: "BASIC ATTACK",
-                type: ActionType.Attack,
-                targetType: TargetType.SingleTarget,
-                baseValue: 0,
-                range: 1,
-                cooldown: 0,
-                description: "A standard physical attack using STR + weapon damage",
-                comboOrder: 0,
-                damageMultiplier: 1.0,
-                length: 1.0,
-                causesBleed: false,
-                causesWeaken: false,
-                isComboAction: false
-            );
-        }
     }
 }
 

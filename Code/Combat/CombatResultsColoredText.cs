@@ -165,7 +165,7 @@ namespace RPGGame
             
             // Source name
             builder.Add(source.Name, source is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
-            AddUsesAction(builder, action.Name, ColorPalette.Success);
+            AddUsesAction(builder, action.Name, ColorPalette.Green);
             
             builder.Add("on", Colors.White);
             

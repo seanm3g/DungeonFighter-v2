@@ -33,9 +33,22 @@ namespace RPGGame.UI.BlockDisplay
             }
             
             // Add critical miss narrative
+            // Critical miss narratives get keyword coloring and blank lines before/after (same as regular narratives)
             if (criticalMissNarrative != null && criticalMissNarrative.Count > 0)
             {
-                messageGroups.Add((criticalMissNarrative, UIMessageType.System));
+                // Add blank line before narrative
+                messageGroups.Add((new List<ColoredText>(), UIMessageType.System));
+                
+                // Apply keyword coloring to narrative text
+                // Convert ColoredText to plain text, then apply keyword coloring
+                string plainText = ColoredTextRenderer.RenderAsPlainText(criticalMissNarrative);
+                List<ColoredText> keywordColoredNarrative = KeywordColorSystem.Colorize(plainText);
+                
+                // Add the keyword-colored narrative
+                messageGroups.Add((keywordColoredNarrative, UIMessageType.System));
+                
+                // Add blank line after narrative
+                messageGroups.Add((new List<ColoredText>(), UIMessageType.System));
             }
             
             // Add status effects
@@ -51,13 +64,26 @@ namespace RPGGame.UI.BlockDisplay
             }
             
             // Add all narratives (all part of the same turn block)
+            // Narratives get keyword coloring and blank lines before/after
             if (narratives != null)
             {
                 foreach (var narrative in narratives)
                 {
                     if (narrative != null && narrative.Count > 0)
                     {
-                        messageGroups.Add((narrative, UIMessageType.System));
+                        // Add blank line before narrative
+                        messageGroups.Add((new List<ColoredText>(), UIMessageType.System));
+                        
+                        // Apply keyword coloring to narrative text
+                        // Convert ColoredText to plain text, then apply keyword coloring
+                        string plainText = ColoredTextRenderer.RenderAsPlainText(narrative);
+                        List<ColoredText> keywordColoredNarrative = KeywordColorSystem.Colorize(plainText);
+                        
+                        // Add the keyword-colored narrative
+                        messageGroups.Add((keywordColoredNarrative, UIMessageType.System));
+                        
+                        // Add blank line after narrative
+                        messageGroups.Add((new List<ColoredText>(), UIMessageType.System));
                     }
                 }
             }

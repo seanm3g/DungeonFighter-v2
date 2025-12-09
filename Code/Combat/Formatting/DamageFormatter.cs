@@ -288,7 +288,7 @@ namespace RPGGame.Combat.Formatting
             // Action name for combo actions
             if (isComboAction)
             {
-                AddWithAction(builder, actionName, isCritical ? ColorPalette.Critical : ColorPalette.Warning);
+                AddWithAction(builder, actionName, isCritical ? ColorPalette.Critical : ColorPalette.Green);
             }
             
             // Damage amount

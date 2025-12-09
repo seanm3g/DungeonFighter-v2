@@ -130,9 +130,18 @@ namespace RPGGame
                 var action = ActionLoader.GetAction(actionName);
                 if (action != null)
                 {
+                    // CRITICAL: Mark class actions as combo actions so they appear in GetActionPool()
+                    // The GetActionPool() method only returns actions with IsComboAction == true
+                    if (!action.IsComboAction)
+                    {
+                        action.IsComboAction = true;
+                        DebugLogger.LogFormat("ClassActionManager", 
+                            "Marked class action '{0}' as combo action", actionName);
+                    }
+                    
                     entity.AddAction(action, 1.0);
                     DebugLogger.LogFormat("ClassActionManager", 
-                        "Added class action: {0}", actionName);
+                        "Added class action: {0} (isComboAction: {1})", actionName, action.IsComboAction);
                 }
             }
             catch (Exception ex)

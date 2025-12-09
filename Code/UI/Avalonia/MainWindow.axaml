@@ -28,6 +28,7 @@
         <local:GameCanvasControl x:Name="GameCanvas" 
                                 Grid.Row="1" 
                                 Margin="10"
+                                Focusable="True"
                                 FocusAdorner="{x:Null}"/>
         
         <!-- Status Bar -->

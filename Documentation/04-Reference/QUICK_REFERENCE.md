@@ -165,7 +165,7 @@ The CharacterActions system was refactored from a 828-line monolith into a well-
 | **ComboSequenceManager** | Combo system | `AddToCombo()`, `RemoveFromCombo()`, `GetComboActions()` |
 | **EnvironmentActionManager** | Environment effects | `AddEnvironmentActions()`, `ClearEnvironmentActions()` |
 | **DefaultActionManager** | Basic attacks | `EnsureDefaultActions()` |
-| **ActionFactory** | Action creation | `CreateBasicAttack()`, `CreateEmergencyComboAction()` |
+| **ActionFactory** | Action creation | `CreateBasicAttack()` |
 
 ### Usage Example
 

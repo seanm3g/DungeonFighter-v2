@@ -42,6 +42,9 @@ namespace RPGGame
 
         // Store the last action used by each Actor
         private static readonly Dictionary<Actor, Action> _lastUsedActions = new Dictionary<Actor, Action>();
+        
+        // Store the critical miss status for the last action used by each Actor
+        private static readonly Dictionary<Actor, bool> _lastCriticalMissStatus = new Dictionary<Actor, bool>();
 
         /// <summary>
         /// Core execution logic shared between string and ColoredText methods
@@ -92,6 +95,9 @@ namespace RPGGame
                 source.CriticalMissPenaltyTurns = 1;
             }
             
+            // Store critical miss status for this action
+            _lastCriticalMissStatus[source] = result.IsCriticalMiss;
+            
             // Determine if this is a combo or critical
             result.IsCombo = result.SelectedAction.Name != "BASIC ATTACK";
             result.IsCritical = result.AttackRoll >= RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
@@ -128,26 +134,76 @@ namespace RPGGame
                 {
                     double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, result.SelectedAction);
                     int totalRoll = result.ModifiedBaseRoll + result.RollBonus;
-                    result.Damage = CombatCalculator.CalculateDamage(source, target, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, totalRoll);
-                    ActionUtilities.ApplyDamage(target, result.Damage);
                     
-                    if (!DisableCombatDebugOutput)
-                    {
-                        DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} dealt {result.Damage} damage to {target.Name} with {result.SelectedAction.Name}");
-                    }
+                    // Check for multi-hit attacks
+                    int multiHitCount = result.SelectedAction.Advanced.MultiHitCount;
                     
-                    // Track statistics
-                    if (source is Character sourceCharacter)
+                    // If multi-hit, process multiple hits; otherwise single hit
+                    if (multiHitCount > 1)
                     {
-                        ActionStatisticsTracker.RecordAttackAction(sourceCharacter, totalRoll, result.ModifiedBaseRoll, result.RollBonus, result.Damage, result.SelectedAction, target as Enemy);
+                        int totalDamage = 0;
+                        
+                        // Process each hit
+                        for (int hit = 0; hit < multiHitCount; hit++)
+                        {
+                            // Check if target is still alive
+                            if (target is Character targetChar && targetChar.CurrentHealth <= 0)
+                                break;
+                            if (target is Enemy hitTargetEnemy && hitTargetEnemy.CurrentHealth <= 0)
+                                break;
+                            
+                            // Calculate damage for this hit (action.DamageMultiplier already contains per-hit scaling)
+                            int hitDamage = CombatCalculator.CalculateDamage(source, target, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, totalRoll);
+                            
+                            // Apply damage
+                            ActionUtilities.ApplyDamage(target, hitDamage);
+                            totalDamage += hitDamage;
+                            
+                            if (!DisableCombatDebugOutput)
+                            {
+                                DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} dealt {hitDamage} damage (hit {hit + 1}/{multiHitCount}) to {target.Name} with {result.SelectedAction.Name}");
+                            }
+                        }
+                        
+                        result.Damage = totalDamage;
+                        
+                        // Track statistics for total damage
+                        if (source is Character sourceCharacter)
+                        {
+                            ActionStatisticsTracker.RecordAttackAction(sourceCharacter, totalRoll, result.ModifiedBaseRoll, result.RollBonus, totalDamage, result.SelectedAction, target as Enemy);
+                        }
+                        if (target is Character targetCharacter)
+                        {
+                            ActionStatisticsTracker.RecordDamageReceived(targetCharacter, totalDamage);
+                        }
+                        
+                        bool isCriticalHit = totalRoll >= 20;
+                        ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction, totalDamage, totalRoll, result.RollBonus, true, result.IsCombo, 0, 0, isCriticalHit, battleNarrative);
                     }
-                    if (target is Character targetCharacter)
+                    else
                     {
-                        ActionStatisticsTracker.RecordDamageReceived(targetCharacter, result.Damage);
+                        // Single hit (original behavior)
+                        result.Damage = CombatCalculator.CalculateDamage(source, target, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, totalRoll);
+                        ActionUtilities.ApplyDamage(target, result.Damage);
+                        
+                        if (!DisableCombatDebugOutput)
+                        {
+                            DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} dealt {result.Damage} damage to {target.Name} with {result.SelectedAction.Name}");
+                        }
+                        
+                        // Track statistics
+                        if (source is Character sourceCharacter)
+                        {
+                            ActionStatisticsTracker.RecordAttackAction(sourceCharacter, totalRoll, result.ModifiedBaseRoll, result.RollBonus, result.Damage, result.SelectedAction, target as Enemy);
+                        }
+                        if (target is Character targetCharacter)
+                        {
+                            ActionStatisticsTracker.RecordDamageReceived(targetCharacter, result.Damage);
+                        }
+                        
+                        bool isCriticalHit = totalRoll >= 20;
+                        ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction, result.Damage, totalRoll, result.RollBonus, true, result.IsCombo, 0, 0, isCriticalHit, battleNarrative);
                     }
-                    
-                    bool isCriticalHit = totalRoll >= 20;
-                    ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction, result.Damage, totalRoll, result.RollBonus, true, result.IsCombo, 0, 0, isCriticalHit, battleNarrative);
                 }
                 else if (result.SelectedAction.Type == ActionType.Heal)
                 {
@@ -469,6 +525,15 @@ namespace RPGGame
         {
             _lastUsedActions.TryGetValue(source, out Action? action);
             return action;
+        }
+        
+        /// <summary>
+        /// Gets whether the last action used by an Actor was a critical miss
+        /// </summary>
+        public static bool GetLastCriticalMissStatus(Actor source)
+        {
+            _lastCriticalMissStatus.TryGetValue(source, out bool isCriticalMiss);
+            return isCriticalMiss;
         }
 
         /// <summary>

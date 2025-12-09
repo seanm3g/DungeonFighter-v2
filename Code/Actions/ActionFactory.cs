@@ -9,56 +9,26 @@ namespace RPGGame
     public static class ActionFactory
     {
         /// <summary>
-        /// Creates a BASIC ATTACK action with standard properties
+        /// Creates a BASIC ATTACK action by loading from JSON
         /// </summary>
         /// <returns>BASIC ATTACK action</returns>
+        /// <exception cref="InvalidOperationException">Thrown when BASIC ATTACK is not found in Actions.json</exception>
         public static Action CreateBasicAttack()
         {
-            return new Action(
-                name: "BASIC ATTACK",
-                type: ActionType.Attack,
-                targetType: TargetType.SingleTarget,
-                baseValue: 0, // Damage comes from STR + weapon
-                range: 1,
-                cooldown: 0,
-                description: "A standard physical attack using STR + weapon damage",
-                comboOrder: 0,
-                damageMultiplier: 1.0,
-                length: 1.0,
-                causesBleed: false,
-                causesWeaken: false,
-                isComboAction: false
-            );
-        }
-
-        /// <summary>
-        /// Creates an emergency combo action when no combo actions are available
-        /// </summary>
-        /// <returns>Emergency combo action</returns>
-        public static Action CreateEmergencyComboAction()
-        {
-            return new Action(
-                name: "EMERGENCY STRIKE",
-                type: ActionType.Attack,
-                targetType: TargetType.SingleTarget,
-                baseValue: 0,
-                range: 1,
-                cooldown: 0,
-                description: "An emergency strike created when no combo actions were available",
-                comboOrder: 1,
-                damageMultiplier: 1.3,
-                length: 1.0,
-                causesBleed: false,
-                causesWeaken: false,
-                isComboAction: true
-            );
+            var loadedAction = ActionLoader.GetAction("BASIC ATTACK");
+            if (loadedAction == null)
+            {
+                throw new InvalidOperationException("BASIC ATTACK action not found in Actions.json. Please ensure Actions.json contains a BASIC ATTACK action.");
+            }
+            return loadedAction;
         }
 
         /// <summary>
         /// Ensures BASIC ATTACK is available in an Actor's action pool
         /// </summary>
         /// <param name="Actor">The Actor to ensure has BASIC ATTACK</param>
-        /// <returns>The BASIC ATTACK action (existing or newly created)</returns>
+        /// <returns>The BASIC ATTACK action (existing or loaded from JSON)</returns>
+        /// <exception cref="InvalidOperationException">Thrown when BASIC ATTACK is not found in Actions.json</exception>
         public static Action EnsureBasicAttackAvailable(Actor Actor)
         {
             // Check if BASIC ATTACK is already in the action pool
@@ -70,20 +40,16 @@ namespace RPGGame
                 return existingBasicAttack.action;
             }
 
-            // Try to load BASIC ATTACK from JSON first
+            // Load BASIC ATTACK from JSON
             var loadedAction = ActionLoader.GetAction("BASIC ATTACK");
-            if (loadedAction != null)
+            if (loadedAction == null)
             {
-                Actor.AddAction(loadedAction, 1.0);
-                DebugLogger.Log("ActionFactory", $"Added missing BASIC ATTACK to {Actor.Name}'s action pool from JSON");
-                return loadedAction;
+                throw new InvalidOperationException("BASIC ATTACK action not found in Actions.json. Please ensure Actions.json contains a BASIC ATTACK action.");
             }
 
-            // Create BASIC ATTACK as fallback
-            var basicAttack = CreateBasicAttack();
-            Actor.AddAction(basicAttack, 1.0);
-            DebugLogger.Log("ActionFactory", $"Created and added BASIC ATTACK to {Actor.Name}'s action pool");
-            return basicAttack;
+            Actor.AddAction(loadedAction, 1.0);
+            DebugLogger.Log("ActionFactory", $"Added missing BASIC ATTACK to {Actor.Name}'s action pool from JSON");
+            return loadedAction;
         }
 
         /// <summary>

@@ -65,12 +65,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 (1, "Run All Tests (Complete Suite)"),
                 (2, "Character System Tests"),
                 (3, "Combat System Tests (includes UI Fixes)"),
-                (4, "Inventory System Tests"),
-                (5, "Dungeon System Tests"),
-                (6, "Data System Tests"),
-                (7, "UI System Tests"),
-                (8, "Advanced Mechanics"),
-                (9, "Integration Tests"),
+                (4, "Inventory & Dungeon Tests"),
+                (5, "Data & UI System Tests"),
+                (6, "Advanced & Integration Tests"),
+                (7, "Generate 10 Random Items"),
                 (0, "Back to Settings")
             };
             

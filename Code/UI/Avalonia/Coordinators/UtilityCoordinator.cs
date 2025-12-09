@@ -98,6 +98,14 @@ namespace RPGGame.UI.Avalonia.Coordinators
         }
         
         /// <summary>
+        /// Shows an invalid key message at the bottom without clearing the screen
+        /// </summary>
+        public void ShowInvalidKeyMessage(string message)
+        {
+            renderer.ShowInvalidKeyMessage(message);
+        }
+        
+        /// <summary>
         /// Toggles help display
         /// </summary>
         public void ToggleHelp()

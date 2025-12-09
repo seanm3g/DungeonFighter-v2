@@ -161,6 +161,8 @@ namespace RPGGame.UI.Avalonia.Coordinators
             // Ensure dungeon context is available for rendering
             // Do NOT clear the display buffer - preserve all existing content
             contextManager.RestoreDungeonContext();
+            // Reset flag to indicate this is the first combat render
+            contextManager.ResetForNewBattle();
         }
         
         /// <summary>

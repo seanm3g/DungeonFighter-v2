@@ -29,6 +29,11 @@ namespace RPGGame.UI.Avalonia.Renderers
         private readonly WeaponSelectionRenderer weaponSelectionRenderer;
         private readonly GameMenuRenderer gameMenuRenderer;
         private readonly TestingMenuRenderer testingMenuRenderer;
+        private readonly DeveloperMenuRenderer developerMenuRenderer;
+        private readonly VariableEditorRenderer variableEditorRenderer;
+        private readonly ActionEditorRenderer actionEditorRenderer;
+        private readonly CreateActionFormRenderer createActionFormRenderer;
+        private readonly ActionDetailRenderer actionDetailRenderer;
         
         public MenuRenderer(GameCanvasControl canvas, List<ClickableElement> clickableElements, ICanvasTextManager textManager, ICanvasInteractionManager interactionManager)
         {
@@ -44,6 +49,11 @@ namespace RPGGame.UI.Avalonia.Renderers
             this.weaponSelectionRenderer = new WeaponSelectionRenderer(canvas, clickableElements, interactionManager, textManager);
             this.gameMenuRenderer = new GameMenuRenderer(canvas, clickableElements, textManager);
             this.testingMenuRenderer = new TestingMenuRenderer(canvas, clickableElements, textManager);
+            this.developerMenuRenderer = new DeveloperMenuRenderer(canvas, clickableElements, textManager);
+            this.variableEditorRenderer = new VariableEditorRenderer(canvas, clickableElements, textManager);
+            this.actionEditorRenderer = new ActionEditorRenderer(canvas, clickableElements, textManager);
+            this.createActionFormRenderer = new CreateActionFormRenderer(canvas, clickableElements, textManager);
+            this.actionDetailRenderer = new ActionDetailRenderer(canvas, clickableElements, textManager);
         }
         
         // IScreenRenderer implementation
@@ -168,6 +178,54 @@ namespace RPGGame.UI.Avalonia.Renderers
         public void RenderWeaponSelectionContent(int x, int y, int width, int height, List<StartingWeapon> weapons)
         {
             currentLineCount = weaponSelectionRenderer.RenderWeaponSelectionContent(x, y, width, height, weapons);
+        }
+
+        /// <summary>
+        /// Renders the developer menu content
+        /// </summary>
+        public void RenderDeveloperMenuContent(int x, int y, int width, int height)
+        {
+            currentLineCount = developerMenuRenderer.RenderDeveloperMenuContent(x, y, width, height);
+        }
+
+        /// <summary>
+        /// Renders the variable editor content
+        /// </summary>
+        public void RenderVariableEditorContent(int x, int y, int width, int height)
+        {
+            currentLineCount = variableEditorRenderer.RenderVariableEditorContent(x, y, width, height);
+        }
+
+        /// <summary>
+        /// Renders the action editor content
+        /// </summary>
+        public void RenderActionEditorContent(int x, int y, int width, int height)
+        {
+            currentLineCount = actionEditorRenderer.RenderActionEditorContent(x, y, width, height);
+        }
+
+        /// <summary>
+        /// Renders the action list content
+        /// </summary>
+        public void RenderActionListContent(int x, int y, int width, int height, List<ActionData> actions, int page)
+        {
+            currentLineCount = actionEditorRenderer.RenderActionListContent(x, y, width, height, actions, page);
+        }
+
+        /// <summary>
+        /// Renders the create action form content
+        /// </summary>
+        public void RenderCreateActionFormContent(int x, int y, int width, int height, ActionData actionData, int currentStep, string[] formSteps, string? currentInput = null)
+        {
+            currentLineCount = createActionFormRenderer.RenderCreateActionFormContent(x, y, width, height, actionData, currentStep, formSteps, currentInput);
+        }
+
+        /// <summary>
+        /// Renders the action detail content
+        /// </summary>
+        public void RenderActionDetailContent(int x, int y, int width, int height, ActionData action)
+        {
+            currentLineCount = actionDetailRenderer.RenderActionDetailContent(x, y, width, height, action);
         }
     }
 }

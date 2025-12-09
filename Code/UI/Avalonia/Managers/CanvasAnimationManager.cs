@@ -16,6 +16,7 @@ namespace RPGGame.UI.Avalonia.Managers
         private readonly GameCanvasControl canvas;
         private DungeonRenderer? dungeonRenderer;
         private Action<Character, List<Dungeon>>? reRenderCallback;
+        private GameStateManager? stateManager = null; // Reference to state manager for event subscription
         
         // Animation state
         private bool isDungeonSelectionActive = false;
@@ -87,9 +88,23 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public void StopDungeonSelectionAnimation()
         {
+            ScrollDebugLogger.Log($"[ANIMATION] StopDungeonSelectionAnimation called");
             isDungeonSelectionActive = false;
             dungeonSelectionPlayer = null;
             dungeonSelectionList = null;
+        }
+        
+        /// <summary>
+        /// Handles state change events to automatically stop animation when leaving dungeon selection
+        /// </summary>
+        private void OnStateChanged(object? sender, StateChangedEventArgs e)
+        {
+            // If we're leaving dungeon selection state, stop the animation
+            if (e.PreviousState == GameState.DungeonSelection && e.NewState != GameState.DungeonSelection)
+            {
+                ScrollDebugLogger.Log($"[ANIMATION] State changed from {e.PreviousState} to {e.NewState} - stopping dungeon selection animation");
+                StopDungeonSelectionAnimation();
+            }
         }
         
         /// <summary>
@@ -130,7 +145,25 @@ namespace RPGGame.UI.Avalonia.Managers
             
             // Perform the actual render
             ScrollDebugLogger.Log($"[ANIMATION] ThrottledRender - isDungeonSelectionActive: {isDungeonSelectionActive}, player: {dungeonSelectionPlayer != null}, dungeons: {dungeonSelectionList != null}, callback: {reRenderCallback != null}");
-            if (isDungeonSelectionActive && dungeonSelectionPlayer != null && dungeonSelectionList != null && reRenderCallback != null)
+            
+            // Double-check animation is still active before rendering
+            // State changes will automatically stop the animation via event handler
+            if (!isDungeonSelectionActive)
+            {
+                ScrollDebugLogger.Log($"[ANIMATION] ThrottledRender skipped - animation no longer active");
+                return;
+            }
+            
+            // Additional safety check: verify we're still in dungeon selection state
+            // This handles edge cases where events might not fire immediately
+            if (stateManager != null && stateManager.CurrentState != GameState.DungeonSelection)
+            {
+                ScrollDebugLogger.Log($"[ANIMATION] ThrottledRender skipped - game state is {stateManager.CurrentState}, not DungeonSelection");
+                StopDungeonSelectionAnimation();
+                return;
+            }
+            
+            if (dungeonSelectionPlayer != null && dungeonSelectionList != null && reRenderCallback != null)
             {
                 // Capture local copies to avoid race conditions
                 var player = dungeonSelectionPlayer;
@@ -140,7 +173,20 @@ namespace RPGGame.UI.Avalonia.Managers
                 // Re-render the dungeon selection on UI thread
                 Dispatcher.UIThread.Post(() =>
                 {
-                    // Double-check that we still have valid data before rendering
+                    // Final check: animation state and data validity before rendering
+                    if (!isDungeonSelectionActive)
+                    {
+                        ScrollDebugLogger.Log($"[ANIMATION] Re-render callback skipped - animation stopped");
+                        return;
+                    }
+                    
+                    // Final state check on UI thread
+                    if (stateManager != null && stateManager.CurrentState != GameState.DungeonSelection)
+                    {
+                        ScrollDebugLogger.Log($"[ANIMATION] Re-render callback skipped - game state changed to {stateManager.CurrentState}");
+                        return;
+                    }
+                    
                     if (player != null && dungeons != null && callback != null)
                     {
                         ScrollDebugLogger.Log($"[ANIMATION] Calling re-render callback");
@@ -231,10 +277,24 @@ namespace RPGGame.UI.Avalonia.Managers
         /// Sets up the animation manager with proper renderer and callback
         /// This method should be called after the UI coordinator is fully initialized
         /// </summary>
-        public void SetupAnimationManager(DungeonRenderer dungeonRenderer, Action<Character, List<Dungeon>> reRenderCallback)
+        public void SetupAnimationManager(DungeonRenderer dungeonRenderer, Action<Character, List<Dungeon>> reRenderCallback, GameStateManager? stateManager = null)
         {
             this.dungeonRenderer = dungeonRenderer;
             this.reRenderCallback = reRenderCallback;
+            
+            // Unsubscribe from previous state manager if any
+            if (this.stateManager != null)
+            {
+                this.stateManager.StateChanged -= OnStateChanged;
+            }
+            
+            // Subscribe to new state manager
+            this.stateManager = stateManager;
+            if (this.stateManager != null)
+            {
+                this.stateManager.StateChanged += OnStateChanged;
+                ScrollDebugLogger.Log($"[ANIMATION] Subscribed to state change events");
+            }
         }
         
         /// <summary>
@@ -242,6 +302,13 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public void Dispose()
         {
+            // Unsubscribe from state manager
+            if (stateManager != null)
+            {
+                stateManager.StateChanged -= OnStateChanged;
+                stateManager = null;
+            }
+            
             // Stop animation timers
             undulationTimer?.Dispose();
             brightnessMaskTimer?.Dispose();

@@ -29,6 +29,7 @@ namespace RPGGame
             
             builder.Add(entityName, ColorPalette.Player);
             builder.Add("regenerates", ColorPalette.Healing);
+            builder.AddSpace();
             builder.Add(regenAmount.ToString(), ColorPalette.Healing);
             builder.Add(" health (", Colors.White);
             builder.Add(currentHealth.ToString(), ColorPalette.Success);

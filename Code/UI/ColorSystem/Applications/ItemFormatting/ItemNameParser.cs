@@ -28,17 +28,24 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
         {
             var result = new ParsedItemName
             {
-                RemainingName = remainingName
+                RemainingName = remainingName ?? ""
             };
             
-            string baseName = remainingName;
+            string baseName = remainingName ?? "";
             
             // Collect all suffixes in reverse order (from end to start)
             var allSuffixes = new List<(string name, bool isStatBonus)>();
             
+            if (item?.Modifications == null)
+            {
+                result.BaseName = baseName;
+                result.Suffixes = allSuffixes;
+                return result;
+            }
+            
             // Get modification suffixes
             var suffixMods = item.Modifications
-                .Where(m => m.Name.StartsWith("of ", StringComparison.OrdinalIgnoreCase))
+                .Where(m => m != null && !string.IsNullOrEmpty(m.Name) && m.Name.StartsWith("of ", StringComparison.OrdinalIgnoreCase))
                 .ToList();
             
             // Process suffixes from the end until no more are found
@@ -48,19 +55,22 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
                 foundSuffix = false;
                 
                 // Try to match stat bonus suffixes first (they take priority)
-                foreach (var statBonus in item.StatBonuses)
+                if (item.StatBonuses != null)
                 {
-                    if (!string.IsNullOrEmpty(statBonus.Name) &&
-                        baseName.EndsWith(statBonus.Name, StringComparison.OrdinalIgnoreCase))
+                    foreach (var statBonus in item.StatBonuses)
                     {
-                        int bonusLength = statBonus.Name.Length;
-                        int startIndex = baseName.Length - bonusLength;
-                        if (startIndex == 0 || baseName[startIndex - 1] == ' ')
+                        if (!string.IsNullOrEmpty(statBonus.Name) &&
+                            baseName.EndsWith(statBonus.Name, StringComparison.OrdinalIgnoreCase))
                         {
-                            allSuffixes.Insert(0, (statBonus.Name, true));
-                            baseName = baseName.Substring(0, startIndex).TrimEnd();
-                            foundSuffix = true;
-                            break;
+                            int bonusLength = statBonus.Name.Length;
+                            int startIndex = baseName.Length - bonusLength;
+                            if (startIndex == 0 || baseName[startIndex - 1] == ' ')
+                            {
+                                allSuffixes.Insert(0, (statBonus.Name, true));
+                                baseName = baseName.Substring(0, startIndex).TrimEnd();
+                                foundSuffix = true;
+                                break;
+                            }
                         }
                     }
                 }
@@ -124,10 +134,15 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
         public static (string remainingName, List<string> prefixes) ExtractPrefixModifications(Item item, string name)
         {
             var prefixes = new List<string>();
-            string remainingName = name;
+            string remainingName = name ?? "";
+            
+            if (item?.Modifications == null)
+            {
+                return (remainingName, prefixes);
+            }
             
             var prefixMods = item.Modifications
-                .Where(m => !m.Name.StartsWith("of ", StringComparison.OrdinalIgnoreCase))
+                .Where(m => m != null && !string.IsNullOrEmpty(m.Name) && !m.Name.StartsWith("of ", StringComparison.OrdinalIgnoreCase))
                 .ToList();
             
             bool foundPrefix = true;

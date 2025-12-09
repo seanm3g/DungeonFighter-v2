@@ -100,5 +100,22 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.AddText(CanvasLayoutManager.LEFT_MARGIN + 2, CanvasLayoutManager.CONTENT_HEIGHT - 2, message, AsciiArtAssets.Colors.Gray);
             canvas.Refresh();
         }
+        
+        /// <summary>
+        /// Shows an invalid key message at the bottom of the display without clearing the screen
+        /// This allows users to still see the available menu options
+        /// </summary>
+        public void ShowInvalidKeyMessage(string message)
+        {
+            // Clear the bottom status area first to remove any previous message
+            // Clear a few lines at the bottom to ensure clean display
+            // Position at the very bottom of the screen (SCREEN_HEIGHT - 2 to leave a small margin)
+            int statusY = CanvasLayoutManager.SCREEN_HEIGHT - 2;
+            canvas.ClearTextInRange(statusY - 1, statusY + 1);
+            
+            // Add the invalid key message at the bottom in yellow to make it prominent
+            canvas.AddText(CanvasLayoutManager.LEFT_MARGIN + 2, statusY, message, AsciiArtAssets.Colors.Yellow);
+            canvas.Refresh();
+        }
     }
 }

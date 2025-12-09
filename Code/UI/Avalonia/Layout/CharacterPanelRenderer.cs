@@ -92,6 +92,50 @@ namespace RPGGame.UI.Avalonia.Layout
             RenderEquipmentSlot(x, ref y, "Head", character.Head, 2);
             RenderEquipmentSlot(x, ref y, "Body", character.Body, 2);
             RenderEquipmentSlot(x, ref y, "Feet", character.Feet, 1);
+            
+            // Combo sequence section
+            canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Combo), AsciiArtAssets.Colors.Gold);
+            y += 2;
+            
+            var comboActions = character.GetComboActions();
+            if (comboActions.Count > 0)
+            {
+                // Display combo sequence with arrow indicator
+                // Limit display to prevent overflow (max 5 actions shown)
+                int maxActionsToShow = System.Math.Min(comboActions.Count, 5);
+                for (int i = 0; i < maxActionsToShow; i++)
+                {
+                    var action = comboActions[i];
+                    bool isNext = (character.ComboStep % comboActions.Count == i);
+                    string indicator = isNext ? "→" : " ";
+                    string actionName = action.Name;
+                    
+                    // Truncate long action names to fit in the panel
+                    const int maxActionNameLength = 18;
+                    if (actionName.Length > maxActionNameLength)
+                    {
+                        actionName = actionName.Substring(0, maxActionNameLength - 3) + "...";
+                    }
+                    
+                    // Use yellow for the next action, white for others
+                    var color = isNext ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.White;
+                    canvas.AddText(x, y, $"{indicator} {actionName}", color);
+                    y++;
+                }
+                
+                // If there are more actions, show a count
+                if (comboActions.Count > maxActionsToShow)
+                {
+                    canvas.AddText(x, y, $"  ... +{comboActions.Count - maxActionsToShow} more", AsciiArtAssets.Colors.Gray);
+                    y++;
+                }
+            }
+            else
+            {
+                // No combo actions
+                canvas.AddText(x, y, "None", AsciiArtAssets.Colors.Gray);
+                y++;
+            }
         }
         
         /// <summary>

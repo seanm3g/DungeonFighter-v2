@@ -157,6 +157,19 @@ namespace RPGGame
             
             if (gear == null) return actions;
 
+            // Check for GearAction property first (highest priority)
+            if (!string.IsNullOrEmpty(gear.GearAction))
+            {
+                actions.Add(gear.GearAction);
+                DebugLogger.LogFormat("GearActionManager", 
+                    "Found GearAction '{0}' on item '{1}'", gear.GearAction, gear.Name);
+            }
+            else
+            {
+                DebugLogger.LogFormat("GearActionManager", 
+                    "No GearAction found on item '{0}'", gear.Name);
+            }
+
             if (gear is WeaponItem weapon)
             {
                 actions.AddRange(GetWeaponTypeActions(weapon.WeaponType));
@@ -192,9 +205,10 @@ namespace RPGGame
         {
             return weaponType switch
             {
-                WeaponType.Sword => new List<string> { "SWORD SLASH", "PARRY" },
-                WeaponType.Dagger => new List<string> { "QUICK STAB", "EVADE" },
-                WeaponType.Axe => new List<string> { "CLEAVE", "BRACE" },
+                WeaponType.Axe => new List<string> { "AXE CHOP" },
+                WeaponType.Sword => new List<string> { "SWORD STRIKE" },
+                WeaponType.Dagger => new List<string> { "DAGGER SLASH" },
+                WeaponType.Wand => new List<string> { "MAGIC BOLT" },
                 WeaponType.Mace => new List<string> { "CRUSHING BLOW", "SHIELD BREAK" },
                 WeaponType.Staff => new List<string> { "STAFF STRIKE", "FOCUS" },
                 WeaponType.Bow => new List<string> { "AIMED SHOT", "RAPID FIRE" },
@@ -251,6 +265,9 @@ namespace RPGGame
         private void AddGearActions(Actor entity, Item gear)
         {
             var gearActions = GetGearActions(gear);
+            DebugLogger.LogFormat("GearActionManager", 
+                "AddGearActions: Found {0} actions for gear '{1}': {2}", 
+                gearActions.Count, gear?.Name ?? "null", string.Join(", ", gearActions));
             
             foreach (var actionName in gearActions)
             {
@@ -265,10 +282,28 @@ namespace RPGGame
         {
             try
             {
+                if (entity == null)
+                {
+                    DebugLogger.Log("GearActionManager", $"Cannot load action '{actionName}': entity is null");
+                    return;
+                }
+                
+                DebugLogger.LogFormat("GearActionManager", 
+                    "Attempting to load action '{0}' from JSON for entity '{1}'", actionName, entity.Name);
+                
                 var action = ActionLoader.GetAction(actionName);
                 if (action != null)
                 {
-                    if (action.IsComboAction)
+                    // CRITICAL: Mark gear actions as combo actions so they appear in the action pool
+                    // The GetActionPool() method only returns actions with IsComboAction == true
+                    if (!action.IsComboAction)
+                    {
+                        action.IsComboAction = true;
+                        DebugLogger.LogFormat("GearActionManager", 
+                            "Marked action '{0}' as combo action so it appears in action pool", actionName);
+                    }
+                    
+                    if (action.IsComboAction && entity.ActionPool != null)
                     {
                         var comboActions = entity.ActionPool
                             .Where(a => a.action.IsComboAction)
@@ -283,7 +318,13 @@ namespace RPGGame
 
                     entity.AddAction(action, 1.0);
                     DebugLogger.LogFormat("GearActionManager", 
-                        "Loaded gear action from JSON: {0}", actionName);
+                        "Successfully loaded and added gear action '{0}' to entity '{1}' action pool (pool size: {2}, isComboAction: {3})", 
+                        actionName, entity?.Name ?? "null", entity?.ActionPool?.Count ?? 0, action.IsComboAction);
+                }
+                else
+                {
+                    DebugLogger.LogFormat("GearActionManager", 
+                        "WARNING: Action '{0}' not found in Actions.json - cannot add to action pool", actionName);
                 }
             }
             catch (Exception ex)

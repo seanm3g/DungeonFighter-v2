@@ -17,6 +17,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         private readonly GameCanvasControl canvas;
         private readonly ICanvasTextManager textManager;
         private readonly ICanvasInteractionManager interactionManager;
+        private readonly ICanvasContextManager contextManager;
         
         // Core specialized renderers
         private readonly MenuRenderer menuRenderer;
@@ -35,6 +36,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             this.canvas = canvas;
             this.textManager = textManager;
             this.interactionManager = interactionManager;
+            this.contextManager = contextManager;
             
             // Initialize core specialized renderers
             this.menuRenderer = new MenuRenderer(canvas, interactionManager.ClickableElements, textManager, interactionManager);
@@ -149,6 +151,62 @@ namespace RPGGame.UI.Avalonia.Renderers
             }, new CanvasContext());
         }
 
+        public void RenderDeveloperMenu()
+        {
+            // Use the 3-panel layout like other game screens
+            RenderWithLayout(null, "DEVELOPER MENU", (contentX, contentY, contentWidth, contentHeight) =>
+            {
+                menuRenderer.RenderDeveloperMenuContent(contentX, contentY, contentWidth, contentHeight);
+            }, new CanvasContext());
+        }
+
+        public void RenderVariableEditor()
+        {
+            // Use the 3-panel layout like other game screens
+            RenderWithLayout(null, "EDIT GAME VARIABLES", (contentX, contentY, contentWidth, contentHeight) =>
+            {
+                menuRenderer.RenderVariableEditorContent(contentX, contentY, contentWidth, contentHeight);
+            }, new CanvasContext());
+        }
+
+        public void RenderActionEditor()
+        {
+            // Use the 3-panel layout like other game screens
+            RenderWithLayout(null, "EDIT ACTIONS", (contentX, contentY, contentWidth, contentHeight) =>
+            {
+                menuRenderer.RenderActionEditorContent(contentX, contentY, contentWidth, contentHeight);
+            }, new CanvasContext());
+        }
+
+        public void RenderActionList(List<ActionData> actions, int page)
+        {
+            // Use the 3-panel layout like other game screens
+            RenderWithLayout(null, "ALL ACTIONS", (contentX, contentY, contentWidth, contentHeight) =>
+            {
+                menuRenderer.RenderActionListContent(contentX, contentY, contentWidth, contentHeight, actions, page);
+            }, new CanvasContext());
+        }
+
+        public void RenderCreateActionForm(ActionData actionData, int currentStep, string[] formSteps, string? currentInput = null)
+        {
+            // Use the 3-panel layout like other game screens
+            // Don't clear canvas on input updates to preserve the display
+            bool shouldClearCanvas = string.IsNullOrEmpty(currentInput);
+            RenderWithLayout(null, "CREATE ACTION", (contentX, contentY, contentWidth, contentHeight) =>
+            {
+                menuRenderer.RenderCreateActionFormContent(contentX, contentY, contentWidth, contentHeight, actionData, currentStep, formSteps, currentInput);
+            }, new CanvasContext(), null, null, null, shouldClearCanvas);
+        }
+
+        public void RenderActionDetails(ActionData action)
+        {
+            // Use the 3-panel layout like other game screens
+            RenderWithLayout(null, "ACTION DETAILS", (contentX, contentY, contentWidth, contentHeight) =>
+            {
+                menuRenderer.RenderActionDetailContent(contentX, contentY, contentWidth, contentHeight, action);
+            }, new CanvasContext());
+        }
+
         public void RenderDungeonSelection(Character player, List<Dungeon> dungeons, CanvasContext context)
         {
             RenderWithLayout(player, "DUNGEON SELECTION", (contentX, contentY, contentWidth, contentHeight) =>
@@ -239,14 +297,25 @@ namespace RPGGame.UI.Avalonia.Renderers
             // Use enemy from context if available (it's always up-to-date), otherwise fall back to parameter
             Enemy currentEnemy = context.Enemy ?? enemy;
             
+            // Determine if we should clear canvas - clear on first render to ensure clean transition
+            // The LayoutCoordinator will detect title changes and clear automatically, but we need
+            // to ensure clean transition from dungeon selection screen
+            bool shouldClear = context.IsFirstCombatRender;
+            
             // Canvas will be cleared automatically if title changes (handled by PersistentLayoutManager)
-            // Subsequent updates during combat don't need to clear - they just update the combat log
+            // First render should clear to ensure clean transition from other screens
             RenderWithLayout(player, "COMBAT", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 // Use the unified combat screen renderer with dungeon context
                 dungeonRenderer.RenderCombatScreen(contentX, contentY, contentWidth, contentHeight, 
                     null, null, currentEnemy, textManager, context.DungeonContext);
-            }, context, currentEnemy, context.DungeonName, context.RoomName, clearCanvas: false);
+            }, context, currentEnemy, context.DungeonName, context.RoomName, clearCanvas: shouldClear);
+            
+            // Mark combat render as complete after first render
+            if (shouldClear)
+            {
+                contextManager.MarkCombatRenderComplete();
+            }
         }
 
         public void RenderEnemyEncounter(Enemy enemy, Character player, List<string> dungeonLog, string? dungeonName, string? roomName, CanvasContext context)
@@ -350,6 +419,11 @@ namespace RPGGame.UI.Avalonia.Renderers
         public void UpdateStatus(string message)
         {
             messageRenderer.UpdateStatus(message);
+        }
+        
+        public void ShowInvalidKeyMessage(string message)
+        {
+            messageRenderer.ShowInvalidKeyMessage(message);
         }
 
         // Help system methods - delegated to HelpSystemRenderer

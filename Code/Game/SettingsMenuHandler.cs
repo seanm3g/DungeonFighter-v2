@@ -72,6 +72,14 @@ namespace RPGGame
                         // ShowTestingMenu will transition the state, so don't do it here
                         ShowTestingMenuEvent?.Invoke();
                         break;
+                    case "2":
+                        // Developer Menu
+                        DebugLogger.Log("SettingsMenuHandler", "Showing developer menu");
+                        ScrollDebugLogger.Log("SettingsMenuHandler: Showing developer menu");
+                        canvasUI.ResetDeleteConfirmation();
+                        stateManager.TransitionToState(GameState.DeveloperMenu);
+                        canvasUI.RenderDeveloperMenu();
+                        break;
                     case "0":
                         // Back to Main Menu
                         DebugLogger.Log("SettingsMenuHandler", "Returning to Main Menu");

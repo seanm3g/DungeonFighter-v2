@@ -3,8 +3,10 @@ namespace RPGGame
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Avalonia.Media;
     using RPGGame.UI.Avalonia;
     using RPGGame.Utils;
+    using RPGGame.UI.ColorSystem;
 
     /// <summary>
     /// Handles testing system menu and test execution.
@@ -87,37 +89,24 @@ namespace RPGGame
                         await RunCombatTestsWithUI(testRunner);
                         break;
                     case "4":
-                        // Inventory System Tests
+                        // Inventory & Dungeon Tests
                         canvasUI.ClearDisplayBuffer();
-                        await RunSystemTests(testRunner, "Inventory");
+                        await RunInventoryAndDungeonTests(testRunner);
                         break;
                     case "5":
-                        // Dungeon System Tests
+                        // Data & UI System Tests
                         canvasUI.ClearDisplayBuffer();
-                        await RunSystemTests(testRunner, "Dungeon");
+                        await RunDataAndUITests(testRunner);
                         break;
                     case "6":
-                        // Data System Tests
+                        // Advanced & Integration Tests
                         canvasUI.ClearDisplayBuffer();
-                        await RunSystemTests(testRunner, "Data");
+                        await RunAdvancedAndIntegrationTests(testRunner);
                         break;
                     case "7":
-                        // UI System Tests
+                        // Generate 10 Random Items
                         canvasUI.ClearDisplayBuffer();
-                        canvasUI.WriteLine("=== UI SYSTEM TESTS ===");
-                        canvasUI.WriteLine("Starting UI system tests...");
-                        canvasUI.WriteBlankLine();
-                        await RunSystemTests(testRunner, "ui");
-                        break;
-                    case "8":
-                        // Advanced Mechanics Tests
-                        canvasUI.ClearDisplayBuffer();
-                        await RunSystemTests(testRunner, "AdvancedMechanics");
-                        break;
-                    case "9":
-                        // Integration Tests
-                        canvasUI.ClearDisplayBuffer();
-                        await RunSystemTests(testRunner, "Integration");
+                        await GenerateRandomItems();
                         break;
                     case "0":
                         // Return to Settings
@@ -129,7 +118,7 @@ namespace RPGGame
                     default:
                         DebugLogger.Log("TestingSystemHandler", $"Invalid input: '{input}'");
                         ScrollDebugLogger.Log($"TestingSystemHandler: Invalid input '{input}'");
-                        ShowMessageEvent?.Invoke("Invalid choice. Please select 1-9 or 0 to return.");
+                        ShowMessageEvent?.Invoke("Invalid choice. Please select 1-7 or 0 to return.");
                         break;
                 }
             }
@@ -230,6 +219,205 @@ namespace RPGGame
                     waitingForTestMenuReturn = true;
                 }
             }
+        }
+
+        /// <summary>
+        /// Run inventory and dungeon tests together
+        /// </summary>
+        private async Task RunInventoryAndDungeonTests(GameSystemTestRunner testRunner)
+        {
+            if (customUIManager is CanvasUICoordinator canvasUI)
+            {
+                DebugLogger.Log("TestingSystemHandler", "Starting RunInventoryAndDungeonTests");
+                try
+                {
+                    canvasUI.WriteLine("=== INVENTORY & DUNGEON TESTS ===", UIMessageType.System);
+                    canvasUI.WriteBlankLine();
+                    await testRunner.RunSystemTests("Inventory");
+                    canvasUI.WriteBlankLine();
+                    await testRunner.RunSystemTests("Dungeon");
+                    DebugLogger.Log("TestingSystemHandler", "RunInventoryAndDungeonTests completed");
+                    canvasUI.WriteBlankLine();
+                    canvasUI.WriteLine("=== Tests Complete ===", UIMessageType.System);
+                    canvasUI.WriteLine("Press any key to return to test menu...", UIMessageType.System);
+                    canvasUI.RenderDisplayBuffer();
+                    waitingForTestMenuReturn = true;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[TestingSystemHandler] Error in RunInventoryAndDungeonTests: {ex.Message}");
+                    DebugLogger.Log("TestingSystemHandler", $"Error in RunInventoryAndDungeonTests: {ex.Message}");
+                    canvasUI.WriteLine($"Error running tests: {ex.Message}", UIMessageType.System);
+                    canvasUI.RenderDisplayBuffer();
+                    waitingForTestMenuReturn = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Run data and UI system tests together
+        /// </summary>
+        private async Task RunDataAndUITests(GameSystemTestRunner testRunner)
+        {
+            if (customUIManager is CanvasUICoordinator canvasUI)
+            {
+                DebugLogger.Log("TestingSystemHandler", "Starting RunDataAndUITests");
+                try
+                {
+                    canvasUI.WriteLine("=== DATA & UI SYSTEM TESTS ===", UIMessageType.System);
+                    canvasUI.WriteBlankLine();
+                    await testRunner.RunSystemTests("Data");
+                    canvasUI.WriteBlankLine();
+                    canvasUI.WriteLine("=== UI SYSTEM TESTS ===", UIMessageType.System);
+                    canvasUI.WriteLine("Starting UI system tests...");
+                    canvasUI.WriteBlankLine();
+                    await testRunner.RunSystemTests("ui");
+                    DebugLogger.Log("TestingSystemHandler", "RunDataAndUITests completed");
+                    canvasUI.WriteBlankLine();
+                    canvasUI.WriteLine("=== Tests Complete ===", UIMessageType.System);
+                    canvasUI.WriteLine("Press any key to return to test menu...", UIMessageType.System);
+                    canvasUI.RenderDisplayBuffer();
+                    waitingForTestMenuReturn = true;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[TestingSystemHandler] Error in RunDataAndUITests: {ex.Message}");
+                    DebugLogger.Log("TestingSystemHandler", $"Error in RunDataAndUITests: {ex.Message}");
+                    canvasUI.WriteLine($"Error running tests: {ex.Message}", UIMessageType.System);
+                    canvasUI.RenderDisplayBuffer();
+                    waitingForTestMenuReturn = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Run advanced mechanics and integration tests together
+        /// </summary>
+        private async Task RunAdvancedAndIntegrationTests(GameSystemTestRunner testRunner)
+        {
+            if (customUIManager is CanvasUICoordinator canvasUI)
+            {
+                DebugLogger.Log("TestingSystemHandler", "Starting RunAdvancedAndIntegrationTests");
+                try
+                {
+                    canvasUI.WriteLine("=== ADVANCED & INTEGRATION TESTS ===", UIMessageType.System);
+                    canvasUI.WriteBlankLine();
+                    await testRunner.RunSystemTests("AdvancedMechanics");
+                    canvasUI.WriteBlankLine();
+                    await testRunner.RunSystemTests("Integration");
+                    DebugLogger.Log("TestingSystemHandler", "RunAdvancedAndIntegrationTests completed");
+                    canvasUI.WriteBlankLine();
+                    canvasUI.WriteLine("=== Tests Complete ===", UIMessageType.System);
+                    canvasUI.WriteLine("Press any key to return to test menu...", UIMessageType.System);
+                    canvasUI.RenderDisplayBuffer();
+                    waitingForTestMenuReturn = true;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[TestingSystemHandler] Error in RunAdvancedAndIntegrationTests: {ex.Message}");
+                    DebugLogger.Log("TestingSystemHandler", $"Error in RunAdvancedAndIntegrationTests: {ex.Message}");
+                    canvasUI.WriteLine($"Error running tests: {ex.Message}", UIMessageType.System);
+                    canvasUI.RenderDisplayBuffer();
+                    waitingForTestMenuReturn = true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Generates and displays 10 random items on the screen
+        /// </summary>
+        private async Task GenerateRandomItems()
+        {
+            if (customUIManager is CanvasUICoordinator canvasUI)
+            {
+                DebugLogger.Log("TestingSystemHandler", "Starting GenerateRandomItems");
+                try
+                {
+                    canvasUI.WriteLine("=== GENERATING 10 RANDOM ITEMS ===", UIMessageType.System);
+                    canvasUI.WriteBlankLine();
+                    
+                    // Get player level for item generation (use level 10 as default if no player)
+                    int playerLevel = stateManager.CurrentPlayer?.Level ?? 10;
+                    int dungeonLevel = 1;
+                    
+                    // Generate 10 random items
+                    var items = new List<Item>();
+                    for (int i = 0; i < 10; i++)
+                    {
+                        var item = LootGenerator.GenerateLoot(playerLevel, dungeonLevel, stateManager.CurrentPlayer, guaranteedLoot: true);
+                        if (item != null)
+                        {
+                            items.Add(item);
+                        }
+                    }
+                    
+                    if (items.Count == 0)
+                    {
+                        canvasUI.WriteLine("Error: No items were generated.", UIMessageType.System);
+                        canvasUI.RenderDisplayBuffer();
+                        waitingForTestMenuReturn = true;
+                        return;
+                    }
+                    
+                    canvasUI.WriteLine($"Generated {items.Count} random items:", UIMessageType.System);
+                    canvasUI.WriteBlankLine();
+                    
+                    // Display each item with proper formatting
+                    for (int i = 0; i < items.Count; i++)
+                    {
+                        var item = items[i];
+                        
+                        // Display item number and name with proper colored text
+                        string displayType = ItemDisplayFormatter.GetDisplayType(item);
+                        var coloredNameSegments = ItemDisplayFormatter.GetColoredFullItemNameNew(item);
+                        
+                        // Build the colored text line: "1. (Head) [colored item name]"
+                        var itemLineBuilder = new ColoredTextBuilder();
+                        itemLineBuilder.Add($"{i + 1}. ({displayType}) ", Colors.White);
+                        itemLineBuilder.AddRange(coloredNameSegments);
+                        canvasUI.WriteLineColoredSegments(itemLineBuilder.Build(), UIMessageType.System);
+                        
+                        // Display item stats
+                        string itemStats = ItemDisplayFormatter.GetItemStatsDisplay(item, stateManager.CurrentPlayer ?? new Character());
+                        if (!string.IsNullOrEmpty(itemStats))
+                        {
+                            canvasUI.WriteLine($"   {itemStats}", UIMessageType.System);
+                        }
+                        
+                        // Display bonuses if any
+                        if (item.StatBonuses.Count > 0 || item.ActionBonuses.Count > 0 || item.Modifications.Count > 0)
+                        {
+                            // Format bonuses using the formatter (it handles indentation internally)
+                            ItemDisplayFormatter.FormatItemBonusesWithColor(item, (line) => 
+                            {
+                                canvasUI.WriteLine(line, UIMessageType.System);
+                            });
+                        }
+                        
+                        canvasUI.WriteBlankLine();
+                    }
+                    
+                    canvasUI.WriteBlankLine();
+                    canvasUI.WriteLine("=== Item Generation Complete ===", UIMessageType.System);
+                    canvasUI.WriteLine("Press any key to return to test menu...", UIMessageType.System);
+                    
+                    // Render the display buffer to show items
+                    canvasUI.RenderDisplayBuffer();
+                    waitingForTestMenuReturn = true;
+                    
+                    DebugLogger.Log("TestingSystemHandler", "GenerateRandomItems completed");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[TestingSystemHandler] Error in GenerateRandomItems: {ex.Message}");
+                    DebugLogger.Log("TestingSystemHandler", $"Error in GenerateRandomItems: {ex.Message}");
+                    canvasUI.WriteLine($"Error generating items: {ex.Message}", UIMessageType.System);
+                    canvasUI.RenderDisplayBuffer();
+                    waitingForTestMenuReturn = true;
+                }
+            }
+            
+            await Task.CompletedTask;
         }
 
     }

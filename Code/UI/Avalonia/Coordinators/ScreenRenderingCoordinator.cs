@@ -135,6 +135,54 @@ namespace RPGGame.UI.Avalonia.Coordinators
         {
             renderer.RenderTestingMenu();
         }
+
+        /// <summary>
+        /// Renders developer menu screen
+        /// </summary>
+        public void RenderDeveloperMenu()
+        {
+            renderer.RenderDeveloperMenu();
+        }
+
+        /// <summary>
+        /// Renders variable editor screen
+        /// </summary>
+        public void RenderVariableEditor()
+        {
+            renderer.RenderVariableEditor();
+        }
+
+        /// <summary>
+        /// Renders action editor screen
+        /// </summary>
+        public void RenderActionEditor()
+        {
+            renderer.RenderActionEditor();
+        }
+
+        /// <summary>
+        /// Renders action list screen
+        /// </summary>
+        public void RenderActionList(List<ActionData> actions, int page)
+        {
+            renderer.RenderActionList(actions, page);
+        }
+
+        /// <summary>
+        /// Renders create action form screen
+        /// </summary>
+        public void RenderCreateActionForm(ActionData actionData, int currentStep, string[] formSteps, string? currentInput = null)
+        {
+            renderer.RenderCreateActionForm(actionData, currentStep, formSteps, currentInput);
+        }
+
+        /// <summary>
+        /// Renders action details screen
+        /// </summary>
+        public void RenderActionDetails(ActionData action)
+        {
+            renderer.RenderActionDetails(action);
+        }
         
         /// <summary>
         /// Renders dungeon selection screen

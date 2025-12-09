@@ -97,6 +97,13 @@ namespace RPGGame
             DebugLogger.Log("DungeonRunnerManager", "Transitioning to Dungeon state");
             stateManager.TransitionToState(GameState.Dungeon);
             
+            // Restore display buffer rendering in case it was suppressed (e.g., from dungeon selection screen)
+            // This ensures dungeon exploration and combat screens work correctly
+            if (customUIManager is CanvasUICoordinator canvasUIRestore)
+            {
+                canvasUIRestore.RestoreDisplayBufferRendering();
+            }
+            
             // Start dungeon using unified display manager
             // This prepares the dungeon data but doesn't add content to buffer yet
             // Content (including dungeon header) will be added in ProcessRoom() for the first room

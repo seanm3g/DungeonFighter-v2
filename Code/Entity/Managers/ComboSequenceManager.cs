@@ -105,22 +105,12 @@ namespace RPGGame
                 }
                 else
                 {
-                    // If no combo actions are available, create a default combo action
-                    var defaultComboAction = new Action(
-                        name: "BASIC ATTACK",
-                        type: ActionType.Attack,
-                        targetType: TargetType.SingleTarget,
-                        baseValue: 0,
-                        range: 1,
-                        cooldown: 0,
-                        description: "A standard physical attack using STR + weapon damage",
-                        comboOrder: 0,
-                        damageMultiplier: 1.0,
-                        length: 1.0,
-                        causesBleed: false,
-                        causesWeaken: false,
-                        isComboAction: false
-                    );
+                    // If no combo actions are available, load BASIC ATTACK from JSON
+                    var defaultComboAction = ActionLoader.GetAction("BASIC ATTACK");
+                    if (defaultComboAction == null)
+                    {
+                        throw new InvalidOperationException("BASIC ATTACK action not found in Actions.json. Please ensure Actions.json contains a BASIC ATTACK action.");
+                    }
                     entity.AddAction(defaultComboAction, 1.0);
                     AddToCombo(defaultComboAction);
                 }
@@ -158,9 +148,10 @@ namespace RPGGame
             // Return weapon-specific actions based on weapon type
             return weapon.WeaponType switch
             {
-                WeaponType.Sword => new List<string> { "SWORD SLASH", "PARRY" },
-                WeaponType.Dagger => new List<string> { "QUICK STAB", "EVADE" },
-                WeaponType.Axe => new List<string> { "CLEAVE", "BRACE" },
+                WeaponType.Axe => new List<string> { "AXE CHOP" },
+                WeaponType.Sword => new List<string> { "SWORD STRIKE" },
+                WeaponType.Dagger => new List<string> { "DAGGER SLASH" },
+                WeaponType.Wand => new List<string> { "MAGIC BOLT" },
                 WeaponType.Mace => new List<string> { "CRUSHING BLOW", "SHIELD BREAK" },
                 WeaponType.Staff => new List<string> { "STAFF STRIKE", "FOCUS" },
                 WeaponType.Bow => new List<string> { "AIMED SHOT", "RAPID FIRE" },

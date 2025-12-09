@@ -30,6 +30,8 @@ namespace RPGGame.UI.Avalonia.Managers
         void ResetDeleteConfirmation();
         
         CanvasContext GetCurrentContext();
+        void ResetForNewBattle();
+        void MarkCombatRenderComplete();
     }
 
     /// <summary>
@@ -43,5 +45,6 @@ namespace RPGGame.UI.Avalonia.Managers
         public string? RoomName { get; set; }
         public List<string> DungeonContext { get; set; } = new List<string>();
         public bool DeleteConfirmationPending { get; set; }
+        public bool IsFirstCombatRender { get; set; } = true;
     }
 }

@@ -161,11 +161,9 @@ namespace RPGGame
                 }
                 else
                 {
-                    // Last resort: create a combo action on the fly
-                    var emergencyAction = ActionFactory.CreateEmergencyComboAction();
-                    source.AddAction(emergencyAction, 1.0);
-                    DebugLogger.Log("ActionSelector", $"Created emergency combo action for {source.Name}");
-                    return emergencyAction;
+                    // Last resort: fall back to BASIC ATTACK if no combo actions available
+                    DebugLogger.Log("ActionSelector", $"No combo actions available for {source.Name}, falling back to BASIC ATTACK");
+                    return ActionFactory.GetBasicAttack(source);
                 }
             }
         }

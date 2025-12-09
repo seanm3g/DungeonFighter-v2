@@ -54,8 +54,6 @@ namespace RPGGame
         public int StatBonusDuration { get; set; }
         [JsonPropertyName("multiHitCount")]
         public int MultiHitCount { get; set; }
-        [JsonPropertyName("multiHitDamagePercent")]
-        public double MultiHitDamagePercent { get; set; }
         [JsonPropertyName("selfDamagePercent")]
         public int SelfDamagePercent { get; set; }
         [JsonPropertyName("skipNextTurn")]
@@ -173,7 +171,6 @@ namespace RPGGame
             action.Advanced.StatBonusType = data.StatBonusType;
             action.Advanced.StatBonusDuration = data.StatBonusDuration;
             action.Advanced.MultiHitCount = data.MultiHitCount;
-            action.Advanced.MultiHitDamagePercent = data.MultiHitDamagePercent;
             action.Advanced.SelfDamagePercent = data.SelfDamagePercent;
             action.Advanced.SkipNextTurn = data.SkipNextTurn;
             action.Advanced.RepeatLastAction = data.RepeatLastAction;

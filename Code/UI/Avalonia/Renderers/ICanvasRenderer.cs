@@ -34,6 +34,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         void ShowLoadingAnimation(string message = "Loading...");
         void ShowError(string error, string suggestion = "");
         void UpdateStatus(string message);
+        void ShowInvalidKeyMessage(string message);
         void ToggleHelp();
         void RenderHelp();
         void Refresh();

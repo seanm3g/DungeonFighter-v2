@@ -18,10 +18,18 @@ namespace RPGGame.UI.BlockDisplay.Renderers
             {
                 foreach (var (segments, messageType) in groups)
                 {
-                    if (segments != null && segments.Count > 0)
+                    if (segments != null)
                     {
-                        ColoredConsoleWriter.WriteSegments(segments);
-                        Console.WriteLine();
+                        if (segments.Count == 0)
+                        {
+                            // Empty segments are treated as blank lines
+                            Console.WriteLine();
+                        }
+                        else
+                        {
+                            ColoredConsoleWriter.WriteSegments(segments);
+                            Console.WriteLine();
+                        }
                     }
                 }
             }

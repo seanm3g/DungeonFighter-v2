@@ -98,7 +98,8 @@ namespace RPGGame
                 var actionSpeedSystem = stateManager.GetCurrentActionSpeedSystem();
                 if (actionSpeedSystem != null && usedAction != null)
                 {
-                    actionSpeedSystem.ExecuteAction(currentEnemy, usedAction);
+                    bool isCriticalMiss = ActionExecutor.GetLastCriticalMissStatus(currentEnemy);
+                    actionSpeedSystem.ExecuteAction(currentEnemy, usedAction, isBasicAttack: false, isCriticalMiss: isCriticalMiss);
                 }
             }
             
@@ -268,7 +269,9 @@ namespace RPGGame
             var actionSpeedSystem = stateManager.GetCurrentActionSpeedSystem();
             if (actionSpeedSystem != null && usedAction != null)
             {
-                actionSpeedSystem.ExecuteAction(player, usedAction);
+                bool isCriticalMiss = ActionExecutor.GetLastCriticalMissStatus(player);
+                bool isBasicAttack = usedAction.Name == "BASIC ATTACK";
+                actionSpeedSystem.ExecuteAction(player, usedAction, isBasicAttack: isBasicAttack, isCriticalMiss: isCriticalMiss);
             }
         }
 

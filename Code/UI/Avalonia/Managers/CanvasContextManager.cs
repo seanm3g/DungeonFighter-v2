@@ -93,6 +93,8 @@ namespace RPGGame.UI.Avalonia.Managers
             deleteConfirmationPending = false;
         }
 
+        private bool isFirstCombatRender = true;
+        
         public CanvasContext GetCurrentContext()
         {
             return new CanvasContext
@@ -102,8 +104,19 @@ namespace RPGGame.UI.Avalonia.Managers
                 DungeonName = currentDungeonName,
                 RoomName = currentRoomName,
                 DungeonContext = new List<string>(dungeonContext),
-                DeleteConfirmationPending = deleteConfirmationPending
+                DeleteConfirmationPending = deleteConfirmationPending,
+                IsFirstCombatRender = isFirstCombatRender
             };
+        }
+        
+        public void ResetForNewBattle()
+        {
+            isFirstCombatRender = true;
+        }
+        
+        public void MarkCombatRenderComplete()
+        {
+            isFirstCombatRender = false;
         }
     }
 }

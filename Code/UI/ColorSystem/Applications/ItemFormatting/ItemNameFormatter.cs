@@ -3,30 +3,51 @@ using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Media;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.ColorSystem.Themes;
 
 namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
 {
     /// <summary>
     /// Formats item names with proper coloring
+    /// Each prefix and modifier gets its own unique color from the theme system
     /// </summary>
     public static class ItemNameFormatter
     {
         /// <summary>
         /// Formats a full item name with prefixes, base name, and suffixes
-        /// Each element (prefixes, base name, mods) gets its own color
+        /// Each element (prefixes, base name, mods) gets its own unique color
         /// </summary>
         public static List<ColoredText> FormatFullItemName(Item item)
         {
-            var builder = new ColoredTextBuilder();
+            if (item == null)
+            {
+                return new List<ColoredText> { new ColoredText("(null item)", Colors.Red) };
+            }
             
-            string fullName = item.Name;
+            var builder = new ColoredTextBuilder();
+            var themes = ItemThemeProvider.GetItemThemes(item);
+            
+            string fullName = item.Name ?? "(unnamed item)";
             string remainingName = ItemNameParser.RemoveRarityPrefix(fullName);
             
-            // Extract and color modification prefixes
+            // Extract and color modification prefixes - each gets its own unique color
             var (nameAfterPrefixes, prefixMods) = ItemNameParser.ExtractPrefixModifications(item, remainingName);
             foreach (var prefixMod in prefixMods)
             {
-                builder.Add(prefixMod, ColorPalette.Success);
+                // Get the unique color theme for this specific prefix modifier
+                if (themes.ModificationThemes.TryGetValue(prefixMod, out var prefixTheme))
+                {
+                    // Use the first color from the theme sequence for the prefix
+                    var prefixColor = prefixTheme.Count > 0 ? prefixTheme[0].Color : ColorPalette.Success.GetColor();
+                    builder.Add(prefixMod, prefixColor);
+                }
+                else
+                {
+                    // Fallback: get theme directly from ItemThemeProvider
+                    var fallbackTheme = ItemThemeProvider.GetModificationTheme(prefixMod.ToLower(), item.Rarity);
+                    var fallbackColor = fallbackTheme.Count > 0 ? fallbackTheme[0].Color : ColorPalette.Success.GetColor();
+                    builder.Add(prefixMod, fallbackColor);
+                }
                 builder.AddSpace();
             }
             
@@ -39,7 +60,7 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
                 builder.Add(parsed.BaseName, Colors.White);
             }
             
-            // Add all suffixes with their own colors (only color the keyword)
+            // Add all suffixes with their own unique colors (only color the keyword)
             foreach (var (suffixName, isStatBonus) in parsed.Suffixes)
             {
                 var (prefix, keyword) = ItemKeywordExtractor.ExtractKeyword(suffixName);
@@ -50,15 +71,32 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
                     builder.Add(prefix, Colors.White);
                 }
                 
-                // Color only the keyword
+                // Color only the keyword with its unique color
+                Color keywordColor;
                 if (isStatBonus)
                 {
-                    builder.Add(keyword, ColorPalette.Info);
+                    // Stat bonus: extract keyword and use theme system to get unique color
+                    // For "of the Phoenix", look up template "phoenix" (the keyword)
+                    var keywordLower = keyword.ToLower();
+                    var statBonusTheme = ItemThemeProvider.GetModificationTheme(keywordLower, item.Rarity);
+                    keywordColor = statBonusTheme.Count > 0 ? statBonusTheme[0].Color : ColorPalette.Info.GetColor();
                 }
                 else
                 {
-                    builder.Add(keyword, ColorPalette.Magenta);
+                    // Modification suffix: use theme from the modifications dictionary
+                    if (themes.ModificationThemes.TryGetValue(suffixName, out var modTheme))
+                    {
+                        keywordColor = modTheme.Count > 0 ? modTheme[0].Color : ColorPalette.Magenta.GetColor();
+                    }
+                    else
+                    {
+                        // Fallback: get theme directly from ItemThemeProvider
+                        var fallbackTheme = ItemThemeProvider.GetModificationTheme(suffixName.ToLower(), item.Rarity);
+                        keywordColor = fallbackTheme.Count > 0 ? fallbackTheme[0].Color : ColorPalette.Magenta.GetColor();
+                    }
                 }
+                
+                builder.Add(keyword, keywordColor);
             }
             
             return builder.Build();
@@ -69,9 +107,14 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
         /// </summary>
         public static List<ColoredText> FormatSimpleItemName(Item item)
         {
+            if (item == null)
+            {
+                return new List<ColoredText> { new ColoredText("(null item)", Colors.Red) };
+            }
+            
             var builder = new ColoredTextBuilder();
-            var rarityColor = GetRarityColor(item.Rarity);
-            builder.Add(item.Name, rarityColor);
+            var rarityColor = GetRarityColor(item.Rarity ?? "Common");
+            builder.Add(item.Name ?? "(unnamed item)", rarityColor);
             return builder.Build();
         }
         

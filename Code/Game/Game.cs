@@ -30,6 +30,8 @@ namespace RPGGame
         private MainMenuHandler? mainMenuHandler;
         private CharacterMenuHandler? characterMenuHandler;
         private SettingsMenuHandler? settingsMenuHandler;
+        private DeveloperMenuHandler? developerMenuHandler;
+        private ActionEditorHandler? actionEditorHandler;
         private InventoryMenuHandler? inventoryMenuHandler;
         private WeaponSelectionHandler? weaponSelectionHandler;
         private CharacterCreationHandler? characterCreationHandler;
@@ -130,6 +132,8 @@ namespace RPGGame
             mainMenuHandler = handlerResult.MainMenuHandler;
             characterMenuHandler = handlerResult.CharacterMenuHandler;
             settingsMenuHandler = handlerResult.SettingsMenuHandler;
+            developerMenuHandler = new DeveloperMenuHandler(stateManager, uiManager);
+            actionEditorHandler = new ActionEditorHandler(stateManager, uiManager);
             inventoryMenuHandler = handlerResult.InventoryMenuHandler;
             weaponSelectionHandler = handlerResult.WeaponSelectionHandler;
             characterCreationHandler = handlerResult.CharacterCreationHandler;
@@ -146,6 +150,20 @@ namespace RPGGame
                 ShowGameLoop, ShowMainMenu, ShowInventory, ShowCharacterInfo, ShowMessage, ExitGame,
                 async () => await (dungeonSelectionHandler?.ShowDungeonSelection() ?? Task.CompletedTask),
                 ShowDungeonCompletion, ShowDeathScreen, SaveGame);
+            
+            // Wire up developer menu handler events
+            if (developerMenuHandler != null)
+            {
+                developerMenuHandler.ShowSettingsEvent += () => settingsMenuHandler?.ShowSettings();
+                developerMenuHandler.ShowVariableEditorEvent += () => ShowVariableEditor();
+                developerMenuHandler.ShowActionEditorEvent += () => ShowActionEditor();
+            }
+            
+            // Wire up action editor handler events
+            if (actionEditorHandler != null)
+            {
+                actionEditorHandler.ShowDeveloperMenuEvent += () => developerMenuHandler?.ShowDeveloperMenu();
+            }
             
             // Initialize Menu Input Framework
             var menuInputResult = RPGGame.Menu.MenuInputFrameworkInitializer.Initialize();
@@ -211,6 +229,77 @@ namespace RPGGame
                     {
                         DebugLogger.Log("Game", "ERROR: settingsMenuHandler is null!");
                         ScrollDebugLogger.Log("Game: ERROR - settingsMenuHandler is null!");
+                    }
+                    break;
+                case GameState.DeveloperMenu:
+                    DebugLogger.Log("Game", $"DeveloperMenu state: input='{input}', handler is {(developerMenuHandler != null ? "not null" : "NULL")}");
+                    ScrollDebugLogger.Log($"Game: DeveloperMenu state - input='{input}', handler is {(developerMenuHandler != null ? "not null" : "NULL")}");
+                    if (developerMenuHandler != null)
+                    {
+                        DebugLogger.Log("Game", $"Calling DeveloperMenuHandler.HandleMenuInput('{input}')");
+                        ScrollDebugLogger.Log($"Game: Calling DeveloperMenuHandler.HandleMenuInput('{input}')");
+                        developerMenuHandler.HandleMenuInput(input);
+                    }
+                    else
+                    {
+                        DebugLogger.Log("Game", "ERROR: developerMenuHandler is null!");
+                        ScrollDebugLogger.Log("Game: ERROR - developerMenuHandler is null!");
+                    }
+                    break;
+                case GameState.VariableEditor:
+                    if (input == "0")
+                    {
+                        stateManager.TransitionToState(GameState.DeveloperMenu);
+                        developerMenuHandler?.ShowDeveloperMenu();
+                    }
+                    else
+                    {
+                        ShowMessage("Variable editing functionality coming soon!");
+                    }
+                    break;
+                case GameState.ActionEditor:
+                    DebugLogger.Log("Game", $"ActionEditor state: input='{input}', handler is {(actionEditorHandler != null ? "not null" : "NULL")}");
+                    ScrollDebugLogger.Log($"Game: ActionEditor state - input='{input}', handler is {(actionEditorHandler != null ? "not null" : "NULL")}");
+                    if (actionEditorHandler != null)
+                    {
+                        DebugLogger.Log("Game", $"Calling ActionEditorHandler.HandleMenuInput('{input}')");
+                        ScrollDebugLogger.Log($"Game: Calling ActionEditorHandler.HandleMenuInput('{input}')");
+                        actionEditorHandler.HandleMenuInput(input);
+                    }
+                    else
+                    {
+                        DebugLogger.Log("Game", "ERROR: actionEditorHandler is null!");
+                        ScrollDebugLogger.Log("Game: ERROR - actionEditorHandler is null!");
+                    }
+                    break;
+                case GameState.CreateAction:
+                    DebugLogger.Log("Game", $"CreateAction state: input='{input}', handler is {(actionEditorHandler != null ? "not null" : "NULL")}");
+                    ScrollDebugLogger.Log($"Game: CreateAction state - input='{input}', handler is {(actionEditorHandler != null ? "not null" : "NULL")}");
+                    if (actionEditorHandler != null)
+                    {
+                        DebugLogger.Log("Game", $"Calling ActionEditorHandler.HandleCreateActionInput('{input}')");
+                        ScrollDebugLogger.Log($"Game: Calling ActionEditorHandler.HandleCreateActionInput('{input}')");
+                        actionEditorHandler.HandleCreateActionInput(input);
+                    }
+                    else
+                    {
+                        DebugLogger.Log("Game", "ERROR: actionEditorHandler is null!");
+                        ScrollDebugLogger.Log("Game: ERROR - actionEditorHandler is null!");
+                    }
+                    break;
+                case GameState.ViewAction:
+                    DebugLogger.Log("Game", $"ViewAction state: input='{input}', handler is {(actionEditorHandler != null ? "not null" : "NULL")}");
+                    ScrollDebugLogger.Log($"Game: ViewAction state - input='{input}', handler is {(actionEditorHandler != null ? "not null" : "NULL")}");
+                    if (actionEditorHandler != null)
+                    {
+                        DebugLogger.Log("Game", $"Calling ActionEditorHandler.HandleActionDetailInput('{input}')");
+                        ScrollDebugLogger.Log($"Game: Calling ActionEditorHandler.HandleActionDetailInput('{input}')");
+                        actionEditorHandler.HandleActionDetailInput(input);
+                    }
+                    else
+                    {
+                        DebugLogger.Log("Game", "ERROR: actionEditorHandler is null!");
+                        ScrollDebugLogger.Log("Game: ERROR - actionEditorHandler is null!");
                     }
                     break;
                 case GameState.Inventory:
@@ -306,6 +395,26 @@ namespace RPGGame
                     stateManager.TransitionToState(GameState.Settings);
                     settingsMenuHandler?.ShowSettings();
                     break;
+                case GameState.DeveloperMenu:
+                    stateManager.TransitionToState(GameState.Settings);
+                    settingsMenuHandler?.ShowSettings();
+                    break;
+                case GameState.VariableEditor:
+                case GameState.ActionEditor:
+                    stateManager.TransitionToState(GameState.DeveloperMenu);
+                    developerMenuHandler?.ShowDeveloperMenu();
+                    break;
+                case GameState.CreateAction:
+                    stateManager.TransitionToState(GameState.ActionEditor);
+                    actionEditorHandler?.ShowActionEditor();
+                    break;
+                case GameState.ViewAction:
+                    // Return to action list (which will be handled by ActionEditorHandler)
+                    if (actionEditorHandler != null)
+                    {
+                        actionEditorHandler.HandleActionDetailInput("0");
+                    }
+                    break;
                 default:
                     stateManager.TransitionToState(GameState.MainMenu);
                     mainMenuHandler?.ShowMainMenu();
@@ -320,6 +429,13 @@ namespace RPGGame
             customUIManager = uiManager;
             UIManager.SetCustomUIManager(uiManager);
             InitializeHandlers(uiManager);
+            
+            // Wire up state manager to UI coordinator for event-driven animations
+            // This allows animation manager to automatically stop when state changes
+            if (uiManager is CanvasUICoordinator canvasUI)
+            {
+                canvasUI.SetStateManager(stateManager);
+            }
         }
 
         // Display delegation methods
@@ -347,6 +463,32 @@ namespace RPGGame
             settingsMenuHandler?.ShowSettings();
         }
 
+        public void ShowDeveloperMenu()
+        {
+            developerMenuHandler?.ShowDeveloperMenu();
+        }
+
+        public void ShowVariableEditor()
+        {
+            if (customUIManager is CanvasUICoordinator canvasUI)
+            {
+                canvasUI.SuppressDisplayBufferRendering();
+                canvasUI.ClearDisplayBufferWithoutRender();
+                canvasUI.RenderVariableEditor();
+                stateManager.TransitionToState(GameState.VariableEditor);
+            }
+        }
+
+        public void ShowActionEditor()
+        {
+            actionEditorHandler?.ShowActionEditor();
+        }
+
+        public void UpdateActionFormInput(string input)
+        {
+            actionEditorHandler?.UpdateFormInput(input);
+        }
+
         public void ShowDungeonCompletion(int xpGained, Item? lootReceived)
         {
             // Delegate to centralized screen coordinator so that
@@ -365,9 +507,29 @@ namespace RPGGame
 
         public void ShowMessage(string message)
         {
+            // Check if this is an invalid key message - if so, show it at the bottom instead of full screen
+            if (message.Contains("Invalid", StringComparison.OrdinalIgnoreCase) || 
+                message.Contains("invalid", StringComparison.OrdinalIgnoreCase))
+            {
+                ShowInvalidKeyMessage(message);
+                return;
+            }
+            
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
                 canvasUI.ShowMessage(message);
+            }
+        }
+        
+        /// <summary>
+        /// Shows an invalid key message at the bottom of the screen without clearing the display
+        /// This allows users to still see the available menu options
+        /// </summary>
+        public void ShowInvalidKeyMessage(string message)
+        {
+            if (customUIManager is CanvasUICoordinator canvasUI)
+            {
+                canvasUI.ShowInvalidKeyMessage(message);
             }
         }
 

@@ -62,7 +62,26 @@ namespace RPGGame.UI.Avalonia
                 if (player != null && dungeons != null)
                     screenRenderingCoordinator.RenderDungeonSelection(player, dungeons);
             };
-            animationManager.SetupAnimationManager(dungeonRenderer, reRenderCallback);
+            animationManager.SetupAnimationManager(dungeonRenderer, reRenderCallback, null); // State manager will be set later via SetStateManager
+        }
+        
+        /// <summary>
+        /// Sets the game state manager for the animation system.
+        /// This allows the animation manager to subscribe to state change events.
+        /// Should be called after Game is initialized.
+        /// </summary>
+        public void SetStateManager(GameStateManager stateManager)
+        {
+            if (animationManager is CanvasAnimationManager canvasAnimationManager)
+            {
+                var dungeonRenderer = new Renderers.DungeonRenderer(canvas, new Renderers.ColoredTextWriter(canvas), interactionManager.ClickableElements);
+                Action<Character, List<Dungeon>> reRenderCallback = (player, dungeons) => 
+                {
+                    if (player != null && dungeons != null)
+                        screenRenderingCoordinator.RenderDungeonSelection(player, dungeons);
+                };
+                canvasAnimationManager.SetupAnimationManager(dungeonRenderer, reRenderCallback, stateManager);
+            }
         }
 
         #region IUIManager Implementation
@@ -143,6 +162,12 @@ namespace RPGGame.UI.Avalonia
             => screenRenderingCoordinator.RenderCharacterCreation(character);
         public void RenderSettings() => screenRenderingCoordinator.RenderSettings();
         public void RenderTestingMenu() => screenRenderingCoordinator.RenderTestingMenu();
+        public void RenderDeveloperMenu() => screenRenderingCoordinator.RenderDeveloperMenu();
+        public void RenderVariableEditor() => screenRenderingCoordinator.RenderVariableEditor();
+        public void RenderActionEditor() => screenRenderingCoordinator.RenderActionEditor();
+        public void RenderActionList(List<ActionData> actions, int page) => screenRenderingCoordinator.RenderActionList(actions, page);
+        public void RenderCreateActionForm(ActionData actionData, int currentStep, string[] formSteps, string? currentInput = null) => screenRenderingCoordinator.RenderCreateActionForm(actionData, currentStep, formSteps, currentInput);
+        public void RenderActionDetails(ActionData action) => screenRenderingCoordinator.RenderActionDetails(action);
 
         public void RenderDungeonSelection(Character player, List<Dungeon> dungeons)
         {
@@ -279,6 +304,7 @@ namespace RPGGame.UI.Avalonia
         public void ShowLoadingAnimation(string message = "Loading...") => utilityCoordinator.ShowLoadingAnimation(message);
         public void ShowError(string error, string suggestion = "") => utilityCoordinator.ShowError(error, suggestion);
         public void UpdateStatus(string message) => utilityCoordinator.UpdateStatus(message);
+        public void ShowInvalidKeyMessage(string message) => utilityCoordinator.ShowInvalidKeyMessage(message);
         public void ToggleHelp() => utilityCoordinator.ToggleHelp();
         public void RenderHelp() => utilityCoordinator.RenderHelp();
         public void ShowPressKeyMessage() => utilityCoordinator.ShowPressKeyMessage();

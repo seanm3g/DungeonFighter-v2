@@ -97,7 +97,7 @@ The CharacterActions system has been successfully refactored from a 828-line mon
 
 #### Action Utilities
 - **`Code/Actions/ActionFactory.cs`** - Creates Action objects from data
-  - CreateBasicAttack, CreateEmergencyComboAction
+  - CreateBasicAttack
   - 13 comprehensive unit tests
 
 - **`Code/Actions/ActionEnhancer.cs`** - Enhances action descriptions with modifiers

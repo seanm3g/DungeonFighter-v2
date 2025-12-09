@@ -57,7 +57,7 @@ namespace RPGGame
             combatEntity.NextActionTime = currentTime + turnDuration + buffer;
         }
 
-        public double ExecuteAction(Actor entity, Action action, bool isBasicAttack = false)
+        public double ExecuteAction(Actor entity, Action action, bool isBasicAttack = false, bool isCriticalMiss = false)
         {
             var combatEntity = entities.FirstOrDefault(e => e.Entity == entity);
             if (combatEntity == null) return 0.0;
@@ -70,8 +70,8 @@ namespace RPGGame
                 // For characters: use the new attack speed system
                 double attackSpeed = character.GetTotalAttackSpeed();
                 
-                // Apply critical miss penalty (doubles action speed)
-                if (entity.HasCriticalMissPenalty)
+                // Apply critical miss penalty (doubles action speed/recovery time for THIS action)
+                if (isCriticalMiss || entity.HasCriticalMissPenalty)
                 {
                     attackSpeed *= 2.0;
                 }
@@ -86,8 +86,8 @@ namespace RPGGame
                 double baseSpeed = combatEntity.BaseSpeed;
                 double agilityModifier = Math.Max(0.5, 1.0 - (enemy.GetEffectiveAgility() * 0.05)); // Agility reduces action time
                 
-                // Apply critical miss penalty (doubles action speed)
-                if (entity.HasCriticalMissPenalty)
+                // Apply critical miss penalty (doubles action speed/recovery time for THIS action)
+                if (isCriticalMiss || entity.HasCriticalMissPenalty)
                 {
                     baseSpeed *= 2.0;
                 }

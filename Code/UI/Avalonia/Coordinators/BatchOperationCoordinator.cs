@@ -34,11 +34,13 @@ namespace RPGGame.UI.Avalonia.Coordinators
                 return;
             
             // Extract segments (ignore messageType for now - all go to same buffer)
+            // Empty segments are treated as blank lines for spacing
             var segmentsList = new List<List<ColoredText>>();
             foreach (var (segments, messageType) in messageGroups)
             {
-                if (segments != null && segments.Count > 0)
+                if (segments != null)
                 {
+                    // Add segment even if empty (for blank lines)
                     segmentsList.Add(segments);
                 }
             }
@@ -71,11 +73,13 @@ namespace RPGGame.UI.Avalonia.Coordinators
                 return;
             
             // Extract segments (ignore messageType for now - all go to same buffer)
+            // Empty segments are treated as blank lines for spacing
             var segmentsList = new List<List<ColoredText>>();
             foreach (var (segments, messageType) in messageGroups)
             {
-                if (segments != null && segments.Count > 0)
+                if (segments != null)
                 {
+                    // Add segment even if empty (for blank lines)
                     segmentsList.Add(segments);
                 }
             }
