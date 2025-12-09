@@ -18,7 +18,8 @@ namespace RPGGame.Actions.Execution
             Actor target, 
             Action selectedAction, 
             int baseRoll, 
-            int rollBonus, 
+            int rollBonus,
+            int naturalRoll,
             BattleNarrative? battleNarrative)
         {
             double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, selectedAction);
@@ -74,7 +75,7 @@ namespace RPGGame.Actions.Execution
                 
                 bool isCombo = selectedAction.Name != "BASIC ATTACK";
                 bool isCriticalHit = totalRoll >= 20;
-                ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, totalDamage, totalRoll, rollBonus, true, isCombo, 0, 0, isCriticalHit, battleNarrative);
+                ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, totalDamage, totalRoll, rollBonus, true, isCombo, 0, 0, isCriticalHit, naturalRoll, battleNarrative);
                 
                 // Handle enemy roll penalty
                 if (selectedAction.Advanced.EnemyRollPenalty > 0 && target is Enemy targetEnemy)
@@ -105,7 +106,7 @@ namespace RPGGame.Actions.Execution
                 // Track statistics
                 if (source is Character character)
                 {
-                    ActionStatisticsTracker.RecordAttackAction(character, totalRoll, baseRoll, rollBonus, damage, selectedAction, target as Enemy);
+                    ActionStatisticsTracker.RecordAttackAction(character, totalRoll, naturalRoll, rollBonus, damage, selectedAction, target as Enemy);
                 }
                 
                 if (target is Character targetCharacter)
@@ -115,7 +116,7 @@ namespace RPGGame.Actions.Execution
                 
                 bool isCombo = selectedAction.Name != "BASIC ATTACK";
                 bool isCriticalHit = totalRoll >= 20;
-                ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, damage, totalRoll, rollBonus, true, isCombo, 0, 0, isCriticalHit, battleNarrative);
+                ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, damage, totalRoll, rollBonus, true, isCombo, 0, 0, isCriticalHit, naturalRoll, battleNarrative);
                 
                 var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, damage, damage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll);
                 
