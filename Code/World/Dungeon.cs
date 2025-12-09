@@ -31,12 +31,31 @@ namespace RPGGame
             DebugLogger.Log("Dungeon", $"Generating dungeon '{Name}' with {roomCount} rooms (MinLevel: {MinLevel}, MaxLevel: {MaxLevel})");
             Rooms.Clear();
 
+            bool hasHostileRoom = false; // Track if we've generated at least one hostile room
+
             for (int i = 0; i < roomCount; i++)
             {
                 try
                 {
                     // Determine room type and difficulty
-                    bool isHostile = random.NextDouble() < dungeonConfig.hostileRoomChance;
+                    // Ensure at least one room is hostile (force last room if none are hostile yet)
+                    bool isHostile;
+                    if (i == roomCount - 1 && !hasHostileRoom)
+                    {
+                        // Force the last room to be hostile if we haven't had any yet
+                        isHostile = true;
+                        DebugLogger.Log("Dungeon", $"Forcing last room to be hostile to ensure at least one enemy encounter");
+                    }
+                    else
+                    {
+                        isHostile = random.NextDouble() < dungeonConfig.hostileRoomChance;
+                    }
+                    
+                    if (isHostile)
+                    {
+                        hasHostileRoom = true;
+                    }
+                    
                     int roomLevel = random.Next(MinLevel, MaxLevel + 1);
 
                     // Use RoomGenerator to create theme-appropriate rooms

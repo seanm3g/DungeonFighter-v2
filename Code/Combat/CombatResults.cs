@@ -221,9 +221,9 @@ namespace RPGGame
         /// Returns both miss text and roll info as separate ColoredText lists
         /// </summary>
         public static (List<ColoredText> missText, List<ColoredText> rollInfo) FormatMissMessageColored(
-            Actor attacker, Actor target, Action action, int roll, int rollBonus)
+            Actor attacker, Actor target, Action action, int roll, int rollBonus, int naturalRoll)
         {
-            return CombatResultsColoredText.FormatMissMessageColored(attacker, target, action, roll, rollBonus);
+            return CombatResultsColoredText.FormatMissMessageColored(attacker, target, action, roll, rollBonus, naturalRoll);
         }
         
         /// <summary>

@@ -25,7 +25,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         void RenderEnemyEncounter(Enemy enemy, Character player, List<string> dungeonLog, string? dungeonName, string? roomName, CanvasContext context);
         void RenderCombatResult(bool playerSurvived, Character player, Enemy enemy, BattleNarrative? battleNarrative, string? dungeonName, string? roomName, CanvasContext context);
         void RenderRoomCompletion(Environment room, Character player, string? dungeonName, CanvasContext context);
-        void RenderDungeonCompletion(Dungeon dungeon, Character player, int xpGained, Item? lootReceived, CanvasContext context);
+        void RenderDungeonCompletion(Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos, CanvasContext context);
         void RenderDungeonExploration(Character player, string currentLocation, List<string> availableActions, List<string> recentEvents, CanvasContext context);
         void RenderGameMenu(Character player, List<Item> inventory, CanvasContext context);
         void ShowMessage(string message, Color color = default);

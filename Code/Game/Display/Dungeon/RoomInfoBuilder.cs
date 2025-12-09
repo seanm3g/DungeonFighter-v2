@@ -17,9 +17,9 @@ namespace RPGGame.Display.Dungeon
         {
             var info = new List<string>();
 
-            var roomHeaderText = AsciiArtAssets.UIText.CreateHeader(AsciiArtAssets.UIText.EnteringRoomHeader);
+            var roomHeaderText = $"===== {AsciiArtAssets.UIText.EnteringRoomHeader} =====";
             var coloredRoomHeader = new ColoredTextBuilder()
-                .Add(roomHeaderText, AsciiArtAssets.Colors.Yellow)
+                .Add(roomHeaderText, AsciiArtAssets.Colors.Gold)
                 .Build();
             info.Add(ColoredTextRenderer.RenderAsMarkup(coloredRoomHeader));
 

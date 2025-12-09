@@ -207,7 +207,7 @@ namespace RPGGame
         /// <param name="healAmount">Healing amount (0 for non-healing actions)</param>
         /// <param name="isCritical">Whether this was a critical hit</param>
         /// <param name="battleNarrative">The battle narrative to add the event to</param>
-        public static void CreateAndAddBattleEvent(Actor source, Actor target, Action action, int damage, int totalRoll, int rollBonus, bool isSuccess, bool isCombo, int comboStep, int healAmount, bool isCritical, BattleNarrative? battleNarrative)
+        public static void CreateAndAddBattleEvent(Actor source, Actor target, Action action, int damage, int totalRoll, int rollBonus, bool isSuccess, bool isCombo, int comboStep, int healAmount, bool isCritical, int naturalRoll, BattleNarrative? battleNarrative)
         {
             try
             {
@@ -229,6 +229,7 @@ namespace RPGGame
                     IsHeal = healAmount > 0,
                     HealAmount = healAmount,
                     Roll = totalRoll - rollBonus, // Base roll without bonuses
+                    NaturalRoll = naturalRoll, // Natural dice roll (1-20) before any modifications
                     Difficulty = 0, // Action doesn't have Difficulty property, use 0
                     IsCritical = isCritical,
                     ActorHealthBefore = GetEntityHealth(source),

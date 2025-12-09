@@ -129,22 +129,31 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets weapon actions from JSON data
+        /// Gets weapon actions from JSON data using tag-based matching.
         /// </summary>
         private List<string> GetWeaponActionsFromJson(WeaponType weaponType)
         {
+            var weaponTag = weaponType.ToString().ToLower();
             var allActions = ActionLoader.GetAllActions();
             var weaponActions = new List<string>();
             
             // Get actions that match the weapon type and have "weapon" tag, but exclude "unique" actions
+            // Uses case-insensitive comparison for robustness
             foreach (var actionData in allActions)
             {
-                if (actionData.Tags.Contains("weapon") && 
-                    actionData.Tags.Contains(weaponType.ToString().ToLower()) &&
-                    !actionData.Tags.Contains("unique"))
+                if (actionData.Tags != null &&
+                    actionData.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
+                    actionData.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)) &&
+                    !actionData.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)))
                 {
                     weaponActions.Add(actionData.Name);
                 }
+            }
+            
+            // Fallback to BASIC ATTACK if no weapon-specific actions found
+            if (weaponActions.Count == 0)
+            {
+                return new List<string> { "BASIC ATTACK" };
             }
             
             return weaponActions;

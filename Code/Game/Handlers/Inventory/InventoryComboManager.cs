@@ -5,6 +5,9 @@ namespace RPGGame.Handlers.Inventory
     using System.Linq;
     using RPGGame;
     using RPGGame.UI.Avalonia;
+    using static RPGGame.Handlers.Inventory.ComboValidator;
+    using static RPGGame.Handlers.Inventory.ComboReorderer;
+    using ActionDelegate = System.Action;
 
     /// <summary>
     /// Manages combo sequence operations: add, remove, and reorder actions.
@@ -14,6 +17,7 @@ namespace RPGGame.Handlers.Inventory
         private readonly GameStateManager stateManager;
         private readonly IUIManager? customUIManager;
         private readonly InventoryStateManager stateTracker;
+        private readonly ComboInputHandler inputHandler;
         
         // Event delegates
         public delegate void OnShowMessage(string message);
@@ -30,6 +34,13 @@ namespace RPGGame.Handlers.Inventory
             this.stateManager = stateManager ?? throw new ArgumentNullException(nameof(stateManager));
             this.customUIManager = customUIManager;
             this.stateTracker = stateTracker ?? throw new ArgumentNullException(nameof(stateTracker));
+            this.inputHandler = new ComboInputHandler(
+                stateManager,
+                stateTracker,
+                customUIManager,
+                message => ShowMessageEvent?.Invoke(message),
+                (ActionDelegate)(() => ShowInventoryEvent?.Invoke()),
+                (ActionDelegate)RenderComboManagementScreen);
         }
         
         /// <summary>
@@ -63,164 +74,23 @@ namespace RPGGame.Handlers.Inventory
         {
             if (stateManager.CurrentPlayer == null) return;
             
-            // Handle action selection for adding to combo
-            if (stateTracker.WaitingForComboActionSelection && int.TryParse(input, out int actionIndex))
+            // Try to handle input through specialized input handler
+            if (inputHandler.HandleAddActionSelection(input, stateManager.CurrentPlayer, 
+                msg => ShowMessageEvent?.Invoke(msg)))
             {
-                stateTracker.WaitingForComboActionSelection = false;
-                
-                if (actionIndex == 0)
-                {
-                    ShowMessageEvent?.Invoke("Cancelled.");
-                    stateTracker.InComboManagement = true;
-                    RenderComboManagementScreen();
-                    return;
-                }
-                
-                var actionPool = stateManager.CurrentPlayer.GetActionPool();
-                if (actionIndex >= 1 && actionIndex <= actionPool.Count)
-                {
-                    var action = actionPool[actionIndex - 1];
-                    stateManager.CurrentPlayer.AddToCombo(action);
-                    ShowMessageEvent?.Invoke($"Added {action.Name} to combo sequence.");
-                }
-                else
-                {
-                    ShowMessageEvent?.Invoke("Invalid action selection.");
-                }
-                
-                stateTracker.InComboManagement = true;
-                RenderComboManagementScreen();
                 return;
             }
             
-            // Handle action removal
-            if (stateTracker.WaitingForComboRemoveSelection && int.TryParse(input, out int removeIndex))
+            if (inputHandler.HandleRemoveActionSelection(input, stateManager.CurrentPlayer,
+                msg => ShowMessageEvent?.Invoke(msg)))
             {
-                stateTracker.WaitingForComboRemoveSelection = false;
-                
-                if (removeIndex == 0)
-                {
-                    ShowMessageEvent?.Invoke("Cancelled.");
-                    stateTracker.InComboManagement = true;
-                    RenderComboManagementScreen();
-                    return;
-                }
-                
-                var comboActions = stateManager.CurrentPlayer.GetComboActions();
-                if (removeIndex >= 1 && removeIndex <= comboActions.Count)
-                {
-                    var action = comboActions[removeIndex - 1];
-                    stateManager.CurrentPlayer.RemoveFromCombo(action);
-                    ShowMessageEvent?.Invoke($"Removed {action.Name} from combo sequence.");
-                }
-                else
-                {
-                    ShowMessageEvent?.Invoke("Invalid action selection.");
-                }
-                
-                stateTracker.InComboManagement = true;
-                RenderComboManagementScreen();
                 return;
             }
             
-            // Handle reorder input
-            if (stateTracker.WaitingForComboReorderInput)
+            if (inputHandler.HandleReorderInput(input, stateManager.CurrentPlayer,
+                msg => ShowMessageEvent?.Invoke(msg),
+                msg => ShowMessageEvent?.Invoke(msg)))
             {
-                var comboActions = stateManager.CurrentPlayer.GetComboActions();
-                
-                // Check if user wants to confirm with 0
-                if (input == "0")
-                {
-                    stateTracker.WaitingForComboReorderInput = false;
-                    
-                    if (string.IsNullOrEmpty(stateTracker.ReorderInputSequence))
-                    {
-                        ShowMessageEvent?.Invoke("Cancelled.");
-                        stateTracker.ReorderInputSequence = "";
-                        stateTracker.InComboManagement = true;
-                        RenderComboManagementScreen();
-                        return;
-                    }
-                    
-                    // Validate and apply the accumulated sequence
-                    if (ValidateReorderInput(stateTracker.ReorderInputSequence, comboActions.Count))
-                    {
-                        if (ApplyReorder(stateTracker.ReorderInputSequence, comboActions))
-                        {
-                            ShowMessageEvent?.Invoke("Combo sequence reordered successfully!");
-                        }
-                        else
-                        {
-                            ShowMessageEvent?.Invoke("Error: Failed to reorder combo sequence.");
-                        }
-                    }
-                    else
-                    {
-                        ShowMessageEvent?.Invoke($"Invalid input. Please enter numbers 1-{comboActions.Count} in any order (e.g., 15324).");
-                    }
-                    
-                    stateTracker.ReorderInputSequence = "";
-                    stateTracker.InComboManagement = true;
-                    RenderComboManagementScreen();
-                    return;
-                }
-                
-                // Handle cancel
-                if (input.ToLower() == "cancel")
-                {
-                    stateTracker.WaitingForComboReorderInput = false;
-                    stateTracker.ReorderInputSequence = "";
-                    ShowMessageEvent?.Invoke("Cancelled.");
-                    stateTracker.InComboManagement = true;
-                    RenderComboManagementScreen();
-                    return;
-                }
-                
-                // Accumulate numeric input
-                if (input.Length == 1 && char.IsDigit(input[0]))
-                {
-                    int digit = int.Parse(input);
-                    // Only accept digits that are valid for the combo (1 to comboActions.Count)
-                    if (digit >= 1 && digit <= comboActions.Count)
-                    {
-                        // Check if we've already entered all required digits
-                        if (stateTracker.ReorderInputSequence.Length >= comboActions.Count)
-                        {
-                            ShowMessageEvent?.Invoke($"You've entered all {comboActions.Count} digits. Press 0 to confirm.");
-                            return;
-                        }
-                        
-                        // Check if this digit is already in the sequence
-                        if (!stateTracker.ReorderInputSequence.Contains(input))
-                        {
-                            stateTracker.ReorderInputSequence += input;
-                            // Re-render to show the current sequence
-                            if (customUIManager is CanvasUICoordinator canvasUI)
-                            {
-                                canvasUI.RenderComboReorderPrompt(stateManager.CurrentPlayer, stateTracker.ReorderInputSequence);
-                            }
-                            
-                            // If we've entered all digits, suggest confirming
-                            if (stateTracker.ReorderInputSequence.Length >= comboActions.Count)
-                            {
-                                ShowMessageEvent?.Invoke("All digits entered. Press 0 to confirm.");
-                            }
-                        }
-                        else
-                        {
-                            ShowMessageEvent?.Invoke($"Number {input} is already in the sequence. Each number can only be used once.");
-                        }
-                    }
-                    else
-                    {
-                        ShowMessageEvent?.Invoke($"Please enter numbers between 1 and {comboActions.Count}.");
-                    }
-                }
-                else
-                {
-                    ShowMessageEvent?.Invoke("Please enter a single digit (1-9) or press 0 to confirm.");
-                }
-                
                 return;
             }
             
@@ -360,88 +230,6 @@ namespace RPGGame.Handlers.Inventory
             RenderComboManagementScreen();
         }
         
-        /// <summary>
-        /// Validates the reorder input string
-        /// </summary>
-        private bool ValidateReorderInput(string input, int actionCount)
-        {
-            if (string.IsNullOrEmpty(input))
-                return false;
-                
-            // Check if input contains only digits
-            if (!input.All(char.IsDigit))
-                return false;
-                
-            // Check if all numbers 1 to actionCount are present exactly once
-            var numbers = input.Select(c => int.Parse(c.ToString())).ToList();
-            
-            if (numbers.Count != actionCount)
-                return false;
-                
-            // Check if all numbers from 1 to actionCount are present
-            for (int i = 1; i <= actionCount; i++)
-            {
-                if (!numbers.Contains(i))
-                    return false;
-            }
-            
-            return true;
-        }
-        
-        /// <summary>
-        /// Applies the reorder to the combo sequence
-        /// </summary>
-        private bool ApplyReorder(string input, List<RPGGame.Action> currentComboActions)
-        {
-            if (stateManager.CurrentPlayer == null) return false;
-            
-            try
-            {
-                var newOrder = input.Select(c => int.Parse(c.ToString())).ToList();
-                
-                // Create a new list with actions in the specified order
-                var reorderedActions = new List<RPGGame.Action>();
-                for (int i = 0; i < newOrder.Count; i++)
-                {
-                    int actionIndex = newOrder[i] - 1; // Convert to 0-based index
-                    if (actionIndex >= 0 && actionIndex < currentComboActions.Count)
-                    {
-                        reorderedActions.Add(currentComboActions[actionIndex]);
-                    }
-                }
-                
-                if (reorderedActions.Count != currentComboActions.Count)
-                {
-                    return false;
-                }
-                
-                // Clear current combo (this sets ComboOrder to 0 on removed actions)
-                foreach (var action in currentComboActions)
-                {
-                    stateManager.CurrentPlayer.RemoveFromCombo(action);
-                }
-                
-                // Set ComboOrder values AFTER removing but BEFORE adding
-                // This ensures that when AddToCombo calls ReorderComboSequence, it sorts correctly
-                for (int i = 0; i < reorderedActions.Count; i++)
-                {
-                    reorderedActions[i].ComboOrder = i + 1;
-                }
-                
-                // Add actions back in the desired order
-                // Since we've set ComboOrder values, ReorderComboSequence will maintain the order
-                foreach (var action in reorderedActions)
-                {
-                    stateManager.CurrentPlayer.AddToCombo(action);
-                }
-                
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
     }
 }
 

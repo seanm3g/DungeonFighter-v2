@@ -3,6 +3,7 @@ using Avalonia.Media;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.ColorSystem.Themes;
 
 namespace RPGGame.Display.Dungeon
 {
@@ -18,12 +19,30 @@ namespace RPGGame.Display.Dungeon
         {
             var info = new List<string>();
 
-            string enemyWeaponInfo = enemy.Weapon != null
-                ? string.Format(AsciiArtAssets.UIText.WeaponSuffix, enemy.Weapon.Name)
-                : "";
-            string encounteredText = string.Format(AsciiArtAssets.UIText.EncounteredFormat, enemy.Name, enemyWeaponInfo);
+            // Build the "A {enemy} with {weapon} appears." message with proper colors
             var encounteredBuilder = new ColoredTextBuilder();
-            encounteredBuilder.Add(encounteredText, ColorPalette.Common);
+            
+            // "A "
+            encounteredBuilder.Add("A ", Colors.White);
+            
+            // Enemy name in enemy color
+            encounteredBuilder.Add(enemy.Name, ColorPalette.Enemy.GetColor());
+            
+            // Weapon info if present
+            if (enemy.Weapon != null)
+            {
+                // " with "
+                encounteredBuilder.Add(" with ", Colors.White);
+                
+                // Weapon name in rarity color
+                var weaponRarity = enemy.Weapon.Rarity ?? "Common";
+                var weaponColor = ItemThemeProvider.GetRarityColor(weaponRarity);
+                encounteredBuilder.Add(enemy.Weapon.Name, weaponColor);
+            }
+            
+            // " appears."
+            encounteredBuilder.Add(" appears.", Colors.White);
+            
             string renderedText = ColoredTextRenderer.RenderAsMarkup(encounteredBuilder.Build());
             // Trim any leading spaces that might be added during rendering
             info.Add(renderedText.TrimStart());

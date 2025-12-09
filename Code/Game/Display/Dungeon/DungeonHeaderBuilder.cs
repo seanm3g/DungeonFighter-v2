@@ -17,9 +17,9 @@ namespace RPGGame.Display.Dungeon
         {
             var header = new List<string>();
 
-            var headerText = AsciiArtAssets.UIText.CreateHeader(AsciiArtAssets.UIText.EnteringDungeonHeader);
+            var headerText = $"===== {AsciiArtAssets.UIText.EnteringDungeonHeader} =====";
             var coloredHeader = new ColoredTextBuilder()
-                .Add(headerText, AsciiArtAssets.Colors.Yellow)
+                .Add(headerText, AsciiArtAssets.Colors.Gold)
                 .Build();
             header.Add(ColoredTextRenderer.RenderAsMarkup(coloredHeader));
 

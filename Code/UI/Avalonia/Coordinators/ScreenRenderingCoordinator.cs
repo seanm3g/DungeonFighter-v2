@@ -250,9 +250,9 @@ namespace RPGGame.UI.Avalonia.Coordinators
         /// <summary>
         /// Renders dungeon completion screen
         /// </summary>
-        public void RenderDungeonCompletion(Dungeon dungeon, Character player, int xpGained, Item? lootReceived)
+        public void RenderDungeonCompletion(Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos)
         {
-            renderer.RenderDungeonCompletion(dungeon, player, xpGained, lootReceived, contextManager.GetCurrentContext());
+            renderer.RenderDungeonCompletion(dungeon, player, xpGained, lootReceived, levelUpInfos ?? new List<LevelUpInfo>(), contextManager.GetCurrentContext());
         }
         
         /// <summary>

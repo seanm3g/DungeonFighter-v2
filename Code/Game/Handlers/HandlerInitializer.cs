@@ -71,7 +71,7 @@ namespace RPGGame.Handlers
             System.Action<string> showMessage,
             System.Action exitGame,
             Func<Task> showDungeonSelection,
-            System.Action<int, Item?> showDungeonCompletion,
+            System.Action<int, Item?, List<LevelUpInfo>> showDungeonCompletion,
             System.Action<Character> showDeathScreen,
             System.Action saveGame)
         {
@@ -177,7 +177,7 @@ namespace RPGGame.Handlers
             
             if (handlers.DungeonRunnerManager != null)
             {
-                handlers.DungeonRunnerManager.DungeonCompletedEvent += (xpGained, lootReceived) => showDungeonCompletion(xpGained, lootReceived);
+                handlers.DungeonRunnerManager.DungeonCompletedEvent += (xpGained, lootReceived, levelUpInfos) => showDungeonCompletion(xpGained, lootReceived, levelUpInfos);
                 handlers.DungeonRunnerManager.ShowDeathScreenEvent += (player) => showDeathScreen(player);
             }
             

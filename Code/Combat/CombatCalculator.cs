@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using RPGGame.Actions.RollModification;
+using RPGGame.Combat.Calculators;
 
 namespace RPGGame
 {
     /// <summary>
+    /// Facade for combat calculations - delegates to specialized calculators
     /// Handles combat calculations including damage, hit/miss logic, and roll bonuses
     /// </summary>
     public static class CombatCalculator
@@ -11,169 +14,26 @@ namespace RPGGame
         /// <summary>
         /// Calculates raw damage before armor reduction
         /// </summary>
-        /// <param name="attacker">The Actor dealing damage</param>
-        /// <param name="action">The action being performed</param>
-        /// <param name="comboAmplifier">Combo amplification multiplier</param>
-        /// <param name="damageMultiplier">Additional damage multiplier</param>
-        /// <param name="roll">The actual roll result</param>
-        /// <returns>Raw damage before armor reduction</returns>
         public static int CalculateRawDamage(Actor attacker, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int roll = 0)
         {
-            // Get base damage from attacker
-            int baseDamage = 0;
-            if (attacker is Character character)
-            {
-                baseDamage = character.GetEffectiveStrength();
-                
-                // Add weapon damage if attacker has a weapon
-                if (character.Weapon is WeaponItem weapon)
-                {
-                    baseDamage += weapon.GetTotalDamage();
-                }
-                
-                // Add equipment damage bonus
-                baseDamage += character.GetEquipmentDamageBonus();
-                
-                // Add modification damage bonus
-                baseDamage += character.GetModificationDamageBonus();
-            }
-            else if (attacker is Enemy enemy)
-            {
-                // For enemies, use strength + weapon damage (same as heroes)
-                baseDamage = enemy.GetEffectiveStrength();
-                
-                // Add weapon damage if enemy has a weapon
-                if (enemy.Weapon is WeaponItem weapon)
-                {
-                    baseDamage += weapon.GetTotalDamage();
-                }
-            }
-            
-            // Apply action damage multiplier if action is provided
-            double actionMultiplier = action?.DamageMultiplier ?? 1.0;
-            
-            // Calculate total damage before armor
-            double totalDamage = (baseDamage * actionMultiplier * comboAmplifier * damageMultiplier);
-            
-            // Get combat configuration
-            var combatConfig = GameConfiguration.Instance.Combat;
-            var combatBalance = GameConfiguration.Instance.CombatBalance;
-            
-            // Apply roll-based damage scaling
-            if (roll > 0)
-            {
-                // Get threshold from threshold manager if available, otherwise use config
-                int criticalThreshold = combatConfig.CriticalHitThreshold;
-                if (attacker != null)
-                {
-                    criticalThreshold = RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(attacker);
-                }
-                
-                // Critical hit on total roll of threshold or higher - FIXED: Allow 20+
-                if (roll >= criticalThreshold)
-                {
-                    if (GameConfiguration.IsDebugEnabled)
-                    {
-                        if (!ActionExecutor.DisableCombatDebugOutput)
-                        {
-                        }
-                    }
-                    totalDamage *= combatBalance.CriticalHitDamageMultiplier;
-                    if (GameConfiguration.IsDebugEnabled)
-                    {
-                        if (!ActionExecutor.DisableCombatDebugOutput)
-                        {
-                        }
-                    }
-                }
-                else
-                {
-                    // Enhanced damage scaling based on roll using RollSystem configuration
-                    // Only apply if not a critical hit (roll < 20)
-                    var rollSystem = GameConfiguration.Instance.RollSystem;
-                    var rollMultipliers = combatBalance.RollDamageMultipliers;
-                    if (roll >= rollSystem.ComboThreshold.Min)
-                    {
-                        totalDamage *= rollMultipliers.ComboRollDamageMultiplier;
-                    }
-                    else if (roll >= rollSystem.BasicAttackThreshold.Min)
-                    {
-                        totalDamage *= rollMultipliers.BasicRollDamageMultiplier;
-                    }
-                }
-            }
-            
-            return (int)totalDamage;
+            return DamageCalculator.CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, roll);
         }
 
         /// <summary>
         /// Calculates damage dealt by an attacker to a target
         /// </summary>
-        /// <param name="attacker">The Actor dealing damage</param>
-        /// <param name="target">The Actor receiving damage</param>
-        /// <param name="action">The action being performed</param>
-        /// <param name="comboAmplifier">Combo amplification multiplier</param>
-        /// <param name="damageMultiplier">Additional damage multiplier</param>
-        /// <param name="rollBonus">Roll bonus for the attack</param>
-        /// <param name="roll">The actual roll result</param>
-        /// <param name="showWeakenedMessage">Whether to show weakened damage message</param>
-        /// <returns>The calculated damage amount</returns>
         public static int CalculateDamage(Actor attacker, Actor target, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, bool showWeakenedMessage = true)
         {
-            // Calculate raw damage before armor
-            int totalDamage = CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, roll);
-            
-            // Apply tag-based damage modification
-            if (action != null)
-            {
-                double tagModifier = Combat.TagDamageCalculator.GetDamageModifier(action, target);
-                totalDamage = (int)(totalDamage * tagModifier);
-            }
-            
-            // Get target's armor
-            int targetArmor = 0;
-            if (target is Enemy targetEnemy)
-            {
-                // For enemies, use the Armor property directly to avoid inheritance issues
-                targetArmor = targetEnemy.Armor;
-            }
-            else if (target is Character targetCharacter)
-            {
-                targetArmor = targetCharacter.GetTotalArmor();
-            }
-            
-            // Calculate final damage after armor reduction
-            int finalDamage;
-            
-            // Get combat configuration
-            var combatBalance = GameConfiguration.Instance.CombatBalance;
-            
-            // Apply simple armor reduction (flat reduction)
-            finalDamage = Math.Max(GameConfiguration.Instance.Combat.MinimumDamage, (int)totalDamage - targetArmor);
-            
-            // Apply weakened effect if target is weakened
-            if (target.IsWeakened && showWeakenedMessage)
-            {
-                finalDamage = (int)(finalDamage * 1.5); // 50% more damage to weakened targets
-            }
-            
-            return finalDamage;
+            return DamageCalculator.CalculateDamage(attacker, target, action, comboAmplifier, damageMultiplier, rollBonus, roll, showWeakenedMessage);
         }
 
         /// <summary>
         /// Calculates hit/miss based on roll value only
         /// 1-5: Miss, 6-13: Regular attack, 14-19: Combo, 20: Combo + Critical
         /// </summary>
-        /// <param name="attacker">The attacking Actor</param>
-        /// <param name="target">The target Actor</param>
-        /// <param name="rollBonus">Roll bonus for the attack</param>
-        /// <param name="roll">The attack roll result</param>
-        /// <returns>True if the attack hits, false if it misses</returns>
         public static bool CalculateHit(Actor attacker, Actor target, int rollBonus, int roll)
         {
-            // Hit/miss is based on roll value only, not target defense
-            // 1-5: Miss, 6-20: Hit
-            return roll >= 6;
+            return HitCalculator.CalculateHit(attacker, target, rollBonus, roll);
         }
 
         /// <summary>
@@ -268,158 +128,25 @@ namespace RPGGame
         /// <summary>
         /// Calculates damage reduction from armor and other sources
         /// </summary>
-        /// <param name="target">The target Actor</param>
-        /// <param name="damage">The incoming damage</param>
-        /// <returns>The damage after reduction</returns>
         public static int ApplyDamageReduction(Actor target, int damage)
         {
-            // Get base armor reduction
-            int armorReduction = 0;
-            if (target is Enemy targetEnemy)
-            {
-                // For enemies, use the Armor property directly to avoid inheritance issues
-                armorReduction = targetEnemy.Armor;
-            }
-            else if (target is Character targetCharacter)
-            {
-                armorReduction = targetCharacter.GetTotalArmor();
-            }
-            
-            // Apply damage reduction from effects
-            double damageReductionMultiplier = 1.0;
-            if (target.DamageReduction > 0)
-            {
-                damageReductionMultiplier = 1.0 - (target.DamageReduction / 100.0);
-            }
-            
-            // Apply simple armor reduction (flat reduction) with damage reduction multiplier
-            int finalDamage = Math.Max(GameConfiguration.Instance.Combat.MinimumDamage, (int)((damage - armorReduction) * damageReductionMultiplier));
-            
-            return finalDamage;
+            return DamageCalculator.ApplyDamageReduction(target, damage);
         }
 
         /// <summary>
         /// Calculates status effect application chance
         /// </summary>
-        /// <param name="action">The action being performed</param>
-        /// <param name="attacker">The attacking Actor</param>
-        /// <param name="target">The target Actor</param>
-        /// <returns>True if status effect should be applied</returns>
         public static bool CalculateStatusEffectChance(Action action, Actor attacker, Actor target)
         {
-            // Check if action can cause any status effect (basic or advanced)
-            if (!action.CausesBleed && !action.CausesWeaken && !action.CausesSlow && 
-                !action.CausesPoison && !action.CausesStun && !action.CausesBurn &&
-                !action.CausesVulnerability && !action.CausesHarden && !action.CausesFortify &&
-                !action.CausesFocus && !action.CausesExpose && !action.CausesHPRegen &&
-                !action.CausesArmorBreak && !action.CausesPierce && !action.CausesReflect &&
-                !action.CausesSilence && !action.CausesStatDrain && !action.CausesAbsorb &&
-                !action.CausesTemporaryHP && !action.CausesConfusion && !action.CausesCleanse &&
-                !action.CausesMark && !action.CausesDisrupt)
-            {
-                return false; // No status effects possible
-            }
-            
-            // Use 2d2-2 roll for status effect chance
-            // 2d2 gives range 2-4, minus 2 gives range 0-2
-            // 0 = no effect, 1+ = effect applied
-            int roll1 = Dice.Roll(1, 2); // First d2
-            int roll2 = Dice.Roll(1, 2); // Second d2
-            int result = (roll1 + roll2) - 2; // 2d2-2
-            
-            // Effect is applied if result is 1 or 2 (66.7% chance)
-            return result >= 1;
+            return StatusEffectCalculator.CalculateStatusEffectChance(action, attacker, target);
         }
         
         /// <summary>
         /// Calculates attack speed for any Actor (shared logic)
         /// </summary>
-        /// <param name="Actor">The Actor to calculate attack speed for</param>
-        /// <returns>Attack speed in seconds</returns>
-        public static double CalculateAttackSpeed(Actor Actor)
+        public static double CalculateAttackSpeed(Actor actor)
         {
-            var tuning = GameConfiguration.Instance;
-            double baseAttackTime = tuning.Combat.BaseAttackTime;
-            
-            // Agility reduces attack time (makes you faster)
-            double agilityReduction = 0;
-            if (Actor is Character character)
-            {
-                agilityReduction = character.Agility * tuning.Combat.AgilitySpeedReduction;
-            }
-            else if (Actor is Enemy enemy)
-            {
-                agilityReduction = enemy.Agility * tuning.Combat.AgilitySpeedReduction;
-            }
-            double agilityAdjustedTime = baseAttackTime - agilityReduction;
-            
-            // Apply Actor-specific modifiers
-            if (Actor is Character charEntity)
-            {
-                // Calculate weapon speed using the equation: (base attack speed + weapon) × action speed
-                double weaponSpeedModifier = 0.0;
-                if (charEntity.Weapon is WeaponItem w)
-                {
-                    // Weapon speed is added to base attack time, then multiplied by action length
-                    // Fast weapons have negative values (speed up), slow weapons have positive values (slow down)
-                    weaponSpeedModifier = w.BaseAttackSpeed;
-                    
-                    // Debug logging for weapon speed calculation
-                    if (GameConfiguration.IsDebugEnabled)
-                    {
-                    }
-                }
-                double weaponAdjustedTime = (agilityAdjustedTime + weaponSpeedModifier);
-                
-                // Equipment speed bonus reduces time further
-                double equipmentSpeedBonus = charEntity.GetEquipmentAttackSpeedBonus();
-                double finalAttackTime = weaponAdjustedTime - equipmentSpeedBonus;
-                
-                // Apply slow debuff if active
-                if (charEntity.SlowTurns > 0)
-                {
-                    finalAttackTime *= charEntity.SlowMultiplier;
-                }
-                
-                // Apply speed multiplier modifications (like Ethereal)
-                double speedMultiplier = charEntity.GetModificationSpeedMultiplier();
-                finalAttackTime /= speedMultiplier; // Divide by multiplier to make attacks faster
-                
-                // Apply minimum cap
-                double finalResult = Math.Max(tuning.Combat.MinimumAttackTime, finalAttackTime);
-                
-                // Debug logging for final result
-                if (GameConfiguration.IsDebugEnabled)
-                {
-                }
-                
-                return finalResult;
-            }
-            else if (Actor is Enemy enemyEntity)
-            {
-                // Apply weapon speed modifier (same as characters)
-                double weaponSpeedModifier = 0.0;
-                if (enemyEntity.Weapon is WeaponItem w)
-                {
-                    weaponSpeedModifier = w.BaseAttackSpeed;
-                }
-                double weaponAdjustedTime = (agilityAdjustedTime + weaponSpeedModifier);
-                
-                // Apply archetype speed multiplier
-                double finalAttackTime = weaponAdjustedTime * enemyEntity.AttackProfile.SpeedMultiplier;
-                
-                // Apply slow debuff if active
-                if (enemyEntity.SlowTurns > 0)
-                {
-                    finalAttackTime *= enemyEntity.SlowMultiplier;
-                }
-                
-                // Apply minimum cap
-                return Math.Max(tuning.Combat.MinimumAttackTime, finalAttackTime);
-            }
-            
-            // Fallback for other Actor types
-            return Math.Max(tuning.Combat.MinimumAttackTime, agilityAdjustedTime);
+            return SpeedCalculator.CalculateAttackSpeed(actor);
         }
 
     }

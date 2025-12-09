@@ -67,28 +67,28 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets actions specific to a weapon.
+        /// Gets actions specific to a weapon using tag-based matching from JSON.
         /// </summary>
         private List<string> GetWeaponActions(WeaponItem weapon)
         {
-            var actions = new List<string>();
             var weaponTag = weapon.WeaponType.ToString().ToLower();
-
             var allActions = ActionLoader.GetAllActions();
 
-            // Special handling for maces
-            if (weapon.WeaponType == WeaponType.Mace)
-            {
-                return new List<string> { "CRUSHING BLOW", "SHIELD BREAK", "THUNDER CLAP" };
-            }
-
-            // Get weapon-specific actions from JSON
+            // Get weapon-specific actions from JSON using tag matching
+            // Actions must have both "weapon" tag and the weapon type tag (e.g., "wand", "mace")
             var weaponActions = allActions
-                .Where(action => action.Tags.Contains("weapon") &&
-                                action.Tags.Contains(weaponTag) &&
-                                !action.Tags.Contains("unique"))
+                .Where(action => action.Tags != null &&
+                                action.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
+                                action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)) &&
+                                !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)))
                 .Select(action => action.Name)
                 .ToList();
+
+            // Fallback to BASIC ATTACK if no weapon-specific actions found
+            if (weaponActions.Count == 0)
+            {
+                return new List<string> { "BASIC ATTACK" };
+            }
 
             return weaponActions;
         }

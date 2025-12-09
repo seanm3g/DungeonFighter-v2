@@ -60,7 +60,9 @@ namespace RPGGame.Combat.Turn
             if (results.Count > 0)
             {
                 // Apply spacing for poison damage (context-aware)
-                if (!RPGGame.TurnManager.DisableCombatUIOutput && !blankLineAdded)
+                // Always call ApplySpacingBefore to let the spacing system handle rules
+                // The spacing system will add blank lines between consecutive poison damage blocks
+                if (!RPGGame.TurnManager.DisableCombatUIOutput)
                 {
                     TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.PoisonDamage);
                     blankLineAdded = true;

@@ -83,8 +83,8 @@ namespace RPGGame
                 stateManager.IncrementNarrativeEventCount();
             }
 
-            // Critical Miss - when a critical miss occurs (roll <= 1)
-            if (!evt.IsSuccess && evt.Roll <= 1)
+            // Critical Miss - when a critical miss occurs (natural 1 only)
+            if (!evt.IsSuccess && evt.NaturalRoll == 1)
             {
                 var replacements = new Dictionary<string, string> { { "name", evt.Actor } };
                 string narrative = textProvider.ReplacePlaceholders(

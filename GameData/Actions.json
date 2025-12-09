@@ -6,16 +6,10 @@
     "length": 1.0,
     "multiHitCount": 1,
     "description": "A devastating overhead strike with a mace",
-    "tags": ["weapon", "mace"]
-  },
-  {
-    "name": "SHIELD BREAK",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "multiHitCount": 1,
-    "description": "A powerful mace strike that breaks through enemy defenses",
-    "tags": ["weapon", "mace"]
+    "tags": ["weapon", "mace"],
+    "statBonus": 3,
+    "statBonusType": "STR",
+    "statBonusDuration": 999
   },
   {
     "name": "SWORD STRIKE",

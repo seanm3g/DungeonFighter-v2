@@ -192,8 +192,8 @@ namespace RPGGame.UI.Avalonia
             => screenRenderingCoordinator.RenderCombatResult(playerSurvived, player, enemy, battleNarrative, dungeonName, roomName);
         public void RenderRoomCompletion(Environment room, Character player, string? dungeonName = null) 
             => screenRenderingCoordinator.RenderRoomCompletion(room, player, dungeonName);
-        public void RenderDungeonCompletion(Dungeon dungeon, Character player, int xpGained, Item? lootReceived) 
-            => screenRenderingCoordinator.RenderDungeonCompletion(dungeon, player, xpGained, lootReceived);
+        public void RenderDungeonCompletion(Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos) 
+            => screenRenderingCoordinator.RenderDungeonCompletion(dungeon, player, xpGained, lootReceived, levelUpInfos);
         public void RenderDeathScreen(Character player, string defeatSummary) 
             => screenRenderingCoordinator.RenderDeathScreen(player, defeatSummary);
         public void RenderDungeonExploration(Character player, string currentLocation, List<string> availableActions, List<string> recentEvents) 

@@ -21,6 +21,16 @@ namespace RPGGame
         /// </summary>
         public void LevelUp()
         {
+            var levelUpInfo = LevelUpWithInfo();
+            // Display level-up info immediately (for backwards compatibility when not in dungeon completion)
+            DisplayLevelUpInfo(levelUpInfo);
+        }
+        
+        /// <summary>
+        /// Handles the complete level up process and returns level-up information
+        /// </summary>
+        public LevelUpInfo LevelUpWithInfo()
+        {
             // Note: Level has already been incremented by Progression.AddXP()
             int newLevel = _character.Level;
             _character.Stats.LevelUp((_character.Equipment.Weapon as WeaponItem)?.WeaponType ?? WeaponType.Mace);
@@ -45,17 +55,20 @@ namespace RPGGame
             _character.Health.CurrentHealth = _character.Health.MaxHealth;
             
             // Award class point and stat increases based on equipped weapon
+            LevelUpInfo levelUpInfo;
             if (_character.Equipment.Weapon is WeaponItem equippedWeapon)
             {
-                HandleWeaponBasedLevelUp(equippedWeapon);
+                levelUpInfo = HandleWeaponBasedLevelUpWithInfo(equippedWeapon, newLevel);
             }
             else
             {
-                HandleNoWeaponLevelUp();
+                levelUpInfo = HandleNoWeaponLevelUpWithInfo(newLevel);
             }
 
             // Re-add class actions when points change
             _character.Actions.AddClassActions(_character, _character.Progression, (_character.Equipment.Weapon as WeaponItem)?.WeaponType);
+            
+            return levelUpInfo;
         }
 
         /// <summary>
@@ -85,6 +98,41 @@ namespace RPGGame
             DisplayLevelUpMessage(className, equippedWeapon);
             DisplayClassPointsInfo();
         }
+        
+        /// <summary>
+        /// Handles level up when a weapon is equipped and returns level-up info
+        /// </summary>
+        private LevelUpInfo HandleWeaponBasedLevelUpWithInfo(WeaponItem equippedWeapon, int newLevel)
+        {
+            string className = GetClassName(equippedWeapon.WeaponType);
+            
+            _character.Progression.AwardClassPoint(equippedWeapon.WeaponType);
+            
+            var levelUpInfo = new LevelUpInfo
+            {
+                NewLevel = newLevel,
+                ClassName = className,
+                StatIncreaseMessage = _character.Stats.GetStatIncreaseMessage(equippedWeapon.WeaponType),
+                CurrentClass = _character.Progression.GetCurrentClass(),
+                FullNameWithQualifier = _character.Progression.GetFullNameWithQualifier(_character.Name),
+                HasWeapon = true
+            };
+            
+            // Build class points info
+            var classPointsInfo = new List<string>();
+            if (_character.Progression.BarbarianPoints > 0) classPointsInfo.Add($"Barbarian({_character.Progression.BarbarianPoints})");
+            if (_character.Progression.WarriorPoints > 0) classPointsInfo.Add($"Warrior({_character.Progression.WarriorPoints})");
+            if (_character.Progression.RoguePoints > 0) classPointsInfo.Add($"Rogue({_character.Progression.RoguePoints})");
+            if (_character.Progression.WizardPoints > 0) classPointsInfo.Add($"Wizard({_character.Progression.WizardPoints})");
+            
+            if (classPointsInfo.Count > 0)
+            {
+                levelUpInfo.ClassPointsInfo = string.Join(" ", classPointsInfo);
+                levelUpInfo.ClassUpgradeInfo = _character.Progression.GetClassUpgradeInfo();
+            }
+            
+            return levelUpInfo;
+        }
 
         /// <summary>
         /// Handles level up when no weapon is equipped
@@ -97,6 +145,20 @@ namespace RPGGame
             UIManager.WriteLine($"You reached level {_character.Progression.Level}!");
             UIManager.WriteLine("No weapon equipped - equal stat increases (+2 all stats)");
             UIManager.WriteBlankLine();
+        }
+        
+        /// <summary>
+        /// Handles level up when no weapon is equipped and returns level-up info
+        /// </summary>
+        private LevelUpInfo HandleNoWeaponLevelUpWithInfo(int newLevel)
+        {
+            _character.Stats.LevelUpNoWeapon();
+            
+            return new LevelUpInfo
+            {
+                NewLevel = newLevel,
+                HasWeapon = false
+            };
         }
 
         /// <summary>
@@ -143,6 +205,21 @@ namespace RPGGame
             {
                 UIManager.WriteLine($"Class Points: {string.Join(" ", classPointsInfo)}");
                 UIManager.WriteLine($"Next Upgrades: {_character.Progression.GetClassUpgradeInfo()}");
+            }
+            UIManager.WriteBlankLine();
+        }
+        
+        /// <summary>
+        /// Displays level-up information (for backwards compatibility)
+        /// </summary>
+        private void DisplayLevelUpInfo(LevelUpInfo levelUpInfo)
+        {
+            if (!levelUpInfo.IsValid) return;
+            
+            var messages = levelUpInfo.GetDisplayMessages();
+            foreach (var message in messages)
+            {
+                UIManager.WriteLine(message);
             }
             UIManager.WriteBlankLine();
         }

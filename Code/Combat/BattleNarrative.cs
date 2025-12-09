@@ -25,6 +25,7 @@ namespace RPGGame
         public int ActorHealthAfter { get; set; }
         public int TargetHealthAfter { get; set; }
         public int Roll { get; set; }
+        public int NaturalRoll { get; set; }
         public int Difficulty { get; set; }
         public bool IsCritical { get; set; }
 

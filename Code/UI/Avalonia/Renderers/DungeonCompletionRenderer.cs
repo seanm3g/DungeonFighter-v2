@@ -26,7 +26,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>
         /// Renders the dungeon completion screen with detailed statistics and menu choices
         /// </summary>
-        public int RenderDungeonCompletion(int x, int y, int width, int height, Dungeon dungeon, Character player, int xpGained, Item? lootReceived)
+        public int RenderDungeonCompletion(int x, int y, int width, int height, Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos)
         {
             int currentLineCount = 0;
             int startY = y + 2;
@@ -92,6 +92,33 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.AddText(x + 6, currentY, $"Experience Gained: {xpGained:N0} XP", AsciiArtAssets.Colors.White);
             currentY += 2;
             currentLineCount += 2;
+            
+            // Level Up Section (if any level-ups occurred)
+            if (levelUpInfos != null && levelUpInfos.Count > 0)
+            {
+                canvas.AddText(x + 4, currentY, AsciiArtAssets.UIText.CreateHeader("LEVEL UP"), AsciiArtAssets.Colors.Gold);
+                currentY += 2;
+                currentLineCount += 2;
+                
+                foreach (var levelUpInfo in levelUpInfos)
+                {
+                    if (!levelUpInfo.IsValid) continue;
+                    
+                    var messages = levelUpInfo.GetDisplayMessages();
+                    foreach (var message in messages)
+                    {
+                        // Use gold color for level-up messages to make them stand out
+                        var color = message.Contains("LEVEL UP") || message.Contains("level") 
+                            ? AsciiArtAssets.Colors.Gold 
+                            : AsciiArtAssets.Colors.White;
+                        canvas.AddText(x + 6, currentY, message, color);
+                        currentY++;
+                        currentLineCount++;
+                    }
+                    currentY++; // Extra spacing between multiple level-ups
+                    currentLineCount++;
+                }
+            }
             
             if (lootReceived != null)
             {

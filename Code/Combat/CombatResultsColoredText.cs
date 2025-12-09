@@ -110,12 +110,13 @@ namespace RPGGame
             Actor target, 
             Action action, 
             int roll, 
-            int rollBonus)
+            int rollBonus,
+            int naturalRoll)
         {
             var builder = new ColoredTextBuilder();
             
             int totalRoll = roll + rollBonus;
-            bool isCriticalMiss = totalRoll <= 1;
+            bool isCriticalMiss = naturalRoll == 1; // Natural 1 only
             
             // Attacker name (check Enemy first since Enemy inherits from Character)
             builder.Add(attacker.Name, attacker is Enemy ? ColorPalette.Enemy : ColorPalette.Player);

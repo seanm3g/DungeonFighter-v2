@@ -55,6 +55,26 @@ namespace RPGGame
                 _levelUp.LevelUp();
             }
         }
+        
+        /// <summary>
+        /// Adds XP and returns level-up information for any levels gained
+        /// </summary>
+        public List<LevelUpInfo> AddXPWithLevelUpInfo(int amount)
+        {
+            int oldLevel = _character.Progression.Level;
+            _character.Progression.AddXP(amount);
+            
+            // Apply character-level changes for each level gained and collect info
+            int levelsGained = _character.Progression.Level - oldLevel;
+            var levelUpInfos = new List<LevelUpInfo>();
+            for (int i = 0; i < levelsGained; i++)
+            {
+                var levelUpInfo = _levelUp.LevelUpWithInfo();
+                levelUpInfos.Add(levelUpInfo);
+            }
+            
+            return levelUpInfos;
+        }
 
         // === STAT ACCESS ===
         public int Strength 

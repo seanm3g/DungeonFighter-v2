@@ -273,9 +273,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>
         /// Renders the dungeon completion screen with detailed statistics and menu choices
         /// </summary>
-        public void RenderDungeonCompletion(int x, int y, int width, int height, Dungeon dungeon, Character player, int xpGained, Item? lootReceived)
+        public void RenderDungeonCompletion(int x, int y, int width, int height, Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos)
         {
-            currentLineCount = dungeonCompletionRenderer.RenderDungeonCompletion(x, y, width, height, dungeon, player, xpGained, lootReceived);
+            currentLineCount = dungeonCompletionRenderer.RenderDungeonCompletion(x, y, width, height, dungeon, player, xpGained, lootReceived, levelUpInfos ?? new List<LevelUpInfo>());
         }
         
         /// <summary>

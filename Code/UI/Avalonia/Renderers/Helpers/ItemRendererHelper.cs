@@ -14,13 +14,17 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
     public static class ItemRendererHelper
     {
         /// <summary>
-        /// Gets the slot name for an item type
+        /// Gets the slot name for an item, showing weapon class for weapons
         /// </summary>
-        private static string GetSlotName(ItemType itemType)
+        private static string GetSlotName(Item item)
         {
-            return itemType switch
+            if (item is WeaponItem weaponItem)
             {
-                ItemType.Weapon => "Weapon",
+                return weaponItem.WeaponType.ToString();
+            }
+            
+            return item.Type switch
+            {
                 ItemType.Head => "Head",
                 ItemType.Chest => "Body",
                 ItemType.Feet => "Feet",
@@ -34,7 +38,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
         public static void RenderItemName(ColoredTextWriter textWriter, GameCanvasControl canvas, 
             int x, int y, int itemIndex, Item item, bool useColoredText = true)
         {
-            string slotName = GetSlotName(item.Type);
+            string slotName = GetSlotName(item);
             
             if (useColoredText)
             {

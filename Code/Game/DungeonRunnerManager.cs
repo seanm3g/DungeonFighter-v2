@@ -30,7 +30,7 @@ namespace RPGGame
         private DungeonDisplayManager displayManager;
         
         // Delegates for dungeon completion with reward data
-        public delegate void OnDungeonCompleted(int xpGained, Item? lootReceived);
+        public delegate void OnDungeonCompleted(int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos);
         public delegate void OnShowDeathScreen(Character player);
         
         public event OnDungeonCompleted? DungeonCompletedEvent;
@@ -39,6 +39,7 @@ namespace RPGGame
         // Store last reward data for completion screen
         private int lastXPGained;
         private Item? lastLootReceived;
+        private List<LevelUpInfo> lastLevelUpInfos = new List<LevelUpInfo>();
 
         public DungeonRunnerManager(
             GameStateManager stateManager,
@@ -343,7 +344,7 @@ namespace RPGGame
             // Award rewards and get the data
             var dungeonLevel = stateManager.CurrentDungeon.MaxLevel;
             var dungeonManager = new DungeonManagerWithRegistry();
-            var (xpGained, lootReceived) = dungeonManager.AwardLootAndXPWithReturns(
+            var (xpGained, lootReceived, levelUpInfos) = dungeonManager.AwardLootAndXPWithReturns(
                 stateManager.CurrentPlayer, 
                 stateManager.CurrentInventory, 
                 new List<Dungeon> { stateManager.CurrentDungeon }
@@ -352,6 +353,7 @@ namespace RPGGame
             // Store reward data
             lastXPGained = xpGained;
             lastLootReceived = lootReceived;
+            lastLevelUpInfos = levelUpInfos ?? new List<LevelUpInfo>();
             
             // Add a delay to let rewards display if in console
             await Task.Delay(1500);
@@ -360,15 +362,15 @@ namespace RPGGame
             stateManager.TransitionToState(GameState.DungeonCompletion);
             
             // Trigger event to handle UI display with reward data
-            DungeonCompletedEvent?.Invoke(xpGained, lootReceived);
+            DungeonCompletedEvent?.Invoke(xpGained, lootReceived, lastLevelUpInfos);
         }
         
         /// <summary>
         /// Get the last reward data from dungeon completion
         /// </summary>
-        public (int xpGained, Item? lootReceived) GetLastRewardData()
+        public (int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos) GetLastRewardData()
         {
-            return (lastXPGained, lastLootReceived);
+            return (lastXPGained, lastLootReceived, lastLevelUpInfos);
         }
 
     }

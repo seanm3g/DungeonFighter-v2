@@ -114,6 +114,7 @@ namespace RPGGame
 
         // XP and leveling (delegated to LevelUpManager)
         public void AddXP(int amount) => Facade.AddXP(amount);
+        public List<LevelUpInfo> AddXPWithLevelUpInfo(int amount) => Facade.AddXPWithLevelUpInfo(amount);
         public void LevelUp() => _levelUpManager.LevelUp();
 
         // Stat accessors (delegated to Facade)

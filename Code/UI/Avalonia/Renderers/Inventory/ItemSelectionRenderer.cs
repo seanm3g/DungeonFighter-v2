@@ -27,13 +27,17 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         }
         
         /// <summary>
-        /// Gets the slot name for an item type
+        /// Gets the slot name for an item, showing weapon class for weapons
         /// </summary>
-        private static string GetSlotName(ItemType itemType)
+        private static string GetSlotName(Item item)
         {
-            return itemType switch
+            if (item is WeaponItem weaponItem)
             {
-                ItemType.Weapon => "Weapon",
+                return weaponItem.WeaponType.ToString();
+            }
+            
+            return item.Type switch
+            {
                 ItemType.Head => "Head",
                 ItemType.Chest => "Body",
                 ItemType.Feet => "Feet",
@@ -70,7 +74,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     var itemStats = ItemStatFormatter.GetItemStats(item, character);
                     
                     // Create clickable button for each item
-                    string slotName = GetSlotName(item.Type);
+                    string slotName = GetSlotName(item);
                     clickableElements.Add(InventoryButtonFactory.CreateButton(x + 2, y, width - 4, (i + 1).ToString(), $"[{i + 1}] [{slotName}] {item.Name}"));
                     
                     // Render item name with colored text

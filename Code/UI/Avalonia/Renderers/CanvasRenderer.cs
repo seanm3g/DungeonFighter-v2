@@ -3,6 +3,7 @@ using Avalonia.Threading;
 using RPGGame;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Display;
+using RPGGame.UI.Avalonia.Renderers.Layout;
 using System;
 using System.Collections.Generic;
 
@@ -18,6 +19,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         private readonly ICanvasTextManager textManager;
         private readonly ICanvasInteractionManager interactionManager;
         private readonly ICanvasContextManager contextManager;
+        private readonly LayoutCoordinator layoutCoordinator;
         
         // Core specialized renderers
         private readonly MenuRenderer menuRenderer;
@@ -37,6 +39,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             this.textManager = textManager;
             this.interactionManager = interactionManager;
             this.contextManager = contextManager;
+            this.layoutCoordinator = new LayoutCoordinator(canvas, interactionManager);
             
             // Initialize core specialized renderers
             this.menuRenderer = new MenuRenderer(canvas, interactionManager.ClickableElements, textManager, interactionManager);
@@ -352,11 +355,11 @@ namespace RPGGame.UI.Avalonia.Renderers
             }, context);
         }
 
-        public void RenderDungeonCompletion(Dungeon dungeon, Character player, int xpGained, Item? lootReceived, CanvasContext context)
+        public void RenderDungeonCompletion(Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos, CanvasContext context)
         {
             RenderWithLayout(player, $"DUNGEON COMPLETED: {dungeon.Name.ToUpper()}", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                dungeonRenderer.RenderDungeonCompletion(contentX, contentY, contentWidth, contentHeight, dungeon, player, xpGained, lootReceived);
+                dungeonRenderer.RenderDungeonCompletion(contentX, contentY, contentWidth, contentHeight, dungeon, player, xpGained, lootReceived, levelUpInfos ?? new List<LevelUpInfo>());
             }, context);
         }
 
@@ -459,11 +462,7 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         private void RenderWithLayout(Character? character, string title, Action<int, int, int, int> renderContent, CanvasContext context, Enemy? enemy, string? dungeonName, string? roomName, bool clearCanvas = true)
         {
-            interactionManager.ClearClickableElements();
-            
-            // Use the persistent layout manager for proper three-panel layout
-            var layoutManager = new PersistentLayoutManager(canvas);
-            layoutManager.RenderLayout(character, renderContent, title, enemy, dungeonName, roomName, clearCanvas);
+            layoutCoordinator.RenderWithLayout(character, title, renderContent, context, enemy, dungeonName, roomName, clearCanvas);
         }
 
         #endregion

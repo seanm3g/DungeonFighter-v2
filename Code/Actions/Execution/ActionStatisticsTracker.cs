@@ -16,7 +16,7 @@ namespace RPGGame.Actions.Execution
             if (character == null) return;
             
             bool isCritical = totalRoll >= 20;
-            bool isCriticalMiss = (baseRoll + rollBonus) <= 1;
+            bool isCriticalMiss = baseRoll == 1; // Natural 1 only
             
             character.RecordAction(true, isCritical, isCriticalMiss);
             character.RecordDamageDealt(damage, isCritical);
@@ -51,7 +51,7 @@ namespace RPGGame.Actions.Execution
         {
             if (character == null) return;
             
-            bool isCriticalMiss = (baseRoll + rollBonus) <= 1;
+            bool isCriticalMiss = baseRoll == 1; // Natural 1 only
             character.RecordAction(false, false, isCriticalMiss);
         }
         

@@ -41,8 +41,8 @@ namespace RPGGame
         /// <param name="player">The player character</param>
         /// <param name="inventory">Player's inventory</param>
         /// <param name="dungeonLevel">Level of the completed dungeon</param>
-        /// <returns>Tuple containing XP gained and loot received</returns>
-        public (int xpGained, Item? lootReceived) AwardLootAndXPWithReturns(Character player, List<Item> inventory, int dungeonLevel)
+        /// <returns>Tuple containing XP gained, loot received, and level-up information</returns>
+        public (int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos) AwardLootAndXPWithReturns(Character player, List<Item> inventory, int dungeonLevel)
         {
             // Track dungeon completion statistics
             player.RecordDungeonCompleted();
@@ -50,13 +50,13 @@ namespace RPGGame
             // Heal character back to max health between dungeons
             HealPlayer(player);
             
-            // Award XP and get the amount
-            int xpGained = AwardXPWithReturn(player);
+            // Award XP and get the amount and level-up info
+            var (xpGained, levelUpInfos) = AwardXPWithReturnAndLevelUpInfo(player);
             
             // Award guaranteed loot for dungeon completion and get the item
             Item? lootReceived = AwardLootWithReturn(player, inventory, dungeonLevel);
             
-            return (xpGained, lootReceived);
+            return (xpGained, lootReceived, levelUpInfos);
         }
 
         /// <summary>
@@ -100,6 +100,17 @@ namespace RPGGame
             int xpReward = random.Next(tuning.Progression.EnemyXPBase, tuning.Progression.EnemyXPBase + 50) * player.Level;
             player.AddXP(xpReward);
             return xpReward;
+        }
+        
+        /// <summary>
+        /// Awards XP to the player and returns the amount and level-up information
+        /// </summary>
+        private (int xpGained, List<LevelUpInfo> levelUpInfos) AwardXPWithReturnAndLevelUpInfo(Character player)
+        {
+            var tuning = GameConfiguration.Instance;
+            int xpReward = random.Next(tuning.Progression.EnemyXPBase, tuning.Progression.EnemyXPBase + 50) * player.Level;
+            var levelUpInfos = player.AddXPWithLevelUpInfo(xpReward);
+            return (xpReward, levelUpInfos);
         }
 
         /// <summary>

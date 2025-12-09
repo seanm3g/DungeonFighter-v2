@@ -153,8 +153,8 @@ namespace RPGGame
         /// <param name="player">The player character</param>
         /// <param name="inventory">Player's inventory</param>
         /// <param name="availableDungeons">Available dungeons to determine dungeon level</param>
-        /// <returns>Tuple containing XP gained and loot received</returns>
-        public (int xpGained, Item? lootReceived) AwardLootAndXPWithReturns(Character player, List<Item> inventory, List<Dungeon> availableDungeons)
+        /// <returns>Tuple containing XP gained, loot received, and level-up information</returns>
+        public (int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos) AwardLootAndXPWithReturns(Character player, List<Item> inventory, List<Dungeon> availableDungeons)
         {
             // Determine current dungeon level
             int dungeonLevel = GetCurrentDungeonLevel(player, availableDungeons);

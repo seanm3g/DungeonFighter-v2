@@ -115,7 +115,7 @@ namespace RPGGame
             { (BlockType.CombatAction, BlockType.PoisonDamage), 1 },
             { (BlockType.EnvironmentalAction, BlockType.PoisonDamage), 1 },
             { (BlockType.PoisonDamage, BlockType.CombatAction), 0 },
-            { (BlockType.PoisonDamage, BlockType.PoisonDamage), 0 },
+            { (BlockType.PoisonDamage, BlockType.PoisonDamage), 1 },  // Blank line between different entities' poison damage blocks
             
             // Narrative blocks
             { (BlockType.CombatAction, BlockType.Narrative), 1 },

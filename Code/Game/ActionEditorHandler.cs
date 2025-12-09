@@ -4,6 +4,7 @@ namespace RPGGame
     using System.Collections.Generic;
     using System.Linq;
     using RPGGame.Editors;
+    using RPGGame.GameCore.Editors;
     using RPGGame.UI.Avalonia;
     using RPGGame.Utils;
 
@@ -15,8 +16,6 @@ namespace RPGGame
         private GameStateManager stateManager;
         private IUIManager? customUIManager;
         private ActionEditor actionEditor;
-        private int currentListPage = 0;
-        private const int ActionsPerPage = 20;
         private bool isViewingActionList = false;
         private ActionData? selectedAction = null;
         
@@ -35,6 +34,10 @@ namespace RPGGame
             "Cooldown (number, default 0)"
         };
         
+        // Extracted components
+        private readonly RPGGame.GameCore.Editors.ActionFormProcessor formProcessor;
+        private readonly RPGGame.GameCore.Editors.ActionListManager listManager;
+        
         // Delegates
         public delegate void OnShowDeveloperMenu();
         
@@ -45,6 +48,8 @@ namespace RPGGame
             this.stateManager = stateManager ?? throw new ArgumentNullException(nameof(stateManager));
             this.customUIManager = customUIManager;
             this.actionEditor = new ActionEditor();
+            this.formProcessor = new RPGGame.GameCore.Editors.ActionFormProcessor(ShowMessage);
+            this.listManager = new RPGGame.GameCore.Editors.ActionListManager(actionEditor, customUIManager, ShowMessage);
         }
 
         /// <summary>
@@ -195,10 +200,7 @@ namespace RPGGame
         private void ShowActionList()
         {
             isViewingActionList = true;
-            if (customUIManager is CanvasUICoordinator canvasUI)
-            {
-                canvasUI.RenderActionList(actionEditor.GetActions(), currentListPage);
-            }
+            listManager.ShowActionList();
         }
         
         /// <summary>
@@ -220,18 +222,10 @@ namespace RPGGame
         /// </summary>
         private void HandleActionSelection(int selectionNumber)
         {
-            var actions = actionEditor.GetActions();
-            int startIndex = currentListPage * ActionsPerPage;
-            int actionIndex = startIndex + selectionNumber - 1; // Convert 1-based to 0-based
-            
-            if (actionIndex >= 0 && actionIndex < actions.Count)
+            var selected = listManager.HandleActionSelection(selectionNumber, ShowActionDetails);
+            if (selected != null)
             {
-                var selectedAction = actions[actionIndex];
-                ShowActionDetails(selectedAction);
-            }
-            else
-            {
-                ShowMessage($"Invalid selection. Please choose a number between 1 and {Math.Min(ActionsPerPage, actions.Count - startIndex)}.");
+                selectedAction = selected;
             }
         }
         
@@ -240,21 +234,7 @@ namespace RPGGame
         /// </summary>
         private void HandleCombatScroll(string input)
         {
-            if (customUIManager is CanvasUICoordinator canvasUI)
-            {
-                if (input == "up")
-                {
-                    currentListPage = Math.Max(0, currentListPage - 1);
-                    ShowActionList();
-                }
-                else if (input == "down")
-                {
-                    var actions = actionEditor.GetActions();
-                    int maxPages = (int)Math.Ceiling(actions.Count / (double)ActionsPerPage);
-                    currentListPage = Math.Min(maxPages - 1, currentListPage + 1);
-                    ShowActionList();
-                }
-            }
+            listManager.HandleScroll(input);
         }
 
         /// <summary>
@@ -373,7 +353,7 @@ namespace RPGGame
             }
 
             // Process current step with the input
-            bool stepComplete = ProcessFormStep(input);
+            bool stepComplete = formProcessor.ProcessFormStep(newAction, currentFormStep, input);
             
             if (stepComplete)
             {
@@ -400,99 +380,6 @@ namespace RPGGame
                 {
                     canvasUI.RenderCreateActionForm(newAction, currentFormStep, formSteps, currentFormInput);
                 }
-            }
-        }
-
-        /// <summary>
-        /// Process input for the current form step
-        /// </summary>
-        private bool ProcessFormStep(string input)
-        {
-            if (newAction == null) return false;
-
-            switch (currentFormStep)
-            {
-                case 0: // Name
-                    if (!string.IsNullOrWhiteSpace(input))
-                    {
-                        newAction.Name = input.Trim().ToUpper();
-                        return true;
-                    }
-                    ShowMessage("Name cannot be empty. Please enter a name.");
-                    return false;
-
-                case 1: // Type
-                    string typeLower = input.Trim().ToLower();
-                    if (typeLower == "attack" || typeLower == "heal" || typeLower == "buff" || 
-                        typeLower == "debuff" || typeLower == "spell" || typeLower == "interact" || 
-                        typeLower == "move" || typeLower == "useitem")
-                    {
-                        newAction.Type = char.ToUpper(typeLower[0]) + typeLower.Substring(1);
-                        return true;
-                    }
-                    ShowMessage("Invalid type. Use: Attack, Heal, Buff, Debuff, Spell, Interact, Move, or UseItem");
-                    return false;
-
-                case 2: // TargetType
-                    string targetLower = input.Trim().ToLower();
-                    if (targetLower == "self" || targetLower == "singletarget" || 
-                        targetLower == "areaofeffect" || targetLower == "environment")
-                    {
-                        newAction.TargetType = targetLower == "singletarget" ? "SingleTarget" :
-                                              targetLower == "areaofeffect" ? "AreaOfEffect" :
-                                              char.ToUpper(targetLower[0]) + targetLower.Substring(1);
-                        return true;
-                    }
-                    ShowMessage("Invalid target type. Use: Self, SingleTarget, AreaOfEffect, or Environment");
-                    return false;
-
-                case 3: // BaseValue
-                    if (int.TryParse(input.Trim(), out int baseValue))
-                    {
-                        newAction.BaseValue = baseValue;
-                        return true;
-                    }
-                    ShowMessage("Invalid number. Please enter a valid integer.");
-                    return false;
-
-                case 4: // Description
-                    if (!string.IsNullOrWhiteSpace(input))
-                    {
-                        newAction.Description = input.Trim();
-                        return true;
-                    }
-                    ShowMessage("Description cannot be empty. Please enter a description.");
-                    return false;
-
-                case 5: // DamageMultiplier
-                    if (double.TryParse(input.Trim(), out double damageMult))
-                    {
-                        newAction.DamageMultiplier = damageMult;
-                        return true;
-                    }
-                    ShowMessage("Invalid number. Please enter a valid decimal (e.g., 1.0 or 1.5).");
-                    return false;
-
-                case 6: // Length
-                    if (double.TryParse(input.Trim(), out double length))
-                    {
-                        newAction.Length = length;
-                        return true;
-                    }
-                    ShowMessage("Invalid number. Please enter a valid decimal (e.g., 1.0 or 1.5).");
-                    return false;
-
-                case 7: // Cooldown
-                    if (int.TryParse(input.Trim(), out int cooldown))
-                    {
-                        newAction.Cooldown = cooldown;
-                        return true;
-                    }
-                    ShowMessage("Invalid number. Please enter a valid integer.");
-                    return false;
-
-                default:
-                    return false;
             }
         }
 
