@@ -1,8 +1,10 @@
+using RPGGame.Utils;
+
 namespace RPGGame.UI.Avalonia.Layout
 {
     /// <summary>
     /// Layout constants for persistent panels
-    /// Now dynamically calculates values based on canvas grid dimensions while maintaining proportions
+    /// Left and right panels have fixed widths, center panel dynamically fills remaining horizontal space
     /// </summary>
     public static class LayoutConstants
     {
@@ -24,6 +26,10 @@ namespace RPGGame.UI.Avalonia.Layout
         private static int _gridWidth = BASE_SCREEN_WIDTH;
         private static int _gridHeight = BASE_SCREEN_HEIGHT;
         
+        // Effective visible width - calculated dynamically from actual canvas bounds
+        // This accounts for the difference between grid width and actual visible area
+        private static int _effectiveVisibleWidth = BASE_SCREEN_WIDTH;
+        
         /// <summary>
         /// Updates the grid dimensions for dynamic scaling
         /// Call this when the canvas size changes
@@ -35,7 +41,24 @@ namespace RPGGame.UI.Avalonia.Layout
         }
         
         /// <summary>
-        /// Calculates a proportional value based on base dimension
+        /// Updates the effective visible width based on actual canvas pixel width and character width
+        /// Call this when the canvas bounds change to calculate how many characters actually fit
+        /// </summary>
+        /// <param name="canvasPixelWidth">The actual pixel width of the canvas</param>
+        /// <param name="charWidth">The pixel width of a single character</param>
+        public static void UpdateEffectiveVisibleWidth(double canvasPixelWidth, double charWidth)
+        {
+            if (charWidth > 0)
+            {
+                // Calculate how many characters actually fit in the visible area
+                int calculatedVisibleWidth = (int)(canvasPixelWidth / charWidth);
+                _effectiveVisibleWidth = calculatedVisibleWidth;
+                
+            }
+        }
+        
+        /// <summary>
+        /// Logs the current layout values for debugging
         /// </summary>
         private static int ScaleWidth(int baseValue) => (int)((double)baseValue / BASE_SCREEN_WIDTH * _gridWidth);
         private static int ScaleHeight(int baseValue) => (int)((double)baseValue / BASE_SCREEN_HEIGHT * _gridHeight);
@@ -45,22 +68,30 @@ namespace RPGGame.UI.Avalonia.Layout
         public static int SCREEN_HEIGHT => _gridHeight;
         public static int SCREEN_CENTER => _gridWidth / 2;
         
-        // Left panel (Character Info) - scales proportionally
+        // Left panel (Character Info) - fixed width
         public static int LEFT_PANEL_X => 0;
         public static int LEFT_PANEL_Y => ScaleHeight(BASE_PANEL_Y);
-        public static int LEFT_PANEL_WIDTH => ScaleWidth(BASE_LEFT_PANEL_WIDTH);
+        public static int LEFT_PANEL_WIDTH => BASE_LEFT_PANEL_WIDTH; // Fixed width, not scaled
         public static int LEFT_PANEL_HEIGHT => _gridHeight - LEFT_PANEL_Y; // Extends to bottom
         
-        // Center panel (Dynamic Content) - scales proportionally
-        public static int CENTER_PANEL_X => ScaleWidth(BASE_CENTER_PANEL_X);
+        // Effective visible width - dynamically calculated from actual canvas bounds
+        // This ensures panels fit within the actual visible area, not just the grid width
+        private static int EffectiveVisibleWidth => _effectiveVisibleWidth;
+        
+        // Center panel (Dynamic Content) - dynamic width fills remaining space
+        // Positioned right after left panel with 1 char gap (matching original design)
+        public static int CENTER_PANEL_X => LEFT_PANEL_X + LEFT_PANEL_WIDTH + 1; // +1 to match original gap
         public static int CENTER_PANEL_Y => ScaleHeight(BASE_PANEL_Y);
-        public static int CENTER_PANEL_WIDTH => ScaleWidth(BASE_CENTER_PANEL_WIDTH);
+        // Calculate width using effective visible width to ensure right panel stays within visible area
+        // Total effective width = LEFT_PANEL_WIDTH + gap(1) + CENTER_PANEL_WIDTH + gap(1) + RIGHT_PANEL_WIDTH
+        // Therefore: CENTER_PANEL_WIDTH = EffectiveVisibleWidth - LEFT_PANEL_WIDTH - RIGHT_PANEL_WIDTH - 2
+        public static int CENTER_PANEL_WIDTH => EffectiveVisibleWidth - LEFT_PANEL_WIDTH - RIGHT_PANEL_WIDTH - 2; // Use effective visible width
         public static int CENTER_PANEL_HEIGHT => _gridHeight - CENTER_PANEL_Y; // Extends to bottom
         
-        // Right panel (Dungeon/Enemy Info) - scales proportionally
-        public static int RIGHT_PANEL_X => ScaleWidth(BASE_RIGHT_PANEL_X);
+        // Right panel (Dungeon/Enemy Info) - fixed width, positioned at visible right edge
+        public static int RIGHT_PANEL_X => EffectiveVisibleWidth - BASE_RIGHT_PANEL_WIDTH; // Positioned at effective visible right edge
         public static int RIGHT_PANEL_Y => ScaleHeight(BASE_PANEL_Y);
-        public static int RIGHT_PANEL_WIDTH => ScaleWidth(BASE_RIGHT_PANEL_WIDTH);
+        public static int RIGHT_PANEL_WIDTH => BASE_RIGHT_PANEL_WIDTH; // Fixed width, not scaled
         public static int RIGHT_PANEL_HEIGHT => _gridHeight - RIGHT_PANEL_Y; // Extends to bottom
         
         // Top bar for title

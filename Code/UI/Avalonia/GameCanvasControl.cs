@@ -63,24 +63,36 @@ namespace RPGGame.UI.Avalonia
 
         public GameCanvasControl()
         {
-            // Enable focus for keyboard input
             Focusable = true;
-            
-            // Initialize specialized components
             this.coordinateConverter = new CanvasCoordinateConverter();
             this.elementManager = new CanvasElementManager();
             this.renderer = new CanvasRenderer(coordinateConverter);
-            
-            // Initialize LayoutConstants with default dimensions
             UpdateLayoutConstants();
         }
         
         /// <summary>
-        /// Updates LayoutConstants with current grid dimensions
+        /// Updates LayoutConstants with current grid dimensions and effective visible width
         /// </summary>
         private void UpdateLayoutConstants()
         {
             LayoutConstants.UpdateGridDimensions(GridWidth, GridHeight);
+            UpdateEffectiveVisibleWidth();
+        }
+        
+        /// <summary>
+        /// Updates effective visible width based on actual canvas bounds
+        /// </summary>
+        private void UpdateEffectiveVisibleWidth()
+        {
+            if (Bounds.Width > 0 && coordinateConverter != null)
+            {
+                coordinateConverter.EnsureCharWidthMeasured();
+                double charWidth = coordinateConverter.GetCharWidth();
+                if (charWidth > 0)
+                {
+                    LayoutConstants.UpdateEffectiveVisibleWidth(Bounds.Width, charWidth);
+                }
+            }
         }
 
         /// <summary>
@@ -180,6 +192,9 @@ namespace RPGGame.UI.Avalonia
 
         public override void Render(DrawingContext context)
         {
+            // Update effective visible width before rendering (bounds are now available)
+            UpdateEffectiveVisibleWidth();
+            
             // Render all elements using renderer
             renderer.Render(
                 context,
@@ -233,48 +248,26 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         public void AddText(int x, int y, string text, Color color)
         {
-            // Remove any existing text at the exact same position to prevent overlap
-            // This is especially important for animated content like the title screen
-            elementManager.RemoveText(t => t.X == x && t.Y == y);
-            
-            // Check for adjacent text elements on the same line that can be merged (same color)
-            // This prevents gaps between adjacent segments
-            var adjacentText = elementManager.GetFirstText(t => 
-                t.Y == y && 
-                t.Color == color &&
-                (t.X + t.Content.Length == x || x + text.Length == t.X));
-            
-            if (adjacentText != null)
+            elementManager.AddTextWithMerging(x, y, text, color);
+        }
+
+        /// <summary>
+        /// Adds text with glow effect to the canvas at the specified position
+        /// </summary>
+        public void AddText(int x, int y, string text, Color color, Color glowColor, double glowIntensity = 0.5, int glowRadius = 3)
+        {
+            var textElement = new CanvasText
             {
-                // Merge with adjacent text element
-                if (adjacentText.X + adjacentText.Content.Length == x)
-                {
-                    // Current text comes after adjacent text - append to it
-                    adjacentText.Content += text;
-                    return;
-                }
-                else if (x + text.Length == adjacentText.X)
-                {
-                    // Current text comes before adjacent text - prepend to it
-                    adjacentText.Content = text + adjacentText.Content;
-                    adjacentText.X = x;
-                    return;
-                }
-            }
-            
-            // Check for potential overlaps at adjacent positions (within 1 character)
-            // This helps catch rounding issues that might cause near-overlaps
-            var nearbyText = elementManager.GetFirstText(t => 
-                t.Y == y && 
-                Math.Abs(t.X - x) <= 1 && 
-                t.X != x);
-            
-            if (nearbyText != null)
-            {
-                // If same color, we could merge, but for now just skip
-            }
-            
-            elementManager.AddText(new CanvasText { X = x, Y = y, Content = text, Color = color });
+                X = x,
+                Y = y,
+                Content = text,
+                Color = color,
+                HasGlow = true,
+                GlowColor = glowColor,
+                GlowIntensity = glowIntensity,
+                GlowRadius = glowRadius
+            };
+            elementManager.AddText(textElement);
         }
         
         /// <summary>
@@ -357,44 +350,22 @@ namespace RPGGame.UI.Avalonia
         public void AddMenuOption(int x, int y, int number, string option, Color color = default, bool isHovered = false)
         {
             if (color == default) color = Colors.White;
+            if (isHovered) color = Colors.Yellow;
             
-            // Change color if hovered
-            if (isHovered)
-            {
-                color = Colors.Yellow; // Highlight hovered items
-            }
-            
-            // Render the bracketed number in the specified color
             AddText(x, y, $"[{number}]", color);
-            
-            // Render the option text in white (or yellow if hovered)
-            Color textColor = isHovered ? Colors.Yellow : Colors.White;
-            AddText(x + $"[{number}]".Length + 1, y, option, textColor);
+            AddText(x + $"[{number}]".Length + 1, y, option, isHovered ? Colors.Yellow : Colors.White);
         }
 
         public void AddItem(int x, int y, int number, string itemName, string stats, Color nameColor = default, Color statsColor = default, bool isHovered = false)
         {
             if (nameColor == default) nameColor = Colors.White;
             if (statsColor == default) statsColor = Colors.Gray;
+            if (isHovered) nameColor = statsColor = Colors.Yellow;
             
-            // Change colors if hovered
-            if (isHovered)
-            {
-                nameColor = Colors.Yellow;
-                statsColor = Colors.Yellow;
-            }
-            
-            // Render the bracketed number in the specified color
             AddText(x, y, $"[{number}]", nameColor);
-            
-            // Render the item name in white (or yellow if hovered)
-            Color itemTextColor = isHovered ? Colors.Yellow : Colors.White;
-            AddText(x + $"[{number}]".Length + 1, y, itemName, itemTextColor);
-            
+            AddText(x + $"[{number}]".Length + 1, y, itemName, isHovered ? Colors.Yellow : Colors.White);
             if (!string.IsNullOrEmpty(stats))
-            {
                 AddText(x + 2, y + 1, $"    {stats}", statsColor);
-            }
         }
 
         public void AddCharacterStat(int x, int y, string statName, int value, int maxValue, Color nameColor = default, Color valueColor = default)
@@ -420,35 +391,5 @@ namespace RPGGame.UI.Avalonia
         {
             InvalidateVisual();
         }
-    }
-
-    // Helper classes for canvas elements
-    public class CanvasText
-    {
-        public int X { get; set; }
-        public int Y { get; set; }
-        public string Content { get; set; } = "";
-        public Color Color { get; set; } = Colors.White;
-    }
-
-    public class CanvasBox
-    {
-        public int X { get; set; }
-        public int Y { get; set; }
-        public int Width { get; set; }
-        public int Height { get; set; }
-        public Color BorderColor { get; set; } = Colors.White;
-        public Color BackgroundColor { get; set; } = Colors.Transparent;
-    }
-
-    public class CanvasProgressBar
-    {
-        public int X { get; set; }
-        public int Y { get; set; }
-        public int Width { get; set; }
-        public double Progress { get; set; }
-        public Color ForegroundColor { get; set; } = Colors.Green;
-        public Color BackgroundColor { get; set; } = Colors.DarkGreen;
-        public Color BorderColor { get; set; } = Colors.White;
     }
 }

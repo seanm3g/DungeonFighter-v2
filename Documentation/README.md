@@ -41,6 +41,8 @@ Quick reference materials and change tracking:
 
 ### 05-Systems/
 System-specific documentation for various game systems:
+- **`ACTION_MECHANICS.md`** - Complete action mechanics documentation
+- **`ADVANCED_MECHANICS_IMPLEMENTATION.md`** - Advanced mechanics implementation summary
 - **`INTENTIONAL_COLOR_SCHEME.md`** ✨ **NEW** - Comprehensive intentional color scheme system for items, classes, and modifications
 - **`TEXT_DISPLAY_RULES.md`** ✨ **NEW** - Complete rules and guidelines for text display formatting, spacing, and section separation
 - **`UI_CONFIGURATION_GUIDE.md`** - UI system configuration
@@ -54,7 +56,10 @@ System-specific documentation for various game systems:
 - **`COLOR_GUI_INTEGRATION_SUMMARY.md`** - Executive summary and recommendations for color system optimization
 
 ### 06-Archive/
-Historical notes and reference materials:
+Historical notes, archived documentation, and reference materials:
+- **`ARCHIVE_SUMMARY.md`** ✨ **NEW** - Summary of archived files and organization changes
+- **`ROOT_SUMMARY_FILES_TO_REMOVE.md`** - List of root files consolidated into main documentation
+- **`RootSummaryFiles/`** - Archived summary files from project root
 - **`NOTES/`** - Development notes and ideas
 - **`reference images/`** - Reference images and assets
 
@@ -87,6 +92,13 @@ When adding new documentation:
 2. Update **[`04-Reference/INDEX.md`](04-Reference/INDEX.md)** with new entries
 3. Update cross-references in related documentation
 4. Follow the established naming conventions
+
+### Recent Organization Changes (December 2025)
+- **Merged Folders**: `04-Systems/` merged into `05-Systems/` (removed duplicate folder)
+- **Version Consistency**: Fixed version inconsistencies (v6.2 across all docs)
+- **Archive Organization**: Created `06-Archive/ARCHIVE_SUMMARY.md` documenting all archived files
+- **Code Directory**: Moved `Code/GAME_DUPLICATE_FIX.md` to `06-Archive/`
+- See **[`06-Archive/ARCHIVE_SUMMARY.md`](06-Archive/ARCHIVE_SUMMARY.md)** for complete details
 
 ---
 

@@ -59,15 +59,6 @@
     "tags": ["character", "basic"]
   },
   {
-    "name": "ENEMY BASIC ATTACK",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
-    "length": 1.0,
-    "multiHitCount": 1,
-    "description": "A standard physical attack",
-    "tags": ["enemy", "basic"]
-  },
-  {
     "name": "ENVIRONMENTAL HAZARD",
     "type": "Attack",
     "damageMultiplier": 1.0,

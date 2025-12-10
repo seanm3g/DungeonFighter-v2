@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using RPGGame.UI.ColorSystem;
+using Avalonia.Media;
 
 namespace RPGGame.UI.BlockDisplay
 {
@@ -52,14 +54,39 @@ namespace RPGGame.UI.BlockDisplay
             }
             
             // Add status effects
-            if (statusEffects != null)
+            // Multiple status effects from one action should be grouped together:
+            // - No blank lines between them
+            // - First one has no indentation, subsequent ones are indented
+            // - Blank line after the last status effect
+            if (statusEffects != null && statusEffects.Count > 0)
             {
+                var combinedStatusEffects = new List<ColoredText>();
+                bool isFirst = true;
+                
                 foreach (var effect in statusEffects)
                 {
                     if (effect != null && effect.Count > 0)
                     {
-                        messageGroups.Add((effect, UIMessageType.EffectMessage));
+                        // If not the first effect, add a newline before it
+                        if (!isFirst)
+                        {
+                            combinedStatusEffects.Add(new ColoredText(System.Environment.NewLine, Avalonia.Media.Colors.White));
+                        }
+                        
+                        // Process the effect to handle indentation
+                        var processedEffect = ProcessStatusEffectIndentation(effect, isFirst);
+                        combinedStatusEffects.AddRange(processedEffect);
+                        
+                        isFirst = false;
                     }
+                }
+                
+                // Add the combined status effects as a single message group
+                if (combinedStatusEffects.Count > 0)
+                {
+                    messageGroups.Add((combinedStatusEffects, UIMessageType.EffectMessage));
+                    // Add blank line after the last status effect
+                    messageGroups.Add((new List<ColoredText>(), UIMessageType.System));
                 }
             }
             
@@ -89,6 +116,69 @@ namespace RPGGame.UI.BlockDisplay
             }
             
             return messageGroups;
+        }
+        
+        /// <summary>
+        /// Processes status effect indentation:
+        /// - First effect: removes leading indentation (4 spaces)
+        /// - Subsequent effects: ensures they have 4 spaces of indentation
+        /// </summary>
+        private static List<ColoredText> ProcessStatusEffectIndentation(List<ColoredText> effect, bool isFirst)
+        {
+            if (effect == null || effect.Count == 0)
+            {
+                return new List<ColoredText>();
+            }
+            
+            var result = new List<ColoredText>(effect);
+            
+            if (result.Count > 0)
+            {
+                var firstSegment = result[0];
+                string firstText = firstSegment.Text ?? "";
+                
+                // Remove leading indentation from first effect
+                if (isFirst)
+                {
+                    // Check if first segment starts with 4 spaces
+                    if (firstText.StartsWith("    "))
+                    {
+                        // Remove the 4-space indentation
+                        string remainingText = firstText.Substring(4);
+                        if (string.IsNullOrEmpty(remainingText))
+                        {
+                            // If the entire segment was just indentation, remove it
+                            result.RemoveAt(0);
+                        }
+                        else
+                        {
+                            // Replace with the text without indentation
+                            result[0] = new ColoredText(remainingText, firstSegment.Color);
+                        }
+                    }
+                    // Check if first segment is exactly 4 spaces (separate whitespace segment)
+                    else if (firstText == "    " && result.Count > 1)
+                    {
+                        // Remove the whitespace segment
+                        result.RemoveAt(0);
+                    }
+                }
+                // Ensure subsequent effects have indentation
+                else
+                {
+                    // Check if already has indentation
+                    bool hasIndentation = firstText.StartsWith("    ") || 
+                                         (firstText == "    " && result.Count > 0);
+                    
+                    if (!hasIndentation)
+                    {
+                        // Add 4-space indentation at the beginning
+                        result.Insert(0, new ColoredText("    ", Colors.White));
+                    }
+                }
+            }
+            
+            return result;
         }
     }
 }

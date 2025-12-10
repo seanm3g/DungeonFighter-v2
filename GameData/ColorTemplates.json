@@ -852,26 +852,26 @@
     {
       "name": "sword_weapon",
       "shaderType": "sequence",
-      "colors": ["Y", "W", "Y"],
-      "description": "Sword weapon type - white to bright white (balanced/classic)"
+      "colors": ["W", "W", "W"],
+      "description": "Sword weapon type - yellow/gold (balanced/classic)"
     },
     {
       "name": "dagger_weapon",
       "shaderType": "sequence",
-      "colors": ["C", "Y", "C"],
-      "description": "Dagger weapon type - cyan to white (quick/precise)"
+      "colors": ["M", "M", "M"],
+      "description": "Dagger weapon type - magenta (quick/precise)"
     },
     {
       "name": "mace_weapon",
       "shaderType": "sequence",
-      "colors": ["O", "R", "O"],
-      "description": "Mace weapon type - orange to red (heavy/blunt)"
+      "colors": ["C", "C", "C"],
+      "description": "Mace weapon type - cyan (heavy/blunt)"
     },
     {
       "name": "wand_weapon",
       "shaderType": "sequence",
-      "colors": ["M", "C", "M"],
-      "description": "Wand weapon type - magenta to cyan (magical/mystical)"
+      "colors": ["m", "m", "m"],
+      "description": "Wand weapon type - purple (magical/mystical)"
     },
     {
       "name": "damage_effect",

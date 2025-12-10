@@ -123,6 +123,46 @@ namespace RPGGame.UI.Avalonia.Canvas
         {
             progressBars.Add(progressBar);
         }
+        
+        /// <summary>
+        /// Adds text with automatic overlap removal and adjacent text merging
+        /// Removes any existing text at the exact same position to prevent overlap
+        /// Merges adjacent text elements on the same line with the same color to prevent gaps
+        /// </summary>
+        public bool AddTextWithMerging(int x, int y, string text, Color color)
+        {
+            // Remove any existing text at the exact same position to prevent overlap
+            RemoveText(t => t.X == x && t.Y == y);
+            
+            // Check for adjacent text elements on the same line that can be merged (same color)
+            // This prevents gaps between adjacent segments
+            var adjacentText = GetFirstText(t => 
+                t.Y == y && 
+                t.Color == color &&
+                (t.X + t.Content.Length == x || x + text.Length == t.X));
+            
+            if (adjacentText != null)
+            {
+                // Merge with adjacent text element
+                if (adjacentText.X + adjacentText.Content.Length == x)
+                {
+                    // Current text comes after adjacent text - append to it
+                    adjacentText.Content += text;
+                    return true; // Merged, no new element needed
+                }
+                else if (x + text.Length == adjacentText.X)
+                {
+                    // Current text comes before adjacent text - prepend to it
+                    adjacentText.Content = text + adjacentText.Content;
+                    adjacentText.X = x;
+                    return true; // Merged, no new element needed
+                }
+            }
+            
+            // No merge possible, add as new element
+            AddText(new CanvasText { X = x, Y = y, Content = text, Color = color });
+            return false; // New element added
+        }
     }
 }
 

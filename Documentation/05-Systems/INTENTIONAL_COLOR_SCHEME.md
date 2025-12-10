@@ -51,10 +51,10 @@ December 2024
 
 | Weapon Type | Color Template | Description | Theme |
 |-------------|---------------|-------------|-------|
-| **Sword** | `sword_weapon` | White to bright white (sequence) | Balanced/classic |
-| **Dagger** | `dagger_weapon` | Cyan to white (sequence) | Quick/precise |
-| **Mace** | `mace_weapon` | Orange to red (sequence) | Heavy/blunt |
-| **Wand** | `wand_weapon` | Magenta to cyan (sequence) | Magical/mystical |
+| **Sword** | `sword_weapon` | Yellow/Gold | Balanced/classic |
+| **Dagger** | `dagger_weapon` | Magenta | Quick/precise |
+| **Mace** | `mace_weapon` | Cyan | Heavy/blunt |
+| **Wand** | `wand_weapon` | Purple | Magical/mystical |
 
 ### 4. Systematic Effect Colors
 

@@ -1,6 +1,6 @@
 # DungeonFighter Game Overview
 
-**Version 7.0** - *Advanced Mechanics*
+**Version 6.2** - *Production Ready*
 
 ## General Description
 
@@ -134,7 +134,7 @@ DungeonFighter-v2/
 
 ## Recent Updates
 
-### Advanced Mechanics Implementation (v7.0)
+### Advanced Mechanics Implementation (v6.2)
 - **Roll Modification System**: 9 new files for dice manipulation (additive, multiplicative, clamp, reroll, exploding, multi-dice)
 - **Event System**: Observer pattern event bus for conditional triggers
 - **Advanced Status Effects**: 17 new effect handlers (Vulnerability, Harden, Fortify, Focus, Expose, HP Regen, Armor Break, Pierce, Reflect, Silence, Stat Drain, Absorb, Temporary HP, Confusion, Cleanse, Mark, Disrupt)

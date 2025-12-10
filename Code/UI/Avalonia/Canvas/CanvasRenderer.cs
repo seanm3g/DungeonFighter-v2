@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Media;
 using System.Collections.Generic;
 using RPGGame.UI.Avalonia;
+using RPGGame.UI.Avalonia.Effects;
 
 namespace RPGGame.UI.Avalonia.Canvas
 {
@@ -131,7 +132,25 @@ namespace RPGGame.UI.Avalonia.Canvas
                 Trimming = TextTrimming.None
             };
 
-            context.DrawText(formatted, new Point(x, y));
+            // Render with glow if enabled
+            if (text.HasGlow)
+            {
+                TextGlowRenderer.RenderTextWithGlow(
+                    context,
+                    formatted,
+                    new Point(x, y),
+                    text.GlowColor,
+                    text.GlowIntensity,
+                    text.GlowRadius,
+                    text.Content,
+                    coordinateConverter.GetTypeface(),
+                    coordinateConverter.GetFontSize()
+                );
+            }
+            else
+            {
+                context.DrawText(formatted, new Point(x, y));
+            }
         }
     }
 }

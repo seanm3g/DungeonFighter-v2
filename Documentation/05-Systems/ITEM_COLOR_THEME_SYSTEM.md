@@ -81,10 +81,10 @@ Modifications use color themes based on their rank and name:
 
 ### Weapon Type Colors
 
-- **Sword**: White-Gold-White (balanced/classic)
-- **Dagger**: Cyan-White-Cyan (quick/precise)
-- **Mace**: Orange-Red-Orange (heavy/blunt)
-- **Wand**: Magenta-Cyan-Magenta (magical/mystical)
+- **Sword**: Yellow/Gold (balanced/classic)
+- **Dagger**: Magenta (quick/precise)
+- **Mace**: Cyan (heavy/blunt)
+- **Wand**: Purple (magical/mystical)
 - **Staff**: Arcane (magenta-cyan pattern)
 - **Axe**: Fiery (red-orange pattern)
 - **Bow**: Natural (green-brown pattern)

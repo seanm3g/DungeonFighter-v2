@@ -29,10 +29,10 @@ This quick reference provides instant lookup for the intentional color scheme sy
 
 | Weapon Type | Template | Colors | Theme |
 |-------------|----------|--------|-------|
-| Sword | `sword_weapon` | White → Bright White | Balanced/classic |
-| Dagger | `dagger_weapon` | Cyan → White | Quick/precise |
-| Mace | `mace_weapon` | Orange → Red | Heavy/blunt |
-| Wand | `wand_weapon` | Magenta → Cyan | Magical/mystical |
+| Sword | `sword_weapon` | Yellow/Gold | Balanced/classic |
+| Dagger | `dagger_weapon` | Magenta | Quick/precise |
+| Mace | `mace_weapon` | Cyan | Heavy/blunt |
+| Wand | `wand_weapon` | Purple | Magical/mystical |
 
 ## ✨ Effect Colors
 

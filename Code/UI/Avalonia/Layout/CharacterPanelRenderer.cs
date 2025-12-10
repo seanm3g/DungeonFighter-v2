@@ -77,6 +77,7 @@ namespace RPGGame.UI.Avalonia.Layout
             y++;
             canvas.AddCharacterStat(x, y, "ARM", character.GetTotalArmor(), 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.Magenta);
             y++;
+            y++; // Blank line after armor
             
             // Determine primary stat based on class points
             string primaryStat = GetPrimaryStatForCharacter(character);

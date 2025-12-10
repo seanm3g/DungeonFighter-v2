@@ -4,7 +4,6 @@ using RPGGame.UI;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.UI.Avalonia.Coordinators;
-using RPGGame.UI.Avalonia.Helpers;
 using RPGGame.UI.ColorSystem;
 using System;
 using System.Collections.Generic;
@@ -172,8 +171,8 @@ namespace RPGGame.UI.Avalonia
         public void RenderDungeonSelection(Character player, List<Dungeon> dungeons)
         {
             RPGGame.Utils.ScrollDebugLogger.Log($"[RENDER] CanvasUICoordinator.RenderDungeonSelection called - player: {player != null}, dungeons: {dungeons?.Count ?? 0}, screenRenderingCoordinator: {screenRenderingCoordinator != null}");
-            ValidationHelper.ValidatePlayer(player);
-            ValidationHelper.ValidateDungeonsList(dungeons);
+            RPGGame.Utils.InputValidator.ValidateNotNull(player, nameof(player));
+            RPGGame.Utils.InputValidator.ValidateNotNull(dungeons, nameof(dungeons));
             if (screenRenderingCoordinator != null)
             {
                 // After validation, player and dungeons are guaranteed to be non-null

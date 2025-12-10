@@ -37,16 +37,19 @@ namespace RPGGame.UI.Avalonia.Layout
             CharacterPanelRenderer characterPanelRenderer,
             RightPanelRenderer rightPanelRenderer)
         {
-            // Clear canvas if title changed - this ensures clean transitions when title changes
+            // Check if title changed - this determines if we need to clear canvas
             bool titleChanged = title != lastRenderedTitle;
             if (titleChanged)
             {
-                canvas.Clear();
                 clearCanvas = true; // Force full render when title changes
             }
             
             if (clearCanvas)
             {
+                // Clear canvas right before rendering to prevent blank frame flicker
+                // This ensures we clear and immediately render, minimizing visible blank time
+                canvas.Clear();
+                
                 // Always clear the entire title line before rendering new title to prevent overlay
                 // This is critical when transitioning between screens with different title lengths
                 // Clear a wider range to ensure we remove any partial text from longer titles
@@ -67,6 +70,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 
                 // Render center panel border (only when clearing)
                 canvas.AddBorder(LayoutConstants.CENTER_PANEL_X, LayoutConstants.CENTER_PANEL_Y, LayoutConstants.CENTER_PANEL_WIDTH, LayoutConstants.CENTER_PANEL_HEIGHT, AsciiArtAssets.Colors.Cyan);
+                
                 
                 // Explicitly clear the center panel content area to ensure clean rendering
                 // This prevents old content from showing when transitioning between screens
