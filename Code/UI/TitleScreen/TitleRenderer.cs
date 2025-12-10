@@ -66,7 +66,7 @@ namespace RPGGame.UI.TitleScreen
                 int startY = TitleArtAssets.TitleStartY;
                 
                 // Calculate title line ranges in the frame
-                // Frame structure: 15 top padding + 2 blank + 6 DUNGEON + 1 blank + 1 decorator + 1 blank + 6 FIGHTER + ...
+                // Frame structure: 15 top padding + 2 blank + 6 DUNGEON + 1 blank + 1 decorator + 1 blank + 6 FIGHTERS + ...
                 const int dungeonStartIndex = 17; // 15 padding + 2 blank lines
                 const int dungeonEndIndex = 22;    // dungeonStartIndex + 6 lines - 1
                 // const int decoratorIndex = 24; // dungeonEndIndex + 1 blank + 1 (reserved for future use)
@@ -102,7 +102,7 @@ namespace RPGGame.UI.TitleScreen
                         if (isTitleLine)
                         {
                             centerX += titleOffset;
-                            // Move FIGHTER one character to the left (relative to DUNGEON)
+                            // Move FIGHTERS one character to the left (relative to DUNGEON)
                             if (i >= fighterStartIndex && i <= fighterEndIndex)
                             {
                                 centerX -= 1;

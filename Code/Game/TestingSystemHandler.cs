@@ -131,28 +131,12 @@ namespace RPGGame
         {
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                Console.WriteLine("[TestingSystemHandler] Starting RunAllTests");
-                DebugLogger.Log("TestingSystemHandler", "Starting RunAllTests");
-                try
-                {
-                    await testRunner.RunAllTests();
-                    Console.WriteLine("[TestingSystemHandler] RunAllTests completed");
-                    DebugLogger.Log("TestingSystemHandler", "RunAllTests completed");
-                    canvasUI.WriteBlankLine();
-                    canvasUI.WriteLine("=== Tests Complete ===", UIMessageType.System);
-                    canvasUI.WriteLine("Press any key to return to test menu...", UIMessageType.System);
-                    // Render the display buffer to show test results
-                    canvasUI.RenderDisplayBuffer();
-                    waitingForTestMenuReturn = true;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[TestingSystemHandler] Error in RunAllTests: {ex.Message}");
-                    DebugLogger.Log("TestingSystemHandler", $"Error in RunAllTests: {ex.Message}");
-                    canvasUI.WriteLine($"Error running tests: {ex.Message}", UIMessageType.System);
-                    canvasUI.RenderDisplayBuffer();
-                    waitingForTestMenuReturn = true;
-                }
+                await TestExecutionHelper.ExecuteTestWithUI(
+                    canvasUI,
+                    async () => await testRunner.RunAllTests(),
+                    "RunAllTests",
+                    logToConsole: true);
+                waitingForTestMenuReturn = true;
             }
         }
 
@@ -163,26 +147,11 @@ namespace RPGGame
         {
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                DebugLogger.Log("TestingSystemHandler", $"Starting RunSystemTests for '{systemName}'");
-                try
-                {
-                    await testRunner.RunSystemTests(systemName);
-                    DebugLogger.Log("TestingSystemHandler", $"RunSystemTests for '{systemName}' completed");
-                    canvasUI.WriteBlankLine();
-                    canvasUI.WriteLine("=== Tests Complete ===", UIMessageType.System);
-                    canvasUI.WriteLine("Press any key to return to test menu...", UIMessageType.System);
-                    // Render the display buffer to show test results
-                    canvasUI.RenderDisplayBuffer();
-                    waitingForTestMenuReturn = true;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[TestingSystemHandler] Error in RunSystemTests for '{systemName}': {ex.Message}");
-                    DebugLogger.Log("TestingSystemHandler", $"Error in RunSystemTests for '{systemName}': {ex.Message}");
-                    canvasUI.WriteLine($"Error running tests: {ex.Message}", UIMessageType.System);
-                    canvasUI.RenderDisplayBuffer();
-                    waitingForTestMenuReturn = true;
-                }
+                await TestExecutionHelper.ExecuteTestWithUI(
+                    canvasUI,
+                    async () => await testRunner.RunSystemTests(systemName),
+                    $"RunSystemTests for '{systemName}'");
+                waitingForTestMenuReturn = true;
             }
         }
 
@@ -193,31 +162,18 @@ namespace RPGGame
         {
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                Console.WriteLine("[TestingSystemHandler] Starting RunCombatTestsWithUI");
-                DebugLogger.Log("TestingSystemHandler", "Starting RunCombatTestsWithUI");
-                try
-                {
-                    // Run standard combat tests
-                    await testRunner.RunSystemTests("Combat");
-                    // Also run combat UI fixes as part of combat system
-                    await testRunner.RunSystemTests("CombatUI");
-                    Console.WriteLine("[TestingSystemHandler] RunCombatTestsWithUI completed");
-                    DebugLogger.Log("TestingSystemHandler", "RunCombatTestsWithUI completed");
-                    canvasUI.WriteBlankLine();
-                    canvasUI.WriteLine("=== Tests Complete ===", UIMessageType.System);
-                    canvasUI.WriteLine("Press any key to return to test menu...", UIMessageType.System);
-                    // Render the display buffer to show test results
-                    canvasUI.RenderDisplayBuffer();
-                    waitingForTestMenuReturn = true;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[TestingSystemHandler] Error in RunCombatTestsWithUI: {ex.Message}");
-                    DebugLogger.Log("TestingSystemHandler", $"Error in RunCombatTestsWithUI: {ex.Message}");
-                    canvasUI.WriteLine($"Error running tests: {ex.Message}", UIMessageType.System);
-                    canvasUI.RenderDisplayBuffer();
-                    waitingForTestMenuReturn = true;
-                }
+                await TestExecutionHelper.ExecuteTestWithUI(
+                    canvasUI,
+                    async () =>
+                    {
+                        // Run standard combat tests
+                        await testRunner.RunSystemTests("Combat");
+                        // Also run combat UI fixes as part of combat system
+                        await testRunner.RunSystemTests("CombatUI");
+                    },
+                    "RunCombatTestsWithUI",
+                    logToConsole: true);
+                waitingForTestMenuReturn = true;
             }
         }
 
@@ -228,29 +184,21 @@ namespace RPGGame
         {
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                DebugLogger.Log("TestingSystemHandler", "Starting RunInventoryAndDungeonTests");
-                try
-                {
-                    canvasUI.WriteLine("=== INVENTORY & DUNGEON TESTS ===", UIMessageType.System);
-                    canvasUI.WriteBlankLine();
-                    await testRunner.RunSystemTests("Inventory");
-                    canvasUI.WriteBlankLine();
-                    await testRunner.RunSystemTests("Dungeon");
-                    DebugLogger.Log("TestingSystemHandler", "RunInventoryAndDungeonTests completed");
-                    canvasUI.WriteBlankLine();
-                    canvasUI.WriteLine("=== Tests Complete ===", UIMessageType.System);
-                    canvasUI.WriteLine("Press any key to return to test menu...", UIMessageType.System);
-                    canvasUI.RenderDisplayBuffer();
-                    waitingForTestMenuReturn = true;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[TestingSystemHandler] Error in RunInventoryAndDungeonTests: {ex.Message}");
-                    DebugLogger.Log("TestingSystemHandler", $"Error in RunInventoryAndDungeonTests: {ex.Message}");
-                    canvasUI.WriteLine($"Error running tests: {ex.Message}", UIMessageType.System);
-                    canvasUI.RenderDisplayBuffer();
-                    waitingForTestMenuReturn = true;
-                }
+                await TestExecutionHelper.ExecuteTestWithUI(
+                    canvasUI,
+                    async () =>
+                    {
+                        await testRunner.RunSystemTests("Inventory");
+                        canvasUI.WriteBlankLine();
+                        await testRunner.RunSystemTests("Dungeon");
+                    },
+                    "RunInventoryAndDungeonTests",
+                    preTestAction: (ui) =>
+                    {
+                        ui.WriteLine("=== INVENTORY & DUNGEON TESTS ===", UIMessageType.System);
+                        ui.WriteBlankLine();
+                    });
+                waitingForTestMenuReturn = true;
             }
         }
 
@@ -261,32 +209,24 @@ namespace RPGGame
         {
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                DebugLogger.Log("TestingSystemHandler", "Starting RunDataAndUITests");
-                try
-                {
-                    canvasUI.WriteLine("=== DATA & UI SYSTEM TESTS ===", UIMessageType.System);
-                    canvasUI.WriteBlankLine();
-                    await testRunner.RunSystemTests("Data");
-                    canvasUI.WriteBlankLine();
-                    canvasUI.WriteLine("=== UI SYSTEM TESTS ===", UIMessageType.System);
-                    canvasUI.WriteLine("Starting UI system tests...");
-                    canvasUI.WriteBlankLine();
-                    await testRunner.RunSystemTests("ui");
-                    DebugLogger.Log("TestingSystemHandler", "RunDataAndUITests completed");
-                    canvasUI.WriteBlankLine();
-                    canvasUI.WriteLine("=== Tests Complete ===", UIMessageType.System);
-                    canvasUI.WriteLine("Press any key to return to test menu...", UIMessageType.System);
-                    canvasUI.RenderDisplayBuffer();
-                    waitingForTestMenuReturn = true;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[TestingSystemHandler] Error in RunDataAndUITests: {ex.Message}");
-                    DebugLogger.Log("TestingSystemHandler", $"Error in RunDataAndUITests: {ex.Message}");
-                    canvasUI.WriteLine($"Error running tests: {ex.Message}", UIMessageType.System);
-                    canvasUI.RenderDisplayBuffer();
-                    waitingForTestMenuReturn = true;
-                }
+                await TestExecutionHelper.ExecuteTestWithUI(
+                    canvasUI,
+                    async () =>
+                    {
+                        await testRunner.RunSystemTests("Data");
+                        canvasUI.WriteBlankLine();
+                        canvasUI.WriteLine("=== UI SYSTEM TESTS ===", UIMessageType.System);
+                        canvasUI.WriteLine("Starting UI system tests...");
+                        canvasUI.WriteBlankLine();
+                        await testRunner.RunSystemTests("ui");
+                    },
+                    "RunDataAndUITests",
+                    preTestAction: (ui) =>
+                    {
+                        ui.WriteLine("=== DATA & UI SYSTEM TESTS ===", UIMessageType.System);
+                        ui.WriteBlankLine();
+                    });
+                waitingForTestMenuReturn = true;
             }
         }
 
@@ -297,29 +237,21 @@ namespace RPGGame
         {
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                DebugLogger.Log("TestingSystemHandler", "Starting RunAdvancedAndIntegrationTests");
-                try
-                {
-                    canvasUI.WriteLine("=== ADVANCED & INTEGRATION TESTS ===", UIMessageType.System);
-                    canvasUI.WriteBlankLine();
-                    await testRunner.RunSystemTests("AdvancedMechanics");
-                    canvasUI.WriteBlankLine();
-                    await testRunner.RunSystemTests("Integration");
-                    DebugLogger.Log("TestingSystemHandler", "RunAdvancedAndIntegrationTests completed");
-                    canvasUI.WriteBlankLine();
-                    canvasUI.WriteLine("=== Tests Complete ===", UIMessageType.System);
-                    canvasUI.WriteLine("Press any key to return to test menu...", UIMessageType.System);
-                    canvasUI.RenderDisplayBuffer();
-                    waitingForTestMenuReturn = true;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[TestingSystemHandler] Error in RunAdvancedAndIntegrationTests: {ex.Message}");
-                    DebugLogger.Log("TestingSystemHandler", $"Error in RunAdvancedAndIntegrationTests: {ex.Message}");
-                    canvasUI.WriteLine($"Error running tests: {ex.Message}", UIMessageType.System);
-                    canvasUI.RenderDisplayBuffer();
-                    waitingForTestMenuReturn = true;
-                }
+                await TestExecutionHelper.ExecuteTestWithUI(
+                    canvasUI,
+                    async () =>
+                    {
+                        await testRunner.RunSystemTests("AdvancedMechanics");
+                        canvasUI.WriteBlankLine();
+                        await testRunner.RunSystemTests("Integration");
+                    },
+                    "RunAdvancedAndIntegrationTests",
+                    preTestAction: (ui) =>
+                    {
+                        ui.WriteLine("=== ADVANCED & INTEGRATION TESTS ===", UIMessageType.System);
+                        ui.WriteBlankLine();
+                    });
+                waitingForTestMenuReturn = true;
             }
         }
 
@@ -359,49 +291,8 @@ namespace RPGGame
                         return;
                     }
                     
-                    canvasUI.WriteLine($"Generated {items.Count} random items:", UIMessageType.System);
-                    canvasUI.WriteBlankLine();
-                    
-                    // Display each item with proper formatting
-                    for (int i = 0; i < items.Count; i++)
-                    {
-                        var item = items[i];
-                        
-                        // Display item number and name with proper colored text
-                        string displayType = ItemDisplayFormatter.GetDisplayType(item);
-                        var coloredNameSegments = ItemDisplayFormatter.GetColoredFullItemNameNew(item);
-                        
-                        // Build the colored text line: "1. (Head) [colored item name]"
-                        var itemLineBuilder = new ColoredTextBuilder();
-                        itemLineBuilder.Add($"{i + 1}. ({displayType}) ", Colors.White);
-                        itemLineBuilder.AddRange(coloredNameSegments);
-                        canvasUI.WriteLineColoredSegments(itemLineBuilder.Build(), UIMessageType.System);
-                        
-                        // Display item stats
-                        string itemStats = ItemDisplayFormatter.GetItemStatsDisplay(item, stateManager.CurrentPlayer ?? new Character());
-                        if (!string.IsNullOrEmpty(itemStats))
-                        {
-                            canvasUI.WriteLine($"   {itemStats}", UIMessageType.System);
-                        }
-                        
-                        // Display bonuses if any
-                        if (item.StatBonuses.Count > 0 || item.ActionBonuses.Count > 0 || item.Modifications.Count > 0)
-                        {
-                            // Format bonuses using the formatter (it handles indentation internally)
-                            ItemDisplayFormatter.FormatItemBonusesWithColor(item, (line) => 
-                            {
-                                canvasUI.WriteLine(line, UIMessageType.System);
-                            });
-                        }
-                        
-                        canvasUI.WriteBlankLine();
-                    }
-                    
-                    canvasUI.WriteBlankLine();
-                    canvasUI.WriteLine("=== Item Generation Complete ===", UIMessageType.System);
-                    canvasUI.WriteLine("Press any key to return to test menu...", UIMessageType.System);
-                    
-                    // Render the display buffer to show items
+                    // Use helper to display items
+                    RandomItemDisplayHelper.DisplayItems(canvasUI, items, stateManager.CurrentPlayer);
                     canvasUI.RenderDisplayBuffer();
                     waitingForTestMenuReturn = true;
                     

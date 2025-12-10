@@ -66,6 +66,18 @@ namespace RPGGame.UI.Avalonia.Layout
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Stats), AsciiArtAssets.Colors.Gold);
             y += 2;
             
+            // Calculate total damage
+            int weaponDamage = (character.Weapon is WeaponItem w) ? w.GetTotalDamage() : 0;
+            int equipmentDamageBonus = character.GetEquipmentDamageBonus();
+            int modificationDamageBonus = character.GetModificationDamageBonus();
+            int totalDamage = character.GetEffectiveStrength() + weaponDamage + equipmentDamageBonus + modificationDamageBonus;
+            
+            // Add damage and armor stats first
+            canvas.AddCharacterStat(x, y, "DMG", totalDamage, 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.Magenta);
+            y++;
+            canvas.AddCharacterStat(x, y, "ARM", character.GetTotalArmor(), 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.Magenta);
+            y++;
+            
             // Determine primary stat based on class points
             string primaryStat = GetPrimaryStatForCharacter(character);
             

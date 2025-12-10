@@ -19,7 +19,8 @@ namespace RPGGame.Actions.Execution
             Actor target, 
             Action selectedAction, 
             int baseRoll, 
-            int rollBonus, 
+            int rollBonus,
+            int naturalRoll,
             BattleNarrative? battleNarrative)
         {
             int healAmount = ActionUtilities.CalculateHealAmount(source, selectedAction);
@@ -39,7 +40,7 @@ namespace RPGGame.Actions.Execution
             }
             
             bool isCombo = selectedAction.Name != "BASIC ATTACK";
-            ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, 0, totalRoll, rollBonus, true, isCombo, healAmount, 0, false, battleNarrative);
+            ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, 0, totalRoll, rollBonus, true, isCombo, healAmount, 0, false, naturalRoll, battleNarrative);
             
             var healingText = CombatResults.FormatHealingMessageColored(source, target, healAmount);
             

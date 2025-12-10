@@ -13,9 +13,11 @@ namespace RPGGame.UI.Avalonia.Canvas
         // "Courier New" is a guaranteed monospace font available on all systems
         // It's a serif, typewriter-style monospace font
         private readonly Typeface typeface = new("Courier New");
-        private const double fontSize = 16; // Increased from 14 for better readability
+        private const double baseFontSize = 16; // Base font size for scaling
+        private double fontSize = baseFontSize; // Current font size (can be scaled)
         private double charWidth; // Actual measured width of a character
         private double charHeight; // Actual measured height of a character
+        private double scaleFactor = 1.0; // Scaling factor for pixel size
         
         /// <summary>
         /// Gets the typeface used for rendering
@@ -26,6 +28,26 @@ namespace RPGGame.UI.Avalonia.Canvas
         /// Gets the font size used for rendering
         /// </summary>
         public double GetFontSize() => fontSize;
+        
+        /// <summary>
+        /// Sets the scaling factor for character size (pixel scaling)
+        /// </summary>
+        public void SetScaleFactor(double factor)
+        {
+            if (factor > 0)
+            {
+                scaleFactor = factor;
+                fontSize = baseFontSize * scaleFactor;
+                // Reset measured dimensions so they'll be recalculated with new font size
+                charWidth = 0;
+                charHeight = 0;
+            }
+        }
+        
+        /// <summary>
+        /// Gets the current scaling factor
+        /// </summary>
+        public double GetScaleFactor() => scaleFactor;
         
         /// <summary>
         /// Measure actual character width and height on first use
@@ -40,7 +62,7 @@ namespace RPGGame.UI.Avalonia.Canvas
                     System.Globalization.CultureInfo.InvariantCulture,
                     FlowDirection.LeftToRight,
                     typeface,
-                    fontSize,
+                    fontSize, // Use current scaled font size
                     Brushes.White
                 )
                 {
@@ -84,7 +106,7 @@ namespace RPGGame.UI.Avalonia.Canvas
                 System.Globalization.CultureInfo.InvariantCulture,
                 FlowDirection.LeftToRight,
                 typeface,
-                fontSize,
+                fontSize, // Use current scaled font size
                 Brushes.White
             )
             {

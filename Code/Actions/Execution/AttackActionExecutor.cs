@@ -65,7 +65,7 @@ namespace RPGGame.Actions.Execution
                 // Track statistics for total damage
                 if (source is Character character)
                 {
-                    ActionStatisticsTracker.RecordAttackAction(character, totalRoll, baseRoll, rollBonus, totalDamage, selectedAction, target as Enemy);
+                    ActionStatisticsTracker.RecordAttackAction(character, totalRoll, naturalRoll, rollBonus, totalDamage, selectedAction, target as Enemy);
                 }
                 
                 if (target is Character targetCharacter)

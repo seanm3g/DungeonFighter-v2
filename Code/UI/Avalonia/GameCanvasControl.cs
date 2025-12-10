@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.Avalonia.Canvas;
+using RPGGame.UI.Avalonia.Layout;
 
 namespace RPGGame.UI.Avalonia
 {
@@ -20,14 +21,45 @@ namespace RPGGame.UI.Avalonia
         private readonly CanvasCoordinateConverter coordinateConverter;
         private readonly CanvasRenderer renderer;
         
-        // Grid properties
-        public int GridWidth { get; set; } = 210;
-        public int GridHeight { get; set; } = 52;  // Reduced from 60 to match panel height adjustment
-        public int ViewportWidth { get; set; } = 210;
-        public int ViewportHeight { get; set; } = 52;  // Reduced from 60 to match panel height adjustment
+        // Base grid dimensions (original design size)
+        private const int BASE_GRID_WIDTH = 210;
+        private const int BASE_GRID_HEIGHT = 52;
+        
+        // Grid properties (now calculated dynamically)
+        private int _gridWidth = BASE_GRID_WIDTH;
+        private int _gridHeight = BASE_GRID_HEIGHT;
+        
+        public int GridWidth 
+        { 
+            get => _gridWidth;
+            private set
+            {
+                if (_gridWidth != value)
+                {
+                    _gridWidth = value;
+                    UpdateLayoutConstants();
+                }
+            }
+        }
+        
+        public int GridHeight 
+        { 
+            get => _gridHeight;
+            private set
+            {
+                if (_gridHeight != value)
+                {
+                    _gridHeight = value;
+                    UpdateLayoutConstants();
+                }
+            }
+        }
+        
+        public int ViewportWidth => GridWidth;
+        public int ViewportHeight => GridHeight;
         
         // Center point (half of GridWidth)
-        public int CenterX => GridWidth / 2;  // = 105 for default 210-wide screen
+        public int CenterX => GridWidth / 2;
 
         public GameCanvasControl()
         {
@@ -38,20 +70,96 @@ namespace RPGGame.UI.Avalonia
             this.coordinateConverter = new CanvasCoordinateConverter();
             this.elementManager = new CanvasElementManager();
             this.renderer = new CanvasRenderer(coordinateConverter);
+            
+            // Initialize LayoutConstants with default dimensions
+            UpdateLayoutConstants();
+        }
+        
+        /// <summary>
+        /// Updates LayoutConstants with current grid dimensions
+        /// </summary>
+        private void UpdateLayoutConstants()
+        {
+            LayoutConstants.UpdateGridDimensions(GridWidth, GridHeight);
         }
 
         /// <summary>
-        /// Measures the control size based on grid dimensions and character size
+        /// Calculates scale factor and grid dimensions based on available space
+        /// Keeps grid at base size but scales character pixels to fit available space
+        /// </summary>
+        private void CalculateScaleAndGrid(double availableWidth, double availableHeight)
+        {
+            // Always use base grid dimensions
+            GridWidth = BASE_GRID_WIDTH;
+            GridHeight = BASE_GRID_HEIGHT;
+            
+            // Calculate scale factor based on available space
+            if (availableWidth > 0 && availableHeight > 0 && 
+                availableWidth != double.PositiveInfinity && availableHeight != double.PositiveInfinity)
+            {
+                // Temporarily set scale to 1.0 to measure base character size
+                coordinateConverter.SetScaleFactor(1.0);
+                coordinateConverter.EnsureCharWidthMeasured();
+                double baseCharWidth = coordinateConverter.GetCharWidth();
+                double baseCharHeight = coordinateConverter.GetCharHeight();
+                
+                // Calculate required size for base grid at base scale
+                double requiredWidth = BASE_GRID_WIDTH * baseCharWidth;
+                double requiredHeight = BASE_GRID_HEIGHT * baseCharHeight;
+                
+                // Calculate scale factors for width and height
+                double scaleX = availableWidth / requiredWidth;
+                double scaleY = availableHeight / requiredHeight;
+                
+                // Use the smaller scale to ensure everything fits (maintains aspect ratio)
+                double scaleFactor = Math.Min(scaleX, scaleY);
+                
+                // Apply minimum scale of 1.0 and maximum reasonable scale
+                scaleFactor = Math.Max(1.0, Math.Min(scaleFactor, 10.0));
+                
+                // Update the coordinate converter with the calculated scale factor
+                // This will reset charWidth/charHeight so they'll be remeasured with new scale
+                coordinateConverter.SetScaleFactor(scaleFactor);
+            }
+            else
+            {
+                // Use base scale if no size available
+                coordinateConverter.SetScaleFactor(1.0);
+            }
+        }
+
+        /// <summary>
+        /// Measures the control size and calculates scale factor based on available space
         /// </summary>
         protected override Size MeasureOverride(Size availableSize)
         {
+            CalculateScaleAndGrid(availableSize.Width, availableSize.Height);
+            
             coordinateConverter.EnsureCharWidthMeasured();
             
-            // Calculate size based on grid dimensions and measured character size
+            // Calculate size based on grid dimensions and scaled character size
             double width = GridWidth * coordinateConverter.GetCharWidth();
             double height = GridHeight * coordinateConverter.GetCharHeight();
             
             return new Size(width, height);
+        }
+        
+        /// <summary>
+        /// Called when the control is arranged - recalculates scale if size changed
+        /// </summary>
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            // Calculate scale based on available space
+            CalculateScaleAndGrid(finalSize.Width, finalSize.Height);
+            
+            coordinateConverter.EnsureCharWidthMeasured();
+            
+            // Calculate actual canvas size we need
+            double canvasWidth = GridWidth * coordinateConverter.GetCharWidth();
+            double canvasHeight = GridHeight * coordinateConverter.GetCharHeight();
+            
+            // Return the size we actually use (parent will center via alignment)
+            return new Size(canvasWidth, canvasHeight);
         }
 
         /// <summary>

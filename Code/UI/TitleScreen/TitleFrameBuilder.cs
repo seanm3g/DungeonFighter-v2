@@ -36,7 +36,7 @@ namespace RPGGame.UI.TitleScreen
         /// Builds a frame with both words using templates
         /// </summary>
         /// <param name="dungeonTemplate">Template name for DUNGEON text (e.g., "golden")</param>
-        /// <param name="fighterTemplate">Template name for FIGHTER text (e.g., "fiery")</param>
+        /// <param name="fighterTemplate">Template name for FIGHTERS text (e.g., "fiery")</param>
         /// <returns>Complete title frame</returns>
         public TitleFrame BuildTemplateFrame(string dungeonTemplate, string fighterTemplate)
         {
@@ -54,7 +54,7 @@ namespace RPGGame.UI.TitleScreen
         /// Builds a frame with both words using solid colors (for transitions)
         /// </summary>
         /// <param name="dungeonColor">Color code for DUNGEON text</param>
-        /// <param name="fighterColor">Color code for FIGHTER text</param>
+        /// <param name="fighterColor">Color code for FIGHTERS text</param>
         /// <returns>Complete title frame</returns>
         public TitleFrame BuildSolidColorFrame(string dungeonColor, string fighterColor)
         {
@@ -247,7 +247,7 @@ namespace RPGGame.UI.TitleScreen
             frameList.Add(decoratorWithSpaces);
             frameList.Add(new List<ColoredText>());
 
-            // FIGHTER title lines
+            // FIGHTERS title lines
             foreach (var line in fighterLines)
             {
                 // Ensure spaces are preserved between segments

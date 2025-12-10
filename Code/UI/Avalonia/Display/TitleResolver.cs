@@ -15,8 +15,8 @@ namespace RPGGame.UI.Avalonia.Display
             if (enemy != null)
                 return "COMBAT";
             if (character != null)
-                return "DUNGEON FIGHTER";
-            return "DUNGEON FIGHTER";
+                return "DUNGEON FIGHTERS";
+            return "DUNGEON FIGHTERS";
         }
     }
 }

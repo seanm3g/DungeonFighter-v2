@@ -145,70 +145,31 @@ namespace RPGGame.UI.Avalonia.Renderers
             menuRenderer.RenderSettings();
         }
 
-        public void RenderTestingMenu()
-        {
-            // Use the 3-panel layout like other game screens
-            RenderWithLayout(null, "COMPREHENSIVE GAME SYSTEM TESTS", (contentX, contentY, contentWidth, contentHeight) =>
-            {
-                menuRenderer.RenderTestingMenu(contentX, contentY, contentWidth, contentHeight);
-            }, new CanvasContext());
-        }
-
-        public void RenderDeveloperMenu()
-        {
-            // Use the 3-panel layout like other game screens
-            RenderWithLayout(null, "DEVELOPER MENU", (contentX, contentY, contentWidth, contentHeight) =>
-            {
-                menuRenderer.RenderDeveloperMenuContent(contentX, contentY, contentWidth, contentHeight);
-            }, new CanvasContext());
-        }
-
-        public void RenderVariableEditor()
-        {
-            // Use the 3-panel layout like other game screens
-            RenderWithLayout(null, "EDIT GAME VARIABLES", (contentX, contentY, contentWidth, contentHeight) =>
-            {
-                menuRenderer.RenderVariableEditorContent(contentX, contentY, contentWidth, contentHeight);
-            }, new CanvasContext());
-        }
-
-        public void RenderActionEditor()
-        {
-            // Use the 3-panel layout like other game screens
-            RenderWithLayout(null, "EDIT ACTIONS", (contentX, contentY, contentWidth, contentHeight) =>
-            {
-                menuRenderer.RenderActionEditorContent(contentX, contentY, contentWidth, contentHeight);
-            }, new CanvasContext());
-        }
-
-        public void RenderActionList(List<ActionData> actions, int page)
-        {
-            // Use the 3-panel layout like other game screens
-            RenderWithLayout(null, "ALL ACTIONS", (contentX, contentY, contentWidth, contentHeight) =>
-            {
-                menuRenderer.RenderActionListContent(contentX, contentY, contentWidth, contentHeight, actions, page);
-            }, new CanvasContext());
-        }
-
+        public void RenderTestingMenu() => RenderMenuScreen("COMPREHENSIVE GAME SYSTEM TESTS", 
+            (x, y, w, h) => menuRenderer.RenderTestingMenu(x, y, w, h));
+        
+        public void RenderDeveloperMenu() => RenderMenuScreen("DEVELOPER MENU", 
+            (x, y, w, h) => menuRenderer.RenderDeveloperMenuContent(x, y, w, h));
+        
+        public void RenderVariableEditor() => RenderMenuScreen("EDIT GAME VARIABLES", 
+            (x, y, w, h) => menuRenderer.RenderVariableEditorContent(x, y, w, h));
+        
+        public void RenderActionEditor() => RenderMenuScreen("EDIT ACTIONS", 
+            (x, y, w, h) => menuRenderer.RenderActionEditorContent(x, y, w, h));
+        
+        public void RenderActionList(List<ActionData> actions, int page) => RenderMenuScreen("ALL ACTIONS", 
+            (x, y, w, h) => menuRenderer.RenderActionListContent(x, y, w, h, actions, page));
+        
         public void RenderCreateActionForm(ActionData actionData, int currentStep, string[] formSteps, string? currentInput = null)
         {
-            // Use the 3-panel layout like other game screens
-            // Don't clear canvas on input updates to preserve the display
             bool shouldClearCanvas = string.IsNullOrEmpty(currentInput);
-            RenderWithLayout(null, "CREATE ACTION", (contentX, contentY, contentWidth, contentHeight) =>
-            {
-                menuRenderer.RenderCreateActionFormContent(contentX, contentY, contentWidth, contentHeight, actionData, currentStep, formSteps, currentInput);
-            }, new CanvasContext(), null, null, null, shouldClearCanvas);
+            RenderWithLayout(null, "CREATE ACTION", 
+                (x, y, w, h) => menuRenderer.RenderCreateActionFormContent(x, y, w, h, actionData, currentStep, formSteps, currentInput),
+                new CanvasContext(), null, null, null, shouldClearCanvas);
         }
-
-        public void RenderActionDetails(ActionData action)
-        {
-            // Use the 3-panel layout like other game screens
-            RenderWithLayout(null, "ACTION DETAILS", (contentX, contentY, contentWidth, contentHeight) =>
-            {
-                menuRenderer.RenderActionDetailContent(contentX, contentY, contentWidth, contentHeight, action);
-            }, new CanvasContext());
-        }
+        
+        public void RenderActionDetails(ActionData action) => RenderMenuScreen("ACTION DETAILS", 
+            (x, y, w, h) => menuRenderer.RenderActionDetailContent(x, y, w, h, action));
 
         public void RenderDungeonSelection(Character player, List<Dungeon> dungeons, CanvasContext context)
         {
@@ -221,7 +182,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         public void RenderDungeonStart(Dungeon dungeon, Character player, CanvasContext context)
         {
             // Use generic title - the actual "ENTERING DUNGEON" text comes from the display buffer content
-            RenderWithLayout(player, "DUNGEON FIGHTER", (contentX, contentY, contentWidth, contentHeight) =>
+            RenderWithLayout(player, "DUNGEON FIGHTERS", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 dungeonRenderer.RenderDungeonStart(contentX, contentY, contentWidth, contentHeight, dungeon, textManager, context.DungeonContext);
             }, context);
@@ -244,7 +205,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             // The DisplayRenderer will handle clearing just the content area before rendering
             RenderWithLayout(
                 player,
-                "DUNGEON FIGHTER",
+                "DUNGEON FIGHTERS",
                 (contentX, contentY, contentWidth, contentHeight) =>
                 {
                     // Render the display buffer content (dungeon header + room info)
@@ -394,40 +355,13 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
 
         // Message display methods - delegated to MessageDisplayRenderer
-        public void ShowMessage(string message, Color color = default)
-        {
-            messageRenderer.ShowMessage(message, color);
-        }
-
-        public void ShowError(string error)
-        {
-            messageRenderer.ShowError(error);
-        }
-
-        public void ShowError(string error, string suggestion = "")
-        {
-            messageRenderer.ShowError(error, suggestion);
-        }
-
-        public void ShowSuccess(string message)
-        {
-            messageRenderer.ShowSuccess(message);
-        }
-
-        public void ShowLoadingAnimation(string message = "Loading...")
-        {
-            messageRenderer.ShowLoadingAnimation(message);
-        }
-
-        public void UpdateStatus(string message)
-        {
-            messageRenderer.UpdateStatus(message);
-        }
-        
-        public void ShowInvalidKeyMessage(string message)
-        {
-            messageRenderer.ShowInvalidKeyMessage(message);
-        }
+        public void ShowMessage(string message, Color color = default) => messageRenderer.ShowMessage(message, color);
+        public void ShowError(string error) => messageRenderer.ShowError(error);
+        public void ShowError(string error, string suggestion = "") => messageRenderer.ShowError(error, suggestion);
+        public void ShowSuccess(string message) => messageRenderer.ShowSuccess(message);
+        public void ShowLoadingAnimation(string message = "Loading...") => messageRenderer.ShowLoadingAnimation(message);
+        public void UpdateStatus(string message) => messageRenderer.UpdateStatus(message);
+        public void ShowInvalidKeyMessage(string message) => messageRenderer.ShowInvalidKeyMessage(message);
 
         // Help system methods - delegated to HelpSystemRenderer
         public void ToggleHelp()
@@ -454,6 +388,11 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
 
         #region Private Helper Methods
+
+        private void RenderMenuScreen(string title, Action<int, int, int, int> renderContent)
+        {
+            RenderWithLayout(null, title, renderContent, new CanvasContext());
+        }
 
         private void RenderWithLayout(Character? character, string title, Action<int, int, int, int> renderContent, CanvasContext context)
         {

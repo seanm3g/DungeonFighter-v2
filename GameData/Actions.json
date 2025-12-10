@@ -21,6 +21,15 @@
     "tags": ["weapon", "sword"]
   },
   {
+    "name": "SLASH",
+    "type": "Attack",
+    "damageMultiplier": 0.8,
+    "length": 1.5,
+    "multiHitCount": 3,
+    "description": "A rapid series of three sword strikes",
+    "tags": ["weapon", "sword"]
+  },
+  {
     "name": "DAGGER SLASH",
     "type": "Attack",
     "damageMultiplier": 0.35,

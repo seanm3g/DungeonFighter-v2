@@ -39,7 +39,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.Clear();
             
             // Title
-            canvas.AddTitle(2, "HELP - DUNGEON FIGHTER", AsciiArtAssets.Colors.White);
+            canvas.AddTitle(2, "HELP - DUNGEON FIGHTERS", AsciiArtAssets.Colors.White);
             
             // Help content
             canvas.AddText(CanvasLayoutManager.LEFT_MARGIN + 2, 6, "Controls:", AsciiArtAssets.Colors.White);

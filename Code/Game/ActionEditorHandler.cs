@@ -268,26 +268,8 @@ namespace RPGGame
             {
                 canvasUI.RenderCreateActionForm(newAction, currentFormStep, formSteps, currentFormInput);
                 
-                // Try to focus the window to ensure keyboard input is captured
-                // This is a workaround - ideally we'd have a reference to MainWindow
-                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
-                {
-                    try
-                    {
-                        var window = Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
-                            ? desktop.MainWindow
-                            : null;
-                        if (window != null)
-                        {
-                            window.Focus();
-                            DebugLogger.Log("ActionEditorHandler", "Focused main window for text input");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        DebugLogger.Log("ActionEditorHandler", $"Could not focus window: {ex.Message}");
-                    }
-                }, Avalonia.Threading.DispatcherPriority.Normal);
+                // Focus the window to ensure keyboard input is captured
+                WindowFocusHelper.FocusMainWindow("ActionEditorHandler");
             }
         }
 
@@ -318,31 +300,8 @@ namespace RPGGame
             }
 
             // Handle special commands
-            if (input == "cancel" || input == "0")
+            if (HandleFormCommand(input))
             {
-                // Cancel creation
-                newAction = null;
-                currentFormStep = 0;
-                ShowActionEditor();
-                return;
-            }
-
-            if (input == "enter")
-            {
-                // Enter key pressed - if we have text input, process it
-                // Otherwise, this is just a no-op
-                return;
-            }
-
-            if (input == "back" && currentFormStep > 0)
-            {
-                // Go back one step
-                currentFormStep--;
-                currentFormInput = "";
-                if (customUIManager is CanvasUICoordinator canvasUI)
-                {
-                    canvasUI.RenderCreateActionForm(newAction, currentFormStep, formSteps, currentFormInput);
-                }
                 return;
             }
 
@@ -360,26 +319,57 @@ namespace RPGGame
                 currentFormInput = "";
                 if (currentFormStep < formSteps.Length - 1)
                 {
-                    // Move to next step
                     currentFormStep++;
-                    if (customUIManager is CanvasUICoordinator canvasUI)
-                    {
-                        canvasUI.RenderCreateActionForm(newAction, currentFormStep, formSteps, currentFormInput);
-                    }
+                    RefreshForm();
                 }
                 else
                 {
-                    // All steps complete, save the action
                     SaveNewAction();
                 }
             }
             else
             {
-                // Step not complete, refresh form to show error/current state
-                if (customUIManager is CanvasUICoordinator canvasUI)
-                {
-                    canvasUI.RenderCreateActionForm(newAction, currentFormStep, formSteps, currentFormInput);
-                }
+                RefreshForm();
+            }
+        }
+
+        /// <summary>
+        /// Handles form command inputs (cancel, enter, back). Returns true if command was handled.
+        /// </summary>
+        private bool HandleFormCommand(string input)
+        {
+            if (input == "cancel" || input == "0")
+            {
+                newAction = null;
+                currentFormStep = 0;
+                ShowActionEditor();
+                return true;
+            }
+
+            if (input == "enter")
+            {
+                return true; // No-op, just consume the input
+            }
+
+            if (input == "back" && currentFormStep > 0)
+            {
+                currentFormStep--;
+                currentFormInput = "";
+                RefreshForm();
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Refreshes the form display with current state.
+        /// </summary>
+        private void RefreshForm()
+        {
+            if (customUIManager is CanvasUICoordinator canvasUI && newAction != null)
+            {
+                canvasUI.RenderCreateActionForm(newAction, currentFormStep, formSteps, currentFormInput);
             }
         }
 

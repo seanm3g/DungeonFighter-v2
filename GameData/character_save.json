@@ -1,18 +1,18 @@
 {
   "name": "Aric Darkwood",
-  "level": 4,
-  "xp": 41,
+  "level": 5,
+  "xp": 165,
   "currentHealth": 60,
   "maxHealth": 60,
-  "strength": 12,
-  "agility": 6,
-  "technique": 6,
-  "intelligence": 6,
+  "strength": 13,
+  "agility": 9,
+  "technique": 7,
+  "intelligence": 7,
   "barbarianPoints": 3,
-  "warriorPoints": 0,
+  "warriorPoints": 1,
   "roguePoints": 0,
   "wizardPoints": 0,
-  "comboStep": 1,
+  "comboStep": 0,
   "comboBonus": 0,
   "tempComboBonus": 0,
   "tempComboBonusTurns": 0,
@@ -35,22 +35,6 @@
       "isStarterItem": false
     },
     {
-      "name": "Iron Helmet",
-      "type": 0,
-      "tier": 1,
-      "comboBonus": 0,
-      "rarity": "Common",
-      "statBonuses": [],
-      "actionBonuses": [],
-      "modifications": [],
-      "armorStatuses": [],
-      "bonusDamage": 0,
-      "bonusAttackSpeed": 0,
-      "tags": [],
-      "gearAction": null,
-      "isStarterItem": false
-    },
-    {
       "name": "Iron Mace",
       "type": 3,
       "tier": 1,
@@ -65,10 +49,109 @@
       "tags": [],
       "gearAction": null,
       "isStarterItem": false
+    },
+    {
+      "name": "Lucky Iron Blade of Might",
+      "type": 3,
+      "tier": 1,
+      "comboBonus": 0,
+      "rarity": "Common",
+      "statBonuses": [
+        {
+          "name": "of Might",
+          "description": "\u002B6 base damage",
+          "value": 6,
+          "weight": 8,
+          "statType": "Damage"
+        }
+      ],
+      "actionBonuses": [],
+      "modifications": [
+        {
+          "diceResult": 11,
+          "itemRank": "Rare",
+          "name": "Lucky",
+          "description": "\u002B3 to attack rolls",
+          "effect": "rollBonus",
+          "minValue": 3,
+          "maxValue": 3,
+          "rolledValue": 3
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 2,
+      "bonusAttackSpeed": 0,
+      "tags": [],
+      "gearAction": null,
+      "isStarterItem": false
+    },
+    {
+      "name": "Masterwork Cloth Robe of the Cat of Resilience",
+      "type": 2,
+      "tier": 1,
+      "comboBonus": 0,
+      "rarity": "Uncommon",
+      "statBonuses": [
+        {
+          "name": "of the Cat",
+          "description": "\u002B3 Agility, \u002B0.005 speed",
+          "value": 3,
+          "weight": 5,
+          "statType": "AGI"
+        },
+        {
+          "name": "of Resilience",
+          "description": "\u002B3 health regeneration",
+          "value": 3,
+          "weight": 8,
+          "statType": "HealthRegen"
+        }
+      ],
+      "actionBonuses": [
+        {
+          "name": "BASIC ATTACK",
+          "description": "A standard physical attack",
+          "weight": 1
+        }
+      ],
+      "modifications": [
+        {
+          "diceResult": 17,
+          "itemRank": "Legendary",
+          "name": "Masterwork",
+          "description": "15% more damage",
+          "effect": "damageMultiplier",
+          "minValue": 1.15,
+          "maxValue": 1.15,
+          "rolledValue": 1.15
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 0,
+      "bonusAttackSpeed": 0,
+      "tags": [],
+      "gearAction": null,
+      "isStarterItem": false
+    },
+    {
+      "name": "Leather Armor",
+      "type": 2,
+      "tier": 1,
+      "comboBonus": 0,
+      "rarity": "Common",
+      "statBonuses": [],
+      "actionBonuses": [],
+      "modifications": [],
+      "armorStatuses": [],
+      "bonusDamage": 0,
+      "bonusAttackSpeed": 0,
+      "tags": [],
+      "gearAction": null,
+      "isStarterItem": false
     }
   ],
   "head": {
-    "name": "Leather Helmet",
+    "name": "Iron Helmet",
     "type": 0,
     "tier": 1,
     "comboBonus": 0,

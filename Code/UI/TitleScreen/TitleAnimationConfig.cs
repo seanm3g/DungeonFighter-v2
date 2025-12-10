@@ -71,7 +71,7 @@ namespace RPGGame.UI.TitleScreen
         public string DungeonFinalColor { get; set; } = "W";
 
         /// <summary>
-        /// Final color for FIGHTER text (default: "O" = orange)
+        /// Final color for FIGHTERS text (default: "O" = orange)
         /// </summary>
         public string FighterFinalColor { get; set; } = "O";
 

@@ -163,7 +163,7 @@ namespace RPGGame.UI.TitleScreen
         /// <summary>
         /// Shows a static title screen (final frame) without animation
         /// Displays the final colored title screen immediately
-        /// Yellow text for DUNGEON, red text for FIGHTER
+        /// Yellow text for DUNGEON, red text for FIGHTERS
         /// </summary>
         public static void ShowStaticTitleScreen()
         {
@@ -180,7 +180,7 @@ namespace RPGGame.UI.TitleScreen
                 // Clear any existing content first
                 renderer.Clear();
                 
-                // Build the static frame with solid colors: yellow (W) for DUNGEON, dark orange (o) for FIGHTER
+                // Build the static frame with solid colors: yellow (W) for DUNGEON, dark orange (o) for FIGHTERS
                 var frameBuilder = new TitleFrameBuilder(config);
                 var finalFrame = frameBuilder.BuildSolidColorFrame("W", "o");
                 

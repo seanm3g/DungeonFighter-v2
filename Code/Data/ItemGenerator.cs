@@ -100,11 +100,16 @@ namespace RPGGame
             {
                 if (!string.IsNullOrEmpty(statBonus.Name))
                 {
-                    nameParts.Add(statBonus.Name);
+                    // Trim the stat bonus name to ensure no leading/trailing spaces
+                    nameParts.Add(statBonus.Name.Trim());
                 }
             }
             
-            return string.Join(" ", nameParts);
+            // Join with spaces and normalize multiple spaces to single space
+            string result = string.Join(" ", nameParts);
+            // Normalize any multiple spaces that might have been introduced
+            result = System.Text.RegularExpressions.Regex.Replace(result, @"\s+", " ");
+            return result.Trim();
         }
 
         /// <summary>
