@@ -29,7 +29,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         /// </summary>
         public int RenderActionDetailContent(int x, int y, int width, int height, ActionData action)
         {
-            ScrollDebugLogger.Log($"ActionDetailRenderer: RenderActionDetailContent called for action '{action.Name}'");
             clickableElements.Clear();
             int currentLineCount = 0;
             
@@ -196,9 +195,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             };
             clickableElements.Add(backOption);
             canvas.AddText(menuStartX, menuStartY, backText, AsciiArtAssets.Colors.White);
-            
-            ScrollDebugLogger.Log($"ActionDetailRenderer: Finished rendering action '{action.Name}'");
-            
             return currentLineCount;
         }
     }

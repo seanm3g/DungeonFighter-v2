@@ -78,7 +78,17 @@ namespace RPGGame.Handlers
             if (handlers.MainMenuHandler != null)
             {
                 handlers.MainMenuHandler.ShowGameLoopEvent += () => showGameLoop();
-                handlers.MainMenuHandler.ShowWeaponSelectionEvent += () => handlers.WeaponSelectionHandler?.ShowWeaponSelection();
+                handlers.MainMenuHandler.ShowWeaponSelectionEvent += () => 
+                {
+                    if (handlers.WeaponSelectionHandler != null)
+                    {
+                        handlers.WeaponSelectionHandler.ShowWeaponSelection();
+                    }
+                    else
+                    {
+                        // WeaponSelectionHandler is null - event will be ignored
+                    }
+                };
                 handlers.MainMenuHandler.ShowSettingsEvent += () => handlers.SettingsMenuHandler?.ShowSettings();
                 handlers.MainMenuHandler.ExitGameEvent += () => exitGame();
                 handlers.MainMenuHandler.ShowMessageEvent += (msg) => showMessage(msg);
@@ -135,14 +145,11 @@ namespace RPGGame.Handlers
                     {
                         try
                         {
-                            DebugLogger.Log("Game", "StartDungeonEvent fired - calling DungeonRunnerManager.RunDungeon()");
                             await handlers.DungeonRunnerManager.RunDungeon();
-                            DebugLogger.Log("Game", "DungeonRunnerManager.RunDungeon() completed");
                             
                             // If we're still in Dungeon state after RunDungeon completes, something went wrong
                             if (stateManager.CurrentState == GameState.Dungeon || stateManager.CurrentState == GameState.Combat)
                             {
-                                DebugLogger.Log("Game", "WARNING: Still in Dungeon/Combat state after RunDungeon completed. Returning to dungeon selection.");
                                 stateManager.TransitionToState(GameState.DungeonSelection);
                                 if (customUIManager is CanvasUICoordinator canvasUI && stateManager.CurrentPlayer != null)
                                 {
@@ -152,8 +159,6 @@ namespace RPGGame.Handlers
                         }
                         catch (Exception ex)
                         {
-                            DebugLogger.Log("Game", $"ERROR: Exception in StartDungeonEvent handler: {ex.Message}");
-                            DebugLogger.Log("Game", $"Stack trace: {ex.StackTrace}");
                             if (customUIManager is CanvasUICoordinator canvasUIError)
                             {
                                 canvasUIError.WriteLine($"ERROR: Failed to start dungeon: {ex.Message}", UIMessageType.System);
@@ -167,11 +172,6 @@ namespace RPGGame.Handlers
                             }
                         }
                     };
-                    DebugLogger.Log("Game", "StartDungeonEvent subscribed to DungeonRunnerManager.RunDungeon()");
-                }
-                else
-                {
-                    DebugLogger.Log("Game", "ERROR: dungeonRunnerManager is null!");
                 }
             }
             

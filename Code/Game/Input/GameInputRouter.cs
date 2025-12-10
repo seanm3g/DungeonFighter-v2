@@ -37,53 +37,36 @@ namespace RPGGame.GameCore.Input
             if (string.IsNullOrEmpty(input)) return;
 
             // Debug: Log input and state for troubleshooting
-            DebugLogger.Log("Game", $"HandleInput: input='{input}', state={stateManager.CurrentState}, mainMenuHandler={handlers.MainMenuHandler != null}");
-            ScrollDebugLogger.Log($"Game.HandleInput: input='{input}', state={stateManager.CurrentState}");
-
             switch (stateManager.CurrentState)
             {
                 case GameState.MainMenu:
                     if (handlers.MainMenuHandler != null)
                     {
-                        DebugLogger.Log("Game", $"Routing to MainMenuHandler.HandleMenuInput('{input}')");
                         await handlers.MainMenuHandler.HandleMenuInput(input);
                     }
                     else
                     {
-                        DebugLogger.Log("Game", "ERROR: mainMenuHandler is null!");
                     }
                     break;
                 case GameState.CharacterInfo:
                     handlers.CharacterMenuHandler?.HandleMenuInput(input);
                     break;
                 case GameState.Settings:
-                    DebugLogger.Log("Game", $"Settings state: input='{input}', handler is {(handlers.SettingsMenuHandler != null ? "not null" : "NULL")}");
-                    ScrollDebugLogger.Log($"Game: Settings state - input='{input}', handler is {(handlers.SettingsMenuHandler != null ? "not null" : "NULL")}");
                     if (handlers.SettingsMenuHandler != null)
                     {
-                        DebugLogger.Log("Game", $"Calling SettingsMenuHandler.HandleMenuInput('{input}')");
-                        ScrollDebugLogger.Log($"Game: Calling SettingsMenuHandler.HandleMenuInput('{input}')");
                         handlers.SettingsMenuHandler.HandleMenuInput(input);
                     }
                     else
                     {
-                        DebugLogger.Log("Game", "ERROR: settingsMenuHandler is null!");
-                        ScrollDebugLogger.Log("Game: ERROR - settingsMenuHandler is null!");
                     }
                     break;
                 case GameState.DeveloperMenu:
-                    DebugLogger.Log("Game", $"DeveloperMenu state: input='{input}', handler is {(handlers.DeveloperMenuHandler != null ? "not null" : "NULL")}");
-                    ScrollDebugLogger.Log($"Game: DeveloperMenu state - input='{input}', handler is {(handlers.DeveloperMenuHandler != null ? "not null" : "NULL")}");
                     if (handlers.DeveloperMenuHandler != null)
                     {
-                        DebugLogger.Log("Game", $"Calling DeveloperMenuHandler.HandleMenuInput('{input}')");
-                        ScrollDebugLogger.Log($"Game: Calling DeveloperMenuHandler.HandleMenuInput('{input}')");
                         handlers.DeveloperMenuHandler.HandleMenuInput(input);
                     }
                     else
                     {
-                        DebugLogger.Log("Game", "ERROR: developerMenuHandler is null!");
-                        ScrollDebugLogger.Log("Game: ERROR - developerMenuHandler is null!");
                     }
                     break;
                 case GameState.VariableEditor:
@@ -98,48 +81,30 @@ namespace RPGGame.GameCore.Input
                     }
                     break;
                 case GameState.ActionEditor:
-                    DebugLogger.Log("Game", $"ActionEditor state: input='{input}', handler is {(handlers.ActionEditorHandler != null ? "not null" : "NULL")}");
-                    ScrollDebugLogger.Log($"Game: ActionEditor state - input='{input}', handler is {(handlers.ActionEditorHandler != null ? "not null" : "NULL")}");
                     if (handlers.ActionEditorHandler != null)
                     {
-                        DebugLogger.Log("Game", $"Calling ActionEditorHandler.HandleMenuInput('{input}')");
-                        ScrollDebugLogger.Log($"Game: Calling ActionEditorHandler.HandleMenuInput('{input}')");
                         handlers.ActionEditorHandler.HandleMenuInput(input);
                     }
                     else
                     {
-                        DebugLogger.Log("Game", "ERROR: actionEditorHandler is null!");
-                        ScrollDebugLogger.Log("Game: ERROR - actionEditorHandler is null!");
                     }
                     break;
                 case GameState.CreateAction:
-                    DebugLogger.Log("Game", $"CreateAction state: input='{input}', handler is {(handlers.ActionEditorHandler != null ? "not null" : "NULL")}");
-                    ScrollDebugLogger.Log($"Game: CreateAction state - input='{input}', handler is {(handlers.ActionEditorHandler != null ? "not null" : "NULL")}");
                     if (handlers.ActionEditorHandler != null)
                     {
-                        DebugLogger.Log("Game", $"Calling ActionEditorHandler.HandleCreateActionInput('{input}')");
-                        ScrollDebugLogger.Log($"Game: Calling ActionEditorHandler.HandleCreateActionInput('{input}')");
                         handlers.ActionEditorHandler.HandleCreateActionInput(input);
                     }
                     else
                     {
-                        DebugLogger.Log("Game", "ERROR: actionEditorHandler is null!");
-                        ScrollDebugLogger.Log("Game: ERROR - actionEditorHandler is null!");
                     }
                     break;
                 case GameState.ViewAction:
-                    DebugLogger.Log("Game", $"ViewAction state: input='{input}', handler is {(handlers.ActionEditorHandler != null ? "not null" : "NULL")}");
-                    ScrollDebugLogger.Log($"Game: ViewAction state - input='{input}', handler is {(handlers.ActionEditorHandler != null ? "not null" : "NULL")}");
                     if (handlers.ActionEditorHandler != null)
                     {
-                        DebugLogger.Log("Game", $"Calling ActionEditorHandler.HandleActionDetailInput('{input}')");
-                        ScrollDebugLogger.Log($"Game: Calling ActionEditorHandler.HandleActionDetailInput('{input}')");
                         handlers.ActionEditorHandler.HandleActionDetailInput(input);
                     }
                     else
                     {
-                        DebugLogger.Log("Game", "ERROR: actionEditorHandler is null!");
-                        ScrollDebugLogger.Log("Game: ERROR - actionEditorHandler is null!");
                     }
                     break;
                 case GameState.Inventory:
@@ -153,11 +118,8 @@ namespace RPGGame.GameCore.Input
                         await handlers.GameLoopInputHandler.HandleMenuInput(input);
                     break;
                 case GameState.DungeonSelection:
-                    DebugLogger.Log("Game", $"Routing to DungeonSelectionHandler.HandleMenuInput('{input}')");
                     if (handlers.DungeonSelectionHandler != null)
                         await handlers.DungeonSelectionHandler.HandleMenuInput(input);
-                    else
-                        DebugLogger.Log("Game", "ERROR: dungeonSelectionHandler is null!");
                     break;
                 case GameState.DungeonCompletion:
                     if (handlers.DungeonCompletionHandler != null)
@@ -168,38 +130,28 @@ namespace RPGGame.GameCore.Input
                         await handlers.DeathScreenHandler.HandleMenuInput(input);
                     break;
                 case GameState.Testing:
-                    DebugLogger.Log("Game", $"Testing state: input='{input}', handler is {(handlers.TestingSystemHandler != null ? "not null" : "NULL")}");
-                    ScrollDebugLogger.Log($"Game: Testing state - input='{input}', handler is {(handlers.TestingSystemHandler != null ? "not null" : "NULL")}");
                     // Allow scrolling during testing to view test results
                     if (input == "up" || input == "down")
                     {
-                        ScrollDebugLogger.Log($"Testing state: Handling scroll input '{input}'");
-                        DebugLogger.Log("Game", $"Testing state: Handling scroll input '{input}'");
                         // Don't show message - it replaces the content we're trying to scroll
                         handleCombatScroll(input);
                         return; // Don't process other input when scrolling
                     }
                     else if (handlers.TestingSystemHandler != null)
                     {
-                        DebugLogger.Log("Game", $"Calling TestingSystemHandler.HandleMenuInput('{input}')");
-                        ScrollDebugLogger.Log($"Game: Calling TestingSystemHandler.HandleMenuInput('{input}')");
                         await handlers.TestingSystemHandler.HandleMenuInput(input);
                     }
                     else
                     {
-                        DebugLogger.Log("Game", "ERROR: testingSystemHandler is null!");
-                        ScrollDebugLogger.Log("Game: ERROR - testingSystemHandler is null!");
                     }
                     break;
                 case GameState.CharacterCreation:
                     if (handlers.CharacterCreationHandler != null)
                     {
-                        DebugLogger.Log("Game", $"Routing to CharacterCreationHandler.HandleMenuInput('{input}')");
                         handlers.CharacterCreationHandler.HandleMenuInput(input);
                     }
                     else
                     {
-                        DebugLogger.Log("Game", "ERROR: characterCreationHandler is null!");
                     }
                     break;
                 case GameState.Dungeon:

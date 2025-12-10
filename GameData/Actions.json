@@ -2,13 +2,49 @@
   {
     "name": "CRUSHING BLOW",
     "type": "Attack",
-    "damageMultiplier": 1.2,
-    "length": 1.0,
+    "damageMultiplier": 1.5,
+    "length": 1.4,
     "multiHitCount": 1,
     "description": "A devastating overhead strike with a mace",
     "tags": ["weapon", "mace"],
     "statBonus": 3,
     "statBonusType": "STR",
+    "statBonusDuration": 999
+  },
+  {
+    "name": "PRECISION STRIKE",
+    "type": "Attack",
+    "damageMultiplier": 1.1,
+    "length": 1.2,
+    "multiHitCount": 2,
+    "description": "A swift and precise double strike with a sword",
+    "tags": ["weapon", "sword"],
+    "statBonus": 3,
+    "statBonusType": "AGI",
+    "statBonusDuration": 999
+  },
+  {
+    "name": "DEADLY THRUST",
+    "type": "Attack",
+    "damageMultiplier": 0.65,
+    "length": 0.75,
+    "multiHitCount": 3,
+    "description": "A rapid series of precise and deadly thrusts with a dagger",
+    "tags": ["weapon", "dagger"],
+    "statBonus": 3,
+    "statBonusType": "TEC",
+    "statBonusDuration": 999
+  },
+  {
+    "name": "ARCANE BLAST",
+    "type": "Attack",
+    "damageMultiplier": 0.95,
+    "length": 1.1,
+    "multiHitCount": 2,
+    "description": "A powerful dual magical blast from a wand",
+    "tags": ["weapon", "wand"],
+    "statBonus": 3,
+    "statBonusType": "INT",
     "statBonusDuration": 999
   },
   {
@@ -50,13 +86,54 @@
     "tags": ["weapon", "wand"]
   },
   {
-    "name": "BASIC ATTACK",
-    "type": "Attack",
-    "damageMultiplier": 1.0,
+    "name": "ARCANE CASCADE",
+    "type": "Spell",
+    "damageMultiplier": 0.45,
+    "length": 0.9,
+    "multiHitCount": 4,
+    "description": "A cascading wave of arcane energy that hits multiple times, each strike building in power. Grants +2 INT for 3 turns, making subsequent casts more powerful.",
+    "tags": ["weapon", "wand"],
+    "statBonus": 2,
+    "statBonusType": "INT",
+    "statBonusDuration": 3,
+    "isComboAction": true
+  },
+  {
+    "name": "MANA MARK",
+    "type": "Spell",
+    "damageMultiplier": 0.4,
+    "length": 1.2,
+    "multiHitCount": 1,
+    "description": "Marks the target with unstable mana, weakening them and disrupting their defenses. Applies weaken and -3 to enemy's next roll. Grants +3 roll bonus to your next action.",
+    "tags": ["weapon", "wand"],
+    "causesWeaken": true,
+    "enemyRollPenalty": 3,
+    "rollBonus": 3
+  },
+  {
+    "name": "DESPERATE MAGIC",
+    "type": "Spell",
+    "damageMultiplier": 0.6,
     "length": 1.0,
     "multiHitCount": 1,
-    "description": "A standard physical attack",
-    "tags": ["character", "basic"]
+    "description": "A dangerous spell that channels life force into raw power. Deals double damage when health is below 25%. Takes 5% self-damage but grants +1 INT for 2 turns.",
+    "tags": ["weapon", "wand"],
+    "selfDamagePercent": 5,
+    "statBonus": 1,
+    "statBonusType": "INT",
+    "statBonusDuration": 2,
+    "healthThreshold": 0.25,
+    "conditionalDamageMultiplier": 2.0
+  },
+  {
+    "name": "ARCANE ECHO",
+    "type": "Spell",
+    "damageMultiplier": 0.7,
+    "length": 1.1,
+    "multiHitCount": 2,
+    "description": "Fires a magical bolt that echoes back, add 1 attack to next action. The echo grows stronger in combos, making it perfect for chaining spells.",
+    "tags": ["weapon", "wand"],
+    "isComboAction": true
   },
   {
     "name": "ENVIRONMENTAL HAZARD",

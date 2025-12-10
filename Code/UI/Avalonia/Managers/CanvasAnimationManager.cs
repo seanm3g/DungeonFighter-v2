@@ -77,7 +77,6 @@ namespace RPGGame.UI.Avalonia.Managers
         /// <param name="dungeons">List of available dungeons</param>
         public void StartDungeonSelectionAnimation(Character player, List<Dungeon> dungeons)
         {
-            ScrollDebugLogger.Log($"[ANIMATION] StartDungeonSelectionAnimation called - player: {player != null}, dungeons: {dungeons?.Count ?? 0}");
             isDungeonSelectionActive = true;
             dungeonSelectionPlayer = player;
             dungeonSelectionList = dungeons;
@@ -88,7 +87,6 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public void StopDungeonSelectionAnimation()
         {
-            ScrollDebugLogger.Log($"[ANIMATION] StopDungeonSelectionAnimation called");
             isDungeonSelectionActive = false;
             dungeonSelectionPlayer = null;
             dungeonSelectionList = null;
@@ -102,7 +100,6 @@ namespace RPGGame.UI.Avalonia.Managers
             // If we're leaving dungeon selection state, stop the animation
             if (e.PreviousState == GameState.DungeonSelection && e.NewState != GameState.DungeonSelection)
             {
-                ScrollDebugLogger.Log($"[ANIMATION] State changed from {e.PreviousState} to {e.NewState} - stopping dungeon selection animation");
                 StopDungeonSelectionAnimation();
             }
         }
@@ -136,7 +133,6 @@ namespace RPGGame.UI.Avalonia.Managers
                 // If we rendered recently, skip this render
                 if (timeSinceLastRender < minRenderIntervalMs)
                 {
-                    ScrollDebugLogger.Log($"[ANIMATION] ThrottledRender skipped - only {timeSinceLastRender}ms since last render");
                     return;
                 }
                 
@@ -144,13 +140,10 @@ namespace RPGGame.UI.Avalonia.Managers
             }
             
             // Perform the actual render
-            ScrollDebugLogger.Log($"[ANIMATION] ThrottledRender - isDungeonSelectionActive: {isDungeonSelectionActive}, player: {dungeonSelectionPlayer != null}, dungeons: {dungeonSelectionList != null}, callback: {reRenderCallback != null}");
-            
             // Double-check animation is still active before rendering
             // State changes will automatically stop the animation via event handler
             if (!isDungeonSelectionActive)
             {
-                ScrollDebugLogger.Log($"[ANIMATION] ThrottledRender skipped - animation no longer active");
                 return;
             }
             
@@ -158,7 +151,6 @@ namespace RPGGame.UI.Avalonia.Managers
             // This handles edge cases where events might not fire immediately
             if (stateManager != null && stateManager.CurrentState != GameState.DungeonSelection)
             {
-                ScrollDebugLogger.Log($"[ANIMATION] ThrottledRender skipped - game state is {stateManager.CurrentState}, not DungeonSelection");
                 StopDungeonSelectionAnimation();
                 return;
             }
@@ -176,20 +168,17 @@ namespace RPGGame.UI.Avalonia.Managers
                     // Final check: animation state and data validity before rendering
                     if (!isDungeonSelectionActive)
                     {
-                        ScrollDebugLogger.Log($"[ANIMATION] Re-render callback skipped - animation stopped");
                         return;
                     }
                     
                     // Final state check on UI thread
                     if (stateManager != null && stateManager.CurrentState != GameState.DungeonSelection)
                     {
-                        ScrollDebugLogger.Log($"[ANIMATION] Re-render callback skipped - game state changed to {stateManager.CurrentState}");
                         return;
                     }
                     
                     if (player != null && dungeons != null && callback != null)
                     {
-                        ScrollDebugLogger.Log($"[ANIMATION] Calling re-render callback");
                         callback(player, dungeons);
                     }
                 }, DispatcherPriority.Background);
@@ -223,8 +212,6 @@ namespace RPGGame.UI.Avalonia.Managers
                 var animationState = Managers.DungeonSelectionAnimationState.Instance;
                 int oldOffset = animationState.BrightnessMaskOffset;
                 animationState.AdvanceBrightnessMask();
-                ScrollDebugLogger.Log($"[ANIMATION] Brightness mask offset: {oldOffset} -> {animationState.BrightnessMaskOffset}");
-                
                 // Trigger throttled render
                 ThrottledRender();
             }
@@ -293,7 +280,6 @@ namespace RPGGame.UI.Avalonia.Managers
             if (this.stateManager != null)
             {
                 this.stateManager.StateChanged += OnStateChanged;
-                ScrollDebugLogger.Log($"[ANIMATION] Subscribed to state change events");
             }
         }
         

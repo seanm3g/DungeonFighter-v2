@@ -42,10 +42,8 @@ namespace RPGGame
                 canvasUI.SetCharacter(stateManager.CurrentPlayer);
                 // Render the character creation screen showing character details
                 canvasUI.RenderCharacterCreation(stateManager.CurrentPlayer);
-                DebugLogger.Log("CharacterCreationHandler", $"Displaying character creation for {stateManager.CurrentPlayer.Name}");
             }
             stateManager.TransitionToState(GameState.CharacterCreation);
-            DebugLogger.Log("CharacterCreationHandler", "Showing character creation screen");
         }
 
         /// <summary>
@@ -59,14 +57,10 @@ namespace RPGGame
                 ShowMessageEvent?.Invoke("No character selected.");
                 return;
             }
-
-            DebugLogger.Log("CharacterCreationHandler", $"HandleMenuInput: input='{input}'");
-
             string trimmedInput = input?.Trim() ?? "";
 
             if (trimmedInput == "0")
             {
-                DebugLogger.Log("CharacterCreationHandler", "Going back to weapon selection");
                 ShowMessageEvent?.Invoke("Going back to weapon selection...");
                 
                 // Go back to weapon selection
@@ -74,7 +68,6 @@ namespace RPGGame
             }
             else if (!string.IsNullOrEmpty(trimmedInput))
             {
-                DebugLogger.Log("CharacterCreationHandler", "Starting game loop");
                 ShowMessageEvent?.Invoke($"Welcome, {stateManager.CurrentPlayer.Name}!");
                 
                 // Ensure character is set in UI coordinator for persistent display

@@ -35,8 +35,6 @@ namespace DungeonFighter.Game.Menu.State
             
             // Initialize with default valid transitions
             InitializeDefaultTransitions();
-            
-            DebugLogger.Log("StateTransitionManager", "Initialized with state machine");
         }
 
         /// <summary>
@@ -53,9 +51,6 @@ namespace DungeonFighter.Game.Menu.State
         /// </summary>
         private bool TransitionToInternal(GameState newState, string? reason = null)
         {
-            DebugLogger.Log("StateTransitionManager", 
-                $"Transition requested: {currentState} → {newState}" + 
-                (reason != null ? $" ({reason})" : ""));
 
             // Check if transition is valid
             var isValid = IsTransitionValid(currentState, newState);
@@ -78,10 +73,6 @@ namespace DungeonFighter.Game.Menu.State
                 // Update state
                 currentState = newState;
                 stateManager.TransitionToState(newState);
-
-                DebugLogger.Log("StateTransitionManager", 
-                    $"✓ Transition complete: {previousState} → {newState}");
-
                 // Fire after-change event
                 OnAfterStateChange?.Invoke(this, eventArgs);
 
@@ -89,9 +80,6 @@ namespace DungeonFighter.Game.Menu.State
             }
             catch (Exception ex)
             {
-                DebugLogger.Log("StateTransitionManager", 
-                    $"Exception during state transition: {ex.Message}");
-                
                 // Attempt to revert to previous state
                 currentState = previousState;
                 return false;
@@ -122,16 +110,12 @@ namespace DungeonFighter.Game.Menu.State
             
             if (rule == null)
             {
-                DebugLogger.Log("StateTransitionManager", 
-                    $"✗ No rule found for: {from} → {to}");
                 return false;
             }
 
             // Check condition if present
             if (!rule.IsValid())
             {
-                DebugLogger.Log("StateTransitionManager", 
-                    $"✗ Condition failed for: {rule.Description}");
                 return false;
             }
 
@@ -144,7 +128,6 @@ namespace DungeonFighter.Game.Menu.State
         public void RegisterTransition(StateTransitionRule rule)
         {
             transitionRules.Add(rule);
-            DebugLogger.Log("StateTransitionManager", $"Registered transition: {rule.Description}");
         }
 
         /// <summary>
@@ -232,8 +215,6 @@ namespace DungeonFighter.Game.Menu.State
                 GameState.Testing, GameState.Settings, "Exit Testing"));
             RegisterTransition(new StateTransitionRule(
                 GameState.Testing, GameState.MainMenu, "Exit Testing to Menu"));
-
-            DebugLogger.Log("StateTransitionManager", "Default state machine initialized");
         }
 
         /// <summary>
@@ -243,9 +224,6 @@ namespace DungeonFighter.Game.Menu.State
         {
             var error = $"Invalid transition: {from} → {to}";
             if (reason != null) error += $" ({reason})";
-            
-            DebugLogger.Log("StateTransitionManager", error);
-            
             OnInvalidTransition?.Invoke(this, 
                 new InvalidTransitionEventArgs(from, to, error));
         }

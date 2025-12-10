@@ -22,16 +22,13 @@ namespace DungeonFighter.Game.Menu.Core
         {
             try
             {
-                DebugLogger.Log("MenuCommand", $"Executing: {CommandName}");
                 if (context != null)
                 {
                     await ExecuteCommand(context);
                 }
-                DebugLogger.Log("MenuCommand", $"Completed: {CommandName}");
             }
             catch (Exception ex)
             {
-                DebugLogger.Log("MenuCommand", $"Error executing {CommandName}: {ex.Message}");
                 throw;
             }
         }
@@ -46,7 +43,6 @@ namespace DungeonFighter.Game.Menu.Core
         /// </summary>
         protected void LogStep(string step)
         {
-            DebugLogger.Log(CommandName, step);
         }
 
         /// <summary>
@@ -54,7 +50,6 @@ namespace DungeonFighter.Game.Menu.Core
         /// </summary>
         protected void LogError(string error)
         {
-            DebugLogger.Log(CommandName, error);
         }
     }
 }

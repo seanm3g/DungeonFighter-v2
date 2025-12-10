@@ -70,10 +70,20 @@ namespace RPGGame
             else if (totalRoll >= 6) // Basic attack threshold (6-13) - with bonuses
             {
                 selectedAction = ActionFactory.GetBasicAttack(source);
+                // If BASIC ATTACK not available, fall back to first available action
+                if (selectedAction == null && source.ActionPool.Count > 0)
+                {
+                    selectedAction = source.ActionPool[0].action;
+                }
             }
             else // totalRoll < 6 - still attempt basic attack (will likely miss)
             {
                 selectedAction = ActionFactory.GetBasicAttack(source);
+                // If BASIC ATTACK not available, fall back to first available action
+                if (selectedAction == null && source.ActionPool.Count > 0)
+                {
+                    selectedAction = source.ActionPool[0].action;
+                }
             }
             
             return selectedAction;
@@ -122,11 +132,24 @@ namespace RPGGame
             // 6-13: BASIC ATTACK
             if (totalRoll >= 6)
             {
-                return ActionFactory.GetBasicAttack(source);
+                var basicAttack = ActionFactory.GetBasicAttack(source);
+                if (basicAttack != null) return basicAttack;
+                // Fallback to first available action if BASIC ATTACK not available
+                if (source.ActionPool.Count > 0)
+                {
+                    return source.ActionPool[0].action;
+                }
             }
 
             // <6: treat as basic attack attempt (will likely miss)
-            return ActionFactory.GetBasicAttack(source);
+            var fallbackBasic = ActionFactory.GetBasicAttack(source);
+            if (fallbackBasic != null) return fallbackBasic;
+            // Fallback to first available action if BASIC ATTACK not available
+            if (source.ActionPool.Count > 0)
+            {
+                return source.ActionPool[0].action;
+            }
+            return null;
         }
 
         /// <summary>
@@ -144,10 +167,6 @@ namespace RPGGame
             }
             else
             {
-                // This should never happen - combo actions should always be available
-                // If we reach here, there's a bug in the combo initialization
-                DebugLogger.Log("ActionSelector", $"ERROR: No combo actions available for {source.Name} on combo roll! This should never happen.");
-                
                 // Try to find any combo action from the action pool
                 var anyComboAction = source.ActionPool
                     .Where(a => a.action.IsComboAction)
@@ -156,14 +175,23 @@ namespace RPGGame
                 
                 if (anyComboAction != null)
                 {
-                    DebugLogger.Log("ActionSelector", $"Found combo action {anyComboAction.Name} for {source.Name}");
                     return anyComboAction;
                 }
                 else
                 {
-                    // Last resort: fall back to BASIC ATTACK if no combo actions available
-                    DebugLogger.Log("ActionSelector", $"No combo actions available for {source.Name}, falling back to BASIC ATTACK");
-                    return ActionFactory.GetBasicAttack(source);
+                    // Last resort: try BASIC ATTACK, or fall back to first available action
+                    var basicAttack = ActionFactory.GetBasicAttack(source);
+                    if (basicAttack != null)
+                    {
+                        return basicAttack;
+                    }
+                    // If BASIC ATTACK not available, use first available action
+                    if (source.ActionPool.Count > 0)
+                    {
+                        return source.ActionPool[0].action;
+                    }
+                    // This should never happen, but return null if no actions available
+                    return null!; // Explicitly return null - this is an error state
                 }
             }
         }

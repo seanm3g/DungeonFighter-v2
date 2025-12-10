@@ -30,7 +30,6 @@ namespace RPGGame.Actions.Execution
             
             if (!ActionExecutor.DisableCombatDebugOutput)
             {
-                DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} healed {target.Name} for {healAmount} health");
             }
             
             // Track statistics

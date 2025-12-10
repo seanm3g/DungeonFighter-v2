@@ -26,7 +26,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         /// </summary>
         public int RenderDeveloperMenuContent(int x, int y, int width, int height)
         {
-            ScrollDebugLogger.Log($"DeveloperMenuRenderer: RenderDeveloperMenuContent called with x={x}, y={y}, width={width}, height={height}");
             clickableElements.Clear();
             int currentLineCount = 0;
             
@@ -36,7 +35,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             // Title
             string title = "=== DEVELOPER MENU ===";
             int titleX = MenuLayoutCalculator.CalculateCenteredTextX(x, width, title.Length);
-            ScrollDebugLogger.Log($"DeveloperMenuRenderer: Rendering title '{title}' at x={titleX}, y={menuStartY}");
             canvas.AddText(titleX, menuStartY, title, AsciiArtAssets.Colors.Gold);
             menuStartY += 3;
             
@@ -62,14 +60,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                     DisplayText = displayText
                 };
                 clickableElements.Add(option);
-                
-                ScrollDebugLogger.Log($"DeveloperMenuRenderer: Rendering option '{option.DisplayText}' at x={menuStartX}, y={menuStartY}");
                 canvas.AddText(menuStartX, menuStartY, displayText, color);
                 menuStartY++;
             }
-            
-            ScrollDebugLogger.Log($"DeveloperMenuRenderer: Finished rendering {menuOptions.Length} options");
-            
             return currentLineCount;
         }
     }

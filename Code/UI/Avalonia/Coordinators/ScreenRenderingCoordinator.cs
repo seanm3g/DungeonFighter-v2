@@ -189,8 +189,6 @@ namespace RPGGame.UI.Avalonia.Coordinators
         /// </summary>
         public void RenderDungeonSelection(Character player, List<Dungeon> dungeons)
         {
-            RPGGame.Utils.ScrollDebugLogger.Log($"[RENDER] ScreenRenderingCoordinator.RenderDungeonSelection called - player: {player != null}, dungeons: {dungeons?.Count ?? 0}");
-            RPGGame.Utils.ScrollDebugLogger.Log($"[RENDER] animationManager: {animationManager != null}");
             // Parameters are validated by caller (CanvasUICoordinator), so they're non-null here
             if (animationManager != null)
             {

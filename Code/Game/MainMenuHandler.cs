@@ -71,28 +71,23 @@ namespace RPGGame
             // Trim whitespace to handle various input formats
             string trimmedInput = input?.Trim() ?? "";
             
-            DebugLogger.Log("MainMenuHandler", $"HandleMenuInput: raw='{input}', trimmed='{trimmedInput}'");
-            
             switch (trimmedInput)
             {
                 case "1":
-                    DebugLogger.Log("MainMenuHandler", "Processing 'New Game' (1)");
+                    ShowMessageEvent?.Invoke("Starting new game...");
                     await StartNewGame();
                     break;
                 case "2":
-                    DebugLogger.Log("MainMenuHandler", "Processing 'Load Game' (2)");
+                    ShowMessageEvent?.Invoke("Loading game...");
                     await LoadGame();
                     break;
                 case "3":
-                    DebugLogger.Log("MainMenuHandler", "Processing 'Settings' (3)");
                     HandleSettingsSelection();
                     break;
                 case "0":
-                    DebugLogger.Log("MainMenuHandler", "Processing 'Quit' (0)");
                     HandleQuitSelection();
                     break;
                 default:
-                    DebugLogger.Log("MainMenuHandler", $"Invalid choice '{trimmedInput}'");
                     ShowMessageEvent?.Invoke($"Invalid choice: '{input}'. Please select 1 (New), 2 (Load), 3 (Settings), or 0 (Quit).");
                     break;
             }
@@ -105,24 +100,19 @@ namespace RPGGame
         {
             try
             {
-                DebugLogger.Log("MainMenuHandler", "StartNewGame called");
+                ShowMessageEvent?.Invoke("Starting new game...");
                 
                 // Clear any existing enemy from previous game session
                 if (customUIManager is CanvasUICoordinator canvasUIClear)
                 {
                     canvasUIClear.ClearCurrentEnemy();
-                    DebugLogger.Log("MainMenuHandler", "Cleared current enemy from UI");
                 }
                 
-                DebugLogger.Log("MainMenuHandler", "Creating new character");
                 // Create new character (without equipment yet)
                 stateManager.SetCurrentPlayer(new Character(null, 1)); // null triggers random name generation
-                DebugLogger.Log("MainMenuHandler", $"New character created: {stateManager.CurrentPlayer?.Name}");
                 
                 if (stateManager.CurrentPlayer != null)
                 {
-                    DebugLogger.Log("MainMenuHandler", "Character is not null, proceeding with setup");
-                    
                     // Set character in UI manager for persistent display
                     if (customUIManager is CanvasUICoordinator canvasUI)
                     {
@@ -137,21 +127,27 @@ namespace RPGGame
                     }
                     
                     // Go to weapon selection first
-                    DebugLogger.Log("MainMenuHandler", "Transitioning to WeaponSelection");
                     stateManager.TransitionToState(GameState.WeaponSelection);
-                    DebugLogger.Log("MainMenuHandler", "Firing ShowWeaponSelectionEvent");
-                    ShowWeaponSelectionEvent?.Invoke();
-                    DebugLogger.Log("MainMenuHandler", "ShowWeaponSelectionEvent fired");
-                }
-                else
-                {
-                    DebugLogger.Log("MainMenuHandler", "ERROR: CurrentPlayer is null!");
+                    if (ShowWeaponSelectionEvent != null)
+                    {
+                        try
+                        {
+                            ShowWeaponSelectionEvent.Invoke();
+                        }
+                        catch (Exception ex)
+                        {
+                            ShowMessageEvent?.Invoke($"Error: {ex.Message}");
+                        }
+                    }
+                    else
+                    {
+                        ShowMessageEvent?.Invoke("Error: Weapon selection event not initialized. Please restart the game.");
+                    }
                 }
             }
             catch (Exception ex)
             {
                 string errorMsg = $"Error starting game: {ex.Message}\n{ex.StackTrace}";
-                DebugLogger.Log("MainMenuHandler", $"Exception in StartNewGame: {errorMsg}");
                 ShowMessageEvent?.Invoke(errorMsg);
                 stateManager.TransitionToState(GameState.MainMenu);
                 ShowMainMenu();
@@ -171,7 +167,21 @@ namespace RPGGame
                 {
                     // Character already loaded, go to game loop
                     stateManager.TransitionToState(GameState.GameLoop);
-                    ShowGameLoopEvent?.Invoke();
+                    if (ShowGameLoopEvent != null)
+                    {
+                        try
+                        {
+                            ShowGameLoopEvent.Invoke();
+                        }
+                        catch (Exception ex)
+                        {
+                            ShowMessageEvent?.Invoke($"Error: {ex.Message}");
+                        }
+                    }
+                    else
+                    {
+                        ShowMessageEvent?.Invoke("Error: Game loop event not initialized. Please restart the game.");
+                    }
                 }
                 else
                 {
@@ -212,7 +222,22 @@ namespace RPGGame
                         
                         // Go to game loop
                         stateManager.TransitionToState(GameState.GameLoop);
-                        ShowGameLoopEvent?.Invoke();
+                        DebugLogger.Log("MainMenuHandler", $"Firing ShowGameLoopEvent - Event is {(ShowGameLoopEvent != null ? "not null" : "NULL")}");
+                        if (ShowGameLoopEvent != null)
+                        {
+                            try
+                            {
+                                ShowGameLoopEvent.Invoke();
+                            }
+                            catch (Exception ex)
+                            {
+                                ShowMessageEvent?.Invoke($"Error: {ex.Message}");
+                            }
+                        }
+                        else
+                        {
+                            ShowMessageEvent?.Invoke("Error: Game loop event not initialized. Please restart the game.");
+                        }
                     }
                     else
                     {
@@ -235,12 +260,8 @@ namespace RPGGame
         /// </summary>
         private void HandleSettingsSelection()
         {
-            DebugLogger.Log("MainMenuHandler", "HandleSettingsSelection: Transitioning to Settings state");
-            ScrollDebugLogger.Log("MainMenuHandler: HandleSettingsSelection called");
             stateManager.TransitionToState(GameState.Settings);
-            ScrollDebugLogger.Log($"MainMenuHandler: State transitioned, ShowSettingsEvent is {(ShowSettingsEvent != null ? "not null" : "null")}");
             ShowSettingsEvent?.Invoke();
-            ScrollDebugLogger.Log("MainMenuHandler: ShowSettingsEvent invoked");
         }
 
         /// <summary>

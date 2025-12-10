@@ -46,6 +46,16 @@ namespace RPGGame.Combat.Calculators
             // Apply action damage multiplier if action is provided
             double actionMultiplier = action?.DamageMultiplier ?? 1.0;
             
+            // Check for conditional damage multiplier based on health threshold
+            if (action != null && action.Advanced.HealthThreshold > 0.0 && action.Advanced.ConditionalDamageMultiplier > 1.0)
+            {
+                // Check if attacker's health meets the threshold (works for both Character and Enemy since Enemy inherits from Character)
+                if (attacker is Character attackerCharacter && attackerCharacter.MeetsHealthThreshold(action.Advanced.HealthThreshold))
+                {
+                    actionMultiplier *= action.Advanced.ConditionalDamageMultiplier;
+                }
+            }
+            
             // Calculate total damage before armor
             double totalDamage = (baseDamage * actionMultiplier * comboAmplifier * damageMultiplier);
             

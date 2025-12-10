@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Media;
@@ -246,7 +246,6 @@ namespace RPGGame
                 // Log error but don't break combat
                 if (!ActionExecutor.DisableCombatDebugOutput)
                 {
-                    DebugLogger.WriteCombatDebug("ActionUtilities", $"Error creating BattleEvent: {ex.Message}");
                 }
             }
         }

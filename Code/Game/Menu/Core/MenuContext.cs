@@ -20,7 +20,6 @@ namespace DungeonFighter.Game.Menu.Core
         public MenuContext(GameStateManager stateManager)
         {
             StateManager = stateManager ?? throw new System.ArgumentNullException(nameof(stateManager));
-            DebugLogger.Log("MenuContext", "Context created with StateManager");
         }
     }
 }

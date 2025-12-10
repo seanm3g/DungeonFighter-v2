@@ -29,7 +29,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         /// </summary>
         public int RenderVariableEditorContent(int x, int y, int width, int height)
         {
-            ScrollDebugLogger.Log($"VariableEditorRenderer: RenderVariableEditorContent called");
             clickableElements.Clear();
             int currentLineCount = 0;
             
@@ -80,9 +79,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             };
             clickableElements.Add(backOption);
             canvas.AddText(menuStartX, menuStartY, backText, AsciiArtAssets.Colors.White);
-            
-            ScrollDebugLogger.Log($"VariableEditorRenderer: Finished rendering {displayCount} variables");
-            
             return currentLineCount;
         }
     }

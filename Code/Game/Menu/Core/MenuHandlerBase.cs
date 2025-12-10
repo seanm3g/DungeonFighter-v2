@@ -82,7 +82,6 @@ namespace DungeonFighter.Game.Menu.Core
         /// </summary>
         protected void LogStep(string step)
         {
-            DebugLogger.Log(HandlerName, step);
         }
 
         /// <summary>
@@ -90,7 +89,6 @@ namespace DungeonFighter.Game.Menu.Core
         /// </summary>
         protected void LogError(string error)
         {
-            DebugLogger.Log(HandlerName, $"ERROR: {error}");
         }
     }
 }

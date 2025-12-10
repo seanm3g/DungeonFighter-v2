@@ -83,7 +83,6 @@ namespace RPGGame.Editors
             }
             catch (Exception ex)
             {
-                DebugLogger.Log("VariableEditor", $"Error saving changes: {ex.Message}");
                 return false;
             }
         }

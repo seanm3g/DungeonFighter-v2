@@ -37,9 +37,6 @@ namespace RPGGame.Menu
                 validator.RegisterRules(GameState.Inventory, new InventoryValidationRules());
                 validator.RegisterRules(GameState.Settings, new SettingsValidationRules());
                 validator.RegisterRules(GameState.DungeonSelection, new DungeonSelectionValidationRules(10));
-                
-                DebugLogger.Log("Game", "Menu Input Framework initialized successfully");
-                
                 return new MenuInputFrameworkResult
                 {
                     MenuInputRouter = router,
@@ -48,7 +45,6 @@ namespace RPGGame.Menu
             }
             catch (Exception ex)
             {
-                DebugLogger.Log("Game", $"Error initializing Menu Input Framework: {ex.Message}");
                 return new MenuInputFrameworkResult();
             }
         }

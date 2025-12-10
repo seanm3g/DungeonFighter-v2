@@ -105,14 +105,17 @@ namespace RPGGame
                 }
                 else
                 {
-                    // If no combo actions are available, load BASIC ATTACK from JSON
+                    // If no combo actions are available, try to load BASIC ATTACK from JSON (optional)
                     var defaultComboAction = ActionLoader.GetAction("BASIC ATTACK");
-                    if (defaultComboAction == null)
+                    if (defaultComboAction != null)
                     {
-                        throw new InvalidOperationException("BASIC ATTACK action not found in Actions.json. Please ensure Actions.json contains a BASIC ATTACK action.");
+                        entity.AddAction(defaultComboAction, 1.0);
+                        AddToCombo(defaultComboAction);
                     }
-                    entity.AddAction(defaultComboAction, 1.0);
-                    AddToCombo(defaultComboAction);
+                    else
+                    {
+                        // BASIC ATTACK is optional - continue without it
+                    }
                 }
             }
         }

@@ -27,7 +27,6 @@ namespace RPGGame.Actions.Execution
 
             if (!ActionExecutor.DisableCombatDebugOutput)
             {
-                DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} executing action against {target.Name}");
             }
 
             // Use forced action if provided (for combo system), otherwise select action based on Actor type
@@ -111,7 +110,6 @@ namespace RPGGame.Actions.Execution
 
                         if (!ActionExecutor.DisableCombatDebugOutput)
                         {
-                            DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} dealt {result.Damage} damage to {target.Name} with {result.SelectedAction.Name}");
                         }
 
                         // Track statistics
@@ -135,7 +133,6 @@ namespace RPGGame.Actions.Execution
 
                     if (!ActionExecutor.DisableCombatDebugOutput)
                     {
-                        DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} healed {target.Name} for {result.HealAmount} health with {result.SelectedAction.Name}");
                     }
 
                     if (target is Character targetCharacterHeal)

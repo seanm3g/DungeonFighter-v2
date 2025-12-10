@@ -45,46 +45,31 @@ namespace RPGGame
         /// </summary>
         public void ShowWeaponSelection()
         {
-            DebugLogger.Log("WeaponSelectionHandler", "ShowWeaponSelection called");
-            DebugLogger.Log("WeaponSelectionHandler", $"customUIManager is null: {customUIManager == null}");
             DebugLogger.Log("WeaponSelectionHandler", $"customUIManager type: {customUIManager?.GetType().Name ?? "null"}");
-            DebugLogger.Log("WeaponSelectionHandler", $"CurrentPlayer is null: {stateManager.CurrentPlayer == null}");
-            
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                DebugLogger.Log("WeaponSelectionHandler", "CanvasUICoordinator check passed");
-                
                 if (stateManager.CurrentPlayer != null)
                 {
-                    DebugLogger.Log("WeaponSelectionHandler", "CurrentPlayer check passed");
-                    
                     // Load weapons from starting gear
                     availableWeapons = LoadStartingWeapons();
-                    DebugLogger.Log("WeaponSelectionHandler", $"Loaded {availableWeapons.Count} weapons");
-                    
                     // Display the weapon selection screen
                     try
                     {
                         canvasUI.RenderWeaponSelection(availableWeapons);
-                        DebugLogger.Log("WeaponSelectionHandler", $"Displayed {availableWeapons.Count} weapons successfully");
                     }
                     catch (Exception ex)
                     {
-                        DebugLogger.Log("WeaponSelectionHandler", $"Error rendering weapons: {ex.Message}");
                     }
                 }
                 else
                 {
-                    DebugLogger.Log("WeaponSelectionHandler", "ERROR: CurrentPlayer is null!");
                 }
             }
             else
             {
-                DebugLogger.Log("WeaponSelectionHandler", "ERROR: customUIManager is not CanvasUICoordinator!");
             }
             
             stateManager.TransitionToState(GameState.WeaponSelection);
-            DebugLogger.Log("WeaponSelectionHandler", "Transitioned to WeaponSelection state");
         }
 
         /// <summary>
@@ -99,7 +84,6 @@ namespace RPGGame
             }
             catch (Exception ex)
             {
-                DebugLogger.Log("WeaponSelectionHandler", $"Error loading weapons: {ex.Message}");
                 // Return default weapons if loading fails
                 return new List<StartingWeapon>
                 {
@@ -121,14 +105,9 @@ namespace RPGGame
                 ShowMessageEvent?.Invoke("No character selected.");
                 return;
             }
-
-            DebugLogger.Log("WeaponSelectionHandler", $"HandleMenuInput: input='{input}'");
-
             // Validate weapon choice (1-4 based on StartingGear.json)
             if (int.TryParse(input?.Trim() ?? "", out int weaponChoice) && weaponChoice >= 1 && weaponChoice <= 4)
             {
-                DebugLogger.Log("WeaponSelectionHandler", $"Weapon selected: {weaponChoice}");
-                
                 // Initialize character with weapon choice
                 initializationManager.InitializeNewCharacter(stateManager.CurrentPlayer, weaponChoice);
                 
@@ -146,7 +125,6 @@ namespace RPGGame
             }
             else
             {
-                DebugLogger.Log("WeaponSelectionHandler", $"Invalid weapon choice: {input}");
                 ShowMessageEvent?.Invoke("Invalid choice. Please select 1-4.");
             }
         }

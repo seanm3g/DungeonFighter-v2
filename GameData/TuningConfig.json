@@ -225,7 +225,7 @@
     "Description": "Controls automatic generation of game data files at launch. CreateBackupsOnAutoGenerate creates backup files before writing. ForceOverwriteOnAutoGenerate forces regeneration even when no changes are needed."
   },
   "Debug": {
-    "EnableDebugOutput": false,
+    "EnableDebugOutput": true,
     "ShowCombatSimulationDebug": false,
     "MaxDetailedBattles": 10,
     "LogCombatActions": false,

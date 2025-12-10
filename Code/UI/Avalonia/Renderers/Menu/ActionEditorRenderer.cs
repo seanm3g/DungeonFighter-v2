@@ -31,7 +31,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         /// </summary>
         public int RenderActionEditorContent(int x, int y, int width, int height)
         {
-            ScrollDebugLogger.Log($"ActionEditorRenderer: RenderActionEditorContent called");
             clickableElements.Clear();
             int currentLineCount = 0;
             
@@ -80,9 +79,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             string actionCount = $"Total Actions: {actions.Count}";
             int actionCountX = MenuLayoutCalculator.CalculateCenteredTextX(x, width, actionCount.Length);
             canvas.AddText(actionCountX, menuStartY, actionCount, AsciiArtAssets.Colors.Cyan);
-            
-            ScrollDebugLogger.Log($"ActionEditorRenderer: Finished rendering menu with {actions.Count} actions");
-            
             return currentLineCount;
         }
 
@@ -91,7 +87,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         /// </summary>
         public int RenderActionListContent(int x, int y, int width, int height, List<ActionData> actions, int page)
         {
-            ScrollDebugLogger.Log($"ActionEditorRenderer: RenderActionListContent called with {actions.Count} actions, page {page}");
             clickableElements.Clear();
             int currentLineCount = 0;
             
@@ -155,9 +150,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             };
             clickableElements.Add(backOption);
             canvas.AddText(menuStartX, menuStartY, backText, AsciiArtAssets.Colors.White);
-            
-            ScrollDebugLogger.Log($"ActionEditorRenderer: Finished rendering {endIndex - startIndex} actions on page {page + 1}");
-            
             return currentLineCount;
         }
     }

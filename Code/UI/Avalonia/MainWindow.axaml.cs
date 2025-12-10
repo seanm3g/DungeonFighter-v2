@@ -160,16 +160,12 @@ namespace RPGGame.UI.Avalonia
                 if (input != null)
                 {
                     // Debug: Log key press for troubleshooting
-                    DebugLogger.Log("MainWindow", $"Key pressed: {e.Key} -> input: '{input}'");
-                    RPGGame.Utils.ScrollDebugLogger.Log($"MainWindow: Key pressed: {e.Key} -> input: '{input}'");
                     DebugLogger.Log("MainWindow", $"Calling game.HandleInput('{input}')");
                     await game.HandleInput(input);
                     DebugLogger.Log("MainWindow", $"game.HandleInput('{input}') completed");
                 }
                 else
                 {
-                    DebugLogger.Log("MainWindow", $"Key {e.Key} not converted to input");
-                    RPGGame.Utils.ScrollDebugLogger.Log($"MainWindow: Key {e.Key} not converted to input");
                 }
             }
             catch (Exception ex)

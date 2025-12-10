@@ -43,12 +43,10 @@ namespace RPGGame.Editors
                 else
                 {
                     actions = new List<ActionData>();
-                    DebugLogger.Log("ActionEditor", $"Actions.json not found at {actionsFilePath}, starting with empty list");
                 }
             }
             catch (Exception ex)
             {
-                DebugLogger.Log("ActionEditor", $"Error loading actions: {ex.Message}");
                 actions = new List<ActionData>();
             }
         }
@@ -78,7 +76,6 @@ namespace RPGGame.Editors
             {
                 if (actions.Any(a => a.Name.Equals(actionData.Name, StringComparison.OrdinalIgnoreCase)))
                 {
-                    DebugLogger.Log("ActionEditor", $"Action '{actionData.Name}' already exists");
                     return false;
                 }
 
@@ -87,7 +84,6 @@ namespace RPGGame.Editors
             }
             catch (Exception ex)
             {
-                DebugLogger.Log("ActionEditor", $"Error creating action: {ex.Message}");
                 return false;
             }
         }
@@ -102,7 +98,6 @@ namespace RPGGame.Editors
                 var existingAction = actions.FirstOrDefault(a => a.Name.Equals(originalName, StringComparison.OrdinalIgnoreCase));
                 if (existingAction == null)
                 {
-                    DebugLogger.Log("ActionEditor", $"Action '{originalName}' not found");
                     return false;
                 }
 
@@ -111,7 +106,6 @@ namespace RPGGame.Editors
                 {
                     if (actions.Any(a => a.Name.Equals(updatedActionData.Name, StringComparison.OrdinalIgnoreCase) && !a.Name.Equals(originalName, StringComparison.OrdinalIgnoreCase)))
                     {
-                        DebugLogger.Log("ActionEditor", $"Action name '{updatedActionData.Name}' already exists");
                         return false;
                     }
                 }
@@ -123,7 +117,6 @@ namespace RPGGame.Editors
             }
             catch (Exception ex)
             {
-                DebugLogger.Log("ActionEditor", $"Error updating action: {ex.Message}");
                 return false;
             }
         }
@@ -138,7 +131,6 @@ namespace RPGGame.Editors
                 var action = actions.FirstOrDefault(a => a.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
                 if (action == null)
                 {
-                    DebugLogger.Log("ActionEditor", $"Action '{name}' not found");
                     return false;
                 }
 
@@ -147,7 +139,6 @@ namespace RPGGame.Editors
             }
             catch (Exception ex)
             {
-                DebugLogger.Log("ActionEditor", $"Error deleting action: {ex.Message}");
                 return false;
             }
         }
@@ -177,13 +168,10 @@ namespace RPGGame.Editors
 
                 // Reload actions to ensure consistency
                 ActionLoader.LoadActions();
-                
-                DebugLogger.Log("ActionEditor", $"Actions saved successfully to {actionsFilePath}");
                 return true;
             }
             catch (Exception ex)
             {
-                DebugLogger.Log("ActionEditor", $"Error saving actions: {ex.Message}");
                 return false;
             }
         }

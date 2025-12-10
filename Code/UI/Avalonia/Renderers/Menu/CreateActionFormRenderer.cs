@@ -28,7 +28,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         /// </summary>
         public int RenderCreateActionFormContent(int x, int y, int width, int height, ActionData actionData, int currentStep, string[] formSteps, string? currentInput = null)
         {
-            ScrollDebugLogger.Log($"CreateActionFormRenderer: RenderCreateActionFormContent called, step {currentStep + 1}/{formSteps.Length}");
             clickableElements.Clear();
             int currentLineCount = 0;
             
@@ -97,9 +96,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             canvas.AddText(menuStartX, menuStartY, "Type 'back' to go to previous step", AsciiArtAssets.Colors.Gray);
             menuStartY++;
             canvas.AddText(menuStartX, menuStartY, "Type 'cancel' or '0' to cancel", AsciiArtAssets.Colors.Gray);
-            
-            ScrollDebugLogger.Log($"CreateActionFormRenderer: Finished rendering form at step {currentStep + 1}");
-            
             return currentLineCount;
         }
 

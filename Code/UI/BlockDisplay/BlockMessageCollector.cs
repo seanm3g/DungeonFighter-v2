@@ -70,7 +70,7 @@ namespace RPGGame.UI.BlockDisplay
                         // If not the first effect, add a newline before it
                         if (!isFirst)
                         {
-                            combinedStatusEffects.Add(new ColoredText(System.Environment.NewLine, Avalonia.Media.Colors.White));
+                            combinedStatusEffects.Add(new ColoredText(System.Environment.NewLine, Colors.White));
                         }
                         
                         // Process the effect to handle indentation

@@ -15,14 +15,13 @@ namespace RPGGame
         /// </summary>
         public void AddDefaultActions(Actor entity)
         {
-            DebugLogger.LogMethodEntry("DefaultActionManager", "AddDefaultActions");
+            // BASIC ATTACK is now optional - try to add it if available, but don't require it
             EnsureBasicAttackAvailable(entity);
         }
 
         /// <summary>
-        /// Ensures basic attack is available in the action pool
+        /// Ensures basic attack is available in the action pool (optional - won't throw if not found)
         /// </summary>
-        /// <exception cref="InvalidOperationException">Thrown when basic attack is not found in Actions.json</exception>
         public void EnsureBasicAttackAvailable(Actor entity)
         {
             string basicAttackName = GameConstants.BasicAttackName;
@@ -34,7 +33,8 @@ namespace RPGGame
                 var basicAttack = ActionLoader.GetAction(basicAttackName);
                 if (basicAttack == null)
                 {
-                    throw new InvalidOperationException($"{basicAttackName} action not found in Actions.json. Please ensure Actions.json contains a {basicAttackName} action.");
+                    // BASIC ATTACK is optional - just return
+                    return;
                 }
                 
                 // CRITICAL: Mark BASIC ATTACK as combo action so it appears in GetActionPool()
@@ -42,11 +42,9 @@ namespace RPGGame
                 if (!basicAttack.IsComboAction)
                 {
                     basicAttack.IsComboAction = true;
-                    DebugLogger.Log("DefaultActionManager", $"Marked {basicAttackName} as combo action");
                 }
                 
                 entity.AddAction(basicAttack, 1.0);
-                DebugLogger.Log("DefaultActionManager", $"Added {basicAttackName} to ActionPool from JSON (isComboAction: {basicAttack.IsComboAction})");
             }
         }
 

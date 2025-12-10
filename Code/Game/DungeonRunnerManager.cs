@@ -59,9 +59,6 @@ namespace RPGGame
         /// </summary>
         public async Task RunDungeon()
         {
-            DebugLogger.Log("DungeonRunnerManager", "RunDungeon called");
-            DebugLogger.Log("DungeonRunnerManager", $"CurrentPlayer: {stateManager.CurrentPlayer?.Name ?? "null"}");
-            DebugLogger.Log("DungeonRunnerManager", $"CurrentDungeon: {stateManager.CurrentDungeon?.Name ?? "null"}");
             DebugLogger.Log("DungeonRunnerManager", $"CombatManager: {(combatManager != null ? "initialized" : "null")}");
             
             if (stateManager.CurrentPlayer == null || stateManager.CurrentDungeon == null || combatManager == null)
@@ -73,13 +70,10 @@ namespace RPGGame
             // Validate dungeon has been generated and has rooms
             if (stateManager.CurrentDungeon.Rooms == null || stateManager.CurrentDungeon.Rooms.Count == 0)
             {
-                DebugLogger.Log("DungeonRunnerManager", $"ERROR: Dungeon '{stateManager.CurrentDungeon.Name}' has no rooms! Regenerating...");
-                
                 // Try to regenerate the dungeon
                 try
                 {
                     stateManager.CurrentDungeon.Generate();
-                    DebugLogger.Log("DungeonRunnerManager", $"Dungeon regenerated. Room count: {stateManager.CurrentDungeon?.Rooms?.Count ?? 0}");
                 }
                 catch (Exception ex)
                 {
@@ -95,7 +89,6 @@ namespace RPGGame
             }
             
             // Set game state to Dungeon
-            DebugLogger.Log("DungeonRunnerManager", "Transitioning to Dungeon state");
             stateManager.TransitionToState(GameState.Dungeon);
             
             // Restore display buffer rendering in case it was suppressed (e.g., from dungeon selection screen)
@@ -115,12 +108,10 @@ namespace RPGGame
             {
                 int roomNumber = 0;
                 int totalRooms = stateManager.CurrentDungeon.Rooms.Count;
-                DebugLogger.Log("DungeonRunnerManager", $"Starting dungeon with {totalRooms} rooms");
                 bool isFirstRoom = true;
                 foreach (Environment room in stateManager.CurrentDungeon.Rooms)
                 {
                     roomNumber++;
-                    DebugLogger.Log("DungeonRunnerManager", $"Processing room {roomNumber} of {totalRooms}");
                     if (!await ProcessRoom(room, roomNumber, totalRooms, isFirstRoom))
                     {
                         // Player died - transition to death screen
@@ -135,7 +126,6 @@ namespace RPGGame
                 }
                 
                 // Dungeon completed successfully
-                DebugLogger.Log("DungeonRunnerManager", "Dungeon completed successfully");
                 await CompleteDungeon();
             }
             catch (Exception ex)

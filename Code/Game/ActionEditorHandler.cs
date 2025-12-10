@@ -59,18 +59,13 @@ namespace RPGGame
         {
             isViewingActionList = false;
             selectedAction = null;
-            ScrollDebugLogger.Log("ActionEditorHandler: ShowActionEditor called");
-            DebugLogger.Log("ActionEditorHandler", "ShowActionEditor called");
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                ScrollDebugLogger.Log("ActionEditorHandler: UI manager is CanvasUICoordinator, rendering action editor");
                 canvasUI.SuppressDisplayBufferRendering();
                 canvasUI.ClearDisplayBufferWithoutRender();
                 canvasUI.RenderActionEditor();
-                ScrollDebugLogger.Log("ActionEditorHandler: RenderActionEditor completed");
             }
             stateManager.TransitionToState(GameState.ActionEditor);
-            ScrollDebugLogger.Log("ActionEditorHandler: State transitioned to ActionEditor");
         }
         
         /// <summary>
@@ -113,9 +108,6 @@ namespace RPGGame
         /// </summary>
         public void HandleMenuInput(string input)
         {
-            DebugLogger.Log("ActionEditorHandler", $"HandleMenuInput called with input: '{input}'");
-            ScrollDebugLogger.Log($"ActionEditorHandler.HandleMenuInput: input='{input}', state={stateManager.CurrentState}");
-            
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
                 // If we're viewing the action list, handle numeric input as action selection
@@ -152,36 +144,28 @@ namespace RPGGame
                 {
                     case "1":
                         // Create New Action
-                        DebugLogger.Log("ActionEditorHandler", "Showing create action screen");
                         StartCreateAction();
                         break;
                     case "2":
                         // Edit Existing Action
-                        DebugLogger.Log("ActionEditorHandler", "Showing edit action screen");
                         ShowMessage("Edit Existing Action: Feature coming soon. Use Actions.json file directly for now.");
                         break;
                     case "3":
                         // Delete Action
-                        DebugLogger.Log("ActionEditorHandler", "Showing delete action screen");
                         ShowMessage("Delete Action: Feature coming soon. Use Actions.json file directly for now.");
                         break;
                     case "4":
                         // List All Actions
-                        DebugLogger.Log("ActionEditorHandler", "Showing action list");
                         ShowActionList();
                         break;
                     case "0":
                         // Back to Developer Menu
-                        DebugLogger.Log("ActionEditorHandler", "Returning to Developer Menu");
-                        ScrollDebugLogger.Log("ActionEditorHandler: Returning to Developer Menu");
                         canvasUI.ResetDeleteConfirmation();
                         stateManager.TransitionToState(GameState.DeveloperMenu);
                         ShowDeveloperMenuEvent?.Invoke();
                         break;
                     default:
                         // Any other input refreshes the menu
-                        DebugLogger.Log("ActionEditorHandler", $"Unknown input '{input}', refreshing action editor");
-                        ScrollDebugLogger.Log($"ActionEditorHandler: Unknown input '{input}', refreshing action editor");
                         canvasUI.ResetDeleteConfirmation();
                         ShowActionEditor();
                         break;
@@ -189,7 +173,6 @@ namespace RPGGame
             }
             else
             {
-                DebugLogger.Log("ActionEditorHandler", "ERROR: customUIManager is not CanvasUICoordinator");
                 ScrollDebugLogger.Log($"ActionEditorHandler: ERROR - customUIManager is not CanvasUICoordinator (type={customUIManager?.GetType().Name ?? "null"})");
             }
         }
@@ -257,11 +240,7 @@ namespace RPGGame
             };
             currentFormStep = 0;
             currentFormInput = "";
-            
-            DebugLogger.Log("ActionEditorHandler", $"StartCreateAction: Before state transition, current state={stateManager.CurrentState}");
             stateManager.TransitionToState(GameState.CreateAction);
-            DebugLogger.Log("ActionEditorHandler", $"StartCreateAction: After state transition, new state={stateManager.CurrentState}");
-            
             ScrollDebugLogger.Log($"ActionEditorHandler: StartCreateAction - entered CreateAction state (verified: {stateManager.CurrentState == GameState.CreateAction})");
             
             if (customUIManager is CanvasUICoordinator canvasUI)
@@ -281,8 +260,6 @@ namespace RPGGame
             currentFormInput = input;
             if (newAction != null && customUIManager is CanvasUICoordinator canvasUI)
             {
-                DebugLogger.Log("ActionEditorHandler", $"UpdateFormInput: input='{input}', currentStep={currentFormStep}");
-                ScrollDebugLogger.Log($"ActionEditorHandler: UpdateFormInput called with input='{input}'");
                 canvasUI.RenderCreateActionForm(newAction, currentFormStep, formSteps, currentFormInput);
                 canvasUI.Refresh(); // Ensure canvas is refreshed after rendering
             }

@@ -100,7 +100,6 @@ namespace RPGGame.Actions.Execution
                 
                 if (!ActionExecutor.DisableCombatDebugOutput)
                 {
-                    DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} dealt {damage} damage to {target.Name} with {selectedAction.Name}");
                 }
                 
                 // Track statistics

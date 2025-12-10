@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,8 +18,6 @@ namespace RPGGame
         /// <param name="weaponType">The weapon type (optional)</param>
         public static void AddClassActions(Actor Actor, CharacterProgression progression, WeaponType? weaponType)
         {
-            DebugLogger.LogMethodEntry("ClassActionManagerSimplified", "AddClassActions");
-            
             // Remove existing class actions first
             RemoveClassActions(Actor);
             

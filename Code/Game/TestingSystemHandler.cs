@@ -48,16 +48,11 @@ namespace RPGGame
         /// </summary>
         public async Task HandleMenuInput(string input)
         {
-            DebugLogger.Log("TestingSystemHandler", $"HandleMenuInput called with input: '{input}', state={stateManager.CurrentState}");
-            ScrollDebugLogger.Log($"TestingSystemHandler.HandleMenuInput: input='{input}', state={stateManager.CurrentState}, waitingForTestMenuReturn={waitingForTestMenuReturn}");
-            
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
                 // Check if we're waiting for any key to return to test menu
                 if (waitingForTestMenuReturn)
                 {
-                    DebugLogger.Log("TestingSystemHandler", "Waiting for return - showing testing menu");
-                    ScrollDebugLogger.Log("TestingSystemHandler: Waiting for return - showing testing menu");
                     // Clear the flag FIRST before showing menu
                     waitingForTestMenuReturn = false;
                     // Show the menu
@@ -67,10 +62,6 @@ namespace RPGGame
                 }
                 
                 var testRunner = new GameSystemTestRunner(canvasUI);
-                
-                DebugLogger.Log("TestingSystemHandler", $"Processing input '{input}' in switch statement");
-                ScrollDebugLogger.Log($"TestingSystemHandler: Processing input '{input}' in switch statement");
-                
                 switch (input)
                 {
                     case "1":
@@ -110,14 +101,10 @@ namespace RPGGame
                         break;
                     case "0":
                         // Return to Settings
-                        DebugLogger.Log("TestingSystemHandler", "Returning to Settings");
-                        ScrollDebugLogger.Log("TestingSystemHandler: Returning to Settings");
                         stateManager.TransitionToState(GameState.Settings);
                         ShowMainMenuEvent?.Invoke();
                         break;
                     default:
-                        DebugLogger.Log("TestingSystemHandler", $"Invalid input: '{input}'");
-                        ScrollDebugLogger.Log($"TestingSystemHandler: Invalid input '{input}'");
                         ShowMessageEvent?.Invoke("Invalid choice. Please select 1-7 or 0 to return.");
                         break;
                 }
@@ -262,7 +249,6 @@ namespace RPGGame
         {
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                DebugLogger.Log("TestingSystemHandler", "Starting GenerateRandomItems");
                 try
                 {
                     canvasUI.WriteLine("=== GENERATING 10 RANDOM ITEMS ===", UIMessageType.System);
@@ -295,13 +281,10 @@ namespace RPGGame
                     RandomItemDisplayHelper.DisplayItems(canvasUI, items, stateManager.CurrentPlayer);
                     canvasUI.RenderDisplayBuffer();
                     waitingForTestMenuReturn = true;
-                    
-                    DebugLogger.Log("TestingSystemHandler", "GenerateRandomItems completed");
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"[TestingSystemHandler] Error in GenerateRandomItems: {ex.Message}");
-                    DebugLogger.Log("TestingSystemHandler", $"Error in GenerateRandomItems: {ex.Message}");
                     canvasUI.WriteLine($"Error generating items: {ex.Message}", UIMessageType.System);
                     canvasUI.RenderDisplayBuffer();
                     waitingForTestMenuReturn = true;

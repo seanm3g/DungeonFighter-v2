@@ -75,7 +75,6 @@ namespace RPGGame.Combat.Events
                     catch (Exception ex)
                     {
                         // Log error but don't stop other handlers
-                        DebugLogger.WriteCombatDebug("CombatEventBus", $"Error in event handler: {ex.Message}");
                     }
                 }
             }

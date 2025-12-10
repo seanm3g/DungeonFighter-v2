@@ -64,6 +64,3 @@ D:\Code Projects\github projects\DungeonFighter-v2\Code\obj\Debug\net8.0\refint\
 D:\Code Projects\github projects\DungeonFighter-v2\Code\obj\Debug\net8.0\Code.csproj.Up2Date
 D:\Code Projects\github projects\DungeonFighter-v2\Code\obj\Debug\net8.0\Code.genruntimeconfig.cache
 D:\Code Projects\github projects\DungeonFighter-v2\Code\obj\Debug\net8.0\ref\DF.dll
-D:\Code Projects\github projects\DungeonFighter-v2\Code\obj\Debug\net8.0\DF.dll
-D:\Code Projects\github projects\DungeonFighter-v2\Code\obj\Debug\net8.0\refint\DF.dll
-D:\Code Projects\github projects\DungeonFighter-v2\Code\obj\Debug\net8.0\DF.pdb

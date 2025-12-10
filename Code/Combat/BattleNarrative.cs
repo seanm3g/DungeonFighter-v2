@@ -186,7 +186,7 @@ namespace RPGGame
 
 
 
-        public string GenerateInformationalSummary()
+        public string GenerateInformationalSummary(bool showDamageWhenEnemyKilled = false)
         {
             var playerEvents = events.Where(e => e.Actor == playerName && e.IsSuccess).ToList();
             var enemyEvents = events.Where(e => e.Actor == enemyName && e.IsSuccess).ToList();
@@ -195,18 +195,27 @@ namespace RPGGame
             var playerComboCount = playerEvents.Count(e => e.IsCombo);
             var enemyComboCount = enemyEvents.Count(e => e.IsCombo);
             
-            return GenerateInformationalSummary(totalPlayerDamage, totalEnemyDamage, playerComboCount, enemyComboCount);
+            return GenerateInformationalSummary(totalPlayerDamage, totalEnemyDamage, playerComboCount, enemyComboCount, showDamageWhenEnemyKilled);
         }
 
-        public string GenerateInformationalSummary(int totalPlayerDamage, int totalEnemyDamage, int playerComboCount, int enemyComboCount)
+        public string GenerateInformationalSummary(int totalPlayerDamage, int totalEnemyDamage, int playerComboCount, int enemyComboCount, bool showDamageWhenEnemyKilled = false)
         {
             bool playerWon = finalEnemyHealth <= 0;
             bool enemyWon = finalPlayerHealth <= 0;
 
             if (playerWon)
             {
-                return $"Total damage dealt: {totalPlayerDamage} vs {totalEnemyDamage} received.\n" +
-                       $"Combos executed: {playerComboCount} vs {enemyComboCount}.";
+                // When enemy is killed during combat, only show combos executed (no total damage line)
+                // But if showDamageWhenEnemyKilled is true (for final summary), show both
+                if (showDamageWhenEnemyKilled)
+                {
+                    return $"Total damage dealt: {totalPlayerDamage} vs {totalEnemyDamage} received.\n" +
+                           $"Combos executed: {playerComboCount} vs {enemyComboCount}.";
+                }
+                else
+                {
+                    return $"Combos executed: {playerComboCount} vs {enemyComboCount}.";
+                }
             }
             else if (enemyWon)
             {

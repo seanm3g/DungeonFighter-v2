@@ -26,7 +26,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         /// </summary>
         public int RenderSettingsContent(int x, int y, int width, int height, bool hasSavedCharacter, string? characterName, int characterLevel)
         {
-            ScrollDebugLogger.Log($"SettingsMenuRenderer: RenderSettingsContent called with x={x}, y={y}, width={width}, height={height}");
             clickableElements.Clear();
             int currentLineCount = 0;
             
@@ -36,7 +35,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             // Title
             string title = "=== SETTINGS ===";
             int titleX = MenuLayoutCalculator.CalculateCenteredTextX(x, width, title.Length);
-            ScrollDebugLogger.Log($"SettingsMenuRenderer: Rendering title '{title}' at x={titleX}, y={menuStartY}");
             canvas.AddText(titleX, menuStartY, title, AsciiArtAssets.Colors.Gold);
             menuStartY += 3;
             
@@ -62,14 +60,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                     DisplayText = displayText
                 };
                 clickableElements.Add(option);
-                
-                ScrollDebugLogger.Log($"SettingsMenuRenderer: Rendering option '{option.DisplayText}' at x={menuStartX}, y={menuStartY}");
                 canvas.AddText(menuStartX, menuStartY, displayText, color);
                 menuStartY++;
             }
-            
-            ScrollDebugLogger.Log($"SettingsMenuRenderer: Finished rendering {menuOptions.Length} options");
-            
             // Show saved character info if available
             if (hasSavedCharacter && characterName != null)
             {

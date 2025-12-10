@@ -9,27 +9,20 @@ namespace RPGGame
     public static class ActionFactory
     {
         /// <summary>
-        /// Creates a BASIC ATTACK action by loading from JSON
+        /// Creates a BASIC ATTACK action by loading from JSON (optional - returns null if not found)
         /// </summary>
-        /// <returns>BASIC ATTACK action</returns>
-        /// <exception cref="InvalidOperationException">Thrown when BASIC ATTACK is not found in Actions.json</exception>
-        public static Action CreateBasicAttack()
+        /// <returns>BASIC ATTACK action or null if not found</returns>
+        public static Action? CreateBasicAttack()
         {
-            var loadedAction = ActionLoader.GetAction("BASIC ATTACK");
-            if (loadedAction == null)
-            {
-                throw new InvalidOperationException("BASIC ATTACK action not found in Actions.json. Please ensure Actions.json contains a BASIC ATTACK action.");
-            }
-            return loadedAction;
+            return ActionLoader.GetAction("BASIC ATTACK");
         }
 
         /// <summary>
-        /// Ensures BASIC ATTACK is available in an Actor's action pool
+        /// Ensures BASIC ATTACK is available in an Actor's action pool (optional - returns null if not found)
         /// </summary>
         /// <param name="Actor">The Actor to ensure has BASIC ATTACK</param>
-        /// <returns>The BASIC ATTACK action (existing or loaded from JSON)</returns>
-        /// <exception cref="InvalidOperationException">Thrown when BASIC ATTACK is not found in Actions.json</exception>
-        public static Action EnsureBasicAttackAvailable(Actor Actor)
+        /// <returns>The BASIC ATTACK action (existing or loaded from JSON) or null if not available</returns>
+        public static Action? EnsureBasicAttackAvailable(Actor Actor)
         {
             // Check if BASIC ATTACK is already in the action pool
             var existingBasicAttack = Actor.ActionPool
@@ -44,20 +37,20 @@ namespace RPGGame
             var loadedAction = ActionLoader.GetAction("BASIC ATTACK");
             if (loadedAction == null)
             {
-                throw new InvalidOperationException("BASIC ATTACK action not found in Actions.json. Please ensure Actions.json contains a BASIC ATTACK action.");
+                // BASIC ATTACK is optional - return null instead of throwing
+                return null;
             }
 
             Actor.AddAction(loadedAction, 1.0);
-            DebugLogger.Log("ActionFactory", $"Added missing BASIC ATTACK to {Actor.Name}'s action pool from JSON");
             return loadedAction;
         }
 
         /// <summary>
-        /// Gets or creates BASIC ATTACK for an Actor, with fallback creation
+        /// Gets BASIC ATTACK for an Actor, or returns null if not available
         /// </summary>
         /// <param name="Actor">The Actor to get BASIC ATTACK for</param>
-        /// <returns>BASIC ATTACK action</returns>
-        public static Action GetBasicAttack(Actor Actor)
+        /// <returns>BASIC ATTACK action or null if not available</returns>
+        public static Action? GetBasicAttack(Actor Actor)
         {
             // First try to find existing BASIC ATTACK
             var existingBasicAttack = Actor.ActionPool
@@ -68,7 +61,7 @@ namespace RPGGame
                 return existingBasicAttack.action;
             }
 
-            // If not found, ensure it's available (will create if needed)
+            // If not found, try to ensure it's available (will return null if not in JSON)
             return EnsureBasicAttackAvailable(Actor);
         }
     }

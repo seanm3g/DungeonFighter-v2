@@ -24,7 +24,6 @@ namespace DungeonFighter.Game.Menu.Routing
         {
             this.handlers = new Dictionary<GameState, IMenuHandler>();
             this.validator = validator ?? throw new ArgumentNullException(nameof(validator));
-            DebugLogger.Log("MenuInputRouter", "Router initialized");
         }
 
         /// <summary>
@@ -37,7 +36,6 @@ namespace DungeonFighter.Game.Menu.Routing
                 throw new ArgumentNullException(nameof(handler));
 
             handlers[handler.TargetState] = handler;
-            DebugLogger.Log("MenuInputRouter", $"Registered handler for state: {handler.TargetState}");
         }
 
         /// <summary>
@@ -50,44 +48,27 @@ namespace DungeonFighter.Game.Menu.Routing
         {
             try
             {
-                DebugLogger.Log("MenuInputRouter", 
-                    $"Routing input: '{input}' for state: {currentState}");
-
                 // 1. Validate input
                 var validationResult = validator.Validate(input, currentState);
                 if (!validationResult.IsValid)
                 {
-                    DebugLogger.Log("MenuInputRouter", 
-                        $"Validation failed: {validationResult.Error}");
                     return MenuInputResult.Failure(validationResult.Error ?? "Validation failed");
                 }
-
-                DebugLogger.Log("MenuInputRouter", "Input validation passed");
-
                 // 2. Find appropriate handler
                 if (!handlers.TryGetValue(currentState, out var handler))
                 {
                     var error = $"No handler registered for state: {currentState}";
-                    DebugLogger.Log("MenuInputRouter", error);
                     return MenuInputResult.Failure(error);
                 }
 
-                DebugLogger.Log("MenuInputRouter", 
-                    $"Found handler: {handler.GetType().Name}");
 
                 // 3. Route to handler
                 var result = await handler.HandleInput(input);
-
-                DebugLogger.Log("MenuInputRouter", 
-                    $"Handler returned: IsSuccess={result.IsSuccess}, " +
-                    $"NextState={result.NextState}, HasCommand={result.Command != null}");
-
                 return result;
             }
             catch (Exception ex)
             {
                 var error = $"Exception routing input: {ex.Message}";
-                DebugLogger.Log("MenuInputRouter", error);
                 return MenuInputResult.Failure("Error processing input");
             }
         }

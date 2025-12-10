@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -284,7 +284,6 @@ namespace RPGGame
             {
                 if (entity == null)
                 {
-                    DebugLogger.Log("GearActionManager", $"Cannot load action '{actionName}': entity is null");
                     return;
                 }
                 

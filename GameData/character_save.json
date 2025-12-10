@@ -1,157 +1,61 @@
 {
-  "name": "Aric Darkwood",
-  "level": 5,
-  "xp": 165,
+  "name": "Fenris Blackthorn",
+  "level": 2,
+  "xp": 7,
   "currentHealth": 60,
   "maxHealth": 60,
-  "strength": 13,
-  "agility": 9,
-  "technique": 7,
-  "intelligence": 7,
-  "barbarianPoints": 3,
+  "strength": 4,
+  "agility": 6,
+  "technique": 4,
+  "intelligence": 4,
+  "barbarianPoints": 0,
   "warriorPoints": 1,
   "roguePoints": 0,
   "wizardPoints": 0,
-  "comboStep": 0,
+  "comboStep": 2,
   "comboBonus": 0,
   "tempComboBonus": 0,
   "tempComboBonusTurns": 0,
   "damageReduction": 0,
   "inventory": [
     {
-      "name": "Iron Staff",
-      "type": 3,
-      "tier": 1,
-      "comboBonus": 0,
-      "rarity": "Common",
-      "statBonuses": [],
-      "actionBonuses": [],
-      "modifications": [],
-      "armorStatuses": [],
-      "bonusDamage": 2,
-      "bonusAttackSpeed": 0,
-      "tags": [],
-      "gearAction": null,
-      "isStarterItem": false
-    },
-    {
-      "name": "Iron Mace",
-      "type": 3,
-      "tier": 1,
-      "comboBonus": 0,
-      "rarity": "Common",
-      "statBonuses": [],
-      "actionBonuses": [],
-      "modifications": [],
-      "armorStatuses": [],
-      "bonusDamage": 2,
-      "bonusAttackSpeed": 0,
-      "tags": [],
-      "gearAction": null,
-      "isStarterItem": false
-    },
-    {
-      "name": "Lucky Iron Blade of Might",
-      "type": 3,
+      "name": "Worn Leather Boots of Immortality",
+      "type": 1,
       "tier": 1,
       "comboBonus": 0,
       "rarity": "Common",
       "statBonuses": [
         {
-          "name": "of Might",
-          "description": "\u002B6 base damage",
-          "value": 6,
-          "weight": 8,
-          "statType": "Damage"
+          "name": "of Immortality",
+          "description": "\u002B50 maximum health",
+          "value": 50,
+          "weight": 2,
+          "statType": "Health"
         }
       ],
       "actionBonuses": [],
       "modifications": [
         {
-          "diceResult": 11,
-          "itemRank": "Rare",
-          "name": "Lucky",
-          "description": "\u002B3 to attack rolls",
-          "effect": "rollBonus",
-          "minValue": 3,
-          "maxValue": 3,
-          "rolledValue": 3
-        }
-      ],
-      "armorStatuses": [],
-      "bonusDamage": 2,
-      "bonusAttackSpeed": 0,
-      "tags": [],
-      "gearAction": null,
-      "isStarterItem": false
-    },
-    {
-      "name": "Masterwork Cloth Robe of the Cat of Resilience",
-      "type": 2,
-      "tier": 1,
-      "comboBonus": 0,
-      "rarity": "Uncommon",
-      "statBonuses": [
-        {
-          "name": "of the Cat",
-          "description": "\u002B3 Agility, \u002B0.005 speed",
-          "value": 3,
-          "weight": 5,
-          "statType": "AGI"
-        },
-        {
-          "name": "of Resilience",
-          "description": "\u002B3 health regeneration",
-          "value": 3,
-          "weight": 8,
-          "statType": "HealthRegen"
-        }
-      ],
-      "actionBonuses": [
-        {
-          "name": "BASIC ATTACK",
-          "description": "A standard physical attack",
-          "weight": 1
-        }
-      ],
-      "modifications": [
-        {
-          "diceResult": 17,
-          "itemRank": "Legendary",
-          "name": "Masterwork",
-          "description": "15% more damage",
-          "effect": "damageMultiplier",
-          "minValue": 1.15,
-          "maxValue": 1.15,
-          "rolledValue": 1.15
+          "diceResult": 1,
+          "itemRank": "Common",
+          "name": "Worn",
+          "description": "-1 to -3 damage",
+          "effect": "damage",
+          "minValue": -3,
+          "maxValue": -1,
+          "rolledValue": -2.5588904740518714
         }
       ],
       "armorStatuses": [],
       "bonusDamage": 0,
       "bonusAttackSpeed": 0,
       "tags": [],
-      "gearAction": null,
-      "isStarterItem": false
-    },
-    {
-      "name": "Leather Armor",
-      "type": 2,
-      "tier": 1,
-      "comboBonus": 0,
-      "rarity": "Common",
-      "statBonuses": [],
-      "actionBonuses": [],
-      "modifications": [],
-      "armorStatuses": [],
-      "bonusDamage": 0,
-      "bonusAttackSpeed": 0,
-      "tags": [],
-      "gearAction": null,
+      "gearAction": "ARCANE CASCADE",
       "isStarterItem": false
     }
   ],
   "head": {
-    "name": "Iron Helmet",
+    "name": "Leather Helmet",
     "type": 0,
     "tier": 1,
     "comboBonus": 0,
@@ -167,33 +71,14 @@
     "isStarterItem": false
   },
   "body": {
-    "name": "Precise Cloth Robe of the Collector",
+    "name": "Leather Armor",
     "type": 2,
     "tier": 1,
     "comboBonus": 0,
     "rarity": "Common",
-    "statBonuses": [
-      {
-        "name": "of the Collector",
-        "description": "\u002B20 Magic Find",
-        "value": 20,
-        "weight": 3,
-        "statType": "MagicFind"
-      }
-    ],
+    "statBonuses": [],
     "actionBonuses": [],
-    "modifications": [
-      {
-        "diceResult": 7,
-        "itemRank": "Uncommon",
-        "name": "Precise",
-        "description": "\u002B2 to attack rolls",
-        "effect": "rollBonus",
-        "minValue": 2,
-        "maxValue": 2,
-        "rolledValue": 2
-      }
-    ],
+    "modifications": [],
     "armorStatuses": [],
     "bonusDamage": 0,
     "bonusAttackSpeed": 0,
@@ -202,24 +87,8 @@
     "isStarterItem": false
   },
   "weapon": {
-    "name": "Iron Club",
+    "name": "Sword",
     "type": 3,
-    "tier": 1,
-    "comboBonus": 0,
-    "rarity": "Common",
-    "statBonuses": [],
-    "actionBonuses": [],
-    "modifications": [],
-    "armorStatuses": [],
-    "bonusDamage": 2,
-    "bonusAttackSpeed": 0,
-    "tags": [],
-    "gearAction": null,
-    "isStarterItem": false
-  },
-  "feet": {
-    "name": "Leather Boots",
-    "type": 1,
     "tier": 1,
     "comboBonus": 0,
     "rarity": "Common",
@@ -231,6 +100,41 @@
     "bonusAttackSpeed": 0,
     "tags": [],
     "gearAction": null,
+    "isStarterItem": false
+  },
+  "feet": {
+    "name": "Reinforced Cloth Shoes of Recovery",
+    "type": 1,
+    "tier": 1,
+    "comboBonus": 0,
+    "rarity": "Common",
+    "statBonuses": [
+      {
+        "name": "of Recovery",
+        "description": "\u002B1 health regeneration",
+        "value": 1,
+        "weight": 15,
+        "statType": "HealthRegen"
+      }
+    ],
+    "actionBonuses": [],
+    "modifications": [
+      {
+        "diceResult": 8,
+        "itemRank": "Uncommon",
+        "name": "Reinforced",
+        "description": "\u002B5 to \u002B10 durability",
+        "effect": "durability",
+        "minValue": 5,
+        "maxValue": 10,
+        "rolledValue": 7.5244334176389085
+      }
+    ],
+    "armorStatuses": [],
+    "bonusDamage": 0,
+    "bonusAttackSpeed": 0,
+    "tags": [],
+    "gearAction": "ARCANE ECHO",
     "isStarterItem": false
   }
 }

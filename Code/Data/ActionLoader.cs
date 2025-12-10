@@ -64,6 +64,10 @@ namespace RPGGame
         public List<string> Tags { get; set; } = new List<string>();
         [JsonPropertyName("enemyRollPenalty")]
         public int EnemyRollPenalty { get; set; }
+        [JsonPropertyName("healthThreshold")]
+        public double HealthThreshold { get; set; }
+        [JsonPropertyName("conditionalDamageMultiplier")]
+        public double ConditionalDamageMultiplier { get; set; } = 1.0;
     }
 
     public static class ActionLoader
@@ -176,6 +180,8 @@ namespace RPGGame
             action.Advanced.RepeatLastAction = data.RepeatLastAction;
             action.Tags = data.Tags ?? new List<string>();
             action.Advanced.EnemyRollPenalty = data.EnemyRollPenalty;
+            action.Advanced.HealthThreshold = data.HealthThreshold;
+            action.Advanced.ConditionalDamageMultiplier = data.ConditionalDamageMultiplier;
             
             return action;
         }

@@ -388,13 +388,11 @@ namespace RPGGame
                 if (input == "up")
                 {
                     ScrollDebugLogger.Log("HandleCombatScroll: Calling canvasUI.ScrollUp()");
-                    DebugLogger.Log("Game", "Scrolling up");
                     canvasUI.ScrollUp();
                 }
                 else if (input == "down")
                 {
                     ScrollDebugLogger.Log("HandleCombatScroll: Calling canvasUI.ScrollDown()");
-                    DebugLogger.Log("Game", "Scrolling down");
                     canvasUI.ScrollDown();
                 }
             }

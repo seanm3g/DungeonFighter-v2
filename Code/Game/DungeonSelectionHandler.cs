@@ -60,24 +60,14 @@ namespace RPGGame
         /// </summary>
         public async Task HandleMenuInput(string input)
         {
-            DebugLogger.Log("DungeonSelectionHandler", $"HandleMenuInput: input='{input}'");
-            
             if (stateManager.CurrentPlayer == null)
             {
-                DebugLogger.Log("DungeonSelectionHandler", "CurrentPlayer is null");
                 return;
             }
-            
-            DebugLogger.Log("DungeonSelectionHandler", $"Available dungeons: {stateManager.AvailableDungeons.Count}");
-            
             if (int.TryParse(input, out int choice))
             {
-                DebugLogger.Log("DungeonSelectionHandler", $"Parsed choice: {choice}");
-                
                 if (choice >= 1 && choice <= stateManager.AvailableDungeons.Count)
                 {
-                    DebugLogger.Log("DungeonSelectionHandler", $"Valid dungeon selection: {choice}");
-                    
                     // Stop dungeon selection animation
                     if (customUIManager is CanvasUICoordinator canvasUI)
                     {
@@ -89,8 +79,6 @@ namespace RPGGame
                 }
                 else if (choice == 0)
                 {
-                    DebugLogger.Log("DungeonSelectionHandler", "Return to menu selected");
-                    
                     // Stop dungeon selection animation
                     if (customUIManager is CanvasUICoordinator canvasUI)
                     {
@@ -109,7 +97,6 @@ namespace RPGGame
             }
             else
             {
-                DebugLogger.Log("DungeonSelectionHandler", $"Failed to parse input as int: '{input}'");
                 ShowMessageEvent?.Invoke("Invalid input. Please enter a number.");
             }
         }
@@ -130,32 +117,24 @@ namespace RPGGame
             if (stateManager.CurrentPlayer != null)
             {
                 stateManager.SetCurrentDungeon(stateManager.AvailableDungeons[dungeonIndex]);
-                DebugLogger.Log("DungeonSelectionHandler", $"Set current dungeon: {stateManager.CurrentDungeon?.Name ?? "null"}");
-                
                 if (stateManager.CurrentDungeon != null)
                 {
                     stateManager.CurrentDungeon.Generate();
-                    DebugLogger.Log("DungeonSelectionHandler", "Dungeon generated");
-                    
                     // Start the dungeon run
                     if (StartDungeonEvent != null)
                     {
-                        DebugLogger.Log("DungeonSelectionHandler", "Firing StartDungeonEvent");
                         await StartDungeonEvent.Invoke();
                     }
                     else
                     {
-                        DebugLogger.Log("DungeonSelectionHandler", "ERROR: StartDungeonEvent is null!");
                     }
                 }
                 else
                 {
-                    DebugLogger.Log("DungeonSelectionHandler", "ERROR: CurrentDungeon is null after SetCurrentDungeon!");
                 }
             }
             else
             {
-                DebugLogger.Log("DungeonSelectionHandler", "ERROR: CurrentPlayer is null in SelectDungeon!");
             }
         }
     }

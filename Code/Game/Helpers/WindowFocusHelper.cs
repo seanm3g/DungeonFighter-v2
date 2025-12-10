@@ -27,12 +27,10 @@ namespace RPGGame
                     if (window != null)
                     {
                         window.Focus();
-                        DebugLogger.Log(loggerName, "Focused main window for text input");
                     }
                 }
                 catch (Exception ex)
                 {
-                    DebugLogger.Log(loggerName, $"Could not focus window: {ex.Message}");
                 }
             }, Avalonia.Threading.DispatcherPriority.Normal);
         }

@@ -114,10 +114,7 @@ namespace RPGGame.UI.Avalonia.Layout
             int centerY = LayoutConstants.CENTER_PANEL_Y + 1;
             int centerW = LayoutConstants.CENTER_PANEL_WIDTH - 2;
             int centerH = LayoutConstants.CENTER_PANEL_HEIGHT - 2;
-            ScrollDebugLogger.Log($"PersistentLayoutManager: About to invoke renderCenterContent with x={centerX}, y={centerY}, width={centerW}, height={centerH}");
             renderCenterContent?.Invoke(centerX, centerY, centerW, centerH);
-            ScrollDebugLogger.Log($"PersistentLayoutManager: renderCenterContent invoked");
-            
             // Render right panel (Dungeon/Enemy Info or Inventory Actions) - always update
             rightPanelRenderer.RenderRightPanel(enemy, dungeonName, roomName, title, characterForRightPanel);
             

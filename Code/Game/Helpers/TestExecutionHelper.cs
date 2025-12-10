@@ -31,8 +31,6 @@ namespace RPGGame
             {
                 Console.WriteLine($"[TestingSystemHandler] Starting {testName}");
             }
-            DebugLogger.Log("TestingSystemHandler", $"Starting {testName}");
-            
             try
             {
                 // Execute any pre-test setup (like custom UI messages)
@@ -45,8 +43,6 @@ namespace RPGGame
                 {
                     Console.WriteLine($"[TestingSystemHandler] {testName} completed");
                 }
-                DebugLogger.Log("TestingSystemHandler", $"{testName} completed");
-                
                 // Show completion message
                 ShowCompletionMessage(canvasUI);
                 return true;
@@ -54,7 +50,6 @@ namespace RPGGame
             catch (Exception ex)
             {
                 Console.WriteLine($"[TestingSystemHandler] Error in {testName}: {ex.Message}");
-                DebugLogger.Log("TestingSystemHandler", $"Error in {testName}: {ex.Message}");
                 canvasUI.WriteLine($"Error running tests: {ex.Message}", UIMessageType.System);
                 canvasUI.RenderDisplayBuffer();
                 return false;

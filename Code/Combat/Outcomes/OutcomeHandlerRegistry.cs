@@ -61,7 +61,6 @@ namespace RPGGame.Combat.Outcomes
                     }
                     catch (Exception ex)
                     {
-                        DebugLogger.WriteCombatDebug("OutcomeHandlerRegistry", $"Error in outcome handler {handlerType}: {ex.Message}");
                     }
                 }
             }

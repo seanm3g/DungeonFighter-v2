@@ -20,7 +20,6 @@ namespace DungeonFighter.Game.Menu.Routing
         public MenuInputValidator()
         {
             validationRules = new Dictionary<GameState, IValidationRules>();
-            DebugLogger.Log("MenuInputValidator", "Validator initialized");
         }
 
         /// <summary>
@@ -34,8 +33,6 @@ namespace DungeonFighter.Game.Menu.Routing
                 throw new ArgumentNullException(nameof(rules));
 
             validationRules[state] = rules;
-            DebugLogger.Log("MenuInputValidator", 
-                $"Registered validation rules for state: {state}");
         }
 
         /// <summary>
@@ -45,9 +42,6 @@ namespace DungeonFighter.Game.Menu.Routing
         {
             try
             {
-                DebugLogger.Log("MenuInputValidator", 
-                    $"Validating input: '{input}' for state: {state}");
-
                 // Check for null/empty first
                 if (string.IsNullOrWhiteSpace(input))
                 {
@@ -58,7 +52,6 @@ namespace DungeonFighter.Game.Menu.Routing
                 if (!validationRules.TryGetValue(state, out var rules))
                 {
                     var error = $"No validation rules registered for state: {state}";
-                    DebugLogger.Log("MenuInputValidator", error);
                     return ValidationResult.Invalid(error);
                 }
 
@@ -67,12 +60,9 @@ namespace DungeonFighter.Game.Menu.Routing
                 
                 if (!result.IsValid)
                 {
-                    DebugLogger.Log("MenuInputValidator", 
-                        $"Validation failed: {result.Error}");
                 }
                 else
                 {
-                    DebugLogger.Log("MenuInputValidator", "Validation passed");
                 }
 
                 return result;
@@ -80,7 +70,6 @@ namespace DungeonFighter.Game.Menu.Routing
             catch (Exception ex)
             {
                 var error = $"Exception during validation: {ex.Message}";
-                DebugLogger.Log("MenuInputValidator", error);
                 return ValidationResult.Invalid("Validation error");
             }
         }

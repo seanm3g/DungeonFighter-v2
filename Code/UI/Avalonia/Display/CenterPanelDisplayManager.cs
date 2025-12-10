@@ -237,9 +237,7 @@ namespace RPGGame.UI.Avalonia.Display
         {
             // Calculate max scroll offset to ensure we don't scroll beyond valid range
             int maxOffset = renderCoordinator.CalculateMaxScrollOffset();
-            ScrollDebugLogger.Log($"CenterPanelDisplayManager.ScrollUp: lines={lines}, maxOffset={maxOffset}, currentOffset={buffer.ManualScrollOffset}, buffer.Count={buffer.Count}");
             buffer.ScrollUp(lines, maxOffset);
-            ScrollDebugLogger.Log($"CenterPanelDisplayManager.ScrollUp: newOffset={buffer.ManualScrollOffset}, isManualScrolling={buffer.IsManualScrolling}");
             modeManager.Timing.ForceRender(new System.Action(renderCoordinator.PerformRender));
         }
         
@@ -250,9 +248,7 @@ namespace RPGGame.UI.Avalonia.Display
         {
             // Calculate max scroll offset based on current content
             int maxOffset = renderCoordinator.CalculateMaxScrollOffset();
-            ScrollDebugLogger.Log($"CenterPanelDisplayManager.ScrollDown: lines={lines}, maxOffset={maxOffset}, currentOffset={buffer.ManualScrollOffset}, buffer.Count={buffer.Count}");
             buffer.ScrollDown(lines, maxOffset);
-            ScrollDebugLogger.Log($"CenterPanelDisplayManager.ScrollDown: newOffset={buffer.ManualScrollOffset}, isManualScrolling={buffer.IsManualScrolling}");
             modeManager.Timing.ForceRender(new System.Action(renderCoordinator.PerformRender));
         }
         

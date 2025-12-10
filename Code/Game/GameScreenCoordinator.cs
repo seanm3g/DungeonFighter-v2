@@ -78,8 +78,6 @@ namespace RPGGame
             if (canvasUI == null || player == null || dungeon == null)
             {
                 // If we can't render the completion screen, fail loudly in logs.
-                DebugLogger.Log("GameScreenCoordinator",
-                    $"ShowDungeonCompletion skipped: canvasUI={canvasUI != null}, player={player != null}, dungeon={dungeon != null}");
                 return;
             }
 
@@ -110,8 +108,6 @@ namespace RPGGame
             if (canvasUI == null || player == null)
             {
                 // If we can't render inventory, fail loudly in logs.
-                DebugLogger.Log("GameScreenCoordinator",
-                    $"ShowInventory skipped: canvasUI={canvasUI != null}, player={player != null}");
                 // Still transition state so input routing works, but screen won't render
                 stateManager.TransitionToState(GameState.Inventory);
                 return;
@@ -120,8 +116,6 @@ namespace RPGGame
             // Ensure inventory is never null - use player's inventory if state manager's is null
             if (inventory == null)
             {
-                DebugLogger.Log("GameScreenCoordinator",
-                    "ShowInventory: CurrentInventory is null, using player.Inventory");
                 inventory = player.Inventory ?? new List<Item>();
             }
 

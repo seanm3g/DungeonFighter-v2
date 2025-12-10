@@ -170,7 +170,6 @@ namespace RPGGame.UI.Avalonia
 
         public void RenderDungeonSelection(Character player, List<Dungeon> dungeons)
         {
-            RPGGame.Utils.ScrollDebugLogger.Log($"[RENDER] CanvasUICoordinator.RenderDungeonSelection called - player: {player != null}, dungeons: {dungeons?.Count ?? 0}, screenRenderingCoordinator: {screenRenderingCoordinator != null}");
             RPGGame.Utils.InputValidator.ValidateNotNull(player, nameof(player));
             RPGGame.Utils.InputValidator.ValidateNotNull(dungeons, nameof(dungeons));
             if (screenRenderingCoordinator != null)

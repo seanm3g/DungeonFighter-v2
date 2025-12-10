@@ -110,8 +110,6 @@ namespace RPGGame
         /// <returns>True if combat completed successfully, false if player died</returns>
         public async Task<bool> RunCombat(Character player, Enemy currentEnemy, Environment room)
         {
-            DebugLogger.WriteCombatDebug("CombatManager", $"Starting combat: {player.Name} vs {currentEnemy.Name} in {room.Name}");
-            
             // Reset game time FIRST to ensure clean timing state
             GameTicker.Instance.Reset();
             
