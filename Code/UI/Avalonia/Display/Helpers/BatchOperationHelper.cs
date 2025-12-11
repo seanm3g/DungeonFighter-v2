@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using RPGGame.UI.ColorSystem;
+using RPGGame;
 
 namespace RPGGame.UI.Avalonia.Display.Helpers
 {
@@ -16,7 +17,8 @@ namespace RPGGame.UI.Avalonia.Display.Helpers
         /// </summary>
         public static void ScheduleRenderWithDelay(System.Action renderAction, int delayMs)
         {
-            if (delayMs > 0)
+            // Skip delays if combat UI output is disabled (e.g., during statistics runs)
+            if (delayMs > 0 && !CombatManager.DisableCombatUIOutput)
             {
                 Timer? delayTimer = null;
                 delayTimer = new Timer(_ =>
@@ -36,7 +38,8 @@ namespace RPGGame.UI.Avalonia.Display.Helpers
         /// </summary>
         public static async Task ScheduleRenderWithDelayAsync(System.Action renderAction, int delayMs)
         {
-            if (delayMs > 0)
+            // Skip delays if combat UI output is disabled (e.g., during statistics runs)
+            if (delayMs > 0 && !CombatManager.DisableCombatUIOutput)
                 await Task.Delay(delayMs);
             renderAction();
         }

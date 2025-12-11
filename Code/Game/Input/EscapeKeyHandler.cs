@@ -59,6 +59,11 @@ namespace RPGGame.GameCore.Input
                     stateManager.TransitionToState(GameState.Settings);
                     showSettings();
                     break;
+                case GameState.BattleStatistics:
+                    // Return to developer menu
+                    stateManager.TransitionToState(GameState.DeveloperMenu);
+                    showDeveloperMenu();
+                    break;
                 case GameState.DeveloperMenu:
                     stateManager.TransitionToState(GameState.Settings);
                     showSettings();

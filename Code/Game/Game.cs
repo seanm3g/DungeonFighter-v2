@@ -35,6 +35,7 @@ namespace RPGGame
         private SettingsMenuHandler? settingsMenuHandler;
         private DeveloperMenuHandler? developerMenuHandler;
         private ActionEditorHandler? actionEditorHandler;
+        private BattleStatisticsHandler? battleStatisticsHandler;
         private InventoryMenuHandler? inventoryMenuHandler;
         private WeaponSelectionHandler? weaponSelectionHandler;
         private CharacterCreationHandler? characterCreationHandler;
@@ -141,6 +142,7 @@ namespace RPGGame
             settingsMenuHandler = handlerResult.SettingsMenuHandler;
             developerMenuHandler = new DeveloperMenuHandler(stateManager, uiManager);
             actionEditorHandler = new ActionEditorHandler(stateManager, uiManager);
+            battleStatisticsHandler = new BattleStatisticsHandler(stateManager, uiManager);
             inventoryMenuHandler = handlerResult.InventoryMenuHandler;
             weaponSelectionHandler = handlerResult.WeaponSelectionHandler;
             characterCreationHandler = handlerResult.CharacterCreationHandler;
@@ -164,6 +166,13 @@ namespace RPGGame
                 developerMenuHandler.ShowSettingsEvent += () => settingsMenuHandler?.ShowSettings();
                 developerMenuHandler.ShowVariableEditorEvent += () => ShowVariableEditor();
                 developerMenuHandler.ShowActionEditorEvent += () => ShowActionEditor();
+                developerMenuHandler.ShowBattleStatisticsEvent += () => battleStatisticsHandler?.ShowBattleStatisticsMenu();
+            }
+            
+            // Wire up battle statistics handler events
+            if (battleStatisticsHandler != null)
+            {
+                battleStatisticsHandler.ShowDeveloperMenuEvent += () => developerMenuHandler?.ShowDeveloperMenu();
             }
             
             // Wire up action editor handler events
@@ -194,6 +203,7 @@ namespace RPGGame
                 SettingsMenuHandler = settingsMenuHandler,
                 DeveloperMenuHandler = developerMenuHandler,
                 ActionEditorHandler = actionEditorHandler,
+                BattleStatisticsHandler = battleStatisticsHandler,
                 InventoryMenuHandler = inventoryMenuHandler,
                 WeaponSelectionHandler = weaponSelectionHandler,
                 CharacterCreationHandler = characterCreationHandler,

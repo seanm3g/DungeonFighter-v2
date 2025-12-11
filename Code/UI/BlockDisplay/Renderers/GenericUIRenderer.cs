@@ -42,8 +42,8 @@ namespace RPGGame.UI.BlockDisplay.Renderers
                     }
                 }
                 
-                // Apply delay after all lines are written
-                if (UIManager.EnableDelays)
+                // Apply delay after all lines are written (skip if combat UI is disabled)
+                if (!CombatManager.DisableCombatUIOutput && UIManager.EnableDelays)
                 {
                     CombatDelayManager.DelayAfterMessage();
                 }

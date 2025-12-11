@@ -200,6 +200,14 @@ namespace RPGGame
         {
             turnManager.ProcessDamageOverTimeEffects(player, enemy);
         }
+
+        /// <summary>
+        /// Gets the total number of actions performed in the current battle
+        /// </summary>
+        public int GetTotalActionCount()
+        {
+            return turnManager.GetTotalActionCount();
+        }
     }
 }
 

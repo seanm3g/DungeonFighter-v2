@@ -1,28 +1,5 @@
-
 [
-  { "name": "Ancient Forest", "theme": "Forest", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Goblin", "Spider", "Wolf", "Bear", "Treant"] },
-  { "name": "Lava Caves", "theme": "Lava", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Wraith", "Slime", "Bat", "Fire Elemental", "Lava Golem", "Salamander"] },
-  { "name": "Haunted Crypt", "theme": "Crypt", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Skeleton", "Zombie", "Wraith", "Lich", "Ghoul", "Wight"] },
-  { "name": "Crystal Caverns", "theme": "Crystal", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Crystal Golem", "Prism Spider", "Shard Beast", "Crystal Sprite", "Geode Beast", "Crystal Wyrm"] },
-  { "name": "Abandoned Temple", "theme": "Temple", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Stone Guardian", "Temple Warden", "Ancient Sentinel", "Temple Guard", "Priest", "Paladin"] },
-  { "name": "Bandit Hideout", "theme": "Generic", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Bandit", "Orc", "Troll", "Kobold", "Goblin"] },
-  { "name": "Frozen Peaks", "theme": "Ice", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Ice Elemental", "Frost Wolf", "Yeti", "Ice Golem", "Frozen Wraith", "Blizzard Beast"] },
-  { "name": "Shadow Realm", "theme": "Shadow", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Shadow Stalker", "Dark Mage", "Void Walker", "Shadow Beast", "Nightmare", "Umbra"] },
-  { "name": "Mechanical Foundry", "theme": "Steampunk", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Steam Golem", "Clockwork Soldier", "Mechanical Spider", "Gear Beast", "Steam Knight", "Automaton"] },
-  { "name": "Poisoned Swamp", "theme": "Swamp", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Swamp Troll", "Poison Frog", "Bog Witch", "Marsh Serpent", "Toxic Slime", "Venomous Spider"] },
-  { "name": "Celestial Observatory", "theme": "Astral", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Star Guardian", "Cosmic Wisp", "Astral Mage", "Nebula Beast", "Comet Spirit", "Galaxy Walker"] },
-  { "name": "Underground City", "theme": "Underground", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Deep Dwarf", "Cave Troll", "Underground Rat", "Mole Beast", "Tunnel Worm", "Subterranean Guard"] },
-  { "name": "Stormy Cliffs", "theme": "Storm", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Storm Elemental", "Lightning Bird", "Thunder Giant", "Wind Spirit", "Tempest Beast", "Hurricane Wraith"] },
-  { "name": "Mystical Garden", "theme": "Nature", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Nature Spirit", "Flower Guardian", "Vine Beast", "Garden Sprite", "Thorn Wolf", "Bloom Elemental"] },
-  { "name": "Ancient Library", "theme": "Arcane", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Arcane Scholar", "Book Golem", "Knowledge Spirit", "Scroll Guardian", "Tome Beast", "Librarian Wraith"] },
-  { "name": "Desert Oasis", "theme": "Desert", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Sand Elemental", "Desert Nomad", "Cactus Beast", "Oasis Spirit", "Sand Worm", "Mirage Phantom"] },
-  { "name": "Volcanic Crater", "theme": "Volcano", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Magma Beast", "Volcano Spirit", "Ash Elemental", "Lava Serpent", "Ember Golem", "Pyroclast"] },
-  { "name": "Mystic Ruins", "theme": "Ruins", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Skeleton", "Zombie", "Wraith", "Lich", "Stone Guardian", "Temple Warden"] },
-  { "name": "Ocean Depths", "theme": "Ocean", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Sea Serpent", "Kraken Spawn", "Deep Sea Beast", "Ocean Spirit", "Coral Guardian", "Abyssal Walker"] },
-  { "name": "Mountain Summit", "theme": "Mountain", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Mountain Giant", "Eagle Spirit", "Rock Elemental", "Summit Guardian", "Peak Beast", "Altitude Wraith"] },
-  { "name": "Time Distortion", "theme": "Temporal", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Time Wraith", "Chronos Beast", "Temporal Guardian", "Echo Spirit", "Paradox Walker", "Timeline Phantom"] },
-  { "name": "Dreamscape", "theme": "Dream", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Dream Walker", "Nightmare Beast", "Sleep Spirit", "Lucid Guardian", "Subconscious Wraith", "Fantasy Elemental"] },
-  { "name": "Void Nexus", "theme": "Void", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Void Beast", "Null Walker", "Emptiness Spirit", "Void Guardian", "Nothingness Wraith", "Absence Phantom"] },
-  { "name": "Reality Rift", "theme": "Dimensional", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Dimension Walker", "Reality Beast", "Rift Guardian", "Space-Time Spirit", "Multiverse Wraith", "Quantum Phantom"] },
-  { "name": "Final Sanctum", "theme": "Divine", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Divine Guardian", "Celestial Beast", "Sacred Spirit", "Holy Wraith", "Blessed Phantom", "Eternal Walker"] }
-] 
+  { "name": "Ancient Forest", "theme": "Forest", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Goblin", "Spider", "Wolf"] },
+  { "name": "Lava Caves", "theme": "Lava", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Fire Elemental", "Lava Golem", "Bat"] },
+  { "name": "Haunted Crypt", "theme": "Crypt", "minLevel": 1, "maxLevel": 100, "possibleEnemies": ["Skeleton", "Zombie", "Wraith"] }
+]

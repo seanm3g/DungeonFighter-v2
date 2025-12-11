@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Concurrent;
 
 namespace RPGGame
 {
@@ -38,11 +39,12 @@ namespace RPGGame
     /// <summary>
     /// Refactored BattleNarrative facade using specialized managers for better maintainability.
     /// Coordinates narrative generation across multiple specialized systems.
+    /// Thread-safe for parallel battle testing.
     /// </summary>
     public class BattleNarrative
     {
-        // Core data
-        private readonly List<BattleEvent> events;
+        // Core data - use thread-safe collections for parallel battle testing
+        private readonly ConcurrentBag<BattleEvent> events;
         private readonly string playerName;
         private readonly string enemyName;
         private readonly string currentLocation;
@@ -57,9 +59,9 @@ namespace RPGGame
         private readonly TauntSystem tauntSystem;
         private readonly BattleEventAnalyzer eventAnalyzer;
 
-        // Narrative tracking
-        private readonly List<string> narrativeEvents;
-        private readonly List<string> pendingNarrativeEvents;
+        // Narrative tracking - use thread-safe collections for parallel testing
+        private readonly ConcurrentBag<string> narrativeEvents;
+        private readonly ConcurrentBag<string> pendingNarrativeEvents;
 
         public BattleNarrative(string playerName, string enemyName, string environmentName = "", int playerHealth = 0, int enemyHealth = 0)
         {
@@ -71,10 +73,10 @@ namespace RPGGame
             this.finalPlayerHealth = playerHealth;
             this.finalEnemyHealth = enemyHealth;
 
-            // Initialize collections
-            this.events = new List<BattleEvent>();
-            this.narrativeEvents = new List<string>();
-            this.pendingNarrativeEvents = new List<string>();
+            // Initialize collections - use thread-safe collections for parallel testing
+            this.events = new ConcurrentBag<BattleEvent>();
+            this.narrativeEvents = new ConcurrentBag<string>();
+            this.pendingNarrativeEvents = new ConcurrentBag<string>();
 
             // Initialize specialized managers
             this.stateManager = new NarrativeStateManager();
@@ -138,7 +140,9 @@ namespace RPGGame
 
             if (events.Count > 0)
             {
-                var lastEvent = events[events.Count - 1];
+                // Convert to list to access last element (ConcurrentBag doesn't support indexing)
+                var eventsList = events.ToList();
+                var lastEvent = eventsList[eventsList.Count - 1];
                 triggeredNarratives = AnalyzeEventForNarratives(lastEvent);
             }
 
@@ -349,6 +353,14 @@ namespace RPGGame
         public List<UI.ColorSystem.ColoredText> FormatGenericNarrativeColored(string narrativeText, UI.ColorSystem.ColorPalette primaryColor = UI.ColorSystem.ColorPalette.Info)
         {
             return BattleNarrativeColoredText.FormatGenericNarrativeColored(narrativeText, primaryColor);
+        }
+
+        /// <summary>
+        /// Gets all battle events for analysis
+        /// </summary>
+        public List<BattleEvent> GetAllEvents()
+        {
+            return events.ToList();
         }
     }
 } 

@@ -11,6 +11,7 @@ namespace RPGGame
         Settings,
         Testing,
         DeveloperMenu,
+        BattleStatistics,
         VariableEditor,
         ActionEditor,
         CreateAction,

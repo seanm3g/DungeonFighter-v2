@@ -84,6 +84,7 @@ namespace RPGGame
                     break;
                     
                 case "combat":
+                    await RunTest("Combat System Comprehensive", TestCombatSystemComprehensive);
                     await RunTest("Combat Calculation", TestCombatCalculation);
                     await RunTest("Combat Flow", TestCombatFlow);
                     await RunTest("Combat Effects", TestCombatEffects);
@@ -162,6 +163,7 @@ namespace RPGGame
                 "Character Equipment" => await RunTest(testName, TestCharacterEquipment),
                 
                 // Combat System Tests
+                "Combat System Comprehensive" => await RunTest(testName, TestCombatSystemComprehensive),
                 "Combat Calculation" => await RunTest(testName, TestCombatCalculation),
                 "Combat Flow" => await RunTest(testName, TestCombatFlow),
                 "Combat Effects" => await RunTest(testName, TestCombatEffects),
@@ -395,6 +397,49 @@ namespace RPGGame
             catch (Exception ex)
             {
                 return Task.FromResult(new TestResult("Combat System", false, $"Exception: {ex.Message}"));
+            }
+        }
+
+        private Task<TestResult> TestCombatSystemComprehensive()
+        {
+            try
+            {
+                uiCoordinator.WriteLine("=== Combat System Comprehensive Tests ===");
+                uiCoordinator.WriteLine("Running comprehensive combat system tests...");
+                uiCoordinator.WriteBlankLine();
+                
+                // Capture console output
+                var originalOut = Console.Out;
+                using (var stringWriter = new System.IO.StringWriter())
+                {
+                    Console.SetOut(stringWriter);
+                    
+                    try
+                    {
+                        RPGGame.Tests.Unit.CombatSystemTests.RunAllTests();
+                        string output = stringWriter.ToString();
+                        
+                        // Display output
+                        foreach (var line in output.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None))
+                        {
+                            if (!string.IsNullOrWhiteSpace(line))
+                            {
+                                uiCoordinator.WriteLine(line);
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        Console.SetOut(originalOut);
+                    }
+                }
+                
+                return Task.FromResult(new TestResult("Combat System Comprehensive", true, 
+                    "Combat system tests completed: Damage, Hit/Miss, Status Effects, Multi-Hit, Critical Hits"));
+            }
+            catch (Exception ex)
+            {
+                return Task.FromResult(new TestResult("Combat System Comprehensive", false, $"Exception: {ex.Message}"));
             }
         }
 
@@ -1812,8 +1857,38 @@ namespace RPGGame
         {
             try
             {
-                // Test action system
-                return Task.FromResult(new TestResult("Action System", true, "Action system accessible"));
+                uiCoordinator.WriteLine("=== Action and Action Sequence Tests ===");
+                uiCoordinator.WriteLine("Running comprehensive action system tests...");
+                uiCoordinator.WriteBlankLine();
+                
+                // Capture console output
+                var originalOut = Console.Out;
+                using (var stringWriter = new System.IO.StringWriter())
+                {
+                    Console.SetOut(stringWriter);
+                    
+                    try
+                    {
+                        RPGGame.Tests.Unit.ActionAndSequenceTests.RunAllTests();
+                        string output = stringWriter.ToString();
+                        
+                        // Display output
+                        foreach (var line in output.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None))
+                        {
+                            if (!string.IsNullOrWhiteSpace(line))
+                            {
+                                uiCoordinator.WriteLine(line);
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        Console.SetOut(originalOut);
+                    }
+                }
+                
+                return Task.FromResult(new TestResult("Action System", true, 
+                    "Action and sequence tests completed: Creation, Selection, Combo Sequences, Execution Flow"));
             }
             catch (Exception ex)
             {

@@ -151,6 +151,22 @@ namespace RPGGame.UI.Avalonia.Renderers
         public void RenderDeveloperMenu() => RenderMenuScreen("DEVELOPER MENU", 
             (x, y, w, h) => menuRenderer.RenderDeveloperMenuContent(x, y, w, h));
         
+        public void RenderBattleStatisticsMenu(BattleStatisticsRunner.StatisticsResult? results, bool isRunning) => 
+            RenderMenuScreen("BATTLE STATISTICS", 
+                (x, y, w, h) => menuRenderer.RenderBattleStatisticsMenuContent(x, y, w, h, results, isRunning));
+        
+        public void RenderBattleStatisticsResults(BattleStatisticsRunner.StatisticsResult results) => 
+            RenderMenuScreen("BATTLE STATISTICS RESULTS", 
+                (x, y, w, h) => menuRenderer.RenderBattleStatisticsResultsContent(x, y, w, h, results));
+
+        public void RenderWeaponTestResults(List<BattleStatisticsRunner.WeaponTestResult> results) => 
+            RenderMenuScreen("WEAPON TYPE TEST RESULTS", 
+                (x, y, w, h) => menuRenderer.RenderWeaponTestResultsContent(x, y, w, h, results));
+
+        public void RenderComprehensiveWeaponEnemyResults(BattleStatisticsRunner.ComprehensiveWeaponEnemyTestResult results) => 
+            RenderMenuScreen("COMPREHENSIVE WEAPON-ENEMY TEST RESULTS", 
+                (x, y, w, h) => menuRenderer.RenderComprehensiveWeaponEnemyResultsContent(x, y, w, h, results));
+        
         public void RenderVariableEditor() => RenderMenuScreen("EDIT GAME VARIABLES", 
             (x, y, w, h) => menuRenderer.RenderVariableEditorContent(x, y, w, h));
         

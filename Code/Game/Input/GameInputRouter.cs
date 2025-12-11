@@ -69,6 +69,21 @@ namespace RPGGame.GameCore.Input
                     {
                     }
                     break;
+                case GameState.BattleStatistics:
+                    // Allow scrolling during battle statistics to view test results
+                    if (input == "up" || input == "down")
+                    {
+                        handleCombatScroll(input);
+                        return; // Don't process other input when scrolling
+                    }
+                    else if (handlers.BattleStatisticsHandler != null)
+                    {
+                        handlers.BattleStatisticsHandler.HandleMenuInput(input);
+                    }
+                    else
+                    {
+                    }
+                    break;
                 case GameState.VariableEditor:
                     if (input == "0")
                     {
@@ -180,6 +195,7 @@ namespace RPGGame.GameCore.Input
         public SettingsMenuHandler? SettingsMenuHandler { get; set; }
         public DeveloperMenuHandler? DeveloperMenuHandler { get; set; }
         public ActionEditorHandler? ActionEditorHandler { get; set; }
+        public BattleStatisticsHandler? BattleStatisticsHandler { get; set; }
         public InventoryMenuHandler? InventoryMenuHandler { get; set; }
         public WeaponSelectionHandler? WeaponSelectionHandler { get; set; }
         public CharacterCreationHandler? CharacterCreationHandler { get; set; }

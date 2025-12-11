@@ -30,6 +30,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         private readonly GameMenuRenderer gameMenuRenderer;
         private readonly TestingMenuRenderer testingMenuRenderer;
         private readonly DeveloperMenuRenderer developerMenuRenderer;
+        private readonly BattleStatisticsRenderer battleStatisticsRenderer;
         private readonly VariableEditorRenderer variableEditorRenderer;
         private readonly ActionEditorRenderer actionEditorRenderer;
         private readonly CreateActionFormRenderer createActionFormRenderer;
@@ -50,6 +51,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             this.gameMenuRenderer = new GameMenuRenderer(canvas, clickableElements, textManager);
             this.testingMenuRenderer = new TestingMenuRenderer(canvas, clickableElements, textManager);
             this.developerMenuRenderer = new DeveloperMenuRenderer(canvas, clickableElements, textManager);
+            this.battleStatisticsRenderer = new BattleStatisticsRenderer(canvas, clickableElements, textManager);
             this.variableEditorRenderer = new VariableEditorRenderer(canvas, clickableElements, textManager);
             this.actionEditorRenderer = new ActionEditorRenderer(canvas, clickableElements, textManager);
             this.createActionFormRenderer = new CreateActionFormRenderer(canvas, clickableElements, textManager);
@@ -180,6 +182,32 @@ namespace RPGGame.UI.Avalonia.Renderers
         public void RenderDeveloperMenuContent(int x, int y, int width, int height)
         {
             currentLineCount = developerMenuRenderer.RenderDeveloperMenuContent(x, y, width, height);
+        }
+
+        /// <summary>
+        /// Renders the battle statistics menu content
+        /// </summary>
+        public void RenderBattleStatisticsMenuContent(int x, int y, int width, int height, BattleStatisticsRunner.StatisticsResult? results, bool isRunning)
+        {
+            currentLineCount = battleStatisticsRenderer.RenderBattleStatisticsMenuContent(x, y, width, height, results, isRunning);
+        }
+
+        /// <summary>
+        /// Renders battle statistics results
+        /// </summary>
+        public void RenderBattleStatisticsResultsContent(int x, int y, int width, int height, BattleStatisticsRunner.StatisticsResult results)
+        {
+            currentLineCount = battleStatisticsRenderer.RenderBattleStatisticsResults(x, y, width, height, results);
+        }
+
+        public void RenderWeaponTestResultsContent(int x, int y, int width, int height, List<BattleStatisticsRunner.WeaponTestResult> results)
+        {
+            currentLineCount = battleStatisticsRenderer.RenderWeaponTestResults(x, y, width, height, results);
+        }
+
+        public void RenderComprehensiveWeaponEnemyResultsContent(int x, int y, int width, int height, BattleStatisticsRunner.ComprehensiveWeaponEnemyTestResult results)
+        {
+            currentLineCount = battleStatisticsRenderer.RenderComprehensiveWeaponEnemyResults(x, y, width, height, results);
         }
 
         /// <summary>

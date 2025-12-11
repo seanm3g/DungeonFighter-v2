@@ -143,6 +143,26 @@ namespace RPGGame.UI.Avalonia.Coordinators
         {
             renderer.RenderDeveloperMenu();
         }
+        
+        public void RenderBattleStatisticsMenu(BattleStatisticsRunner.StatisticsResult? results, bool isRunning)
+        {
+            renderer.RenderBattleStatisticsMenu(results, isRunning);
+        }
+        
+        public void RenderBattleStatisticsResults(BattleStatisticsRunner.StatisticsResult results)
+        {
+            renderer.RenderBattleStatisticsResults(results);
+        }
+
+        public void RenderWeaponTestResults(List<BattleStatisticsRunner.WeaponTestResult> results)
+        {
+            renderer.RenderWeaponTestResults(results);
+        }
+
+        public void RenderComprehensiveWeaponEnemyResults(BattleStatisticsRunner.ComprehensiveWeaponEnemyTestResult results)
+        {
+            renderer.RenderComprehensiveWeaponEnemyResults(results);
+        }
 
         /// <summary>
         /// Renders variable editor screen

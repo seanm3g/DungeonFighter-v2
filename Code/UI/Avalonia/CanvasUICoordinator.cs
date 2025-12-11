@@ -5,6 +5,7 @@ using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.UI.Avalonia.Coordinators;
 using RPGGame.UI.ColorSystem;
+using RPGGame.Utils;
 using System;
 using System.Collections.Generic;
 
@@ -162,6 +163,21 @@ namespace RPGGame.UI.Avalonia
         public void RenderSettings() => screenRenderingCoordinator.RenderSettings();
         public void RenderTestingMenu() => screenRenderingCoordinator.RenderTestingMenu();
         public void RenderDeveloperMenu() => screenRenderingCoordinator.RenderDeveloperMenu();
+        public void RenderBattleStatisticsMenu(BattleStatisticsRunner.StatisticsResult? results, bool isRunning) => 
+            screenRenderingCoordinator.RenderBattleStatisticsMenu(results, isRunning);
+        public void RenderBattleStatisticsResults(BattleStatisticsRunner.StatisticsResult results) => 
+            screenRenderingCoordinator.RenderBattleStatisticsResults(results);
+
+        public void RenderWeaponTestResults(List<BattleStatisticsRunner.WeaponTestResult> results) => 
+            screenRenderingCoordinator.RenderWeaponTestResults(results);
+
+        public void RenderComprehensiveWeaponEnemyResults(BattleStatisticsRunner.ComprehensiveWeaponEnemyTestResult results) => 
+            screenRenderingCoordinator.RenderComprehensiveWeaponEnemyResults(results);
+        public void UpdateBattleStatisticsProgress(int completed, int total, string status)
+        {
+            // Update progress display - for now just log it
+            ScrollDebugLogger.Log($"Battle Statistics: {completed}/{total} - {status}");
+        }
         public void RenderVariableEditor() => screenRenderingCoordinator.RenderVariableEditor();
         public void RenderActionEditor() => screenRenderingCoordinator.RenderActionEditor();
         public void RenderActionList(List<ActionData> actions, int page) => screenRenderingCoordinator.RenderActionList(actions, page);

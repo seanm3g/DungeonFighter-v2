@@ -102,6 +102,14 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Gets the total number of actions performed in the current battle
+        /// </summary>
+        public int GetTotalActionCount()
+        {
+            return stateManager.GetTotalActionCount();
+        }
+
+        /// <summary>
         /// Runs the main combat loop between player and enemy
         /// </summary>
         /// <param name="player">The player character</param>
@@ -123,13 +131,39 @@ namespace RPGGame
             room.ResetForNewFight();
 
             // Combat Loop with action speed system
+            int maxTurns = 1000; // Safety limit to prevent infinite loops
+            int turnCount = 0;
+            int nullEntityCount = 0; // Track consecutive null entities
+            const int MAX_NULL_ENTITIES = 100; // Max consecutive null entities before breaking
+            
             while (player.IsAlive && currentEnemy.IsAlive)
             {
+                // Safety check: prevent infinite loops
+                turnCount++;
+                if (turnCount > maxTurns)
+                {
+                    var errorText = CombatFlowColoredText.FormatSystemErrorColored($"Combat loop exceeded {maxTurns} turns. Breaking to prevent infinite loop.");
+                    BlockDisplayManager.DisplaySystemBlock(errorText);
+                    DebugLogger.WriteCombatDebug("CombatManager", $"Combat loop exceeded max turns: {turnCount}");
+                    break;
+                }
+                
                 // Get the next entity that should act based on action speed
                 Actor? nextEntity = GetNextEntityToAct();
                 
                 if (nextEntity == null)
                 {
+                    nullEntityCount++;
+                    
+                    // Safety check: if we've had too many consecutive null entities, break
+                    if (nullEntityCount > MAX_NULL_ENTITIES)
+                    {
+                        var errorText = CombatFlowColoredText.FormatSystemErrorColored($"Combat loop stuck: {nullEntityCount} consecutive null entities. Breaking to prevent infinite loop.");
+                        BlockDisplayManager.DisplaySystemBlock(errorText);
+                        DebugLogger.WriteCombatDebug("CombatManager", $"Combat loop stuck with {nullEntityCount} consecutive null entities");
+                        break;
+                    }
+                    
                     // No entities ready, advance time to the next entity's action time
                     var currentSpeedSystem = GetCurrentActionSpeedSystem();
                     if (currentSpeedSystem != null)
@@ -154,6 +188,7 @@ namespace RPGGame
                             // No entities exist in the action speed system - this shouldn't happen
                             var errorText = CombatFlowColoredText.FormatSystemErrorColored("No entities in action speed system. Breaking combat loop.");
                             BlockDisplayManager.DisplaySystemBlock(errorText);
+                            DebugLogger.WriteCombatDebug("CombatManager", "No entities in action speed system");
                             break;
                         }
                         else
@@ -161,16 +196,21 @@ namespace RPGGame
                             // No entities ready and no next ready time - this shouldn't happen
                             var errorText = CombatFlowColoredText.FormatSystemErrorColored("No entities ready and no next ready time. Breaking combat loop.");
                             BlockDisplayManager.DisplaySystemBlock(errorText);
+                            DebugLogger.WriteCombatDebug("CombatManager", "No entities ready and no next ready time");
                             break;
                         }
                     }
                     else
                     {
                         // ActionSpeedSystem is null - this shouldn't happen
+                        DebugLogger.WriteCombatDebug("CombatManager", "ActionSpeedSystem is null");
                         break;
                     }
                     continue;
                 }
+                
+                // Reset null entity counter when we get a valid entity
+                nullEntityCount = 0;
 
                 // Handle entity change detection and add blank lines when needed
                 stateManager.HandleEntityChange(nextEntity);
@@ -209,6 +249,24 @@ namespace RPGGame
                     
                     // Add delay after environmental action
                     CombatDelayManager.DelayAfterAction();
+                }
+                else
+                {
+                    // Unknown entity type - this shouldn't happen, but handle it gracefully
+                    DebugLogger.WriteCombatDebug("CombatManager", $"Unknown entity type in combat loop: {nextEntity?.GetType().Name ?? "null"}");
+                    // Advance time slightly to prevent infinite loop
+                    var currentSpeedSystem = GetCurrentActionSpeedSystem();
+                    if (currentSpeedSystem != null && nextEntity != null)
+                    {
+                        currentSpeedSystem.AdvanceEntityTurn(nextEntity, 1.0);
+                    }
+                    else
+                    {
+                        // If we can't advance, break to prevent infinite loop
+                        var errorText = CombatFlowColoredText.FormatSystemErrorColored($"Unknown entity in combat loop. Breaking to prevent infinite loop.");
+                        BlockDisplayManager.DisplaySystemBlock(errorText);
+                        break;
+                    }
                 }
             }
             

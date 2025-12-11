@@ -125,6 +125,12 @@ namespace RPGGame
         /// </summary>
         private static bool ShouldApplyDelay()
         {
+            // Skip all delays if combat UI output is disabled (e.g., during statistics runs)
+            if (CombatManager.DisableCombatUIOutput)
+            {
+                return false;
+            }
+            
             // Check if we have a custom UI manager (GUI)
             if (UIManager.GetCustomUIManager() != null)
             {

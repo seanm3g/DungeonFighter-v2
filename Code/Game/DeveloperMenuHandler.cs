@@ -16,10 +16,12 @@ namespace RPGGame
         public delegate void OnShowSettings();
         public delegate void OnShowVariableEditor();
         public delegate void OnShowActionEditor();
+        public delegate void OnShowBattleStatistics();
         
         public event OnShowSettings? ShowSettingsEvent;
         public event OnShowVariableEditor? ShowVariableEditorEvent;
         public event OnShowActionEditor? ShowActionEditorEvent;
+        public event OnShowBattleStatistics? ShowBattleStatisticsEvent;
 
         public DeveloperMenuHandler(GameStateManager stateManager, IUIManager? customUIManager)
         {
@@ -61,6 +63,10 @@ namespace RPGGame
                     case "2":
                         // Edit Actions
                         ShowActionEditorEvent?.Invoke();
+                        break;
+                    case "3":
+                        // Battle Statistics
+                        ShowBattleStatisticsEvent?.Invoke();
                         break;
                     case "0":
                         // Back to Settings
