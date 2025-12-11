@@ -298,6 +298,7 @@ namespace RPGGame
                     var coloredText = CombatFlowColoredText.FormatHealthRegenerationColored(
                         player.Name, actualRegen, player.CurrentHealth, player.GetEffectiveMaxHealth());
                     BlockDisplayManager.DisplaySystemBlock(coloredText);
+                    UIManager.WriteLine(""); // Add blank line after regeneration message
                 }
             }
         }

@@ -72,7 +72,7 @@ namespace RPGGame.Combat.Events
                     {
                         handler(evt);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         // Log error but don't stop other handlers
                     }

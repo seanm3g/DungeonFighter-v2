@@ -43,7 +43,7 @@ namespace RPGGame.Menu
                     MenuInputValidator = validator
                 };
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return new MenuInputFrameworkResult();
             }

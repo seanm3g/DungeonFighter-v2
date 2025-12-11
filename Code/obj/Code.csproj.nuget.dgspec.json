@@ -62,6 +62,14 @@
             "Avalonia.Themes.Fluent": {
               "target": "Package",
               "version": "[11.2.7, )"
+            },
+            "Microsoft.Extensions.Hosting": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "ModelContextProtocol": {
+              "target": "Package",
+              "version": "[0.5.0-preview.1, )"
             }
           },
           "imports": [

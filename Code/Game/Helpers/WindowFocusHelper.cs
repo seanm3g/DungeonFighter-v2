@@ -29,7 +29,7 @@ namespace RPGGame
                         window.Focus();
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                 }
             }, Avalonia.Threading.DispatcherPriority.Normal);

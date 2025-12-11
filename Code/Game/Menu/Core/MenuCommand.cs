@@ -27,7 +27,7 @@ namespace DungeonFighter.Game.Menu.Core
                     await ExecuteCommand(context);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }

@@ -78,7 +78,7 @@ namespace DungeonFighter.Game.Menu.State
 
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Attempt to revert to previous state
                 currentState = previousState;

@@ -68,7 +68,7 @@ namespace RPGGame
                     room.GenerateEnemies(roomLevel, PossibleEnemies);
                     Rooms.Add(room);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     // Continue generating other rooms even if one fails
                 }

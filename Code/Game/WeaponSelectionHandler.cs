@@ -57,7 +57,7 @@ namespace RPGGame
                     {
                         canvasUI.RenderWeaponSelection(availableWeapons);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                     }
                 }
@@ -82,7 +82,7 @@ namespace RPGGame
                 var startingGear = gameInitializer.LoadStartingGear();
                 return startingGear.weapons ?? new List<StartingWeapon>();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Return default weapons if loading fails
                 return new List<StartingWeapon>

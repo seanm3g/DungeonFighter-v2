@@ -241,7 +241,7 @@ namespace RPGGame
                 // Add the event to the narrative
                 battleNarrative.AddEvent(battleEvent);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Log error but don't break combat
                 if (!ActionExecutor.DisableCombatDebugOutput)

@@ -59,7 +59,7 @@ namespace RPGGame.Combat.Outcomes
                     {
                         handler.HandleOutcome(evt, source, target, action);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                     }
                 }

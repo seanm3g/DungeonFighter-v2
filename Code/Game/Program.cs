@@ -16,6 +16,14 @@ namespace RPGGame
         [STAThread]
         public static void Main(string[] args)
         {
+            // Check if MCP mode is requested
+            if (args.Length > 0 && args[0] == "MCP")
+            {
+                // Run MCP server instead of GUI
+                RPGGame.MCP.MCPServerProgram.Main(args).Wait();
+                return;
+            }
+
             // Launch Avalonia GUI
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         }

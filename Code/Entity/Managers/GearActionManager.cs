@@ -199,21 +199,31 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets base actions for a weapon type
+        /// Gets base actions for a weapon type using tag-based matching from JSON.
+        /// This ensures all actions with matching tags are included, not just hardcoded ones.
         /// </summary>
         private List<string> GetWeaponTypeActions(WeaponType weaponType)
         {
-            return weaponType switch
+            var weaponTag = weaponType.ToString().ToLower();
+            var allActions = ActionLoader.GetAllActions();
+
+            // Get weapon-specific actions from JSON using tag matching
+            // Actions must have both "weapon" tag and the weapon type tag (e.g., "wand", "mace")
+            var weaponActions = allActions
+                .Where(action => action.Tags != null &&
+                                action.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
+                                action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)) &&
+                                !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)))
+                .Select(action => action.Name)
+                .ToList();
+
+            // Fallback to BASIC ATTACK if no weapon-specific actions found
+            if (weaponActions.Count == 0)
             {
-                WeaponType.Axe => new List<string> { "AXE CHOP" },
-                WeaponType.Sword => new List<string> { "SWORD STRIKE" },
-                WeaponType.Dagger => new List<string> { "DAGGER SLASH" },
-                WeaponType.Wand => new List<string> { "MAGIC BOLT" },
-                WeaponType.Mace => new List<string> { "CRUSHING BLOW", "SHIELD BREAK" },
-                WeaponType.Staff => new List<string> { "STAFF STRIKE", "FOCUS" },
-                WeaponType.Bow => new List<string> { "AIMED SHOT", "RAPID FIRE" },
-                _ => new List<string> { "BASIC ATTACK" }
-            };
+                return new List<string> { "BASIC ATTACK" };
+            }
+
+            return weaponActions;
         }
 
         /// <summary>

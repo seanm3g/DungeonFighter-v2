@@ -45,7 +45,7 @@ namespace RPGGame.Editors
                     actions = new List<ActionData>();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 actions = new List<ActionData>();
             }
@@ -82,7 +82,7 @@ namespace RPGGame.Editors
                 actions.Add(actionData);
                 return SaveActions();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
@@ -115,7 +115,7 @@ namespace RPGGame.Editors
                 actions[index] = updatedActionData;
                 return SaveActions();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
@@ -137,7 +137,7 @@ namespace RPGGame.Editors
                 actions.Remove(action);
                 return SaveActions();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
@@ -170,7 +170,7 @@ namespace RPGGame.Editors
                 ActionLoader.LoadActions();
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }

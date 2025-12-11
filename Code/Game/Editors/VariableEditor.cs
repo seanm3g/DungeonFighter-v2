@@ -81,7 +81,7 @@ namespace RPGGame.Editors
                 config.Reload();
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
