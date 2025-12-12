@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 
 namespace RPGGame
@@ -10,8 +11,8 @@ namespace RPGGame
     /// </summary>
     public static class ActionSelector
     {
-        // Store the last action selection roll for consistency
-        private static readonly Dictionary<Actor, int> _lastActionSelectionRolls = new Dictionary<Actor, int>();
+        // Store the last action selection roll for consistency - using thread-safe concurrent dictionary
+        private static readonly ConcurrentDictionary<Actor, int> _lastActionSelectionRolls = new ConcurrentDictionary<Actor, int>();
 
         /// <summary>
         /// Selects an action based on Actor type - heroes use roll-based logic, enemies use random selection
@@ -48,9 +49,9 @@ namespace RPGGame
 
             // Roll first to determine what type of action to use
             int baseRoll = Dice.Roll(1, 20);
-            
+
             // Store the base roll for use in the main execution
-            _lastActionSelectionRolls[source] = baseRoll;
+            _lastActionSelectionRolls.AddOrUpdate(source, baseRoll, (_, _) => baseRoll);
             
             // Calculate roll bonus for action selection (using null action for base bonus)
             int rollBonus = ActionUtilities.CalculateRollBonus(source, null);
@@ -104,9 +105,9 @@ namespace RPGGame
                 return null;
 
             int baseRoll = Dice.Roll(1, 20);
-            
+
             // Store the base roll for use in hit calculation (same as heroes)
-            _lastActionSelectionRolls[source] = baseRoll;
+            _lastActionSelectionRolls.AddOrUpdate(source, baseRoll, (_, _) => baseRoll);
 
             // Calculate roll bonus for action selection (enemies generally have no base roll bonus)
             int rollBonus = ActionUtilities.CalculateRollBonus(source, null);

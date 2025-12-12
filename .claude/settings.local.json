@@ -2,7 +2,15 @@
   "permissions": {
     "allow": [
       "Bash(dotnet run:*)",
-      "Bash(dir /s /b C:*bb7edb1*)"
+      "Bash(dir /s /b C:*bb7edb1*)",
+      "Bash(dir:*)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet clean:*)",
+      "Bash(timeout 300 dotnet run:*)",
+      "Bash(timeout 120 dotnet run:*)",
+      "Bash(tuner:*)",
+      "Bash(tee:*)",
+      "Bash(git add:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

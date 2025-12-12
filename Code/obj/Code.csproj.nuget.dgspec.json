@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\Code.csproj": {}
+    "D:\\code projectS\\github projects\\DungeonFighter-v2\\Code\\Code.csproj": {}
   },
   "projects": {
-    "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\Code.csproj": {
+    "D:\\code projectS\\github projects\\DungeonFighter-v2\\Code\\Code.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\Code.csproj",
+        "projectUniqueName": "D:\\code projectS\\github projects\\DungeonFighter-v2\\Code\\Code.csproj",
         "projectName": "DF",
-        "projectPath": "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\Code.csproj",
+        "projectPath": "D:\\code projectS\\github projects\\DungeonFighter-v2\\Code\\Code.csproj",
         "packagesPath": "C:\\Users\\Seanye\\.nuget\\packages\\",
-        "outputPath": "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\obj\\",
+        "outputPath": "D:\\code projectS\\github projects\\DungeonFighter-v2\\Code\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Seanye\\AppData\\Roaming\\NuGet\\NuGet.Config"

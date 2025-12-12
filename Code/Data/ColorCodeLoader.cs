@@ -48,6 +48,7 @@ namespace RPGGame.Data
     /// </summary>
     public static class ColorCodeLoader
     {
+        private static readonly object _loadLock = new object();
         private static ColorCodeConfig? _cachedConfig;
         private static Dictionary<string, Color>? _colorCodeCache;
         private static bool _isLoaded = false;
@@ -62,42 +63,51 @@ namespace RPGGame.Data
             {
                 return _cachedConfig;
             }
-            
-            // Try to load from unified configuration first
-            var unifiedConfig = ColorConfigurationLoader.LoadColorConfiguration();
-            if (unifiedConfig.ColorCodes != null && unifiedConfig.ColorCodes.Count > 0)
+
+            lock (_loadLock)
             {
-                // Convert unified config to ColorCodeConfig format
-                _cachedConfig = new ColorCodeConfig
+                // Double-check after acquiring lock
+                if (_isLoaded && _cachedConfig != null)
                 {
-                    ColorCodes = unifiedConfig.ColorCodes.Select(c => new ColorCodeData
+                    return _cachedConfig;
+                }
+
+                // Try to load from unified configuration first
+                var unifiedConfig = ColorConfigurationLoader.LoadColorConfiguration();
+                if (unifiedConfig.ColorCodes != null && unifiedConfig.ColorCodes.Count > 0)
+                {
+                    // Convert unified config to ColorCodeConfig format
+                    _cachedConfig = new ColorCodeConfig
                     {
-                        Code = c.Code,
-                        Name = c.Name,
-                        Rgb = c.Rgb,
-                        Hex = c.Hex
-                    }).ToList()
-                };
+                        ColorCodes = unifiedConfig.ColorCodes.Select(c => new ColorCodeData
+                        {
+                            Code = c.Code,
+                            Name = c.Name,
+                            Rgb = c.Rgb,
+                            Hex = c.Hex
+                        }).ToList()
+                    };
+                    BuildColorCache();
+                    _isLoaded = true;
+                    return _cachedConfig;
+                }
+
+                // Fallback to individual JSON file
+                var filePath = JsonLoader.FindGameDataFile("ColorCodes.json");
+                if (filePath == null)
+                {
+                    ErrorHandler.LogWarning("ColorCodes.json not found. Using fallback color codes.", "ColorCodeLoader");
+                    _cachedConfig = CreateFallbackConfig();
+                    BuildColorCache();
+                    _isLoaded = true;
+                    return _cachedConfig;
+                }
+
+                _cachedConfig = JsonLoader.LoadJson<ColorCodeConfig>(filePath, true, CreateFallbackConfig());
                 BuildColorCache();
                 _isLoaded = true;
                 return _cachedConfig;
             }
-            
-            // Fallback to individual JSON file
-            var filePath = JsonLoader.FindGameDataFile("ColorCodes.json");
-            if (filePath == null)
-            {
-                ErrorHandler.LogWarning("ColorCodes.json not found. Using fallback color codes.", "ColorCodeLoader");
-                _cachedConfig = CreateFallbackConfig();
-                BuildColorCache();
-                _isLoaded = true;
-                return _cachedConfig;
-            }
-            
-            _cachedConfig = JsonLoader.LoadJson<ColorCodeConfig>(filePath, true, CreateFallbackConfig());
-            BuildColorCache();
-            _isLoaded = true;
-            return _cachedConfig;
         }
         
         /// <summary>

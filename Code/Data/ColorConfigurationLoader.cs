@@ -109,6 +109,7 @@ namespace RPGGame.Data
     /// </summary>
     public static class ColorConfigurationLoader
     {
+        private static readonly object _loadLock = new object();
         private static ColorConfigurationData? _cachedConfig;
         private static bool _isLoaded = false;
         private static bool _isBuilding = false; // Flag to prevent recursion during cache building
@@ -130,40 +131,49 @@ namespace RPGGame.Data
             {
                 return _cachedConfig;
             }
-            
-            // Prevent recursion if we're already building
-            if (_isBuilding)
+
+            lock (_loadLock)
             {
-                return _cachedConfig ?? new ColorConfigurationData();
-            }
-            
-            var filePath = JsonLoader.FindGameDataFile("ColorConfiguration.json");
-            if (filePath == null)
-            {
-                ErrorHandler.LogWarning("ColorConfiguration.json not found. Using individual JSON files as fallback.", "ColorConfigurationLoader");
-                _cachedConfig = new ColorConfigurationData();
-                _isLoaded = true;
-                return _cachedConfig;
-            }
-            
-            _isBuilding = true;
-            try
-            {
-                _cachedConfig = JsonLoader.LoadJson<ColorConfigurationData>(filePath, true, new ColorConfigurationData());
-                
-                // Build caches for fast lookup
-                BuildColorCodeCache();
-                BuildPaletteColorCache();
-                BuildTemplateCache();
-                BuildDungeonThemeCache();
-                BuildColorPatternCache();
-                
-                _isLoaded = true;
-                return _cachedConfig;
-            }
-            finally
-            {
-                _isBuilding = false;
+                // Double-check after acquiring lock
+                if (_isLoaded && _cachedConfig != null)
+                {
+                    return _cachedConfig;
+                }
+
+                // Prevent recursion if we're already building
+                if (_isBuilding)
+                {
+                    return _cachedConfig ?? new ColorConfigurationData();
+                }
+
+                var filePath = JsonLoader.FindGameDataFile("ColorConfiguration.json");
+                if (filePath == null)
+                {
+                    ErrorHandler.LogWarning("ColorConfiguration.json not found. Using individual JSON files as fallback.", "ColorConfigurationLoader");
+                    _cachedConfig = new ColorConfigurationData();
+                    _isLoaded = true;
+                    return _cachedConfig;
+                }
+
+                _isBuilding = true;
+                try
+                {
+                    _cachedConfig = JsonLoader.LoadJson<ColorConfigurationData>(filePath, true, new ColorConfigurationData());
+
+                    // Build caches for fast lookup
+                    BuildColorCodeCache();
+                    BuildPaletteColorCache();
+                    BuildTemplateCache();
+                    BuildDungeonThemeCache();
+                    BuildColorPatternCache();
+
+                    _isLoaded = true;
+                    return _cachedConfig;
+                }
+                finally
+                {
+                    _isBuilding = false;
+                }
             }
         }
         

@@ -110,6 +110,22 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Gets the current turn number (turns increment every 10 actions)
+        /// </summary>
+        public int GetCurrentTurn()
+        {
+            return stateManager.GetCurrentTurn();
+        }
+
+        /// <summary>
+        /// Gets the fun moment tracker for this combat
+        /// </summary>
+        public FunMomentTracker? GetFunMomentTracker()
+        {
+            return stateManager.GetFunMomentTracker();
+        }
+
+        /// <summary>
         /// Runs the main combat loop between player and enemy
         /// </summary>
         /// <param name="player">The player character</param>

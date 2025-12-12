@@ -24,6 +24,15 @@ namespace RPGGame
                 return;
             }
 
+            // Check if tuning mode is requested
+            if (args.Length > 0 && args[0] == "TUNING")
+            {
+                // Run balance tuning runner
+                int iterations = args.Length > 1 && int.TryParse(args[1], out int iter) ? iter : 5;
+                RPGGame.Tuning.TuningRunner.RunTuning(iterations).Wait();
+                return;
+            }
+
             // Launch Avalonia GUI
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         }

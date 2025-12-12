@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using RPGGame.UI.ColorSystem;
 
@@ -12,6 +12,7 @@ namespace RPGGame
     {
         private BattleNarrative? currentBattleNarrative;
         private TurnManager turnManager;
+        private FunMomentTracker? funMomentTracker;
 
         public CombatStateManager()
         {
@@ -24,6 +25,12 @@ namespace RPGGame
         public void StartBattleNarrative(string playerName, string enemyName, string locationName, int playerHealth, int enemyHealth)
         {
             currentBattleNarrative = new BattleNarrative(playerName, enemyName, locationName, playerHealth, enemyHealth);
+            
+            // Initialize fun moment tracker
+            funMomentTracker = new FunMomentTracker();
+            funMomentTracker.InitializeCombat(playerName, enemyName, playerHealth, enemyHealth);
+            currentBattleNarrative.SetFunMomentTracker(funMomentTracker);
+            
             UIManager.ResetForNewBattle(); // Reset Actor tracking for new battle
             TextDisplayIntegration.ResetForNewBattle(); // Reset new text display system
             turnManager.InitializeBattle();
@@ -64,6 +71,12 @@ namespace RPGGame
         {
             if (currentBattleNarrative != null)
             {
+                // Finalize fun moment tracking
+                if (funMomentTracker != null)
+                {
+                    funMomentTracker.FinalizeCombat(player.IsAlive, player.CurrentHealth, player.GetEffectiveMaxHealth());
+                }
+                
                 // Update final health values from actual entities
                 currentBattleNarrative.UpdateFinalHealth(player.CurrentHealth, enemy.CurrentHealth);
                 
@@ -181,7 +194,15 @@ namespace RPGGame
         /// </summary>
         public bool RecordAction(string entityName, string actionName)
         {
-            return turnManager.RecordAction(entityName, actionName);
+            bool newTurn = turnManager.RecordAction(entityName, actionName);
+            
+            // Notify fun moment tracker when a new turn starts
+            if (newTurn && funMomentTracker != null)
+            {
+                funMomentTracker.EndTurn();
+            }
+            
+            return newTurn;
         }
 
         /// <summary>
@@ -207,6 +228,22 @@ namespace RPGGame
         public int GetTotalActionCount()
         {
             return turnManager.GetTotalActionCount();
+        }
+
+        /// <summary>
+        /// Gets the current turn number (turns increment every 10 actions)
+        /// </summary>
+        public int GetCurrentTurn()
+        {
+            return turnManager.GetCurrentTurn();
+        }
+
+        /// <summary>
+        /// Gets the fun moment tracker for this combat
+        /// </summary>
+        public FunMomentTracker? GetFunMomentTracker()
+        {
+            return funMomentTracker;
         }
     }
 }

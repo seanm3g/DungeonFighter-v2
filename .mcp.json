@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "dungeonfighter": {
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "Code/Code.csproj",
+        "--",
+        "MCP"
+      ]
+    }
+  }
+}

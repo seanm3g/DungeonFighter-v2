@@ -58,6 +58,7 @@ namespace RPGGame
         private readonly NarrativeTextProvider textProvider;
         private readonly TauntSystem tauntSystem;
         private readonly BattleEventAnalyzer eventAnalyzer;
+        private FunMomentTracker? funMomentTracker;
 
         // Narrative tracking - use thread-safe collections for parallel testing
         private readonly ConcurrentBag<string> narrativeEvents;
@@ -108,6 +109,12 @@ namespace RPGGame
 
             // Update analyzer with latest health values
             eventAnalyzer.UpdateFinalHealth(finalPlayerHealth, finalEnemyHealth);
+
+            // Notify fun moment tracker
+            if (funMomentTracker != null)
+            {
+                funMomentTracker.RecordEvent(evt, finalPlayerHealth, finalEnemyHealth);
+            }
 
             // Check for significant events that trigger narrative
             AnalyzeEventForNarratives(evt);
@@ -361,6 +368,22 @@ namespace RPGGame
         public List<BattleEvent> GetAllEvents()
         {
             return events.ToList();
+        }
+
+        /// <summary>
+        /// Sets the fun moment tracker for this battle
+        /// </summary>
+        public void SetFunMomentTracker(FunMomentTracker tracker)
+        {
+            funMomentTracker = tracker;
+        }
+
+        /// <summary>
+        /// Gets the fun moment tracker for this battle
+        /// </summary>
+        public FunMomentTracker? GetFunMomentTracker()
+        {
+            return funMomentTracker;
         }
     }
 } 

@@ -72,6 +72,7 @@ namespace RPGGame.Data
     /// </summary>
     public static class ColorPaletteLoader
     {
+        private static readonly object _loadLock = new object();
         private static ColorPaletteConfig? _cachedConfig;
         private static Dictionary<ColorPalette, Color>? _colorCache;
         private static bool _isLoaded = false;
@@ -86,44 +87,53 @@ namespace RPGGame.Data
             {
                 return _cachedConfig;
             }
-            
-            // Try to load from unified configuration first
-            var unifiedConfig = ColorConfigurationLoader.LoadColorConfiguration();
-            if (unifiedConfig.ColorPalette?.PaletteColors != null && unifiedConfig.ColorPalette.PaletteColors.Count > 0)
+
+            lock (_loadLock)
             {
-                // Convert unified config to ColorPaletteConfig format
-                _cachedConfig = new ColorPaletteConfig
+                // Double-check after acquiring lock
+                if (_isLoaded && _cachedConfig != null)
                 {
-                    PaletteColors = unifiedConfig.ColorPalette.PaletteColors.Select(p => new ColorPaletteData
+                    return _cachedConfig;
+                }
+
+                // Try to load from unified configuration first
+                var unifiedConfig = ColorConfigurationLoader.LoadColorConfiguration();
+                if (unifiedConfig.ColorPalette?.PaletteColors != null && unifiedConfig.ColorPalette.PaletteColors.Count > 0)
+                {
+                    // Convert unified config to ColorPaletteConfig format
+                    _cachedConfig = new ColorPaletteConfig
                     {
-                        Name = p.Name,
-                        Rgb = p.Rgb,
-                        Hex = p.Hex,
-                        Category = p.Category,
-                        ColorCode = p.ColorCode,
-                        Reference = p.Reference
-                    }).ToList()
-                };
+                        PaletteColors = unifiedConfig.ColorPalette.PaletteColors.Select(p => new ColorPaletteData
+                        {
+                            Name = p.Name,
+                            Rgb = p.Rgb,
+                            Hex = p.Hex,
+                            Category = p.Category,
+                            ColorCode = p.ColorCode,
+                            Reference = p.Reference
+                        }).ToList()
+                    };
+                    BuildColorCache();
+                    _isLoaded = true;
+                    return _cachedConfig;
+                }
+
+                // Fallback to individual JSON file
+                var filePath = JsonLoader.FindGameDataFile("ColorPalette.json");
+                if (filePath == null)
+                {
+                    ErrorHandler.LogWarning("ColorPalette.json not found. Using fallback color palette.", "ColorPaletteLoader");
+                    _cachedConfig = CreateFallbackConfig();
+                    BuildColorCache();
+                    _isLoaded = true;
+                    return _cachedConfig;
+                }
+
+                _cachedConfig = JsonLoader.LoadJson<ColorPaletteConfig>(filePath, true, CreateFallbackConfig());
                 BuildColorCache();
                 _isLoaded = true;
                 return _cachedConfig;
             }
-            
-            // Fallback to individual JSON file
-            var filePath = JsonLoader.FindGameDataFile("ColorPalette.json");
-            if (filePath == null)
-            {
-                ErrorHandler.LogWarning("ColorPalette.json not found. Using fallback color palette.", "ColorPaletteLoader");
-                _cachedConfig = CreateFallbackConfig();
-                BuildColorCache();
-                _isLoaded = true;
-                return _cachedConfig;
-            }
-            
-            _cachedConfig = JsonLoader.LoadJson<ColorPaletteConfig>(filePath, true, CreateFallbackConfig());
-            BuildColorCache();
-            _isLoaded = true;
-            return _cachedConfig;
         }
         
         /// <summary>
@@ -307,19 +317,12 @@ namespace RPGGame.Data
         /// </summary>
         public static Color GetColor(ColorPalette palette)
         {
-            // Try unified configuration first
-            var unifiedColor = ColorConfigurationLoader.GetPaletteColor(palette);
-            if (unifiedColor != Colors.White)
-            {
-                return unifiedColor;
-            }
-            
-            // Fallback to individual file loading
-            LoadColorPalette(); // Ensure palette is loaded
-            
+            // Ensure palette is loaded
+            LoadColorPalette();
+
             if (_colorCache == null)
                 return Colors.White;
-            
+
             return _colorCache.TryGetValue(palette, out var color) ? color : Colors.White;
         }
         
