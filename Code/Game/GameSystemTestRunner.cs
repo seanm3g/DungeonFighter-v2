@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Linq;
+using System.IO;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.Tests;
+using RPGGame.Tests.Unit;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.ColorSystem.Applications;
@@ -1947,12 +1949,72 @@ namespace RPGGame
         {
             try
             {
-                // Test color system
-                return Task.FromResult(new TestResult("Color System", true, "Color system accessible"));
+                uiCoordinator.WriteLine("=== Color Configuration Loader Tests ===", UIMessageType.System);
+                uiCoordinator.WriteBlankLine();
+                
+                // Capture console output and redirect to UI coordinator
+                var originalOut = Console.Out;
+                var stringWriter = new System.IO.StringWriter();
+                Console.SetOut(stringWriter);
+                
+                int testsRun = 0;
+                int testsPassed = 0;
+                int testsFailed = 0;
+                
+                try
+                {
+                    // Run the color configuration loader tests
+                    ColorConfigurationLoaderTest.RunAllTests();
+                    
+                    // Parse the output to get test results
+                    var output = stringWriter.ToString();
+                    var lines = output.Split('\n');
+                    
+                    foreach (var line in lines)
+                    {
+                        if (line.Contains("✓"))
+                        {
+                            testsPassed++;
+                            testsRun++;
+                            uiCoordinator.WriteLine($"  {line.Trim()}", UIMessageType.System);
+                        }
+                        else if (line.Contains("✗") || line.Contains("FAILED"))
+                        {
+                            testsFailed++;
+                            testsRun++;
+                            uiCoordinator.WriteLine($"  {line.Trim()}", UIMessageType.System);
+                        }
+                        else if (line.Contains("===") || line.Contains("---"))
+                        {
+                            uiCoordinator.WriteLine(line.Trim(), UIMessageType.System);
+                        }
+                        else if (!string.IsNullOrWhiteSpace(line) && 
+                                 (line.Contains("Total Tests:") || line.Contains("Passed:") || 
+                                  line.Contains("Failed:") || line.Contains("Success Rate:") ||
+                                  line.Contains("All tests passed") || line.Contains("test(s) failed")))
+                        {
+                            uiCoordinator.WriteLine(line.Trim(), UIMessageType.System);
+                        }
+                    }
+                }
+                finally
+                {
+                    Console.SetOut(originalOut);
+                }
+                
+                uiCoordinator.WriteBlankLine();
+                
+                bool success = testsFailed == 0 && testsRun > 0;
+                string message = testsRun > 0 
+                    ? $"{testsPassed} passed, {testsFailed} failed out of {testsRun} tests"
+                    : "No tests executed";
+                
+                return Task.FromResult(new TestResult("Color Configuration Loader", success, message));
             }
             catch (Exception ex)
             {
-                return Task.FromResult(new TestResult("Color System", false, $"Exception: {ex.Message}"));
+                uiCoordinator.WriteLine($"✗ Error running color configuration tests: {ex.Message}", UIMessageType.System);
+                return Task.FromResult(new TestResult("Color Configuration Loader", false, $"Exception: {ex.Message}"));
             }
         }
 

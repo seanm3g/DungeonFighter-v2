@@ -4,9 +4,38 @@
 
 DungeonFighter-v2 uses a comprehensive, data-driven color system inspired by Caves of Qud. All color presets and keyword mappings are stored in JSON configuration files in this directory, making them easy to modify without touching any code.
 
+**NEW: Unified Configuration** - As of version 2.0, all color configurations have been consolidated into a single `ColorConfiguration.json` file. Individual JSON files (ColorCodes.json, ColorPalette.json, ColorTemplates.json, KeywordColorGroups.json) are still supported for backward compatibility, but the unified file is preferred.
+
 ## Configuration Files
 
-### 1. ColorTemplates.json
+### ColorConfiguration.json (Unified - Recommended)
+
+The unified configuration file contains all color settings in one place:
+- `colorCodes` - Single-letter color code definitions
+- `colorPalette` - ColorPalette enum mappings
+- `colorTemplates` - Color template definitions
+- `keywordGroups` - Keyword coloring groups
+- `dungeonThemes` - Dungeon theme colors (moved from hard-coded C#)
+- `colorPatterns` - Color pattern mappings (moved from hard-coded C#)
+- `entityDefaults` - Default entity colors
+
+**Benefits:**
+- Single file to edit for all color settings
+- No code changes needed to modify colors
+- Per-entity color overrides supported
+- All dungeon theme colors editable via JSON
+
+### Individual Files (Legacy - Still Supported)
+
+For backward compatibility, individual JSON files are still supported:
+- `ColorCodes.json` - Single-letter color codes
+- `ColorPalette.json` - ColorPalette enum mappings
+- `ColorTemplates.json` - Color templates
+- `KeywordColorGroups.json` - Keyword coloring groups
+
+**Note:** If `ColorConfiguration.json` exists, it takes precedence. Individual files are used as fallback.
+
+### 1. ColorTemplates.json (or colorTemplates in ColorConfiguration.json)
 
 Defines color templates (presets) that can be applied to text.
 
@@ -175,12 +204,53 @@ Use single-letter codes for inline coloring:
 string text = "&RRed text&y normal text &GGreen text&y";
 ```
 
+## Entity Color Overrides
+
+### Per-Enemy Color Overrides
+
+You can now specify custom colors for individual enemies in `Enemies.json`:
+
+```json
+{
+  "name": "Fire Goblin",
+  "colorOverride": {
+    "type": "template",
+    "value": "fiery"
+  }
+}
+```
+
+**Override Types:**
+- `"template"` - Use a color template name (e.g., "fiery", "icy", "legendary")
+- `"palette"` - Use a ColorPalette enum name (e.g., "Red", "Enemy", "Boss")
+- `"colorCode"` - Use a single-letter color code (e.g., "R", "G", "B")
+- `"rgb"` - Use direct RGB values: `{"type": "rgb", "rgb": [255, 0, 0]}`
+
+### Per-Dungeon Color Overrides
+
+You can specify custom colors for individual dungeons in `Dungeons.json`:
+
+```json
+{
+  "name": "Ancient Forest",
+  "theme": "Forest",
+  "colorOverride": {
+    "type": "template",
+    "value": "forest"
+  }
+}
+```
+
+**Note:** If a dungeon has a color override, it takes precedence over the theme color.
+
 ## Configuration Loading
 
-The system automatically loads these configuration files on startup:
+The system automatically loads configuration files on startup:
 
-1. **ColorTemplates.json** → `ColorTemplateLibrary`
-2. **KeywordColorGroups.json** → `KeywordColorSystem`
+1. **ColorConfiguration.json** (unified) → `ColorConfigurationLoader`
+   - Falls back to individual JSON files if unified config not found
+2. **Individual JSON files** (legacy) → Individual loaders
+   - Used as fallback if unified config missing
 
 If loading fails, the system falls back to hardcoded defaults.
 
@@ -189,15 +259,15 @@ If loading fails, the system falls back to hardcoded defaults.
 To reload configuration at runtime (useful for testing):
 
 ```csharp
-// Reload color templates (also clears KeywordColorSystem cache)
-ColorTemplateLibrary.Reload();
+// Reload unified configuration
+ColorConfigurationLoader.Reload();
 
-// Reload keyword groups
+// Or reload individual loaders
+ColorPaletteLoader.Reload();
+ColorCodeLoader.Reload();
+ColorTemplateLoader.Reload();
 KeywordColorLoader.Reload();
 KeywordColorLoader.LoadAndRegisterKeywordGroups();
-
-// Or clear keyword cache manually if templates changed
-KeywordColorSystem.ClearColorPatternCache();
 ```
 
 ## Best Practices
@@ -297,19 +367,34 @@ Simply add to the `enemy` group in `KeywordColorGroups.json`:
 ## Technical Details
 
 ### File Locations
-- Config files: `GameData/ColorTemplates.json` and `GameData/KeywordColorGroups.json`
-- Loader code: `Code/Data/ColorTemplateLoader.cs` and `Code/Data/KeywordColorLoader.cs`
-- Color systems: `Code/UI/ColorTemplate.cs`, `Code/UI/KeywordColorSystem.cs`, `Code/UI/ColorDefinitions.cs`
+- **Unified config:** `GameData/ColorConfiguration.json` (recommended)
+- **Individual configs:** `GameData/ColorCodes.json`, `GameData/ColorPalette.json`, `GameData/ColorTemplates.json`, `GameData/KeywordColorGroups.json` (legacy)
+- **Loader code:** `Code/Data/ColorConfigurationLoader.cs` (unified), individual loaders in `Code/Data/`
+- **Color systems:** `Code/UI/ColorSystem/` - Various color system classes
+- **Entity helpers:** `Code/UI/ColorSystem/Core/EntityColorHelper.cs` - Entity color override support
 
 ### Architecture
 ```
-GameData JSON Files
+GameData/ColorConfiguration.json (unified)
     ↓
-Loader Classes (ColorTemplateLoader, KeywordColorLoader)
+ColorConfigurationLoader
     ↓
-Color Systems (ColorTemplateLibrary, KeywordColorSystem)
+Individual Loaders (with fallback to individual JSON files)
+    ↓
+Color Systems (ColorTemplateLibrary, KeywordColorSystem, etc.)
     ↓
 Game Text Rendering
+```
+
+**Entity Color Override Flow:**
+```
+Enemies.json / Dungeons.json
+    ↓
+EntityColorHelper.GetEnemyColor() / GetDungeonColor()
+    ↓
+Checks ColorOverride → Resolves to Color
+    ↓
+Falls back to defaults if no override
 ```
 
 ### Fallback Behavior

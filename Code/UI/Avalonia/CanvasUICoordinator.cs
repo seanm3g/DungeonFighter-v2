@@ -1,5 +1,6 @@
 using Avalonia.Media;
 using RPGGame;
+using RPGGame.Editors;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers;
@@ -33,6 +34,8 @@ namespace RPGGame.UI.Avalonia
         private readonly BatchOperationCoordinator batchOperationCoordinator;
         
         private System.Action? closeAction = null;
+        private MainWindow? mainWindow = null;
+        private Game? game = null;
 
         public CanvasUICoordinator(GameCanvasControl canvas)
         {
@@ -63,6 +66,22 @@ namespace RPGGame.UI.Avalonia
                     screenRenderingCoordinator.RenderDungeonSelection(player, dungeons);
             };
             animationManager.SetupAnimationManager(dungeonRenderer, reRenderCallback, null); // State manager will be set later via SetStateManager
+        }
+        
+        /// <summary>
+        /// Sets the main window reference for accessing UI controls
+        /// </summary>
+        public void SetMainWindow(MainWindow window)
+        {
+            this.mainWindow = window;
+        }
+        
+        /// <summary>
+        /// Sets the game instance reference for accessing handlers
+        /// </summary>
+        public void SetGame(Game gameInstance)
+        {
+            this.game = gameInstance;
         }
         
         /// <summary>
@@ -178,7 +197,42 @@ namespace RPGGame.UI.Avalonia
             // Update progress display - for now just log it
             ScrollDebugLogger.Log($"Battle Statistics: {completed}/{total} - {status}");
         }
-        public void RenderVariableEditor() => screenRenderingCoordinator.RenderVariableEditor();
+        public void RenderVariableEditor(EditableVariable? selectedVariable = null, bool isEditing = false, string? currentInput = null, string? message = null) => screenRenderingCoordinator.RenderVariableEditor(selectedVariable, isEditing, currentInput, message);
+        public void RenderTuningParametersMenu(string? selectedCategory = null, EditableVariable? selectedVariable = null, bool isEditing = false, string? currentInput = null, string? message = null)
+        {
+            // Show the interactive tuning panel instead of rendering on canvas
+            ScrollDebugLogger.Log($"CanvasUICoordinator.RenderTuningParametersMenu: mainWindow={mainWindow != null}, game={game != null}");
+            
+            if (mainWindow != null && game != null)
+            {
+                // Get the variable editor from the handler
+                var tuningHandler = game.GetTuningParametersHandler();
+                ScrollDebugLogger.Log($"CanvasUICoordinator.RenderTuningParametersMenu: tuningHandler={tuningHandler != null}");
+                
+                if (tuningHandler != null)
+                {
+                    var variableEditor = tuningHandler.GetVariableEditor();
+                    ScrollDebugLogger.Log($"CanvasUICoordinator.RenderTuningParametersMenu: variableEditor={variableEditor != null}, calling ShowTuningMenuPanel");
+                    if (variableEditor != null)
+                    {
+                        mainWindow.ShowTuningMenuPanel(variableEditor);
+                        return;
+                    }
+                }
+            }
+            
+            ScrollDebugLogger.Log("CanvasUICoordinator.RenderTuningParametersMenu: Falling back to canvas rendering");
+            // Fallback to canvas rendering if interactive panel not available
+            screenRenderingCoordinator.RenderTuningParametersMenu(selectedCategory, selectedVariable, isEditing, currentInput, message);
+        }
+        
+        public void HideTuningParametersMenu()
+        {
+            if (mainWindow != null)
+            {
+                mainWindow.HideTuningMenuPanel();
+            }
+        }
         public void RenderActionEditor() => screenRenderingCoordinator.RenderActionEditor();
         public void RenderActionList(List<ActionData> actions, int page) => screenRenderingCoordinator.RenderActionList(actions, page);
         public void RenderCreateActionForm(ActionData actionData, int currentStep, string[] formSteps, string? currentInput = null) => screenRenderingCoordinator.RenderCreateActionForm(actionData, currentStep, formSteps, currentInput);

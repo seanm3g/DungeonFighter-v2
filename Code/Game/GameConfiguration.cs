@@ -57,6 +57,7 @@ namespace RPGGame
         public DebugConfig Debug { get; set; } = new();
         public BalanceAnalysisConfig BalanceAnalysis { get; set; } = new();
         public BalanceValidationConfig BalanceValidation { get; set; } = new();
+        public BalanceTuningGoalsConfig BalanceTuningGoals { get; set; } = new();
         public DifficultySettingsConfig DifficultySettings { get; set; } = new();
         public ProgressionCurvesConfig? ProgressionCurves { get; set; } = new();
 
@@ -200,6 +201,68 @@ namespace RPGGame
         public void Reload()
         {
             LoadFromFile();
+        }
+
+        /// <summary>
+        /// Save current configuration to TuningConfig.json
+        /// </summary>
+        public bool SaveToFile()
+        {
+            try
+            {
+                string executableDir = AppDomain.CurrentDomain.BaseDirectory;
+                string currentDir = Directory.GetCurrentDirectory();
+                
+                string[] possiblePaths = {
+                    Path.Combine(executableDir, "GameData", "TuningConfig.json"),
+                    Path.Combine(executableDir, "..", "GameData", "TuningConfig.json"),
+                    Path.Combine(executableDir, "..", "..", "GameData", "TuningConfig.json"),
+                    Path.Combine(currentDir, "GameData", "TuningConfig.json"),
+                    Path.Combine(currentDir, "..", "GameData", "TuningConfig.json"),
+                    Path.Combine(currentDir, "..", "..", "GameData", "TuningConfig.json"),
+                    Path.Combine("GameData", "TuningConfig.json"),
+                    Path.Combine("..", "GameData", "TuningConfig.json"),
+                    Path.Combine("..", "..", "GameData", "TuningConfig.json")
+                };
+                
+                string? configPath = null;
+                foreach (string path in possiblePaths)
+                {
+                    if (File.Exists(path))
+                    {
+                        configPath = path;
+                        break;
+                    }
+                }
+                
+                // If no existing file found, use default location
+                if (configPath == null)
+                {
+                    configPath = Path.Combine("GameData", "TuningConfig.json");
+                    // Ensure directory exists
+                    string? dir = Path.GetDirectoryName(configPath);
+                    if (dir != null && !Directory.Exists(dir))
+                    {
+                        Directory.CreateDirectory(dir);
+                    }
+                }
+                
+                var options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+                
+                string json = JsonSerializer.Serialize(this, options);
+                File.WriteAllText(configPath, json);
+                
+                return true;
+            }
+            catch (Exception ex)
+            {
+                UIManager.WriteSystemLine($"Error saving tuning config: {ex.Message}");
+                return false;
+            }
         }
     }
 }

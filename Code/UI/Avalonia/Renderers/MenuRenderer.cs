@@ -1,5 +1,6 @@
 using Avalonia.Media;
 using RPGGame;
+using RPGGame.Editors;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers.Menu;
@@ -32,6 +33,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         private readonly DeveloperMenuRenderer developerMenuRenderer;
         private readonly BattleStatisticsRenderer battleStatisticsRenderer;
         private readonly VariableEditorRenderer variableEditorRenderer;
+        private readonly TuningParametersRenderer tuningParametersRenderer;
         private readonly ActionEditorRenderer actionEditorRenderer;
         private readonly CreateActionFormRenderer createActionFormRenderer;
         private readonly ActionDetailRenderer actionDetailRenderer;
@@ -53,6 +55,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             this.developerMenuRenderer = new DeveloperMenuRenderer(canvas, clickableElements, textManager);
             this.battleStatisticsRenderer = new BattleStatisticsRenderer(canvas, clickableElements, textManager);
             this.variableEditorRenderer = new VariableEditorRenderer(canvas, clickableElements, textManager);
+            this.tuningParametersRenderer = new TuningParametersRenderer(canvas, clickableElements, textManager);
             this.actionEditorRenderer = new ActionEditorRenderer(canvas, clickableElements, textManager);
             this.createActionFormRenderer = new CreateActionFormRenderer(canvas, clickableElements, textManager);
             this.actionDetailRenderer = new ActionDetailRenderer(canvas, clickableElements, textManager);
@@ -213,9 +216,17 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>
         /// Renders the variable editor content
         /// </summary>
-        public void RenderVariableEditorContent(int x, int y, int width, int height)
+        public void RenderVariableEditorContent(int x, int y, int width, int height, EditableVariable? selectedVariable = null, bool isEditing = false, string? currentInput = null, string? message = null)
         {
-            currentLineCount = variableEditorRenderer.RenderVariableEditorContent(x, y, width, height);
+            currentLineCount = variableEditorRenderer.RenderVariableEditorContent(x, y, width, height, selectedVariable, isEditing, currentInput, message);
+        }
+
+        /// <summary>
+        /// Renders the tuning parameters content
+        /// </summary>
+        public void RenderTuningParametersContent(int x, int y, int width, int height, string? selectedCategory = null, EditableVariable? selectedVariable = null, bool isEditing = false, string? currentInput = null, string? message = null)
+        {
+            currentLineCount = tuningParametersRenderer.RenderTuningParametersContent(x, y, width, height, selectedCategory, selectedVariable, isEditing, currentInput, message);
         }
 
         /// <summary>

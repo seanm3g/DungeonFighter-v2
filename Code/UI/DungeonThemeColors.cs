@@ -1,18 +1,19 @@
 using Avalonia.Media;
 using System.Collections.Generic;
 using RPGGame.UI.ColorSystem;
+using RPGGame.Data;
 
 namespace RPGGame.UI.Avalonia
 {
     /// <summary>
     /// Maps dungeon themes to their thematic color palettes for UI display
-    /// Uses custom theme-specific colors while delegating fallback to ColorPalette
+    /// Loads colors from ColorConfiguration.json with fallback to hard-coded values
     /// </summary>
     public static class DungeonThemeColors
     {
-        // Theme-specific colors (custom RGB values for thematic accuracy)
-        // These are kept separate from ColorPalette as they are theme-specific
-        private static readonly Dictionary<string, Color> themeColorMap = new()
+        // Fallback theme-specific colors (used if ColorConfiguration.json not found)
+        // These are kept as fallback for backward compatibility
+        private static readonly Dictionary<string, Color> fallbackThemeColorMap = new()
         {
             // Natural themes
             { "Forest", Color.FromRgb(0, 196, 32) },         // Green - vibrant forest
@@ -62,14 +63,23 @@ namespace RPGGame.UI.Avalonia
 
         /// <summary>
         /// Gets the theme color for a dungeon. Returns ColorPalette.White if theme not found.
+        /// Loads from ColorConfiguration.json, falls back to hard-coded values if not found.
         /// </summary>
         public static Color GetThemeColor(string theme)
         {
             if (string.IsNullOrEmpty(theme))
                 return ColorPalette.White.GetColor();
 
-            return themeColorMap.TryGetValue(theme, out Color color) 
-                ? color 
+            // Try to load from unified configuration
+            var color = ColorConfigurationLoader.GetDungeonThemeColor(theme);
+            if (color != ColorPalette.White.GetColor())
+            {
+                return color;
+            }
+
+            // Fallback to hard-coded values
+            return fallbackThemeColorMap.TryGetValue(theme, out Color fallbackColor) 
+                ? fallbackColor 
                 : ColorPalette.White.GetColor();
         }
 
@@ -101,16 +111,42 @@ namespace RPGGame.UI.Avalonia
 
         /// <summary>
         /// Gets a list of all available themes and their colors for reference
+        /// Loads from ColorConfiguration.json, falls back to hard-coded values
         /// </summary>
         public static Dictionary<string, Color> GetAllThemeColors()
         {
-            return new Dictionary<string, Color>(themeColorMap);
+            var result = new Dictionary<string, Color>();
+            
+            // Load from unified configuration
+            var config = ColorConfigurationLoader.LoadColorConfiguration();
+            if (config.DungeonThemes != null)
+            {
+                foreach (var theme in config.DungeonThemes)
+                {
+                    if (!string.IsNullOrEmpty(theme.Name) && theme.Rgb != null && theme.Rgb.Length == 3)
+                    {
+                        int r = System.Math.Clamp(theme.Rgb[0], 0, 255);
+                        int g = System.Math.Clamp(theme.Rgb[1], 0, 255);
+                        int b = System.Math.Clamp(theme.Rgb[2], 0, 255);
+                        result[theme.Name] = Color.FromRgb((byte)r, (byte)g, (byte)b);
+                    }
+                }
+            }
+            
+            // Add any missing themes from fallback
+            foreach (var kvp in fallbackThemeColorMap)
+            {
+                if (!result.ContainsKey(kvp.Key))
+                {
+                    result[kvp.Key] = kvp.Value;
+                }
+            }
+            
+            return result;
         }
 
-        /// <summary>
-        /// Maps dungeon themes to their closest color code character for text coloring
-        /// </summary>
-        private static readonly Dictionary<string, char> themeColorCodeMap = new()
+        // Fallback color code map (used if ColorConfiguration.json not found)
+        private static readonly Dictionary<string, char> fallbackThemeColorCodeMap = new()
         {
             // Natural themes
             { "Forest", 'G' },         // Green
@@ -160,13 +196,22 @@ namespace RPGGame.UI.Avalonia
 
         /// <summary>
         /// Gets the color code character for a dungeon theme. Returns 'Y' (white) if theme not found.
+        /// Loads from ColorConfiguration.json, falls back to hard-coded values if not found.
         /// </summary>
         public static char GetThemeColorCode(string theme)
         {
             if (string.IsNullOrEmpty(theme))
                 return 'Y';
 
-            return themeColorCodeMap.TryGetValue(theme, out char code) 
+            // Try to load from unified configuration
+            var themeData = ColorConfigurationLoader.GetDungeonTheme(theme);
+            if (themeData != null && !string.IsNullOrEmpty(themeData.ColorCode))
+            {
+                return themeData.ColorCode[0]; // Take first character
+            }
+
+            // Fallback to hard-coded values
+            return fallbackThemeColorCodeMap.TryGetValue(theme, out char code) 
                 ? code 
                 : 'Y';
         }

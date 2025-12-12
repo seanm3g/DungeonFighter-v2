@@ -54,6 +54,7 @@ namespace RPGGame.Data
         
         /// <summary>
         /// Loads color code configuration from GameData/ColorCodes.json
+        /// First tries unified ColorConfiguration.json, then falls back to individual file
         /// </summary>
         private static ColorCodeConfig LoadColorCodes()
         {
@@ -62,6 +63,27 @@ namespace RPGGame.Data
                 return _cachedConfig;
             }
             
+            // Try to load from unified configuration first
+            var unifiedConfig = ColorConfigurationLoader.LoadColorConfiguration();
+            if (unifiedConfig.ColorCodes != null && unifiedConfig.ColorCodes.Count > 0)
+            {
+                // Convert unified config to ColorCodeConfig format
+                _cachedConfig = new ColorCodeConfig
+                {
+                    ColorCodes = unifiedConfig.ColorCodes.Select(c => new ColorCodeData
+                    {
+                        Code = c.Code,
+                        Name = c.Name,
+                        Rgb = c.Rgb,
+                        Hex = c.Hex
+                    }).ToList()
+                };
+                BuildColorCache();
+                _isLoaded = true;
+                return _cachedConfig;
+            }
+            
+            // Fallback to individual JSON file
             var filePath = JsonLoader.FindGameDataFile("ColorCodes.json");
             if (filePath == null)
             {
@@ -137,12 +159,21 @@ namespace RPGGame.Data
         /// <summary>
         /// Gets a color for a color code (e.g., "R", "r", "G")
         /// Returns Colors.White if code not found
+        /// First tries unified ColorConfiguration.json, then falls back to individual file
         /// </summary>
         public static Color GetColor(string colorCode)
         {
             if (string.IsNullOrEmpty(colorCode))
                 return Colors.White;
             
+            // Try unified configuration first
+            var unifiedColor = ColorConfigurationLoader.GetColorCode(colorCode);
+            if (unifiedColor != Colors.White)
+            {
+                return unifiedColor;
+            }
+            
+            // Fallback to individual file loading
             LoadColorCodes(); // Ensure codes are loaded
             
             if (_colorCodeCache == null)

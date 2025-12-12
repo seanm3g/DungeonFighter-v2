@@ -78,6 +78,7 @@ namespace RPGGame.Data
         
         /// <summary>
         /// Loads color palette configuration from GameData/ColorPalette.json
+        /// First tries unified ColorConfiguration.json, then falls back to individual file
         /// </summary>
         private static ColorPaletteConfig LoadColorPalette()
         {
@@ -86,6 +87,29 @@ namespace RPGGame.Data
                 return _cachedConfig;
             }
             
+            // Try to load from unified configuration first
+            var unifiedConfig = ColorConfigurationLoader.LoadColorConfiguration();
+            if (unifiedConfig.ColorPalette?.PaletteColors != null && unifiedConfig.ColorPalette.PaletteColors.Count > 0)
+            {
+                // Convert unified config to ColorPaletteConfig format
+                _cachedConfig = new ColorPaletteConfig
+                {
+                    PaletteColors = unifiedConfig.ColorPalette.PaletteColors.Select(p => new ColorPaletteData
+                    {
+                        Name = p.Name,
+                        Rgb = p.Rgb,
+                        Hex = p.Hex,
+                        Category = p.Category,
+                        ColorCode = p.ColorCode,
+                        Reference = p.Reference
+                    }).ToList()
+                };
+                BuildColorCache();
+                _isLoaded = true;
+                return _cachedConfig;
+            }
+            
+            // Fallback to individual JSON file
             var filePath = JsonLoader.FindGameDataFile("ColorPalette.json");
             if (filePath == null)
             {
@@ -279,9 +303,18 @@ namespace RPGGame.Data
         /// <summary>
         /// Gets a color for a ColorPalette enum value
         /// Returns Colors.White if palette not found
+        /// First tries unified ColorConfiguration.json, then falls back to individual file
         /// </summary>
         public static Color GetColor(ColorPalette palette)
         {
+            // Try unified configuration first
+            var unifiedColor = ColorConfigurationLoader.GetPaletteColor(palette);
+            if (unifiedColor != Colors.White)
+            {
+                return unifiedColor;
+            }
+            
+            // Fallback to individual file loading
             LoadColorPalette(); // Ensure palette is loaded
             
             if (_colorCache == null)

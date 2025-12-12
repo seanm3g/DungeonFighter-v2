@@ -148,7 +148,8 @@ namespace RPGGame
                     scaledLevel, 
                     scaledLevel, 
                     dungeonData.theme,
-                    dungeonData.possibleEnemies
+                    dungeonData.possibleEnemies,
+                    dungeonData.colorOverride
                 ));
             }
         }

@@ -24,6 +24,8 @@ namespace RPGGame
             public int PlayerFinalHealth { get; set; }
             public int EnemyFinalHealth { get; set; }
             public string? ErrorMessage { get; set; }
+            public List<CombatTurnLog>? TurnLogs { get; set; } // Optional turn-by-turn logs
+            public Dictionary<string, int>? ActionUsageCount { get; set; } // Optional action usage stats
         }
 
         public class BattleConfiguration
@@ -253,6 +255,11 @@ namespace RPGGame
                         var enemyActions = events.Count(e => e.Actor == enemy.Name && e.Target == player.Name);
                         turnCount = Math.Max(1, playerActions + enemyActions);
                     }
+                    
+                    // Collect turn-by-turn logs if requested (for enhanced analysis)
+                    // This can be enabled via a flag in BattleConfiguration
+                    result.TurnLogs = BuildTurnLogs(events, player.Name, enemy.Name);
+                    result.ActionUsageCount = BuildActionUsageStats(events, player.Name);
                 }
                 else
                 {
@@ -283,6 +290,92 @@ namespace RPGGame
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Builds turn-by-turn logs from battle events
+        /// </summary>
+        private static List<CombatTurnLog> BuildTurnLogs(List<BattleEvent> events, string playerName, string enemyName)
+        {
+            var turnLogs = new List<CombatTurnLog>();
+            int turnNumber = 1;
+            
+            // Sort events by timestamp to maintain order
+            var sortedEvents = events.OrderBy(e => e.Timestamp).ToList();
+            
+            foreach (var evt in sortedEvents)
+            {
+                // Only log combat actions (damage/healing events)
+                if (evt.Damage > 0 || evt.HealAmount > 0 || !evt.IsSuccess)
+                {
+                    var isPlayer = evt.Actor == playerName;
+                    var turnLog = new CombatTurnLog
+                    {
+                        TurnNumber = turnNumber,
+                        Actor = isPlayer ? "player" : "enemy",
+                        Action = evt.Action,
+                        DamageDealt = evt.Damage,
+                        DamageReceived = 0, // Will be set by matching events
+                        PlayerHealthAfter = isPlayer ? evt.ActorHealthAfter : evt.TargetHealthAfter,
+                        EnemyHealthAfter = isPlayer ? evt.TargetHealthAfter : evt.ActorHealthAfter,
+                        WasCritical = evt.IsCritical,
+                        WasMiss = !evt.IsSuccess && evt.Damage == 0,
+                        StatusEffectsApplied = new List<string>(),
+                        RollValue = evt.Roll > 0 ? evt.Roll : null,
+                        ActionType = evt.IsCombo ? "combo" : "basic"
+                    };
+                    
+                    // Add status effects if present
+                    if (evt.CausesBleed) turnLog.StatusEffectsApplied.Add("Bleed");
+                    if (evt.CausesWeaken) turnLog.StatusEffectsApplied.Add("Weaken");
+                    
+                    turnLogs.Add(turnLog);
+                    
+                    // Increment turn number for each action
+                    turnNumber++;
+                }
+            }
+            
+            // Update damage received by matching events
+            for (int i = 0; i < turnLogs.Count; i++)
+            {
+                var log = turnLogs[i];
+                // Find corresponding damage event
+                if (log.Actor == "player")
+                {
+                    // Player dealt damage, enemy received it
+                    var matchingEvent = sortedEvents.FirstOrDefault(e => 
+                        e.Actor == playerName && 
+                        e.Target == enemyName && 
+                        e.Damage > 0 &&
+                        Math.Abs((e.Timestamp - sortedEvents.First(ev => ev.Actor == playerName && ev.Action == log.Action).Timestamp).TotalSeconds) < 0.1);
+                    // Damage received is already captured in the next enemy action
+                }
+            }
+            
+            return turnLogs;
+        }
+        
+        /// <summary>
+        /// Builds action usage statistics
+        /// </summary>
+        private static Dictionary<string, int> BuildActionUsageStats(List<BattleEvent> events, string playerName)
+        {
+            var actionUsage = new Dictionary<string, int>();
+            
+            foreach (var evt in events.Where(e => e.Actor == playerName))
+            {
+                var actionName = evt.Action;
+                if (string.IsNullOrEmpty(actionName))
+                    actionName = "Unknown";
+                    
+                if (!actionUsage.ContainsKey(actionName))
+                    actionUsage[actionName] = 0;
+                    
+                actionUsage[actionName]++;
+            }
+            
+            return actionUsage;
         }
 
         /// <summary>

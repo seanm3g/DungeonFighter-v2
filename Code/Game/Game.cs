@@ -36,6 +36,8 @@ namespace RPGGame
         private DeveloperMenuHandler? developerMenuHandler;
         private ActionEditorHandler? actionEditorHandler;
         private BattleStatisticsHandler? battleStatisticsHandler;
+        private TuningParametersHandler? tuningParametersHandler;
+        private VariableEditorHandler? variableEditorHandler;
         private InventoryMenuHandler? inventoryMenuHandler;
         private WeaponSelectionHandler? weaponSelectionHandler;
         private CharacterCreationHandler? characterCreationHandler;
@@ -143,6 +145,8 @@ namespace RPGGame
             developerMenuHandler = new DeveloperMenuHandler(stateManager, uiManager);
             actionEditorHandler = new ActionEditorHandler(stateManager, uiManager);
             battleStatisticsHandler = new BattleStatisticsHandler(stateManager, uiManager);
+            tuningParametersHandler = new TuningParametersHandler(stateManager, uiManager);
+            variableEditorHandler = new VariableEditorHandler(stateManager, uiManager);
             inventoryMenuHandler = handlerResult.InventoryMenuHandler;
             weaponSelectionHandler = handlerResult.WeaponSelectionHandler;
             characterCreationHandler = handlerResult.CharacterCreationHandler;
@@ -167,6 +171,19 @@ namespace RPGGame
                 developerMenuHandler.ShowVariableEditorEvent += () => ShowVariableEditor();
                 developerMenuHandler.ShowActionEditorEvent += () => ShowActionEditor();
                 developerMenuHandler.ShowBattleStatisticsEvent += () => battleStatisticsHandler?.ShowBattleStatisticsMenu();
+                developerMenuHandler.ShowTuningParametersEvent += () => ShowTuningParameters();
+            }
+            
+            // Wire up tuning parameters handler events
+            if (tuningParametersHandler != null)
+            {
+                tuningParametersHandler.ShowDeveloperMenuEvent += () => developerMenuHandler?.ShowDeveloperMenu();
+            }
+            
+            // Wire up variable editor handler events
+            if (variableEditorHandler != null)
+            {
+                variableEditorHandler.ShowDeveloperMenuEvent += () => developerMenuHandler?.ShowDeveloperMenu();
             }
             
             // Wire up battle statistics handler events
@@ -204,6 +221,8 @@ namespace RPGGame
                 DeveloperMenuHandler = developerMenuHandler,
                 ActionEditorHandler = actionEditorHandler,
                 BattleStatisticsHandler = battleStatisticsHandler,
+                TuningParametersHandler = tuningParametersHandler,
+                VariableEditorHandler = variableEditorHandler,
                 InventoryMenuHandler = inventoryMenuHandler,
                 WeaponSelectionHandler = weaponSelectionHandler,
                 CharacterCreationHandler = characterCreationHandler,
@@ -322,13 +341,23 @@ namespace RPGGame
 
         public void ShowVariableEditor()
         {
+            variableEditorHandler?.ShowVariableEditor();
+        }
+
+        public void ShowTuningParameters()
+        {
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
                 canvasUI.SuppressDisplayBufferRendering();
                 canvasUI.ClearDisplayBufferWithoutRender();
-                canvasUI.RenderVariableEditor();
-                stateManager.TransitionToState(GameState.VariableEditor);
+                canvasUI.RenderTuningParametersMenu();
+                stateManager.TransitionToState(GameState.TuningParameters);
             }
+        }
+        
+        public TuningParametersHandler? GetTuningParametersHandler()
+        {
+            return tuningParametersHandler;
         }
 
         public void ShowActionEditor()

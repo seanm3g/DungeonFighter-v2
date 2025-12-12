@@ -13,6 +13,7 @@ namespace RPGGame
         DeveloperMenu,
         BattleStatistics,
         VariableEditor,
+        TuningParameters,
         ActionEditor,
         CreateAction,
         ViewAction,

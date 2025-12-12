@@ -258,6 +258,22 @@ Once set up, you can interact with the game like this:
 
 **Claude**: [Uses `handle_input` tool with combat action, shows results]
 
+## Balance Simulation and Adjustment Tools
+
+The MCP server also includes tools for running battle simulations, analyzing results, and adjusting game balance. These tools allow Claude Code to automatically test and tune game balance.
+
+**Available Tools:**
+- `run_battle_simulation` - Run comprehensive weapon vs enemy tests
+- `analyze_battle_results` - Analyze simulation results
+- `validate_balance` - Validate balance against target metrics
+- `adjust_global_enemy_multiplier` - Adjust enemy multipliers
+- `adjust_archetype` - Adjust archetype stats
+- `adjust_weapon_scaling` - Adjust weapon scaling
+- `apply_preset` - Apply quick presets
+- `save_patch` / `load_patch` - Manage balance patches
+
+**See:** `MCP_BALANCE_SIMULATION_TOOLS.md` for detailed documentation on balance simulation and adjustment tools.
+
 ## Next Steps
 
 After setup:
@@ -266,6 +282,7 @@ After setup:
 3. Play through a full combat encounter
 4. Experiment with inventory management
 5. Explore dungeon navigation
+6. Try balance simulation tools (see MCP_BALANCE_SIMULATION_TOOLS.md)
 
 Enjoy playing DungeonFighter with AI assistance!
 

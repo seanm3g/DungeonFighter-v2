@@ -153,8 +153,11 @@ namespace RPGGame
                 // Render the room entry screen
                 canvasUI.RenderRoomEntry(room, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
                 
-                // Delay to show dungeon and room information
-                await Task.Delay(3500);
+                // Delay to show dungeon and room information (skip in MCP mode)
+                if (!RPGGame.MCP.MCPMode.IsActive)
+                {
+                    await Task.Delay(3500);
+                }
             }
             
             // Clear temporary effects
@@ -175,7 +178,10 @@ namespace RPGGame
                     displayManager.AddCombatEvent("It appears you are safe... for now.");
                     // Re-render room entry to show the safe message
                     canvasUISafe.RenderRoomEntry(room, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
-                    await Task.Delay(2000);
+                    if (!RPGGame.MCP.MCPMode.IsActive)
+                    {
+                        await Task.Delay(2000);
+                    }
                 }
                 return true; // Player survived the room (no enemies to fight)
             }
@@ -305,7 +311,10 @@ namespace RPGGame
             
             // Wait for any reactive renders triggered by AddCombatEvent to complete before final render
             // This prevents text from overlapping when multiple renders happen in quick succession
-            await Task.Delay(250);
+            if (!RPGGame.MCP.MCPMode.IsActive)
+            {
+                await Task.Delay(250);
+            }
             
             // Final refresh to show complete combat log including victory message (use Post to avoid blocking)
             // This single render will replace any previous renders and show the complete state
@@ -316,11 +325,17 @@ namespace RPGGame
                     canvasUI4.RenderCombat(player, enemy, displayManager.CompleteDisplayLog);
                 });
                 // Small delay to ensure the final render completes before continuing
-                await Task.Delay(100);
+                if (!RPGGame.MCP.MCPMode.IsActive)
+                {
+                    await Task.Delay(100);
+                }
             }
             
             // Small delay before next
-            await Task.Delay(1000);
+            if (!RPGGame.MCP.MCPMode.IsActive)
+            {
+                await Task.Delay(1000);
+            }
             return true; // Player survived this encounter
         }
 
@@ -346,7 +361,10 @@ namespace RPGGame
             lastLevelUpInfos = levelUpInfos ?? new List<LevelUpInfo>();
             
             // Add a delay to let rewards display if in console
-            await Task.Delay(1500);
+            if (!RPGGame.MCP.MCPMode.IsActive)
+            {
+                await Task.Delay(1500);
+            }
             
             // Transition to completion state
             stateManager.TransitionToState(GameState.DungeonCompletion);

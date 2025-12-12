@@ -51,6 +51,7 @@ namespace RPGGame.Data
         
         /// <summary>
         /// Loads keyword color configuration from GameData/KeywordColorGroups.json
+        /// First tries unified ColorConfiguration.json, then falls back to individual file
         /// </summary>
         public static KeywordColorConfig LoadKeywordColors()
         {
@@ -59,6 +60,26 @@ namespace RPGGame.Data
                 return _cachedConfig;
             }
             
+            // Try to load from unified configuration first
+            var unifiedGroups = ColorConfigurationLoader.GetKeywordGroups();
+            if (unifiedGroups != null && unifiedGroups.Count > 0)
+            {
+                // Convert unified config to KeywordColorConfig format
+                _cachedConfig = new KeywordColorConfig
+                {
+                    Groups = unifiedGroups.Select(g => new KeywordGroupData
+                    {
+                        Name = g.Name,
+                        ColorPattern = g.ColorPattern,
+                        CaseSensitive = g.CaseSensitive,
+                        Keywords = g.Keywords
+                    }).ToList()
+                };
+                _isLoaded = true;
+                return _cachedConfig;
+            }
+            
+            // Fallback to individual JSON file
             var filePath = JsonLoader.FindGameDataFile("KeywordColorGroups.json");
             if (filePath == null)
             {

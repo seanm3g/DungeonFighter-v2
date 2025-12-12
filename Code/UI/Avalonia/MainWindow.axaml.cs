@@ -56,6 +56,8 @@ namespace RPGGame.UI.Avalonia
                     {
                         Dispatcher.UIThread.Post(() => this.Close());
                     });
+                    // Set the main window reference so the coordinator can show/hide panels
+                    canvasUI.SetMainWindow(this);
                 }
                 
                 // Set the UI manager for the static UIManager class
@@ -415,6 +417,35 @@ namespace RPGGame.UI.Avalonia
                 });
                 UpdateStatus(errorMsg);
             }
+        }
+
+        /// <summary>
+        /// Shows the tuning menu panel with the specified variable editor
+        /// </summary>
+        public void ShowTuningMenuPanel(RPGGame.Editors.VariableEditor variableEditor)
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (TuningMenuPanel != null && TuningPanelOverlay != null)
+                {
+                    TuningMenuPanel.Initialize(variableEditor);
+                    TuningPanelOverlay.IsVisible = true;
+                }
+            });
+        }
+
+        /// <summary>
+        /// Hides the tuning menu panel
+        /// </summary>
+        public void HideTuningMenuPanel()
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (TuningPanelOverlay != null)
+                {
+                    TuningPanelOverlay.IsVisible = false;
+                }
+            });
         }
 
     }

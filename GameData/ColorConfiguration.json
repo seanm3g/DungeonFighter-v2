@@ -1,0 +1,2224 @@
+{
+  "$schema": "ColorConfiguration Schema",
+  "description": "Unified color configuration for DungeonFighter-v2 - consolidates all color settings into a single file",
+  "version": "2.0",
+  
+  "colorCodes": [
+    {
+      "code": "r",
+      "name": "dark red / crimson",
+      "rgb": [166, 74, 46],
+      "hex": "#a64a2e"
+    },
+    {
+      "code": "R",
+      "name": "red / scarlet",
+      "rgb": [215, 66, 0],
+      "hex": "#d74200"
+    },
+    {
+      "code": "o",
+      "name": "dark orange",
+      "rgb": [241, 95, 34],
+      "hex": "#f15f22"
+    },
+    {
+      "code": "O",
+      "name": "orange",
+      "rgb": [233, 159, 16],
+      "hex": "#e99f10"
+    },
+    {
+      "code": "w",
+      "name": "brown",
+      "rgb": [152, 135, 95],
+      "hex": "#98875f"
+    },
+    {
+      "code": "W",
+      "name": "gold / yellow",
+      "rgb": [207, 192, 65],
+      "hex": "#cfc041"
+    },
+    {
+      "code": "g",
+      "name": "dark green",
+      "rgb": [0, 148, 3],
+      "hex": "#009403"
+    },
+    {
+      "code": "G",
+      "name": "green",
+      "rgb": [0, 196, 32],
+      "hex": "#00c420"
+    },
+    {
+      "code": "b",
+      "name": "dark blue",
+      "rgb": [0, 72, 189],
+      "hex": "#0048bd"
+    },
+    {
+      "code": "B",
+      "name": "blue / azure",
+      "rgb": [0, 150, 255],
+      "hex": "#0096ff"
+    },
+    {
+      "code": "c",
+      "name": "dark cyan / teal",
+      "rgb": [64, 164, 185],
+      "hex": "#40a4b9"
+    },
+    {
+      "code": "C",
+      "name": "cyan",
+      "rgb": [119, 191, 207],
+      "hex": "#77bfcf"
+    },
+    {
+      "code": "m",
+      "name": "dark magenta / purple",
+      "rgb": [177, 84, 207],
+      "hex": "#b154cf"
+    },
+    {
+      "code": "M",
+      "name": "magenta",
+      "rgb": [218, 91, 214],
+      "hex": "#da5bd6"
+    },
+    {
+      "code": "k",
+      "name": "very dark",
+      "rgb": [15, 59, 58],
+      "hex": "#0f3b3a"
+    },
+    {
+      "code": "K",
+      "name": "dark grey / black",
+      "rgb": [21, 83, 82],
+      "hex": "#155352"
+    },
+    {
+      "code": "y",
+      "name": "grey",
+      "rgb": [177, 201, 195],
+      "hex": "#b1c9c3"
+    },
+    {
+      "code": "Y",
+      "name": "white",
+      "rgb": [255, 255, 255],
+      "hex": "#ffffff"
+    }
+  ],
+  
+  "colorPalette": {
+    "paletteColors": [
+      {
+        "name": "White",
+        "rgb": [255, 255, 255],
+        "hex": "#ffffff",
+        "category": "basic"
+      },
+      {
+        "name": "Black",
+        "rgb": [0, 0, 0],
+        "hex": "#000000",
+        "category": "basic"
+      },
+      {
+        "name": "Gray",
+        "rgb": [128, 128, 128],
+        "hex": "#808080",
+        "category": "basic"
+      },
+      {
+        "name": "DarkGray",
+        "rgb": [64, 64, 64],
+        "hex": "#404040",
+        "category": "basic"
+      },
+      {
+        "name": "LightGray",
+        "rgb": [211, 211, 211],
+        "hex": "#d3d3d3",
+        "category": "basic"
+      },
+      {
+        "name": "Red",
+        "colorCode": "R",
+        "hex": "#d74200",
+        "category": "primary"
+      },
+      {
+        "name": "Green",
+        "colorCode": "G",
+        "hex": "#00c420",
+        "category": "primary"
+      },
+      {
+        "name": "Blue",
+        "colorCode": "B",
+        "hex": "#0096ff",
+        "category": "primary"
+      },
+      {
+        "name": "Yellow",
+        "rgb": [255, 255, 0],
+        "hex": "#ffff00",
+        "category": "primary"
+      },
+      {
+        "name": "Cyan",
+        "rgb": [0, 255, 255],
+        "hex": "#00ffff",
+        "category": "primary"
+      },
+      {
+        "name": "Magenta",
+        "rgb": [255, 0, 255],
+        "hex": "#ff00ff",
+        "category": "primary"
+      },
+      {
+        "name": "DarkRed",
+        "colorCode": "r",
+        "hex": "#a64a2e",
+        "category": "dark"
+      },
+      {
+        "name": "DarkGreen",
+        "colorCode": "g",
+        "hex": "#009403",
+        "category": "dark"
+      },
+      {
+        "name": "DarkBlue",
+        "colorCode": "b",
+        "hex": "#0048bd",
+        "category": "dark"
+      },
+      {
+        "name": "DarkYellow",
+        "rgb": [184, 134, 11],
+        "hex": "#b8860b",
+        "category": "dark"
+      },
+      {
+        "name": "DarkCyan",
+        "rgb": [0, 139, 139],
+        "hex": "#008b8b",
+        "category": "dark"
+      },
+      {
+        "name": "DarkMagenta",
+        "rgb": [139, 0, 139],
+        "hex": "#8b008b",
+        "category": "dark"
+      },
+      {
+        "name": "Gold",
+        "colorCode": "W",
+        "hex": "#cfc041",
+        "category": "game-specific"
+      },
+      {
+        "name": "Silver",
+        "rgb": [192, 192, 192],
+        "hex": "#c0c0c0",
+        "category": "game-specific"
+      },
+      {
+        "name": "Bronze",
+        "rgb": [205, 127, 50],
+        "hex": "#cd7f32",
+        "category": "game-specific"
+      },
+      {
+        "name": "Orange",
+        "rgb": [255, 165, 0],
+        "hex": "#ffa500",
+        "category": "game-specific"
+      },
+      {
+        "name": "Purple",
+        "rgb": [128, 0, 128],
+        "hex": "#800080",
+        "category": "game-specific"
+      },
+      {
+        "name": "Pink",
+        "rgb": [255, 192, 203],
+        "hex": "#ffc0cb",
+        "category": "game-specific"
+      },
+      {
+        "name": "Brown",
+        "rgb": [165, 42, 42],
+        "hex": "#a52a2a",
+        "category": "game-specific"
+      },
+      {
+        "name": "Lime",
+        "rgb": [0, 255, 0],
+        "hex": "#00ff00",
+        "category": "game-specific"
+      },
+      {
+        "name": "Navy",
+        "rgb": [0, 0, 128],
+        "hex": "#000080",
+        "category": "game-specific"
+      },
+      {
+        "name": "Teal",
+        "rgb": [0, 128, 128],
+        "hex": "#008080",
+        "category": "game-specific"
+      },
+      {
+        "name": "Success",
+        "reference": "Green",
+        "hex": "#00c420",
+        "category": "status"
+      },
+      {
+        "name": "Warning",
+        "rgb": [255, 165, 0],
+        "hex": "#ffa500",
+        "category": "status"
+      },
+      {
+        "name": "Error",
+        "reference": "Damage",
+        "hex": "#dc143c",
+        "category": "status"
+      },
+      {
+        "name": "Info",
+        "rgb": [0, 191, 255],
+        "hex": "#00bfff",
+        "category": "status"
+      },
+      {
+        "name": "Damage",
+        "colorCode": "R",
+        "hex": "#d74200",
+        "category": "combat"
+      },
+      {
+        "name": "Healing",
+        "colorCode": "G",
+        "hex": "#00c420",
+        "category": "combat"
+      },
+      {
+        "name": "Critical",
+        "colorCode": "R",
+        "hex": "#d74200",
+        "category": "combat"
+      },
+      {
+        "name": "Miss",
+        "rgb": [128, 128, 128],
+        "hex": "#808080",
+        "category": "combat"
+      },
+      {
+        "name": "Block",
+        "rgb": [0, 191, 255],
+        "hex": "#00bfff",
+        "category": "combat"
+      },
+      {
+        "name": "Dodge",
+        "rgb": [255, 255, 0],
+        "hex": "#ffff00",
+        "category": "combat"
+      },
+      {
+        "name": "Common",
+        "reference": "LightGray",
+        "hex": "#d3d3d3",
+        "category": "rarity"
+      },
+      {
+        "name": "Uncommon",
+        "colorCode": "G",
+        "hex": "#00c420",
+        "category": "rarity"
+      },
+      {
+        "name": "Rare",
+        "colorCode": "B",
+        "hex": "#0096ff",
+        "category": "rarity"
+      },
+      {
+        "name": "Epic",
+        "colorCode": "M",
+        "hex": "#da5bd6",
+        "category": "rarity"
+      },
+      {
+        "name": "Legendary",
+        "rgb": [255, 215, 0],
+        "hex": "#ffd700",
+        "category": "rarity"
+      },
+      {
+        "name": "Background",
+        "rgb": [25, 25, 25],
+        "hex": "#191919",
+        "category": "ui"
+      },
+      {
+        "name": "Foreground",
+        "rgb": [255, 255, 255],
+        "hex": "#ffffff",
+        "category": "ui"
+      },
+      {
+        "name": "Border",
+        "rgb": [64, 64, 64],
+        "hex": "#404040",
+        "category": "ui"
+      },
+      {
+        "name": "Highlight",
+        "rgb": [255, 255, 0],
+        "hex": "#ffff00",
+        "category": "ui"
+      },
+      {
+        "name": "Disabled",
+        "rgb": [128, 128, 128],
+        "hex": "#808080",
+        "category": "ui"
+      },
+      {
+        "name": "Player",
+        "rgb": [0, 255, 255],
+        "hex": "#00ffff",
+        "category": "actor"
+      },
+      {
+        "name": "Enemy",
+        "rgb": [255, 165, 0],
+        "hex": "#ffa500",
+        "category": "actor"
+      },
+      {
+        "name": "NPC",
+        "rgb": [0, 255, 0],
+        "hex": "#00ff00",
+        "category": "actor"
+      },
+      {
+        "name": "Boss",
+        "rgb": [128, 0, 128],
+        "hex": "#800080",
+        "category": "actor"
+      },
+      {
+        "name": "Minion",
+        "rgb": [255, 165, 0],
+        "hex": "#ffa500",
+        "category": "actor"
+      },
+      {
+        "name": "Weapon",
+        "rgb": [192, 192, 192],
+        "hex": "#c0c0c0",
+        "category": "item"
+      },
+      {
+        "name": "Armor",
+        "rgb": [0, 0, 255],
+        "hex": "#0000ff",
+        "category": "item"
+      },
+      {
+        "name": "Potion",
+        "rgb": [0, 128, 0],
+        "hex": "#008000",
+        "category": "item"
+      },
+      {
+        "name": "Scroll",
+        "rgb": [255, 0, 255],
+        "hex": "#ff00ff",
+        "category": "item"
+      }
+    ]
+  },
+  
+  "colorTemplates": [
+    {
+      "name": "fiery",
+      "shaderType": "sequence",
+      "colors": ["R", "O", "W", "Y", "W", "O", "R"],
+      "description": "Blazing fire effect"
+    },
+    {
+      "name": "icy",
+      "shaderType": "sequence",
+      "colors": ["C", "B", "Y", "C", "b", "C", "Y"],
+      "description": "Frozen ice effect"
+    },
+    {
+      "name": "toxic",
+      "shaderType": "sequence",
+      "colors": ["g", "G", "Y", "G", "g"],
+      "description": "Poisonous green effect"
+    },
+    {
+      "name": "crystalline",
+      "shaderType": "sequence",
+      "colors": ["m", "M", "B", "Y", "B", "M", "m"],
+      "description": "Crystal prism effect"
+    },
+    {
+      "name": "electric",
+      "shaderType": "sequence",
+      "colors": ["C", "Y", "W", "Y", "C"],
+      "description": "Electrical discharge"
+    },
+    {
+      "name": "holy",
+      "shaderType": "sequence",
+      "colors": ["W", "Y", "W", "Y", "W"],
+      "description": "Divine light"
+    },
+    {
+      "name": "demonic",
+      "shaderType": "sequence",
+      "colors": ["r", "R", "m", "r", "R"],
+      "description": "Hellfire and darkness"
+    },
+    {
+      "name": "arcane",
+      "shaderType": "sequence",
+      "colors": ["m", "M", "C", "M", "m"],
+      "description": "Magical energy"
+    },
+    {
+      "name": "natural",
+      "shaderType": "sequence",
+      "colors": ["g", "G", "w", "G", "g"],
+      "description": "Nature's essence"
+    },
+    {
+      "name": "shadow",
+      "shaderType": "sequence",
+      "colors": ["m", "M", "y", "m", "M"],
+      "description": "Dark shadows"
+    },
+    {
+      "name": "golden",
+      "shaderType": "sequence",
+      "colors": ["W", "O", "W", "O", "W"],
+      "description": "Golden gleam"
+    },
+    {
+      "name": "bloodied",
+      "shaderType": "sequence",
+      "colors": ["r", "R", "r", "r"],
+      "description": "Blood-soaked"
+    },
+    {
+      "name": "ethereal",
+      "shaderType": "sequence",
+      "colors": ["C", "M", "Y", "M", "C"],
+      "description": "Otherworldly glow"
+    },
+    {
+      "name": "corrupted",
+      "shaderType": "sequence",
+      "colors": ["m", "r", "M", "r", "m"],
+      "description": "Dark corruption"
+    },
+    {
+      "name": "rainbow",
+      "shaderType": "alternation",
+      "colors": ["R", "O", "W", "G", "C", "B", "M"],
+      "description": "Rainbow colors"
+    },
+    {
+      "name": "common",
+      "shaderType": "solid",
+      "colors": ["Y"],
+      "description": "Common rarity (white)"
+    },
+    {
+      "name": "uncommon",
+      "shaderType": "solid",
+      "colors": ["G"],
+      "description": "Uncommon rarity (green)"
+    },
+    {
+      "name": "rare",
+      "shaderType": "solid",
+      "colors": ["B"],
+      "description": "Rare rarity (blue)"
+    },
+    {
+      "name": "epic",
+      "shaderType": "solid",
+      "colors": ["M"],
+      "description": "Epic rarity (purple)"
+    },
+    {
+      "name": "legendary",
+      "shaderType": "sequence",
+      "colors": ["O", "W", "O"],
+      "description": "Legendary rarity (golden shimmer)"
+    },
+    {
+      "name": "mythic",
+      "shaderType": "sequence",
+      "colors": ["M", "C", "Y", "C", "M"],
+      "description": "Mythic rarity (prismatic glow)"
+    },
+    {
+      "name": "transcendent",
+      "shaderType": "sequence",
+      "colors": ["Y", "M", "C", "B", "M", "Y"],
+      "description": "Transcendent rarity (ethereal radiance)"
+    },
+    {
+      "name": "critical",
+      "shaderType": "sequence",
+      "colors": ["R", "O", "Y", "O", "R"],
+      "description": "Critical hit effect"
+    },
+    {
+      "name": "miss",
+      "shaderType": "solid",
+      "colors": ["W"],
+      "description": "Miss text (bright yellow)"
+    },
+    {
+      "name": "damage",
+      "shaderType": "solid",
+      "colors": ["r"],
+      "description": "Damage numbers (darker neutral red)"
+    },
+    {
+      "name": "heal",
+      "shaderType": "solid",
+      "colors": ["G"],
+      "description": "Healing numbers (green)"
+    },
+    {
+      "name": "mana",
+      "shaderType": "solid",
+      "colors": ["B"],
+      "description": "Mana/magic (blue)"
+    },
+    {
+      "name": "poisoned",
+      "shaderType": "sequence",
+      "colors": ["g", "G", "g", "g"],
+      "description": "Poison status effect"
+    },
+    {
+      "name": "stunned",
+      "shaderType": "sequence",
+      "colors": ["W", "Y", "W", "y"],
+      "description": "Stun status effect"
+    },
+    {
+      "name": "burning",
+      "shaderType": "sequence",
+      "colors": ["R", "O", "R", "r"],
+      "description": "Burn status effect"
+    },
+    {
+      "name": "frozen",
+      "shaderType": "sequence",
+      "colors": ["C", "B", "Y", "C"],
+      "description": "Freeze status effect"
+    },
+    {
+      "name": "bleeding",
+      "shaderType": "sequence",
+      "colors": ["r", "R", "r", "r"],
+      "description": "Bleed status effect"
+    },
+    {
+      "name": "weakened",
+      "shaderType": "sequence",
+      "colors": ["y", "r", "y", "r"],
+      "description": "Weaken status effect"
+    },
+    {
+      "name": "slowed",
+      "shaderType": "sequence",
+      "colors": ["b", "C", "y", "b"],
+      "description": "Slow status effect"
+    },
+    {
+      "name": "worn",
+      "shaderType": "solid",
+      "colors": ["r"],
+      "description": "Worn modifier (negative)"
+    },
+    {
+      "name": "dull",
+      "shaderType": "solid",
+      "colors": ["y"],
+      "description": "Dull modifier (negative)"
+    },
+    {
+      "name": "sturdy",
+      "shaderType": "solid",
+      "colors": ["y"],
+      "description": "Sturdy modifier (basic positive)"
+    },
+    {
+      "name": "balanced",
+      "shaderType": "solid",
+      "colors": ["y"],
+      "description": "Balanced modifier (basic positive)"
+    },
+    {
+      "name": "sharp",
+      "shaderType": "sequence",
+      "colors": ["y", "Y"],
+      "description": "Sharp modifier (uncommon)"
+    },
+    {
+      "name": "swift",
+      "shaderType": "sequence",
+      "colors": ["C", "y"],
+      "description": "Swift modifier (uncommon)"
+    },
+    {
+      "name": "precise",
+      "shaderType": "sequence",
+      "colors": ["Y", "y"],
+      "description": "Precise modifier (uncommon)"
+    },
+    {
+      "name": "reinforced",
+      "shaderType": "sequence",
+      "colors": ["w", "y"],
+      "description": "Reinforced modifier (uncommon)"
+    },
+    {
+      "name": "keen",
+      "shaderType": "sequence",
+      "colors": ["Y", "C", "Y"],
+      "description": "Keen modifier (rare)"
+    },
+    {
+      "name": "agile",
+      "shaderType": "sequence",
+      "colors": ["C", "Y", "C"],
+      "description": "Agile modifier (rare)"
+    },
+    {
+      "name": "lucky",
+      "shaderType": "sequence",
+      "colors": ["W", "Y", "W"],
+      "description": "Lucky modifier (rare)"
+    },
+    {
+      "name": "vampiric",
+      "shaderType": "sequence",
+      "colors": ["r", "M", "r"],
+      "description": "Vampiric modifier (rare)"
+    },
+    {
+      "name": "brutal",
+      "shaderType": "sequence",
+      "colors": ["R", "Y", "R"],
+      "description": "Brutal modifier (epic)"
+    },
+    {
+      "name": "lightning",
+      "shaderType": "sequence",
+      "colors": ["C", "Y", "C", "Y"],
+      "description": "Lightning modifier (epic)"
+    },
+    {
+      "name": "blessed",
+      "shaderType": "sequence",
+      "colors": ["W", "Y", "M", "Y"],
+      "description": "Blessed modifier (epic)"
+    },
+    {
+      "name": "venomous",
+      "shaderType": "sequence",
+      "colors": ["g", "G", "Y"],
+      "description": "Venomous modifier (epic)"
+    },
+    {
+      "name": "masterwork",
+      "shaderType": "sequence",
+      "colors": ["O", "W", "Y", "W"],
+      "description": "Masterwork modifier (legendary)"
+    },
+    {
+      "name": "godlike",
+      "shaderType": "sequence",
+      "colors": ["M", "W", "Y", "W", "M"],
+      "description": "Godlike modifier (legendary)"
+    },
+    {
+      "name": "enchanted",
+      "shaderType": "sequence",
+      "colors": ["m", "M", "C", "Y"],
+      "description": "Enchanted modifier (legendary)"
+    },
+    {
+      "name": "annihilation",
+      "shaderType": "sequence",
+      "colors": ["R", "O", "Y", "M", "R"],
+      "description": "Annihilation modifier (mythic)"
+    },
+    {
+      "name": "timewarp",
+      "shaderType": "sequence",
+      "colors": ["C", "M", "Y", "B", "C"],
+      "description": "Time Warp modifier (mythic)"
+    },
+    {
+      "name": "perfect",
+      "shaderType": "sequence",
+      "colors": ["Y", "C", "M", "Y"],
+      "description": "Perfect modifier (mythic)"
+    },
+    {
+      "name": "divine",
+      "shaderType": "sequence",
+      "colors": ["W", "Y", "M", "C", "Y"],
+      "description": "Divine modifier (mythic)"
+    },
+    {
+      "name": "realitybreaker",
+      "shaderType": "sequence",
+      "colors": ["M", "R", "Y", "C", "B", "M"],
+      "description": "Reality Breaker modifier (transcendent)"
+    },
+    {
+      "name": "omnipotent",
+      "shaderType": "sequence",
+      "colors": ["Y", "M", "C", "Y", "W", "Y"],
+      "description": "Omnipotent modifier (transcendent)"
+    },
+    {
+      "name": "infinite",
+      "shaderType": "sequence",
+      "colors": ["C", "Y", "M", "Y", "C", "B"],
+      "description": "Infinite modifier (transcendent)"
+    },
+    {
+      "name": "cosmic",
+      "shaderType": "sequence",
+      "colors": ["M", "B", "Y", "C", "M", "Y"],
+      "description": "Cosmic modifier (transcendent)"
+    },
+    {
+      "name": "magicfingers",
+      "shaderType": "solid",
+      "colors": ["y"],
+      "description": "Magic Fingers modifier"
+    },
+    {
+      "name": "magicallamp",
+      "shaderType": "sequence",
+      "colors": ["W", "O", "Y"],
+      "description": "Magical Lamp modifier"
+    },
+    {
+      "name": "protection",
+      "shaderType": "solid",
+      "colors": ["y"],
+      "description": "of Protection suffix"
+    },
+    {
+      "name": "vitality",
+      "shaderType": "solid",
+      "colors": ["y"],
+      "description": "of Vitality suffix"
+    },
+    {
+      "name": "swiftness",
+      "shaderType": "solid",
+      "colors": ["y"],
+      "description": "of Swiftness suffix"
+    },
+    {
+      "name": "power",
+      "shaderType": "solid",
+      "colors": ["y"],
+      "description": "of Power suffix"
+    },
+    {
+      "name": "recovery",
+      "shaderType": "solid",
+      "colors": ["y"],
+      "description": "of Recovery suffix"
+    },
+    {
+      "name": "intelligence",
+      "shaderType": "solid",
+      "colors": ["Y"],
+      "description": "of Intelligence suffix"
+    },
+    {
+      "name": "strength",
+      "shaderType": "solid",
+      "colors": ["Y"],
+      "description": "of Strength suffix"
+    },
+    {
+      "name": "agility",
+      "shaderType": "solid",
+      "colors": ["Y"],
+      "description": "of Agility suffix"
+    },
+    {
+      "name": "technique",
+      "shaderType": "solid",
+      "colors": ["Y"],
+      "description": "of Technique suffix"
+    },
+    {
+      "name": "accuracy",
+      "shaderType": "solid",
+      "colors": ["Y"],
+      "description": "of Accuracy suffix"
+    },
+    {
+      "name": "fortification",
+      "shaderType": "sequence",
+      "colors": ["y", "Y"],
+      "description": "of Fortification suffix"
+    },
+    {
+      "name": "vigor",
+      "shaderType": "sequence",
+      "colors": ["Y", "y"],
+      "description": "of Vigor suffix"
+    },
+    {
+      "name": "alacrity",
+      "shaderType": "sequence",
+      "colors": ["C", "Y"],
+      "description": "of Alacrity suffix"
+    },
+    {
+      "name": "might",
+      "shaderType": "sequence",
+      "colors": ["Y", "W"],
+      "description": "of Might suffix"
+    },
+    {
+      "name": "resilience",
+      "shaderType": "sequence",
+      "colors": ["y", "Y", "y"],
+      "description": "of Resilience suffix"
+    },
+    {
+      "name": "bear",
+      "shaderType": "sequence",
+      "colors": ["w", "Y", "w"],
+      "description": "of the Bear suffix"
+    },
+    {
+      "name": "cat",
+      "shaderType": "sequence",
+      "colors": ["y", "C", "Y"],
+      "description": "of the Cat suffix"
+    },
+    {
+      "name": "owl",
+      "shaderType": "sequence",
+      "colors": ["B", "Y", "C"],
+      "description": "of the Owl suffix"
+    },
+    {
+      "name": "hawk",
+      "shaderType": "sequence",
+      "colors": ["Y", "C", "y"],
+      "description": "of the Hawk suffix"
+    },
+    {
+      "name": "precision",
+      "shaderType": "sequence",
+      "colors": ["Y", "C", "Y"],
+      "description": "of Precision suffix"
+    },
+    {
+      "name": "warding",
+      "shaderType": "sequence",
+      "colors": ["C", "Y", "C"],
+      "description": "of Warding suffix"
+    },
+    {
+      "name": "endurance",
+      "shaderType": "sequence",
+      "colors": ["Y", "W", "Y"],
+      "description": "of Endurance suffix"
+    },
+    {
+      "name": "haste",
+      "shaderType": "sequence",
+      "colors": ["C", "Y", "C", "Y"],
+      "description": "of Haste suffix"
+    },
+    {
+      "name": "destruction",
+      "shaderType": "sequence",
+      "colors": ["R", "Y", "R"],
+      "description": "of Destruction suffix"
+    },
+    {
+      "name": "regeneration",
+      "shaderType": "sequence",
+      "colors": ["G", "Y", "G"],
+      "description": "of Regeneration suffix"
+    },
+    {
+      "name": "titan",
+      "shaderType": "sequence",
+      "colors": ["Y", "W", "O", "Y"],
+      "description": "of the Titan suffix"
+    },
+    {
+      "name": "wind",
+      "shaderType": "sequence",
+      "colors": ["C", "Y", "B", "C"],
+      "description": "of the Wind suffix"
+    },
+    {
+      "name": "sage",
+      "shaderType": "sequence",
+      "colors": ["B", "M", "Y", "B"],
+      "description": "of the Sage suffix"
+    },
+    {
+      "name": "master",
+      "shaderType": "sequence",
+      "colors": ["Y", "C", "Y", "W"],
+      "description": "of the Master suffix"
+    },
+    {
+      "name": "marksman",
+      "shaderType": "sequence",
+      "colors": ["Y", "W", "C", "Y"],
+      "description": "of the Marksman suffix"
+    },
+    {
+      "name": "invulnerability",
+      "shaderType": "sequence",
+      "colors": ["C", "Y", "B", "Y", "C"],
+      "description": "of Invulnerability suffix"
+    },
+    {
+      "name": "immortality",
+      "shaderType": "sequence",
+      "colors": ["W", "Y", "M", "Y", "W"],
+      "description": "of Immortality suffix"
+    },
+    {
+      "name": "phoenix",
+      "shaderType": "sequence",
+      "colors": ["R", "O", "Y", "O", "R"],
+      "description": "of the Phoenix suffix"
+    },
+    {
+      "name": "colossus",
+      "shaderType": "sequence",
+      "colors": ["Y", "W", "O", "Y", "W"],
+      "description": "of the Colossus suffix"
+    },
+    {
+      "name": "storm",
+      "shaderType": "sequence",
+      "colors": ["C", "Y", "B", "Y", "C"],
+      "description": "of the Storm suffix"
+    },
+    {
+      "name": "archmage",
+      "shaderType": "sequence",
+      "colors": ["M", "C", "Y", "B", "M"],
+      "description": "of the Archmage suffix"
+    },
+    {
+      "name": "grandmaster",
+      "shaderType": "sequence",
+      "colors": ["Y", "M", "C", "Y", "W"],
+      "description": "of the Grandmaster suffix"
+    },
+    {
+      "name": "gods",
+      "shaderType": "sequence",
+      "colors": ["Y", "M", "C", "B", "Y", "W"],
+      "description": "of the Gods suffix"
+    },
+    {
+      "name": "discovery",
+      "shaderType": "sequence",
+      "colors": ["y", "W"],
+      "description": "of Discovery suffix"
+    },
+    {
+      "name": "fortune",
+      "shaderType": "sequence",
+      "colors": ["W", "Y", "W"],
+      "description": "of Fortune suffix"
+    },
+    {
+      "name": "treasurehunter",
+      "shaderType": "sequence",
+      "colors": ["W", "O", "Y"],
+      "description": "of the Treasure Hunter suffix"
+    },
+    {
+      "name": "collector",
+      "shaderType": "sequence",
+      "colors": ["O", "W", "Y", "W"],
+      "description": "of the Collector suffix"
+    },
+    {
+      "name": "legendaryfortune",
+      "shaderType": "sequence",
+      "colors": ["O", "W", "Y", "M", "W"],
+      "description": "of Legendary Fortune suffix"
+    },
+    {
+      "name": "lootmaster",
+      "shaderType": "sequence",
+      "colors": ["W", "O", "M", "Y"],
+      "description": "of the Loot Master suffix"
+    },
+    {
+      "name": "forest",
+      "shaderType": "sequence",
+      "colors": ["g", "G", "Y", "w"],
+      "description": "Ancient Forest - Dark green/green/golden/brown (ancient mystical forest)"
+    },
+    {
+      "name": "lava",
+      "shaderType": "sequence",
+      "colors": ["r", "R", "O", "R"],
+      "description": "Lava environment - Dark red/red/orange/red (4 shades)"
+    },
+    {
+      "name": "crypt",
+      "shaderType": "sequence",
+      "colors": ["K", "k", "m", "K"],
+      "description": "Haunted Crypt - Dark/very dark/purple/dark (supernatural undead)"
+    },
+    {
+      "name": "crystal",
+      "shaderType": "sequence",
+      "colors": ["m", "M", "C", "Y", "C", "M"],
+      "description": "Crystal Caverns - Dark magenta/magenta/cyan/white/cyan/magenta (prismatic crystal shimmer)"
+    },
+    {
+      "name": "temple",
+      "shaderType": "sequence",
+      "colors": ["W", "y", "w", "Y"],
+      "description": "Abandoned Temple - Gold/grey/brown/white (decayed sacred ruins)"
+    },
+    {
+      "name": "ice",
+      "shaderType": "sequence",
+      "colors": ["C", "B", "Y", "C"],
+      "description": "Ice environment - Cyan/blue/white/cyan (4 shades)"
+    },
+    {
+      "name": "shadow",
+      "shaderType": "sequence",
+      "colors": ["K", "m", "M", "k"],
+      "description": "Shadow Realm - Dark/purple/magenta/very dark (mystical shadow realm)"
+    },
+    {
+      "name": "steampunk",
+      "shaderType": "sequence",
+      "colors": ["w", "o", "R", "y"],
+      "description": "Mechanical Foundry - Brown/dark orange/red/grey (fiery mechanical forge)"
+    },
+    {
+      "name": "swamp",
+      "shaderType": "sequence",
+      "colors": ["g", "G", "Y", "g"],
+      "description": "Poisoned Swamp - Dark green/bright green/yellow/dark green (toxic poisonous swamp)"
+    },
+    {
+      "name": "astral",
+      "shaderType": "sequence",
+      "colors": ["Y", "M", "B", "W"],
+      "description": "Celestial Observatory - White/magenta/blue/gold (starry celestial cosmos)"
+    },
+    {
+      "name": "underground",
+      "shaderType": "sequence",
+      "colors": ["K", "w", "y", "k"],
+      "description": "Underground environment - Dark/brown/grey/very dark (4 shades)"
+    },
+    {
+      "name": "storm",
+      "shaderType": "sequence",
+      "colors": ["C", "Y", "B", "C"],
+      "description": "Stormy Cliffs - Cyan/white/blue/cyan (electric stormy weather)"
+    },
+    {
+      "name": "nature",
+      "shaderType": "sequence",
+      "colors": ["g", "G", "Y", "M"],
+      "description": "Mystical Garden - Dark green/green/white/magenta (mystical enchanted nature)"
+    },
+    {
+      "name": "arcane",
+      "shaderType": "sequence",
+      "colors": ["m", "M", "Y", "B"],
+      "description": "Ancient Library - Dark magenta/magenta/white/blue (ancient arcane knowledge)"
+    },
+    {
+      "name": "desert",
+      "shaderType": "sequence",
+      "colors": ["W", "O", "C", "Y", "w"],
+      "description": "Desert Oasis - Gold/orange/cyan/white/brown (desert heat with oasis water)"
+    },
+    {
+      "name": "volcano",
+      "shaderType": "sequence",
+      "colors": ["R", "O", "Y", "O", "R"],
+      "description": "Volcanic Crater - Red/orange/white/orange/red (intense volcanic heat)"
+    },
+    {
+      "name": "ruins",
+      "shaderType": "sequence",
+      "colors": ["K", "w", "y", "Y", "y"],
+      "description": "Mystic Ruins - Dark/brown/grey/white/grey (ancient mystical ruins)"
+    },
+    {
+      "name": "ocean",
+      "shaderType": "sequence",
+      "colors": ["b", "B", "C", "K"],
+      "description": "Ocean Depths - Dark blue/blue/cyan/dark (deep abyssal depths)"
+    },
+    {
+      "name": "mountain",
+      "shaderType": "sequence",
+      "colors": ["K", "y", "Y", "C"],
+      "description": "Mountain Summit - Dark/grey/white/cyan (snowy peak with sky)"
+    },
+    {
+      "name": "temporal",
+      "shaderType": "sequence",
+      "colors": ["C", "M", "Y", "M"],
+      "description": "Time Distortion - Cyan/magenta/white/magenta (time-bending temporal effects)"
+    },
+    {
+      "name": "dream",
+      "shaderType": "sequence",
+      "colors": ["M", "C", "Y", "B"],
+      "description": "Dreamscape - Magenta/cyan/white/blue (surreal dreamlike realm)"
+    },
+    {
+      "name": "void",
+      "shaderType": "sequence",
+      "colors": ["k", "K", "m", "k"],
+      "description": "Void Nexus - Very dark/dark/dark magenta/very dark (absolute emptiness)"
+    },
+    {
+      "name": "dimensional",
+      "shaderType": "sequence",
+      "colors": ["M", "C", "B", "R"],
+      "description": "Reality Rift - Magenta/cyan/blue/red (reality-bending dimensional chaos)"
+    },
+    {
+      "name": "divine",
+      "shaderType": "sequence",
+      "colors": ["W", "Y", "W", "Y"],
+      "description": "Final Sanctum - Gold/white/gold/white (divine holy radiance)"
+    },
+    {
+      "name": "generic",
+      "shaderType": "sequence",
+      "colors": ["w", "o", "y", "w"],
+      "description": "Bandit Hideout - Brown/dark orange/grey/brown (rustic earthy hideout)"
+    },
+    {
+      "name": "title_dungeon",
+      "shaderType": "sequence",
+      "colors": ["k", "K", "y", "Y", "W"],
+      "description": "Title screen DUNGEON gradient - black to warm white to yellow/gold"
+    },
+    {
+      "name": "title_fighter",
+      "shaderType": "sequence",
+      "colors": ["k", "K", "y", "O", "o"],
+      "description": "Title screen FIGHTER gradient - black to warm orange to vibrant orange"
+    },
+    {
+      "name": "title_dungeon_yellow_orange",
+      "shaderType": "sequence",
+      "colors": ["W", "O", "W", "O"],
+      "description": "Title screen DUNGEON - yellow and orange gradient (no white)"
+    },
+    {
+      "name": "title_fighter_yellow_orange",
+      "shaderType": "sequence",
+      "colors": ["O", "W", "O", "W"],
+      "description": "Title screen FIGHTER - orange and yellow gradient (no white)"
+    },
+    {
+      "name": "weapon_class",
+      "shaderType": "sequence",
+      "colors": ["R", "O", "Y"],
+      "description": "Weapon class theme - red to orange to yellow (combat/offensive)"
+    },
+    {
+      "name": "armor_class",
+      "shaderType": "sequence",
+      "colors": ["B", "C", "Y"],
+      "description": "Armor class theme - blue to cyan to white (defensive/protective)"
+    },
+    {
+      "name": "head_armor",
+      "shaderType": "sequence",
+      "colors": ["C", "B", "Y"],
+      "description": "Head armor theme - cyan to blue to white (mental/protective)"
+    },
+    {
+      "name": "chest_armor",
+      "shaderType": "sequence",
+      "colors": ["B", "C", "Y"],
+      "description": "Chest armor theme - blue to cyan to white (core protection)"
+    },
+    {
+      "name": "feet_armor",
+      "shaderType": "sequence",
+      "colors": ["G", "C", "Y"],
+      "description": "Feet armor theme - green to cyan to white (mobility/grounded)"
+    },
+    {
+      "name": "sword_weapon",
+      "shaderType": "sequence",
+      "colors": ["W", "W", "W"],
+      "description": "Sword weapon type - yellow/gold (balanced/classic)"
+    },
+    {
+      "name": "dagger_weapon",
+      "shaderType": "sequence",
+      "colors": ["M", "M", "M"],
+      "description": "Dagger weapon type - magenta (quick/precise)"
+    },
+    {
+      "name": "mace_weapon",
+      "shaderType": "sequence",
+      "colors": ["C", "C", "C"],
+      "description": "Mace weapon type - cyan (heavy/blunt)"
+    },
+    {
+      "name": "wand_weapon",
+      "shaderType": "sequence",
+      "colors": ["m", "m", "m"],
+      "description": "Wand weapon type - purple (magical/mystical)"
+    },
+    {
+      "name": "damage_effect",
+      "shaderType": "sequence",
+      "colors": ["R", "O", "Y"],
+      "description": "Damage effects - red to orange to yellow (destructive)"
+    },
+    {
+      "name": "speed_effect",
+      "shaderType": "sequence",
+      "colors": ["C", "Y", "W"],
+      "description": "Speed effects - cyan to white (fast/dynamic)"
+    },
+    {
+      "name": "magical_effect",
+      "shaderType": "sequence",
+      "colors": ["M", "C", "B"],
+      "description": "Magical effects - magenta to cyan to blue (mystical)"
+    },
+    {
+      "name": "defensive_effect",
+      "shaderType": "sequence",
+      "colors": ["B", "C", "Y"],
+      "description": "Defensive effects - blue to cyan to white (protective)"
+    },
+    {
+      "name": "life_effect",
+      "shaderType": "sequence",
+      "colors": ["G", "Y", "W"],
+      "description": "Life/health effects - green to white (vitality)"
+    },
+    {
+      "name": "death_effect",
+      "shaderType": "sequence",
+      "colors": ["r", "R", "m"],
+      "description": "Death/dark effects - dark red to red to magenta (corruption)"
+    },
+    {
+      "name": "divine_effect",
+      "shaderType": "sequence",
+      "colors": ["W", "Y", "W"],
+      "description": "Divine effects - white to yellow to white (holy)"
+    },
+    {
+      "name": "enhanced_common",
+      "shaderType": "solid",
+      "colors": ["y"],
+      "description": "Enhanced common rarity - light grey (basic but clean)"
+    },
+    {
+      "name": "enhanced_uncommon",
+      "shaderType": "sequence",
+      "colors": ["G", "Y"],
+      "description": "Enhanced uncommon rarity - green to white (nature/improvement)"
+    },
+    {
+      "name": "enhanced_rare",
+      "shaderType": "sequence",
+      "colors": ["B", "C", "Y"],
+      "description": "Enhanced rare rarity - blue to cyan to white (valuable)"
+    },
+    {
+      "name": "enhanced_epic",
+      "shaderType": "sequence",
+      "colors": ["M", "C", "Y"],
+      "description": "Enhanced epic rarity - magenta to cyan to white (exceptional)"
+    },
+    {
+      "name": "enhanced_legendary",
+      "shaderType": "sequence",
+      "colors": ["O", "W", "Y", "W", "O"],
+      "description": "Enhanced legendary rarity - orange to white to yellow (legendary shimmer)"
+    },
+    {
+      "name": "enhanced_mythic",
+      "shaderType": "sequence",
+      "colors": ["M", "C", "Y", "B", "M"],
+      "description": "Enhanced mythic rarity - magenta to cyan to yellow to blue (prismatic)"
+    },
+    {
+      "name": "enhanced_transcendent",
+      "shaderType": "sequence",
+      "colors": ["Y", "M", "C", "B", "Y", "W"],
+      "description": "Enhanced transcendent rarity - white to magenta to cyan to blue (ethereal)"
+    }
+  ],
+  
+  "keywordGroups": [
+    {
+      "name": "damage",
+      "colorPattern": "damage",
+      "caseSensitive": false,
+      "keywords": [
+        "slash", "pierce", "crush", "wound", "injure", "harm", "hurt"
+      ],
+      "comment": "Removed: 'damage', 'hit', 'strike', 'attack' - too common, appear in stats"
+    },
+    {
+      "name": "critical",
+      "colorPattern": "critical",
+      "caseSensitive": false,
+      "keywords": [
+        "critical", "crit", "devastating", "crushing blow", 
+        "massive hit", "overwhelming"
+      ]
+    },
+    {
+      "name": "miss",
+      "colorPattern": "miss",
+      "caseSensitive": false,
+      "keywords": [
+        "miss", "misses", "missed"
+      ]
+    },
+    {
+      "name": "heal",
+      "colorPattern": "heal",
+      "caseSensitive": false,
+      "keywords": [
+        "heal", "restore", "regenerate", "recover", "mend", 
+        "revive"
+      ],
+      "comment": "Removed: 'health', 'hp' - too common, appear in stats"
+    },
+    {
+      "name": "fire",
+      "colorPattern": "fiery",
+      "caseSensitive": false,
+      "keywords": [
+        "fire", "flame", "burn", "burning", "blaze", "inferno", 
+        "ignite", "scorch", "ember", "pyro"
+      ]
+    },
+    {
+      "name": "ice",
+      "colorPattern": "icy",
+      "caseSensitive": false,
+      "keywords": [
+        "ice", "frost", "frozen", "freeze", "chill", "cold", 
+        "glacial", "arctic", "cryo"
+      ]
+    },
+    {
+      "name": "lightning",
+      "colorPattern": "electric",
+      "caseSensitive": false,
+      "keywords": [
+        "lightning", "thunder", "electric", "shock", "zap", 
+        "bolt", "spark", "voltage"
+      ]
+    },
+    {
+      "name": "poison",
+      "colorPattern": "poisoned",
+      "caseSensitive": false,
+      "keywords": [
+        "poison", "venom", "toxic", "poisoned", "toxin", 
+        "venomous", "contaminate"
+      ]
+    },
+    {
+      "name": "shadow",
+      "colorPattern": "shadow",
+      "caseSensitive": false,
+      "keywords": [
+        "shadow", "darkness", "dark", "void", "abyss", 
+        "umbral", "night", "blackness"
+      ]
+    },
+    {
+      "name": "holy",
+      "colorPattern": "holy",
+      "caseSensitive": false,
+      "keywords": [
+        "holy", "divine", "sacred", "blessed", "light", 
+        "radiant", "celestial", "sanctified"
+      ]
+    },
+    {
+      "name": "death",
+      "colorPattern": "bloodied",
+      "caseSensitive": false,
+      "keywords": [
+        "death", "die", "dies", "died", "killed", "slain", 
+        "defeated", "destroyed", "perish"
+      ]
+    },
+    {
+      "name": "blood",
+      "colorPattern": "bleeding",
+      "caseSensitive": false,
+      "keywords": [
+        "blood", "bleed", "bleeding", "hemorrhage", "bloodied", 
+        "gore", "crimson"
+      ]
+    },
+    {
+      "name": "stun",
+      "colorPattern": "stunned",
+      "caseSensitive": false,
+      "keywords": [
+        "stun", "stunned", "daze", "dazed", "paralyzed", 
+        "immobilize", "disable"
+      ]
+    },
+    {
+      "name": "common",
+      "colorPattern": "common",
+      "caseSensitive": false,
+      "keywords": ["common"]
+    },
+    {
+      "name": "uncommon",
+      "colorPattern": "uncommon",
+      "caseSensitive": false,
+      "keywords": ["uncommon"]
+    },
+    {
+      "name": "rare",
+      "colorPattern": "rare",
+      "caseSensitive": false,
+      "keywords": ["rare"]
+    },
+    {
+      "name": "epic",
+      "colorPattern": "epic",
+      "caseSensitive": false,
+      "keywords": ["epic"]
+    },
+    {
+      "name": "legendary",
+      "colorPattern": "legendary",
+      "caseSensitive": false,
+      "keywords": ["legendary", "mythic", "artifact"]
+    },
+    {
+      "name": "magic",
+      "colorPattern": "arcane",
+      "caseSensitive": false,
+      "keywords": [
+        "magic", "spell", "arcane", "mystical", "enchanted", 
+        "magical", "sorcery", "wizardry"
+      ]
+    },
+    {
+      "name": "nature",
+      "colorPattern": "natural",
+      "caseSensitive": false,
+      "keywords": [
+        "nature", "natural", "earth", "growth", "plant", 
+        "forest", "grove", "wilderness"
+      ]
+    },
+    {
+      "name": "gold",
+      "colorPattern": "golden",
+      "caseSensitive": false,
+      "keywords": [
+        "gold", "coins", "currency", "treasure", "wealth", 
+        "riches", "money"
+      ]
+    },
+    {
+      "name": "experience",
+      "colorPattern": "golden",
+      "caseSensitive": false,
+      "keywords": [
+        "experience", "xp", "level up", "leveled", 
+        "gained level"
+      ],
+      "comment": "Changed colorPattern from 'Y' (color code) to 'golden' (template); removed 'level' (too common)"
+    },
+    {
+      "name": "enemy_types",
+      "colorPattern": "damage",
+      "caseSensitive": false,
+      "keywords": [
+        "boss", "monster", "creature", "beast", "undead", "fiend"
+      ],
+      "comment": "Removed specific enemy names (goblin, orc, etc.) - should use explicit coloring; kept only generic types; changed from 'R' to 'damage' template"
+    },
+    {
+      "name": "class",
+      "colorPattern": "arcane",
+      "caseSensitive": false,
+      "keywords": [
+        "warrior", "mage", "rogue", "wizard", "barbarian", 
+        "paladin", "ranger", "knight", "sorcerer"
+      ],
+      "comment": "Changed colorPattern from 'C' (color code) to 'arcane' (template)"
+    },
+    {
+      "name": "action",
+      "colorPattern": "electric",
+      "caseSensitive": false,
+      "keywords": [
+        "jab", "taunt", "flurry", "cleave", "shield bash", "precision strike",
+        "momentum bash", "lucky strike", "overkill", "dance", "opening volley",
+        "focus", "sharp edge", "blood frenzy", "berzerk", "swing for the fences",
+        "true strike", "last grasp", "second wind", "quick reflexes", "first blood",
+        "brutal strike", "war cry", "web strike", "poison bite", "devastating blow",
+        "power attack", "rending slash", "execute", "backstab", "sneak attack"
+      ]
+    },
+    {
+      "name": "character",
+      "colorPattern": "golden",
+      "caseSensitive": false,
+      "keywords": [
+        "you", "your", "yourself", "hero", "champion", "adventurer"
+      ]
+    },
+    {
+      "name": "environment",
+      "colorPattern": "natural",
+      "caseSensitive": false,
+      "keywords": [
+        "entrance", "chamber", "room", "hall", "cavern", "tunnel", "passage",
+        "dungeon", "crypt", "tomb", "vault", "sanctuary", "grove", "clearing",
+        "lair", "den", "nest", "pool", "lake", "cave", "cathedral", "temple",
+        "altar", "shrine", "library", "armory", "treasury", "prison", "barracks"
+      ]
+    },
+    {
+      "name": "theme",
+      "colorPattern": "crystalline",
+      "caseSensitive": false,
+      "keywords": [
+        "forest", "lava", "frozen", "ice", "shadow", "crystal", "astral",
+        "underground", "swamp", "storm", "volcanic", "glacial", "void",
+        "steampunk", "mechanical", "nature", "cosmic"
+      ]
+    },
+    {
+      "name": "buff",
+      "colorPattern": "holy",
+      "caseSensitive": false,
+      "keywords": [
+        "strengthen", "fortify", "enhance", "boost", "empower", 
+        "blessed", "buff", "augment"
+      ]
+    },
+    {
+      "name": "debuff",
+      "colorPattern": "corrupted",
+      "caseSensitive": false,
+      "keywords": [
+        "weaken", "curse", "hex", "poison", "disease", "corrupt", 
+        "debuff", "enfeeble"
+      ]
+    }
+  ],
+  
+  "dungeonThemes": [
+    {
+      "name": "Forest",
+      "displayName": "Forest",
+      "colorTemplate": "forest",
+      "rgb": [0, 196, 32],
+      "hex": "#00c420",
+      "colorCode": "G",
+      "description": "Vibrant forest green"
+    },
+    {
+      "name": "Nature",
+      "displayName": "Nature",
+      "colorTemplate": "nature",
+      "rgb": [0, 148, 3],
+      "hex": "#009403",
+      "colorCode": "G",
+      "description": "Dark green - mystical nature"
+    },
+    {
+      "name": "Swamp",
+      "displayName": "Swamp",
+      "colorTemplate": "swamp",
+      "rgb": [88, 129, 87],
+      "hex": "#588157",
+      "colorCode": "G",
+      "description": "Murky green - poisonous swamp"
+    },
+    {
+      "name": "Lava",
+      "displayName": "Lava",
+      "colorTemplate": "lava",
+      "rgb": [215, 66, 0],
+      "hex": "#d74200",
+      "colorCode": "R",
+      "description": "Red - molten lava"
+    },
+    {
+      "name": "Volcano",
+      "displayName": "Volcano",
+      "colorTemplate": "volcano",
+      "rgb": [255, 140, 0],
+      "hex": "#ff8c00",
+      "colorCode": "O",
+      "description": "Orange - volcanic heat"
+    },
+    {
+      "name": "Ice",
+      "displayName": "Ice",
+      "colorTemplate": "ice",
+      "rgb": [119, 191, 207],
+      "hex": "#77bfcf",
+      "colorCode": "C",
+      "description": "Cyan - frozen ice"
+    },
+    {
+      "name": "Mountain",
+      "displayName": "Mountain",
+      "colorTemplate": "mountain",
+      "rgb": [192, 192, 192],
+      "hex": "#c0c0c0",
+      "colorCode": "Y",
+      "description": "Silver - snowy peaks"
+    },
+    {
+      "name": "Crypt",
+      "displayName": "Crypt",
+      "colorTemplate": "crypt",
+      "rgb": [177, 84, 207],
+      "hex": "#b154cf",
+      "colorCode": "M",
+      "description": "Purple - undead magic"
+    },
+    {
+      "name": "Shadow",
+      "displayName": "Shadow",
+      "colorTemplate": "shadow",
+      "rgb": [75, 0, 130],
+      "hex": "#4b0082",
+      "colorCode": "M",
+      "description": "Indigo - deep shadow"
+    },
+    {
+      "name": "Void",
+      "displayName": "Void",
+      "colorTemplate": "void",
+      "rgb": [64, 64, 64],
+      "hex": "#404040",
+      "colorCode": "y",
+      "description": "Dark gray - emptiness"
+    },
+    {
+      "name": "Dream",
+      "displayName": "Dream",
+      "colorTemplate": "dream",
+      "rgb": [147, 112, 219],
+      "hex": "#9370db",
+      "colorCode": "M",
+      "description": "Medium purple - dreamlike"
+    },
+    {
+      "name": "Crystal",
+      "displayName": "Crystal",
+      "colorTemplate": "crystal",
+      "rgb": [0, 255, 255],
+      "hex": "#00ffff",
+      "colorCode": "C",
+      "description": "Bright cyan - crystalline"
+    },
+    {
+      "name": "Arcane",
+      "displayName": "Arcane",
+      "colorTemplate": "arcane",
+      "rgb": [0, 150, 255],
+      "hex": "#0096ff",
+      "colorCode": "B",
+      "description": "Blue - arcane magic"
+    },
+    {
+      "name": "Astral",
+      "displayName": "Astral",
+      "colorTemplate": "astral",
+      "rgb": [218, 91, 214],
+      "hex": "#da5bd6",
+      "colorCode": "M",
+      "description": "Magenta - cosmic"
+    },
+    {
+      "name": "Dimensional",
+      "displayName": "Dimensional",
+      "colorTemplate": "dimensional",
+      "rgb": [138, 43, 226],
+      "hex": "#8a2be2",
+      "colorCode": "M",
+      "description": "Blue violet - reality bending"
+    },
+    {
+      "name": "Temporal",
+      "displayName": "Temporal",
+      "colorTemplate": "temporal",
+      "rgb": [100, 149, 237],
+      "hex": "#6495ed",
+      "colorCode": "B",
+      "description": "Cornflower blue - time distortion"
+    },
+    {
+      "name": "Temple",
+      "displayName": "Temple",
+      "colorTemplate": "temple",
+      "rgb": [255, 215, 0],
+      "hex": "#ffd700",
+      "colorCode": "W",
+      "description": "Gold - sacred temple"
+    },
+    {
+      "name": "Divine",
+      "displayName": "Divine",
+      "colorTemplate": "divine",
+      "rgb": [255, 255, 224],
+      "hex": "#ffffe0",
+      "colorCode": "W",
+      "description": "Light yellow - holy light"
+    },
+    {
+      "name": "Storm",
+      "displayName": "Storm",
+      "colorTemplate": "storm",
+      "rgb": [70, 130, 180],
+      "hex": "#4682b4",
+      "colorCode": "B",
+      "description": "Steel blue - stormy"
+    },
+    {
+      "name": "Ocean",
+      "displayName": "Ocean",
+      "colorTemplate": "ocean",
+      "rgb": [0, 105, 148],
+      "hex": "#006994",
+      "colorCode": "B",
+      "description": "Deep blue - ocean depths"
+    },
+    {
+      "name": "Steampunk",
+      "displayName": "Steampunk",
+      "colorTemplate": "steampunk",
+      "rgb": [205, 127, 50],
+      "hex": "#cd7f32",
+      "colorCode": "O",
+      "description": "Bronze - mechanical"
+    },
+    {
+      "name": "Underground",
+      "displayName": "Underground",
+      "colorTemplate": "underground",
+      "rgb": [139, 90, 43],
+      "hex": "#8b5a2b",
+      "colorCode": "o",
+      "description": "Brown - earthy depths"
+    },
+    {
+      "name": "Desert",
+      "displayName": "Desert",
+      "colorTemplate": "desert",
+      "rgb": [237, 201, 175],
+      "hex": "#edc9af",
+      "colorCode": "W",
+      "description": "Sandy beige"
+    },
+    {
+      "name": "Ruins",
+      "displayName": "Ruins",
+      "colorTemplate": "ruins",
+      "rgb": [160, 144, 119],
+      "hex": "#a09077",
+      "colorCode": "y",
+      "description": "Stone gray-brown"
+    },
+    {
+      "name": "Generic",
+      "displayName": "Generic",
+      "colorTemplate": "generic",
+      "rgb": [192, 192, 192],
+      "hex": "#c0c0c0",
+      "colorCode": "Y",
+      "description": "Silver - neutral"
+    }
+  ],
+  
+  "colorPatterns": [
+    {
+      "name": "damage",
+      "colorPalette": "Damage",
+      "category": "combat"
+    },
+    {
+      "name": "healing",
+      "colorPalette": "Healing",
+      "category": "combat"
+    },
+    {
+      "name": "critical",
+      "colorPalette": "Critical",
+      "category": "combat"
+    },
+    {
+      "name": "miss",
+      "colorPalette": "Miss",
+      "category": "combat"
+    },
+    {
+      "name": "block",
+      "colorPalette": "Block",
+      "category": "combat"
+    },
+    {
+      "name": "dodge",
+      "colorPalette": "Dodge",
+      "category": "combat"
+    },
+    {
+      "name": "attack",
+      "colorPalette": "Damage",
+      "category": "combat"
+    },
+    {
+      "name": "hit",
+      "colorPalette": "Damage",
+      "category": "combat"
+    },
+    {
+      "name": "strike",
+      "colorPalette": "Damage",
+      "category": "combat"
+    },
+    {
+      "name": "slash",
+      "colorPalette": "Damage",
+      "category": "combat"
+    },
+    {
+      "name": "pierce",
+      "colorPalette": "Damage",
+      "category": "combat"
+    },
+    {
+      "name": "crush",
+      "colorPalette": "Damage",
+      "category": "combat"
+    },
+    {
+      "name": "success",
+      "colorPalette": "Success",
+      "category": "status"
+    },
+    {
+      "name": "warning",
+      "colorPalette": "Warning",
+      "category": "status"
+    },
+    {
+      "name": "error",
+      "colorPalette": "Error",
+      "category": "status"
+    },
+    {
+      "name": "info",
+      "colorPalette": "Info",
+      "category": "status"
+    },
+    {
+      "name": "victory",
+      "colorPalette": "Success",
+      "category": "status"
+    },
+    {
+      "name": "defeat",
+      "colorPalette": "Error",
+      "category": "status"
+    },
+    {
+      "name": "level_up",
+      "colorPalette": "Success",
+      "category": "status"
+    },
+    {
+      "name": "experience",
+      "colorPalette": "Info",
+      "category": "status"
+    },
+    {
+      "name": "common",
+      "colorPalette": "Common",
+      "category": "rarity"
+    },
+    {
+      "name": "uncommon",
+      "colorPalette": "Uncommon",
+      "category": "rarity"
+    },
+    {
+      "name": "rare",
+      "colorPalette": "Rare",
+      "category": "rarity"
+    },
+    {
+      "name": "epic",
+      "colorPalette": "Epic",
+      "category": "rarity"
+    },
+    {
+      "name": "legendary",
+      "colorPalette": "Legendary",
+      "category": "rarity"
+    },
+    {
+      "name": "fire",
+      "colorPalette": "Red",
+      "category": "element"
+    },
+    {
+      "name": "ice",
+      "colorPalette": "Cyan",
+      "category": "element"
+    },
+    {
+      "name": "lightning",
+      "colorPalette": "Yellow",
+      "category": "element"
+    },
+    {
+      "name": "poison",
+      "colorPalette": "Green",
+      "category": "element"
+    },
+    {
+      "name": "dark",
+      "colorPalette": "Purple",
+      "category": "element"
+    },
+    {
+      "name": "light",
+      "colorPalette": "Yellow",
+      "category": "element"
+    },
+    {
+      "name": "arcane",
+      "colorPalette": "Magenta",
+      "category": "element"
+    },
+    {
+      "name": "nature",
+      "colorPalette": "Green",
+      "category": "element"
+    },
+    {
+      "name": "title",
+      "colorPalette": "Gold",
+      "category": "ui"
+    },
+    {
+      "name": "subtitle",
+      "colorPalette": "Yellow",
+      "category": "ui"
+    },
+    {
+      "name": "header",
+      "colorPalette": "Cyan",
+      "category": "ui"
+    },
+    {
+      "name": "label",
+      "colorPalette": "White",
+      "category": "ui"
+    },
+    {
+      "name": "value",
+      "colorPalette": "LightGray",
+      "category": "ui"
+    },
+    {
+      "name": "button",
+      "colorPalette": "Cyan",
+      "category": "ui"
+    },
+    {
+      "name": "selected",
+      "colorPalette": "Highlight",
+      "category": "ui"
+    },
+    {
+      "name": "disabled",
+      "colorPalette": "Disabled",
+      "category": "ui"
+    },
+    {
+      "name": "player",
+      "colorPalette": "Cyan",
+      "category": "entity"
+    },
+    {
+      "name": "enemy",
+      "colorPalette": "Red",
+      "category": "entity"
+    },
+    {
+      "name": "npc",
+      "colorPalette": "Green",
+      "category": "entity"
+    },
+    {
+      "name": "boss",
+      "colorPalette": "Purple",
+      "category": "entity"
+    },
+    {
+      "name": "minion",
+      "colorPalette": "Orange",
+      "category": "entity"
+    },
+    {
+      "name": "weapon",
+      "colorPalette": "Silver",
+      "category": "item"
+    },
+    {
+      "name": "armor",
+      "colorPalette": "Blue",
+      "category": "item"
+    },
+    {
+      "name": "potion",
+      "colorPalette": "Green",
+      "category": "item"
+    },
+    {
+      "name": "scroll",
+      "colorPalette": "Magenta",
+      "category": "item"
+    },
+    {
+      "name": "gem",
+      "colorPalette": "Cyan",
+      "category": "item"
+    },
+    {
+      "name": "coin",
+      "colorPalette": "Gold",
+      "category": "item"
+    },
+    {
+      "name": "loot",
+      "colorPalette": "Gold",
+      "category": "item"
+    },
+    {
+      "name": "dungeon",
+      "colorPalette": "Brown",
+      "category": "location"
+    },
+    {
+      "name": "room",
+      "colorPalette": "Gray",
+      "category": "location"
+    },
+    {
+      "name": "corridor",
+      "colorPalette": "DarkGray",
+      "category": "location"
+    },
+    {
+      "name": "chamber",
+      "colorPalette": "Purple",
+      "category": "location"
+    },
+    {
+      "name": "treasure",
+      "colorPalette": "Gold",
+      "category": "location"
+    },
+    {
+      "name": "exit",
+      "colorPalette": "Green",
+      "category": "location"
+    },
+    {
+      "name": "entrance",
+      "colorPalette": "Cyan",
+      "category": "location"
+    },
+    {
+      "name": "natural",
+      "colorPalette": "Green",
+      "category": "environment"
+    }
+  ],
+  
+  "entityDefaults": {
+    "player": "Player",
+    "enemy": "Enemy",
+    "boss": "Boss",
+    "npc": "NPC"
+  }
+}
+

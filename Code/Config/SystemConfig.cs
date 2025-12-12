@@ -56,6 +56,99 @@ namespace RPGGame
     }
 
     /// <summary>
+    /// Balance tuning goals configuration
+    /// Defines targets and thresholds for automated tuning
+    /// </summary>
+    public class BalanceTuningGoalsConfig
+    {
+        /// <summary>
+        /// Win rate targets
+        /// </summary>
+        public WinRateGoalsConfig WinRate { get; set; } = new WinRateGoalsConfig();
+
+        /// <summary>
+        /// Combat duration targets
+        /// </summary>
+        public CombatDurationGoalsConfig CombatDuration { get; set; } = new CombatDurationGoalsConfig();
+
+        /// <summary>
+        /// Weapon balance targets
+        /// </summary>
+        public WeaponBalanceGoalsConfig WeaponBalance { get; set; } = new WeaponBalanceGoalsConfig();
+
+        /// <summary>
+        /// Enemy differentiation targets
+        /// </summary>
+        public EnemyDifferentiationGoalsConfig EnemyDifferentiation { get; set; } = new EnemyDifferentiationGoalsConfig();
+
+        /// <summary>
+        /// Quality score weights (must sum to 1.0)
+        /// </summary>
+        public QualityWeightsConfig QualityWeights { get; set; } = new QualityWeightsConfig();
+    }
+
+    /// <summary>
+    /// Win rate goals configuration
+    /// </summary>
+    public class WinRateGoalsConfig
+    {
+        public double MinTarget { get; set; } = 85.0;
+        public double MaxTarget { get; set; } = 98.0;
+        public double OptimalMin { get; set; } = 88.0;
+        public double OptimalMax { get; set; } = 95.0;
+        public double CriticalLow { get; set; } = 80.0;
+        public double WarningLow { get; set; } = 85.0;
+        public double WarningHigh { get; set; } = 98.0;
+        public double CriticalHigh { get; set; } = 99.0;
+    }
+
+    /// <summary>
+    /// Combat duration goals configuration
+    /// </summary>
+    public class CombatDurationGoalsConfig
+    {
+        public double MinTarget { get; set; } = 8.0;
+        public double MaxTarget { get; set; } = 15.0;
+        public double OptimalMin { get; set; } = 9.0;
+        public double OptimalMax { get; set; } = 13.0;
+        public double CriticalShort { get; set; } = 6.0;
+        public double WarningShort { get; set; } = 8.0;
+        public double WarningLong { get; set; } = 15.0;
+        public double CriticalLong { get; set; } = 18.0;
+    }
+
+    /// <summary>
+    /// Weapon balance goals configuration
+    /// </summary>
+    public class WeaponBalanceGoalsConfig
+    {
+        public double MaxVariance { get; set; } = 10.0;
+        public double OptimalVariance { get; set; } = 5.0;
+        public double CriticalVariance { get; set; } = 15.0;
+    }
+
+    /// <summary>
+    /// Enemy differentiation goals configuration
+    /// </summary>
+    public class EnemyDifferentiationGoalsConfig
+    {
+        public double MinVariance { get; set; } = 3.0;
+        public double OptimalVariance { get; set; } = 5.0;
+        public double CriticalVariance { get; set; } = 1.0;
+    }
+
+    /// <summary>
+    /// Quality score weights configuration
+    /// </summary>
+    public class QualityWeightsConfig
+    {
+        public double WinRateWeight { get; set; } = 0.40;
+        public double DurationWeight { get; set; } = 0.25;
+        public double WeaponBalanceWeight { get; set; } = 0.20;
+        public double EnemyDiffWeight { get; set; } = 0.15;
+    }
+
+    /// <summary>
     /// Balance validation configuration
     /// </summary>
     public class BalanceValidationConfig

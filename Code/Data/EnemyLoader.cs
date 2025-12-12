@@ -7,7 +7,6 @@ using System.Text.Json.Serialization;
 
 namespace RPGGame
 {
-
     public class EnemyData
     {
         [JsonPropertyName("name")]
@@ -22,6 +21,8 @@ namespace RPGGame
         public bool IsLiving { get; set; } = true; // Default to living if not specified
         [JsonPropertyName("description")]
         public string Description { get; set; } = "";
+        [JsonPropertyName("colorOverride")]
+        public ColorOverride? ColorOverride { get; set; }
     }
 
     public class StatOverridesConfig
@@ -138,6 +139,8 @@ namespace RPGGame
             var enemy = EnemyDataFactory.CreateEnemyFromData(data, level);
             if (enemy == null)
                 return null;
+            
+            // Color override is set in EnemyDataFactory.CreateEnemyFromData
             
             // Add a common-tier weapon to the enemy (same system as heroes)
             var enemyWeapon = EnemyWeaponGenerator.GenerateCommonWeaponForEnemy(data.Name, enemy.Level);

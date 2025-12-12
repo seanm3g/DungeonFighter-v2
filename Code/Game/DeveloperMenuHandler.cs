@@ -17,11 +17,13 @@ namespace RPGGame
         public delegate void OnShowVariableEditor();
         public delegate void OnShowActionEditor();
         public delegate void OnShowBattleStatistics();
+        public delegate void OnShowTuningParameters();
         
         public event OnShowSettings? ShowSettingsEvent;
         public event OnShowVariableEditor? ShowVariableEditorEvent;
         public event OnShowActionEditor? ShowActionEditorEvent;
         public event OnShowBattleStatistics? ShowBattleStatisticsEvent;
+        public event OnShowTuningParameters? ShowTuningParametersEvent;
 
         public DeveloperMenuHandler(GameStateManager stateManager, IUIManager? customUIManager)
         {
@@ -67,6 +69,10 @@ namespace RPGGame
                     case "3":
                         // Battle Statistics
                         ShowBattleStatisticsEvent?.Invoke();
+                        break;
+                    case "4":
+                        // Tuning Parameters
+                        ShowTuningParametersEvent?.Invoke();
                         break;
                     case "0":
                         // Back to Settings

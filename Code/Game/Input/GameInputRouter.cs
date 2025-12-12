@@ -85,14 +85,15 @@ namespace RPGGame.GameCore.Input
                     }
                     break;
                 case GameState.VariableEditor:
-                    if (input == "0")
+                    if (handlers.VariableEditorHandler != null)
                     {
-                        stateManager.TransitionToState(GameState.DeveloperMenu);
-                        handlers.DeveloperMenuHandler?.ShowDeveloperMenu();
+                        handlers.VariableEditorHandler.HandleMenuInput(input);
                     }
-                    else
+                    break;
+                case GameState.TuningParameters:
+                    if (handlers.TuningParametersHandler != null)
                     {
-                        showMessage("Variable editing functionality coming soon!");
+                        handlers.TuningParametersHandler.HandleMenuInput(input);
                     }
                     break;
                 case GameState.ActionEditor:
@@ -196,6 +197,8 @@ namespace RPGGame.GameCore.Input
         public DeveloperMenuHandler? DeveloperMenuHandler { get; set; }
         public ActionEditorHandler? ActionEditorHandler { get; set; }
         public BattleStatisticsHandler? BattleStatisticsHandler { get; set; }
+        public TuningParametersHandler? TuningParametersHandler { get; set; }
+        public VariableEditorHandler? VariableEditorHandler { get; set; }
         public InventoryMenuHandler? InventoryMenuHandler { get; set; }
         public WeaponSelectionHandler? WeaponSelectionHandler { get; set; }
         public CharacterCreationHandler? CharacterCreationHandler { get; set; }

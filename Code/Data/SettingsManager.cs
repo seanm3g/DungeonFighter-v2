@@ -3,6 +3,15 @@ using System.IO;
 
 namespace RPGGame
 {
+    /// <summary>
+    /// OBSOLETE: This class is no longer used in the current Avalonia UI system.
+    /// The settings menu is now handled by SettingsMenuHandler.cs
+    /// The tests menu is now handled by TestingSystemHandler.cs
+    /// 
+    /// This class is kept for reference but should not be used.
+    /// All tests have been integrated into the new TestingSystemHandler.
+    /// </summary>
+    [Obsolete("SettingsManager is obsolete. Use SettingsMenuHandler and TestingSystemHandler instead.")]
     public class SettingsManager
     {
         public static void ShowSettings()

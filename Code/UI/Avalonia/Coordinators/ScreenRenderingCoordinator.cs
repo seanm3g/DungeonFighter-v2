@@ -1,4 +1,5 @@
 using RPGGame;
+using RPGGame.Editors;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers;
@@ -167,9 +168,17 @@ namespace RPGGame.UI.Avalonia.Coordinators
         /// <summary>
         /// Renders variable editor screen
         /// </summary>
-        public void RenderVariableEditor()
+        public void RenderVariableEditor(EditableVariable? selectedVariable = null, bool isEditing = false, string? currentInput = null, string? message = null)
         {
-            renderer.RenderVariableEditor();
+            renderer.RenderVariableEditor(selectedVariable, isEditing, currentInput, message);
+        }
+
+        /// <summary>
+        /// Renders tuning parameters menu screen
+        /// </summary>
+        public void RenderTuningParametersMenu(string? selectedCategory = null, EditableVariable? selectedVariable = null, bool isEditing = false, string? currentInput = null, string? message = null)
+        {
+            renderer.RenderTuningParametersMenu(selectedCategory, selectedVariable, isEditing, currentInput, message);
         }
 
         /// <summary>

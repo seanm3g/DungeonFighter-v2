@@ -8,9 +8,10 @@ namespace RPGGame
         public string Theme { get; private set; }
         public List<string> PossibleEnemies { get; private set; }
         public List<Environment> Rooms { get; private set; }
+        public ColorOverride? ColorOverride { get; private set; }
         private Random random;
 
-        public Dungeon(string name, int minLevel, int maxLevel, string theme, List<string>? possibleEnemies = null)
+        public Dungeon(string name, int minLevel, int maxLevel, string theme, List<string>? possibleEnemies = null, ColorOverride? colorOverride = null)
         {
             random = new Random();
             Name = name;
@@ -19,6 +20,7 @@ namespace RPGGame
             Theme = theme;
             PossibleEnemies = possibleEnemies ?? new List<string>();
             Rooms = new List<Environment>();
+            ColorOverride = colorOverride;
         }
 
         public void Generate()

@@ -69,6 +69,7 @@ namespace RPGGame.GameCore.Input
                     showSettings();
                     break;
                 case GameState.VariableEditor:
+                case GameState.TuningParameters:
                 case GameState.ActionEditor:
                     stateManager.TransitionToState(GameState.DeveloperMenu);
                     showDeveloperMenu();

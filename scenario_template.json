@@ -1,0 +1,81 @@
+{
+  "version": "1.0",
+  "name": "Basic Combat Test",
+  "description": "Standard test scenario for balance tuning",
+  "createdBy": "your-name-here",
+  "createdDate": "2025-12-11T00:00:00Z",
+  "playerConfig": {
+    "name": "TestHero",
+    "level": 1,
+    "classType": "Warrior",
+    "baseStats": {
+      "strength": 10,
+      "agility": 10,
+      "technique": 10,
+      "intelligence": 10
+    },
+    "equippedWeapon": "Iron Sword",
+    "equippedArmor": {
+      "head": "Leather Cap",
+      "body": "Leather Armor",
+      "feet": "Leather Boots"
+    }
+  },
+  "enemyConfigs": [
+    {
+      "name": "Goblin",
+      "level": 1,
+      "enemyType": "Goblin",
+      "baseStats": {
+        "health": 20,
+        "strength": 8,
+        "agility": 12,
+        "technique": 8,
+        "intelligence": 5
+      },
+      "specialization": "Agility"
+    },
+    {
+      "name": "Orc",
+      "level": 1,
+      "enemyType": "Orc",
+      "baseStats": {
+        "health": 30,
+        "strength": 14,
+        "agility": 8,
+        "technique": 8,
+        "intelligence": 5
+      },
+      "specialization": "Strength"
+    },
+    {
+      "name": "Skeleton",
+      "level": 1,
+      "enemyType": "Skeleton",
+      "baseStats": {
+        "health": 25,
+        "strength": 10,
+        "agility": 10,
+        "technique": 10,
+        "intelligence": 8
+      },
+      "specialization": "Balanced"
+    }
+  ],
+  "simulationParams": {
+    "repetitionsPerEnemy": 5,
+    "targetAverageTurns": 10,
+    "goodBuildThreshold": 6,
+    "strugglingBuildThreshold": 14,
+    "desiredPhaseDistribution": [0.33, 0.33, 0.34]
+  },
+  "tuningConfig": {
+    "player_base_damage_multiplier": 1.0,
+    "player_armor_multiplier": 1.0,
+    "player_health_multiplier": 1.0,
+    "enemy_health_multiplier": 1.0,
+    "enemy_damage_multiplier": 1.0,
+    "enemy_armor_multiplier": 1.0,
+    "combat_speed_multiplier": 1.0
+  }
+}

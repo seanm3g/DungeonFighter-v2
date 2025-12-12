@@ -88,6 +88,17 @@ namespace RPGGame
             
             var enemy = new Enemy(data.Name, level, finalStats.Health, finalStats.Strength, finalStats.Agility, finalStats.Technique, finalStats.Intelligence, finalStats.Armor, primaryAttribute, data.IsLiving, enemyArchetype);
             
+            // Set color override if specified
+            if (data.ColorOverride != null)
+            {
+                // Use reflection to set the private ColorOverride property
+                var colorOverrideProperty = typeof(Enemy).GetProperty("ColorOverride", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                if (colorOverrideProperty != null && colorOverrideProperty.CanWrite)
+                {
+                    colorOverrideProperty.SetValue(enemy, data.ColorOverride);
+                }
+            }
+            
             return enemy;
         }
 

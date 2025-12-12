@@ -235,6 +235,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             totalLines += 3; // Note + spacing
             totalLines += 1; // Back option
             
+            // Title (needed for width calculation)
+            string title = "=== COMPREHENSIVE WEAPON-ENEMY TEST RESULTS ===";
+            
             // Calculate content width - find the longest line
             int maxContentWidth = title.Length; // Start with title width
             maxContentWidth = Math.Max(maxContentWidth, "Overall Statistics:".Length);
@@ -252,9 +255,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             // Calculate centered position using actual line count and content width
             int menuStartX = x + (width / 2) - (maxContentWidth / 2); // Center horizontally
             int menuStartY = y + (height / 2) - (totalLines / 2); // Center vertically
-            
-            // Title
-            string title = "=== COMPREHENSIVE WEAPON-ENEMY TEST RESULTS ===";
             int titleX = MenuLayoutCalculator.CalculateCenteredTextX(x, width, title.Length);
             canvas.AddText(titleX, menuStartY, title, AsciiArtAssets.Colors.Gold);
             menuStartY += 3;

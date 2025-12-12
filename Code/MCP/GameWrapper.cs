@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using RPGGame.MCP.Models;
+using RPGGame.UI;
+using RPGGame.Combat;
 
 namespace RPGGame.MCP
 {
@@ -44,6 +46,9 @@ namespace RPGGame.MCP
                 throw new InvalidOperationException("Game is already initialized. Call DisposeGame() first.");
             }
 
+            // Disable all delays for MCP mode
+            DisableAllDelays();
+
             _game = new Game(); // Headless mode - no UI manager
             _game.SetUIManager(_outputCapture);
         }
@@ -57,6 +62,9 @@ namespace RPGGame.MCP
             {
                 throw new InvalidOperationException("Game is already initialized. Call DisposeGame() first.");
             }
+
+            // Disable all delays for MCP mode
+            DisableAllDelays();
 
             _game = new Game(character);
             _game.SetUIManager(_outputCapture);
@@ -145,10 +153,39 @@ namespace RPGGame.MCP
         }
 
         /// <summary>
+        /// Disables all delays in the game for MCP mode
+        /// </summary>
+        private void DisableAllDelays()
+        {
+            // Set MCP mode flag
+            MCPMode.IsActive = true;
+            
+            // Disable UI delays
+            UIManager.EnableDelays = false;
+            
+            // Disable combat UI output (which also disables combat delays)
+            CombatManager.DisableCombatUIOutput = true;
+            
+            // Disable combat delay manager delays
+            CombatDelayManager.UpdateConfig(
+                enableGuiDelays: false,
+                enableConsoleDelays: false
+            );
+            
+            // Disable text display delays in game settings
+            var settings = GameSettings.Instance;
+            settings.EnableTextDisplayDelays = false;
+            settings.FastCombat = true;
+        }
+
+        /// <summary>
         /// Disposes the game instance
         /// </summary>
         public void DisposeGame()
         {
+            // Reset MCP mode flag
+            MCPMode.IsActive = false;
+            
             _game = null;
             _outputCapture.Clear();
         }

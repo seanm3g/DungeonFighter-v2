@@ -55,6 +55,7 @@ namespace RPGGame.Data
         
         /// <summary>
         /// Loads color template configuration from GameData/ColorTemplates.json
+        /// First tries unified ColorConfiguration.json, then falls back to individual file
         /// </summary>
         public static ColorTemplateConfig LoadColorTemplates()
         {
@@ -63,6 +64,37 @@ namespace RPGGame.Data
                 return _cachedConfig;
             }
             
+            // Try to load from unified configuration first
+            var unifiedConfig = ColorConfigurationLoader.LoadColorConfiguration();
+            if (unifiedConfig.ColorTemplates != null && unifiedConfig.ColorTemplates.Count > 0)
+            {
+                // Convert unified config to ColorTemplateConfig format
+                _cachedConfig = new ColorTemplateConfig
+                {
+                    Templates = unifiedConfig.ColorTemplates.Select(t => new ColorTemplateData
+                    {
+                        Name = t.Name,
+                        ShaderType = t.ShaderType,
+                        Colors = t.Colors,
+                        Description = t.Description
+                    }).ToList()
+                };
+                
+                // Build template cache for fast lookup
+                _templateCache = new Dictionary<string, ColorTemplateData>(StringComparer.OrdinalIgnoreCase);
+                foreach (var template in _cachedConfig.Templates)
+                {
+                    if (!string.IsNullOrEmpty(template.Name))
+                    {
+                        _templateCache[template.Name] = template;
+                    }
+                }
+                
+                _isLoaded = true;
+                return _cachedConfig;
+            }
+            
+            // Fallback to individual JSON file
             var filePath = JsonLoader.FindGameDataFile("ColorTemplates.json");
             if (filePath == null)
             {
@@ -100,12 +132,21 @@ namespace RPGGame.Data
         
         /// <summary>
         /// Gets a specific template by name (case-insensitive)
+        /// First tries unified ColorConfiguration.json, then falls back to individual file
         /// </summary>
         public static ColorTemplateData? GetTemplate(string templateName)
         {
             if (string.IsNullOrEmpty(templateName))
                 return null;
             
+            // Try unified configuration first
+            var unifiedTemplate = ColorConfigurationLoader.GetTemplate(templateName);
+            if (unifiedTemplate != null)
+            {
+                return unifiedTemplate;
+            }
+            
+            // Fallback to individual file loading
             LoadColorTemplates(); // Ensure templates are loaded
             
             if (_templateCache == null)

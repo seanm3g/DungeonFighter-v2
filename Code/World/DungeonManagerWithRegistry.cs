@@ -92,7 +92,8 @@ namespace RPGGame
                     dungeonLevel,
                     dungeonLevel,
                     dungeonData.theme,
-                    dungeonData.possibleEnemies
+                    dungeonData.possibleEnemies,
+                    dungeonData.colorOverride
                 ));
             }
             

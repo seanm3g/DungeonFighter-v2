@@ -11,6 +11,7 @@
         public bool IsLiving { get; private set; }
         public EnemyArchetype Archetype { get; private set; }
         public EnemyAttackProfile AttackProfile { get; private set; }
+        public ColorOverride? ColorOverride { get; private set; }
         
         // DPS-based system properties
         public double TargetDPS { get; private set; }

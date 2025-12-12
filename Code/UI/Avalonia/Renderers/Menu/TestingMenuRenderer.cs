@@ -69,6 +69,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 (5, "Data & UI System Tests"),
                 (6, "Advanced & Integration Tests"),
                 (7, "Generate 10 Random Items"),
+                (8, "Item Generation Analysis (100 items per level 1-20)"),
+                (9, "Tier Distribution Verification"),
+                (10, "Common Item Modification Chance (25% verification)"),
+                (11, "Color System Tests (All Color Features)"),
                 (0, "Back to Settings")
             };
             

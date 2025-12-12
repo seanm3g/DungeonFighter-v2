@@ -44,6 +44,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 (1, "Edit Game Variables", AsciiArtAssets.Colors.White),
                 (2, "Edit Actions", AsciiArtAssets.Colors.White),
                 (3, "Battle Statistics", AsciiArtAssets.Colors.White),
+                (4, "Tuning Parameters", AsciiArtAssets.Colors.White),
                 (0, "Back to Settings", AsciiArtAssets.Colors.White)
             };
             

@@ -1,6 +1,7 @@
 using Avalonia.Media;
 using Avalonia.Threading;
 using RPGGame;
+using RPGGame.Editors;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.Avalonia.Renderers.Layout;
@@ -167,8 +168,11 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderMenuScreen("COMPREHENSIVE WEAPON-ENEMY TEST RESULTS", 
                 (x, y, w, h) => menuRenderer.RenderComprehensiveWeaponEnemyResultsContent(x, y, w, h, results));
         
-        public void RenderVariableEditor() => RenderMenuScreen("EDIT GAME VARIABLES", 
-            (x, y, w, h) => menuRenderer.RenderVariableEditorContent(x, y, w, h));
+        public void RenderVariableEditor(EditableVariable? selectedVariable = null, bool isEditing = false, string? currentInput = null, string? message = null) => RenderMenuScreen("EDIT GAME VARIABLES", 
+            (x, y, w, h) => menuRenderer.RenderVariableEditorContent(x, y, w, h, selectedVariable, isEditing, currentInput, message));
+        
+        public void RenderTuningParametersMenu(string? selectedCategory = null, EditableVariable? selectedVariable = null, bool isEditing = false, string? currentInput = null, string? message = null) => RenderMenuScreen("TUNING PARAMETERS", 
+            (x, y, w, h) => menuRenderer.RenderTuningParametersContent(x, y, w, h, selectedCategory, selectedVariable, isEditing, currentInput, message));
         
         public void RenderActionEditor() => RenderMenuScreen("EDIT ACTIONS", 
             (x, y, w, h) => menuRenderer.RenderActionEditorContent(x, y, w, h));

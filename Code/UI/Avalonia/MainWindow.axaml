@@ -48,5 +48,22 @@
                        Foreground="Gray" 
                        Margin="20,0,0,0"/>
         </StackPanel>
+        
+        <!-- Tuning Menu Panel Overlay -->
+        <Border Grid.Row="1" 
+                Grid.RowSpan="2"
+                Background="#E0000000" 
+                IsVisible="False"
+                x:Name="TuningPanelOverlay"
+                ZIndex="1000"
+                IsHitTestVisible="True">
+            <local:TuningMenuPanel x:Name="TuningMenuPanel" 
+                                   HorizontalAlignment="Center" 
+                                   VerticalAlignment="Center"
+                                   Width="900"
+                                   Height="650"
+                                   MinWidth="800"
+                                   MinHeight="600"/>
+        </Border>
     </Grid>
 </Window>
