@@ -26,7 +26,7 @@ namespace RPGGame
 
             // Get only tier 1 (common) weapons
             var commonWeapons = _weaponData?.Where(w => w.Tier == 1).ToList() ?? new List<WeaponData>();
-            
+
             if (!commonWeapons.Any())
             {
                 // Fallback to basic weapon if no common weapons found
@@ -35,13 +35,30 @@ namespace RPGGame
 
             // Select a random common weapon
             var selectedWeapon = commonWeapons[RandomUtility.Next(commonWeapons.Count)];
-            
+
             // Generate the weapon item
             var weapon = ItemGenerator.GenerateWeaponItem(selectedWeapon);
-            
+
+            // Apply starting weapon damage from tuning config based on weapon type
+            var weaponScaling = GameConfiguration.Instance?.WeaponScaling;
+            if (weaponScaling?.StartingWeaponDamage != null)
+            {
+                double configDamage = weapon.WeaponType switch
+                {
+                    WeaponType.Mace => weaponScaling.StartingWeaponDamage.Mace,
+                    WeaponType.Sword => weaponScaling.StartingWeaponDamage.Sword,
+                    WeaponType.Dagger => weaponScaling.StartingWeaponDamage.Dagger,
+                    WeaponType.Wand => weaponScaling.StartingWeaponDamage.Wand,
+                    _ => weapon.BaseDamage
+                };
+
+                // Override the base damage with the tuned value
+                weapon.BaseDamage = (int)configDamage;
+            }
+
             // Ensure it's marked as common rarity
             weapon.Rarity = "Common";
-            
+
             return weapon;
         }
 

@@ -139,10 +139,10 @@ namespace RPGGame.Combat.Calculators
             
             // Calculate final damage after armor reduction
             int finalDamage;
-            
+
             // Get combat configuration
             var combatBalance = GameConfiguration.Instance.CombatBalance;
-            
+
             // Apply simple armor reduction (flat reduction)
             finalDamage = Math.Max(GameConfiguration.Instance.Combat.MinimumDamage, (int)totalDamage - targetArmor);
             

@@ -253,9 +253,9 @@
   },
   "WeaponScaling": {
     "StartingWeaponDamage": {
-      "Mace": 12,
-      "Sword": 12,
-      "Dagger": 12,
+      "Mace": 15,
+      "Sword": 13,
+      "Dagger": 11,
       "Wand": 12
     },
     "GlobalDamageMultiplier": 0.8,
