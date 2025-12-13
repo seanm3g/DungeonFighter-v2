@@ -486,6 +486,108 @@ namespace RPGGame.MCP
         {
             return Tools.VariableEditorTools.GetVariablesByCategory(category);
         }
+
+        // ========== Unit Test Tools ==========
+
+        [McpServerTool(Name = "run_combo_dice_roll_tests", Title = "Run Combo Dice Roll Tests")]
+        [Description("Runs comprehensive tests for combo sequences and dice rolls. Tests dice mechanics (1-5 fail, 6-13 normal, 14-20 combo), action selection based on rolls, combo sequence information, IsCombo flag behavior, and conditional triggers (OnCombo vs OnHit).")]
+        public static Task<string> RunComboDiceRollTests()
+        {
+            return Tools.TestTools.RunComboDiceRollTests();
+        }
+
+        [McpServerTool(Name = "run_action_sequence_tests", Title = "Run Action Sequence Tests")]
+        [Description("Runs comprehensive tests for actions and action sequences. Tests action creation, properties, selection, combo sequences, and execution flow.")]
+        public static Task<string> RunActionSequenceTests()
+        {
+            return Tools.TestTools.RunActionSequenceTests();
+        }
+
+        [McpServerTool(Name = "run_combat_system_tests", Title = "Run Combat System Tests")]
+        [Description("Runs comprehensive tests for combat system. Tests damage calculation, hit/miss determination, status effects, combat flow, multi-hit attacks, and critical hits.")]
+        public static Task<string> RunCombatSystemTests()
+        {
+            return Tools.TestTools.RunCombatSystemTests();
+        }
+
+        [McpServerTool(Name = "run_all_unit_tests", Title = "Run All Unit Tests")]
+        [Description("Runs all available unit tests including combo dice roll tests, action sequence tests, and combat system tests.")]
+        public static Task<string> RunAllUnitTests()
+        {
+            return Tools.TestTools.RunAllUnitTests();
+        }
+
+        [McpServerTool(Name = "run_all_settings_tests", Title = "Run All Settings Tests")]
+        [Description("Runs all comprehensive game system tests available in the settings menu.")]
+        public static Task<string> RunAllSettingsTests()
+        {
+            return Tools.TestTools.RunAllSettingsTests();
+        }
+
+        [McpServerTool(Name = "run_specific_test", Title = "Run Specific Test")]
+        [Description("Runs a specific test by name from the settings menu.")]
+        public static Task<string> RunSpecificTest(
+            [Description("Name of the test to run")] string testName)
+        {
+            return Tools.TestTools.RunSpecificTest(testName);
+        }
+
+        [McpServerTool(Name = "run_system_tests", Title = "Run System Tests")]
+        [Description("Runs tests for a specific system category (Character, Combat, Inventory, etc.).")]
+        public static Task<string> RunSystemTests(
+            [Description("System category name")] string systemName)
+        {
+            return Tools.TestTools.RunSystemTests(systemName);
+        }
+
+        // ========== Specialized Agent Tools ==========
+
+        [McpServerTool(Name = "run_full_cycle", Title = "Run Full Automated Balance Cycle")]
+        [Description("Orchestrates complete multi-agent balance tuning cycle: Analysis → Tuning → Testing → Gameplay → Save. Coordinates all specialized agents to reach target balance.")]
+        public static Task<string> RunFullCycle(
+            [Description("Target win rate percentage (default: 90)")] double targetWinRate = 90.0,
+            [Description("Maximum number of tuning iterations (default: 5)")] int maxIterations = 5)
+        {
+            return Tools.AutomatedTuningLoop.RunFullCycle(targetWinRate, maxIterations);
+        }
+
+        [McpServerTool(Name = "tester_agent_run", Title = "Tester Agent - Run Tests")]
+        [Description("Launches Tester Agent to run comprehensive balance verification tests.")]
+        public static Task<string> TesterAgentRun(
+            [Description("Test mode: 'full' (all tests), 'quick' (core metrics), 'regression' (baseline comparison). Default: full")] string mode = "full")
+        {
+            var testMode = mode.ToLower() switch
+            {
+                "quick" => Tools.TesterAgent.TestMode.Quick,
+                "regression" => Tools.TesterAgent.TestMode.Regression,
+                _ => Tools.TesterAgent.TestMode.Full
+            };
+            return Tools.TesterAgent.RunTests(testMode);
+        }
+
+        [McpServerTool(Name = "analysis_agent_run", Title = "Analysis Agent - Deep Diagnostics")]
+        [Description("Launches Analysis Agent to run targeted diagnostics on specific balance aspects.")]
+        public static Task<string> AnalysisAgentRun(
+            [Description("Focus area: 'balance' (overall), 'weapons' (variance), 'enemies' (matchups), 'engagement' (fun moments). Default: balance")] string focus = "balance")
+        {
+            var focusArea = focus.ToLower() switch
+            {
+                "weapons" => Tools.AnalysisAgent.FocusArea.Weapons,
+                "enemies" => Tools.AnalysisAgent.FocusArea.Enemies,
+                "engagement" => Tools.AnalysisAgent.FocusArea.Engagement,
+                _ => Tools.AnalysisAgent.FocusArea.Balance
+            };
+            return Tools.AnalysisAgent.AnalyzeAndReport(focusArea);
+        }
+
+        [McpServerTool(Name = "balance_tuner_agent_run", Title = "Balance Tuner Agent - Iterative Tuning")]
+        [Description("Launches Balance Tuner Agent to iteratively adjust balance toward target metrics.")]
+        public static Task<string> BalanceTunerAgentRun(
+            [Description("Target win rate percentage (default: 90)")] double targetWinRate = 90.0,
+            [Description("Maximize enemy variance (default: true)")] bool maximizeVariance = true)
+        {
+            return Tools.BalanceTunerAgent.TuneBalance(targetWinRate, maximizeVariance);
+        }
     }
 }
 
