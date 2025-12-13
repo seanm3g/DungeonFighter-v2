@@ -3,12 +3,9 @@
     "name": "Goblin",
     "archetype": "Assassin",
     "overrides": {
-      "health": null,
-      "strength": null,
-      "agility": null,
-      "technique": null,
-      "intelligence": null,
-      "armor": null
+      "health": 0.9,
+      "agility": 1.1,
+      "technique": 1.05
     },
     "actions": [
       "JAB",
@@ -21,138 +18,129 @@
     "name": "Spider",
     "archetype": "Assassin",
     "overrides": {
-      "health": 0.7,
-      "agility": 1.3,
-      "technique": 1.2
+      "health": 0.6,
+      "agility": 1.4,
+      "technique": 1.3,
+      "armor": 0.8
     },
     "actions": [
       "WEB STRIKE",
       "POISON BITE"
     ],
     "isLiving": true,
-    "description": "A large forest spider with venomous fangs"
+    "description": "A large forest spider with venomous fangs - extremely fast, fragile"
   },
   {
     "name": "Wolf",
-    "archetype": "Assassin",
+    "archetype": "Berserker",
     "overrides": {
-      "health": null,
-      "strength": null,
-      "agility": null,
-      "technique": null,
-      "intelligence": null,
-      "armor": null
+      "health": 1.1,
+      "strength": 1.2,
+      "agility": 1.2,
+      "armor": 0.6
     },
     "actions": [
       "BITE",
       "HOWL"
     ],
     "isLiving": true,
-    "description": "A swift predator that hunts in packs"
+    "description": "A swift predator that hunts in packs - balanced attacker"
   },
   {
     "name": "Fire Elemental",
-    "archetype": "Assassin",
+    "archetype": "Mage",
     "overrides": {
-      "health": null,
-      "strength": null,
-      "agility": null,
-      "technique": null,
-      "intelligence": null,
-      "armor": null
+      "health": 0.8,
+      "intelligence": 1.4,
+      "armor": 0.5,
+      "technique": 1.2
     },
     "actions": [
       "FIRE BOLT",
       "IGNITE"
     ],
     "isLiving": false,
-    "description": "A being of pure flame with magical powers"
+    "description": "A being of pure flame with magical powers - high damage caster"
   },
   {
     "name": "Lava Golem",
     "archetype": "Brute",
     "overrides": {
-      "health": null,
-      "strength": null,
-      "agility": null,
-      "technique": null,
-      "intelligence": null,
-      "armor": null
+      "health": 1.3,
+      "strength": 1.1,
+      "armor": 1.2,
+      "agility": 0.6
     },
     "actions": [
       "MAGMA FIST",
       "ERUPTION"
     ],
     "isLiving": false,
-    "description": "A massive construct of molten rock and metal"
+    "description": "A massive construct of molten rock and metal - slow tank with high damage"
   },
   {
     "name": "Bat",
     "archetype": "Assassin",
     "overrides": {
       "health": 0.5,
-      "agility": 1.3,
-      "technique": 1.1
+      "agility": 1.5,
+      "technique": 1.2,
+      "armor": 0.3
     },
     "actions": [
       "BAT SWARM",
       "QUICK STRIKE"
     ],
     "isLiving": true,
-    "description": "A flying bat that attacks in swarms"
+    "description": "A flying bat that attacks in swarms - ultra-fast but very fragile"
   },
   {
     "name": "Skeleton",
     "archetype": "Guardian",
     "overrides": {
-      "health": null,
-      "strength": null,
-      "agility": null,
-      "technique": null,
-      "intelligence": null,
-      "armor": null
+      "health": 1.0,
+      "armor": 1.5,
+      "strength": 0.9,
+      "agility": 0.7
     },
     "actions": [
       "BONE STRIKE",
       "RATTLE"
     ],
     "isLiving": false,
-    "description": "An undead warrior with bony armor"
+    "description": "An undead warrior with bony armor - durable defensive fighter"
   },
   {
     "name": "Zombie",
     "archetype": "Brute",
     "overrides": {
-      "health": null,
-      "strength": null,
-      "agility": null,
-      "technique": null,
-      "intelligence": null,
-      "armor": null
+      "health": 1.4,
+      "strength": 1.0,
+      "agility": 0.6,
+      "armor": 0.9
     },
     "actions": [
       "CLAW",
       "GROAN"
     ],
     "isLiving": false,
-    "description": "A shambling undead with relentless persistence"
+    "description": "A shambling undead with relentless persistence - slow but tanky"
   },
   {
     "name": "Wraith",
-    "archetype": "Assassin",
+    "archetype": "Mage",
     "overrides": {
-      "health": null,
-      "strength": null,
-      "agility": null,
-      "technique": null,
-      "intelligence": null,
-      "armor": null
+      "health": 0.7,
+      "intelligence": 1.5,
+      "agility": 1.2,
+      "armor": 0.4,
+      "technique": 1.1
     },
     "actions": [
       "SOUL DRAIN",
       "PHASE"
     ],
     "isLiving": false,
-    "description": "A spectral being with powerful magic"
+    "description": "A spectral being with powerful magic - fast magical caster"
   }
 ]
