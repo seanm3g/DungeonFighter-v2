@@ -3,120 +3,135 @@
     "type": "Sword",
     "name": "Iron Sword",
     "baseDamage": 1,
-    "attackSpeed": 1,
+    "attackSpeed": 1.0,
     "hitCount": 1,
+    "effect": "none",
     "tier": 1
   },
   {
     "type": "Sword",
     "name": "Iron Blade",
     "baseDamage": 1,
-    "attackSpeed": 1,
+    "attackSpeed": 1.0,
     "hitCount": 1,
+    "effect": "none",
     "tier": 1
   },
   {
     "type": "Sword",
     "name": "Iron Saber",
     "baseDamage": 1,
-    "attackSpeed": 1,
+    "attackSpeed": 1.0,
     "hitCount": 1,
+    "effect": "none",
     "tier": 1
   },
   {
     "type": "Sword",
     "name": "Steel Sword",
     "baseDamage": 1,
-    "attackSpeed": 1,
+    "attackSpeed": 1.0,
     "hitCount": 1,
+    "effect": "none",
     "tier": 2
   },
   {
     "type": "Sword",
     "name": "Steel Blade",
     "baseDamage": 1,
-    "attackSpeed": 1,
+    "attackSpeed": 1.0,
     "hitCount": 1,
+    "effect": "none",
     "tier": 2
   },
   {
     "type": "Sword",
     "name": "Steel Saber",
     "baseDamage": 1,
-    "attackSpeed": 1,
+    "attackSpeed": 1.0,
     "hitCount": 1,
+    "effect": "none",
     "tier": 2
   },
   {
     "type": "Sword",
     "name": "Silver Sword",
     "baseDamage": 1,
-    "attackSpeed": 1,
+    "attackSpeed": 1.0,
     "hitCount": 1,
+    "effect": "none",
     "tier": 3
   },
   {
     "type": "Sword",
     "name": "Silver Blade",
     "baseDamage": 1,
-    "attackSpeed": 1,
+    "attackSpeed": 1.0,
     "hitCount": 1,
+    "effect": "none",
     "tier": 3
   },
   {
     "type": "Sword",
     "name": "Silver Saber",
     "baseDamage": 1,
-    "attackSpeed": 1,
+    "attackSpeed": 1.0,
     "hitCount": 1,
+    "effect": "none",
     "tier": 3
   },
   {
     "type": "Sword",
     "name": "Mithril Sword",
     "baseDamage": 1,
-    "attackSpeed": 1,
+    "attackSpeed": 1.0,
     "hitCount": 1,
+    "effect": "none",
     "tier": 4
   },
   {
     "type": "Sword",
     "name": "Mithril Blade",
     "baseDamage": 1,
-    "attackSpeed": 1,
+    "attackSpeed": 1.0,
     "hitCount": 1,
+    "effect": "none",
     "tier": 4
   },
   {
     "type": "Sword",
     "name": "Mithril Saber",
     "baseDamage": 1,
-    "attackSpeed": 1,
+    "attackSpeed": 1.0,
     "hitCount": 1,
+    "effect": "none",
     "tier": 4
   },
   {
     "type": "Sword",
     "name": "Dragon Sword",
     "baseDamage": 1,
-    "attackSpeed": 1,
-    "hitCount": 2,
+    "attackSpeed": 1.0,
+    "hitCount": 1,
+    "effect": "none",
     "tier": 5
   },
   {
     "type": "Sword",
     "name": "Excalibur",
     "baseDamage": 1,
-    "attackSpeed": 1,
-    "hitCount": 2,
+    "attackSpeed": 1.0,
+    "hitCount": 1,
+    "effect": "none",
     "tier": 5
   },
   {
     "type": "Sword",
     "name": "Blade of Light",
     "baseDamage": 1,
-    "attackSpeed": 1,
-    "hitCount": 2,
+    "attackSpeed": 1.0,
+    "hitCount": 1,
+    "effect": "none",
     "tier": 5
   },
   {
@@ -125,6 +140,7 @@
     "baseDamage": 1,
     "attackSpeed": 0.8,
     "hitCount": 1,
+    "effect": "stun",
     "tier": 1
   },
   {
@@ -133,6 +149,7 @@
     "baseDamage": 1,
     "attackSpeed": 0.8,
     "hitCount": 1,
+    "effect": "stun",
     "tier": 1
   },
   {
@@ -141,6 +158,7 @@
     "baseDamage": 1,
     "attackSpeed": 0.8,
     "hitCount": 1,
+    "effect": "stun",
     "tier": 1
   },
   {
@@ -149,6 +167,7 @@
     "baseDamage": 1,
     "attackSpeed": 0.8,
     "hitCount": 1,
+    "effect": "stun",
     "tier": 2
   },
   {
@@ -157,6 +176,7 @@
     "baseDamage": 1,
     "attackSpeed": 0.8,
     "hitCount": 1,
+    "effect": "stun",
     "tier": 2
   },
   {
@@ -165,6 +185,7 @@
     "baseDamage": 1,
     "attackSpeed": 0.8,
     "hitCount": 1,
+    "effect": "stun",
     "tier": 2
   },
   {
@@ -173,6 +194,7 @@
     "baseDamage": 1,
     "attackSpeed": 0.8,
     "hitCount": 1,
+    "effect": "stun",
     "tier": 3
   },
   {
@@ -181,6 +203,7 @@
     "baseDamage": 1,
     "attackSpeed": 0.8,
     "hitCount": 1,
+    "effect": "stun",
     "tier": 3
   },
   {
@@ -189,6 +212,7 @@
     "baseDamage": 1,
     "attackSpeed": 0.8,
     "hitCount": 1,
+    "effect": "stun",
     "tier": 3
   },
   {
@@ -197,6 +221,7 @@
     "baseDamage": 1,
     "attackSpeed": 0.8,
     "hitCount": 1,
+    "effect": "stun",
     "tier": 4
   },
   {
@@ -205,6 +230,7 @@
     "baseDamage": 1,
     "attackSpeed": 0.8,
     "hitCount": 1,
+    "effect": "stun",
     "tier": 4
   },
   {
@@ -213,6 +239,7 @@
     "baseDamage": 1,
     "attackSpeed": 0.8,
     "hitCount": 1,
+    "effect": "stun",
     "tier": 4
   },
   {
@@ -220,7 +247,8 @@
     "name": "Dragon Mace",
     "baseDamage": 1,
     "attackSpeed": 0.8,
-    "hitCount": 2,
+    "hitCount": 1,
+    "effect": "stun",
     "tier": 5
   },
   {
@@ -228,7 +256,8 @@
     "name": "Warhammer of Power",
     "baseDamage": 1,
     "attackSpeed": 0.8,
-    "hitCount": 2,
+    "hitCount": 1,
+    "effect": "stun",
     "tier": 5
   },
   {
@@ -236,7 +265,8 @@
     "name": "Mace of Destruction",
     "baseDamage": 1,
     "attackSpeed": 0.8,
-    "hitCount": 2,
+    "hitCount": 1,
+    "effect": "stun",
     "tier": 5
   },
   {
@@ -244,7 +274,8 @@
     "name": "Iron Dagger",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 2,
+    "hitCount": 3,
+    "effect": "bleed",
     "tier": 1
   },
   {
@@ -252,7 +283,8 @@
     "name": "Iron Knife",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 2,
+    "hitCount": 3,
+    "effect": "bleed",
     "tier": 1
   },
   {
@@ -260,7 +292,8 @@
     "name": "Iron Blade",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 2,
+    "hitCount": 3,
+    "effect": "bleed",
     "tier": 1
   },
   {
@@ -268,7 +301,8 @@
     "name": "Steel Dagger",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 2,
+    "hitCount": 3,
+    "effect": "bleed",
     "tier": 2
   },
   {
@@ -276,7 +310,8 @@
     "name": "Steel Knife",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 2,
+    "hitCount": 3,
+    "effect": "bleed",
     "tier": 2
   },
   {
@@ -284,7 +319,8 @@
     "name": "Steel Blade",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 2,
+    "hitCount": 3,
+    "effect": "bleed",
     "tier": 2
   },
   {
@@ -292,7 +328,8 @@
     "name": "Silver Dagger",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 2,
+    "hitCount": 3,
+    "effect": "bleed",
     "tier": 3
   },
   {
@@ -300,7 +337,8 @@
     "name": "Silver Knife",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 2,
+    "hitCount": 3,
+    "effect": "bleed",
     "tier": 3
   },
   {
@@ -308,7 +346,8 @@
     "name": "Silver Blade",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 2,
+    "hitCount": 3,
+    "effect": "bleed",
     "tier": 3
   },
   {
@@ -316,7 +355,8 @@
     "name": "Mithril Dagger",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 2,
+    "hitCount": 3,
+    "effect": "bleed",
     "tier": 4
   },
   {
@@ -324,7 +364,8 @@
     "name": "Mithril Knife",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 2,
+    "hitCount": 3,
+    "effect": "bleed",
     "tier": 4
   },
   {
@@ -332,7 +373,8 @@
     "name": "Mithril Blade",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 2,
+    "hitCount": 3,
+    "effect": "bleed",
     "tier": 4
   },
   {
@@ -341,6 +383,7 @@
     "baseDamage": 1,
     "attackSpeed": 1.4,
     "hitCount": 3,
+    "effect": "bleed",
     "tier": 5
   },
   {
@@ -349,6 +392,7 @@
     "baseDamage": 1,
     "attackSpeed": 1.4,
     "hitCount": 3,
+    "effect": "bleed",
     "tier": 5
   },
   {
@@ -357,6 +401,7 @@
     "baseDamage": 1,
     "attackSpeed": 1.4,
     "hitCount": 3,
+    "effect": "bleed",
     "tier": 5
   },
   {
@@ -364,7 +409,8 @@
     "name": "Iron Wand",
     "baseDamage": 1,
     "attackSpeed": 1.1,
-    "hitCount": 1,
+    "hitCount": 2,
+    "effect": "burn",
     "tier": 1
   },
   {
@@ -372,7 +418,8 @@
     "name": "Iron Staff",
     "baseDamage": 1,
     "attackSpeed": 1.1,
-    "hitCount": 1,
+    "hitCount": 2,
+    "effect": "burn",
     "tier": 1
   },
   {
@@ -380,7 +427,8 @@
     "name": "Iron Rod",
     "baseDamage": 1,
     "attackSpeed": 1.1,
-    "hitCount": 1,
+    "hitCount": 2,
+    "effect": "burn",
     "tier": 1
   },
   {
@@ -388,7 +436,8 @@
     "name": "Steel Wand",
     "baseDamage": 1,
     "attackSpeed": 1.1,
-    "hitCount": 1,
+    "hitCount": 2,
+    "effect": "burn",
     "tier": 2
   },
   {
@@ -396,7 +445,8 @@
     "name": "Steel Staff",
     "baseDamage": 1,
     "attackSpeed": 1.1,
-    "hitCount": 1,
+    "hitCount": 2,
+    "effect": "burn",
     "tier": 2
   },
   {
@@ -404,7 +454,8 @@
     "name": "Steel Rod",
     "baseDamage": 1,
     "attackSpeed": 1.1,
-    "hitCount": 1,
+    "hitCount": 2,
+    "effect": "burn",
     "tier": 2
   },
   {
@@ -412,7 +463,8 @@
     "name": "Silver Wand",
     "baseDamage": 1,
     "attackSpeed": 1.1,
-    "hitCount": 1,
+    "hitCount": 2,
+    "effect": "burn",
     "tier": 3
   },
   {
@@ -420,7 +472,8 @@
     "name": "Silver Staff",
     "baseDamage": 1,
     "attackSpeed": 1.1,
-    "hitCount": 1,
+    "hitCount": 2,
+    "effect": "burn",
     "tier": 3
   },
   {
@@ -428,7 +481,8 @@
     "name": "Silver Rod",
     "baseDamage": 1,
     "attackSpeed": 1.1,
-    "hitCount": 1,
+    "hitCount": 2,
+    "effect": "burn",
     "tier": 3
   },
   {
@@ -436,7 +490,8 @@
     "name": "Mithril Wand",
     "baseDamage": 1,
     "attackSpeed": 1.1,
-    "hitCount": 1,
+    "hitCount": 2,
+    "effect": "burn",
     "tier": 4
   },
   {
@@ -444,7 +499,8 @@
     "name": "Mithril Staff",
     "baseDamage": 1,
     "attackSpeed": 1.1,
-    "hitCount": 1,
+    "hitCount": 2,
+    "effect": "burn",
     "tier": 4
   },
   {
@@ -452,7 +508,8 @@
     "name": "Mithril Rod",
     "baseDamage": 1,
     "attackSpeed": 1.1,
-    "hitCount": 1,
+    "hitCount": 2,
+    "effect": "burn",
     "tier": 4
   },
   {
@@ -461,6 +518,7 @@
     "baseDamage": 1,
     "attackSpeed": 1.1,
     "hitCount": 2,
+    "effect": "burn",
     "tier": 5
   },
   {
@@ -469,6 +527,7 @@
     "baseDamage": 1,
     "attackSpeed": 1.1,
     "hitCount": 2,
+    "effect": "burn",
     "tier": 5
   },
   {
@@ -477,6 +536,7 @@
     "baseDamage": 1,
     "attackSpeed": 1.1,
     "hitCount": 2,
+    "effect": "burn",
     "tier": 5
   }
 ]
