@@ -19,7 +19,9 @@
       "Bash(timeout 240 dotnet run:*)",
       "Bash(timeout 30 dotnet run:*)",
       "Bash(timeout 45 dotnet run:*)",
-      "Bash(timeout 180 dotnet run:*)"
+      "Bash(timeout 180 dotnet run:*)",
+      "Bash(taskkill:*)",
+      "Bash(kill:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

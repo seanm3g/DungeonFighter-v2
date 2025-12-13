@@ -1,11 +1,11 @@
 {
   "patchMetadata": {
-    "patchId": "iteration_5_balance_v1.5_20251212",
-    "name": "Iteration_5_Balance",
+    "patchId": "iteration_7_balance_v1.7_20251212",
+    "name": "Iteration_7_Balance",
     "author": "AutoTuner",
-    "description": "Iteration 5 balance adjustments",
-    "version": "1.5",
-    "createdDate": "2025-12-12T20:51:49",
+    "description": "Iteration 7 balance adjustments",
+    "version": "1.7",
+    "createdDate": "2025-12-12T20:51:54",
     "compatibleGameVersion": "6.2",
     "tags": [
       "auto-tuned",
