@@ -108,7 +108,26 @@ namespace RPGGame.Tuning
         {
             try
             {
-                var progress = new System.Progress<(int completed, int total, string status)>();
+                var progress = new System.Progress<(int completed, int total, string status)>(report =>
+                {
+                    // Calculate percentage complete
+                    int percentage = (int)((double)report.completed / report.total * 100);
+
+                    // Create progress bar visualization
+                    int barLength = 30;
+                    int filledLength = (int)((double)report.completed / report.total * barLength);
+                    string bar = new string('█', filledLength) + new string('░', barLength - filledLength);
+
+                    // Print progress bar with status
+                    Console.Write($"\r[{bar}] {percentage,3}% - {report.status,-40}");
+
+                    // Print newline when complete
+                    if (report.completed >= report.total)
+                    {
+                        Console.WriteLine();
+                    }
+                });
+
                 var result = await BattleStatisticsRunner.RunComprehensiveWeaponEnemyTests(
                     battlesPerCombination, 1, 1, progress);
                 return result;
