@@ -5,7 +5,7 @@
     "author": "AutoTuner",
     "description": "Iteration 1 balance adjustments",
     "version": "1.1",
-    "createdDate": "2025-12-12T18:48:29",
+    "createdDate": "2025-12-12T19:16:55",
     "compatibleGameVersion": "6.2",
     "tags": [
       "auto-tuned",
@@ -288,7 +288,7 @@
     },
     "enemySystem": {
       "globalMultipliers": {
-        "healthMultiplier": 12,
+        "healthMultiplier": 8,
         "damageMultiplier": 0.8,
         "armorMultiplier": 1,
         "speedMultiplier": 1,
@@ -371,10 +371,10 @@
     },
     "weaponScaling": {
       "startingWeaponDamage": {
-        "mace": 10,
-        "sword": 10,
-        "dagger": 10,
-        "wand": 10
+        "mace": 12,
+        "sword": 12,
+        "dagger": 12,
+        "wand": 12
       },
       "tierDamageRanges": {
         "tier1": {

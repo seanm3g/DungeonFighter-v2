@@ -988,87 +988,55 @@ namespace RPGGame
                         TotalBattles = battlesPerCombination
                     };
                     
-                    var battleTasks = new List<Task<BattleResult>>();
-                    var semaphore = new System.Threading.SemaphoreSlim(System.Environment.ProcessorCount * 2, System.Environment.ProcessorCount * 2);
-                    int battlesStarted = 0;
-                    int battlesCompleted = 0;
-                    
+                    // Run battles SEQUENTIALLY instead of in parallel to avoid race conditions
+                    var battleResults = new List<BattleResult>();
+
+                    Utils.ScrollDebugLogger.Log($"BattleStatisticsRunner: Starting {battlesPerCombination} sequential battles: {weaponType} vs {enemyType}");
+                    var sequentialStartTime = DateTime.Now;
+
                     for (int i = 0; i < battlesPerCombination; i++)
                     {
-                        int battleIndex = i;
-                        var task = Task.Run(async () =>
+                        var battleStartTime = DateTime.Now;
+
+                        try
                         {
-                            await semaphore.WaitAsync();
-                            battlesStarted++;
-                            var battleStartTime = DateTime.Now;
-                            
-                            try
+                            Utils.ScrollDebugLogger.Log($"BattleStatisticsRunner: Battle {i + 1}/{battlesPerCombination} starting: {weaponType} vs {enemyType}");
+
+                            // Run battle sequentially - no Task.Run, just direct await
+                            var battleResult = await RunSingleBattleWithWeapon(weaponType, enemyType, playerLevel, enemyLevel, i);
+
+                            var battleDuration = (DateTime.Now - battleStartTime).TotalSeconds;
+                            completedBattles++;
+
+                            Utils.ScrollDebugLogger.Log($"BattleStatisticsRunner: Battle {i + 1}/{battlesPerCombination} completed in {battleDuration:F2}s: {weaponType} vs {enemyType} - {(battleResult.ErrorMessage != null ? "ERROR" : battleResult.PlayerWon ? "WIN" : "LOSS")}");
+
+                            progress?.Report((completedBattles, totalBattles,
+                                $"{weaponType} vs {enemyType} ({completedBattles}/{totalBattles})"));
+
+                            battleResults.Add(battleResult);
+                        }
+                        catch (Exception ex)
+                        {
+                            var battleDuration = (DateTime.Now - battleStartTime).TotalSeconds;
+                            Utils.ScrollDebugLogger.Log($"BattleStatisticsRunner: Battle {i + 1}/{battlesPerCombination} EXCEPTION after {battleDuration:F2}s: {weaponType} vs {enemyType} - {ex.GetType().Name}: {ex.Message}");
+
+                            var errorResult = new BattleResult
                             {
-                                Utils.ScrollDebugLogger.Log($"BattleStatisticsRunner: Battle {battleIndex + 1}/{battlesPerCombination} starting: {weaponType} vs {enemyType}");
-                                
-                                var battleResult = await RunSingleBattleWithWeapon(weaponType, enemyType, playerLevel, enemyLevel, battleIndex);
-                                
-                                var battleDuration = (DateTime.Now - battleStartTime).TotalSeconds;
-                                battlesCompleted++;
-                                completedBattles++;
-                                
-                                Utils.ScrollDebugLogger.Log($"BattleStatisticsRunner: Battle {battleIndex + 1}/{battlesPerCombination} completed in {battleDuration:F2}s: {weaponType} vs {enemyType} - {(battleResult.ErrorMessage != null ? "ERROR" : battleResult.PlayerWon ? "WIN" : "LOSS")}");
-                                
-                                progress?.Report((completedBattles, totalBattles, 
-                                    $"{weaponType} vs {enemyType} ({completedBattles}/{totalBattles})"));
-                                
-                                return battleResult;
-                            }
-                            catch (Exception ex)
-                            {
-                                var battleDuration = (DateTime.Now - battleStartTime).TotalSeconds;
-                                Utils.ScrollDebugLogger.Log($"BattleStatisticsRunner: Battle {battleIndex + 1}/{battlesPerCombination} EXCEPTION after {battleDuration:F2}s: {weaponType} vs {enemyType} - {ex.GetType().Name}: {ex.Message}");
-                                
-                                var errorResult = new BattleResult
-                                {
-                                    ErrorMessage = $"Exception: {ex.GetType().Name}: {ex.Message}",
-                                    PlayerWon = false,
-                                    Turns = 0
-                                };
-                                battlesCompleted++;
-                                completedBattles++;
-                                progress?.Report((completedBattles, totalBattles, 
-                                    $"{weaponType} vs {enemyType} - Error ({completedBattles}/{totalBattles})"));
-                                return errorResult;
-                            }
-                            finally
-                            {
-                                semaphore.Release();
-                            }
-                        });
-                        battleTasks.Add(task);
+                                ErrorMessage = $"Exception: {ex.GetType().Name}: {ex.Message}",
+                                PlayerWon = false,
+                                Turns = 0
+                            };
+                            completedBattles++;
+                            progress?.Report((completedBattles, totalBattles,
+                                $"{weaponType} vs {enemyType} - Error ({completedBattles}/{totalBattles})"));
+                            battleResults.Add(errorResult);
+                        }
                     }
-                    
-                    Utils.ScrollDebugLogger.Log($"BattleStatisticsRunner: Waiting for {battlesPerCombination} battles to complete: {weaponType} vs {enemyType}");
-                    var waitStartTime = DateTime.Now;
-                    
-                    // Wait for all battles for this combination with timeout check
-                    try
-                    {
-                        var allResults = await Task.WhenAll(battleTasks);
-                        var waitDuration = (DateTime.Now - waitStartTime).TotalSeconds;
-                        
-                        Utils.ScrollDebugLogger.Log($"BattleStatisticsRunner: All {battlesPerCombination} battles completed in {waitDuration:F2}s: {weaponType} vs {enemyType} (Started: {battlesStarted}, Completed: {battlesCompleted})");
-                        
-                        combinationResult.BattleResults = allResults.ToList();
-                    }
-                    catch (Exception ex)
-                    {
-                        Utils.ScrollDebugLogger.Log($"BattleStatisticsRunner: ERROR waiting for battles: {weaponType} vs {enemyType} - {ex.GetType().Name}: {ex.Message}");
-                        Utils.ScrollDebugLogger.Log($"BattleStatisticsRunner: Stack trace: {ex.StackTrace}");
-                        
-                        // Get any completed results
-                        var completedResults = battleTasks
-                            .Where(t => t.IsCompletedSuccessfully)
-                            .Select(t => t.Result)
-                            .ToList();
-                        combinationResult.BattleResults = completedResults;
-                    }
+
+                    var sequentialDuration = (DateTime.Now - sequentialStartTime).TotalSeconds;
+                    Utils.ScrollDebugLogger.Log($"BattleStatisticsRunner: All {battlesPerCombination} battles completed in {sequentialDuration:F2}s: {weaponType} vs {enemyType}");
+
+                    combinationResult.BattleResults = battleResults;
                     
                     // Calculate statistics for this combination
                     CalculateWeaponEnemyStatistics(combinationResult);

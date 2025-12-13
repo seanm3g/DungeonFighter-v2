@@ -70,7 +70,7 @@
   },
   "EnemySystem": {
     "GlobalMultipliers": {
-      "HealthMultiplier": 12.0,
+      "HealthMultiplier": 8.0,
       "DamageMultiplier": 0.8,
       "ArmorMultiplier": 1.0,
       "SpeedMultiplier": 1.0,
@@ -253,10 +253,10 @@
   },
   "WeaponScaling": {
     "StartingWeaponDamage": {
-      "Mace": 10,
-      "Sword": 10,
-      "Dagger": 10,
-      "Wand": 10
+      "Mace": 12,
+      "Sword": 12,
+      "Dagger": 12,
+      "Wand": 12
     },
     "GlobalDamageMultiplier": 0.8,
     "Description": "Weapon damage scaling and starting weapon configuration"
