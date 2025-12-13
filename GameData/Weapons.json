@@ -3,8 +3,8 @@
     "type": "Sword",
     "name": "Iron Sword",
     "baseDamage": 1,
-    "attackSpeed": 1.0,
-    "hitCount": 1,
+    "attackSpeed": 1.2,
+    "hitCount": 2,
     "effect": "none",
     "tier": 1
   },
@@ -12,8 +12,8 @@
     "type": "Sword",
     "name": "Iron Blade",
     "baseDamage": 1,
-    "attackSpeed": 1.0,
-    "hitCount": 1,
+    "attackSpeed": 1.2,
+    "hitCount": 2,
     "effect": "none",
     "tier": 1
   },
@@ -21,8 +21,8 @@
     "type": "Sword",
     "name": "Iron Saber",
     "baseDamage": 1,
-    "attackSpeed": 1.0,
-    "hitCount": 1,
+    "attackSpeed": 1.2,
+    "hitCount": 2,
     "effect": "none",
     "tier": 1
   },
@@ -30,8 +30,8 @@
     "type": "Sword",
     "name": "Steel Sword",
     "baseDamage": 1,
-    "attackSpeed": 1.0,
-    "hitCount": 1,
+    "attackSpeed": 1.2,
+    "hitCount": 2,
     "effect": "none",
     "tier": 2
   },
@@ -39,8 +39,8 @@
     "type": "Sword",
     "name": "Steel Blade",
     "baseDamage": 1,
-    "attackSpeed": 1.0,
-    "hitCount": 1,
+    "attackSpeed": 1.2,
+    "hitCount": 2,
     "effect": "none",
     "tier": 2
   },
@@ -48,8 +48,8 @@
     "type": "Sword",
     "name": "Steel Saber",
     "baseDamage": 1,
-    "attackSpeed": 1.0,
-    "hitCount": 1,
+    "attackSpeed": 1.2,
+    "hitCount": 2,
     "effect": "none",
     "tier": 2
   },
@@ -57,8 +57,8 @@
     "type": "Sword",
     "name": "Silver Sword",
     "baseDamage": 1,
-    "attackSpeed": 1.0,
-    "hitCount": 1,
+    "attackSpeed": 1.2,
+    "hitCount": 2,
     "effect": "none",
     "tier": 3
   },
@@ -66,8 +66,8 @@
     "type": "Sword",
     "name": "Silver Blade",
     "baseDamage": 1,
-    "attackSpeed": 1.0,
-    "hitCount": 1,
+    "attackSpeed": 1.2,
+    "hitCount": 2,
     "effect": "none",
     "tier": 3
   },
@@ -75,8 +75,8 @@
     "type": "Sword",
     "name": "Silver Saber",
     "baseDamage": 1,
-    "attackSpeed": 1.0,
-    "hitCount": 1,
+    "attackSpeed": 1.2,
+    "hitCount": 2,
     "effect": "none",
     "tier": 3
   },
@@ -84,8 +84,8 @@
     "type": "Sword",
     "name": "Mithril Sword",
     "baseDamage": 1,
-    "attackSpeed": 1.0,
-    "hitCount": 1,
+    "attackSpeed": 1.2,
+    "hitCount": 2,
     "effect": "none",
     "tier": 4
   },
@@ -93,8 +93,8 @@
     "type": "Sword",
     "name": "Mithril Blade",
     "baseDamage": 1,
-    "attackSpeed": 1.0,
-    "hitCount": 1,
+    "attackSpeed": 1.2,
+    "hitCount": 2,
     "effect": "none",
     "tier": 4
   },
@@ -102,8 +102,8 @@
     "type": "Sword",
     "name": "Mithril Saber",
     "baseDamage": 1,
-    "attackSpeed": 1.0,
-    "hitCount": 1,
+    "attackSpeed": 1.2,
+    "hitCount": 2,
     "effect": "none",
     "tier": 4
   },
@@ -111,8 +111,8 @@
     "type": "Sword",
     "name": "Dragon Sword",
     "baseDamage": 1,
-    "attackSpeed": 1.0,
-    "hitCount": 1,
+    "attackSpeed": 1.2,
+    "hitCount": 2,
     "effect": "none",
     "tier": 5
   },
@@ -120,8 +120,8 @@
     "type": "Sword",
     "name": "Excalibur",
     "baseDamage": 1,
-    "attackSpeed": 1.0,
-    "hitCount": 1,
+    "attackSpeed": 1.2,
+    "hitCount": 2,
     "effect": "none",
     "tier": 5
   },
@@ -129,8 +129,8 @@
     "type": "Sword",
     "name": "Blade of Light",
     "baseDamage": 1,
-    "attackSpeed": 1.0,
-    "hitCount": 1,
+    "attackSpeed": 1.2,
+    "hitCount": 2,
     "effect": "none",
     "tier": 5
   },
@@ -274,7 +274,7 @@
     "name": "Iron Dagger",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 3,
+    "hitCount": 1,
     "effect": "bleed",
     "tier": 1
   },
@@ -283,7 +283,7 @@
     "name": "Iron Knife",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 3,
+    "hitCount": 1,
     "effect": "bleed",
     "tier": 1
   },
@@ -292,7 +292,7 @@
     "name": "Iron Blade",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 3,
+    "hitCount": 1,
     "effect": "bleed",
     "tier": 1
   },
@@ -301,7 +301,7 @@
     "name": "Steel Dagger",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 3,
+    "hitCount": 1,
     "effect": "bleed",
     "tier": 2
   },
@@ -310,7 +310,7 @@
     "name": "Steel Knife",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 3,
+    "hitCount": 1,
     "effect": "bleed",
     "tier": 2
   },
@@ -319,7 +319,7 @@
     "name": "Steel Blade",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 3,
+    "hitCount": 1,
     "effect": "bleed",
     "tier": 2
   },
@@ -328,7 +328,7 @@
     "name": "Silver Dagger",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 3,
+    "hitCount": 1,
     "effect": "bleed",
     "tier": 3
   },
@@ -337,7 +337,7 @@
     "name": "Silver Knife",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 3,
+    "hitCount": 1,
     "effect": "bleed",
     "tier": 3
   },
@@ -346,7 +346,7 @@
     "name": "Silver Blade",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 3,
+    "hitCount": 1,
     "effect": "bleed",
     "tier": 3
   },
@@ -355,7 +355,7 @@
     "name": "Mithril Dagger",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 3,
+    "hitCount": 1,
     "effect": "bleed",
     "tier": 4
   },
@@ -364,7 +364,7 @@
     "name": "Mithril Knife",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 3,
+    "hitCount": 1,
     "effect": "bleed",
     "tier": 4
   },
@@ -373,7 +373,7 @@
     "name": "Mithril Blade",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 3,
+    "hitCount": 1,
     "effect": "bleed",
     "tier": 4
   },
@@ -382,7 +382,7 @@
     "name": "Dragon Dagger",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 3,
+    "hitCount": 1,
     "effect": "bleed",
     "tier": 5
   },
@@ -391,7 +391,7 @@
     "name": "Shadow Blade",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 3,
+    "hitCount": 1,
     "effect": "bleed",
     "tier": 5
   },
@@ -400,7 +400,7 @@
     "name": "Assassin's Blade",
     "baseDamage": 1,
     "attackSpeed": 1.4,
-    "hitCount": 3,
+    "hitCount": 1,
     "effect": "bleed",
     "tier": 5
   },
