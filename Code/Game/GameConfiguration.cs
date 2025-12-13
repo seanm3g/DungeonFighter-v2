@@ -204,6 +204,18 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Resets the singleton instance, forcing a reload on next access
+        /// Used by tuner to reload configuration after balance adjustments
+        /// </summary>
+        public static void ResetInstance()
+        {
+            lock (_lock)
+            {
+                _instance = null;
+            }
+        }
+
+        /// <summary>
         /// Save current configuration to TuningConfig.json
         /// </summary>
         public bool SaveToFile()

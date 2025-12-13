@@ -79,7 +79,7 @@ namespace RPGGame
                 Intelligence = (int)(levelScaledStats.Intelligence * global.DamageMultiplier),
                 Armor = (int)(levelScaledStats.Armor * global.ArmorMultiplier)
             };
-            
+
             // Determine primary attribute based on highest stat
             var primaryAttribute = DeterminePrimaryAttribute(finalStats.Strength, finalStats.Agility, finalStats.Technique, finalStats.Intelligence);
             

@@ -70,9 +70,9 @@
   },
   "EnemySystem": {
     "GlobalMultipliers": {
-      "HealthMultiplier": 100.0,
-      "DamageMultiplier": 0.3,
-      "ArmorMultiplier": 2.0,
+      "HealthMultiplier": 12.0,
+      "DamageMultiplier": 0.8,
+      "ArmorMultiplier": 1.0,
       "SpeedMultiplier": 1.0,
       "Description": "Global multipliers applied to all enemies"
     },
@@ -253,12 +253,12 @@
   },
   "WeaponScaling": {
     "StartingWeaponDamage": {
-      "Mace": 1,
-      "Sword": 1,
-      "Dagger": 1,
-      "Wand": 1
+      "Mace": 10,
+      "Sword": 10,
+      "Dagger": 10,
+      "Wand": 10
     },
-    "GlobalDamageMultiplier": 0.05,
+    "GlobalDamageMultiplier": 0.8,
     "Description": "Weapon damage scaling and starting weapon configuration"
   },
   "EquipmentScaling": {

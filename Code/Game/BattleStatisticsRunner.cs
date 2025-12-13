@@ -794,16 +794,16 @@ namespace RPGGame
                 if (narrative != null)
                 {
                     var events = narrative.GetAllEvents();
-                    
+
                     // Calculate damage from actual events
                     result.PlayerDamageDealt = events
                         .Where(e => e.Actor == character.Name && e.Target == enemy.Name && e.Damage > 0)
                         .Sum(e => e.Damage);
-                    
+
                     result.EnemyDamageDealt = events
                         .Where(e => e.Actor == enemy.Name && e.Target == character.Name && e.Damage > 0)
                         .Sum(e => e.Damage);
-                    
+
                     // Use current turn number from TurnManager (each action increments turn by 1)
                     if (currentTurn > 0)
                     {
@@ -821,6 +821,7 @@ namespace RPGGame
                         int totalActions = playerActions + enemyActions;
                         result.Turns = Math.Max(1, totalActions);
                     }
+
                     
                     // Collect fun moment summary
                     if (funTracker != null)

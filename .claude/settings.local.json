@@ -15,7 +15,10 @@
       "Bash(cat:*)",
       "Bash(timeout 60 dotnet run:*)",
       "Bash(1)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(timeout 240 dotnet run:*)",
+      "Bash(timeout 30 dotnet run:*)",
+      "Bash(timeout 45 dotnet run:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

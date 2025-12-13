@@ -186,6 +186,15 @@ namespace RPGGame.Tuning
                     BalanceAdjustmentTools.AdjustArchetype("Assassin", "agility", 1.1).Wait();
                     break;
             }
+
+            // CRITICAL: Reset the GameConfiguration singleton to reload the updated config file
+            // The config was written to disk, but the singleton cache still has the old values
+            Console.WriteLine("Reloading configuration from disk...");
+            GameConfiguration.ResetInstance();
+
+            // Force the next access to reload the configuration
+            _ = GameConfiguration.Instance;
+            Console.WriteLine("✓ Configuration reloaded\n");
         }
 
         private static async Task SaveIterationPatch(int iteration)
