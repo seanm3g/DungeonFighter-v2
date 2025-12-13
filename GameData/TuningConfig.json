@@ -253,10 +253,10 @@
   },
   "WeaponScaling": {
     "StartingWeaponDamage": {
-      "Mace": 10,
-      "Sword": 8,
-      "Dagger": 6,
-      "Wand": 7
+      "Mace": 11,
+      "Sword": 9,
+      "Dagger": 7,
+      "Wand": 8
     },
     "GlobalDamageMultiplier": 0.8,
     "Description": "Weapon damage scaling and starting weapon configuration"
