@@ -588,6 +588,123 @@ namespace RPGGame.MCP
         {
             return Tools.BalanceTunerAgent.TuneBalance(targetWinRate, maximizeVariance);
         }
+
+        // ========== Development Agent Tools ==========
+
+        [McpServerTool(Name = "code_review_agent_file", Title = "Code Review Agent - Review File")]
+        [Description("Launches Code Review Agent to analyze a specific C# file for quality issues.")]
+        public static Task<string> CodeReviewAgentFile(
+            [Description("File path relative to project root (e.g., Code/Combat/CombatManager.cs)")] string filePath)
+        {
+            return Tools.CodeReviewAgent.ReviewFile(filePath);
+        }
+
+        [McpServerTool(Name = "code_review_agent_diff", Title = "Code Review Agent - Review Diff")]
+        [Description("Launches Code Review Agent to review uncommitted git changes.")]
+        public static Task<string> CodeReviewAgentDiff()
+        {
+            return Tools.CodeReviewAgent.ReviewDiff();
+        }
+
+        [McpServerTool(Name = "code_review_agent_pr", Title = "Code Review Agent - Review Pull Request")]
+        [Description("Launches Code Review Agent to review current branch against main.")]
+        public static Task<string> CodeReviewAgentPr()
+        {
+            return Tools.CodeReviewAgent.ReviewPullRequest();
+        }
+
+        [McpServerTool(Name = "test_engineer_agent_generate", Title = "Test Engineer Agent - Generate Tests")]
+        [Description("Launches Test Engineer Agent to generate unit and integration tests for a feature.")]
+        public static Task<string> TestEngineerAgentGenerate(
+            [Description("Feature name or class to generate tests for")] string featureName)
+        {
+            return Tools.TestEngineerAgent.GenerateTests(featureName);
+        }
+
+        [McpServerTool(Name = "test_engineer_agent_run", Title = "Test Engineer Agent - Run Tests")]
+        [Description("Launches Test Engineer Agent to run and verify test suites.")]
+        public static Task<string> TestEngineerAgentRun(
+            [Description("Test category or name to run")] string category)
+        {
+            return Tools.TestEngineerAgent.RunTests(category);
+        }
+
+        [McpServerTool(Name = "test_engineer_agent_coverage", Title = "Test Engineer Agent - Analyze Coverage")]
+        [Description("Launches Test Engineer Agent to analyze and report test coverage gaps.")]
+        public static Task<string> TestEngineerAgentCoverage()
+        {
+            return Tools.TestEngineerAgent.AnalyzeCoverage();
+        }
+
+        [McpServerTool(Name = "test_engineer_agent_integration", Title = "Test Engineer Agent - Generate Integration Tests")]
+        [Description("Launches Test Engineer Agent to generate integration tests for a system.")]
+        public static Task<string> TestEngineerAgentIntegration(
+            [Description("System name (e.g., Combat, Character, Inventory)")] string systemName)
+        {
+            return Tools.TestEngineerAgent.GenerateIntegrationTests(systemName);
+        }
+
+        [McpServerTool(Name = "bug_investigator_agent_investigate", Title = "Bug Investigator Agent - Investigate Bug")]
+        [Description("Launches Bug Investigator Agent to diagnose a bug from description.")]
+        public static Task<string> BugInvestigatorAgentInvestigate(
+            [Description("Description of the bug issue")] string description)
+        {
+            return Tools.BugInvestigatorAgent.InvestigateBug(description);
+        }
+
+        [McpServerTool(Name = "bug_investigator_agent_reproduce", Title = "Bug Investigator Agent - Reproduce Bug")]
+        [Description("Launches Bug Investigator Agent to reproduce a bug with given steps.")]
+        public static Task<string> BugInvestigatorAgentReproduce(
+            [Description("Steps to reproduce the bug")] string steps)
+        {
+            return Tools.BugInvestigatorAgent.ReproduceBug(steps);
+        }
+
+        [McpServerTool(Name = "bug_investigator_agent_isolate", Title = "Bug Investigator Agent - Isolate Bug")]
+        [Description("Launches Bug Investigator Agent to isolate root cause in a system.")]
+        public static Task<string> BugInvestigatorAgentIsolate(
+            [Description("System name where bug occurs (e.g., Combat, Enemy, UI)")] string systemName)
+        {
+            return Tools.BugInvestigatorAgent.IsolateBug(systemName);
+        }
+
+        [McpServerTool(Name = "bug_investigator_agent_suggest_fix", Title = "Bug Investigator Agent - Suggest Fixes")]
+        [Description("Launches Bug Investigator Agent to generate fix suggestions for a bug.")]
+        public static Task<string> BugInvestigatorAgentSuggestFix(
+            [Description("Bug ID or identifier")] string bugId)
+        {
+            return Tools.BugInvestigatorAgent.SuggestFix(bugId);
+        }
+
+        [McpServerTool(Name = "performance_profiler_agent_profile", Title = "Performance Profiler Agent - Profile System")]
+        [Description("Launches Performance Profiler Agent to identify bottlenecks in a system.")]
+        public static Task<string> PerformanceProfilerAgentProfile(
+            [Description("Component name to profile (Combat, Enemy, Game, etc.)")] string component)
+        {
+            return Tools.PerformanceProfilerAgent.ProfileSystem(component);
+        }
+
+        [McpServerTool(Name = "performance_profiler_agent_compare", Title = "Performance Profiler Agent - Compare Performance")]
+        [Description("Launches Performance Profiler Agent to compare current performance with baseline.")]
+        public static Task<string> PerformanceProfilerAgentCompare(
+            [Description("Baseline name or version to compare against")] string baseline)
+        {
+            return Tools.PerformanceProfilerAgent.ComparePerformance(baseline);
+        }
+
+        [McpServerTool(Name = "performance_profiler_agent_bottlenecks", Title = "Performance Profiler Agent - Identify Bottlenecks")]
+        [Description("Launches Performance Profiler Agent to find performance bottlenecks across all systems.")]
+        public static Task<string> PerformanceProfilerAgentBottlenecks()
+        {
+            return Tools.PerformanceProfilerAgent.IdentifyBottlenecks();
+        }
+
+        [McpServerTool(Name = "performance_profiler_agent_benchmark", Title = "Performance Profiler Agent - Benchmark Critical Paths")]
+        [Description("Launches Performance Profiler Agent to benchmark critical code paths.")]
+        public static Task<string> PerformanceProfilerAgentBenchmark()
+        {
+            return Tools.PerformanceProfilerAgent.BenchmarkCriticalPaths();
+        }
     }
 }
 
