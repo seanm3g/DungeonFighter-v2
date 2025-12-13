@@ -24,6 +24,9 @@ namespace RPGGame
         /// </summary>
         public void StartBattleNarrative(string playerName, string enemyName, string locationName, int playerHealth, int enemyHealth)
         {
+            // Clear previous battle's narrative before starting a new one
+            currentBattleNarrative = null;
+
             currentBattleNarrative = new BattleNarrative(playerName, enemyName, locationName, playerHealth, enemyHealth);
             
             // Initialize fun moment tracker
@@ -39,6 +42,8 @@ namespace RPGGame
 
         /// <summary>
         /// Ends battle narrative and cleans up combat state
+        /// NOTE: Does NOT null the narrative - it's kept for post-battle metrics calculation
+        /// The narrative will be cleared when StartBattleNarrative is called for the next battle
         /// </summary>
         public void EndBattleNarrative()
         {
@@ -46,7 +51,7 @@ namespace RPGGame
             {
                 // End the battle and generate narrative
                 currentBattleNarrative.EndBattle();
-                
+
                 // Display only the battle summary (damage totals) since narrative events are now displayed immediately
                 var settings = GameSettings.Instance;
                 if (settings.EnableNarrativeEvents && !CombatManager.DisableCombatUIOutput)
@@ -58,14 +63,17 @@ namespace RPGGame
                         BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse(summary));
                     }
                 }
-                
-                currentBattleNarrative = null;
+
+                // NOTE: We do NOT null currentBattleNarrative here
+                // It needs to remain available for post-battle metrics calculation
             }
             turnManager.EndBattle();
         }
 
         /// <summary>
         /// Ends the battle narrative with final health values from actual entities
+        /// NOTE: Does NOT null the narrative - it's kept for post-battle metrics calculation
+        /// The narrative will be cleared when StartBattleNarrative is called for the next battle
         /// </summary>
         public void EndBattleNarrative(Character player, Enemy enemy)
         {
@@ -76,13 +84,13 @@ namespace RPGGame
                 {
                     funMomentTracker.FinalizeCombat(player.IsAlive, player.CurrentHealth, player.GetEffectiveMaxHealth());
                 }
-                
+
                 // Update final health values from actual entities
                 currentBattleNarrative.UpdateFinalHealth(player.CurrentHealth, enemy.CurrentHealth);
-                
+
                 // End the battle and generate narrative
                 currentBattleNarrative.EndBattle();
-                
+
                 // Display only the battle summary (damage totals) since narrative events are now displayed immediately
                 var settings = GameSettings.Instance;
                 if (settings.EnableNarrativeEvents && !CombatManager.DisableCombatUIOutput)
@@ -94,8 +102,9 @@ namespace RPGGame
                         BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse(summary));
                     }
                 }
-                
-                currentBattleNarrative = null;
+
+                // NOTE: We do NOT null currentBattleNarrative here
+                // It needs to remain available for post-battle metrics calculation
             }
             turnManager.EndBattle();
         }

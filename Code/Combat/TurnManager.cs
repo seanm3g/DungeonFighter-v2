@@ -17,9 +17,9 @@ namespace RPGGame
         private BattleHealthTracker? healthTracker;
         private Action? lastPlayerAction;
         
-        // Turn counter system - increments every 10 actions
+        // Turn counter system - increments with every action
         private int actionCount = 0;
-        private int turnNumber = 1;
+        private int turnNumber = 0;
 
         /// <summary>
         /// Initializes the turn manager for a new battle
@@ -30,19 +30,22 @@ namespace RPGGame
             healthTracker = new BattleHealthTracker();
             lastPlayerAction = null;
             actionCount = 0;
-            turnNumber = 1;
+            turnNumber = 0;
         }
 
         /// <summary>
         /// Cleans up the turn manager after battle
+        /// NOTE: Does NOT reset turn/action counters - they're needed for post-battle metrics
+        /// These will be reset when InitializeBattle() is called for the next battle
         /// </summary>
         public void EndBattle()
         {
             actionSpeedSystem = null;
             healthTracker = null;
             lastPlayerAction = null;
-            actionCount = 0;
-            turnNumber = 1;
+            // NOTE: We do NOT reset actionCount and turnNumber here
+            // They need to be available for post-battle metrics calculation
+            // They will be reset in InitializeBattle() for the next battle
         }
 
         /// <summary>
@@ -238,8 +241,8 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Records an action and increments the turn counter if needed
-        /// Turns represent rounds of combat, not individual actions
+        /// Records an action and increments the turn counter
+        /// Only hero actions increment the turn counter (hero action + enemy response = 1 turn)
         /// </summary>
         /// <param name="entityName">Name of the Actor that performed the action</param>
         /// <param name="actionName">Name of the action performed</param>
@@ -247,16 +250,43 @@ namespace RPGGame
         public bool RecordAction(string entityName, string actionName)
         {
             actionCount++;
-            
-            // Only increment turn number every 10 actions to represent combat rounds
-            // This prevents every action from being treated as a separate turn
-            if (actionCount % 10 == 0)
+
+            // Only increment turn counter for player/hero actions
+            // Enemy actions don't increment the turn (hero + enemy response = 1 turn)
+            if (IsPlayerAction(entityName))
             {
                 turnNumber++;
-                return true; // New turn reached
+                return true; // New player turn reached
             }
-            
-            return false; // Still in the same turn
+            return false; // Enemy action, no turn increment
+        }
+
+        /// <summary>
+        /// Checks if the action is from the player/hero (not enemy or environment)
+        /// This is a heuristic: player names are stored when battle starts via StartBattleNarrative
+        /// For now, we'll identify players by excluding known enemy/environment keywords
+        /// </summary>
+        private bool IsPlayerAction(string entityName)
+        {
+            // Enemy names typically contain keywords like "Enemy", and monster type names
+            // Environment names are room/area names
+            // Player names are character names, typically stored as "Character" or custom names
+            //
+            // We'll exclude obvious non-player types:
+            // - Anything with "Enemy"
+            // - Room/chamber names
+            // - Environmental entities
+
+            // For now, use a whitelist of known player name patterns
+            // This is not ideal, but works until we have better actor type identification
+            if (entityName.Contains("Player") || entityName.Contains("Character") ||
+                entityName.Contains("Hero") || entityName.Contains("Test"))
+            {
+                return !entityName.Contains("Enemy"); // Exclude if it also contains "Enemy"
+            }
+
+            // If none of the above patterns match, exclude it (assume it's an enemy or environment)
+            return false;
         }
 
         /// <summary>

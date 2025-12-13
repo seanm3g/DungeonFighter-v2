@@ -5,7 +5,7 @@
     "author": "AutoTuner",
     "description": "Iteration 1 balance adjustments",
     "version": "1.1",
-    "createdDate": "2025-12-12T13:44:00",
+    "createdDate": "2025-12-12T14:53:39",
     "compatibleGameVersion": "6.2",
     "tags": [
       "auto-tuned",
@@ -288,8 +288,8 @@
     },
     "enemySystem": {
       "globalMultipliers": {
-        "healthMultiplier": 1.1,
-        "damageMultiplier": 3,
+        "healthMultiplier": 100,
+        "damageMultiplier": 0.3,
         "armorMultiplier": 2,
         "speedMultiplier": 1,
         "description": "Global multipliers applied to all enemies"
@@ -398,7 +398,7 @@
           "max": 0
         }
       },
-      "globalDamageMultiplier": 0.5,
+      "globalDamageMultiplier": 0.05,
       "description": "Weapon damage scaling and starting weapon configuration"
     },
     "rarityScaling": {

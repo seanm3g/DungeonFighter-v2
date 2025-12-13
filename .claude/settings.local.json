@@ -10,7 +10,12 @@
       "Bash(timeout 120 dotnet run:*)",
       "Bash(tuner:*)",
       "Bash(tee:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(grep:*)",
+      "Bash(cat:*)",
+      "Bash(timeout 60 dotnet run:*)",
+      "Bash(1)",
+      "Bash(git commit:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

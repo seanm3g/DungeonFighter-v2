@@ -20,7 +20,7 @@ namespace RPGGame
             if (args.Length > 0 && args[0] == "MCP")
             {
                 // Run MCP server instead of GUI
-                RPGGame.MCP.MCPServerProgram.Main(args).Wait();
+                RPGGame.MCP.MCPServerProgram.RunMCPServer(args).Wait();
                 return;
             }
 
@@ -30,6 +30,14 @@ namespace RPGGame
                 // Run balance tuning runner
                 int iterations = args.Length > 1 && int.TryParse(args[1], out int iter) ? iter : 5;
                 RPGGame.Tuning.TuningRunner.RunTuning(iterations).Wait();
+                return;
+            }
+
+            // Check if test mode is requested
+            if (args.Length > 0 && args[0] == "TEST")
+            {
+                // Run test battle comparison
+                RPGGame.Tests.TestBattleComparison.Main(args).Wait();
                 return;
             }
 

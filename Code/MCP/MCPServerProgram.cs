@@ -13,9 +13,7 @@ namespace RPGGame.MCP
     {
         // This Main method is an alternative entry point when run with "MCP" argument
         // The primary Program.Main in Game/Program.cs is the default entry point
-        #pragma warning disable CS8892 // Method will not be used as entry point
-        public static async Task Main(string[] args)
-        #pragma warning restore CS8892
+        public static async Task RunMCPServer(string[] args)
         {
             // Check if MCP mode is requested
             if (args.Length == 0 || args[0] != "MCP")

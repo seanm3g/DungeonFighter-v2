@@ -10,7 +10,12 @@ namespace RPGGame
     {
         // Flag to disable UI output during balance analysis
         public static bool DisableCombatUIOutput = false;
-        
+
+        // Flag to disable battle narrative tracking (separate from UI output)
+        // This is used to disable logging of battle events for memory efficiency
+        // By default, narrative is always tracked since it's needed for metrics
+        public static bool DisableBattleNarrative = false;
+
         // Specialized managers using composition pattern
         private readonly CombatStateManager stateManager;
         private readonly CombatTurnHandlerSimplified turnHandler;

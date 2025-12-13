@@ -297,37 +297,34 @@ namespace RPGGame
                 if (narrative != null)
                 {
                     var events = narrative.GetAllEvents();
-                    
+
                     // Calculate damage from actual events (more accurate than health difference)
                     // Sum all damage dealt by player to enemy
                     result.PlayerDamageDealt = events
                         .Where(e => e.Actor == player.Name && e.Target == enemy.Name && e.Damage > 0)
                         .Sum(e => e.Damage);
-                    
+
                     // Sum all damage dealt by enemy to player
                     result.EnemyDamageDealt = events
                         .Where(e => e.Actor == enemy.Name && e.Target == player.Name && e.Damage > 0)
                         .Sum(e => e.Damage);
-                    
-                    // Use current turn number from TurnManager (turns increment every 10 actions)
-                    // If no actions were recorded, calculate from action count: (actionCount + 9) / 10
+
+                    // Use current turn number from TurnManager (each action increments turn by 1)
                     if (currentTurn > 0)
                     {
                         turnCount = currentTurn;
                     }
                     else if (totalActionCount > 0)
                     {
-                        // Calculate turns from action count: turns increment every 10 actions
-                        // Round up: (actionCount + 9) / 10
-                        turnCount = (totalActionCount + 9) / 10;
+                        // Use total action count directly since each action = 1 turn
+                        turnCount = totalActionCount;
                     }
                     else
                     {
                         // Fallback: count all events where player or enemy acted (including misses)
                         var playerActions = events.Count(e => e.Actor == player.Name && e.Target == enemy.Name);
                         var enemyActions = events.Count(e => e.Actor == enemy.Name && e.Target == player.Name);
-                        int totalActions = playerActions + enemyActions;
-                        turnCount = Math.Max(1, (totalActions + 9) / 10);
+                        turnCount = Math.Max(1, playerActions + enemyActions);
                     }
                     
                     // Collect turn-by-turn logs if requested (for enhanced analysis)
@@ -346,7 +343,7 @@ namespace RPGGame
                     // Fallback: use health difference if narrative not available
                     result.PlayerDamageDealt = Math.Max(0, initialEnemyHealth - enemy.CurrentHealth);
                     result.EnemyDamageDealt = Math.Max(0, initialPlayerHealth - player.CurrentHealth);
-                    
+
                     // Use current turn number if available, otherwise calculate from action count
                     if (currentTurn > 0)
                     {
@@ -354,9 +351,8 @@ namespace RPGGame
                     }
                     else if (totalActionCount > 0)
                     {
-                        // Calculate turns from action count: turns increment every 10 actions
-                        // Round up: (actionCount + 9) / 10
-                        turnCount = (totalActionCount + 9) / 10;
+                        // Use total action count directly since each action = 1 turn
+                        turnCount = totalActionCount;
                     }
                     else
                     {
@@ -364,7 +360,7 @@ namespace RPGGame
                         int totalDamageDealt = result.PlayerDamageDealt + result.EnemyDamageDealt;
                         int averageDamagePerAction = Math.Max(1, (config.PlayerDamage + config.EnemyDamage) / 2);
                         int estimatedActions = Math.Max(1, (int)Math.Ceiling((double)totalDamageDealt / averageDamagePerAction));
-                        turnCount = Math.Max(1, (estimatedActions + 9) / 10);
+                        turnCount = Math.Max(1, estimatedActions);
                     }
                 }
                 result.Turns = turnCount;
@@ -808,24 +804,22 @@ namespace RPGGame
                         .Where(e => e.Actor == enemy.Name && e.Target == character.Name && e.Damage > 0)
                         .Sum(e => e.Damage);
                     
-                    // Use current turn number from TurnManager (turns increment every 10 actions)
-                    // If no actions were recorded, calculate from action count: (actionCount + 9) / 10
+                    // Use current turn number from TurnManager (each action increments turn by 1)
                     if (currentTurn > 0)
                     {
                         result.Turns = currentTurn;
                     }
                     else if (totalActionCount > 0)
                     {
-                        // Calculate turns from action count: turns increment every 10 actions
-                        // Round up: (actionCount + 9) / 10
-                        result.Turns = (totalActionCount + 9) / 10;
+                        // Use total action count directly since each action = 1 turn
+                        result.Turns = totalActionCount;
                     }
                     else
                     {
                         var playerActions = events.Count(e => e.Actor == character.Name && e.Target == enemy.Name);
                         var enemyActions = events.Count(e => e.Actor == enemy.Name && e.Target == character.Name);
                         int totalActions = playerActions + enemyActions;
-                        result.Turns = Math.Max(1, (totalActions + 9) / 10);
+                        result.Turns = Math.Max(1, totalActions);
                     }
                     
                     // Collect fun moment summary
@@ -839,7 +833,7 @@ namespace RPGGame
                     // Fallback: use health difference if narrative not available
                     result.PlayerDamageDealt = Math.Max(0, initialEnemyHealth - enemy.CurrentHealth);
                     result.EnemyDamageDealt = Math.Max(0, initialPlayerHealth - character.CurrentHealth);
-                    
+
                     // Use current turn number if available, otherwise calculate from action count
                     if (currentTurn > 0)
                     {
@@ -847,9 +841,8 @@ namespace RPGGame
                     }
                     else if (totalActionCount > 0)
                     {
-                        // Calculate turns from action count: turns increment every 10 actions
-                        // Round up: (actionCount + 9) / 10
-                        result.Turns = (totalActionCount + 9) / 10;
+                        // Use total action count directly since each action = 1 turn
+                        result.Turns = totalActionCount;
                     }
                     else
                     {
@@ -879,23 +872,38 @@ namespace RPGGame
         private static Character CreateTestCharacterWithWeapon(string name, WeaponType weaponType, int level)
         {
             var character = new Character(name, level);
-            
+
+            // Get base damage from config for the weapon type
+            int baseDamage = 1; // Default fallback
+            var weaponScaling = GameConfiguration.Instance.WeaponScaling;
+            if (weaponScaling?.StartingWeaponDamage != null)
+            {
+                baseDamage = weaponType switch
+                {
+                    WeaponType.Mace => weaponScaling.StartingWeaponDamage.Mace,
+                    WeaponType.Sword => weaponScaling.StartingWeaponDamage.Sword,
+                    WeaponType.Dagger => weaponScaling.StartingWeaponDamage.Dagger,
+                    WeaponType.Wand => weaponScaling.StartingWeaponDamage.Wand,
+                    _ => baseDamage
+                };
+            }
+
             // Create a weapon of the specified type
             var weapon = new WeaponItem(
                 name: $"{weaponType} Test Weapon",
                 tier: 1,
-                baseDamage: 2,
+                baseDamage: baseDamage,
                 baseAttackSpeed: 1.0,
                 weaponType: weaponType
             );
-            
+
             // Use Character.EquipItem to properly equip the weapon
             // This ensures all actions, class actions, and combo sequences are set up correctly
             character.EquipItem(weapon, "weapon");
-            
+
             // Ensure class actions are added based on weapon type
             character.Actions.AddClassActions(character, character.Progression, weaponType);
-            
+
             return character;
         }
 

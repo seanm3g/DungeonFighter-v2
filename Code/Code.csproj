@@ -10,6 +10,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
     <DefaultItemExcludes>$(DefaultItemExcludes);StandaloneColorDemo/**;ColorSystemTest/**</DefaultItemExcludes>
+    <StartupObject>RPGGame.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
