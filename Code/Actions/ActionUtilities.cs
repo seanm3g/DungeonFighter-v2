@@ -68,16 +68,16 @@ namespace RPGGame
         {
             if (source is Character character)
             {
-                // Only apply combo amplification to combo actions, and only after the first one
-                if (action.IsComboAction && character.ComboStep > 0)
+                // Only apply combo amplification to combo actions, starting at step 2 (step 0 and 1 add no bonus)
+                if (action.IsComboAction && character.ComboStep > 1)
                 {
                     return character.GetCurrentComboAmplification();
                 }
             }
             else if (source is Enemy enemy)
             {
-                // Enemies also get combo amplification (same as heroes)
-                if (action.IsComboAction && enemy.ComboStep > 0)
+                // Enemies also get combo amplification (same as heroes), starting at step 2 (step 0 and 1 add no bonus)
+                if (action.IsComboAction && enemy.ComboStep > 1)
                 {
                     return enemy.GetCurrentComboAmplification();
                 }

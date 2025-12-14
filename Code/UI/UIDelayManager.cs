@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace RPGGame.UI
 {
@@ -33,7 +34,7 @@ namespace RPGGame.UI
         /// <summary>
         /// Applies appropriate delay based on message type using default values
         /// </summary>
-        public void ApplyDelay(UIMessageType messageType)
+        public async Task ApplyDelayAsync(UIMessageType messageType)
         {
             // Check if delays are enabled globally
             if (!UIManager.EnableDelays)
@@ -45,7 +46,26 @@ namespace RPGGame.UI
 
             if (delayMs > 0)
             {
-                Thread.Sleep(delayMs);
+                await Task.Delay(delayMs);
+            }
+        }
+        
+        /// <summary>
+        /// Synchronous version for backwards compatibility (uses Task.Run internally)
+        /// </summary>
+        public void ApplyDelay(UIMessageType messageType)
+        {
+            if (!UIManager.EnableDelays)
+            {
+                return;
+            }
+
+            int delayMs = GetDelayForMessageType(messageType);
+
+            if (delayMs > 0)
+            {
+                // Use Task.Run to avoid blocking, but wait synchronously for backwards compatibility
+                Task.Run(async () => await Task.Delay(delayMs)).Wait();
             }
         }
 
@@ -74,7 +94,7 @@ namespace RPGGame.UI
         /// Applies progressive menu delay - reduces delay by 1ms for each consecutive menu line
         /// After 20 lines, slowly ramps delay down by 1ms each line
         /// </summary>
-        public void ApplyProgressiveMenuDelay()
+        public async Task ApplyProgressiveMenuDelayAsync()
         {
             // Check if delays are enabled globally
             if (!UIManager.EnableDelays)
@@ -106,10 +126,46 @@ namespace RPGGame.UI
             // Apply the delay
             if (progressiveDelay > 0)
             {
-                Thread.Sleep(progressiveDelay);
+                await Task.Delay(progressiveDelay);
             }
 
             // Increment consecutive menu line counter
+            _consecutiveMenuLines++;
+        }
+        
+        /// <summary>
+        /// Synchronous version for backwards compatibility
+        /// </summary>
+        public void ApplyProgressiveMenuDelay()
+        {
+            if (!UIManager.EnableDelays)
+            {
+                return;
+            }
+
+            // Store base delay on first menu line
+            if (_consecutiveMenuLines == 0)
+            {
+                _baseMenuDelay = DefaultMenuDelay;
+            }
+
+            int progressiveDelay;
+
+            if (_consecutiveMenuLines < 20)
+            {
+                progressiveDelay = Math.Max(0, _baseMenuDelay - _consecutiveMenuLines);
+            }
+            else
+            {
+                int delayAtLine20 = Math.Max(0, _baseMenuDelay - 19);
+                progressiveDelay = Math.Max(0, delayAtLine20 - (_consecutiveMenuLines - 20));
+            }
+
+            if (progressiveDelay > 0)
+            {
+                Task.Run(async () => await Task.Delay(progressiveDelay)).Wait();
+            }
+
             _consecutiveMenuLines++;
         }
 

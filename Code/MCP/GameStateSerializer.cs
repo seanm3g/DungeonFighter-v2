@@ -11,7 +11,7 @@ namespace RPGGame.MCP
     public static class GameStateSerializer
     {
         public static GameStateSnapshot SerializeGameState(
-            Game game,
+            GameCoordinator game,
             OutputCapture? outputCapture = null,
             bool includeRecentOutput = false)
         {
@@ -114,7 +114,7 @@ namespace RPGGame.MCP
             };
         }
 
-        private static CombatSnapshot SerializeCombat(Game game)
+        private static CombatSnapshot SerializeCombat(GameCoordinator game)
         {
             var combat = new CombatSnapshot
             {
@@ -149,7 +149,7 @@ namespace RPGGame.MCP
             };
         }
 
-        private static List<string> GetAvailableActions(Game game)
+        private static List<string> GetAvailableActions(GameCoordinator game)
         {
             var actions = new List<string>();
 
@@ -187,7 +187,7 @@ namespace RPGGame.MCP
             return actions;
         }
 
-        private static List<string> GetCombatActions(Game game)
+        private static List<string> GetCombatActions(GameCoordinator game)
         {
             var actions = new List<string>();
 

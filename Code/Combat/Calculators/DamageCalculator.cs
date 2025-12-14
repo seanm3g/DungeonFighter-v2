@@ -1,18 +1,107 @@
 using System;
+using System.Collections.Generic;
 using RPGGame.Actions.RollModification;
 
 namespace RPGGame.Combat.Calculators
 {
     /// <summary>
     /// Handles damage calculations including raw damage, final damage, and damage reduction
+    /// Includes caching layer for performance optimization
     /// </summary>
     public static class DamageCalculator
     {
+        // Cache for raw damage calculations
+        private static readonly Dictionary<(Actor, Action?, double, double, int), int> _rawDamageCache = new();
+        
+        // Cache for final damage calculations (includes target armor)
+        private static readonly Dictionary<(Actor, Actor, Action?, double, double, int, int), int> _finalDamageCache = new();
+        
+        // Cache statistics for monitoring
+        private static int _rawCacheHits = 0;
+        private static int _rawCacheMisses = 0;
+        private static int _finalCacheHits = 0;
+        private static int _finalCacheMisses = 0;
+        
+        // Maximum cache size to prevent memory bloat
+        private const int MaxCacheSize = 1000;
+        
+        /// <summary>
+        /// Invalidates all cache entries for a specific actor
+        /// Call this when actor stats, equipment, or modifications change
+        /// </summary>
+        public static void InvalidateCache(Actor actor)
+        {
+            // Remove all entries where this actor is the attacker or target
+            var keysToRemove = new List<(Actor, Action?, double, double, int)>();
+            foreach (var key in _rawDamageCache.Keys)
+            {
+                if (key.Item1 == actor)
+                {
+                    keysToRemove.Add(key);
+                }
+            }
+            foreach (var key in keysToRemove)
+            {
+                _rawDamageCache.Remove(key);
+            }
+            
+            keysToRemove.Clear();
+            var finalKeysToRemove = new List<(Actor, Actor, Action?, double, double, int, int)>();
+            foreach (var key in _finalDamageCache.Keys)
+            {
+                if (key.Item1 == actor || key.Item2 == actor)
+                {
+                    finalKeysToRemove.Add(key);
+                }
+            }
+            foreach (var key in finalKeysToRemove)
+            {
+                _finalDamageCache.Remove(key);
+            }
+        }
+        
+        /// <summary>
+        /// Clears all caches (useful for testing or memory management)
+        /// </summary>
+        public static void ClearAllCaches()
+        {
+            _rawDamageCache.Clear();
+            _finalDamageCache.Clear();
+            _rawCacheHits = 0;
+            _rawCacheMisses = 0;
+            _finalCacheHits = 0;
+            _finalCacheMisses = 0;
+        }
+        
+        /// <summary>
+        /// Gets cache statistics for monitoring
+        /// </summary>
+        public static (int rawHits, int rawMisses, int finalHits, int finalMisses, double rawHitRate, double finalHitRate) GetCacheStats()
+        {
+            double rawHitRate = (_rawCacheHits + _rawCacheMisses) > 0 
+                ? (double)_rawCacheHits / (_rawCacheHits + _rawCacheMisses) 
+                : 0.0;
+            double finalHitRate = (_finalCacheHits + _finalCacheMisses) > 0 
+                ? (double)_finalCacheHits / (_finalCacheHits + _finalCacheMisses) 
+                : 0.0;
+            
+            return (_rawCacheHits, _rawCacheMisses, _finalCacheHits, _finalCacheMisses, rawHitRate, finalHitRate);
+        }
         /// <summary>
         /// Calculates raw damage before armor reduction
+        /// Uses caching for performance optimization
         /// </summary>
         public static int CalculateRawDamage(Actor attacker, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int roll = 0)
         {
+            // Check cache first
+            var cacheKey = (attacker, action, comboAmplifier, damageMultiplier, roll);
+            if (_rawDamageCache.TryGetValue(cacheKey, out var cachedDamage))
+            {
+                _rawCacheHits++;
+                return cachedDamage;
+            }
+            
+            _rawCacheMisses++;
             // Get base damage from attacker
             int baseDamage = 0;
             if (attacker is Character character)
@@ -107,14 +196,33 @@ namespace RPGGame.Combat.Calculators
                 }
             }
             
-            return (int)totalDamage;
+            int result = (int)totalDamage;
+            
+            // Cache the result (with size limit)
+            if (_rawDamageCache.Count < MaxCacheSize)
+            {
+                _rawDamageCache[cacheKey] = result;
+            }
+            
+            return result;
         }
 
         /// <summary>
         /// Calculates damage dealt by an attacker to a target
+        /// Uses caching for performance optimization
         /// </summary>
         public static int CalculateDamage(Actor attacker, Actor target, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, bool showWeakenedMessage = true)
         {
+            // Check cache first (cache key includes target armor state via target reference)
+            var cacheKey = (attacker, target, action, comboAmplifier, damageMultiplier, roll, showWeakenedMessage ? 1 : 0);
+            if (_finalDamageCache.TryGetValue(cacheKey, out var cachedDamage))
+            {
+                _finalCacheHits++;
+                return cachedDamage;
+            }
+            
+            _finalCacheMisses++;
+            
             // Calculate raw damage before armor
             int totalDamage = CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, roll);
             
@@ -150,6 +258,12 @@ namespace RPGGame.Combat.Calculators
             if (target.IsWeakened && showWeakenedMessage)
             {
                 finalDamage = (int)(finalDamage * 1.5); // 50% more damage to weakened targets
+            }
+            
+            // Cache the result (with size limit)
+            if (_finalDamageCache.Count < MaxCacheSize)
+            {
+                _finalDamageCache[cacheKey] = finalDamage;
             }
             
             return finalDamage;

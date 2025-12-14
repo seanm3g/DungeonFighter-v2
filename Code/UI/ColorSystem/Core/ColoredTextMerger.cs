@@ -132,35 +132,32 @@ namespace RPGGame.UI.ColorSystem
                 }
             }
             
-            // Finalize last segment
+            // Finalize last segment (only if it has content)
             if (currentSegment != null && !string.IsNullOrEmpty(currentSegment.Text))
             {
-                merged.Add(currentSegment);
-            }
-            
-            // Final pass: merge adjacent whitespace-only segments and remove empty segments
-            // This is a lightweight cleanup pass that only handles edge cases
-            for (int i = merged.Count - 1; i >= 0; i--)
-            {
-                var segment = merged[i];
-                
-                // Remove empty segments
-                if (string.IsNullOrEmpty(segment.Text))
+                // Check if we should merge with the last segment in merged list
+                if (merged.Count > 0)
                 {
-                    merged.RemoveAt(i);
-                    continue;
-                }
-                
-                // Merge adjacent whitespace-only segments
-                if (i > 0 && segment.Text.Trim().Length == 0)
-                {
-                    var prev = merged[i - 1];
-                    if (prev.Text.Trim().Length == 0)
+                    var lastMerged = merged[merged.Count - 1];
+                    bool lastIsWhitespace = lastMerged.Text.Trim().Length == 0 && lastMerged.Text.Length > 0;
+                    bool currentIsWhitespace = currentSegment.Text.Trim().Length == 0 && currentSegment.Text.Length > 0;
+                    
+                    // Merge adjacent whitespace-only segments
+                    if (lastIsWhitespace && currentIsWhitespace && ColorValidator.AreColorsEqual(lastMerged.Color, currentSegment.Color))
                     {
                         // Both are whitespace - merge into one
-                        merged[i - 1] = new ColoredText(" ", Colors.White);
-                        merged.RemoveAt(i);
+                        merged[merged.Count - 1] = new ColoredText(" ", lastMerged.Color);
                     }
+                    else
+                    {
+                        // Add as new segment
+                        merged.Add(currentSegment);
+                    }
+                }
+                else
+                {
+                    // First segment
+                    merged.Add(currentSegment);
                 }
             }
             

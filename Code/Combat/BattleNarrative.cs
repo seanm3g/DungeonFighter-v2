@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections.Concurrent;
+using RPGGame.Combat;
 
 namespace RPGGame
 {
@@ -161,8 +162,15 @@ namespace RPGGame
         /// </summary>
         private List<string> AnalyzeEventForNarratives(BattleEvent evt)
         {
-            var settings = GameSettings.Instance;
-            var triggeredNarratives = eventAnalyzer.AnalyzeEvent(evt, settings);
+            var context = new BattleNarrativeContext
+            {
+                EventAnalyzer = eventAnalyzer,
+                PlayerName = playerName,
+                EnemyName = enemyName,
+                CurrentLocation = currentLocation
+            };
+            
+            var triggeredNarratives = BattleNarrativeGenerator.GenerateNarratives(evt, context);
 
             // Add all triggered narratives to the permanent log
             foreach (var narrative in triggeredNarratives)
@@ -170,13 +178,7 @@ namespace RPGGame
                 narrativeEvents.Add(narrative);
             }
 
-            // Only return narratives if narrative events are enabled
-            if (settings.EnableNarrativeEvents)
-            {
-                return triggeredNarratives;
-            }
-
-            return new List<string>();
+            return triggeredNarratives;
         }
 
         public void EndBattle()
@@ -199,55 +201,50 @@ namespace RPGGame
 
         public string GenerateInformationalSummary(bool showDamageWhenEnemyKilled = false)
         {
-            var playerEvents = events.Where(e => e.Actor == playerName && e.IsSuccess).ToList();
-            var enemyEvents = events.Where(e => e.Actor == enemyName && e.IsSuccess).ToList();
-            var totalPlayerDamage = playerEvents.Sum(e => e.Damage);
-            var totalEnemyDamage = enemyEvents.Sum(e => e.Damage);
-            var playerComboCount = playerEvents.Count(e => e.IsCombo);
-            var enemyComboCount = enemyEvents.Count(e => e.IsCombo);
+            var stats = BattleNarrativeGenerator.CalculateStatistics(events.ToList(), playerName, enemyName);
+            bool playerWon = finalEnemyHealth <= 0;
+            bool enemyWon = finalPlayerHealth <= 0;
             
-            return GenerateInformationalSummary(totalPlayerDamage, totalEnemyDamage, playerComboCount, enemyComboCount, showDamageWhenEnemyKilled);
+            return BattleNarrativeGenerator.GenerateInformationalSummary(
+                stats.TotalPlayerDamage, 
+                stats.TotalEnemyDamage, 
+                stats.PlayerComboCount, 
+                stats.EnemyComboCount, 
+                playerWon,
+                enemyWon,
+                playerName,
+                enemyName,
+                showDamageWhenEnemyKilled);
         }
 
         public string GenerateInformationalSummary(int totalPlayerDamage, int totalEnemyDamage, int playerComboCount, int enemyComboCount, bool showDamageWhenEnemyKilled = false)
         {
             bool playerWon = finalEnemyHealth <= 0;
             bool enemyWon = finalPlayerHealth <= 0;
-
-            if (playerWon)
-            {
-                // When enemy is killed during combat, only show combos executed (no total damage line)
-                // But if showDamageWhenEnemyKilled is true (for final summary), show both
-                if (showDamageWhenEnemyKilled)
-                {
-                    return $"Total damage dealt: {totalPlayerDamage} vs {totalEnemyDamage} received.\n" +
-                           $"Combos executed: {playerComboCount} vs {enemyComboCount}.";
-                }
-                else
-                {
-                    return $"Combos executed: {playerComboCount} vs {enemyComboCount}.";
-                }
-            }
-            else if (enemyWon)
-            {
-                return $"{enemyName} defeats {playerName}!\nTotal damage dealt: {totalEnemyDamage} vs {totalPlayerDamage} received.\n" +
-                       $"Combos executed: {enemyComboCount} vs {playerComboCount}.";
-            }
-            else
-            {
-                return $"Battle ends in a stalemate. {playerName} dealt {totalPlayerDamage} damage, {enemyName} dealt {totalEnemyDamage} damage.\n" +
-                       $"Combos: {playerComboCount} vs {enemyComboCount}.";
-            }
+            
+            return BattleNarrativeGenerator.GenerateInformationalSummary(
+                totalPlayerDamage, 
+                totalEnemyDamage, 
+                playerComboCount, 
+                enemyComboCount, 
+                playerWon,
+                enemyWon,
+                playerName,
+                enemyName,
+                showDamageWhenEnemyKilled);
         }
         
         // ===== NEW COLORED TEXT SYSTEM WRAPPERS =====
+        
+        // NOTE: Formatting methods have been moved to BattleNarrativeFormatter
+        // Keeping these methods for backwards compatibility - they delegate to the formatter
         
         /// <summary>
         /// Formats first blood narrative using the new ColoredText system
         /// </summary>
         public List<UI.ColorSystem.ColoredText> FormatFirstBloodColored(string narrativeText)
         {
-            return BattleNarrativeColoredText.FormatFirstBloodColored(narrativeText);
+            return BattleNarrativeFormatter.FormatFirstBlood(narrativeText);
         }
         
         /// <summary>
@@ -255,7 +252,7 @@ namespace RPGGame
         /// </summary>
         public List<UI.ColorSystem.ColoredText> FormatCriticalHitColored(string actorName, string narrativeText)
         {
-            return BattleNarrativeColoredText.FormatCriticalHitColored(actorName, narrativeText);
+            return BattleNarrativeFormatter.FormatCriticalHit(actorName, narrativeText);
         }
         
         /// <summary>
@@ -263,7 +260,7 @@ namespace RPGGame
         /// </summary>
         public List<UI.ColorSystem.ColoredText> FormatCriticalMissColored(string actorName, string narrativeText)
         {
-            return BattleNarrativeColoredText.FormatCriticalMissColored(actorName, narrativeText);
+            return BattleNarrativeFormatter.FormatCriticalMiss(actorName, narrativeText);
         }
         
         /// <summary>
@@ -271,7 +268,7 @@ namespace RPGGame
         /// </summary>
         public List<UI.ColorSystem.ColoredText> FormatEnvironmentalActionColored(string effectDescription, string narrativeText)
         {
-            return BattleNarrativeColoredText.FormatEnvironmentalActionColored(effectDescription, narrativeText);
+            return BattleNarrativeFormatter.FormatEnvironmentalAction(effectDescription, narrativeText);
         }
         
         /// <summary>
@@ -279,7 +276,7 @@ namespace RPGGame
         /// </summary>
         public List<UI.ColorSystem.ColoredText> FormatHealthRecoveryColored(string targetName, string narrativeText)
         {
-            return BattleNarrativeColoredText.FormatHealthRecoveryColored(targetName, narrativeText);
+            return BattleNarrativeFormatter.FormatHealthRecovery(targetName, narrativeText);
         }
         
         /// <summary>
@@ -287,7 +284,7 @@ namespace RPGGame
         /// </summary>
         public List<UI.ColorSystem.ColoredText> FormatHealthLeadChangeColored(string leaderName, string narrativeText, bool isPlayer)
         {
-            return BattleNarrativeColoredText.FormatHealthLeadChangeColored(leaderName, narrativeText, isPlayer);
+            return BattleNarrativeFormatter.FormatHealthLeadChange(leaderName, narrativeText, isPlayer);
         }
         
         /// <summary>
@@ -295,7 +292,7 @@ namespace RPGGame
         /// </summary>
         public List<UI.ColorSystem.ColoredText> FormatBelow50PercentColored(string entityName, string narrativeText, bool isPlayer)
         {
-            return BattleNarrativeColoredText.FormatBelow50PercentColored(entityName, narrativeText, isPlayer);
+            return BattleNarrativeFormatter.FormatBelow50Percent(entityName, narrativeText, isPlayer);
         }
         
         /// <summary>
@@ -303,7 +300,7 @@ namespace RPGGame
         /// </summary>
         public List<UI.ColorSystem.ColoredText> FormatBelow10PercentColored(string entityName, string narrativeText, bool isPlayer)
         {
-            return BattleNarrativeColoredText.FormatBelow10PercentColored(entityName, narrativeText, isPlayer);
+            return BattleNarrativeFormatter.FormatBelow10Percent(entityName, narrativeText, isPlayer);
         }
         
         /// <summary>
@@ -311,7 +308,7 @@ namespace RPGGame
         /// </summary>
         public List<UI.ColorSystem.ColoredText> FormatIntenseBattleColored(string narrativeText)
         {
-            return BattleNarrativeColoredText.FormatIntenseBattleColored(playerName, enemyName, narrativeText);
+            return BattleNarrativeFormatter.FormatIntenseBattle(playerName, enemyName, narrativeText);
         }
         
         /// <summary>
@@ -319,7 +316,7 @@ namespace RPGGame
         /// </summary>
         public List<UI.ColorSystem.ColoredText> FormatGoodComboColored(string actorName, string targetName, bool isPlayerCombo)
         {
-            return BattleNarrativeColoredText.FormatGoodComboColored(actorName, targetName, isPlayerCombo);
+            return BattleNarrativeFormatter.FormatGoodCombo(actorName, targetName, isPlayerCombo);
         }
         
         /// <summary>
@@ -327,7 +324,7 @@ namespace RPGGame
         /// </summary>
         public List<UI.ColorSystem.ColoredText> FormatPlayerDefeatedColored(string narrativeText)
         {
-            return BattleNarrativeColoredText.FormatPlayerDefeatedColored(enemyName, narrativeText);
+            return BattleNarrativeFormatter.FormatPlayerDefeated(enemyName, narrativeText);
         }
         
         /// <summary>
@@ -335,7 +332,7 @@ namespace RPGGame
         /// </summary>
         public List<UI.ColorSystem.ColoredText> FormatEnemyDefeatedColored(string narrativeText)
         {
-            return BattleNarrativeColoredText.FormatEnemyDefeatedColored(enemyName, playerName, narrativeText);
+            return BattleNarrativeFormatter.FormatEnemyDefeated(enemyName, playerName, narrativeText);
         }
         
         /// <summary>
@@ -343,7 +340,7 @@ namespace RPGGame
         /// </summary>
         public List<UI.ColorSystem.ColoredText> FormatPlayerTauntColored(string tauntText)
         {
-            return BattleNarrativeColoredText.FormatPlayerTauntColored(playerName, enemyName, tauntText);
+            return BattleNarrativeFormatter.FormatPlayerTaunt(playerName, enemyName, tauntText);
         }
         
         /// <summary>
@@ -351,7 +348,7 @@ namespace RPGGame
         /// </summary>
         public List<UI.ColorSystem.ColoredText> FormatEnemyTauntColored(string tauntText)
         {
-            return BattleNarrativeColoredText.FormatEnemyTauntColored(enemyName, playerName, tauntText);
+            return BattleNarrativeFormatter.FormatEnemyTaunt(enemyName, playerName, tauntText);
         }
         
         /// <summary>
@@ -359,7 +356,7 @@ namespace RPGGame
         /// </summary>
         public List<UI.ColorSystem.ColoredText> FormatGenericNarrativeColored(string narrativeText, UI.ColorSystem.ColorPalette primaryColor = UI.ColorSystem.ColorPalette.Info)
         {
-            return BattleNarrativeColoredText.FormatGenericNarrativeColored(narrativeText, primaryColor);
+            return BattleNarrativeFormatter.FormatGenericNarrative(narrativeText, primaryColor);
         }
 
         /// <summary>

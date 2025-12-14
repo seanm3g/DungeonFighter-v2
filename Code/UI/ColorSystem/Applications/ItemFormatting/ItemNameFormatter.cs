@@ -63,6 +63,9 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
             // Add all suffixes with their own unique colors (only color the keyword)
             foreach (var (suffixName, isStatBonus) in parsed.Suffixes)
             {
+                // Add space before each suffix (after base name or previous suffix keyword)
+                builder.AddSpace();
+                
                 var (prefix, keyword) = ItemKeywordExtractor.ExtractKeyword(suffixName);
                 
                 // Add prefix in white (e.g., "of the ")

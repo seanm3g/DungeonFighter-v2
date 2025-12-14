@@ -169,21 +169,15 @@ namespace RPGGame.Data
         /// <summary>
         /// Gets a color for a color code (e.g., "R", "r", "G")
         /// Returns Colors.White if code not found
-        /// First tries unified ColorConfiguration.json, then falls back to individual file
+        /// This is called as a fallback from ColorConfigurationLoader, so we don't call back to it
         /// </summary>
         public static Color GetColor(string colorCode)
         {
             if (string.IsNullOrEmpty(colorCode))
                 return Colors.White;
             
-            // Try unified configuration first
-            var unifiedColor = ColorConfigurationLoader.GetColorCode(colorCode);
-            if (unifiedColor != Colors.White)
-            {
-                return unifiedColor;
-            }
-            
-            // Fallback to individual file loading
+            // Load from individual file (don't call back to ColorConfigurationLoader to avoid circular dependency)
+            // ColorConfigurationLoader.GetColorCode() already tries unified config first before calling this
             LoadColorCodes(); // Ensure codes are loaded
             
             if (_colorCodeCache == null)

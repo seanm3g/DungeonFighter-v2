@@ -35,7 +35,7 @@ namespace RPGGame.UI.Avalonia
         
         private System.Action? closeAction = null;
         private MainWindow? mainWindow = null;
-        private Game? game = null;
+        private GameCoordinator? game = null;
 
         public CanvasUICoordinator(GameCanvasControl canvas)
         {
@@ -79,7 +79,7 @@ namespace RPGGame.UI.Avalonia
         /// <summary>
         /// Sets the game instance reference for accessing handlers
         /// </summary>
-        public void SetGame(Game gameInstance)
+        public void SetGame(GameCoordinator gameInstance)
         {
             this.game = gameInstance;
         }

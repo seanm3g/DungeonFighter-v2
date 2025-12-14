@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame.Combat.Calculators;
 
 namespace RPGGame
 {
@@ -67,6 +68,9 @@ namespace RPGGame
 
             // Re-add class actions when points change
             _character.Actions.AddClassActions(_character, _character.Progression, (_character.Equipment.Weapon as WeaponItem)?.WeaponType);
+            
+            // Invalidate damage cache since stats changed
+            DamageCalculator.InvalidateCache(_character);
             
             return levelUpInfo;
         }

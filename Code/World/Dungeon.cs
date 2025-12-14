@@ -27,7 +27,7 @@ namespace RPGGame
         {
             // Use TuningConfig for dungeon scaling
             var dungeonScaling = GameConfiguration.Instance.DungeonScaling;
-            var dungeonConfig = Game.GetDungeonGenerationConfig();
+            var dungeonConfig = GameCoordinator.GetDungeonGenerationConfig();
             
             int roomCount = Math.Max(dungeonScaling.RoomCountBase, (int)Math.Ceiling(MinLevel * dungeonScaling.RoomCountPerLevel));
             Rooms.Clear();
@@ -82,7 +82,7 @@ namespace RPGGame
 
         private string GetRoomTheme(int roomIndex, int totalRooms)
         {
-            var dungeonConfig = Game.GetDungeonGenerationConfig();
+            var dungeonConfig = GameCoordinator.GetDungeonGenerationConfig();
             
             if (roomIndex == totalRooms - 1) return dungeonConfig.bossRoomName;
 

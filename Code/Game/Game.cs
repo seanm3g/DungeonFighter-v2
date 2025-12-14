@@ -8,6 +8,7 @@ namespace RPGGame
     using RPGGame.GameCore.Input;
     using DungeonFighter.Game.Menu.Routing;
     using DungeonFighter.Game.Menu.Core;
+    using RPGGame.Game.Services;
     using ActionDelegate = System.Action;
 
     /// <summary>
@@ -21,7 +22,7 @@ namespace RPGGame
     /// - Event-driven communication between components
     /// - Clean separation of responsibilities
     /// </summary>
-    public class Game
+    public class GameCoordinator
     {
         // Core managers (from Phase 5)
         private GameStateManager stateManager = new();
@@ -66,7 +67,7 @@ namespace RPGGame
         private RPGGame.GameCore.Input.EscapeKeyHandler? escapeKeyHandler;
 
         // Constructor 1: Default
-        public Game()
+        public GameCoordinator()
         {
             GameTicker.Instance.Start();
             gameInitializer = new GameInitializer();
@@ -82,7 +83,7 @@ namespace RPGGame
         }
 
         // Constructor 2: With UI Manager
-        public Game(IUIManager uiManager)
+        public GameCoordinator(IUIManager uiManager)
         {
             GameTicker.Instance.Start();
             customUIManager = uiManager;
@@ -103,7 +104,7 @@ namespace RPGGame
         }
 
         // Constructor 3: With existing character
-        public Game(Character existingCharacter)
+        public GameCoordinator(Character existingCharacter)
         {
             var settings = GameSettings.Instance;
             if (settings.PlayerHealthMultiplier != 1.0)
@@ -130,130 +131,54 @@ namespace RPGGame
             InitializeHandlers(null);
         }
 
-        // Initialize all 11 handler managers
+        // Initialize all handler managers
         private void InitializeHandlers(IUIManager? uiManager)
         {
-            // Create handlers using HandlerInitializer
-            var handlerResult = RPGGame.Handlers.HandlerInitializer.CreateHandlers(
-                stateManager, initializationManager, gameInitializer, dungeonManager!, 
-                combatManager!, narrativeManager, uiManager);
-            
-            // Assign to instance fields
-            mainMenuHandler = handlerResult.MainMenuHandler;
-            characterMenuHandler = handlerResult.CharacterMenuHandler;
-            settingsMenuHandler = handlerResult.SettingsMenuHandler;
-            developerMenuHandler = new DeveloperMenuHandler(stateManager, uiManager);
-            actionEditorHandler = new ActionEditorHandler(stateManager, uiManager);
-            battleStatisticsHandler = new BattleStatisticsHandler(stateManager, uiManager);
-            tuningParametersHandler = new TuningParametersHandler(stateManager, uiManager);
-            variableEditorHandler = new VariableEditorHandler(stateManager, uiManager);
-            inventoryMenuHandler = handlerResult.InventoryMenuHandler;
-            weaponSelectionHandler = handlerResult.WeaponSelectionHandler;
-            characterCreationHandler = handlerResult.CharacterCreationHandler;
-            gameLoopInputHandler = handlerResult.GameLoopInputHandler;
-            dungeonSelectionHandler = handlerResult.DungeonSelectionHandler;
-            dungeonRunnerManager = handlerResult.DungeonRunnerManager;
-            dungeonCompletionHandler = handlerResult.DungeonCompletionHandler;
-            deathScreenHandler = handlerResult.DeathScreenHandler;
-            testingSystemHandler = handlerResult.TestingSystemHandler;
-            
-            // Wire up handler events
-            RPGGame.Handlers.HandlerInitializer.WireHandlerEvents(
-                handlerResult, stateManager, customUIManager,
-                ShowGameLoop, ShowMainMenu, ShowInventory, ShowCharacterInfo, ShowMessage, ExitGame,
-                async () => await (dungeonSelectionHandler?.ShowDungeonSelection() ?? Task.CompletedTask),
-                ShowDungeonCompletion, ShowDeathScreen, SaveGame);
-            
-            // Wire up developer menu handler events
-            if (developerMenuHandler != null)
-            {
-                developerMenuHandler.ShowSettingsEvent += () => settingsMenuHandler?.ShowSettings();
-                developerMenuHandler.ShowVariableEditorEvent += () => ShowVariableEditor();
-                developerMenuHandler.ShowActionEditorEvent += () => ShowActionEditor();
-                developerMenuHandler.ShowBattleStatisticsEvent += () => battleStatisticsHandler?.ShowBattleStatisticsMenu();
-                developerMenuHandler.ShowTuningParametersEvent += () => ShowTuningParameters();
-            }
-            
-            // Wire up tuning parameters handler events
-            if (tuningParametersHandler != null)
-            {
-                tuningParametersHandler.ShowDeveloperMenuEvent += () => developerMenuHandler?.ShowDeveloperMenu();
-            }
-            
-            // Wire up variable editor handler events
-            if (variableEditorHandler != null)
-            {
-                variableEditorHandler.ShowDeveloperMenuEvent += () => developerMenuHandler?.ShowDeveloperMenu();
-            }
-            
-            // Wire up battle statistics handler events
-            if (battleStatisticsHandler != null)
-            {
-                battleStatisticsHandler.ShowDeveloperMenuEvent += () => developerMenuHandler?.ShowDeveloperMenu();
-            }
-            
-            // Wire up action editor handler events
-            if (actionEditorHandler != null)
-            {
-                actionEditorHandler.ShowDeveloperMenuEvent += () => developerMenuHandler?.ShowDeveloperMenu();
-            }
-            
-            // Initialize Menu Input Framework
-            var menuInputResult = RPGGame.Menu.MenuInputFrameworkInitializer.Initialize();
-            menuInputRouter = menuInputResult.MenuInputRouter;
-            menuInputValidator = menuInputResult.MenuInputValidator;
-            
-            // Initialize input handlers
-            InitializeInputHandlers();
-        }
-        
-        /// <summary>
-        /// Initialize input routing handlers
-        /// </summary>
-        private void InitializeInputHandlers()
-        {
-            // Create handler containers
-            var inputHandlers = new RPGGame.GameCore.Input.GameInputHandlers
-            {
-                MainMenuHandler = mainMenuHandler,
-                CharacterMenuHandler = characterMenuHandler,
-                SettingsMenuHandler = settingsMenuHandler,
-                DeveloperMenuHandler = developerMenuHandler,
-                ActionEditorHandler = actionEditorHandler,
-                BattleStatisticsHandler = battleStatisticsHandler,
-                TuningParametersHandler = tuningParametersHandler,
-                VariableEditorHandler = variableEditorHandler,
-                InventoryMenuHandler = inventoryMenuHandler,
-                WeaponSelectionHandler = weaponSelectionHandler,
-                CharacterCreationHandler = characterCreationHandler,
-                GameLoopInputHandler = gameLoopInputHandler,
-                DungeonSelectionHandler = dungeonSelectionHandler,
-                DungeonCompletionHandler = dungeonCompletionHandler,
-                DeathScreenHandler = deathScreenHandler,
-                TestingSystemHandler = testingSystemHandler
-            };
-            
-            var escapeKeyHandlers = new RPGGame.GameCore.Input.EscapeKeyHandlers
-            {
-                ActionEditorHandler = actionEditorHandler
-            };
-            
-            // Create input router
-            inputRouter = new RPGGame.GameCore.Input.GameInputRouter(
+            var result = HandlerInitializationService.Initialize(
                 stateManager,
-                inputHandlers,
-                ShowMessage,
-                HandleCombatScroll);
-            
-            // Create escape key handler
-            escapeKeyHandler = new RPGGame.GameCore.Input.EscapeKeyHandler(
-                stateManager,
-                escapeKeyHandlers,
+                initializationManager,
+                gameInitializer,
+                dungeonManager!,
+                combatManager!,
+                narrativeManager,
+                uiManager,
                 ShowGameLoop,
                 ShowMainMenu,
-                ShowSettings,
-                ShowDeveloperMenu,
-                ShowActionEditor);
+                ShowInventory,
+                ShowCharacterInfo,
+                ShowMessage,
+                ExitGame,
+                async () => await (dungeonSelectionHandler?.ShowDungeonSelection() ?? Task.CompletedTask),
+                ShowDungeonCompletion,
+                ShowDeathScreen,
+                SaveGame,
+                ShowVariableEditor,
+                ShowActionEditor,
+                ShowTuningParameters,
+                HandleCombatScroll);
+            
+            // Assign to instance fields
+            mainMenuHandler = result.MainMenuHandler;
+            characterMenuHandler = result.CharacterMenuHandler;
+            settingsMenuHandler = result.SettingsMenuHandler;
+            developerMenuHandler = result.DeveloperMenuHandler;
+            actionEditorHandler = result.ActionEditorHandler;
+            battleStatisticsHandler = result.BattleStatisticsHandler;
+            tuningParametersHandler = result.TuningParametersHandler;
+            variableEditorHandler = result.VariableEditorHandler;
+            inventoryMenuHandler = result.InventoryMenuHandler;
+            weaponSelectionHandler = result.WeaponSelectionHandler;
+            characterCreationHandler = result.CharacterCreationHandler;
+            gameLoopInputHandler = result.GameLoopInputHandler;
+            dungeonSelectionHandler = result.DungeonSelectionHandler;
+            dungeonRunnerManager = result.DungeonRunnerManager;
+            dungeonCompletionHandler = result.DungeonCompletionHandler;
+            deathScreenHandler = result.DeathScreenHandler;
+            testingSystemHandler = result.TestingSystemHandler;
+            menuInputRouter = result.MenuInputRouter;
+            menuInputValidator = result.MenuInputValidator;
+            inputRouter = result.InputRouter;
+            escapeKeyHandler = result.EscapeKeyHandler;
         }
 
         // Static delegates for compatibility
@@ -298,8 +223,7 @@ namespace RPGGame
         {
             customUIManager = uiManager;
             UIManager.SetCustomUIManager(uiManager);
-            InitializeHandlers(uiManager);
-            InitializeInputHandlers(); // Re-initialize input handlers with new handlers
+            InitializeHandlers(uiManager); // This already initializes input handlers via HandlerInitializationService
             
             // Wire up state manager to UI coordinator for event-driven animations
             // This allows animation manager to automatically stop when state changes

@@ -94,7 +94,8 @@ namespace RPGGame
                 int timesAvailable = actionPool.Count(ap => ap.Name == action.Name);
                 string usageInfo = timesInCombo > 0 ? $" [In combo: {timesInCombo}/{timesAvailable}]" : "";
                 UIManager.WriteMenuLine($"  {i + 1}. {action.Name}{usageInfo}");
-                UIManager.WriteMenuLine(ActionDisplayFormatter.FormatActionStats(action, timesInCombo, timesAvailable));
+                UIManager.WriteMenuLine(ActionDisplayFormatter.GetActionDescription(action));
+                UIManager.WriteMenuLine(ActionDisplayFormatter.GetActionStats(action));
             }
             
             UIManager.Write($"\nEnter action number to add (1-{availableActions.Count}): ");

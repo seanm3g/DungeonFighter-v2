@@ -13,7 +13,7 @@ namespace RPGGame.MCP
     /// </summary>
     public class GameWrapper
     {
-        private Game? _game;
+        private GameCoordinator? _game;
         private OutputCapture _outputCapture;
 
         public GameWrapper()
@@ -29,7 +29,7 @@ namespace RPGGame.MCP
         /// <summary>
         /// Gets the current game instance
         /// </summary>
-        public Game? Game => _game;
+        public GameCoordinator? Game => _game;
 
         /// <summary>
         /// Gets the output capture instance
@@ -49,7 +49,7 @@ namespace RPGGame.MCP
             // Disable all delays for MCP mode
             DisableAllDelays();
 
-            _game = new Game(); // Headless mode - no UI manager
+            _game = new GameCoordinator(); // Headless mode - no UI manager
             _game.SetUIManager(_outputCapture);
         }
 
@@ -66,7 +66,7 @@ namespace RPGGame.MCP
             // Disable all delays for MCP mode
             DisableAllDelays();
 
-            _game = new Game(character);
+            _game = new GameCoordinator(character);
             _game.SetUIManager(_outputCapture);
         }
 

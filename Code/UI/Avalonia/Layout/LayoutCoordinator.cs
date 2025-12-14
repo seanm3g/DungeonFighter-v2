@@ -50,13 +50,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 // This ensures we clear and immediately render, minimizing visible blank time
                 canvas.Clear();
                 
-                // Always clear the entire title line before rendering new title to prevent overlay
-                // This is critical when transitioning between screens with different title lengths
-                // Clear a wider range to ensure we remove any partial text from longer titles
-                canvas.ClearTextInRange(LayoutConstants.TITLE_Y, LayoutConstants.TITLE_Y);
-                
-                // Render title bar
-                canvas.AddTitle(LayoutConstants.TITLE_Y, title, AsciiArtAssets.Colors.Gold);
+                // Title rendering removed - panels now extend to top of frame
                 
                 // Render left panel (Character Info) - Always visible
                 if (character != null)
@@ -84,14 +78,9 @@ namespace RPGGame.UI.Avalonia.Layout
             }
             else
             {
-                // When not clearing, only update title if it changed, and update panels that need updating
+                // When not clearing, only update panels that need updating
                 // Don't re-render center panel border - preserve existing content
-                // Clear the title line before updating to prevent overlay from different title lengths
-                if (titleChanged)
-                {
-                    canvas.ClearTextInRange(LayoutConstants.TITLE_Y, LayoutConstants.TITLE_Y);
-                }
-                canvas.AddTitle(LayoutConstants.TITLE_Y, title, AsciiArtAssets.Colors.Gold);
+                // Title rendering removed - panels now extend to top of frame
                 
                 // Update left panel (Character Info) - may have changed
                 if (character != null)

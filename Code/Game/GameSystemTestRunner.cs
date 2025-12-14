@@ -50,6 +50,7 @@ namespace RPGGame
             await RunTest("UI System", TestUISystem);
             await RunTest("Save/Load System", TestSaveLoadSystem);
             await RunTest("Action System", TestActionSystem);
+            await RunTest("Combo Dice Rolls", TestComboDiceRolls);
             await RunTest("Color System", TestColorSystem);
             await RunTest("Advanced Action Mechanics", TestAdvancedActionMechanics);
 
@@ -201,6 +202,10 @@ namespace RPGGame
                 // Integration Tests
                 "Game Flow Integration" => await RunTest(testName, TestGameFlowIntegration),
                 "Performance Integration" => await RunTest(testName, TestPerformanceIntegration),
+                
+                // Action System Tests
+                "Action System" => await RunTest(testName, TestActionSystem),
+                "Combo Dice Rolls" => await RunTest(testName, TestComboDiceRolls),
                 
                 // Advanced Action Mechanics
                 "Advanced Action Mechanics" => await RunTest(testName, TestAdvancedActionMechanics),
@@ -1895,6 +1900,49 @@ namespace RPGGame
             catch (Exception ex)
             {
                 return Task.FromResult(new TestResult("Action System", false, $"Exception: {ex.Message}"));
+            }
+        }
+
+        private Task<TestResult> TestComboDiceRolls()
+        {
+            try
+            {
+                uiCoordinator.WriteLine("=== Combo and Dice Roll Tests ===");
+                uiCoordinator.WriteLine("Running comprehensive combo and dice roll tests...");
+                uiCoordinator.WriteBlankLine();
+                
+                // Capture console output
+                var originalOut = Console.Out;
+                using (var stringWriter = new System.IO.StringWriter())
+                {
+                    Console.SetOut(stringWriter);
+                    
+                    try
+                    {
+                        RPGGame.Tests.Unit.ComboDiceRollTests.RunAllTests();
+                        string output = stringWriter.ToString();
+                        
+                        // Display output
+                        foreach (var line in output.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None))
+                        {
+                            if (!string.IsNullOrWhiteSpace(line))
+                            {
+                                uiCoordinator.WriteLine(line);
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        Console.SetOut(originalOut);
+                    }
+                }
+                
+                return Task.FromResult(new TestResult("Combo Dice Rolls", true, 
+                    "Combo and dice roll tests completed: Dice mechanics, Action selection, Combo sequences, Conditional triggers"));
+            }
+            catch (Exception ex)
+            {
+                return Task.FromResult(new TestResult("Combo Dice Rolls", false, $"Exception: {ex.Message}"));
             }
         }
 

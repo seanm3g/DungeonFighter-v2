@@ -81,7 +81,21 @@ namespace RPGGame.MCP.Tools
                     throw new InvalidOperationException($"Suggestion '{suggestionId}' not found. Run suggest_tuning to get current suggestions.");
                 }
 
-                var success = AutomatedTuningEngine.ApplySuggestion(suggestion);
+                var tuningSuggestion = new AutomatedTuningEngine.TuningSuggestion
+                {
+                    Id = suggestion.Id,
+                    Priority = suggestion.Priority,
+                    Category = suggestion.Category,
+                    Target = suggestion.Target,
+                    Parameter = suggestion.Parameter,
+                    CurrentValue = suggestion.CurrentValue,
+                    SuggestedValue = suggestion.SuggestedValue,
+                    AdjustmentMagnitude = suggestion.AdjustmentMagnitude,
+                    Reason = suggestion.Reason,
+                    Impact = suggestion.Impact,
+                    AffectedMatchups = suggestion.AffectedMatchups
+                };
+                var success = AutomatedTuningEngine.ApplySuggestion(tuningSuggestion);
 
                 return new
                 {

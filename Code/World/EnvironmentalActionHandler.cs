@@ -142,8 +142,9 @@ namespace RPGGame
                 var result = ColoredTextRenderer.RenderAsMarkup(mainBuilder.Build());
                 
                 // Add individual effect messages for each affected target
-                foreach (var (target, duration) in affectedTargets)
+                for (int i = 0; i < affectedTargets.Count; i++)
                 {
+                    var (target, duration) = affectedTargets[i];
                     string displayName = GetDisplayName(target);
                     var effectMessage = GetEnvironmentalEffectMessageColored(action, duration);
                     var builder = new ColoredTextBuilder();
@@ -157,6 +158,13 @@ namespace RPGGame
                     builder.AddSpace(); // Explicit space between "by" and effect name
                     builder.AddRange(effectMessage);
                     result += "\n" + ColoredTextRenderer.RenderAsMarkup(builder.Build());
+                    
+                    // Add blank line after last WEAKEN message
+                    bool isLast = i == affectedTargets.Count - 1;
+                    if (isLast && action.CausesWeaken)
+                    {
+                        result += "\n";
+                    }
                 }
                 
                 return result;
@@ -282,7 +290,9 @@ namespace RPGGame
             {
                 AddForAmountUnit(effectBuilder, duration.ToString(), ColorPalette.White, "turns", ColorPalette.White);
                 string effectLine = ColoredTextRenderer.RenderAsMarkup(effectBuilder.Build());
-                return mainLine + "\n" + effectLine;
+                // Add blank line after WEAKEN messages
+                string suffix = action.CausesWeaken ? "\n" : "";
+                return mainLine + "\n" + effectLine + suffix;
             }
             
             return mainLine;
@@ -363,16 +373,16 @@ namespace RPGGame
         {
             if (source is Character character)
             {
-                // Only apply combo amplification to combo actions, and only after the first one
-                if (action.IsComboAction && character.ComboStep > 0)
+                // Only apply combo amplification to combo actions, starting at step 2 (step 0 and 1 add no bonus)
+                if (action.IsComboAction && character.ComboStep > 1)
                 {
                     return character.GetCurrentComboAmplification();
                 }
             }
             else if (source is Enemy enemy)
             {
-                // Enemies also get combo amplification (same as heroes)
-                if (action.IsComboAction && enemy.ComboStep > 0)
+                // Enemies also get combo amplification (same as heroes), starting at step 2 (step 0 and 1 add no bonus)
+                if (action.IsComboAction && enemy.ComboStep > 1)
                 {
                     return enemy.GetCurrentComboAmplification();
                 }

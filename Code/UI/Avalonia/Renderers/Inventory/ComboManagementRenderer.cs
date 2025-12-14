@@ -5,6 +5,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
     using System.Linq;
     using RPGGame.UI;
     using RPGGame.UI.Avalonia;
+    using RPGGame.Items.Helpers;
 
     /// <summary>
     /// Renders combo management screens
@@ -155,10 +156,13 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                         y++;
                         currentLineCount++;
                         
-                        // Show action stats
-                        double speedPercentage = 100.0 / action.Length;
-                        string speedText = speedPercentage >= 150 ? "Very Fast" : speedPercentage >= 120 ? "Fast" : speedPercentage >= 100 ? "Normal" : speedPercentage >= 80 ? "Slow" : "Very Slow";
-                        canvas.AddText(x + 4, y, $"  {action.Description} | Damage: {action.DamageMultiplier:F1}x | Speed: {speedPercentage:F0}% ({speedText})", AsciiArtAssets.Colors.Gray);
+                        // Show action description
+                        canvas.AddText(x + 4, y, ActionDisplayFormatter.GetActionDescription(action), AsciiArtAssets.Colors.Gray);
+                        y++;
+                        currentLineCount++;
+                        
+                        // Show action stats (damage, speed, effects)
+                        canvas.AddText(x + 4, y, ActionDisplayFormatter.GetActionStats(action), AsciiArtAssets.Colors.Gray);
                         y++;
                         currentLineCount++;
                     }

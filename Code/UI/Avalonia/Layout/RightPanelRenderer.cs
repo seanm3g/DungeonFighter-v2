@@ -33,8 +33,8 @@ namespace RPGGame.UI.Avalonia.Layout
             canvas.ClearTextInArea(contentX, contentY, contentWidth, contentHeight);
             canvas.ClearProgressBarsInArea(contentX, contentY, contentWidth, contentHeight);
             
-            // Main border for right panel
-            canvas.AddBorder(LayoutConstants.RIGHT_PANEL_X, LayoutConstants.RIGHT_PANEL_Y, LayoutConstants.RIGHT_PANEL_WIDTH - 2, LayoutConstants.RIGHT_PANEL_HEIGHT, AsciiArtAssets.Colors.Purple);
+            // Main border for right panel - extends to right edge with no padding
+            canvas.AddBorder(LayoutConstants.RIGHT_PANEL_X, LayoutConstants.RIGHT_PANEL_Y, LayoutConstants.RIGHT_PANEL_WIDTH, LayoutConstants.RIGHT_PANEL_HEIGHT, AsciiArtAssets.Colors.Purple);
             
             int y = LayoutConstants.RIGHT_PANEL_Y + 1;
             int x = LayoutConstants.RIGHT_PANEL_X + 2;

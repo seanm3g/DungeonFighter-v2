@@ -7,6 +7,8 @@ using Avalonia.Threading;
 using RPGGame;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia;
+using RPGGame.UI.Avalonia.Helpers;
+using RPGGame.UI.Avalonia.Handlers;
 using RPGGame.UI.TitleScreen;
 using System;
 using System.IO;
@@ -16,20 +18,16 @@ namespace RPGGame.UI.Avalonia
 {
     public partial class MainWindow : Window
     {
-        private Game? game;
+        private GameCoordinator? game;
         private IUIManager? canvasUIManager;
         private bool isInitialized = false;
+        private MouseInteractionHandler? mouseHandler;
 
         public MainWindow()
         {
             InitializeComponent();
             this.KeyDown += OnKeyDown;
             this.KeyUp += OnKeyUp;
-            
-            // Add mouse event handling
-            GameCanvas.PointerPressed += OnCanvasPointerPressed;
-            GameCanvas.PointerMoved += OnCanvasPointerMoved;
-            GameCanvas.PointerReleased += OnCanvasPointerReleased;
             
             // Add mouse event handling
             GameCanvas.PointerPressed += OnCanvasPointerPressed;
@@ -62,6 +60,12 @@ namespace RPGGame.UI.Avalonia
                 
                 // Set the UI manager for the static UIManager class
                 UIManager.SetCustomUIManager(canvasUIManager);
+                
+                // Initialize mouse interaction handler
+                if (canvasUIManager is CanvasUICoordinator canvasUIForMouse)
+                {
+                    mouseHandler = new MouseInteractionHandler(GameCanvas, canvasUIForMouse, null);
+                }
                 
                 // Show static title screen (no animation)
                 if (canvasUIManager is CanvasUICoordinator canvasUI2)
@@ -115,8 +119,14 @@ namespace RPGGame.UI.Avalonia
                 }
                 
                 // Initialize the game with canvas UI
-                game = new Game(canvasUIManager);
+                game = new GameCoordinator(canvasUIManager);
                 game.SetUIManager(canvasUIManager);
+                
+                // Update mouse handler with game reference
+                if (mouseHandler != null && canvasUIManager is CanvasUICoordinator canvasUIForMouse)
+                {
+                    mouseHandler = new MouseInteractionHandler(GameCanvas, canvasUIForMouse, game);
+                }
                 
                 // Show the main menu (now async)
                 game.ShowMainMenu();
@@ -226,13 +236,7 @@ namespace RPGGame.UI.Avalonia
             }
             
             // Also update the status text block in XAML as a fallback
-            Dispatcher.UIThread.Post(() =>
-            {
-                if (StatusText != null)
-                {
-                    StatusText.Text = message;
-                }
-            });
+            StatusUpdateHelper.UpdateStatusText(StatusText, message);
         }
 
         public void UpdateGameState(string status, string help = "")
@@ -241,181 +245,34 @@ namespace RPGGame.UI.Avalonia
             HelpText.Text = help;
         }
 
-        // Mouse event handlers
+        // Mouse event handlers - delegate to MouseInteractionHandler
         private void OnCanvasPointerPressed(object? sender, PointerPressedEventArgs e)
         {
-            if (!isInitialized || game == null) return;
-
-            var point = e.GetCurrentPoint(GameCanvas);
-            if (point.Properties.IsLeftButtonPressed)
-            {
-                HandleMouseClick(point.Position);
-            }
+            if (!isInitialized || mouseHandler == null) return;
+            mouseHandler.HandlePointerPressed(e);
         }
 
         private void OnCanvasPointerMoved(object? sender, PointerEventArgs e)
         {
-            if (!isInitialized || game == null) return;
-
-            var point = e.GetCurrentPoint(GameCanvas);
-            HandleMouseHover(point.Position);
+            if (!isInitialized || mouseHandler == null) return;
+            mouseHandler.HandlePointerMoved(e);
         }
 
         private void OnCanvasPointerReleased(object? sender, PointerReleasedEventArgs e)
         {
-            // Handle mouse release if needed
-        }
-
-        private void HandleMouseClick(Point position)
-        {
-            if (canvasUIManager is CanvasUICoordinator canvasUI)
-            {
-                // Convert screen coordinates to character grid coordinates
-                var gridPos = ScreenToGrid(position);
-                
-                // Check if click is on a clickable element
-                var clickedElement = canvasUI.GetElementAt(gridPos.X, gridPos.Y);
-                if (clickedElement != null)
-                {
-                    // Process the click
-                    ProcessElementClick(clickedElement);
-                }
-            }
-        }
-
-        private void HandleMouseHover(Point position)
-        {
-            if (canvasUIManager is CanvasUICoordinator canvasUI)
-            {
-                // Convert screen coordinates to character grid coordinates
-                var gridPos = ScreenToGrid(position);
-                
-                // Update hover state
-                canvasUI.SetHoverPosition(gridPos.X, gridPos.Y);
-            }
-        }
-
-        private (int X, int Y) ScreenToGrid(Point screenPosition)
-        {
-            // Convert screen coordinates to character grid coordinates
-            // Use actual measured character dimensions from the canvas
-            double charWidth = GameCanvas.GetCharWidth();
-            double charHeight = GameCanvas.GetCharHeight();
-            
-            // Account for the margin (10px) in the XAML
-            double adjustedX = screenPosition.X - 10;
-            double adjustedY = screenPosition.Y - 10;
-            
-            int gridX = (int)(adjustedX / charWidth);
-            int gridY = (int)(adjustedY / charHeight);
-            
-            return (gridX, gridY);
-        }
-
-        private async void ProcessElementClick(ClickableElement element)
-        {
-            if (game == null) return;
-
-            switch (element.Type)
-            {
-                case ElementType.MenuOption:
-                    await game.HandleInput(element.Value);
-                    break;
-                case ElementType.Item:
-                    // Handle item selection
-                    UpdateStatus($"Selected item: {element.Value}");
-                    break;
-                case ElementType.Button:
-                    // Handle button click
-                    await game.HandleInput(element.Value);
-                    break;
-            }
+            if (!isInitialized || mouseHandler == null) return;
+            mouseHandler.HandlePointerReleased(e);
         }
 
         private async Task CopyCenterPanelToClipboard()
         {
-            try
+            if (canvasUIManager is CanvasUICoordinator canvasUI)
             {
-                System.Console.WriteLine("[COPY] CopyCenterPanelToClipboard called");
-                
-                // Update status text block directly for immediate feedback
-                Dispatcher.UIThread.Post(() =>
-                {
-                    if (StatusText != null)
-                    {
-                        StatusText.Text = "Copying to clipboard...";
-                    }
-                });
-                
-                if (canvasUIManager == null)
-                {
-                    System.Console.WriteLine("[COPY] canvasUIManager is null");
-                    Dispatcher.UIThread.Post(() =>
-                    {
-                        if (StatusText != null) StatusText.Text = "UI Manager not available";
-                    });
-                    UpdateStatus("UI Manager not available");
-                    return;
-                }
-
-                if (canvasUIManager is CanvasUICoordinator canvasUI)
-                {
-                    string bufferText = canvasUI.GetDisplayBufferText();
-                    System.Console.WriteLine($"[COPY] Buffer text length: {bufferText?.Length ?? 0}");
-                    
-                    if (string.IsNullOrWhiteSpace(bufferText))
-                    {
-                        Dispatcher.UIThread.Post(() =>
-                        {
-                            if (StatusText != null) StatusText.Text = "No text to copy";
-                        });
-                        UpdateStatus("No text to copy");
-                        return;
-                    }
-
-                    // Get the clipboard from the top-level window
-                    var topLevel = TopLevel.GetTopLevel(this);
-                    if (topLevel?.Clipboard != null)
-                    {
-                        await topLevel.Clipboard.SetTextAsync(bufferText);
-                        int lineCount = bufferText.Split(new[] { System.Environment.NewLine, "\n", "\r\n" }, StringSplitOptions.None).Length;
-                        string message = $"Copied {lineCount} lines to clipboard";
-                        Dispatcher.UIThread.Post(() =>
-                        {
-                            if (StatusText != null) StatusText.Text = message;
-                        });
-                        UpdateStatus(message);
-                        System.Console.WriteLine($"[COPY] Successfully copied {lineCount} lines to clipboard");
-                    }
-                    else
-                    {
-                        System.Console.WriteLine("[COPY] Clipboard is null");
-                        Dispatcher.UIThread.Post(() =>
-                        {
-                            if (StatusText != null) StatusText.Text = "Clipboard not available";
-                        });
-                        UpdateStatus("Clipboard not available");
-                    }
-                }
-                else
-                {
-                    System.Console.WriteLine($"[COPY] canvasUIManager is not CanvasUICoordinator, type: {canvasUIManager.GetType().Name}");
-                    Dispatcher.UIThread.Post(() =>
-                    {
-                        if (StatusText != null) StatusText.Text = "Canvas UI not available";
-                    });
-                    UpdateStatus("Canvas UI not available");
-                }
+                await ClipboardHelper.CopyDisplayBufferToClipboard(canvasUI, this, StatusText);
             }
-            catch (Exception ex)
+            else
             {
-                System.Console.WriteLine($"[COPY] Exception: {ex.Message}\n{ex.StackTrace}");
-                string errorMsg = $"Error: {ex.Message}";
-                Dispatcher.UIThread.Post(() =>
-                {
-                    if (StatusText != null) StatusText.Text = errorMsg;
-                });
-                UpdateStatus(errorMsg);
+                UpdateStatus("Canvas UI not available");
             }
         }
 

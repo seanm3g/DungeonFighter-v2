@@ -1,5 +1,3 @@
-using RPGGame.Utils;
-
 namespace RPGGame.UI.Avalonia.Layout
 {
     /// <summary>
@@ -18,8 +16,8 @@ namespace RPGGame.UI.Avalonia.Layout
         private const int BASE_CENTER_PANEL_WIDTH = 136;
         private const int BASE_RIGHT_PANEL_X = 168;
         private const int BASE_RIGHT_PANEL_WIDTH = 30;
-        private const int BASE_PANEL_Y = 2;
-        private const int BASE_PANEL_HEIGHT = 53; // Height from row 2 to row 52 (inclusive)
+        private const int BASE_PANEL_Y = 0; // Panels start at the top of the frame (row 0)
+        private const int BASE_PANEL_HEIGHT = 52; // Full grid height (rows 0-51)
         private const int BASE_TITLE_Y = 0;
         
         // Current grid dimensions (defaults to base, can be updated)
@@ -53,12 +51,11 @@ namespace RPGGame.UI.Avalonia.Layout
                 // Calculate how many characters actually fit in the visible area
                 int calculatedVisibleWidth = (int)(canvasPixelWidth / charWidth);
                 _effectiveVisibleWidth = calculatedVisibleWidth;
-                
             }
         }
         
         /// <summary>
-        /// Logs the current layout values for debugging
+        /// Calculates a proportional value based on base dimension
         /// </summary>
         private static int ScaleWidth(int baseValue) => (int)((double)baseValue / BASE_SCREEN_WIDTH * _gridWidth);
         private static int ScaleHeight(int baseValue) => (int)((double)baseValue / BASE_SCREEN_HEIGHT * _gridHeight);
@@ -69,10 +66,10 @@ namespace RPGGame.UI.Avalonia.Layout
         public static int SCREEN_CENTER => _gridWidth / 2;
         
         // Left panel (Character Info) - fixed width
-        public static int LEFT_PANEL_X => 0;
-        public static int LEFT_PANEL_Y => ScaleHeight(BASE_PANEL_Y);
+        public static int LEFT_PANEL_X => 1;
+        public static int LEFT_PANEL_Y => 0; // Always start at row 0 (top of grid)
         public static int LEFT_PANEL_WIDTH => BASE_LEFT_PANEL_WIDTH; // Fixed width, not scaled
-        public static int LEFT_PANEL_HEIGHT => _gridHeight - LEFT_PANEL_Y; // Extends to bottom
+        public static int LEFT_PANEL_HEIGHT => _gridHeight + 1; // One character taller (rows 0 to _gridHeight)
         
         // Effective visible width - dynamically calculated from actual canvas bounds
         // This ensures panels fit within the actual visible area, not just the grid width
@@ -81,18 +78,17 @@ namespace RPGGame.UI.Avalonia.Layout
         // Center panel (Dynamic Content) - dynamic width fills remaining space
         // Positioned right after left panel with 1 char gap (matching original design)
         public static int CENTER_PANEL_X => LEFT_PANEL_X + LEFT_PANEL_WIDTH + 1; // +1 to match original gap
-        public static int CENTER_PANEL_Y => ScaleHeight(BASE_PANEL_Y);
+        public static int CENTER_PANEL_Y => 0; // Always start at row 0 (top of grid)
         // Calculate width using effective visible width to ensure right panel stays within visible area
         // Total effective width = LEFT_PANEL_WIDTH + gap(1) + CENTER_PANEL_WIDTH + gap(1) + RIGHT_PANEL_WIDTH
-        // Therefore: CENTER_PANEL_WIDTH = EffectiveVisibleWidth - LEFT_PANEL_WIDTH - RIGHT_PANEL_WIDTH - 2
-        public static int CENTER_PANEL_WIDTH => EffectiveVisibleWidth - LEFT_PANEL_WIDTH - RIGHT_PANEL_WIDTH - 2; // Use effective visible width
-        public static int CENTER_PANEL_HEIGHT => _gridHeight - CENTER_PANEL_Y; // Extends to bottom
+        public static int CENTER_PANEL_WIDTH => EffectiveVisibleWidth - LEFT_PANEL_WIDTH - RIGHT_PANEL_WIDTH-3; // Accounts for gaps between panels
+        public static int CENTER_PANEL_HEIGHT => _gridHeight + 1; // One character taller (rows 0 to _gridHeight)
         
         // Right panel (Dungeon/Enemy Info) - fixed width, positioned at visible right edge
         public static int RIGHT_PANEL_X => EffectiveVisibleWidth - BASE_RIGHT_PANEL_WIDTH; // Positioned at effective visible right edge
-        public static int RIGHT_PANEL_Y => ScaleHeight(BASE_PANEL_Y);
+        public static int RIGHT_PANEL_Y => 0; // Always start at row 0 (top of grid)
         public static int RIGHT_PANEL_WIDTH => BASE_RIGHT_PANEL_WIDTH; // Fixed width, not scaled
-        public static int RIGHT_PANEL_HEIGHT => _gridHeight - RIGHT_PANEL_Y; // Extends to bottom
+        public static int RIGHT_PANEL_HEIGHT => _gridHeight + 1; // One character taller (rows 0 to _gridHeight)
         
         // Top bar for title
         public static int TITLE_Y => ScaleHeight(BASE_TITLE_Y);

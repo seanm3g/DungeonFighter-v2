@@ -8,7 +8,11 @@ namespace RPGGame
     public class CharacterEffects
     {
         // Combo system state
-        public int ComboStep { get; set; } = 0;
+        // Start at step 1 (initial combo state, no bonus)
+        // Step 1: Roll 14+ → go to step 2 (bonus applies)
+        // Step 2+: Roll 14+ → continue combo (bonus continues)
+        // Step 2+: Roll < 14 → reset to step 1 (bonus resets)
+        public int ComboStep { get; set; } = 1;
         public double ComboAmplifier { get; set; } = 1.0;
         public int ComboBonus { get; set; } = 0;
         public int TempComboBonus { get; set; } = 0;
@@ -130,7 +134,7 @@ namespace RPGGame
 
         public void ResetCombo()
         {
-            ComboStep = 0;
+            ComboStep = 1; // Reset to step 1 (initial combo state, no bonus)
             ComboAmplifier = 1.0;
             LastComboActionIdx = -1;
             ComboModeActive = false;
@@ -167,7 +171,7 @@ namespace RPGGame
             SlowMultiplier = 1.0;
             
             // Clear combo effects
-            ComboStep = 0;
+            ComboStep = 1; // Reset to step 1 (initial combo state, no bonus)
             ComboAmplifier = 1.0;
             LastComboActionIdx = -1;
             ComboModeActive = false;

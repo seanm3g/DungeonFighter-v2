@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.Chunking;
 
 namespace RPGGame.UI
 {
@@ -84,7 +85,7 @@ namespace RPGGame.UI
         /// </summary>
         /// <param name="text">The text to reveal</param>
         /// <param name="config">Optional configuration (uses default if null)</param>
-        public static void RevealText(string text, RevealConfig? config = null)
+        public static async Task RevealTextAsync(string text, RevealConfig? config = null)
         {
             config ??= _defaultConfig;
             
@@ -116,9 +117,17 @@ namespace RPGGame.UI
                 if (i < chunks.Count - 1)
                 {
                     int delay = CalculateDelay(chunk, config);
-                    Thread.Sleep(delay);
+                    await Task.Delay(delay);
                 }
             }
+        }
+        
+        /// <summary>
+        /// Synchronous version for backwards compatibility
+        /// </summary>
+        public static void RevealText(string text, RevealConfig? config = null)
+        {
+            Task.Run(async () => await RevealTextAsync(text, config)).Wait();
         }
         
         /// <summary>
@@ -126,143 +135,11 @@ namespace RPGGame.UI
         /// </summary>
         private static List<string> SplitIntoChunks(string text, ChunkStrategy strategy)
         {
-            var chunks = new List<string>();
-            
-            switch (strategy)
-            {
-                case ChunkStrategy.Sentence:
-                    chunks = SplitBySentences(text);
-                    break;
-                    
-                case ChunkStrategy.Paragraph:
-                    chunks = SplitByParagraphs(text);
-                    break;
-                    
-                case ChunkStrategy.Line:
-                    chunks = SplitByLines(text);
-                    break;
-                    
-                case ChunkStrategy.Semantic:
-                    chunks = SplitBySemantic(text);
-                    break;
-            }
+            var chunkStrategy = ChunkStrategyFactory.GetStrategy(strategy);
+            var chunks = chunkStrategy.SplitIntoChunks(text);
             
             // Remove empty chunks
-            chunks = chunks.Where(c => !string.IsNullOrWhiteSpace(c)).ToList();
-            
-            return chunks;
-        }
-        
-        /// <summary>
-        /// Splits text by sentences (periods, question marks, exclamation points)
-        /// </summary>
-        private static List<string> SplitBySentences(string text)
-        {
-            // Split on sentence-ending punctuation followed by space or newline
-            // But preserve the punctuation with the sentence
-            var pattern = @"(?<=[.!?])\s+(?=[A-Z\n])";
-            var sentences = Regex.Split(text, pattern);
-            
-            var chunks = new List<string>();
-            foreach (var sentence in sentences)
-            {
-                var trimmed = sentence.Trim();
-                if (!string.IsNullOrEmpty(trimmed))
-                {
-                    chunks.Add(trimmed);
-                }
-            }
-            
-            return chunks;
-        }
-        
-        /// <summary>
-        /// Splits text by paragraphs (double newlines)
-        /// </summary>
-        private static List<string> SplitByParagraphs(string text)
-        {
-            var paragraphs = text.Split(new[] { "\n\n", "\r\n\r\n" }, StringSplitOptions.RemoveEmptyEntries);
-            return paragraphs.Select(p => p.Trim()).Where(p => !string.IsNullOrEmpty(p)).ToList();
-        }
-        
-        /// <summary>
-        /// Splits text by lines (single newlines)
-        /// </summary>
-        private static List<string> SplitByLines(string text)
-        {
-            var lines = text.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
-            return lines.Select(l => l.Trim()).Where(l => !string.IsNullOrEmpty(l)).ToList();
-        }
-        
-        /// <summary>
-        /// Splits text by semantic sections (headers, stats blocks, etc.)
-        /// </summary>
-        private static List<string> SplitBySemantic(string text)
-        {
-            var chunks = new List<string>();
-            var lines = text.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
-            
-            string currentChunk = "";
-            foreach (var line in lines)
-            {
-                var trimmedLine = line.Trim();
-                
-                // Check if this line starts a new semantic section
-                bool isHeader = IsHeaderLine(trimmedLine);
-                bool isStatsBlock = IsStatsBlock(trimmedLine);
-                bool isSeparator = IsSeparatorLine(trimmedLine);
-                
-                if ((isHeader || isStatsBlock || isSeparator) && !string.IsNullOrEmpty(currentChunk))
-                {
-                    // Start a new chunk
-                    chunks.Add(currentChunk.Trim());
-                    currentChunk = trimmedLine;
-                }
-                else
-                {
-                    // Add to current chunk
-                    if (!string.IsNullOrEmpty(currentChunk))
-                    {
-                        currentChunk += "\n";
-                    }
-                    currentChunk += trimmedLine;
-                }
-            }
-            
-            // Add the last chunk
-            if (!string.IsNullOrEmpty(currentChunk))
-            {
-                chunks.Add(currentChunk.Trim());
-            }
-            
-            return chunks;
-        }
-        
-        /// <summary>
-        /// Checks if a line is a header (e.g., "=== ENTERING DUNGEON ===")
-        /// </summary>
-        private static bool IsHeaderLine(string line)
-        {
-            // Lines with all caps and/or lots of = or - characters
-            return Regex.IsMatch(line, @"^[=\-]{3,}|[A-Z\s]{10,}|^[=\-\s]*[A-Z\s]+[=\-\s]*$");
-        }
-        
-        /// <summary>
-        /// Checks if a line is a stats block (e.g., "Enemy Stats - Health: 69/69, Armor: 1")
-        /// </summary>
-        private static bool IsStatsBlock(string line)
-        {
-            return line.Contains("Stats") || line.Contains("Health:") || 
-                   line.Contains("Attack:") || line.Contains("STR") || 
-                   line.Contains("AGI") || line.Contains("TEC") || line.Contains("INT");
-        }
-        
-        /// <summary>
-        /// Checks if a line is a separator (e.g., "====================================")
-        /// </summary>
-        private static bool IsSeparatorLine(string line)
-        {
-            return Regex.IsMatch(line, @"^[=\-]{4,}$");
+            return chunks.Where(c => !string.IsNullOrWhiteSpace(c)).ToList();
         }
         
         /// <summary>
@@ -287,6 +164,11 @@ namespace RPGGame.UI
         /// <summary>
         /// Quick method: Reveal text by sentences with default settings
         /// </summary>
+        public static async Task RevealBySentencesAsync(string text)
+        {
+            await RevealTextAsync(text, new RevealConfig { Strategy = ChunkStrategy.Sentence });
+        }
+        
         public static void RevealBySentences(string text)
         {
             RevealText(text, new RevealConfig { Strategy = ChunkStrategy.Sentence });
@@ -295,6 +177,11 @@ namespace RPGGame.UI
         /// <summary>
         /// Quick method: Reveal text by paragraphs with default settings
         /// </summary>
+        public static async Task RevealByParagraphsAsync(string text)
+        {
+            await RevealTextAsync(text, new RevealConfig { Strategy = ChunkStrategy.Paragraph });
+        }
+        
         public static void RevealByParagraphs(string text)
         {
             RevealText(text, new RevealConfig { Strategy = ChunkStrategy.Paragraph });
@@ -303,6 +190,11 @@ namespace RPGGame.UI
         /// <summary>
         /// Quick method: Reveal text by lines with default settings
         /// </summary>
+        public static async Task RevealByLinesAsync(string text)
+        {
+            await RevealTextAsync(text, new RevealConfig { Strategy = ChunkStrategy.Line });
+        }
+        
         public static void RevealByLines(string text)
         {
             RevealText(text, new RevealConfig { Strategy = ChunkStrategy.Line });
@@ -311,6 +203,11 @@ namespace RPGGame.UI
         /// <summary>
         /// Quick method: Reveal text by semantic sections with default settings
         /// </summary>
+        public static async Task RevealBySemanticAsync(string text)
+        {
+            await RevealTextAsync(text, new RevealConfig { Strategy = ChunkStrategy.Semantic });
+        }
+        
         public static void RevealBySemantic(string text)
         {
             RevealText(text, new RevealConfig { Strategy = ChunkStrategy.Semantic });
@@ -320,12 +217,24 @@ namespace RPGGame.UI
         /// Quick method: Reveal dungeon exploration text (uses semantic chunking)
         /// Optimized for dungeon room descriptions, encounters, etc.
         /// </summary>
+        public static async Task RevealDungeonTextAsync(string text)
+        {
+            await RevealTextAsync(text, new RevealConfig 
+            { 
+                Strategy = ChunkStrategy.Semantic,
+                BaseDelayPerCharMs = 25, // Slightly faster for gameplay
+                MinDelayMs = 800,
+                MaxDelayMs = 3000,
+                AddBlankLineBetweenChunks = false
+            });
+        }
+        
         public static void RevealDungeonText(string text)
         {
             RevealText(text, new RevealConfig 
             { 
                 Strategy = ChunkStrategy.Semantic,
-                BaseDelayPerCharMs = 25, // Slightly faster for gameplay
+                BaseDelayPerCharMs = 25,
                 MinDelayMs = 800,
                 MaxDelayMs = 3000,
                 AddBlankLineBetweenChunks = false
@@ -336,12 +245,24 @@ namespace RPGGame.UI
         /// Quick method: Reveal combat text (uses sentence chunking)
         /// Optimized for combat messages
         /// </summary>
+        public static async Task RevealCombatTextAsync(string text)
+        {
+            await RevealTextAsync(text, new RevealConfig 
+            { 
+                Strategy = ChunkStrategy.Sentence,
+                BaseDelayPerCharMs = 20, // Faster for combat
+                MinDelayMs = 500,
+                MaxDelayMs = 2000,
+                AddBlankLineBetweenChunks = false
+            });
+        }
+        
         public static void RevealCombatText(string text)
         {
             RevealText(text, new RevealConfig 
             { 
                 Strategy = ChunkStrategy.Sentence,
-                BaseDelayPerCharMs = 20, // Faster for combat
+                BaseDelayPerCharMs = 20,
                 MinDelayMs = 500,
                 MaxDelayMs = 2000,
                 AddBlankLineBetweenChunks = false

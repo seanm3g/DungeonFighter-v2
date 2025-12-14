@@ -168,6 +168,7 @@ namespace RPGGame
             builder.Add(source.Name, source is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
             AddUsesAction(builder, action.Name, ColorPalette.Green);
             
+            builder.AddSpace(); // Explicit space between action name and "on"
             builder.Add("on", Colors.White);
             
             // Target name

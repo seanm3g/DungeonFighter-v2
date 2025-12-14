@@ -39,14 +39,20 @@ namespace RPGGame.Actions.Execution
             // Store the action that will be used
             lastUsedActions[source] = result.SelectedAction;
 
-            // Handle unique action chance for characters (not enemies)
-            if (source is Character character && !(character is Enemy) && forcedAction == null)
-            {
-                result.SelectedAction = ActionUtilities.HandleUniqueActionChance(character, result.SelectedAction);
-            }
-
             // Use the same roll that was used for action selection
             result.BaseRoll = ActionSelector.GetActionRoll(source);
+
+            // Handle unique action chance for characters (not enemies)
+            // Only apply to combo actions, not basic attacks (rolls 6-13 should remain basic attacks)
+            if (source is Character character && !(character is Enemy) && forcedAction == null)
+            {
+                // Only allow unique action chance if the selected action is not a basic attack
+                // Basic attacks (rolls 6-13) should remain basic attacks and not be converted
+                if (result.SelectedAction.Name != "BASIC ATTACK")
+                {
+                    result.SelectedAction = ActionUtilities.HandleUniqueActionChance(character, result.SelectedAction);
+                }
+            }
 
             // Apply roll modifications from action
             result.ModifiedBaseRoll = RollModificationManager.ApplyActionRollModifications(
@@ -230,10 +236,45 @@ namespace RPGGame.Actions.Execution
                     }
                 }
 
-                // Handle combo advancement for characters (with routing support)
+                // Handle combo advancement for characters based on roll value
+                // Start at step 1 (initial state, no bonus)
+                // Step 1: Roll 14+ → go to step 2 (bonus applies)
+                // Step 1: Roll < 14 → stay at step 1 (no bonus, still in combo mode)
+                // Step 2+: Roll 14+ → continue to next step (bonus continues)
+                // Step 2+: Roll < 14 → reset to step 1 (bonus resets, stay in combo mode)
                 if (source is Character comboCharacter && !(comboCharacter is Enemy))
                 {
-                    comboCharacter.IncrementComboStep(result.SelectedAction);
+                    int comboThreshold = GameConfiguration.Instance.RollSystem.ComboThreshold.Min; // 14
+                    
+                    if (comboCharacter.ComboStep == 1)
+                    {
+                        // At step 1, need 14+ to advance to step 2 (where bonus starts)
+                        if (result.AttackRoll >= comboThreshold)
+                        {
+                            // Advance to step 2 with routing support
+                            comboCharacter.IncrementComboStep(result.SelectedAction);
+                        }
+                        // If < 14, stay at step 1 (no bonus, but still in combo mode)
+                    }
+                    else if (comboCharacter.ComboStep >= 2)
+                    {
+                        // At step 2 or higher, need 14+ to continue combo
+                        if (result.AttackRoll >= comboThreshold)
+                        {
+                            // Combo continues - increment with routing support
+                            comboCharacter.IncrementComboStep(result.SelectedAction);
+                        }
+                        else
+                        {
+                            // Didn't get 14+, reset to step 1 (bonus resets, but stay in combo mode)
+                            comboCharacter.ComboStep = 1;
+                        }
+                    }
+                    else if (comboCharacter.ComboStep == 0)
+                    {
+                        // If somehow at step 0, initialize to step 1
+                        comboCharacter.ComboStep = 1;
+                    }
                 }
             }
             else
@@ -247,10 +288,11 @@ namespace RPGGame.Actions.Execution
                     ActionStatisticsTracker.RecordMissAction(characterMiss, result.BaseRoll, result.RollBonus);
                 }
                 
-                // Reset combo step to beginning of action queue on miss (for characters, not enemies)
+                // Reset combo step to step 1 on miss (for characters, not enemies)
+                // Step 1 is the initial combo state (no bonus, but ready for combo)
                 if (source is Character comboCharacterMiss && !(comboCharacterMiss is Enemy))
                 {
-                    comboCharacterMiss.ComboStep = 0;
+                    comboCharacterMiss.ComboStep = 1;
                 }
 
                 ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction, 0, result.ModifiedBaseRoll + result.RollBonus, result.RollBonus, false, false, 0, 0, false, result.BaseRoll, battleNarrative);

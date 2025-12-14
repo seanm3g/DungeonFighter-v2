@@ -1,0 +1,28 @@
+namespace RPGGame.Game.Testing.Commands
+{
+    using System.Threading.Tasks;
+    using RPGGame.UI.Avalonia;
+
+    /// <summary>
+    /// Command to run data and UI system tests together.
+    /// </summary>
+    public class RunDataUITestsCommand : TestCommandBase
+    {
+        public RunDataUITestsCommand(
+            CanvasUICoordinator canvasUI,
+            TestExecutionCoordinator? testCoordinator,
+            GameStateManager stateManager)
+            : base(canvasUI, testCoordinator, stateManager)
+        {
+        }
+
+        public override async Task ExecuteAsync()
+        {
+            var testRunner = new GameSystemTestRunner(CanvasUI);
+            if (TestCoordinator != null)
+            {
+                await TestCoordinator.ExecuteDataAndUITests(testRunner);
+            }
+        }
+    }
+}

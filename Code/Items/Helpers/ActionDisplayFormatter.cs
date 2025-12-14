@@ -28,15 +28,24 @@ namespace RPGGame.Items.Helpers
         }
 
         /// <summary>
-        /// Formats action stats for display
+        /// Gets the action description text (without stats)
         /// </summary>
-        public static string FormatActionStats(Action action, int timesInCombo, int timesAvailable)
+        public static string GetActionDescription(Action action)
+        {
+            return $"      {action.Description}";
+        }
+
+        /// <summary>
+        /// Gets the action stats text (damage, speed, effects)
+        /// </summary>
+        public static string GetActionStats(Action action)
         {
             double speedPercentage = CalculateActionSpeedPercentage(action);
             string speedText = GetSpeedDescription(speedPercentage);
-            string usageInfo = timesInCombo > 0 ? $" [In combo: {timesInCombo}/{timesAvailable}]" : "";
             
-            string statsLine = $"      {action.Description} | Damage: {action.DamageMultiplier:F1}x | Speed: {speedPercentage:F0}% ({speedText})";
+            var stats = new List<string>();
+            stats.Add($"Damage: {action.DamageMultiplier:F1}x");
+            stats.Add($"Speed: {speedPercentage:F0}% ({speedText})");
             
             var effects = new List<string>();
             if (action.CausesBleed) effects.Add("Causes Bleed");
@@ -46,9 +55,18 @@ namespace RPGGame.Items.Helpers
             if (action.CausesStun) effects.Add("Causes Stun");
             
             if (effects.Count > 0)
-                statsLine += ", " + string.Join(", ", effects);
+                stats.Add(string.Join(", ", effects));
             
-            return statsLine;
+            return $"      {string.Join(" | ", stats)}";
+        }
+
+        /// <summary>
+        /// Formats action stats for display (legacy method for backward compatibility)
+        /// </summary>
+        public static string FormatActionStats(Action action, int timesInCombo, int timesAvailable)
+        {
+            // Return description and stats on separate lines for text-based UI
+            return $"{GetActionDescription(action)}\n{GetActionStats(action)}";
         }
     }
 }

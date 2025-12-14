@@ -57,14 +57,15 @@ namespace RPGGame
             int rollBonus = ActionUtilities.CalculateRollBonus(source, null);
             int totalRoll = baseRoll + rollBonus;
             
-            // Determine action type based on total roll result (base roll + bonuses)
+            // Determine action type based on base roll (not total roll with bonuses)
+            // Bonuses affect hit chance and damage, but base roll determines action type
             Action? selectedAction = null;
             
             if (baseRoll == 20) // Natural 20 - always combo + critical hit
             {
                 selectedAction = SelectComboAction(source);
             }
-            else if (totalRoll >= 14) // Combo threshold (14-20) - with bonuses
+            else if (baseRoll >= 14) // Combo threshold (14-19) - base roll only, no bonuses
             {
                 selectedAction = SelectComboAction(source);
             }
@@ -114,7 +115,8 @@ namespace RPGGame
             int totalRoll = baseRoll + rollBonus;
 
             // 20 or 14-19: prefer combo actions, but only if they have both combo and basic actions
-            if (baseRoll == 20 || totalRoll >= 14)
+            // Action type determined by base roll, not total roll with bonuses
+            if (baseRoll == 20 || baseRoll >= 14)
             {
                 var comboActions = ActionUtilities.GetComboActions(source);
                 var hasBasicAttack = source.ActionPool.Any(a => a.action.Name == "BASIC ATTACK");

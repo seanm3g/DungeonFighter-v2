@@ -37,36 +37,51 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Loads starting gear data from JSON file
+        /// Loads starting gear data from TuningConfig.json
         /// </summary>
         public StartingGearData LoadStartingGear()
         {
             try
             {
-                // Use FileManager to get the correct path (handles multiple possible locations)
-                string jsonPath = FileManager.GetGameDataFilePath("StartingGear.json");
-                string jsonContent = File.ReadAllText(jsonPath);
-                var startingGear = JsonSerializer.Deserialize<StartingGearData>(jsonContent) ?? new StartingGearData();
+                var config = GameConfiguration.Instance.StartingGear;
+                var startingGear = new StartingGearData();
                 
-                // Apply weapon scaling from tuning config
-                var weaponScaling = GameConfiguration.Instance.WeaponScaling;
-                if (weaponScaling != null)
+                // Convert from config format to StartingGearData format
+                if (config?.Weapons != null)
                 {
-                    foreach (var weapon in startingGear.weapons)
+                    foreach (var weaponConfig in config.Weapons)
                     {
-                        // Apply global damage multiplier
-                        weapon.damage = weapon.damage * weaponScaling.GlobalDamageMultiplier;
-                        
-                        // Apply weapon-specific starting damage from tuning config
-                        string weaponName = weapon.name.ToLower();
-                        weapon.damage = weaponName switch
+                        var weapon = new StartingWeapon
                         {
-                            var name when name.Contains("mace") => weaponScaling.StartingWeaponDamage.Mace,
-                            var name when name.Contains("sword") => weaponScaling.StartingWeaponDamage.Sword,
-                            var name when name.Contains("dagger") => weaponScaling.StartingWeaponDamage.Dagger,
-                            var name when name.Contains("wand") => weaponScaling.StartingWeaponDamage.Wand,
-                            _ => weapon.damage
+                            name = weaponConfig.Name,
+                            damage = weaponConfig.Damage,
+                            attackSpeed = weaponConfig.AttackSpeed,
+                            weight = weaponConfig.Weight
                         };
+                        
+                        // Apply global damage multiplier from tuning config (balance adjustment only)
+                        var weaponScaling = GameConfiguration.Instance.WeaponScaling;
+                        if (weaponScaling != null)
+                        {
+                            weapon.damage = weapon.damage * weaponScaling.GlobalDamageMultiplier;
+                        }
+                        
+                        startingGear.weapons.Add(weapon);
+                    }
+                }
+                
+                if (config?.Armor != null)
+                {
+                    foreach (var armorConfig in config.Armor)
+                    {
+                        var armor = new StartingArmor
+                        {
+                            slot = armorConfig.Slot,
+                            name = armorConfig.Name,
+                            armor = armorConfig.Armor,
+                            weight = armorConfig.Weight
+                        };
+                        startingGear.armor.Add(armor);
                     }
                 }
                 

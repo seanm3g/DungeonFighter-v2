@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using RPGGame.MCP.Tools.CodeReview;
 
 namespace RPGGame.MCP.Tools
 {
@@ -107,28 +108,29 @@ namespace RPGGame.MCP.Tools
             var lines = content.Split('\n');
             var issueCount = 0;
 
-            // Check for style violations
-            CheckStyleViolations(lines, result);
+            // Run all checks
+            var styleCheck = new StyleViolationCheck();
+            result.StyleIssues = styleCheck.Check(content, lines);
             issueCount += result.StyleIssues.Count;
 
-            // Check for complexity
-            CheckComplexity(lines, result);
+            var complexityCheck = new ComplexityCheck();
+            result.ComplexityIssues = complexityCheck.Check(content, lines);
             issueCount += result.ComplexityIssues.Count;
 
-            // Check for security concerns
-            CheckSecurity(content, result);
+            var securityCheck = new SecurityCheck();
+            result.SecurityConcerns = securityCheck.Check(content, lines);
             issueCount += result.SecurityConcerns.Count;
 
-            // Check for performance issues
-            CheckPerformance(content, result);
+            var performanceCheck = new PerformanceCheck();
+            result.PerformanceIssues = performanceCheck.Check(content, lines);
             issueCount += result.PerformanceIssues.Count;
 
-            // Check for documentation
-            CheckDocumentation(lines, result);
+            var documentationCheck = new DocumentationCheck();
+            result.DocumentationGaps = documentationCheck.Check(content, lines);
             issueCount += result.DocumentationGaps.Count;
 
-            // Check for best practices
-            CheckBestPractices(content, result);
+            var bestPracticeCheck = new BestPracticeCheck();
+            result.BestPracticeViolations = bestPracticeCheck.Check(content, lines);
             issueCount += result.BestPracticeViolations.Count;
 
             // Calculate quality score
@@ -136,212 +138,6 @@ namespace RPGGame.MCP.Tools
             GenerateRecommendations(result);
 
             return result;
-        }
-
-        private static void CheckStyleViolations(string[] lines, ReviewResult result)
-        {
-            for (int i = 0; i < lines.Length; i++)
-            {
-                var line = lines[i];
-
-                // Check for trailing whitespace
-                if (line.Length > 0 && char.IsWhiteSpace(line[line.Length - 1]))
-                {
-                    result.StyleIssues.Add($"Line {i + 1}: Trailing whitespace");
-                }
-
-                // Check for inconsistent indentation
-                if (line.Length > 0 && !line.StartsWith("//"))
-                {
-                    var leadingSpaces = line.TakeWhile(c => c == ' ').Count();
-                    if (leadingSpaces % 4 != 0 && leadingSpaces > 0)
-                    {
-                        result.StyleIssues.Add($"Line {i + 1}: Inconsistent indentation (use 4 spaces)");
-                    }
-                }
-
-                // Check for long lines
-                if (line.Length > 120)
-                {
-                    result.StyleIssues.Add($"Line {i + 1}: Line too long ({line.Length} chars, max 120)");
-                }
-            }
-        }
-
-        private static void CheckComplexity(string[] lines, ReviewResult result)
-        {
-            var methodPattern = new Regex(@"^\s*(public|private|protected)?\s+\w+\s+\w+\s*\(");
-            var inMethod = false;
-            var braceCount = 0;
-            var currentMethod = "";
-
-            foreach (var line in lines)
-            {
-                if (methodPattern.IsMatch(line))
-                {
-                    inMethod = true;
-                    currentMethod = line.Trim();
-                    braceCount = 0;
-                }
-
-                if (inMethod)
-                {
-                    braceCount += line.Count(c => c == '{');
-                    braceCount -= line.Count(c => c == '}');
-
-                    // Check for deeply nested code (4+ levels)
-                    var indentLevel = line.TakeWhile(c => c == ' ').Count() / 4;
-                    if (indentLevel > 4)
-                    {
-                        result.ComplexityIssues.Add($"Deep nesting detected: {currentMethod}");
-                    }
-
-                    if (braceCount == 0 && inMethod)
-                    {
-                        inMethod = false;
-                    }
-                }
-            }
-
-            // Check for methods with too many parameters
-            var paramPattern = new Regex(@"\w+\s+\w+\s*\(([^)]*)\)");
-            foreach (var line in lines)
-            {
-                var match = paramPattern.Match(line);
-                if (match.Success)
-                {
-                    var paramCount = match.Groups[1].Value.Split(',').Length;
-                    if (paramCount > 5)
-                    {
-                        result.ComplexityIssues.Add($"Method has {paramCount} parameters (max 5 recommended)");
-                    }
-                }
-            }
-        }
-
-        private static void CheckSecurity(string content, ReviewResult result)
-        {
-            // Check for SQL injection vulnerability
-            if (content.Contains("SELECT") && content.Contains("string.Format"))
-            {
-                result.SecurityConcerns.Add("Potential SQL injection: Using string.Format with SQL queries");
-            }
-
-            // Check for hardcoded passwords
-            if (Regex.IsMatch(content, @"password\s*=\s*[""']", RegexOptions.IgnoreCase))
-            {
-                result.SecurityConcerns.Add("Hardcoded password or credential found");
-            }
-
-            // Check for use of deprecated security methods
-            if (content.Contains("MD5") || content.Contains("SHA1"))
-            {
-                result.SecurityConcerns.Add("Deprecated cryptographic algorithm used");
-            }
-
-            // Check for eval/reflection abuse
-            if (content.Contains("Reflection.Invoke") || content.Contains("Expression.Compile"))
-            {
-                result.SecurityConcerns.Add("Dynamic code execution detected - verify necessity");
-            }
-        }
-
-        private static void CheckPerformance(string content, ReviewResult result)
-        {
-            // Check for string concatenation in loops
-            if (content.Contains("+=") && content.Contains("for "))
-            {
-                result.PerformanceIssues.Add("String concatenation in loop detected - use StringBuilder");
-            }
-
-            // Check for inefficient LINQ
-            var whereCount = Regex.Matches(content, @"\.Where\(").Count;
-            if (whereCount > 1)
-            {
-                result.PerformanceIssues.Add("Multiple LINQ Where clauses - consider combining");
-            }
-
-            // Check for missing null checks before operations
-            if (Regex.IsMatch(content, @"\.\w+\(.*\)", RegexOptions.IgnoreCase) &&
-                !content.Contains("?"))
-            {
-                result.PerformanceIssues.Add("Consider using null-coalescing operators");
-            }
-
-            // Check for LINQ on large collections
-            if (content.Contains(".ToList()") && content.Contains(".Where("))
-            {
-                result.PerformanceIssues.Add("ToList() before filtering - evaluate before materializing");
-            }
-        }
-
-        private static void CheckDocumentation(string[] lines, ReviewResult result)
-        {
-            var undocumentedMethods = 0;
-            var undocumentedClasses = 0;
-
-            for (int i = 0; i < lines.Length; i++)
-            {
-                var line = lines[i];
-
-                // Check for public methods without documentation
-                if ((line.Contains("public ") || line.Contains("public async ")) &&
-                    line.Contains("(") &&
-                    (i == 0 || !lines[i - 1].Contains("///")))
-                {
-                    undocumentedMethods++;
-                }
-
-                // Check for public classes without documentation
-                if (line.Contains("public class ") && (i == 0 || !lines[i - 1].Contains("///")))
-                {
-                    undocumentedClasses++;
-                }
-            }
-
-            if (undocumentedMethods > 0)
-            {
-                result.DocumentationGaps.Add($"{undocumentedMethods} public methods lack XML documentation");
-            }
-
-            if (undocumentedClasses > 0)
-            {
-                result.DocumentationGaps.Add($"{undocumentedClasses} public classes lack XML documentation");
-            }
-        }
-
-        private static void CheckBestPractices(string content, ReviewResult result)
-        {
-            // Check for magic numbers
-            if (Regex.IsMatch(content, @"[^=]= \d{3,}"))
-            {
-                result.BestPracticeViolations.Add("Magic numbers detected - use named constants");
-            }
-
-            // Check for catching generic Exception
-            if (content.Contains("catch (Exception"))
-            {
-                result.BestPracticeViolations.Add("Catching generic Exception - catch specific exceptions");
-            }
-
-            // Check for empty catch blocks
-            if (Regex.IsMatch(content, @"catch.*\{\s*\}", RegexOptions.Singleline))
-            {
-                result.BestPracticeViolations.Add("Empty catch blocks detected - add logging or handling");
-            }
-
-            // Check for TODO comments
-            if (content.Contains("TODO") || content.Contains("FIXME"))
-            {
-                result.BestPracticeViolations.Add("Unresolved TODO/FIXME comments found");
-            }
-
-            // Check for commented-out code
-            var commentedLines = Regex.Matches(content, @"^\s*//\s*\w+").Count;
-            if (commentedLines > 5)
-            {
-                result.BestPracticeViolations.Add($"Multiple commented-out code lines ({commentedLines}) - remove or document");
-            }
         }
 
         private static void GenerateRecommendations(ReviewResult result)

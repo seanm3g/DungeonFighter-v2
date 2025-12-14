@@ -24,50 +24,15 @@ namespace RPGGame
         }
         /// <summary>
         /// Runs Test 1: Item generation analysis across levels 1-20
-        /// Generates 100 items at each level and analyzes rarity, mod, and tier distribution
+        /// Delegates to ItemGenerationTestRunner
         /// </summary>
         public static void RunItemGenerationTest()
         {
-            TextDisplayIntegration.DisplaySystem("Starting Item Generation Test...");
-            TextDisplayIntegration.DisplaySystem("This will generate 100 items at each level from 1-20 and analyze the results.");
-            TextDisplayIntegration.DisplaySystem("Press any key to continue or 'q' to quit...");
-            
-            var key = Console.ReadKey();
-            if (key.KeyChar == 'q' || key.KeyChar == 'Q')
-            {
-                TextDisplayIntegration.DisplaySystem("Test cancelled.");
-                return;
-            }
-            
-            TextDisplayIntegration.DisplaySystem("\nGenerating items... This may take a moment.");
-            
-            var results = new List<LevelTestResult>();
-            
-            // Generate items for each level
-            for (int level = 1; level <= 20; level++)
-            {
-                TextDisplayIntegration.DisplaySystem($"Generating items for level {level}...");
-                var levelResult = GenerateItemsForLevel(level, 100);
-                results.Add(levelResult);
-            }
-            
-            // Display results
-            DisplayTestResults(results);
-            
-            // Save results to file
-            SaveTestResults(results);
-            
-            TextDisplayIntegration.DisplaySystem("\nTest completed! Results saved to 'item_generation_test_results.txt'");
-            TextDisplayIntegration.DisplaySystem("Press any key to continue...");
-            Console.ReadKey();
+            ItemGenerationTestRunner.RunTest();
         }
         
-        /// <summary>
-        /// Generates the specified number of items for a given level
-        /// </summary>
-        /// <param name="level">The level to generate items for</param>
-        /// <param name="count">Number of items to generate</param>
-        /// <returns>Test results for this level</returns>
+        // NOTE: GenerateItemsForLevel, DisplayTestResults, and SaveTestResults have been moved to ItemGenerationTestRunner
+        // Keeping these methods for backwards compatibility but they delegate to the new runner
         private static LevelTestResult GenerateItemsForLevel(int level, int count)
         {
             var result = new LevelTestResult
@@ -221,7 +186,7 @@ namespace RPGGame
                 }
             }
             
-            foreach (var kvp in overallRarity.OrderBy(x => GetRarityOrder(x.Key)))
+            foreach (var kvp in overallRarity.OrderBy(x => TestHarnessBase.GetRarityOrder(x.Key)))
             {
                 double percentage = (double)kvp.Value / totalItems * 100;
                 TextDisplayIntegration.DisplaySystem($"{kvp.Key,-12}: {kvp.Value,4} items ({percentage,5:F1}%)");
@@ -260,7 +225,7 @@ namespace RPGGame
                 var result = results[i];
                 TextDisplayIntegration.DisplaySystem($"\nLevel {result.Level}:");
                 
-                foreach (var kvp in result.RarityDistribution.OrderBy(x => GetRarityOrder(x.Key)))
+                foreach (var kvp in result.RarityDistribution.OrderBy(x => TestHarnessBase.GetRarityOrder(x.Key)))
                 {
                     if (kvp.Value > 0)
                     {
@@ -331,7 +296,7 @@ namespace RPGGame
                         }
                     }
                     
-                    foreach (var kvp in overallRarity.OrderBy(x => GetRarityOrder(x.Key)))
+                    foreach (var kvp in overallRarity.OrderBy(x => TestHarnessBase.GetRarityOrder(x.Key)))
                     {
                         double percentage = (double)kvp.Value / totalItems * 100;
                         writer.WriteLine($"{kvp.Key,-12}: {kvp.Value,4} items ({percentage,5:F1}%)");
@@ -368,7 +333,7 @@ namespace RPGGame
                         writer.WriteLine($"  Total Items: {result.TotalItems}");
                         
                         writer.WriteLine("  Rarity Distribution:");
-                        foreach (var kvp in result.RarityDistribution.OrderBy(x => GetRarityOrder(x.Key)))
+                        foreach (var kvp in result.RarityDistribution.OrderBy(x => TestHarnessBase.GetRarityOrder(x.Key)))
                         {
                             if (kvp.Value > 0)
                             {
@@ -470,296 +435,47 @@ namespace RPGGame
         
         /// <summary>
         /// Tests Common item modification chance to verify 25% chance for mods/stat bonuses
+        /// Delegates to CommonItemModificationTestRunner
         /// </summary>
         public static void RunCommonItemModificationTest()
         {
-            TextDisplayIntegration.DisplaySystem("Starting Common Item Modification Test...");
-            TextDisplayIntegration.DisplaySystem("This will generate 1000 Common items and verify the 25% chance for modifications.");
-            TextDisplayIntegration.DisplaySystem("Press any key to continue or 'q' to quit...");
-            
-            var key = Console.ReadKey();
-            if (key.KeyChar == 'q' || key.KeyChar == 'Q')
-            {
-                TextDisplayIntegration.DisplaySystem("Test cancelled.");
-                return;
-            }
-            
-            TextDisplayIntegration.DisplaySystem("\nGenerating 1000 Common items... This may take a moment.");
-            
-            int totalCommonItems = 0;
-            int commonItemsWithMods = 0;
-            int commonItemsWithStatBonuses = 0;
-            int commonItemsWithBoth = 0;
-            var sampleItems = new List<string>();
-            
-            // Generate items until we have 1000 Common items
-            int itemsGenerated = 0;
-            while (totalCommonItems < 1000 && itemsGenerated < 10000) // Safety limit
-            {
-                var item = LootGenerator.GenerateLoot(1, 1, null, true); // guaranteedLoot = true
-                itemsGenerated++;
-                
-                if (item != null && item.Rarity.Equals("Common", StringComparison.OrdinalIgnoreCase))
-                {
-                    totalCommonItems++;
-                    
-                    bool hasMods = item.Modifications.Count > 0;
-                    bool hasStatBonuses = item.StatBonuses.Count > 0;
-                    
-                    if (hasMods) commonItemsWithMods++;
-                    if (hasStatBonuses) commonItemsWithStatBonuses++;
-                    if (hasMods && hasStatBonuses) commonItemsWithBoth++;
-                    
-                    // Collect sample items for display
-                    if (sampleItems.Count < 20)
-                    {
-                        string bonusInfo = "";
-                        if (hasMods && hasStatBonuses)
-                            bonusInfo = " (Mods + Stat Bonuses)";
-                        else if (hasMods)
-                            bonusInfo = " (Mods)";
-                        else if (hasStatBonuses)
-                            bonusInfo = " (Stat Bonuses)";
-                        else
-                            bonusInfo = " (No Bonuses)";
-                        
-                        sampleItems.Add($"{item.Name}{bonusInfo}");
-                    }
-                }
-            }
-            
-            // Display results
-            TextDisplayIntegration.DisplaySystem("\n" + new string('=', 80));
-            TextDisplayIntegration.DisplaySystem("COMMON ITEM MODIFICATION TEST RESULTS");
-            TextDisplayIntegration.DisplaySystem(new string('=', 80));
-            
-            TextDisplayIntegration.DisplaySystem($"Total items generated: {itemsGenerated:N0}");
-            TextDisplayIntegration.DisplaySystem($"Common items found: {totalCommonItems:N0}");
-            TextDisplayIntegration.DisplaySystem($"Common items with modifications: {commonItemsWithMods:N0}");
-            TextDisplayIntegration.DisplaySystem($"Common items with stat bonuses: {commonItemsWithStatBonuses:N0}");
-            TextDisplayIntegration.DisplaySystem($"Common items with both: {commonItemsWithBoth:N0}");
-            
-            if (totalCommonItems > 0)
-            {
-                double modChance = (double)commonItemsWithMods / totalCommonItems * 100;
-                double statBonusChance = (double)commonItemsWithStatBonuses / totalCommonItems * 100;
-                double bothChance = (double)commonItemsWithBoth / totalCommonItems * 100;
-                
-                TextDisplayIntegration.DisplaySystem($"\nModification chance: {modChance:F1}% (Expected: 25.0%)");
-                TextDisplayIntegration.DisplaySystem($"Stat bonus chance: {statBonusChance:F1}% (Expected: 25.0%)");
-                TextDisplayIntegration.DisplaySystem($"Both bonuses chance: {bothChance:F1}% (Expected: 25.0%)");
-                
-                // Check if results are within acceptable range (20-30%)
-                bool modChanceValid = modChance >= 20.0 && modChance <= 30.0;
-                bool statBonusChanceValid = statBonusChance >= 20.0 && statBonusChance <= 30.0;
-                
-                TextDisplayIntegration.DisplaySystem($"\nValidation Results:");
-                TextDisplayIntegration.DisplaySystem($"  Modification chance: {(modChanceValid ? "✓ PASS" : "✗ FAIL")} (20-30% range)");
-                TextDisplayIntegration.DisplaySystem($"  Stat bonus chance: {(statBonusChanceValid ? "✓ PASS" : "✗ FAIL")} (20-30% range)");
-                
-                if (modChanceValid && statBonusChanceValid)
-                {
-                    TextDisplayIntegration.DisplaySystem("\n🎉 TEST PASSED! Common items have approximately 25% chance for modifications.");
-                }
-                else
-                {
-                    TextDisplayIntegration.DisplaySystem("\n❌ TEST FAILED! Common item modification chance is not within expected range.");
-                }
-            }
-            
-            TextDisplayIntegration.DisplaySystem("\nSample Common items:");
-            foreach (var sample in sampleItems)
-            {
-                TextDisplayIntegration.DisplaySystem($"  {sample}");
-            }
-            
-            TextDisplayIntegration.DisplaySystem("\nTest completed!");
-            TextDisplayIntegration.DisplaySystem("Press any key to continue...");
-            Console.ReadKey();
+            CommonItemModificationTestRunner.RunTest();
         }
 
         /// <summary>
-        /// Tests item naming to ensure proper order (e.g., "Leather Armor of the Wind" not "of the Wind Leather Armor")
+        /// Tests item naming to ensure proper order
+        /// Delegates to ItemNamingTestRunner
         /// </summary>
         public static void RunItemNamingTest()
         {
-            TextDisplayIntegration.DisplaySystem("Starting Item Naming Test...");
-            TextDisplayIntegration.DisplaySystem("This will generate items and verify that names are properly formatted.");
-            TextDisplayIntegration.DisplaySystem("Press any key to continue or 'q' to quit...");
-            
-            var key = Console.ReadKey();
-            if (key.KeyChar == 'q' || key.KeyChar == 'Q')
-            {
-                TextDisplayIntegration.DisplaySystem("Test cancelled.");
-                return;
-            }
-            
-            TextDisplayIntegration.DisplaySystem("\nGenerating test items...");
-            
-            var testResults = new List<string>();
-            int itemsGenerated = 0;
-            int itemsWithStatBonuses = 0;
-            int itemsWithModifications = 0;
-            
-            // Generate items until we get some with stat bonuses and modifications
-            while (itemsWithStatBonuses < 5 || itemsWithModifications < 5)
-            {
-                var item = LootGenerator.GenerateLoot(1, 1, null, true); // guaranteedLoot = true
-                if (item != null)
-                {
-                    itemsGenerated++;
-                    testResults.Add($"Item {itemsGenerated}: {item.Name}");
-                    
-                    if (item.StatBonuses.Count > 0)
-                    {
-                        itemsWithStatBonuses++;
-                        TextDisplayIntegration.DisplaySystem($"✓ Found item with stat bonus: {item.Name}");
-                    }
-                    
-                    if (item.Modifications.Count > 0)
-                    {
-                        itemsWithModifications++;
-                        TextDisplayIntegration.DisplaySystem($"✓ Found item with modification: {item.Name}");
-                    }
-                    
-                    // Stop after generating 100 items to avoid infinite loop
-                    if (itemsGenerated >= 100)
-                    {
-                        break;
-                    }
-                }
-            }
-            
-            // Display results
-            TextDisplayIntegration.DisplaySystem("\n" + new string('=', 80));
-            TextDisplayIntegration.DisplaySystem("ITEM NAMING TEST RESULTS");
-            TextDisplayIntegration.DisplaySystem(new string('=', 80));
-            TextDisplayIntegration.DisplaySystem($"Total items generated: {itemsGenerated}");
-            TextDisplayIntegration.DisplaySystem($"Items with stat bonuses: {itemsWithStatBonuses}");
-            TextDisplayIntegration.DisplaySystem($"Items with modifications: {itemsWithModifications}");
-            
-            TextDisplayIntegration.DisplaySystem("\nSample item names:");
-            foreach (var result in testResults.Take(20))
-            {
-                TextDisplayIntegration.DisplaySystem($"  {result}");
-            }
-            
-            // Check for specific naming patterns
-            TextDisplayIntegration.DisplaySystem("\nChecking for proper naming patterns...");
-            bool foundWindItem = false;
-            foreach (var result in testResults)
-            {
-                if (result.Contains("of the Wind"))
-                {
-                    foundWindItem = true;
-                    TextDisplayIntegration.DisplaySystem($"✓ Found 'of the Wind' item: {result}");
-                    
-                    // Check if it's properly formatted (base name should come before "of the Wind")
-                    if (result.Contains("Armor of the Wind") || result.Contains("Weapon of the Wind"))
-                    {
-                        TextDisplayIntegration.DisplaySystem("  ✓ Properly formatted!");
-                    }
-                    else
-                    {
-                        TextDisplayIntegration.DisplaySystem("  ✗ Incorrectly formatted!");
-                    }
-                    break;
-                }
-            }
-            
-            if (!foundWindItem)
-            {
-                TextDisplayIntegration.DisplaySystem("No 'of the Wind' items found in this test run.");
-            }
-            
-            TextDisplayIntegration.DisplaySystem("\nTest completed!");
-            TextDisplayIntegration.DisplaySystem("Press any key to continue...");
-            Console.ReadKey();
+            ItemNamingTestRunner.RunTest();
         }
 
         /// <summary>
         /// Runs comprehensive ColorParser tests
-        /// Tests template expansion, color code parsing, length calculations, and edge cases
+        /// Delegates to ColorParserTestRunner
         /// </summary>
         public static void RunColorParserTest()
         {
-            TextDisplayIntegration.DisplaySystem("Starting ColorParser Test Suite...");
-            TextDisplayIntegration.DisplaySystem("This will test color template and markup parsing functionality.");
-            TextDisplayIntegration.DisplaySystem("Press any key to continue or 'q' to quit...");
-            
-            var key = Console.ReadKey();
-            if (key.KeyChar == 'q' || key.KeyChar == 'Q')
-            {
-                TextDisplayIntegration.DisplaySystem("Test cancelled.");
-                return;
-            }
-            
-            Console.WriteLine();
-            Console.WriteLine();
-            
-            // Run comprehensive ColorParser tests
-            TextDisplayIntegration.DisplaySystem("Running ColorParser comprehensive tests...");
-            
-            // Test basic parsing
-            TestBasicParsing();
-            
-            // Test template expansion
-            TestTemplateExpansion();
-            
-            // Test length calculations
-            TestLengthCalculations();
-            
-            // Test edge cases
-            TestEdgeCases();
-            
-            TextDisplayIntegration.DisplaySystem("\nColorParser Test Suite completed!");
-            TextDisplayIntegration.DisplaySystem("Press any key to continue...");
-            Console.ReadKey();
+            ColorParserTestRunner.RunTest();
         }
         
         /// <summary>
-        /// Runs a quick smoke test of ColorParser (subset of critical tests)
+        /// Runs a quick smoke test of ColorParser
+        /// Delegates to ColorParserTestRunner
         /// </summary>
         public static void RunColorParserQuickTest()
         {
-            TextDisplayIntegration.DisplaySystem("Running ColorParser Quick Test...");
-            Console.WriteLine();
-            
-            // Run quick smoke tests
-            TextDisplayIntegration.DisplaySystem("Running quick ColorParser smoke tests...");
-            
-            // Test basic functionality
-            TestBasicParsing();
-            
-            TextDisplayIntegration.DisplaySystem("\nColorParser Quick Test completed!");
-            TextDisplayIntegration.DisplaySystem("Press any key to continue...");
-            Console.ReadKey();
+            ColorParserTestRunner.RunQuickTest();
         }
         
         /// <summary>
         /// Runs color debugging tools to diagnose spacing issues
+        /// Delegates to ColorDebugTestRunner
         /// </summary>
         public static void RunColorDebugTest()
         {
-            TextDisplayIntegration.DisplaySystem("Running Color Debug Tool...");
-            TextDisplayIntegration.DisplaySystem("This will help diagnose spacing issues with colored text.");
-            TextDisplayIntegration.DisplaySystem("Press any key to continue or 'q' to quit...");
-            
-            var key = Console.ReadKey();
-            if (key.KeyChar == 'q' || key.KeyChar == 'Q')
-            {
-                TextDisplayIntegration.DisplaySystem("Test cancelled.");
-                return;
-            }
-            
-            Console.WriteLine();
-            Console.WriteLine();
-            
-            // Run the debug tool
-            ColorDebugTool.RunCombatMessageTests();
-            
-            TextDisplayIntegration.DisplaySystem("\nPress any key to continue...");
-            Console.ReadKey();
+            ColorDebugTestRunner.RunTest();
         }
         
         /// <summary>
@@ -975,8 +691,8 @@ namespace RPGGame
                 string status = success ? "✓ PASS" : "✗ FAIL";
                 // Use template syntax for colored status
                 string statusText = success 
-                    ? $"{ApplyTemplate("success", status)} {testName}"
-                    : $"{ApplyTemplate("damage", status)} {testName}";
+                    ? $"{TestHarnessBase.ApplyTemplate("success", status)} {testName}"
+                    : $"{TestHarnessBase.ApplyTemplate("damage", status)} {testName}";
                 TextDisplayIntegration.DisplaySystem(statusText);
                 TextDisplayIntegration.DisplaySystem($"    {message}");
                 
@@ -988,16 +704,16 @@ namespace RPGGame
             
             TextDisplayIntegration.DisplaySystem(new string('-', 60));
             TextDisplayIntegration.DisplaySystem($"Total Tests: {results.Count}");
-            TextDisplayIntegration.DisplaySystem(ApplyTemplate("success", $"Passed: {passedTests}"));
-            TextDisplayIntegration.DisplaySystem(ApplyTemplate("damage", $"Failed: {failedTests}"));
+            TextDisplayIntegration.DisplaySystem(TestHarnessBase.ApplyTemplate("success", $"Passed: {passedTests}"));
+            TextDisplayIntegration.DisplaySystem(TestHarnessBase.ApplyTemplate("damage", $"Failed: {failedTests}"));
             
             if (failedTests == 0)
             {
-                TextDisplayIntegration.DisplaySystem($"\n{ApplyTemplate("success", "🎉 ALL TESTS PASSED! 🎉")}");
+                TextDisplayIntegration.DisplaySystem($"\n{TestHarnessBase.ApplyTemplate("success", "🎉 ALL TESTS PASSED! 🎉")}");
             }
             else
             {
-                TextDisplayIntegration.DisplaySystem($"\n{ApplyTemplate("damage", $"⚠️  {failedTests} test(s) failed. Please review the errors above.")}");
+                TextDisplayIntegration.DisplaySystem($"\n{TestHarnessBase.ApplyTemplate("damage", $"⚠️  {failedTests} test(s) failed. Please review the errors above.")}");
             }
         }
 
@@ -1057,147 +773,8 @@ namespace RPGGame
             Console.ReadKey();
         }
 
-        /// <summary>
-        /// Gets the order for rarity sorting
-        /// </summary>
-        /// <param name="rarity">The rarity name</param>
-        /// <returns>Sort order value</returns>
-        private static int GetRarityOrder(string rarity)
-        {
-            return rarity.ToLower() switch
-            {
-                "common" => 1,
-                "uncommon" => 2,
-                "rare" => 3,
-                "epic" => 4,
-                "legendary" => 5,
-                _ => 6
-            };
-        }
-        
-        /// <summary>
-        /// Tests basic ColorParser functionality
-        /// </summary>
-        private static void TestBasicParsing()
-        {
-            TextDisplayIntegration.DisplaySystem("Testing basic ColorParser functionality...");
-            
-            var testCases = new[]
-            {
-                "Simple text",
-                "Text with {{damage|red}} color",
-                "Text with {{damage|red}} on {{success|green}} background",
-                "Text with {{fiery|fire effect}}",
-                "Mixed {{damage|red}} and {{icy|ice}} effects"
-            };
-            
-            foreach (var test in testCases)
-            {
-                try
-                {
-                    var segments = ColoredTextParser.Parse(test);
-                    TextDisplayIntegration.DisplaySystem($"  ✓ '{test}' -> {segments.Count} segments");
-                }
-                catch (Exception ex)
-                {
-                    TextDisplayIntegration.DisplaySystem($"  ✗ '{test}' -> ERROR: {ex.Message}");
-                }
-            }
-        }
-        
-        /// <summary>
-        /// Tests template expansion functionality
-        /// </summary>
-        private static void TestTemplateExpansion()
-        {
-            TextDisplayIntegration.DisplaySystem("Testing template expansion...");
-            
-            var templates = new[]
-            {
-                "{{fiery|Fire}}",
-                "{{icy|Ice}}",
-                "{{toxic|Poison}}",
-                "{{crystal|Crystal}}",
-                "{{golden|Gold}}",
-                "{{holy|Holy}}",
-                "{{shadow|Shadow}}"
-            };
-            
-            foreach (var template in templates)
-            {
-                try
-                {
-                    var segments = ColoredTextParser.Parse(template);
-                    TextDisplayIntegration.DisplaySystem($"  ✓ '{template}' -> {segments.Count} segments");
-                }
-                catch (Exception ex)
-                {
-                    TextDisplayIntegration.DisplaySystem($"  ✗ '{template}' -> ERROR: {ex.Message}");
-                }
-            }
-        }
-        
-        /// <summary>
-        /// Tests length calculation functionality
-        /// </summary>
-        private static void TestLengthCalculations()
-        {
-            TextDisplayIntegration.DisplaySystem("Testing length calculations...");
-            
-            var testCases = new[]
-            {
-                ("Simple text", 11),
-                ("{{damage|Red}} text", 9),
-                ("{{fiery|Fire}}", 4),
-                ("Mixed {{damage|red}} and {{icy|ice}}", 19)
-            };
-            
-            foreach (var (text, expectedLength) in testCases)
-            {
-                try
-                {
-                    var segments = ColoredTextParser.Parse(text);
-                    var actualLength = ColoredTextRenderer.GetDisplayLength(segments);
-                    var status = actualLength == expectedLength ? "✓" : "✗";
-                    TextDisplayIntegration.DisplaySystem($"  {status} '{text}' -> Expected: {expectedLength}, Actual: {actualLength}");
-                }
-                catch (Exception ex)
-                {
-                    TextDisplayIntegration.DisplaySystem($"  ✗ '{text}' -> ERROR: {ex.Message}");
-                }
-            }
-        }
-        
-        /// <summary>
-        /// Tests edge cases and error handling
-        /// </summary>
-        private static void TestEdgeCases()
-        {
-            TextDisplayIntegration.DisplaySystem("Testing edge cases...");
-            
-            var edgeCases = new[]
-            {
-                "", // Empty string
-                "{{", // Incomplete template
-                "{{invalid|template}}", // Invalid template
-                "Text with {{", // Incomplete template at end
-                "{{fiery|", // Incomplete template
-                "Normal text with no markup"
-            };
-            
-            foreach (var test in edgeCases)
-            {
-                try
-                {
-                    var segments = ColoredTextParser.Parse(test);
-                    TextDisplayIntegration.DisplaySystem($"  ✓ '{test}' -> {segments.Count} segments (handled gracefully)");
-                }
-                catch (Exception ex)
-                {
-                    TextDisplayIntegration.DisplaySystem($"  ⚠ '{test}' -> Exception: {ex.Message}");
-                }
-            }
-        }
+        // NOTE: GetRarityOrder, TestBasicParsing, TestTemplateExpansion, TestLengthCalculations, and TestEdgeCases
+        // have been moved to TestHarnessBase and ColorParserTestRunner respectively
     }
     
     /// <summary>

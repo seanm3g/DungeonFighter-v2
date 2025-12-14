@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace RPGGame
 {
@@ -14,7 +15,7 @@ namespace RPGGame
         private double _gameTime = 0.0;
         private double _lastRealTime = 0.0;
         private bool _isRunning = false;
-        private Thread? _tickerThread;
+        private Task? _tickerTask;
         
         public double GameTime => _gameTime;
         public bool IsRunning => _isRunning;
@@ -47,18 +48,14 @@ namespace RPGGame
             if (_isRunning) return;
             
             _isRunning = true;
-            _tickerThread = new Thread(TickerLoop)
-            {
-                IsBackground = true,
-                Name = "GameTicker"
-            };
-            _tickerThread.Start();
+            // Use Task.Run for async execution instead of Thread
+            _tickerTask = Task.Run(async () => await TickerLoopAsync());
         }
         
         public void Stop()
         {
             _isRunning = false;
-            _tickerThread?.Join(1000); // Wait up to 1 second for thread to stop
+            _tickerTask?.Wait(TimeSpan.FromSeconds(1)); // Wait up to 1 second for task to stop
         }
         
         public void Reset()
@@ -67,7 +64,7 @@ namespace RPGGame
             _lastRealTime = DateTime.Now.Ticks / (double)TimeSpan.TicksPerSecond;
         }
         
-        private void TickerLoop()
+        private async Task TickerLoopAsync()
         {
             while (_isRunning)
             {
@@ -84,9 +81,9 @@ namespace RPGGame
                 _gameTime += gameTimeElapsed;
                 _lastRealTime = currentRealTime;
                 
-                // Sleep for the ticker interval
-                int sleepMs = (int)(tickerInterval * 1000);
-                Thread.Sleep(sleepMs);
+                // Delay for the ticker interval (non-blocking)
+                int delayMs = (int)(tickerInterval * 1000);
+                await Task.Delay(delayMs);
             }
         }
         

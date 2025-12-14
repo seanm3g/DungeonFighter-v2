@@ -28,11 +28,11 @@ namespace RPGGame.UI.Avalonia.Layout
         /// </summary>
         public void RenderCharacterPanel(Character character)
         {
-            // Main border for character panel
-            canvas.AddBorder(LayoutConstants.LEFT_PANEL_X + 2, LayoutConstants.LEFT_PANEL_Y, LayoutConstants.LEFT_PANEL_WIDTH - 2, LayoutConstants.LEFT_PANEL_HEIGHT, AsciiArtAssets.Colors.Blue);
+            // Main border for character panel - starts at X=0 with no padding
+            canvas.AddBorder(LayoutConstants.LEFT_PANEL_X, LayoutConstants.LEFT_PANEL_Y, LayoutConstants.LEFT_PANEL_WIDTH, LayoutConstants.LEFT_PANEL_HEIGHT, AsciiArtAssets.Colors.Blue);
             
             int y = LayoutConstants.LEFT_PANEL_Y + 1;
-            int x = LayoutConstants.LEFT_PANEL_X + 4;
+            int x = LayoutConstants.LEFT_PANEL_X + 2; // Reduced from +4 since border now starts at 0
             
             // Character name and level
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Hero), AsciiArtAssets.Colors.Gold);
@@ -194,10 +194,10 @@ namespace RPGGame.UI.Avalonia.Layout
         /// </summary>
         public void RenderEmptyCharacterPanel()
         {
-            canvas.AddBorder(LayoutConstants.LEFT_PANEL_X + 2, LayoutConstants.LEFT_PANEL_Y, LayoutConstants.LEFT_PANEL_WIDTH - 2, LayoutConstants.LEFT_PANEL_HEIGHT, AsciiArtAssets.Colors.Gray);
+            canvas.AddBorder(LayoutConstants.LEFT_PANEL_X, LayoutConstants.LEFT_PANEL_Y, LayoutConstants.LEFT_PANEL_WIDTH, LayoutConstants.LEFT_PANEL_HEIGHT, AsciiArtAssets.Colors.Gray);
             
             int y = LayoutConstants.LEFT_PANEL_Y + LayoutConstants.LEFT_PANEL_HEIGHT / 2;
-            int x = LayoutConstants.LEFT_PANEL_X + 6;
+            int x = LayoutConstants.LEFT_PANEL_X + 2; // Reduced from +6 since border now starts at 0
             
             canvas.AddText(x, y, "No Character", AsciiArtAssets.Colors.Gray);
             canvas.AddText(x, y + 1, "Loaded", AsciiArtAssets.Colors.Gray);

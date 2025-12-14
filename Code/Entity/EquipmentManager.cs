@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame.Combat.Calculators;
 
 namespace RPGGame
 {
@@ -40,6 +41,9 @@ namespace RPGGame
             // Update reroll charges from Divine modifications
             _character.Effects.RerollCharges = _character.Equipment.GetTotalRerollCharges();
             
+            // Invalidate damage cache since equipment changed
+            DamageCalculator.InvalidateCache(_character);
+            
             return previousItem;
         }
 
@@ -69,6 +73,9 @@ namespace RPGGame
             
             // Update actions after equipment change
             UpdateActionsAfterGearChange(unequippedItem, null, slot);
+            
+            // Invalidate damage cache since equipment changed
+            DamageCalculator.InvalidateCache(_character);
             
             return unequippedItem;
         }

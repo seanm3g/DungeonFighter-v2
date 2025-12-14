@@ -97,15 +97,15 @@ namespace RPGGame.UI.Avalonia
 
         /// <summary>
         /// Calculates scale factor and grid dimensions based on available space
-        /// Keeps grid at base size but scales character pixels to fit available space
+        /// Scales font size proportionally when window is resized to make UI bigger when fullscreened
         /// </summary>
         private void CalculateScaleAndGrid(double availableWidth, double availableHeight)
         {
-            // Always use base grid dimensions
+            // Keep base grid dimensions fixed
             GridWidth = BASE_GRID_WIDTH;
             GridHeight = BASE_GRID_HEIGHT;
             
-            // Calculate scale factor based on available space
+            // Calculate scale factor and grid dimensions based on available space
             if (availableWidth > 0 && availableHeight > 0 && 
                 availableWidth != double.PositiveInfinity && availableHeight != double.PositiveInfinity)
             {
@@ -115,7 +115,7 @@ namespace RPGGame.UI.Avalonia
                 double baseCharWidth = coordinateConverter.GetCharWidth();
                 double baseCharHeight = coordinateConverter.GetCharHeight();
                 
-                // Calculate required size for base grid at base scale
+                // Calculate required size for base grid at scale 1.0
                 double requiredWidth = BASE_GRID_WIDTH * baseCharWidth;
                 double requiredHeight = BASE_GRID_HEIGHT * baseCharHeight;
                 
@@ -123,19 +123,20 @@ namespace RPGGame.UI.Avalonia
                 double scaleX = availableWidth / requiredWidth;
                 double scaleY = availableHeight / requiredHeight;
                 
-                // Use the smaller scale to ensure everything fits (maintains aspect ratio)
+                // Use the smaller scale to maintain aspect ratio and ensure everything fits
+                // This will scale the font size up when window is larger
                 double scaleFactor = Math.Min(scaleX, scaleY);
                 
-                // Apply minimum scale of 1.0 and maximum reasonable scale
-                scaleFactor = Math.Max(1.0, Math.Min(scaleFactor, 10.0));
+                // Apply minimum scale of 1.0 and allow scaling up significantly for fullscreen
+                scaleFactor = Math.Max(1.0, Math.Min(scaleFactor, 20.0));
                 
                 // Update the coordinate converter with the calculated scale factor
-                // This will reset charWidth/charHeight so they'll be remeasured with new scale
+                // This scales the font size, making all characters bigger
                 coordinateConverter.SetScaleFactor(scaleFactor);
             }
             else
             {
-                // Use base scale if no size available
+                // Use base dimensions if no size available
                 coordinateConverter.SetScaleFactor(1.0);
             }
         }

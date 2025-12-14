@@ -109,6 +109,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             textY++;
             currentLineCount++;
             canvas.AddText(x + 2, textY, "in the center panel after test completion.", AsciiArtAssets.Colors.White);
+            textY++;
+            currentLineCount++;
+            canvas.AddText(x + 2, textY, "For options 10-11: Type digits then press Enter.", AsciiArtAssets.Colors.White);
             currentLineCount++;
             
             return currentLineCount;

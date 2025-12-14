@@ -1,15 +1,18 @@
 using System;
 using System.IO;
+using RPGGame.Utils;
 
 namespace RPGGame
 {
     /// <summary>
     /// Centralized debug logging system that writes to debug analysis files
+    /// Uses AsyncEventLogger for non-blocking file I/O
     /// </summary>
     public static class DebugLogger
     {
         private static string? _currentDebugFile = null;
         private static readonly object _lockObject = new object();
+        private static AsyncEventLogger? _asyncLogger = null;
 
         /// <summary>
         /// Writes a debug message to the debug analysis file (always writes, regardless of debug setting)
@@ -71,11 +74,11 @@ namespace RPGGame
 
         /// <summary>
         /// Internal method that actually writes the debug message
+        /// Uses AsyncEventLogger for non-blocking file I/O
         /// </summary>
         /// <param name="message">The debug message to write</param>
         private static void WriteDebugInternal(string message)
         {
-                
             lock (_lockObject)
             {
                 try
@@ -112,19 +115,41 @@ namespace RPGGame
                         string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
                         _currentDebugFile = Path.Combine(debugDir, $"debug_analysis_{timestamp}.txt");
                         
-                        // Write session header
+                        // Initialize async logger
+                        _asyncLogger = new AsyncEventLogger(_currentDebugFile, batchSize: 10, batchTimeoutMs: 1000);
+                        
+                        // Write session header synchronously (only once)
                         File.WriteAllText(_currentDebugFile, $"DEBUG ANALYSIS SESSION - {DateTime.Now:yyyy-MM-dd HH:mm:ss}\n");
                         File.AppendAllText(_currentDebugFile, "=" + new string('=', 50) + "\n\n");
                         // Debug file creation confirmation removed from console output
                     }
                     
-                    File.AppendAllText(_currentDebugFile, message + "\n");
+                    // Use async logger for non-blocking writes
+                    _asyncLogger?.LogAsync(message);
                 }
                 catch
                 {
                     // Ignore file write errors - debug output is optional
                 }
             }
+        }
+        
+        /// <summary>
+        /// Flushes all pending log messages (for shutdown or critical points)
+        /// </summary>
+        public static void Flush()
+        {
+            _asyncLogger?.Flush();
+        }
+        
+        /// <summary>
+        /// Disposes the async logger (call on application shutdown)
+        /// </summary>
+        public static void Dispose()
+        {
+            _asyncLogger?.Dispose();
+            _asyncLogger = null;
+            _currentDebugFile = null;
         }
 
         /// <summary>

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
 using RPGGame.Utils;
@@ -62,7 +63,7 @@ namespace RPGGame.UI.Animations
         /// <summary>
         /// Animates text fading from the screen
         /// </summary>
-        public static void FadeOut(string text, FadeConfig? config = null)
+        public static async Task FadeOutAsync(string text, FadeConfig? config = null)
         {
             config ??= new FadeConfig();
             
@@ -74,7 +75,15 @@ namespace RPGGame.UI.Animations
             var frames = GenerateFadeFrames(plainText, config);
             
             // Display animation
-            DisplayFadeAnimation(frames, config);
+            await DisplayFadeAnimationAsync(frames, config);
+        }
+        
+        /// <summary>
+        /// Synchronous version for backwards compatibility
+        /// </summary>
+        public static void FadeOut(string text, FadeConfig? config = null)
+        {
+            Task.Run(async () => await FadeOutAsync(text, config)).Wait();
         }
 
         /// <summary>
@@ -264,7 +273,7 @@ namespace RPGGame.UI.Animations
         /// <summary>
         /// Displays the fade animation
         /// </summary>
-        private static void DisplayFadeAnimation(List<string> frames, FadeConfig config)
+        private static async Task DisplayFadeAnimationAsync(List<string> frames, FadeConfig config)
         {
             int cursorTop = Console.CursorTop;
             int cursorLeft = Console.CursorLeft;
@@ -282,7 +291,7 @@ namespace RPGGame.UI.Animations
                 ColoredConsoleWriter.Write(frame);
                 
                 // Delay before next frame
-                Thread.Sleep(config.FrameDelayMs);
+                await Task.Delay(config.FrameDelayMs);
             }
             
             // Clear line after animation if configured
@@ -296,6 +305,14 @@ namespace RPGGame.UI.Animations
             {
                 Console.WriteLine();
             }
+        }
+        
+        /// <summary>
+        /// Synchronous version for backwards compatibility
+        /// </summary>
+        private static void DisplayFadeAnimation(List<string> frames, FadeConfig config)
+        {
+            Task.Run(async () => await DisplayFadeAnimationAsync(frames, config)).Wait();
         }
 
         /// <summary>
@@ -352,7 +369,7 @@ namespace RPGGame.UI.Animations
                 frames.Add(frameText);
             }
             
-            DisplayFadeAnimation(frames, config);
+            Task.Run(async () => await DisplayFadeAnimationAsync(frames, config)).Wait();
         }
     }
 }

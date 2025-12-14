@@ -111,18 +111,20 @@ namespace RPGGame.Tuning
                 var progress = new System.Progress<(int completed, int total, string status)>(report =>
                 {
                     // Calculate percentage complete
-                    int percentage = (int)((double)report.completed / report.total * 100);
+                    int percentage = report.total > 0 ? (int)((double)report.completed / report.total * 100) : 0;
 
                     // Create progress bar visualization
                     int barLength = 30;
-                    int filledLength = (int)((double)report.completed / report.total * barLength);
+                    int filledLength = report.total > 0 ? (int)((double)report.completed / report.total * barLength) : 0;
                     string bar = new string('█', filledLength) + new string('░', barLength - filledLength);
 
                     // Print progress bar with status
-                    Console.Write($"\r[{bar}] {percentage,3}% - {report.status,-40}");
+                    string progressLine = $"[{bar}] {percentage:D3}% - {report.status}";
+                    Console.Write($"\r{progressLine,-100}");
+                    Console.Out.Flush();
 
                     // Print newline when complete
-                    if (report.completed >= report.total)
+                    if (report.completed >= report.total && report.total > 0)
                     {
                         Console.WriteLine();
                     }

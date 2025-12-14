@@ -46,6 +46,7 @@ namespace RPGGame
         public RarityScalingConfig? RarityScaling { get; set; } = new();
         public EquipmentScalingConfig EquipmentScaling { get; set; } = new();
         public LootSystemConfig LootSystem { get; set; } = new();
+        public StartingGearConfig StartingGear { get; set; } = new();
 
         // Dungeon-related configurations
         public DungeonScalingConfig DungeonScaling { get; set; } = new();
@@ -165,6 +166,7 @@ namespace RPGGame
                         RarityScaling = config.RarityScaling;
                         EquipmentScaling = config.EquipmentScaling;
                         LootSystem = config.LootSystem;
+                        StartingGear = config.StartingGear;
 
                         // Dungeon-related configurations
                         DungeonScaling = config.DungeonScaling;

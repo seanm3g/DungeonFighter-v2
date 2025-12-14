@@ -46,6 +46,7 @@ namespace RPGGame
 
         /// <summary>
         /// Gets the current combo amplification that will be applied
+        /// Step 0 and Step 1 add no bonus (1.0x), bonus starts at Step 2
         /// </summary>
         /// <returns>Current combo amplification</returns>
         public double GetCurrentComboAmplification()
@@ -55,12 +56,15 @@ namespace RPGGame
 
             int currentStep = character.ComboStep % comboActions.Count;
             double baseAmp = GetComboAmplifier();
-            return Math.Pow(baseAmp, currentStep);
+            // Step 0 and Step 1 add no bonus, bonus starts at Step 2
+            int amplificationStep = Math.Max(0, currentStep - 1);
+            return Math.Pow(baseAmp, amplificationStep);
         }
 
         /// <summary>
         /// Gets the amplification that will be applied when the next combo action is executed
         /// This is used for display purposes to show what amplification the player will get
+        /// Step 0 and Step 1 add no bonus (1.0x), bonus starts at Step 2
         /// </summary>
         /// <returns>Next combo amplification</returns>
         public double GetNextComboAmplification()
@@ -71,7 +75,10 @@ namespace RPGGame
             int currentStep = character.ComboStep % comboActions.Count;
             double baseAmp = GetComboAmplifier();
             // Show what amplification will be applied when the combo executes
-            return Math.Pow(baseAmp, currentStep + 1);
+            // Step 0 and Step 1 add no bonus, bonus starts at Step 2
+            int nextStep = (currentStep + 1) % comboActions.Count;
+            int amplificationStep = Math.Max(0, nextStep - 1);
+            return Math.Pow(baseAmp, amplificationStep);
         }
 
         /// <summary>
