@@ -705,6 +705,100 @@ namespace RPGGame.MCP
         {
             return Tools.PerformanceProfilerAgent.BenchmarkCriticalPaths();
         }
+
+        [McpServerTool(Name = "refactoring_agent_suggest", Title = "Refactoring Agent - Suggest Refactorings")]
+        [Description("Launches Refactoring Agent to identify refactoring opportunities in a target.")]
+        public static Task<string> RefactoringAgentSuggest(
+            [Description("Target to analyze (class name, system, file path, etc.)")] string target)
+        {
+            return Tools.RefactoringAgent.SuggestRefactorings(target);
+        }
+
+        [McpServerTool(Name = "refactoring_agent_apply", Title = "Refactoring Agent - Apply Refactoring")]
+        [Description("Launches Refactoring Agent to apply specific refactoring type.")]
+        public static Task<string> RefactoringAgentApply(
+            [Description("Refactoring type: extract, simplify, consolidate, modernize")] string type,
+            [Description("Target to refactor (class name, method, file path, etc.)")] string target)
+        {
+            return Tools.RefactoringAgent.ApplyRefactoring(type, target);
+        }
+
+        [McpServerTool(Name = "refactoring_agent_duplicates", Title = "Refactoring Agent - Remove Duplication")]
+        [Description("Launches Refactoring Agent to find and suggest removal of duplicated code.")]
+        public static Task<string> RefactoringAgentDuplicates()
+        {
+            return Tools.RefactoringAgent.RemoveDuplication();
+        }
+
+        [McpServerTool(Name = "refactoring_agent_simplify", Title = "Refactoring Agent - Simplify Method")]
+        [Description("Launches Refactoring Agent to analyze and simplify a complex method.")]
+        public static Task<string> RefactoringAgentSimplify(
+            [Description("Method name to simplify")] string methodName)
+        {
+            return Tools.RefactoringAgent.SimplifyMethod(methodName);
+        }
+
+        [McpServerTool(Name = "dependency_analyzer_analyze", Title = "Dependency Analyzer Agent - Analyze Dependencies")]
+        [Description("Launches Dependency Analyzer Agent to analyze project dependencies.")]
+        public static Task<string> DependencyAnalyzerAnalyze()
+        {
+            return Tools.DependencyAnalyzerAgent.AnalyzeDependencies();
+        }
+
+        [McpServerTool(Name = "dependency_analyzer_outdated", Title = "Dependency Analyzer Agent - Find Outdated Packages")]
+        [Description("Launches Dependency Analyzer Agent to find outdated packages.")]
+        public static Task<string> DependencyAnalyzerOutdated()
+        {
+            return Tools.DependencyAnalyzerAgent.FindOutdatedPackages();
+        }
+
+        [McpServerTool(Name = "dependency_analyzer_unused", Title = "Dependency Analyzer Agent - Find Unused Dependencies")]
+        [Description("Launches Dependency Analyzer Agent to find unused dependencies.")]
+        public static Task<string> DependencyAnalyzerUnused()
+        {
+            return Tools.DependencyAnalyzerAgent.FindUnusedDependencies();
+        }
+
+        [McpServerTool(Name = "dependency_analyzer_security", Title = "Dependency Analyzer Agent - Check Security Vulnerabilities")]
+        [Description("Launches Dependency Analyzer Agent to scan for security vulnerabilities.")]
+        public static Task<string> DependencyAnalyzerSecurity()
+        {
+            return Tools.DependencyAnalyzerAgent.CheckSecurityVulnerabilities();
+        }
+
+        [McpServerTool(Name = "feature_builder_feature", Title = "Feature Builder Agent - Build Feature")]
+        [Description("Launches Feature Builder Agent to generate implementation plan for a feature.")]
+        public static Task<string> FeatureBuilderFeature(
+            [Description("Feature specification")] string spec)
+        {
+            return Tools.FeatureBuilderAgent.BuildFeature(spec);
+        }
+
+        [McpServerTool(Name = "feature_builder_class", Title = "Feature Builder Agent - Generate Class")]
+        [Description("Launches Feature Builder Agent to generate a class from properties.")]
+        public static Task<string> FeatureBuilderClass(
+            [Description("Class name")] string name,
+            [Description("Properties as comma-separated list: type1 prop1, type2 prop2")] string properties)
+        {
+            return Tools.FeatureBuilderAgent.GenerateClass(name, properties);
+        }
+
+        [McpServerTool(Name = "feature_builder_system", Title = "Feature Builder Agent - Scaffold System")]
+        [Description("Launches Feature Builder Agent to scaffold a new system.")]
+        public static Task<string> FeatureBuilderSystem(
+            [Description("System name to scaffold")] string systemName)
+        {
+            return Tools.FeatureBuilderAgent.ScaffoldSystem(systemName);
+        }
+
+        [McpServerTool(Name = "feature_builder_endpoint", Title = "Feature Builder Agent - Generate API Endpoint")]
+        [Description("Launches Feature Builder Agent to generate an API endpoint.")]
+        public static Task<string> FeatureBuilderEndpoint(
+            [Description("API path (e.g., /api/users)")] string path,
+            [Description("HTTP method (Get, Post, Put, Delete)")] string method)
+        {
+            return Tools.FeatureBuilderAgent.GenerateApiEndpoint(path, method);
+        }
     }
 }
 
