@@ -360,6 +360,39 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
+# JetBrains IDEs (IntelliJ IDEA, WebStorm, PyCharm, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Cursor IDE
+.cursor/
+
+# Claude AI settings (if any)
+.claude/
+
+# General dot-folders (IDE and tool-specific)
+# Note: Keep .git/ and .gitignore - these are essential
+# Note: Keep .mcp.json if you want to version control MCP config
+.idea/
+.vs/
+.vscode/
+.cursor/
+.claude/
+.localhistory/
+.vshistory/
+.history/
+.ionide/
+.fake/
+.mfractor/
+.axoCover/
+.sass-cache/
+.paket/
+.cr/
+.ntvs_analysis.dat
+
 # DungeonFighter specific
 dist/
 DebugAnalysis/
