@@ -51,7 +51,7 @@ namespace RPGGame.UI
         }
         
         /// <summary>
-        /// Synchronous version for backwards compatibility (uses Task.Run internally)
+        /// Synchronous version for backwards compatibility (fire-and-forget)
         /// </summary>
         public void ApplyDelay(UIMessageType messageType)
         {
@@ -60,13 +60,8 @@ namespace RPGGame.UI
                 return;
             }
 
-            int delayMs = GetDelayForMessageType(messageType);
-
-            if (delayMs > 0)
-            {
-                // Use Task.Run to avoid blocking, but wait synchronously for backwards compatibility
-                Task.Run(async () => await Task.Delay(delayMs)).Wait();
-            }
+            // Fire and forget - don't block the calling thread
+            _ = ApplyDelayAsync(messageType);
         }
 
         /// <summary>
@@ -134,7 +129,7 @@ namespace RPGGame.UI
         }
         
         /// <summary>
-        /// Synchronous version for backwards compatibility
+        /// Synchronous version for backwards compatibility (fire-and-forget)
         /// </summary>
         public void ApplyProgressiveMenuDelay()
         {
@@ -143,30 +138,8 @@ namespace RPGGame.UI
                 return;
             }
 
-            // Store base delay on first menu line
-            if (_consecutiveMenuLines == 0)
-            {
-                _baseMenuDelay = DefaultMenuDelay;
-            }
-
-            int progressiveDelay;
-
-            if (_consecutiveMenuLines < 20)
-            {
-                progressiveDelay = Math.Max(0, _baseMenuDelay - _consecutiveMenuLines);
-            }
-            else
-            {
-                int delayAtLine20 = Math.Max(0, _baseMenuDelay - 19);
-                progressiveDelay = Math.Max(0, delayAtLine20 - (_consecutiveMenuLines - 20));
-            }
-
-            if (progressiveDelay > 0)
-            {
-                Task.Run(async () => await Task.Delay(progressiveDelay)).Wait();
-            }
-
-            _consecutiveMenuLines++;
+            // Fire and forget - don't block the calling thread
+            _ = ApplyProgressiveMenuDelayAsync();
         }
 
         /// <summary>

@@ -146,8 +146,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             menuRenderer.RenderSettings();
         }
 
-        public void RenderTestingMenu() => RenderMenuScreen("COMPREHENSIVE GAME SYSTEM TESTS", 
-            (x, y, w, h) => menuRenderer.RenderTestingMenu(x, y, w, h));
+        public void RenderTestingMenu(string? subMenu = null) => RenderMenuScreen("COMPREHENSIVE GAME SYSTEM TESTS", 
+            (x, y, w, h) => menuRenderer.RenderTestingMenu(x, y, w, h, subMenu));
         
         public void RenderDeveloperMenu() => RenderMenuScreen("DEVELOPER MENU", 
             (x, y, w, h) => menuRenderer.RenderDeveloperMenuContent(x, y, w, h));

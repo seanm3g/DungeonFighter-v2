@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -32,14 +32,27 @@ namespace RPGGame
             double currentTime = GameTicker.Instance.GetCurrentGameTime();
             
             // Find the entity with the lowest NextActionTime that is actually ready to act
-            // Don't check IsReady flag, just check if NextActionTime <= currentTime
-            var readyEntity = entities
-                .Where(e => IsEntityAlive(e.Entity) && e.NextActionTime <= currentTime)
-                .OrderBy(e => e.NextActionTime)
-                .ThenBy(e => e.Entity.Name) // Add secondary sort by name for consistent ordering when times are equal
-                .FirstOrDefault();
+            // Optimized: Single pass instead of LINQ chain
+            CombatEntity? bestEntity = null;
+            double bestTime = double.MaxValue;
+            string bestName = string.Empty;
+            
+            foreach (var entity in entities)
+            {
+                if (IsEntityAlive(entity.Entity) && entity.NextActionTime <= currentTime)
+                {
+                    // Compare by NextActionTime first, then by name for consistent ordering
+                    if (entity.NextActionTime < bestTime || 
+                        (entity.NextActionTime == bestTime && entity.Entity.Name.CompareTo(bestName) < 0))
+                    {
+                        bestEntity = entity;
+                        bestTime = entity.NextActionTime;
+                        bestName = entity.Entity.Name;
+                    }
+                }
+            }
 
-            return readyEntity?.Entity;
+            return bestEntity?.Entity;
         }
 
         // Add method to advance an entity's turn even when stunned
@@ -156,10 +169,18 @@ namespace RPGGame
         
         public double GetNextReadyTime()
         {
-            var nextEntity = entities
-                .Where(e => IsEntityAlive(e.Entity))
-                .OrderBy(e => e.NextActionTime)
-                .FirstOrDefault();
+            // Optimized: Single pass instead of LINQ chain
+            CombatEntity? nextEntity = null;
+            double bestTime = double.MaxValue;
+            
+            foreach (var entity in entities)
+            {
+                if (IsEntityAlive(entity.Entity) && entity.NextActionTime < bestTime)
+                {
+                    nextEntity = entity;
+                    bestTime = entity.NextActionTime;
+                }
+            }
                 
             if (nextEntity == null)
                 return -1.0; // Return -1 to indicate no entities exist
@@ -176,14 +197,32 @@ namespace RPGGame
 
         public string GetTurnOrderInfo()
         {
-            var sortedEntities = entities
-                .Where(e => IsEntityAlive(e.Entity))
-                .OrderBy(e => e.NextActionTime)
-                .ToList();
+            // Optimized: Single pass with manual sorting instead of LINQ
+            var aliveEntities = new List<CombatEntity>();
+            foreach (var entity in entities)
+            {
+                if (IsEntityAlive(entity.Entity))
+                {
+                    aliveEntities.Add(entity);
+                }
+            }
+            
+            // Manual insertion sort for small lists (more efficient than LINQ for < 10 items)
+            for (int i = 1; i < aliveEntities.Count; i++)
+            {
+                var key = aliveEntities[i];
+                int j = i - 1;
+                while (j >= 0 && aliveEntities[j].NextActionTime > key.NextActionTime)
+                {
+                    aliveEntities[j + 1] = aliveEntities[j];
+                    j--;
+                }
+                aliveEntities[j + 1] = key;
+            }
 
             var info = new List<string>();
             double currentTime = GameTicker.Instance.GetCurrentGameTime();
-            foreach (var entity in sortedEntities)
+            foreach (var entity in aliveEntities)
             {
                 double timeUntilReady = Math.Max(0.0, entity.NextActionTime - currentTime);
                 string status = timeUntilReady <= 0.0 ? "READY" : $"Ready in {timeUntilReady:F1}s";

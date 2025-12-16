@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -171,31 +171,28 @@ namespace RPGGame
             else
             {
                 // Try to find any combo action from the action pool
-                var anyComboAction = source.ActionPool
-                    .Where(a => a.action.IsComboAction)
-                    .Select(a => a.action)
-                    .FirstOrDefault();
+                // Optimized: Single pass instead of LINQ chain
+                foreach (var actionEntry in source.ActionPool)
+                {
+                    if (actionEntry.action.IsComboAction)
+                    {
+                        return actionEntry.action;
+                    }
+                }
                 
-                if (anyComboAction != null)
+                // Last resort: try BASIC ATTACK, or fall back to first available action
+                var basicAttack = ActionFactory.GetBasicAttack(source);
+                if (basicAttack != null)
                 {
-                    return anyComboAction;
+                    return basicAttack;
                 }
-                else
+                // If BASIC ATTACK not available, use first available action
+                if (source.ActionPool.Count > 0)
                 {
-                    // Last resort: try BASIC ATTACK, or fall back to first available action
-                    var basicAttack = ActionFactory.GetBasicAttack(source);
-                    if (basicAttack != null)
-                    {
-                        return basicAttack;
-                    }
-                    // If BASIC ATTACK not available, use first available action
-                    if (source.ActionPool.Count > 0)
-                    {
-                        return source.ActionPool[0].action;
-                    }
-                    // This should never happen, but return null if no actions available
-                    return null!; // Explicitly return null - this is an error state
+                    return source.ActionPool[0].action;
                 }
+                // This should never happen, but return null if no actions available
+                return null!; // Explicitly return null - this is an error state
             }
         }
 

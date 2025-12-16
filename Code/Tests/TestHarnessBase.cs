@@ -77,6 +77,66 @@ namespace RPGGame.Tests
             TextDisplayIntegration.DisplaySystem("\nPress any key to continue...");
             Console.ReadKey();
         }
+
+        /// <summary>
+        /// Asserts a condition and throws if false
+        /// </summary>
+        public static void Assert(bool condition, string message)
+        {
+            if (!condition)
+            {
+                throw new Exception($"Assertion failed: {message}");
+            }
+        }
+
+        /// <summary>
+        /// Asserts two values are equal
+        /// </summary>
+        public static void AssertEqual<T>(T expected, T actual, string message = "")
+        {
+            if (!EqualityComparer<T>.Default.Equals(expected, actual))
+            {
+                throw new Exception($"Assertion failed: Expected {expected}, got {actual}. {message}");
+            }
+        }
+
+        /// <summary>
+        /// Asserts a value is not null
+        /// </summary>
+        public static void AssertNotNull(object? value, string message = "")
+        {
+            if (value == null)
+            {
+                throw new Exception($"Assertion failed: Value is null. {message}");
+            }
+        }
+
+        /// <summary>
+        /// Asserts a value is null
+        /// </summary>
+        public static void AssertNull(object? value, string message = "")
+        {
+            if (value != null)
+            {
+                throw new Exception($"Assertion failed: Value is not null. {message}");
+            }
+        }
+
+        /// <summary>
+        /// Asserts a condition is true (alias for Assert)
+        /// </summary>
+        public static void AssertTrue(bool condition, string message = "")
+        {
+            Assert(condition, message);
+        }
+
+        /// <summary>
+        /// Asserts a condition is false
+        /// </summary>
+        public static void AssertFalse(bool condition, string message = "")
+        {
+            Assert(!condition, message);
+        }
     }
 }
 

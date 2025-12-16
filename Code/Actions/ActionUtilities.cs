@@ -26,7 +26,16 @@ namespace RPGGame
             else
             {
                 // For enemies, get combo actions from ActionPool
-                return source.ActionPool.Where(a => a.action.IsComboAction).Select(a => a.action).ToList();
+                // Optimized: Single pass instead of LINQ chain
+                var comboActions = new List<Action>();
+                foreach (var actionEntry in source.ActionPool)
+                {
+                    if (actionEntry.action.IsComboAction)
+                    {
+                        comboActions.Add(actionEntry.action);
+                    }
+                }
+                return comboActions;
             }
         }
         

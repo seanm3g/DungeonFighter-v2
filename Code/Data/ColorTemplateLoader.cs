@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
 using RPGGame.UI.ColorSystem;
 
@@ -139,11 +140,17 @@ namespace RPGGame.Data
             if (string.IsNullOrEmpty(templateName))
                 return null;
             
-            // Try unified configuration first
-            var unifiedTemplate = ColorConfigurationLoader.GetTemplate(templateName);
-            if (unifiedTemplate != null)
+            // Try unified configuration first by checking the config data directly
+            // (avoiding circular call to ColorConfigurationLoader.GetTemplate)
+            var unifiedConfig = ColorConfigurationLoader.LoadColorConfiguration();
+            if (unifiedConfig?.ColorTemplates != null && unifiedConfig.ColorTemplates.Count > 0)
             {
-                return unifiedTemplate;
+                var unifiedTemplate = unifiedConfig.ColorTemplates.FirstOrDefault(
+                    t => string.Equals(t.Name, templateName, StringComparison.OrdinalIgnoreCase));
+                if (unifiedTemplate != null)
+                {
+                    return unifiedTemplate;
+                }
             }
             
             // Fallback to individual file loading

@@ -480,47 +480,20 @@ namespace RPGGame
         
         /// <summary>
         /// Runs Test 7: Combat Log Spacing Test
-        /// Comprehensive tests for the combat log spacing system
+        /// Delegates to CombatLogSpacingTestRunner
         /// </summary>
         public static void RunCombatLogSpacingTest()
         {
-            TextDisplayIntegration.DisplaySystem("=== Test 7: Combat Log Spacing Test ===");
-            TextDisplayIntegration.DisplaySystem("Running comprehensive spacing system tests...");
-            TextDisplayIntegration.DisplaySystem("");
-            
-            try
-            {
-                CombatLogSpacingTest.RunAllTests();
-                TextDisplayIntegration.DisplaySystem("\n✓ Combat Log Spacing Test completed successfully!");
-            }
-            catch (Exception ex)
-            {
-                TextDisplayIntegration.DisplaySystem($"\n✗ Combat Log Spacing Test failed: {ex.Message}");
-                TextDisplayIntegration.DisplaySystem($"Stack trace: {ex.StackTrace}");
-            }
+            RPGGame.Tests.Runners.CombatLogSpacingTestRunner.RunTest();
         }
         
         /// <summary>
         /// Test 8: Text System Accuracy Tests
-        /// Tests word spacing, blank line spacing, overlap prevention, and color application
+        /// Delegates to TextSystemAccuracyTestRunner
         /// </summary>
         public static void RunTextSystemAccuracyTests()
         {
-            TextDisplayIntegration.DisplaySystem("=== Test 8: Text System Accuracy Test ===");
-            TextDisplayIntegration.DisplaySystem("Running comprehensive text system accuracy tests...");
-            TextDisplayIntegration.DisplaySystem("Testing: word spacing, blank lines, overlap, colors");
-            TextDisplayIntegration.DisplaySystem("");
-            
-            try
-            {
-                TextSystemAccuracyTests.RunAllTests();
-                TextDisplayIntegration.DisplaySystem("\n✓ Text System Accuracy Test completed successfully!");
-            }
-            catch (Exception ex)
-            {
-                TextDisplayIntegration.DisplaySystem($"\n✗ Text System Accuracy Test failed: {ex.Message}");
-                TextDisplayIntegration.DisplaySystem($"Stack trace: {ex.StackTrace}");
-            }
+            RPGGame.Tests.Runners.TextSystemAccuracyTestRunner.RunTest();
         }
         
         /// <summary>
@@ -719,58 +692,11 @@ namespace RPGGame
 
         /// <summary>
         /// Runs Test 9: Advanced Action Mechanics Test
-        /// Comprehensive tests for all phases of the advanced mechanics system
+        /// Delegates to AdvancedMechanicsTestRunner
         /// </summary>
         public static void RunAdvancedMechanicsTest()
         {
-            TextDisplayIntegration.DisplaySystem("=== Test 9: Advanced Action Mechanics Test ===");
-            TextDisplayIntegration.DisplaySystem("Running comprehensive tests for all advanced mechanics phases...");
-            TextDisplayIntegration.DisplaySystem("Press any key to continue or 'q' to quit...");
-            
-            var key = Console.ReadKey();
-            if (key.KeyChar == 'q' || key.KeyChar == 'Q')
-            {
-                TextDisplayIntegration.DisplaySystem("Test cancelled.");
-                return;
-            }
-            
-            Console.WriteLine();
-            Console.WriteLine();
-            
-            // Capture console output and redirect to TextDisplayIntegration
-            var originalOut = Console.Out;
-            using (var stringWriter = new System.IO.StringWriter())
-            {
-                Console.SetOut(stringWriter);
-                
-                try
-                {
-                    AdvancedMechanicsTest.RunAllTests();
-                    string output = stringWriter.ToString();
-                    
-                    // Display output line by line
-                    foreach (var line in output.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None))
-                    {
-                        if (!string.IsNullOrWhiteSpace(line))
-                        {
-                            TextDisplayIntegration.DisplaySystem(line);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    TextDisplayIntegration.DisplaySystem($"Error running Advanced Mechanics tests: {ex.Message}");
-                    TextDisplayIntegration.DisplaySystem($"Stack trace: {ex.StackTrace}");
-                }
-                finally
-                {
-                    Console.SetOut(originalOut);
-                }
-            }
-            
-            TextDisplayIntegration.DisplaySystem("\nAdvanced Action Mechanics Test completed!");
-            TextDisplayIntegration.DisplaySystem("Press any key to continue...");
-            Console.ReadKey();
+            RPGGame.Tests.Runners.AdvancedMechanicsTestRunner.RunTest();
         }
 
         // NOTE: GetRarityOrder, TestBasicParsing, TestTemplateExpansion, TestLengthCalculations, and TestEdgeCases

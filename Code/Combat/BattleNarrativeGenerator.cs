@@ -50,8 +50,10 @@ namespace RPGGame.Combat
                 // But if showDamageWhenEnemyKilled is true (for final summary), show both
                 if (showDamageWhenEnemyKilled)
                 {
-                    return $"Total damage dealt: {totalPlayerDamage} vs {totalEnemyDamage} received.\n" +
-                           $"Combos executed: {playerComboCount} vs {enemyComboCount}.";
+                    var sb = new System.Text.StringBuilder();
+                    sb.Append($"Total damage dealt: {totalPlayerDamage} vs {totalEnemyDamage} received.\n");
+                    sb.Append($"Combos executed: {playerComboCount} vs {enemyComboCount}.");
+                    return sb.ToString();
                 }
                 else
                 {
@@ -60,13 +62,18 @@ namespace RPGGame.Combat
             }
             else if (enemyWon)
             {
-                return $"{enemyName} defeats {playerName}!\nTotal damage dealt: {totalEnemyDamage} vs {totalPlayerDamage} received.\n" +
-                       $"Combos executed: {enemyComboCount} vs {playerComboCount}.";
+                var sb = new System.Text.StringBuilder();
+                sb.Append($"{enemyName} defeats {playerName}!\n");
+                sb.Append($"Total damage dealt: {totalEnemyDamage} vs {totalPlayerDamage} received.\n");
+                sb.Append($"Combos executed: {enemyComboCount} vs {playerComboCount}.");
+                return sb.ToString();
             }
             else
             {
-                return $"Battle ends in a stalemate. {playerName} dealt {totalPlayerDamage} damage, {enemyName} dealt {totalEnemyDamage} damage.\n" +
-                       $"Combos: {playerComboCount} vs {enemyComboCount}.";
+                var sb = new System.Text.StringBuilder();
+                sb.Append($"Battle ends in a stalemate. {playerName} dealt {totalPlayerDamage} damage, {enemyName} dealt {totalEnemyDamage} damage.\n");
+                sb.Append($"Combos: {playerComboCount} vs {enemyComboCount}.");
+                return sb.ToString();
             }
         }
         

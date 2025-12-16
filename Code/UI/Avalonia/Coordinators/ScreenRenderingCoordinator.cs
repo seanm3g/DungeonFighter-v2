@@ -132,9 +132,9 @@ namespace RPGGame.UI.Avalonia.Coordinators
         /// <summary>
         /// Renders testing menu screen
         /// </summary>
-        public void RenderTestingMenu()
+        public void RenderTestingMenu(string? subMenu = null)
         {
-            renderer.RenderTestingMenu();
+            renderer.RenderTestingMenu(subMenu);
         }
 
         /// <summary>

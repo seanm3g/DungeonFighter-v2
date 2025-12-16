@@ -39,29 +39,62 @@ namespace RPGGame
             uiCoordinator.WriteLine("=== COMPREHENSIVE GAME SYSTEM TESTS ===");
             uiCoordinator.WriteLine("Running all system tests...");
             uiCoordinator.WriteBlankLine();
+            uiCoordinator.RenderDisplayBuffer(); // Render initial message
 
             // Core System Tests
             await RunTest("Character System", TestCharacterSystem);
+            uiCoordinator.RenderDisplayBuffer(); // Render after each test
             await RunTest("Combat System", TestCombatSystem);
+            uiCoordinator.RenderDisplayBuffer();
             await RunTest("Inventory System", TestInventorySystem);
+            uiCoordinator.RenderDisplayBuffer();
             await RunTest("Dungeon System", TestDungeonSystem);
+            uiCoordinator.RenderDisplayBuffer();
             await RunTest("Item Generation", TestItemGeneration);
+            uiCoordinator.RenderDisplayBuffer();
             await RunTest("Data Loading", TestDataLoading);
+            uiCoordinator.RenderDisplayBuffer();
             await RunTest("UI System", TestUISystem);
+            uiCoordinator.RenderDisplayBuffer();
             await RunTest("Save/Load System", TestSaveLoadSystem);
+            uiCoordinator.RenderDisplayBuffer();
             await RunTest("Action System", TestActionSystem);
+            uiCoordinator.RenderDisplayBuffer();
             await RunTest("Combo Dice Rolls", TestComboDiceRolls);
+            uiCoordinator.RenderDisplayBuffer();
             await RunTest("Color System", TestColorSystem);
+            uiCoordinator.RenderDisplayBuffer();
             await RunTest("Advanced Action Mechanics", TestAdvancedActionMechanics);
+            uiCoordinator.RenderDisplayBuffer();
 
             // Combat UI Fixes (from previous implementation)
             await RunTest("Combat Panel Containment", TestCombatPanelContainment);
+            uiCoordinator.RenderDisplayBuffer();
             await RunTest("Combat Freezing Prevention", TestCombatFreezingPrevention);
+            uiCoordinator.RenderDisplayBuffer();
             await RunTest("Combat Log Cleanup", TestCombatLogCleanup);
+            uiCoordinator.RenderDisplayBuffer();
 
             // Integration Tests
             await RunTest("Game Flow Integration", TestGameFlowIntegration);
+            uiCoordinator.RenderDisplayBuffer();
             await RunTest("Performance Integration", TestPerformanceIntegration);
+            uiCoordinator.RenderDisplayBuffer();
+
+            // Note: Analysis Tests (Item Generation Analysis, Tier Distribution, Common Item Modification)
+            // are skipped in "Run All Tests" because they:
+            // 1. Are very long-running (generate 1000s of items)
+            // 2. Use blocking console input that freezes the UI
+            // 3. Are better run individually from their sub-menus
+            // These tests are available in the "Item Tests" sub-menu
+
+            // Final summary
+            uiCoordinator.WriteBlankLine();
+            uiCoordinator.WriteLine("=== ALL TESTS COMPLETE ===", UIMessageType.System);
+            var passed = testResults.Count(r => r.Passed);
+            var total = testResults.Count;
+            uiCoordinator.WriteLine($"Passed: {passed}/{total}", UIMessageType.System);
+            uiCoordinator.RenderDisplayBuffer();
 
             return new List<TestResult>(testResults);
         }
@@ -223,7 +256,8 @@ namespace RPGGame
             
             try
             {
-                var result = await testFunction();
+                // Use Task.Run to ensure test runs on background thread and doesn't block UI
+                var result = await Task.Run(async () => await testFunction()).ConfigureAwait(false);
                 testResults.Add(result);
                 
                 if (result.Passed)
@@ -249,6 +283,11 @@ namespace RPGGame
                 testResults.Add(result);
                 uiCoordinator.WriteLine($"❌ {testName}: ERROR");
                 uiCoordinator.WriteLine($"   {ex.Message}");
+                if (ex.StackTrace != null)
+                {
+                    // Log stack trace to console for debugging, but don't flood UI
+                    System.Diagnostics.Debug.WriteLine($"Stack trace for {testName}: {ex.StackTrace}");
+                }
                 uiCoordinator.WriteBlankLine();
                 return result;
             }
@@ -2125,20 +2164,20 @@ namespace RPGGame
             }
         }
 
-        private Task<TestResult> TestCombatFreezingPrevention()
+        private async Task<TestResult> TestCombatFreezingPrevention()
         {
             try
             {
                 var stopwatch = Stopwatch.StartNew();
                 
                 // Test action delay
-                CombatDelayManager.DelayAfterAction();
+                await CombatDelayManager.DelayAfterActionAsync();
                 var actionDelay = stopwatch.ElapsedMilliseconds;
                 
                 stopwatch.Restart();
                 
                 // Test message delay
-                CombatDelayManager.DelayAfterMessage();
+                await CombatDelayManager.DelayAfterMessageAsync();
                 var messageDelay = stopwatch.ElapsedMilliseconds;
                 
                 stopwatch.Stop();
@@ -2148,17 +2187,17 @@ namespace RPGGame
                 // For GUI mode, delays should be minimal (under 200ms total)
                 if (totalDelay > 200)
                 {
-                    return Task.FromResult(new TestResult("Combat Freezing Prevention", false, 
-                        $"Total delay too high: {totalDelay}ms (expected < 200ms)"));
+                    return new TestResult("Combat Freezing Prevention", false, 
+                        $"Total delay too high: {totalDelay}ms (expected < 200ms)");
                 }
                 
-                return Task.FromResult(new TestResult("Combat Freezing Prevention", true, 
-                    $"Delays are optimized: Action={actionDelay}ms, Message={messageDelay}ms, Total={totalDelay}ms"));
+                return new TestResult("Combat Freezing Prevention", true, 
+                    $"Delays are optimized: Action={actionDelay}ms, Message={messageDelay}ms, Total={totalDelay}ms");
             }
             catch (Exception ex)
             {
-                return Task.FromResult(new TestResult("Combat Freezing Prevention", false, 
-                    $"Exception during test: {ex.Message}"));
+                return new TestResult("Combat Freezing Prevention", false, 
+                    $"Exception during test: {ex.Message}");
             }
         }
 
@@ -2262,6 +2301,139 @@ namespace RPGGame
             {
                 return Task.FromResult(new TestResult("Performance Integration", false, 
                     $"Exception during performance test: {ex.Message}"));
+            }
+        }
+
+        #endregion
+
+        #region Analysis Tests
+
+        private Task<TestResult> TestItemGenerationAnalysis()
+        {
+            try
+            {
+                uiCoordinator.WriteLine("=== Item Generation Analysis Test ===");
+                uiCoordinator.WriteLine("This will generate 100 items at each level from 1-20 and analyze the results.");
+                uiCoordinator.WriteBlankLine();
+                
+                // Capture console output
+                var originalOut = Console.Out;
+                using (var stringWriter = new System.IO.StringWriter())
+                {
+                    Console.SetOut(stringWriter);
+                    
+                    try
+                    {
+                        RPGGame.TestManager.RunItemGenerationTest();
+                        string output = stringWriter.ToString();
+                        
+                        // Display output line by line
+                        foreach (var line in output.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None))
+                        {
+                            if (!string.IsNullOrWhiteSpace(line))
+                            {
+                                uiCoordinator.WriteLine(line);
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        Console.SetOut(originalOut);
+                    }
+                }
+                
+                return Task.FromResult(new TestResult("Item Generation Analysis", true, 
+                    "Analysis completed. Results saved to 'item_generation_test_results.txt'"));
+            }
+            catch (Exception ex)
+            {
+                return Task.FromResult(new TestResult("Item Generation Analysis", false, $"Exception: {ex.Message}"));
+            }
+        }
+
+        private Task<TestResult> TestTierDistribution()
+        {
+            try
+            {
+                uiCoordinator.WriteLine("=== Tier Distribution Verification Test ===");
+                uiCoordinator.WriteLine("Testing tier distribution across various player/dungeon level scenarios.");
+                uiCoordinator.WriteBlankLine();
+                
+                // Capture console output
+                var originalOut = Console.Out;
+                using (var stringWriter = new System.IO.StringWriter())
+                {
+                    Console.SetOut(stringWriter);
+                    
+                    try
+                    {
+                        TierDistributionTest.TestTierDistribution();
+                        string output = stringWriter.ToString();
+                        
+                        // Display output line by line
+                        foreach (var line in output.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None))
+                        {
+                            if (!string.IsNullOrWhiteSpace(line))
+                            {
+                                uiCoordinator.WriteLine(line);
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        Console.SetOut(originalOut);
+                    }
+                }
+                
+                return Task.FromResult(new TestResult("Tier Distribution Verification", true, 
+                    "Tier distribution test completed"));
+            }
+            catch (Exception ex)
+            {
+                return Task.FromResult(new TestResult("Tier Distribution Verification", false, $"Exception: {ex.Message}"));
+            }
+        }
+
+        private Task<TestResult> TestCommonItemModification()
+        {
+            try
+            {
+                uiCoordinator.WriteLine("=== Common Item Modification Test ===");
+                uiCoordinator.WriteLine("This will generate 1000 Common items and verify the 25% chance for modifications.");
+                uiCoordinator.WriteBlankLine();
+                
+                // Capture console output
+                var originalOut = Console.Out;
+                using (var stringWriter = new System.IO.StringWriter())
+                {
+                    Console.SetOut(stringWriter);
+                    
+                    try
+                    {
+                        RPGGame.TestManager.RunCommonItemModificationTest();
+                        string output = stringWriter.ToString();
+                        
+                        // Display output line by line
+                        foreach (var line in output.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None))
+                        {
+                            if (!string.IsNullOrWhiteSpace(line))
+                            {
+                                uiCoordinator.WriteLine(line);
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        Console.SetOut(originalOut);
+                    }
+                }
+                
+                return Task.FromResult(new TestResult("Common Item Modification Chance", true, 
+                    "Common item modification test completed"));
+            }
+            catch (Exception ex)
+            {
+                return Task.FromResult(new TestResult("Common Item Modification Chance", false, $"Exception: {ex.Message}"));
             }
         }
 

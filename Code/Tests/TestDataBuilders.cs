@@ -1,0 +1,210 @@
+using System;
+using System.Collections.Generic;
+using RPGGame.Data;
+
+namespace RPGGame.Tests
+{
+    /// <summary>
+    /// Test data builders for creating test objects
+    /// Simplifies test setup and improves test readability
+    /// </summary>
+    public static class TestDataBuilders
+    {
+        /// <summary>
+        /// Builds a test character with configurable properties
+        /// </summary>
+        public class CharacterBuilder
+        {
+            private string _name = "TestCharacter";
+            private int _level = 1;
+            private int _strength = 10;
+            private int _agility = 10;
+            private int _technique = 10;
+            private int _intelligence = 10;
+
+            public CharacterBuilder WithName(string name)
+            {
+                _name = name;
+                return this;
+            }
+
+            public CharacterBuilder WithLevel(int level)
+            {
+                _level = level;
+                return this;
+            }
+
+            public CharacterBuilder WithStats(int strength, int agility, int technique, int intelligence)
+            {
+                _strength = strength;
+                _agility = agility;
+                _technique = technique;
+                _intelligence = intelligence;
+                return this;
+            }
+
+            public Character Build()
+            {
+                var character = new Character(_name, _level);
+                // Stats are set during character creation, but we can adjust if needed
+                return character;
+            }
+        }
+
+        /// <summary>
+        /// Builds a test enemy with configurable properties
+        /// </summary>
+        public class EnemyBuilder
+        {
+            private string _name = "TestEnemy";
+            private int _level = 1;
+            private int _health = 50;
+            private int _strength = 5;
+            private int _agility = 5;
+            private int _technique = 5;
+            private int _intelligence = 5;
+
+            public EnemyBuilder WithName(string name)
+            {
+                _name = name;
+                return this;
+            }
+
+            public EnemyBuilder WithLevel(int level)
+            {
+                _level = level;
+                return this;
+            }
+
+            public EnemyBuilder WithHealth(int health)
+            {
+                _health = health;
+                return this;
+            }
+
+            public EnemyBuilder WithStats(int strength, int agility, int technique, int intelligence)
+            {
+                _strength = strength;
+                _agility = agility;
+                _technique = technique;
+                _intelligence = intelligence;
+                return this;
+            }
+
+            public Enemy Build()
+            {
+                return new Enemy(_name, _level, _health, _strength, _agility, _technique, _intelligence);
+            }
+        }
+
+        /// <summary>
+        /// Builds a test item with configurable properties
+        /// </summary>
+        public class ItemBuilder
+        {
+            private ItemType _type = ItemType.Weapon;
+            private string _name = "TestItem";
+            private int _tier = 1;
+            private int _baseDamage = 10;
+            private string _rarity = "Common";
+
+            public ItemBuilder WithType(ItemType type)
+            {
+                _type = type;
+                return this;
+            }
+
+            public ItemBuilder WithName(string name)
+            {
+                _name = name;
+                return this;
+            }
+
+            public ItemBuilder WithTier(int tier)
+            {
+                _tier = tier;
+                return this;
+            }
+
+            public ItemBuilder WithBaseDamage(int damage)
+            {
+                _baseDamage = damage;
+                return this;
+            }
+
+            public ItemBuilder WithRarity(string rarity)
+            {
+                _rarity = rarity;
+                return this;
+            }
+
+            public Item Build()
+            {
+                return new Item(_type, _name, _tier, _baseDamage)
+                {
+                    Rarity = _rarity
+                };
+            }
+        }
+
+        /// <summary>
+        /// Creates a new character builder
+        /// </summary>
+        public static CharacterBuilder Character()
+        {
+            return new CharacterBuilder();
+        }
+
+        /// <summary>
+        /// Creates a new enemy builder
+        /// </summary>
+        public static EnemyBuilder Enemy()
+        {
+            return new EnemyBuilder();
+        }
+
+        /// <summary>
+        /// Creates a new item builder
+        /// </summary>
+        public static ItemBuilder Item()
+        {
+            return new ItemBuilder();
+        }
+    }
+
+    /// <summary>
+    /// Mock object factories for testing
+    /// </summary>
+    public static class MockFactories
+    {
+        /// <summary>
+        /// Creates a mock character for testing
+        /// </summary>
+        public static Character CreateMockCharacter(string name = "MockCharacter", int level = 1)
+        {
+            return new Character(name, level);
+        }
+
+        /// <summary>
+        /// Creates a mock enemy for testing
+        /// </summary>
+        public static Enemy CreateMockEnemy(string name = "MockEnemy", int level = 1, int health = 50)
+        {
+            return new Enemy(name, level, health, 5, 5, 5, 5);
+        }
+
+        /// <summary>
+        /// Creates a mock action for testing
+        /// </summary>
+        public static Action CreateMockAction(string name = "MockAction", ActionType type = ActionType.Attack)
+        {
+            return new Action
+            {
+                Name = name,
+                Type = type,
+                DamageMultiplier = 1.0,
+                Length = 1.0
+            };
+        }
+    }
+}

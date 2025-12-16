@@ -23,8 +23,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         
         /// <summary>
         /// Renders the testing menu screen using the 3-panel layout
+        /// Supports main menu and sub-menus for categories
         /// </summary>
-        public int RenderTestingMenu(int x, int y, int width, int height)
+        public int RenderTestingMenu(int x, int y, int width, int height, string? subMenu = null)
         {
             clickableElements.Clear();
             int currentLineCount = 0;
@@ -34,68 +35,143 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             int currentY = y;
             
             canvas.AddBorder(x, currentY, width, panelHeight, AsciiArtAssets.Colors.Blue);
-            canvas.AddTitle(currentY + 1, "TEST DESCRIPTION", AsciiArtAssets.Colors.Blue);
+            string descriptionTitle = subMenu == null ? "TEST DESCRIPTION" : $"TEST CATEGORY: {subMenu.ToUpper()}";
+            canvas.AddTitle(currentY + 1, descriptionTitle, AsciiArtAssets.Colors.Blue);
             currentLineCount = currentY + 3; // Border + title + spacing
             
             int textY = currentY + 3;
-            canvas.AddText(x + 2, textY, "These tests verify all game systems:", AsciiArtAssets.Colors.White);
-            textY++;
-            currentLineCount++;
-            canvas.AddText(x + 2, textY, "• Character, Combat, Inventory, Dungeon", AsciiArtAssets.Colors.White);
-            textY++;
-            currentLineCount++;
-            canvas.AddText(x + 2, textY, "• Data Loading, UI, Save/Load, Actions", AsciiArtAssets.Colors.White);
-            textY++;
-            currentLineCount++;
-            canvas.AddText(x + 2, textY, "• Color System, Text System Accuracy", AsciiArtAssets.Colors.White);
-            textY++;
-            currentLineCount++;
-            canvas.AddText(x + 2, textY, "• Performance, Integration, Advanced Mechanics", AsciiArtAssets.Colors.White);
-            currentLineCount++;
+            if (subMenu == null)
+            {
+                canvas.AddText(x + 2, textY, "These tests verify all game systems:", AsciiArtAssets.Colors.White);
+                textY++;
+                currentLineCount++;
+                canvas.AddText(x + 2, textY, "• Character, Combat, Inventory, Dungeon", AsciiArtAssets.Colors.White);
+                textY++;
+                currentLineCount++;
+                canvas.AddText(x + 2, textY, "• Data Loading, UI, Save/Load, Actions", AsciiArtAssets.Colors.White);
+                textY++;
+                currentLineCount++;
+                canvas.AddText(x + 2, textY, "• Color System, Text System Accuracy", AsciiArtAssets.Colors.White);
+                textY++;
+                currentLineCount++;
+                canvas.AddText(x + 2, textY, "• Performance, Integration, Advanced Mechanics", AsciiArtAssets.Colors.White);
+                currentLineCount++;
+            }
+            else
+            {
+                canvas.AddText(x + 2, textY, $"Select a test from the {subMenu} category.", AsciiArtAssets.Colors.White);
+                textY++;
+                currentLineCount++;
+            }
             
             // Test options panel (middle section)
             currentY += panelHeight + 1;
             canvas.AddBorder(x, currentY, width, panelHeight, AsciiArtAssets.Colors.Green);
-            canvas.AddTitle(currentY + 1, "TEST OPTIONS", AsciiArtAssets.Colors.Green);
+            string optionsTitle = subMenu == null ? "TEST OPTIONS" : $"{subMenu.ToUpper()} TESTS";
+            canvas.AddTitle(currentY + 1, optionsTitle, AsciiArtAssets.Colors.Green);
             currentLineCount = currentY + 3; // Border + title + spacing
             
             textY = currentY + 3;
-            var testOptions = new[]
-            {
-                (1, "Run All Tests (Complete Suite)"),
-                (2, "Character System Tests"),
-                (3, "Combat System Tests (includes UI Fixes)"),
-                (4, "Inventory & Dungeon Tests"),
-                (5, "Data & UI System Tests"),
-                (6, "Advanced & Integration Tests"),
-                (7, "Generate 10 Random Items"),
-                (8, "Item Generation Analysis (100 items per level 1-20)"),
-                (9, "Tier Distribution Verification"),
-                (10, "Common Item Modification Chance (25% verification)"),
-                (11, "Color System Tests (All Color Features)"),
-                (0, "Back to Settings")
-            };
             
-            foreach (var (number, text) in testOptions)
+            if (subMenu == null)
             {
-                string displayText = $"[{number}] {text}";
-                
-                // Create clickable element for this menu option
-                var option = new ClickableElement
+                // Main menu
+                var mainMenuOptions = new[]
                 {
-                    X = x + 2,
-                    Y = textY,
-                    Width = displayText.Length,
-                    Height = 1,
-                    Type = ElementType.MenuOption,
-                    Value = number.ToString(),
-                    DisplayText = displayText
+                    (1, "Run All Tests (Complete Suite)"),
+                    (2, "System Tests"),
+                    (3, "Item Tests"),
+                    (4, "Color System Tests"),
+                    (0, "Back to Settings")
                 };
-                clickableElements.Add(option);
                 
-                canvas.AddText(x + 2, textY, displayText, AsciiArtAssets.Colors.White);
-                textY++;
-                currentLineCount++;
+                foreach (var (number, text) in mainMenuOptions)
+                {
+                    string displayText = $"[{number}] {text}";
+                    
+                    var option = new ClickableElement
+                    {
+                        X = x + 2,
+                        Y = textY,
+                        Width = displayText.Length,
+                        Height = 1,
+                        Type = ElementType.MenuOption,
+                        Value = number.ToString(),
+                        DisplayText = displayText
+                    };
+                    clickableElements.Add(option);
+                    
+                    canvas.AddText(x + 2, textY, displayText, AsciiArtAssets.Colors.White);
+                    textY++;
+                    currentLineCount++;
+                }
+            }
+            else if (subMenu == "System")
+            {
+                // System Tests sub-menu
+                var systemTestOptions = new[]
+                {
+                    (1, "Character System Tests"),
+                    (2, "Combat System Tests (includes UI Fixes)"),
+                    (3, "Inventory & Dungeon Tests"),
+                    (4, "Data & UI System Tests"),
+                    (5, "Advanced & Integration Tests"),
+                    (0, "Back to Test Menu")
+                };
+                
+                foreach (var (number, text) in systemTestOptions)
+                {
+                    string displayText = $"[{number}] {text}";
+                    
+                    var option = new ClickableElement
+                    {
+                        X = x + 2,
+                        Y = textY,
+                        Width = displayText.Length,
+                        Height = 1,
+                        Type = ElementType.MenuOption,
+                        Value = $"system_{number}",
+                        DisplayText = displayText
+                    };
+                    clickableElements.Add(option);
+                    
+                    canvas.AddText(x + 2, textY, displayText, AsciiArtAssets.Colors.White);
+                    textY++;
+                    currentLineCount++;
+                }
+            }
+            else if (subMenu == "Item")
+            {
+                // Item Tests sub-menu
+                var itemTestOptions = new[]
+                {
+                    (1, "Generate 10 Random Items"),
+                    (2, "Item Generation Analysis (100 items per level 1-20)"),
+                    (3, "Tier Distribution Verification"),
+                    (4, "Common Item Modification Chance (25% verification)"),
+                    (0, "Back to Test Menu")
+                };
+                
+                foreach (var (number, text) in itemTestOptions)
+                {
+                    string displayText = $"[{number}] {text}";
+                    
+                    var option = new ClickableElement
+                    {
+                        X = x + 2,
+                        Y = textY,
+                        Width = displayText.Length,
+                        Height = 1,
+                        Type = ElementType.MenuOption,
+                        Value = $"item_{number}",
+                        DisplayText = displayText
+                    };
+                    clickableElements.Add(option);
+                    
+                    canvas.AddText(x + 2, textY, displayText, AsciiArtAssets.Colors.White);
+                    textY++;
+                    currentLineCount++;
+                }
             }
             
             // Instructions panel (bottom section)
@@ -105,13 +181,20 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             currentLineCount = currentY + 3; // Border + title + spacing
             
             textY = currentY + 3;
-            canvas.AddText(x + 2, textY, "Select a test option to run. Results will be displayed", AsciiArtAssets.Colors.White);
-            textY++;
-            currentLineCount++;
-            canvas.AddText(x + 2, textY, "in the center panel after test completion.", AsciiArtAssets.Colors.White);
-            textY++;
-            currentLineCount++;
-            canvas.AddText(x + 2, textY, "For options 10-11: Type digits then press Enter.", AsciiArtAssets.Colors.White);
+            if (subMenu == null)
+            {
+                canvas.AddText(x + 2, textY, "Select a test category to view available tests.", AsciiArtAssets.Colors.White);
+                textY++;
+                currentLineCount++;
+                canvas.AddText(x + 2, textY, "Option 1 runs all tests at once.", AsciiArtAssets.Colors.White);
+            }
+            else
+            {
+                canvas.AddText(x + 2, textY, "Select a test option to run. Results will be displayed", AsciiArtAssets.Colors.White);
+                textY++;
+                currentLineCount++;
+                canvas.AddText(x + 2, textY, "in the center panel after test completion.", AsciiArtAssets.Colors.White);
+            }
             currentLineCount++;
             
             return currentLineCount;

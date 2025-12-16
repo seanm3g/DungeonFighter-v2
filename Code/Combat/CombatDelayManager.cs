@@ -80,7 +80,7 @@ namespace RPGGame
         /// Applies delay after a complete action is processed and displayed
         /// For GUI, delays are handled by the rendering system, so we skip blocking delays here
         /// </summary>
-        public static void DelayAfterAction()
+        public static async Task DelayAfterActionAsync()
         {
             LoadConfig();
             if (!ShouldApplyDelay()) return;
@@ -93,8 +93,8 @@ namespace RPGGame
             }
             else
             {
-                // Use full delay for console
-                Thread.Sleep(Config.ActionDelayMs);
+                // Use async delay for console (non-blocking)
+                await Task.Delay(Config.ActionDelayMs);
             }
         }
         
@@ -102,7 +102,7 @@ namespace RPGGame
         /// Applies delay after individual messages within an action
         /// For GUI, delays are handled by the rendering system, so we skip blocking delays here
         /// </summary>
-        public static void DelayAfterMessage()
+        public static async Task DelayAfterMessageAsync()
         {
             LoadConfig();
             if (!ShouldApplyDelay()) return;
@@ -115,9 +115,27 @@ namespace RPGGame
             }
             else
             {
-                // Use full delay for console
-                Thread.Sleep(Config.MessageDelayMs);
+                // Use async delay for console (non-blocking)
+                await Task.Delay(Config.MessageDelayMs);
             }
+        }
+        
+        /// <summary>
+        /// Synchronous version for backwards compatibility
+        /// </summary>
+        [Obsolete("Use DelayAfterActionAsync instead")]
+        public static void DelayAfterAction()
+        {
+            DelayAfterActionAsync().GetAwaiter().GetResult();
+        }
+        
+        /// <summary>
+        /// Synchronous version for backwards compatibility
+        /// </summary>
+        [Obsolete("Use DelayAfterMessageAsync instead")]
+        public static void DelayAfterMessage()
+        {
+            DelayAfterMessageAsync().GetAwaiter().GetResult();
         }
         
         /// <summary>

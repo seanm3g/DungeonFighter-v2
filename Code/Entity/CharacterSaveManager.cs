@@ -60,7 +60,17 @@ namespace RPGGame
                 };
 
                 string json = JsonSerializer.Serialize(saveData, options);
-                File.WriteAllText(filename, json);
+                ErrorHandler.TryFileOperation(() =>
+                {
+                    File.WriteAllText(filename, json);
+                }, $"SaveCharacter({filename})", () =>
+                {
+                    // Only show error in console mode (not in custom UI mode)
+                    if (UIManager.GetCustomUIManager() == null)
+                    {
+                        UIManager.WriteLine($"Error saving character: Failed to write file");
+                    }
+                });
             }
             catch (Exception ex)
             {

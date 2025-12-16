@@ -11,10 +11,13 @@ namespace RPGGame
     {
         /// <summary>
         /// Clears the display buffer and prepares for a new test.
+        /// Re-enables display buffer rendering so test output can be displayed.
         /// </summary>
         /// <param name="canvasUI">The UI coordinator</param>
         public static void ClearAndPrepareForTest(CanvasUICoordinator canvasUI)
         {
+            // Re-enable display buffer rendering (it may have been suppressed by menu rendering)
+            canvasUI.RestoreDisplayBufferRendering();
             canvasUI.ClearDisplayBuffer();
         }
 

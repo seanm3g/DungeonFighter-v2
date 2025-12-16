@@ -7,15 +7,37 @@ namespace RPGGame.MCP
 {
     /// <summary>
     /// Serializes game state to JSON-serializable snapshots for MCP tools
+    /// Supports incremental snapshots for performance optimization
     /// </summary>
     public static class GameStateSerializer
     {
+        // Static tracker instance for incremental snapshots
+        private static IncrementalStateTracker? _stateTracker = null;
+        private const int MaxChangesBeforeFullSnapshot = 20; // Threshold for full snapshot
+
+        /// <summary>
+        /// Gets or creates the state tracker
+        /// </summary>
+        private static IncrementalStateTracker GetStateTracker()
+        {
+            if (_stateTracker == null)
+            {
+                _stateTracker = new IncrementalStateTracker();
+            }
+            return _stateTracker;
+        }
+
+        /// <summary>
+        /// Serializes game state with incremental snapshot support
+        /// </summary>
         public static GameStateSnapshot SerializeGameState(
             GameCoordinator game,
             OutputCapture? outputCapture = null,
-            bool includeRecentOutput = false)
+            bool includeRecentOutput = false,
+            bool useIncremental = true)
         {
-            var snapshot = new GameStateSnapshot
+            // Always create full snapshot first
+            var fullSnapshot = new GameStateSnapshot
             {
                 CurrentState = game.CurrentState.ToString(),
                 Player = game.CurrentPlayer != null ? SerializePlayer(game.CurrentPlayer) : null,
@@ -28,10 +50,57 @@ namespace RPGGame.MCP
             // Add combat state if in combat
             if (game.CurrentState == GameState.Combat && game.CurrentPlayer != null)
             {
-                snapshot.Combat = SerializeCombat(game);
+                fullSnapshot.Combat = SerializeCombat(game);
             }
 
-            return snapshot;
+            // Use incremental snapshot if enabled and tracker has changes
+            if (useIncremental)
+            {
+                var tracker = GetStateTracker();
+                
+                // If too many changes, create full snapshot
+                if (tracker.ChangeCount > MaxChangesBeforeFullSnapshot)
+                {
+                    return tracker.CreateFullSnapshot(fullSnapshot);
+                }
+                
+                // Otherwise use incremental
+                return tracker.CreateIncrementalSnapshot(fullSnapshot);
+            }
+
+            return fullSnapshot;
+        }
+
+        /// <summary>
+        /// Marks player health as changed (call before SerializeGameState for incremental updates)
+        /// </summary>
+        public static void MarkPlayerHealthChanged(int currentHealth, int maxHealth, double healthPercentage)
+        {
+            GetStateTracker().MarkPlayerHealthChanged(currentHealth, maxHealth, healthPercentage);
+        }
+
+        /// <summary>
+        /// Marks enemy health as changed (call before SerializeGameState for incremental updates)
+        /// </summary>
+        public static void MarkEnemyHealthChanged(int currentHealth, int maxHealth, double healthPercentage)
+        {
+            GetStateTracker().MarkEnemyHealthChanged(currentHealth, maxHealth, healthPercentage);
+        }
+
+        /// <summary>
+        /// Marks combo step as changed (call before SerializeGameState for incremental updates)
+        /// </summary>
+        public static void MarkComboStepChanged(int comboStep)
+        {
+            GetStateTracker().MarkComboStepChanged(comboStep);
+        }
+
+        /// <summary>
+        /// Resets the incremental tracker (call on major state changes like new game)
+        /// </summary>
+        public static void ResetIncrementalTracker()
+        {
+            _stateTracker?.Reset();
         }
 
         private static PlayerSnapshot SerializePlayer(Character player)

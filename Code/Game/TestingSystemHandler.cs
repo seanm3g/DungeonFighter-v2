@@ -17,6 +17,7 @@ namespace RPGGame
         private GameStateManager stateManager;
         private TestExecutionCoordinator? testCoordinator;
         private Dictionary<string, ITestCommand> commands;
+        private string? currentSubMenu = null; // null = main menu, "System" = system tests, "Item" = item tests
         
         // Delegates
         public delegate void OnShowMainMenu();
@@ -57,15 +58,25 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Show testing menu
+        /// Show testing menu (main menu or sub-menu)
         /// </summary>
-        public void ShowTestingMenu()
+        public void ShowTestingMenu(string? subMenu = null)
         {
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                canvasUI.RenderTestingMenu();
+                currentSubMenu = subMenu;
+                canvasUI.RenderTestingMenu(subMenu);
             }
             stateManager.TransitionToState(GameState.Testing);
+        }
+        
+        /// <summary>
+        /// Reset to main testing menu (called when entering from settings)
+        /// </summary>
+        public void ResetToMainMenu()
+        {
+            currentSubMenu = null;
+            ShowTestingMenu(null);
         }
 
         /// <summary>
@@ -81,21 +92,154 @@ namespace RPGGame
             {
                 // Clear the flag FIRST before showing menu
                 testCoordinator.WaitingForTestMenuReturn = false;
-                // Show the menu
-                ShowTestingMenu();
+                // Show the menu (return to current sub-menu or main menu)
+                ShowTestingMenu(currentSubMenu);
                 // Don't process this input as a menu selection - it was just to return to menu
                 return;
             }
 
-            // Find and execute the command
-            if (commands.TryGetValue(input, out var command))
+            // Handle sub-menu navigation
+            if (currentSubMenu == null)
             {
-                TestUICoordinator.ClearAndPrepareForTest(canvasUI);
-                await command.ExecuteAsync();
+                // Main menu
+                switch (input)
+                {
+                    case "1":
+                        // Run All Tests
+                        if (commands.TryGetValue("1", out var allTestsCommand))
+                        {
+                            TestUICoordinator.ClearAndPrepareForTest(canvasUI);
+                            await allTestsCommand.ExecuteAsync();
+                        }
+                        break;
+                    case "2":
+                        // System Tests sub-menu
+                        ShowTestingMenu("System");
+                        break;
+                    case "3":
+                        // Item Tests sub-menu
+                        ShowTestingMenu("Item");
+                        break;
+                    case "4":
+                        // Color System Tests (direct execution)
+                        if (commands.TryGetValue("11", out var colorCommand))
+                        {
+                            TestUICoordinator.ClearAndPrepareForTest(canvasUI);
+                            await colorCommand.ExecuteAsync();
+                        }
+                        break;
+                    case "0":
+                        // Back to Settings
+                        currentSubMenu = null;
+                        if (commands.TryGetValue("0", out var backCommand))
+                        {
+                            await backCommand.ExecuteAsync();
+                        }
+                        break;
+                    default:
+                        ShowMessageEvent?.Invoke("Invalid choice. Please select 1-4 or 0 to return.");
+                        break;
+                }
             }
-            else
+            else if (currentSubMenu == "System")
             {
-                ShowMessageEvent?.Invoke("Invalid choice. Please select 1-11 or 0 to return.");
+                // System Tests sub-menu
+                switch (input)
+                {
+                    case "1":
+                        // Character System Tests
+                        if (commands.TryGetValue("2", out var cmd))
+                        {
+                            TestUICoordinator.ClearAndPrepareForTest(canvasUI);
+                            await cmd.ExecuteAsync();
+                        }
+                        break;
+                    case "2":
+                        // Combat System Tests
+                        if (commands.TryGetValue("3", out cmd))
+                        {
+                            TestUICoordinator.ClearAndPrepareForTest(canvasUI);
+                            await cmd.ExecuteAsync();
+                        }
+                        break;
+                    case "3":
+                        // Inventory & Dungeon Tests
+                        if (commands.TryGetValue("4", out cmd))
+                        {
+                            TestUICoordinator.ClearAndPrepareForTest(canvasUI);
+                            await cmd.ExecuteAsync();
+                        }
+                        break;
+                    case "4":
+                        // Data & UI System Tests
+                        if (commands.TryGetValue("5", out cmd))
+                        {
+                            TestUICoordinator.ClearAndPrepareForTest(canvasUI);
+                            await cmd.ExecuteAsync();
+                        }
+                        break;
+                    case "5":
+                        // Advanced & Integration Tests
+                        if (commands.TryGetValue("6", out cmd))
+                        {
+                            TestUICoordinator.ClearAndPrepareForTest(canvasUI);
+                            await cmd.ExecuteAsync();
+                        }
+                        break;
+                    case "0":
+                        // Back to main test menu
+                        ShowTestingMenu(null);
+                        break;
+                    default:
+                        ShowMessageEvent?.Invoke("Invalid choice. Please select 1-5 or 0 to return.");
+                        break;
+                }
+            }
+            else if (currentSubMenu == "Item")
+            {
+                // Item Tests sub-menu
+                switch (input)
+                {
+                    case "1":
+                        // Generate 10 Random Items
+                        if (commands.TryGetValue("7", out var cmd))
+                        {
+                            TestUICoordinator.ClearAndPrepareForTest(canvasUI);
+                            await cmd.ExecuteAsync();
+                        }
+                        break;
+                    case "2":
+                        // Item Generation Analysis
+                        if (commands.TryGetValue("8", out cmd))
+                        {
+                            TestUICoordinator.ClearAndPrepareForTest(canvasUI);
+                            await cmd.ExecuteAsync();
+                        }
+                        break;
+                    case "3":
+                        // Tier Distribution Verification
+                        if (commands.TryGetValue("9", out cmd))
+                        {
+                            TestUICoordinator.ClearAndPrepareForTest(canvasUI);
+                            await cmd.ExecuteAsync();
+                        }
+                        break;
+                    case "4":
+                        // Common Item Modification Chance
+                        if (commands.TryGetValue("10", out cmd))
+                        {
+                            TestUICoordinator.ClearAndPrepareForTest(canvasUI);
+                            await cmd.ExecuteAsync();
+                        }
+                        break;
+                    case "0":
+                        // Back to main test menu
+                        ShowTestingMenu(null);
+                        break;
+                    default:
+                        ShowMessageEvent?.Invoke("Invalid choice. Please select 1-4 or 0 to return.");
+                        break;
+                }
             }
         }
 

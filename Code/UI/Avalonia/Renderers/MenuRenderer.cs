@@ -158,9 +158,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>
         /// Renders the testing menu screen using the 3-panel layout
         /// </summary>
-        public void RenderTestingMenu(int x, int y, int width, int height)
+        public void RenderTestingMenu(int x, int y, int width, int height, string? subMenu = null)
         {
-            currentLineCount = testingMenuRenderer.RenderTestingMenu(x, y, width, height);
+            currentLineCount = testingMenuRenderer.RenderTestingMenu(x, y, width, height, subMenu);
         }
         
         /// <summary>

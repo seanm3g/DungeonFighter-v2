@@ -246,7 +246,7 @@ namespace RPGGame
                     }
                     
                     // Add delay after player action
-                    CombatDelayManager.DelayAfterAction();
+                    await CombatDelayManager.DelayAfterActionAsync();
                 }
                 // Enemy acts
                 else if (nextEntity == currentEnemy && currentEnemy.IsAlive)
@@ -258,7 +258,7 @@ namespace RPGGame
                     }
                     
                     // Add delay after enemy action
-                    CombatDelayManager.DelayAfterAction();
+                    await CombatDelayManager.DelayAfterActionAsync();
                 }
                 // Environment acts
                 else if (nextEntity == room && room.IsHostile && room.ActionPool.Count > 0)
@@ -269,7 +269,7 @@ namespace RPGGame
                     }
                     
                     // Add delay after environmental action
-                    CombatDelayManager.DelayAfterAction();
+                    await CombatDelayManager.DelayAfterActionAsync();
                 }
                 else
                 {

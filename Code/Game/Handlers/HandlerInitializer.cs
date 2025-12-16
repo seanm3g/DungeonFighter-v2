@@ -102,7 +102,7 @@ namespace RPGGame.Handlers
             if (handlers.SettingsMenuHandler != null)
             {
                 handlers.SettingsMenuHandler.ShowMainMenuEvent += () => showMainMenu();
-                handlers.SettingsMenuHandler.ShowTestingMenuEvent += () => handlers.TestingSystemHandler?.ShowTestingMenu();
+                handlers.SettingsMenuHandler.ShowTestingMenuEvent += () => handlers.TestingSystemHandler?.ResetToMainMenu();
             }
             
             if (handlers.WeaponSelectionHandler != null)

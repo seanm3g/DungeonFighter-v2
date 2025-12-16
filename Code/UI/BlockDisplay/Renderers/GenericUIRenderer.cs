@@ -45,7 +45,8 @@ namespace RPGGame.UI.BlockDisplay.Renderers
                 // Apply delay after all lines are written (skip if combat UI is disabled)
                 if (!CombatManager.DisableCombatUIOutput && UIManager.EnableDelays)
                 {
-                    CombatDelayManager.DelayAfterMessage();
+                    // Fire and forget - don't block sync method
+                    _ = CombatDelayManager.DelayAfterMessageAsync();
                 }
             }
             catch (Exception ex)
@@ -55,10 +56,32 @@ namespace RPGGame.UI.BlockDisplay.Renderers
             }
         }
         
-        public Task RenderMessageGroupsAsync(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs)
+        public async Task RenderMessageGroupsAsync(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs)
         {
-            RenderMessageGroups(groups, delayMs);
-            return Task.CompletedTask;
+            if (groups != null)
+            {
+                foreach (var (segments, messageType) in groups)
+                {
+                    if (segments != null)
+                    {
+                        if (segments.Count == 0)
+                        {
+                            // Empty segments are treated as blank lines
+                            uiManager.WriteBlankLine();
+                        }
+                        else
+                        {
+                            uiManager.WriteColoredSegments(segments, messageType);
+                        }
+                    }
+                }
+            }
+            
+            // Apply delay after all lines are written (skip if combat UI is disabled)
+            if (!CombatManager.DisableCombatUIOutput && UIManager.EnableDelays)
+            {
+                await CombatDelayManager.DelayAfterMessageAsync();
+            }
         }
     }
 }

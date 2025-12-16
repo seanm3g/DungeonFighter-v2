@@ -17,26 +17,30 @@ namespace RPGGame
 
         /// <summary>
         /// Safely writes JSON data to a file with backup creation
+        /// Uses ErrorHandler for comprehensive error handling
         /// </summary>
         public static void SafeWriteJsonFile(string filePath, object data, bool createBackup = true)
         {
-            // Create backup if file exists and backup is requested
-            if (File.Exists(filePath) && createBackup)
+            ErrorHandler.TryExecute(() =>
             {
-                string backupPath = filePath + ".backup";
-                File.Copy(filePath, backupPath, true);
-            }
+                // Create backup if file exists and backup is requested
+                if (File.Exists(filePath) && createBackup)
+                {
+                    string backupPath = filePath + ".backup";
+                    File.Copy(filePath, backupPath, true);
+                }
 
-            // Ensure directory exists
-            string? directory = Path.GetDirectoryName(filePath);
-            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
+                // Ensure directory exists
+                string? directory = Path.GetDirectoryName(filePath);
+                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
 
-            // Write the file
-            string json = JsonSerializer.Serialize(data, _jsonOptions);
-            File.WriteAllText(filePath, json);
+                // Write the file
+                string json = JsonSerializer.Serialize(data, _jsonOptions);
+                File.WriteAllText(filePath, json);
+            }, $"SafeWriteJsonFile({filePath})");
         }
 
         /// <summary>
@@ -92,16 +96,20 @@ namespace RPGGame
 
         /// <summary>
         /// Creates a backup of a file if it exists
+        /// Uses ErrorHandler for comprehensive error handling
         /// </summary>
         public static bool CreateBackup(string filePath)
         {
-            if (File.Exists(filePath))
+            return ErrorHandler.TryExecute<bool>(() =>
             {
-                string backupPath = filePath + ".backup";
-                File.Copy(filePath, backupPath, true);
-                return true;
-            }
-            return false;
+                if (File.Exists(filePath))
+                {
+                    string backupPath = filePath + ".backup";
+                    File.Copy(filePath, backupPath, true);
+                    return true;
+                }
+                return false;
+            }, $"CreateBackup({filePath})", false);
         }
     }
 }

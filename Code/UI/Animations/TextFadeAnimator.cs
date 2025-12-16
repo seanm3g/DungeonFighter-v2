@@ -79,11 +79,12 @@ namespace RPGGame.UI.Animations
         }
         
         /// <summary>
-        /// Synchronous version for backwards compatibility
+        /// Synchronous version for backwards compatibility (fire-and-forget)
         /// </summary>
         public static void FadeOut(string text, FadeConfig? config = null)
         {
-            Task.Run(async () => await FadeOutAsync(text, config)).Wait();
+            // Fire and forget - don't block the calling thread
+            _ = FadeOutAsync(text, config);
         }
 
         /// <summary>
@@ -308,11 +309,12 @@ namespace RPGGame.UI.Animations
         }
         
         /// <summary>
-        /// Synchronous version for backwards compatibility
+        /// Synchronous version for backwards compatibility (fire-and-forget)
         /// </summary>
         private static void DisplayFadeAnimation(List<string> frames, FadeConfig config)
         {
-            Task.Run(async () => await DisplayFadeAnimationAsync(frames, config)).Wait();
+            // Fire and forget - don't block the calling thread
+            _ = DisplayFadeAnimationAsync(frames, config);
         }
 
         /// <summary>
@@ -369,7 +371,8 @@ namespace RPGGame.UI.Animations
                 frames.Add(frameText);
             }
             
-            Task.Run(async () => await DisplayFadeAnimationAsync(frames, config)).Wait();
+            // Fire and forget - don't block the calling thread
+            _ = DisplayFadeAnimationAsync(frames, config);
         }
     }
 }

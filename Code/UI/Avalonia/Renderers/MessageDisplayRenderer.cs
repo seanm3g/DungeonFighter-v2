@@ -72,9 +72,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
         
         /// <summary>
-        /// Shows a loading animation with dots
+        /// Shows a loading animation with dots (async version)
         /// </summary>
-        public void ShowLoadingAnimation(string message = "Loading...")
+        public async Task ShowLoadingAnimationAsync(string message = "Loading...")
         {
             canvas.Clear();
             
@@ -87,8 +87,16 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 canvas.AddCenteredText(20, dots.Substring(0, i + 1), AsciiArtAssets.Colors.Yellow);
                 canvas.Refresh();
-                Thread.Sleep(200);
+                await System.Threading.Tasks.Task.Delay(200);
             }
+        }
+        
+        /// <summary>
+        /// Shows a loading animation with dots (synchronous version for backwards compatibility)
+        /// </summary>
+        public void ShowLoadingAnimation(string message = "Loading...")
+        {
+            ShowLoadingAnimationAsync(message).GetAwaiter().GetResult();
         }
         
         /// <summary>

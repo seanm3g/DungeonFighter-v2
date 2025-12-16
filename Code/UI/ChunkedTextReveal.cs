@@ -123,11 +123,12 @@ namespace RPGGame.UI
         }
         
         /// <summary>
-        /// Synchronous version for backwards compatibility
+        /// Synchronous version for backwards compatibility (fire-and-forget)
         /// </summary>
         public static void RevealText(string text, RevealConfig? config = null)
         {
-            Task.Run(async () => await RevealTextAsync(text, config)).Wait();
+            // Fire and forget - don't block the calling thread
+            _ = RevealTextAsync(text, config);
         }
         
         /// <summary>
@@ -171,7 +172,8 @@ namespace RPGGame.UI
         
         public static void RevealBySentences(string text)
         {
-            RevealText(text, new RevealConfig { Strategy = ChunkStrategy.Sentence });
+            // Fire and forget
+            _ = RevealBySentencesAsync(text);
         }
         
         /// <summary>
@@ -184,7 +186,8 @@ namespace RPGGame.UI
         
         public static void RevealByParagraphs(string text)
         {
-            RevealText(text, new RevealConfig { Strategy = ChunkStrategy.Paragraph });
+            // Fire and forget
+            _ = RevealByParagraphsAsync(text);
         }
         
         /// <summary>
@@ -197,7 +200,8 @@ namespace RPGGame.UI
         
         public static void RevealByLines(string text)
         {
-            RevealText(text, new RevealConfig { Strategy = ChunkStrategy.Line });
+            // Fire and forget
+            _ = RevealByLinesAsync(text);
         }
         
         /// <summary>
@@ -210,7 +214,8 @@ namespace RPGGame.UI
         
         public static void RevealBySemantic(string text)
         {
-            RevealText(text, new RevealConfig { Strategy = ChunkStrategy.Semantic });
+            // Fire and forget
+            _ = RevealBySemanticAsync(text);
         }
         
         /// <summary>
@@ -231,14 +236,8 @@ namespace RPGGame.UI
         
         public static void RevealDungeonText(string text)
         {
-            RevealText(text, new RevealConfig 
-            { 
-                Strategy = ChunkStrategy.Semantic,
-                BaseDelayPerCharMs = 25,
-                MinDelayMs = 800,
-                MaxDelayMs = 3000,
-                AddBlankLineBetweenChunks = false
-            });
+            // Fire and forget
+            _ = RevealDungeonTextAsync(text);
         }
         
         /// <summary>
@@ -259,14 +258,8 @@ namespace RPGGame.UI
         
         public static void RevealCombatText(string text)
         {
-            RevealText(text, new RevealConfig 
-            { 
-                Strategy = ChunkStrategy.Sentence,
-                BaseDelayPerCharMs = 20,
-                MinDelayMs = 500,
-                MaxDelayMs = 2000,
-                AddBlankLineBetweenChunks = false
-            });
+            // Fire and forget
+            _ = RevealCombatTextAsync(text);
         }
     }
 }

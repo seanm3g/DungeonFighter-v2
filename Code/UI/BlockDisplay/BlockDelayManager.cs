@@ -18,8 +18,8 @@ namespace RPGGame.UI.BlockDisplay
             
             if (!UIManager.EnableDelays) return;
             
-            // Use centralized delay system for individual messages
-            CombatDelayManager.DelayAfterMessage();
+            // Use centralized delay system for individual messages (fire and forget)
+            _ = CombatDelayManager.DelayAfterMessageAsync();
         }
         
         /// <summary>

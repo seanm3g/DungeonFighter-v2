@@ -146,14 +146,14 @@ namespace RPGGame.Utils
         }
         
         /// <summary>
-        /// Executes an action with retry logic
+        /// Executes an action with retry logic (async version)
         /// </summary>
         /// <param name="action">The action to execute</param>
         /// <param name="maxRetries">Maximum number of retry attempts</param>
         /// <param name="retryDelayMs">Delay between retries in milliseconds</param>
         /// <param name="context">Context for error reporting</param>
         /// <returns>True if the action succeeded within retry limit, false otherwise</returns>
-        public static bool TryExecuteWithRetry(System.Action action, int maxRetries = 3, int retryDelayMs = 1000, string context = "")
+        public static async Task<bool> TryExecuteWithRetryAsync(System.Action action, int maxRetries = 3, int retryDelayMs = 1000, string context = "")
         {
             for (int attempt = 0; attempt <= maxRetries; attempt++)
             {
@@ -174,12 +174,25 @@ namespace RPGGame.Utils
                     
                     if (retryDelayMs > 0)
                     {
-                        System.Threading.Thread.Sleep(retryDelayMs);
+                        await System.Threading.Tasks.Task.Delay(retryDelayMs);
                     }
                 }
             }
             
             return false;
+        }
+        
+        /// <summary>
+        /// Executes an action with retry logic (synchronous version for backwards compatibility)
+        /// </summary>
+        /// <param name="action">The action to execute</param>
+        /// <param name="maxRetries">Maximum number of retry attempts</param>
+        /// <param name="retryDelayMs">Delay between retries in milliseconds</param>
+        /// <param name="context">Context for error reporting</param>
+        /// <returns>True if the action succeeded within retry limit, false otherwise</returns>
+        public static bool TryExecuteWithRetry(System.Action action, int maxRetries = 3, int retryDelayMs = 1000, string context = "")
+        {
+            return TryExecuteWithRetryAsync(action, maxRetries, retryDelayMs, context).GetAwaiter().GetResult();
         }
         
         /// <summary>

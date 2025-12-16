@@ -180,7 +180,7 @@ namespace RPGGame.UI.Avalonia
         public void RenderCharacterCreation(Character character) 
             => screenRenderingCoordinator.RenderCharacterCreation(character);
         public void RenderSettings() => screenRenderingCoordinator.RenderSettings();
-        public void RenderTestingMenu() => screenRenderingCoordinator.RenderTestingMenu();
+        public void RenderTestingMenu(string? subMenu = null) => screenRenderingCoordinator.RenderTestingMenu(subMenu);
         public void RenderDeveloperMenu() => screenRenderingCoordinator.RenderDeveloperMenu();
         public void RenderBattleStatisticsMenu(BattleStatisticsRunner.StatisticsResult? results, bool isRunning) => 
             screenRenderingCoordinator.RenderBattleStatisticsMenu(results, isRunning);

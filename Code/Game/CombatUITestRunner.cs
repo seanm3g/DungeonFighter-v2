@@ -152,20 +152,20 @@ namespace RPGGame
         /// Test 2: Combat Freezing Prevention
         /// Verifies that combat delays are reduced for GUI to prevent freezing
         /// </summary>
-        private Task<TestResult> TestCombatFreezingPrevention()
+        private async Task<TestResult> TestCombatFreezingPrevention()
         {
             try
             {
                 var stopwatch = Stopwatch.StartNew();
                 
                 // Test action delay
-                CombatDelayManager.DelayAfterAction();
+                await CombatDelayManager.DelayAfterActionAsync();
                 var actionDelay = stopwatch.ElapsedMilliseconds;
                 
                 stopwatch.Restart();
                 
                 // Test message delay
-                CombatDelayManager.DelayAfterMessage();
+                await CombatDelayManager.DelayAfterMessageAsync();
                 var messageDelay = stopwatch.ElapsedMilliseconds;
                 
                 stopwatch.Stop();
@@ -175,17 +175,17 @@ namespace RPGGame
                 // For GUI mode, delays should be minimal (under 200ms total)
                 if (totalDelay > 200)
                 {
-                    return Task.FromResult(new TestResult("Combat Freezing Prevention", false, 
-                        $"Total delay too high: {totalDelay}ms (expected < 200ms)"));
+                    return new TestResult("Combat Freezing Prevention", false, 
+                        $"Total delay too high: {totalDelay}ms (expected < 200ms)");
                 }
                 
-                return Task.FromResult(new TestResult("Combat Freezing Prevention", true, 
-                    $"Delays are optimized: Action={actionDelay}ms, Message={messageDelay}ms, Total={totalDelay}ms"));
+                return new TestResult("Combat Freezing Prevention", true, 
+                    $"Delays are optimized: Action={actionDelay}ms, Message={messageDelay}ms, Total={totalDelay}ms");
             }
             catch (Exception ex)
             {
-                return Task.FromResult(new TestResult("Combat Freezing Prevention", false, 
-                    $"Exception during test: {ex.Message}"));
+                return new TestResult("Combat Freezing Prevention", false, 
+                    $"Exception during test: {ex.Message}");
             }
         }
 
@@ -233,7 +233,7 @@ namespace RPGGame
         /// Test 4: Integration Test
         /// Verifies that all fixes work together correctly
         /// </summary>
-        private Task<TestResult> TestIntegration()
+        private async Task<TestResult> TestIntegration()
         {
             try
             {
@@ -256,7 +256,7 @@ namespace RPGGame
                 
                 // Test delay optimization
                 var stopwatch = Stopwatch.StartNew();
-                CombatDelayManager.DelayAfterAction();
+                await CombatDelayManager.DelayAfterActionAsync();
                 var delay = stopwatch.ElapsedMilliseconds;
                 
                 // Test cleanup
@@ -265,17 +265,17 @@ namespace RPGGame
                 
                 if (delay > 200 || finalCount != 0)
                 {
-                    return Task.FromResult(new TestResult("Integration Test", false, 
-                        $"Integration issues: Delay={delay}ms, BufferCount={finalCount}"));
+                    return new TestResult("Integration Test", false, 
+                        $"Integration issues: Delay={delay}ms, BufferCount={finalCount}");
                 }
                 
-                return Task.FromResult(new TestResult("Integration Test", true, 
-                    "All combat UI fixes working together correctly"));
+                return new TestResult("Integration Test", true, 
+                    "All combat UI fixes working together correctly");
             }
             catch (Exception ex)
             {
-                return Task.FromResult(new TestResult("Integration Test", false, 
-                    $"Exception during integration test: {ex.Message}"));
+                return new TestResult("Integration Test", false, 
+                    $"Exception during integration test: {ex.Message}");
             }
         }
 
