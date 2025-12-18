@@ -262,14 +262,14 @@ namespace RPGGame
                         
                         // Apply health multiplier if configured
                         var settings = GameSettings.Instance;
-                        if (settings.PlayerHealthMultiplier != 1.0)
+                        if (settings.PlayerHealthMultiplier != 1.0 && stateManager.CurrentPlayer != null)
                         {
                             stateManager.CurrentPlayer.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
                         }
                         
                         // Inventory is loaded from stateManager.CurrentPlayer.Inventory
                         
-                        ShowMessageEvent?.Invoke($"Welcome back, {stateManager.CurrentPlayer.Name}!");
+                        ShowMessageEvent?.Invoke($"Welcome back, {stateManager.CurrentPlayer?.Name ?? "Player"}!");
                         
                         // Go to game loop
                         stateManager.TransitionToState(GameState.GameLoop);

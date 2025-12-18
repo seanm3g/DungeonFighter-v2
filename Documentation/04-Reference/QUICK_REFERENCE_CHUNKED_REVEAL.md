@@ -8,15 +8,19 @@
 // Sentence-based (default)
 ChunkedTextReveal.RevealBySentences(text);
 
-// Dungeon text (optimized)
+// Dungeon text (optimized - loads from TextDelayConfig.json)
 UIManager.WriteDungeonChunked(text);
 
-// Room description (optimized)
+// Room description (optimized - loads from TextDelayConfig.json)
 UIManager.WriteRoomChunked(text);
 
 // Custom configuration
 UIManager.WriteChunked(text, new RevealConfig { /* ... */ });
 ```
+
+### Configuration
+
+All delay settings are configurable via `GameData/TextDelayConfig.json`. The presets (Combat, Dungeon, Room, Narrative) are automatically loaded from this file.
 
 ### Chunking Strategies
 

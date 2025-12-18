@@ -46,24 +46,12 @@ namespace RPGGame
             // Display the menu
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                // Add blank line for spacing
-                displayManager.AddCombatEvent("");
-                
-                // Separator line with color
-                var separatorBuilder = new ColoredTextBuilder()
-                    .Add("─────────────────────────────────────", ColorPalette.Info);
-                canvasUI.WriteLineColoredSegments(separatorBuilder.Build(), UIMessageType.System);
-                displayManager.AddCombatEvent("─────────────────────────────────────");
-                
                 // Halfway point message with color
                 var halfwayBuilder = new ColoredTextBuilder()
                     .Add("You have reached the ", ColorPalette.White)
                     .Add("halfway point", ColorPalette.Gold)
                     .Add($" (Room {currentRoom} of {totalRooms})", ColorPalette.White);
                 canvasUI.WriteLineColoredSegments(halfwayBuilder.Build(), UIMessageType.System);
-                displayManager.AddCombatEvent($"You have reached the halfway point (Room {currentRoom} of {totalRooms})");
-                
-                displayManager.AddCombatEvent("");
                 
                 // Warning message with color
                 var warningBuilder = new ColoredTextBuilder()
@@ -71,15 +59,11 @@ namespace RPGGame
                     .Add("no rewards", ColorPalette.Warning)
                     .Add(".", ColorPalette.White);
                 canvasUI.WriteLineColoredSegments(warningBuilder.Build(), UIMessageType.System);
-                displayManager.AddCombatEvent("You may leave the dungeon safely, but you will receive no rewards.");
-                
-                displayManager.AddCombatEvent("");
                 
                 // Question with color
                 var questionBuilder = new ColoredTextBuilder()
                     .Add("What would you like to do?", ColorPalette.Info);
                 canvasUI.WriteLineColoredSegments(questionBuilder.Build(), UIMessageType.System);
-                displayManager.AddCombatEvent("What would you like to do?");
                 
                 // Option 1 with color
                 var option1Builder = new ColoredTextBuilder()
@@ -87,7 +71,6 @@ namespace RPGGame
                     .Add("1", ColorPalette.Success)
                     .Add(" - Continue exploring", ColorPalette.White);
                 canvasUI.WriteLineColoredSegments(option1Builder.Build(), UIMessageType.System);
-                displayManager.AddCombatEvent("  1 - Continue exploring");
                 
                 // Option 2 with color
                 var option2Builder = new ColoredTextBuilder()
@@ -95,15 +78,11 @@ namespace RPGGame
                     .Add("2", ColorPalette.Warning)
                     .Add(" - Leave dungeon safely (no rewards)", ColorPalette.White);
                 canvasUI.WriteLineColoredSegments(option2Builder.Build(), UIMessageType.System);
-                displayManager.AddCombatEvent("  2 - Leave dungeon safely (no rewards)");
                 
-                displayManager.AddCombatEvent("");
-                
-                // Bottom separator line with color
+                // Bottom separator line with color (same length as top separator)
                 var bottomSeparatorBuilder = new ColoredTextBuilder()
-                    .Add("─────────────────────────────────────", ColorPalette.Info);
+                    .Add(AsciiArtAssets.UIText.Divider, ColorPalette.Info);
                 canvasUI.WriteLineColoredSegments(bottomSeparatorBuilder.Build(), UIMessageType.System);
-                displayManager.AddCombatEvent("─────────────────────────────────────");
                 
                 // Render the menu
                 if (stateManager.CurrentPlayer != null && stateManager.CurrentRoom != null)

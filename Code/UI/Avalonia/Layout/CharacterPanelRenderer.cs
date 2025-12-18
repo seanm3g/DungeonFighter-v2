@@ -123,8 +123,8 @@ namespace RPGGame.UI.Avalonia.Layout
                     string indicator = isNext ? "→" : " ";
                     string actionName = action.Name;
                     
-                    // Truncate long action names to fit in the panel
-                    const int maxActionNameLength = 18;
+                    // Truncate long action names to fit in the panel (accounts for padding: panel width - left padding - right border - arrow space)
+                    const int maxActionNameLength = 32; // Increased from 18 to match expanded panel width
                     if (actionName.Length > maxActionNameLength)
                     {
                         actionName = actionName.Substring(0, maxActionNameLength - 3) + "...";
@@ -165,8 +165,9 @@ namespace RPGGame.UI.Avalonia.Layout
                 // Get colored item name segments
                 var itemNameSegments = ItemDisplayColoredText.FormatFullItemName(item);
                 
-                // Wrap text if it's too long (max width of 17 characters)
-                const int maxWidth = 17;
+                // Wrap text if it's too long (max width accounts for padding: panel width - left padding - right border)
+                // Panel width is 38, left padding is 2, right border is 1, so available width is ~35
+                const int maxWidth = 32; // Increased from 17 to utilize more of the expanded panel width
                 var wrappedLines = textWriter.WrapColoredSegments(itemNameSegments, maxWidth);
                 
                 // Render each wrapped line with proper colors

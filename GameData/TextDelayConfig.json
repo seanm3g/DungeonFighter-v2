@@ -1,0 +1,58 @@
+{
+  "MessageTypeDelays": {
+    "Combat": 100,
+    "System": 100,
+    "Menu": 25,
+    "Title": 400,
+    "MainTitle": 400,
+    "Environmental": 150,
+    "EffectMessage": 50,
+    "DamageOverTime": 50,
+    "Encounter": 67,
+    "RollInfo": 5
+  },
+  "ChunkedTextReveal": {
+    "Combat": {
+      "BaseDelayPerCharMs": 20,
+      "MinDelayMs": 500,
+      "MaxDelayMs": 2000,
+      "Strategy": "Line"
+    },
+    "Dungeon": {
+      "BaseDelayPerCharMs": 25,
+      "MinDelayMs": 800,
+      "MaxDelayMs": 3000,
+      "Strategy": "Semantic"
+    },
+    "Room": {
+      "BaseDelayPerCharMs": 30,
+      "MinDelayMs": 1000,
+      "MaxDelayMs": 3000,
+      "Strategy": "Sentence"
+    },
+    "Narrative": {
+      "BaseDelayPerCharMs": 25,
+      "MinDelayMs": 400,
+      "MaxDelayMs": 2000,
+      "Strategy": "Sentence"
+    },
+    "Default": {
+      "BaseDelayPerCharMs": 30,
+      "MinDelayMs": 500,
+      "MaxDelayMs": 4000,
+      "Strategy": "Sentence"
+    }
+  },
+  "CombatDelays": {
+    "ActionDelayMs": 1000,
+    "MessageDelayMs": 200
+  },
+  "ProgressiveMenuDelays": {
+    "BaseMenuDelay": 25,
+    "ProgressiveReductionRate": 1,
+    "ProgressiveThreshold": 20
+  },
+  "EnableGuiDelays": true,
+  "EnableConsoleDelays": true
+}
+

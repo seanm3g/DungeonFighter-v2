@@ -170,6 +170,7 @@ namespace RPGGame
             
             builder.AddSpace(); // Explicit space between action name and "on"
             builder.Add("on", Colors.White);
+            builder.AddSpace(); // Explicit space between "on" and target name
             
             // Target name
             builder.Add(target.Name, target is Enemy ? ColorPalette.Enemy : ColorPalette.Player);

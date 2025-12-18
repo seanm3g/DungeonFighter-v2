@@ -166,11 +166,9 @@ namespace RPGGame.MCP
             // Disable combat UI output (which also disables combat delays)
             CombatManager.DisableCombatUIOutput = true;
             
-            // Disable combat delay manager delays
-            CombatDelayManager.UpdateConfig(
-                enableGuiDelays: false,
-                enableConsoleDelays: false
-            );
+            // Note: Combat delays are automatically disabled by DisableCombatUIOutput
+            // and UIManager.EnableDelays = false above. The old UpdateConfig method
+            // is obsolete and configuration should be managed via TextDelayConfig.json
             
             // Disable text display delays in game settings
             var settings = GameSettings.Instance;

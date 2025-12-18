@@ -12,7 +12,6 @@ namespace RPGGame.Game
     /// </summary>
     public class AutomatedGameplaySession
     {
-        private readonly GameCoordinator? _game;
         private readonly OutputCapture _outputCapture;
         private int _turnCount = 0;
         private int _dungeonCompletionCount = 0;

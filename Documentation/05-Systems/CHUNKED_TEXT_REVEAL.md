@@ -220,6 +220,15 @@ Enemy Stats - Health: 69/69, Armor: 1
 
 ## Configuration Reference
 
+### Unified Delay Configuration
+
+All delay settings are now configurable via `GameData/TextDelayConfig.json`. The system includes presets for:
+- **Combat**: Fast-paced combat text (Line strategy, 20ms/char)
+- **Dungeon**: Dungeon exploration text (Semantic strategy, 25ms/char)
+- **Room**: Room descriptions (Sentence strategy, 30ms/char)
+- **Narrative**: Story and narrative text (Sentence strategy, 25ms/char)
+- **Default**: Fallback configuration (Sentence strategy, 30ms/char)
+
 ### RevealConfig Properties
 
 | Property | Type | Default | Description |
@@ -232,6 +241,8 @@ Enemy Stats - Health: 69/69, Armor: 1
 | `Enabled` | `bool` | `true` | Enable/disable chunked reveal |
 
 ### Recommended Settings
+
+To customize delays, edit `GameData/TextDelayConfig.json`:
 
 #### Fast-Paced Action (Combat)
 ```csharp

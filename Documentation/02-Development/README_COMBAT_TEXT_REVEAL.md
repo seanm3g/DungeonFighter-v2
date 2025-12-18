@@ -137,51 +137,64 @@ CombatTurnHandler
 
 ## Configuration
 
+### Unified Delay Configuration System
+
+All text delays are now configurable via `GameData/TextDelayConfig.json`. This includes:
+- Message type delays (Combat, System, Menu, Title, etc.)
+- Chunked text reveal presets (Combat, Dungeon, Room, Narrative)
+- Combat action delays
+- Progressive menu delays
+
 ### Default Settings (Optimized for Combat)
 
-All timing is pre-optimized for good readability during combat. Current settings are:
+All timing is pre-optimized for good readability during combat. Current settings in `TextDelayConfig.json`:
 
-```csharp
-// Combat Actions
-Strategy = Line        // Split by \n
-BaseDelay = 20ms       // Quick reveal
-MinDelay = 300ms       // Fast
-MaxDelay = 1500ms      // Not too slow
-
-// Narratives
-Strategy = Sentence    // Split by . ! ?
-BaseDelay = 25ms       // Slightly slower for drama
-MinDelay = 400ms
-MaxDelay = 2000ms
-
-// Environmental
-Strategy = Line
-BaseDelay = 22ms
-MinDelay = 350ms
-MaxDelay = 1500ms
+```json
+{
+  "ChunkedTextReveal": {
+    "Combat": {
+      "BaseDelayPerCharMs": 20,
+      "MinDelayMs": 500,
+      "MaxDelayMs": 2000,
+      "Strategy": "Line"
+    },
+    "Narrative": {
+      "BaseDelayPerCharMs": 25,
+      "MinDelayMs": 400,
+      "MaxDelayMs": 2000,
+      "Strategy": "Sentence"
+    }
+  }
+}
 ```
 
-### Custom Configuration (If Needed)
+### Custom Configuration
 
-To customize the timing, edit `Code/UI/BlockDisplayManager.cs`:
+To customize delays, edit `GameData/TextDelayConfig.json`:
+
+```json
+{
+  "ChunkedTextReveal": {
+    "Combat": {
+      "BaseDelayPerCharMs": 15,  // Faster
+      "MinDelayMs": 200,
+      "MaxDelayMs": 1000,
+      "Strategy": "Line"
+    }
+  }
+}
+```
+
+For programmatic customization, you can still pass custom `RevealConfig`:
 
 ```csharp
-// For faster combat
+// Custom configuration in code
 UIManager.WriteChunked(text, new ChunkedTextReveal.RevealConfig
 {
     Strategy = ChunkedTextReveal.ChunkStrategy.Line,
-    BaseDelayPerCharMs = 15,  // Faster
+    BaseDelayPerCharMs = 15,
     MinDelayMs = 200,
     MaxDelayMs = 1000
-});
-
-// For slower, more dramatic display
-UIManager.WriteChunked(text, new ChunkedTextReveal.RevealConfig
-{
-    Strategy = ChunkedTextReveal.ChunkStrategy.Line,
-    BaseDelayPerCharMs = 30,  // Slower
-    MinDelayMs = 500,
-    MaxDelayMs = 2500
 });
 
 // To disable (instant display)

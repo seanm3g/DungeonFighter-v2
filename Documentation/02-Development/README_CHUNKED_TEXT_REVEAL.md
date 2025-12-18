@@ -136,17 +136,28 @@ The chunked reveal is automatically used for:
 
 ## Customization
 
-Want different timing? Edit these values in the code:
+Want different timing? Edit `GameData/TextDelayConfig.json`:
 
-**Location**: `Code/UI/ChunkedTextReveal.cs`
-
-```csharp
-public int BaseDelayPerCharMs { get; set; } = 30;  // Change this
-public int MinDelayMs { get; set; } = 500;         // And this
-public int MaxDelayMs { get; set; } = 4000;        // And this
+```json
+{
+  "ChunkedTextReveal": {
+    "Combat": {
+      "BaseDelayPerCharMs": 20,
+      "MinDelayMs": 500,
+      "MaxDelayMs": 2000,
+      "Strategy": "Line"
+    },
+    "Dungeon": {
+      "BaseDelayPerCharMs": 25,
+      "MinDelayMs": 800,
+      "MaxDelayMs": 3000,
+      "Strategy": "Semantic"
+    }
+  }
+}
 ```
 
-**Or** use the configuration in your game settings:
+**Or** use programmatic configuration:
 
 ```csharp
 ChunkedTextReveal.DefaultConfig = new RevealConfig

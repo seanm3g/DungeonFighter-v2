@@ -1,4 +1,5 @@
 using System;
+using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
 using static RPGGame.UI.Avalonia.AsciiArtAssets;
 
@@ -19,6 +20,9 @@ namespace RPGGame
         {
             if (!CombatManager.DisableCombatUIOutput)
             {
+                // Add blank line before stun message to separate it from status effect application message
+                UIManager.WriteBlankLine();
+                
                 // Use the new block-based system for stun messages with ColoredText
                 // Build properly colored stun message with actor name and stunned template
                 var builder = new ColoredTextBuilder();

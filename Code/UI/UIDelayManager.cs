@@ -1,28 +1,17 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using RPGGame.Config;
 
 namespace RPGGame.UI
 {
     /// <summary>
     /// Manages all UI timing and delay logic
     /// Handles message-type-specific delays and progressive menu delays
-    /// Uses default values instead of loading from configuration file
+    /// Loads delay values from TextDelayConfig.json
     /// </summary>
     public class UIDelayManager
     {
-        // Default delay values (in milliseconds)
-        private const int DefaultCombatDelay = 100;
-        private const int DefaultSystemDelay = 100;
-        private const int DefaultMenuDelay = 25;
-        private const int DefaultTitleDelay = 400;
-        private const int DefaultMainTitleDelay = 400;
-        private const int DefaultEnvironmentalDelay = 150;
-        private const int DefaultEffectMessageDelay = 50;
-        private const int DefaultDamageOverTimeDelay = 50;
-        private const int DefaultEncounterDelay = 67;
-        private const int DefaultRollInfoDelay = 5;
-
         // Progressive delay system for menu lines
         private int _consecutiveMenuLines = 0;
         private int _baseMenuDelay = 0;
@@ -69,20 +58,7 @@ namespace RPGGame.UI
         /// </summary>
         private int GetDelayForMessageType(UIMessageType messageType)
         {
-            return messageType switch
-            {
-                UIMessageType.Combat => DefaultCombatDelay,
-                UIMessageType.System => DefaultSystemDelay,
-                UIMessageType.Menu => DefaultMenuDelay,
-                UIMessageType.Title => DefaultTitleDelay,
-                UIMessageType.MainTitle => DefaultMainTitleDelay,
-                UIMessageType.Environmental => DefaultEnvironmentalDelay,
-                UIMessageType.EffectMessage => DefaultEffectMessageDelay,
-                UIMessageType.DamageOverTime => DefaultDamageOverTimeDelay,
-                UIMessageType.Encounter => DefaultEncounterDelay,
-                UIMessageType.RollInfo => DefaultRollInfoDelay,
-                _ => 0
-            };
+            return TextDelayConfiguration.GetMessageTypeDelay(messageType);
         }
 
         /// <summary>
@@ -97,25 +73,28 @@ namespace RPGGame.UI
                 return;
             }
 
+            // Get progressive menu delay configuration
+            var progressiveConfig = TextDelayConfiguration.GetProgressiveMenuDelays();
+
             // Store base delay on first menu line
             if (_consecutiveMenuLines == 0)
             {
-                _baseMenuDelay = DefaultMenuDelay;
+                _baseMenuDelay = progressiveConfig.BaseMenuDelay;
             }
 
             int progressiveDelay;
 
-            if (_consecutiveMenuLines < 20)
+            if (_consecutiveMenuLines < progressiveConfig.ProgressiveThreshold)
             {
-                // First 20 lines: normal progressive reduction (base delay minus 1ms per line)
-                progressiveDelay = Math.Max(0, _baseMenuDelay - _consecutiveMenuLines);
+                // First N lines: normal progressive reduction (base delay minus reduction rate per line)
+                progressiveDelay = Math.Max(0, _baseMenuDelay - (_consecutiveMenuLines * progressiveConfig.ProgressiveReductionRate));
             }
             else
             {
-                // After 20 lines: slowly ramp down by 1ms each line
-                // Start from the delay at line 20, then reduce by 1ms each subsequent line
-                int delayAtLine20 = Math.Max(0, _baseMenuDelay - 19); // Delay at line 20 (0-indexed, so line 20 is index 19)
-                progressiveDelay = Math.Max(0, delayAtLine20 - (_consecutiveMenuLines - 20));
+                // After threshold: slowly ramp down by reduction rate each line
+                // Start from the delay at threshold, then reduce by reduction rate each subsequent line
+                int delayAtThreshold = Math.Max(0, _baseMenuDelay - ((progressiveConfig.ProgressiveThreshold - 1) * progressiveConfig.ProgressiveReductionRate));
+                progressiveDelay = Math.Max(0, delayAtThreshold - ((_consecutiveMenuLines - progressiveConfig.ProgressiveThreshold) * progressiveConfig.ProgressiveReductionRate));
             }
 
             // Apply the delay

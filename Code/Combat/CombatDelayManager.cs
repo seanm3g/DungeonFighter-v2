@@ -1,79 +1,42 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Text.Json;
+using RPGGame.Config;
 
 namespace RPGGame
 {
     /// <summary>
     /// Centralized delay management for combat actions
     /// Provides a single point of control for all combat timing
+    /// Now loads configuration from TextDelayConfig.json via TextDelayConfiguration
     /// </summary>
     public static class CombatDelayManager
     {
-        private static bool _configLoaded = false;
-        
         /// <summary>
         /// Configuration for combat delays
+        /// Now loads from TextDelayConfiguration
         /// </summary>
         public static class Config
         {
             /// <summary>
             /// Delay between complete actions (in milliseconds)
             /// </summary>
-            public static int ActionDelayMs = 1000;
+            public static int ActionDelayMs => TextDelayConfiguration.GetActionDelayMs();
             
             /// <summary>
             /// Delay between individual messages within an action (in milliseconds)
             /// </summary>
-            public static int MessageDelayMs = 200;
+            public static int MessageDelayMs => TextDelayConfiguration.GetMessageDelayMs();
             
             /// <summary>
             /// Whether delays are enabled for GUI
             /// </summary>
-            public static bool EnableGuiDelays = true;
+            public static bool EnableGuiDelays => TextDelayConfiguration.GetEnableGuiDelays();
             
             /// <summary>
             /// Whether delays are enabled for console
             /// </summary>
-            public static bool EnableConsoleDelays = true;
-        }
-        
-        /// <summary>
-        /// Loads delay configuration from JSON file
-        /// </summary>
-        private static void LoadConfig()
-        {
-            if (_configLoaded) return;
-            
-            try
-            {
-                string configPath = "GameData/CombatDelayConfig.json";
-                if (System.IO.File.Exists(configPath))
-                {
-                    string jsonContent = System.IO.File.ReadAllText(configPath);
-                    var config = JsonSerializer.Deserialize<JsonElement>(jsonContent);
-                    
-                    if (config.TryGetProperty("ActionDelayMs", out var actionDelay))
-                        Config.ActionDelayMs = actionDelay.GetInt32();
-                    
-                    if (config.TryGetProperty("MessageDelayMs", out var messageDelay))
-                        Config.MessageDelayMs = messageDelay.GetInt32();
-                    
-                    if (config.TryGetProperty("EnableGuiDelays", out var enableGui))
-                        Config.EnableGuiDelays = enableGui.GetBoolean();
-                    
-                    if (config.TryGetProperty("EnableConsoleDelays", out var enableConsole))
-                        Config.EnableConsoleDelays = enableConsole.GetBoolean();
-                }
-            }
-            catch (Exception ex)
-            {
-                // If config loading fails, use default values
-                UIManager.WriteLine($"Warning: Could not load combat delay config: {ex.Message}", UIMessageType.System);
-            }
-            
-            _configLoaded = true;
+            public static bool EnableConsoleDelays => TextDelayConfiguration.GetEnableConsoleDelays();
         }
         
         /// <summary>
@@ -82,7 +45,6 @@ namespace RPGGame
         /// </summary>
         public static async Task DelayAfterActionAsync()
         {
-            LoadConfig();
             if (!ShouldApplyDelay()) return;
             
             // For GUI, skip blocking delays - timing is handled by the rendering system
@@ -104,7 +66,6 @@ namespace RPGGame
         /// </summary>
         public static async Task DelayAfterMessageAsync()
         {
-            LoadConfig();
             if (!ShouldApplyDelay()) return;
             
             // For GUI, skip blocking delays - timing is handled by the rendering system
@@ -162,17 +123,19 @@ namespace RPGGame
         
         /// <summary>
         /// Updates delay configuration
+        /// Note: Configuration is now loaded from TextDelayConfig.json
+        /// This method is kept for backwards compatibility but values should be updated in the JSON file
         /// </summary>
-        /// <param name="actionDelayMs">Delay between complete actions</param>
-        /// <param name="messageDelayMs">Delay between individual messages</param>
-        /// <param name="enableGuiDelays">Whether to enable delays for GUI</param>
-        /// <param name="enableConsoleDelays">Whether to enable delays for console</param>
+        /// <param name="actionDelayMs">Delay between complete actions (deprecated - update TextDelayConfig.json instead)</param>
+        /// <param name="messageDelayMs">Delay between individual messages (deprecated - update TextDelayConfig.json instead)</param>
+        /// <param name="enableGuiDelays">Whether to enable delays for GUI (deprecated - update TextDelayConfig.json instead)</param>
+        /// <param name="enableConsoleDelays">Whether to enable delays for console (deprecated - update TextDelayConfig.json instead)</param>
+        [Obsolete("Update TextDelayConfig.json instead. This method is kept for backwards compatibility only.")]
         public static void UpdateConfig(int actionDelayMs = -1, int messageDelayMs = -1, bool? enableGuiDelays = null, bool? enableConsoleDelays = null)
         {
-            if (actionDelayMs >= 0) Config.ActionDelayMs = actionDelayMs;
-            if (messageDelayMs >= 0) Config.MessageDelayMs = messageDelayMs;
-            if (enableGuiDelays.HasValue) Config.EnableGuiDelays = enableGuiDelays.Value;
-            if (enableConsoleDelays.HasValue) Config.EnableConsoleDelays = enableConsoleDelays.Value;
+            // Configuration is now loaded from TextDelayConfig.json
+            // This method is kept for backwards compatibility but does nothing
+            // To update delays, edit GameData/TextDelayConfig.json
         }
     }
 }

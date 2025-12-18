@@ -4,6 +4,7 @@ using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.Helpers;
 using RPGGame.Utils;
+using RPGGame.Config;
 
 namespace RPGGame
 {
@@ -192,17 +193,34 @@ namespace RPGGame
         
         /// <summary>
         /// Writes room description text with chunked reveal
+        /// Loads configuration from TextDelayConfig.json
         /// </summary>
         /// <param name="message">The room description to reveal</param>
         public static void WriteRoomChunked(string message)
         {
-            WriteChunked(message, new ChunkedTextReveal.RevealConfig
+            var preset = Config.TextDelayConfiguration.GetChunkedTextRevealPreset("Room");
+            ChunkedTextReveal.RevealConfig config;
+            if (preset != null)
             {
-                Strategy = ChunkedTextReveal.ChunkStrategy.Sentence,
-                BaseDelayPerCharMs = 30,
-                MinDelayMs = 1000,
-                MaxDelayMs = 3000
-            });
+                config = new ChunkedTextReveal.RevealConfig
+                {
+                    Strategy = ParseChunkStrategy(preset.Strategy),
+                    BaseDelayPerCharMs = preset.BaseDelayPerCharMs,
+                    MinDelayMs = preset.MinDelayMs,
+                    MaxDelayMs = preset.MaxDelayMs
+                };
+            }
+            else
+            {
+                config = new ChunkedTextReveal.RevealConfig
+                {
+                    Strategy = ChunkedTextReveal.ChunkStrategy.Sentence,
+                    BaseDelayPerCharMs = 30,
+                    MinDelayMs = 1000,
+                    MaxDelayMs = 3000
+                };
+            }
+            WriteChunked(message, config);
         }
         
         // ===== COLORED TEXT SYSTEM METHODS =====
@@ -243,6 +261,17 @@ namespace RPGGame
         public static void WriteStatusEffectMessage(string target, string effect, bool isApplied = true) 
             => MessageBuilder.WriteStatusEffectMessage(target, effect, isApplied);
         
+        /// <summary>
+        /// Parses a string strategy name to ChunkStrategy enum
+        /// </summary>
+        private static ChunkedTextReveal.ChunkStrategy ParseChunkStrategy(string strategyName)
+        {
+            if (Enum.TryParse<ChunkedTextReveal.ChunkStrategy>(strategyName, true, out var strategy))
+            {
+                return strategy;
+            }
+            return ChunkedTextReveal.ChunkStrategy.Sentence; // Default fallback
+        }
     }
 }
 

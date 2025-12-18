@@ -1,5 +1,5 @@
 {
-  "name": "Joren Ironheart",
+  "name": "Dain Firebrand",
   "level": 1,
   "xp": 0,
   "currentHealth": 60,
@@ -51,7 +51,7 @@
     "isStarterItem": false
   },
   "weapon": {
-    "name": "Mace",
+    "name": "Wand",
     "type": 3,
     "tier": 1,
     "comboBonus": 0,
