@@ -144,9 +144,25 @@ namespace RPGGame
                             if (shouldExit)
                             {
                                 // Player chose to leave - exit dungeon without rewards
+                                // Fully heal the player before leaving
+                                int healthRestored = 0;
+                                if (stateManager.CurrentPlayer != null)
+                                {
+                                    int effectiveMaxHealth = stateManager.CurrentPlayer.GetEffectiveMaxHealth();
+                                    healthRestored = effectiveMaxHealth - stateManager.CurrentPlayer.CurrentHealth;
+                                    if (healthRestored > 0)
+                                    {
+                                        stateManager.CurrentPlayer.Heal(healthRestored);
+                                    }
+                                }
+                                
                                 if (customUIManager is CanvasUICoordinator canvasUIExit)
                                 {
                                     displayManager.AddCombatEvent("");
+                                    if (healthRestored > 0)
+                                    {
+                                        displayManager.AddCombatEvent($"You have been fully healed! (+{healthRestored} health)");
+                                    }
                                     displayManager.AddCombatEvent("You leave the dungeon safely, but receive no rewards.");
                                     if (stateManager.CurrentPlayer != null && stateManager.CurrentRoom != null)
                                     {
