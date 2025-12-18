@@ -108,8 +108,15 @@ namespace RPGGame.Game
 
             try
             {
-                var response = await NavigationTools.GetAvailableActions();
-                return ParseAvailableActionsResponse(response);
+                // Available actions are already in the current game state
+                if (_currentState?.AvailableActions != null)
+                {
+                    return _currentState.AvailableActions;
+                }
+
+                // If not cached, fetch fresh state
+                await GetGameState();
+                return _currentState?.AvailableActions ?? new List<string>();
             }
             catch (Exception ex)
             {
@@ -276,34 +283,6 @@ namespace RPGGame.Game
             }
         }
 
-        /// <summary>
-        /// Parse available actions response from tool
-        /// </summary>
-        private List<string> ParseAvailableActionsResponse(string response)
-        {
-            try
-            {
-                var result = JsonSerializer.Deserialize<dynamic>(response);
-                if (result is JsonElement elem && elem.ValueKind == JsonValueKind.Object)
-                {
-                    if (elem.TryGetProperty("actions", out var actions))
-                    {
-                        var list = new List<string>();
-                        foreach (var action in actions.EnumerateArray())
-                        {
-                            list.Add(action.GetString() ?? "");
-                        }
-                        return list;
-                    }
-                }
-                return new List<string>();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Warning: Failed to parse available actions: {ex.Message}");
-                return new List<string>();
-            }
-        }
 
         /// <summary>
         /// Parse recent output response from tool

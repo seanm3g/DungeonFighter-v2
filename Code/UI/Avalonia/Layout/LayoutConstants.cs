@@ -11,7 +11,7 @@ namespace RPGGame.UI.Avalonia.Layout
         private const int BASE_SCREEN_HEIGHT = 52;
         
         // Base panel dimensions (from original design)
-        private const int BASE_LEFT_PANEL_WIDTH = 38; // Increased from 30 to provide more space for item names
+        private const int BASE_LEFT_PANEL_WIDTH = 32; // Increased from 30 to provide more space for item names
         private const int BASE_CENTER_PANEL_X = 31;
         private const int BASE_CENTER_PANEL_WIDTH = 136;
         private const int BASE_RIGHT_PANEL_X = 168;

@@ -67,7 +67,9 @@ namespace RPGGame.Game
                 // Get available actions
                 var actions = await _session.GetAvailableActions();
 
-                if (actions.Count == 0)
+                // Some UI screens don't populate actions in state, but we can still send input
+                // Only break if we've genuinely reached game over
+                if (actions.Count == 0 && _session.CurrentState?.CurrentState == "GameOver")
                 {
                     Console.WriteLine("No actions available. Game over.");
                     break;
@@ -108,15 +110,19 @@ namespace RPGGame.Game
 
         private string ChooseAction(List<string> actions, int turnNumber)
         {
-            // Simple strategy: try to choose reasonable actions
-            var actionStr = string.Join(", ", actions);
+            // If no actions in list, try common menu options
+            if (actions.Count == 0)
+            {
+                // Common progression: 1 usually means "continue" or "confirm"
+                return "1";
+            }
 
-            // Prefer attacking/continuing over menus
+            // Try to find first numeric action
             foreach (var action in actions)
             {
-                if (action.Contains("1", StringComparison.OrdinalIgnoreCase))
+                if (action.Length == 1 && char.IsDigit(action[0]))
                 {
-                    return "1";
+                    return action;
                 }
             }
 
