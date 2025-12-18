@@ -24,6 +24,22 @@ namespace RPGGame
                 return;
             }
 
+            // Check if interactive play mode is requested
+            if (args.Length > 0 && args[0].Equals("PLAY", StringComparison.OrdinalIgnoreCase))
+            {
+                // Run interactive game player using MCP tools
+                RPGGame.Game.InteractiveMCPGamePlayer.Main(args).Wait();
+                return;
+            }
+
+            // Check if automated demo mode is requested
+            if (args.Length > 0 && args[0].Equals("DEMO", StringComparison.OrdinalIgnoreCase))
+            {
+                // Run automated gameplay demo using MCP tools
+                RPGGame.Game.AutomatedGameplayDemo.Main(args).Wait();
+                return;
+            }
+
             // Check if tuning mode is requested
             if (args.Length > 0 && args[0] == "TUNING")
             {

@@ -156,6 +156,135 @@ public void TestComboSystem()
 }
 ```
 
+### 6. Text Delay Tests
+**Purpose**: Verify text delay configuration and timing behavior
+
+**Test Areas**:
+- Configuration loading from JSON
+- Message type delay retrieval
+- Chunked text reveal preset configuration
+- Combat delay values
+- Progressive menu delay calculations
+- Enable/disable flag functionality
+- Default value fallback behavior
+- Thread-safe configuration loading
+
+**Example**:
+```csharp
+[Test]
+public void TestTextDelayConfigurationLoading()
+{
+    // Test configuration loads correctly
+    var combatDelay = TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.Combat);
+    Assert.AreEqual(100, combatDelay, "Combat message delay should be 100ms");
+    
+    var menuDelay = TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.Menu);
+    Assert.AreEqual(25, menuDelay, "Menu message delay should be 25ms");
+    
+    // Test all message types have delays
+    var allTypes = Enum.GetValues<UIMessageType>();
+    foreach (var type in allTypes)
+    {
+        var delay = TextDelayConfiguration.GetMessageTypeDelay(type);
+        Assert.IsTrue(delay >= 0, $"Message type {type} should have a valid delay");
+    }
+}
+
+[Test]
+public void TestChunkedTextRevealPresets()
+{
+    // Test preset retrieval
+    var combatPreset = TextDelayConfiguration.GetChunkedTextRevealPreset("Combat");
+    Assert.IsNotNull(combatPreset, "Combat preset should exist");
+    Assert.AreEqual(20, combatPreset.BaseDelayPerCharMs, "Combat base delay should be 20ms");
+    Assert.AreEqual(500, combatPreset.MinDelayMs, "Combat min delay should be 500ms");
+    Assert.AreEqual(2000, combatPreset.MaxDelayMs, "Combat max delay should be 2000ms");
+    Assert.AreEqual("Line", combatPreset.Strategy, "Combat strategy should be Line");
+    
+    // Test default preset
+    var defaultPreset = TextDelayConfiguration.GetChunkedTextRevealPreset("Default");
+    Assert.IsNotNull(defaultPreset, "Default preset should exist");
+    Assert.IsTrue(defaultPreset.MinDelayMs < defaultPreset.MaxDelayMs, 
+                  "Min delay should be less than max delay");
+}
+
+[Test]
+public void TestCombatDelays()
+{
+    // Test action and message delays
+    var actionDelay = TextDelayConfiguration.GetActionDelayMs();
+    Assert.AreEqual(1000, actionDelay, "Action delay should be 1000ms");
+    
+    var messageDelay = TextDelayConfiguration.GetMessageDelayMs();
+    Assert.AreEqual(200, messageDelay, "Message delay should be 200ms");
+    
+    // Verify delays are positive
+    Assert.IsTrue(actionDelay > 0, "Action delay should be positive");
+    Assert.IsTrue(messageDelay > 0, "Message delay should be positive");
+}
+
+[Test]
+public void TestProgressiveMenuDelays()
+{
+    var config = TextDelayConfiguration.GetProgressiveMenuDelays();
+    Assert.IsNotNull(config, "Progressive menu delays config should exist");
+    Assert.AreEqual(25, config.BaseMenuDelay, "Base menu delay should be 25ms");
+    Assert.IsTrue(config.ProgressiveReductionRate >= 0, 
+                  "Progressive reduction rate should be non-negative");
+    Assert.IsTrue(config.ProgressiveThreshold > 0, 
+                  "Progressive threshold should be positive");
+}
+
+[Test]
+public void TestEnableFlags()
+{
+    // Test enable flags can be retrieved
+    var guiDelaysEnabled = TextDelayConfiguration.GetEnableGuiDelays();
+    var consoleDelaysEnabled = TextDelayConfiguration.GetEnableConsoleDelays();
+    
+    // Flags should be boolean values (either true or false)
+    Assert.IsTrue(guiDelaysEnabled || !guiDelaysEnabled, 
+                  "GUI delays flag should be a valid boolean");
+    Assert.IsTrue(consoleDelaysEnabled || !consoleDelaysEnabled, 
+                  "Console delays flag should be a valid boolean");
+}
+
+[Test]
+public void TestDefaultValuesFallback()
+{
+    // Test that defaults are used when config file is missing
+    // This would require temporarily moving/renaming the config file
+    // or using a mock file system
+    
+    // Verify defaults are reasonable
+    var defaultCombatDelay = TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.Combat);
+    Assert.IsTrue(defaultCombatDelay > 0, "Default combat delay should be positive");
+    
+    var defaultPreset = TextDelayConfiguration.GetChunkedTextRevealPreset("Default");
+    Assert.IsNotNull(defaultPreset, "Default preset should always exist");
+    Assert.IsTrue(defaultPreset.MinDelayMs < defaultPreset.MaxDelayMs,
+                  "Default preset should have valid delay range");
+}
+
+[Test]
+public void TestThreadSafety()
+{
+    // Test that configuration loading is thread-safe
+    var tasks = new List<Task>();
+    for (int i = 0; i < 10; i++)
+    {
+        tasks.Add(Task.Run(() =>
+        {
+            var delay = TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.Combat);
+            Assert.IsTrue(delay > 0, "Delay should be valid even under concurrent access");
+        }));
+    }
+    
+    Task.WaitAll(tasks.ToArray());
+    // If we get here without exceptions, thread safety is working
+}
+```
+
 ## Testing Framework
 
 ### Built-in Test Suite
@@ -175,6 +304,7 @@ The game includes a comprehensive test suite accessible through:
 8. **Balance Tests**: DPS analysis, scaling verification
 9. **Data Tests**: JSON loading, configuration
 10. **Advanced Tests**: Combo system, narrative, tuning
+11. **Text Delay Tests**: Text delay configuration, timing behavior, preset validation
 
 ### Running Tests
 

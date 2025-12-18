@@ -32,12 +32,6 @@ namespace RPGGame.Display.Dungeon
                 .Build();
             header.Add(ColoredTextRenderer.RenderAsMarkup(dungeonInfo));
 
-            var levelInfo = new ColoredTextBuilder()
-                .Add("Level Range: ", ColorPalette.Warning)
-                .Add($"{dungeon.MinLevel} - {dungeon.MaxLevel}", ColorPalette.Info)
-                .Build();
-            header.Add(ColoredTextRenderer.RenderAsMarkup(levelInfo));
-
             var roomInfo = new ColoredTextBuilder()
                 .Add("Total Rooms: ", ColorPalette.Warning)
                 .Add(dungeon.Rooms.Count.ToString(), ColorPalette.Info)
@@ -61,4 +55,3 @@ namespace RPGGame.Display.Dungeon
         }
     }
 }
-

@@ -11,6 +11,7 @@ Contains unit tests for specific components:
 - **`CombatLogSpacingTest.cs`** - Comprehensive tests for combat log spacing system
 - **`GameDataGeneratorTest.cs`** - Tests for game data generation system
 - **`TierDistributionTest.cs`** - Tests for item tier distribution
+- **`TextDelayConfigurationTest.cs`** - Comprehensive tests for text delay configuration system
 - **`TuningSystemTest.cs`** - Tests for tuning and balance system
 
 ### `Integration/`
@@ -38,6 +39,7 @@ ColorConfigurationLoaderTest.RunAllTests();
 CombatLogSpacingTest.RunAllTests();
 GameDataGeneratorTest.TestRefactoredGenerator();
 TierDistributionTest.RunTierDistributionTest();
+TextDelayConfigurationTest.RunAllTests();
 TuningSystemTest.RunTuningSystemTests();
 ```
 

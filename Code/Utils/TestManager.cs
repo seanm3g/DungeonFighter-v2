@@ -630,6 +630,18 @@ namespace RPGGame
                     testResults.Add(("Advanced Action Mechanics Test", false, $"Failed: {ex.Message}"));
                 }
                 
+                // Test 10: Text Delay Configuration Test
+                TextDisplayIntegration.DisplaySystem("\nRunning Test 10: Text Delay Configuration Test...");
+                try
+                {
+                    RunTextDelayConfigurationTest();
+                    testResults.Add(("Text Delay Configuration Test", true, "Completed successfully"));
+                }
+                catch (Exception ex)
+                {
+                    testResults.Add(("Text Delay Configuration Test", false, $"Failed: {ex.Message}"));
+                }
+                
             }
             catch (Exception ex)
             {
@@ -697,6 +709,15 @@ namespace RPGGame
         public static void RunAdvancedMechanicsTest()
         {
             RPGGame.Tests.Runners.AdvancedMechanicsTestRunner.RunTest();
+        }
+        
+        /// <summary>
+        /// Runs Test 10: Text Delay Configuration Test
+        /// Tests TextDelayConfiguration loading and all delay settings
+        /// </summary>
+        public static void RunTextDelayConfigurationTest()
+        {
+            TextDelayConfigurationTest.RunAllTests();
         }
 
         // NOTE: GetRarityOrder, TestBasicParsing, TestTemplateExpansion, TestLengthCalculations, and TestEdgeCases

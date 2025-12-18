@@ -64,6 +64,9 @@ namespace RPGGame
                 var questionBuilder = new ColoredTextBuilder()
                     .Add("What would you like to do?", ColorPalette.Info);
                 canvasUI.WriteLineColoredSegments(questionBuilder.Build(), UIMessageType.System);
+
+                // Blank line
+                canvasUI.WriteLineColoredSegments(new List<ColoredText>(), UIMessageType.System);
                 
                 // Option 1 with color
                 var option1Builder = new ColoredTextBuilder()

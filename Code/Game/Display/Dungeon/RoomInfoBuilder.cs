@@ -23,12 +23,6 @@ namespace RPGGame.Display.Dungeon
                 .Build();
             info.Add(ColoredTextRenderer.RenderAsMarkup(coloredRoomHeader));
 
-            var roomNumberInfo = new ColoredTextBuilder()
-                .Add("Room Number: ", ColorPalette.Info)
-                .Add($"{roomNumber} of {totalRooms}", ColorPalette.Warning)
-                .Build();
-            info.Add(ColoredTextRenderer.RenderAsMarkup(roomNumberInfo));
-
             // Get room name color based on theme (single color, not template)
             char themeColorCode = DungeonThemeColors.GetThemeColorCode(room.Theme);
             var roomNameColor = GetColorFromThemeCode(themeColorCode);
@@ -62,4 +56,3 @@ namespace RPGGame.Display.Dungeon
         }
     }
 }
-
