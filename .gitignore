@@ -384,6 +384,7 @@ out/
 dist/
 DebugAnalysis/
 *.log
+GameData/character_save.json
 
 # macOS
 .DS_Store

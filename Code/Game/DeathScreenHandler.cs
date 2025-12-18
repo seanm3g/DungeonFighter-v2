@@ -46,8 +46,14 @@ namespace RPGGame
                 canvasUI.ClearDisplayBufferWithoutRender();
                 canvasUI.ClearClickableElements();
                 
+                // Force a full clear of the canvas before rendering death screen
+                canvasUI.Clear();
+                
                 // Render death screen using the canvas UI
                 canvasUI.RenderDeathScreen(player, defeatSummary);
+                
+                // Force refresh to ensure death screen is displayed
+                DebugLogger.Log("DeathScreenHandler", "Death screen rendered, forcing canvas refresh");
             }
             else
             {

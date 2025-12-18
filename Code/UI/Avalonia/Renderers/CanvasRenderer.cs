@@ -346,18 +346,24 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderDeathScreen(Character player, string defeatSummary, CanvasContext context)
         {
+            // Clear canvas first to ensure clean death screen display
+            canvas.Clear();
+            
             // Switch back to standard mode and disable external render callback when showing death screen
             if (textManager is CanvasTextManager canvasTextManager)
             {
                 canvasTextManager.DisplayManager.SetMode(new Display.StandardDisplayMode());
                 canvasTextManager.DisplayManager.SetExternalRenderCallback(null);
+                // Cancel any pending renders that might interfere
+                canvasTextManager.DisplayManager.CancelPendingRenders();
             }
             
             RenderWithLayout(player, "YOU DIED", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 dungeonRenderer.RenderDeathScreen(contentX, contentY, contentWidth, contentHeight, player, defeatSummary);
             }, context);
-            // Ensure canvas is refreshed to display the death screen
+            
+            // Force immediate refresh to display the death screen
             canvas.Refresh();
         }
 
