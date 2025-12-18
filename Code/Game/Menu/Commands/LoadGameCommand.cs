@@ -18,7 +18,7 @@ namespace DungeonFighter.Game.Menu.Commands
             
             if (context?.StateManager != null)
             {
-                var savedCharacter = Character.LoadCharacter();
+                var savedCharacter = await Character.LoadCharacterAsync().ConfigureAwait(false);
                 if (savedCharacter != null)
                 {
                     context.StateManager.SetCurrentPlayer(savedCharacter);

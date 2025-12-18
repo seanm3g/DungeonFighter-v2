@@ -7,7 +7,7 @@
     "multiHitCount": 1,
     "description": "A devastating overhead strike with a mace",
     "tags": ["weapon", "mace"],
-    "statBonus": 3,
+    "statBonus": 1,
     "statBonusType": "STR",
     "statBonusDuration": 999
   },
@@ -19,7 +19,7 @@
     "multiHitCount": 2,
     "description": "A swift and precise double strike with a sword",
     "tags": ["weapon", "sword"],
-    "statBonus": 3,
+    "statBonus": 1,
     "statBonusType": "AGI",
     "statBonusDuration": 999
   },
@@ -31,7 +31,7 @@
     "multiHitCount": 3,
     "description": "A rapid series of precise and deadly thrusts with a dagger",
     "tags": ["weapon", "dagger"],
-    "statBonus": 3,
+    "statBonus": 1,
     "statBonusType": "TEC",
     "statBonusDuration": 999
   },
@@ -40,10 +40,10 @@
     "type": "Attack",
     "damageMultiplier": 0.95,
     "length": 1.1,
-    "multiHitCount": 2,
+    "multiHitCount": 1,
     "description": "A powerful dual magical blast from a wand",
     "tags": ["weapon", "wand"],
-    "statBonus": 3,
+    "statBonus": 1,
     "statBonusType": "INT",
     "statBonusDuration": 999
   },

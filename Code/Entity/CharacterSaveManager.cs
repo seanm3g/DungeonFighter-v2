@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 
 namespace RPGGame
 {
@@ -83,11 +84,11 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Loads a character from a JSON file
+        /// Loads a character from a JSON file (async version to prevent UI freezing)
         /// </summary>
         /// <param name="filename">The filename to load from</param>
         /// <returns>The loaded character, or null if loading failed</returns>
-        public static Character? LoadCharacter(string? filename = null)
+        public static async Task<Character?> LoadCharacterAsync(string? filename = null)
         {
             try
             {
@@ -107,7 +108,7 @@ namespace RPGGame
                     return null;
                 }
 
-                string json = File.ReadAllText(filename);
+                string json = await File.ReadAllTextAsync(filename).ConfigureAwait(false);
                 var options = new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
@@ -186,6 +187,18 @@ namespace RPGGame
                 }
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Loads a character from a JSON file (synchronous version for backward compatibility)
+        /// </summary>
+        /// <param name="filename">The filename to load from</param>
+        /// <returns>The loaded character, or null if loading failed</returns>
+        public static Character? LoadCharacter(string? filename = null)
+        {
+            // For backward compatibility, call async version synchronously
+            // This should only be used in non-UI contexts
+            return LoadCharacterAsync(filename).GetAwaiter().GetResult();
         }
 
         /// <summary>

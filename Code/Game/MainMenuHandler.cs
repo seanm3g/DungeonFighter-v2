@@ -185,40 +185,91 @@ namespace RPGGame
                 }
                 else
                 {
-                    // Show loading message
+                    // Check if save file exists first
+                    string saveFilePath = GameConstants.GetGameDataFilePath(GameConstants.CharacterSaveJson);
+                    bool saveExists = CharacterSaveManager.SaveFileExists();
+                    
+                    if (!saveExists)
+                    {
+                        ShowMessageEvent?.Invoke("No saved game found. Please start a new game.");
+                        ShowMainMenu();
+                        return;
+                    }
+                    
+                    // Show loading message immediately (non-blocking)
                     if (customUIManager is CanvasUICoordinator canvasUI)
                     {
                         canvasUI.ShowLoadingAnimation("Loading saved game...");
                     }
                     
-                    // Try to load saved character on background thread
-                    var savedCharacter = await Task.Run(() => Character.LoadCharacter());
+                    // Load character and initialize game data on background thread to prevent UI freeze
+                    Character? savedCharacter = null;
+                    try
+                    {
+                        DebugLogger.Log("MainMenuHandler", $"Save file exists at: {saveFilePath}, starting load...");
+                        
+                        savedCharacter = await Task.Run(async () =>
+                        {
+                            try
+                            {
+                                DebugLogger.Log("MainMenuHandler", "Starting character load on background thread...");
+                                // Load character asynchronously on background thread
+                                var character = await Character.LoadCharacterAsync().ConfigureAwait(false);
+                                
+                                if (character != null)
+                                {
+                                    DebugLogger.Log("MainMenuHandler", $"Character loaded: {character.Name}, Level {character.Level}");
+                                    // Initialize game data on same background thread
+                                    // This may load JSON files synchronously, but it's on background thread
+                                    DebugLogger.Log("MainMenuHandler", "Initializing game data...");
+                                    gameInitializer.InitializeExistingGame(character, stateManager.AvailableDungeons);
+                                    DebugLogger.Log("MainMenuHandler", $"Game data initialized. Dungeons count: {stateManager.AvailableDungeons.Count}");
+                                }
+                                else
+                                {
+                                    DebugLogger.Log("MainMenuHandler", "Character load returned null - save file may be corrupted");
+                                }
+                                return character;
+                            }
+                            catch (Exception ex)
+                            {
+                                DebugLogger.Log("MainMenuHandler", $"Error in background load: {ex.Message}\n{ex.StackTrace}");
+                                throw;
+                            }
+                        }).ConfigureAwait(true); // Return to UI thread for UI updates
+                        
+                        DebugLogger.Log("MainMenuHandler", $"Load completed. Character is {(savedCharacter != null ? "loaded" : "null")}");
+                    }
+                    catch (Exception ex)
+                    {
+                        string errorMsg = $"Error loading character: {ex.Message}";
+                        DebugLogger.Log("MainMenuHandler", errorMsg);
+                        ShowMessageEvent?.Invoke(errorMsg);
+                        ShowMainMenu();
+                        return;
+                    }
+                    
+                    // Now update state and UI (we're back on UI thread)
                     if (savedCharacter != null)
                     {
                         stateManager.SetCurrentPlayer(savedCharacter);
                         
-                        // Initialize game data on background thread
-                        if (stateManager.CurrentPlayer != null)
+                        // Update UI - these should be thread-safe or called from UI thread
+                        if (customUIManager is CanvasUICoordinator canvasUI2)
                         {
-                            await Task.Run(() => gameInitializer.InitializeExistingGame(stateManager.CurrentPlayer, stateManager.AvailableDungeons));
-                        
-                            // Set character in UI manager (on UI thread)
-                            if (customUIManager is CanvasUICoordinator canvasUI2)
-                            {
-                                canvasUI2.SetCharacter(stateManager.CurrentPlayer);
-                            }
-                            
-                            // Apply health multiplier if configured
-                            var settings = GameSettings.Instance;
-                            if (settings.PlayerHealthMultiplier != 1.0)
-                            {
-                                stateManager.CurrentPlayer.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
-                            }
-                            
-                            // Inventory is loaded from stateManager.CurrentPlayer.Inventory
-                            
-                            ShowMessageEvent?.Invoke($"Welcome back, {stateManager.CurrentPlayer.Name}!");
+                            canvasUI2.SetCharacter(stateManager.CurrentPlayer);
                         }
+                        
+                        // Apply health multiplier if configured
+                        var settings = GameSettings.Instance;
+                        if (settings.PlayerHealthMultiplier != 1.0)
+                        {
+                            stateManager.CurrentPlayer.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
+                        }
+                        
+                        // Inventory is loaded from stateManager.CurrentPlayer.Inventory
+                        
+                        ShowMessageEvent?.Invoke($"Welcome back, {stateManager.CurrentPlayer.Name}!");
                         
                         // Go to game loop
                         stateManager.TransitionToState(GameState.GameLoop);

@@ -93,10 +93,16 @@ namespace RPGGame.UI.Avalonia.Renderers
         
         /// <summary>
         /// Shows a loading animation with dots (synchronous version for backwards compatibility)
+        /// Non-blocking version that shows message immediately without freezing UI
         /// </summary>
         public void ShowLoadingAnimation(string message = "Loading...")
         {
-            ShowLoadingAnimationAsync(message).GetAwaiter().GetResult();
+            // Show immediate message without blocking animation
+            // This prevents UI freeze while async operations happen in background
+            canvas.Clear();
+            canvas.AddCenteredText(18, message, AsciiArtAssets.Colors.White);
+            canvas.AddCenteredText(20, "....", AsciiArtAssets.Colors.Yellow);
+            canvas.Refresh();
         }
         
         /// <summary>

@@ -65,7 +65,7 @@ namespace RPGGame
         {
             try
             {
-                var savedCharacter = await Task.Run(() => Character.LoadCharacter());
+                var savedCharacter = await Character.LoadCharacterAsync().ConfigureAwait(false);
                 return savedCharacter;
             }
             catch (Exception ex)

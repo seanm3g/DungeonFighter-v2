@@ -346,6 +346,7 @@ namespace RPGGame
         public override string ToString() => base.ToString();
         public void DisplayCharacterInfo() => Facade.DisplayCharacterInfo();
         public void SaveCharacter(string? filename = null) => Facade.SaveCharacter(filename);
+        public static async Task<Character?> LoadCharacterAsync(string? filename = null) => await CharacterFacade.LoadCharacterAsync(filename).ConfigureAwait(false);
         public static Character? LoadCharacter(string? filename = null) => CharacterFacade.LoadCharacter(filename);
         public static void DeleteSaveFile(string? filename = null) => CharacterFacade.DeleteSaveFile(filename);
         
