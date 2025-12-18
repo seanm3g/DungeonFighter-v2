@@ -179,6 +179,7 @@ namespace RPGGame.Handlers
             {
                 handlers.DungeonRunnerManager.DungeonCompletedEvent += (xpGained, lootReceived, levelUpInfos) => showDungeonCompletion(xpGained, lootReceived, levelUpInfos);
                 handlers.DungeonRunnerManager.ShowDeathScreenEvent += (player) => showDeathScreen(player);
+                handlers.DungeonRunnerManager.DungeonExitedEarlyEvent += () => showGameLoop();
             }
             
             if (handlers.DungeonCompletionHandler != null)

@@ -28,13 +28,16 @@ namespace RPGGame
         private CombatManager? combatManager;
         private IUIManager? customUIManager;
         private DungeonDisplayManager displayManager;
+        private DungeonExitChoiceHandler? exitChoiceHandler;
         
         // Delegates for dungeon completion with reward data
         public delegate void OnDungeonCompleted(int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos);
         public delegate void OnShowDeathScreen(Character player);
+        public delegate void OnDungeonExitedEarly();
         
         public event OnDungeonCompleted? DungeonCompletedEvent;
         public event OnShowDeathScreen? ShowDeathScreenEvent;
+        public event OnDungeonExitedEarly? DungeonExitedEarlyEvent;
         
         // Store last reward data for completion screen
         private int lastXPGained;
@@ -52,7 +55,13 @@ namespace RPGGame
             this.combatManager = combatManager;
             this.customUIManager = customUIManager;
             this.displayManager = new DungeonDisplayManager(narrativeManager, customUIManager);
+            this.exitChoiceHandler = new DungeonExitChoiceHandler(stateManager, customUIManager, displayManager);
         }
+        
+        /// <summary>
+        /// Get the exit choice handler for input routing
+        /// </summary>
+        public DungeonExitChoiceHandler? GetExitChoiceHandler() => exitChoiceHandler;
 
         /// <summary>
         /// Run the entire dungeon
@@ -123,6 +132,47 @@ namespace RPGGame
                         return;
                     }
                     isFirstRoom = false;
+                    
+                    // Check if we're at the halfway point (after completing a room, before next room)
+                    // Only check if there are more rooms to process
+                    if (roomNumber < totalRooms && IsHalfwayPoint(roomNumber, totalRooms))
+                    {
+                        // Offer exit choice at halfway point
+                        if (exitChoiceHandler != null)
+                        {
+                            bool shouldExit = await exitChoiceHandler.ShowExitChoiceMenu(roomNumber, totalRooms);
+                            if (shouldExit)
+                            {
+                                // Player chose to leave - exit dungeon without rewards
+                                if (customUIManager is CanvasUICoordinator canvasUIExit)
+                                {
+                                    displayManager.AddCombatEvent("");
+                                    displayManager.AddCombatEvent("You leave the dungeon safely, but receive no rewards.");
+                                    if (stateManager.CurrentPlayer != null && stateManager.CurrentRoom != null)
+                                    {
+                                        canvasUIExit.RenderRoomEntry(
+                                            stateManager.CurrentRoom, 
+                                            stateManager.CurrentPlayer, 
+                                            stateManager.CurrentDungeon?.Name);
+                                    }
+                                    if (!RPGGame.MCP.MCPMode.IsActive)
+                                    {
+                                        await Task.Delay(2000);
+                                    }
+                                }
+                                
+                                // Clear dungeon state and return to game loop
+                                stateManager.SetCurrentDungeon(null!);
+                                stateManager.SetCurrentRoom(null!);
+                                stateManager.TransitionToState(GameState.GameLoop);
+                                
+                                // Trigger event to show game loop screen
+                                DungeonExitedEarlyEvent?.Invoke();
+                                
+                                return; // Exit without calling CompleteDungeon()
+                            }
+                        }
+                    }
                 }
                 
                 // Dungeon completed successfully
@@ -379,6 +429,17 @@ namespace RPGGame
         public (int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos) GetLastRewardData()
         {
             return (lastXPGained, lastLootReceived, lastLevelUpInfos);
+        }
+        
+        /// <summary>
+        /// Check if we're at the halfway point of the dungeon
+        /// </summary>
+        private bool IsHalfwayPoint(int currentRoom, int totalRooms)
+        {
+            // Halfway point is when we've completed exactly half the rooms
+            // For odd numbers, use integer division (e.g., 5 rooms -> halfway at room 2)
+            int halfwayPoint = totalRooms / 2;
+            return currentRoom == halfwayPoint;
         }
 
     }

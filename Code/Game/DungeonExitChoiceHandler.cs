@@ -12,23 +12,24 @@ namespace RPGGame
     {
         private GameStateManager stateManager;
         private IUIManager? customUIManager;
+        private DungeonDisplayManager displayManager;
         
         // Delegates
         public delegate void OnShowMessage(string message);
-        public delegate void OnExitDungeon();
-        public delegate void OnContinueDungeon();
         
         public event OnShowMessage? ShowMessageEvent;
-        public event OnExitDungeon? ExitDungeonEvent;
-        public event OnContinueDungeon? ContinueDungeonEvent;
         
         // Task completion source to wait for player choice
         private TaskCompletionSource<bool>? exitChoiceTaskSource;
         
-        public DungeonExitChoiceHandler(GameStateManager stateManager, IUIManager? customUIManager)
+        public DungeonExitChoiceHandler(
+            GameStateManager stateManager, 
+            IUIManager? customUIManager,
+            DungeonDisplayManager displayManager)
         {
             this.stateManager = stateManager ?? throw new ArgumentNullException(nameof(stateManager));
             this.customUIManager = customUIManager;
+            this.displayManager = displayManager ?? throw new ArgumentNullException(nameof(displayManager));
         }
         
         /// <summary>
@@ -43,11 +44,6 @@ namespace RPGGame
             // Display the menu
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                // Add menu to display buffer
-                var displayManager = new DungeonDisplayManager(
-                    new GameNarrativeManager(stateManager), 
-                    customUIManager);
-                
                 displayManager.AddCombatEvent("");
                 displayManager.AddCombatEvent("═══════════════════════════════════════");
                 displayManager.AddCombatEvent($"You have reached the halfway point (Room {currentRoom} of {totalRooms})");

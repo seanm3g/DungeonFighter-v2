@@ -172,6 +172,12 @@ namespace RPGGame.GameCore.Input
                     break;
                 case GameState.Dungeon:
                 case GameState.Combat:
+                    // Check if we're waiting for exit choice input
+                    if (handlers.DungeonExitChoiceHandler != null && handlers.DungeonExitChoiceHandler.IsWaitingForChoice)
+                    {
+                        handlers.DungeonExitChoiceHandler.HandleMenuInput(input);
+                        return; // Don't process scrolling or other input when waiting for exit choice
+                    }
                     // Handle scrolling during combat
                     if (input == "up" || input == "down" || input == "pageup" || input == "pagedown")
                     {
@@ -207,6 +213,7 @@ namespace RPGGame.GameCore.Input
         public DungeonCompletionHandler? DungeonCompletionHandler { get; set; }
         public DeathScreenHandler? DeathScreenHandler { get; set; }
         public TestingSystemHandler? TestingSystemHandler { get; set; }
+        public DungeonExitChoiceHandler? DungeonExitChoiceHandler { get; set; }
     }
 }
 

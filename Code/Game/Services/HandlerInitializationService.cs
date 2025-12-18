@@ -184,7 +184,8 @@ namespace RPGGame.Game.Services
                 DungeonSelectionHandler = result.DungeonSelectionHandler,
                 DungeonCompletionHandler = result.DungeonCompletionHandler,
                 DeathScreenHandler = result.DeathScreenHandler,
-                TestingSystemHandler = result.TestingSystemHandler
+                TestingSystemHandler = result.TestingSystemHandler,
+                DungeonExitChoiceHandler = result.DungeonRunnerManager?.GetExitChoiceHandler()
             };
             
             var escapeKeyHandlers = new EscapeKeyHandlers
