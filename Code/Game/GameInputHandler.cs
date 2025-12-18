@@ -105,7 +105,7 @@ namespace RPGGame
                     case GameState.Combat:
                         // During dungeon/combat, allow scrolling with arrow keys
                         // Other input is handled automatically
-                        if (input == "up" || input == "down")
+                        if (input == "up" || input == "down" || input == "pageup" || input == "pagedown")
                         {
                             // Allow scrolling - will be handled by Game.cs
                             RaiseCombatScrollInput(input);

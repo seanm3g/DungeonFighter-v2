@@ -115,7 +115,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                     (2, "Combat System Tests (includes UI Fixes)"),
                     (3, "Inventory & Dungeon Tests"),
                     (4, "Data & UI System Tests"),
-                    (5, "Advanced & Integration Tests"),
+                    (5, "Action System Tests"),
+                    (6, "Advanced & Integration Tests"),
                     (0, "Back to Test Menu")
                 };
                 

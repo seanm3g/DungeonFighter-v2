@@ -341,28 +341,29 @@ namespace RPGGame
         /// <summary>
         /// Handles scrolling during combat and testing
         /// </summary>
-        /// <param name="input">"up" to scroll up, "down" to scroll down</param>
+        /// <param name="input">"up" to scroll up, "down" to scroll down, "pageup" to scroll up by page, "pagedown" to scroll down by page</param>
         private void HandleCombatScroll(string input)
         {
-            ScrollDebugLogger.Log($"HandleCombatScroll: input='{input}', UI manager type={customUIManager?.GetType().Name ?? "null"}");
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                DebugLogger.Log("Game", $"HandleCombatScroll: input='{input}', UI manager type={customUIManager?.GetType().Name}");
-                if (input == "up")
+                string normalizedInput = input?.Trim().ToLowerInvariant() ?? "";
+                
+                if (normalizedInput == "up")
                 {
-                    ScrollDebugLogger.Log("HandleCombatScroll: Calling canvasUI.ScrollUp()");
                     canvasUI.ScrollUp();
                 }
-                else if (input == "down")
+                else if (normalizedInput == "down")
                 {
-                    ScrollDebugLogger.Log("HandleCombatScroll: Calling canvasUI.ScrollDown()");
                     canvasUI.ScrollDown();
                 }
-            }
-            else
-            {
-                ScrollDebugLogger.Log($"HandleCombatScroll: ERROR - customUIManager is not CanvasUICoordinator (type={customUIManager?.GetType().Name ?? "null"})");
-                DebugLogger.Log("Game", $"HandleCombatScroll: customUIManager is not CanvasUICoordinator (type={customUIManager?.GetType().Name ?? "null"})");
+                else if (normalizedInput == "pageup")
+                {
+                    canvasUI.ScrollUp(30);
+                }
+                else if (normalizedInput == "pagedown")
+                {
+                    canvasUI.ScrollDown(30);
+                }
             }
         }
 

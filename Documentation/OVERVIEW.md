@@ -159,7 +159,7 @@ DungeonFighter-v2/
 - **Singleton Pattern**: TagRegistry, CombatEventBus, ActionUsageTracker
 - **Composition Pattern**: Throughout codebase for better modularity
 
-See `Documentation/02-Development/REFACTORING_HISTORY.md` and `Documentation/04-Systems/ADVANCED_MECHANICS_IMPLEMENTATION.md` for detailed changes.
+See `Documentation/02-Development/REFACTORING_HISTORY.md` and `Documentation/05-Systems/ADVANCED_MECHANICS_IMPLEMENTATION.md` for detailed changes.
 
 ## Development Resources
 

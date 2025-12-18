@@ -147,7 +147,7 @@ namespace RPGGame.GameCore.Input
                     break;
                 case GameState.Testing:
                     // Allow scrolling during testing to view test results
-                    if (input == "up" || input == "down")
+                    if (input == "up" || input == "down" || input == "pageup" || input == "pagedown")
                     {
                         // Don't show message - it replaces the content we're trying to scroll
                         handleCombatScroll(input);
@@ -173,7 +173,7 @@ namespace RPGGame.GameCore.Input
                 case GameState.Dungeon:
                 case GameState.Combat:
                     // Handle scrolling during combat
-                    if (input == "up" || input == "down")
+                    if (input == "up" || input == "down" || input == "pageup" || input == "pagedown")
                     {
                         handleCombatScroll(input);
                     }

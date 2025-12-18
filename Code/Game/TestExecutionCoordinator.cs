@@ -195,6 +195,36 @@ namespace RPGGame
         }
         
         /// <summary>
+        /// Executes action system tests (actions, sequences, combo system)
+        /// </summary>
+        public async Task<bool> ExecuteActionSystemTests(GameSystemTestRunner testRunner)
+        {
+            if (customUIManager is CanvasUICoordinator canvasUI)
+            {
+                return await ExecuteTest(
+                    async () =>
+                    {
+                        await testRunner.RunSpecificTest("Action System");
+                        canvasUI.WriteBlankLine();
+                        await testRunner.RunSpecificTest("Combo Dice Rolls");
+                    },
+                    "RunActionSystemTests",
+                    preTestAction: (ui) =>
+                    {
+                        ui.WriteLine("=== ACTION SYSTEM TESTS ===", UIMessageType.System);
+                        ui.WriteLine("Testing action system features:", UIMessageType.System);
+                        ui.WriteLine("• Action Creation and Properties", UIMessageType.System);
+                        ui.WriteLine("• Action Selection", UIMessageType.System);
+                        ui.WriteLine("• Combo Sequences", UIMessageType.System);
+                        ui.WriteLine("• Action Execution Flow", UIMessageType.System);
+                        ui.WriteLine("• Combo Dice Rolls", UIMessageType.System);
+                        ui.WriteBlankLine();
+                    });
+            }
+            return false;
+        }
+        
+        /// <summary>
         /// Executes advanced mechanics and integration tests together
         /// </summary>
         public async Task<bool> ExecuteAdvancedAndIntegrationTests(GameSystemTestRunner testRunner)

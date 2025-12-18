@@ -370,28 +370,15 @@ out/
 # Cursor IDE
 .cursor/
 
-# Claude AI settings (if any)
+# Claude AI settings
 .claude/
 
-# General dot-folders (IDE and tool-specific)
-# Note: Keep .git/ and .gitignore - these are essential
-# Note: Keep .mcp.json if you want to version control MCP config
-.idea/
-.vs/
-.vscode/
-.cursor/
-.claude/
-.localhistory/
-.vshistory/
-.history/
-.ionide/
-.fake/
-.mfractor/
-.axoCover/
-.sass-cache/
-.paket/
-.cr/
-.ntvs_analysis.dat
+# Note: Other IDE dot-folders are already covered:
+# .vs/ (Visual Studio) - line 18
+# .vscode/ (VS Code) - lines 343-348
+# .history/, .localhistory/, .vshistory/ - lines 325, 328, 351
+# .ionide/, .fake/, .mfractor/, .axoCover/, .sass-cache/, .paket/, .cr/ - various lines above
+# Note: .git/ and .gitignore must remain in root (essential for Git)
 
 # DungeonFighter specific
 dist/

@@ -135,7 +135,7 @@ namespace RPGGame.Tests.Unit
             {
                 var result = Dice.RollComboContinue(0);
                 
-                if (result.Roll >= 11)
+                if (result.Roll >= 14)
                 {
                     successCount++;
                     AssertTrue(result.Success, $"Roll {result.Roll} should succeed for combo continue");
@@ -179,10 +179,10 @@ namespace RPGGame.Tests.Unit
             ActionSelector.ClearStoredRolls();
             
             // We can't directly control the roll, but we can test the selection logic
-            // by checking that low rolls don't select combo actions when they shouldn't
+            // by checking that low rolls don't select actions when they shouldn't
             var action = ActionSelector.SelectActionByEntityType(character);
             
-            AssertTrue(action != null, "Action should be selected");
+            AssertTrue(action == null, "Action should not be selected for rolls 1-5");
             // Note: Actual roll-based testing would require mocking the dice
         }
         
@@ -193,10 +193,10 @@ namespace RPGGame.Tests.Unit
             var character = CreateTestCharacter();
             ActionSelector.ClearStoredRolls();
             
-            // Test that rolls 6-13 select basic attack
+            // Test that rolls 6-13 should not select actions
             var action = ActionSelector.SelectActionByEntityType(character);
             
-            AssertTrue(action != null, "Action should be selected");
+            AssertTrue(action == null, "Action should not be selected for rolls 6-13");
             // Note: Would need to mock dice to test specific roll ranges
         }
         
@@ -399,18 +399,18 @@ namespace RPGGame.Tests.Unit
                     character, enemy, null, null, basicAttack, null, 
                     lastUsedActions, lastCriticalMissStatus);
                 
-                // BUG: Currently IsCombo is set based on action name, not roll
-                // This test will fail if the bug exists
+                // IsCombo should be based on roll, not action name
                 // For a basic attack with roll < 14, IsCombo should be false
-                // But currently it's set to: result.SelectedAction.Name != "BASIC ATTACK"
-                // So if the action name is "BASIC ATTACK", IsCombo should be false
+                // For a basic attack with roll >= 14, IsCombo should be true
                 
                 if (result.SelectedAction != null && result.SelectedAction.Name == "BASIC ATTACK")
                 {
-                    // This is the bug - IsCombo should be based on roll, not action name
-                    // For now, we test what the current (buggy) behavior is
-                    AssertTrue(result.IsCombo == false, 
-                        $"IsCombo should be false for BASIC ATTACK, got: {result.IsCombo}");
+                    var thresholdManager = RollModificationManager.GetThresholdManager();
+                    int comboThreshold = thresholdManager.GetComboThreshold(character);
+                    bool expectedIsCombo = result.AttackRoll >= comboThreshold;
+                    
+                    AssertTrue(result.IsCombo == expectedIsCombo, 
+                        $"IsCombo should be {expectedIsCombo} for BASIC ATTACK with roll {result.AttackRoll} (threshold: {comboThreshold}), got: {result.IsCombo}");
                 }
             }
         }
@@ -438,15 +438,17 @@ namespace RPGGame.Tests.Unit
                 character, enemy, null, null, comboAction, null, 
                 lastUsedActions, lastCriticalMissStatus);
             
-            // BUG: Currently IsCombo is true for any non-BASIC ATTACK action
-            // This is wrong - it should only be true if the roll was >= 14
-            // But we can't easily test the roll here without mocking
+            // IsCombo should only be true if the roll was >= 14 (combo threshold)
+            // It should NOT be based on the action name
             
-            if (result.SelectedAction != null && result.SelectedAction.Name != "BASIC ATTACK")
+            if (result.SelectedAction != null)
             {
-                // Current buggy behavior: IsCombo is true for any non-basic attack
-                AssertTrue(result.IsCombo == true, 
-                    $"IsCombo is currently true for non-BASIC ATTACK actions (bug), got: {result.IsCombo}");
+                var thresholdManager = RollModificationManager.GetThresholdManager();
+                int comboThreshold = thresholdManager.GetComboThreshold(character);
+                bool expectedIsCombo = result.AttackRoll >= comboThreshold;
+                
+                AssertTrue(result.IsCombo == expectedIsCombo, 
+                    $"IsCombo should be {expectedIsCombo} for combo action with roll {result.AttackRoll} (threshold: {comboThreshold}), got: {result.IsCombo}");
             }
         }
         
@@ -468,18 +470,25 @@ namespace RPGGame.Tests.Unit
             var lastUsedActions = new Dictionary<Actor, Action>();
             var lastCriticalMissStatus = new Dictionary<Actor, bool>();
             
-            // This test documents the bug:
             // IsCombo should be based on whether the roll was >= 14 (combo threshold)
-            // But currently it's based on: result.SelectedAction.Name != "BASIC ATTACK"
-            // This means combo actions are always marked as combo, even if roll < 14
+            // This is now correctly implemented based on the roll value
             
             var thresholdManager = RollModificationManager.GetThresholdManager();
             int comboThreshold = thresholdManager.GetComboThreshold(character);
             
             AssertTrue(comboThreshold >= 14, $"Combo threshold should be >= 14, got: {comboThreshold}");
             
-            // Note: We can't easily test this without mocking the dice roll
-            // But we document the expected behavior here
+            // Test that IsCombo is correctly set based on roll
+            var result = ActionExecutionFlow.Execute(
+                character, enemy, null, null, comboAction, null, 
+                lastUsedActions, lastCriticalMissStatus);
+            
+            if (result.SelectedAction != null)
+            {
+                bool expectedIsCombo = result.AttackRoll >= comboThreshold;
+                AssertTrue(result.IsCombo == expectedIsCombo, 
+                    $"IsCombo should be {expectedIsCombo} based on roll {result.AttackRoll} (threshold: {comboThreshold}), got: {result.IsCombo}");
+            }
         }
         
         private static void TestIsComboFlagWithForcedAction()
@@ -501,14 +510,16 @@ namespace RPGGame.Tests.Unit
                 character, enemy, null, null, forcedAction, null, 
                 lastUsedActions, lastCriticalMissStatus);
             
-            // BUG: IsCombo is set to true for any action that's not "BASIC ATTACK"
-            // So "FORCED ACTION" would be marked as combo even if it shouldn't be
+            // IsCombo should be based on roll, not action name
+            // "FORCED ACTION" should only be marked as combo if roll >= 14
             if (result.SelectedAction != null)
             {
-                // Current buggy behavior
-                bool expectedIsCombo = result.SelectedAction.Name != "BASIC ATTACK";
+                var thresholdManager = RollModificationManager.GetThresholdManager();
+                int comboThreshold = thresholdManager.GetComboThreshold(character);
+                bool expectedIsCombo = result.AttackRoll >= comboThreshold;
+                
                 AssertTrue(result.IsCombo == expectedIsCombo, 
-                    $"IsCombo for forced action matches current (buggy) logic: {result.IsCombo}");
+                    $"IsCombo should be {expectedIsCombo} for forced action with roll {result.AttackRoll} (threshold: {comboThreshold}), got: {result.IsCombo}");
             }
         }
         

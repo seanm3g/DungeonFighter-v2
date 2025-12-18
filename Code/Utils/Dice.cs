@@ -48,6 +48,8 @@ namespace RPGGame
         public static DiceResult RollComboAction(int bonus = 0)
         {
             int roll = Roll(20) + bonus;
+            // Ensure roll never goes below 1
+            roll = Math.Max(1, roll);
             
             if (roll <= 5)
             {
@@ -65,14 +67,16 @@ namespace RPGGame
 
         /// <summary>
         /// Roll for continuing a combo sequence (once combo mode is triggered)
-        /// 11+ continues the combo, 10 or below fails
+        /// 14+ continues the combo (combo action range), 13 or below fails
         /// </summary>
         /// <param name="bonus">Bonus to add to the roll</param>
         /// <returns>DiceResult containing the roll and success status</returns>
         public static DiceResult RollComboContinue(int bonus = 0)
         {
             int roll = Roll(20) + bonus;
-            bool success = roll >= 11;
+            // Ensure roll never goes below 1
+            roll = Math.Max(1, roll);
+            bool success = roll >= 14;
             
             return new DiceResult(roll, success, false, success ? "Combo Continue" : "Combo Fail");
         }

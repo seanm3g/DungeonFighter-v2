@@ -157,7 +157,15 @@ namespace RPGGame
             // Apply combo routing if action has routing properties
             if (lastAction != null && this is Character character)
             {
-                int currentSlotIndex = ComboStep % comboActions.Count;
+                // Find the index of the lastAction in the combo sequence
+                // This is more accurate than using ComboStep % comboActions.Count
+                int currentSlotIndex = comboActions.FindIndex(a => a.Name == lastAction.Name);
+                if (currentSlotIndex < 0)
+                {
+                    // If action not found in combo, use ComboStep as fallback
+                    currentSlotIndex = ComboStep % comboActions.Count;
+                }
+                
                 var routingResult = Entity.Actions.ComboRouting.ComboRouter.RouteCombo(character, lastAction, currentSlotIndex, comboActions);
                 
                 if (!routingResult.ContinueCombo)
@@ -170,7 +178,7 @@ namespace RPGGame
                 // Apply routing to determine next slot
                 int nextSlotIndex = routingResult.NextSlotIndex;
                 if (nextSlotIndex < 0) nextSlotIndex = 0;
-                if (nextSlotIndex >= comboActions.Count) nextSlotIndex = comboActions.Count - 1;
+                if (nextSlotIndex >= comboActions.Count) nextSlotIndex = nextSlotIndex % comboActions.Count;
                 
                 // Update ComboStep to point to the next slot
                 // ComboStep tracks absolute position, so we need to calculate the new absolute step
@@ -179,7 +187,19 @@ namespace RPGGame
                 {
                     // Calculate new ComboStep: find how many full cycles we've done, then add the slot index
                     int cycles = ComboStep / comboActions.Count;
-                    ComboStep = (cycles * comboActions.Count) + nextSlotIndex;
+                    int newComboStep = (cycles * comboActions.Count) + nextSlotIndex;
+                    
+                    // If the new step would be the same as current, increment to next cycle
+                    // This ensures we always advance when IncrementComboStep is called
+                    if (newComboStep == ComboStep)
+                    {
+                        // We're at the same absolute step, so advance to next cycle
+                        ComboStep = ((cycles + 1) * comboActions.Count) + nextSlotIndex;
+                    }
+                    else
+                    {
+                        ComboStep = newComboStep;
+                    }
                 }
                 else
                 {

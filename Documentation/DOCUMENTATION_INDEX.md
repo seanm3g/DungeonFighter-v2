@@ -3,19 +3,19 @@
 ## 🚀 Quick Navigation
 
 ### Just Want to Start Testing? (5 minutes)
-→ Read: [`QUICK_START_SIMULATION.md`](QUICK_START_SIMULATION.md)
+→ Read: [`02-Development/QUICK_START_SIMULATION.md`](02-Development/QUICK_START_SIMULATION.md)
 → Do: Follow the 9 steps to run your first simulation
 
 ### Want Full Understanding? (30 minutes)
-→ Read: [`IMPLEMENTATION_SUMMARY.md`](IMPLEMENTATION_SUMMARY.md) (this explains everything)
-→ Then: [`COMBAT_SIMULATION_README.md`](COMBAT_SIMULATION_README.md) (detailed overview)
+→ Read: [`02-Development/IMPLEMENTATION_SUMMARY.md`](02-Development/IMPLEMENTATION_SUMMARY.md) (this explains everything)
+→ Then: [`02-Development/COMBAT_SIMULATION_README.md`](02-Development/COMBAT_SIMULATION_README.md) (detailed overview)
 
 ### Using with Claude? (10 minutes)
-→ Read: [`MCP_INTEGRATION_GUIDE.md`](MCP_INTEGRATION_GUIDE.md)
+→ Read: [`05-Systems/MCP_INTEGRATION_GUIDE.md`](05-Systems/MCP_INTEGRATION_GUIDE.md)
 → Example: Show Claude the scenario and ask it to balance
 
 ### Deep Technical Dive? (60+ minutes)
-→ Read: [`SIMULATION_AND_TUNING_GUIDE.md`](SIMULATION_AND_TUNING_GUIDE.md)
+→ Read: [`02-Development/SIMULATION_AND_TUNING_GUIDE.md`](02-Development/SIMULATION_AND_TUNING_GUIDE.md)
 → Explore: `/Code/Simulation/` source files
 → Experiment: Create custom scenarios and test them
 
@@ -25,11 +25,11 @@
 
 | File | Purpose | Read Time | Who |
 |------|---------|-----------|-----|
-| **IMPLEMENTATION_SUMMARY.md** | Complete overview of what was built and why | 10 min | Everyone - start here |
-| **QUICK_START_SIMULATION.md** | 9 simple steps to run first simulation | 5 min | People who want to start immediately |
-| **COMBAT_SIMULATION_README.md** | Deep dive into the system and how it works | 20 min | People who want to understand everything |
-| **SIMULATION_AND_TUNING_GUIDE.md** | Complete technical guide with examples | 30 min | Balance designers and power users |
-| **MCP_INTEGRATION_GUIDE.md** | How to use with Claude and other AI agents | 10 min | People using Claude for tuning |
+| **02-Development/IMPLEMENTATION_SUMMARY.md** | Complete overview of what was built and why | 10 min | Everyone - start here |
+| **02-Development/QUICK_START_SIMULATION.md** | 9 simple steps to run first simulation | 5 min | People who want to start immediately |
+| **02-Development/COMBAT_SIMULATION_README.md** | Deep dive into the system and how it works | 20 min | People who want to understand everything |
+| **02-Development/SIMULATION_AND_TUNING_GUIDE.md** | Complete technical guide with examples | 30 min | Balance designers and power users |
+| **05-Systems/MCP_INTEGRATION_GUIDE.md** | How to use with Claude and other AI agents | 10 min | People using Claude for tuning |
 | **scenario_template.json** | Template for creating custom test scenarios | 5 min | When creating new test cases |
 
 ---
@@ -171,7 +171,7 @@ Claude does steps 1-7 from Use Case 2 automatically
 
 ### Path A: Quick Test (5 min)
 ```
-1. Read: QUICK_START_SIMULATION.md
+1. Read: 02-Development/QUICK_START_SIMULATION.md
 2. Run: run_battle_simulation
 3. Check: analyze_battle_results
 Done!
@@ -179,16 +179,16 @@ Done!
 
 ### Path B: Basic Tuning (30 min)
 ```
-1. Read: IMPLEMENTATION_SUMMARY.md
-2. Read: QUICK_START_SIMULATION.md
+1. Read: 02-Development/IMPLEMENTATION_SUMMARY.md
+2. Read: 02-Development/QUICK_START_SIMULATION.md
 3. Run: Full iteration cycle (test → analyze → tune → compare)
 ```
 
 ### Path C: Deep Learning (2 hours)
 ```
-1. Read: IMPLEMENTATION_SUMMARY.md
-2. Read: COMBAT_SIMULATION_README.md
-3. Read: SIMULATION_AND_TUNING_GUIDE.md
+1. Read: 02-Development/IMPLEMENTATION_SUMMARY.md
+2. Read: 02-Development/COMBAT_SIMULATION_README.md
+3. Read: 02-Development/SIMULATION_AND_TUNING_GUIDE.md
 4. Explore: Source code in /Code/Simulation/
 5. Create: Custom scenario from template
 6. Test: Your custom scenario
@@ -196,8 +196,8 @@ Done!
 
 ### Path D: Collaborative AI (1 hour)
 ```
-1. Read: IMPLEMENTATION_SUMMARY.md
-2. Read: MCP_INTEGRATION_GUIDE.md
+1. Read: 02-Development/IMPLEMENTATION_SUMMARY.md
+2. Read: 05-Systems/MCP_INTEGRATION_GUIDE.md
 3. Create: Initial scenario
 4. Tell Claude: "Balance this scenario"
 5. Let Claude work while you observe
@@ -208,9 +208,9 @@ Done!
 
 ## 📋 Pre-Session Checklist
 
-- [ ] MCP server is running (should be at PID 49904)
+- [ ] MCP server is running
 - [ ] `/Code/Simulation/` files exist and compile
-- [ ] Read at least QUICK_START_SIMULATION.md
+- [ ] Read at least 02-Development/QUICK_START_SIMULATION.md
 - [ ] Have a scenario ready (use template or default)
 - [ ] Have a goal in mind (e.g., "10-turn combats")
 
@@ -287,10 +287,10 @@ Alice: Reviews Claude's changes, approves v2.0
 → Normal due to dice rolls. Run more battles for stability.
 
 ### Problem: "I want to test with Claude"
-→ See MCP_INTEGRATION_GUIDE.md → "Example Claude Interactions"
+→ See 05-Systems/MCP_INTEGRATION_GUIDE.md → "Example Claude Interactions"
 
 ### Problem: "I'm overwhelming by options"
-→ Start with QUICK_START_SIMULATION.md, follow the 9 steps
+→ Start with 02-Development/QUICK_START_SIMULATION.md, follow the 9 steps
 
 ---
 
@@ -309,8 +309,8 @@ Alice: Reviews Claude's changes, approves v2.0
 ## 📖 Reading Order (Recommended)
 
 1. **This file** (2 min) - You're reading it!
-2. **IMPLEMENTATION_SUMMARY.md** (10 min) - Understand what was built
-3. **QUICK_START_SIMULATION.md** (5 min) - Get ready to test
+2. **02-Development/IMPLEMENTATION_SUMMARY.md** (10 min) - Understand what was built
+3. **02-Development/QUICK_START_SIMULATION.md** (5 min) - Get ready to test
 4. **Now**: Run your first simulation!
 5. **Later**: Dive into deeper guides as needed
 

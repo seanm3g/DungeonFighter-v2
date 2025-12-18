@@ -76,7 +76,8 @@ namespace RPGGame.Actions.Execution
             lastCriticalMissStatus[source] = result.IsCriticalMiss;
 
             // Determine if this is a combo or critical
-            result.IsCombo = result.SelectedAction.Name != "BASIC ATTACK";
+            // IsCombo should be based on whether the roll was >= combo threshold (14), not the action name
+            result.IsCombo = result.AttackRoll >= RollModificationManager.GetThresholdManager().GetComboThreshold(source);
             result.IsCritical = result.AttackRoll >= RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
 
             // Publish action executed event for conditional triggers
