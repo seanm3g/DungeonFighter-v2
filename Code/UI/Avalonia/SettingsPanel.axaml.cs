@@ -632,6 +632,74 @@ namespace RPGGame.UI.Avalonia
             AddFormField(numericStack, "DamageMultiplier", action.DamageMultiplier.ToString(), (value) => { if (double.TryParse(value, out double v)) action.DamageMultiplier = v; });
             AddFormField(numericStack, "Length", action.Length.ToString(), (value) => { if (double.TryParse(value, out double v)) action.Length = v; });
             
+            // Status Effects Section
+            var statusSection = CreateFormSection("Status Effects");
+            ActionFormPanel.Children.Add(statusSection);
+            
+            var statusStack = new StackPanel { Spacing = 10, Margin = new Thickness(10, 5, 0, 15) };
+            statusSection.Child = statusStack;
+            
+            AddBooleanField(statusStack, "CausesBleed", action.CausesBleed, (value) => action.CausesBleed = value);
+            AddBooleanField(statusStack, "CausesWeaken", action.CausesWeaken, (value) => action.CausesWeaken = value);
+            AddBooleanField(statusStack, "CausesSlow", action.CausesSlow, (value) => action.CausesSlow = value);
+            AddBooleanField(statusStack, "CausesPoison", action.CausesPoison, (value) => action.CausesPoison = value);
+            AddBooleanField(statusStack, "CausesBurn", action.CausesBurn, (value) => action.CausesBurn = value);
+            
+            // Combo Properties Section
+            var comboSection = CreateFormSection("Combo Properties");
+            ActionFormPanel.Children.Add(comboSection);
+            
+            var comboStack = new StackPanel { Spacing = 10, Margin = new Thickness(10, 5, 0, 15) };
+            comboSection.Child = comboStack;
+            
+            AddBooleanField(comboStack, "IsComboAction", action.IsComboAction, (value) => action.IsComboAction = value);
+            AddFormField(comboStack, "ComboOrder", action.ComboOrder.ToString(), (value) => { if (int.TryParse(value, out int v)) action.ComboOrder = v; });
+            AddFormField(comboStack, "ComboBonusAmount", action.ComboBonusAmount.ToString(), (value) => { if (int.TryParse(value, out int v)) action.ComboBonusAmount = v; });
+            AddFormField(comboStack, "ComboBonusDuration", action.ComboBonusDuration.ToString(), (value) => { if (int.TryParse(value, out int v)) action.ComboBonusDuration = v; });
+            
+            // Advanced Mechanics Section
+            var advancedSection = CreateFormSection("Advanced Mechanics");
+            ActionFormPanel.Children.Add(advancedSection);
+            
+            var advancedStack = new StackPanel { Spacing = 10, Margin = new Thickness(10, 5, 0, 15) };
+            advancedSection.Child = advancedStack;
+            
+            AddFormField(advancedStack, "RollBonus", action.RollBonus.ToString(), (value) => { if (int.TryParse(value, out int v)) action.RollBonus = v; });
+            AddFormField(advancedStack, "StatBonus", action.StatBonus.ToString(), (value) => { if (int.TryParse(value, out int v)) action.StatBonus = v; });
+            AddFormField(advancedStack, "StatBonusType", action.StatBonusType, (value) => action.StatBonusType = value, 
+                new[] { "", "Strength", "Agility", "Technique", "Intelligence" });
+            AddFormField(advancedStack, "StatBonusDuration", action.StatBonusDuration.ToString(), (value) => { if (int.TryParse(value, out int v)) action.StatBonusDuration = v; });
+            AddFormField(advancedStack, "MultiHitCount", action.MultiHitCount.ToString(), (value) => { if (int.TryParse(value, out int v) && v >= 1) action.MultiHitCount = v; });
+            AddFormField(advancedStack, "SelfDamagePercent", action.SelfDamagePercent.ToString(), (value) => { if (int.TryParse(value, out int v)) action.SelfDamagePercent = v; });
+            AddBooleanField(advancedStack, "SkipNextTurn", action.SkipNextTurn, (value) => action.SkipNextTurn = value);
+            AddBooleanField(advancedStack, "RepeatLastAction", action.RepeatLastAction, (value) => action.RepeatLastAction = value);
+            AddFormField(advancedStack, "EnemyRollPenalty", action.EnemyRollPenalty.ToString(), (value) => { if (int.TryParse(value, out int v)) action.EnemyRollPenalty = v; });
+            AddFormField(advancedStack, "HealthThreshold", action.HealthThreshold.ToString("F2"), (value) => { if (double.TryParse(value, out double v) && v >= 0.0 && v <= 1.0) action.HealthThreshold = v; });
+            AddFormField(advancedStack, "ConditionalDamageMultiplier", action.ConditionalDamageMultiplier.ToString("F2"), (value) => { if (double.TryParse(value, out double v)) action.ConditionalDamageMultiplier = v; });
+            
+            // Tags Section
+            var tagsSection = CreateFormSection("Tags");
+            ActionFormPanel.Children.Add(tagsSection);
+            
+            var tagsStack = new StackPanel { Spacing = 10, Margin = new Thickness(10, 5, 0, 15) };
+            tagsSection.Child = tagsStack;
+            
+            string tagsValue = action.Tags != null ? string.Join(", ", action.Tags) : "";
+            AddFormField(tagsStack, "Tags", tagsValue, (value) => 
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    action.Tags = new List<string>();
+                }
+                else
+                {
+                    action.Tags = value.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(t => t.Trim())
+                        .Where(t => !string.IsNullOrWhiteSpace(t))
+                        .ToList();
+                }
+            });
+            
             // Save/Cancel buttons
             var buttonStack = new StackPanel 
             { 
@@ -807,6 +875,44 @@ namespace RPGGame.UI.Avalonia
             parent.Children.Add(grid);
             
             actionFormControls[label] = inputControl;
+        }
+        
+        /// <summary>
+        /// Adds a boolean field (checkbox) to the stack panel
+        /// </summary>
+        private void AddBooleanField(StackPanel parent, string label, bool value, Action<bool> setter)
+        {
+            var grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(200) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            
+            var labelBlock = new TextBlock
+            {
+                Text = label + ":",
+                FontSize = 15,
+                Foreground = new SolidColorBrush(Colors.White),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            Grid.SetColumn(labelBlock, 0);
+            grid.Children.Add(labelBlock);
+            
+            var checkBox = new CheckBox
+            {
+                IsChecked = value,
+                FontSize = 14,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            checkBox.IsCheckedChanged += (s, e) => 
+            {
+                if (checkBox.IsChecked.HasValue)
+                    setter(checkBox.IsChecked.Value);
+            };
+            
+            Grid.SetColumn(checkBox, 1);
+            grid.Children.Add(checkBox);
+            parent.Children.Add(grid);
+            
+            actionFormControls[label] = checkBox;
         }
         
         /// <summary>
