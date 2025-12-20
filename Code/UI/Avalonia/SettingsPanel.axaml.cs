@@ -8,6 +8,7 @@ using Avalonia.Layout;
 using RPGGame;
 using RPGGame.Editors;
 using RPGGame.Game.Testing.Commands;
+using RPGGame.Data;
 using RPGGame.UI.Avalonia.Builders;
 using RPGGame.UI.Avalonia.Validators;
 using RPGGame.UI.Avalonia.Managers;
@@ -15,7 +16,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Timers;
 using System.Timers;
 
 namespace RPGGame.UI.Avalonia
@@ -42,6 +42,18 @@ namespace RPGGame.UI.Avalonia
         private Dictionary<string, TextBlock> gameVariableChangeIndicators = new Dictionary<string, TextBlock>();
         private Dictionary<string, string> gameVariableCategoryDisplayToName = new Dictionary<string, string>();
         private ChangeIndicatorManager gameVariableChangeIndicatorManager = new ChangeIndicatorManager();
+        
+        // Actions tab fields
+        private ActionEditor? actionEditor;
+        private ActionData? selectedAction;
+        private bool isCreatingNewAction = false;
+        private Dictionary<string, Control> actionFormControls = new Dictionary<string, Control>();
+        
+        // Battle Statistics tab fields
+        private BattleStatisticsRunner.StatisticsResult? currentBattleStatisticsResults;
+        private List<BattleStatisticsRunner.WeaponTestResult>? currentWeaponTestResults;
+        private BattleStatisticsRunner.ComprehensiveWeaponEnemyTestResult? currentComprehensiveResults;
+        private bool isBattleStatisticsRunning = false;
         
         public SettingsPanel()
         {
@@ -103,6 +115,9 @@ namespace RPGGame.UI.Avalonia
             
             // Initialize Game Variables tab
             InitializeGameVariablesTab();
+            
+            // Initialize Actions tab
+            InitializeActionsTab();
         }
         
         /// <summary>
@@ -170,8 +185,23 @@ namespace RPGGame.UI.Avalonia
             var categoryHeader = CreateGameVariableCategoryHeader(category, variables.Count);
             GameVariablesPanel.Children.Add(categoryHeader);
             
-            foreach (var variable in variables)
+            // Create a 2-column grid for the variables
+            var variablesGrid = new Grid();
+            variablesGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            variablesGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(10) }); // Spacer
+            variablesGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            
+            // Calculate number of rows needed
+            int numRows = (variables.Count + 1) / 2; // Round up
+            for (int r = 0; r < numRows; r++)
             {
+                variablesGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            }
+            
+            for (int i = 0; i < variables.Count; i++)
+            {
+                var variable = variables[i];
+                
                 // Store original value
                 gameVariableChangeIndicatorManager.SetOriginalValue(variable.Name, variable.GetValue() ?? new object());
                 
@@ -190,8 +220,17 @@ namespace RPGGame.UI.Avalonia
                 
                 gameVariableTextBoxes[variable.Name] = textBox;
                 gameVariableChangeIndicators[variable.Name] = indicator;
-                GameVariablesPanel.Children.Add(container);
+                
+                // Determine row and column
+                int row = i / 2;
+                int column = (i % 2 == 0) ? 0 : 2;
+                
+                Grid.SetColumn(container, column);
+                Grid.SetRow(container, row);
+                variablesGrid.Children.Add(container);
             }
+            
+            GameVariablesPanel.Children.Add(variablesGrid);
         }
         
         /// <summary>
@@ -203,13 +242,13 @@ namespace RPGGame.UI.Avalonia
             {
                 Background = new SolidColorBrush(Color.FromRgb(40, 40, 60)),
                 BorderBrush = new SolidColorBrush(Color.FromRgb(100, 100, 150)),
-                BorderThickness = new Thickness(2),
-                CornerRadius = new CornerRadius(5),
-                Padding = new Thickness(15),
-                Margin = new Thickness(0, 0, 0, 15)
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(2),
+                Padding = new Thickness(4, 3),
+                Margin = new Thickness(0, 0, 0, 2)
             };
             
-            var stack = new StackPanel { Spacing = 5 };
+            var stack = new StackPanel { Spacing = 2 };
             
             var title = new TextBlock
             {
@@ -223,7 +262,7 @@ namespace RPGGame.UI.Avalonia
             var info = new TextBlock
             {
                 Text = $"{variableCount} parameters available • Changes are applied immediately",
-                FontSize = 11,
+                FontSize = 13,
                 Foreground = new SolidColorBrush(Color.FromRgb(180, 180, 180))
             };
             stack.Children.Add(info);
@@ -280,11 +319,13 @@ namespace RPGGame.UI.Avalonia
         {
             // Narrative Settings
             NarrativeBalanceSlider.Value = settings.NarrativeBalance;
+            NarrativeBalanceTextBox.Text = settings.NarrativeBalance.ToString("F2");
             EnableNarrativeEventsCheckBox.IsChecked = settings.EnableNarrativeEvents;
             EnableInformationalSummariesCheckBox.IsChecked = settings.EnableInformationalSummaries;
             
             // Combat Settings
             CombatSpeedSlider.Value = settings.CombatSpeed;
+            CombatSpeedTextBox.Text = settings.CombatSpeed.ToString("F2");
             ShowIndividualActionMessagesCheckBox.IsChecked = settings.ShowIndividualActionMessages;
             EnableComboSystemCheckBox.IsChecked = settings.EnableComboSystem;
             EnableTextDisplayDelaysCheckBox.IsChecked = settings.EnableTextDisplayDelays;
@@ -298,9 +339,13 @@ namespace RPGGame.UI.Avalonia
             
             // Difficulty Settings
             EnemyHealthMultiplierSlider.Value = settings.EnemyHealthMultiplier;
+            EnemyHealthMultiplierTextBox.Text = settings.EnemyHealthMultiplier.ToString("F2");
             EnemyDamageMultiplierSlider.Value = settings.EnemyDamageMultiplier;
+            EnemyDamageMultiplierTextBox.Text = settings.EnemyDamageMultiplier.ToString("F2");
             PlayerHealthMultiplierSlider.Value = settings.PlayerHealthMultiplier;
+            PlayerHealthMultiplierTextBox.Text = settings.PlayerHealthMultiplier.ToString("F2");
             PlayerDamageMultiplierSlider.Value = settings.PlayerDamageMultiplier;
+            PlayerDamageMultiplierTextBox.Text = settings.PlayerDamageMultiplier.ToString("F2");
             
             // UI Settings
             ShowHealthBarsCheckBox.IsChecked = settings.ShowHealthBars;
@@ -425,11 +470,402 @@ namespace RPGGame.UI.Avalonia
             CommonItemModificationTestButton.Click += async (s, e) => await ExecuteTest("10");
             ActionEditorTestsButton.Click += async (s, e) => await ExecuteTest("13");
             
-            // Developer tools buttons
-            EditGameVariablesButton.Click += OnEditGameVariablesClick;
-            EditActionsButton.Click += OnEditActionsClick;
-            BattleStatisticsButton.Click += OnBattleStatisticsClick;
-            TuningParametersButton.Click += OnTuningParametersClick;
+            // Battle Statistics tab buttons - use FindControl to avoid XAML generation issues
+            var quickTestButton = this.FindControl<Button>("QuickTestButton");
+            var standardTestButton = this.FindControl<Button>("StandardTestButton");
+            var comprehensiveTestButton = this.FindControl<Button>("ComprehensiveTestButton");
+            var weaponTypeTestButton = this.FindControl<Button>("WeaponTypeTestButton");
+            var comprehensiveWeaponEnemyTestButton = this.FindControl<Button>("ComprehensiveWeaponEnemyTestButton");
+            var battleStatisticsButton = this.FindControl<Button>("BattleStatisticsButton");
+            
+            if (quickTestButton != null) quickTestButton.Click += async (s, e) => await RunBattleTest(100);
+            if (standardTestButton != null) standardTestButton.Click += async (s, e) => await RunBattleTest(500);
+            if (comprehensiveTestButton != null) comprehensiveTestButton.Click += async (s, e) => await RunBattleTest(1000);
+            if (weaponTypeTestButton != null) weaponTypeTestButton.Click += async (s, e) => await RunWeaponTypeTests();
+            if (comprehensiveWeaponEnemyTestButton != null) comprehensiveWeaponEnemyTestButton.Click += async (s, e) => await RunComprehensiveWeaponEnemyTests();
+            if (battleStatisticsButton != null) battleStatisticsButton.Click += OnBattleStatisticsClick;
+            
+            // Actions tab buttons
+            CreateActionButton.Click += OnCreateActionClick;
+            DeleteActionButton.Click += OnDeleteActionClick;
+            ActionsListBox.SelectionChanged += OnActionSelectionChanged;
+        }
+        
+        /// <summary>
+        /// Initializes the Actions tab with ActionEditor
+        /// </summary>
+        private void InitializeActionsTab()
+        {
+            actionEditor = new ActionEditor();
+            LoadActionsList();
+        }
+        
+        /// <summary>
+        /// Loads actions into the list
+        /// </summary>
+        private void LoadActionsList()
+        {
+            if (actionEditor == null) return;
+            
+            var actions = actionEditor.GetActions();
+            // Store actions in a dictionary for lookup by name
+            actionNameToAction = actions.ToDictionary(a => a.Name, a => a);
+            // Use action names for display (strings work with compiled bindings)
+            ActionsListBox.ItemsSource = actions.Select(a => a.Name).ToList();
+        }
+        
+        // Dictionary to map action names back to ActionData objects
+        private Dictionary<string, ActionData> actionNameToAction = new Dictionary<string, ActionData>();
+        
+        /// <summary>
+        /// Handles action selection in the list
+        /// </summary>
+        private void OnActionSelectionChanged(object? sender, SelectionChangedEventArgs e)
+        {
+            if (ActionsListBox.SelectedItem is string actionName && 
+                actionNameToAction.TryGetValue(actionName, out var action))
+            {
+                selectedAction = action;
+                isCreatingNewAction = false;
+                LoadActionForm(action);
+            }
+        }
+        
+        /// <summary>
+        /// Creates a new action
+        /// </summary>
+        private void OnCreateActionClick(object? sender, RoutedEventArgs e)
+        {
+            selectedAction = new ActionData
+            {
+                Name = "",
+                Type = "Attack",
+                TargetType = "SingleTarget",
+                BaseValue = 0,
+                Range = 1,
+                Cooldown = 0,
+                Description = "",
+                DamageMultiplier = 1.0,
+                Length = 1.0,
+                Tags = new List<string>()
+            };
+            isCreatingNewAction = true;
+            ActionsListBox.SelectedItem = null;
+            LoadActionForm(selectedAction);
+        }
+        
+        /// <summary>
+        /// Deletes the selected action
+        /// </summary>
+        private void OnDeleteActionClick(object? sender, RoutedEventArgs e)
+        {
+            if (actionEditor == null || selectedAction == null || isCreatingNewAction)
+            {
+                ShowStatusMessage("No action selected for deletion", false);
+                return;
+            }
+            
+            if (actionEditor.DeleteAction(selectedAction.Name))
+            {
+                ShowStatusMessage($"Action '{selectedAction.Name}' deleted successfully", true);
+                LoadActionsList();
+                ActionFormPanel.Children.Clear();
+                selectedAction = null;
+            }
+            else
+            {
+                ShowStatusMessage($"Failed to delete action '{selectedAction.Name}'", false);
+            }
+        }
+        
+        /// <summary>
+        /// Loads the action form with all fields
+        /// </summary>
+        private void LoadActionForm(ActionData action)
+        {
+            ActionFormPanel.Children.Clear();
+            actionFormControls.Clear();
+            
+            // Title
+            var title = new TextBlock
+            {
+                Text = isCreatingNewAction ? "Create New Action" : $"Edit Action: {action.Name}",
+                FontSize = 18,
+                FontWeight = FontWeight.Bold,
+                Foreground = new SolidColorBrush(Color.FromRgb(255, 215, 0)),
+                Margin = new Thickness(0, 0, 0, 15)
+            };
+            ActionFormPanel.Children.Add(title);
+            
+            // Basic Properties Section
+            var basicSection = CreateFormSection("Basic Properties");
+            ActionFormPanel.Children.Add(basicSection);
+            
+            var basicStack = new StackPanel { Spacing = 10, Margin = new Thickness(10, 5, 0, 15) };
+            basicSection.Child = basicStack;
+            
+            AddFormField(basicStack, "Name", action.Name, (value) => action.Name = value);
+            
+            // Type field with handler to update TargetType options
+            var typeOptions = new[] { "Attack", "Heal", "Buff", "Debuff", "Spell", "Interact", "Move", "UseItem" };
+            AddFormField(basicStack, "Type", action.Type, (value) => 
+            {
+                action.Type = value;
+                // Update TargetType options based on selected Type
+                UpdateTargetTypeOptions(action, value);
+            }, typeOptions);
+            
+            // TargetType field - will be updated when Type changes
+            AddFormField(basicStack, "TargetType", action.TargetType, (value) => action.TargetType = value, GetValidTargetTypes(action.Type));
+            AddFormField(basicStack, "Description", action.Description, (value) => action.Description = value, isMultiline: true);
+            
+            // Numeric Properties Section
+            var numericSection = CreateFormSection("Numeric Properties");
+            ActionFormPanel.Children.Add(numericSection);
+            
+            var numericStack = new StackPanel { Spacing = 10, Margin = new Thickness(10, 5, 0, 15) };
+            numericSection.Child = numericStack;
+            
+            AddFormField(numericStack, "BaseValue", action.BaseValue.ToString(), (value) => { if (int.TryParse(value, out int v)) action.BaseValue = v; });
+            AddFormField(numericStack, "Range", action.Range.ToString(), (value) => { if (int.TryParse(value, out int v)) action.Range = v; });
+            AddFormField(numericStack, "Cooldown", action.Cooldown.ToString(), (value) => { if (int.TryParse(value, out int v)) action.Cooldown = v; });
+            AddFormField(numericStack, "DamageMultiplier", action.DamageMultiplier.ToString(), (value) => { if (double.TryParse(value, out double v)) action.DamageMultiplier = v; });
+            AddFormField(numericStack, "Length", action.Length.ToString(), (value) => { if (double.TryParse(value, out double v)) action.Length = v; });
+            
+            // Save/Cancel buttons
+            var buttonStack = new StackPanel 
+            { 
+                Orientation = Orientation.Horizontal, 
+                Spacing = 10, 
+                Margin = new Thickness(0, 20, 0, 0),
+                HorizontalAlignment = HorizontalAlignment.Right
+            };
+            
+            var saveButton = new Button
+            {
+                Content = isCreatingNewAction ? "Create Action" : "Save Changes",
+                Width = 150,
+                Height = 35,
+                Background = new SolidColorBrush(Color.FromRgb(76, 175, 80)),
+                Foreground = new SolidColorBrush(Colors.White),
+                BorderThickness = new Thickness(0),
+                CornerRadius = new CornerRadius(3),
+                Cursor = new Cursor(StandardCursorType.Hand)
+            };
+            saveButton.Click += (s, e) => SaveAction(action);
+            
+            var cancelButton = new Button
+            {
+                Content = "Cancel",
+                Width = 100,
+                Height = 35,
+                Background = new SolidColorBrush(Color.FromRgb(117, 117, 117)),
+                Foreground = new SolidColorBrush(Colors.White),
+                BorderThickness = new Thickness(0),
+                CornerRadius = new CornerRadius(3),
+                Cursor = new Cursor(StandardCursorType.Hand)
+            };
+            cancelButton.Click += (s, e) => 
+            {
+                ActionFormPanel.Children.Clear();
+                ActionsListBox.SelectedItem = null;
+                selectedAction = null;
+            };
+            
+            buttonStack.Children.Add(cancelButton);
+            buttonStack.Children.Add(saveButton);
+            ActionFormPanel.Children.Add(buttonStack);
+        }
+        
+        /// <summary>
+        /// Creates a form section header
+        /// </summary>
+        private Border CreateFormSection(string title)
+        {
+            return new Border
+            {
+                Background = new SolidColorBrush(Color.FromRgb(40, 40, 60)),
+                BorderBrush = new SolidColorBrush(Color.FromRgb(100, 100, 150)),
+                BorderThickness = new Thickness(2),
+                CornerRadius = new CornerRadius(5),
+                Padding = new Thickness(15),
+                Margin = new Thickness(0, 0, 0, 15)
+            };
+        }
+        
+        /// <summary>
+        /// Gets valid target types for a given action type
+        /// </summary>
+        private string[] GetValidTargetTypes(string actionType)
+        {
+            return actionType switch
+            {
+                "Attack" => new[] { "SingleTarget" },
+                "Spell" => new[] { "SingleTarget" },
+                "Heal" => new[] { "Self", "SingleTarget" },
+                "Buff" => new[] { "Self" },
+                "Debuff" => new[] { "SingleTarget" },
+                "Interact" => new[] { "Environment" },
+                "Move" => new[] { "Self" },
+                "UseItem" => new[] { "Self", "SingleTarget" },
+                _ => new[] { "SingleTarget" }
+            };
+        }
+        
+        /// <summary>
+        /// Updates the TargetType dropdown options when ActionType changes
+        /// </summary>
+        private void UpdateTargetTypeOptions(ActionData action, string newActionType)
+        {
+            if (actionFormControls.TryGetValue("TargetType", out var targetTypeControl) && targetTypeControl is ComboBox targetTypeComboBox)
+            {
+                var validTargetTypes = GetValidTargetTypes(newActionType);
+                targetTypeComboBox.ItemsSource = validTargetTypes;
+                
+                // If current target type is not valid for new action type, set to first valid option
+                if (!validTargetTypes.Contains(action.TargetType))
+                {
+                    action.TargetType = validTargetTypes[0];
+                    targetTypeComboBox.SelectedItem = action.TargetType;
+                }
+                else
+                {
+                    targetTypeComboBox.SelectedItem = action.TargetType;
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Adds a form field to the stack panel
+        /// </summary>
+        private void AddFormField(StackPanel parent, string label, string value, Action<string> setter, string[]? options = null, bool isMultiline = false)
+        {
+            var grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(200) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            
+            var labelBlock = new TextBlock
+            {
+                Text = label + ":",
+                FontSize = 15,
+                Foreground = new SolidColorBrush(Colors.White),
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            Grid.SetColumn(labelBlock, 0);
+            grid.Children.Add(labelBlock);
+            
+            Control inputControl;
+            if (options != null && options.Length > 0)
+            {
+                var comboBox = new ComboBox
+                {
+                    ItemsSource = options,
+                    SelectedItem = value,
+                    FontSize = 14,
+                    Background = new SolidColorBrush(Color.FromRgb(26, 26, 26)),
+                    Foreground = new SolidColorBrush(Colors.White),
+                    BorderBrush = new SolidColorBrush(Color.FromRgb(85, 85, 85))
+                };
+                comboBox.SelectionChanged += (s, e) => 
+                {
+                    if (comboBox.SelectedItem is string selected) setter(selected);
+                };
+                inputControl = comboBox;
+            }
+            else if (isMultiline)
+            {
+                var textBox = new TextBox
+                {
+                    Text = value,
+                    FontSize = 14,
+                    TextWrapping = TextWrapping.Wrap,
+                    AcceptsReturn = true,
+                    MinHeight = 80,
+                    Background = new SolidColorBrush(Colors.White),
+                    Foreground = new SolidColorBrush(Colors.Black),
+                    BorderBrush = new SolidColorBrush(Color.FromRgb(85, 85, 85))
+                };
+                textBox.LostFocus += (s, e) => setter(textBox.Text ?? "");
+                inputControl = textBox;
+            }
+            else
+            {
+                var textBox = new TextBox
+                {
+                    Text = value,
+                    FontSize = 14,
+                    Background = new SolidColorBrush(Colors.White),
+                    Foreground = new SolidColorBrush(Colors.Black),
+                    BorderBrush = new SolidColorBrush(Color.FromRgb(85, 85, 85))
+                };
+                textBox.LostFocus += (s, e) => setter(textBox.Text ?? "");
+                inputControl = textBox;
+            }
+            
+            Grid.SetColumn(inputControl, 1);
+            grid.Children.Add(inputControl);
+            parent.Children.Add(grid);
+            
+            actionFormControls[label] = inputControl;
+        }
+        
+        /// <summary>
+        /// Saves the action
+        /// </summary>
+        private void SaveAction(ActionData action)
+        {
+            if (actionEditor == null) return;
+            
+            // Update all form fields before saving
+            foreach (var kvp in actionFormControls)
+            {
+                if (kvp.Value is TextBox textBox && textBox.IsFocused)
+                {
+                    textBox.Focusable = false;
+                    textBox.Focusable = true;
+                }
+            }
+            
+            // Validate action
+            string? errorMessage = actionEditor.ValidateAction(action, isCreatingNewAction ? null : action.Name);
+            if (errorMessage != null)
+            {
+                ShowStatusMessage(errorMessage, false);
+                return;
+            }
+            
+            // Save action
+            bool success;
+            if (isCreatingNewAction)
+            {
+                success = actionEditor.CreateAction(action);
+                if (success)
+                {
+                    ShowStatusMessage($"Action '{action.Name}' created successfully", true);
+                    isCreatingNewAction = false;
+                }
+                else
+                {
+                    ShowStatusMessage($"Failed to create action '{action.Name}'", false);
+                    return;
+                }
+            }
+            else
+            {
+                success = actionEditor.UpdateAction(action.Name, action);
+                if (success)
+                {
+                    ShowStatusMessage($"Action '{action.Name}' updated successfully", true);
+                }
+                else
+                {
+                    ShowStatusMessage($"Failed to update action '{action.Name}'", false);
+                    return;
+                }
+            }
+            
+            // Reload actions list
+            LoadActionsList();
         }
         
         /// <summary>
@@ -607,6 +1043,23 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         private Task ExecuteTest(string commandKey)
         {
+            // #region agent log
+            try
+            {
+                string logPath = @"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log";
+                string? logDir = System.IO.Path.GetDirectoryName(logPath);
+                if (logDir != null && !System.IO.Directory.Exists(logDir))
+                {
+                    System.IO.Directory.CreateDirectory(logDir);
+                }
+                System.IO.File.AppendAllText(logPath, System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "ENTRY", location = "SettingsPanel.axaml.cs:1044", message = "ExecuteTest called", data = new { commandKey = commandKey }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
+            }
+            catch (Exception ex)
+            {
+                // Log to a fallback location if primary fails
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\debug_fallback.log", $"Log error: {ex.Message}\n"); } catch { }
+            }
+            // #endregion
             // Try to get canvasUI from stored reference, or fallback to UIManager
             CanvasUICoordinator? uiToUse = canvasUI;
             if (uiToUse == null)
@@ -618,6 +1071,13 @@ namespace RPGGame.UI.Avalonia
             
             if (uiToUse == null)
             {
+                // #region agent log
+                try
+                {
+                    System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "ENTRY", location = "SettingsPanel.axaml.cs:1055", message = "UI not available - early return", data = new { }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
+                }
+                catch { }
+                // #endregion
                 ShowStatusMessage("UI not available - game may not be fully initialized. Please wait for the game to load completely.", false);
                 return Task.CompletedTask;
             }
@@ -684,18 +1144,51 @@ namespace RPGGame.UI.Avalonia
                 {
                     try
                     {
+                        // #region agent log
+                        System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "C", location = "SettingsPanel.axaml.cs:1123", message = "Timer elapsed - calling GetDisplayBufferText", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
+                        // #endregion
                         string currentOutput = uiToUse.GetDisplayBufferText();
+                        // #region agent log
+                        System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "B", location = "SettingsPanel.axaml.cs:1126", message = "GetDisplayBufferText result", data = new { outputLength = currentOutput?.Length ?? 0, isEmpty = string.IsNullOrWhiteSpace(currentOutput), firstChars = currentOutput != null && currentOutput.Length > 0 ? currentOutput.Substring(0, Math.Min(50, currentOutput.Length)) : "null" }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
+                        // #endregion
                         if (!string.IsNullOrWhiteSpace(currentOutput))
                         {
                             Dispatcher.UIThread.Post(() =>
                             {
+                                // #region agent log
+                                System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "A", location = "SettingsPanel.axaml.cs:1130", message = "Updating TestOutputTextBlock.Text", data = new { textLength = currentOutput.Length, beforeUpdate = TestOutputTextBlock.Text?.Length ?? 0 }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
+                                // #endregion
                                 TestOutputTextBlock.Text = currentOutput;
+                                // Scroll to bottom after text update
+                                if (TestOutputScrollViewer != null)
+                                {
+                                    // Wait for layout to update, then scroll to bottom
+                                    Dispatcher.UIThread.Post(() =>
+                                    {
+                                        if (TestOutputScrollViewer.Extent.Height > TestOutputScrollViewer.Viewport.Height)
+                                        {
+                                            double maxScroll = TestOutputScrollViewer.Extent.Height - TestOutputScrollViewer.Viewport.Height;
+                                            TestOutputScrollViewer.Offset = new Vector(TestOutputScrollViewer.Offset.X, maxScroll);
+                                        }
+                                    }, DispatcherPriority.Background);
+                                }
+                                // #region agent log
+                                var scrollViewer = TestOutputScrollViewer ?? (TestOutputTextBlock.Parent as ScrollViewer);
+                                double scrollableHeight = 0;
+                                if (scrollViewer != null && scrollViewer.Extent.Height > scrollViewer.Viewport.Height)
+                                {
+                                    scrollableHeight = scrollViewer.Extent.Height - scrollViewer.Viewport.Height;
+                                }
+                                System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "D", location = "SettingsPanel.axaml.cs:1134", message = "After text update - checking ScrollViewer", data = new { scrollViewerFound = scrollViewer != null, scrollableHeight = scrollableHeight, viewportHeight = scrollViewer?.Viewport.Height ?? 0, extentHeight = scrollViewer?.Extent.Height ?? 0, offsetY = scrollViewer?.Offset.Y ?? 0 }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
+                                // #endregion
                             });
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // Ignore errors during periodic updates
+                        // #region agent log
+                        System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "C", location = "SettingsPanel.axaml.cs:1138", message = "Timer error", data = new { error = ex.Message, stackTrace = ex.StackTrace }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
+                        // #endregion
                     }
                 };
                 outputUpdateTimer.Start();
@@ -717,9 +1210,37 @@ namespace RPGGame.UI.Avalonia
                         // Update the Test Output window with the final captured output
                         Dispatcher.UIThread.Post(() =>
                         {
+                            // #region agent log
+                            System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "B", location = "SettingsPanel.axaml.cs:1154", message = "Final test output capture", data = new { outputLength = testOutput?.Length ?? 0, isEmpty = string.IsNullOrWhiteSpace(testOutput) }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
+                            // #endregion
                             if (!string.IsNullOrWhiteSpace(testOutput))
                             {
+                                // #region agent log
+                                System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "A", location = "SettingsPanel.axaml.cs:1158", message = "Setting final test output text", data = new { textLength = testOutput.Length }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
+                                // #endregion
                                 TestOutputTextBlock.Text = testOutput;
+                                // Scroll to bottom after final text update
+                                if (TestOutputScrollViewer != null)
+                                {
+                                    // Wait for layout to update, then scroll to bottom
+                                    Dispatcher.UIThread.Post(() =>
+                                    {
+                                        if (TestOutputScrollViewer.Extent.Height > TestOutputScrollViewer.Viewport.Height)
+                                        {
+                                            double maxScroll = TestOutputScrollViewer.Extent.Height - TestOutputScrollViewer.Viewport.Height;
+                                            TestOutputScrollViewer.Offset = new Vector(TestOutputScrollViewer.Offset.X, maxScroll);
+                                        }
+                                    }, DispatcherPriority.Background);
+                                }
+                                // #region agent log
+                                var scrollViewer = TestOutputScrollViewer ?? (TestOutputTextBlock.Parent as ScrollViewer);
+                                double scrollableHeight = 0;
+                                if (scrollViewer != null && scrollViewer.Extent.Height > scrollViewer.Viewport.Height)
+                                {
+                                    scrollableHeight = scrollViewer.Extent.Height - scrollViewer.Viewport.Height;
+                                }
+                                System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "D", location = "SettingsPanel.axaml.cs:1162", message = "After final text update - checking ScrollViewer", data = new { scrollViewerFound = scrollViewer != null, scrollableHeight = scrollableHeight, viewportHeight = scrollViewer?.Viewport.Height ?? 0, extentHeight = scrollViewer?.Extent.Height ?? 0, offsetY = scrollViewer?.Offset.Y ?? 0 }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
+                                // #endregion
                             }
                             else
                             {
@@ -769,29 +1290,18 @@ namespace RPGGame.UI.Avalonia
         }
         
         /// <summary>
-        /// Opens the Game Variables tab in the settings panel
+        /// Helper methods to get Battle Statistics UI elements using FindControl
         /// </summary>
-        private void OnEditGameVariablesClick(object? sender, RoutedEventArgs e)
-        {
-            // Switch to Game Variables tab
-            if (SettingsTabControl != null && GameVariablesTab != null)
-            {
-                SettingsTabControl.SelectedItem = GameVariablesTab;
-                
-                // If no category is selected, select the first one
-                if (GameVariablesCategoryListBox.SelectedItem == null && 
-                    GameVariablesCategoryListBox.ItemsSource != null &&
-                    GameVariablesCategoryListBox.ItemsSource.Cast<object>().Any())
-                {
-                    GameVariablesCategoryListBox.SelectedIndex = 0;
-                }
-            }
-        }
+        private Border? GetProgressBorder() => this.FindControl<Border>("ProgressBorder");
+        private ProgressBar? GetProgressBar() => this.FindControl<ProgressBar>("ProgressBar");
+        private TextBlock? GetProgressStatusText() => this.FindControl<TextBlock>("ProgressStatusText");
+        private TextBlock? GetProgressPercentageText() => this.FindControl<TextBlock>("ProgressPercentageText");
+        private TextBlock? GetBattleStatisticsResultsText() => this.FindControl<TextBlock>("BattleStatisticsResultsText");
         
         /// <summary>
-        /// Opens the action editor
+        /// Opens battle statistics while keeping settings panel open
         /// </summary>
-        private void OnEditActionsClick(object? sender, RoutedEventArgs e)
+        private void OnBattleStatisticsClick(object? sender, RoutedEventArgs e)
         {
             var uiToUse = GetCanvasUI();
             if (gameCoordinator == null || uiToUse == null)
@@ -800,8 +1310,29 @@ namespace RPGGame.UI.Avalonia
                 return;
             }
             
-            // Hide settings panel and restore canvas rendering
-            onBack?.Invoke();
+            // Keep settings panel open - don't close it
+            // Restore canvas rendering so battle statistics can be displayed
+            uiToUse.RestoreDisplayBufferRendering();
+            
+            // Use GameCoordinator method to show battle statistics
+            // This will render on the canvas while settings panel remains visible
+            gameCoordinator.ShowBattleStatistics();
+        }
+        
+        /// <summary>
+        /// Opens the action editor (legacy - now redirects to tab)
+        /// </summary>
+        private void OnEditActionsClickLegacy(object? sender, RoutedEventArgs e)
+        {
+            var uiToUse = GetCanvasUI();
+            if (gameCoordinator == null || uiToUse == null)
+            {
+                ShowStatusMessage("Developer tools not available - game may not be fully initialized", false);
+                return;
+            }
+            
+            // Keep settings panel open - don't close it
+            // onBack?.Invoke(); // Removed - keep settings panel visible
             
             // Small delay to ensure panel is hidden before showing editor
             Dispatcher.UIThread.Post(() =>
@@ -813,51 +1344,392 @@ namespace RPGGame.UI.Avalonia
         }
         
         /// <summary>
-        /// Runs battle statistics
+        /// Runs a battle test with the specified number of battles
         /// </summary>
-        private void OnBattleStatisticsClick(object? sender, RoutedEventArgs e)
+        private async Task RunBattleTest(int numberOfBattles)
         {
-            var uiToUse = GetCanvasUI();
-            if (gameCoordinator == null || uiToUse == null)
+            if (isBattleStatisticsRunning)
             {
-                ShowStatusMessage("Developer tools not available - game may not be fully initialized", false);
+                ShowStatusMessage("A test is already running. Please wait for it to complete.", false);
                 return;
             }
-            
-            // Hide settings panel and restore canvas rendering
-            onBack?.Invoke();
-            
-            // Small delay to ensure panel is hidden before showing statistics
-            Dispatcher.UIThread.Post(() =>
-            {
-                uiToUse.RestoreDisplayBufferRendering();
-                // Use GameCoordinator method to show battle statistics
-                gameCoordinator.ShowBattleStatistics();
-            }, DispatcherPriority.Background);
-        }
-        
-        /// <summary>
-        /// Opens tuning parameters
-        /// </summary>
-        private void OnTuningParametersClick(object? sender, RoutedEventArgs e)
-        {
+
             if (gameCoordinator == null)
             {
-                ShowStatusMessage("Developer tools not available - game may not be fully initialized", false);
+                ShowStatusMessage("Game not available - cannot run battle statistics", false);
                 return;
             }
-            
-            // Hide settings panel - tuning parameters will show its own panel
-            onBack?.Invoke();
-            
-            // Small delay to ensure panel is hidden before showing tuning parameters
+
+            isBattleStatisticsRunning = true;
+            currentBattleStatisticsResults = null;
+            currentWeaponTestResults = null;
+            currentComprehensiveResults = null;
+
+            // Show progress UI
             Dispatcher.UIThread.Post(() =>
             {
-                // Use GameCoordinator method to show tuning parameters
-                // This will show the TuningMenuPanel overlay
-                gameCoordinator.ShowTuningParameters();
-            }, DispatcherPriority.Background);
+                var progressBorder = GetProgressBorder();
+                var progressBar = GetProgressBar();
+                var progressStatusText = GetProgressStatusText();
+                var progressPercentageText = GetProgressPercentageText();
+                var resultsText = GetBattleStatisticsResultsText();
+                
+                if (progressBorder != null) progressBorder.IsVisible = true;
+                if (progressBar != null) progressBar.Value = 0;
+                if (progressStatusText != null) progressStatusText.Text = "Initializing test...";
+                if (progressPercentageText != null) progressPercentageText.Text = "0%";
+                if (resultsText != null) resultsText.Text = "Running test...";
+            });
+
+            try
+            {
+                // Default test configuration
+                var config = new BattleStatisticsRunner.BattleConfiguration
+                {
+                    PlayerDamage = 10,
+                    PlayerAttackSpeed = 1.0,
+                    PlayerArmor = 2,
+                    PlayerHealth = 100,
+                    EnemyDamage = 8,
+                    EnemyAttackSpeed = 1.2,
+                    EnemyArmor = 1,
+                    EnemyHealth = 80
+                };
+
+                var progress = new Progress<(int completed, int total, string status)>(p =>
+                {
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        var progressBar = GetProgressBar();
+                        var progressStatusText = GetProgressStatusText();
+                        var progressPercentageText = GetProgressPercentageText();
+                        
+                        double percentage = p.total > 0 ? (double)p.completed / p.total * 100 : 0;
+                        if (progressBar != null) progressBar.Value = percentage;
+                        if (progressStatusText != null) progressStatusText.Text = $"{p.status} ({p.completed}/{p.total})";
+                        if (progressPercentageText != null) progressPercentageText.Text = $"{percentage:F1}%";
+                    });
+                });
+
+                currentBattleStatisticsResults = await BattleStatisticsRunner.RunParallelBattles(
+                    config,
+                    numberOfBattles,
+                    progress
+                );
+
+                // Display results
+                DisplayBattleStatisticsResults(currentBattleStatisticsResults);
+            }
+            catch (Exception ex)
+            {
+                Dispatcher.UIThread.Post(() =>
+                {
+                    var resultsText = GetBattleStatisticsResultsText();
+                    if (resultsText != null) resultsText.Text = $"Error running battle test: {ex.Message}\n\n{ex.StackTrace}";
+                    ShowStatusMessage($"Error: {ex.Message}", false);
+                });
+            }
+            finally
+            {
+                isBattleStatisticsRunning = false;
+                Dispatcher.UIThread.Post(() =>
+                {
+                    var progressBorder = GetProgressBorder();
+                    if (progressBorder != null) progressBorder.IsVisible = false;
+                });
+            }
         }
+
+        /// <summary>
+        /// Runs weapon type tests
+        /// </summary>
+        private async Task RunWeaponTypeTests()
+        {
+            if (isBattleStatisticsRunning)
+            {
+                ShowStatusMessage("A test is already running. Please wait for it to complete.", false);
+                return;
+            }
+
+            if (gameCoordinator == null)
+            {
+                ShowStatusMessage("Game not available - cannot run battle statistics", false);
+                return;
+            }
+
+            isBattleStatisticsRunning = true;
+            currentBattleStatisticsResults = null;
+            currentWeaponTestResults = null;
+            currentComprehensiveResults = null;
+
+            // Show progress UI
+            Dispatcher.UIThread.Post(() =>
+            {
+                var progressBorder = GetProgressBorder();
+                var progressBar = GetProgressBar();
+                var progressStatusText = GetProgressStatusText();
+                var progressPercentageText = GetProgressPercentageText();
+                var resultsText = GetBattleStatisticsResultsText();
+                
+                if (progressBorder != null) progressBorder.IsVisible = true;
+                if (progressBar != null) progressBar.Value = 0;
+                if (progressStatusText != null) progressStatusText.Text = "Initializing weapon type tests...";
+                if (progressPercentageText != null) progressPercentageText.Text = "0%";
+                if (resultsText != null) resultsText.Text = "Running weapon type tests...";
+            });
+
+            try
+            {
+                var progress = new Progress<(int completed, int total, string status)>(p =>
+                {
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        var progressBar = GetProgressBar();
+                        var progressStatusText = GetProgressStatusText();
+                        var progressPercentageText = GetProgressPercentageText();
+                        
+                        double percentage = p.total > 0 ? (double)p.completed / p.total * 100 : 0;
+                        if (progressBar != null) progressBar.Value = percentage;
+                        if (progressStatusText != null) progressStatusText.Text = $"{p.status} ({p.completed}/{p.total})";
+                        if (progressPercentageText != null) progressPercentageText.Text = $"{percentage:F1}%";
+                    });
+                });
+
+                currentWeaponTestResults = await BattleStatisticsRunner.RunWeaponTypeTests(
+                    battlesPerWeapon: 50,
+                    playerLevel: 1,
+                    enemyLevel: 1,
+                    progress
+                );
+
+                // Display weapon test results
+                DisplayWeaponTestResults(currentWeaponTestResults);
+            }
+            catch (Exception ex)
+            {
+                Dispatcher.UIThread.Post(() =>
+                {
+                    var resultsText = GetBattleStatisticsResultsText();
+                    if (resultsText != null) resultsText.Text = $"Error running weapon type tests: {ex.Message}\n\n{ex.StackTrace}";
+                    ShowStatusMessage($"Error: {ex.Message}", false);
+                });
+            }
+            finally
+            {
+                isBattleStatisticsRunning = false;
+                Dispatcher.UIThread.Post(() =>
+                {
+                    var progressBorder = GetProgressBorder();
+                    if (progressBorder != null) progressBorder.IsVisible = false;
+                });
+            }
+        }
+
+        /// <summary>
+        /// Runs comprehensive weapon-enemy tests
+        /// </summary>
+        private async Task RunComprehensiveWeaponEnemyTests()
+        {
+            if (isBattleStatisticsRunning)
+            {
+                ShowStatusMessage("A test is already running. Please wait for it to complete.", false);
+                return;
+            }
+
+            if (gameCoordinator == null)
+            {
+                ShowStatusMessage("Game not available - cannot run battle statistics", false);
+                return;
+            }
+
+            isBattleStatisticsRunning = true;
+            currentBattleStatisticsResults = null;
+            currentWeaponTestResults = null;
+            currentComprehensiveResults = null;
+
+            // Show progress UI
+            Dispatcher.UIThread.Post(() =>
+            {
+                var progressBorder = GetProgressBorder();
+                var progressBar = GetProgressBar();
+                var progressStatusText = GetProgressStatusText();
+                var progressPercentageText = GetProgressPercentageText();
+                var resultsText = GetBattleStatisticsResultsText();
+                
+                if (progressBorder != null) progressBorder.IsVisible = true;
+                if (progressBar != null) progressBar.Value = 0;
+                if (progressStatusText != null) progressStatusText.Text = "Initializing comprehensive tests...";
+                if (progressPercentageText != null) progressPercentageText.Text = "0%";
+                if (resultsText != null) resultsText.Text = "Running comprehensive weapon vs enemy tests...";
+            });
+
+            try
+            {
+                var progress = new Progress<(int completed, int total, string status)>(p =>
+                {
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        var progressBar = GetProgressBar();
+                        var progressStatusText = GetProgressStatusText();
+                        var progressPercentageText = GetProgressPercentageText();
+                        
+                        double percentage = p.total > 0 ? (double)p.completed / p.total * 100 : 0;
+                        if (progressBar != null) progressBar.Value = percentage;
+                        if (progressStatusText != null) progressStatusText.Text = $"{p.status} ({p.completed}/{p.total})";
+                        if (progressPercentageText != null) progressPercentageText.Text = $"{percentage:F1}%";
+                    });
+                });
+
+                currentComprehensiveResults = await BattleStatisticsRunner.RunComprehensiveWeaponEnemyTests(
+                    battlesPerCombination: 10,
+                    playerLevel: 1,
+                    enemyLevel: 1,
+                    progress
+                );
+
+                // Display comprehensive results
+                DisplayComprehensiveResults(currentComprehensiveResults);
+            }
+            catch (Exception ex)
+            {
+                Dispatcher.UIThread.Post(() =>
+                {
+                    var resultsText = GetBattleStatisticsResultsText();
+                    if (resultsText != null) resultsText.Text = $"Error running comprehensive tests: {ex.Message}\n\n{ex.StackTrace}";
+                    ShowStatusMessage($"Error: {ex.Message}", false);
+                });
+            }
+            finally
+            {
+                isBattleStatisticsRunning = false;
+                Dispatcher.UIThread.Post(() =>
+                {
+                    var progressBorder = GetProgressBorder();
+                    if (progressBorder != null) progressBorder.IsVisible = false;
+                });
+            }
+        }
+
+        /// <summary>
+        /// Displays battle statistics results in the results text block
+        /// </summary>
+        private void DisplayBattleStatisticsResults(BattleStatisticsRunner.StatisticsResult results)
+        {
+            if (results == null) return;
+
+            var output = new System.Text.StringBuilder();
+            output.AppendLine("=== BATTLE STATISTICS RESULTS ===");
+            output.AppendLine();
+            
+            output.AppendLine("Configuration:");
+            output.AppendLine($"  Player: {results.Config.PlayerDamage} dmg, {results.Config.PlayerAttackSpeed:F2} speed, {results.Config.PlayerArmor} armor, {results.Config.PlayerHealth} HP");
+            output.AppendLine($"  Enemy:  {results.Config.EnemyDamage} dmg, {results.Config.EnemyAttackSpeed:F2} speed, {results.Config.EnemyArmor} armor, {results.Config.EnemyHealth} HP");
+            output.AppendLine();
+            
+            output.AppendLine("Results:");
+            output.AppendLine($"  Total Battles: {results.TotalBattles}");
+            output.AppendLine($"  Player Wins: {results.PlayerWins} ({results.WinRate:F1}%)");
+            output.AppendLine($"  Enemy Wins: {results.EnemyWins} ({100.0 - results.WinRate:F1}%)");
+            output.AppendLine();
+            
+            output.AppendLine("Turn Statistics:");
+            output.AppendLine($"  Average Turns: {results.AverageTurns:F2}");
+            output.AppendLine($"  Min Turns: {results.MinTurns}");
+            output.AppendLine($"  Max Turns: {results.MaxTurns}");
+            output.AppendLine();
+            
+            output.AppendLine("Damage Statistics:");
+            output.AppendLine($"  Average Player Damage Dealt: {results.AveragePlayerDamageDealt:F2}");
+            output.AppendLine($"  Average Enemy Damage Dealt: {results.AverageEnemyDamageDealt:F2}");
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                var resultsText = GetBattleStatisticsResultsText();
+                if (resultsText != null) resultsText.Text = output.ToString();
+            });
+        }
+
+        /// <summary>
+        /// Displays weapon test results
+        /// </summary>
+        private void DisplayWeaponTestResults(List<BattleStatisticsRunner.WeaponTestResult> results)
+        {
+            if (results == null || results.Count == 0) return;
+
+            var output = new System.Text.StringBuilder();
+            output.AppendLine("=== WEAPON TYPE TEST RESULTS ===");
+            output.AppendLine();
+            
+            foreach (var result in results.OrderByDescending(r => r.WinRate))
+            {
+                output.AppendLine($"{result.WeaponType}:");
+                output.AppendLine($"  Wins: {result.PlayerWins}/{result.TotalBattles} ({result.WinRate:F1}%)");
+                output.AppendLine($"  Average Turns: {result.AverageTurns:F2}");
+                output.AppendLine($"  Average Player Damage: {result.AveragePlayerDamageDealt:F2}");
+                output.AppendLine($"  Average Enemy Damage: {result.AverageEnemyDamageDealt:F2}");
+                output.AppendLine();
+            }
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                var resultsText = GetBattleStatisticsResultsText();
+                if (resultsText != null) resultsText.Text = output.ToString();
+            });
+        }
+
+        /// <summary>
+        /// Displays comprehensive weapon-enemy test results
+        /// </summary>
+        private void DisplayComprehensiveResults(BattleStatisticsRunner.ComprehensiveWeaponEnemyTestResult results)
+        {
+            if (results == null) return;
+
+            var output = new System.Text.StringBuilder();
+            output.AppendLine("=== COMPREHENSIVE WEAPON VS ENEMY TEST RESULTS ===");
+            output.AppendLine();
+            
+            output.AppendLine("Overall Statistics:");
+            output.AppendLine($"  Total Battles: {results.TotalBattles}");
+            output.AppendLine($"  Player Wins: {results.TotalPlayerWins} ({results.OverallWinRate:F1}%)");
+            output.AppendLine($"  Enemy Wins: {results.TotalEnemyWins}");
+            output.AppendLine($"  Average Turns: {results.OverallAverageTurns:F1}");
+            output.AppendLine($"  Average Player Damage: {results.OverallAveragePlayerDamage:F1}");
+            output.AppendLine($"  Average Enemy Damage: {results.OverallAverageEnemyDamage:F1}");
+            output.AppendLine();
+            
+            if (results.WeaponStatistics != null && results.WeaponStatistics.Count > 0)
+            {
+                output.AppendLine("Weapon Performance (across all enemies):");
+                foreach (var weaponType in results.WeaponTypes)
+                {
+                    if (results.WeaponStatistics.TryGetValue(weaponType, out var weaponStats))
+                    {
+                        output.AppendLine($"  {weaponType,-8}: {weaponStats.Wins,3}/{weaponStats.TotalBattles,3} wins ({weaponStats.WinRate,5:F1}%) | Avg Turns: {weaponStats.AverageTurns,5:F1} | Avg Damage: {weaponStats.AverageDamage,5:F1}");
+                    }
+                }
+                output.AppendLine();
+            }
+            
+            if (results.EnemyStatistics != null && results.EnemyStatistics.Count > 0)
+            {
+                output.AppendLine("Enemy Difficulty (across all weapons):");
+                foreach (var enemyType in results.EnemyTypes.OrderByDescending(e => 
+                    results.EnemyStatistics.TryGetValue(e, out var enemyStats) ? enemyStats.WinRate : 0))
+                {
+                    if (results.EnemyStatistics.TryGetValue(enemyType, out var enemyStats))
+                    {
+                        output.AppendLine($"  {enemyType,-15}: {enemyStats.Wins,3}/{enemyStats.TotalBattles,3} wins ({enemyStats.WinRate,5:F1}%) | Avg Turns: {enemyStats.AverageTurns,5:F1}");
+                    }
+                }
+            }
+
+            Dispatcher.UIThread.Post(() =>
+            {
+                var resultsText = GetBattleStatisticsResultsText();
+                if (resultsText != null) resultsText.Text = output.ToString();
+            });
+        }
+        
     }
 }
 

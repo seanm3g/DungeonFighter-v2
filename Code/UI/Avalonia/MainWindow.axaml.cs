@@ -222,28 +222,6 @@ namespace RPGGame.UI.Avalonia
                         canvasUIForHandlers,
                         initializationHandler?.Game?.StateManager);
                     
-                    // Set up callbacks for Testing and Developer Menu buttons (legacy - now handled in tabs)
-                    if (initializationHandler?.Game != null && initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI3)
-                    {
-                        SettingsMenuPanel.SetTestingCallback(async () =>
-                        {
-                            // Hide settings panel and show testing menu
-                            HideSettingsPanel();
-                            canvasUI3.RestoreDisplayBufferRendering();
-                            // Trigger testing menu via input (Settings state handles "1" as Testing)
-                            await initializationHandler.Game.HandleInput("1");
-                        });
-                        
-                        SettingsMenuPanel.SetDeveloperMenuCallback(async () =>
-                        {
-                            HideSettingsPanel();
-                            canvasUI3.RestoreDisplayBufferRendering();
-                            canvasUI3.ResetDeleteConfirmation();
-                            // Trigger developer menu via input (Settings state handles "2" as Developer Menu)
-                            await initializationHandler.Game.HandleInput("2");
-                        });
-                    }
-                    
                     SettingsPanelOverlay.IsVisible = true;
                 }
             });

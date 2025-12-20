@@ -122,6 +122,12 @@ namespace RPGGame.UI.Avalonia.Handlers
                 game = new GameCoordinator(canvasUIManager);
                 game.SetUIManager(canvasUIManager);
 
+                // Set the game reference in CanvasUICoordinator so it can access handlers for interactive panels
+                if (canvasUIManager is CanvasUICoordinator canvasUIForGame)
+                {
+                    canvasUIForGame.SetGame(game);
+                }
+
                 // Update mouse handler with game reference
                 if (mouseHandler != null && canvasUIManager is CanvasUICoordinator canvasUIForMouse)
                 {

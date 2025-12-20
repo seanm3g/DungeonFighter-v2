@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RPGGame.Actions.RollModification;
 
 namespace RPGGame.Combat.Calculators
@@ -16,6 +17,9 @@ namespace RPGGame.Combat.Calculators
         // Cache for final damage calculations (includes target armor)
         private static readonly Dictionary<(Actor, Actor, Action?, double, double, int, int), int> _finalDamageCache = new();
         
+        // Lock object for thread-safe access to caches
+        private static readonly object _cacheLock = new object();
+        
         // Cache statistics for monitoring
         private static int _rawCacheHits = 0;
         private static int _rawCacheMisses = 0;
@@ -31,32 +35,26 @@ namespace RPGGame.Combat.Calculators
         /// </summary>
         public static void InvalidateCache(Actor actor)
         {
-            // Remove all entries where this actor is the attacker or target
-            var keysToRemove = new List<(Actor, Action?, double, double, int)>();
-            foreach (var key in _rawDamageCache.Keys)
+            lock (_cacheLock)
             {
-                if (key.Item1 == actor)
+                // Make a copy of keys to avoid enumeration issues during concurrent modifications
+                var keysToRemove = _rawDamageCache.Keys
+                    .Where(key => key.Item1 == actor)
+                    .ToList();
+                
+                foreach (var key in keysToRemove)
                 {
-                    keysToRemove.Add(key);
+                    _rawDamageCache.Remove(key);
                 }
-            }
-            foreach (var key in keysToRemove)
-            {
-                _rawDamageCache.Remove(key);
-            }
-            
-            keysToRemove.Clear();
-            var finalKeysToRemove = new List<(Actor, Actor, Action?, double, double, int, int)>();
-            foreach (var key in _finalDamageCache.Keys)
-            {
-                if (key.Item1 == actor || key.Item2 == actor)
+                
+                var finalKeysToRemove = _finalDamageCache.Keys
+                    .Where(key => key.Item1 == actor || key.Item2 == actor)
+                    .ToList();
+                
+                foreach (var key in finalKeysToRemove)
                 {
-                    finalKeysToRemove.Add(key);
+                    _finalDamageCache.Remove(key);
                 }
-            }
-            foreach (var key in finalKeysToRemove)
-            {
-                _finalDamageCache.Remove(key);
             }
         }
         
@@ -65,12 +63,15 @@ namespace RPGGame.Combat.Calculators
         /// </summary>
         public static void ClearAllCaches()
         {
-            _rawDamageCache.Clear();
-            _finalDamageCache.Clear();
-            _rawCacheHits = 0;
-            _rawCacheMisses = 0;
-            _finalCacheHits = 0;
-            _finalCacheMisses = 0;
+            lock (_cacheLock)
+            {
+                _rawDamageCache.Clear();
+                _finalDamageCache.Clear();
+                _rawCacheHits = 0;
+                _rawCacheMisses = 0;
+                _finalCacheHits = 0;
+                _finalCacheMisses = 0;
+            }
         }
         
         /// <summary>
@@ -95,13 +96,19 @@ namespace RPGGame.Combat.Calculators
         {
             // Check cache first
             var cacheKey = (attacker, action, comboAmplifier, damageMultiplier, roll);
-            if (_rawDamageCache.TryGetValue(cacheKey, out var cachedDamage))
-            {
-                _rawCacheHits++;
-                return cachedDamage;
-            }
+            int cachedDamage;
+            bool cacheHit;
             
-            _rawCacheMisses++;
+            lock (_cacheLock)
+            {
+                cacheHit = _rawDamageCache.TryGetValue(cacheKey, out cachedDamage);
+                if (cacheHit)
+                {
+                    _rawCacheHits++;
+                    return cachedDamage;
+                }
+                _rawCacheMisses++;
+            }
             // Get base damage from attacker
             int baseDamage = 0;
             if (attacker is Character character)
@@ -199,9 +206,12 @@ namespace RPGGame.Combat.Calculators
             int result = (int)totalDamage;
             
             // Cache the result (with size limit)
-            if (_rawDamageCache.Count < MaxCacheSize)
+            lock (_cacheLock)
             {
-                _rawDamageCache[cacheKey] = result;
+                if (_rawDamageCache.Count < MaxCacheSize)
+                {
+                    _rawDamageCache[cacheKey] = result;
+                }
             }
             
             return result;
@@ -215,13 +225,19 @@ namespace RPGGame.Combat.Calculators
         {
             // Check cache first (cache key includes target armor state via target reference)
             var cacheKey = (attacker, target, action, comboAmplifier, damageMultiplier, roll, showWeakenedMessage ? 1 : 0);
-            if (_finalDamageCache.TryGetValue(cacheKey, out var cachedDamage))
-            {
-                _finalCacheHits++;
-                return cachedDamage;
-            }
+            int cachedDamage;
+            bool cacheHit;
             
-            _finalCacheMisses++;
+            lock (_cacheLock)
+            {
+                cacheHit = _finalDamageCache.TryGetValue(cacheKey, out cachedDamage);
+                if (cacheHit)
+                {
+                    _finalCacheHits++;
+                    return cachedDamage;
+                }
+                _finalCacheMisses++;
+            }
             
             // Calculate raw damage before armor
             int totalDamage = CalculateRawDamage(attacker, action, comboAmplifier, damageMultiplier, roll);
@@ -261,9 +277,12 @@ namespace RPGGame.Combat.Calculators
             }
             
             // Cache the result (with size limit)
-            if (_finalDamageCache.Count < MaxCacheSize)
+            lock (_cacheLock)
             {
-                _finalDamageCache[cacheKey] = finalDamage;
+                if (_finalDamageCache.Count < MaxCacheSize)
+                {
+                    _finalDamageCache[cacheKey] = finalDamage;
+                }
             }
             
             return finalDamage;

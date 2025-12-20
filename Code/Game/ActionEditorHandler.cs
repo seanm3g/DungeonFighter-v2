@@ -28,14 +28,46 @@ namespace RPGGame
         private bool isDeletingAction = false;
         private ActionData? actionToDelete = null;
         private readonly string[] formSteps = {
+            // Basic Properties
             "Name",
-            "Type (Attack/Heal/Buff/Debuff/Spell)",
+            "Type (Attack/Heal/Buff/Debuff/Spell/Interact/Move/UseItem)",
             "TargetType (Self/SingleTarget/AreaOfEffect/Environment)",
             "BaseValue (number)",
+            "Range (number, default 1)",
             "Description",
             "DamageMultiplier (number, default 1.0)",
             "Length (number, default 1.0)",
-            "Cooldown (number, default 0)"
+            "Cooldown (number, default 0)",
+            
+            // Status Effects (Basic)
+            "CausesBleed (true/false, default false)",
+            "CausesWeaken (true/false, default false)",
+            "CausesSlow (true/false, default false)",
+            "CausesPoison (true/false, default false)",
+            "CausesBurn (true/false, default false)",
+            "CausesStun (true/false, default false)",
+            
+            // Combo Properties
+            "IsComboAction (true/false, default false)",
+            "ComboOrder (number, -1 = not in combo)",
+            "ComboBonusAmount (number, default 0)",
+            "ComboBonusDuration (number, default 0)",
+            
+            // Advanced Mechanics
+            "RollBonus (number, default 0)",
+            "StatBonus (number, default 0)",
+            "StatBonusType (Strength/Agility/Technique/Intelligence, or empty)",
+            "StatBonusDuration (number, -1 = permanent, default 0)",
+            "MultiHitCount (number, default 1)",
+            "SelfDamagePercent (number, default 0)",
+            "SkipNextTurn (true/false, default false)",
+            "RepeatLastAction (true/false, default false)",
+            "EnemyRollPenalty (number, default 0)",
+            "HealthThreshold (number 0.0-1.0, default 0.0)",
+            "ConditionalDamageMultiplier (number, default 1.0)",
+            
+            // Tags (comma-separated list)
+            "Tags (comma-separated list, e.g. 'sword,melee,physical')"
         };
         
         // Extracted components
@@ -264,7 +296,27 @@ namespace RPGGame
                 Description = "",
                 DamageMultiplier = 1.0,
                 Length = 1.0,
-                Tags = new List<string>()
+                Tags = new List<string>(),
+                CausesBleed = false,
+                CausesWeaken = false,
+                CausesSlow = false,
+                CausesPoison = false,
+                CausesBurn = false,
+                IsComboAction = false,
+                ComboOrder = -1,
+                ComboBonusAmount = 0,
+                ComboBonusDuration = 0,
+                RollBonus = 0,
+                StatBonus = 0,
+                StatBonusType = "",
+                StatBonusDuration = 0,
+                MultiHitCount = 1,
+                SelfDamagePercent = 0,
+                SkipNextTurn = false,
+                RepeatLastAction = false,
+                EnemyRollPenalty = 0,
+                HealthThreshold = 0.0,
+                ConditionalDamageMultiplier = 1.0
             };
             currentFormStep = 0;
             currentFormInput = "";

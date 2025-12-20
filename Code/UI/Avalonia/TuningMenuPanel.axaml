@@ -15,7 +15,7 @@
         <!-- Title -->
         <TextBlock Grid.Row="0" 
                    Text="TUNING PARAMETERS" 
-                   FontSize="24" 
+                   FontSize="28" 
                    FontWeight="Bold" 
                    Foreground="#FFD700" 
                    HorizontalAlignment="Center" 
@@ -43,7 +43,7 @@
                     
                     <TextBlock Grid.Row="0" 
                                Text="Categories" 
-                               FontSize="14" 
+                               FontSize="16" 
                                FontWeight="Bold" 
                                Foreground="White" 
                                Margin="10,10,10,10"/>
@@ -59,7 +59,7 @@
                                 <TextBlock Text="{Binding}" 
                                            Foreground="White" 
                                            Padding="5"
-                                           FontSize="12"/>
+                                           FontSize="14"/>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                         <ListBox.Styles>
@@ -99,7 +99,9 @@
                     Foreground="White"
                     BorderThickness="0"
                     CornerRadius="3"
-                    Cursor="Hand">
+                    Cursor="Hand"
+                    FontSize="15"
+                    FontWeight="SemiBold">
                 <Button.Styles>
                     <Style Selector="Button:pointerover">
                         <Setter Property="Background" Value="#FF666666"/>
@@ -115,7 +117,9 @@
                     Foreground="White"
                     BorderThickness="0"
                     CornerRadius="3"
-                    Cursor="Hand">
+                    Cursor="Hand"
+                    FontSize="15"
+                    FontWeight="SemiBold">
                 <Button.Styles>
                     <Style Selector="Button:pointerover">
                         <Setter Property="Background" Value="#FF66BB6A"/>
@@ -130,7 +134,7 @@
                    HorizontalAlignment="Left" 
                    VerticalAlignment="Center"
                    Foreground="#FF4CAF50" 
-                   FontSize="12"
+                   FontSize="14"
                    Margin="0,20,0,0"
                    IsVisible="False"/>
     </Grid>

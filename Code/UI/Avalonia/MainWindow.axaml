@@ -48,16 +48,16 @@
         <!-- Status Bar -->
         <StackPanel Grid.Row="1" 
                     Orientation="Horizontal" 
-                    Background="Black" 
+                    Background="White" 
                     Margin="0,0,0,10" 
                     HorizontalAlignment="Center">
             <TextBlock x:Name="StatusText" 
                        FontSize="12" 
-                       Foreground="White" 
+                       Foreground="Black" 
                        Margin="0,5,0,0"/>
             <TextBlock x:Name="HelpText" 
                        FontSize="10" 
-                       Foreground="Gray" 
+                       Foreground="Black" 
                        Margin="20,0,0,0"/>
         </StackPanel>
         
@@ -72,10 +72,10 @@
             <local:TuningMenuPanel x:Name="TuningMenuPanel" 
                                    HorizontalAlignment="Center" 
                                    VerticalAlignment="Center"
-                                   Width="900"
+                                   Width="1000"
                                    Height="650"
-                                   MinWidth="800"
-                                   MinHeight="600"/>
+                                   MinWidth="900"
+                                   MinHeight="650"/>
         </Border>
         
         <!-- Settings Panel Overlay -->
@@ -89,10 +89,10 @@
             <local:SettingsPanel x:Name="SettingsMenuPanel" 
                                 HorizontalAlignment="Center" 
                                 VerticalAlignment="Center"
-                                Width="900"
-                                Height="700"
-                                MinWidth="800"
-                                MinHeight="600"/>
+                                Width="1728"
+                                Height="972"
+                                MinWidth="1400"
+                                MinHeight="800"/>
         </Border>
     </Grid>
 </Window>

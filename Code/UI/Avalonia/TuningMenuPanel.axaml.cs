@@ -97,8 +97,23 @@ namespace RPGGame.UI.Avalonia
             var categoryHeader = CreateCategoryHeader(category, variables.Count);
             VariablesPanel.Children.Add(categoryHeader);
             
-            foreach (var variable in variables)
+            // Create a 2-column grid for the variables
+            var variablesGrid = new Grid();
+            variablesGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            variablesGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(10) }); // Spacer
+            variablesGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            
+            // Calculate number of rows needed
+            int numRows = (variables.Count + 1) / 2; // Round up
+            for (int r = 0; r < numRows; r++)
             {
+                variablesGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            }
+            
+            for (int i = 0; i < variables.Count; i++)
+            {
+                var variable = variables[i];
+                
                 // Store original value
                 changeIndicatorManager.SetOriginalValue(variable.Name, variable.GetValue() ?? new object());
                 
@@ -117,8 +132,17 @@ namespace RPGGame.UI.Avalonia
                 
                 variableTextBoxes[variable.Name] = textBox;
                 valueChangeIndicators[variable.Name] = indicator;
-                VariablesPanel.Children.Add(container);
+                
+                // Determine row and column
+                int row = i / 2;
+                int column = (i % 2 == 0) ? 0 : 2;
+                
+                Grid.SetColumn(container, column);
+                Grid.SetRow(container, row);
+                variablesGrid.Children.Add(container);
             }
+            
+            VariablesPanel.Children.Add(variablesGrid);
         }
         
         private Control CreateCategoryHeader(string category, int variableCount)
@@ -138,7 +162,7 @@ namespace RPGGame.UI.Avalonia
             var title = new TextBlock
             {
                 Text = $"📊 {category} Parameters",
-                FontSize = 18,
+                FontSize = 20,
                 FontWeight = FontWeight.Bold,
                 Foreground = new SolidColorBrush(Color.FromRgb(255, 215, 0))
             };
@@ -147,7 +171,7 @@ namespace RPGGame.UI.Avalonia
             var info = new TextBlock
             {
                 Text = $"{variableCount} parameters available • Changes are applied immediately",
-                FontSize = 11,
+                FontSize = 13,
                 Foreground = new SolidColorBrush(Color.FromRgb(180, 180, 180))
             };
             stack.Children.Add(info);

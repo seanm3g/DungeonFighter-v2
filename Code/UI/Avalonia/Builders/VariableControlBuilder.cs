@@ -28,15 +28,15 @@ namespace RPGGame.UI.Avalonia.Builders
                 Background = Brushes.Transparent,
                 BorderBrush = new SolidColorBrush(Color.FromRgb(85, 85, 85)),
                 BorderThickness = new Thickness(1),
-                CornerRadius = new CornerRadius(3),
-                Padding = new Thickness(10),
-                Margin = new Thickness(0, 0, 0, 10)
+                CornerRadius = new CornerRadius(2),
+                Padding = new Thickness(4, 2),
+                Margin = new Thickness(0, 0, 0, 1)
             };
             
             var grid = new Grid();
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(200) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -45,10 +45,10 @@ namespace RPGGame.UI.Avalonia.Builders
             var nameText = new TextBlock
             {
                 Text = variable.Name,
-                FontSize = 14,
+                FontSize = 16,
                 FontWeight = FontWeight.Bold,
                 Foreground = Brushes.White,
-                Margin = new Thickness(0, 0, 0, 5)
+                Margin = new Thickness(0, 0, 0, 2)
             };
             Grid.SetColumn(nameText, 0);
             Grid.SetRow(nameText, 0);
@@ -59,9 +59,9 @@ namespace RPGGame.UI.Avalonia.Builders
             var descText = new TextBlock
             {
                 Text = variable.Description,
-                FontSize = 11,
+                FontSize = 14,
                 Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
-                Margin = new Thickness(0, 0, 0, 8),
+                Margin = new Thickness(0, 0, 0, 4),
                 TextWrapping = TextWrapping.Wrap
             };
             Grid.SetColumn(descText, 0);
@@ -73,10 +73,10 @@ namespace RPGGame.UI.Avalonia.Builders
             var valueLabel = new TextBlock
             {
                 Text = "Value:",
-                FontSize = 12,
+                FontSize = 15,
                 Foreground = Brushes.White,
                 VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(0, 0, 10, 0)
+                Margin = new Thickness(0, 0, 4, 0)
             };
             Grid.SetColumn(valueLabel, 0);
             Grid.SetRow(valueLabel, 2);
@@ -86,13 +86,14 @@ namespace RPGGame.UI.Avalonia.Builders
             var valueTextBox = new TextBox
             {
                 Text = variable.GetValue()?.ToString() ?? "",
-                FontSize = 12,
-                Background = new SolidColorBrush(Color.FromRgb(40, 40, 40)),
-                Foreground = Brushes.White,
+                FontSize = 14,
+                Background = Brushes.White,
+                Foreground = Brushes.Black,
                 BorderBrush = new SolidColorBrush(Color.FromRgb(100, 100, 100)),
                 BorderThickness = new Thickness(1),
-                Padding = new Thickness(5),
+                Padding = new Thickness(4, 2),
                 VerticalAlignment = VerticalAlignment.Center,
+                Height = 26,
                 Watermark = "Enter value..."
             };
             
@@ -114,9 +115,9 @@ namespace RPGGame.UI.Avalonia.Builders
             // Real-time change indicator
             var changeIndicator = new TextBlock
             {
-                FontSize = 10,
+                FontSize = 13,
                 VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(5, 0, 0, 0),
+                Margin = new Thickness(2, 0, 0, 0),
                 IsVisible = false
             };
             
