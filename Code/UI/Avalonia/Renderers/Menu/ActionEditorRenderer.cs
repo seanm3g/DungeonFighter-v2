@@ -79,6 +79,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             string actionCount = $"Total Actions: {actions.Count}";
             int actionCountX = MenuLayoutCalculator.CalculateCenteredTextX(x, width, actionCount.Length);
             canvas.AddText(actionCountX, menuStartY, actionCount, AsciiArtAssets.Colors.Cyan);
+            menuStartY += 2;
+            
+            // Navigation hints
+            canvas.AddText(menuStartX, menuStartY, "Navigation: 0=Back, 1-4=Select option", AsciiArtAssets.Colors.Gray);
             return currentLineCount;
         }
 

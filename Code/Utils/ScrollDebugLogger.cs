@@ -43,6 +43,33 @@ namespace RPGGame.Utils
         }
         
         /// <summary>
+        /// Always logs regardless of debug setting - for critical debugging
+        /// </summary>
+        public static void LogAlways(string message)
+        {
+            lock (LockObject)
+            {
+                try
+                {
+                    // Initialize async logger on first use
+                    if (_asyncLogger == null)
+                    {
+                        _asyncLogger = new AsyncEventLogger(LogFile, batchSize: 10, batchTimeoutMs: 1000);
+                    }
+                    
+                    var timestamp = DateTime.Now.ToString("HH:mm:ss.fff");
+                    var logMessage = $"[{timestamp}] {message}";
+                    _asyncLogger.LogAsync(logMessage);
+                    Console.WriteLine(logMessage); // Also write to console if available
+                }
+                catch
+                {
+                    // Ignore errors
+                }
+            }
+        }
+        
+        /// <summary>
         /// Flushes all pending log messages
         /// </summary>
         public static void Flush()

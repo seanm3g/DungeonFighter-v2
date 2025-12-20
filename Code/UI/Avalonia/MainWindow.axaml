@@ -23,6 +23,28 @@
                                 Focusable="True"
                                 FocusAdorner="{x:Null}"/>
         
+        <!-- TextBox for text input in action creation form -->
+        <!-- Positioned where the input prompt appears on the canvas -->
+        <TextBox x:Name="HiddenTextBox"
+                Grid.Row="0"
+                Grid.RowSpan="2"
+                IsVisible="False"
+                Width="600"
+                Height="50"
+                Background="White"
+                Foreground="Black"
+                BorderThickness="4"
+                BorderBrush="Yellow"
+                Focusable="True"
+                ZIndex="10000"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Margin="0"
+                FontSize="20"
+                FontFamily="Consolas, Courier New, monospace"
+                FontWeight="Bold"
+                Padding="15,10,15,10"/>
+        
         <!-- Status Bar -->
         <StackPanel Grid.Row="1" 
                     Orientation="Horizontal" 
@@ -54,6 +76,23 @@
                                    Height="650"
                                    MinWidth="800"
                                    MinHeight="600"/>
+        </Border>
+        
+        <!-- Settings Panel Overlay -->
+        <Border Grid.Row="0" 
+                Grid.RowSpan="2"
+                Background="#E0000000" 
+                IsVisible="False"
+                x:Name="SettingsPanelOverlay"
+                ZIndex="1000"
+                IsHitTestVisible="True">
+            <local:SettingsPanel x:Name="SettingsMenuPanel" 
+                                HorizontalAlignment="Center" 
+                                VerticalAlignment="Center"
+                                Width="900"
+                                Height="700"
+                                MinWidth="800"
+                                MinHeight="600"/>
         </Border>
     </Grid>
 </Window>

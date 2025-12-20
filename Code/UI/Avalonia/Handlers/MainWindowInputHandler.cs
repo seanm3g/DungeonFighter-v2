@@ -1,6 +1,7 @@
 using Avalonia.Input;
 using RPGGame;
 using RPGGame.UI.Avalonia.Utils;
+using RPGGame.Utils;
 using System;
 using System.Threading.Tasks;
 
@@ -14,7 +15,6 @@ namespace RPGGame.UI.Avalonia.Handlers
         private GameCoordinator? game;
         private string inputBuffer = "";
         private string currentTextInput = "";
-        private bool isTextInputMode = false;
         
         public MainWindowInputHandler(GameCoordinator? game)
         {
@@ -95,21 +95,15 @@ namespace RPGGame.UI.Avalonia.Handlers
         }
         
         /// <summary>
-        /// Handles text input for CreateAction state
+        /// Handles special keys (Enter, Escape, Backspace) for CreateAction and EditAction states
+        /// Actual text input is handled by the TextInput event
         /// </summary>
-        public async Task<bool> HandleTextInput(Key key, KeyModifiers modifiers, System.Action<string> updateStatus, System.Action updateTextInputDisplay)
+        public async Task<bool> HandleSpecialKeys(Key key, KeyModifiers modifiers, System.Action<string> updateStatus, System.Action updateTextInputDisplay)
         {
-            if (game == null || game.CurrentState != GameState.CreateAction)
+            if (game == null || (game.CurrentState != GameState.CreateAction && game.CurrentState != GameState.EditAction))
             {
-                isTextInputMode = false;
-                if (currentTextInput.Length > 0)
-                {
-                    currentTextInput = "";
-                }
                 return false;
             }
-            
-            isTextInputMode = true;
             
             if (key == Key.Enter)
             {
@@ -123,7 +117,6 @@ namespace RPGGame.UI.Avalonia.Handlers
                 {
                     await game.HandleInput("enter");
                 }
-                isTextInputMode = false;
                 return true;
             }
             else if (key == Key.Back)
@@ -135,31 +128,11 @@ namespace RPGGame.UI.Avalonia.Handlers
                 }
                 return true;
             }
-            else if (key == Key.Space)
+            else if (key == Key.Escape)
             {
-                currentTextInput += " ";
-                updateTextInputDisplay();
-                return true;
-            }
-            else
-            {
-                string? input = ConvertKeyToInput(key, modifiers);
-                if (input == "cancel" || input == "0")
-                {
-                    await game.HandleInput(input);
-                    currentTextInput = "";
-                    isTextInputMode = false;
-                    updateTextInputDisplay();
-                    return true;
-                }
-                
-                string? charInput = ConvertKeyToChar(key, modifiers);
-                if (charInput != null)
-                {
-                    currentTextInput += charInput;
-                    updateTextInputDisplay();
-                    return true;
-                }
+                // Escape is handled by game.HandleEscapeKey() in MainWindow, but we can clear input here if needed
+                currentTextInput = "";
+                return false; // Let the escape handler in MainWindow process it
             }
             
             return false;
@@ -224,16 +197,34 @@ namespace RPGGame.UI.Avalonia.Handlers
         
         /// <summary>
         /// Adds text to current text input (for TextInput event)
+        /// This is the primary method for text input - TextInput event provides clean text
         /// </summary>
         public void AddTextInput(string text, System.Action updateTextInputDisplay)
         {
-            if (game != null && game.CurrentState == GameState.CreateAction && isTextInputMode)
+            ScrollDebugLogger.LogAlways($"AddTextInput: Called with text='{text}', state={game?.CurrentState}");
+            
+            if (game == null)
             {
-                if (!string.IsNullOrEmpty(text))
-                {
-                    currentTextInput += text;
-                    updateTextInputDisplay();
-                }
+                ScrollDebugLogger.LogAlways($"AddTextInput: ERROR - game is null!");
+                return;
+            }
+            
+            if (game.CurrentState != GameState.CreateAction && game.CurrentState != GameState.EditAction)
+            {
+                ScrollDebugLogger.LogAlways($"AddTextInput: Wrong state: {game.CurrentState}, expected CreateAction or EditAction");
+                return;
+            }
+            
+            // Append text to current input
+            if (!string.IsNullOrEmpty(text))
+            {
+                currentTextInput += text;
+                ScrollDebugLogger.LogAlways($"AddTextInput: Added text, currentTextInput now='{currentTextInput}'");
+                updateTextInputDisplay();
+            }
+            else
+            {
+                ScrollDebugLogger.LogAlways($"AddTextInput: Text is null or empty, not adding");
             }
         }
         
@@ -251,6 +242,14 @@ namespace RPGGame.UI.Avalonia.Handlers
         public string GetCurrentTextInput()
         {
             return currentTextInput;
+        }
+        
+        /// <summary>
+        /// Clears the current text input (useful when starting a new form)
+        /// </summary>
+        public void ClearTextInput()
+        {
+            currentTextInput = "";
         }
     }
 }

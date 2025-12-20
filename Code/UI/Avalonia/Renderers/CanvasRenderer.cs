@@ -180,16 +180,20 @@ namespace RPGGame.UI.Avalonia.Renderers
         public void RenderActionList(List<ActionData> actions, int page) => RenderMenuScreen("ALL ACTIONS", 
             (x, y, w, h) => menuRenderer.RenderActionListContent(x, y, w, h, actions, page));
         
-        public void RenderCreateActionForm(ActionData actionData, int currentStep, string[] formSteps, string? currentInput = null)
+        public void RenderCreateActionForm(ActionData actionData, int currentStep, string[] formSteps, string? currentInput = null, bool isEditMode = false)
         {
             bool shouldClearCanvas = string.IsNullOrEmpty(currentInput);
-            RenderWithLayout(null, "CREATE ACTION", 
-                (x, y, w, h) => menuRenderer.RenderCreateActionFormContent(x, y, w, h, actionData, currentStep, formSteps, currentInput),
+            string title = isEditMode ? "EDIT ACTION" : "CREATE ACTION";
+            RenderWithLayout(null, title, 
+                (x, y, w, h) => menuRenderer.RenderCreateActionFormContent(x, y, w, h, actionData, currentStep, formSteps, currentInput, isEditMode),
                 new CanvasContext(), null, null, null, shouldClearCanvas);
         }
         
         public void RenderActionDetails(ActionData action) => RenderMenuScreen("ACTION DETAILS", 
             (x, y, w, h) => menuRenderer.RenderActionDetailContent(x, y, w, h, action));
+
+        public void RenderDeleteActionConfirmation(ActionData action, string? errorMessage = null) => RenderMenuScreen("DELETE ACTION CONFIRMATION", 
+            (x, y, w, h) => menuRenderer.RenderDeleteActionConfirmationContent(x, y, w, h, action, errorMessage));
 
         public void RenderDungeonSelection(Character player, List<Dungeon> dungeons, CanvasContext context)
         {

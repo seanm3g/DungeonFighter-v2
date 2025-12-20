@@ -642,6 +642,18 @@ namespace RPGGame
                     testResults.Add(("Text Delay Configuration Test", false, $"Failed: {ex.Message}"));
                 }
                 
+                // Test 11: Action Editor Test
+                TextDisplayIntegration.DisplaySystem("\nRunning Test 11: Action Editor Test...");
+                try
+                {
+                    RunActionEditorTest();
+                    testResults.Add(("Action Editor Test", true, "Completed successfully"));
+                }
+                catch (Exception ex)
+                {
+                    testResults.Add(("Action Editor Test", false, $"Failed: {ex.Message}"));
+                }
+                
             }
             catch (Exception ex)
             {
@@ -718,6 +730,15 @@ namespace RPGGame
         public static void RunTextDelayConfigurationTest()
         {
             TextDelayConfigurationTest.RunAllTests();
+        }
+        
+        /// <summary>
+        /// Runs Test 11: Action Editor Test
+        /// Tests ActionEditor create, update, delete, and validation functionality
+        /// </summary>
+        public static void RunActionEditorTest()
+        {
+            ActionEditorTest.RunAllTests();
         }
 
         // NOTE: GetRarityOrder, TestBasicParsing, TestTemplateExpansion, TestLengthCalculations, and TestEdgeCases

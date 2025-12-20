@@ -17,7 +17,7 @@ namespace RPGGame
         private GameStateManager stateManager;
         private TestExecutionCoordinator? testCoordinator;
         private Dictionary<string, ITestCommand> commands;
-        private string? currentSubMenu = null; // null = main menu, "System" = system tests, "Item" = item tests
+        private string? currentSubMenu = null; // null = main menu, "System" = system tests, "Item" = item tests, "Developer" = developer tools tests
         
         // Delegates
         public delegate void OnShowMainMenu();
@@ -55,6 +55,7 @@ namespace RPGGame
             commands["10"] = new RunCommonItemModificationTestCommand(canvasUI, testCoordinator, stateManager);
             commands["11"] = new RunColorSystemTestsCommand(canvasUI, testCoordinator, stateManager);
             commands["12"] = new RunActionSystemTestsCommand(canvasUI, testCoordinator, stateManager);
+            commands["13"] = new RunActionEditorTestCommand(canvasUI, testCoordinator, stateManager);
             commands["0"] = new ReturnToSettingsCommand(canvasUI, testCoordinator, stateManager, () => ShowMainMenuEvent?.Invoke());
         }
 
@@ -129,6 +130,10 @@ namespace RPGGame
                             await colorCommand.ExecuteAsync();
                         }
                         break;
+                    case "5":
+                        // Developer Tools Tests sub-menu
+                        ShowTestingMenu("Developer");
+                        break;
                     case "0":
                         // Back to Settings
                         currentSubMenu = null;
@@ -138,7 +143,7 @@ namespace RPGGame
                         }
                         break;
                     default:
-                        ShowMessageEvent?.Invoke("Invalid choice. Please select 1-4 or 0 to return.");
+                        ShowMessageEvent?.Invoke("Invalid choice. Please select 1-5 or 0 to return.");
                         break;
                 }
             }
@@ -247,6 +252,28 @@ namespace RPGGame
                         break;
                     default:
                         ShowMessageEvent?.Invoke("Invalid choice. Please select 1-4 or 0 to return.");
+                        break;
+                }
+            }
+            else if (currentSubMenu == "Developer")
+            {
+                // Developer Tools Tests sub-menu
+                switch (input)
+                {
+                    case "1":
+                        // Action Editor Tests
+                        if (commands.TryGetValue("13", out var cmd))
+                        {
+                            TestUICoordinator.ClearAndPrepareForTest(canvasUI);
+                            await cmd.ExecuteAsync();
+                        }
+                        break;
+                    case "0":
+                        // Back to main test menu
+                        ShowTestingMenu(null);
+                        break;
+                    default:
+                        ShowMessageEvent?.Invoke("Invalid choice. Please select 1 or 0 to return.");
                         break;
                 }
             }

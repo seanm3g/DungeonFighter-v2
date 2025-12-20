@@ -11,12 +11,13 @@ namespace RPGGame
     {
         private static GameTicker? _instance;
         private static readonly object _lock = new object();
-        
+
         private double _gameTime = 0.0;
         private double _lastRealTime = 0.0;
         private bool _isRunning = false;
         private Task? _tickerTask;
-        
+        private CancellationTokenSource? _cancellationTokenSource;
+
         public double GameTime => _gameTime;
         public bool IsRunning => _isRunning;
         
@@ -46,16 +47,40 @@ namespace RPGGame
         public void Start()
         {
             if (_isRunning) return;
-            
+
             _isRunning = true;
+            _cancellationTokenSource = new CancellationTokenSource();
             // Use Task.Run for async execution instead of Thread
-            _tickerTask = Task.Run(async () => await TickerLoopAsync());
+            _tickerTask = Task.Run(async () => await TickerLoopAsync(_cancellationTokenSource.Token));
         }
-        
+
         public void Stop()
         {
             _isRunning = false;
-            _tickerTask?.Wait(TimeSpan.FromSeconds(1)); // Wait up to 1 second for task to stop
+            _cancellationTokenSource?.Cancel();
+
+            if (_tickerTask != null)
+            {
+                try
+                {
+                    if (!_tickerTask.Wait(TimeSpan.FromSeconds(2)))
+                    {
+                        // Task didn't complete in time, but we've already cancelled it
+                        Utils.ScrollDebugLogger.Log("GameTicker: Warning - ticker task did not stop within timeout period");
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    // Expected when cancellation token is cancelled
+                }
+                catch (Exception ex)
+                {
+                    Utils.ScrollDebugLogger.Log($"GameTicker: Error stopping ticker: {ex.Message}");
+                }
+            }
+
+            _cancellationTokenSource?.Dispose();
+            _cancellationTokenSource = null;
         }
         
         public void Reset()
@@ -64,26 +89,33 @@ namespace RPGGame
             _lastRealTime = DateTime.Now.Ticks / (double)TimeSpan.TicksPerSecond;
         }
         
-        private async Task TickerLoopAsync()
+        private async Task TickerLoopAsync(CancellationToken cancellationToken)
         {
-            while (_isRunning)
+            try
             {
-                var config = GameConfiguration.Instance.GameSpeed;
-                var tickerInterval = config.GameTickerInterval;
-                var speedMultiplier = config.GameSpeedMultiplier;
-                
-                // Calculate real time elapsed
-                double currentRealTime = DateTime.Now.Ticks / (double)TimeSpan.TicksPerSecond;
-                double realTimeElapsed = currentRealTime - _lastRealTime;
-                
-                // Convert to game time using speed multiplier
-                double gameTimeElapsed = realTimeElapsed * speedMultiplier;
-                _gameTime += gameTimeElapsed;
-                _lastRealTime = currentRealTime;
-                
-                // Delay for the ticker interval (non-blocking)
-                int delayMs = (int)(tickerInterval * 1000);
-                await Task.Delay(delayMs);
+                while (_isRunning && !cancellationToken.IsCancellationRequested)
+                {
+                    var config = GameConfiguration.Instance.GameSpeed;
+                    var tickerInterval = config.GameTickerInterval;
+                    var speedMultiplier = config.GameSpeedMultiplier;
+
+                    // Calculate real time elapsed
+                    double currentRealTime = DateTime.Now.Ticks / (double)TimeSpan.TicksPerSecond;
+                    double realTimeElapsed = currentRealTime - _lastRealTime;
+
+                    // Convert to game time using speed multiplier
+                    double gameTimeElapsed = realTimeElapsed * speedMultiplier;
+                    _gameTime += gameTimeElapsed;
+                    _lastRealTime = currentRealTime;
+
+                    // Delay for the ticker interval (non-blocking)
+                    int delayMs = (int)(tickerInterval * 1000);
+                    await Task.Delay(delayMs, cancellationToken).ConfigureAwait(false);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected when cancellation is requested
             }
         }
         

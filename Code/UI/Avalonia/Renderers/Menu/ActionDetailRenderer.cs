@@ -181,6 +181,12 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 menuStartY += 2;
             }
             
+            menuStartY += 1;
+            
+            // Edit hint
+            canvas.AddText(menuStartX, menuStartY, "Press 'E' to edit this action", AsciiArtAssets.Colors.Yellow);
+            menuStartY += 2;
+            
             // Navigation
             string backText = MenuOptionFormatter.Format(0, "Back to Action List");
             var backOption = new ClickableElement

@@ -29,15 +29,30 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Display the settings menu
+        /// Display the settings menu - now uses GUI panel instead of canvas rendering
         /// </summary>
         public void ShowSettings()
         {
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                // Suppress display buffer auto-rendering FIRST to prevent any pending renders
+                // Show the GUI settings panel instead of rendering on canvas
+                var mainWindow = canvasUI.GetMainWindow();
+                if (mainWindow != null)
+                {
+                    try
+                    {
+                        mainWindow.ShowSettingsPanel();
+                        stateManager.TransitionToState(GameState.Settings);
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        ScrollDebugLogger.Log($"SettingsMenuHandler: Error showing settings panel: {ex.Message}");
+                    }
+                }
+                
+                // Fallback to canvas rendering if MainWindow not available or error occurred
                 canvasUI.SuppressDisplayBufferRendering();
-                // Clear buffer without triggering a render (since we're suppressing rendering anyway)
                 canvasUI.ClearDisplayBufferWithoutRender();
                 canvasUI.RenderSettings();
             }

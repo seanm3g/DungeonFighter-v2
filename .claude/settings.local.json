@@ -25,7 +25,12 @@
       "Bash(git restore:*)",
       "Bash(timeout 600 dotnet run:*)",
       "Bash(ls:*)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(timeout 300 dotnet:*)",
+      "Bash(timeout 450 dotnet run:*)",
+      "Bash(git -C \"D:\\\\code projects\\\\github projects\\\\DungeonFighter-v2\" checkout Code/Game/BattleStatistics/BattleExecutor.cs)",
+      "Bash(timeout 15 dotnet run:*)",
+      "Bash(timeout 60 bash:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

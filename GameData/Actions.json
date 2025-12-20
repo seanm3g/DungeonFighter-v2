@@ -330,5 +330,18 @@
     "rollBonus": 3,
     "damageReduction": 0.3,
     "tags": ["enemy", "wraith"]
+  },
+  {
+    "name": "VENOMOUS BLOODFURY",
+    "type": "Attack",
+    "damageMultiplier": 0.75,
+    "length": 1.3,
+    "multiHitCount": 3,
+    "description": "A devastating triple strike that inflicts both bleeding and poison wounds. The wielder's weapon drips with venom as they strike three times in rapid succession, each hit more precise than the last. The combination of toxins and open wounds makes this attack particularly deadly, and the wielder draws strength from the damage dealt.",
+    "causesBleed": true,
+    "causesPoison": true,
+    "lifesteal": 0.15,
+    "rollBonus": 2,
+    "tags": ["weapon", "dagger", "unique"]
   }
 ]

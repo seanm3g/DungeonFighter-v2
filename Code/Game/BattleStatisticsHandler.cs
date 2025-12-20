@@ -59,27 +59,27 @@ namespace RPGGame
                 {
                     case "1":
                         // Run quick test (100 battles)
-                        _ = Task.Run(async () => await RunBattleTest(100)); // Fire and forget
+                        StartBackgroundTask(RunBattleTest(100), "Quick battle test (100 battles)");
                         break;
                     case "2":
                         // Run standard test (500 battles)
-                        _ = Task.Run(async () => await RunBattleTest(500)); // Fire and forget
+                        StartBackgroundTask(RunBattleTest(500), "Standard battle test (500 battles)");
                         break;
                     case "3":
                         // Run comprehensive test (1000 battles)
-                        _ = Task.Run(async () => await RunBattleTest(1000)); // Fire and forget
+                        StartBackgroundTask(RunBattleTest(1000), "Comprehensive battle test (1000 battles)");
                         break;
                     case "4":
                         // Run custom test
-                        _ = Task.Run(async () => await RunBattleTest(100)); // Fire and forget - for now just use default
+                        StartBackgroundTask(RunBattleTest(100), "Custom battle test (100 battles)");
                         break;
                     case "5":
                         // Run weapon type tests (each weapon vs random enemies)
-                        _ = Task.Run(async () => await RunWeaponTypeTests()); // Fire and forget
+                        StartBackgroundTask(RunWeaponTypeTests(), "Weapon type tests");
                         break;
                     case "6":
                         // Run comprehensive tests (every weapon vs every enemy)
-                        _ = Task.Run(async () => await RunComprehensiveWeaponEnemyTests()); // Fire and forget
+                        StartBackgroundTask(RunComprehensiveWeaponEnemyTests(), "Comprehensive weapon-enemy tests");
                         break;
                     case "7":
                         // View last results
@@ -113,6 +113,32 @@ namespace RPGGame
             {
                 ScrollDebugLogger.Log($"BattleStatisticsHandler: ERROR - customUIManager is not CanvasUICoordinator (type={customUIManager?.GetType().Name ?? "null"})");
             }
+        }
+
+        /// <summary>
+        /// Starts a background task with proper error handling
+        /// </summary>
+        private void StartBackgroundTask(Task task, string taskName)
+        {
+            _ = task.ContinueWith(t =>
+            {
+                if (t.IsFaulted)
+                {
+                    ScrollDebugLogger.Log($"BattleStatisticsHandler: Background task '{taskName}' failed: {t.Exception?.GetBaseException().Message}");
+                    if (customUIManager is CanvasUICoordinator canvasUI)
+                    {
+                        canvasUI.RenderBattleStatisticsMenu(null, false);
+                    }
+                }
+                else if (t.IsCanceled)
+                {
+                    ScrollDebugLogger.Log($"BattleStatisticsHandler: Background task '{taskName}' was cancelled");
+                }
+                else
+                {
+                    ScrollDebugLogger.Log($"BattleStatisticsHandler: Background task '{taskName}' completed successfully");
+                }
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         /// <summary>
@@ -229,7 +255,7 @@ namespace RPGGame
         {
             // For now, just run with default config
             // In the future, this could show a form to input custom stats
-            _ = Task.Run(async () => await RunBattleTest(100)); // Fire and forget
+            StartBackgroundTask(RunBattleTest(100), "Custom test menu battle test");
         }
 
         /// <summary>

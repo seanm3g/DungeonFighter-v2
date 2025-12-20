@@ -26,7 +26,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         /// <summary>
         /// Renders the create action form content
         /// </summary>
-        public int RenderCreateActionFormContent(int x, int y, int width, int height, ActionData actionData, int currentStep, string[] formSteps, string? currentInput = null)
+        public int RenderCreateActionFormContent(int x, int y, int width, int height, ActionData actionData, int currentStep, string[] formSteps, string? currentInput = null, bool isEditMode = false)
         {
             clickableElements.Clear();
             int currentLineCount = 0;
@@ -35,7 +35,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             var (menuStartX, menuStartY) = MenuLayoutCalculator.CalculateTopLeftMenu(x, y);
             
             // Title
-            string title = "=== CREATE NEW ACTION ===";
+            string title = isEditMode ? "=== EDIT ACTION ===" : "=== CREATE NEW ACTION ===";
             canvas.AddText(menuStartX, menuStartY, title, AsciiArtAssets.Colors.Gold);
             menuStartY += 2;
             

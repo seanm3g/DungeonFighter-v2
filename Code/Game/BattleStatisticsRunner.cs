@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Reflection;
 using RPGGame.Combat;
@@ -27,10 +28,11 @@ namespace RPGGame
         /// Runs parallel battles for a given configuration
         /// </summary>
         public static async Task<StatisticsResult> RunParallelBattles(
-            BattleConfiguration config, 
+            BattleConfiguration config,
             int numberOfBattles = 100,
             IProgress<(int completed, int total, string status)>? progress = null)
         {
+            const int TIMEOUT_MINUTES = 15;
             var result = new StatisticsResult
             {
                 Config = config,
@@ -39,6 +41,8 @@ namespace RPGGame
 
             var originalDisableFlag = CombatManager.DisableCombatUIOutput;
             CombatManager.DisableCombatUIOutput = true;
+
+            using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(TIMEOUT_MINUTES));
 
             try
             {
@@ -50,12 +54,23 @@ namespace RPGGame
                     int battleIndex = i;
                     var task = Task.Run(async () =>
                     {
-                        await semaphore.WaitAsync();
+                        await semaphore.WaitAsync(cts.Token);
                         try
                         {
                             var battleResult = await RPGGame.BattleStatistics.BattleExecutor.RunSingleBattle(config, battleIndex);
                             progress?.Report((battleIndex + 1, numberOfBattles, $"Battle {battleIndex + 1}/{numberOfBattles}"));
                             return battleResult;
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            var errorResult = new RPGGame.BattleStatistics.BattleResult
+                            {
+                                ErrorMessage = "Battle cancelled (overall timeout)",
+                                PlayerWon = false,
+                                Turns = 0
+                            };
+                            progress?.Report((battleIndex + 1, numberOfBattles, $"Battle {battleIndex + 1}/{numberOfBattles} (Cancelled)"));
+                            return errorResult;
                         }
                         catch (Exception ex)
                         {
@@ -65,6 +80,7 @@ namespace RPGGame
                                 PlayerWon = false,
                                 Turns = 0
                             };
+                            Utils.ScrollDebugLogger.Log($"BattleStatisticsRunner: Battle {battleIndex} exception: {ex.GetType().Name}: {ex.Message}");
                             progress?.Report((battleIndex + 1, numberOfBattles, $"Battle {battleIndex + 1}/{numberOfBattles} (Error)"));
                             return errorResult;
                         }
@@ -72,42 +88,41 @@ namespace RPGGame
                         {
                             semaphore.Release();
                         }
-                    });
+                    }, cts.Token);
                     battleTasks.Add(task);
                 }
 
-                var allTasks = Task.WhenAll(battleTasks);
-                var timeoutTask = Task.Delay(TimeSpan.FromMinutes(10));
-                var completedTask = await Task.WhenAny(allTasks, timeoutTask);
-                
-                if (completedTask == timeoutTask)
+                try
                 {
+                    var results = await Task.WhenAll(battleTasks).ConfigureAwait(false);
+                    result.BattleResults = results.ToList();
+                    Utils.ScrollDebugLogger.Log($"BattleStatisticsRunner: All {numberOfBattles} battles completed successfully");
+                }
+                catch (OperationCanceledException)
+                {
+                    Utils.ScrollDebugLogger.Log($"BattleStatisticsRunner: Battle suite timed out after {TIMEOUT_MINUTES} minutes");
                     var completedResults = new List<RPGGame.BattleStatistics.BattleResult>();
                     for (int i = 0; i < battleTasks.Count; i++)
                     {
-                        if (battleTasks[i].IsCompleted)
+                        if (battleTasks[i].IsCompleted && !battleTasks[i].IsFaulted && !battleTasks[i].IsCanceled)
                         {
                             try
                             {
                                 var baseResult = await battleTasks[i];
                                 completedResults.Add(baseResult);
                             }
-                            catch
+                            catch (Exception ex)
                             {
+                                Utils.ScrollDebugLogger.Log($"BattleStatisticsRunner: Error collecting battle {i} result: {ex.Message}");
                                 completedResults.Add(new RPGGame.BattleStatistics.BattleResult { ErrorMessage = "Task failed", PlayerWon = false });
                             }
                         }
                         else
                         {
-                            completedResults.Add(new RPGGame.BattleStatistics.BattleResult { ErrorMessage = "Task timed out", PlayerWon = false });
+                            completedResults.Add(new RPGGame.BattleStatistics.BattleResult { ErrorMessage = $"Task incomplete/failed (state: {GetTaskState(battleTasks[i])})", PlayerWon = false });
                         }
                     }
                     result.BattleResults = completedResults;
-                }
-                else
-                {
-                    var results = await allTasks;
-                    result.BattleResults = results.ToList();
                 }
 
                 RPGGame.BattleStatistics.BattleStatisticsCalculator.CalculateStatistics(result);
@@ -118,6 +133,18 @@ namespace RPGGame
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Helper method to get task state for logging
+        /// </summary>
+        private static string GetTaskState(Task task)
+        {
+            if (task.IsFaulted) return "Faulted";
+            if (task.IsCanceled) return "Cancelled";
+            if (task.IsCompleted) return "Completed";
+            if (task.IsCompletedSuccessfully) return "CompletedSuccessfully";
+            return "Running";
         }
 
         /// <summary>

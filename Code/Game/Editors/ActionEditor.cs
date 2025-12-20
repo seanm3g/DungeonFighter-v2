@@ -144,6 +144,68 @@ namespace RPGGame.Editors
         }
 
         /// <summary>
+        /// Validate an action
+        /// </summary>
+        public string? ValidateAction(ActionData action, string? originalName = null)
+        {
+            if (string.IsNullOrWhiteSpace(action.Name))
+            {
+                return "Action name cannot be empty.";
+            }
+
+            if (string.IsNullOrWhiteSpace(action.Type))
+            {
+                return "Action type cannot be empty.";
+            }
+
+            if (string.IsNullOrWhiteSpace(action.TargetType))
+            {
+                return "Target type cannot be empty.";
+            }
+
+            // Check name uniqueness (only for new actions or if name changed)
+            if (originalName == null || !originalName.Equals(action.Name, StringComparison.OrdinalIgnoreCase))
+            {
+                var existingAction = GetAction(action.Name);
+                if (existingAction != null)
+                {
+                    return $"An action with the name '{action.Name}' already exists.";
+                }
+            }
+
+            // Validate type enum values
+            var validTypes = new[] { "Attack", "Heal", "Buff", "Debuff", "Spell", "Interact", "Move", "UseItem" };
+            if (!validTypes.Contains(action.Type, StringComparer.OrdinalIgnoreCase))
+            {
+                return $"Invalid action type '{action.Type}'. Must be one of: {string.Join(", ", validTypes)}";
+            }
+
+            var validTargetTypes = new[] { "Self", "SingleTarget", "AreaOfEffect", "Environment" };
+            if (!validTargetTypes.Contains(action.TargetType, StringComparer.OrdinalIgnoreCase))
+            {
+                return $"Invalid target type '{action.TargetType}'. Must be one of: {string.Join(", ", validTargetTypes)}";
+            }
+
+            // Validate numeric ranges
+            if (action.DamageMultiplier < 0)
+            {
+                return "Damage multiplier cannot be negative.";
+            }
+
+            if (action.Length < 0)
+            {
+                return "Length cannot be negative.";
+            }
+
+            if (action.Cooldown < 0)
+            {
+                return "Cooldown cannot be negative.";
+            }
+
+            return null; // Validation passed
+        }
+
+        /// <summary>
         /// Save actions to JSON file
         /// </summary>
         private bool SaveActions()

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "xW4foj8kMow=",
+  "dgSpecHash": "JbSAkR3VMjk=",
   "success": true,
-  "projectFilePath": "D:\\code projects\\github projects\\DungeonFighter-v2\\Code\\Code.csproj",
+  "projectFilePath": "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\Code.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Seanye\\.nuget\\packages\\avalonia\\11.2.7\\avalonia.11.2.7.nupkg.sha512",
     "C:\\Users\\Seanye\\.nuget\\packages\\avalonia.angle.windows.natives\\2.1.22045.20230930\\avalonia.angle.windows.natives.2.1.22045.20230930.nupkg.sha512",

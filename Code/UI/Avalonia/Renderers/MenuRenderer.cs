@@ -37,6 +37,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         private readonly ActionEditorRenderer actionEditorRenderer;
         private readonly CreateActionFormRenderer createActionFormRenderer;
         private readonly ActionDetailRenderer actionDetailRenderer;
+        private readonly DeleteActionConfirmationRenderer deleteActionConfirmationRenderer;
         
         public MenuRenderer(GameCanvasControl canvas, List<ClickableElement> clickableElements, ICanvasTextManager textManager, ICanvasInteractionManager interactionManager)
         {
@@ -59,6 +60,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             this.actionEditorRenderer = new ActionEditorRenderer(canvas, clickableElements, textManager);
             this.createActionFormRenderer = new CreateActionFormRenderer(canvas, clickableElements, textManager);
             this.actionDetailRenderer = new ActionDetailRenderer(canvas, clickableElements, textManager);
+            this.deleteActionConfirmationRenderer = new DeleteActionConfirmationRenderer(canvas, clickableElements, textManager);
         }
         
         // IScreenRenderer implementation
@@ -248,9 +250,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>
         /// Renders the create action form content
         /// </summary>
-        public void RenderCreateActionFormContent(int x, int y, int width, int height, ActionData actionData, int currentStep, string[] formSteps, string? currentInput = null)
+        public void RenderCreateActionFormContent(int x, int y, int width, int height, ActionData actionData, int currentStep, string[] formSteps, string? currentInput = null, bool isEditMode = false)
         {
-            currentLineCount = createActionFormRenderer.RenderCreateActionFormContent(x, y, width, height, actionData, currentStep, formSteps, currentInput);
+            currentLineCount = createActionFormRenderer.RenderCreateActionFormContent(x, y, width, height, actionData, currentStep, formSteps, currentInput, isEditMode);
         }
 
         /// <summary>
@@ -259,6 +261,14 @@ namespace RPGGame.UI.Avalonia.Renderers
         public void RenderActionDetailContent(int x, int y, int width, int height, ActionData action)
         {
             currentLineCount = actionDetailRenderer.RenderActionDetailContent(x, y, width, height, action);
+        }
+
+        /// <summary>
+        /// Renders the delete action confirmation content
+        /// </summary>
+        public void RenderDeleteActionConfirmationContent(int x, int y, int width, int height, ActionData action, string? errorMessage = null)
+        {
+            currentLineCount = deleteActionConfirmationRenderer.RenderDeleteActionConfirmationContent(x, y, width, height, action, errorMessage);
         }
     }
 }

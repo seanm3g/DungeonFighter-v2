@@ -1,4 +1,5 @@
 using Avalonia.Media;
+using Avalonia.Threading;
 using RPGGame;
 using RPGGame.Editors;
 using RPGGame.UI;
@@ -74,6 +75,32 @@ namespace RPGGame.UI.Avalonia
         public void SetMainWindow(MainWindow window)
         {
             this.mainWindow = window;
+        }
+        
+        /// <summary>
+        /// Gets the main window reference
+        /// </summary>
+        public MainWindow? GetMainWindow()
+        {
+            return this.mainWindow;
+        }
+
+        /// <summary>
+        /// Focuses the canvas to ensure keyboard input is captured
+        /// </summary>
+        public void FocusCanvas()
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                try
+                {
+                    canvas.Focus();
+                }
+                catch (Exception)
+                {
+                    // Ignore focus errors
+                }
+            }, DispatcherPriority.Normal);
         }
         
         /// <summary>
@@ -235,8 +262,9 @@ namespace RPGGame.UI.Avalonia
         }
         public void RenderActionEditor() => screenRenderingCoordinator.RenderActionEditor();
         public void RenderActionList(List<ActionData> actions, int page) => screenRenderingCoordinator.RenderActionList(actions, page);
-        public void RenderCreateActionForm(ActionData actionData, int currentStep, string[] formSteps, string? currentInput = null) => screenRenderingCoordinator.RenderCreateActionForm(actionData, currentStep, formSteps, currentInput);
+        public void RenderCreateActionForm(ActionData actionData, int currentStep, string[] formSteps, string? currentInput = null, bool isEditMode = false) => screenRenderingCoordinator.RenderCreateActionForm(actionData, currentStep, formSteps, currentInput, isEditMode);
         public void RenderActionDetails(ActionData action) => screenRenderingCoordinator.RenderActionDetails(action);
+        public void RenderDeleteActionConfirmation(ActionData action, string? errorMessage = null) => screenRenderingCoordinator.RenderDeleteActionConfirmation(action, errorMessage);
 
         public void RenderDungeonSelection(Character player, List<Dungeon> dungeons)
         {

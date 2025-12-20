@@ -200,9 +200,9 @@ namespace RPGGame.UI.Avalonia.Coordinators
         /// <summary>
         /// Renders create action form screen
         /// </summary>
-        public void RenderCreateActionForm(ActionData actionData, int currentStep, string[] formSteps, string? currentInput = null)
+        public void RenderCreateActionForm(ActionData actionData, int currentStep, string[] formSteps, string? currentInput = null, bool isEditMode = false)
         {
-            renderer.RenderCreateActionForm(actionData, currentStep, formSteps, currentInput);
+            renderer.RenderCreateActionForm(actionData, currentStep, formSteps, currentInput, isEditMode);
         }
 
         /// <summary>
@@ -211,6 +211,11 @@ namespace RPGGame.UI.Avalonia.Coordinators
         public void RenderActionDetails(ActionData action)
         {
             renderer.RenderActionDetails(action);
+        }
+
+        public void RenderDeleteActionConfirmation(ActionData action, string? errorMessage = null)
+        {
+            renderer.RenderDeleteActionConfirmation(action, errorMessage);
         }
         
         /// <summary>

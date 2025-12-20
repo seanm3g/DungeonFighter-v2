@@ -1,27 +1,22 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Media.Imaging;
-using Avalonia.Media;
 using Avalonia.Threading;
 using RPGGame;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Helpers;
 using RPGGame.UI.Avalonia.Handlers;
-using RPGGame.UI.TitleScreen;
+using RPGGame.Utils;
 using System;
-using System.IO;
 using System.Threading.Tasks;
 
 namespace RPGGame.UI.Avalonia
 {
     public partial class MainWindow : Window
     {
-        private GameCoordinator? game;
-        private IUIManager? canvasUIManager;
-        private bool isInitialized = false;
-        private MouseInteractionHandler? mouseHandler;
+        private GameInitializationHandler? initializationHandler;
+        private MainWindowInputHandler? inputHandler;
 
         public MainWindow()
         {
@@ -37,122 +32,33 @@ namespace RPGGame.UI.Avalonia
             // Initialize the game and UI
             InitializeGame();
         }
-
-        private bool waitingForKeyAfterAnimation = false;
         
         private void InitializeGame()
         {
-            try
-            {
-                // Initialize the canvas UI manager
-                canvasUIManager = new CanvasUICoordinator(GameCanvas);
-                
-                // Set the close action for the UI manager
-                if (canvasUIManager is CanvasUICoordinator canvasUI)
-                {
-                    canvasUI.SetCloseAction(() =>
-                    {
-                        Dispatcher.UIThread.Post(() => this.Close());
-                    });
-                    // Set the main window reference so the coordinator can show/hide panels
-                    canvasUI.SetMainWindow(this);
-                }
-                
-                // Set the UI manager for the static UIManager class
-                UIManager.SetCustomUIManager(canvasUIManager);
-                
-                // Initialize mouse interaction handler
-                if (canvasUIManager is CanvasUICoordinator canvasUIForMouse)
-                {
-                    mouseHandler = new MouseInteractionHandler(GameCanvas, canvasUIForMouse, null);
-                }
-                
-                // Show static title screen (no animation)
-                if (canvasUIManager is CanvasUICoordinator canvasUI2)
-                {
-                    // Show the static title screen immediately
-                    try
-                    {
-                        TitleScreenHelper.ShowStaticTitleScreen();
-                        
-                        // Set flag to wait for key press
-                        waitingForKeyAfterAnimation = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        UpdateStatus($"Error displaying title screen: {ex.Message}");
-                        // If title screen fails, proceed to main menu
-                        InitializeGameAfterAnimation();
-                    }
-                    
-                    // Don't proceed to main menu yet - wait for key press
-                    return;
-                }
-                
-                // If no animation, initialize normally
-                InitializeGameAfterAnimation();
-            }
-            catch (Exception ex)
-            {
-                UpdateStatus($"Error initializing game: {ex.Message}");
-                // If initialization fails, try to initialize without animation
-                try
-                {
-                    InitializeGameAfterAnimation();
-                }
-                catch (Exception ex2)
-                {
-                    UpdateStatus($"Critical error: {ex2.Message}");
-                }
-            }
-        }
-        
-        private void InitializeGameAfterAnimation()
-        {
-            try
-            {
-                // Check if canvasUIManager is initialized
-                if (canvasUIManager == null)
-                {
-                    UpdateStatus("Error: UI Manager not initialized");
-                    return;
-                }
-                
-                // Initialize the game with canvas UI
-                game = new GameCoordinator(canvasUIManager);
-                game.SetUIManager(canvasUIManager);
-                
-                // Update mouse handler with game reference
-                if (mouseHandler != null && canvasUIManager is CanvasUICoordinator canvasUIForMouse)
-                {
-                    mouseHandler = new MouseInteractionHandler(GameCanvas, canvasUIForMouse, game);
-                }
-                
-                // Show the main menu (now async)
-                game.ShowMainMenu();
-                
-                isInitialized = true;
-            }
-            catch (Exception ex)
-            {
-                UpdateStatus($"Error initializing game: {ex.Message}");
-            }
+            initializationHandler = new GameInitializationHandler(GameCanvas, this);
+            initializationHandler.InitializeGame(UpdateStatus);
         }
 
         private async void OnKeyDown(object? sender, KeyEventArgs e)
         {
             // If waiting for key after animation, initialize game
-            if (waitingForKeyAfterAnimation)
+            if (initializationHandler != null && initializationHandler.WaitingForKeyAfterAnimation)
             {
-                waitingForKeyAfterAnimation = false;
-                InitializeGameAfterAnimation();
+                initializationHandler.HandleKeyAfterAnimation(UpdateStatus);
                 return;
             }
             
-            if (!isInitialized || game == null) return;
+            if (initializationHandler == null || !initializationHandler.IsInitialized || initializationHandler.Game == null) 
+                return;
 
             try
             {
+                // Initialize input handler if needed
+                if (inputHandler == null)
+                {
+                    inputHandler = new MainWindowInputHandler(initializationHandler.Game);
+                }
+
                 // Handle special keys first
                 if (e.Key == Key.H)
                 {
@@ -162,22 +68,17 @@ namespace RPGGame.UI.Avalonia
 
                 if (e.Key == Key.Escape)
                 {
-                    // Handle escape key based on current game state
-                    await game.HandleEscapeKey();
+                    await initializationHandler.Game.HandleEscapeKey();
                     return;
                 }
 
-                // Convert Avalonia keys to game input
-                string? input = ConvertKeyToInput(e.Key, e.KeyModifiers);
+                // Convert Avalonia keys to game input using utility
+                string? input = inputHandler.ConvertKeyToInput(e.Key, e.KeyModifiers);
                 if (input != null)
                 {
-                    // Debug: Log key press for troubleshooting
                     DebugLogger.Log("MainWindow", $"Calling game.HandleInput('{input}')");
-                    await game.HandleInput(input);
+                    await initializationHandler.Game.HandleInput(input);
                     DebugLogger.Log("MainWindow", $"game.HandleInput('{input}') completed");
-                }
-                else
-                {
                 }
             }
             catch (Exception ex)
@@ -191,37 +92,10 @@ namespace RPGGame.UI.Avalonia
             // Handle key up events if needed
         }
 
-        private string? ConvertKeyToInput(Key key, KeyModifiers modifiers)
-        {
-            return key switch
-            {
-                Key.D1 or Key.NumPad1 => "1",
-                Key.D2 or Key.NumPad2 => "2",
-                Key.D3 or Key.NumPad3 => "3",
-                Key.D4 or Key.NumPad4 => "4",
-                Key.D5 or Key.NumPad5 => "5",
-                Key.D6 or Key.NumPad6 => "6",
-                Key.D7 or Key.NumPad7 => "7",
-                Key.D8 or Key.NumPad8 => "8",
-                Key.D9 or Key.NumPad9 => "9",
-                Key.D0 or Key.NumPad0 => "0",
-                Key.Enter => "enter",
-                Key.Space => "space",
-                Key.Back => "backspace",
-                Key.Delete => "delete",
-                Key.Left => "left",
-                Key.Right => "right",
-                Key.Up => "up",
-                Key.Down => "down",
-                Key.Tab => "tab",
-                _ => null
-            };
-        }
-
         private void ToggleHelp()
         {
             // Toggle help display on canvas
-            if (canvasUIManager is CanvasUICoordinator canvasUI)
+            if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
             {
                 canvasUI.ToggleHelp();
             }
@@ -230,7 +104,7 @@ namespace RPGGame.UI.Avalonia
         private void UpdateStatus(string message)
         {
             // Update status on canvas
-            if (canvasUIManager is CanvasUICoordinator canvasUI)
+            if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
             {
                 canvasUI.UpdateStatus(message);
             }
@@ -248,25 +122,28 @@ namespace RPGGame.UI.Avalonia
         // Mouse event handlers - delegate to MouseInteractionHandler
         private void OnCanvasPointerPressed(object? sender, PointerPressedEventArgs e)
         {
-            if (!isInitialized || mouseHandler == null) return;
-            mouseHandler.HandlePointerPressed(e);
+            if (initializationHandler == null || !initializationHandler.IsInitialized || initializationHandler.MouseHandler == null) 
+                return;
+            initializationHandler.MouseHandler.HandlePointerPressed(e);
         }
 
         private void OnCanvasPointerMoved(object? sender, PointerEventArgs e)
         {
-            if (!isInitialized || mouseHandler == null) return;
-            mouseHandler.HandlePointerMoved(e);
+            if (initializationHandler == null || !initializationHandler.IsInitialized || initializationHandler.MouseHandler == null) 
+                return;
+            initializationHandler.MouseHandler.HandlePointerMoved(e);
         }
 
         private void OnCanvasPointerReleased(object? sender, PointerReleasedEventArgs e)
         {
-            if (!isInitialized || mouseHandler == null) return;
-            mouseHandler.HandlePointerReleased(e);
+            if (initializationHandler == null || !initializationHandler.IsInitialized || initializationHandler.MouseHandler == null) 
+                return;
+            initializationHandler.MouseHandler.HandlePointerReleased(e);
         }
 
         private async Task CopyCenterPanelToClipboard()
         {
-            if (canvasUIManager is CanvasUICoordinator canvasUI)
+            if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
             {
                 await ClipboardHelper.CopyDisplayBufferToClipboard(canvasUI, this, StatusText);
             }
@@ -304,6 +181,92 @@ namespace RPGGame.UI.Avalonia
                 }
             });
         }
-
+        
+        /// <summary>
+        /// Shows the settings panel
+        /// </summary>
+        public void ShowSettingsPanel()
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (SettingsPanelOverlay != null && SettingsMenuPanel != null)
+                {
+                    // Suppress canvas rendering to hide ASCII menu
+                    if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
+                    {
+                        canvasUI.SuppressDisplayBufferRendering();
+                        canvasUI.ClearDisplayBufferWithoutRender();
+                    }
+                    
+                    // Set up callbacks for back button and status updates
+                    SettingsMenuPanel.SetBackCallback(() =>
+                    {
+                        HideSettingsPanel();
+                        if (initializationHandler?.Game != null)
+                        {
+                            // Fire and forget - HandleEscapeKey will handle state transitions
+                            _ = initializationHandler.Game.HandleEscapeKey();
+                        }
+                    });
+                    
+                    SettingsMenuPanel.SetStatusCallback(UpdateStatus);
+                    
+                    // Initialize handlers for testing and developer tools
+                    // Always call InitializeHandlers, even if some values might be null
+                    // This ensures the panel has references to what's available
+                    CanvasUICoordinator? canvasUIForHandlers = initializationHandler?.CanvasUIManager as CanvasUICoordinator;
+                    SettingsMenuPanel.InitializeHandlers(
+                        initializationHandler?.Game?.TestingSystemHandler,
+                        initializationHandler?.Game?.DeveloperMenuHandler,
+                        initializationHandler?.Game,
+                        canvasUIForHandlers,
+                        initializationHandler?.Game?.StateManager);
+                    
+                    // Set up callbacks for Testing and Developer Menu buttons (legacy - now handled in tabs)
+                    if (initializationHandler?.Game != null && initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI3)
+                    {
+                        SettingsMenuPanel.SetTestingCallback(async () =>
+                        {
+                            // Hide settings panel and show testing menu
+                            HideSettingsPanel();
+                            canvasUI3.RestoreDisplayBufferRendering();
+                            // Trigger testing menu via input (Settings state handles "1" as Testing)
+                            await initializationHandler.Game.HandleInput("1");
+                        });
+                        
+                        SettingsMenuPanel.SetDeveloperMenuCallback(async () =>
+                        {
+                            HideSettingsPanel();
+                            canvasUI3.RestoreDisplayBufferRendering();
+                            canvasUI3.ResetDeleteConfirmation();
+                            // Trigger developer menu via input (Settings state handles "2" as Developer Menu)
+                            await initializationHandler.Game.HandleInput("2");
+                        });
+                    }
+                    
+                    SettingsPanelOverlay.IsVisible = true;
+                }
+            });
+        }
+        
+        /// <summary>
+        /// Hides the settings panel
+        /// </summary>
+        public void HideSettingsPanel()
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (SettingsPanelOverlay != null)
+                {
+                    SettingsPanelOverlay.IsVisible = false;
+                    
+                    // Restore canvas rendering when hiding settings
+                    if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
+                    {
+                        canvasUI.RestoreDisplayBufferRendering();
+                    }
+                }
+            });
+        }
     }
 }

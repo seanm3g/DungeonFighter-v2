@@ -1,7 +1,8 @@
 # Settings and Developer Menu Verification Report
 
 **Date**: 2025-01-27  
-**Status**: Verification Complete
+**Status**: Verification Complete  
+**Last Updated**: 2025-01-27 - Edit/Delete Actions implemented
 
 ## Overview
 
@@ -58,16 +59,19 @@ This document verifies that all settings and developer menu features work correc
 ### ✅ Action Editor
 - [x] Menu renders correctly
 - [x] Option 1 (Create New Action) starts action creation
-- [x] Option 2 (Edit Existing Action) shows message (coming soon)
-- [x] Option 3 (Delete Action) shows message (coming soon)
+- [x] Option 2 (Edit Existing Action) shows action list for selection, then edit form
+- [x] Option 3 (Delete Action) shows action list for selection, then confirmation screen
 - [x] Option 4 (List All Actions) shows action list
 - [x] Option 0 (Back) returns to developer menu
 - [x] Action list pagination works
 - [x] Can view action details
 - [x] Can create new actions via form
+- [x] Can edit existing actions via form (pre-populated with existing data)
+- [x] Can delete actions with confirmation (type 'DELETE' or action name)
+- [x] Can edit action from detail view (press 'E')
+- [x] Action validation before save (name uniqueness, valid types, numeric ranges)
+- [x] Success and error messages for all operations
 - [x] State transitions work correctly
-
-**Note**: Action creation form may have limited text input support. The form expects full input strings when Enter is pressed, but real-time character-by-character display may not work for all input types.
 
 ### ✅ Battle Statistics
 - [x] Menu renders correctly
@@ -119,7 +123,9 @@ All menu states are handled in `GameInputRouter.cs`:
 - `GameState.VariableEditor` → `VariableEditorHandler.HandleMenuInput`
 - `GameState.ActionEditor` → `ActionEditorHandler.HandleMenuInput`
 - `GameState.CreateAction` → `ActionEditorHandler.HandleCreateActionInput`
+- `GameState.EditAction` → `ActionEditorHandler.HandleCreateActionInput`
 - `GameState.ViewAction` → `ActionEditorHandler.HandleActionDetailInput`
+- `GameState.DeleteActionConfirmation` → `ActionEditorHandler.HandleDeleteConfirmationInput`
 - `GameState.BattleStatistics` → `BattleStatisticsHandler.HandleMenuInput`
 - `GameState.TuningParameters` → `TuningParametersHandler.HandleMenuInput`
 
@@ -129,6 +135,9 @@ All menus have proper renderers:
 - `DeveloperMenuRenderer` - Renders developer menu
 - `VariableEditorRenderer` - Renders variable editor
 - `ActionEditorRenderer` - Renders action editor
+- `CreateActionFormRenderer` - Renders create/edit action form (supports edit mode)
+- `ActionDetailRenderer` - Renders action details with edit hint
+- `DeleteActionConfirmationRenderer` - Renders delete confirmation screen
 - `BattleStatisticsRenderer` - Renders battle statistics
 - `TuningParametersRenderer` - Renders tuning parameters
 
@@ -137,15 +146,11 @@ All menus have proper renderers:
 ### Minor Issues
 1. **Action Editor Text Input**: The action creation form may not support real-time character-by-character input display for all input types. The form works when full strings are entered and Enter is pressed.
 
-2. **Edit/Delete Actions**: These features show "coming soon" messages. They are placeholders for future implementation.
-
 ## Recommendations
 
 1. **Action Editor Enhancement**: Consider adding real-time text input support for the action creation form to improve user experience.
 
-2. **Edit/Delete Actions**: Implement the edit and delete action features when time permits.
-
-3. **Testing**: All menus should be manually tested to ensure they work correctly in the actual game environment.
+2. **Testing**: All menus should be manually tested to ensure they work correctly in the actual game environment.
 
 ## Conclusion
 

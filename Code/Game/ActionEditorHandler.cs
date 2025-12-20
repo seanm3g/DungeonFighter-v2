@@ -19,10 +19,14 @@ namespace RPGGame
         private bool isViewingActionList = false;
         private ActionData? selectedAction = null;
         
-        // Form state for creating actions
+        // Form state for creating/editing actions
         private ActionData? newAction;
         private int currentFormStep = 0;
         private string currentFormInput = "";
+        private bool isEditMode = false;
+        private string? originalActionName = null;
+        private bool isDeletingAction = false;
+        private ActionData? actionToDelete = null;
         private readonly string[] formSteps = {
             "Name",
             "Type (Attack/Heal/Buff/Debuff/Spell)",
@@ -92,8 +96,11 @@ namespace RPGGame
                         break;
                     case "edit":
                     case "e":
-                        // Edit action - for now just show a message
-                        ShowMessage("Edit functionality coming soon. Use Actions.json file directly for now.");
+                        // Edit action
+                        if (selectedAction != null)
+                        {
+                            StartEditActionWithAction(selectedAction);
+                        }
                         break;
                     default:
                         // Refresh the view
@@ -124,6 +131,8 @@ namespace RPGGame
                         case "0":
                             // Back to Action Editor from list
                             isViewingActionList = false;
+                            isDeletingAction = false;
+                            isEditMode = false;
                             ShowActionEditor();
                             break;
                         case "up":
@@ -148,11 +157,11 @@ namespace RPGGame
                         break;
                     case "2":
                         // Edit Existing Action
-                        ShowMessage("Edit Existing Action: Feature coming soon. Use Actions.json file directly for now.");
+                        StartEditAction();
                         break;
                     case "3":
                         // Delete Action
-                        ShowMessage("Delete Action: Feature coming soon. Use Actions.json file directly for now.");
+                        StartDeleteAction();
                         break;
                     case "4":
                         // List All Actions
@@ -205,8 +214,25 @@ namespace RPGGame
         /// </summary>
         private void HandleActionSelection(int selectionNumber)
         {
-            var selected = listManager.HandleActionSelection(selectionNumber, ShowActionDetails);
-            if (selected != null)
+            var selected = listManager.HandleActionSelection(selectionNumber, (action) => {
+                if (isDeletingAction)
+                {
+                    // Show delete confirmation
+                    actionToDelete = action;
+                    ShowDeleteConfirmation(action);
+                }
+                else if (isEditMode || !isViewingActionList)
+                {
+                    // Start editing the selected action
+                    StartEditActionWithAction(action);
+                }
+                else
+                {
+                    // Show action details
+                    ShowActionDetails(action);
+                }
+            });
+            if (selected != null && !isDeletingAction && !isEditMode)
             {
                 selectedAction = selected;
             }
@@ -225,6 +251,8 @@ namespace RPGGame
         /// </summary>
         private void StartCreateAction()
         {
+            isEditMode = false;
+            originalActionName = null;
             newAction = new ActionData
             {
                 Name = "",
@@ -245,11 +273,89 @@ namespace RPGGame
             
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                canvasUI.RenderCreateActionForm(newAction, currentFormStep, formSteps, currentFormInput);
+                canvasUI.RenderCreateActionForm(newAction, currentFormStep, formSteps, currentFormInput, isEditMode);
                 
-                // Focus the window to ensure keyboard input is captured
-                WindowFocusHelper.FocusMainWindow("ActionEditorHandler");
+                // Focus the canvas to ensure keyboard input is captured
+                canvasUI.FocusCanvas();
             }
+        }
+
+        /// <summary>
+        /// Start editing an existing action - show action list first
+        /// </summary>
+        private void StartEditAction()
+        {
+            isViewingActionList = true;
+            isEditMode = false;
+            originalActionName = null;
+            listManager.ShowActionList();
+        }
+
+        /// <summary>
+        /// Start editing a specific action (called from list selection or detail view)
+        /// </summary>
+        private void StartEditActionWithAction(ActionData action)
+        {
+            isEditMode = true;
+            originalActionName = action.Name;
+            
+            // Create a copy of the action for editing
+            newAction = new ActionData
+            {
+                Name = action.Name,
+                Type = action.Type,
+                TargetType = action.TargetType,
+                BaseValue = action.BaseValue,
+                Range = action.Range,
+                Cooldown = action.Cooldown,
+                Description = action.Description ?? "",
+                DamageMultiplier = action.DamageMultiplier,
+                Length = action.Length,
+                Tags = action.Tags != null ? new List<string>(action.Tags) : new List<string>(),
+                CausesBleed = action.CausesBleed,
+                CausesWeaken = action.CausesWeaken,
+                CausesSlow = action.CausesSlow,
+                CausesPoison = action.CausesPoison,
+                CausesBurn = action.CausesBurn,
+                IsComboAction = action.IsComboAction,
+                ComboOrder = action.ComboOrder,
+                ComboBonusAmount = action.ComboBonusAmount,
+                ComboBonusDuration = action.ComboBonusDuration,
+                StatBonus = action.StatBonus,
+                StatBonusType = action.StatBonusType,
+                StatBonusDuration = action.StatBonusDuration,
+                RollBonus = action.RollBonus,
+                MultiHitCount = action.MultiHitCount,
+                SelfDamagePercent = action.SelfDamagePercent,
+                SkipNextTurn = action.SkipNextTurn,
+                RepeatLastAction = action.RepeatLastAction,
+                EnemyRollPenalty = action.EnemyRollPenalty
+            };
+            
+            currentFormStep = 0;
+            currentFormInput = "";
+            isViewingActionList = false;
+            stateManager.TransitionToState(GameState.EditAction);
+            ScrollDebugLogger.Log($"ActionEditorHandler: StartEditActionWithAction - entered EditAction state for '{originalActionName}'");
+            
+            if (customUIManager is CanvasUICoordinator canvasUI)
+            {
+                canvasUI.RenderCreateActionForm(newAction, currentFormStep, formSteps, currentFormInput, isEditMode);
+                
+                // Focus the canvas to ensure keyboard input is captured
+                canvasUI.FocusCanvas();
+            }
+        }
+
+        /// <summary>
+        /// Start deleting an action - show action list first
+        /// </summary>
+        private void StartDeleteAction()
+        {
+            isViewingActionList = true;
+            isDeletingAction = true;
+            actionToDelete = null;
+            listManager.ShowActionList();
         }
 
         /// <summary>
@@ -257,11 +363,18 @@ namespace RPGGame
         /// </summary>
         public void UpdateFormInput(string input)
         {
+            ScrollDebugLogger.LogAlways($"[ActionEditor] UpdateFormInput called with input='{input}'");
             currentFormInput = input;
             if (newAction != null && customUIManager is CanvasUICoordinator canvasUI)
             {
-                canvasUI.RenderCreateActionForm(newAction, currentFormStep, formSteps, currentFormInput);
+                ScrollDebugLogger.LogAlways($"[ActionEditor] Rendering form with currentFormInput='{currentFormInput}'");
+                canvasUI.RenderCreateActionForm(newAction, currentFormStep, formSteps, currentFormInput, isEditMode);
                 canvasUI.Refresh(); // Ensure canvas is refreshed after rendering
+                ScrollDebugLogger.LogAlways($"[ActionEditor] Form rendered and refreshed");
+            }
+            else
+            {
+                ScrollDebugLogger.LogAlways($"[ActionEditor] UpdateFormInput: newAction={newAction != null}, canvasUI={customUIManager is CanvasUICoordinator}");
             }
         }
 
@@ -346,12 +459,12 @@ namespace RPGGame
         {
             if (customUIManager is CanvasUICoordinator canvasUI && newAction != null)
             {
-                canvasUI.RenderCreateActionForm(newAction, currentFormStep, formSteps, currentFormInput);
+                canvasUI.RenderCreateActionForm(newAction, currentFormStep, formSteps, currentFormInput, isEditMode);
             }
         }
 
         /// <summary>
-        /// Save the newly created action
+        /// Save the newly created or edited action
         /// </summary>
         private void SaveNewAction()
         {
@@ -361,18 +474,127 @@ namespace RPGGame
                 return;
             }
 
-            bool success = actionEditor.CreateAction(newAction);
-            
-            if (success)
+            bool success;
+            if (isEditMode && !string.IsNullOrEmpty(originalActionName))
             {
-                ShowMessage($"Action '{newAction.Name}' created successfully!");
-                newAction = null;
-                currentFormStep = 0;
-                ShowActionEditor();
+                // Validate before saving
+                string? validationError = ValidateAction(newAction, originalActionName);
+                if (validationError != null)
+                {
+                    ShowMessage($"Validation error: {validationError}");
+                    return;
+                }
+
+                success = actionEditor.UpdateAction(originalActionName, newAction);
+                
+                if (success)
+                {
+                    ShowMessage($"Action '{newAction.Name}' updated successfully!");
+                    newAction = null;
+                    originalActionName = null;
+                    isEditMode = false;
+                    currentFormStep = 0;
+                    ShowActionEditor();
+                }
+                else
+                {
+                    ShowMessage($"Failed to update action. Action '{newAction.Name}' may already exist or '{originalActionName}' may not exist.");
+                }
             }
             else
             {
-                ShowMessage($"Failed to create action. Action '{newAction.Name}' may already exist.");
+                // Validate before saving
+                string? validationError = ValidateAction(newAction, null);
+                if (validationError != null)
+                {
+                    ShowMessage($"Validation error: {validationError}");
+                    return;
+                }
+
+                success = actionEditor.CreateAction(newAction);
+                
+                if (success)
+                {
+                    ShowMessage($"Action '{newAction.Name}' created successfully!");
+                    newAction = null;
+                    currentFormStep = 0;
+                    ShowActionEditor();
+                }
+                else
+                {
+                    ShowMessage($"Failed to create action. Action '{newAction.Name}' may already exist.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Validate an action before saving
+        /// </summary>
+        private string? ValidateAction(ActionData action, string? originalName)
+        {
+            return actionEditor.ValidateAction(action, originalName);
+        }
+
+        /// <summary>
+        /// Show delete confirmation screen
+        /// </summary>
+        private void ShowDeleteConfirmation(ActionData action)
+        {
+            actionToDelete = action;
+            isViewingActionList = false;
+            stateManager.TransitionToState(GameState.DeleteActionConfirmation);
+            
+            if (customUIManager is CanvasUICoordinator canvasUI)
+            {
+                canvasUI.RenderDeleteActionConfirmation(action);
+            }
+        }
+
+        /// <summary>
+        /// Handle delete confirmation input
+        /// </summary>
+        public void HandleDeleteConfirmationInput(string input)
+        {
+            if (actionToDelete == null)
+            {
+                ShowActionEditor();
+                return;
+            }
+
+            if (customUIManager is CanvasUICoordinator canvasUI)
+            {
+                if (input == "cancel" || input == "0" || input.ToLower() == "no")
+                {
+                    // Cancel deletion
+                    actionToDelete = null;
+                    isDeletingAction = false;
+                    ShowActionEditor();
+                }
+                else if (input.ToUpper() == "DELETE" || input.Equals(actionToDelete.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    // Confirm deletion
+                    bool success = actionEditor.DeleteAction(actionToDelete.Name);
+                    
+                    if (success)
+                    {
+                        ShowMessage($"Action '{actionToDelete.Name}' deleted successfully!");
+                        actionToDelete = null;
+                        isDeletingAction = false;
+                        ShowActionEditor();
+                    }
+                    else
+                    {
+                        ShowMessage($"Failed to delete action '{actionToDelete.Name}'. It may not exist.");
+                        actionToDelete = null;
+                        isDeletingAction = false;
+                        ShowActionEditor();
+                    }
+                }
+                else
+                {
+                    // Invalid confirmation - show error and refresh
+                    canvasUI.RenderDeleteActionConfirmation(actionToDelete, $"Invalid confirmation. Type 'DELETE' or the action name '{actionToDelete.Name}' to confirm, or 'cancel' to abort.");
+                }
             }
         }
 

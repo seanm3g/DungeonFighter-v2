@@ -45,16 +45,16 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 canvas.AddText(x + 2, textY, "These tests verify all game systems:", AsciiArtAssets.Colors.White);
                 textY++;
                 currentLineCount++;
-                canvas.AddText(x + 2, textY, "• Character, Combat, Inventory, Dungeon", AsciiArtAssets.Colors.White);
+                canvas.AddText(x + 2, textY, "• System Tests: Character, Combat, Inventory, Dungeon", AsciiArtAssets.Colors.White);
                 textY++;
                 currentLineCount++;
-                canvas.AddText(x + 2, textY, "• Data Loading, UI, Save/Load, Actions", AsciiArtAssets.Colors.White);
+                canvas.AddText(x + 2, textY, "• Item Tests: Generation, Distribution, Modifications", AsciiArtAssets.Colors.White);
                 textY++;
                 currentLineCount++;
-                canvas.AddText(x + 2, textY, "• Color System, Text System Accuracy", AsciiArtAssets.Colors.White);
+                canvas.AddText(x + 2, textY, "• Color System: Parsing, Configuration, Display", AsciiArtAssets.Colors.White);
                 textY++;
                 currentLineCount++;
-                canvas.AddText(x + 2, textY, "• Performance, Integration, Advanced Mechanics", AsciiArtAssets.Colors.White);
+                canvas.AddText(x + 2, textY, "• Developer Tools: Action Editor, Configuration", AsciiArtAssets.Colors.White);
                 currentLineCount++;
             }
             else
@@ -82,6 +82,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                     (2, "System Tests"),
                     (3, "Item Tests"),
                     (4, "Color System Tests"),
+                    (5, "Developer Tools Tests"),
                     (0, "Back to Settings")
                 };
                 
@@ -165,6 +166,36 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                         Height = 1,
                         Type = ElementType.MenuOption,
                         Value = $"item_{number}",
+                        DisplayText = displayText
+                    };
+                    clickableElements.Add(option);
+                    
+                    canvas.AddText(x + 2, textY, displayText, AsciiArtAssets.Colors.White);
+                    textY++;
+                    currentLineCount++;
+                }
+            }
+            else if (subMenu == "Developer")
+            {
+                // Developer Tools Tests sub-menu
+                var developerTestOptions = new[]
+                {
+                    (1, "Action Editor Tests (Create, Update, Delete, Validation)"),
+                    (0, "Back to Test Menu")
+                };
+                
+                foreach (var (number, text) in developerTestOptions)
+                {
+                    string displayText = $"[{number}] {text}";
+                    
+                    var option = new ClickableElement
+                    {
+                        X = x + 2,
+                        Y = textY,
+                        Width = displayText.Length,
+                        Height = 1,
+                        Type = ElementType.MenuOption,
+                        Value = $"developer_{number}",
                         DisplayText = displayText
                     };
                     clickableElements.Add(option);

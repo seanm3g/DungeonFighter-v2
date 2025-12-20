@@ -195,6 +195,9 @@ namespace RPGGame
         public List<Dungeon> AvailableDungeons => stateManager.AvailableDungeons;
         public Dungeon? CurrentDungeon => stateManager.CurrentDungeon;
         public Environment? CurrentRoom => stateManager.CurrentRoom;
+        public GameStateManager StateManager => stateManager;
+        public TestingSystemHandler? TestingSystemHandler => testingSystemHandler;
+        public DeveloperMenuHandler? DeveloperMenuHandler => developerMenuHandler;
 
         // Main entry points
         public void ShowMainMenu()
@@ -287,6 +290,11 @@ namespace RPGGame
         public void ShowActionEditor()
         {
             actionEditorHandler?.ShowActionEditor();
+        }
+        
+        public void ShowBattleStatistics()
+        {
+            battleStatisticsHandler?.ShowBattleStatisticsMenu();
         }
 
         public void UpdateActionFormInput(string input)

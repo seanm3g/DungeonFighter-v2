@@ -106,6 +106,7 @@ namespace RPGGame.GameCore.Input
                     }
                     break;
                 case GameState.CreateAction:
+                case GameState.EditAction:
                     if (handlers.ActionEditorHandler != null)
                     {
                         handlers.ActionEditorHandler.HandleCreateActionInput(input);
@@ -118,6 +119,15 @@ namespace RPGGame.GameCore.Input
                     if (handlers.ActionEditorHandler != null)
                     {
                         handlers.ActionEditorHandler.HandleActionDetailInput(input);
+                    }
+                    else
+                    {
+                    }
+                    break;
+                case GameState.DeleteActionConfirmation:
+                    if (handlers.ActionEditorHandler != null)
+                    {
+                        handlers.ActionEditorHandler.HandleDeleteConfirmationInput(input);
                     }
                     else
                     {

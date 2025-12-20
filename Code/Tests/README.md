@@ -6,6 +6,7 @@ This directory contains all test files organized by type and purpose.
 
 ### `Unit/`
 Contains unit tests for specific components:
+- **`ActionEditorTest.cs`** - Comprehensive tests for ActionEditor (create, update, delete, validation)
 - **`BattleNarrativeManagersTest.cs`** - Tests for battle narrative managers
 - **`ColorConfigurationLoaderTest.cs`** - Comprehensive tests for unified color configuration loader (includes infinite recursion prevention)
 - **`CombatLogSpacingTest.cs`** - Comprehensive tests for combat log spacing system
@@ -34,6 +35,7 @@ Call test methods directly:
 TestManager.RunAllTests();
 
 // Run specific tests
+ActionEditorTest.RunAllTests();
 BattleNarrativeManagersTest.RunAllTests();
 ColorConfigurationLoaderTest.RunAllTests();
 CombatLogSpacingTest.RunAllTests();

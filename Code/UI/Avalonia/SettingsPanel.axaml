@@ -1,0 +1,1123 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
+             x:Class="RPGGame.UI.Avalonia.SettingsPanel"
+             Background="#E0202020">
+    <Grid Margin="40">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Title -->
+        <TextBlock Grid.Row="0" 
+                   Text="GAME SETTINGS" 
+                   FontSize="36" 
+                   FontWeight="Bold" 
+                   Foreground="#FFD700" 
+                   HorizontalAlignment="Center" 
+                   Margin="0,0,0,30"/>
+        
+        <!-- Main Content Area with Tabs -->
+        <TabControl x:Name="SettingsTabControl"
+                    Grid.Row="1" 
+                    Background="Transparent"
+                    BorderThickness="0">
+            <TabItem Header="Gameplay" 
+                     Foreground="White"
+                     FontSize="16"
+                     FontWeight="Bold">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                             HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Spacing="15" Margin="10">
+                        <!-- Narrative Settings -->
+                        <Border Background="#FF2A2A2A" 
+                                BorderBrush="#FF555555" 
+                                BorderThickness="1" 
+                                CornerRadius="5" 
+                                Padding="15">
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="Narrative Settings" 
+                                           FontSize="16" 
+                                           FontWeight="Bold" 
+                                           Foreground="#FFD700" 
+                                           Margin="0,0,0,10"/>
+                                
+                                <!-- Narrative Balance Slider -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="150"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" 
+                                               Text="Narrative Balance:" 
+                                               Foreground="White" 
+                                               VerticalAlignment="Center"/>
+                                    <Slider x:Name="NarrativeBalanceSlider" 
+                                            Grid.Column="1" 
+                                            Minimum="0" 
+                                            Maximum="1" 
+                                            Value="0.8"
+                                            TickFrequency="0.1"
+                                            Margin="10,0"
+                                            VerticalAlignment="Center"/>
+                                    <TextBox x:Name="NarrativeBalanceTextBox" 
+                                             Grid.Column="2" 
+                                             Width="80"
+                                             Background="#FF1A1A1A"
+                                             Foreground="White"
+                                             BorderBrush="#FF555555"/>
+                                </Grid>
+                                
+                                <CheckBox x:Name="EnableNarrativeEventsCheckBox" 
+                                          Content="Enable Narrative Events" 
+                                          Foreground="White"
+                                          IsChecked="True"/>
+                                
+                                <CheckBox x:Name="EnableInformationalSummariesCheckBox" 
+                                          Content="Enable Informational Summaries" 
+                                          Foreground="White"
+                                          IsChecked="True"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Combat Settings -->
+                        <Border Background="#FF2A2A2A" 
+                                BorderBrush="#FF555555" 
+                                BorderThickness="1" 
+                                CornerRadius="5" 
+                                Padding="15">
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="Combat Settings" 
+                                           FontSize="16" 
+                                           FontWeight="Bold" 
+                                           Foreground="#FFD700" 
+                                           Margin="0,0,0,10"/>
+                                
+                                <!-- Combat Speed Slider -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="150"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" 
+                                               Text="Combat Speed:" 
+                                               Foreground="White" 
+                                               VerticalAlignment="Center"/>
+                                    <Slider x:Name="CombatSpeedSlider" 
+                                            Grid.Column="1" 
+                                            Minimum="0.5" 
+                                            Maximum="2.0" 
+                                            Value="1.0"
+                                            TickFrequency="0.1"
+                                            Margin="10,0"
+                                            VerticalAlignment="Center"/>
+                                    <TextBox x:Name="CombatSpeedTextBox" 
+                                             Grid.Column="2" 
+                                             Width="80"
+                                             Background="#FF1A1A1A"
+                                             Foreground="White"
+                                             BorderBrush="#FF555555"/>
+                                </Grid>
+                                
+                                <CheckBox x:Name="ShowIndividualActionMessagesCheckBox" 
+                                          Content="Show Individual Action Messages" 
+                                          Foreground="White"
+                                          IsChecked="False"/>
+                                
+                                <CheckBox x:Name="EnableComboSystemCheckBox" 
+                                          Content="Enable Combo System" 
+                                          Foreground="White"
+                                          IsChecked="True"/>
+                                
+                                <CheckBox x:Name="EnableTextDisplayDelaysCheckBox" 
+                                          Content="Enable Text Display Delays" 
+                                          Foreground="White"
+                                          IsChecked="True"/>
+                                
+                                <CheckBox x:Name="FastCombatCheckBox" 
+                                          Content="Fast Combat (No Delays)" 
+                                          Foreground="White"
+                                          IsChecked="False"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Gameplay Settings -->
+                        <Border Background="#FF2A2A2A" 
+                                BorderBrush="#FF555555" 
+                                BorderThickness="1" 
+                                CornerRadius="5" 
+                                Padding="15">
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="Gameplay Settings" 
+                                           FontSize="16" 
+                                           FontWeight="Bold" 
+                                           Foreground="#FFD700" 
+                                           Margin="0,0,0,10"/>
+                                
+                                <CheckBox x:Name="EnableAutoSaveCheckBox" 
+                                          Content="Enable Auto Save" 
+                                          Foreground="White"
+                                          IsChecked="True"/>
+                                
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" 
+                                               Text="Auto Save Interval:" 
+                                               Foreground="White" 
+                                               VerticalAlignment="Center"/>
+                                    <TextBox x:Name="AutoSaveIntervalTextBox" 
+                                             Grid.Column="1" 
+                                             Width="100"
+                                             HorizontalAlignment="Left"
+                                             Background="#FF1A1A1A"
+                                             Foreground="White"
+                                             BorderBrush="#FF555555"
+                                             Text="5"/>
+                                </Grid>
+                                
+                                <CheckBox x:Name="ShowDetailedStatsCheckBox" 
+                                          Content="Show Detailed Stats" 
+                                          Foreground="White"
+                                          IsChecked="True"/>
+                                
+                                <CheckBox x:Name="EnableSoundEffectsCheckBox" 
+                                          Content="Enable Sound Effects" 
+                                          Foreground="White"
+                                          IsChecked="False"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <TabItem Header="Difficulty" 
+                     Foreground="White"
+                     FontSize="16"
+                     FontWeight="Bold">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                             HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Spacing="15" Margin="10">
+                        <!-- Enemy Multipliers -->
+                        <Border Background="#FF2A2A2A" 
+                                BorderBrush="#FF555555" 
+                                BorderThickness="1" 
+                                CornerRadius="5" 
+                                Padding="15">
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="Enemy Multipliers" 
+                                           FontSize="16" 
+                                           FontWeight="Bold" 
+                                           Foreground="#FFD700" 
+                                           Margin="0,0,0,10"/>
+                                
+                                <!-- Enemy Health Multiplier -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="150"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" 
+                                               Text="Enemy Health:" 
+                                               Foreground="White" 
+                                               VerticalAlignment="Center"/>
+                                    <Slider x:Name="EnemyHealthMultiplierSlider" 
+                                            Grid.Column="1" 
+                                            Minimum="0.5" 
+                                            Maximum="3.0" 
+                                            Value="1.0"
+                                            TickFrequency="0.1"
+                                            Margin="10,0"
+                                            VerticalAlignment="Center"/>
+                                    <TextBox x:Name="EnemyHealthMultiplierTextBox" 
+                                             Grid.Column="2" 
+                                             Width="80"
+                                             Background="#FF1A1A1A"
+                                             Foreground="White"
+                                             BorderBrush="#FF555555"/>
+                                </Grid>
+                                
+                                <!-- Enemy Damage Multiplier -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="150"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" 
+                                               Text="Enemy Damage:" 
+                                               Foreground="White" 
+                                               VerticalAlignment="Center"/>
+                                    <Slider x:Name="EnemyDamageMultiplierSlider" 
+                                            Grid.Column="1" 
+                                            Minimum="0.5" 
+                                            Maximum="3.0" 
+                                            Value="1.0"
+                                            TickFrequency="0.1"
+                                            Margin="10,0"
+                                            VerticalAlignment="Center"/>
+                                    <TextBox x:Name="EnemyDamageMultiplierTextBox" 
+                                             Grid.Column="2" 
+                                             Width="80"
+                                             Background="#FF1A1A1A"
+                                             Foreground="White"
+                                             BorderBrush="#FF555555"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Player Multipliers -->
+                        <Border Background="#FF2A2A2A" 
+                                BorderBrush="#FF555555" 
+                                BorderThickness="1" 
+                                CornerRadius="5" 
+                                Padding="15">
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="Player Multipliers" 
+                                           FontSize="16" 
+                                           FontWeight="Bold" 
+                                           Foreground="#FFD700" 
+                                           Margin="0,0,0,10"/>
+                                
+                                <!-- Player Health Multiplier -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="150"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" 
+                                               Text="Player Health:" 
+                                               Foreground="White" 
+                                               VerticalAlignment="Center"/>
+                                    <Slider x:Name="PlayerHealthMultiplierSlider" 
+                                            Grid.Column="1" 
+                                            Minimum="0.5" 
+                                            Maximum="3.0" 
+                                            Value="1.0"
+                                            TickFrequency="0.1"
+                                            Margin="10,0"
+                                            VerticalAlignment="Center"/>
+                                    <TextBox x:Name="PlayerHealthMultiplierTextBox" 
+                                             Grid.Column="2" 
+                                             Width="80"
+                                             Background="#FF1A1A1A"
+                                             Foreground="White"
+                                             BorderBrush="#FF555555"/>
+                                </Grid>
+                                
+                                <!-- Player Damage Multiplier -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="150"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" 
+                                               Text="Player Damage:" 
+                                               Foreground="White" 
+                                               VerticalAlignment="Center"/>
+                                    <Slider x:Name="PlayerDamageMultiplierSlider" 
+                                            Grid.Column="1" 
+                                            Minimum="0.5" 
+                                            Maximum="3.0" 
+                                            Value="1.0"
+                                            TickFrequency="0.1"
+                                            Margin="10,0"
+                                            VerticalAlignment="Center"/>
+                                    <TextBox x:Name="PlayerDamageMultiplierTextBox" 
+                                             Grid.Column="2" 
+                                             Width="80"
+                                             Background="#FF1A1A1A"
+                                             Foreground="White"
+                                             BorderBrush="#FF555555"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <TabItem Header="UI" 
+                     Foreground="White"
+                     FontSize="16"
+                     FontWeight="Bold">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                             HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Spacing="15" Margin="10">
+                        <!-- UI Display Settings -->
+                        <Border Background="#FF2A2A2A" 
+                                BorderBrush="#FF555555" 
+                                BorderThickness="1" 
+                                CornerRadius="5" 
+                                Padding="15">
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="UI Display Settings" 
+                                           FontSize="16" 
+                                           FontWeight="Bold" 
+                                           Foreground="#FFD700" 
+                                           Margin="0,0,0,10"/>
+                                
+                                <CheckBox x:Name="ShowHealthBarsCheckBox" 
+                                          Content="Show Health Bars" 
+                                          Foreground="White"
+                                          IsChecked="True"/>
+                                
+                                <CheckBox x:Name="ShowDamageNumbersCheckBox" 
+                                          Content="Show Damage Numbers" 
+                                          Foreground="White"
+                                          IsChecked="True"/>
+                                
+                                <CheckBox x:Name="ShowComboProgressCheckBox" 
+                                          Content="Show Combo Progress" 
+                                          Foreground="White"
+                                          IsChecked="True"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <TabItem Header="Testing" 
+                     Foreground="White"
+                     FontSize="16"
+                     FontWeight="Bold">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="300"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Left side: Test Categories -->
+                    <ScrollViewer Grid.Column="0" 
+                                 VerticalScrollBarVisibility="Auto"
+                                 HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel Spacing="15" Margin="10">
+                            <!-- Quick Tests Section -->
+                            <Expander Header="Quick Tests" 
+                                    IsExpanded="True"
+                                    Foreground="#FFD700"
+                                    FontSize="16"
+                                    FontWeight="Bold">
+                                <StackPanel Spacing="10" Margin="10,5,0,0">
+                                    <Button x:Name="RunAllTestsButton" 
+                                            Content="Run All Tests (Complete Suite)" 
+                                            Height="35"
+                                            Background="#FF4A90E2"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="3"
+                                            Cursor="Hand"
+                                            Margin="0,0,0,5">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FF5BA0F2"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                    
+                                    <Button x:Name="ColorSystemTestsButton" 
+                                            Content="Color System Tests" 
+                                            Height="35"
+                                            Background="#FF4A90E2"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="3"
+                                            Cursor="Hand">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FF5BA0F2"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                </StackPanel>
+                            </Expander>
+                            
+                            <!-- System Tests Section -->
+                            <Expander Header="System Tests" 
+                                    IsExpanded="False"
+                                    Foreground="#FFD700"
+                                    FontSize="16"
+                                    FontWeight="Bold">
+                                <StackPanel Spacing="10" Margin="10,5,0,0">
+                                    <Button x:Name="CharacterSystemTestsButton" 
+                                            Content="Character System Tests" 
+                                            Height="35"
+                                            Background="#FF4A90E2"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="3"
+                                            Cursor="Hand"
+                                            Margin="0,0,0,5">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FF5BA0F2"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                    
+                                    <Button x:Name="CombatSystemTestsButton" 
+                                            Content="Combat System Tests (includes UI Fixes)" 
+                                            Height="35"
+                                            Background="#FF4A90E2"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="3"
+                                            Cursor="Hand"
+                                            Margin="0,0,0,5">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FF5BA0F2"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                    
+                                    <Button x:Name="InventoryDungeonTestsButton" 
+                                            Content="Inventory &amp; Dungeon Tests" 
+                                            Height="35"
+                                            Background="#FF4A90E2"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="3"
+                                            Cursor="Hand"
+                                            Margin="0,0,0,5">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FF5BA0F2"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                    
+                                    <Button x:Name="DataUITestsButton" 
+                                            Content="Data &amp; UI System Tests" 
+                                            Height="35"
+                                            Background="#FF4A90E2"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="3"
+                                            Cursor="Hand"
+                                            Margin="0,0,0,5">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FF5BA0F2"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                    
+                                    <Button x:Name="ActionSystemTestsButton" 
+                                            Content="Action System Tests" 
+                                            Height="35"
+                                            Background="#FF4A90E2"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="3"
+                                            Cursor="Hand"
+                                            Margin="0,0,0,5">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FF5BA0F2"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                    
+                                    <Button x:Name="AdvancedIntegrationTestsButton" 
+                                            Content="Advanced &amp; Integration Tests" 
+                                            Height="35"
+                                            Background="#FF4A90E2"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="3"
+                                            Cursor="Hand">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FF5BA0F2"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                </StackPanel>
+                            </Expander>
+                            
+                            <!-- Item Tests Section -->
+                            <Expander Header="Item Tests" 
+                                    IsExpanded="False"
+                                    Foreground="#FFD700"
+                                    FontSize="16"
+                                    FontWeight="Bold">
+                                <StackPanel Spacing="10" Margin="10,5,0,0">
+                                    <Button x:Name="GenerateRandomItemsButton" 
+                                            Content="Generate 10 Random Items" 
+                                            Height="35"
+                                            Background="#FF4A90E2"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="3"
+                                            Cursor="Hand"
+                                            Margin="0,0,0,5">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FF5BA0F2"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                    
+                                    <Button x:Name="ItemGenerationAnalysisButton" 
+                                            Content="Item Generation Analysis (100 items per level 1-20)" 
+                                            Height="35"
+                                            Background="#FF4A90E2"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="3"
+                                            Cursor="Hand"
+                                            Margin="0,0,0,5">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FF5BA0F2"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                    
+                                    <Button x:Name="TierDistributionTestButton" 
+                                            Content="Tier Distribution Verification" 
+                                            Height="35"
+                                            Background="#FF4A90E2"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="3"
+                                            Cursor="Hand"
+                                            Margin="0,0,0,5">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FF5BA0F2"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                    
+                                    <Button x:Name="CommonItemModificationTestButton" 
+                                            Content="Common Item Modification Chance (25% verification)" 
+                                            Height="35"
+                                            Background="#FF4A90E2"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="3"
+                                            Cursor="Hand">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FF5BA0F2"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                </StackPanel>
+                            </Expander>
+                            
+                            <!-- Developer Tools Tests Section -->
+                            <Expander Header="Developer Tools Tests" 
+                                    IsExpanded="False"
+                                    Foreground="#FFD700"
+                                    FontSize="16"
+                                    FontWeight="Bold">
+                                <StackPanel Spacing="10" Margin="10,5,0,0">
+                                    <Button x:Name="ActionEditorTestsButton" 
+                                            Content="Action Editor Tests (Create, Update, Delete, Validation)" 
+                                            Height="35"
+                                            Background="#FF4A90E2"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="3"
+                                            Cursor="Hand">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FF5BA0F2"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                </StackPanel>
+                            </Expander>
+                        </StackPanel>
+                    </ScrollViewer>
+                    
+                    <!-- Right side: Test Output -->
+                    <Border Grid.Column="1" 
+                            Background="#FF1A1A1A" 
+                            BorderBrush="#FF555555" 
+                            BorderThickness="1" 
+                            CornerRadius="5" 
+                            Margin="10,0,0,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Grid.Row="0" 
+                                       Text="Test Output" 
+                                       FontSize="14" 
+                                       FontWeight="Bold" 
+                                       Foreground="#FFD700" 
+                                       Margin="10,10,10,5"/>
+                            
+                            <ScrollViewer Grid.Row="1" 
+                                         VerticalScrollBarVisibility="Auto"
+                                         HorizontalScrollBarVisibility="Disabled"
+                                         Margin="10,0,10,10">
+                                <TextBlock x:Name="TestOutputTextBlock" 
+                                           Text="Test results will appear here..." 
+                                           Foreground="White"
+                                           TextWrapping="Wrap"
+                                           FontFamily="Consolas"
+                                           FontSize="11"/>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
+            
+            <TabItem Header="Game Variables" 
+                     Foreground="White"
+                     FontSize="14"
+                     FontWeight="Bold"
+                     x:Name="GameVariablesTab">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Category List -->
+                    <Border Grid.Column="0" 
+                            Background="#FF2A2A2A" 
+                            BorderBrush="#FF555555" 
+                            BorderThickness="1" 
+                            CornerRadius="5" 
+                            Margin="0,0,10,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Grid.Row="0" 
+                                       Text="Categories" 
+                                       FontSize="14" 
+                                       FontWeight="Bold" 
+                                       Foreground="White" 
+                                       Margin="10,10,10,10"/>
+                            
+                            <ListBox x:Name="GameVariablesCategoryListBox" 
+                                     Grid.Row="1" 
+                                     Background="Transparent" 
+                                     BorderThickness="0"
+                                     SelectionMode="Single"
+                                     Margin="5">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" 
+                                                   Foreground="White" 
+                                                   Padding="5"
+                                                   FontSize="12"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                                <ListBox.Styles>
+                                    <Style Selector="ListBoxItem:selected">
+                                        <Setter Property="Background" Value="#FF4A4A4A"/>
+                                    </Style>
+                                    <Style Selector="ListBoxItem:pointerover">
+                                        <Setter Property="Background" Value="#FF3A3A3A"/>
+                                    </Style>
+                                </ListBox.Styles>
+                            </ListBox>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- Variables Panel -->
+                    <ScrollViewer Grid.Column="1" 
+                                 VerticalScrollBarVisibility="Auto"
+                                 HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel x:Name="GameVariablesPanel" 
+                                    Spacing="10">
+                            <!-- Variables will be added here dynamically -->
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+            
+            <TabItem Header="Developer Tools" 
+                     Foreground="White"
+                     FontSize="16"
+                     FontWeight="Bold">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                             HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Spacing="15" Margin="10">
+                        <!-- Developer Tools Section -->
+                        <Border Background="#FF2A2A2A" 
+                                BorderBrush="#FF555555" 
+                                BorderThickness="1" 
+                                CornerRadius="5" 
+                                Padding="15">
+                            <StackPanel Spacing="15">
+                                <TextBlock Text="Developer Tools" 
+                                           FontSize="16" 
+                                           FontWeight="Bold" 
+                                           Foreground="#FFD700" 
+                                           Margin="0,0,0,10"/>
+                                
+                                <Button x:Name="EditGameVariablesButton" 
+                                        Content="Edit Game Variables" 
+                                        Height="40"
+                                        Background="#FF9B59B6"
+                                        Foreground="White"
+                                        BorderThickness="0"
+                                        CornerRadius="3"
+                                        Cursor="Hand"
+                                        FontSize="14"
+                                        FontWeight="Bold"
+                                        Margin="0,0,0,10">
+                                    <Button.Styles>
+                                        <Style Selector="Button:pointerover">
+                                            <Setter Property="Background" Value="#FFAB69C6"/>
+                                        </Style>
+                                    </Button.Styles>
+                                </Button>
+                                
+                                <Button x:Name="EditActionsButton" 
+                                        Content="Edit Actions" 
+                                        Height="40"
+                                        Background="#FF9B59B6"
+                                        Foreground="White"
+                                        BorderThickness="0"
+                                        CornerRadius="3"
+                                        Cursor="Hand"
+                                        FontSize="14"
+                                        FontWeight="Bold"
+                                        Margin="0,0,0,10">
+                                    <Button.Styles>
+                                        <Style Selector="Button:pointerover">
+                                            <Setter Property="Background" Value="#FFAB69C6"/>
+                                        </Style>
+                                    </Button.Styles>
+                                </Button>
+                                
+                                <Button x:Name="BattleStatisticsButton" 
+                                        Content="Battle Statistics" 
+                                        Height="40"
+                                        Background="#FF9B59B6"
+                                        Foreground="White"
+                                        BorderThickness="0"
+                                        CornerRadius="3"
+                                        Cursor="Hand"
+                                        FontSize="14"
+                                        FontWeight="Bold"
+                                        Margin="0,0,0,10">
+                                    <Button.Styles>
+                                        <Style Selector="Button:pointerover">
+                                            <Setter Property="Background" Value="#FFAB69C6"/>
+                                        </Style>
+                                    </Button.Styles>
+                                </Button>
+                                
+                                <Button x:Name="TuningParametersButton" 
+                                        Content="Tuning Parameters" 
+                                        Height="40"
+                                        Background="#FF9B59B6"
+                                        Foreground="White"
+                                        BorderThickness="0"
+                                        CornerRadius="3"
+                                        Cursor="Hand"
+                                        FontSize="14"
+                                        FontWeight="Bold">
+                                    <Button.Styles>
+                                        <Style Selector="Button:pointerover">
+                                            <Setter Property="Background" Value="#FFAB69C6"/>
+                                        </Style>
+                                    </Button.Styles>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <TabItem Header="About" 
+                     Foreground="White"
+                     FontSize="16"
+                     FontWeight="Bold">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                             HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Spacing="20" Margin="20">
+                        <!-- Game Information -->
+                        <Border Background="#FF2A2A2A" 
+                                BorderBrush="#FF555555" 
+                                BorderThickness="1" 
+                                CornerRadius="5" 
+                                Padding="20">
+                            <StackPanel Spacing="15">
+                                <TextBlock Text="DungeonFighter v2" 
+                                           FontSize="24" 
+                                           FontWeight="Bold" 
+                                           Foreground="#FFD700" 
+                                           HorizontalAlignment="Center"
+                                           Margin="0,0,0,10"/>
+                                
+                                <TextBlock Text="Version 6.2 - Production Ready" 
+                                           FontSize="16" 
+                                           Foreground="#FFAAAAAA" 
+                                           HorizontalAlignment="Center"
+                                           Margin="0,0,0,20"/>
+                                
+                                <TextBlock Text="A sophisticated turn-based RPG/dungeon crawler game featuring advanced combat mechanics, intelligent battle narrative generation, and a comprehensive data-driven architecture." 
+                                           FontSize="14" 
+                                           Foreground="White" 
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,20"/>
+                                
+                                <Separator Background="#FF555555" Margin="0,10,0,10"/>
+                                
+                                <TextBlock Text="Key Features:" 
+                                           FontSize="18" 
+                                           FontWeight="Bold" 
+                                           Foreground="#FFD700" 
+                                           Margin="0,0,0,10"/>
+                                
+                                <StackPanel Spacing="8" Margin="10,0,0,0">
+                                    <TextBlock Text="• Advanced turn-based combat system with combo mechanics" 
+                                               FontSize="13" 
+                                               Foreground="White"/>
+                                    <TextBlock Text="• Dice-based mechanics with strategic thresholds" 
+                                               FontSize="13" 
+                                               Foreground="White"/>
+                                    <TextBlock Text="• Dynamic narrative generation" 
+                                               FontSize="13" 
+                                               Foreground="White"/>
+                                    <TextBlock Text="• Comprehensive item and loot system" 
+                                               FontSize="13" 
+                                               Foreground="White"/>
+                                    <TextBlock Text="• Modular architecture with design patterns" 
+                                               FontSize="13" 
+                                               Foreground="White"/>
+                                    <TextBlock Text="• Extensive testing and balance systems" 
+                                               FontSize="13" 
+                                               Foreground="White"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Technical Information -->
+                        <Border Background="#FF2A2A2A" 
+                                BorderBrush="#FF555555" 
+                                BorderThickness="1" 
+                                CornerRadius="5" 
+                                Padding="20">
+                            <StackPanel Spacing="15">
+                                <TextBlock Text="Technical Information" 
+                                           FontSize="18" 
+                                           FontWeight="Bold" 
+                                           Foreground="#FFD700" 
+                                           Margin="0,0,0,10"/>
+                                
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <TextBlock Grid.Row="0" Grid.Column="0" 
+                                               Text="Framework:" 
+                                               FontSize="13" 
+                                               Foreground="#FFAAAAAA" 
+                                               Margin="0,0,0,8"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" 
+                                               Text=".NET 8.0" 
+                                               FontSize="13" 
+                                               Foreground="White" 
+                                               Margin="0,0,0,8"/>
+                                    
+                                    <TextBlock Grid.Row="1" Grid.Column="0" 
+                                               Text="UI Framework:" 
+                                               FontSize="13" 
+                                               Foreground="#FFAAAAAA" 
+                                               Margin="0,0,0,8"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" 
+                                               Text="Avalonia UI" 
+                                               FontSize="13" 
+                                               Foreground="White" 
+                                               Margin="0,0,0,8"/>
+                                    
+                                    <TextBlock Grid.Row="2" Grid.Column="0" 
+                                               Text="Language:" 
+                                               FontSize="13" 
+                                               Foreground="#FFAAAAAA" 
+                                               Margin="0,0,0,8"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="1" 
+                                               Text="C#" 
+                                               FontSize="13" 
+                                               Foreground="White" 
+                                               Margin="0,0,0,8"/>
+                                    
+                                    <TextBlock Grid.Row="3" Grid.Column="0" 
+                                               Text="Architecture:" 
+                                               FontSize="13" 
+                                               Foreground="#FFAAAAAA"/>
+                                    <TextBlock Grid.Row="3" Grid.Column="1" 
+                                               Text="Modular, Data-Driven" 
+                                               FontSize="13" 
+                                               Foreground="White"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Settings Information -->
+                        <Border Background="#FF2A2A2A" 
+                                BorderBrush="#FF555555" 
+                                BorderThickness="1" 
+                                CornerRadius="5" 
+                                Padding="20">
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="Settings Information" 
+                                           FontSize="18" 
+                                           FontWeight="Bold" 
+                                           Foreground="#FFD700" 
+                                           Margin="0,0,0,10"/>
+                                
+                                <TextBlock Text="All game settings are saved automatically when you click 'Save Changes'. Settings are stored in gamesettings.json and persist between game sessions." 
+                                           FontSize="13" 
+                                           Foreground="White" 
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,10"/>
+                                
+                                <TextBlock Text="Use the 'Reset to Defaults' button to restore all settings to their original values." 
+                                           FontSize="13" 
+                                           Foreground="White" 
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+        
+        <!-- Action Buttons -->
+        <Grid Grid.Row="2" Margin="0,20,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Left side: Testing and Developer Menu buttons -->
+            <StackPanel Grid.Column="0" 
+                       Orientation="Horizontal" 
+                       HorizontalAlignment="Left" 
+                       Spacing="10">
+                <Button x:Name="TestingButton" 
+                        Content="Testing" 
+                        Width="120" 
+                        Height="35"
+                        Background="#FF4A90E2"
+                        Foreground="White"
+                        BorderThickness="0"
+                        CornerRadius="3"
+                        Cursor="Hand">
+                    <Button.Styles>
+                        <Style Selector="Button:pointerover">
+                            <Setter Property="Background" Value="#FF5BA0F2"/>
+                        </Style>
+                    </Button.Styles>
+                </Button>
+                
+                <Button x:Name="DeveloperMenuButton" 
+                        Content="Developer Menu" 
+                        Width="150" 
+                        Height="35"
+                        Background="#FF9B59B6"
+                        Foreground="White"
+                        BorderThickness="0"
+                        CornerRadius="3"
+                        Cursor="Hand">
+                    <Button.Styles>
+                        <Style Selector="Button:pointerover">
+                            <Setter Property="Background" Value="#FFAB69C6"/>
+                        </Style>
+                    </Button.Styles>
+                </Button>
+            </StackPanel>
+            
+            <!-- Right side: Settings action buttons -->
+            <StackPanel Grid.Column="1" 
+                       Orientation="Horizontal" 
+                       HorizontalAlignment="Right" 
+                       Spacing="10">
+                <Button x:Name="ResetButton" 
+                        Content="Reset to Defaults" 
+                        Width="150" 
+                        Height="35"
+                        Background="#FF666666"
+                        Foreground="White"
+                        BorderThickness="0"
+                        CornerRadius="3"
+                        Cursor="Hand">
+                    <Button.Styles>
+                        <Style Selector="Button:pointerover">
+                            <Setter Property="Background" Value="#FF777777"/>
+                        </Style>
+                    </Button.Styles>
+                </Button>
+                
+                <Button x:Name="BackButton" 
+                        Content="Back" 
+                        Width="100" 
+                        Height="35"
+                        Background="#FF555555"
+                        Foreground="White"
+                        BorderThickness="0"
+                        CornerRadius="3"
+                        Cursor="Hand">
+                    <Button.Styles>
+                        <Style Selector="Button:pointerover">
+                            <Setter Property="Background" Value="#FF666666"/>
+                        </Style>
+                    </Button.Styles>
+                </Button>
+                
+                <Button x:Name="SaveButton" 
+                        Content="Save Changes" 
+                        Width="150" 
+                        Height="35"
+                        Background="#FF4CAF50"
+                        Foreground="White"
+                        BorderThickness="0"
+                        CornerRadius="3"
+                        Cursor="Hand">
+                    <Button.Styles>
+                        <Style Selector="Button:pointerover">
+                            <Setter Property="Background" Value="#FF66BB6A"/>
+                        </Style>
+                    </Button.Styles>
+                </Button>
+            </StackPanel>
+        </Grid>
+        
+        <!-- Status Message -->
+        <TextBlock x:Name="StatusMessage" 
+                   Grid.Row="2" 
+                   HorizontalAlignment="Left" 
+                   VerticalAlignment="Center"
+                   Foreground="#FF4CAF50" 
+                   FontSize="12"
+                   Margin="0,20,0,0"
+                   IsVisible="False"/>
+    </Grid>
+</UserControl>
+
