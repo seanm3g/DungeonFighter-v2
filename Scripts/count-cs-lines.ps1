@@ -6,7 +6,7 @@ $threshold = 400
 Write-Host "Scanning .cs files for files above $threshold lines..." -ForegroundColor Cyan
 Write-Host ""
 
-Get-ChildItem -Path Code -Filter *.cs -Recurse | 
+$largeFiles = Get-ChildItem -Path Code -Filter *.cs -Recurse | 
     Where-Object { $_.FullName -notmatch 'bin\\|obj\\|Code_backup' } | 
     ForEach-Object { 
         $relPath = $_.FullName.Replace((Get-Location).Path + '\', '')
@@ -17,8 +17,10 @@ Get-ChildItem -Path Code -Filter *.cs -Recurse |
         }
     } | 
     Where-Object { $_.Lines -gt $threshold } | 
-    Sort-Object Lines -Descending | 
-    Format-Table File, Lines -AutoSize
+    Sort-Object Lines -Descending
+
+# Display to terminal only (no file writing)
+$largeFiles | Format-Table File, Lines -AutoSize | Out-Host
 
 $total = (Get-ChildItem -Path Code -Filter *.cs -Recurse | 
     Where-Object { $_.FullName -notmatch 'bin\\|obj\\|Code_backup' } | 

@@ -198,7 +198,7 @@ namespace RPGGame.Simulation
             // Prefer actions that are off cooldown and do damage
             var bestAction = availableActions
                 .Where(a => !a.IsOnCooldown)
-                .OrderByDescending(a => a.BaseValue)
+                .OrderByDescending(a => a.DamageMultiplier)
                 .FirstOrDefault();
 
             return bestAction ?? availableActions[0];
@@ -216,7 +216,7 @@ namespace RPGGame.Simulation
             // Prefer actions that are off cooldown
             var bestAction = availableActions
                 .Where(a => !a.IsOnCooldown)
-                .OrderByDescending(a => a.BaseValue)
+                .OrderByDescending(a => a.DamageMultiplier)
                 .FirstOrDefault();
 
             return bestAction ?? availableActions[0];

@@ -55,6 +55,38 @@ namespace RPGGame.Actions.Execution
                 coloredStatusEffects.Add(penaltyBuilder.Build());
             }
         }
+        
+        /// <summary>
+        /// Applies stat bonus and creates ColoredText message
+        /// </summary>
+        public static void ApplyStatBonusColored(Action selectedAction, Actor source, List<List<ColoredText>> coloredStatusEffects)
+        {
+            if (selectedAction == null || source == null || coloredStatusEffects == null) return;
+            
+            // Only apply stat bonus to characters (not enemies)
+            if (selectedAction.Advanced.StatBonus > 0 && 
+                !string.IsNullOrEmpty(selectedAction.Advanced.StatBonusType) &&
+                source is Character statBonusCharacter && !(statBonusCharacter is Enemy))
+            {
+                string statType = selectedAction.Advanced.StatBonusType.ToUpper();
+                string statName = statType switch
+                {
+                    "STR" => "Strength",
+                    "AGI" => "Agility",
+                    "TEC" => "Technique",
+                    "INT" => "Intelligence",
+                    _ => statType
+                };
+                
+                var statBonusBuilder = new ColoredTextBuilder();
+                statBonusBuilder.Add("     (", Colors.White);
+                statBonusBuilder.Add(statName, ColorPalette.Success);
+                statBonusBuilder.Add(" increased by ", Colors.White);
+                statBonusBuilder.Add(selectedAction.Advanced.StatBonus.ToString(), ColorPalette.Success);
+                statBonusBuilder.Add("!)", Colors.White);
+                coloredStatusEffects.Add(statBonusBuilder.Build());
+            }
+        }
     }
 }
 

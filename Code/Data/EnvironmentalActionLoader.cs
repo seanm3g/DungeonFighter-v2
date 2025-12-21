@@ -160,8 +160,6 @@ namespace RPGGame.Data
                     name: data.Name,
                     type: actionType,
                     targetType: TargetType.AreaOfEffect, // Environmental actions are always area of effect
-                    baseValue: 0,
-                    range: 0,
                     cooldown: 0,
                     description: data.Description ?? "",
                     comboOrder: -1,

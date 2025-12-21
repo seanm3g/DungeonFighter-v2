@@ -29,8 +29,7 @@ namespace RPGGame
                         actionName,
                         ActionType.Attack,
                         TargetType.SingleTarget,
-                        baseValue: 8,
-                        range: 1,
+                        cooldown: 0,
                         description: $"A {actionName.ToLower()}"
                     );
                     enemy.AddAction(fallbackAction, 1.0);
@@ -54,8 +53,7 @@ namespace RPGGame
                         name: "BASIC ATTACK",
                         type: ActionType.Attack,
                         targetType: TargetType.SingleTarget,
-                        baseValue: 8,
-                        range: 1,
+                        cooldown: 0,
                         description: "A standard physical attack"
                     );
                     enemy.AddAction(createdBasic, 1.0);

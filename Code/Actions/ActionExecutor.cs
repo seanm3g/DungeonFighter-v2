@@ -209,6 +209,7 @@ namespace RPGGame
             {
                 ActionStatusEffectApplier.ApplyStatusEffectsColored(result.SelectedAction, source, target, coloredStatusEffects);
                 ActionStatusEffectApplier.ApplyEnemyRollPenaltyColored(result.SelectedAction, target, coloredStatusEffects);
+                ActionStatusEffectApplier.ApplyStatBonusColored(result.SelectedAction, source, coloredStatusEffects);
             }
             
             var mainResult = FormatAsColoredText(result, source, target);
@@ -227,6 +228,7 @@ namespace RPGGame
             {
                 ActionStatusEffectApplier.ApplyStatusEffectsColored(result.SelectedAction, source, target, coloredStatusEffects);
                 ActionStatusEffectApplier.ApplyEnemyRollPenaltyColored(result.SelectedAction, target, coloredStatusEffects);
+                ActionStatusEffectApplier.ApplyStatBonusColored(result.SelectedAction, source, coloredStatusEffects);
             }
             
             return FormatAsColoredText(result, source, target);

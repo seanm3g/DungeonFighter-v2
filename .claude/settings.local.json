@@ -30,7 +30,9 @@
       "Bash(timeout 450 dotnet run:*)",
       "Bash(git -C \"D:\\\\code projects\\\\github projects\\\\DungeonFighter-v2\" checkout Code/Game/BattleStatistics/BattleExecutor.cs)",
       "Bash(timeout 15 dotnet run:*)",
-      "Bash(timeout 60 bash:*)"
+      "Bash(timeout 60 bash:*)",
+      "Bash(tree:*)",
+      "Bash(taskkill /PID 47240 /F)"
     ]
   },
   "enableAllProjectMcpServers": true,

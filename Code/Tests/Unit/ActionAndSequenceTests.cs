@@ -72,7 +72,6 @@ namespace RPGGame.Tests.Unit
                 Name = "Test Action",
                 Type = ActionType.Attack,
                 Target = TargetType.SingleTarget,
-                BaseValue = 10,
                 DamageMultiplier = 1.5,
                 Length = 1.0
             };
@@ -92,13 +91,11 @@ namespace RPGGame.Tests.Unit
                 Type = ActionType.Attack,
                 DamageMultiplier = 2.0,
                 Length = 1.5,
-                Range = 2,
                 Cooldown = 3
             };
             
             AssertTrue(action.DamageMultiplier == 2.0, "Damage multiplier should be 2.0");
             AssertTrue(action.Length == 1.5, "Action length should be 1.5");
-            AssertTrue(action.Range == 2, "Action range should be 2");
             AssertTrue(action.Cooldown == 3, "Action cooldown should be 3");
         }
         

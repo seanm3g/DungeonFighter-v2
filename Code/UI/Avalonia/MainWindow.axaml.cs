@@ -109,14 +109,13 @@ namespace RPGGame.UI.Avalonia
                 canvasUI.UpdateStatus(message);
             }
             
-            // Also update the status text block in XAML as a fallback
-            StatusUpdateHelper.UpdateStatusText(StatusText, message);
+            // Status bar removed - status updates only go to canvas
         }
 
         public void UpdateGameState(string status, string help = "")
         {
             UpdateStatus(status);
-            HelpText.Text = help;
+            // Status bar removed - help text no longer displayed
         }
 
         // Mouse event handlers - delegate to MouseInteractionHandler
@@ -145,7 +144,7 @@ namespace RPGGame.UI.Avalonia
         {
             if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
             {
-                await ClipboardHelper.CopyDisplayBufferToClipboard(canvasUI, this, StatusText);
+                await ClipboardHelper.CopyDisplayBufferToClipboard(canvasUI, this, null);
             }
             else
             {

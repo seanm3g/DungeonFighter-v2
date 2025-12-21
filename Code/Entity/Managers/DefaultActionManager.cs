@@ -20,7 +20,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Ensures basic attack is available in the action pool (optional - won't throw if not found)
+        /// Ensures basic attack is available in the action pool - creates fallback if not found in JSON
         /// </summary>
         public void EnsureBasicAttackAvailable(Actor entity)
         {
@@ -30,11 +30,36 @@ namespace RPGGame
             
             if (!hasBasicAttack)
             {
+                // Ensure actions are loaded before trying to get BASIC ATTACK
+                if (ActionLoader.GetAllActionNames().Count == 0)
+                {
+                    ActionLoader.LoadActions();
+                }
+                
                 var basicAttack = ActionLoader.GetAction(basicAttackName);
+                
+                // If not found in JSON, create a fallback BASIC ATTACK
                 if (basicAttack == null)
                 {
-                    // BASIC ATTACK is optional - just return
-                    return;
+                    DebugLogger.LogFormat("DefaultActionManager", 
+                        "BASIC ATTACK not found in JSON, creating fallback action");
+                    basicAttack = new Action(
+                        name: basicAttackName,
+                        type: ActionType.Attack,
+                        targetType: TargetType.SingleTarget,
+                        cooldown: 0,
+                        description: "A basic physical attack",
+                        comboOrder: -1,
+                        damageMultiplier: 1.0,
+                        length: 1.0,
+                        causesBleed: false,
+                        causesWeaken: false,
+                        causesPoison: false,
+                        causesStun: false,
+                        isComboAction: true,
+                        comboBonusAmount: 0,
+                        comboBonusDuration: 0
+                    );
                 }
                 
                 // CRITICAL: Mark BASIC ATTACK as combo action so it appears in GetActionPool()
@@ -45,6 +70,9 @@ namespace RPGGame
                 }
                 
                 entity.AddAction(basicAttack, 1.0);
+                DebugLogger.LogFormat("DefaultActionManager", 
+                    "Added BASIC ATTACK to {0} (ActionPool count: {1})", 
+                    entity.Name, entity.ActionPool.Count);
             }
         }
 

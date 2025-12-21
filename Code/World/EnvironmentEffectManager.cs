@@ -37,7 +37,8 @@ namespace RPGGame
         {
             if (ActiveEffectAction != null)
             {
-                int dmg = ActiveEffectAction.BaseValue;
+                // Environmental effects don't use BaseValue, use 0 damage or calculate from action type
+                int dmg = 0;
                 player.TakeDamage(dmg);
                 enemy.TakeDamage(dmg);
             }

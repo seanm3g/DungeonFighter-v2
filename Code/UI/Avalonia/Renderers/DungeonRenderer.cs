@@ -343,7 +343,29 @@ namespace RPGGame.UI.Avalonia.Renderers
             
             currentY += 2;
             
-            // Prompt to continue - properly center
+            // Add clickable continue button
+            int menuX = x + (width / 2) - 15;
+            string continueText = UIConstants.MenuOptions.ReturnToMainMenu;
+            string continueDisplayText = MenuOptionFormatter.Format(0, continueText);
+            
+            var continueButton = new ClickableElement
+            {
+                X = menuX,
+                Y = currentY,
+                Width = 30,
+                Height = 1,
+                Type = ElementType.MenuOption,
+                Value = "enter", // Any input works, but "enter" is clear for button clicks
+                DisplayText = continueDisplayText
+            };
+            
+            clickableElements.Add(continueButton);
+            
+            // Render the button
+            canvas.AddMenuOption(menuX, currentY, 0, continueText, AsciiArtAssets.Colors.Yellow, continueButton.IsHovered);
+            
+            // Also show prompt text for keyboard users
+            currentY += 2;
             string promptText = "Press any key to return to main menu...";
             int promptX = x + (width / 2) - (promptText.Length / 2);
             canvas.AddText(promptX, currentY, promptText, AsciiArtAssets.Colors.Yellow);

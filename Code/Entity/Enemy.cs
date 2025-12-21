@@ -105,8 +105,7 @@
                 "BASIC ATTACK",
                 ActionType.Attack,
                 TargetType.SingleTarget,
-                baseValue: 8,  // Base damage - unified system will add weapon + strength
-                range: 1,
+                cooldown: 0,
                 description: "A basic attack"
             );
 
@@ -114,8 +113,7 @@
                 "Jab",
                 ActionType.Attack,
                 TargetType.SingleTarget,
-                baseValue: 5,  // Base damage - unified system will add weapon + agility/2
-                range: 1,
+                cooldown: 0,
                 description: "A quick jab"
             );
 
@@ -123,8 +121,6 @@
                 "Special Attack",
                 ActionType.Attack,
                 TargetType.SingleTarget,
-                baseValue: 12,  // Base damage - unified system will add weapon + technique
-                range: 1,
                 cooldown: 2,
                 description: "A powerful special attack"
             );

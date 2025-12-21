@@ -14,10 +14,6 @@ namespace RPGGame
         public string Type { get; set; } = "";
         [JsonPropertyName("targetType")]
         public string TargetType { get; set; } = "";
-        [JsonPropertyName("baseValue")]
-        public int BaseValue { get; set; }
-        [JsonPropertyName("range")]
-        public int Range { get; set; }
         [JsonPropertyName("cooldown")]
         public int Cooldown { get; set; }
         [JsonPropertyName("description")]
@@ -68,6 +64,36 @@ namespace RPGGame
         public double HealthThreshold { get; set; }
         [JsonPropertyName("conditionalDamageMultiplier")]
         public double ConditionalDamageMultiplier { get; set; } = 1.0;
+        
+        // Threshold overrides (absolute values)
+        [JsonPropertyName("criticalMissThresholdOverride")]
+        public int CriticalMissThresholdOverride { get; set; }
+        [JsonPropertyName("criticalHitThresholdOverride")]
+        public int CriticalHitThresholdOverride { get; set; }
+        [JsonPropertyName("comboThresholdOverride")]
+        public int ComboThresholdOverride { get; set; }
+        [JsonPropertyName("hitThresholdOverride")]
+        public int HitThresholdOverride { get; set; }
+        
+        // Threshold adjustments (adds to current/default)
+        [JsonPropertyName("criticalMissThresholdAdjustment")]
+        public int CriticalMissThresholdAdjustment { get; set; }
+        [JsonPropertyName("criticalHitThresholdAdjustment")]
+        public int CriticalHitThresholdAdjustment { get; set; }
+        [JsonPropertyName("comboThresholdAdjustment")]
+        public int ComboThresholdAdjustment { get; set; }
+        [JsonPropertyName("hitThresholdAdjustment")]
+        public int HitThresholdAdjustment { get; set; }
+        
+        // Whether to apply threshold adjustments to both source and target
+        [JsonPropertyName("applyThresholdAdjustmentsToBoth")]
+        public bool ApplyThresholdAdjustmentsToBoth { get; set; }
+        
+        // Roll modification properties
+        [JsonPropertyName("multipleDiceCount")]
+        public int MultipleDiceCount { get; set; } = 1;
+        [JsonPropertyName("multipleDiceMode")]
+        public string MultipleDiceMode { get; set; } = "Sum";
     }
 
     public static class ActionLoader
@@ -102,12 +128,23 @@ namespace RPGGame
                         }
                     }
                     
+                    DebugLogger.LogFormat("ActionLoader", "Loaded {0} actions from JSON", _actions.Count);
                 }
                 else
                 {
-                    ErrorHandler.LogWarning("No actions loaded from JSON files", "ActionLoader");
+                    ErrorHandler.LogWarning($"No actions loaded from JSON files. Searched paths: {string.Join(", ", PossibleActionPaths)}", "ActionLoader");
+                    // Log which paths were searched for debugging
+                    foreach (var path in PossibleActionPaths)
+                    {
+                        bool exists = File.Exists(path);
+                        DebugLogger.LogFormat("ActionLoader", "Path '{0}' exists: {1}", path, exists);
+                    }
                 }
-            }, "ActionLoader.LoadActions", () => _actions = new Dictionary<string, ActionData>());
+            }, "ActionLoader.LoadActions", () => 
+            {
+                _actions = new Dictionary<string, ActionData>();
+                ErrorHandler.LogError(new Exception("Failed to load actions"), "ActionLoader.LoadActions", "Action loading failed, using empty dictionary");
+            });
         }
 
         public static Action? GetAction(string actionName)
@@ -151,8 +188,6 @@ namespace RPGGame
                 name: data.Name,
                 type: actionType,
                 targetType: targetType,
-                baseValue: data.BaseValue,
-                range: data.Range,
                 cooldown: data.Cooldown,
                 description: enhancedDescription,
                 comboOrder: data.ComboOrder,
@@ -182,6 +217,25 @@ namespace RPGGame
             action.Advanced.EnemyRollPenalty = data.EnemyRollPenalty;
             action.Advanced.HealthThreshold = data.HealthThreshold;
             action.Advanced.ConditionalDamageMultiplier = data.ConditionalDamageMultiplier;
+            
+            // Set roll modification properties
+            action.RollMods.MultipleDiceCount = data.MultipleDiceCount;
+            action.RollMods.MultipleDiceMode = data.MultipleDiceMode;
+            
+            // Set threshold overrides
+            action.RollMods.CriticalMissThresholdOverride = data.CriticalMissThresholdOverride;
+            action.RollMods.CriticalHitThresholdOverride = data.CriticalHitThresholdOverride;
+            action.RollMods.ComboThresholdOverride = data.ComboThresholdOverride;
+            action.RollMods.HitThresholdOverride = data.HitThresholdOverride;
+            
+            // Set threshold adjustments
+            action.RollMods.CriticalMissThresholdAdjustment = data.CriticalMissThresholdAdjustment;
+            action.RollMods.CriticalHitThresholdAdjustment = data.CriticalHitThresholdAdjustment;
+            action.RollMods.ComboThresholdAdjustment = data.ComboThresholdAdjustment;
+            action.RollMods.HitThresholdAdjustment = data.HitThresholdAdjustment;
+            
+            // Set flag for applying to both actors
+            action.RollMods.ApplyThresholdAdjustmentsToBoth = data.ApplyThresholdAdjustmentsToBoth;
             
             return action;
         }
@@ -294,6 +348,7 @@ namespace RPGGame
                 "singletarget" => TargetType.SingleTarget,
                 "areaofeffect" => TargetType.AreaOfEffect,
                 "environment" => TargetType.Environment,
+                "selfandtarget" => TargetType.SelfAndTarget,
                 _ => TargetType.SingleTarget
             };
         }

@@ -49,8 +49,7 @@ namespace RPGGame
                 // Halfway point message with color
                 var halfwayBuilder = new ColoredTextBuilder()
                     .Add("You have reached the ", ColorPalette.White)
-                    .Add("halfway point", ColorPalette.Gold)
-                    .Add($" (Room {currentRoom} of {totalRooms})", ColorPalette.White);
+                    .Add("halfway point", ColorPalette.Gold);
                 canvasUI.WriteLineColoredSegments(halfwayBuilder.Build(), UIMessageType.System);
                 
                 // Warning message with color

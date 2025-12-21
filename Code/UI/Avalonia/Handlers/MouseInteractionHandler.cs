@@ -114,22 +114,34 @@ namespace RPGGame.UI.Avalonia.Handlers
         {
             if (game == null) return;
 
-            switch (element.Type)
+            try
             {
-                case ElementType.MenuOption:
-                    await game.HandleInput(element.Value);
-                    break;
-                case ElementType.Item:
-                    // Handle item selection
-                    if (canvasUI != null)
-                    {
-                        canvasUI.UpdateStatus($"Selected item: {element.Value}");
-                    }
-                    break;
-                case ElementType.Button:
-                    // Handle button click
-                    await game.HandleInput(element.Value);
-                    break;
+                switch (element.Type)
+                {
+                    case ElementType.MenuOption:
+                        await game.HandleInput(element.Value);
+                        break;
+                    case ElementType.Item:
+                        // Handle item selection
+                        if (canvasUI != null)
+                        {
+                            canvasUI.UpdateStatus($"Selected item: {element.Value}");
+                        }
+                        break;
+                    case ElementType.Button:
+                        // Handle button click
+                        await game.HandleInput(element.Value);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error and show message to user
+                System.Diagnostics.Debug.WriteLine($"Error processing element click: {ex.Message}\n{ex.StackTrace}");
+                if (canvasUI != null)
+                {
+                    canvasUI.UpdateStatus($"Error: {ex.Message}");
+                }
             }
         }
     }

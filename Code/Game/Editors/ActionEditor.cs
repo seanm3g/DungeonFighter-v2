@@ -180,7 +180,7 @@ namespace RPGGame.Editors
                 return $"Invalid action type '{action.Type}'. Must be one of: {string.Join(", ", validTypes)}";
             }
 
-            var validTargetTypes = new[] { "Self", "SingleTarget", "AreaOfEffect", "Environment" };
+            var validTargetTypes = new[] { "Self", "SingleTarget", "AreaOfEffect", "Environment", "SelfAndTarget" };
             if (!validTargetTypes.Contains(action.TargetType, StringComparer.OrdinalIgnoreCase))
             {
                 return $"Invalid target type '{action.TargetType}'. Must be one of: {string.Join(", ", validTargetTypes)}";

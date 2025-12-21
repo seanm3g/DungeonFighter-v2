@@ -53,10 +53,28 @@ namespace RPGGame
         {
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                // Check if we have a saved game
-                bool hasSavedGame = stateManager.CurrentPlayer != null;
-                string? characterName = stateManager.CurrentPlayer?.Name;
-                int characterLevel = stateManager.CurrentPlayer?.Level ?? 0;
+                // Check if we have a saved game - prefer in-memory player, but also check disk
+                bool hasSavedGame = false;
+                string? characterName = null;
+                int characterLevel = 0;
+                
+                // First check if player is already loaded in memory
+                if (stateManager.CurrentPlayer != null)
+                {
+                    hasSavedGame = true;
+                    characterName = stateManager.CurrentPlayer.Name;
+                    characterLevel = stateManager.CurrentPlayer.Level;
+                }
+                else
+                {
+                    // Check if save file exists on disk
+                    hasSavedGame = CharacterSaveManager.SaveFileExists();
+                    if (hasSavedGame)
+                    {
+                        // Get character info from save file without loading the full character
+                        (characterName, characterLevel) = CharacterSaveManager.GetSavedCharacterInfo();
+                    }
+                }
                 
                 canvasUI.RenderMainMenu(hasSavedGame, characterName, characterLevel);
             }
@@ -68,6 +86,8 @@ namespace RPGGame
         /// </summary>
         public async Task HandleMenuInput(string input)
         {
+            DebugLogger.Log("MainMenuHandler", $"HandleMenuInput called with input: '{input}', current state: {stateManager.CurrentState}");
+            
             // Trim whitespace to handle various input formats
             string trimmedInput = input?.Trim() ?? "";
             
@@ -78,7 +98,7 @@ namespace RPGGame
                     await StartNewGame();
                     break;
                 case "2":
-                    ShowMessageEvent?.Invoke("Loading game...");
+                    DebugLogger.Log("MainMenuHandler", "Load game option selected");
                     await LoadGame();
                     break;
                 case "3":
@@ -161,6 +181,9 @@ namespace RPGGame
         /// </summary>
         private async Task LoadGame()
         {
+            DebugLogger.Log("MainMenuHandler", "LoadGame() called");
+            ShowMessageEvent?.Invoke("Loading game...");
+            
             try
             {
                 if (stateManager.CurrentPlayer != null)

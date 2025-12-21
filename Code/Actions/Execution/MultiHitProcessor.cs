@@ -1,3 +1,4 @@
+using RPGGame;
 using RPGGame.Utils;
 
 namespace RPGGame.Actions.Execution
@@ -37,14 +38,32 @@ namespace RPGGame.Actions.Execution
                 // Calculate damage for this hit (action.DamageMultiplier already contains per-hit scaling)
                 int hitDamage = CombatCalculator.CalculateDamage(source, target, action, damageMultiplier, 1.0, rollBonus, totalRoll);
 
-                // Apply damage
-                ActionUtilities.ApplyDamage(target, hitDamage);
-                totalDamage += hitDamage;
-
-                if (!ActionExecutor.DisableCombatDebugOutput)
+                // Handle SelfAndTarget - apply damage to both self and enemy
+                if (action.Target == TargetType.SelfAndTarget)
                 {
-                    DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} dealt {hitDamage} damage (hit {hit + 1}/{multiHitCount}) to {target.Name} with {action.Name}");
+                    // Apply damage to the enemy target
+                    ActionUtilities.ApplyDamage(target, hitDamage);
+                    
+                    // Apply damage to self (source)
+                    ActionUtilities.ApplyDamage(source, hitDamage);
+                    
+                    if (!ActionExecutor.DisableCombatDebugOutput)
+                    {
+                        DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} dealt {hitDamage} damage (hit {hit + 1}/{multiHitCount}) to both {target.Name} and themselves with {action.Name}");
+                    }
                 }
+                else
+                {
+                    // Normal single target behavior
+                    ActionUtilities.ApplyDamage(target, hitDamage);
+                    
+                    if (!ActionExecutor.DisableCombatDebugOutput)
+                    {
+                        DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} dealt {hitDamage} damage (hit {hit + 1}/{multiHitCount}) to {target.Name} with {action.Name}");
+                    }
+                }
+                
+                totalDamage += hitDamage;
             }
 
             // Track statistics for total damage
@@ -55,6 +74,12 @@ namespace RPGGame.Actions.Execution
             if (target is Character targetCharacter)
             {
                 ActionStatisticsTracker.RecordDamageReceived(targetCharacter, totalDamage);
+            }
+            
+            // Track self damage if SelfAndTarget
+            if (action.Target == TargetType.SelfAndTarget && source is Character selfCharacter)
+            {
+                ActionStatisticsTracker.RecordDamageReceived(selfCharacter, totalDamage);
             }
 
             bool isCriticalHit = totalRoll >= 20;

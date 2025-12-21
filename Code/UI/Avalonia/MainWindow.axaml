@@ -1,4 +1,4 @@
-<Window xmlns="https://github.com/avaloniaui"
+﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -11,7 +11,6 @@
     <Grid Background="Black">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
         <!-- Main Game Canvas -->
@@ -27,14 +26,13 @@
         <!-- Positioned where the input prompt appears on the canvas -->
         <TextBox x:Name="HiddenTextBox"
                 Grid.Row="0"
-                Grid.RowSpan="2"
                 IsVisible="False"
                 Width="600"
                 Height="50"
-                Background="White"
+                Background="Transparent"
                 Foreground="Black"
-                BorderThickness="4"
-                BorderBrush="Yellow"
+                BorderThickness="0"
+                BorderBrush="Transparent"
                 Focusable="True"
                 ZIndex="10000"
                 HorizontalAlignment="Center"
@@ -45,25 +43,8 @@
                 FontWeight="Bold"
                 Padding="15,10,15,10"/>
         
-        <!-- Status Bar -->
-        <StackPanel Grid.Row="1" 
-                    Orientation="Horizontal" 
-                    Background="White" 
-                    Margin="0,0,0,10" 
-                    HorizontalAlignment="Center">
-            <TextBlock x:Name="StatusText" 
-                       FontSize="12" 
-                       Foreground="Black" 
-                       Margin="0,5,0,0"/>
-            <TextBlock x:Name="HelpText" 
-                       FontSize="10" 
-                       Foreground="Black" 
-                       Margin="20,0,0,0"/>
-        </StackPanel>
-        
         <!-- Tuning Menu Panel Overlay -->
-        <Border Grid.Row="1" 
-                Grid.RowSpan="2"
+        <Border Grid.Row="0" 
                 Background="#E0000000" 
                 IsVisible="False"
                 x:Name="TuningPanelOverlay"
@@ -80,7 +61,6 @@
         
         <!-- Settings Panel Overlay -->
         <Border Grid.Row="0" 
-                Grid.RowSpan="2"
                 Background="#E0000000" 
                 IsVisible="False"
                 x:Name="SettingsPanelOverlay"

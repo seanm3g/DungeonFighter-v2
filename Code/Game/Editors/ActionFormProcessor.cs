@@ -23,8 +23,8 @@ namespace RPGGame.GameCore.Editors
         {
             return actionType switch
             {
-                "Attack" => targetType == "SingleTarget",
-                "Spell" => targetType == "SingleTarget",
+                "Attack" => targetType == "SingleTarget" || targetType == "SelfAndTarget",
+                "Spell" => targetType == "SingleTarget" || targetType == "SelfAndTarget",
                 "Heal" => targetType == "Self" || targetType == "SingleTarget",
                 "Buff" => targetType == "Self",
                 "Debuff" => targetType == "SingleTarget",
@@ -42,8 +42,8 @@ namespace RPGGame.GameCore.Editors
         {
             return actionType switch
             {
-                "Attack" => "Use: SingleTarget",
-                "Spell" => "Use: SingleTarget",
+                "Attack" => "Use: SingleTarget or SelfAndTarget",
+                "Spell" => "Use: SingleTarget or SelfAndTarget",
                 "Heal" => "Use: Self or SingleTarget",
                 "Buff" => "Use: Self",
                 "Debuff" => "Use: SingleTarget",
@@ -108,6 +108,7 @@ namespace RPGGame.GameCore.Editors
                     string targetLower = input.Trim().ToLower();
                     string normalizedTargetType = targetLower == "singletarget" ? "SingleTarget" :
                                                   targetLower == "areaofeffect" ? "AreaOfEffect" :
+                                                  targetLower == "selfandtarget" ? "SelfAndTarget" :
                                                   char.ToUpper(targetLower[0]) + targetLower.Substring(1);
                     
                     // Validate target type is appropriate for action type
@@ -120,25 +121,7 @@ namespace RPGGame.GameCore.Editors
                     actionData.TargetType = normalizedTargetType;
                     return true;
 
-                case 3: // BaseValue
-                    if (int.TryParse(input.Trim(), out int baseValue))
-                    {
-                        actionData.BaseValue = baseValue;
-                        return true;
-                    }
-                    showMessage("Invalid number. Please enter a valid integer.");
-                    return false;
-
-                case 4: // Range
-                    if (int.TryParse(input.Trim(), out int range))
-                    {
-                        actionData.Range = range;
-                        return true;
-                    }
-                    showMessage("Invalid number. Please enter a valid integer.");
-                    return false;
-
-                case 5: // Description
+                case 3: // Description
                     if (!string.IsNullOrWhiteSpace(input))
                     {
                         actionData.Description = input.Trim();
@@ -147,7 +130,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Description cannot be empty. Please enter a description.");
                     return false;
 
-                case 6: // DamageMultiplier
+                case 4: // DamageMultiplier
                     if (double.TryParse(input.Trim(), out double damageMult))
                     {
                         actionData.DamageMultiplier = damageMult;
@@ -156,7 +139,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Invalid number. Please enter a valid decimal (e.g., 1.0 or 1.5).");
                     return false;
 
-                case 7: // Length
+                case 5: // Length
                     if (double.TryParse(input.Trim(), out double length))
                     {
                         actionData.Length = length;
@@ -165,7 +148,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Invalid number. Please enter a valid decimal (e.g., 1.0 or 1.5).");
                     return false;
 
-                case 8: // Cooldown
+                case 6: // Cooldown
                     if (int.TryParse(input.Trim(), out int cooldown))
                     {
                         actionData.Cooldown = cooldown;
@@ -174,7 +157,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Invalid number. Please enter a valid integer.");
                     return false;
 
-                case 9: // CausesBleed
+                case 7: // CausesBleed
                     if (ParseBoolean(input, out bool causesBleed))
                     {
                         actionData.CausesBleed = causesBleed;
@@ -183,7 +166,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Invalid boolean. Use: true/false, yes/no, y/n, or 1/0");
                     return false;
 
-                case 10: // CausesWeaken
+                case 8: // CausesWeaken
                     if (ParseBoolean(input, out bool causesWeaken))
                     {
                         actionData.CausesWeaken = causesWeaken;
@@ -192,7 +175,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Invalid boolean. Use: true/false, yes/no, y/n, or 1/0");
                     return false;
 
-                case 11: // CausesSlow
+                case 9: // CausesSlow
                     if (ParseBoolean(input, out bool causesSlow))
                     {
                         actionData.CausesSlow = causesSlow;
@@ -201,7 +184,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Invalid boolean. Use: true/false, yes/no, y/n, or 1/0");
                     return false;
 
-                case 12: // CausesPoison
+                case 10: // CausesPoison
                     if (ParseBoolean(input, out bool causesPoison))
                     {
                         actionData.CausesPoison = causesPoison;
@@ -210,7 +193,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Invalid boolean. Use: true/false, yes/no, y/n, or 1/0");
                     return false;
 
-                case 13: // CausesBurn
+                case 11: // CausesBurn
                     if (ParseBoolean(input, out bool causesBurn))
                     {
                         actionData.CausesBurn = causesBurn;
@@ -219,7 +202,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Invalid boolean. Use: true/false, yes/no, y/n, or 1/0");
                     return false;
 
-                case 14: // CausesStun
+                case 12: // CausesStun
                     // Note: ActionData doesn't have CausesStun property, but Action class does
                     // This will be handled when Action is created from ActionData
                     // For now, we'll accept the input but it won't be saved to ActionData
@@ -232,7 +215,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Invalid boolean. Use: true/false, yes/no, y/n, or 1/0");
                     return false;
 
-                case 15: // IsComboAction
+                case 13: // IsComboAction
                     if (ParseBoolean(input, out bool isComboAction))
                     {
                         actionData.IsComboAction = isComboAction;
@@ -241,7 +224,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Invalid boolean. Use: true/false, yes/no, y/n, or 1/0");
                     return false;
 
-                case 16: // ComboOrder
+                case 14: // ComboOrder
                     if (string.IsNullOrWhiteSpace(input.Trim()))
                     {
                         actionData.ComboOrder = -1;
@@ -255,7 +238,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Invalid number. Please enter a valid integer (-1 = not in combo, or leave empty).");
                     return false;
 
-                case 17: // ComboBonusAmount
+                case 15: // ComboBonusAmount
                     if (string.IsNullOrWhiteSpace(input.Trim()))
                     {
                         actionData.ComboBonusAmount = 0;
@@ -269,7 +252,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Invalid number. Please enter a valid integer or leave empty for 0.");
                     return false;
 
-                case 18: // ComboBonusDuration
+                case 16: // ComboBonusDuration
                     if (string.IsNullOrWhiteSpace(input.Trim()))
                     {
                         actionData.ComboBonusDuration = 0;
@@ -283,7 +266,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Invalid number. Please enter a valid integer or leave empty for 0.");
                     return false;
 
-                case 19: // RollBonus
+                case 17: // RollBonus
                     if (string.IsNullOrWhiteSpace(input.Trim()))
                     {
                         actionData.RollBonus = 0;
@@ -297,7 +280,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Invalid number. Please enter a valid integer or leave empty for 0.");
                     return false;
 
-                case 20: // StatBonus
+                case 18: // StatBonus
                     if (string.IsNullOrWhiteSpace(input.Trim()))
                     {
                         actionData.StatBonus = 0;
@@ -311,7 +294,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Invalid number. Please enter a valid integer or leave empty for 0.");
                     return false;
 
-                case 21: // StatBonusType
+                case 19: // StatBonusType
                     string statType = input.Trim();
                     if (string.IsNullOrWhiteSpace(statType))
                     {
@@ -328,7 +311,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Invalid stat type. Use: Strength, Agility, Technique, Intelligence, or empty string.");
                     return false;
 
-                case 22: // StatBonusDuration
+                case 20: // StatBonusDuration
                     if (string.IsNullOrWhiteSpace(input.Trim()))
                     {
                         actionData.StatBonusDuration = 0;
@@ -342,7 +325,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Invalid number. Please enter a valid integer (-1 = permanent, or leave empty for 0).");
                     return false;
 
-                case 23: // MultiHitCount
+                case 21: // MultiHitCount
                     if (string.IsNullOrWhiteSpace(input.Trim()))
                     {
                         actionData.MultiHitCount = 1;
@@ -356,7 +339,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Invalid number. Please enter a valid integer >= 1, or leave empty for 1.");
                     return false;
 
-                case 24: // SelfDamagePercent
+                case 22: // SelfDamagePercent
                     if (string.IsNullOrWhiteSpace(input.Trim()))
                     {
                         actionData.SelfDamagePercent = 0;
@@ -370,7 +353,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Invalid number. Please enter a valid integer (0-100), or leave empty for 0.");
                     return false;
 
-                case 25: // SkipNextTurn
+                case 23: // SkipNextTurn
                     if (ParseBoolean(input, out bool skipNextTurn))
                     {
                         actionData.SkipNextTurn = skipNextTurn;
@@ -379,7 +362,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Invalid boolean. Use: true/false, yes/no, y/n, or 1/0");
                     return false;
 
-                case 26: // RepeatLastAction
+                case 24: // RepeatLastAction
                     if (ParseBoolean(input, out bool repeatLastAction))
                     {
                         actionData.RepeatLastAction = repeatLastAction;
@@ -388,7 +371,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Invalid boolean. Use: true/false, yes/no, y/n, or 1/0");
                     return false;
 
-                case 27: // EnemyRollPenalty
+                case 25: // EnemyRollPenalty
                     if (string.IsNullOrWhiteSpace(input.Trim()))
                     {
                         actionData.EnemyRollPenalty = 0;
@@ -402,7 +385,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Invalid number. Please enter a valid integer or leave empty for 0.");
                     return false;
 
-                case 28: // HealthThreshold
+                case 26: // HealthThreshold
                     if (string.IsNullOrWhiteSpace(input.Trim()))
                     {
                         actionData.HealthThreshold = 0.0;
@@ -416,7 +399,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Invalid number. Please enter a valid decimal between 0.0 and 1.0, or leave empty for 0.0.");
                     return false;
 
-                case 29: // ConditionalDamageMultiplier
+                case 27: // ConditionalDamageMultiplier
                     if (string.IsNullOrWhiteSpace(input.Trim()))
                     {
                         actionData.ConditionalDamageMultiplier = 1.0;
@@ -430,7 +413,7 @@ namespace RPGGame.GameCore.Editors
                     showMessage("Invalid number. Please enter a valid decimal (e.g., 1.0 or 1.5), or leave empty for 1.0.");
                     return false;
 
-                case 30: // Tags
+                case 28: // Tags
                     // Allow empty input for tags
                     string tagsInput = input.Trim();
                     if (string.IsNullOrWhiteSpace(tagsInput))

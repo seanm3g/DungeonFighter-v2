@@ -17,56 +17,27 @@ namespace RPGGame.Tests.Unit
         
         /// <summary>
         /// Runs all combat system tests
+        /// NOTE: This class now delegates to split test classes for better organization.
+        /// The original test methods have been moved to:
+        /// - CombatDamageTests (damage calculation)
+        /// - CombatHitMissTests (hit/miss and critical hits)
+        /// - CombatStatusEffectsTests (status effects)
+        /// - CombatFlowTests (combat flow and action execution)
         /// </summary>
         public static void RunAllTests()
         {
             Console.WriteLine("=== Combat System Tests ===\n");
             
-            _testsRun = 0;
-            _testsPassed = 0;
-            _testsFailed = 0;
+            // Run split test classes
+            CombatDamageTests.RunAllTests();
+            Console.WriteLine();
+            CombatHitMissTests.RunAllTests();
+            Console.WriteLine();
+            CombatStatusEffectsTests.RunAllTests();
+            Console.WriteLine();
+            CombatFlowTests.RunAllTests();
             
-            // Damage Calculation Tests
-            TestRawDamageCalculation();
-            TestDamageWithMultiplier();
-            TestDamageWithArmor();
-            TestDamageWithWeakenedTarget();
-            TestMinimumDamage();
-            TestDamageWithActionMultiplier();
-            
-            // Hit/Miss Calculation Tests
-            TestHitCalculation();
-            TestMissCalculation();
-            TestCriticalHitThreshold();
-            TestRollBonusApplication();
-            
-            // Status Effect Tests
-            TestStatusEffectApplication();
-            TestBleedEffect();
-            TestPoisonEffect();
-            TestStunEffect();
-            TestWeakenEffect();
-            TestStatusEffectDuration();
-            
-            // Combat Flow Tests
-            TestCombatTurnFlow();
-            TestActionExecutionInCombat();
-            TestDamageApplication();
-            TestHealingApplication();
-            
-            // Multi-Hit Tests
-            TestMultiHitDamage();
-            TestMultiHitCount();
-            
-            // Critical Hit Tests
-            TestCriticalHitCalculation();
-            TestCriticalMissHandling();
-            
-            // Roll Modification Tests
-            TestRollModification();
-            TestRollBonusFromGear();
-            
-            PrintSummary();
+            Console.WriteLine("\n=== All Combat System Tests Complete ===");
         }
         
         #region Damage Calculation Tests

@@ -1,3 +1,4 @@
+using RPGGame;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat.Events;
 using RPGGame.Utils;
@@ -58,14 +59,15 @@ namespace RPGGame.Actions.Execution
             result.ModifiedBaseRoll = RollModificationManager.ApplyActionRollModifications(
                 result.BaseRoll, result.SelectedAction, source, target);
 
-            // Apply threshold overrides
-            RollModificationManager.ApplyThresholdOverrides(result.SelectedAction, source);
+            // Apply threshold overrides and adjustments
+            RollModificationManager.ApplyThresholdOverrides(result.SelectedAction, source, target);
 
             result.RollBonus = ActionUtilities.CalculateRollBonus(source, result.SelectedAction);
             result.AttackRoll = result.ModifiedBaseRoll + result.RollBonus;
 
-            // Check for critical miss (natural 1 only)
-            result.IsCriticalMiss = result.BaseRoll == 1;
+            // Check for critical miss using threshold manager
+            int criticalMissThreshold = RollModificationManager.GetThresholdManager().GetCriticalMissThreshold(source);
+            result.IsCriticalMiss = result.BaseRoll <= criticalMissThreshold;
             if (result.IsCriticalMiss)
             {
                 source.HasCriticalMissPenalty = true;
@@ -113,7 +115,26 @@ namespace RPGGame.Actions.Execution
                     {
                         // Single hit (original behavior)
                         result.Damage = CombatCalculator.CalculateDamage(source, target, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, totalRoll);
-                        ActionUtilities.ApplyDamage(target, result.Damage);
+                        
+                        // Handle SelfAndTarget - apply damage to both self and enemy
+                        if (result.SelectedAction.Target == TargetType.SelfAndTarget)
+                        {
+                            // Apply damage to the enemy target
+                            ActionUtilities.ApplyDamage(target, result.Damage);
+                            
+                            // Apply damage to self (source)
+                            ActionUtilities.ApplyDamage(source, result.Damage);
+                            
+                            if (!ActionExecutor.DisableCombatDebugOutput)
+                            {
+                                DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} dealt {result.Damage} damage to both {target.Name} and themselves with {result.SelectedAction.Name}");
+                            }
+                        }
+                        else
+                        {
+                            // Normal single target behavior
+                            ActionUtilities.ApplyDamage(target, result.Damage);
+                        }
 
                         if (!ActionExecutor.DisableCombatDebugOutput)
                         {
@@ -127,6 +148,12 @@ namespace RPGGame.Actions.Execution
                         if (target is Character targetCharacter)
                         {
                             ActionStatisticsTracker.RecordDamageReceived(targetCharacter, result.Damage);
+                        }
+                        
+                        // Track self damage if SelfAndTarget
+                        if (result.SelectedAction.Target == TargetType.SelfAndTarget && source is Character selfCharacter)
+                        {
+                            ActionStatisticsTracker.RecordDamageReceived(selfCharacter, result.Damage);
                         }
 
                         bool isCriticalHit = totalRoll >= 20;
@@ -198,16 +225,7 @@ namespace RPGGame.Actions.Execution
                     
                     statBonusCharacter.ApplyStatBonus(newBonus, statType, duration);
                     
-                    string statName = statType switch
-                    {
-                        "STR" => "Strength",
-                        "AGI" => "Agility",
-                        "TEC" => "Technique",
-                        "INT" => "Intelligence",
-                        _ => statType
-                    };
-                    
-                    result.StatusEffectMessages.Add($"    {source.Name} gains +{result.SelectedAction.Advanced.StatBonus} {statName} (dungeon duration)!");
+                    // Stat bonus message is now handled by ActionStatusEffectApplier.ApplyStatBonusColored
                 }
 
                 // Check for enemy death and HP thresholds

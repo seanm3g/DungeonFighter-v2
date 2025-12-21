@@ -36,13 +36,8 @@ namespace RPGGame
                     currentEntity = EntityNameExtractor.ExtractEntityNameFromMessage(plainText);
                 }
                 
-                // Add blank line before action block when actor changes
-                if (lastActingEntity != null && currentEntity != null && currentEntity != lastActingEntity)
-                {
-                    UIManager.WriteBlankLine();
-                }
-                
                 // Apply context-aware spacing based on what came before
+                // Note: Spacing system handles all spacing - no manual blank lines needed
                 TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.CombatAction);
                 
                 // Collect all messages for this combat action block
@@ -100,13 +95,8 @@ namespace RPGGame
                     currentEntity = EntityNameExtractor.ExtractEntityNameFromMessage(plainText);
                 }
                 
-                // Add blank line before action block when actor changes
-                if (lastActingEntity != null && currentEntity != null && currentEntity != lastActingEntity)
-                {
-                    UIManager.WriteBlankLine();
-                }
-                
                 // Apply context-aware spacing based on what came before
+                // Note: Spacing system handles all spacing - no manual blank lines needed
                 TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.CombatAction);
                 
                 // Collect all messages for this combat action block

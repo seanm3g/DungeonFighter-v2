@@ -39,7 +39,8 @@ $productionFiles = Get-ChildItem -Path Code -Filter *.cs -Recurse |
     Where-Object { $_.Lines -gt $threshold } | 
     Sort-Object Lines -Descending
 
-$productionFiles | Format-Table File, Lines -AutoSize
+# Display to terminal only (no file writing)
+$productionFiles | Format-Table File, Lines -AutoSize | Out-Host
 
 # Total for files above threshold
 $total = $productionFiles | Measure-Object -Property Lines -Sum | Select-Object -ExpandProperty Sum
@@ -74,7 +75,7 @@ Write-Host ""
 
 # Show test files separately for reference
 Write-Host "Test/Utility files (excluded):" -ForegroundColor Yellow
-Get-ChildItem -Path Code -Filter *.cs -Recurse | 
+$testFiles = Get-ChildItem -Path Code -Filter *.cs -Recurse | 
     Where-Object { $_.FullName -notmatch 'bin\\|obj\\|Code_backup' } |
     Where-Object { 
         $isTestFile = $false
@@ -94,6 +95,8 @@ Get-ChildItem -Path Code -Filter *.cs -Recurse |
             Lines = $lineCount
         }
     } |
-    Sort-Object Lines -Descending |
-    Format-Table File, Lines -AutoSize
+    Sort-Object Lines -Descending
+
+# Display to terminal only (no file writing)
+$testFiles | Format-Table File, Lines -AutoSize | Out-Host
 

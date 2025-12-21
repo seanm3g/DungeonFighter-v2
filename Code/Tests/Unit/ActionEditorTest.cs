@@ -20,8 +20,11 @@ namespace RPGGame.Tests.Unit
         
         /// <summary>
         /// Runs all ActionEditor tests
-        /// NOTE: These tests work with the actual Actions.json file.
-        /// They create test actions with "TEST_" prefix and clean them up afterward.
+        /// NOTE: This class now delegates to specialized test classes for better organization.
+        /// The original test methods have been moved to:
+        /// - ActionEditorTest_Core (Core functionality: create, update, delete, get)
+        /// - ActionEditorTest_Validation (Input validation and constraint checking)
+        /// - ActionEditorTest_EdgeCases (Error handling for non-existent actions)
         /// </summary>
         public static void RunAllTests()
         {
@@ -29,52 +32,19 @@ namespace RPGGame.Tests.Unit
             Console.WriteLine("NOTE: These tests work with the actual Actions.json file.");
             Console.WriteLine("Test actions use 'TEST_' prefix and are cleaned up after tests.\n");
             
-            _testsRun = 0;
-            _testsPassed = 0;
-            _testsFailed = 0;
+            // Run validation tests first (don't require file I/O)
+            ActionEditorTest_Validation.RunAllTests();
+            Console.WriteLine();
             
-            try
-            {
-                // Validation tests (don't require file I/O)
-                TestValidationEmptyName();
-                TestValidationEmptyType();
-                TestValidationEmptyTargetType();
-                TestValidationInvalidType();
-                TestValidationInvalidTargetType();
-                TestValidationNegativeValues();
-                
-                // Core functionality tests (require file I/O)
-                // These use test actions with "TEST_" prefix
-                TestCreateAction();
-                TestUpdateAction();
-                TestGetAction();
-                TestGetActions();
-                TestValidationDuplicateName(); // After creating test action
-                TestValidationNameChangeConflict(); // After creating test actions
-                TestActionPersistence();
-                TestDeleteAction(); // Delete at the end
-                
-                // Edge cases
-                TestUpdateNonExistentAction();
-                TestDeleteNonExistentAction();
-                TestGetNonExistentAction();
-                
-                // Cleanup: Remove any remaining test actions
-                CleanupTestActions();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"\nFATAL ERROR: {ex.Message}");
-                Console.WriteLine($"Stack trace: {ex.StackTrace}");
-            }
-            finally
-            {
-                // Always try to clean up
-                CleanupTestActions();
-            }
+            // Run core functionality tests (require file I/O)
+            ActionEditorTest_Core.RunAllTests();
+            Console.WriteLine();
             
-            // Print summary
-            PrintSummary();
+            // Run edge case tests
+            ActionEditorTest_EdgeCases.RunAllTests();
+            Console.WriteLine();
+            
+            Console.WriteLine("=== All ActionEditor Tests Complete ===");
         }
         
         #region Setup and Cleanup
@@ -131,7 +101,6 @@ namespace RPGGame.Tests.Unit
                     Name = "NEW_TEST_ACTION",
                     Type = "Attack",
                     TargetType = "SingleTarget",
-                    BaseValue = 15,
                     Description = "New test action",
                     DamageMultiplier = 1.5,
                     Length = 1.0,
@@ -147,7 +116,6 @@ namespace RPGGame.Tests.Unit
                 if (retrieved != null)
                 {
                     TestHarnessBase.AssertEqual("NEW_TEST_ACTION", retrieved.Name, "Action name should match");
-                    TestHarnessBase.AssertEqual(15, retrieved.BaseValue, "Base value should match");
                     TestHarnessBase.AssertEqual(1.5, retrieved.DamageMultiplier, "Damage multiplier should match");
                 }
                 
@@ -181,7 +149,6 @@ namespace RPGGame.Tests.Unit
                         Name = "TEST_ACTION_1",
                         Type = "Attack",
                         TargetType = "SingleTarget",
-                        BaseValue = 10,
                         Description = "Test action 1",
                         DamageMultiplier = 1.0,
                         Length = 1.0,
@@ -195,7 +162,6 @@ namespace RPGGame.Tests.Unit
                     Name = "TEST_ACTION_1",
                     Type = "Attack",
                     TargetType = "SingleTarget",
-                    BaseValue = 20, // Changed from 10
                     Description = "Updated test action 1", // Changed
                     DamageMultiplier = 2.0, // Changed from 1.0
                     Length = 1.5, // Changed from 1.0
@@ -210,7 +176,6 @@ namespace RPGGame.Tests.Unit
                 TestHarnessBase.AssertNotNull(retrieved, "Updated action should be retrievable");
                 if (retrieved != null)
                 {
-                    TestHarnessBase.AssertEqual(20, retrieved.BaseValue, "Base value should be updated");
                     TestHarnessBase.AssertEqual("Updated test action 1", retrieved.Description, "Description should be updated");
                     TestHarnessBase.AssertEqual(2.0, retrieved.DamageMultiplier, "Damage multiplier should be updated");
                 }
@@ -245,7 +210,6 @@ namespace RPGGame.Tests.Unit
                         Name = "TEST_ACTION_2",
                         Type = "Heal",
                         TargetType = "Self",
-                        BaseValue = 5,
                         Description = "Test action 2",
                         DamageMultiplier = 0.0,
                         Length = 1.0,
@@ -295,7 +259,6 @@ namespace RPGGame.Tests.Unit
                         Name = "TEST_ACTION_1",
                         Type = "Attack",
                         TargetType = "SingleTarget",
-                        BaseValue = 10,
                         Description = "Test action 1",
                         DamageMultiplier = 1.0,
                         Length = 1.0,
@@ -376,7 +339,6 @@ namespace RPGGame.Tests.Unit
                     Name = "",
                     Type = "Attack",
                     TargetType = "SingleTarget",
-                    BaseValue = 10
                 };
                 
                 var result = editor.ValidateAction(action);
@@ -409,7 +371,6 @@ namespace RPGGame.Tests.Unit
                     Name = "VALID_NAME",
                     Type = "",
                     TargetType = "SingleTarget",
-                    BaseValue = 10
                 };
                 
                 var result = editor.ValidateAction(action);
@@ -442,7 +403,6 @@ namespace RPGGame.Tests.Unit
                     Name = "VALID_NAME",
                     Type = "Attack",
                     TargetType = "",
-                    BaseValue = 10
                 };
                 
                 var result = editor.ValidateAction(action);
@@ -480,7 +440,6 @@ namespace RPGGame.Tests.Unit
                         Name = "TEST_ACTION_1",
                         Type = "Attack",
                         TargetType = "SingleTarget",
-                        BaseValue = 10,
                         Description = "Test action 1",
                         DamageMultiplier = 1.0,
                         Length = 1.0,
@@ -494,7 +453,6 @@ namespace RPGGame.Tests.Unit
                     Name = "TEST_ACTION_1", // Already exists
                     Type = "Attack",
                     TargetType = "SingleTarget",
-                    BaseValue = 10
                 };
                 
                 var result = editor.ValidateAction(action);
@@ -527,7 +485,6 @@ namespace RPGGame.Tests.Unit
                     Name = "VALID_NAME",
                     Type = "InvalidType",
                     TargetType = "SingleTarget",
-                    BaseValue = 10
                 };
                 
                 var result = editor.ValidateAction(action);
@@ -560,7 +517,6 @@ namespace RPGGame.Tests.Unit
                     Name = "VALID_NAME",
                     Type = "Attack",
                     TargetType = "InvalidTargetType",
-                    BaseValue = 10
                 };
                 
                 var result = editor.ValidateAction(action);
@@ -595,7 +551,6 @@ namespace RPGGame.Tests.Unit
                     Name = "VALID_NAME_1",
                     Type = "Attack",
                     TargetType = "SingleTarget",
-                    BaseValue = 10,
                     DamageMultiplier = -1.0
                 };
                 
@@ -613,7 +568,6 @@ namespace RPGGame.Tests.Unit
                     Name = "VALID_NAME_2",
                     Type = "Attack",
                     TargetType = "SingleTarget",
-                    BaseValue = 10,
                     Length = -1.0
                 };
                 
@@ -626,7 +580,6 @@ namespace RPGGame.Tests.Unit
                     Name = "VALID_NAME_3",
                     Type = "Attack",
                     TargetType = "SingleTarget",
-                    BaseValue = 10,
                     Cooldown = -1
                 };
                 
@@ -663,7 +616,6 @@ namespace RPGGame.Tests.Unit
                         Name = "TEST_ACTION_1",
                         Type = "Attack",
                         TargetType = "SingleTarget",
-                        BaseValue = 10,
                         Description = "Test action 1",
                         DamageMultiplier = 1.0,
                         Length = 1.0,
@@ -680,7 +632,6 @@ namespace RPGGame.Tests.Unit
                         Name = "TEST_ACTION_2",
                         Type = "Heal",
                         TargetType = "Self",
-                        BaseValue = 5,
                         Description = "Test action 2",
                         DamageMultiplier = 0.0,
                         Length = 1.0,
@@ -695,7 +646,6 @@ namespace RPGGame.Tests.Unit
                     Name = "TEST_ACTION_2", // Trying to rename to existing name
                     Type = "Attack",
                     TargetType = "SingleTarget",
-                    BaseValue = 10
                 };
                 
                 var result = editor.ValidateAction(updatedAction, "TEST_ACTION_1");
@@ -735,7 +685,6 @@ namespace RPGGame.Tests.Unit
                     Name = "NON_EXISTENT",
                     Type = "Attack",
                     TargetType = "SingleTarget",
-                    BaseValue = 10
                 };
                 
                 bool result = editor.UpdateAction("NON_EXISTENT", action);
@@ -816,7 +765,6 @@ namespace RPGGame.Tests.Unit
                     Name = "PERSISTENCE_TEST",
                     Type = "Buff",
                     TargetType = "Self",
-                    BaseValue = 25,
                     Description = "Persistence test action",
                     DamageMultiplier = 1.0,
                     Length = 2.0,
@@ -836,7 +784,6 @@ namespace RPGGame.Tests.Unit
                 if (retrieved != null)
                 {
                     TestHarnessBase.AssertEqual("PERSISTENCE_TEST", retrieved.Name, "Persisted action name should match");
-                    TestHarnessBase.AssertEqual(25, retrieved.BaseValue, "Persisted action base value should match");
                     TestHarnessBase.AssertEqual("Persistence test action", retrieved.Description, "Persisted action description should match");
                 }
                 

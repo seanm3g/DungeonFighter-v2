@@ -58,27 +58,22 @@ if [ $? -ne 0 ]; then
     cleanup 1
 fi
 
-# Verify executable exists
-GAME_EXE="$SCRIPT_DIR/Code/bin/Debug/net8.0/DF"
-if [ ! -f "$GAME_EXE" ]; then
-    echo "ERROR: Executable not found: $GAME_EXE"
-    cleanup 1
-fi
-
-# Make executable if needed
-chmod +x "$GAME_EXE" 2>/dev/null
-
-# Launch the game in background
+# Launch the game using dotnet run (works on Mac without standalone executable)
 echo "Launching game..."
-nohup "$GAME_EXE" > /dev/null 2>&1 &
+cd "$SCRIPT_DIR/Code" || cleanup 1
+nohup dotnet run --configuration Debug > /dev/null 2>&1 &
+cd "$SCRIPT_DIR" || cleanup 1
 
 # Wait a moment for game to start
-sleep 1
+sleep 2
 
-# Check if game is running
-if ! pgrep -f "DF" > /dev/null; then
+# Check if game is running (look for dotnet process running the game)
+if ! pgrep -f "dotnet.*Code.csproj" > /dev/null && ! pgrep -f "DF" > /dev/null; then
     echo "ERROR: Game failed to start!"
-    "$GAME_EXE"
+    echo "Trying to run in foreground to see errors..."
+    cd "$SCRIPT_DIR/Code" || cleanup 1
+    dotnet run --configuration Debug
+    cd "$SCRIPT_DIR" || cleanup 1
     cleanup 1
 fi
 

@@ -17,6 +17,7 @@ namespace RPGGame.Combat
         /// </summary>
         public class ThresholdModifiers
         {
+            public int? CriticalMissThreshold { get; set; } // Default: 1 (natural 1)
             public int? CriticalHitThreshold { get; set; } // Default: 20
             public int? ComboThreshold { get; set; } // Default: 14
             public int? HitThreshold { get; set; } // Default: 5
@@ -25,10 +26,24 @@ namespace RPGGame.Combat
             {
                 // Initialize with defaults from GameConfiguration
                 var config = GameConfiguration.Instance;
+                CriticalMissThreshold = 1; // Natural 1 is always critical miss
                 CriticalHitThreshold = config.Combat.CriticalHitThreshold;
                 ComboThreshold = config.RollSystem.ComboThreshold.Min;
                 HitThreshold = config.RollSystem.BasicAttackThreshold.Min;
             }
+        }
+
+        /// <summary>
+        /// Gets the critical miss threshold for an actor
+        /// </summary>
+        public int GetCriticalMissThreshold(Actor actor)
+        {
+            if (_actorThresholds.TryGetValue(actor, out var modifiers) && modifiers.CriticalMissThreshold.HasValue)
+            {
+                return modifiers.CriticalMissThreshold.Value;
+            }
+            
+            return 1; // Default: natural 1 is critical miss
         }
 
         /// <summary>
@@ -71,6 +86,27 @@ namespace RPGGame.Combat
         }
 
         /// <summary>
+        /// Sets the critical miss threshold for an actor
+        /// </summary>
+        public void SetCriticalMissThreshold(Actor actor, int threshold)
+        {
+            if (!_actorThresholds.ContainsKey(actor))
+            {
+                _actorThresholds[actor] = new ThresholdModifiers();
+            }
+            _actorThresholds[actor].CriticalMissThreshold = threshold;
+        }
+
+        /// <summary>
+        /// Adjusts the critical miss threshold for an actor (adds to current/default)
+        /// </summary>
+        public void AdjustCriticalMissThreshold(Actor actor, int adjustment)
+        {
+            int current = GetCriticalMissThreshold(actor);
+            SetCriticalMissThreshold(actor, current + adjustment);
+        }
+
+        /// <summary>
         /// Sets the critical hit threshold for an actor
         /// </summary>
         public void SetCriticalHitThreshold(Actor actor, int threshold)
@@ -80,6 +116,15 @@ namespace RPGGame.Combat
                 _actorThresholds[actor] = new ThresholdModifiers();
             }
             _actorThresholds[actor].CriticalHitThreshold = threshold;
+        }
+
+        /// <summary>
+        /// Adjusts the critical hit threshold for an actor (adds to current/default)
+        /// </summary>
+        public void AdjustCriticalHitThreshold(Actor actor, int adjustment)
+        {
+            int current = GetCriticalHitThreshold(actor);
+            SetCriticalHitThreshold(actor, current + adjustment);
         }
 
         /// <summary>
@@ -95,6 +140,15 @@ namespace RPGGame.Combat
         }
 
         /// <summary>
+        /// Adjusts the combo threshold for an actor (adds to current/default)
+        /// </summary>
+        public void AdjustComboThreshold(Actor actor, int adjustment)
+        {
+            int current = GetComboThreshold(actor);
+            SetComboThreshold(actor, current + adjustment);
+        }
+
+        /// <summary>
         /// Sets the hit threshold for an actor
         /// </summary>
         public void SetHitThreshold(Actor actor, int threshold)
@@ -104,6 +158,15 @@ namespace RPGGame.Combat
                 _actorThresholds[actor] = new ThresholdModifiers();
             }
             _actorThresholds[actor].HitThreshold = threshold;
+        }
+
+        /// <summary>
+        /// Adjusts the hit threshold for an actor (adds to current/default)
+        /// </summary>
+        public void AdjustHitThreshold(Actor actor, int adjustment)
+        {
+            int current = GetHitThreshold(actor);
+            SetHitThreshold(actor, current + adjustment);
         }
 
         /// <summary>

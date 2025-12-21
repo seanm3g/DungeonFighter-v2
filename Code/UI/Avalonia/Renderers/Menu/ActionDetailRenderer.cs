@@ -55,11 +55,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             canvas.AddText(menuStartX, menuStartY, "Combat Stats:", AsciiArtAssets.Colors.Cyan);
             menuStartY += 1;
             
-            canvas.AddText(menuStartX, menuStartY, $"  Base Value: {action.BaseValue}", AsciiArtAssets.Colors.White);
-            menuStartY++;
             canvas.AddText(menuStartX, menuStartY, $"  Damage Multiplier: {action.DamageMultiplier}", AsciiArtAssets.Colors.White);
-            menuStartY++;
-            canvas.AddText(menuStartX, menuStartY, $"  Range: {action.Range}", AsciiArtAssets.Colors.White);
             menuStartY++;
             canvas.AddText(menuStartX, menuStartY, $"  Cooldown: {action.Cooldown}", AsciiArtAssets.Colors.White);
             menuStartY++;

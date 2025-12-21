@@ -80,12 +80,43 @@ namespace RPGGame
             Health.MaxHealth = tuning.Character.PlayerBaseHealth + (level - 1) * tuning.Character.HealthPerLevel;
             Health.CurrentHealth = Health.MaxHealth;
 
+            // Ensure actions are loaded from JSON before adding them
+            // This ensures ActionLoader has initialized before we try to get actions
+            if (ActionLoader.GetAllActionNames().Count == 0)
+            {
+                ActionLoader.LoadActions();
+            }
+            
             // Add default actions
             Actions.AddDefaultActions(this);
             Actions.AddClassActions(this, Progression, null);
             
             // Initialize default combo sequence
             Actions.InitializeDefaultCombo(this, Equipment.Weapon as WeaponItem);
+            
+            // Verify at least one action was added
+            if (ActionPool.Count == 0)
+            {
+                // Emergency fallback: create a basic attack directly
+                var emergencyBasicAttack = new Action(
+                    name: GameConstants.BasicAttackName,
+                    type: ActionType.Attack,
+                    targetType: TargetType.SingleTarget,
+                    cooldown: 0,
+                    description: "A basic physical attack",
+                    comboOrder: -1,
+                    damageMultiplier: 1.0,
+                    length: 1.0,
+                    causesBleed: false,
+                    causesWeaken: false,
+                    causesPoison: false,
+                    causesStun: false,
+                    isComboAction: true,
+                    comboBonusAmount: 0,
+                    comboBonusDuration: 0
+                );
+                AddAction(emergencyBasicAttack, 1.0);
+            }
         }
 
         // IComboMemory implementation

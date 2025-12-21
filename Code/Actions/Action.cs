@@ -21,7 +21,8 @@ namespace RPGGame
         Self,
         SingleTarget,
         AreaOfEffect,
-        Environment
+        Environment,
+        SelfAndTarget
     }
 
     public class Action
@@ -29,8 +30,6 @@ namespace RPGGame
         public string Name { get; set; } = "";
         public ActionType Type { get; set; }
         public TargetType Target { get; set; }
-        public int BaseValue { get; set; }
-        public int Range { get; set; }
         public int Cooldown { get; set; }
         public int CurrentCooldown { get; set; }
         public string Description { get; set; } = "";
@@ -190,8 +189,6 @@ namespace RPGGame
             Name = "";
             Type = ActionType.Attack;
             Target = TargetType.SingleTarget;
-            BaseValue = 0;
-            Range = 1;
             Cooldown = 0;
             Description = "";
             ComboOrder = -1;
@@ -213,7 +210,7 @@ namespace RPGGame
         }
 
         public Action(string? name = null, ActionType type = ActionType.Attack, TargetType targetType = TargetType.SingleTarget,
-                     int baseValue = 0, int range = 1, int cooldown = 0, string? description = "",
+                     int cooldown = 0, string? description = "",
                      int comboOrder = -1, double damageMultiplier = 1.0, double length = 1.0,
                      bool causesBleed = false, bool causesWeaken = false, bool causesPoison = false, bool causesStun = false, bool isComboAction = false,
                      int comboBonusAmount = 0, int comboBonusDuration = 0)
@@ -221,8 +218,6 @@ namespace RPGGame
             Name = name ?? GetDefaultName(type);
             Type = type;
             Target = targetType;
-            BaseValue = baseValue;
-            Range = range;
             Cooldown = cooldown;
             CurrentCooldown = 0;
             Description = description ?? "";
@@ -280,7 +275,7 @@ namespace RPGGame
                     break;
             }
 
-            return BaseValue + modifier;
+            return modifier;
         }
 
         public override string ToString()

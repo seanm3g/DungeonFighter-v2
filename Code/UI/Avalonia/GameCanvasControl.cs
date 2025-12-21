@@ -64,7 +64,7 @@ namespace RPGGame.UI.Avalonia
         public GameCanvasControl()
         {
             Focusable = true;
-            // Background is set in XAML to Transparent so control can receive input events
+            // Background and other properties are set in XAML to Transparent so control can receive input events
             // Controls without background are invisible to hit testing in Avalonia
             this.coordinateConverter = new CanvasCoordinateConverter();
             this.elementManager = new CanvasElementManager();
@@ -198,6 +198,7 @@ namespace RPGGame.UI.Avalonia
             // Update effective visible width before rendering (bounds are now available)
             UpdateEffectiveVisibleWidth();
             
+            // Don't call base.Render() to prevent any default Control rendering
             // Render all elements using renderer
             renderer.Render(
                 context,

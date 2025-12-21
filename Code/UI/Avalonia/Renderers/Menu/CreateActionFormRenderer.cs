@@ -79,10 +79,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             menuStartY++;
             canvas.AddText(menuStartX, menuStartY, $"  Target: {actionData.TargetType}", AsciiArtAssets.Colors.White);
             menuStartY++;
-            canvas.AddText(menuStartX, menuStartY, $"  Base Value: {actionData.BaseValue}", AsciiArtAssets.Colors.White);
-            menuStartY++;
-            canvas.AddText(menuStartX, menuStartY, $"  Range: {actionData.Range}", AsciiArtAssets.Colors.White);
-            menuStartY++;
             canvas.AddText(menuStartX, menuStartY, $"  Damage Multiplier: {actionData.DamageMultiplier}", AsciiArtAssets.Colors.White);
             menuStartY++;
             canvas.AddText(menuStartX, menuStartY, $"  Length: {actionData.Length}", AsciiArtAssets.Colors.White);
@@ -170,34 +166,32 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 0 => actionData.Name,
                 1 => actionData.Type,
                 2 => actionData.TargetType,
-                3 => actionData.BaseValue.ToString(),
-                4 => actionData.Range.ToString(),
-                5 => actionData.Description,
-                6 => actionData.DamageMultiplier.ToString(),
-                7 => actionData.Length.ToString(),
-                8 => actionData.Cooldown.ToString(),
-                9 => actionData.CausesBleed.ToString(),
-                10 => actionData.CausesWeaken.ToString(),
-                11 => actionData.CausesSlow.ToString(),
-                12 => actionData.CausesPoison.ToString(),
-                13 => actionData.CausesBurn.ToString(),
-                14 => "false", // CausesStun - not in ActionData
-                15 => actionData.IsComboAction.ToString(),
-                16 => actionData.ComboOrder.ToString(),
-                17 => actionData.ComboBonusAmount.ToString(),
-                18 => actionData.ComboBonusDuration.ToString(),
-                19 => actionData.RollBonus.ToString(),
-                20 => actionData.StatBonus.ToString(),
-                21 => actionData.StatBonusType,
-                22 => actionData.StatBonusDuration.ToString(),
-                23 => actionData.MultiHitCount.ToString(),
-                24 => actionData.SelfDamagePercent.ToString(),
-                25 => actionData.SkipNextTurn.ToString(),
-                26 => actionData.RepeatLastAction.ToString(),
-                27 => actionData.EnemyRollPenalty.ToString(),
-                28 => actionData.HealthThreshold.ToString("F2"),
-                29 => actionData.ConditionalDamageMultiplier.ToString("F2"),
-                30 => actionData.Tags != null ? string.Join(", ", actionData.Tags) : "",
+                3 => actionData.Description,
+                4 => actionData.DamageMultiplier.ToString(),
+                5 => actionData.Length.ToString(),
+                6 => actionData.Cooldown.ToString(),
+                7 => actionData.CausesBleed.ToString(),
+                8 => actionData.CausesWeaken.ToString(),
+                9 => actionData.CausesSlow.ToString(),
+                10 => actionData.CausesPoison.ToString(),
+                11 => actionData.CausesBurn.ToString(),
+                12 => "false", // CausesStun - not in ActionData
+                13 => actionData.IsComboAction.ToString(),
+                14 => actionData.ComboOrder.ToString(),
+                15 => actionData.ComboBonusAmount.ToString(),
+                16 => actionData.ComboBonusDuration.ToString(),
+                17 => actionData.RollBonus.ToString(),
+                18 => actionData.StatBonus.ToString(),
+                19 => actionData.StatBonusType,
+                20 => actionData.StatBonusDuration.ToString(),
+                21 => actionData.MultiHitCount.ToString(),
+                22 => actionData.SelfDamagePercent.ToString(),
+                23 => actionData.SkipNextTurn.ToString(),
+                24 => actionData.RepeatLastAction.ToString(),
+                25 => actionData.EnemyRollPenalty.ToString(),
+                26 => actionData.HealthThreshold.ToString("F2"),
+                27 => actionData.ConditionalDamageMultiplier.ToString("F2"),
+                28 => actionData.Tags != null ? string.Join(", ", actionData.Tags) : "",
                 _ => ""
             };
         }

@@ -76,21 +76,76 @@ namespace RPGGame.Actions.RollModification
         }
 
         /// <summary>
-        /// Applies threshold overrides from an action
+        /// Applies threshold overrides and adjustments from an action
         /// </summary>
-        public static void ApplyThresholdOverrides(Action action, Actor source)
+        public static void ApplyThresholdOverrides(Action action, Actor source, Actor? target = null)
         {
+            // Apply threshold overrides (absolute values)
+            if (action.RollMods.CriticalMissThresholdOverride > 0)
+            {
+                _thresholdManager.SetCriticalMissThreshold(source, action.RollMods.CriticalMissThresholdOverride);
+                if (target != null && action.RollMods.ApplyThresholdAdjustmentsToBoth)
+                {
+                    _thresholdManager.SetCriticalMissThreshold(target, action.RollMods.CriticalMissThresholdOverride);
+                }
+            }
             if (action.RollMods.CriticalHitThresholdOverride > 0)
             {
                 _thresholdManager.SetCriticalHitThreshold(source, action.RollMods.CriticalHitThresholdOverride);
+                if (target != null && action.RollMods.ApplyThresholdAdjustmentsToBoth)
+                {
+                    _thresholdManager.SetCriticalHitThreshold(target, action.RollMods.CriticalHitThresholdOverride);
+                }
             }
             if (action.RollMods.ComboThresholdOverride > 0)
             {
                 _thresholdManager.SetComboThreshold(source, action.RollMods.ComboThresholdOverride);
+                if (target != null && action.RollMods.ApplyThresholdAdjustmentsToBoth)
+                {
+                    _thresholdManager.SetComboThreshold(target, action.RollMods.ComboThresholdOverride);
+                }
             }
             if (action.RollMods.HitThresholdOverride > 0)
             {
                 _thresholdManager.SetHitThreshold(source, action.RollMods.HitThresholdOverride);
+                if (target != null && action.RollMods.ApplyThresholdAdjustmentsToBoth)
+                {
+                    _thresholdManager.SetHitThreshold(target, action.RollMods.HitThresholdOverride);
+                }
+            }
+
+            // Apply threshold adjustments (adds to current/default)
+            if (action.RollMods.CriticalMissThresholdAdjustment != 0)
+            {
+                _thresholdManager.AdjustCriticalMissThreshold(source, action.RollMods.CriticalMissThresholdAdjustment);
+                if (target != null && action.RollMods.ApplyThresholdAdjustmentsToBoth)
+                {
+                    _thresholdManager.AdjustCriticalMissThreshold(target, action.RollMods.CriticalMissThresholdAdjustment);
+                }
+            }
+            if (action.RollMods.CriticalHitThresholdAdjustment != 0)
+            {
+                _thresholdManager.AdjustCriticalHitThreshold(source, action.RollMods.CriticalHitThresholdAdjustment);
+                if (target != null && action.RollMods.ApplyThresholdAdjustmentsToBoth)
+                {
+                    _thresholdManager.AdjustCriticalHitThreshold(target, action.RollMods.CriticalHitThresholdAdjustment);
+                }
+            }
+            if (action.RollMods.ComboThresholdAdjustment != 0)
+            {
+                _thresholdManager.AdjustComboThreshold(source, action.RollMods.ComboThresholdAdjustment);
+                if (target != null && action.RollMods.ApplyThresholdAdjustmentsToBoth)
+                {
+                    _thresholdManager.AdjustComboThreshold(target, action.RollMods.ComboThresholdAdjustment);
+                }
+            }
+            if (action.RollMods.HitThresholdAdjustment != 0)
+            {
+                _thresholdManager.AdjustHitThreshold(source, action.RollMods.HitThresholdAdjustment);
+                if (target != null && action.RollMods.ApplyThresholdAdjustmentsToBoth)
+                {
+                    _thresholdManager.AdjustHitThreshold(target, action.RollMods.HitThresholdAdjustment);
+                }
             }
         }
 

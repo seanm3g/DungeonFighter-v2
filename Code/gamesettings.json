@@ -2,7 +2,7 @@
   "NarrativeBalance": 0.8,
   "EnableNarrativeEvents": true,
   "EnableInformationalSummaries": true,
-  "CombatSpeed": 2,
+  "CombatSpeed": 0.5,
   "ShowIndividualActionMessages": false,
   "EnableComboSystem": true,
   "EnableTextDisplayDelays": true,
