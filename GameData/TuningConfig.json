@@ -273,8 +273,8 @@
   },
   "enemySystem": {
     "globalMultipliers": {
-      "healthMultiplier": 1.3,
-      "damageMultiplier": 0.8,
+      "healthMultiplier": 1.05,
+      "damageMultiplier": 1.03,
       "armorMultiplier": 1,
       "speedMultiplier": 1,
       "description": "Global multipliers applied to all enemies"
@@ -315,14 +315,14 @@
       "Assassin": {
         "health": 0.7,
         "strength": 1,
-        "agility": 1.6,
+        "agility": 1.05,
         "technique": 1.2,
         "intelligence": 1,
         "armor": 0.4,
         "description": "High attack speed - quick strikers"
       },
       "Brute": {
-        "health": 1.6,
+        "health": 1.05,
         "strength": 1,
         "agility": 0.7,
         "technique": 0.7,
@@ -470,6 +470,14 @@
     "magicFindEffectiveness": 0.01,
     "goldDropMultiplier": 1,
     "itemValueMultiplier": 1,
+    "rarityUpgrade": {
+      "enabled": false,
+      "baseUpgradeChance": 0.05,
+      "upgradeChanceDecayPerTier": 0.5,
+      "maxUpgradeTiers": 6,
+      "magicFindBonus": 0.0001,
+      "description": "Cascading rarity upgrade system - items can upgrade to next tier with exponentially decreasing probability"
+    },
     "description": "Loot drop rates and economy settings"
   },
   "startingGear": {

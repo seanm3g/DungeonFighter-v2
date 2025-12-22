@@ -19,8 +19,16 @@ namespace RPGGame
         public static WeaponItem GenerateWeaponItem(WeaponData weaponData)
         {
             var weaponType = Enum.Parse<WeaponType>(weaponData.Type);
-            return new WeaponItem(weaponData.Name, weaponData.Tier, 
+            var weapon = new WeaponItem(weaponData.Name, weaponData.Tier, 
                 weaponData.BaseDamage, weaponData.AttackSpeed, weaponType);
+            
+            // Copy attribute requirements if present
+            if (weaponData.AttributeRequirements != null && weaponData.AttributeRequirements.Count > 0)
+            {
+                weapon.AttributeRequirements = new AttributeRequirements(weaponData.AttributeRequirements);
+            }
+            
+            return weapon;
         }
 
         /// <summary>
@@ -30,13 +38,21 @@ namespace RPGGame
         /// <returns>A new armor Item instance</returns>
         public static Item GenerateArmorItem(ArmorData armorData)
         {
-            return armorData.Slot.ToLower() switch
+            Item item = armorData.Slot.ToLower() switch
             {
                 "head" => new HeadItem(armorData.Name, armorData.Tier, armorData.Armor),
                 "chest" => new ChestItem(armorData.Name, armorData.Tier, armorData.Armor),
                 "feet" => new FeetItem(armorData.Name, armorData.Tier, armorData.Armor),
                 _ => throw new ArgumentException($"Unknown armor slot: {armorData.Slot}")
             };
+            
+            // Copy attribute requirements if present
+            if (armorData.AttributeRequirements != null && armorData.AttributeRequirements.Count > 0)
+            {
+                item.AttributeRequirements = new AttributeRequirements(armorData.AttributeRequirements);
+            }
+            
+            return item;
         }
 
         /// <summary>

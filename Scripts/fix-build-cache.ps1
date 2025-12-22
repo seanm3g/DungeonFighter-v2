@@ -2,6 +2,9 @@
 # This script performs a thorough clean of build artifacts to resolve
 # compilation issues where the compiler can't find methods that clearly exist
 
+# Import build metrics helper
+. (Join-Path $PSScriptRoot "BuildMetrics.ps1")
+
 Write-Host "Cleaning build cache..." -ForegroundColor Cyan
 
 # Navigate to Code directory
@@ -31,10 +34,15 @@ Start-Sleep -Milliseconds 500
 
 # Rebuild
 Write-Host "Rebuilding project..." -ForegroundColor Yellow
+$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 $buildResult = dotnet build 2>&1
+$buildSuccess = ($LASTEXITCODE -eq 0)
+$stopwatch.Stop()
+
+Record-BuildMetric -BuildType "Debug" -BuildTimeMs $stopwatch.ElapsedMilliseconds -BuildTimeSeconds $stopwatch.Elapsed.TotalSeconds -Success $buildSuccess
 
 # Check if build succeeded
-if ($LASTEXITCODE -eq 0) {
+if ($buildSuccess) {
     Write-Host "`nBuild succeeded! Cache cleared successfully." -ForegroundColor Green
     exit 0
 } else {

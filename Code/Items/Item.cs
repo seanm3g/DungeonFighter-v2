@@ -70,6 +70,7 @@ namespace RPGGame
         public string Name { get; set; } = "";
         public ItemType Type { get; set; }
         public int Tier { get; set; } = 1;
+        public int Level { get; set; } = 1; // Item level based on dungeon level when generated
         public int ComboBonus { get; set; } = 0;
         public string Rarity { get; set; } = "Common";
         public List<StatBonus> StatBonuses { get; set; } = new List<StatBonus>();
@@ -80,11 +81,53 @@ namespace RPGGame
         public int BonusAttackSpeed { get; set; } = 0;
         public List<string> Tags { get; set; } = new List<string>();
         
+        // Attribute requirements for this item (extensible for future secondary attributes)
+        public AttributeRequirements AttributeRequirements { get; set; } = new AttributeRequirements();
+        
         // The specific action this gear provides (assigned when created)
         public string? GearAction { get; set; } = null;
         
         // Check if this is a starter item (always gets actions)
         public bool IsStarterItem => Name.Contains("Starter");
+
+        /// <summary>
+        /// Checks if a character meets all attribute requirements for this item
+        /// </summary>
+        /// <param name="character">The character to check</param>
+        /// <returns>True if character meets all requirements, false otherwise</returns>
+        public bool MeetsRequirements(Character character)
+        {
+            if (character == null || character.Facade == null || !AttributeRequirements.HasRequirements)
+            {
+                return true; // No requirements or no character means always pass
+            }
+
+            // Get character's effective attributes
+            int strength = character.Facade.GetEffectiveStrength();
+            int agility = character.Facade.GetEffectiveAgility();
+            int technique = character.Facade.GetEffectiveTechnique();
+            int intelligence = character.Facade.GetEffectiveIntelligence();
+
+            // Check each requirement
+            foreach (var requirement in AttributeRequirements)
+            {
+                int characterValue = requirement.Key.ToLower() switch
+                {
+                    "strength" => strength,
+                    "agility" => agility,
+                    "technique" => technique,
+                    "intelligence" => intelligence,
+                    _ => 0 // Future secondary attributes will need to be added here
+                };
+
+                if (characterValue < requirement.Value)
+                {
+                    return false; // Character doesn't meet this requirement
+                }
+            }
+
+            return true; // All requirements met
+        }
 
         public Item(ItemType type, string? name = null, int tier = 1, int comboBonus = 0)
         {

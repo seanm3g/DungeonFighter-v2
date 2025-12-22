@@ -114,7 +114,11 @@
     "attackSpeed": 1.2,
     "hitCount": 2,
     "effect": "none",
-    "tier": 5
+    "tier": 5,
+    "attributeRequirements": {
+      "Strength": 15,
+      "Agility": 10
+    }
   },
   {
     "type": "Sword",
@@ -123,7 +127,10 @@
     "attackSpeed": 1.2,
     "hitCount": 2,
     "effect": "none",
-    "tier": 5
+    "tier": 5,
+    "attributeRequirements": {
+      "Strength": 20
+    }
   },
   {
     "type": "Sword",
@@ -528,7 +535,10 @@
     "attackSpeed": 1.1,
     "hitCount": 2,
     "effect": "burn",
-    "tier": 5
+    "tier": 5,
+    "attributeRequirements": {
+      "Intelligence": 20
+    }
   },
   {
     "type": "Wand",

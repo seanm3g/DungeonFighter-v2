@@ -7,7 +7,7 @@ namespace RPGGame
     using RPGGame.UI.ColorSystem;
 
     /// <summary>
-    /// Handles player choice to leave dungeon safely at halfway point.
+    /// Handles player choice to leave dungeon safely.
     /// This allows players to exit without rewards between rooms.
     /// </summary>
     public class DungeonExitChoiceHandler
@@ -46,39 +46,18 @@ namespace RPGGame
             // Display the menu
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                // Halfway point message with color
-                var halfwayBuilder = new ColoredTextBuilder()
-                    .Add("You have reached the ", ColorPalette.White)
-                    .Add("halfway point", ColorPalette.Gold);
-                canvasUI.WriteLineColoredSegments(halfwayBuilder.Build(), UIMessageType.System);
-                
-                // Warning message with color
-                var warningBuilder = new ColoredTextBuilder()
-                    .Add("You may leave the dungeon safely, but you will receive ", ColorPalette.White)
-                    .Add("no rewards", ColorPalette.Warning)
-                    .Add(".", ColorPalette.White);
-                canvasUI.WriteLineColoredSegments(warningBuilder.Build(), UIMessageType.System);
-                
-                // Question with color
-                var questionBuilder = new ColoredTextBuilder()
-                    .Add("What would you like to do?", ColorPalette.Info);
-                canvasUI.WriteLineColoredSegments(questionBuilder.Build(), UIMessageType.System);
-
-                // Blank line
-                canvasUI.WriteLineColoredSegments(new List<ColoredText>(), UIMessageType.System);
-                
                 // Option 1 with color
                 var option1Builder = new ColoredTextBuilder()
                     .Add("  ", ColorPalette.White)
                     .Add("1", ColorPalette.Success)
-                    .Add(" - Continue exploring", ColorPalette.White);
+                    .Add(" - Continue through the dungeon", ColorPalette.White);
                 canvasUI.WriteLineColoredSegments(option1Builder.Build(), UIMessageType.System);
                 
                 // Option 2 with color
                 var option2Builder = new ColoredTextBuilder()
                     .Add("  ", ColorPalette.White)
                     .Add("2", ColorPalette.Warning)
-                    .Add(" - Leave dungeon safely (no rewards)", ColorPalette.White);
+                    .Add(" - Leave with no rewards", ColorPalette.White);
                 canvasUI.WriteLineColoredSegments(option2Builder.Build(), UIMessageType.System);
                 
                 // Bottom separator line with color (same length as top separator)

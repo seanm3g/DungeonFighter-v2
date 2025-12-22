@@ -242,6 +242,7 @@ namespace RPGGame
                     // Add blank line before safe message (after room info)
                     displayManager.AddCombatEvent("");
                     displayManager.AddCombatEvent("It appears you are safe... for now.");
+                    displayManager.AddCombatEvent(""); // Blank line after safe message
                     // Re-render room entry to show the safe message
                     canvasUISafe.RenderRoomEntry(room, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
                     if (!RPGGame.MCP.MCPMode.IsActive)

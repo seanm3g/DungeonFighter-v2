@@ -1,0 +1,87 @@
+{
+  "classTables": {
+    "Barbarian": {
+      "weaponType": "Mace",
+      "actions": [
+        {
+          "name": "CRUSHING BLOW",
+          "weight": 10
+        },
+        {
+          "name": "BLOOD FRENZY",
+          "weight": 8
+        },
+        {
+          "name": "EARTHSHATTERING STRIKE",
+          "weight": 6
+        }
+      ]
+    },
+    "Warrior": {
+      "weaponType": "Sword",
+      "actions": [
+        {
+          "name": "PRECISION STRIKE",
+          "weight": 10
+        },
+        {
+          "name": "SHIELD BASH",
+          "weight": 8
+        },
+        {
+          "name": "COUNTER ATTACK",
+          "weight": 6
+        }
+      ]
+    },
+    "Rogue": {
+      "weaponType": "Dagger",
+      "actions": [
+        {
+          "name": "DEADLY THRUST",
+          "weight": 10
+        },
+        {
+          "name": "SHADOW STRIKE",
+          "weight": 8
+        },
+        {
+          "name": "BACKSTAB",
+          "weight": 6
+        }
+      ]
+    },
+    "Wizard": {
+      "weaponType": "Wand",
+      "actions": [
+        {
+          "name": "ARCANE BLAST",
+          "weight": 10
+        },
+        {
+          "name": "MAGIC BOLT",
+          "weight": 8
+        },
+        {
+          "name": "ARCANE CASCADE",
+          "weight": 6
+        }
+      ]
+    }
+  },
+  "armorActions": [
+    {
+      "name": "DEFENSIVE STANCE",
+      "weight": 10
+    },
+    {
+      "name": "COUNTER STRIKE",
+      "weight": 8
+    },
+    {
+      "name": "SHIELD REFLECTION",
+      "weight": 6
+    }
+  ],
+  "crossContaminationChance": 0.20
+}

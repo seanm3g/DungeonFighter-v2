@@ -243,13 +243,20 @@
     "slot": "chest",
     "name": "Full Plate Armor",
     "armor": 20,
-    "tier": 5
+    "tier": 5,
+    "attributeRequirements": {
+      "Strength": 18
+    }
   },
   {
     "slot": "chest",
     "name": "Dragon Scale Armor",
     "armor": 20,
-    "tier": 5
+    "tier": 5,
+    "attributeRequirements": {
+      "Strength": 15,
+      "Agility": 12
+    }
   },
   {
     "slot": "feet",

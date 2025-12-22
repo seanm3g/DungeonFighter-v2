@@ -102,6 +102,13 @@ namespace RPGGame.Editors
                 new EditableVariable("EquipmentScaling.MaxTier", () => config.EquipmentScaling.MaxTier, v => config.EquipmentScaling.MaxTier = Convert.ToInt32(v), "Maximum tier"),
                 new EditableVariable("EquipmentScaling.EnchantmentChance", () => config.EquipmentScaling.EnchantmentChance, v => config.EquipmentScaling.EnchantmentChance = Convert.ToDouble(v), "Enchantment chance"),
                 new EditableVariable("WeaponScaling.GlobalDamageMultiplier", () => config.WeaponScaling?.GlobalDamageMultiplier ?? 1.0, v => { if (config.WeaponScaling != null) config.WeaponScaling.GlobalDamageMultiplier = Convert.ToDouble(v); }, "Global weapon damage multiplier"),
+                // Loot System Variables
+                new EditableVariable("LootSystem.BaseDropChance", () => config.LootSystem.BaseDropChance, v => config.LootSystem.BaseDropChance = Convert.ToDouble(v), "Base loot drop chance (0-1)"),
+                new EditableVariable("LootSystem.DropChancePerLevel", () => config.LootSystem.DropChancePerLevel, v => config.LootSystem.DropChancePerLevel = Convert.ToDouble(v), "Drop chance increase per level"),
+                new EditableVariable("LootSystem.MagicFindEffectiveness", () => config.LootSystem.MagicFindEffectiveness, v => config.LootSystem.MagicFindEffectiveness = Convert.ToDouble(v), "Magic find effectiveness"),
+                new EditableVariable("LootSystem.RarityUpgrade.Enabled", () => config.LootSystem.RarityUpgrade.Enabled, v => config.LootSystem.RarityUpgrade.Enabled = Convert.ToBoolean(v), "Enable rarity upgrades"),
+                new EditableVariable("LootSystem.RarityUpgrade.BaseUpgradeChance", () => config.LootSystem.RarityUpgrade.BaseUpgradeChance, v => config.LootSystem.RarityUpgrade.BaseUpgradeChance = Convert.ToDouble(v), "Base upgrade chance (0-1)"),
+                new EditableVariable("LootSystem.RarityUpgrade.UpgradeChanceDecayPerTier", () => config.LootSystem.RarityUpgrade.UpgradeChanceDecayPerTier, v => config.LootSystem.RarityUpgrade.UpgradeChanceDecayPerTier = Convert.ToDouble(v), "Upgrade decay per tier"),
             };
             variablesByCategory["Items"] = itemVars;
 

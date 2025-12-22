@@ -133,18 +133,12 @@ namespace RPGGame
 
         private string GetClassTier(string baseClass, int points)
         {
-            if (points >= 100)
-                return $"Legendary {baseClass}";
-            if (points >= 80)
-                return $"Epic {baseClass}";
-            if (points >= 40)
-                return $"Grand {baseClass}";
+            if (points >= 60)
+                return $"Master {baseClass}";  // Tier 3
             if (points >= 20)
-                return $"Master {baseClass}";
-            if (points >= 10)
-                return $"Expert {baseClass}";
+                return $"Expert {baseClass}";   // Tier 2
             if (points >= 5)
-                return $"Adept {baseClass}";
+                return $"Adept {baseClass}";    // Tier 1
             return "Novice";
         }
 
@@ -159,8 +153,8 @@ namespace RPGGame
                 _ => 0
             };
 
-            // Define upgrade thresholds
-            int[] thresholds = { 5, 10, 20, 40, 80, 100 };
+            // Define upgrade thresholds - three tiers
+            int[] thresholds = { 5, 20, 60 };
             
             foreach (int threshold in thresholds)
             {

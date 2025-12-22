@@ -11,17 +11,22 @@ namespace RPGGame
     {
         private readonly LootDataCache _dataCache;
         private readonly Random _random;
+        private readonly LootModificationSelector? _modificationSelector;
+        private readonly LootActionSelector? _actionSelector;
 
         public LootBonusApplier(LootDataCache dataCache, Random random)
         {
             _dataCache = dataCache;
             _random = random;
+            // Initialize selectors for contextual loot
+            _modificationSelector = new LootModificationSelector(random);
+            _actionSelector = new LootActionSelector(random);
         }
 
         /// <summary>
         /// Applies all bonuses to an item based on its rarity
         /// </summary>
-        public void ApplyBonuses(Item item, RarityData rarity)
+        public void ApplyBonuses(Item item, RarityData rarity, LootContext? context = null)
         {
             // Special handling for Common items: 25% chance to have mods/stat bonuses
             if (rarity.Name.Equals("Common", StringComparison.OrdinalIgnoreCase))
@@ -31,7 +36,7 @@ namespace RPGGame
                 {
                     // Apply 1 stat bonus and 1 modification for Common items that get bonuses
                     ApplyStatBonuses(item, 1);
-                    ApplyModifications(item, 1);
+                    ApplyModifications(item, 1, context);
                 }
                 // If the 25% roll fails, Common items get no bonuses (as intended)
             }
@@ -39,8 +44,8 @@ namespace RPGGame
             {
                 // Apply bonuses normally for all other rarities
                 ApplyStatBonuses(item, rarity.StatBonuses);
-                ApplyActionBonuses(item, rarity.ActionBonuses);
-                ApplyModifications(item, rarity.Modifications);
+                ApplyActionBonuses(item, rarity.ActionBonuses, context);
+                ApplyModifications(item, rarity.Modifications, context);
             }
 
             // Update item name to include modifications and stat bonuses
@@ -64,44 +69,97 @@ namespace RPGGame
 
         /// <summary>
         /// Applies action bonuses to an item
+        /// Uses contextual selection if context is provided (80/20 split by weapon type)
+        /// Falls back to random selection if no context or tables not available
         /// </summary>
-        public void ApplyActionBonuses(Item item, int count)
+        public void ApplyActionBonuses(Item item, int count, LootContext? context = null)
         {
-            if (_dataCache.ActionBonuses != null && _dataCache.ActionBonuses.Count > 0)
+            if (_dataCache.ActionBonuses == null || _dataCache.ActionBonuses.Count == 0)
+                return;
+
+            for (int i = 0; i < count; i++)
             {
-                for (int i = 0; i < count; i++)
+                // Try contextual selection first if selector is available
+                if (_actionSelector != null && context != null)
                 {
-                    var actionBonus = _dataCache.ActionBonuses[_random.Next(_dataCache.ActionBonuses.Count)];
-                    item.ActionBonuses.Add(actionBonus);
+                    var contextualAction = _actionSelector.SelectAction(context, item);
+                    if (!string.IsNullOrEmpty(contextualAction))
+                    {
+                        // Add action bonus by name lookup
+                        var actionBonus = _dataCache.ActionBonuses.FirstOrDefault(
+                            a => a.Name.Equals(contextualAction, StringComparison.OrdinalIgnoreCase));
+                        if (actionBonus != null)
+                        {
+                            item.ActionBonuses.Add(actionBonus);
+                            continue;
+                        }
+                    }
                 }
+
+                // Fallback: use random selection
+                var randomAction = _dataCache.ActionBonuses[_random.Next(_dataCache.ActionBonuses.Count)];
+                item.ActionBonuses.Add(randomAction);
             }
         }
 
         /// <summary>
         /// Applies modifications to an item
+        /// Implements 70/30 bias: 70% contextual modifications, 30% standard random
         /// </summary>
-        public void ApplyModifications(Item item, int count)
+        public void ApplyModifications(Item item, int count, LootContext? context = null)
         {
-            if (_dataCache.Modifications != null && _dataCache.Modifications.Count > 0)
+            if (_dataCache.Modifications == null || _dataCache.Modifications.Count == 0)
+                return;
+
+            for (int i = 0; i < count; i++)
             {
-                for (int i = 0; i < count; i++)
+                Modification? modification = null;
+
+                // Try contextual selection first if available (70% chance)
+                if (_modificationSelector != null && context != null && _random.NextDouble() < 0.70)
                 {
-                    var modification = RollModification(item.Tier);
-                    if (modification != null)
+                    // Get favored dice results from context
+                    var favoredResults = _modificationSelector.GetFavoredDiceResults(context);
+                    if (favoredResults.Count > 0)
                     {
-                        item.Modifications.Add(modification);
-                        
-                        // Handle reroll effect (Divine modification)
-                        if (modification.Effect == "reroll")
+                        // Roll a die and bias toward favored results
+                        int diceRoll = Dice.RollModification(item.Tier);
+
+                        // 70% chance: try to match a favored result
+                        if (favoredResults.Contains(diceRoll))
                         {
-                            var additionalMod = RollModification(item.Tier, 3); // +3 bonus for reroll
-                            if (additionalMod != null)
-                            {
-                                item.Modifications.Add(additionalMod);
-                            }
-                            // Note: Divine modification itself is already added above, 
-                            // the reroll result is the additional modification
+                            // Roll matched a favored result - use contextual modification
+                            modification = RollModification(item.Tier);
                         }
+                        else
+                        {
+                            // Didn't match - pick a random favored result instead
+                            int favoredRoll = favoredResults[_random.Next(favoredResults.Count)];
+                            modification = _dataCache.Modifications.FirstOrDefault(m => m.DiceResult == favoredRoll);
+                        }
+                    }
+                }
+
+                // Fallback: standard random selection (30% or if contextual failed)
+                if (modification == null)
+                {
+                    modification = RollModification(item.Tier);
+                }
+
+                if (modification != null)
+                {
+                    item.Modifications.Add(modification);
+
+                    // Handle reroll effect (Divine modification)
+                    if (modification.Effect == "reroll")
+                    {
+                        var additionalMod = RollModification(item.Tier, 3); // +3 bonus for reroll
+                        if (additionalMod != null)
+                        {
+                            item.Modifications.Add(additionalMod);
+                        }
+                        // Note: Divine modification itself is already added above,
+                        // the reroll result is the additional modification
                     }
                 }
             }

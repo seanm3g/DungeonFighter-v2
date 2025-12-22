@@ -5,6 +5,7 @@ using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using RPGGame.Editors;
+using RPGGame.UI.Avalonia.Builders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,7 @@ namespace RPGGame.UI.Avalonia.Managers
         private bool isCreatingNewAction = false;
         private Dictionary<string, Control> actionFormControls = new Dictionary<string, Control>();
         private Dictionary<string, ActionData> actionNameToAction = new Dictionary<string, ActionData>();
+        private ActionFormBuilder? formBuilder;
         
         private ListBox? actionsListBox;
         private Panel? actionFormPanel;
@@ -41,6 +43,10 @@ namespace RPGGame.UI.Avalonia.Managers
             this.createActionButton = createActionButton;
             this.deleteActionButton = deleteActionButton;
             this.showStatusMessage = showStatusMessage;
+            
+            formBuilder = new ActionFormBuilder(actionFormControls, showStatusMessage);
+            formBuilder.SaveActionRequested += SaveAction;
+            formBuilder.CancelActionRequested += OnCancelAction;
             
             LoadActionsList();
             createActionButton.Click += OnCreateActionClick;
@@ -109,312 +115,18 @@ namespace RPGGame.UI.Avalonia.Managers
 
         private void LoadActionForm(ActionData action)
         {
-            if (actionFormPanel == null) return;
-            
-            actionFormPanel.Children.Clear();
-            actionFormControls.Clear();
-            
-            var title = new TextBlock
-            {
-                Text = isCreatingNewAction ? "Create New Action" : $"Edit Action: {action.Name}",
-                FontSize = 18,
-                FontWeight = FontWeight.Bold,
-                Foreground = new SolidColorBrush(Color.FromRgb(255, 215, 0)),
-                Margin = new Thickness(0, 0, 0, 15)
-            };
-            actionFormPanel.Children.Add(title);
-            
-            var basicSection = CreateFormSection("Basic Properties");
-            actionFormPanel.Children.Add(basicSection);
-            
-            var basicStack = new StackPanel { Spacing = 10, Margin = new Thickness(10, 5, 0, 15) };
-            basicSection.Child = basicStack;
-            
-            AddFormField(basicStack, "Name", action.Name, (value) => action.Name = value);
-            
-            var typeOptions = new[] { "Attack", "Heal", "Buff", "Debuff", "Spell", "Interact", "Move", "UseItem" };
-            AddFormField(basicStack, "Type", action.Type, (value) => 
-            {
-                action.Type = value;
-                UpdateTargetTypeOptions(action, value);
-            }, typeOptions);
-            
-            AddFormField(basicStack, "TargetType", action.TargetType, (value) => action.TargetType = value, GetValidTargetTypes(action.Type));
-            AddFormField(basicStack, "Description", action.Description, (value) => action.Description = value, isMultiline: true);
-            
-            var numericSection = CreateFormSection("Numeric Properties");
-            actionFormPanel.Children.Add(numericSection);
-            
-            var numericStack = new StackPanel { Spacing = 10, Margin = new Thickness(10, 5, 0, 15) };
-            numericSection.Child = numericStack;
-            
-            AddFormField(numericStack, "Cooldown", action.Cooldown.ToString(), (value) => { if (int.TryParse(value, out int v)) action.Cooldown = v; });
-            AddFormField(numericStack, "DamageMultiplier", action.DamageMultiplier.ToString(), (value) => { if (double.TryParse(value, out double v)) action.DamageMultiplier = v; });
-            AddFormField(numericStack, "Length", action.Length.ToString(), (value) => { if (double.TryParse(value, out double v)) action.Length = v; });
-            
-            var statusSection = CreateFormSection("Status Effects");
-            actionFormPanel.Children.Add(statusSection);
-            
-            var statusStack = new StackPanel { Spacing = 10, Margin = new Thickness(10, 5, 0, 15) };
-            statusSection.Child = statusStack;
-            
-            AddBooleanField(statusStack, "CausesBleed", action.CausesBleed, (value) => action.CausesBleed = value);
-            AddBooleanField(statusStack, "CausesWeaken", action.CausesWeaken, (value) => action.CausesWeaken = value);
-            AddBooleanField(statusStack, "CausesSlow", action.CausesSlow, (value) => action.CausesSlow = value);
-            AddBooleanField(statusStack, "CausesPoison", action.CausesPoison, (value) => action.CausesPoison = value);
-            AddBooleanField(statusStack, "CausesBurn", action.CausesBurn, (value) => action.CausesBurn = value);
-            
-            var comboSection = CreateFormSection("Combo Properties");
-            actionFormPanel.Children.Add(comboSection);
-            
-            var comboStack = new StackPanel { Spacing = 10, Margin = new Thickness(10, 5, 0, 15) };
-            comboSection.Child = comboStack;
-            
-            AddBooleanField(comboStack, "IsComboAction", action.IsComboAction, (value) => action.IsComboAction = value);
-            AddFormField(comboStack, "ComboOrder", action.ComboOrder.ToString(), (value) => { if (int.TryParse(value, out int v)) action.ComboOrder = v; });
-            AddFormField(comboStack, "ComboBonusAmount", action.ComboBonusAmount.ToString(), (value) => { if (int.TryParse(value, out int v)) action.ComboBonusAmount = v; });
-            AddFormField(comboStack, "ComboBonusDuration", action.ComboBonusDuration.ToString(), (value) => { if (int.TryParse(value, out int v)) action.ComboBonusDuration = v; });
-            
-            var advancedSection = CreateFormSection("Advanced Mechanics");
-            actionFormPanel.Children.Add(advancedSection);
-            
-            var advancedStack = new StackPanel { Spacing = 10, Margin = new Thickness(10, 5, 0, 15) };
-            advancedSection.Child = advancedStack;
-            
-            AddFormField(advancedStack, "RollBonus", action.RollBonus.ToString(), (value) => { if (int.TryParse(value, out int v)) action.RollBonus = v; });
-            AddFormField(advancedStack, "StatBonus", action.StatBonus.ToString(), (value) => { if (int.TryParse(value, out int v)) action.StatBonus = v; });
-            AddFormField(advancedStack, "StatBonusType", action.StatBonusType, (value) => action.StatBonusType = value, 
-                new[] { "", "Strength", "Agility", "Technique", "Intelligence" });
-            AddFormField(advancedStack, "StatBonusDuration", action.StatBonusDuration.ToString(), (value) => { if (int.TryParse(value, out int v)) action.StatBonusDuration = v; });
-            AddFormField(advancedStack, "MultiHitCount", action.MultiHitCount.ToString(), (value) => { if (int.TryParse(value, out int v) && v >= 1) action.MultiHitCount = v; });
-            AddFormField(advancedStack, "SelfDamagePercent", action.SelfDamagePercent.ToString(), (value) => { if (int.TryParse(value, out int v)) action.SelfDamagePercent = v; });
-            AddBooleanField(advancedStack, "SkipNextTurn", action.SkipNextTurn, (value) => action.SkipNextTurn = value);
-            AddBooleanField(advancedStack, "RepeatLastAction", action.RepeatLastAction, (value) => action.RepeatLastAction = value);
-            AddFormField(advancedStack, "EnemyRollPenalty", action.EnemyRollPenalty.ToString(), (value) => { if (int.TryParse(value, out int v)) action.EnemyRollPenalty = v; });
-            AddFormField(advancedStack, "HealthThreshold", action.HealthThreshold.ToString("F2"), (value) => { if (double.TryParse(value, out double v) && v >= 0.0 && v <= 1.0) action.HealthThreshold = v; });
-            AddFormField(advancedStack, "ConditionalDamageMultiplier", action.ConditionalDamageMultiplier.ToString("F2"), (value) => { if (double.TryParse(value, out double v)) action.ConditionalDamageMultiplier = v; });
-            
-            var tagsSection = CreateFormSection("Tags");
-            actionFormPanel.Children.Add(tagsSection);
-            
-            var tagsStack = new StackPanel { Spacing = 10, Margin = new Thickness(10, 5, 0, 15) };
-            tagsSection.Child = tagsStack;
-            
-            string tagsValue = action.Tags != null ? string.Join(", ", action.Tags) : "";
-            AddFormField(tagsStack, "Tags", tagsValue, (value) => 
-            {
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    action.Tags = new List<string>();
-                }
-                else
-                {
-                    action.Tags = value.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                        .Select(t => t.Trim())
-                        .Where(t => !string.IsNullOrWhiteSpace(t))
-                        .ToList();
-                }
-            });
-            
-            var buttonStack = new StackPanel 
-            { 
-                Orientation = Orientation.Horizontal, 
-                Spacing = 10, 
-                Margin = new Thickness(0, 20, 0, 0),
-                HorizontalAlignment = HorizontalAlignment.Right
-            };
-            
-            var saveButton = new Button
-            {
-                Content = isCreatingNewAction ? "Create Action" : "Save Changes",
-                Width = 150,
-                Height = 35,
-                Background = new SolidColorBrush(Color.FromRgb(76, 175, 80)),
-                Foreground = new SolidColorBrush(Colors.White),
-                BorderThickness = new Thickness(0),
-                CornerRadius = new CornerRadius(3),
-                Cursor = new Cursor(StandardCursorType.Hand)
-            };
-            saveButton.Click += (s, e) => SaveAction(action);
-            
-            var cancelButton = new Button
-            {
-                Content = "Cancel",
-                Width = 100,
-                Height = 35,
-                Background = new SolidColorBrush(Color.FromRgb(117, 117, 117)),
-                Foreground = new SolidColorBrush(Colors.White),
-                BorderThickness = new Thickness(0),
-                CornerRadius = new CornerRadius(3),
-                Cursor = new Cursor(StandardCursorType.Hand)
-            };
-            cancelButton.Click += (s, e) => 
-            {
-                if (actionFormPanel != null) actionFormPanel.Children.Clear();
-                if (actionsListBox != null) actionsListBox.SelectedItem = null;
-                selectedAction = null;
-            };
-            
-            buttonStack.Children.Add(cancelButton);
-            buttonStack.Children.Add(saveButton);
-            actionFormPanel.Children.Add(buttonStack);
+            if (actionFormPanel == null || formBuilder == null) return;
+            formBuilder.BuildForm(actionFormPanel, action, isCreatingNewAction);
         }
 
-        private Border CreateFormSection(string title)
+        private void OnCancelAction()
         {
-            return new Border
-            {
-                Background = new SolidColorBrush(Color.FromRgb(40, 40, 60)),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(100, 100, 150)),
-                BorderThickness = new Thickness(2),
-                CornerRadius = new CornerRadius(5),
-                Padding = new Thickness(15),
-                Margin = new Thickness(0, 0, 0, 15)
-            };
+            if (actionFormPanel != null) actionFormPanel.Children.Clear();
+            if (actionsListBox != null) actionsListBox.SelectedItem = null;
+            selectedAction = null;
         }
 
-        private string[] GetValidTargetTypes(string actionType)
-        {
-            return actionType switch
-            {
-                "Attack" => new[] { "SingleTarget", "SelfAndTarget" },
-                "Spell" => new[] { "SingleTarget", "SelfAndTarget" },
-                "Heal" => new[] { "Self", "SingleTarget" },
-                "Buff" => new[] { "Self" },
-                "Debuff" => new[] { "SingleTarget" },
-                "Interact" => new[] { "Environment" },
-                "Move" => new[] { "Self" },
-                "UseItem" => new[] { "Self", "SingleTarget" },
-                _ => new[] { "SingleTarget" }
-            };
-        }
-
-        private void UpdateTargetTypeOptions(ActionData action, string newActionType)
-        {
-            if (actionFormControls.TryGetValue("TargetType", out var targetTypeControl) && targetTypeControl is ComboBox targetTypeComboBox)
-            {
-                var validTargetTypes = GetValidTargetTypes(newActionType);
-                targetTypeComboBox.ItemsSource = validTargetTypes;
-                
-                if (!validTargetTypes.Contains(action.TargetType))
-                {
-                    action.TargetType = validTargetTypes[0];
-                    targetTypeComboBox.SelectedItem = action.TargetType;
-                }
-                else
-                {
-                    targetTypeComboBox.SelectedItem = action.TargetType;
-                }
-            }
-        }
-
-        private void AddFormField(StackPanel parent, string label, string value, Action<string> setter, string[]? options = null, bool isMultiline = false)
-        {
-            var grid = new Grid();
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(200) });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            
-            var labelBlock = new TextBlock
-            {
-                Text = label + ":",
-                FontSize = 15,
-                Foreground = new SolidColorBrush(Colors.White),
-                VerticalAlignment = VerticalAlignment.Center
-            };
-            Grid.SetColumn(labelBlock, 0);
-            grid.Children.Add(labelBlock);
-            
-            Control inputControl;
-            if (options != null && options.Length > 0)
-            {
-                var comboBox = new ComboBox
-                {
-                    ItemsSource = options,
-                    SelectedItem = value,
-                    FontSize = 14,
-                    Background = new SolidColorBrush(Color.FromRgb(26, 26, 26)),
-                    Foreground = new SolidColorBrush(Colors.White),
-                    BorderBrush = new SolidColorBrush(Color.FromRgb(85, 85, 85))
-                };
-                comboBox.SelectionChanged += (s, e) => 
-                {
-                    if (comboBox.SelectedItem is string selected) setter(selected);
-                };
-                inputControl = comboBox;
-            }
-            else if (isMultiline)
-            {
-                var textBox = new TextBox
-                {
-                    Text = value,
-                    FontSize = 14,
-                    TextWrapping = TextWrapping.Wrap,
-                    AcceptsReturn = true,
-                    MinHeight = 80,
-                    Background = new SolidColorBrush(Colors.White),
-                    Foreground = new SolidColorBrush(Colors.Black),
-                    BorderBrush = new SolidColorBrush(Color.FromRgb(85, 85, 85))
-                };
-                textBox.LostFocus += (s, e) => setter(textBox.Text ?? "");
-                inputControl = textBox;
-            }
-            else
-            {
-                var textBox = new TextBox
-                {
-                    Text = value,
-                    FontSize = 14,
-                    Background = new SolidColorBrush(Colors.White),
-                    Foreground = new SolidColorBrush(Colors.Black),
-                    BorderBrush = new SolidColorBrush(Color.FromRgb(85, 85, 85))
-                };
-                textBox.LostFocus += (s, e) => setter(textBox.Text ?? "");
-                inputControl = textBox;
-            }
-            
-            Grid.SetColumn(inputControl, 1);
-            grid.Children.Add(inputControl);
-            parent.Children.Add(grid);
-            
-            actionFormControls[label] = inputControl;
-        }
-
-        private void AddBooleanField(StackPanel parent, string label, bool value, Action<bool> setter)
-        {
-            var grid = new Grid();
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(200) });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            
-            var labelBlock = new TextBlock
-            {
-                Text = label + ":",
-                FontSize = 15,
-                Foreground = new SolidColorBrush(Colors.White),
-                VerticalAlignment = VerticalAlignment.Center
-            };
-            Grid.SetColumn(labelBlock, 0);
-            grid.Children.Add(labelBlock);
-            
-            var checkBox = new CheckBox
-            {
-                IsChecked = value,
-                FontSize = 14,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-            checkBox.IsCheckedChanged += (s, e) => 
-            {
-                if (checkBox.IsChecked.HasValue)
-                    setter(checkBox.IsChecked.Value);
-            };
-            
-            Grid.SetColumn(checkBox, 1);
-            grid.Children.Add(checkBox);
-            parent.Children.Add(grid);
-            
-            actionFormControls[label] = checkBox;
-        }
-
-        private void SaveAction(ActionData action)
+        private void SaveAction(ActionData action, bool isCreatingNew)
         {
             if (actionEditor == null) return;
             
@@ -427,7 +139,7 @@ namespace RPGGame.UI.Avalonia.Managers
                 }
             }
             
-            string? errorMessage = actionEditor.ValidateAction(action, isCreatingNewAction ? null : action.Name);
+            string? errorMessage = actionEditor.ValidateAction(action, isCreatingNew ? null : action.Name);
             if (errorMessage != null)
             {
                 showStatusMessage?.Invoke(errorMessage, false);
@@ -435,13 +147,14 @@ namespace RPGGame.UI.Avalonia.Managers
             }
             
             bool success;
-            if (isCreatingNewAction)
+            if (isCreatingNew)
             {
                 success = actionEditor.CreateAction(action);
                 if (success)
                 {
                     showStatusMessage?.Invoke($"Action '{action.Name}' created successfully", true);
                     isCreatingNewAction = false;
+                    LoadActionsList();
                 }
                 else
                 {
@@ -462,8 +175,6 @@ namespace RPGGame.UI.Avalonia.Managers
                     return;
                 }
             }
-            
-            LoadActionsList();
         }
     }
 }

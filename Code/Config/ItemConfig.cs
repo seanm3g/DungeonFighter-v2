@@ -66,7 +66,21 @@ namespace RPGGame
         public double MagicFindEffectiveness { get; set; }
         public double GoldDropMultiplier { get; set; }
         public double ItemValueMultiplier { get; set; }
+        public RarityUpgradeConfig RarityUpgrade { get; set; } = new();
         public string Description { get; set; } = "";
+    }
+
+    /// <summary>
+    /// Rarity upgrade configuration - cascading rarity progression
+    /// </summary>
+    public class RarityUpgradeConfig
+    {
+        public bool Enabled { get; set; } = false;
+        public double BaseUpgradeChance { get; set; } = 0.05;
+        public double UpgradeChanceDecayPerTier { get; set; } = 0.5;
+        public int MaxUpgradeTiers { get; set; } = 6;
+        public double MagicFindBonus { get; set; } = 0.0001;
+        public string Description { get; set; } = "Cascading rarity upgrade system - items can upgrade to next tier with exponentially decreasing probability";
     }
 
     /// <summary>

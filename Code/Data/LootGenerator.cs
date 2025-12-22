@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -121,7 +122,13 @@ namespace RPGGame
         /// <summary>
         /// Generates a loot item based on player level, dungeon level, and other factors
         /// </summary>
-        public static Item? GenerateLoot(int playerLevel, int dungeonLevel, Character? player = null, bool guaranteedLoot = false)
+        public static Item? GenerateLoot(
+            int playerLevel,
+            int dungeonLevel,
+            Character? player = null,
+            bool guaranteedLoot = false,
+            string? dungeonTheme = null,
+            string? enemyArchetype = null)
         {
             var tuning = GameConfiguration.Instance;
             
@@ -151,16 +158,43 @@ namespace RPGGame
                 return null;
             }
 
+            // ROLL 4.5: Roll item level based on dungeon level
+            // 50% chance: same level, 25% chance: +1 level, 25% chance: -1 level
+            double levelRoll = _random.NextDouble();
+            if (levelRoll < 0.5)
+            {
+                item.Level = dungeonLevel;
+            }
+            else if (levelRoll < 0.75)
+            {
+                item.Level = dungeonLevel + 1;
+            }
+            else
+            {
+                item.Level = Math.Max(1, dungeonLevel - 1);
+            }
+
             // ROLL 5: Apply scaling formulas to base stats
             ApplyItemScaling(item, tuning);
 
             // ROLL 6: Rarity (determines number of bonuses)
-            var rarity = RarityProcessor.RollRarity(0.0, playerLevel);
+            // Get magic find from player, pass to rarity processor for upgrade calculations
+            double magicFind = player?.GetMagicFind() ?? 0.0;
+            var rarity = RarityProcessor.RollRarity(magicFind, playerLevel);
             item.Rarity = rarity.Name?.Trim() ?? "Common";
             RarityProcessor.ApplyRarityScaling(item, rarity);
 
-            // ROLL 7: Bonus selection
-            BonusApplier.ApplyBonuses(item, rarity);
+            // Create context for contextual modifications and actions
+            var context = LootContext.Create(player, dungeonTheme, enemyArchetype);
+
+            // Set weapon type on context if this is a weapon
+            if (item is WeaponItem weapon)
+            {
+                context.WeaponType = weapon.WeaponType.ToString();
+            }
+
+            // ROLL 7: Bonus selection (with context for 80/20 actions and 70/30 mod bias)
+            BonusApplier.ApplyBonuses(item, rarity, context);
 
             return item;
         }
@@ -239,6 +273,9 @@ namespace RPGGame
         
         [JsonPropertyName("tier")]
         public int Tier { get; set; }
+
+        [JsonPropertyName("attributeRequirements")]
+        public Dictionary<string, int>? AttributeRequirements { get; set; }
     }
 
     public class WeaponData
@@ -248,6 +285,9 @@ namespace RPGGame
         public int BaseDamage { get; set; }
         public double AttackSpeed { get; set; }
         public int Tier { get; set; }
+        
+        [JsonPropertyName("attributeRequirements")]
+        public Dictionary<string, int>? AttributeRequirements { get; set; }
     }
 
     public class RarityData

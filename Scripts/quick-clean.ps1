@@ -1,6 +1,9 @@
 # Quick Clean - Fast version for common cache issues
 # Just removes bin/obj and rebuilds without clearing NuGet cache
 
+# Import build metrics helper
+. (Join-Path $PSScriptRoot "BuildMetrics.ps1")
+
 Write-Host "Quick cleaning build cache..." -ForegroundColor Cyan
 
 $codeDir = Join-Path $PSScriptRoot "..\Code"
@@ -16,11 +19,18 @@ dotnet clean --verbosity quiet 2>&1 | Out-Null
 Start-Sleep -Milliseconds 300
 
 Write-Host "Rebuilding..." -ForegroundColor Yellow
-dotnet build
 
-if ($LASTEXITCODE -eq 0) {
+$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+dotnet build
+$buildSuccess = ($LASTEXITCODE -eq 0)
+$stopwatch.Stop()
+
+Record-BuildMetric -BuildType "Debug" -BuildTimeMs $stopwatch.ElapsedMilliseconds -BuildTimeSeconds $stopwatch.Elapsed.TotalSeconds -Success $buildSuccess
+
+if ($buildSuccess) {
     Write-Host "`nBuild succeeded!" -ForegroundColor Green
 } else {
     Write-Host "`nBuild failed. Try running fix-build-cache.ps1 for a more thorough clean." -ForegroundColor Yellow
+    exit 1
 }
 

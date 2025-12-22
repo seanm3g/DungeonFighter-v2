@@ -1,0 +1,199 @@
+{
+  "themeModifications": {
+    "Forest": [
+      {
+        "name": "Verdant",
+        "diceResults": [5, 9, 13],
+        "weight": 10
+      },
+      {
+        "name": "Thorn",
+        "diceResults": [6, 10, 14],
+        "weight": 8
+      },
+      {
+        "name": "Living",
+        "diceResults": [7, 11],
+        "weight": 7
+      },
+      {
+        "name": "Nature's Blessing",
+        "diceResults": [8, 12],
+        "weight": 6
+      }
+    ],
+    "Lava": [
+      {
+        "name": "Burning",
+        "diceResults": [5, 9, 13],
+        "weight": 10
+      },
+      {
+        "name": "Molten",
+        "diceResults": [6, 10, 14],
+        "weight": 8
+      },
+      {
+        "name": "Searing",
+        "diceResults": [7, 11],
+        "weight": 7
+      },
+      {
+        "name": "Infernal",
+        "diceResults": [8, 12],
+        "weight": 6
+      }
+    ],
+    "Crypt": [
+      {
+        "name": "Cursed",
+        "diceResults": [5, 9, 13],
+        "weight": 10
+      },
+      {
+        "name": "Necrotic",
+        "diceResults": [6, 10, 14],
+        "weight": 8
+      },
+      {
+        "name": "Soul-Stealing",
+        "diceResults": [7, 11],
+        "weight": 7
+      },
+      {
+        "name": "Death's Touch",
+        "diceResults": [8, 12],
+        "weight": 6
+      }
+    ],
+    "Ice": [
+      {
+        "name": "Frozen",
+        "diceResults": [5, 9, 13],
+        "weight": 10
+      },
+      {
+        "name": "Chilling",
+        "diceResults": [6, 10, 14],
+        "weight": 8
+      },
+      {
+        "name": "Blizzard",
+        "diceResults": [7, 11],
+        "weight": 7
+      },
+      {
+        "name": "Frostbite",
+        "diceResults": [8, 12],
+        "weight": 6
+      }
+    ],
+    "Dark": [
+      {
+        "name": "Shadowy",
+        "diceResults": [5, 9, 13],
+        "weight": 10
+      },
+      {
+        "name": "Void",
+        "diceResults": [6, 10, 14],
+        "weight": 8
+      },
+      {
+        "name": "Abyssal",
+        "diceResults": [7, 11],
+        "weight": 7
+      },
+      {
+        "name": "Darkness",
+        "diceResults": [8, 12],
+        "weight": 6
+      }
+    ],
+    "Sky": [
+      {
+        "name": "Windy",
+        "diceResults": [5, 9, 13],
+        "weight": 10
+      },
+      {
+        "name": "Electric",
+        "diceResults": [6, 10, 14],
+        "weight": 8
+      },
+      {
+        "name": "Tempest",
+        "diceResults": [7, 11],
+        "weight": 7
+      },
+      {
+        "name": "Storm's Fury",
+        "diceResults": [8, 12],
+        "weight": 6
+      }
+    ]
+  },
+  "archetypeModifications": {
+    "Berserker": [
+      {
+        "name": "Brutal",
+        "diceResults": [13, 14],
+        "weight": 10
+      },
+      {
+        "name": "Savage",
+        "diceResults": [12],
+        "weight": 8
+      }
+    ],
+    "Guardian": [
+      {
+        "name": "Reinforced",
+        "diceResults": [13, 14],
+        "weight": 10
+      },
+      {
+        "name": "Sturdy",
+        "diceResults": [12],
+        "weight": 8
+      }
+    ],
+    "Brute": [
+      {
+        "name": "Heavy",
+        "diceResults": [13, 14],
+        "weight": 10
+      },
+      {
+        "name": "Massive",
+        "diceResults": [12],
+        "weight": 8
+      }
+    ],
+    "Assassin": [
+      {
+        "name": "Swift",
+        "diceResults": [6],
+        "weight": 10
+      },
+      {
+        "name": "Agile",
+        "diceResults": [5],
+        "weight": 8
+      }
+    ],
+    "Mage": [
+      {
+        "name": "Enchanted",
+        "diceResults": [9, 10],
+        "weight": 10
+      },
+      {
+        "name": "Arcane",
+        "diceResults": [8],
+        "weight": 8
+      }
+    ]
+  },
+  "genericModifications": []
+}

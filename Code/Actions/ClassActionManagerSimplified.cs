@@ -101,11 +101,13 @@ namespace RPGGame
             switch (weaponType)
             {
                 case WeaponType.Wand:
+                    // Tier 1 actions (5 points)
                     ActionAdditionTemplate.AddClassAction(Actor, "FIREBALL", 0.3, 5, wizardPoints, "Wizard");
-                    ActionAdditionTemplate.AddClassAction(Actor, "LIGHTNING BOLT", 0.3, 5, wizardPoints, "Wizard");
+                    // Tier 2 actions (20 points)
+                    ActionAdditionTemplate.AddClassAction(Actor, "LIGHTNING BOLT", 0.3, 20, wizardPoints, "Wizard");
+                    // Tier 3 actions (60 points) - add when you create them
+                    // ActionAdditionTemplate.AddClassAction(Actor, "TIER3_SPELL", 0.3, 60, wizardPoints, "Wizard");
                     break;
-                // Note: The original code had both cases as Wand, which was likely a bug
-                // This implementation adds both spells for wand users
             }
         }
 

@@ -5,6 +5,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using RPGGame.UI.Avalonia;
+using RPGGame.Utils;
 
 namespace RPGGame
 {
@@ -16,57 +17,77 @@ namespace RPGGame
         [STAThread]
         public static async Task Main(string[] args)
         {
-            // Check if MCP mode is requested
-            if (args.Length > 0 && args[0] == "MCP")
+            // Check if metrics summary is requested
+            if (args.Length > 0 && args[0] == "METRICS")
             {
-                // Run MCP server instead of GUI
-                await RPGGame.MCP.MCPServerProgram.RunMCPServer(args);
+                BuildExecutionMetrics.PrintMetricsSummary();
                 return;
             }
 
-            // Check if interactive play mode is requested
-            if (args.Length > 0 && args[0].Equals("PLAY", StringComparison.OrdinalIgnoreCase))
-            {
-                // Run interactive game player using MCP tools
-                await RPGGame.Game.InteractiveMCPGamePlayer.Main(args);
-                return;
-            }
+            // Start tracking execution time
+            BuildExecutionMetrics.StartExecutionTracking();
+            string executionMode = "GUI";
 
-            // Check if automated demo mode is requested
-            if (args.Length > 0 && args[0].Equals("DEMO", StringComparison.OrdinalIgnoreCase))
+            try
             {
-                // Run automated gameplay demo using MCP tools
-                await RPGGame.Game.AutomatedGameplayDemo.Main(args);
-                return;
-            }
+                // Check if MCP mode is requested
+                if (args.Length > 0 && args[0] == "MCP")
+                {
+                    executionMode = "MCP";
+                    // Run MCP server instead of GUI
+                    await RPGGame.MCP.MCPServerProgram.RunMCPServer(args);
+                    return;
+                }
 
-            // Check if Claude AI mode is requested
-            if (args.Length > 0 && args[0].Equals("CLAUDE", StringComparison.OrdinalIgnoreCase))
+                // Check if interactive play mode is requested
+                if (args.Length > 0 && args[0].Equals("PLAY", StringComparison.OrdinalIgnoreCase))
+                {
+                    executionMode = "PLAY";
+                    // Run interactive game player using MCP tools
+                    await RPGGame.Game.InteractiveMCPGamePlayer.Main(args);
+                    return;
+                }
+
+                // Check if Claude AI mode is requested
+                if (args.Length > 0 && args[0].Equals("CLAUDE", StringComparison.OrdinalIgnoreCase))
+                {
+                    executionMode = "CLAUDE";
+                    // Run Claude AI game player with strategic decisions
+                    await RPGGame.Game.ClaudeAIGamePlayer.Main(args);
+                    return;
+                }
+
+                // Check if tuning mode is requested
+                if (args.Length > 0 && args[0] == "TUNING")
+                {
+                    executionMode = "TUNING";
+                    // Run balance tuning runner
+                    int iterations = args.Length > 1 && int.TryParse(args[1], out int iter) ? iter : 5;
+                    await RPGGame.Tuning.TuningRunner.RunTuning(iterations);
+                    return;
+                }
+
+                // Check if test mode is requested
+                if (args.Length > 0 && args[0] == "TEST")
+                {
+                    executionMode = "TEST";
+                    // Run test battle comparison
+                    await RPGGame.Tests.TestBattleComparison.Main(args);
+                    return;
+                }
+
+                // Launch Avalonia GUI (execution time tracked until app closes)
+                BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+            }
+            finally
             {
-                // Run Claude AI game player with strategic decisions
-                await RPGGame.Game.ClaudeAIGamePlayer.Main(args);
-                return;
+                // Stop tracking execution time (only for non-GUI modes)
+                // GUI mode will track until the application closes
+                if (executionMode != "GUI")
+                {
+                    BuildExecutionMetrics.StopExecutionTracking(executionMode);
+                }
             }
-
-            // Check if tuning mode is requested
-            if (args.Length > 0 && args[0] == "TUNING")
-            {
-                // Run balance tuning runner
-                int iterations = args.Length > 1 && int.TryParse(args[1], out int iter) ? iter : 5;
-                await RPGGame.Tuning.TuningRunner.RunTuning(iterations);
-                return;
-            }
-
-            // Check if test mode is requested
-            if (args.Length > 0 && args[0] == "TEST")
-            {
-                // Run test battle comparison
-                await RPGGame.Tests.TestBattleComparison.Main(args);
-                return;
-            }
-
-            // Launch Avalonia GUI
-            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         }
 
         // Avalonia configuration, don't remove; also used by visual designer.

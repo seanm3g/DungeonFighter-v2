@@ -1,6 +1,9 @@
 # Automated test execution script for PowerShell
 # Runs all unit tests and generates coverage report
 
+# Import build metrics helper
+. (Join-Path $PSScriptRoot "BuildMetrics.ps1")
+
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "  DUNGEON FIGHTER v2 - TEST SUITE" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
@@ -11,8 +14,14 @@ Set-Location (Join-Path $scriptPath "..")
 
 # Build the project first
 Write-Host "Building project..." -ForegroundColor Yellow
+$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
 $buildResult = dotnet build Code/Code.csproj --configuration Debug
-if ($LASTEXITCODE -ne 0) {
+$buildSuccess = ($LASTEXITCODE -eq 0)
+$stopwatch.Stop()
+
+Record-BuildMetric -BuildType "Debug" -BuildTimeMs $stopwatch.ElapsedMilliseconds -BuildTimeSeconds $stopwatch.Elapsed.TotalSeconds -Success $buildSuccess
+
+if (-not $buildSuccess) {
     Write-Host "Build failed!" -ForegroundColor Red
     exit 1
 }
