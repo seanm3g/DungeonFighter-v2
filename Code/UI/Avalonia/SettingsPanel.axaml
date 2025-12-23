@@ -7,6 +7,27 @@
              Background="#FF1A1A1A"
              HorizontalAlignment="Stretch"
              VerticalAlignment="Stretch">
+    <UserControl.Styles>
+        <!-- Style to ensure TextBoxes maintain dark background and white text when focused -->
+        <Style Selector="TextBox">
+            <Setter Property="Background" Value="#FF2A2A2A"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="TextBox:focus">
+            <Setter Property="Background" Value="#FF2A2A2A"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FF0078D4"/>
+        </Style>
+        <Style Selector="TextBox:pointerover">
+            <Setter Property="Background" Value="#FF353535"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="TextBox:pointerover:focus">
+            <Setter Property="Background" Value="#FF2A2A2A"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FF0078D4"/>
+        </Style>
+    </UserControl.Styles>
     <Grid Margin="25"
           HorizontalAlignment="Stretch"
           VerticalAlignment="Stretch">
@@ -1190,6 +1211,872 @@
                     </Border>
                 </Grid>
             </TabItem>
+            
+            <TabItem Header="Text Delays">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                             HorizontalScrollBarVisibility="Disabled">
+                    <Grid Margin="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="12"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <!-- Enable Flags - Top Left -->
+                        <Border Grid.Column="0" Grid.Row="0"
+                                Background="#FF252525" 
+                                BorderBrush="#FF404040" 
+                                BorderThickness="1" 
+                                CornerRadius="6" 
+                                Padding="18">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Delay Enable Flags" 
+                                           FontSize="18" 
+                                           FontWeight="SemiBold" 
+                                           Foreground="#FFD700" 
+                                           Margin="0,0,0,8"/>
+                                
+                                <CheckBox x:Name="EnableGuiDelaysCheckBox" 
+                                          Content="Enable GUI Delays" 
+                                          Foreground="#FFE0E0E0"
+                                          FontSize="15"
+                                          IsChecked="True"/>
+                                
+                                <CheckBox x:Name="EnableConsoleDelaysCheckBox" 
+                                          Content="Enable Console Delays" 
+                                          Foreground="#FFE0E0E0"
+                                          FontSize="15"
+                                          IsChecked="True"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Combat Delays - Top Right -->
+                        <Border Grid.Column="2" Grid.Row="0"
+                                Background="#FF252525" 
+                                BorderBrush="#FF404040" 
+                                BorderThickness="1" 
+                                CornerRadius="6" 
+                                Padding="18">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Combat Delays" 
+                                           FontSize="18" 
+                                           FontWeight="SemiBold" 
+                                           Foreground="#FFD700" 
+                                           Margin="0,0,0,8"/>
+                                
+                                <!-- Action Delay -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="80"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Spacing="8">
+                                        <TextBlock Text="Action Delay (ms):" 
+                                                   Foreground="#FFE0E0E0" 
+                                                   FontSize="15"/>
+                                        <Slider x:Name="ActionDelaySlider" 
+                                                Minimum="0" 
+                                                Maximum="5000" 
+                                                Value="1000"
+                                                TickFrequency="100"
+                                                VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <TextBox x:Name="ActionDelayTextBox" 
+                                             Grid.Column="1" 
+                                             Width="75"
+                                             Height="28"
+                                             Margin="5,0,0,0"
+                                             Background="#FF2A2A2A"
+                                             Foreground="White"
+                                             BorderBrush="#FF555555"
+                                             BorderThickness="1"
+                                             Padding="6,4"
+                                             FontSize="14"
+                                             VerticalAlignment="Center"/>
+                                </Grid>
+                                
+                                <!-- Message Delay -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="80"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Spacing="8">
+                                        <TextBlock Text="Message Delay (ms):" 
+                                                   Foreground="#FFE0E0E0" 
+                                                   FontSize="15"/>
+                                        <Slider x:Name="MessageDelaySlider" 
+                                                Minimum="0" 
+                                                Maximum="2000" 
+                                                Value="200"
+                                                TickFrequency="50"
+                                                VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <TextBox x:Name="MessageDelayTextBox" 
+                                             Grid.Column="1" 
+                                             Width="75"
+                                             Height="28"
+                                             Margin="5,0,0,0"
+                                             Background="#FF2A2A2A"
+                                             Foreground="White"
+                                             BorderBrush="#FF555555"
+                                             BorderThickness="1"
+                                             Padding="6,4"
+                                             FontSize="14"
+                                             VerticalAlignment="Center"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Message Type Delays - Bottom Left -->
+                        <Border Grid.Column="0" Grid.Row="2"
+                                Background="#FF252525" 
+                                BorderBrush="#FF404040" 
+                                BorderThickness="1" 
+                                CornerRadius="6" 
+                                Padding="18">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Message Type Delays (ms)" 
+                                           FontSize="18" 
+                                           FontWeight="SemiBold" 
+                                           Foreground="#FFD700" 
+                                           Margin="0,0,0,8"/>
+                                
+                                <!-- Combat -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="80"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" 
+                                               Text="Combat:" 
+                                               Foreground="#FFE0E0E0" 
+                                               FontSize="14"
+                                               VerticalAlignment="Center"/>
+                                    <TextBox x:Name="CombatDelayTextBox" 
+                                             Grid.Column="1" 
+                                             Width="75"
+                                             Height="28"
+                                             HorizontalAlignment="Right"
+                                             Background="#FF2A2A2A"
+                                             Foreground="White"
+                                             BorderBrush="#FF555555"
+                                             BorderThickness="1"
+                                             Padding="6,4"
+                                             FontSize="14"/>
+                                </Grid>
+                                
+                                <!-- System -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="80"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" 
+                                               Text="System:" 
+                                               Foreground="#FFE0E0E0" 
+                                               FontSize="14"
+                                               VerticalAlignment="Center"/>
+                                    <TextBox x:Name="SystemDelayTextBox" 
+                                             Grid.Column="1" 
+                                             Width="75"
+                                             Height="28"
+                                             HorizontalAlignment="Right"
+                                             Background="#FF2A2A2A"
+                                             Foreground="White"
+                                             BorderBrush="#FF555555"
+                                             BorderThickness="1"
+                                             Padding="6,4"
+                                             FontSize="14"/>
+                                </Grid>
+                                
+                                <!-- Menu -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="80"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" 
+                                               Text="Menu:" 
+                                               Foreground="#FFE0E0E0" 
+                                               FontSize="14"
+                                               VerticalAlignment="Center"/>
+                                    <TextBox x:Name="MenuDelayTextBox" 
+                                             Grid.Column="1" 
+                                             Width="75"
+                                             Height="28"
+                                             HorizontalAlignment="Right"
+                                             Background="#FF2A2A2A"
+                                             Foreground="White"
+                                             BorderBrush="#FF555555"
+                                             BorderThickness="1"
+                                             Padding="6,4"
+                                             FontSize="14"/>
+                                </Grid>
+                                
+                                <!-- Title -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="80"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" 
+                                               Text="Title:" 
+                                               Foreground="#FFE0E0E0" 
+                                               FontSize="14"
+                                               VerticalAlignment="Center"/>
+                                    <TextBox x:Name="TitleDelayTextBox" 
+                                             Grid.Column="1" 
+                                             Width="75"
+                                             Height="28"
+                                             HorizontalAlignment="Right"
+                                             Background="#FF2A2A2A"
+                                             Foreground="White"
+                                             BorderBrush="#FF555555"
+                                             BorderThickness="1"
+                                             Padding="6,4"
+                                             FontSize="14"/>
+                                </Grid>
+                                
+                                <!-- MainTitle -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="80"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" 
+                                               Text="Main Title:" 
+                                               Foreground="#FFE0E0E0" 
+                                               FontSize="14"
+                                               VerticalAlignment="Center"/>
+                                    <TextBox x:Name="MainTitleDelayTextBox" 
+                                             Grid.Column="1" 
+                                             Width="75"
+                                             Height="28"
+                                             HorizontalAlignment="Right"
+                                             Background="#FF2A2A2A"
+                                             Foreground="White"
+                                             BorderBrush="#FF555555"
+                                             BorderThickness="1"
+                                             Padding="6,4"
+                                             FontSize="14"/>
+                                </Grid>
+                                
+                                <!-- Environmental -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="80"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" 
+                                               Text="Environmental:" 
+                                               Foreground="#FFE0E0E0" 
+                                               FontSize="14"
+                                               VerticalAlignment="Center"/>
+                                    <TextBox x:Name="EnvironmentalDelayTextBox" 
+                                             Grid.Column="1" 
+                                             Width="75"
+                                             Height="28"
+                                             HorizontalAlignment="Right"
+                                             Background="#FF2A2A2A"
+                                             Foreground="White"
+                                             BorderBrush="#FF555555"
+                                             BorderThickness="1"
+                                             Padding="6,4"
+                                             FontSize="14"/>
+                                </Grid>
+                                
+                                <!-- EffectMessage -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="80"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" 
+                                               Text="Effect Message:" 
+                                               Foreground="#FFE0E0E0" 
+                                               FontSize="14"
+                                               VerticalAlignment="Center"/>
+                                    <TextBox x:Name="EffectMessageDelayTextBox" 
+                                             Grid.Column="1" 
+                                             Width="75"
+                                             Height="28"
+                                             HorizontalAlignment="Right"
+                                             Background="#FF2A2A2A"
+                                             Foreground="White"
+                                             BorderBrush="#FF555555"
+                                             BorderThickness="1"
+                                             Padding="6,4"
+                                             FontSize="14"/>
+                                </Grid>
+                                
+                                <!-- DamageOverTime -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="80"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" 
+                                               Text="Damage Over Time:" 
+                                               Foreground="#FFE0E0E0" 
+                                               FontSize="14"
+                                               VerticalAlignment="Center"/>
+                                    <TextBox x:Name="DamageOverTimeDelayTextBox" 
+                                             Grid.Column="1" 
+                                             Width="75"
+                                             Height="28"
+                                             HorizontalAlignment="Right"
+                                             Background="#FF2A2A2A"
+                                             Foreground="White"
+                                             BorderBrush="#FF555555"
+                                             BorderThickness="1"
+                                             Padding="6,4"
+                                             FontSize="14"/>
+                                </Grid>
+                                
+                                <!-- Encounter -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="80"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" 
+                                               Text="Encounter:" 
+                                               Foreground="#FFE0E0E0" 
+                                               FontSize="14"
+                                               VerticalAlignment="Center"/>
+                                    <TextBox x:Name="EncounterDelayTextBox" 
+                                             Grid.Column="1" 
+                                             Width="75"
+                                             Height="28"
+                                             HorizontalAlignment="Right"
+                                             Background="#FF2A2A2A"
+                                             Foreground="White"
+                                             BorderBrush="#FF555555"
+                                             BorderThickness="1"
+                                             Padding="6,4"
+                                             FontSize="14"/>
+                                </Grid>
+                                
+                                <!-- RollInfo -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="80"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" 
+                                               Text="Roll Info:" 
+                                               Foreground="#FFE0E0E0" 
+                                               FontSize="14"
+                                               VerticalAlignment="Center"/>
+                                    <TextBox x:Name="RollInfoDelayTextBox" 
+                                             Grid.Column="1" 
+                                             Width="75"
+                                             Height="28"
+                                             HorizontalAlignment="Right"
+                                             Background="#FF2A2A2A"
+                                             Foreground="White"
+                                             BorderBrush="#FF555555"
+                                             BorderThickness="1"
+                                             Padding="6,4"
+                                             FontSize="14"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Progressive Menu Delays & Chunked Text Reveal - Bottom Right -->
+                        <Border Grid.Column="2" Grid.Row="2"
+                                Background="#FF252525" 
+                                BorderBrush="#FF404040" 
+                                BorderThickness="1" 
+                                CornerRadius="6" 
+                                Padding="18">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                         HorizontalScrollBarVisibility="Disabled"
+                                         MaxHeight="600">
+                                <StackPanel Spacing="18">
+                                    <!-- Progressive Menu Delays -->
+                                    <StackPanel Spacing="12">
+                                        <TextBlock Text="Progressive Menu Delays" 
+                                                   FontSize="18" 
+                                                   FontWeight="SemiBold" 
+                                                   Foreground="#FFD700" 
+                                                   Margin="0,0,0,8"/>
+                                        
+                                        <!-- Base Menu Delay -->
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="80"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" 
+                                                       Text="Base Menu Delay (ms):" 
+                                                       Foreground="#FFE0E0E0" 
+                                                       FontSize="14"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBox x:Name="BaseMenuDelayTextBox" 
+                                                     Grid.Column="1" 
+                                                     Width="75"
+                                                     Height="28"
+                                                     HorizontalAlignment="Right"
+                                                     Background="#FF2A2A2A"
+                                                     Foreground="White"
+                                                     BorderBrush="#FF555555"
+                                                     BorderThickness="1"
+                                                     Padding="6,4"
+                                                     FontSize="14"/>
+                                        </Grid>
+                                        
+                                        <!-- Progressive Reduction Rate -->
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="80"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" 
+                                                       Text="Progressive Reduction Rate:" 
+                                                       Foreground="#FFE0E0E0" 
+                                                       FontSize="14"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBox x:Name="ProgressiveReductionRateTextBox" 
+                                                     Grid.Column="1" 
+                                                     Width="75"
+                                                     Height="28"
+                                                     HorizontalAlignment="Right"
+                                                     Background="#FF2A2A2A"
+                                                     Foreground="White"
+                                                     BorderBrush="#FF555555"
+                                                     BorderThickness="1"
+                                                     Padding="6,4"
+                                                     FontSize="14"/>
+                                        </Grid>
+                                        
+                                        <!-- Progressive Threshold -->
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="80"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" 
+                                                       Text="Progressive Threshold:" 
+                                                       Foreground="#FFE0E0E0" 
+                                                       FontSize="14"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBox x:Name="ProgressiveThresholdTextBox" 
+                                                     Grid.Column="1" 
+                                                     Width="75"
+                                                     Height="28"
+                                                     HorizontalAlignment="Right"
+                                                     Background="#FF2A2A2A"
+                                                     Foreground="White"
+                                                     BorderBrush="#FF555555"
+                                                     BorderThickness="1"
+                                                     Padding="6,4"
+                                                     FontSize="14"/>
+                                        </Grid>
+                                    </StackPanel>
+                                    
+                                    <Separator Background="#FF555555" Margin="0,8,0,8"/>
+                                    
+                                    <!-- Chunked Text Reveal Presets -->
+                                    <StackPanel Spacing="12">
+                                        <TextBlock Text="Chunked Text Reveal Presets" 
+                                                   FontSize="18" 
+                                                   FontWeight="SemiBold" 
+                                                   Foreground="#FFD700" 
+                                                   Margin="0,0,0,8"/>
+                                        
+                                        <!-- Combat Preset -->
+                                        <Expander Header="Combat Preset" 
+                                                IsExpanded="False"
+                                                Foreground="#FFD700"
+                                                FontSize="15"
+                                                FontWeight="SemiBold">
+                                            <StackPanel Spacing="8" Margin="10,6,0,0">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" 
+                                                               Text="Base Delay Per Char (ms):" 
+                                                               Foreground="#FFE0E0E0" 
+                                                               FontSize="13"
+                                                               VerticalAlignment="Center"/>
+                                                    <TextBox x:Name="CombatPresetBaseDelayTextBox" 
+                                                             Grid.Column="1" 
+                                                             Width="75"
+                                                             Height="26"
+                                                             HorizontalAlignment="Right"
+                                                             Background="#FF2A2A2A"
+                                                             Foreground="White"
+                                                             BorderBrush="#FF555555"
+                                                             BorderThickness="1"
+                                                             Padding="6,4"
+                                                             FontSize="13"/>
+                                                </Grid>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" 
+                                                               Text="Min Delay (ms):" 
+                                                               Foreground="#FFE0E0E0" 
+                                                               FontSize="13"
+                                                               VerticalAlignment="Center"/>
+                                                    <TextBox x:Name="CombatPresetMinDelayTextBox" 
+                                                             Grid.Column="1" 
+                                                             Width="75"
+                                                             Height="26"
+                                                             HorizontalAlignment="Right"
+                                                             Background="#FF2A2A2A"
+                                                             Foreground="White"
+                                                             BorderBrush="#FF555555"
+                                                             BorderThickness="1"
+                                                             Padding="6,4"
+                                                             FontSize="13"/>
+                                                </Grid>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" 
+                                                               Text="Max Delay (ms):" 
+                                                               Foreground="#FFE0E0E0" 
+                                                               FontSize="13"
+                                                               VerticalAlignment="Center"/>
+                                                    <TextBox x:Name="CombatPresetMaxDelayTextBox" 
+                                                             Grid.Column="1" 
+                                                             Width="75"
+                                                             Height="26"
+                                                             HorizontalAlignment="Right"
+                                                             Background="#FF2A2A2A"
+                                                             Foreground="White"
+                                                             BorderBrush="#FF555555"
+                                                             BorderThickness="1"
+                                                             Padding="6,4"
+                                                             FontSize="13"/>
+                                                </Grid>
+                                            </StackPanel>
+                                        </Expander>
+                                        
+                                        <!-- Dungeon Preset -->
+                                        <Expander Header="Dungeon Preset" 
+                                                IsExpanded="False"
+                                                Foreground="#FFD700"
+                                                FontSize="15"
+                                                FontWeight="SemiBold">
+                                            <StackPanel Spacing="8" Margin="10,6,0,0">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" 
+                                                               Text="Base Delay Per Char (ms):" 
+                                                               Foreground="#FFE0E0E0" 
+                                                               FontSize="13"
+                                                               VerticalAlignment="Center"/>
+                                                    <TextBox x:Name="DungeonPresetBaseDelayTextBox" 
+                                                             Grid.Column="1" 
+                                                             Width="75"
+                                                             Height="26"
+                                                             HorizontalAlignment="Right"
+                                                             Background="#FF2A2A2A"
+                                                             Foreground="White"
+                                                             BorderBrush="#FF555555"
+                                                             BorderThickness="1"
+                                                             Padding="6,4"
+                                                             FontSize="13"/>
+                                                </Grid>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" 
+                                                               Text="Min Delay (ms):" 
+                                                               Foreground="#FFE0E0E0" 
+                                                               FontSize="13"
+                                                               VerticalAlignment="Center"/>
+                                                    <TextBox x:Name="DungeonPresetMinDelayTextBox" 
+                                                             Grid.Column="1" 
+                                                             Width="75"
+                                                             Height="26"
+                                                             HorizontalAlignment="Right"
+                                                             Background="#FF2A2A2A"
+                                                             Foreground="White"
+                                                             BorderBrush="#FF555555"
+                                                             BorderThickness="1"
+                                                             Padding="6,4"
+                                                             FontSize="13"/>
+                                                </Grid>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" 
+                                                               Text="Max Delay (ms):" 
+                                                               Foreground="#FFE0E0E0" 
+                                                               FontSize="13"
+                                                               VerticalAlignment="Center"/>
+                                                    <TextBox x:Name="DungeonPresetMaxDelayTextBox" 
+                                                             Grid.Column="1" 
+                                                             Width="75"
+                                                             Height="26"
+                                                             HorizontalAlignment="Right"
+                                                             Background="#FF2A2A2A"
+                                                             Foreground="White"
+                                                             BorderBrush="#FF555555"
+                                                             BorderThickness="1"
+                                                             Padding="6,4"
+                                                             FontSize="13"/>
+                                                </Grid>
+                                            </StackPanel>
+                                        </Expander>
+                                        
+                                        <!-- Room Preset -->
+                                        <Expander Header="Room Preset" 
+                                                IsExpanded="False"
+                                                Foreground="#FFD700"
+                                                FontSize="15"
+                                                FontWeight="SemiBold">
+                                            <StackPanel Spacing="8" Margin="10,6,0,0">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" 
+                                                               Text="Base Delay Per Char (ms):" 
+                                                               Foreground="#FFE0E0E0" 
+                                                               FontSize="13"
+                                                               VerticalAlignment="Center"/>
+                                                    <TextBox x:Name="RoomPresetBaseDelayTextBox" 
+                                                             Grid.Column="1" 
+                                                             Width="75"
+                                                             Height="26"
+                                                             HorizontalAlignment="Right"
+                                                             Background="#FF2A2A2A"
+                                                             Foreground="White"
+                                                             BorderBrush="#FF555555"
+                                                             BorderThickness="1"
+                                                             Padding="6,4"
+                                                             FontSize="13"/>
+                                                </Grid>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" 
+                                                               Text="Min Delay (ms):" 
+                                                               Foreground="#FFE0E0E0" 
+                                                               FontSize="13"
+                                                               VerticalAlignment="Center"/>
+                                                    <TextBox x:Name="RoomPresetMinDelayTextBox" 
+                                                             Grid.Column="1" 
+                                                             Width="75"
+                                                             Height="26"
+                                                             HorizontalAlignment="Right"
+                                                             Background="#FF2A2A2A"
+                                                             Foreground="White"
+                                                             BorderBrush="#FF555555"
+                                                             BorderThickness="1"
+                                                             Padding="6,4"
+                                                             FontSize="13"/>
+                                                </Grid>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" 
+                                                               Text="Max Delay (ms):" 
+                                                               Foreground="#FFE0E0E0" 
+                                                               FontSize="13"
+                                                               VerticalAlignment="Center"/>
+                                                    <TextBox x:Name="RoomPresetMaxDelayTextBox" 
+                                                             Grid.Column="1" 
+                                                             Width="75"
+                                                             Height="26"
+                                                             HorizontalAlignment="Right"
+                                                             Background="#FF2A2A2A"
+                                                             Foreground="White"
+                                                             BorderBrush="#FF555555"
+                                                             BorderThickness="1"
+                                                             Padding="6,4"
+                                                             FontSize="13"/>
+                                                </Grid>
+                                            </StackPanel>
+                                        </Expander>
+                                        
+                                        <!-- Narrative Preset -->
+                                        <Expander Header="Narrative Preset" 
+                                                IsExpanded="False"
+                                                Foreground="#FFD700"
+                                                FontSize="15"
+                                                FontWeight="SemiBold">
+                                            <StackPanel Spacing="8" Margin="10,6,0,0">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" 
+                                                               Text="Base Delay Per Char (ms):" 
+                                                               Foreground="#FFE0E0E0" 
+                                                               FontSize="13"
+                                                               VerticalAlignment="Center"/>
+                                                    <TextBox x:Name="NarrativePresetBaseDelayTextBox" 
+                                                             Grid.Column="1" 
+                                                             Width="75"
+                                                             Height="26"
+                                                             HorizontalAlignment="Right"
+                                                             Background="#FF2A2A2A"
+                                                             Foreground="White"
+                                                             BorderBrush="#FF555555"
+                                                             BorderThickness="1"
+                                                             Padding="6,4"
+                                                             FontSize="13"/>
+                                                </Grid>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" 
+                                                               Text="Min Delay (ms):" 
+                                                               Foreground="#FFE0E0E0" 
+                                                               FontSize="13"
+                                                               VerticalAlignment="Center"/>
+                                                    <TextBox x:Name="NarrativePresetMinDelayTextBox" 
+                                                             Grid.Column="1" 
+                                                             Width="75"
+                                                             Height="26"
+                                                             HorizontalAlignment="Right"
+                                                             Background="#FF2A2A2A"
+                                                             Foreground="White"
+                                                             BorderBrush="#FF555555"
+                                                             BorderThickness="1"
+                                                             Padding="6,4"
+                                                             FontSize="13"/>
+                                                </Grid>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" 
+                                                               Text="Max Delay (ms):" 
+                                                               Foreground="#FFE0E0E0" 
+                                                               FontSize="13"
+                                                               VerticalAlignment="Center"/>
+                                                    <TextBox x:Name="NarrativePresetMaxDelayTextBox" 
+                                                             Grid.Column="1" 
+                                                             Width="75"
+                                                             Height="26"
+                                                             HorizontalAlignment="Right"
+                                                             Background="#FF2A2A2A"
+                                                             Foreground="White"
+                                                             BorderBrush="#FF555555"
+                                                             BorderThickness="1"
+                                                             Padding="6,4"
+                                                             FontSize="13"/>
+                                                </Grid>
+                                            </StackPanel>
+                                        </Expander>
+                                        
+                                        <!-- Default Preset -->
+                                        <Expander Header="Default Preset" 
+                                                IsExpanded="False"
+                                                Foreground="#FFD700"
+                                                FontSize="15"
+                                                FontWeight="SemiBold">
+                                            <StackPanel Spacing="8" Margin="10,6,0,0">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" 
+                                                               Text="Base Delay Per Char (ms):" 
+                                                               Foreground="#FFE0E0E0" 
+                                                               FontSize="13"
+                                                               VerticalAlignment="Center"/>
+                                                    <TextBox x:Name="DefaultPresetBaseDelayTextBox" 
+                                                             Grid.Column="1" 
+                                                             Width="75"
+                                                             Height="26"
+                                                             HorizontalAlignment="Right"
+                                                             Background="#FF2A2A2A"
+                                                             Foreground="White"
+                                                             BorderBrush="#FF555555"
+                                                             BorderThickness="1"
+                                                             Padding="6,4"
+                                                             FontSize="13"/>
+                                                </Grid>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" 
+                                                               Text="Min Delay (ms):" 
+                                                               Foreground="#FFE0E0E0" 
+                                                               FontSize="13"
+                                                               VerticalAlignment="Center"/>
+                                                    <TextBox x:Name="DefaultPresetMinDelayTextBox" 
+                                                             Grid.Column="1" 
+                                                             Width="75"
+                                                             Height="26"
+                                                             HorizontalAlignment="Right"
+                                                             Background="#FF2A2A2A"
+                                                             Foreground="White"
+                                                             BorderBrush="#FF555555"
+                                                             BorderThickness="1"
+                                                             Padding="6,4"
+                                                             FontSize="13"/>
+                                                </Grid>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" 
+                                                               Text="Max Delay (ms):" 
+                                                               Foreground="#FFE0E0E0" 
+                                                               FontSize="13"
+                                                               VerticalAlignment="Center"/>
+                                                    <TextBox x:Name="DefaultPresetMaxDelayTextBox" 
+                                                             Grid.Column="1" 
+                                                             Width="75"
+                                                             Height="26"
+                                                             HorizontalAlignment="Right"
+                                                             Background="#FF2A2A2A"
+                                                             Foreground="White"
+                                                             BorderBrush="#FF555555"
+                                                             BorderThickness="1"
+                                                             Padding="6,4"
+                                                             FontSize="13"/>
+                                                </Grid>
+                                            </StackPanel>
+                                        </Expander>
+                                    </StackPanel>
+                                </StackPanel>
+                            </ScrollViewer>
+                            </Border>
+                        </Grid>
+                    </ScrollViewer>
+                </TabItem>
             
             <TabItem Header="About">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"

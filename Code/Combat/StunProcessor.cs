@@ -20,19 +20,13 @@ namespace RPGGame
         {
             if (!CombatManager.DisableCombatUIOutput)
             {
-                // Add blank line before stun message to separate it from status effect application message
-                UIManager.WriteBlankLine();
-                
                 // Use the new block-based system for stun messages with ColoredText
+                // Spacing is handled by TextSpacingSystem in DisplayEffectBlock
                 // Build properly colored stun message with actor name and stunned template
                 var builder = new ColoredTextBuilder();
                 
-                // Add opening bracket
-                builder.Add("[", Colors.White);
-                // Add actor name with appropriate color
+                // Add actor name with appropriate color (no brackets)
                 builder.Add(entity.Name, entity is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
-                // Add closing bracket
-                builder.Add("]", Colors.White);
                 // Add "is" with space
                 builder.AddSpace();
                 builder.Add("is", Colors.White);

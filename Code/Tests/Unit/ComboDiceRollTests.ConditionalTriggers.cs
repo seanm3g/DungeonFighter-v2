@@ -174,11 +174,7 @@ namespace RPGGame.Tests.Unit
         private static Character CreateTestCharacter()
         {
             var character = new Character("TestHero", 1);
-            var basicAttack = ActionFactory.GetBasicAttack(character);
-            if (basicAttack != null)
-            {
-                character.AddAction(basicAttack, 1.0);
-            }
+            // BASIC ATTACK has been removed from the game
             return character;
         }
     }

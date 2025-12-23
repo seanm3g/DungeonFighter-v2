@@ -193,6 +193,8 @@ namespace RPGGame.UI.Avalonia
             => screenRenderingCoordinator.RenderItemSelectionPrompt(character, inventory, promptMessage, actionType);
         public void RenderSlotSelectionPrompt(Character character) 
             => screenRenderingCoordinator.RenderSlotSelectionPrompt(character);
+        public void RenderRaritySelectionPrompt(Character character, List<System.Linq.IGrouping<string, Item>> rarityGroups) 
+            => screenRenderingCoordinator.RenderRaritySelectionPrompt(character, rarityGroups);
         public void RenderItemComparison(Character character, Item newItem, Item? currentItem, string slot) 
             => screenRenderingCoordinator.RenderItemComparison(character, newItem, currentItem, slot);
         public void RenderComboManagement(Character character) 
@@ -289,8 +291,8 @@ namespace RPGGame.UI.Avalonia
             => screenRenderingCoordinator.RenderCombatResult(playerSurvived, player, enemy, battleNarrative, dungeonName, roomName);
         public void RenderRoomCompletion(Environment room, Character player, string? dungeonName = null) 
             => screenRenderingCoordinator.RenderRoomCompletion(room, player, dungeonName);
-        public void RenderDungeonCompletion(Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos) 
-            => screenRenderingCoordinator.RenderDungeonCompletion(dungeon, player, xpGained, lootReceived, levelUpInfos);
+        public void RenderDungeonCompletion(Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos, List<Item> itemsFoundDuringRun) 
+            => screenRenderingCoordinator.RenderDungeonCompletion(dungeon, player, xpGained, lootReceived, levelUpInfos, itemsFoundDuringRun);
         public void RenderDeathScreen(Character player, string defeatSummary) 
             => screenRenderingCoordinator.RenderDeathScreen(player, defeatSummary);
         public void RenderDungeonExploration(Character player, string currentLocation, List<string> availableActions, List<string> recentEvents) 

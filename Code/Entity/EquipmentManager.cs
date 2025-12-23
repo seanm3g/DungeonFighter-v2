@@ -111,9 +111,7 @@ namespace RPGGame
                 }
             }
 
-            // CRITICAL: Ensure BASIC ATTACK is always available after equipment changes
-            // This prevents the issue where rolls 6-13 can't find BASIC ATTACK
-            _character.Actions.EnsureBasicAttackAvailable(_character);
+            // Removed: BASIC ATTACK is no longer used in the game
 
             // Update combo sequence after equipment change
             _character.Actions.UpdateComboSequenceAfterGearChange(_character);

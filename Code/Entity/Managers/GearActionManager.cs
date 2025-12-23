@@ -150,6 +150,7 @@ namespace RPGGame
 
         /// <summary>
         /// Gets list of action names that should be added for given gear
+        /// Returns the GearAction if it exists, plus all ActionBonuses
         /// </summary>
         public List<string> GetGearActions(Item gear)
         {
@@ -157,41 +158,25 @@ namespace RPGGame
             
             if (gear == null) return actions;
 
-            // Check for GearAction property first (highest priority)
+            // Add the specific GearAction assigned to this item
             if (!string.IsNullOrEmpty(gear.GearAction))
             {
                 actions.Add(gear.GearAction);
                 DebugLogger.LogFormat("GearActionManager", 
                     "Found GearAction '{0}' on item '{1}'", gear.GearAction, gear.Name);
             }
-            else
-            {
-                DebugLogger.LogFormat("GearActionManager", 
-                    "No GearAction found on item '{0}'", gear.Name);
-            }
 
-            if (gear is WeaponItem weapon)
-            {
-                actions.AddRange(GetWeaponTypeActions(weapon.WeaponType));
-            }
-
+            // Add action bonuses from gear (these are shown in item descriptions and should be available)
             if (gear.ActionBonuses != null)
             {
                 foreach (var actionBonus in gear.ActionBonuses)
                 {
-                    if (!string.IsNullOrEmpty(actionBonus.Name) && !actions.Contains(actionBonus.Name))
+                    if (!string.IsNullOrEmpty(actionBonus.Name))
                     {
                         actions.Add(actionBonus.Name);
+                        DebugLogger.LogFormat("GearActionManager", 
+                            "Found ActionBonus '{0}' on item '{1}'", actionBonus.Name, gear.Name);
                     }
-                }
-            }
-
-            if (HasSpecialArmorActions(gear))
-            {
-                var specialAction = GetRandomArmorActionName();
-                if (!string.IsNullOrEmpty(specialAction) && !actions.Contains(specialAction))
-                {
-                    actions.Add(specialAction);
                 }
             }
 
@@ -217,12 +202,8 @@ namespace RPGGame
                 .Select(action => action.Name)
                 .ToList();
 
-            // Fallback to BASIC ATTACK if no weapon-specific actions found
-            if (weaponActions.Count == 0)
-            {
-                return new List<string> { "BASIC ATTACK" };
-            }
-
+            // No fallback - return empty list if no actions found
+            // This ensures we don't add BASIC ATTACK
             return weaponActions;
         }
 

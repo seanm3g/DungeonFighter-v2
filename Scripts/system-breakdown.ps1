@@ -63,42 +63,65 @@ $systemFiles = Get-ChildItem -Path Code -Filter *.cs -Recurse |
 $systemStats = $systemFiles |
     Group-Object -Property System | 
     ForEach-Object {
-        $systemLines = ($_.Group | Measure-Object -Property Lines -Sum).Sum
-        $systemFiles = ($_.Group | Measure-Object).Count
-        $systemClasses = ($_.Group | Measure-Object -Property Classes -Sum).Sum
-        $systemMethods = ($_.Group | Measure-Object -Property Methods -Sum).Sum
-        $avgLines = if ($systemFiles -gt 0) { [math]::Round($systemLines / $systemFiles, 1) } else { 0 }
-        
-        [PSCustomObject]@{
-            System = $_.Name
-            Files = $systemFiles
-            Lines = $systemLines
-            Classes = $systemClasses
-            Methods = $systemMethods
-            AvgLinesPerFile = $avgLines
+        if ($_.Group -and $_.Group.Count -gt 0) {
+            $systemLines = ($_.Group | Measure-Object -Property Lines -Sum -ErrorAction SilentlyContinue).Sum
+            $systemFiles = ($_.Group | Measure-Object -ErrorAction SilentlyContinue).Count
+            $systemClasses = ($_.Group | Measure-Object -Property Classes -Sum -ErrorAction SilentlyContinue).Sum
+            $systemMethods = ($_.Group | Measure-Object -Property Methods -Sum -ErrorAction SilentlyContinue).Sum
+            
+            # Handle null values
+            $systemLines = if ($null -eq $systemLines) { 0 } else { $systemLines }
+            $systemFiles = if ($null -eq $systemFiles) { 0 } else { $systemFiles }
+            $systemClasses = if ($null -eq $systemClasses) { 0 } else { $systemClasses }
+            $systemMethods = if ($null -eq $systemMethods) { 0 } else { $systemMethods }
+            
+            $avgLines = if ($systemFiles -gt 0) { [math]::Round($systemLines / $systemFiles, 1) } else { 0 }
+            
+            [PSCustomObject]@{
+                System = $_.Name
+                Files = $systemFiles
+                Lines = $systemLines
+                Classes = $systemClasses
+                Methods = $systemMethods
+                AvgLinesPerFile = $avgLines
+            }
         }
-    } | Sort-Object Lines -Descending
+    } | Where-Object { $null -ne $_ } | Sort-Object Lines -Descending
+
+# Check if we have any files
+if ($null -eq $systemFiles -or $systemFiles.Count -eq 0) {
+    Write-Warning "No files found to analyze. Check your filters and paths."
+    exit
+}
 
 # Subfolder breakdown for each system
 $subfolderStats = $systemFiles |
     Group-Object -Property System, Subfolder | 
     ForEach-Object {
-        $subfolderLines = ($_.Group | Measure-Object -Property Lines -Sum).Sum
-        $subfolderFiles = ($_.Group | Measure-Object).Count
-        $parts = $_.Name -split ', '
-        [PSCustomObject]@{
-            System = $parts[0]
-            Subfolder = $parts[1]
-            Files = $subfolderFiles
-            Lines = $subfolderLines
+        if ($_.Group -and $_.Group.Count -gt 0) {
+            $subfolderLines = ($_.Group | Measure-Object -Property Lines -Sum -ErrorAction SilentlyContinue).Sum
+            $subfolderFiles = ($_.Group | Measure-Object -ErrorAction SilentlyContinue).Count
+            $parts = $_.Name -split ', '
+            [PSCustomObject]@{
+                System = $parts[0]
+                Subfolder = $parts[1]
+                Files = $subfolderFiles
+                Lines = if ($null -eq $subfolderLines) { 0 } else { $subfolderLines }
+            }
         }
-    } | Sort-Object System, Lines -Descending
+    } | Where-Object { $null -ne $_ } | Sort-Object System, Lines -Descending
 
 # Total statistics
-$totalLines = ($systemFiles | Measure-Object -Property Lines -Sum).Sum
-$totalFiles = ($systemFiles | Measure-Object).Count
-$totalClasses = ($systemFiles | Measure-Object -Property Classes -Sum).Sum
-$totalMethods = ($systemFiles | Measure-Object -Property Methods -Sum).Sum
+$totalLines = ($systemFiles | Measure-Object -Property Lines -Sum -ErrorAction SilentlyContinue).Sum
+$totalFiles = ($systemFiles | Measure-Object -ErrorAction SilentlyContinue).Count
+$totalClasses = ($systemFiles | Measure-Object -Property Classes -Sum -ErrorAction SilentlyContinue).Sum
+$totalMethods = ($systemFiles | Measure-Object -Property Methods -Sum -ErrorAction SilentlyContinue).Sum
+
+# Handle null values
+$totalLines = if ($null -eq $totalLines) { 0 } else { $totalLines }
+$totalFiles = if ($null -eq $totalFiles) { 0 } else { $totalFiles }
+$totalClasses = if ($null -eq $totalClasses) { 0 } else { $totalClasses }
+$totalMethods = if ($null -eq $totalMethods) { 0 } else { $totalMethods }
 
 # Output
 Write-Host "=== Overall Statistics ===" -ForegroundColor Yellow

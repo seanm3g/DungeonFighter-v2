@@ -23,6 +23,9 @@ namespace RPGGame.Handlers.Inventory
         public bool WaitingForComboReorderInput { get; set; } = false;
         public string ReorderInputSequence { get; set; } = "";
         
+        // Trade-up state
+        public bool WaitingForRaritySelection { get; set; } = false;
+        
         /// <summary>
         /// Resets all item action states
         /// </summary>
@@ -31,6 +34,7 @@ namespace RPGGame.Handlers.Inventory
             WaitingForItemSelection = false;
             WaitingForSlotSelection = false;
             WaitingForComparisonChoice = false;
+            WaitingForRaritySelection = false;
             ItemSelectionAction = "";
             SelectedItemIndex = -1;
             SelectedSlot = "";
@@ -53,7 +57,7 @@ namespace RPGGame.Handlers.Inventory
         /// </summary>
         public bool IsAnySelectionActive()
         {
-            return WaitingForItemSelection || WaitingForSlotSelection || WaitingForComparisonChoice;
+            return WaitingForItemSelection || WaitingForSlotSelection || WaitingForComparisonChoice || WaitingForRaritySelection;
         }
         
         /// <summary>

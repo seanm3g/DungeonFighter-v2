@@ -64,11 +64,17 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel)
         {
+            // Clear canvas first to ensure clean main menu display (especially when transitioning from death screen)
+            canvas.Clear();
+            
             // Use persistent layout with no character (null) to show blank panels
             RenderWithLayout(null, "MAIN MENU", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 menuRenderer.RenderMainMenuContent(contentX, contentY, contentWidth, contentHeight, hasSavedGame, characterName, characterLevel);
             }, new CanvasContext());
+            
+            // Force immediate refresh to display the main menu
+            canvas.Refresh();
         }
 
         public void RenderInventory(Character character, List<Item> inventory, CanvasContext context)
@@ -93,6 +99,14 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderSlotSelectionPrompt(contentX, contentY, contentWidth, contentHeight, character);
+            }, context);
+        }
+        
+        public void RenderRaritySelectionPrompt(Character character, List<System.Linq.IGrouping<string, Item>> rarityGroups, CanvasContext context)
+        {
+            RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
+            {
+                inventoryRenderer.RenderRaritySelectionPrompt(contentX, contentY, contentWidth, contentHeight, character, rarityGroups);
             }, context);
         }
 
@@ -340,11 +354,11 @@ namespace RPGGame.UI.Avalonia.Renderers
             }, context);
         }
 
-        public void RenderDungeonCompletion(Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos, CanvasContext context)
+        public void RenderDungeonCompletion(Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos, List<Item> itemsFoundDuringRun, CanvasContext context)
         {
             RenderWithLayout(player, $"DUNGEON COMPLETED: {dungeon.Name.ToUpper()}", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                dungeonRenderer.RenderDungeonCompletion(contentX, contentY, contentWidth, contentHeight, dungeon, player, xpGained, lootReceived, levelUpInfos ?? new List<LevelUpInfo>());
+                dungeonRenderer.RenderDungeonCompletion(contentX, contentY, contentWidth, contentHeight, dungeon, player, xpGained, lootReceived, levelUpInfos ?? new List<LevelUpInfo>(), itemsFoundDuringRun ?? new List<Item>(), context.DungeonContext);
             }, context);
         }
 

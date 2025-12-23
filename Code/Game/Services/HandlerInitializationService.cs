@@ -60,7 +60,7 @@ namespace RPGGame.Game.Services
             System.Action<string> showMessage,
             System.Action exitGame,
             Func<Task> showDungeonSelection,
-            System.Action<int, Item?, List<LevelUpInfo>> showDungeonCompletion,
+            System.Action<int, Item?, List<LevelUpInfo>, List<Item>> showDungeonCompletion,
             System.Action<Character> showDeathScreen,
             System.Action saveGame,
             System.Action showVariableEditor,

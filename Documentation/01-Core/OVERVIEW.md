@@ -128,7 +128,7 @@ DungeonFighter is a sophisticated turn-based RPG/dungeon crawler game written in
 
 ### Game Management
 - **`Game`**: Main game loop orchestrator, player progression, and system integration
-- **`GameLoopManager`**: Manages the main game loop, dungeon selection, and game progression
+- **`DungeonRunnerManager`**: Manages the main game loop, dungeon selection, and game progression (replaced GameLoopManager)
 - **`GameInitializer`**: Handles game setup, character creation, and initial state
 - **`GameConfiguration`**: Main configuration orchestrator (refactored from 1000+ lines)
 - **`GameSettings`**: Configuration management for game parameters and settings

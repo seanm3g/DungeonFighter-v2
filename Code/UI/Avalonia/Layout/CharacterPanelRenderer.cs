@@ -42,6 +42,15 @@ namespace RPGGame.UI.Avalonia.Layout
             y++;
             canvas.AddText(x, y, $"Lvl {character.Level}", AsciiArtAssets.Colors.Yellow);
             y++;
+            
+            // Display class points if character has any
+            string classPointsText = GetClassPointsDisplay(character);
+            if (!string.IsNullOrEmpty(classPointsText))
+            {
+                canvas.AddText(x, y, classPointsText, AsciiArtAssets.Colors.Gray);
+                y++;
+            }
+            
             canvas.AddText(x, y, character.GetCurrentClass(), AsciiArtAssets.Colors.Cyan);
             y += 2;
             
@@ -100,10 +109,10 @@ namespace RPGGame.UI.Avalonia.Layout
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Gear), AsciiArtAssets.Colors.Gold);
             y += 2;
             
-            // Render all equipment slots with increased spacing for text wrapping
-            RenderEquipmentSlot(x, ref y, "Weapon", character.Weapon, 2);
-            RenderEquipmentSlot(x, ref y, "Head", character.Head, 2);
-            RenderEquipmentSlot(x, ref y, "Body", character.Body, 2);
+            // Render all equipment slots with consistent spacing
+            RenderEquipmentSlot(x, ref y, "Weapon", character.Weapon, 1);
+            RenderEquipmentSlot(x, ref y, "Head", character.Head, 1);
+            RenderEquipmentSlot(x, ref y, "Body", character.Body, 1);
             RenderEquipmentSlot(x, ref y, "Feet", character.Feet, 1);
             
             // Combo sequence section
@@ -202,6 +211,26 @@ namespace RPGGame.UI.Avalonia.Layout
             
             canvas.AddText(x, y, "No Character", AsciiArtAssets.Colors.Gray);
             canvas.AddText(x, y + 1, "Loaded", AsciiArtAssets.Colors.Gray);
+        }
+        
+        /// <summary>
+        /// Gets a formatted string displaying all class points the character has
+        /// Returns empty string if character has no class points
+        /// </summary>
+        private string GetClassPointsDisplay(Character character)
+        {
+            var classPoints = new List<string>();
+            
+            if (character.BarbarianPoints > 0)
+                classPoints.Add($"Barb: {character.BarbarianPoints}");
+            if (character.WarriorPoints > 0)
+                classPoints.Add($"War: {character.WarriorPoints}");
+            if (character.RoguePoints > 0)
+                classPoints.Add($"Rog: {character.RoguePoints}");
+            if (character.WizardPoints > 0)
+                classPoints.Add($"Wiz: {character.WizardPoints}");
+            
+            return classPoints.Count > 0 ? string.Join(" | ", classPoints) : "";
         }
         
         /// <summary>

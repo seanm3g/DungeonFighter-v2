@@ -141,9 +141,10 @@ namespace RPGGame
                 string displayType = ItemDisplayFormatter.GetDisplayType(item);
                 string itemActions = equipmentService.GetItemActions(item);
                 
-                // Show item type and name on first line with color
+                // Show item rarity, type and name on first line with color
+                string rarity = item.Rarity?.Trim() ?? "Common";
                 string coloredName = ItemDisplayFormatter.GetColoredItemName(item);
-                UIManager.WriteMenuLine($"{i + 1}. ({displayType}) {coloredName}");
+                UIManager.WriteMenuLine($"{i + 1}. [{rarity}] ({displayType}) {coloredName}");
                 
                 // Show stats on indented line
                 if (!string.IsNullOrEmpty(itemStats))

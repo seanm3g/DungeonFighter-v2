@@ -119,7 +119,9 @@ namespace RPGGame.Handlers.Inventory
                 
                 if (previousItem != null)
                 {
-                    ShowMessageEvent?.Invoke($"Unequipped and destroyed {previousItem.Name}. Equipped {newItem.Name}.");
+                    // Add the previous item back to inventory instead of discarding it
+                    stateManager.CurrentInventory.Add(previousItem);
+                    ShowMessageEvent?.Invoke($"Unequipped {previousItem.Name}. Equipped {newItem.Name}.");
                 }
                 else
                 {

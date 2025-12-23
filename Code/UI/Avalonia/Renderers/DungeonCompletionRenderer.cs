@@ -26,11 +26,14 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <summary>
         /// Renders the dungeon completion screen with detailed statistics and menu choices
         /// </summary>
-        public int RenderDungeonCompletion(int x, int y, int width, int height, Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos)
+        public int RenderDungeonCompletion(int x, int y, int width, int height, Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos, List<Item> itemsFoundDuringRun, List<string>? dungeonContext = null)
         {
             int currentLineCount = 0;
             int startY = y + 2;
             int currentY = startY;
+            
+            // Don't display dungeon context on victory screen - keep it clean and focused
+            // The victory screen should only show completion message, stats, and rewards
             
             // Victory message
             canvas.AddText(x + (width / 2) - 15, currentY, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Victory), AsciiArtAssets.Colors.Gold);
@@ -120,17 +123,34 @@ namespace RPGGame.UI.Avalonia.Renderers
                 }
             }
             
+            // Display all loot found during the dungeon run
+            // Combine items found during run with the final completion reward
+            List<Item> allLoot = new List<Item>();
+            if (itemsFoundDuringRun != null)
+            {
+                allLoot.AddRange(itemsFoundDuringRun);
+            }
+            // Add final completion reward if it exists (it's excluded from itemsFoundDuringRun)
             if (lootReceived != null)
+            {
+                allLoot.Add(lootReceived);
+            }
+            
+            if (allLoot.Count > 0)
             {
                 canvas.AddText(x + 6, currentY, "Loot Received:", AsciiArtAssets.Colors.White);
                 currentY++;
                 currentLineCount++;
                 
-                // Format item name with colored elements: [Rarity] ItemName (each element colored)
-                var lootSegments = ItemDisplayColoredText.FormatLootForCompletion(lootReceived);
-                textWriter.RenderSegments(lootSegments, x + 6, currentY);
-                currentY++;
-                currentLineCount++;
+                // Display all items found during the run (including final completion reward)
+                foreach (var item in allLoot)
+                {
+                    // Format item name with colored elements: [Rarity] ItemName (each element colored)
+                    var lootSegments = ItemDisplayColoredText.FormatLootForCompletion(item);
+                    textWriter.RenderSegments(lootSegments, x + 6, currentY);
+                    currentY++;
+                    currentLineCount++;
+                }
             }
             else
             {

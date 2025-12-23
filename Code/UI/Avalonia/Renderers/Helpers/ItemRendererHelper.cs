@@ -5,6 +5,7 @@ using RPGGame.UI;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.ColorSystem.Applications;
+using RPGGame.UI.ColorSystem.Themes;
 
 namespace RPGGame.UI.Avalonia.Renderers.Helpers
 {
@@ -39,11 +40,16 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             int x, int y, int itemIndex, Item item, bool useColoredText = true)
         {
             string slotName = GetSlotName(item);
+            string rarity = item.Rarity?.Trim() ?? "Common";
+            var rarityColor = ItemThemeProvider.GetRarityColor(rarity);
             
             if (useColoredText)
             {
                 var displayBuilder = new ColoredTextBuilder();
                 displayBuilder.Add($"[{itemIndex + 1}] ", Colors.White);
+                displayBuilder.Add("[", Colors.Gray);
+                displayBuilder.Add(rarity, rarityColor);
+                displayBuilder.Add("] ", Colors.Gray);
                 displayBuilder.Add($"[{slotName}] ", Colors.Gray);
                 var itemNameSegments = ItemDisplayColoredText.FormatFullItemName(item);
                 displayBuilder.AddRange(itemNameSegments);
@@ -52,7 +58,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             else
             {
                 string coloredItemName = ItemDisplayFormatter.GetColoredItemName(item);
-                string displayLine = $"[{itemIndex + 1}] [{slotName}] {coloredItemName}";
+                string displayLine = $"[{itemIndex + 1}] [{rarity}] [{slotName}] {coloredItemName}";
                 var coloredSegments = ColoredTextParser.Parse(displayLine);
                 if (coloredSegments != null && coloredSegments.Count > 0)
                 {
@@ -60,7 +66,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 }
                 else
                 {
-                    canvas.AddText(x, y, $"[{itemIndex + 1}] [{slotName}] {item.Name}", AsciiArtAssets.Colors.White);
+                    canvas.AddText(x, y, $"[{itemIndex + 1}] [{rarity}] [{slotName}] {item.Name}", AsciiArtAssets.Colors.White);
                 }
             }
         }

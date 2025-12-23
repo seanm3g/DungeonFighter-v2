@@ -198,7 +198,7 @@ namespace RPGGame
             if (details != null && details.Count > 0)
             {
                 var detailsBuilder = new ColoredTextBuilder();
-                detailsBuilder.Add("    (");
+                detailsBuilder.Add("     ("); // 5 spaces to match roll info indentation
                 detailsBuilder.AddRange(details);
                 detailsBuilder.Add(")");
                 UIManager.WriteColoredText(detailsBuilder.Build());

@@ -45,6 +45,7 @@ namespace RPGGame
         /// <summary>
         /// Selects an action for a weapon based on its type
         /// Implements 80/20 split: 80% from weapon's class table, 20% any table
+        /// Falls back to tag-based matching if ActionTables.json doesn't have the weapon type
         /// </summary>
         public string? SelectWeaponAction(string weaponType)
         {
@@ -62,8 +63,41 @@ namespace RPGGame
                 return SelectByWeight(classTable.Actions);
             }
 
-            // Fallback: if no weapon-specific table, try any table
+            // Fallback: if no weapon-specific table, try tag-based matching from Actions.json
+            var tagBasedActions = GetTagBasedWeaponActions(weaponType);
+            if (tagBasedActions.Count > 0)
+            {
+                // Randomly select one from the tag-based actions
+                return tagBasedActions[_random.Next(tagBasedActions.Count)];
+            }
+
+            // Final fallback: if no weapon-specific actions found, try any table
             return SelectRandomActionFromAnyTable();
+        }
+
+        /// <summary>
+        /// Selects an action for a starter weapon based on its type
+        /// Starter weapons are exempt from the 20% random action chance - always uses weapon-appropriate actions
+        /// </summary>
+        public string? SelectWeaponActionForStarter(string weaponType)
+        {
+            // Starter weapons always get actions from their weapon-appropriate table (no 20% random chance)
+            var classTable = _tables.GetTableForWeapon(weaponType);
+            if (classTable != null && classTable.Actions.Count > 0)
+            {
+                return SelectByWeight(classTable.Actions);
+            }
+
+            // Fallback: if no weapon-specific table, try tag-based matching from Actions.json
+            var tagBasedActions = GetTagBasedWeaponActions(weaponType);
+            if (tagBasedActions.Count > 0)
+            {
+                // Randomly select one from the tag-based actions
+                return tagBasedActions[_random.Next(tagBasedActions.Count)];
+            }
+
+            // Final fallback: return null if no weapon-specific actions found (starter weapons shouldn't get random actions)
+            return null;
         }
 
         /// <summary>
@@ -94,11 +128,20 @@ namespace RPGGame
             // Include armor actions
             allActions.AddRange(_tables.ArmorActions);
 
-            if (allActions.Count == 0)
-                return null;
+            if (allActions.Count > 0)
+            {
+                // Use weighted selection
+                return SelectByWeight(allActions);
+            }
 
-            // Use weighted selection
-            return SelectByWeight(allActions);
+            // Fallback to tag-based actions from Actions.json
+            var allTagBasedActions = GetAllTagBasedActions();
+            if (allTagBasedActions.Count > 0)
+            {
+                return allTagBasedActions[_random.Next(allTagBasedActions.Count)];
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -137,16 +180,62 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Gets weapon actions from Actions.json using tag-based matching
+        /// Used as fallback when ActionTables.json doesn't have the weapon type
+        /// </summary>
+        private List<string> GetTagBasedWeaponActions(string weaponType)
+        {
+            var weaponTag = weaponType.ToLower();
+            var allActions = ActionLoader.GetAllActions();
+
+            // Get weapon-specific actions from JSON using tag matching
+            // Actions must have both "weapon" tag and the weapon type tag (e.g., "wand", "mace")
+            var weaponActions = allActions
+                .Where(action => action.Tags != null &&
+                                action.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
+                                action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)) &&
+                                !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)))
+                .Select(action => action.Name)
+                .ToList();
+
+            return weaponActions;
+        }
+
+        /// <summary>
+        /// Gets all actions from Actions.json using tag-based matching
+        /// Used as fallback when ActionTables.json is empty or incomplete
+        /// </summary>
+        private List<string> GetAllTagBasedActions()
+        {
+            var allActions = ActionLoader.GetAllActions();
+
+            // Get all weapon actions (not unique or enemy/environment specific)
+            var weaponActions = allActions
+                .Where(action => action.Tags != null &&
+                                action.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
+                                !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)) &&
+                                !action.Tags.Any(tag => tag.Equals("enemy", StringComparison.OrdinalIgnoreCase)) &&
+                                !action.Tags.Any(tag => tag.Equals("environment", StringComparison.OrdinalIgnoreCase)))
+                .Select(action => action.Name)
+                .ToList();
+
+            return weaponActions;
+        }
+
+        /// <summary>
         /// Gets all available actions for a weapon type
         /// Useful for UI/information purposes
         /// </summary>
         public List<string> GetAvailableActionsForWeapon(string weaponType)
         {
             var classTable = _tables.GetTableForWeapon(weaponType);
-            if (classTable == null)
-                return new List<string>();
+            if (classTable != null && classTable.Actions.Count > 0)
+            {
+                return classTable.Actions.Select(a => a.Name).ToList();
+            }
 
-            return classTable.Actions.Select(a => a.Name).ToList();
+            // Fallback to tag-based actions
+            return GetTagBasedWeaponActions(weaponType);
         }
 
         /// <summary>

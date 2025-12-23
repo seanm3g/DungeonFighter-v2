@@ -31,12 +31,6 @@ namespace RPGGame.Display.Dungeon
                 .Add(dungeon.Name, dungeonNameColor)
                 .Build();
             header.Add(ColoredTextRenderer.RenderAsMarkup(dungeonInfo));
-
-            var roomInfo = new ColoredTextBuilder()
-                .Add("Total Rooms: ", ColorPalette.Warning)
-                .Add(dungeon.Rooms.Count.ToString(), ColorPalette.Info)
-                .Build();
-            header.Add(ColoredTextRenderer.RenderAsMarkup(roomInfo));
             header.Add("");
 
             return header;

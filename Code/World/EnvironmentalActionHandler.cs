@@ -148,8 +148,8 @@ namespace RPGGame
                     string displayName = GetDisplayName(target);
                     var effectMessage = GetEnvironmentalEffectMessageColored(action, duration);
                     var builder = new ColoredTextBuilder();
-                    // Add 4 spaces for indentation (status effects should be indented 4 spaces)
-                    builder.Add("    ", Colors.White);
+                    // Add 5 spaces for indentation to match roll detail lines
+                    builder.Add("     ", Colors.White);
                     builder.Add(displayName, target is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
                     builder.AddSpace(); // Explicit space between display name and "affected"
                     builder.Add("affected", Colors.White);
@@ -159,9 +159,9 @@ namespace RPGGame
                     builder.AddRange(effectMessage);
                     result += "\n" + ColoredTextRenderer.RenderAsMarkup(builder.Build());
                     
-                    // Add blank line after last WEAKEN message
+                    // Add blank line after last status effect message to separate from next character action
                     bool isLast = i == affectedTargets.Count - 1;
-                    if (isLast && action.CausesWeaken)
+                    if (isLast)
                     {
                         result += "\n";
                     }
@@ -242,9 +242,9 @@ namespace RPGGame
             string mainLine = ColoredTextRenderer.RenderAsMarkup(mainBuilder.Build());
             
             // Build effect line - "affected by BLEED for x turns"
-            // Add 4 spaces for indentation (status effects should be indented 4 spaces)
+            // Add 5 spaces for indentation to match roll detail lines
             var effectBuilder = new ColoredTextBuilder();
-            effectBuilder.Add("    ", Colors.White);
+            effectBuilder.Add("     ", Colors.White);
             effectBuilder.Add(displayName, target is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
             effectBuilder.AddSpace(); // Explicit space between display name and "affected"
             effectBuilder.Add("affected", Colors.White);
@@ -290,9 +290,8 @@ namespace RPGGame
             {
                 AddForAmountUnit(effectBuilder, duration.ToString(), ColorPalette.White, "turns", ColorPalette.White);
                 string effectLine = ColoredTextRenderer.RenderAsMarkup(effectBuilder.Build());
-                // Add blank line after WEAKEN messages
-                string suffix = action.CausesWeaken ? "\n" : "";
-                return mainLine + "\n" + effectLine + suffix;
+                // Add blank line after all status effect messages to separate from next character action
+                return mainLine + "\n" + effectLine + "\n";
             }
             
             return mainLine;

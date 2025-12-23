@@ -248,6 +248,36 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Adds a combat event to the combat log using colored text.
+        /// Also adds to display buffer and narrative manager to keep everything in sync.
+        /// </summary>
+        public void AddCombatEvent(ColoredTextBuilder builder)
+        {
+            if (builder == null)
+                return;
+            
+            var segments = builder.Build();
+            
+            // Convert to markup string for display buffer and narrative manager
+            string markupMessage = ColoredTextRenderer.RenderAsMarkup(segments);
+            
+            // Add to display buffer
+            displayBuffer.AddCombatEvent(markupMessage);
+            
+            // Add to narrative manager's dungeon log
+            narrativeManager.LogDungeonEvent(markupMessage);
+            
+            // Add to UI using colored text directly
+            if (uiManager != null)
+            {
+                uiManager.WriteLineColoredSegments(segments, UIMessageType.System);
+            }
+            
+            // Notify subscribers that a combat event was added
+            CombatEventAdded?.Invoke();
+        }
+
+        /// <summary>
         /// Adds multiple combat events to the combat log.
         /// </summary>
         public void AddCombatEvents(IEnumerable<string> messages)

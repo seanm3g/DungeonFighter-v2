@@ -270,8 +270,8 @@ namespace RPGGame
             if (actionSpeedSystem != null && usedAction != null)
             {
                 bool isCriticalMiss = ActionExecutor.GetLastCriticalMissStatus(player);
-                bool isBasicAttack = usedAction.Name == "BASIC ATTACK";
-                actionSpeedSystem.ExecuteAction(player, usedAction, isBasicAttack: isBasicAttack, isCriticalMiss: isCriticalMiss);
+                // BASIC ATTACK removed - all actions use normal length
+                actionSpeedSystem.ExecuteAction(player, usedAction, isBasicAttack: false, isCriticalMiss: isCriticalMiss);
             }
         }
 

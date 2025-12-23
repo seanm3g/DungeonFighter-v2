@@ -109,7 +109,10 @@ namespace RPGGame
             {
                 var bleedConfig = GameConfiguration.Instance.StatusEffects.Bleed;
                 target.ApplyPoison(bleedConfig.DamagePerTick, bleedConfig.StacksPerApplication, true);
-                results.Add($"    [{target.Name}] is bleeding!");
+                
+                // Format with proper indentation and color markup
+                string actorPattern = target is Enemy ? "enemy" : "player";
+                results.Add($"    [{{{{{actorPattern}|{target.Name}}}}}] is {{{{error|bleeding}}}}!");
                 return true;
             }
             return false;

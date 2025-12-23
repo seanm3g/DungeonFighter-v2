@@ -34,7 +34,11 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Selects an action based on dice roll logic (6+ = BASIC ATTACK, 14+ = COMBO) - for heroes only
+        /// Selects an action based on dice roll logic:
+        /// - Roll 14+ = COMBO action (all actions in game are combo actions)
+        /// - Roll 6-13 = BASIC ATTACK (normal attack, non-combo)
+        /// - Roll < 6 = BASIC ATTACK (normal attack, non-combo)
+        /// For heroes only
         /// </summary>
         /// <param name="source">The Actor selecting the action</param>
         /// <returns>The selected action or null if no action available</returns>
@@ -69,23 +73,10 @@ namespace RPGGame
             {
                 selectedAction = SelectComboAction(source);
             }
-            else if (totalRoll >= 6) // Basic attack threshold (6-13) - with bonuses
+            else // Rolls 6-13 or <6 - use non-combo action (normal attack)
             {
-                selectedAction = ActionFactory.GetBasicAttack(source);
-                // If BASIC ATTACK not available, fall back to first available action
-                if (selectedAction == null && source.ActionPool.Count > 0)
-                {
-                    selectedAction = source.ActionPool[0].action;
-                }
-            }
-            else // totalRoll < 6 - still attempt basic attack (will likely miss)
-            {
-                selectedAction = ActionFactory.GetBasicAttack(source);
-                // If BASIC ATTACK not available, fall back to first available action
-                if (selectedAction == null && source.ActionPool.Count > 0)
-                {
-                    selectedAction = source.ActionPool[0].action;
-                }
+                // Select a non-combo action for normal attacks
+                selectedAction = SelectNormalAction(source);
             }
             
             return selectedAction;
@@ -114,45 +105,22 @@ namespace RPGGame
             int rollBonus = ActionUtilities.CalculateRollBonus(source, null);
             int totalRoll = baseRoll + rollBonus;
 
-            // 20 or 14-19: prefer combo actions, but only if they have both combo and basic actions
+            // 20 or 14-19: use combo actions (all actions in game are combo actions)
             // Action type determined by base roll, not total roll with bonuses
             if (baseRoll == 20 || baseRoll >= 14)
             {
                 var comboActions = ActionUtilities.GetComboActions(source);
-                var hasBasicAttack = source.ActionPool.Any(a => a.action.Name == "BASIC ATTACK");
-                
-                // Only use combo actions if the enemy has both combo actions AND basic attacks available
-                // This prevents enemies from always using combo actions when they should do basic attacks
-                if (comboActions.Count > 0 && hasBasicAttack)
+                if (comboActions.Count > 0)
                 {
                     int idx = comboActions.Count > 1 ? Dice.Roll(1, comboActions.Count) - 1 : 0;
                     return comboActions[idx];
                 }
-                // If no basic attack available, fall back to weighted selection
+                // If no combo actions available, fall back to weighted selection
                 return source.SelectAction();
             }
 
-            // 6-13: BASIC ATTACK
-            if (totalRoll >= 6)
-            {
-                var basicAttack = ActionFactory.GetBasicAttack(source);
-                if (basicAttack != null) return basicAttack;
-                // Fallback to first available action if BASIC ATTACK not available
-                if (source.ActionPool.Count > 0)
-                {
-                    return source.ActionPool[0].action;
-                }
-            }
-
-            // <6: treat as basic attack attempt (will likely miss)
-            var fallbackBasic = ActionFactory.GetBasicAttack(source);
-            if (fallbackBasic != null) return fallbackBasic;
-            // Fallback to first available action if BASIC ATTACK not available
-            if (source.ActionPool.Count > 0)
-            {
-                return source.ActionPool[0].action;
-            }
-            return null;
+            // 6-13 or <6: use non-combo action (normal attack)
+            return SelectNormalAction(source);
         }
 
         /// <summary>
@@ -180,13 +148,7 @@ namespace RPGGame
                     }
                 }
                 
-                // Last resort: try BASIC ATTACK, or fall back to first available action
-                var basicAttack = ActionFactory.GetBasicAttack(source);
-                if (basicAttack != null)
-                {
-                    return basicAttack;
-                }
-                // If BASIC ATTACK not available, use first available action
+                // Last resort: use first available action (BASIC ATTACK removed)
                 if (source.ActionPool.Count > 0)
                 {
                     return source.ActionPool[0].action;
@@ -194,6 +156,20 @@ namespace RPGGame
                 // This should never happen, but return null if no actions available
                 return null!; // Explicitly return null - this is an error state
             }
+        }
+
+        /// <summary>
+        /// Selects a normal (non-combo) action for the given Actor
+        /// Used when roll is less than 14 (normal attack range)
+        /// Returns a basic attack action that is NOT a combo action
+        /// </summary>
+        /// <param name="source">The Actor to select normal action for</param>
+        /// <returns>Basic attack action (non-combo) for normal attacks</returns>
+        private static Action SelectNormalAction(Actor source)
+        {
+            // For rolls 6-13, always use a basic attack (non-combo action)
+            // All other actions in the game are combo actions and only trigger at 14+
+            return ActionFactory.CreateNormalAttack();
         }
 
         /// <summary>

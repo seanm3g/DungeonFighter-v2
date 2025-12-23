@@ -146,10 +146,20 @@ namespace RPGGame.UI.Avalonia.Renderers
         public int WriteLineColoredWrapped(List<ColoredText> segments, int x, int y, int maxWidth)
         {
             if (segments == null || segments.Count == 0)
+            {
+                // For blank lines, return 1 so the caller knows to advance Y by 1
+                // This creates visible spacing between sections
                 return 1; // Return 1 for blank lines to preserve spacing
+            }
             
             // Wrap segments while preserving colors
             var wrappedLines = WrapColoredSegments(segments, maxWidth);
+            
+            // If wrapping resulted in no lines (shouldn't happen for non-empty segments, but handle it)
+            if (wrappedLines.Count == 0)
+            {
+                return 1; // Still return 1 to preserve spacing
+            }
             
             int currentY = y;
             foreach (var lineSegments in wrappedLines)
@@ -158,6 +168,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 {
                     RenderSegments(lineSegments, x, currentY);
                 }
+                // Always advance Y, even for empty line segments (blank lines within wrapped text)
                 currentY++;
             }
             

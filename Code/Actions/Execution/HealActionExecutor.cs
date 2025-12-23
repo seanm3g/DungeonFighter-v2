@@ -38,8 +38,8 @@ namespace RPGGame.Actions.Execution
                 ActionStatisticsTracker.RecordHealingReceived(targetCharacter, healAmount);
             }
             
-            bool isCombo = selectedAction.Name != "BASIC ATTACK";
-            ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, 0, totalRoll, rollBonus, true, isCombo, healAmount, 0, false, naturalRoll, battleNarrative);
+            // BASIC ATTACK removed - all actions are now combo actions
+            ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, 0, totalRoll, rollBonus, true, true, healAmount, 0, false, naturalRoll, battleNarrative);
             
             var healingText = CombatResults.FormatHealingMessageColored(source, target, healAmount);
             

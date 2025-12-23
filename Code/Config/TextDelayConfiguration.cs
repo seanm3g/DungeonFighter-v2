@@ -259,6 +259,196 @@ namespace RPGGame.Config
             LoadConfig();
             return _enableConsoleDelays;
         }
+
+        /// <summary>
+        /// Sets the delay for a specific message type and saves to config
+        /// </summary>
+        public static void SetMessageTypeDelay(UIMessageType messageType, int delayMs)
+        {
+            LoadConfig();
+            lock (_lockObject)
+            {
+                _messageTypeDelays[messageType] = delayMs;
+                SaveConfig();
+            }
+        }
+
+        /// <summary>
+        /// Sets a chunked text reveal preset and saves to config
+        /// </summary>
+        public static void SetChunkedTextRevealPreset(string presetName, ChunkedTextRevealPreset preset)
+        {
+            LoadConfig();
+            lock (_lockObject)
+            {
+                _chunkedTextRevealPresets[presetName] = preset;
+                SaveConfig();
+            }
+        }
+
+        /// <summary>
+        /// Sets the action delay and saves to config
+        /// </summary>
+        public static void SetActionDelayMs(int delayMs)
+        {
+            LoadConfig();
+            lock (_lockObject)
+            {
+                _actionDelayMs = delayMs;
+                SaveConfig();
+            }
+        }
+
+        /// <summary>
+        /// Sets the message delay and saves to config
+        /// </summary>
+        public static void SetMessageDelayMs(int delayMs)
+        {
+            LoadConfig();
+            lock (_lockObject)
+            {
+                _messageDelayMs = delayMs;
+                SaveConfig();
+            }
+        }
+
+        /// <summary>
+        /// Sets the progressive menu delays and saves to config
+        /// </summary>
+        public static void SetProgressiveMenuDelays(ProgressiveMenuDelaysConfig config)
+        {
+            LoadConfig();
+            lock (_lockObject)
+            {
+                _progressiveMenuDelays = config;
+                SaveConfig();
+            }
+        }
+
+        /// <summary>
+        /// Sets whether GUI delays are enabled and saves to config
+        /// </summary>
+        public static void SetEnableGuiDelays(bool enabled)
+        {
+            LoadConfig();
+            lock (_lockObject)
+            {
+                _enableGuiDelays = enabled;
+                SaveConfig();
+            }
+        }
+
+        /// <summary>
+        /// Sets whether console delays are enabled and saves to config
+        /// </summary>
+        public static void SetEnableConsoleDelays(bool enabled)
+        {
+            LoadConfig();
+            lock (_lockObject)
+            {
+                _enableConsoleDelays = enabled;
+                SaveConfig();
+            }
+        }
+
+        /// <summary>
+        /// Configuration structure for JSON serialization
+        /// </summary>
+        private class TextDelayConfigData
+        {
+            public Dictionary<string, int> MessageTypeDelays { get; set; } = new Dictionary<string, int>();
+            public Dictionary<string, ChunkedTextRevealPreset> ChunkedTextReveal { get; set; } = new Dictionary<string, ChunkedTextRevealPreset>();
+            public CombatDelaysData CombatDelays { get; set; } = new CombatDelaysData();
+            public ProgressiveMenuDelaysConfig ProgressiveMenuDelays { get; set; } = new ProgressiveMenuDelaysConfig();
+            public bool EnableGuiDelays { get; set; } = true;
+            public bool EnableConsoleDelays { get; set; } = true;
+        }
+
+        /// <summary>
+        /// Combat delays data structure
+        /// </summary>
+        private class CombatDelaysData
+        {
+            public int ActionDelayMs { get; set; }
+            public int MessageDelayMs { get; set; }
+        }
+
+        /// <summary>
+        /// Saves the current configuration to JSON file
+        /// </summary>
+        private static void SaveConfig()
+        {
+            try
+            {
+                string configPath = "GameData/TextDelayConfig.json";
+                
+                var configData = new TextDelayConfigData();
+                
+                // Build message type delays dictionary
+                foreach (var kvp in _messageTypeDelays)
+                {
+                    configData.MessageTypeDelays[kvp.Key.ToString()] = kvp.Value;
+                }
+                
+                // Copy chunked text reveal presets
+                configData.ChunkedTextReveal = new Dictionary<string, ChunkedTextRevealPreset>();
+                foreach (var kvp in _chunkedTextRevealPresets)
+                {
+                    configData.ChunkedTextReveal[kvp.Key] = new ChunkedTextRevealPreset
+                    {
+                        BaseDelayPerCharMs = kvp.Value.BaseDelayPerCharMs,
+                        MinDelayMs = kvp.Value.MinDelayMs,
+                        MaxDelayMs = kvp.Value.MaxDelayMs,
+                        Strategy = kvp.Value.Strategy
+                    };
+                }
+                
+                // Build combat delays
+                configData.CombatDelays = new CombatDelaysData
+                {
+                    ActionDelayMs = _actionDelayMs,
+                    MessageDelayMs = _messageDelayMs
+                };
+                
+                // Copy progressive menu delays
+                configData.ProgressiveMenuDelays = new ProgressiveMenuDelaysConfig
+                {
+                    BaseMenuDelay = _progressiveMenuDelays.BaseMenuDelay,
+                    ProgressiveReductionRate = _progressiveMenuDelays.ProgressiveReductionRate,
+                    ProgressiveThreshold = _progressiveMenuDelays.ProgressiveThreshold
+                };
+                
+                // Add enable flags
+                configData.EnableGuiDelays = _enableGuiDelays;
+                configData.EnableConsoleDelays = _enableConsoleDelays;
+                
+                // Serialize to JSON with indentation
+                var options = new JsonSerializerOptions
+                {
+                    WriteIndented = true
+                };
+                string jsonContent = JsonSerializer.Serialize(configData, options);
+                
+                // Write to file
+                System.IO.File.WriteAllText(configPath, jsonContent);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error saving text delay config: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Forces a reload of the configuration from file
+        /// </summary>
+        public static void ReloadConfig()
+        {
+            lock (_lockObject)
+            {
+                _configLoaded = false;
+                LoadConfig();
+            }
+        }
     }
 }
 

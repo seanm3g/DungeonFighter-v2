@@ -26,6 +26,7 @@ namespace RPGGame
         private readonly InventoryItemActionHandler itemActionHandler;
         private readonly InventoryItemComparisonHandler itemComparisonHandler;
         private readonly InventoryComboManager comboManager;
+        private readonly InventoryTradeUpHandler tradeUpHandler;
         
         // Delegates
         public delegate void OnShowMessage(string message);
@@ -50,6 +51,7 @@ namespace RPGGame
             this.itemActionHandler = new InventoryItemActionHandler(stateManager, customUIManager, stateTracker);
             this.itemComparisonHandler = new InventoryItemComparisonHandler(stateManager, customUIManager, stateTracker);
             this.comboManager = new InventoryComboManager(stateManager, customUIManager, stateTracker);
+            this.tradeUpHandler = new InventoryTradeUpHandler(stateManager, customUIManager, stateTracker);
             
             // Wire up events
             itemActionHandler.ShowMessageEvent += (msg) => ShowMessageEvent?.Invoke(msg);
@@ -58,6 +60,8 @@ namespace RPGGame
             itemComparisonHandler.ShowInventoryEvent += () => ShowInventoryEvent?.Invoke();
             comboManager.ShowMessageEvent += (msg) => ShowMessageEvent?.Invoke(msg);
             comboManager.ShowInventoryEvent += () => ShowInventoryEvent?.Invoke();
+            tradeUpHandler.ShowMessageEvent += (msg) => ShowMessageEvent?.Invoke(msg);
+            tradeUpHandler.ShowInventoryEvent += () => ShowInventoryEvent?.Invoke();
         }
 
         /// <summary>
@@ -139,6 +143,39 @@ namespace RPGGame
                 return;
             }
             
+            // Handle rarity selection for trade-up
+            if (stateTracker.WaitingForRaritySelection && int.TryParse(input, out int rarityChoice))
+            {
+                stateTracker.WaitingForRaritySelection = false;
+                
+                if (rarityChoice == 0)
+                {
+                    ShowMessageEvent?.Invoke("Cancelled.");
+                    ShowInventoryEvent?.Invoke();
+                    return;
+                }
+                
+                // Get available rarities
+                var rarityGroups = stateManager.CurrentInventory
+                    .GroupBy(item => item.Rarity ?? "Common")
+                    .Where(group => group.Count() >= 5)
+                    .OrderBy(group => GetRarityOrder(group.Key))
+                    .Where(group => GetNextRarity(group.Key) != null)
+                    .ToList();
+                
+                if (rarityChoice > 0 && rarityChoice <= rarityGroups.Count)
+                {
+                    var selectedRarity = rarityGroups[rarityChoice - 1].Key;
+                    tradeUpHandler.PerformTradeUp(selectedRarity);
+                }
+                else
+                {
+                    ShowMessageEvent?.Invoke("Invalid rarity selection.");
+                    ShowInventoryEvent?.Invoke();
+                }
+                return;
+            }
+            
             // If waiting for item/slot selection or comparison choice but input is not numeric, ignore it
             // This prevents non-numeric keys from triggering normal menu actions
             if (stateTracker.IsAnySelectionActive())
@@ -170,10 +207,13 @@ namespace RPGGame
                     comboManager.ShowComboManagement();
                     break;
                 case "5":
+                    tradeUpHandler.PromptTradeUp();
+                    break;
+                case "6":
                     stateManager.TransitionToState(GameState.GameLoop);
                     ShowGameLoopEvent?.Invoke();
                     break;
-                case "6":
+                case "7":
                     stateManager.TransitionToState(GameState.MainMenu);
                     ShowMainMenuEvent?.Invoke();
                     break;
@@ -182,9 +222,35 @@ namespace RPGGame
                     ExitGameEvent?.Invoke();
                     break;
                 default:
-                    ShowMessageEvent?.Invoke("Invalid choice. Press 1-6, 0, or ESC to go back.");
+                    ShowMessageEvent?.Invoke("Invalid choice. Press 1-7, 0, or ESC to go back.");
                     break;
             }
+        }
+        
+        /// <summary>
+        /// Gets the order index of a rarity (for sorting)
+        /// </summary>
+        private int GetRarityOrder(string rarity)
+        {
+            var rarityOrder = new[] { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Transcendent" };
+            int index = Array.IndexOf(rarityOrder, rarity);
+            return index < 0 ? 0 : index;
+        }
+        
+        /// <summary>
+        /// Gets the next rarity tier in progression
+        /// </summary>
+        private string? GetNextRarity(string currentRarity)
+        {
+            var rarityOrder = new[] { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Transcendent" };
+            
+            int currentIndex = Array.IndexOf(rarityOrder, currentRarity);
+            if (currentIndex < 0 || currentIndex >= rarityOrder.Length - 1)
+            {
+                return null; // Not found or already at max
+            }
+            
+            return rarityOrder[currentIndex + 1];
         }
 
     }

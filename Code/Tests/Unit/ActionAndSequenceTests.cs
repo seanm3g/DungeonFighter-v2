@@ -37,7 +37,7 @@ namespace RPGGame.Tests.Unit
             TestActionSelectionByRoll();
             TestActionSelectionForCharacters();
             TestActionSelectionForEnemies();
-            TestBasicAttackSelection();
+            // TestBasicAttackSelection() - Removed: BASIC ATTACK has been removed from the game
             TestComboActionSelection();
             
             // Combo Sequence Tests
@@ -199,18 +199,7 @@ namespace RPGGame.Tests.Unit
             AssertTrue(enemy.ActionPool.Count > 0, "Enemy should have actions available");
         }
         
-        private static void TestBasicAttackSelection()
-        {
-            Console.WriteLine("\n--- Testing Basic Attack Selection ---");
-            
-            var character = new Character("TestHero", 1);
-            var basicAttack = ActionFactory.GetBasicAttack(character);
-            
-            // If character has no weapon, basic attack might be null
-            // But the factory should handle this gracefully
-            AssertTrue(basicAttack == null || basicAttack.Name == "BASIC ATTACK", 
-                "Basic attack should be null or named BASIC ATTACK");
-        }
+        // TestBasicAttackSelection() - Removed: BASIC ATTACK has been removed from the game
         
         private static void TestComboActionSelection()
         {

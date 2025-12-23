@@ -128,7 +128,7 @@ namespace RPGGame
         /// <summary>
         /// Initializes combat entities in the action speed system
         /// </summary>
-        public void InitializeCombatEntities(Character player, Enemy enemy, Environment? environment = null)
+        public void InitializeCombatEntities(Character player, Enemy enemy, Environment? environment = null, bool playerGetsFirstAttack = false, bool enemyGetsFirstAttack = false)
         {
             var actionSpeedSystem = GetCurrentActionSpeedSystem();
             if (actionSpeedSystem == null) 
@@ -155,6 +155,20 @@ namespace RPGGame
                 actionSpeedSystem.AddEntity(environment, environmentBaseSpeed);
             }
             
+            // Handle forced turn order from exploration mechanics
+            if (playerGetsFirstAttack)
+            {
+                // Set player's NextActionTime to 0.0, enemy's to 1.0
+                actionSpeedSystem.SetEntityActionTime(player, 0.0);
+                actionSpeedSystem.SetEntityActionTime(enemy, 1.0);
+            }
+            else if (enemyGetsFirstAttack)
+            {
+                // Set enemy's NextActionTime to 0.0, player's to 1.0
+                actionSpeedSystem.SetEntityActionTime(enemy, 0.0);
+                actionSpeedSystem.SetEntityActionTime(player, 1.0);
+            }
+            // Otherwise, use normal speed-based turn order (both start at currentTime)
             
             // Initialize health tracker for battle participants
             var participants = new List<Actor> { player, enemy };

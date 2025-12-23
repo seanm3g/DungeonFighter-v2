@@ -100,7 +100,7 @@ namespace RPGGame
             // Combat action transitions (no blank lines between consecutive actions)
             { (BlockType.CombatAction, BlockType.CombatAction), 0 },  // No blank line between actions
             { (BlockType.EnvironmentalAction, BlockType.CombatAction), 0 },
-            { (BlockType.StatusEffect, BlockType.CombatAction), 0 },
+            { (BlockType.StatusEffect, BlockType.CombatAction), 1 },  // Blank line after standalone status effect blocks (like stun messages) before next action
             
             // Environmental action transitions
             { (BlockType.CombatAction, BlockType.EnvironmentalAction), 1 },  // Blank line before environmental

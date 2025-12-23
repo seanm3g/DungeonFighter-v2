@@ -21,11 +21,8 @@ namespace RPGGame.Actions.Execution
             character.RecordAction(true, isCritical, isCriticalMiss);
             character.RecordDamageDealt(damage, isCritical);
             
-            bool isComboAction = selectedAction.Name != "BASIC ATTACK";
-            if (isComboAction)
-            {
-                character.RecordCombo(character.ComboStep, damage);
-            }
+            // BASIC ATTACK removed - all actions are now combo actions
+            character.RecordCombo(character.ComboStep, damage);
             
             if (enemyTarget != null && !enemyTarget.IsAlive && damage >= enemyTarget.GetEffectiveMaxHealth())
             {

@@ -64,6 +64,10 @@ namespace RPGGame
         // Narrative tracking - use thread-safe collections for parallel testing
         private readonly ConcurrentBag<string> narrativeEvents;
         private readonly ConcurrentBag<string> pendingNarrativeEvents;
+        
+        // Cache narratives for the last event to prevent re-analysis
+        private BattleEvent? lastCachedEvent;
+        private List<string>? lastCachedNarratives;
 
         public BattleNarrative(string playerName, string enemyName, string environmentName = "", int playerHealth = 0, int enemyHealth = 0)
         {
@@ -79,6 +83,8 @@ namespace RPGGame
             this.events = new ConcurrentBag<BattleEvent>();
             this.narrativeEvents = new ConcurrentBag<string>();
             this.pendingNarrativeEvents = new ConcurrentBag<string>();
+            this.lastCachedEvent = null;
+            this.lastCachedNarratives = null;
 
             // Initialize specialized managers
             this.stateManager = new NarrativeStateManager();
@@ -140,20 +146,30 @@ namespace RPGGame
         
         /// <summary>
         /// Gets the narratives that were triggered by the last event
+        /// Returns cached narratives to prevent duplicate analysis
         /// </summary>
         /// <returns>List of triggered narrative messages</returns>
         public List<string> GetTriggeredNarratives()
         {
-            var triggeredNarratives = new List<string>();
-
-            if (events.Count > 0)
+            if (events.Count == 0)
             {
-                // Convert to list to access last element (ConcurrentBag doesn't support indexing)
-                var eventsList = events.ToList();
-                var lastEvent = eventsList[eventsList.Count - 1];
-                triggeredNarratives = AnalyzeEventForNarratives(lastEvent);
+                return new List<string>();
             }
 
+            // Convert to list to access last element (ConcurrentBag doesn't support indexing)
+            var eventsList = events.ToList();
+            var lastEvent = eventsList[eventsList.Count - 1];
+            
+            // Return cached narratives if this is the same event we've already analyzed
+            if (lastCachedEvent == lastEvent && lastCachedNarratives != null)
+            {
+                return new List<string>(lastCachedNarratives);
+            }
+            
+            // If not cached or different event, analyze and cache it
+            var triggeredNarratives = AnalyzeEventForNarratives(lastEvent);
+            lastCachedEvent = lastEvent;
+            lastCachedNarratives = new List<string>(triggeredNarratives);
             return triggeredNarratives;
         }
 

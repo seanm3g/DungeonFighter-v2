@@ -75,7 +75,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     
                     // Create clickable button for each item
                     string slotName = GetSlotName(item);
-                    clickableElements.Add(InventoryButtonFactory.CreateButton(x + 2, y, width - 4, (i + 1).ToString(), $"[{i + 1}] [{slotName}] {item.Name}"));
+                    string rarity = item.Rarity?.Trim() ?? "Common";
+                    clickableElements.Add(InventoryButtonFactory.CreateButton(x + 2, y, width - 4, (i + 1).ToString(), $"[{i + 1}] [{rarity}] [{slotName}] {item.Name}"));
                     
                     // Render item name with colored text
                     ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, i, item, useColoredText: true);
@@ -144,6 +145,67 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             currentLineCount++;
             
             return currentLineCount;
+        }
+        
+        /// <summary>
+        /// Renders rarity selection prompt for trade-up action
+        /// </summary>
+        public int RenderRaritySelectionPrompt(int x, int y, int width, int height, Character character, List<IGrouping<string, Item>> rarityGroups)
+        {
+            int currentLineCount = 0;
+            
+            // Show prompt message
+            canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader("SELECT RARITY TO TRADE UP"), AsciiArtAssets.Colors.Gold);
+            y += 2;
+            currentLineCount += 2;
+            
+            canvas.AddText(x + 2, y, "Select a rarity to trade up (5 items → 1 higher rarity):", AsciiArtAssets.Colors.White);
+            y += 2;
+            currentLineCount += 2;
+            
+            // Show available rarities
+            for (int i = 0; i < rarityGroups.Count; i++)
+            {
+                var group = rarityGroups[i];
+                string rarity = group.Key;
+                int count = group.Count();
+                string nextRarity = GetNextRarity(rarity) ?? "MAX";
+                
+                string displayText = $"{rarity} ({count} items) → {nextRarity}";
+                var rarityButton = InventoryButtonFactory.CreateButton(x + 2, y, width - 4, (i + 1).ToString(), $"[{i + 1}] {displayText}");
+                clickableElements.Add(rarityButton);
+                
+                canvas.AddMenuOption(x + 2, y, i + 1, displayText, AsciiArtAssets.Colors.White, rarityButton.IsHovered);
+                y++;
+                currentLineCount++;
+            }
+            
+            y++;
+            currentLineCount++;
+            
+            // Add cancel button
+            var cancelButton = InventoryButtonFactory.CreateButton(x + 2, y, 28, "0", MenuOptionFormatter.Format(0, UIConstants.MenuOptions.Cancel));
+            clickableElements.Add(cancelButton);
+            canvas.AddMenuOption(x + 2, y, 0, UIConstants.MenuOptions.Cancel, AsciiArtAssets.Colors.White, cancelButton.IsHovered);
+            currentLineCount++;
+            
+            return currentLineCount;
+        }
+        
+        /// <summary>
+        /// Gets the next rarity tier in progression
+        /// </summary>
+        private string GetNextRarity(string currentRarity)
+        {
+            var rarityOrder = new[] { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Transcendent" };
+            
+            int currentIndex = Array.IndexOf(rarityOrder, currentRarity);
+            if (currentIndex < 0 || currentIndex >= rarityOrder.Length - 1)
+            {
+                return "MAX"; // Not found or already at max
+            }
+            
+            return rarityOrder[currentIndex + 1];
         }
     }
 }

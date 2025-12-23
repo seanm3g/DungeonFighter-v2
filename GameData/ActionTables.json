@@ -4,16 +4,16 @@
       "weaponType": "Mace",
       "actions": [
         {
-          "name": "CRUSHING BLOW",
+          "name": "SLAM",
           "weight": 10
         },
         {
-          "name": "BLOOD FRENZY",
-          "weight": 8
+          "name": "POUND",
+          "weight": 10
         },
         {
-          "name": "EARTHSHATTERING STRIKE",
-          "weight": 6
+          "name": "BLUDGEON",
+          "weight": 10
         }
       ]
     },

@@ -107,7 +107,12 @@ namespace RPGGame
         // === ACTION MANAGEMENT ===
         public List<Action> GetComboActions() => _character.Actions.GetComboActions();
         public List<Action> GetActionPool() => _character.Actions.GetActionPool(_character);
-        public void AddToCombo(Action action) => _character.Actions.AddToCombo(action);
+        public void AddToCombo(Action action)
+        {
+            _character.Actions.AddToCombo(action);
+            // Reset combo step to first action when actions are added to combo
+            _character.ComboStep = 0;
+        }
         public void RemoveFromCombo(Action action) => _character.Actions.RemoveFromCombo(action);
         public void InitializeDefaultCombo() => _character.Actions.InitializeDefaultCombo(_character, _character.Equipment.Weapon as WeaponItem);
         public double CalculateTurnsFromActionLength(double actionLength) => _character.Actions.CalculateTurnsFromActionLength(actionLength);

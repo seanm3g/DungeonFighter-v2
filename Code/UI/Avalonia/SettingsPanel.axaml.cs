@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using RPGGame;
 using RPGGame.UI.Avalonia.Managers;
 using System;
@@ -170,6 +171,120 @@ namespace RPGGame.UI.Avalonia
                 ShowHealthBarsCheckBox,
                 ShowDamageNumbersCheckBox,
                 ShowComboProgressCheckBox);
+            
+            // Load text delay settings
+            LoadTextDelaySettings();
+        }
+        
+        /// <summary>
+        /// Loads text delay settings into UI controls
+        /// </summary>
+        private void LoadTextDelaySettings()
+        {
+            if (settingsManager == null) return;
+            
+            var enableGuiDelaysCheckBox = this.FindControl<CheckBox>("EnableGuiDelaysCheckBox");
+            var enableConsoleDelaysCheckBox = this.FindControl<CheckBox>("EnableConsoleDelaysCheckBox");
+            var actionDelaySlider = this.FindControl<Slider>("ActionDelaySlider");
+            var actionDelayTextBox = this.FindControl<TextBox>("ActionDelayTextBox");
+            var messageDelaySlider = this.FindControl<Slider>("MessageDelaySlider");
+            var messageDelayTextBox = this.FindControl<TextBox>("MessageDelayTextBox");
+            var combatDelayTextBox = this.FindControl<TextBox>("CombatDelayTextBox");
+            var systemDelayTextBox = this.FindControl<TextBox>("SystemDelayTextBox");
+            var menuDelayTextBox = this.FindControl<TextBox>("MenuDelayTextBox");
+            var titleDelayTextBox = this.FindControl<TextBox>("TitleDelayTextBox");
+            var mainTitleDelayTextBox = this.FindControl<TextBox>("MainTitleDelayTextBox");
+            var environmentalDelayTextBox = this.FindControl<TextBox>("EnvironmentalDelayTextBox");
+            var effectMessageDelayTextBox = this.FindControl<TextBox>("EffectMessageDelayTextBox");
+            var damageOverTimeDelayTextBox = this.FindControl<TextBox>("DamageOverTimeDelayTextBox");
+            var encounterDelayTextBox = this.FindControl<TextBox>("EncounterDelayTextBox");
+            var rollInfoDelayTextBox = this.FindControl<TextBox>("RollInfoDelayTextBox");
+            var baseMenuDelayTextBox = this.FindControl<TextBox>("BaseMenuDelayTextBox");
+            var progressiveReductionRateTextBox = this.FindControl<TextBox>("ProgressiveReductionRateTextBox");
+            var progressiveThresholdTextBox = this.FindControl<TextBox>("ProgressiveThresholdTextBox");
+            var combatPresetBaseDelayTextBox = this.FindControl<TextBox>("CombatPresetBaseDelayTextBox");
+            var combatPresetMinDelayTextBox = this.FindControl<TextBox>("CombatPresetMinDelayTextBox");
+            var combatPresetMaxDelayTextBox = this.FindControl<TextBox>("CombatPresetMaxDelayTextBox");
+            var dungeonPresetBaseDelayTextBox = this.FindControl<TextBox>("DungeonPresetBaseDelayTextBox");
+            var dungeonPresetMinDelayTextBox = this.FindControl<TextBox>("DungeonPresetMinDelayTextBox");
+            var dungeonPresetMaxDelayTextBox = this.FindControl<TextBox>("DungeonPresetMaxDelayTextBox");
+            var roomPresetBaseDelayTextBox = this.FindControl<TextBox>("RoomPresetBaseDelayTextBox");
+            var roomPresetMinDelayTextBox = this.FindControl<TextBox>("RoomPresetMinDelayTextBox");
+            var roomPresetMaxDelayTextBox = this.FindControl<TextBox>("RoomPresetMaxDelayTextBox");
+            var narrativePresetBaseDelayTextBox = this.FindControl<TextBox>("NarrativePresetBaseDelayTextBox");
+            var narrativePresetMinDelayTextBox = this.FindControl<TextBox>("NarrativePresetMinDelayTextBox");
+            var narrativePresetMaxDelayTextBox = this.FindControl<TextBox>("NarrativePresetMaxDelayTextBox");
+            var defaultPresetBaseDelayTextBox = this.FindControl<TextBox>("DefaultPresetBaseDelayTextBox");
+            var defaultPresetMinDelayTextBox = this.FindControl<TextBox>("DefaultPresetMinDelayTextBox");
+            var defaultPresetMaxDelayTextBox = this.FindControl<TextBox>("DefaultPresetMaxDelayTextBox");
+            
+            if (enableGuiDelaysCheckBox != null && enableConsoleDelaysCheckBox != null &&
+                actionDelaySlider != null && actionDelayTextBox != null &&
+                messageDelaySlider != null && messageDelayTextBox != null &&
+                combatDelayTextBox != null && systemDelayTextBox != null &&
+                menuDelayTextBox != null && titleDelayTextBox != null &&
+                mainTitleDelayTextBox != null && environmentalDelayTextBox != null &&
+                effectMessageDelayTextBox != null && damageOverTimeDelayTextBox != null &&
+                encounterDelayTextBox != null && rollInfoDelayTextBox != null &&
+                baseMenuDelayTextBox != null && progressiveReductionRateTextBox != null &&
+                progressiveThresholdTextBox != null && combatPresetBaseDelayTextBox != null &&
+                combatPresetMinDelayTextBox != null && combatPresetMaxDelayTextBox != null &&
+                dungeonPresetBaseDelayTextBox != null && dungeonPresetMinDelayTextBox != null &&
+                dungeonPresetMaxDelayTextBox != null && roomPresetBaseDelayTextBox != null &&
+                roomPresetMinDelayTextBox != null && roomPresetMaxDelayTextBox != null &&
+                narrativePresetBaseDelayTextBox != null && narrativePresetMinDelayTextBox != null &&
+                narrativePresetMaxDelayTextBox != null && defaultPresetBaseDelayTextBox != null &&
+                defaultPresetMinDelayTextBox != null && defaultPresetMaxDelayTextBox != null)
+            {
+                settingsManager.LoadTextDelaySettings(
+                    enableGuiDelaysCheckBox,
+                    enableConsoleDelaysCheckBox,
+                    actionDelaySlider,
+                    actionDelayTextBox,
+                    messageDelaySlider,
+                    messageDelayTextBox,
+                    combatDelayTextBox,
+                    systemDelayTextBox,
+                    menuDelayTextBox,
+                    titleDelayTextBox,
+                    mainTitleDelayTextBox,
+                    environmentalDelayTextBox,
+                    effectMessageDelayTextBox,
+                    damageOverTimeDelayTextBox,
+                    encounterDelayTextBox,
+                    rollInfoDelayTextBox,
+                    baseMenuDelayTextBox,
+                    progressiveReductionRateTextBox,
+                    progressiveThresholdTextBox,
+                    combatPresetBaseDelayTextBox,
+                    combatPresetMinDelayTextBox,
+                    combatPresetMaxDelayTextBox,
+                    dungeonPresetBaseDelayTextBox,
+                    dungeonPresetMinDelayTextBox,
+                    dungeonPresetMaxDelayTextBox,
+                    roomPresetBaseDelayTextBox,
+                    roomPresetMinDelayTextBox,
+                    roomPresetMaxDelayTextBox,
+                    narrativePresetBaseDelayTextBox,
+                    narrativePresetMinDelayTextBox,
+                    narrativePresetMaxDelayTextBox,
+                    defaultPresetBaseDelayTextBox,
+                    defaultPresetMinDelayTextBox,
+                    defaultPresetMaxDelayTextBox);
+                
+                // Wire up slider events for action/message delays
+                actionDelaySlider.ValueChanged += (s, e) =>
+                {
+                    if (actionDelayTextBox != null)
+                        actionDelayTextBox.Text = ((int)actionDelaySlider.Value).ToString();
+                };
+                
+                messageDelaySlider.ValueChanged += (s, e) =>
+                {
+                    if (messageDelayTextBox != null)
+                        messageDelayTextBox.Text = ((int)messageDelaySlider.Value).ToString();
+                };
+            }
         }
         
         /// <summary>
@@ -177,6 +292,9 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         private void WireUpEvents()
         {
+            // Fix TextBox focus styling to prevent white-on-white text
+            FixTextBoxFocusStyling();
+            
             if (settingsEventManager == null)
             {
                 settingsEventManager = new SettingsEventManager(
@@ -271,6 +389,102 @@ namespace RPGGame.UI.Avalonia
                 ShowDamageNumbersCheckBox,
                 ShowComboProgressCheckBox,
                 () => gameVariablesTabManager?.SaveGameVariables());
+            
+            // Save text delay settings
+            SaveTextDelaySettings();
+        }
+        
+        /// <summary>
+        /// Saves text delay settings from UI controls
+        /// </summary>
+        private void SaveTextDelaySettings()
+        {
+            if (settingsManager == null) return;
+            
+            var enableGuiDelaysCheckBox = this.FindControl<CheckBox>("EnableGuiDelaysCheckBox");
+            var enableConsoleDelaysCheckBox = this.FindControl<CheckBox>("EnableConsoleDelaysCheckBox");
+            var actionDelaySlider = this.FindControl<Slider>("ActionDelaySlider");
+            var messageDelaySlider = this.FindControl<Slider>("MessageDelaySlider");
+            var combatDelayTextBox = this.FindControl<TextBox>("CombatDelayTextBox");
+            var systemDelayTextBox = this.FindControl<TextBox>("SystemDelayTextBox");
+            var menuDelayTextBox = this.FindControl<TextBox>("MenuDelayTextBox");
+            var titleDelayTextBox = this.FindControl<TextBox>("TitleDelayTextBox");
+            var mainTitleDelayTextBox = this.FindControl<TextBox>("MainTitleDelayTextBox");
+            var environmentalDelayTextBox = this.FindControl<TextBox>("EnvironmentalDelayTextBox");
+            var effectMessageDelayTextBox = this.FindControl<TextBox>("EffectMessageDelayTextBox");
+            var damageOverTimeDelayTextBox = this.FindControl<TextBox>("DamageOverTimeDelayTextBox");
+            var encounterDelayTextBox = this.FindControl<TextBox>("EncounterDelayTextBox");
+            var rollInfoDelayTextBox = this.FindControl<TextBox>("RollInfoDelayTextBox");
+            var baseMenuDelayTextBox = this.FindControl<TextBox>("BaseMenuDelayTextBox");
+            var progressiveReductionRateTextBox = this.FindControl<TextBox>("ProgressiveReductionRateTextBox");
+            var progressiveThresholdTextBox = this.FindControl<TextBox>("ProgressiveThresholdTextBox");
+            var combatPresetBaseDelayTextBox = this.FindControl<TextBox>("CombatPresetBaseDelayTextBox");
+            var combatPresetMinDelayTextBox = this.FindControl<TextBox>("CombatPresetMinDelayTextBox");
+            var combatPresetMaxDelayTextBox = this.FindControl<TextBox>("CombatPresetMaxDelayTextBox");
+            var dungeonPresetBaseDelayTextBox = this.FindControl<TextBox>("DungeonPresetBaseDelayTextBox");
+            var dungeonPresetMinDelayTextBox = this.FindControl<TextBox>("DungeonPresetMinDelayTextBox");
+            var dungeonPresetMaxDelayTextBox = this.FindControl<TextBox>("DungeonPresetMaxDelayTextBox");
+            var roomPresetBaseDelayTextBox = this.FindControl<TextBox>("RoomPresetBaseDelayTextBox");
+            var roomPresetMinDelayTextBox = this.FindControl<TextBox>("RoomPresetMinDelayTextBox");
+            var roomPresetMaxDelayTextBox = this.FindControl<TextBox>("RoomPresetMaxDelayTextBox");
+            var narrativePresetBaseDelayTextBox = this.FindControl<TextBox>("NarrativePresetBaseDelayTextBox");
+            var narrativePresetMinDelayTextBox = this.FindControl<TextBox>("NarrativePresetMinDelayTextBox");
+            var narrativePresetMaxDelayTextBox = this.FindControl<TextBox>("NarrativePresetMaxDelayTextBox");
+            var defaultPresetBaseDelayTextBox = this.FindControl<TextBox>("DefaultPresetBaseDelayTextBox");
+            var defaultPresetMinDelayTextBox = this.FindControl<TextBox>("DefaultPresetMinDelayTextBox");
+            var defaultPresetMaxDelayTextBox = this.FindControl<TextBox>("DefaultPresetMaxDelayTextBox");
+            
+            if (enableGuiDelaysCheckBox != null && enableConsoleDelaysCheckBox != null &&
+                actionDelaySlider != null && messageDelaySlider != null &&
+                combatDelayTextBox != null && systemDelayTextBox != null &&
+                menuDelayTextBox != null && titleDelayTextBox != null &&
+                mainTitleDelayTextBox != null && environmentalDelayTextBox != null &&
+                effectMessageDelayTextBox != null && damageOverTimeDelayTextBox != null &&
+                encounterDelayTextBox != null && rollInfoDelayTextBox != null &&
+                baseMenuDelayTextBox != null && progressiveReductionRateTextBox != null &&
+                progressiveThresholdTextBox != null && combatPresetBaseDelayTextBox != null &&
+                combatPresetMinDelayTextBox != null && combatPresetMaxDelayTextBox != null &&
+                dungeonPresetBaseDelayTextBox != null && dungeonPresetMinDelayTextBox != null &&
+                dungeonPresetMaxDelayTextBox != null && roomPresetBaseDelayTextBox != null &&
+                roomPresetMinDelayTextBox != null && roomPresetMaxDelayTextBox != null &&
+                narrativePresetBaseDelayTextBox != null && narrativePresetMinDelayTextBox != null &&
+                narrativePresetMaxDelayTextBox != null && defaultPresetBaseDelayTextBox != null &&
+                defaultPresetMinDelayTextBox != null && defaultPresetMaxDelayTextBox != null)
+            {
+                settingsManager.SaveTextDelaySettings(
+                    enableGuiDelaysCheckBox,
+                    enableConsoleDelaysCheckBox,
+                    actionDelaySlider,
+                    messageDelaySlider,
+                    combatDelayTextBox,
+                    systemDelayTextBox,
+                    menuDelayTextBox,
+                    titleDelayTextBox,
+                    mainTitleDelayTextBox,
+                    environmentalDelayTextBox,
+                    effectMessageDelayTextBox,
+                    damageOverTimeDelayTextBox,
+                    encounterDelayTextBox,
+                    rollInfoDelayTextBox,
+                    baseMenuDelayTextBox,
+                    progressiveReductionRateTextBox,
+                    progressiveThresholdTextBox,
+                    combatPresetBaseDelayTextBox,
+                    combatPresetMinDelayTextBox,
+                    combatPresetMaxDelayTextBox,
+                    dungeonPresetBaseDelayTextBox,
+                    dungeonPresetMinDelayTextBox,
+                    dungeonPresetMaxDelayTextBox,
+                    roomPresetBaseDelayTextBox,
+                    roomPresetMinDelayTextBox,
+                    roomPresetMaxDelayTextBox,
+                    narrativePresetBaseDelayTextBox,
+                    narrativePresetMinDelayTextBox,
+                    narrativePresetMaxDelayTextBox,
+                    defaultPresetBaseDelayTextBox,
+                    defaultPresetMinDelayTextBox,
+                    defaultPresetMaxDelayTextBox);
+            }
         }
         
         /// <summary>
@@ -407,6 +621,85 @@ namespace RPGGame.UI.Avalonia
             }
             
             await battleStatisticsTabManager.RunComprehensiveWeaponEnemyTests();
+        }
+        
+        /// <summary>
+        /// Ensures all TextBoxes maintain dark background and white text when focused
+        /// This is a backup to the XAML styles to handle cases where the template overrides styles
+        /// </summary>
+        private void FixTextBoxFocusStyling()
+        {
+            var darkBackground = new SolidColorBrush(Color.FromRgb(42, 42, 42)); // #FF2A2A2A
+            var whiteForeground = Brushes.White;
+            var blueBorder = new SolidColorBrush(Color.FromRgb(0, 120, 212)); // #FF0078D4
+            var defaultBorder = new SolidColorBrush(Color.FromRgb(85, 85, 85)); // #FF555555
+            
+            // Use Dispatcher to ensure this runs after the visual tree is loaded
+            Dispatcher.UIThread.Post(() =>
+            {
+                // Find all TextBoxes using Avalonia's visual tree traversal
+                var textBoxes = new List<TextBox>();
+                void FindTextBoxes(Control control)
+                {
+                    if (control is TextBox tb)
+                    {
+                        textBoxes.Add(tb);
+                    }
+                    
+                    // Traverse visual children
+                    var visualChildren = control.GetVisualChildren();
+                    foreach (var child in visualChildren)
+                    {
+                        if (child is Control childControl)
+                        {
+                            FindTextBoxes(childControl);
+                        }
+                    }
+                    
+                    // Also check logical children for ContentControls
+                    if (control is ContentControl cc && cc.Content is Control content)
+                    {
+                        FindTextBoxes(content);
+                    }
+                    
+                    // Check Panel children
+                    if (control is Panel panel)
+                    {
+                        foreach (var child in panel.Children)
+                        {
+                            if (child is Control childControl)
+                            {
+                                FindTextBoxes(childControl);
+                            }
+                        }
+                    }
+                }
+                
+                FindTextBoxes(this);
+                
+                // Apply focus handlers to all found TextBoxes
+                foreach (var textBox in textBoxes)
+                {
+                    // Only fix TextBoxes that have dark backgrounds (settings TextBoxes)
+                    var bg = textBox.Background as SolidColorBrush;
+                    if (bg != null && (bg.Color.R == 42 && bg.Color.G == 42 && bg.Color.B == 42))
+                    {
+                        textBox.GotFocus += (s, e) =>
+                        {
+                            textBox.Background = darkBackground;
+                            textBox.Foreground = whiteForeground;
+                            textBox.BorderBrush = blueBorder;
+                        };
+                        
+                        textBox.LostFocus += (s, e) =>
+                        {
+                            textBox.Background = darkBackground;
+                            textBox.Foreground = whiteForeground;
+                            textBox.BorderBrush = defaultBorder;
+                        };
+                    }
+                }
+            }, DispatcherPriority.Loaded);
         }
     }
 }

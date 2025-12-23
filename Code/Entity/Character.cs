@@ -87,36 +87,11 @@ namespace RPGGame
                 ActionLoader.LoadActions();
             }
             
-            // Add default actions
-            Actions.AddDefaultActions(this);
-            Actions.AddClassActions(this, Progression, null);
+            // Don't add actions here - they will be added when weapon is equipped
+            // Actions will be added via AddWeaponActions when weapon is selected in GameInitializer
             
-            // Initialize default combo sequence
-            Actions.InitializeDefaultCombo(this, Equipment.Weapon as WeaponItem);
-            
-            // Verify at least one action was added
-            if (ActionPool.Count == 0)
-            {
-                // Emergency fallback: create a basic attack directly
-                var emergencyBasicAttack = new Action(
-                    name: GameConstants.BasicAttackName,
-                    type: ActionType.Attack,
-                    targetType: TargetType.SingleTarget,
-                    cooldown: 0,
-                    description: "A basic physical attack",
-                    comboOrder: -1,
-                    damageMultiplier: 1.0,
-                    length: 1.0,
-                    causesBleed: false,
-                    causesWeaken: false,
-                    causesPoison: false,
-                    causesStun: false,
-                    isComboAction: true,
-                    comboBonusAmount: 0,
-                    comboBonusDuration: 0
-                );
-                AddAction(emergencyBasicAttack, 1.0);
-            }
+            // Actions will be added when weapon is equipped in GameInitializer
+            // No emergency fallback needed - weapon selection ensures at least one action
         }
 
         // IComboMemory implementation

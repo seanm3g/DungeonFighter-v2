@@ -15,6 +15,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         void RenderInventory(Character character, List<Item> inventory, CanvasContext context);
         void RenderItemSelectionPrompt(Character character, List<Item> inventory, string promptMessage, string actionType, CanvasContext context);
         void RenderSlotSelectionPrompt(Character character, CanvasContext context);
+        void RenderRaritySelectionPrompt(Character character, List<System.Linq.IGrouping<string, Item>> rarityGroups, CanvasContext context);
         void RenderItemComparison(Character character, Item newItem, Item? currentItem, string slot, CanvasContext context);
         void RenderWeaponSelection(List<StartingWeapon> weapons, CanvasContext context);
         void RenderCharacterCreation(Character character, CanvasContext context);
@@ -25,7 +26,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         void RenderEnemyEncounter(Enemy enemy, Character player, List<string> dungeonLog, string? dungeonName, string? roomName, CanvasContext context);
         void RenderCombatResult(bool playerSurvived, Character player, Enemy enemy, BattleNarrative? battleNarrative, string? dungeonName, string? roomName, CanvasContext context);
         void RenderRoomCompletion(Environment room, Character player, string? dungeonName, CanvasContext context);
-        void RenderDungeonCompletion(Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos, CanvasContext context);
+        void RenderDungeonCompletion(Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos, List<Item> itemsFoundDuringRun, CanvasContext context);
         void RenderDungeonExploration(Character player, string currentLocation, List<string> availableActions, List<string> recentEvents, CanvasContext context);
         void RenderGameMenu(Character player, List<Item> inventory, CanvasContext context);
         void ShowMessage(string message, Color color = default);

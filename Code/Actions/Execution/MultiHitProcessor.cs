@@ -83,7 +83,8 @@ namespace RPGGame.Actions.Execution
             }
 
             bool isCriticalHit = totalRoll >= 20;
-            ActionUtilities.CreateAndAddBattleEvent(source, target, action, totalDamage, totalRoll, rollBonus, true, action.Name != "BASIC ATTACK", 0, 0, isCriticalHit, naturalRoll, battleNarrative);
+            // BASIC ATTACK removed - all actions are now combo actions
+            ActionUtilities.CreateAndAddBattleEvent(source, target, action, totalDamage, totalRoll, rollBonus, true, true, 0, 0, isCriticalHit, naturalRoll, battleNarrative);
 
             return totalDamage;
         }

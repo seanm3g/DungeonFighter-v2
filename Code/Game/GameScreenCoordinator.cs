@@ -67,7 +67,7 @@ namespace RPGGame
         /// Centralizes the CanvasUICoordinator calls and state
         /// transition logic for this screen.
         /// </summary>
-        public void ShowDungeonCompletion(int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos)
+        public void ShowDungeonCompletion(int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos, List<Item> itemsFoundDuringRun)
         {
             stateManager.TransitionToState(GameState.DungeonCompletion);
 
@@ -83,6 +83,12 @@ namespace RPGGame
 
             // Clear old interactive elements first
             canvasUI.ClearClickableElements();
+            
+            // Suppress display buffer auto-rendering to prevent combat text from showing
+            // The completion screen handles its own rendering
+            canvasUI.SuppressDisplayBufferRendering();
+            // Clear buffer without triggering a render
+            canvasUI.ClearDisplayBufferWithoutRender();
 
             // Render the completion screen with reward data and level-up info
             canvasUI.RenderDungeonCompletion(
@@ -90,7 +96,8 @@ namespace RPGGame
                 player,
                 xpGained,
                 lootReceived,
-                levelUpInfos ?? new List<LevelUpInfo>()
+                levelUpInfos ?? new List<LevelUpInfo>(),
+                itemsFoundDuringRun ?? new List<Item>()
             );
         }
 

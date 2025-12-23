@@ -73,14 +73,27 @@ namespace RPGGame.Actions.Execution
                     ActionStatisticsTracker.RecordDamageReceived(targetCharacter, totalDamage);
                 }
                 
-                bool isCombo = selectedAction.Name != "BASIC ATTACK";
+                // BASIC ATTACK removed - all actions are now combo actions
                 bool isCriticalHit = totalRoll >= 20;
-                ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, totalDamage, totalRoll, rollBonus, true, isCombo, 0, 0, isCriticalHit, naturalRoll, battleNarrative);
+                ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, totalDamage, totalRoll, rollBonus, true, true, 0, 0, isCriticalHit, naturalRoll, battleNarrative);
                 
                 // Handle enemy roll penalty
                 if (selectedAction.Advanced.EnemyRollPenalty > 0 && target is Enemy targetEnemy)
                 {
                     targetEnemy.ApplyRollPenalty(selectedAction.Advanced.EnemyRollPenalty, 1);
+                }
+                
+                // Reset combo if normal attack hits with roll 6-13
+                if (source is Character resetCharacter && !(resetCharacter is Enemy))
+                {
+                    // Check if this is a normal attack (not a combo action)
+                    bool isNormalAttack = selectedAction.Name == "BASIC ATTACK" || !selectedAction.IsComboAction;
+                    
+                    // If normal attack with roll 6-13, reset the combo
+                    if (isNormalAttack && baseRoll >= 6 && baseRoll <= 13)
+                    {
+                        resetCharacter.ResetCombo();
+                    }
                 }
                 
                 // Handle combo advancement based on roll value
@@ -158,6 +171,19 @@ namespace RPGGame.Actions.Execution
                 if (selectedAction.Advanced.EnemyRollPenalty > 0 && target is Enemy targetEnemy)
                 {
                     targetEnemy.ApplyRollPenalty(selectedAction.Advanced.EnemyRollPenalty, 1);
+                }
+                
+                // Reset combo if normal attack hits with roll 6-13
+                if (source is Character resetCharacter && !(resetCharacter is Enemy))
+                {
+                    // Check if this is a normal attack (not a combo action)
+                    bool isNormalAttack = selectedAction.Name == "BASIC ATTACK" || !selectedAction.IsComboAction;
+                    
+                    // If normal attack with roll 6-13, reset the combo
+                    if (isNormalAttack && baseRoll >= 6 && baseRoll <= 13)
+                    {
+                        resetCharacter.ResetCombo();
+                    }
                 }
                 
                 // Handle combo advancement based on roll value

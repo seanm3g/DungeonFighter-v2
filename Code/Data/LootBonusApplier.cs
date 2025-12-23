@@ -50,6 +50,73 @@ namespace RPGGame
 
             // Update item name to include modifications and stat bonuses
             item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
+            
+            // Adjust rarity based on bonuses: some bonuses require minimum rarities
+            AdjustRarityBasedOnBonuses(item, rarity);
+        }
+        
+        /// <summary>
+        /// Adjusts item rarity based on the bonuses it has
+        /// Some bonuses require minimum rarities (e.g., "Sharp" requires Uncommon, "of the Sage" requires Rare)
+        /// </summary>
+        private void AdjustRarityBasedOnBonuses(Item item, RarityData currentRarity)
+        {
+            string? requiredRarity = null;
+            
+            // Check modifications for their ItemRank (minimum rarity requirement)
+            if (item.Modifications != null && item.Modifications.Count > 0)
+            {
+                foreach (var mod in item.Modifications)
+                {
+                    if (!string.IsNullOrEmpty(mod.ItemRank))
+                    {
+                        // Get the highest required rarity from all modifications
+                        if (requiredRarity == null || IsRarityHigher(mod.ItemRank, requiredRarity))
+                        {
+                            requiredRarity = mod.ItemRank;
+                        }
+                    }
+                }
+            }
+            
+            // Check stat bonuses for specific rare ones
+            if (item.StatBonuses != null && item.StatBonuses.Count > 0)
+            {
+                foreach (var statBonus in item.StatBonuses)
+                {
+                    // "of the Sage" requires Rare rarity
+                    if (statBonus.Name.Equals("of the Sage", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (requiredRarity == null || IsRarityHigher("Rare", requiredRarity))
+                        {
+                            requiredRarity = "Rare";
+                        }
+                    }
+                }
+            }
+            
+            // Upgrade rarity if needed
+            if (requiredRarity != null && IsRarityHigher(requiredRarity, currentRarity.Name))
+            {
+                // Update item rarity to match the minimum required by bonuses
+                item.Rarity = requiredRarity;
+            }
+        }
+        
+        /// <summary>
+        /// Checks if rarity1 is higher than rarity2
+        /// </summary>
+        private bool IsRarityHigher(string rarity1, string rarity2)
+        {
+            var rarityOrder = new[] { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Transcendent" };
+            
+            int index1 = Array.IndexOf(rarityOrder, rarity1);
+            int index2 = Array.IndexOf(rarityOrder, rarity2);
+            
+            if (index1 < 0) index1 = 0; // Unknown rarities default to Common
+            if (index2 < 0) index2 = 0;
+            
+            return index1 > index2;
         }
 
         /// <summary>

@@ -69,9 +69,9 @@ namespace RPGGame
         /// <summary>
         /// Initializes combat entities in the action speed system
         /// </summary>
-        public void InitializeCombatEntities(Character player, Enemy enemy, Environment? environment = null)
+        public void InitializeCombatEntities(Character player, Enemy enemy, Environment? environment = null, bool playerGetsFirstAttack = false, bool enemyGetsFirstAttack = false)
         {
-            stateManager.InitializeCombatEntities(player, enemy, environment);
+            stateManager.InitializeCombatEntities(player, enemy, environment, playerGetsFirstAttack, enemyGetsFirstAttack);
         }
 
         /// <summary>
@@ -136,17 +136,22 @@ namespace RPGGame
         /// <param name="player">The player character</param>
         /// <param name="currentEnemy">The current enemy</param>
         /// <param name="room">The current room/environment</param>
+        /// <param name="playerGetsFirstAttack">If true, player attacks first (from exploration)</param>
+        /// <param name="enemyGetsFirstAttack">If true, enemy attacks first (surprise from exploration)</param>
         /// <returns>True if combat completed successfully, false if player died</returns>
-        public async Task<bool> RunCombat(Character player, Enemy currentEnemy, Environment room)
+        public async Task<bool> RunCombat(Character player, Enemy currentEnemy, Environment room, bool playerGetsFirstAttack = false, bool enemyGetsFirstAttack = false)
         {
             // Reset game time FIRST to ensure clean timing state
             GameTicker.Instance.Reset();
+            
+            // Reset combo step to 0 to start at the first action in the sequence
+            player.ComboStep = 0;
             
             // Start battle narrative and initialize action speed system
             StartBattleNarrative(player.Name, currentEnemy.Name, room.Name, player.CurrentHealth, currentEnemy.CurrentHealth);
             
             // Initialize combat entities AFTER action speed system is created
-            InitializeCombatEntities(player, currentEnemy, room);
+            InitializeCombatEntities(player, currentEnemy, room, playerGetsFirstAttack, enemyGetsFirstAttack);
             
             // Reset environment action count for new fight
             room.ResetForNewFight();

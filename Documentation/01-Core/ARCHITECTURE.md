@@ -29,7 +29,7 @@ DungeonFighter/
 - **`Code/Game/Game.cs`** - Central orchestrator, coordinates all game systems
 - **`Code/Game/GameInitializer.cs`** - Handles game setup, character creation, and initial state
 - **`Code/UI/GameMenuManager.cs`** - Manages main menu navigation and user interactions
-- **`Code/Game/GameLoopManager.cs`** - Manages the main game loop, dungeon selection, and game progression
+- **`Code/Game/DungeonRunnerManager.cs`** - Manages the main game loop, dungeon selection, and game progression (replaced GameLoopManager)
 
 ### **Combat System (Refactored Architecture)**
 - **`Code/Combat/CombatManager.cs`** - Orchestrates combat flow and turn management (refactored to use specialized managers)

@@ -66,6 +66,14 @@ namespace RPGGame.UI.Avalonia.Coordinators
         }
         
         /// <summary>
+        /// Renders rarity selection prompt for trade-up
+        /// </summary>
+        public void RenderRaritySelectionPrompt(Character character, List<System.Linq.IGrouping<string, Item>> rarityGroups)
+        {
+            renderer.RenderRaritySelectionPrompt(character, rarityGroups, contextManager.GetCurrentContext());
+        }
+        
+        /// <summary>
         /// Renders item comparison screen
         /// </summary>
         public void RenderItemComparison(Character character, Item newItem, Item? currentItem, string slot)
@@ -282,9 +290,9 @@ namespace RPGGame.UI.Avalonia.Coordinators
         /// <summary>
         /// Renders dungeon completion screen
         /// </summary>
-        public void RenderDungeonCompletion(Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos)
+        public void RenderDungeonCompletion(Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos, List<Item> itemsFoundDuringRun)
         {
-            renderer.RenderDungeonCompletion(dungeon, player, xpGained, lootReceived, levelUpInfos ?? new List<LevelUpInfo>(), contextManager.GetCurrentContext());
+            renderer.RenderDungeonCompletion(dungeon, player, xpGained, lootReceived, levelUpInfos ?? new List<LevelUpInfo>(), itemsFoundDuringRun ?? new List<Item>(), contextManager.GetCurrentContext());
         }
         
         /// <summary>

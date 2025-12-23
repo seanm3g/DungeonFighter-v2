@@ -35,6 +35,7 @@ namespace RPGGame.UI.Avalonia
             public const string UnequipItem = "Unequip Item";
             public const string DiscardItem = "Discard Item";
             public const string ManageComboActions = "Manage Combo Actions";
+            public const string TradeUpItems = "Trade Up Items";
             public const string ContinueToDungeon = "Continue to Dungeon";
             public const string ReturnToMainMenu = "Return to Main Menu";
             public const string ExitGame = "Exit Game";

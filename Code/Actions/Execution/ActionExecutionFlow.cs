@@ -44,15 +44,10 @@ namespace RPGGame.Actions.Execution
             result.BaseRoll = ActionSelector.GetActionRoll(source);
 
             // Handle unique action chance for characters (not enemies)
-            // Only apply to combo actions, not basic attacks (rolls 6-13 should remain basic attacks)
+            // BASIC ATTACK removed - all actions are now combo actions
             if (source is Character character && !(character is Enemy) && forcedAction == null)
             {
-                // Only allow unique action chance if the selected action is not a basic attack
-                // Basic attacks (rolls 6-13) should remain basic attacks and not be converted
-                if (result.SelectedAction.Name != "BASIC ATTACK")
-                {
-                    result.SelectedAction = ActionUtilities.HandleUniqueActionChance(character, result.SelectedAction);
-                }
+                result.SelectedAction = ActionUtilities.HandleUniqueActionChance(character, result.SelectedAction);
             }
 
             // Apply roll modifications from action

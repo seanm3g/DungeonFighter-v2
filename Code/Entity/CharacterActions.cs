@@ -115,11 +115,6 @@ namespace RPGGame
             _defaultManager.AddDefaultActions(actor);
         }
 
-        public void EnsureBasicAttackAvailable(Actor actor)
-        {
-            _defaultManager.EnsureBasicAttackAvailable(actor);
-        }
-
         public List<Action> GetAvailableUniqueActions(WeaponItem? weapon)
         {
             return _defaultManager.GetAvailableUniqueActions(weapon);

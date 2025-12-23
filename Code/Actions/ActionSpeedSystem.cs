@@ -27,6 +27,19 @@ namespace RPGGame
             entities.RemoveAll(e => e.Entity == entity);
         }
 
+        /// <summary>
+        /// Sets an entity's action time to force turn order
+        /// Used for exploration mechanics (first attack, surprise)
+        /// </summary>
+        public void SetEntityActionTime(Actor entity, double actionTime)
+        {
+            var combatEntity = entities.FirstOrDefault(e => e.Entity == entity);
+            if (combatEntity != null)
+            {
+                combatEntity.NextActionTime = actionTime;
+            }
+        }
+
         public Actor? GetNextEntityToAct()
         {
             double currentTime = GameTicker.Instance.GetCurrentGameTime();

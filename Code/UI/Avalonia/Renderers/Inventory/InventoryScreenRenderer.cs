@@ -90,7 +90,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     
                     // Add clickable item
                     string slotName = GetSlotName(item);
-                    clickableElements.Add(InventoryButtonFactory.CreateButton(x + 2, y, width - 4, i.ToString(), $"[{i + 1}] [{slotName}] {item.Name}"));
+                    string rarity = item.Rarity?.Trim() ?? "Common";
+                    clickableElements.Add(InventoryButtonFactory.CreateButton(x + 2, y, width - 4, i.ToString(), $"[{i + 1}] [{rarity}] [{slotName}] {item.Name}"));
                     
                     // Render item name
                     ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, i, item, useColoredText: true);
@@ -128,11 +129,12 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             var unequipButton = InventoryButtonFactory.CreateButton(x + 32, y, 28, "2", MenuOptionFormatter.Format(2, UIConstants.MenuOptions.UnequipItem));
             var discardButton = InventoryButtonFactory.CreateButton(x + 2, y + 1, 28, "3", MenuOptionFormatter.Format(3, UIConstants.MenuOptions.DiscardItem));
             var comboButton = InventoryButtonFactory.CreateButton(x + 32, y + 1, 28, "4", MenuOptionFormatter.Format(4, UIConstants.MenuOptions.ManageComboActions));
-            var dungeonButton = InventoryButtonFactory.CreateButton(x + 2, y + 2, 28, "5", MenuOptionFormatter.Format(5, UIConstants.MenuOptions.ContinueToDungeon));
-            var mainMenuButton = InventoryButtonFactory.CreateButton(x + 32, y + 2, 28, "6", MenuOptionFormatter.Format(6, UIConstants.MenuOptions.ReturnToMainMenu));
-            var exitButton = InventoryButtonFactory.CreateButton(x + 2, y + 3, 28, "0", MenuOptionFormatter.Format(0, UIConstants.MenuOptions.ExitGame));
+            var tradeUpButton = InventoryButtonFactory.CreateButton(x + 2, y + 2, 28, "5", MenuOptionFormatter.Format(5, UIConstants.MenuOptions.TradeUpItems));
+            var dungeonButton = InventoryButtonFactory.CreateButton(x + 32, y + 2, 28, "6", MenuOptionFormatter.Format(6, UIConstants.MenuOptions.ContinueToDungeon));
+            var mainMenuButton = InventoryButtonFactory.CreateButton(x + 2, y + 3, 28, "7", MenuOptionFormatter.Format(7, UIConstants.MenuOptions.ReturnToMainMenu));
+            var exitButton = InventoryButtonFactory.CreateButton(x + 32, y + 3, 28, "0", MenuOptionFormatter.Format(0, UIConstants.MenuOptions.ExitGame));
             
-            clickableElements.AddRange(new[] { equipButton, unequipButton, discardButton, comboButton, dungeonButton, mainMenuButton, exitButton });
+            clickableElements.AddRange(new[] { equipButton, unequipButton, discardButton, comboButton, tradeUpButton, dungeonButton, mainMenuButton, exitButton });
             
             // Render buttons in two columns
             canvas.AddMenuOption(x + 2, y, 1, UIConstants.MenuOptions.EquipItem, AsciiArtAssets.Colors.White, equipButton.IsHovered);
@@ -141,10 +143,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             canvas.AddMenuOption(x + 2, y + 1, 3, UIConstants.MenuOptions.DiscardItem, AsciiArtAssets.Colors.White, discardButton.IsHovered);
             canvas.AddMenuOption(x + 32, y + 1, 4, UIConstants.MenuOptions.ManageComboActions, AsciiArtAssets.Colors.White, comboButton.IsHovered);
             currentLineCount++;
-            canvas.AddMenuOption(x + 2, y + 2, 5, UIConstants.MenuOptions.ContinueToDungeon, AsciiArtAssets.Colors.White, dungeonButton.IsHovered);
-            canvas.AddMenuOption(x + 32, y + 2, 6, UIConstants.MenuOptions.ReturnToMainMenu, AsciiArtAssets.Colors.White, mainMenuButton.IsHovered);
+            canvas.AddMenuOption(x + 2, y + 2, 5, UIConstants.MenuOptions.TradeUpItems, AsciiArtAssets.Colors.White, tradeUpButton.IsHovered);
+            canvas.AddMenuOption(x + 32, y + 2, 6, UIConstants.MenuOptions.ContinueToDungeon, AsciiArtAssets.Colors.White, dungeonButton.IsHovered);
             currentLineCount++;
-            canvas.AddMenuOption(x + 2, y + 3, 0, UIConstants.MenuOptions.ExitGame, AsciiArtAssets.Colors.White, exitButton.IsHovered);
+            canvas.AddMenuOption(x + 2, y + 3, 7, UIConstants.MenuOptions.ReturnToMainMenu, AsciiArtAssets.Colors.White, mainMenuButton.IsHovered);
+            canvas.AddMenuOption(x + 32, y + 3, 0, UIConstants.MenuOptions.ExitGame, AsciiArtAssets.Colors.White, exitButton.IsHovered);
             currentLineCount++;
             
             return currentLineCount;

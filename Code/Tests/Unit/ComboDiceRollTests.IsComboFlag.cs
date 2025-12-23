@@ -22,45 +22,11 @@ namespace RPGGame.Tests.Unit
             _testsPassed = 0;
             _testsFailed = 0;
             Console.WriteLine("--- IsCombo Flag Tests (Bug Detection) ---");
-            TestIsComboFlagOnBasicAttack();
+            // TestIsComboFlagOnBasicAttack() - Removed: BASIC ATTACK has been removed from the game
             TestIsComboFlagOnComboAction();
             TestIsComboFlagBasedOnRoll();
             TestIsComboFlagWithForcedAction();
             TestBase.PrintSummary("IsCombo Flag Tests", _testsRun, _testsPassed, _testsFailed);
-        }
-
-        private static void TestIsComboFlagOnBasicAttack()
-        {
-            Console.WriteLine("\n--- Testing IsCombo Flag on Basic Attack ---");
-            
-            var character = CreateTestCharacter();
-            var enemy = new Enemy("TestEnemy", 1, 100, 10, 10, 10, 10);
-            var basicAttack = ActionFactory.GetBasicAttack(character);
-            
-            if (basicAttack != null)
-            {
-                var lastUsedActions = new Dictionary<Actor, Action>();
-                var lastCriticalMissStatus = new Dictionary<Actor, bool>();
-                
-                // Force basic attack
-                var result = ActionExecutionFlow.Execute(
-                    character, enemy, null, null, basicAttack, null, 
-                    lastUsedActions, lastCriticalMissStatus);
-                
-                // IsCombo should be based on roll, not action name
-                // For a basic attack with roll < 14, IsCombo should be false
-                // For a basic attack with roll >= 14, IsCombo should be true
-                
-                if (result.SelectedAction != null && result.SelectedAction.Name == "BASIC ATTACK")
-                {
-                    var thresholdManager = RollModificationManager.GetThresholdManager();
-                    int comboThreshold = thresholdManager.GetComboThreshold(character);
-                    bool expectedIsCombo = result.AttackRoll >= comboThreshold;
-                    
-                    TestBase.AssertTrue(result.IsCombo == expectedIsCombo, 
-                        $"IsCombo should be {expectedIsCombo} for BASIC ATTACK with roll {result.AttackRoll} (threshold: {comboThreshold}), got: {result.IsCombo}", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                }
-            }
         }
 
         private static void TestIsComboFlagOnComboAction()
@@ -174,11 +140,7 @@ namespace RPGGame.Tests.Unit
         private static Character CreateTestCharacter()
         {
             var character = new Character("TestHero", 1);
-            var basicAttack = ActionFactory.GetBasicAttack(character);
-            if (basicAttack != null)
-            {
-                character.AddAction(basicAttack, 1.0);
-            }
+            // BASIC ATTACK has been removed from the game
             return character;
         }
     }

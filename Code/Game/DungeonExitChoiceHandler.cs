@@ -50,14 +50,14 @@ namespace RPGGame
                 var option1Builder = new ColoredTextBuilder()
                     .Add("  ", ColorPalette.White)
                     .Add("1", ColorPalette.Success)
-                    .Add(" - Continue through the dungeon", ColorPalette.White);
+                    .Add(" - Stay and continue through the dungeon", ColorPalette.White);
                 canvasUI.WriteLineColoredSegments(option1Builder.Build(), UIMessageType.System);
                 
                 // Option 2 with color
                 var option2Builder = new ColoredTextBuilder()
                     .Add("  ", ColorPalette.White)
                     .Add("2", ColorPalette.Warning)
-                    .Add(" - Leave with no rewards", ColorPalette.White);
+                    .Add(" - Leave the dungeon", ColorPalette.White);
                 canvasUI.WriteLineColoredSegments(option2Builder.Build(), UIMessageType.System);
                 
                 // Bottom separator line with color (same length as top separator)

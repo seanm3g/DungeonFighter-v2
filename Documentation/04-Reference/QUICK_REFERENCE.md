@@ -8,7 +8,7 @@ Essential information for rapid development and problem-solving.
 - **Entry Point**: `Code/Game/Program.cs`
 - **Main Game Loop**: `Code/Game/Game.cs`
 - **Game Menu Management**: `Code/UI/GameMenuManager.cs`
-- **Game Loop Management**: `Code/Game/GameLoopManager.cs`
+- **Game Loop Management**: `Code/Game/DungeonRunnerManager.cs` (replaced GameLoopManager)
 - **Combat System**: `Code/Combat/CombatManager.cs` (orchestrator)
 - **Character System**: `Code/Entity/Character.cs` (coordinator) + specialized managers
 - **Enemy System**: `Code/Entity/Enemy.cs`

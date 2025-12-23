@@ -1,3 +1,4 @@
+using System;
 using System.Text.Json;
 
 namespace RPGGame
@@ -145,6 +146,26 @@ namespace RPGGame
             };
             
             WeaponItem starterWeapon = new WeaponItem(selectedWeaponData.name, 1, (int)selectedWeaponData.damage, selectedWeaponData.attackSpeed, weaponType);
+            
+            // Special handling for starter weapons
+            if (weaponType == WeaponType.Mace)
+            {
+                // Starter mace gets all 3 possible actions instead of a random one
+                starterWeapon.ActionBonuses.Add(new ActionBonus { Name = "SLAM" });
+                starterWeapon.ActionBonuses.Add(new ActionBonus { Name = "POUND" });
+                starterWeapon.ActionBonuses.Add(new ActionBonus { Name = "BLUDGEON" });
+            }
+            else
+            {
+                // For other starter weapons, assign action but skip 20% random chance
+                var actionSelector = new LootActionSelector(new Random());
+                var selectedAction = actionSelector.SelectWeaponActionForStarter(weaponType.ToString());
+                if (!string.IsNullOrEmpty(selectedAction))
+                {
+                    starterWeapon.GearAction = selectedAction;
+                }
+            }
+            
             player.EquipItem(starterWeapon, "weapon");
             
             // Initialize combo sequence with weapon actions now that weapon is equipped

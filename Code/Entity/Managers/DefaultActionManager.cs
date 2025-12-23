@@ -12,68 +12,22 @@ namespace RPGGame
     {
         /// <summary>
         /// Adds default actions to actor
+        /// BASIC ATTACK has been removed from the game - this method now does nothing
         /// </summary>
         public void AddDefaultActions(Actor entity)
         {
-            // BASIC ATTACK is now optional - try to add it if available, but don't require it
-            EnsureBasicAttackAvailable(entity);
+            // BASIC ATTACK removed - no default actions to add
+            // Actions are now only added via weapon GearAction property
         }
 
         /// <summary>
-        /// Ensures basic attack is available in the action pool - creates fallback if not found in JSON
+        /// Ensures basic attack is available in the action pool - REMOVED
+        /// BASIC ATTACK has been removed from the game
         /// </summary>
+        [Obsolete("BASIC ATTACK has been removed from the game. This method does nothing.")]
         public void EnsureBasicAttackAvailable(Actor entity)
         {
-            string basicAttackName = GameConstants.BasicAttackName;
-            bool hasBasicAttack = entity.ActionPool.Any(a => 
-                string.Equals(a.action.Name, basicAttackName, StringComparison.OrdinalIgnoreCase));
-            
-            if (!hasBasicAttack)
-            {
-                // Ensure actions are loaded before trying to get BASIC ATTACK
-                if (ActionLoader.GetAllActionNames().Count == 0)
-                {
-                    ActionLoader.LoadActions();
-                }
-                
-                var basicAttack = ActionLoader.GetAction(basicAttackName);
-                
-                // If not found in JSON, create a fallback BASIC ATTACK
-                if (basicAttack == null)
-                {
-                    DebugLogger.LogFormat("DefaultActionManager", 
-                        "BASIC ATTACK not found in JSON, creating fallback action");
-                    basicAttack = new Action(
-                        name: basicAttackName,
-                        type: ActionType.Attack,
-                        targetType: TargetType.SingleTarget,
-                        cooldown: 0,
-                        description: "A basic physical attack",
-                        comboOrder: -1,
-                        damageMultiplier: 1.0,
-                        length: 1.0,
-                        causesBleed: false,
-                        causesWeaken: false,
-                        causesPoison: false,
-                        causesStun: false,
-                        isComboAction: true,
-                        comboBonusAmount: 0,
-                        comboBonusDuration: 0
-                    );
-                }
-                
-                // CRITICAL: Mark BASIC ATTACK as combo action so it appears in GetActionPool()
-                // The GetActionPool() method only returns actions with IsComboAction == true
-                if (!basicAttack.IsComboAction)
-                {
-                    basicAttack.IsComboAction = true;
-                }
-                
-                entity.AddAction(basicAttack, 1.0);
-                DebugLogger.LogFormat("DefaultActionManager", 
-                    "Added BASIC ATTACK to {0} (ActionPool count: {1})", 
-                    entity.Name, entity.ActionPool.Count);
-            }
+            // BASIC ATTACK removed - method does nothing
         }
 
         /// <summary>

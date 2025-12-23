@@ -82,24 +82,6 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Synchronous version for backwards compatibility
-        /// </summary>
-        [Obsolete("Use DelayAfterActionAsync instead")]
-        public static void DelayAfterAction()
-        {
-            DelayAfterActionAsync().GetAwaiter().GetResult();
-        }
-        
-        /// <summary>
-        /// Synchronous version for backwards compatibility
-        /// </summary>
-        [Obsolete("Use DelayAfterMessageAsync instead")]
-        public static void DelayAfterMessage()
-        {
-            DelayAfterMessageAsync().GetAwaiter().GetResult();
-        }
-        
-        /// <summary>
         /// Determines if delays should be applied based on UI type and configuration
         /// </summary>
         private static bool ShouldApplyDelay()
@@ -121,21 +103,5 @@ namespace RPGGame
             }
         }
         
-        /// <summary>
-        /// Updates delay configuration
-        /// Note: Configuration is now loaded from TextDelayConfig.json
-        /// This method is kept for backwards compatibility but values should be updated in the JSON file
-        /// </summary>
-        /// <param name="actionDelayMs">Delay between complete actions (deprecated - update TextDelayConfig.json instead)</param>
-        /// <param name="messageDelayMs">Delay between individual messages (deprecated - update TextDelayConfig.json instead)</param>
-        /// <param name="enableGuiDelays">Whether to enable delays for GUI (deprecated - update TextDelayConfig.json instead)</param>
-        /// <param name="enableConsoleDelays">Whether to enable delays for console (deprecated - update TextDelayConfig.json instead)</param>
-        [Obsolete("Update TextDelayConfig.json instead. This method is kept for backwards compatibility only.")]
-        public static void UpdateConfig(int actionDelayMs = -1, int messageDelayMs = -1, bool? enableGuiDelays = null, bool? enableConsoleDelays = null)
-        {
-            // Configuration is now loaded from TextDelayConfig.json
-            // This method is kept for backwards compatibility but does nothing
-            // To update delays, edit GameData/TextDelayConfig.json
-        }
     }
 }

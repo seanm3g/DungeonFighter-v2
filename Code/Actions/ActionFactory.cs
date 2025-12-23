@@ -9,60 +9,59 @@ namespace RPGGame
     public static class ActionFactory
     {
         /// <summary>
-        /// Creates a BASIC ATTACK action by loading from JSON (optional - returns null if not found)
+        /// Creates a BASIC ATTACK action - REMOVED
+        /// BASIC ATTACK has been removed from the game
         /// </summary>
-        /// <returns>BASIC ATTACK action or null if not found</returns>
+        [Obsolete("BASIC ATTACK has been removed from the game. This method always returns null.")]
         public static Action? CreateBasicAttack()
         {
-            return ActionLoader.GetAction("BASIC ATTACK");
+            return null;
         }
 
         /// <summary>
-        /// Ensures BASIC ATTACK is available in an Actor's action pool (optional - returns null if not found)
+        /// Ensures BASIC ATTACK is available - REMOVED
+        /// BASIC ATTACK has been removed from the game
         /// </summary>
-        /// <param name="Actor">The Actor to ensure has BASIC ATTACK</param>
-        /// <returns>The BASIC ATTACK action (existing or loaded from JSON) or null if not available</returns>
+        [Obsolete("BASIC ATTACK has been removed from the game. This method always returns null.")]
         public static Action? EnsureBasicAttackAvailable(Actor Actor)
         {
-            // Check if BASIC ATTACK is already in the action pool
-            var existingBasicAttack = Actor.ActionPool
-                .FirstOrDefault(a => string.Equals(a.action.Name, "BASIC ATTACK", StringComparison.OrdinalIgnoreCase));
-
-            if (existingBasicAttack.action != null)
-            {
-                return existingBasicAttack.action;
-            }
-
-            // Load BASIC ATTACK from JSON
-            var loadedAction = ActionLoader.GetAction("BASIC ATTACK");
-            if (loadedAction == null)
-            {
-                // BASIC ATTACK is optional - return null instead of throwing
-                return null;
-            }
-
-            Actor.AddAction(loadedAction, 1.0);
-            return loadedAction;
+            return null;
         }
 
         /// <summary>
-        /// Gets BASIC ATTACK for an Actor, or returns null if not available
+        /// Gets BASIC ATTACK - REMOVED
+        /// BASIC ATTACK has been removed from the game
         /// </summary>
-        /// <param name="Actor">The Actor to get BASIC ATTACK for</param>
-        /// <returns>BASIC ATTACK action or null if not available</returns>
+        [Obsolete("BASIC ATTACK has been removed from the game. This method always returns null.")]
         public static Action? GetBasicAttack(Actor Actor)
         {
-            // First try to find existing BASIC ATTACK
-            var existingBasicAttack = Actor.ActionPool
-                .FirstOrDefault(a => string.Equals(a.action.Name, "BASIC ATTACK", StringComparison.OrdinalIgnoreCase));
+            return null;
+        }
 
-            if (existingBasicAttack.action != null)
-            {
-                return existingBasicAttack.action;
-            }
-
-            // If not found, try to ensure it's available (will return null if not in JSON)
-            return EnsureBasicAttackAvailable(Actor);
+        /// <summary>
+        /// Creates a basic attack action for normal attacks (rolls 6-13)
+        /// This is a non-combo action used when the roll is below the combo threshold (14)
+        /// </summary>
+        /// <returns>A basic attack action that is NOT a combo action</returns>
+        public static Action CreateNormalAttack()
+        {
+            return new Action(
+                name: "BASIC ATTACK",
+                type: ActionType.Attack,
+                targetType: TargetType.SingleTarget,
+                cooldown: 0,
+                description: "A basic attack",
+                comboOrder: 0,
+                damageMultiplier: 1.0,
+                length: 1.0,
+                causesBleed: false,
+                causesWeaken: false,
+                causesPoison: false,
+                causesStun: false,
+                isComboAction: false, // Important: This is NOT a combo action
+                comboBonusAmount: 0,
+                comboBonusDuration: 0
+            );
         }
     }
 }

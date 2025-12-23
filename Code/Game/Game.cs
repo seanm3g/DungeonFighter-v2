@@ -302,12 +302,12 @@ namespace RPGGame
             actionEditorHandler?.UpdateFormInput(input);
         }
 
-        public void ShowDungeonCompletion(int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos)
+        public void ShowDungeonCompletion(int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos, List<Item> itemsFoundDuringRun)
         {
             // Delegate to centralized screen coordinator so that
             // dungeon completion rendering and state logic live
             // in a single, testable component.
-            screenCoordinator.ShowDungeonCompletion(xpGained, lootReceived, levelUpInfos);
+            screenCoordinator.ShowDungeonCompletion(xpGained, lootReceived, levelUpInfos, itemsFoundDuringRun);
         }
 
         public void ShowDeathScreen(Character player)
