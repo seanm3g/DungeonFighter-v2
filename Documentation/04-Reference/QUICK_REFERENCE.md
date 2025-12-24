@@ -30,6 +30,7 @@ Essential information for rapid development and problem-solving.
 - **Overview**: `Documentation/OVERVIEW.md`
 - **Task List**: `Documentation/TASKLIST.md`
 - **Problem Solutions**: `Documentation/PROBLEM_SOLUTIONS.md`
+- **Navigation Guide**: `Documentation/04-Reference/NAVIGATION_GUIDE.md` - Call flow paths through abstraction layers
 
 ## Critical Classes & Their Responsibilities
 

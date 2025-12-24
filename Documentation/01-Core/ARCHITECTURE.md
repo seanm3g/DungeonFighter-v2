@@ -671,4 +671,5 @@ This architecture provides a solid foundation for a turn-based RPG with room for
 - **`CODE_PATTERNS.md`**: Code patterns and conventions based on this architecture
 - **`DEVELOPMENT_WORKFLOW.md`**: Development process using this architecture
 - **`QUICK_REFERENCE.md`**: Fast lookup for architecture components
+- **`NAVIGATION_GUIDE.md`**: Call flow paths through abstraction layers for common operations
 - **`INDEX.md`**: Complete documentation index

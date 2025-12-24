@@ -42,7 +42,7 @@ namespace RPGGame
             // Award rewards and get the data
             var dungeonLevel = stateManager.CurrentDungeon.MaxLevel;
             var dungeonManager = new DungeonManagerWithRegistry();
-            var (xpGained, lootReceived, levelUpInfos) = dungeonManager.AwardLootAndXPWithReturns(
+            var (xpGained, lootReceived, levelUpInfos) = await dungeonManager.AwardLootAndXPWithReturnsAsync(
                 stateManager.CurrentPlayer, 
                 stateManager.CurrentInventory, 
                 new List<Dungeon> { stateManager.CurrentDungeon }

@@ -182,18 +182,6 @@ namespace RPGGame.Utils
             return false;
         }
         
-        /// <summary>
-        /// Executes an action with retry logic (synchronous version for backwards compatibility)
-        /// </summary>
-        /// <param name="action">The action to execute</param>
-        /// <param name="maxRetries">Maximum number of retry attempts</param>
-        /// <param name="retryDelayMs">Delay between retries in milliseconds</param>
-        /// <param name="context">Context for error reporting</param>
-        /// <returns>True if the action succeeded within retry limit, false otherwise</returns>
-        public static bool TryExecuteWithRetry(System.Action action, int maxRetries = 3, int retryDelayMs = 1000, string context = "")
-        {
-            return TryExecuteWithRetryAsync(action, maxRetries, retryDelayMs, context).GetAwaiter().GetResult();
-        }
         
         /// <summary>
         /// Validates a condition and throws an exception if it fails

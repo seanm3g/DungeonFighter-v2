@@ -67,7 +67,7 @@ namespace RPGGame.Tuning
                     if (i < iterations) // Don't adjust on last iteration
                     {
                         Console.WriteLine($"\nPhase 4: Applying Adjustments...");
-                        ApplyIterationAdjustments(i);
+                        await ApplyIterationAdjustmentsAsync(i);
                         await Task.Delay(500);
 
                         // Phase 5: Test
@@ -185,26 +185,26 @@ namespace RPGGame.Tuning
             }
         }
 
-        private static void ApplyIterationAdjustments(int iteration)
+        private static async Task ApplyIterationAdjustmentsAsync(int iteration)
         {
             // Apply different adjustments for each iteration
             switch (iteration)
             {
                 case 1:
                     Console.WriteLine("Adjusting: Global enemy health +10%");
-                    BalanceAdjustmentTools.AdjustGlobalEnemyMultiplier("health", 1.1).Wait();
+                    await BalanceAdjustmentTools.AdjustGlobalEnemyMultiplier("health", 1.1);
                     break;
                 case 2:
                     Console.WriteLine("Adjusting: Enemy damage +5%");
-                    BalanceAdjustmentTools.AdjustGlobalEnemyMultiplier("damage", 1.05).Wait();
+                    await BalanceAdjustmentTools.AdjustGlobalEnemyMultiplier("damage", 1.05);
                     break;
                 case 3:
                     Console.WriteLine("Adjusting: Weapon scaling tuning");
-                    BalanceAdjustmentTools.AdjustWeaponScaling("global", "damage", 1.05).Wait();
+                    await BalanceAdjustmentTools.AdjustWeaponScaling("global", "damage", 1.05);
                     break;
                 case 4:
                     Console.WriteLine("Adjusting: Archetype rebalancing");
-                    BalanceAdjustmentTools.AdjustArchetype("Assassin", "agility", 1.1).Wait();
+                    await BalanceAdjustmentTools.AdjustArchetype("Assassin", "agility", 1.1);
                     break;
             }
 

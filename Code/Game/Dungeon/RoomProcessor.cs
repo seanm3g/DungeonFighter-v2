@@ -76,13 +76,23 @@ namespace RPGGame
             {
                 var explorationResult = explorationManager.ExploreRoom(room, stateManager.CurrentPlayer, isLastRoom);
                 
-                // Display exploration result using existing displayManager
-                displayManager.AddCombatEvent($"Exploration Roll: {explorationResult.Roll}");
-                displayManager.AddCombatEvent(explorationResult.Message);
+                // Display exploration result using existing displayManager with colors
+                var explorationRollBuilder = new ColoredTextBuilder()
+                    .Add("Exploration Roll: ", ColorPalette.Info)
+                    .Add(explorationResult.Roll.ToString(), ColorPalette.Success);
+                displayManager.AddCombatEvent(explorationRollBuilder);
+                
+                // Apply keyword coloring to exploration message
+                var explorationMessageColored = KeywordColorSystem.Colorize(explorationResult.Message);
+                string explorationMessageMarkup = ColoredTextRenderer.RenderAsMarkup(explorationMessageColored);
+                displayManager.AddCombatEvent(explorationMessageMarkup);
                 
                 if (explorationResult.EnvironmentInfo != null)
                 {
-                    displayManager.AddCombatEvent(explorationResult.EnvironmentInfo);
+                    // Apply keyword coloring to environment info
+                    var environmentInfoColored = KeywordColorSystem.Colorize(explorationResult.EnvironmentInfo);
+                    string environmentInfoMarkup = ColoredTextRenderer.RenderAsMarkup(environmentInfoColored);
+                    displayManager.AddCombatEvent(environmentInfoMarkup);
                 }
                 
                 // Handle environmental hazard
@@ -248,9 +258,16 @@ namespace RPGGame
                 var searchResult = explorationManager.SearchRoom(room, stateManager.CurrentPlayer, 
                     stateManager.CurrentDungeon.MinLevel, isLastRoom);
                 
-                // Display search result
-                displayManager.AddCombatEvent($"Search Roll: {searchResult.Roll}");
-                displayManager.AddCombatEvent(searchResult.Message);
+                // Display search result with colors
+                var searchRollBuilder = new ColoredTextBuilder()
+                    .Add("Search Roll: ", ColorPalette.Info)
+                    .Add(searchResult.Roll.ToString(), ColorPalette.Success);
+                displayManager.AddCombatEvent(searchRollBuilder);
+                
+                // Apply keyword coloring to search message
+                var searchMessageColored = KeywordColorSystem.Colorize(searchResult.Message);
+                string searchMessageMarkup = ColoredTextRenderer.RenderAsMarkup(searchMessageColored);
+                displayManager.AddCombatEvent(searchMessageMarkup);
                 
                 // If loot found, add it to inventory
                 if (searchResult.FoundLoot && searchResult.LootItem != null)

@@ -88,10 +88,14 @@ namespace DungeonFighter.Game.Menu.State
 
         /// <summary>
         /// Synchronous version of TransitionToAsync.
+        /// NOTE: This method is deprecated. Use TransitionToAsync instead for proper async handling.
         /// </summary>
+        [Obsolete("Use TransitionToAsync instead. This method blocks the calling thread and may freeze the UI.")]
         public bool TransitionTo(GameState newState, string? reason = null)
         {
-            return TransitionToAsync(newState, reason).GetAwaiter().GetResult();
+            // For backward compatibility only - callers should migrate to async version
+            // Using ConfigureAwait(false) to avoid deadlocks, but this still blocks
+            return TransitionToAsync(newState, reason).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         /// <summary>

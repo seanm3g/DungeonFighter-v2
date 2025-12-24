@@ -149,9 +149,14 @@ namespace RPGGame
         }
 
         // Synchronous version for backward compatibility
+        // NOTE: This method is deprecated. Use CreateFallbackWeaponAsync instead for proper async handling.
+        // This synchronous wrapper blocks the calling thread and should not be used in UI contexts.
+        [Obsolete("Use CreateFallbackWeaponAsync instead. This method blocks the calling thread and may freeze the UI.")]
         public static WeaponItem? CreateFallbackWeapon(int playerLevel)
         {
-            return CreateFallbackWeaponAsync(playerLevel).GetAwaiter().GetResult();
+            // For backward compatibility only - callers should migrate to async version
+            // Using ConfigureAwait(false) to avoid deadlocks, but this still blocks
+            return CreateFallbackWeaponAsync(playerLevel).ConfigureAwait(false).GetAwaiter().GetResult();
         }
         
         public static string? FindGameDataFile(string fileName)

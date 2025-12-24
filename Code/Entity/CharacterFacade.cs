@@ -276,7 +276,8 @@ namespace RPGGame
         // === SAVE/LOAD METHODS ===
         public void SaveCharacter(string? filename = null) => CharacterSaveManager.SaveCharacter(_character, filename);
         public static async Task<Character?> LoadCharacterAsync(string? filename = null) => await CharacterSaveManager.LoadCharacterAsync(filename).ConfigureAwait(false);
-        public static Character? LoadCharacter(string? filename = null) => CharacterSaveManager.LoadCharacter(filename);
+        [Obsolete("Use LoadCharacterAsync instead. This method blocks the calling thread and may freeze the UI.")]
+        public static Character? LoadCharacter(string? filename = null) => LoadCharacterAsync(filename).ConfigureAwait(false).GetAwaiter().GetResult();
         public static void DeleteSaveFile(string? filename = null) => CharacterSaveManager.DeleteSaveFile(filename);
 
         // === DIRECT ACCESS TO UNDERLYING CHARACTER ===

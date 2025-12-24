@@ -19,7 +19,7 @@ namespace RPGGame
         /// <param name="inventory">Player's inventory</param>
         /// <param name="dungeonLevel">Level of the completed dungeon</param>
         /// <param name="dungeonTheme">Theme of the dungeon (optional, for contextual loot)</param>
-        public void AwardLootAndXP(Character player, List<Item> inventory, int dungeonLevel, string? dungeonTheme = null)
+        public async System.Threading.Tasks.Task AwardLootAndXPAsync(Character player, List<Item> inventory, int dungeonLevel, string? dungeonTheme = null)
         {
             BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse("Dungeon completed!"));
             
@@ -33,7 +33,7 @@ namespace RPGGame
             AwardXP(player);
 
             // Award guaranteed loot for dungeon completion
-            AwardLoot(player, inventory, dungeonLevel, dungeonTheme);
+            await AwardLootAsync(player, inventory, dungeonLevel, dungeonTheme);
         }
         
         /// <summary>
@@ -44,7 +44,7 @@ namespace RPGGame
         /// <param name="dungeonLevel">Level of the completed dungeon</param>
         /// <param name="dungeonTheme">Theme of the dungeon (optional, for contextual loot)</param>
         /// <returns>Tuple containing XP gained, loot received, and level-up information</returns>
-        public (int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos) AwardLootAndXPWithReturns(Character player, List<Item> inventory, int dungeonLevel, string? dungeonTheme = null)
+        public async System.Threading.Tasks.Task<(int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos)> AwardLootAndXPWithReturnsAsync(Character player, List<Item> inventory, int dungeonLevel, string? dungeonTheme = null)
         {
             // Track dungeon completion statistics
             player.RecordDungeonCompleted();
@@ -56,7 +56,7 @@ namespace RPGGame
             var (xpGained, levelUpInfos) = AwardXPWithReturnAndLevelUpInfo(player);
 
             // Award guaranteed loot for dungeon completion and get the item
-            Item? lootReceived = AwardLootWithReturn(player, inventory, dungeonLevel, dungeonTheme);
+            Item? lootReceived = await AwardLootWithReturnAsync(player, inventory, dungeonLevel, dungeonTheme);
             
             return (xpGained, lootReceived, levelUpInfos);
         }
@@ -118,7 +118,7 @@ namespace RPGGame
         /// <summary>
         /// Awards loot to the player
         /// </summary>
-        private void AwardLoot(Character player, List<Item> inventory, int dungeonLevel, string? dungeonTheme = null)
+        private async System.Threading.Tasks.Task AwardLootAsync(Character player, List<Item> inventory, int dungeonLevel, string? dungeonTheme = null)
         {
             Item? reward = LootGenerator.GenerateLoot(player.Level, dungeonLevel, player, guaranteedLoot: true, dungeonTheme: dungeonTheme);
             
@@ -126,7 +126,7 @@ namespace RPGGame
             if (reward == null)
             {
                 HandleLootGenerationFailure(player, dungeonLevel);
-                reward = CreateFallbackReward(player);
+                reward = await CreateFallbackRewardAsync(player);
             }
 
             if (reward != null)
@@ -155,7 +155,7 @@ namespace RPGGame
         /// <summary>
         /// Awards loot to the player and returns the item
         /// </summary>
-        private Item? AwardLootWithReturn(Character player, List<Item> inventory, int dungeonLevel, string? dungeonTheme = null)
+        private async System.Threading.Tasks.Task<Item?> AwardLootWithReturnAsync(Character player, List<Item> inventory, int dungeonLevel, string? dungeonTheme = null)
         {
             Item? reward = LootGenerator.GenerateLoot(player.Level, dungeonLevel, player, guaranteedLoot: true, dungeonTheme: dungeonTheme);
             
@@ -163,7 +163,7 @@ namespace RPGGame
             if (reward == null)
             {
                 HandleLootGenerationFailure(player, dungeonLevel);
-                reward = CreateFallbackReward(player);
+                reward = await CreateFallbackRewardAsync(player);
             }
 
             if (reward != null)
@@ -196,10 +196,10 @@ namespace RPGGame
         /// <summary>
         /// Creates a fallback reward when loot generation fails
         /// </summary>
-        private Item? CreateFallbackReward(Character player)
+        private async System.Threading.Tasks.Task<Item?> CreateFallbackRewardAsync(Character player)
         {
             // Create a diagnostic fallback weapon to prevent game breaking
-            var reward = Program.CreateFallbackWeapon(player.Level);
+            var reward = await Program.CreateFallbackWeaponAsync(player.Level);
             if (reward == null)
             {
                 // Ultimate fallback if weapon data loading fails

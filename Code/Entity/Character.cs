@@ -353,7 +353,8 @@ namespace RPGGame
         public void DisplayCharacterInfo() => Facade.DisplayCharacterInfo();
         public void SaveCharacter(string? filename = null) => Facade.SaveCharacter(filename);
         public static async Task<Character?> LoadCharacterAsync(string? filename = null) => await CharacterFacade.LoadCharacterAsync(filename).ConfigureAwait(false);
-        public static Character? LoadCharacter(string? filename = null) => CharacterFacade.LoadCharacter(filename);
+        [Obsolete("Use LoadCharacterAsync instead. This method blocks the calling thread and may freeze the UI.")]
+        public static Character? LoadCharacter(string? filename = null) => LoadCharacterAsync(filename).ConfigureAwait(false).GetAwaiter().GetResult();
         public static void DeleteSaveFile(string? filename = null) => CharacterFacade.DeleteSaveFile(filename);
         
         // Session statistics methods

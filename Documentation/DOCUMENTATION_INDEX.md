@@ -30,6 +30,7 @@
 | **02-Development/COMBAT_SIMULATION_README.md** | Deep dive into the system and how it works | 20 min | People who want to understand everything |
 | **02-Development/SIMULATION_AND_TUNING_GUIDE.md** | Complete technical guide with examples | 30 min | Balance designers and power users |
 | **05-Systems/MCP_INTEGRATION_GUIDE.md** | How to use with Claude and other AI agents | 10 min | People using Claude for tuning |
+| **04-Reference/NAVIGATION_GUIDE.md** | Call flow paths through abstraction layers | 15 min | Developers navigating the codebase |
 | **scenario_template.json** | Template for creating custom test scenarios | 5 min | When creating new test cases |
 
 ---

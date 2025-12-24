@@ -118,7 +118,8 @@ namespace RPGGame.UI.Animations
             if (config.Direction == FadeDirection.TemplateProgression && config.ColorTemplate != null)
             {
                 // Use default color progression for template mode
-                // TODO: Extract colors from ColorTemplateLibrary if needed
+                // Note: ColorTemplateLibrary uses Avalonia Colors which don't directly map to console color codes,
+                // so we use a standard brightness progression instead
                 return new List<char> { 'Y', 'y', 'K', 'k' }; // White -> Grey -> Dark Grey -> Very Dark
             }
             

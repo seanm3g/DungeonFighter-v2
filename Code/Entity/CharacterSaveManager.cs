@@ -73,8 +73,33 @@ namespace RPGGame
                     }
                 });
             }
+            catch (System.IO.IOException ex)
+            {
+                // Only show error in console mode (not in custom UI mode)
+                if (UIManager.GetCustomUIManager() == null)
+                {
+                    UIManager.WriteLine($"Error saving character: I/O error - {ex.Message}");
+                }
+            }
+            catch (System.UnauthorizedAccessException ex)
+            {
+                // Only show error in console mode (not in custom UI mode)
+                if (UIManager.GetCustomUIManager() == null)
+                {
+                    UIManager.WriteLine($"Error saving character: Access denied - {ex.Message}");
+                }
+            }
+            catch (System.Text.Json.JsonException ex)
+            {
+                // Only show error in console mode (not in custom UI mode)
+                if (UIManager.GetCustomUIManager() == null)
+                {
+                    UIManager.WriteLine($"Error saving character: JSON serialization error - {ex.Message}");
+                }
+            }
             catch (Exception ex)
             {
+                // Catch-all for any other unexpected errors
                 // Only show error in console mode (not in custom UI mode)
                 if (UIManager.GetCustomUIManager() == null)
                 {
@@ -179,8 +204,45 @@ namespace RPGGame
                 }
                 return character;
             }
+            catch (System.IO.FileNotFoundException ex)
+            {
+                // Only show error in console mode (not in custom UI mode)
+                if (UIManager.GetCustomUIManager() == null)
+                {
+                    UIManager.WriteLine($"Error loading character: File not found - {ex.Message}");
+                }
+                return null;
+            }
+            catch (System.IO.IOException ex)
+            {
+                // Only show error in console mode (not in custom UI mode)
+                if (UIManager.GetCustomUIManager() == null)
+                {
+                    UIManager.WriteLine($"Error loading character: I/O error - {ex.Message}");
+                }
+                return null;
+            }
+            catch (System.UnauthorizedAccessException ex)
+            {
+                // Only show error in console mode (not in custom UI mode)
+                if (UIManager.GetCustomUIManager() == null)
+                {
+                    UIManager.WriteLine($"Error loading character: Access denied - {ex.Message}");
+                }
+                return null;
+            }
+            catch (System.Text.Json.JsonException ex)
+            {
+                // Only show error in console mode (not in custom UI mode)
+                if (UIManager.GetCustomUIManager() == null)
+                {
+                    UIManager.WriteLine($"Error loading character: JSON deserialization error - {ex.Message}");
+                }
+                return null;
+            }
             catch (Exception ex)
             {
+                // Catch-all for any other unexpected errors
                 // Only show error in console mode (not in custom UI mode)
                 if (UIManager.GetCustomUIManager() == null)
                 {
@@ -192,14 +254,17 @@ namespace RPGGame
 
         /// <summary>
         /// Loads a character from a JSON file (synchronous version for backward compatibility)
+        /// NOTE: This method is deprecated. Use LoadCharacterAsync instead for proper async handling.
+        /// This synchronous wrapper blocks the calling thread and should not be used in UI contexts.
         /// </summary>
         /// <param name="filename">The filename to load from</param>
         /// <returns>The loaded character, or null if loading failed</returns>
+        [Obsolete("Use LoadCharacterAsync instead. This method blocks the calling thread and may freeze the UI.")]
         public static Character? LoadCharacter(string? filename = null)
         {
-            // For backward compatibility, call async version synchronously
-            // This should only be used in non-UI contexts
-            return LoadCharacterAsync(filename).GetAwaiter().GetResult();
+            // For backward compatibility only - callers should migrate to async version
+            // Using ConfigureAwait(false) to avoid deadlocks, but this still blocks
+            return LoadCharacterAsync(filename).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -221,8 +286,30 @@ namespace RPGGame
                     File.Delete(filename);
                 }
             }
+            catch (System.IO.FileNotFoundException)
+            {
+                // File doesn't exist - this is fine, nothing to delete
+                // Silently ignore
+            }
+            catch (System.IO.IOException ex)
+            {
+                // Only show error in console mode (not in custom UI mode)
+                if (UIManager.GetCustomUIManager() == null)
+                {
+                    UIManager.WriteLine($"Error deleting save file: I/O error - {ex.Message}");
+                }
+            }
+            catch (System.UnauthorizedAccessException ex)
+            {
+                // Only show error in console mode (not in custom UI mode)
+                if (UIManager.GetCustomUIManager() == null)
+                {
+                    UIManager.WriteLine($"Error deleting save file: Access denied - {ex.Message}");
+                }
+            }
             catch (Exception ex)
             {
+                // Catch-all for any other unexpected errors
                 // Only show error in console mode (not in custom UI mode)
                 if (UIManager.GetCustomUIManager() == null)
                 {

@@ -138,14 +138,14 @@ namespace RPGGame
         /// <param name="player">The player character</param>
         /// <param name="inventory">Player's inventory</param>
         /// <param name="availableDungeons">Available dungeons to determine dungeon level</param>
-        public void AwardLootAndXP(Character player, List<Item> inventory, List<Dungeon> availableDungeons)
+        public async System.Threading.Tasks.Task AwardLootAndXPAsync(Character player, List<Item> inventory, List<Dungeon> availableDungeons)
         {
             // Determine current dungeon level
             int dungeonLevel = GetCurrentDungeonLevel(player, availableDungeons);
             
             // Delegate to RewardManager
             var rewardManager = new RewardManager();
-            rewardManager.AwardLootAndXP(player, inventory, dungeonLevel);
+            await rewardManager.AwardLootAndXPAsync(player, inventory, dungeonLevel);
         }
         
         /// <summary>
@@ -155,14 +155,14 @@ namespace RPGGame
         /// <param name="inventory">Player's inventory</param>
         /// <param name="availableDungeons">Available dungeons to determine dungeon level</param>
         /// <returns>Tuple containing XP gained, loot received, and level-up information</returns>
-        public (int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos) AwardLootAndXPWithReturns(Character player, List<Item> inventory, List<Dungeon> availableDungeons)
+        public async System.Threading.Tasks.Task<(int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos)> AwardLootAndXPWithReturnsAsync(Character player, List<Item> inventory, List<Dungeon> availableDungeons)
         {
             // Determine current dungeon level
             int dungeonLevel = GetCurrentDungeonLevel(player, availableDungeons);
             
             // Delegate to RewardManager
             var rewardManager = new RewardManager();
-            return rewardManager.AwardLootAndXPWithReturns(player, inventory, dungeonLevel);
+            return await rewardManager.AwardLootAndXPWithReturnsAsync(player, inventory, dungeonLevel);
         }
 
         /// <summary>

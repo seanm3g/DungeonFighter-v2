@@ -427,6 +427,14 @@ namespace RPGGame
                     }
                 }
             }
+            catch (System.IO.IOException ex)
+            {
+                TextDisplayIntegration.DisplaySystem($"Error saving test results: I/O error - {ex.Message}");
+            }
+            catch (System.UnauthorizedAccessException ex)
+            {
+                TextDisplayIntegration.DisplaySystem($"Error saving test results: Access denied - {ex.Message}");
+            }
             catch (Exception ex)
             {
                 TextDisplayIntegration.DisplaySystem($"Error saving test results: {ex.Message}");
@@ -528,6 +536,10 @@ namespace RPGGame
                 {
                     RunItemGenerationTest();
                     testResults.Add(("Item Generation Test", true, "Completed successfully"));
+                }
+                catch (InvalidOperationException ex)
+                {
+                    testResults.Add(("Item Generation Test", false, $"Test setup failed: {ex.Message}"));
                 }
                 catch (Exception ex)
                 {
@@ -654,6 +666,10 @@ namespace RPGGame
                     testResults.Add(("Action Editor Test", false, $"Failed: {ex.Message}"));
                 }
                 
+            }
+            catch (InvalidOperationException ex)
+            {
+                TextDisplayIntegration.DisplaySystem($"\nCritical error during test execution: Test setup failed - {ex.Message}");
             }
             catch (Exception ex)
             {

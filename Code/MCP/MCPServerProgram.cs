@@ -28,7 +28,8 @@ namespace RPGGame.MCP
             Console.CancelKeyPress += (sender, e) =>
             {
                 e.Cancel = true;
-                server.Stop();
+                // Fire and forget for shutdown - we want to exit quickly
+                _ = server.StopAsync();
             };
 
             try
