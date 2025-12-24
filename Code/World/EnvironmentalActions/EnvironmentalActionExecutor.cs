@@ -1,0 +1,342 @@
+using System;
+using System.Collections.Generic;
+using Avalonia.Media;
+using RPGGame.UI.ColorSystem;
+using static RPGGame.Combat.Formatting.DamageFormatter;
+
+namespace RPGGame
+{
+    /// <summary>
+    /// Handles environmental action execution with duration-based effects
+    /// Extracted from EnvironmentalActionHandler to separate environmental action logic
+    /// </summary>
+    public static class EnvironmentalActionExecutor
+    {
+        /// <summary>
+        /// Executes an environmental action with duration-based effects
+        /// </summary>
+        /// <param name="source">The environment performing the action</param>
+        /// <param name="targets">List of target entities</param>
+        /// <param name="action">The action to perform</param>
+        /// <param name="environment">The environment context</param>
+        /// <returns>A string describing the results</returns>
+        public static string ExecuteEnvironmentalAction(Actor source, List<Actor> targets, Action action, Environment? environment = null)
+        {
+            // Get list of alive targets
+            var aliveTargets = new List<Actor>();
+            foreach (var target in targets)
+            {
+                bool isAlive = false;
+                if (target is Character targetCharacter)
+                    isAlive = targetCharacter.CurrentHealth > 0;
+                else if (target is Enemy targetEnemy)
+                    isAlive = targetEnemy.CurrentHealth > 0;
+                
+                if (isAlive)
+                {
+                    aliveTargets.Add(target);
+                }
+            }
+            
+            if (aliveTargets.Count == 0)
+            {
+                var builder = new ColoredTextBuilder();
+                builder.Add(source.Name, ColorPalette.Green);
+                builder.Add("'s", Colors.White);
+                builder.AddSpace();
+                builder.Add(action.Name, ColorPalette.Success);
+                builder.Add(" has no effect!", Colors.White);
+                return ColoredTextRenderer.RenderAsMarkup(builder.Build());
+            }
+            
+            // Roll separately for each target and track which ones are affected
+            var affectedTargets = new List<(Actor target, int duration)>();
+            
+            foreach (var target in aliveTargets)
+            {
+                // Roll 2d2-2 to determine duration (0-2 turns) for this specific target
+                int duration = Dice.Roll(1, 2) + Dice.Roll(1, 2) - 2;
+                
+                // If duration is 0, the effect is not applied to this target
+                if (duration > 0)
+                {
+                    ApplyEnvironmentalEffectSilent(source, target, action, duration);
+                    affectedTargets.Add((target, duration));
+                }
+            }
+            
+            // If no targets were affected, show no effect message
+            if (affectedTargets.Count == 0)
+            {
+                var builder = new ColoredTextBuilder();
+                builder.Add(source.Name, ColorPalette.Green);
+                builder.Add("'s", Colors.White);
+                builder.AddSpace();
+                builder.Add(action.Name, ColorPalette.Success);
+                builder.Add(" has no effect!", Colors.White);
+                return ColoredTextRenderer.RenderAsMarkup(builder.Build());
+            }
+            
+            // Format the message based on number of affected targets
+            if (affectedTargets.Count == 1)
+            {
+                // Single target affected - use the original format
+                var (target, duration) = affectedTargets[0];
+                return FormatEnvironmentalEffectMessage(source, target, action, duration);
+            }
+            else
+            {
+                // Multiple targets affected - format as area of effect with individual results
+                var mainBuilder = new ColoredTextBuilder();
+                mainBuilder.Add(source.Name, ColorPalette.Green);
+                AddUsesAction(mainBuilder, action.Name, ColorPalette.Success);
+                mainBuilder.Add("!", Colors.White);
+                var result = ColoredTextRenderer.RenderAsMarkup(mainBuilder.Build());
+                
+                // Add individual effect messages for each affected target
+                for (int i = 0; i < affectedTargets.Count; i++)
+                {
+                    var (target, duration) = affectedTargets[i];
+                    string displayName = GetDisplayName(target);
+                    var effectMessage = GetEnvironmentalEffectMessageColored(action, duration);
+                    var builder = new ColoredTextBuilder();
+                    // Add 5 spaces for indentation to match roll detail lines
+                    builder.Add("     ", Colors.White);
+                    builder.Add(displayName, target is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
+                    builder.AddSpace();
+                    builder.Add("affected", Colors.White);
+                    builder.AddSpace();
+                    builder.Add("by", Colors.White);
+                    builder.AddSpace();
+                    builder.AddRange(effectMessage);
+                    result += "\n" + ColoredTextRenderer.RenderAsMarkup(builder.Build());
+                    
+                    // Add blank line after last status effect message to separate from next character action
+                    bool isLast = i == affectedTargets.Count - 1;
+                    if (isLast)
+                    {
+                        result += "\n";
+                    }
+                }
+                
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Applies environmental effects to a target without adding messages to results list
+        /// </summary>
+        /// <param name="source">The environment source</param>
+        /// <param name="target">The target Actor</param>
+        /// <param name="action">The action being applied</param>
+        /// <param name="duration">Duration of the effect</param>
+        private static void ApplyEnvironmentalEffectSilent(Actor source, Actor target, Action action, int duration)
+        {
+            // Apply effects based on action type and properties
+            if (action.CausesBleed)
+            {
+                target.ApplyPoison(2, duration, true); // 2 damage per turn, bleeding type
+            }
+            else if (action.CausesWeaken)
+            {
+                target.ApplyWeaken(duration);
+            }
+            else if (action.CausesSlow)
+            {
+                // Apply slow effect - for characters, use the character-specific method
+                if (target is Character character)
+                {
+                    character.ApplySlow(0.5, duration); // 50% speed reduction
+                }
+                // For enemies, we can't easily apply slow without modifying the base class
+            }
+            else if (action.CausesPoison)
+            {
+                target.ApplyPoison(2, duration); // 2 damage per turn for the duration
+            }
+            else if (action.CausesStun)
+            {
+                target.IsStunned = true;
+                target.StunTurnsRemaining = duration;
+            }
+            else if (action.CausesBurn)
+            {
+                target.ApplyBurn(3, duration); // 3 damage per turn for the duration
+            }
+            else if (action.Type == ActionType.Attack)
+            {
+                // For environmental attacks, calculate damage normally
+                double damageMultiplier = CalculateDamageMultiplier(source, action);
+                int damage = CombatCalculator.CalculateDamage(source, target, action, damageMultiplier, 1.0, 0, 0);
+                
+                // Apply damage
+                ApplyDamage(target, damage);
+            }
+        }
+
+        /// <summary>
+        /// Formats a single environmental effect message
+        /// </summary>
+        /// <param name="source">The environment source</param>
+        /// <param name="target">The target Actor</param>
+        /// <param name="action">The action being applied</param>
+        /// <param name="duration">Duration of the effect</param>
+        /// <returns>Formatted message</returns>
+        private static string FormatEnvironmentalEffectMessage(Actor source, Actor target, Action action, int duration)
+        {
+            string displayName = GetDisplayName(target);
+            
+            // Build main action line - just "uses Ancient Trap!" without target
+            var mainBuilder = new ColoredTextBuilder();
+            mainBuilder.Add(source.Name, ColorPalette.Green);
+            AddUsesAction(mainBuilder, action.Name, ColorPalette.Success);
+            mainBuilder.Add("!", Colors.White);
+            string mainLine = ColoredTextRenderer.RenderAsMarkup(mainBuilder.Build());
+            
+            // Build effect line - "affected by BLEED for x turns"
+            // Add 5 spaces for indentation to match roll detail lines
+            var effectBuilder = new ColoredTextBuilder();
+            effectBuilder.Add("     ", Colors.White);
+            effectBuilder.Add(displayName, target is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
+            effectBuilder.AddSpace();
+            effectBuilder.Add("affected", Colors.White);
+            effectBuilder.AddSpace();
+            effectBuilder.Add("by", Colors.White);
+            
+            effectBuilder.AddSpace();
+            if (action.CausesBleed)
+            {
+                effectBuilder.Add("BLEED", ColorPalette.Error);
+            }
+            else if (action.CausesWeaken)
+            {
+                effectBuilder.Add("WEAKEN", ColorPalette.Orange);
+            }
+            else if (action.CausesSlow)
+            {
+                effectBuilder.Add("SLOW", ColorPalette.Cyan);
+            }
+            else if (action.CausesPoison)
+            {
+                effectBuilder.Add("POISON", ColorPalette.Green);
+            }
+            else if (action.CausesStun)
+            {
+                effectBuilder.Add("STUN", ColorPalette.Magenta);
+            }
+            else if (action.Type == ActionType.Attack)
+            {
+                // For environmental attacks, calculate damage normally
+                double damageMultiplier = CalculateDamageMultiplier(source, action);
+                int damage = CombatCalculator.CalculateDamage(source, target, action, damageMultiplier, 1.0, 0, 0);
+                var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, damage, damage, action, 1.0, damageMultiplier, 0, 0);
+                return ColoredTextRenderer.RenderAsMarkup(damageText) + "\n" + ColoredTextRenderer.RenderAsMarkup(rollInfo);
+            }
+            else
+            {
+                // Generic environmental effect
+                effectBuilder.Add("EFFECT", ColorPalette.Warning);
+            }
+            
+            if (action.Type != ActionType.Attack)
+            {
+                AddForAmountUnit(effectBuilder, duration.ToString(), ColorPalette.White, "turns", ColorPalette.White);
+                string effectLine = ColoredTextRenderer.RenderAsMarkup(effectBuilder.Build());
+                // Add blank line after all status effect messages to separate from next character action
+                return mainLine + "\n" + effectLine + "\n";
+            }
+            
+            return mainLine;
+        }
+
+        /// <summary>
+        /// Gets the display name for an Actor in environmental messages
+        /// </summary>
+        /// <param name="actor">The Actor to get display name for</param>
+        /// <returns>Display name with Actor's actual name</returns>
+        private static string GetDisplayName(Actor actor)
+        {
+            return actor.Name;
+        }
+
+        /// <summary>
+        /// Gets the environmental effect message for area-of-effect actions as ColoredText
+        /// </summary>
+        /// <param name="action">The action being applied</param>
+        /// <param name="duration">Duration of the effect</param>
+        /// <returns>Effect message as ColoredText</returns>
+        private static List<ColoredText> GetEnvironmentalEffectMessageColored(Action action, int duration)
+        {
+            var builder = new ColoredTextBuilder();
+            
+            if (action.CausesBleed)
+            {
+                builder.Add("BLEED", ColorPalette.Error);
+            }
+            else if (action.CausesWeaken)
+            {
+                builder.Add("WEAKEN", ColorPalette.Orange);
+            }
+            else if (action.CausesSlow)
+            {
+                builder.Add("SLOW", ColorPalette.Cyan);
+            }
+            else if (action.CausesPoison)
+            {
+                builder.Add("POISON", ColorPalette.Green);
+            }
+            else if (action.CausesStun)
+            {
+                builder.Add("STUN", ColorPalette.Magenta);
+            }
+            else
+            {
+                builder.Add("EFFECT", ColorPalette.Warning);
+            }
+            
+            AddForAmountUnit(builder, duration.ToString(), ColorPalette.White, "turns", ColorPalette.White);
+            
+            return builder.Build();
+        }
+
+        /// <summary>
+        /// Calculates damage multiplier for environmental actions
+        /// </summary>
+        private static double CalculateDamageMultiplier(Actor source, Action action)
+        {
+            if (source is Character character)
+            {
+                // Only apply combo amplification to combo actions, starting at step 2 (step 0 and 1 add no bonus)
+                if (action.IsComboAction && character.ComboStep > 1)
+                {
+                    return character.GetCurrentComboAmplification();
+                }
+            }
+            else if (source is Enemy enemy)
+            {
+                // Enemies also get combo amplification (same as heroes), starting at step 2 (step 0 and 1 add no bonus)
+                if (action.IsComboAction && enemy.ComboStep > 1)
+                {
+                    return enemy.GetCurrentComboAmplification();
+                }
+            }
+            return 1.0;
+        }
+
+        /// <summary>
+        /// Applies damage to target Actor
+        /// </summary>
+        private static void ApplyDamage(Actor target, int damage)
+        {
+            if (target is Character targetCharacter)
+            {
+                targetCharacter.TakeDamage(damage);
+            }
+            else if (target is Enemy targetEnemy)
+            {
+                targetEnemy.TakeDamage(damage);
+            }
+        }
+    }
+}
+

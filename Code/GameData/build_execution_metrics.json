@@ -66,6 +66,24 @@
       "Mode": "GUI",
       "ExecutionTimeMs": 14067192,
       "ExecutionTimeSeconds": 14067.1923627
+    },
+    {
+      "Timestamp": "2025-12-24T01:10:10.3732483Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 3689,
+      "ExecutionTimeSeconds": 3.6899298
+    },
+    {
+      "Timestamp": "2025-12-24T01:14:49.1225703Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 141064,
+      "ExecutionTimeSeconds": 141.0647821
+    },
+    {
+      "Timestamp": "2025-12-24T01:19:49.9503338Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 5434,
+      "ExecutionTimeSeconds": 5.4349046
     }
   ]
 }

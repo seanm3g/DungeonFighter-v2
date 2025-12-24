@@ -6,6 +6,7 @@ using RPGGame.UI;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.UI.Avalonia.Coordinators;
+using RPGGame.UI.Avalonia.Utils;
 using RPGGame.UI.ColorSystem;
 using RPGGame.Utils;
 using System;
@@ -343,28 +344,24 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         public string GetDisplayBufferText()
         {
-            // #region agent log
-            System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "B", location = "CanvasUICoordinator.cs:343", message = "GetDisplayBufferText entry", data = new { textManagerType = textManager?.GetType().Name ?? "null" }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
-            // #endregion
+            DebugLoggingHelper.LogGetDisplayBufferTextEntry(textManager?.GetType().Name);
+            
             if (textManager is Managers.CanvasTextManager canvasTextManager)
             {
                 var messages = canvasTextManager.DisplayManager.Buffer.MessagesAsStrings;
-                // #region agent log
-                System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "B", location = "CanvasUICoordinator.cs:347", message = "GetDisplayBufferText - messages retrieved", data = new { messageCount = messages?.Count ?? 0, firstMessageLength = messages?.FirstOrDefault()?.Length ?? 0 }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
-                // #endregion
+                DebugLoggingHelper.LogGetDisplayBufferTextMessagesRetrieved(messages?.Count, messages?.FirstOrDefault()?.Length);
+                
                 if (messages == null || messages.Count == 0)
                 {
                     return "";
                 }
+                
                 var result = string.Join(System.Environment.NewLine, messages);
-                // #region agent log
-                System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "B", location = "CanvasUICoordinator.cs:350", message = "GetDisplayBufferText - result", data = new { resultLength = result?.Length ?? 0 }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
-                // #endregion
+                DebugLoggingHelper.LogGetDisplayBufferTextResult(result?.Length);
                 return result ?? "";
             }
-            // #region agent log
-            System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "B", location = "CanvasUICoordinator.cs:355", message = "GetDisplayBufferText - returning empty", data = new { }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n");
-            // #endregion
+            
+            DebugLoggingHelper.LogGetDisplayBufferTextReturningEmpty();
             return "";
         }
         public void ForceRenderDisplayBuffer()

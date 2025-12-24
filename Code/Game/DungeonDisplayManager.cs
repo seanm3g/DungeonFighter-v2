@@ -17,7 +17,7 @@ namespace RPGGame
     /// 
     /// This manager eliminates the need to manually sync between GameNarrativeManager,
     /// display buffer, and context manager by providing a single source of truth.
-    /// Refactored to use extracted builders and display buffer.
+    /// Refactored to use extracted builders, display buffer, and specialized coordinators.
     /// </summary>
     public class DungeonDisplayManager
     {
@@ -25,6 +25,10 @@ namespace RPGGame
         private readonly IUIManager? uiManager;
         private readonly CanvasUICoordinator? canvasUI;
         private readonly RPGGame.Display.Dungeon.DungeonDisplayBuffer displayBuffer;
+        
+        // Specialized coordinators
+        private readonly DungeonDisplayBufferCoordinator bufferCoordinator;
+        private readonly DungeonDisplayContextSync contextSync;
 
         // Current state
         private Dungeon? currentDungeon;
@@ -33,7 +37,6 @@ namespace RPGGame
         private Character? currentPlayer;
         private int currentRoomNumber;
         private int totalRooms;
-        private bool dungeonHeaderAddedToBuffer = false; // Track if header has been added to prevent duplicates
 
         /// <summary>
         /// Event fired when a combat event is added to the combat log.
@@ -57,6 +60,10 @@ namespace RPGGame
             this.uiManager = uiManager;
             this.canvasUI = uiManager as CanvasUICoordinator;
             this.displayBuffer = new DungeonDisplayBuffer();
+            
+            // Initialize specialized coordinators
+            this.bufferCoordinator = new DungeonDisplayBufferCoordinator(displayBuffer, canvasUI);
+            this.contextSync = new DungeonDisplayContextSync(narrativeManager, displayBuffer, canvasUI);
         }
 
         /// <summary>
@@ -81,8 +88,8 @@ namespace RPGGame
             // Reset TextSpacingSystem for new dungeon
             TextSpacingSystem.Reset();
             
-            // Reset flag to track if header has been added
-            dungeonHeaderAddedToBuffer = false;
+            // Reset buffer coordinator flag
+            bufferCoordinator.ResetDungeonHeaderFlag();
 
             // Store current state
             currentDungeon = dungeon;
@@ -95,7 +102,7 @@ namespace RPGGame
             displayBuffer.SetDungeonHeader(header);
 
             // Sync to narrative manager (for internal tracking)
-            SyncToNarrativeManager();
+            contextSync.SyncToNarrativeManager();
 
             // DO NOT set UI context here - there's no room yet and no content in the buffer
             // Context will be set when ShowRoomEntry() is called for the first room
@@ -133,12 +140,12 @@ namespace RPGGame
             displayBuffer.SetRoomInfo(roomInfo);
 
             // Sync to narrative manager (but don't set UI context yet)
-            SyncToNarrativeManager();
+            contextSync.SyncToNarrativeManager();
 
             // Step 2: Add content to display buffer (without auto-rendering)
             // For first room: include dungeon header + room info
             // For subsequent rooms: only room info (dungeon header already shown)
-            AddCurrentInfoToDisplayBuffer(
+            bufferCoordinator.AddCurrentInfoToDisplayBuffer(
                 includeDungeonHeader: isFirstRoom,
                 includeRoomInfo: true,
                 autoRender: false  // RenderRoomEntry will handle rendering
@@ -147,7 +154,7 @@ namespace RPGGame
             // Step 3: NOW set UI context (after buffer is populated, before explicit render)
             // This ensures the context is set for RenderRoomEntry, but doesn't trigger reactive render
             // because the buffer was already added with autoRender: false
-            SetUIContext();
+            contextSync.SetUIContext(currentPlayer, GetDungeonName(), GetRoomName(), currentEnemy);
         }
 
         /// <summary>
@@ -170,10 +177,10 @@ namespace RPGGame
             displayBuffer.SetEnemyInfo(enemyInfo);
 
             // Sync to narrative manager (combine header + room + enemy for dungeon log)
-            SyncToNarrativeManager();
+            contextSync.SyncToNarrativeManager();
 
             // Set UI context
-            SetUIContext();
+            contextSync.SetUIContext(currentPlayer, GetDungeonName(), GetRoomName(), currentEnemy);
 
             var enemyInfoList = displayBuffer.EnemyInfo;
             if (canvasUI != null && canvasUI is CanvasUICoordinator coordinator)
@@ -313,7 +320,7 @@ namespace RPGGame
             currentPlayer = null;
             currentRoomNumber = 0;
             totalRooms = 0;
-            dungeonHeaderAddedToBuffer = false;
+            bufferCoordinator.ResetDungeonHeaderFlag();
 
             narrativeManager.ResetNarrative();
         }
@@ -338,45 +345,6 @@ namespace RPGGame
         /// </summary>
         public Character? GetCurrentPlayer() => currentPlayer;
 
-        #region Private Methods
-
-        private void SyncToNarrativeManager()
-        {
-            // Sync dungeon header
-            narrativeManager.SetDungeonHeaderInfo(displayBuffer.DungeonHeader);
-
-            // Sync room info
-            narrativeManager.SetRoomInfo(displayBuffer.RoomInfo);
-
-            // Build dungeon log (header + room + enemy + combat log)
-            var dungeonLog = displayBuffer.CompleteDisplayLog;
-
-            // Clear and rebuild narrative manager's dungeon log
-            narrativeManager.ClearDungeonLog();
-            foreach (var line in dungeonLog)
-            {
-                narrativeManager.LogDungeonEvent(line);
-            }
-        }
-
-        private void SetUIContext()
-        {
-            if (canvasUI == null) return;
-
-            // Set all context information
-            canvasUI.SetCharacter(currentPlayer);
-            canvasUI.SetDungeonName(GetDungeonName());
-            canvasUI.SetRoomName(GetRoomName());
-
-            if (currentEnemy != null)
-            {
-                canvasUI.SetCurrentEnemy(currentEnemy);
-            }
-
-            // Set dungeon context (complete display log)
-            canvasUI.SetDungeonContext(CompleteDisplayLog);
-        }
-
         /// <summary>
         /// Adds the current dungeon and room info to the display buffer using a batch transaction.
         /// Integrates with TextSpacingSystem to apply proper spacing between sections.
@@ -389,37 +357,10 @@ namespace RPGGame
         /// <param name="autoRender">If true, reactive system will auto-render immediately. If false, caller must render explicitly (e.g., via RenderRoomEntry). Default: false to prevent duplicate rendering.</param>
         public void AddCurrentInfoToDisplayBuffer(bool includeDungeonHeader, bool includeRoomInfo = true, bool autoRender = false)
         {
-            if (canvasUI == null || !(canvasUI is CanvasUICoordinator coordinator)) return;
-
-            // Check if dungeon header is already in the buffer to prevent duplicates
-            // Use a flag to track if header has been added (more reliable than checking TextSpacingSystem
-            // since it gets reset when starting a new dungeon)
-            bool dungeonHeaderAlreadyAdded = includeDungeonHeader && dungeonHeaderAddedToBuffer;
-
-            // Use batch transaction with specified autoRender setting
-            // When autoRender=false, RenderRoomEntry() will handle the initial render
-            // When autoRender=true, reactive system will handle rendering
-            using (var batch = coordinator.StartBatch(autoRender: autoRender))
-            {
-                var dungeonHeader = displayBuffer.DungeonHeader;
-                if (includeDungeonHeader && dungeonHeader.Count > 0 && !dungeonHeaderAlreadyAdded)
-                {
-                    SpacingApplier.ApplySpacingBefore(batch, TextSpacingSystem.BlockType.DungeonHeader);
-                    batch.AddRange(dungeonHeader);
-                    TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.DungeonHeader);
-                    dungeonHeaderAddedToBuffer = true;
-                }
-
-                var roomInfo = displayBuffer.RoomInfo;
-                if (includeRoomInfo && roomInfo.Count > 0)
-                {
-                    SpacingApplier.ApplySpacingBefore(batch, TextSpacingSystem.BlockType.RoomHeader);
-                    batch.AddRange(roomInfo);
-                    TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.RoomInfo);
-                }
-            }
+            bufferCoordinator.AddCurrentInfoToDisplayBuffer(includeDungeonHeader, includeRoomInfo, autoRender);
         }
 
+        #region Private Methods
 
         private ColorPalette GetColorFromThemeCode(char themeCode)
         {

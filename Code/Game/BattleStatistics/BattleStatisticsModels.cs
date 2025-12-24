@@ -18,7 +18,7 @@ namespace RPGGame.BattleStatistics
         public string? ErrorMessage { get; set; }
         public List<CombatTurnLog>? TurnLogs { get; set; }
         public Dictionary<string, int>? ActionUsageCount { get; set; }
-        public FunMomentTracker.FunMomentSummary? FunMomentSummary { get; set; }
+        public FunMomentDataStructures.FunMomentSummary? FunMomentSummary { get; set; }
     }
 
     public class BattleConfiguration
