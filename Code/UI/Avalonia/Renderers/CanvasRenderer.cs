@@ -493,17 +493,20 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderDeathScreen(Character player, string defeatSummary, CanvasContext context)
         {
-            // Clear canvas first to ensure clean death screen display
-            canvas.Clear();
-            
-            // Switch back to standard mode and disable external render callback when showing death screen
+            // Switch to menu display mode (Death is a menu state) and disable external render callback
+            // This must happen BEFORE clearing to prevent any pending renders from interfering
             if (textManager is CanvasTextManager canvasTextManager)
             {
-                canvasTextManager.DisplayManager.SetMode(new Display.StandardDisplayMode());
-                canvasTextManager.DisplayManager.SetExternalRenderCallback(null);
-                // Cancel any pending renders that might interfere
+                // Cancel any pending renders FIRST to prevent them from clearing the canvas after we render
                 canvasTextManager.DisplayManager.CancelPendingRenders();
+                // Set to MenuDisplayMode since Death is a menu state - this prevents display buffer from rendering
+                canvasTextManager.DisplayManager.SetMode(new Display.MenuDisplayMode());
+                // Disable external render callback to prevent combat rendering from interfering
+                canvasTextManager.DisplayManager.SetExternalRenderCallback(null);
             }
+            
+            // Clear canvas after suppressing rendering to ensure clean death screen display
+            canvas.Clear();
             
             RenderWithLayout(player, "YOU DIED", (contentX, contentY, contentWidth, contentHeight) =>
             {

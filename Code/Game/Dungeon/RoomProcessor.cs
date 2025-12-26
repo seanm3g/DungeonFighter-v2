@@ -88,9 +88,13 @@ namespace RPGGame
                 displayManager.AddCombatEvent(explorationRollBuilder);
                 
                 // Apply keyword coloring to exploration message
-                var explorationMessageColored = KeywordColorSystem.Colorize(explorationResult.Message);
-                string explorationMessageMarkup = ColoredTextRenderer.RenderAsMarkup(explorationMessageColored);
-                displayManager.AddCombatEvent(explorationMessageMarkup);
+                // Skip displaying the message for environmental hazards - it will be displayed with proper formatting below
+                if (explorationResult.Outcome != ExplorationOutcome.EnvironmentalHazard)
+                {
+                    var explorationMessageColored = KeywordColorSystem.Colorize(explorationResult.Message);
+                    string explorationMessageMarkup = ColoredTextRenderer.RenderAsMarkup(explorationMessageColored);
+                    displayManager.AddCombatEvent(explorationMessageMarkup);
+                }
                 
                 if (explorationResult.EnvironmentInfo != null)
                 {
@@ -219,16 +223,7 @@ namespace RPGGame
                     }
                     else
                     {
-                        var neutralMessages = new[]
-                        {
-                            "Combat begins! Both sides are ready.",
-                            "The battle commences! Neither side has the advantage.",
-                            "Combat starts! Both combatants are prepared.",
-                            "The fight begins! It's an even match.",
-                            "Combat erupts! Both sides are equally ready."
-                        };
-                        displayManager.AddCombatEvent("");
-                        displayManager.AddCombatEvent(neutralMessages[random.Next(neutralMessages.Length)]);
+                        // Both combatants are prepared - no message displayed
                     }
                     
                     // Re-render to show advantage message

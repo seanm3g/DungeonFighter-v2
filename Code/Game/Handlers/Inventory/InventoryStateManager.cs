@@ -27,6 +27,7 @@ namespace RPGGame.Handlers.Inventory
         public bool WaitingForRaritySelection { get; set; } = false;
         public bool WaitingForTradeUpConfirmation { get; set; } = false;
         public string? SelectedTradeUpRarity { get; set; } = null;
+        public Item? PreviewTradeUpItem { get; set; } = null;
         
         /// <summary>
         /// Resets all item action states
@@ -42,6 +43,7 @@ namespace RPGGame.Handlers.Inventory
             SelectedItemIndex = -1;
             SelectedSlot = "";
             SelectedTradeUpRarity = null;
+            PreviewTradeUpItem = null;
         }
         
         /// <summary>

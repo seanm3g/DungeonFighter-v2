@@ -216,6 +216,9 @@ namespace RPGGame
 
                 // Initialize combo sequence after all actions are loaded
                 character.InitializeDefaultCombo();
+                
+                // Reset combo step to first action when loading (InitializeDefaultCombo may have already done this via AddToCombo, but ensure it's reset)
+                character.ComboStep = 0;
 
                 // Only show load message in console mode (not in custom UI mode)
                 if (UIManager.GetCustomUIManager() == null)

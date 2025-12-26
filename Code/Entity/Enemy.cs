@@ -220,7 +220,7 @@
 
         /// <summary>
         /// Gets current combo amplification for enemies (same as heroes)
-        /// Step 0 and Step 1 add no bonus (1.0x), bonus starts at Step 2
+        /// Step 0 adds no bonus (1.0x), bonus starts at Step 1+
         /// </summary>
         public new double GetCurrentComboAmplification()
         {
@@ -229,8 +229,8 @@
             
             int currentStep = ComboStep % comboActions.Count;
             double baseAmp = GetComboAmplifier();
-            // Step 0 and Step 1 add no bonus, bonus starts at Step 2
-            int amplificationStep = Math.Max(0, currentStep - 1);
+            // Step 0 adds no bonus, bonus starts at Step 1+
+            int amplificationStep = currentStep;
             return Math.Pow(baseAmp, amplificationStep);
         }
 

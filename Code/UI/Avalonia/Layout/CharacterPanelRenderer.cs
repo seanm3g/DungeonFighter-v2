@@ -123,8 +123,8 @@ namespace RPGGame.UI.Avalonia.Layout
             if (comboActions.Count > 0)
             {
                 // Display combo sequence with arrow indicator
-                // Limit display to prevent overflow (max 5 actions shown)
-                int maxActionsToShow = System.Math.Min(comboActions.Count, 5);
+                // Limit display to prevent overflow (max 3 actions shown to account for descriptions)
+                int maxActionsToShow = System.Math.Min(comboActions.Count, 3);
                 for (int i = 0; i < maxActionsToShow; i++)
                 {
                     var action = comboActions[i];
@@ -144,6 +144,23 @@ namespace RPGGame.UI.Avalonia.Layout
                     var color = isNext ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.White;
                     canvas.AddText(x, y, $"{indicator} {actionName}", color);
                     y++;
+                    
+                    // Display action description below the action name with text wrapping
+                    if (!string.IsNullOrEmpty(action.Description))
+                    {
+                        string description = action.Description;
+                        // Wrap long descriptions to fit in the panel
+                        // Available width is 27 (panel width 32 - left padding 2 - right border 1 - indent 2)
+                        const int maxDescriptionWidth = 27;
+                        var wrappedLines = textWriter.WrapText(description, maxDescriptionWidth);
+                        
+                        // Render each wrapped line with 2-space indent to align under the action name
+                        foreach (var line in wrappedLines)
+                        {
+                            canvas.AddText(x + 2, y, line, AsciiArtAssets.Colors.Gray);
+                            y++;
+                        }
+                    }
                 }
                 
                 // If there are more actions, show a count

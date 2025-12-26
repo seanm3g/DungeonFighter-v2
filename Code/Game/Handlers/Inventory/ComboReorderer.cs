@@ -57,6 +57,9 @@ namespace RPGGame.Handlers.Inventory
                     character.AddToCombo(action);
                 }
                 
+                // Reset combo step to first action when actions are reordered
+                character.ComboStep = 0;
+                
                 return true;
             }
             catch

@@ -1,14 +1,14 @@
 {
   "MessageTypeDelays": {
-    "Combat": 100,
+    "Combat": 1515,
     "System": 100,
     "Menu": 25,
     "Title": 400,
     "MainTitle": 400,
     "Environmental": 1500,
-    "EffectMessage": 50,
-    "DamageOverTime": 50,
-    "Encounter": 67,
+    "EffectMessage": 555,
+    "DamageOverTime": 555,
+    "Encounter": 555,
     "RollInfo": 5
   },
   "ChunkedTextReveal": {

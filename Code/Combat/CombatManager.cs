@@ -302,6 +302,9 @@ namespace RPGGame
             // End the battle narrative with final health values
             EndBattleNarrative(player, currentEnemy);
             
+            // Reset combo step to first action at the end of combat
+            player.ComboStep = 0;
+            
             DebugLogger.WriteCombatDebug("CombatManager", $"Combat ended: {player.Name} {(player.IsAlive ? "survived" : "died")} vs {currentEnemy.Name}");
             
             // #region agent log

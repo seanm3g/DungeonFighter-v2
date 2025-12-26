@@ -97,24 +97,39 @@ namespace RPGGame.Actions.Execution
                 }
                 
                 // Handle combo advancement based on roll value
-                // Start at step 1 (initial state, no bonus)
-                // Step 1: Roll 14+ → go to step 2 (bonus applies)
-                // Step 1: Roll < 14 → stay at step 1 (no bonus, still in combo mode)
+                // Start at step 0 (initial state, first action, no bonus)
+                // Step 0: Roll 14+ → go to step 1 (bonus applies at step 1)
+                // Step 1: Roll 14+ → go to step 2 (bonus continues, more bonus at step 2)
+                // Step 1: Roll < 14 → reset to step 0 (bonus resets, stay in combo mode)
                 // Step 2+: Roll 14+ → continue to next step (bonus continues)
-                // Step 2+: Roll < 14 → reset to step 1 (bonus resets, stay in combo mode)
+                // Step 2+: Roll < 14 → reset to step 0 (bonus resets, stay in combo mode)
                 if (source is Character comboCharacter && !(comboCharacter is Enemy))
                 {
                     int comboThreshold = GameConfiguration.Instance.RollSystem.ComboThreshold.Min; // 14
                     
-                    if (comboCharacter.ComboStep == 1)
+                    if (comboCharacter.ComboStep == 0)
                     {
-                        // At step 1, need 14+ to advance to step 2 (where bonus starts)
+                        // At step 0 (first action), need 14+ to advance to step 1
+                        if (totalRoll >= comboThreshold)
+                        {
+                            // Advance to step 1 with routing support
+                            comboCharacter.IncrementComboStep(selectedAction);
+                        }
+                        // If < 14, stay at step 0 (no bonus, but still in combo mode)
+                    }
+                    else if (comboCharacter.ComboStep == 1)
+                    {
+                        // At step 1 (second action, bonus applies), need 14+ to advance to step 2 (more bonus)
                         if (totalRoll >= comboThreshold)
                         {
                             // Advance to step 2 with routing support
                             comboCharacter.IncrementComboStep(selectedAction);
                         }
-                        // If < 14, stay at step 1 (no bonus, but still in combo mode)
+                        else
+                        {
+                            // Didn't get 14+, reset to step 0 (bonus resets, but stay in combo mode)
+                            comboCharacter.ComboStep = 0;
+                        }
                     }
                     else if (comboCharacter.ComboStep >= 2)
                     {
@@ -126,14 +141,9 @@ namespace RPGGame.Actions.Execution
                         }
                         else
                         {
-                            // Didn't get 14+, reset to step 1 (bonus resets, but stay in combo mode)
-                            comboCharacter.ComboStep = 1;
+                            // Didn't get 14+, reset to step 0 (bonus resets, but stay in combo mode)
+                            comboCharacter.ComboStep = 0;
                         }
-                    }
-                    else if (comboCharacter.ComboStep == 0)
-                    {
-                        // If somehow at step 0, initialize to step 1
-                        comboCharacter.ComboStep = 1;
                     }
                 }
                 
@@ -187,24 +197,39 @@ namespace RPGGame.Actions.Execution
                 }
                 
                 // Handle combo advancement based on roll value
-                // Start at step 1 (initial state, no bonus)
-                // Step 1: Roll 14+ → go to step 2 (bonus applies)
-                // Step 1: Roll < 14 → stay at step 1 (no bonus, still in combo mode)
+                // Start at step 0 (initial state, first action, no bonus)
+                // Step 0: Roll 14+ → go to step 1 (bonus applies at step 1)
+                // Step 1: Roll 14+ → go to step 2 (bonus continues, more bonus at step 2)
+                // Step 1: Roll < 14 → reset to step 0 (bonus resets, stay in combo mode)
                 // Step 2+: Roll 14+ → continue to next step (bonus continues)
-                // Step 2+: Roll < 14 → reset to step 1 (bonus resets, stay in combo mode)
+                // Step 2+: Roll < 14 → reset to step 0 (bonus resets, stay in combo mode)
                 if (source is Character comboCharacter && !(comboCharacter is Enemy))
                 {
                     int comboThreshold = GameConfiguration.Instance.RollSystem.ComboThreshold.Min; // 14
                     
-                    if (comboCharacter.ComboStep == 1)
+                    if (comboCharacter.ComboStep == 0)
                     {
-                        // At step 1, need 14+ to advance to step 2 (where bonus starts)
+                        // At step 0 (first action), need 14+ to advance to step 1
+                        if (totalRoll >= comboThreshold)
+                        {
+                            // Advance to step 1 with routing support
+                            comboCharacter.IncrementComboStep(selectedAction);
+                        }
+                        // If < 14, stay at step 0 (no bonus, but still in combo mode)
+                    }
+                    else if (comboCharacter.ComboStep == 1)
+                    {
+                        // At step 1 (second action, bonus applies), need 14+ to advance to step 2 (more bonus)
                         if (totalRoll >= comboThreshold)
                         {
                             // Advance to step 2 with routing support
                             comboCharacter.IncrementComboStep(selectedAction);
                         }
-                        // If < 14, stay at step 1 (no bonus, but still in combo mode)
+                        else
+                        {
+                            // Didn't get 14+, reset to step 0 (bonus resets, but stay in combo mode)
+                            comboCharacter.ComboStep = 0;
+                        }
                     }
                     else if (comboCharacter.ComboStep >= 2)
                     {
@@ -216,14 +241,9 @@ namespace RPGGame.Actions.Execution
                         }
                         else
                         {
-                            // Didn't get 14+, reset to step 1 (bonus resets, but stay in combo mode)
-                            comboCharacter.ComboStep = 1;
+                            // Didn't get 14+, reset to step 0 (bonus resets, but stay in combo mode)
+                            comboCharacter.ComboStep = 0;
                         }
-                    }
-                    else if (comboCharacter.ComboStep == 0)
-                    {
-                        // If somehow at step 0, initialize to step 1
-                        comboCharacter.ComboStep = 1;
                     }
                 }
                 

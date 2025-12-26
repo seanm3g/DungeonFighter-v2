@@ -113,7 +113,12 @@ namespace RPGGame
             // Reset combo step to first action when actions are added to combo
             _character.ComboStep = 0;
         }
-        public void RemoveFromCombo(Action action) => _character.Actions.RemoveFromCombo(action);
+        public void RemoveFromCombo(Action action)
+        {
+            _character.Actions.RemoveFromCombo(action);
+            // Reset combo step to first action when actions are removed from combo
+            _character.ComboStep = 0;
+        }
         public void InitializeDefaultCombo() => _character.Actions.InitializeDefaultCombo(_character, _character.Equipment.Weapon as WeaponItem);
         public double CalculateTurnsFromActionLength(double actionLength) => _character.Actions.CalculateTurnsFromActionLength(actionLength);
         public void RemoveItemActions() => _character.Actions.RemoveItemActions(_character);

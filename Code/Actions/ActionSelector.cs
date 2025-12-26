@@ -59,7 +59,8 @@ namespace RPGGame
             _lastActionSelectionRolls.AddOrUpdate(source, baseRoll, (_, _) => baseRoll);
             
             // Calculate roll bonus for action selection (using null action for base bonus)
-            int rollBonus = ActionUtilities.CalculateRollBonus(source, null);
+            // Don't consume temporary roll bonus during selection - only consume during execution
+            int rollBonus = ActionUtilities.CalculateRollBonus(source, null, consumeTempBonus: false);
             int totalRoll = baseRoll + rollBonus;
             
             // Determine action type based on total roll (base roll + bonuses)
@@ -103,7 +104,8 @@ namespace RPGGame
             _lastActionSelectionRolls.AddOrUpdate(source, baseRoll, (_, _) => baseRoll);
 
             // Calculate roll bonus for action selection (enemies generally have no base roll bonus)
-            int rollBonus = ActionUtilities.CalculateRollBonus(source, null);
+            // Don't consume temporary roll bonus during selection - only consume during execution
+            int rollBonus = ActionUtilities.CalculateRollBonus(source, null, consumeTempBonus: false);
             int totalRoll = baseRoll + rollBonus;
 
             // Natural 20 or total roll >= 14: use combo actions (all actions in game are combo actions)

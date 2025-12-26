@@ -84,18 +84,19 @@ namespace RPGGame.UI.Avalonia
         }
         
         /// <summary>
-        /// Checks if there are any active damage deltas (within 1 second)
+        /// Checks if there are any active damage deltas (within 2 seconds: 1 second solid + 1 second fade)
         /// Also cleans up expired damage deltas
         /// </summary>
         public bool HasActiveDamageDeltas()
         {
             var now = DateTime.Now;
             var expiredEntities = new List<string>();
+            double totalDuration = 2.0; // 1 second solid + 1 second fade
             
             // Check for active deltas and collect expired ones
             foreach (var kvp in damageDeltaStartTimes)
             {
-                if ((now - kvp.Value).TotalSeconds >= 1.0)
+                if ((now - kvp.Value).TotalSeconds >= totalDuration)
                 {
                     expiredEntities.Add(kvp.Key);
                 }

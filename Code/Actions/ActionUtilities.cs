@@ -61,10 +61,11 @@ namespace RPGGame
         /// </summary>
         /// <param name="source">The entity performing the action</param>
         /// <param name="action">The action being performed (optional)</param>
+        /// <param name="consumeTempBonus">Whether to consume the temporary roll bonus (true for execution, false for selection)</param>
         /// <returns>Roll bonus value</returns>
-        public static int CalculateRollBonus(Actor source, Action? action = null)
+        public static int CalculateRollBonus(Actor source, Action? action = null, bool consumeTempBonus = true)
         {
-            return CombatCalculator.CalculateRollBonus(source, action, GetComboActions(source), GetComboStep(source));
+            return CombatCalculator.CalculateRollBonus(source, action, GetComboActions(source), GetComboStep(source), consumeTempBonus);
         }
 
         /// <summary>

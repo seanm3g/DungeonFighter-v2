@@ -102,13 +102,24 @@ namespace RPGGame.UI.Avalonia.Canvas
                 {
                     // Calculate elapsed time since damage
                     var elapsed = System.DateTime.Now - progressBar.DamageDeltaStartTime.Value;
-                    double fadeDuration = 1.0; // 1 second
+                    double solidDuration = 1.0; // Stay solid for 1 second
+                    double fadeDuration = 2.0; // Total duration: 1 second solid + 1 second fade = 2 seconds
                     
                     if (elapsed.TotalSeconds < fadeDuration)
                     {
-                        // Calculate fade alpha (1.0 at start, 0.0 after 1 second)
-                        double alpha = 1.0 - (elapsed.TotalSeconds / fadeDuration);
-                        alpha = System.Math.Max(0.0, System.Math.Min(1.0, alpha));
+                        double alpha;
+                        if (elapsed.TotalSeconds < solidDuration)
+                        {
+                            // Stay at full opacity for 1 second
+                            alpha = 1.0;
+                        }
+                        else
+                        {
+                            // Fade from 1.0 to 0.0 over the next 1 second
+                            double fadeProgress = (elapsed.TotalSeconds - solidDuration) / (fadeDuration - solidDuration);
+                            alpha = 1.0 - fadeProgress;
+                            alpha = System.Math.Max(0.0, System.Math.Min(1.0, alpha));
+                        }
                         
                         // Calculate the position and width of the damage delta overlay
                         // The delta starts at the current health position and extends to previous health

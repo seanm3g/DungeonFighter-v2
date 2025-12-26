@@ -192,6 +192,7 @@ namespace RPGGame
                     // Cancel trade-up
                     ShowMessageEvent?.Invoke("Trade-up cancelled.");
                     stateTracker.SelectedTradeUpRarity = null;
+                    stateTracker.PreviewTradeUpItem = null;
                     ShowInventoryEvent?.Invoke();
                 }
                 else

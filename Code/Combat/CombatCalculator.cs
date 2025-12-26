@@ -43,8 +43,9 @@ namespace RPGGame
         /// <param name="action">The action being performed</param>
         /// <param name="comboActions">Current combo actions for scaling</param>
         /// <param name="comboStep">Current combo step</param>
+        /// <param name="consumeTempBonus">Whether to consume the temporary roll bonus (true for execution, false for selection)</param>
         /// <returns>Total roll bonus</returns>
-        public static int CalculateRollBonus(Actor attacker, Action? action, List<Action> comboActions, int comboStep)
+        public static int CalculateRollBonus(Actor attacker, Action? action, List<Action> comboActions, int comboStep, bool consumeTempBonus = true)
         {
             int totalBonus = 0;
             
@@ -86,8 +87,15 @@ namespace RPGGame
                 totalBonus += character.GetModificationRollBonus();
                 totalBonus += character.GetEquipmentRollBonus();
                 
-                // Add temporary roll bonus (consumes one turn per use)
-                totalBonus += character.Effects.ConsumeTempRollBonus();
+                // Add temporary roll bonus (only consume during action execution, not selection)
+                if (consumeTempBonus)
+                {
+                    totalBonus += character.Effects.ConsumeTempRollBonus();
+                }
+                else
+                {
+                    totalBonus += character.Effects.GetTempRollBonus();
+                }
             }
             else if (attacker is Enemy enemy)
             {

@@ -138,9 +138,10 @@ namespace RPGGame.Handlers.Inventory
                 canvasUI.RenderTradeUpPreview(stateManager.CurrentPlayer, itemsToTrade, previewItem, rarity, nextRarity);
             }
             
-            // Store state for confirmation
+            // Store state for confirmation (including the preview item so we use the same one)
             stateTracker.WaitingForTradeUpConfirmation = true;
             stateTracker.SelectedTradeUpRarity = rarity;
+            stateTracker.PreviewTradeUpItem = previewItem;
         }
         
         /// <summary>
@@ -171,21 +172,23 @@ namespace RPGGame.Handlers.Inventory
                 return;
             }
             
-            // Calculate average tier and level from the items being traded
-            int averageTier = (int)Math.Round(itemsToTrade.Average(item => item.Tier));
-            int averageLevel = (int)Math.Round(itemsToTrade.Average(item => item.Level));
-            
-            // Determine item type (use the most common type from the traded items)
-            bool isWeapon = itemsToTrade.Count(item => item.Type == ItemType.Weapon) >= 3;
-            
-            // Generate new item with next rarity
-            Item? newItem = GenerateItemWithRarity(averageTier, averageLevel, isWeapon, nextRarity, stateManager.CurrentPlayer);
+            // Use the preview item that was shown to the user (ensures consistency)
+            Item? newItem = stateTracker.PreviewTradeUpItem;
             
             if (newItem == null)
             {
-                ShowMessageEvent?.Invoke("Failed to generate trade-up item. Please try again.");
-                ShowInventoryEvent?.Invoke();
-                return;
+                // Fallback: generate new item if preview wasn't stored (shouldn't happen in normal flow)
+                int averageTier = (int)Math.Round(itemsToTrade.Average(item => item.Tier));
+                int averageLevel = (int)Math.Round(itemsToTrade.Average(item => item.Level));
+                bool isWeapon = itemsToTrade.Count(item => item.Type == ItemType.Weapon) >= 3;
+                newItem = GenerateItemWithRarity(averageTier, averageLevel, isWeapon, nextRarity, stateManager.CurrentPlayer);
+                
+                if (newItem == null)
+                {
+                    ShowMessageEvent?.Invoke("Failed to generate trade-up item. Please try again.");
+                    ShowInventoryEvent?.Invoke();
+                    return;
+                }
             }
             
             // Remove the 5 items from inventory
@@ -196,6 +199,9 @@ namespace RPGGame.Handlers.Inventory
             
             // Add the new item to inventory
             stateManager.CurrentInventory.Add(newItem);
+            
+            // Clear the preview item from state
+            stateTracker.PreviewTradeUpItem = null;
             
             ShowMessageEvent?.Invoke($"Traded up 5 {rarity} items for 1 {nextRarity} {newItem.Name}!");
             ShowInventoryEvent?.Invoke();
