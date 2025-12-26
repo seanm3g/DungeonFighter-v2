@@ -53,7 +53,15 @@ namespace RPGGame.UI.Avalonia.Managers
             Slider playerHealthMultiplierSlider,
             TextBox playerHealthMultiplierTextBox,
             Slider playerDamageMultiplierSlider,
-            TextBox playerDamageMultiplierTextBox)
+            TextBox playerDamageMultiplierTextBox,
+            Slider? brightnessMaskIntensitySlider = null,
+            TextBox? brightnessMaskIntensityTextBox = null,
+            Slider? brightnessMaskWaveLengthSlider = null,
+            TextBox? brightnessMaskWaveLengthTextBox = null,
+            Slider? undulationSpeedSlider = null,
+            TextBox? undulationSpeedTextBox = null,
+            Slider? undulationWaveLengthSlider = null,
+            TextBox? undulationWaveLengthTextBox = null)
         {
             narrativeBalanceSlider.ValueChanged += (s, e) => 
             {
@@ -84,6 +92,39 @@ namespace RPGGame.UI.Avalonia.Managers
             {
                 playerDamageMultiplierTextBox.Text = playerDamageMultiplierSlider.Value.ToString("F2");
             };
+            
+            // Animation sliders
+            if (brightnessMaskIntensitySlider != null && brightnessMaskIntensityTextBox != null)
+            {
+                brightnessMaskIntensitySlider.ValueChanged += (s, e) => 
+                {
+                    brightnessMaskIntensityTextBox.Text = brightnessMaskIntensitySlider.Value.ToString("F1");
+                };
+            }
+            
+            if (brightnessMaskWaveLengthSlider != null && brightnessMaskWaveLengthTextBox != null)
+            {
+                brightnessMaskWaveLengthSlider.ValueChanged += (s, e) => 
+                {
+                    brightnessMaskWaveLengthTextBox.Text = brightnessMaskWaveLengthSlider.Value.ToString("F1");
+                };
+            }
+            
+            if (undulationSpeedSlider != null && undulationSpeedTextBox != null)
+            {
+                undulationSpeedSlider.ValueChanged += (s, e) => 
+                {
+                    undulationSpeedTextBox.Text = undulationSpeedSlider.Value.ToString("F3");
+                };
+            }
+            
+            if (undulationWaveLengthSlider != null && undulationWaveLengthTextBox != null)
+            {
+                undulationWaveLengthSlider.ValueChanged += (s, e) => 
+                {
+                    undulationWaveLengthTextBox.Text = undulationWaveLengthSlider.Value.ToString("F1");
+                };
+            }
         }
 
         public void WireUpTextBoxEvents(
@@ -98,7 +139,15 @@ namespace RPGGame.UI.Avalonia.Managers
             TextBox playerHealthMultiplierTextBox,
             Slider playerHealthMultiplierSlider,
             TextBox playerDamageMultiplierTextBox,
-            Slider playerDamageMultiplierSlider)
+            Slider playerDamageMultiplierSlider,
+            TextBox? brightnessMaskIntensityTextBox = null,
+            Slider? brightnessMaskIntensitySlider = null,
+            TextBox? brightnessMaskWaveLengthTextBox = null,
+            Slider? brightnessMaskWaveLengthSlider = null,
+            TextBox? undulationSpeedTextBox = null,
+            Slider? undulationSpeedSlider = null,
+            TextBox? undulationWaveLengthTextBox = null,
+            Slider? undulationWaveLengthSlider = null)
         {
             narrativeBalanceTextBox.LostFocus += (s, e) => 
             {
@@ -159,6 +208,59 @@ namespace RPGGame.UI.Avalonia.Managers
                     playerDamageMultiplierTextBox.Text = value.ToString("F2");
                 }
             };
+            
+            // Animation textboxes
+            if (brightnessMaskIntensityTextBox != null && brightnessMaskIntensitySlider != null)
+            {
+                brightnessMaskIntensityTextBox.LostFocus += (s, e) => 
+                {
+                    if (float.TryParse(brightnessMaskIntensityTextBox.Text, out float value))
+                    {
+                        value = Math.Clamp(value, 0f, 50f);
+                        brightnessMaskIntensitySlider.Value = value;
+                        brightnessMaskIntensityTextBox.Text = value.ToString("F1");
+                    }
+                };
+            }
+            
+            if (brightnessMaskWaveLengthTextBox != null && brightnessMaskWaveLengthSlider != null)
+            {
+                brightnessMaskWaveLengthTextBox.LostFocus += (s, e) => 
+                {
+                    if (float.TryParse(brightnessMaskWaveLengthTextBox.Text, out float value))
+                    {
+                        value = Math.Clamp(value, 1f, 20f);
+                        brightnessMaskWaveLengthSlider.Value = value;
+                        brightnessMaskWaveLengthTextBox.Text = value.ToString("F1");
+                    }
+                };
+            }
+            
+            if (undulationSpeedTextBox != null && undulationSpeedSlider != null)
+            {
+                undulationSpeedTextBox.LostFocus += (s, e) => 
+                {
+                    if (double.TryParse(undulationSpeedTextBox.Text, out double value))
+                    {
+                        value = Math.Clamp(value, 0.0, 0.2);
+                        undulationSpeedSlider.Value = value;
+                        undulationSpeedTextBox.Text = value.ToString("F3");
+                    }
+                };
+            }
+            
+            if (undulationWaveLengthTextBox != null && undulationWaveLengthSlider != null)
+            {
+                undulationWaveLengthTextBox.LostFocus += (s, e) => 
+                {
+                    if (float.TryParse(undulationWaveLengthTextBox.Text, out float value))
+                    {
+                        value = Math.Clamp(value, 1f, 20f);
+                        undulationWaveLengthSlider.Value = value;
+                        undulationWaveLengthTextBox.Text = value.ToString("F1");
+                    }
+                };
+            }
         }
 
         public void WireUpButtonEvents(
@@ -173,6 +275,7 @@ namespace RPGGame.UI.Avalonia.Managers
             Button dataUITestsButton,
             Button actionSystemTestsButton,
             Button advancedIntegrationTestsButton,
+            Button combatLogFilteringTestsButton,
             Button generateRandomItemsButton,
             Button itemGenerationAnalysisButton,
             Button tierDistributionTestButton,
@@ -197,6 +300,7 @@ namespace RPGGame.UI.Avalonia.Managers
             dataUITestsButton.Click += async (s, e) => await executeTest("5");
             actionSystemTestsButton.Click += async (s, e) => await executeTest("12");
             advancedIntegrationTestsButton.Click += async (s, e) => await executeTest("6");
+            combatLogFilteringTestsButton.Click += async (s, e) => await executeTest("14");
             generateRandomItemsButton.Click += async (s, e) => await executeTest("7");
             itemGenerationAnalysisButton.Click += async (s, e) => await executeTest("8");
             tierDistributionTestButton.Click += async (s, e) => await executeTest("9");

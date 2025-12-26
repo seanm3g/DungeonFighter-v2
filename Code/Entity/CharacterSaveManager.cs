@@ -17,15 +17,25 @@ namespace RPGGame
         /// Saves a character to a JSON file
         /// </summary>
         /// <param name="character">The character to save</param>
-        /// <param name="filename">The filename to save to</param>
-        public static void SaveCharacter(Character character, string? filename = null)
+        /// <param name="characterId">Optional character ID for multi-character support. If provided, generates per-character filename.</param>
+        /// <param name="filename">The filename to save to. If provided, overrides characterId-based naming.</param>
+        public static void SaveCharacter(Character character, string? characterId = null, string? filename = null)
         {
             try
             {
                 // Use proper path resolution if no filename provided
                 if (string.IsNullOrEmpty(filename))
                 {
-                    filename = GameConstants.GetGameDataFilePath(GameConstants.CharacterSaveJson);
+                    if (!string.IsNullOrEmpty(characterId))
+                    {
+                        // Multi-character support: use per-character filename
+                        filename = GetCharacterSaveFilename(characterId);
+                    }
+                    else
+                    {
+                        // Backward compatibility: use default filename
+                        filename = GameConstants.GetGameDataFilePath(GameConstants.CharacterSaveJson);
+                    }
                 }
                 var saveData = new CharacterSaveData
                 {
@@ -111,16 +121,26 @@ namespace RPGGame
         /// <summary>
         /// Loads a character from a JSON file (async version to prevent UI freezing)
         /// </summary>
-        /// <param name="filename">The filename to load from</param>
+        /// <param name="characterId">Optional character ID for multi-character support. If provided, loads from per-character filename.</param>
+        /// <param name="filename">The filename to load from. If provided, overrides characterId-based naming.</param>
         /// <returns>The loaded character, or null if loading failed</returns>
-        public static async Task<Character?> LoadCharacterAsync(string? filename = null)
+        public static async Task<Character?> LoadCharacterAsync(string? characterId = null, string? filename = null)
         {
             try
             {
                 // Use proper path resolution if no filename provided
                 if (string.IsNullOrEmpty(filename))
                 {
-                    filename = GameConstants.GetGameDataFilePath(GameConstants.CharacterSaveJson);
+                    if (!string.IsNullOrEmpty(characterId))
+                    {
+                        // Multi-character support: use per-character filename
+                        filename = GetCharacterSaveFilename(characterId);
+                    }
+                    else
+                    {
+                        // Backward compatibility: use default filename
+                        filename = GameConstants.GetGameDataFilePath(GameConstants.CharacterSaveJson);
+                    }
                 }
                 
                 if (!File.Exists(filename))
@@ -257,14 +277,15 @@ namespace RPGGame
         /// NOTE: This method is deprecated. Use LoadCharacterAsync instead for proper async handling.
         /// This synchronous wrapper blocks the calling thread and should not be used in UI contexts.
         /// </summary>
-        /// <param name="filename">The filename to load from</param>
+        /// <param name="characterId">Optional character ID for multi-character support. If provided, loads from per-character filename.</param>
+        /// <param name="filename">The filename to load from. If provided, overrides characterId-based naming.</param>
         /// <returns>The loaded character, or null if loading failed</returns>
         [Obsolete("Use LoadCharacterAsync instead. This method blocks the calling thread and may freeze the UI.")]
-        public static Character? LoadCharacter(string? filename = null)
+        public static Character? LoadCharacter(string? characterId = null, string? filename = null)
         {
             // For backward compatibility only - callers should migrate to async version
             // Using ConfigureAwait(false) to avoid deadlocks, but this still blocks
-            return LoadCharacterAsync(filename).ConfigureAwait(false).GetAwaiter().GetResult();
+            return LoadCharacterAsync(characterId, filename).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -365,6 +386,93 @@ namespace RPGGame
             {
                 return (null, 0);
             }
+        }
+        
+        /// <summary>
+        /// Gets the save filename for a character ID
+        /// </summary>
+        /// <param name="characterId">The character ID</param>
+        /// <returns>The full path to the character's save file</returns>
+        public static string GetCharacterSaveFilename(string characterId)
+        {
+            if (string.IsNullOrEmpty(characterId))
+                throw new ArgumentException("Character ID cannot be null or empty", nameof(characterId));
+            
+            // Sanitize character ID for filename (remove any invalid characters)
+            var sanitizedId = characterId.Replace(" ", "_").Replace("/", "_").Replace("\\", "_");
+            var fileName = $"character_{sanitizedId}_save.json";
+            return GameConstants.GetGameDataFilePath(fileName);
+        }
+        
+        /// <summary>
+        /// Lists all saved characters in the GameData directory
+        /// </summary>
+        /// <returns>List of tuples containing (characterId, characterName, level) for each saved character</returns>
+        public static List<(string characterId, string characterName, int level)> ListAllSavedCharacters()
+        {
+            var results = new List<(string, string, int)>();
+            
+            try
+            {
+                var gameDataPath = GameConstants.GetGameDataFilePath("");
+                var directory = Path.GetDirectoryName(gameDataPath);
+                
+                if (string.IsNullOrEmpty(directory) || !Directory.Exists(directory))
+                {
+                    // Try to find GameData directory
+                    directory = Path.GetDirectoryName(GameConstants.GetGameDataFilePath(GameConstants.CharacterSaveJson));
+                }
+                
+                if (string.IsNullOrEmpty(directory) || !Directory.Exists(directory))
+                    return results;
+                
+                // Look for character save files
+                var saveFiles = Directory.GetFiles(directory, "character_*_save.json");
+                
+                foreach (var file in saveFiles)
+                {
+                    try
+                    {
+                        // Extract character ID from filename
+                        var fileName = Path.GetFileName(file);
+                        if (fileName.StartsWith("character_") && fileName.EndsWith("_save.json"))
+                        {
+                            var characterId = fileName.Substring(9, fileName.Length - 18); // Remove "character_" and "_save.json"
+                            
+                            // Get character info
+                            var (name, level) = GetSavedCharacterInfo(file);
+                            if (name != null)
+                            {
+                                results.Add((characterId, name, level));
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        // Skip files that can't be read
+                        continue;
+                    }
+                }
+                
+                // Also check for legacy single-character save file
+                var legacyFile = GameConstants.GetGameDataFilePath(GameConstants.CharacterSaveJson);
+                if (File.Exists(legacyFile))
+                {
+                    var (name, level) = GetSavedCharacterInfo(legacyFile);
+                    if (name != null)
+                    {
+                        // Generate a character ID for legacy save
+                        var legacyId = $"{name}_{level}_legacy";
+                        results.Add((legacyId, name, level));
+                    }
+                }
+            }
+            catch
+            {
+                // Return empty list on error
+            }
+            
+            return results;
         }
     }
 

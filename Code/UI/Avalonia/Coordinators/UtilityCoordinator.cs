@@ -1,6 +1,7 @@
 using Avalonia.Media;
 using RPGGame;
 using RPGGame.UI;
+using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.UI.ColorSystem;
@@ -16,6 +17,7 @@ namespace RPGGame.UI.Avalonia.Coordinators
         private readonly CanvasRenderer renderer;
         private readonly ICanvasTextManager textManager;
         private readonly ICanvasContextManager contextManager;
+        private readonly DisplayUpdateCoordinator displayUpdateCoordinator;
         
         public UtilityCoordinator(GameCanvasControl canvas, CanvasRenderer renderer, ICanvasTextManager textManager, ICanvasContextManager contextManager)
         {
@@ -23,6 +25,14 @@ namespace RPGGame.UI.Avalonia.Coordinators
             this.renderer = renderer;
             this.textManager = textManager;
             this.contextManager = contextManager;
+            
+            // Create DisplayUpdateCoordinator with display manager if available
+            CenterPanelDisplayManager? displayManager = null;
+            if (textManager is CanvasTextManager canvasTextManager)
+            {
+                displayManager = canvasTextManager.DisplayManager;
+            }
+            this.displayUpdateCoordinator = new DisplayUpdateCoordinator(canvas, textManager, displayManager);
         }
         
         /// <summary>
@@ -30,7 +40,7 @@ namespace RPGGame.UI.Avalonia.Coordinators
         /// </summary>
         public void Clear()
         {
-            canvas.Clear();
+            displayUpdateCoordinator.Clear(DisplayUpdateCoordinator.ClearOperation.Canvas);
         }
         
         /// <summary>
@@ -38,7 +48,7 @@ namespace RPGGame.UI.Avalonia.Coordinators
         /// </summary>
         public void Refresh()
         {
-            canvas.Refresh();
+            displayUpdateCoordinator.Refresh();
         }
         
         /// <summary>

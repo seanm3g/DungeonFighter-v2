@@ -1,6 +1,8 @@
 namespace RPGGame
 {
     using System;
+    using System.IO;
+    using System.Text.Json;
     using System.Threading.Tasks;
     using Avalonia.Media;
     using Avalonia.Threading;
@@ -41,6 +43,16 @@ namespace RPGGame
         {
             if (stateManager.CurrentPlayer == null || combatManager == null) return false;
             
+            var player = stateManager.CurrentPlayer;
+            var room = stateManager.CurrentRoom;
+            
+            // Check if this character is currently active (for background combat support)
+            bool isCharacterActive = IsCharacterActive(player);
+            
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "EnemyEncounterHandler.cs:ProcessEnemyEncounter", message = "Combat starting", data = new { playerName = player.Name, isCharacterActive, currentState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "C" }) + "\n"); } catch { }
+            // #endregion
+            
             // Start enemy encounter using unified display manager
             displayManager.StartEnemyEncounter(enemy);
             
@@ -60,38 +72,53 @@ namespace RPGGame
                 displayManager.AddCombatEvent(surpriseMessages[random.Next(surpriseMessages.Length)]);
             }
             
-            // Reset for new battle
-            if (customUIManager is CanvasUICoordinator canvasUISetup)
+            // Only render UI if this character is currently active
+            // This allows combat to run in the background without interrupting menus or other character views
+            if (isCharacterActive)
             {
-                canvasUISetup.ResetForNewBattle();
+                // Reset for new battle
+                if (customUIManager is CanvasUICoordinator canvasUISetup)
+                {
+                    canvasUISetup.ResetForNewBattle();
+                }
+                
+                // Render enemy encounter screen to show enemy information after room info
+                // This ensures the enemy encounter information is visible before combat starts
+                if (customUIManager is CanvasUICoordinator canvasUIEnemy)
+                {
+                    canvasUIEnemy.RenderEnemyEncounter(enemy, player, displayManager.CompleteDisplayLog, 
+                        stateManager.CurrentDungeon?.Name, stateManager.CurrentRoom?.Name);
+                    // Brief delay to show enemy encounter information
+                    await Task.Delay(2000);
+                }
+                
+                // Initial render of combat screen with structured content
+                // This sets up the layout and enables structured combat mode
+                if (customUIManager is CanvasUICoordinator canvasUIInitial)
+                {
+                    canvasUIInitial.RenderCombat(player, enemy, displayManager.CompleteDisplayLog);
+                }
             }
             
-            // Render enemy encounter screen to show enemy information after room info
-            // This ensures the enemy encounter information is visible before combat starts
-            if (customUIManager is CanvasUICoordinator canvasUIEnemy)
-            {
-                canvasUIEnemy.RenderEnemyEncounter(enemy, stateManager.CurrentPlayer, displayManager.CompleteDisplayLog, 
-                    stateManager.CurrentDungeon?.Name, stateManager.CurrentRoom?.Name);
-                // Brief delay to show enemy encounter information
-                await Task.Delay(2000);
-            }
-            
-            // Initial render of combat screen with structured content
-            // This sets up the layout and enables structured combat mode
-            if (customUIManager is CanvasUICoordinator canvasUIInitial)
-            {
-                canvasUIInitial.RenderCombat(stateManager.CurrentPlayer, enemy, displayManager.CompleteDisplayLog);
-            }
-            
-            var room = stateManager.CurrentRoom;
-            var player = stateManager.CurrentPlayer;
-            
-            // Create debouncer for UI updates
+            // Create debouncer for UI updates (only if character is active)
             CombatEventDebouncer? debouncer = null;
-            if (customUIManager is CanvasUICoordinator canvasUI)
+            if (isCharacterActive && customUIManager is CanvasUICoordinator canvasUI)
             {
                 debouncer = new CombatEventDebouncer(200, () =>
-                    canvasUI.RenderCombat(player, enemy, displayManager.CompleteDisplayLog));
+                {
+                    // Double-check character is still active before rendering
+                    bool stillActive = IsCharacterActive(player);
+                    // #region agent log
+                    try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "EnemyEncounterHandler.cs:debouncer callback", message = "Debouncer callback", data = new { playerName = player.Name, stillActive }, sessionId = "debug-session", runId = "run1", hypothesisId = "D" }) + "\n"); } catch { }
+                    // #endregion
+                    if (stillActive)
+                    {
+                        // #region agent log
+                        try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "EnemyEncounterHandler.cs:debouncer callback", message = "Rendering combat", data = new { playerName = player.Name }, sessionId = "debug-session", runId = "run1", hypothesisId = "D" }) + "\n"); } catch { }
+                        // #endregion
+                        canvasUI.RenderCombat(player, enemy, displayManager.CompleteDisplayLog);
+                    }
+                });
                 displayManager.CombatEventAdded += debouncer.TriggerRefresh;
             }
             
@@ -161,11 +188,16 @@ namespace RPGGame
             
             // Final refresh to show complete combat log including victory message (use Post to avoid blocking)
             // This single render will replace any previous renders and show the complete state
-            if (customUIManager is CanvasUICoordinator canvasUI4 && enemy != null && player != null)
+            // Only render if character is still active
+            if (isCharacterActive && customUIManager is CanvasUICoordinator canvasUI4 && enemy != null && player != null)
             {
                 Dispatcher.UIThread.Post(() =>
                 {
-                    canvasUI4.RenderCombat(player, enemy, displayManager.CompleteDisplayLog);
+                    // Double-check character is still active before rendering
+                    if (IsCharacterActive(player))
+                    {
+                        canvasUI4.RenderCombat(player, enemy, displayManager.CompleteDisplayLog);
+                    }
                 });
                 // Small delay to ensure the final render completes before continuing
                 if (!RPGGame.MCP.MCPMode.IsActive)
@@ -180,6 +212,55 @@ namespace RPGGame
                 await Task.Delay(1000);
             }
             return true; // Player survived this encounter
+        }
+        
+        /// <summary>
+        /// Checks if the given character is currently active and should display combat.
+        /// Returns true if the character is the active character and we're not in a menu state.
+        /// </summary>
+        private bool IsCharacterActive(Character character)
+        {
+            if (character == null) return false;
+            
+            // Check if we're in a menu state - don't show combat in menus
+            var currentState = stateManager.CurrentState;
+            bool isMenuState = currentState == GameState.MainMenu ||
+                             currentState == GameState.Inventory ||
+                             currentState == GameState.CharacterInfo ||
+                             currentState == GameState.Settings ||
+                             currentState == GameState.DeveloperMenu ||
+                             currentState == GameState.Testing ||
+                             currentState == GameState.DungeonSelection ||
+                             currentState == GameState.GameLoop ||
+                             currentState == GameState.CharacterCreation ||
+                             currentState == GameState.WeaponSelection ||
+                             currentState == GameState.DungeonCompletion ||
+                             currentState == GameState.Death ||
+                             currentState == GameState.BattleStatistics ||
+                             currentState == GameState.VariableEditor ||
+                             currentState == GameState.TuningParameters ||
+                             currentState == GameState.ActionEditor ||
+                             currentState == GameState.CreateAction ||
+                             currentState == GameState.ViewAction ||
+                             currentState == GameState.CharacterSelection;
+            
+            if (isMenuState)
+            {
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "EnemyEncounterHandler.cs:IsCharacterActive", message = "Character inactive - menu state", data = new { characterName = character.Name, currentState = currentState.ToString(), isMenuState }, sessionId = "debug-session", runId = "run1", hypothesisId = "E" }) + "\n"); } catch { }
+                // #endregion
+                return false;
+            }
+            
+            // Check if character matches active character (for multi-character support)
+            var activeCharacter = stateManager.GetActiveCharacter();
+            bool isActive = activeCharacter == character;
+            
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "EnemyEncounterHandler.cs:IsCharacterActive", message = "Character active check", data = new { characterName = character.Name, activeCharacterName = activeCharacter?.Name ?? "null", isActive, areEqual = activeCharacter == character }, sessionId = "debug-session", runId = "run1", hypothesisId = "E" }) + "\n"); } catch { }
+            // #endregion
+            
+            return isActive;
         }
     }
 }

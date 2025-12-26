@@ -22,12 +22,24 @@ namespace RPGGame.UI.Avalonia.Display
         /// <summary>
         /// Determines if a render is needed based on current state
         /// </summary>
-        public RenderState GetRenderState(DisplayBuffer buffer, ICanvasContextManager contextManager)
+        public RenderState GetRenderState(DisplayBuffer buffer, ICanvasContextManager contextManager, GameStateManager? stateManager = null)
         {
             var currentCharacter = contextManager.GetCurrentCharacter();
             var currentEnemy = contextManager.GetCurrentEnemy();
             var dungeonName = contextManager.GetDungeonName();
             var roomName = contextManager.GetRoomName();
+            
+            // CRITICAL: If there's an enemy but the character is not active, clear the enemy
+            // This prevents background combat enemies from being included in render state
+            if (currentEnemy != null && stateManager != null && currentCharacter != null)
+            {
+                var activeCharacter = stateManager.GetActiveCharacter();
+                if (currentCharacter != activeCharacter)
+                {
+                    // Character is not active - this enemy is from background combat, don't include it
+                    currentEnemy = null;
+                }
+            }
             
             // Check if we need to re-render the full layout
             bool needsFullRender = !layoutInitialized ||
@@ -67,6 +79,9 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public void RecordRender(DisplayBuffer buffer, ICanvasContextManager contextManager)
         {
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "RenderStateManager.cs:RecordRender", message = "Recording render state", data = new { characterName = contextManager.GetCurrentCharacter()?.Name ?? "null", enemyName = contextManager.GetCurrentEnemy()?.Name ?? "null", lastRenderedEnemyName = lastRenderedEnemy?.Name ?? "null" }, sessionId = "debug-session", runId = "run1", hypothesisId = "H2" }) + "\n"); } catch { }
+            // #endregion
             lastRenderedCharacter = contextManager.GetCurrentCharacter();
             lastRenderedEnemy = contextManager.GetCurrentEnemy();
             lastRenderedDungeonName = contextManager.GetDungeonName();

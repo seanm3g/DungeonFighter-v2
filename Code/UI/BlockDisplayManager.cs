@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using RPGGame.UI;
 using RPGGame.UI.BlockDisplay;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.Services;
 using RPGGame.Utils;
 
 namespace RPGGame
@@ -16,6 +17,26 @@ namespace RPGGame
     public static class BlockDisplayManager
     {
         private static string? lastActingEntity = null;
+        private static GameStateManager? stateManager = null;
+        private static readonly MessageFilterService filterService = new MessageFilterService();
+        
+        /// <summary>
+        /// Sets the GameStateManager instance for checking active character
+        /// </summary>
+        public static void SetStateManager(GameStateManager? manager)
+        {
+            stateManager = manager;
+        }
+        
+        /// <summary>
+        /// Checks if combat logs should be displayed based on game state and character
+        /// </summary>
+        /// <param name="character">The character this combat action belongs to</param>
+        /// <returns>True if combat logs should be displayed, false otherwise</returns>
+        private static bool ShouldDisplayCombatLog(Character? character)
+        {
+            return filterService.ShouldDisplayMessage(character, UIMessageType.Combat, stateManager, null, false);
+        }
         
         // ===== COLORED TEXT OVERLOADS =====
         
@@ -23,11 +44,24 @@ namespace RPGGame
         /// Displays an ACTION BLOCK using ColoredText for better color management
         /// This is the primary method - uses structured ColoredText for both action and roll info
         /// All narratives are included in the turn block to ensure each character's turn is displayed as a single unit
+        /// Only displays if the character is currently active (for multi-character support)
         /// </summary>
-        public static void DisplayActionBlock(List<ColoredText> actionText, List<ColoredText> rollInfo, List<List<ColoredText>>? statusEffects = null, List<ColoredText>? criticalMissNarrative = null, List<List<ColoredText>>? narratives = null)
+        /// <param name="actionText">The action text to display</param>
+        /// <param name="rollInfo">Roll information</param>
+        /// <param name="statusEffects">Status effects</param>
+        /// <param name="criticalMissNarrative">Critical miss narrative</param>
+        /// <param name="narratives">Additional narratives</param>
+        /// <param name="character">The character this combat action belongs to (null = always display)</param>
+        public static void DisplayActionBlock(List<ColoredText> actionText, List<ColoredText> rollInfo, List<List<ColoredText>>? statusEffects = null, List<ColoredText>? criticalMissNarrative = null, List<List<ColoredText>>? narratives = null, Character? character = null)
         {
             try
             {
+                // Check if we should display this combat action
+                if (!ShouldDisplayCombatLog(character))
+                {
+                    return;
+                }
+                
                 // Extract entity name from ColoredText for tracking
                 string? currentEntity = null;
                 if (actionText != null && actionText.Count > 0)
@@ -82,11 +116,24 @@ namespace RPGGame
         /// <summary>
         /// Displays an ACTION BLOCK using ColoredText (async version)
         /// This version waits for the display delay to complete, allowing the combat loop to wait for each action
+        /// Only displays if the character is currently active (for multi-character support)
         /// </summary>
-        public static async Task DisplayActionBlockAsync(List<ColoredText> actionText, List<ColoredText> rollInfo, List<List<ColoredText>>? statusEffects = null, List<ColoredText>? criticalMissNarrative = null, List<List<ColoredText>>? narratives = null)
+        /// <param name="actionText">The action text to display</param>
+        /// <param name="rollInfo">Roll information</param>
+        /// <param name="statusEffects">Status effects</param>
+        /// <param name="criticalMissNarrative">Critical miss narrative</param>
+        /// <param name="narratives">Additional narratives</param>
+        /// <param name="character">The character this combat action belongs to (null = always display)</param>
+        public static async Task DisplayActionBlockAsync(List<ColoredText> actionText, List<ColoredText> rollInfo, List<List<ColoredText>>? statusEffects = null, List<ColoredText>? criticalMissNarrative = null, List<List<ColoredText>>? narratives = null, Character? character = null)
         {
             try
             {
+                // Check if we should display this combat action
+                if (!ShouldDisplayCombatLog(character))
+                {
+                    return;
+                }
+                
                 // Extract entity name from ColoredText for tracking
                 string? currentEntity = null;
                 if (actionText != null && actionText.Count > 0)

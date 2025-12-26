@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Avalonia.Media;
+using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.UI.ColorSystem;
 
@@ -9,14 +11,17 @@ namespace RPGGame.UI.Avalonia.Display
     /// <summary>
     /// Handles rendering of display buffer content to the canvas
     /// Pure rendering logic - no state management or timing
+    /// Applies animation effects to dungeon name when rendering
     /// </summary>
     public class DisplayRenderer
     {
         private readonly ColoredTextWriter textWriter;
+        private readonly DungeonSelectionAnimationState animationState;
         
         public DisplayRenderer(ColoredTextWriter textWriter)
         {
             this.textWriter = textWriter;
+            this.animationState = DungeonSelectionAnimationState.Instance;
         }
         
         /// <summary>
@@ -111,8 +116,11 @@ namespace RPGGame.UI.Avalonia.Display
                     int renderX = contentX + 1;
                     int renderY = y;
                     
+                    // Check if this is the dungeon name line and apply animation
+                    var animatedSegments = ApplyDungeonNameAnimation(segments, renderX, renderY);
+                    
                     // Ensure we're using exact coordinates, not calculated positions
-                    int linesRendered = textWriter.WriteLineColoredWrapped(segments, renderX, renderY, availableWidth);
+                    int linesRendered = textWriter.WriteLineColoredWrapped(animatedSegments, renderX, renderY, availableWidth);
                     
                     // Only advance y if we actually rendered something
                     if (linesRendered > 0)
@@ -211,6 +219,150 @@ namespace RPGGame.UI.Avalonia.Display
             // ClearTextInArea uses exclusive endY, so we need to ensure we clear the full height
             // by potentially adding 1 to contentHeight when calling this method
             textWriter.ClearTextInArea(contentX, contentY, contentWidth, contentHeight);
+        }
+        
+        /// <summary>
+        /// Applies animation effects to dungeon/room entry headers and dungeon names
+        /// Animates "ENTERING DUNGEON" and "ENTERING ROOM" lines, as well as "Dungeon: " lines
+        /// Similar to how DungeonSelectionRenderer animates dungeon names
+        /// </summary>
+        private List<ColoredText> ApplyDungeonNameAnimation(List<ColoredText> segments, int x, int y)
+        {
+            if (segments == null || segments.Count == 0)
+                return segments ?? new List<ColoredText>();
+            
+            string fullText = string.Join("", segments.Select(s => s.Text));
+            
+            // Check if this is an "ENTERING DUNGEON" or "ENTERING ROOM" header line
+            bool isEnteringHeader = fullText.Contains("ENTERING DUNGEON", StringComparison.OrdinalIgnoreCase) ||
+                                   fullText.Contains("ENTERING ROOM", StringComparison.OrdinalIgnoreCase);
+            
+            // Check if this line starts with "Dungeon: " or "Room: "
+            bool isDungeonNameLine = fullText.StartsWith("Dungeon: ", StringComparison.OrdinalIgnoreCase);
+            bool isRoomNameLine = fullText.StartsWith("Room: ", StringComparison.OrdinalIgnoreCase);
+            
+            // Skip animation for "ENTERING DUNGEON" and "ENTERING ROOM" headers - they should not glow
+            if (isEnteringHeader)
+                return segments;
+            
+            if (!isDungeonNameLine && !isRoomNameLine)
+                return segments;
+            
+            // Find where the dungeon/room name starts (after "Dungeon: " or "Room: ")
+            int charPosition = 0;
+            bool foundPrefix = false;
+            string prefix = isDungeonNameLine ? "Dungeon: " : "Room: ";
+            
+            var result = new List<ColoredText>();
+            
+            foreach (var segment in segments)
+            {
+                if (!foundPrefix)
+                {
+                    // Check if this segment contains or completes "Dungeon: " or "Room: "
+                    string segmentText = segment.Text;
+                    int prefixIndex = segmentText.IndexOf(prefix, StringComparison.OrdinalIgnoreCase);
+                    
+                    if (prefixIndex >= 0)
+                    {
+                        // Found the prefix in this segment
+                        foundPrefix = true;
+                        
+                        // Add the prefix part (including "Dungeon: " or "Room: ")
+                        if (prefixIndex > 0)
+                        {
+                            result.Add(new ColoredText(segmentText.Substring(0, prefixIndex), segment.Color));
+                        }
+                        result.Add(new ColoredText(prefix, segment.Color));
+                        
+                        // Handle the rest of this segment (which may contain part of the name)
+                        int afterPrefix = prefixIndex + prefix.Length;
+                        if (afterPrefix < segmentText.Length)
+                        {
+                            string namePart = segmentText.Substring(afterPrefix);
+                            charPosition = prefix.Length;
+                            ApplyAnimationToText(namePart, segment.Color, result, charPosition, y);
+                            charPosition += namePart.Length;
+                        }
+                    }
+                    else
+                    {
+                        // Haven't found the prefix yet, add segment as-is
+                        result.Add(segment);
+                        charPosition += segmentText.Length;
+                    }
+                }
+                else
+                {
+                    // We're past the prefix, animate the name
+                    ApplyAnimationToText(segment.Text, segment.Color, result, charPosition, y);
+                    charPosition += segment.Text.Length;
+                }
+            }
+            
+            return result;
+        }
+        
+        /// <summary>
+        /// Applies animation effects character-by-character to text
+        /// Similar to DungeonSelectionRenderer's animation logic
+        /// </summary>
+        private void ApplyAnimationToText(string text, Color baseColor, List<ColoredText> result, int startCharPosition, int lineOffset)
+        {
+            // Generate a small random offset for this animated element based on line position
+            // This makes each animated element look different from others
+            // Use a hash of the line offset to get a consistent but varied offset per line
+            int elementOffset = GetElementRandomOffset(lineOffset);
+            
+            foreach (char c in text)
+            {
+                // Add element offset to position to make this element's animation unique
+                int adjustedPosition = startCharPosition + elementOffset;
+                
+                // Get brightness mask adjustment from centralized state
+                float brightnessAdjustment = animationState.GetBrightnessAt(adjustedPosition, lineOffset);
+                double brightnessFactor = 1.0 + (brightnessAdjustment / 100.0) * 2.0;
+                brightnessFactor = Math.Max(0.3, Math.Min(2.0, brightnessFactor));
+                
+                // Get position-based undulation brightness (creates sine wave across text)
+                double undulationBrightness = animationState.GetUndulationBrightnessAt(adjustedPosition, lineOffset);
+                brightnessFactor += undulationBrightness * 3.0;
+                brightnessFactor = Math.Max(0.3, Math.Min(2.0, brightnessFactor));
+                
+                // Apply brightness adjustments to color
+                Color adjustedColor = AdjustColorBrightness(baseColor, brightnessFactor);
+                result.Add(new ColoredText(c.ToString(), adjustedColor));
+                
+                startCharPosition++;
+            }
+        }
+        
+        /// <summary>
+        /// Generates a small random offset for an animated element based on its line position
+        /// Uses a simple hash to ensure the same line always gets the same offset
+        /// Returns a value between -50 and +50 to create visual variation
+        /// </summary>
+        private int GetElementRandomOffset(int lineOffset)
+        {
+            // Use a simple hash function to generate a consistent but varied offset
+            // Multiply by a prime number and use modulo to get a pseudo-random value
+            int hash = (lineOffset * 7919 + 12345) % 101; // Prime number 7919, offset 12345, modulo 101 gives -50 to +50 range
+            return hash - 50; // Shift to -50 to +50 range
+        }
+        
+        /// <summary>
+        /// Adjusts the brightness of a color by a factor
+        /// Same logic as DungeonSelectionRenderer
+        /// </summary>
+        private Color AdjustColorBrightness(Color color, double factor)
+        {
+            factor = Math.Max(0.0, Math.Min(2.0, factor)); // Clamp between 0 and 2
+            
+            byte r = (byte)Math.Min(255, (int)(color.R * factor));
+            byte g = (byte)Math.Min(255, (int)(color.G * factor));
+            byte b = (byte)Math.Min(255, (int)(color.B * factor));
+            
+            return Color.FromRgb(r, g, b);
         }
     }
 }

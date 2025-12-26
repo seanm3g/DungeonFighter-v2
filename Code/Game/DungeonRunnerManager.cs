@@ -57,7 +57,7 @@ namespace RPGGame
             this.narrativeManager = narrativeManager ?? throw new ArgumentNullException(nameof(narrativeManager));
             this.combatManager = combatManager;
             this.customUIManager = customUIManager;
-            this.displayManager = new DungeonDisplayManager(narrativeManager, customUIManager);
+            this.displayManager = new DungeonDisplayManager(narrativeManager, customUIManager, stateManager);
             this.exitChoiceHandler = new DungeonExitChoiceHandler(stateManager, customUIManager, displayManager);
             this.explorationManager = new ExplorationManager();
             
@@ -96,17 +96,39 @@ namespace RPGGame
         /// <summary>
         /// Run the entire dungeon
         /// </summary>
-        public async Task RunDungeon()
+        /// <param name="character">Optional character to run dungeon with. If null, uses active character from stateManager.</param>
+        public async Task RunDungeon(Character? character = null)
         {
             DebugLogger.Log("DungeonRunnerManager", $"CombatManager: {(combatManager != null ? "initialized" : "null")}");
             
-            if (stateManager.CurrentPlayer == null || stateManager.CurrentDungeon == null || combatManager == null)
+            // Use provided character or fallback to active character
+            var activeCharacter = character ?? stateManager.CurrentPlayer;
+            
+            if (activeCharacter == null || stateManager.CurrentDungeon == null || combatManager == null)
             {
                 DungeonErrorHandler.HandleMissingComponents(stateManager, customUIManager);
                 return;
             }
             
+            // Store dungeon state in character context for multi-character support
+            var context = stateManager.GetActiveCharacterContext();
+            if (context != null && stateManager.CurrentDungeon != null)
+            {
+                context.ActiveDungeon = stateManager.CurrentDungeon;
+                context.SnapshotInventory();
+            }
+            
             await orchestrator.RunDungeon();
+            
+            // Clear dungeon state from character context when dungeon completes or exits
+            if (context != null)
+            {
+                // Only clear if we're no longer in dungeon state
+                if (stateManager.CurrentState != GameState.Dungeon && stateManager.CurrentState != GameState.Combat)
+                {
+                    context.ClearDungeonState();
+                }
+            }
         }
         
         /// <summary>

@@ -49,10 +49,19 @@ namespace RPGGame.Display.Dungeon
 
         /// <summary>
         /// Sets the UI context based on the current display buffer state
+        /// Only updates UI if the character is currently active (prevents background combat from interfering)
         /// </summary>
         public void SetUIContext(Character? currentPlayer, string? dungeonName, string? roomName, Enemy? currentEnemy)
         {
             if (canvasUI == null) return;
+
+            // Only set UI context if this character is currently active
+            // This prevents background combat from changing the UI context
+            if (currentPlayer != null && !canvasUI.IsCharacterActive(currentPlayer))
+            {
+                // Character is not active - don't update UI context
+                return;
+            }
 
             // Set all context information
             canvasUI.SetCharacter(currentPlayer);
@@ -64,7 +73,11 @@ namespace RPGGame.Display.Dungeon
                 canvasUI.SetCurrentEnemy(currentEnemy);
             }
 
-            // Set dungeon context (complete display log)
+            // Set dungeon context (complete display log) only if not in a menu state
+            // Menu states shouldn't have dungeon context with enemy info
+            // We check this by seeing if there's an enemy - if there is, SetCurrentEnemy will handle blocking it
+            // But we also need to check if we're setting context for an inactive character
+            // The check above already ensures currentPlayer is active, so we can safely set context here
             canvasUI.SetDungeonContext(displayBuffer.CompleteDisplayLog);
         }
     }

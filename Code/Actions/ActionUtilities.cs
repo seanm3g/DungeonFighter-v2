@@ -194,7 +194,8 @@ namespace RPGGame
                         uniqueBuilder.Add(" channels unique power and uses ", Colors.White);
                         uniqueBuilder.Add(selectedAction.Name, ColorPalette.Warning);
                         uniqueBuilder.Add("!", Colors.White);
-                        TextDisplayIntegration.DisplayCombatAction(uniqueBuilder.Build(), new List<ColoredText>(), null, null);
+                        // Pass character to filter display for multi-character support
+                        TextDisplayIntegration.DisplayCombatAction(uniqueBuilder.Build(), new List<ColoredText>(), null, null, character);
                     }
                 }
             }

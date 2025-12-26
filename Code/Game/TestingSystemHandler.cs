@@ -56,6 +56,7 @@ namespace RPGGame
             commands["11"] = new RunColorSystemTestsCommand(canvasUI, testCoordinator, stateManager);
             commands["12"] = new RunActionSystemTestsCommand(canvasUI, testCoordinator, stateManager);
             commands["13"] = new RunActionEditorTestCommand(canvasUI, testCoordinator, stateManager);
+            commands["14"] = new RunCombatLogFilteringTestsCommand(canvasUI, testCoordinator, stateManager);
             commands["0"] = new ReturnToSettingsCommand(canvasUI, testCoordinator, stateManager, () => ShowMainMenuEvent?.Invoke());
         }
 
@@ -200,12 +201,20 @@ namespace RPGGame
                             await cmd.ExecuteAsync();
                         }
                         break;
+                    case "7":
+                        // Combat Log Filtering Tests
+                        if (commands.TryGetValue("14", out cmd))
+                        {
+                            TestUICoordinator.ClearAndPrepareForTest(canvasUI);
+                            await cmd.ExecuteAsync();
+                        }
+                        break;
                     case "0":
                         // Back to main test menu
                         ShowTestingMenu(null);
                         break;
                     default:
-                        ShowMessageEvent?.Invoke("Invalid choice. Please select 1-6 or 0 to return.");
+                        ShowMessageEvent?.Invoke("Invalid choice. Please select 1-7 or 0 to return.");
                         break;
                 }
             }

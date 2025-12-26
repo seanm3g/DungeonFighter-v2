@@ -87,7 +87,7 @@ namespace RPGGame
             ActionAdditionTemplate.AddClassActions(Actor, standardConfigs, progression.WizardPoints, "Wizard");
 
             // Add weapon-specific wizard actions
-            if (progression.WizardPoints >= 5)
+            if (progression.WizardPoints >= 2)
             {
                 AddWeaponSpecificWizardActions(Actor, weaponType, progression.WizardPoints);
             }
@@ -101,8 +101,8 @@ namespace RPGGame
             switch (weaponType)
             {
                 case WeaponType.Wand:
-                    // Tier 1 actions (5 points)
-                    ActionAdditionTemplate.AddClassAction(Actor, "FIREBALL", 0.3, 5, wizardPoints, "Wizard");
+                    // Tier 1 actions (2 points) - CHANNEL is already added via standard configs
+                    // Additional weapon-specific wizard actions can be added here if needed
                     // Tier 2 actions (20 points)
                     ActionAdditionTemplate.AddClassAction(Actor, "LIGHTNING BOLT", 0.3, 20, wizardPoints, "Wizard");
                     // Tier 3 actions (60 points) - add when you create them
@@ -119,10 +119,10 @@ namespace RPGGame
         {
             return new List<string> 
             { 
-                "BERSERKER RAGE", 
-                "SHIELD WALL", 
-                "SHADOW STRIKE", 
-                "MAGIC MISSILE", 
+                "FOLLOW THROUGH",
+                "TAUNT", 
+                "MISDIRECT",
+                "CHANNEL",
                 "FIREBALL", 
                 "LIGHTNING BOLT", 
                 "HEAL", 
@@ -149,10 +149,10 @@ namespace RPGGame
         {
             return actionName switch
             {
-                "BERSERKER RAGE" => "Barbarian",
-                "SHIELD WALL" => "Warrior",
-                "SHADOW STRIKE" => "Rogue",
-                "MAGIC MISSILE" or "FIREBALL" or "LIGHTNING BOLT" or "HEAL" or "BLESS" => "Wizard",
+                "FOLLOW THROUGH" => "Barbarian",
+                "TAUNT" => "Warrior",
+                "MISDIRECT" => "Rogue",
+                "CHANNEL" or "FIREBALL" or "LIGHTNING BOLT" or "HEAL" or "BLESS" => "Wizard",
                 _ => null
             };
         }

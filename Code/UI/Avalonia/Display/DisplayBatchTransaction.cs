@@ -49,10 +49,12 @@ namespace RPGGame.UI.Avalonia.Display
             
             if (messages.Count > 0 && displayManager != null)
             {
-                // Add all messages to buffer at once (optimized batch operation)
-                displayManager.Buffer.AddRange(messages);
+                // Use AddMessages which includes character validation checks
+                // This prevents background combat from adding messages to the display buffer
+                displayManager.AddMessages(messages);
                 
-                // Trigger render if auto-render is enabled
+                // Note: AddMessages already triggers render, but we check autoRender here
+                // in case the behavior changes in the future
                 if (autoRender)
                 {
                     displayManager.TriggerRender();

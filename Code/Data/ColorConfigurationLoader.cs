@@ -158,12 +158,43 @@ namespace RPGGame.Data
                     _cachedConfig = JsonLoader.LoadJson<ColorConfigurationData>(filePath, true, new ColorConfigurationData());
 
                     // Build caches for fast lookup
-                    _colorCodeCache = ColorCacheBuilder.BuildColorCodeCache(_cachedConfig);
-                    _paletteColorCache = ColorCacheBuilder.BuildPaletteColorCache(_cachedConfig, _colorCodeCache);
-                    _templateCache = ColorCacheBuilder.BuildTemplateCache(_cachedConfig);
-                    _dungeonThemeCache = ColorCacheBuilder.BuildDungeonThemeCache(_cachedConfig);
-                    _colorPatternCache = ColorCacheBuilder.BuildColorPatternCache(_cachedConfig);
+                    try
+                    {
+                        _colorCodeCache = ColorCacheBuilder.BuildColorCodeCache(_cachedConfig);
+                        _paletteColorCache = ColorCacheBuilder.BuildPaletteColorCache(_cachedConfig, _colorCodeCache);
+                        _templateCache = ColorCacheBuilder.BuildTemplateCache(_cachedConfig);
+                        _dungeonThemeCache = ColorCacheBuilder.BuildDungeonThemeCache(_cachedConfig);
+                        _colorPatternCache = ColorCacheBuilder.BuildColorPatternCache(_cachedConfig);
+                    }
+                    catch (Exception cacheEx)
+                    {
+                        // If cache building fails, log error but continue with empty caches
+                        // This allows the system to fall back to individual file loading
+                        ErrorHandler.LogError(cacheEx, "ColorConfigurationLoader.LoadColorConfiguration", 
+                            "Failed to build color caches. System will use fallback loading.");
+                        // Initialize empty caches to prevent null reference exceptions
+                        _colorCodeCache ??= new Dictionary<string, Color>();
+                        _paletteColorCache ??= new Dictionary<ColorPalette, Color>();
+                        _templateCache ??= new Dictionary<string, ColorTemplateData>();
+                        _dungeonThemeCache ??= new Dictionary<string, DungeonThemeData>();
+                        _colorPatternCache ??= new Dictionary<string, ColorPalette>();
+                    }
 
+                    _isLoaded = true;
+                    return _cachedConfig;
+                }
+                catch (Exception ex)
+                {
+                    // If loading fails completely, return empty config and mark as loaded
+                    // This prevents infinite retry loops and allows fallback mechanisms to work
+                    ErrorHandler.LogError(ex, "ColorConfigurationLoader.LoadColorConfiguration", 
+                        "Failed to load color configuration. Using empty configuration and fallback mechanisms.");
+                    _cachedConfig = new ColorConfigurationData();
+                    _colorCodeCache = new Dictionary<string, Color>();
+                    _paletteColorCache = new Dictionary<ColorPalette, Color>();
+                    _templateCache = new Dictionary<string, ColorTemplateData>();
+                    _dungeonThemeCache = new Dictionary<string, DungeonThemeData>();
+                    _colorPatternCache = new Dictionary<string, ColorPalette>();
                     _isLoaded = true;
                     return _cachedConfig;
                 }

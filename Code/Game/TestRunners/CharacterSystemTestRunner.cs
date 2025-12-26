@@ -26,6 +26,9 @@ namespace RPGGame.Game.TestRunners
             await RunTest("Character Stats", TestCharacterStats);
             await RunTest("Character Progression", TestCharacterProgression);
             await RunTest("Character Equipment", TestCharacterEquipment);
+            await RunTest("Multi-Character Registration", TestMultiCharacterRegistration);
+            await RunTest("Multi-Character Switching", TestMultiCharacterSwitching);
+            await RunTest("Multi-Character Context", TestMultiCharacterContext);
             
             return new List<TestResult>(testResults);
         }
@@ -175,6 +178,140 @@ namespace RPGGame.Game.TestRunners
             catch (Exception ex)
             {
                 return Task.FromResult(new TestResult("Character Equipment", false, $"Exception: {ex.Message}"));
+            }
+        }
+
+        private Task<TestResult> TestMultiCharacterRegistration()
+        {
+            try
+            {
+                var stateManager = new GameStateManager();
+                var character1 = new Character("MultiTest1", 1);
+                var character2 = new Character("MultiTest2", 5);
+
+                var id1 = stateManager.AddCharacter(character1);
+                var id2 = stateManager.AddCharacter(character2);
+
+                if (string.IsNullOrEmpty(id1) || string.IsNullOrEmpty(id2))
+                {
+                    return Task.FromResult(new TestResult("Multi-Character Registration", false, "Character IDs not generated"));
+                }
+
+                if (id1 == id2)
+                {
+                    return Task.FromResult(new TestResult("Multi-Character Registration", false, "Character IDs should be unique"));
+                }
+
+                var allCharacters = stateManager.GetAllCharacters();
+                if (allCharacters.Count != 2)
+                {
+                    return Task.FromResult(new TestResult("Multi-Character Registration", false, $"Expected 2 characters, found {allCharacters.Count}"));
+                }
+
+                return Task.FromResult(new TestResult("Multi-Character Registration", true, 
+                    $"Registered 2 characters: {character1.Name} (ID: {id1.Substring(0, Math.Min(10, id1.Length))}...), {character2.Name} (ID: {id2.Substring(0, Math.Min(10, id2.Length))}...)"));
+            }
+            catch (Exception ex)
+            {
+                return Task.FromResult(new TestResult("Multi-Character Registration", false, $"Exception: {ex.Message}"));
+            }
+        }
+
+        private Task<TestResult> TestMultiCharacterSwitching()
+        {
+            try
+            {
+                var stateManager = new GameStateManager();
+                var character1 = new Character("SwitchTest1", 1);
+                var character2 = new Character("SwitchTest2", 2);
+
+                var id1 = stateManager.AddCharacter(character1);
+                var id2 = stateManager.AddCharacter(character2);
+
+                // Verify initial state
+                if (stateManager.GetActiveCharacter() != character1)
+                {
+                    return Task.FromResult(new TestResult("Multi-Character Switching", false, "First character should be active initially"));
+                }
+
+                // Switch to second character
+                bool switched = stateManager.SwitchCharacter(id2);
+                if (!switched)
+                {
+                    return Task.FromResult(new TestResult("Multi-Character Switching", false, "Failed to switch to second character"));
+                }
+
+                if (stateManager.GetActiveCharacter() != character2)
+                {
+                    return Task.FromResult(new TestResult("Multi-Character Switching", false, "Second character should be active after switch"));
+                }
+
+                // Switch back
+                switched = stateManager.SwitchCharacter(id1);
+                if (!switched || stateManager.GetActiveCharacter() != character1)
+                {
+                    return Task.FromResult(new TestResult("Multi-Character Switching", false, "Failed to switch back to first character"));
+                }
+
+                return Task.FromResult(new TestResult("Multi-Character Switching", true, 
+                    $"Successfully switched between {character1.Name} and {character2.Name}"));
+            }
+            catch (Exception ex)
+            {
+                return Task.FromResult(new TestResult("Multi-Character Switching", false, $"Exception: {ex.Message}"));
+            }
+        }
+
+        private Task<TestResult> TestMultiCharacterContext()
+        {
+            try
+            {
+                var stateManager = new GameStateManager();
+                var character1 = new Character("ContextTest1", 1);
+                var character2 = new Character("ContextTest2", 2);
+
+                var id1 = stateManager.AddCharacter(character1);
+                var id2 = stateManager.AddCharacter(character2);
+
+                // Set dungeon for first character
+                var dungeon1 = new Dungeon("Dungeon1", 1, 3, "Forest");
+                stateManager.SetCurrentDungeon(dungeon1);
+                var context1 = stateManager.GetActiveCharacterContext();
+                if (context1?.ActiveDungeon != dungeon1)
+                {
+                    return Task.FromResult(new TestResult("Multi-Character Context", false, "Dungeon not stored in character context"));
+                }
+
+                // Switch to second character
+                stateManager.SwitchCharacter(id2);
+                var context2 = stateManager.GetActiveCharacterContext();
+                if (context2?.ActiveDungeon != null)
+                {
+                    return Task.FromResult(new TestResult("Multi-Character Context", false, "Second character should not have dungeon from first"));
+                }
+
+                // Set dungeon for second character
+                var dungeon2 = new Dungeon("Dungeon2", 2, 4, "Lava");
+                stateManager.SetCurrentDungeon(dungeon2);
+                if (context2?.ActiveDungeon != dungeon2)
+                {
+                    return Task.FromResult(new TestResult("Multi-Character Context", false, "Dungeon not stored in second character context"));
+                }
+
+                // Switch back and verify first character's dungeon is preserved
+                stateManager.SwitchCharacter(id1);
+                context1 = stateManager.GetActiveCharacterContext();
+                if (context1?.ActiveDungeon != dungeon1)
+                {
+                    return Task.FromResult(new TestResult("Multi-Character Context", false, "First character's dungeon state not preserved"));
+                }
+
+                return Task.FromResult(new TestResult("Multi-Character Context", true, 
+                    $"Character contexts maintain independent dungeon state"));
+            }
+            catch (Exception ex)
+            {
+                return Task.FromResult(new TestResult("Multi-Character Context", false, $"Exception: {ex.Message}"));
             }
         }
     }

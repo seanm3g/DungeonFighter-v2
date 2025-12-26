@@ -85,14 +85,16 @@ namespace RPGGame
         
         // Animation Configuration
         /// <summary>
-        /// Controls the speed of the undulation/shimmer effect on colored text (in milliseconds)
-        /// Lower values = faster shimmer, higher values = slower, more subtle shimmer
-        /// Must be set in UIConfiguration.json
+        /// [LEGACY/UNUSED] Controls the speed of the undulation/shimmer effect on colored text (in milliseconds)
+        /// This property is not used in the current implementation.
+        /// Active undulation configuration is in DungeonSelectionAnimation.UndulationIntervalMs
         /// </summary>
         public int UndulationTimerMs { get; set; }
         
         /// <summary>
-        /// Configuration for the moving brightness mask effect
+        /// [LEGACY/UNUSED] Configuration for the moving brightness mask effect
+        /// This property is not used in the current implementation.
+        /// Active brightness mask configuration is in DungeonSelectionAnimation.BrightnessMask
         /// </summary>
         public BrightnessMaskConfig BrightnessMask { get; set; } = new BrightnessMaskConfig();
         
@@ -296,5 +298,4 @@ namespace RPGGame
             return delay;
         }
     }
-    
 }

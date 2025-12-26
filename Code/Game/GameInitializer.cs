@@ -147,22 +147,35 @@ namespace RPGGame
             
             WeaponItem starterWeapon = new WeaponItem(selectedWeaponData.name, 1, (int)selectedWeaponData.damage, selectedWeaponData.attackSpeed, weaponType);
             
-            // Special handling for starter weapons
-            if (weaponType == WeaponType.Mace)
+            // Get starting weapon actions from Actions.json using "startingWeapon" tag
+            var actionSelector = new LootActionSelector(new Random());
+            var startingActions = actionSelector.GetStartingWeaponActions(weaponType.ToString());
+            
+            if (startingActions.Count > 0)
             {
-                // Starter mace gets all 3 possible actions instead of a random one
-                starterWeapon.ActionBonuses.Add(new ActionBonus { Name = "SLAM" });
-                starterWeapon.ActionBonuses.Add(new ActionBonus { Name = "POUND" });
-                starterWeapon.ActionBonuses.Add(new ActionBonus { Name = "BLUDGEON" });
+                // If multiple starting actions (e.g., mace has 3), add all as ActionBonuses
+                // If single starting action, set as GearAction
+                if (startingActions.Count > 1)
+                {
+                    // Multiple actions: add all as ActionBonuses (like mace with SLAM, POUND, BLUDGEON)
+                    foreach (var actionName in startingActions)
+                    {
+                        starterWeapon.ActionBonuses.Add(new ActionBonus { Name = actionName });
+                    }
+                }
+                else
+                {
+                    // Single action: set as GearAction
+                    starterWeapon.GearAction = startingActions[0];
+                }
             }
             else
             {
-                // For other starter weapons, assign action but skip 20% random chance
-                var actionSelector = new LootActionSelector(new Random());
-                var selectedAction = actionSelector.SelectWeaponActionForStarter(weaponType.ToString());
-                if (!string.IsNullOrEmpty(selectedAction))
+                // Fallback: if no starting weapon actions found, use SelectWeaponActionForStarter
+                var fallbackAction = actionSelector.SelectWeaponActionForStarter(weaponType.ToString());
+                if (!string.IsNullOrEmpty(fallbackAction))
                 {
-                    starterWeapon.GearAction = selectedAction;
+                    starterWeapon.GearAction = fallbackAction;
                 }
             }
             

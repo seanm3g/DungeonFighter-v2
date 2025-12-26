@@ -2,6 +2,8 @@ namespace RPGGame
 {
     using System;
     using System.Threading.Tasks;
+    using System.IO;
+    using System.Text.Json;
     using Avalonia.Media;
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.ColorSystem;
@@ -40,6 +42,9 @@ namespace RPGGame
         /// </summary>
         public async Task<bool> ProcessRoom(Environment room, int roomNumber, int totalRooms, bool isFirstRoom)
         {
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "RoomProcessor.cs:ProcessRoom", message = "Entry", data = new { roomNumber, totalRooms, currentState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "A" }) + "\n"); } catch { }
+            // #endregion
             if (stateManager.CurrentPlayer == null || combatManager == null) return false;
             
             stateManager.SetCurrentRoom(room);
@@ -144,13 +149,7 @@ namespace RPGGame
                     if (hazard.SkipToCombat && hazard.Damage > 0)
                     {
                         stateManager.CurrentPlayer.TakeDamage(hazard.Damage);
-                        
-                        // Format the second damage message with colors
-                        var damageBuilder = new ColoredTextBuilder();
-                        damageBuilder.Add("You take ", Colors.White);
-                        damageBuilder.Add(hazard.Damage.ToString(), ColorPalette.Damage);
-                        damageBuilder.Add(" damage from the hazard!", Colors.White);
-                        displayManager.AddCombatEvent(damageBuilder);
+                        // Damage message is already included in the hazard message above, no need to display again
                     }
                     else if (hazard.SkipToSearch)
                     {
@@ -181,7 +180,10 @@ namespace RPGGame
                     {
                         // Add blank line before safe message (after room info)
                         displayManager.AddCombatEvent("");
-                        displayManager.AddCombatEvent("It appears you are safe... for now.");
+                        var safeMessageBuilder = new ColoredTextBuilder()
+                            .Add("It appears you are safe... ", Colors.White)
+                            .Add("for now.", ColorPalette.Red);
+                        displayManager.AddCombatEvent(safeMessageBuilder);
                         displayManager.AddCombatEvent(""); // Blank line after safe message
                         // Re-render room entry to show the safe message
                         canvasUISafe.RenderRoomEntry(room, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
@@ -206,7 +208,10 @@ namespace RPGGame
                             "The element of surprise is yours! You strike first!"
                         };
                         displayManager.AddCombatEvent("");
-                        displayManager.AddCombatEvent(advantageMessages[random.Next(advantageMessages.Length)]);
+                        var advantageMessage = advantageMessages[random.Next(advantageMessages.Length)];
+                        var advantageBuilder = new ColoredTextBuilder()
+                            .Add(advantageMessage, ColorPalette.Red);
+                        displayManager.AddCombatEvent(advantageBuilder);
                     }
                     else if (enemyGetsFirstAttack)
                     {
@@ -239,10 +244,19 @@ namespace RPGGame
                         Enemy? currentEnemy = room.GetNextLivingEnemy();
                         if (currentEnemy == null) break;
                         
+                        // #region agent log
+                        try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "RoomProcessor.cs:ProcessRoom", message = "Before ProcessEnemyEncounter", data = new { enemyName = currentEnemy.Name, currentState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "A" }) + "\n"); } catch { }
+                        // #endregion
                         if (!await enemyEncounterHandler.ProcessEnemyEncounter(currentEnemy, playerGetsFirstAttack, enemyGetsFirstAttack))
                         {
+                            // #region agent log
+                            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "RoomProcessor.cs:ProcessRoom", message = "Player died in combat", data = new { currentState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "A" }) + "\n"); } catch { }
+                            // #endregion
                             return false; // Player died
                         }
+                        // #region agent log
+                        try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "RoomProcessor.cs:ProcessRoom", message = "After ProcessEnemyEncounter", data = new { currentState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "A" }) + "\n"); } catch { }
+                        // #endregion
                         
                         // Reset flags after first enemy encounter
                         playerGetsFirstAttack = false;
@@ -250,6 +264,10 @@ namespace RPGGame
                     }
                 }
             }
+            
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "RoomProcessor.cs:ProcessRoom", message = "Room processing complete", data = new { roomNumber, currentState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "A" }) + "\n"); } catch { }
+            // #endregion
             
             // Post-combat search (happens FIRST, before room cleared message)
             bool foundLoot = false;
@@ -259,6 +277,7 @@ namespace RPGGame
                     stateManager.CurrentDungeon.MinLevel, isLastRoom);
                 
                 // Display search result with colors
+                displayManager.AddCombatEvent(""); // Blank line before search roll
                 var searchRollBuilder = new ColoredTextBuilder()
                     .Add("Search Roll: ", ColorPalette.Info)
                     .Add(searchResult.Roll.ToString(), ColorPalette.Success);

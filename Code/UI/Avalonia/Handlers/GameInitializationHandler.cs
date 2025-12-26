@@ -67,10 +67,25 @@ namespace RPGGame.UI.Avalonia.Handlers
                 // Show static title screen (no animation)
                 if (canvasUIManager is CanvasUICoordinator canvasUI2)
                 {
+                    // #region agent log
+                    try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "GameInitializationHandler.cs:InitializeGame", message = "About to show title screen", data = new { }, sessionId = "debug-session", runId = "run1", hypothesisId = "H5" }) + "\n"); } catch { }
+                    // #endregion
+                    
+                    // Suppress display buffer rendering to prevent it from clearing the title screen
+                    canvasUI2.SuppressDisplayBufferRendering();
+                    canvasUI2.ClearDisplayBufferWithoutRender();
+                    
+                    // #region agent log
+                    try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "GameInitializationHandler.cs:InitializeGame", message = "Suppression set, showing title screen", data = new { }, sessionId = "debug-session", runId = "run1", hypothesisId = "H5" }) + "\n"); } catch { }
+                    // #endregion
+                    
                     // Show the static title screen immediately
                     try
                     {
                         TitleScreenHelper.ShowStaticTitleScreen();
+                        // #region agent log
+                        try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "GameInitializationHandler.cs:InitializeGame", message = "Title screen shown", data = new { }, sessionId = "debug-session", runId = "run1", hypothesisId = "H5" }) + "\n"); } catch { }
+                        // #endregion
 
                         // Set flag to wait for key press
                         waitingForKeyAfterAnimation = true;
@@ -109,6 +124,9 @@ namespace RPGGame.UI.Avalonia.Handlers
         /// </summary>
         public void InitializeGameAfterAnimation(Action<string> updateStatus)
         {
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "GameInitializationHandler.cs:InitializeGameAfterAnimation", message = "InitializeGameAfterAnimation called", data = new { }, sessionId = "debug-session", runId = "run1", hypothesisId = "H4" }) + "\n"); } catch { }
+            // #endregion
             try
             {
                 // Check if canvasUIManager is initialized
@@ -134,8 +152,15 @@ namespace RPGGame.UI.Avalonia.Handlers
                     mouseHandler = new MouseInteractionHandler(gameCanvas, canvasUIForMouse, game);
                 }
 
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "GameInitializationHandler.cs:InitializeGameAfterAnimation", message = "About to show main menu", data = new { }, sessionId = "debug-session", runId = "run1", hypothesisId = "H4" }) + "\n"); } catch { }
+                // #endregion
+
                 // Show the main menu (now async)
                 game.ShowMainMenu();
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "GameInitializationHandler.cs:InitializeGameAfterAnimation", message = "ShowMainMenu called", data = new { }, sessionId = "debug-session", runId = "run1", hypothesisId = "H4" }) + "\n"); } catch { }
+                // #endregion
 
                 isInitialized = true;
                 waitingForKeyAfterAnimation = false;

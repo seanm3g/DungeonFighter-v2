@@ -3,7 +3,10 @@ using RPGGame.Editors;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 
 namespace RPGGame.UI.Avalonia.Coordinators
 {
@@ -110,7 +113,13 @@ namespace RPGGame.UI.Avalonia.Coordinators
         /// </summary>
         public void RenderCombat(Character player, Enemy enemy, List<string> combatLog)
         {
-            renderer.RenderCombat(player, enemy, combatLog, contextManager.GetCurrentContext());
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "ScreenRenderingCoordinator.cs:RenderCombat", message = "RenderCombat called", data = new { playerName = player?.Name ?? "null", enemyName = enemy?.Name ?? "null", combatLogCount = combatLog?.Count ?? 0 }, sessionId = "debug-session", runId = "run1", hypothesisId = "F" }) + "\n"); } catch { }
+            // #endregion
+            if (player != null && enemy != null && combatLog != null)
+            {
+                renderer.RenderCombat(player, enemy, combatLog, contextManager.GetCurrentContext());
+            }
         }
         
         /// <summary>
@@ -119,6 +128,14 @@ namespace RPGGame.UI.Avalonia.Coordinators
         public void RenderWeaponSelection(List<StartingWeapon> weapons)
         {
             renderer.RenderWeaponSelection(weapons, contextManager.GetCurrentContext());
+        }
+        
+        /// <summary>
+        /// Renders character selection screen
+        /// </summary>
+        public void RenderCharacterSelection(List<Character> characters, string? activeCharacterName, Dictionary<string, string> characterStatuses)
+        {
+            renderer.RenderCharacterSelection(characters, activeCharacterName, characterStatuses, contextManager.GetCurrentContext());
         }
         
         /// <summary>

@@ -28,12 +28,19 @@ namespace RPGGame
         /// <summary>
         /// Displays a combat action using ColoredText for better color management
         /// This is the primary method - uses structured ColoredText for action, roll info, and status effects
+        /// Only displays if the character is currently active (for multi-character support)
         /// </summary>
+        /// <param name="actionText">The action text to display</param>
+        /// <param name="rollInfo">Roll information</param>
+        /// <param name="statusEffects">Status effects</param>
+        /// <param name="narrativeMessages">Narrative messages</param>
+        /// <param name="character">The character this combat action belongs to (null = always display)</param>
         public static void DisplayCombatAction(
             List<ColoredText> actionText, 
             List<ColoredText> rollInfo, 
             List<List<ColoredText>>? statusEffects = null,
-            List<List<ColoredText>>? narrativeMessages = null)
+            List<List<ColoredText>>? narrativeMessages = null,
+            Character? character = null)
         {
             // Check if this is a critical miss and extract critical miss narrative
             List<ColoredText>? criticalMissNarrative = null;
@@ -74,18 +81,25 @@ namespace RPGGame
             
             // Display the action block with ColoredText, including critical miss narrative and all other narratives
             // All narratives are included in the turn block to ensure each character's turn is displayed as a single unit
-            BlockDisplayManager.DisplayActionBlock(actionText, rollInfo, statusEffects, criticalMissNarrative, remainingNarratives);
+            BlockDisplayManager.DisplayActionBlock(actionText, rollInfo, statusEffects, criticalMissNarrative, remainingNarratives, character);
         }
         
         /// <summary>
         /// Displays a combat action using ColoredText (async version)
         /// This version waits for the display delay to complete, allowing the combat loop to wait for each action
+        /// Only displays if the character is currently active (for multi-character support)
         /// </summary>
+        /// <param name="actionText">The action text to display</param>
+        /// <param name="rollInfo">Roll information</param>
+        /// <param name="statusEffects">Status effects</param>
+        /// <param name="narrativeMessages">Narrative messages</param>
+        /// <param name="character">The character this combat action belongs to (null = always display)</param>
         public static async System.Threading.Tasks.Task DisplayCombatActionAsync(
             List<ColoredText> actionText, 
             List<ColoredText> rollInfo, 
             List<List<ColoredText>>? statusEffects = null,
-            List<List<ColoredText>>? narrativeMessages = null)
+            List<List<ColoredText>>? narrativeMessages = null,
+            Character? character = null)
         {
             // Check if this is a critical miss and extract critical miss narrative
             List<ColoredText>? criticalMissNarrative = null;
@@ -126,7 +140,7 @@ namespace RPGGame
             
             // Display the action block with ColoredText, including critical miss narrative and all other narratives
             // All narratives are included in the turn block to ensure each character's turn is displayed as a single unit
-            await BlockDisplayManager.DisplayActionBlockAsync(actionText, rollInfo, statusEffects, criticalMissNarrative, remainingNarratives);
+            await BlockDisplayManager.DisplayActionBlockAsync(actionText, rollInfo, statusEffects, criticalMissNarrative, remainingNarratives, character);
         }
         
         

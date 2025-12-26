@@ -19,7 +19,7 @@ namespace RPGGame.Display.Dungeon
 
             var roomHeaderText = $"===== {AsciiArtAssets.UIText.EnteringRoomHeader} =====";
             var coloredRoomHeader = new ColoredTextBuilder()
-                .Add(roomHeaderText, AsciiArtAssets.Colors.Gold)
+                .Add(roomHeaderText, ColorPalette.White)
                 .Build();
             info.Add(ColoredTextRenderer.RenderAsMarkup(coloredRoomHeader));
 
@@ -28,7 +28,7 @@ namespace RPGGame.Display.Dungeon
             var roomNameColor = GetColorFromThemeCode(themeColorCode);
             
             var roomNameInfo = new ColoredTextBuilder()
-                .Add("Room: ", ColorPalette.White)
+                .Add("Room: ", AsciiArtAssets.Colors.Gold)
                 .Add(room.Name, roomNameColor)
                 .Build();
             info.Add(ColoredTextRenderer.RenderAsMarkup(roomNameInfo));

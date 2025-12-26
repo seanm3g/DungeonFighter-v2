@@ -15,7 +15,8 @@ namespace RPGGame
             "TAUNT", "JAB", "STUN", "CRIT", "SHIELD BASH", "DEFENSIVE STANCE",
             "BERSERK", "BLOOD FRENZY", "PRECISION STRIKE", "QUICK REFLEXES",
             "FOCUS", "READ BOOK", "HEROIC STRIKE", "WHIRLWIND", "BERSERKER RAGE",
-            "SHADOW STRIKE", "FIREBALL", "METEOR", "ICE STORM", "LIGHTNING BOLT"
+            "SHADOW STRIKE", "FIREBALL", "METEOR", "ICE STORM", "LIGHTNING BOLT",
+            "FOLLOW THROUGH", "MISDIRECT", "CHANNEL"
         };
 
         /// <summary>
@@ -38,10 +39,9 @@ namespace RPGGame
         {
             if (progression == null) return;
 
-            if (progression.BarbarianPoints >= 5)
+            if (progression.BarbarianPoints >= 2)
             {
-                AddActionIfExists(entity, "BERSERKER RAGE");
-                AddActionIfExists(entity, "BLOOD FRENZY");
+                AddActionIfExists(entity, "FOLLOW THROUGH");
             }
 
             if (progression.BarbarianPoints >= 3)
@@ -57,10 +57,9 @@ namespace RPGGame
         {
             if (progression == null) return;
 
-            if (progression.WarriorPoints >= 5)
+            if (progression.WarriorPoints >= 1)
             {
-                AddActionIfExists(entity, "HEROIC STRIKE");
-                AddActionIfExists(entity, "WHIRLWIND");
+                AddActionIfExists(entity, "TAUNT");
             }
 
             if (progression.WarriorPoints >= 3)
@@ -69,10 +68,7 @@ namespace RPGGame
                 AddActionIfExists(entity, "DEFENSIVE STANCE");
             }
 
-            if (progression.WarriorPoints >= 1)
-            {
-                AddActionIfExists(entity, "TAUNT");
-            }
+
         }
 
         /// <summary>
@@ -82,10 +78,9 @@ namespace RPGGame
         {
             if (progression == null) return;
 
-            if (progression.RoguePoints >= 5)
+            if (progression.RoguePoints >= 2)
             {
-                AddActionIfExists(entity, "SHADOW STRIKE");
-                AddActionIfExists(entity, "PRECISION STRIKE");
+                AddActionIfExists(entity, "MISDIRECT");
             }
 
             if (progression.RoguePoints >= 3)
@@ -105,11 +100,9 @@ namespace RPGGame
             
             if (isWizardClass)
             {
-                if (progression.WizardPoints >= 5)
+                if (progression.WizardPoints >= 1)
                 {
-                    AddActionIfExists(entity, "METEOR");
-                    AddActionIfExists(entity, "ICE STORM");
-                    AddActionIfExists(entity, "LIGHTNING BOLT");
+                    AddActionIfExists(entity, "CHANNEL");
                 }
                 
                 if (progression.WizardPoints >= 3)

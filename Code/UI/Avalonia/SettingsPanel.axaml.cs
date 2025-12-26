@@ -60,6 +60,28 @@ namespace RPGGame.UI.Avalonia
                 battleStatisticsTabManager,
                 ShowStatusMessage);
             persistenceManager = new SettingsPersistenceManager(settingsManager, gameVariablesTabManager);
+            
+            // Wire up animation configuration updates for real-time changes
+            if (settingsManager != null)
+            {
+                var animationManager = settingsManager.GetAnimationSettingsManager();
+                if (animationManager != null)
+                {
+                    animationManager.OnConfigurationUpdated += () =>
+                    {
+                        // Reload animation configuration in CanvasAnimationManager
+                        var uiManager = RPGGame.UIManager.GetCustomUIManager();
+                        if (uiManager is CanvasUICoordinator coordinator)
+                        {
+                            var animManager = coordinator.GetAnimationManager();
+                            if (animManager is Managers.CanvasAnimationManager canvasAnimManager)
+                            {
+                                canvasAnimManager.ReloadAnimationConfiguration();
+                            }
+                        }
+                    };
+                }
+            }
         }
         
         /// <summary>
@@ -166,6 +188,30 @@ namespace RPGGame.UI.Avalonia
             
             // Load text delay settings
             LoadTextDelaySettings();
+            
+            // Load animation settings
+            LoadAnimationSettings();
+        }
+        
+        /// <summary>
+        /// Loads animation settings into UI controls
+        /// </summary>
+        private void LoadAnimationSettings()
+        {
+            if (persistenceManager == null) return;
+            
+            persistenceManager.LoadAnimationSettings(
+                BrightnessMaskEnabledCheckBox,
+                BrightnessMaskIntensitySlider,
+                BrightnessMaskIntensityTextBox,
+                BrightnessMaskWaveLengthSlider,
+                BrightnessMaskWaveLengthTextBox,
+                BrightnessMaskUpdateIntervalTextBox,
+                UndulationSpeedSlider,
+                UndulationSpeedTextBox,
+                UndulationWaveLengthSlider,
+                UndulationWaveLengthTextBox,
+                UndulationIntervalTextBox);
         }
         
         /// <summary>
@@ -269,7 +315,15 @@ namespace RPGGame.UI.Avalonia
                 PlayerHealthMultiplierSlider,
                 PlayerHealthMultiplierTextBox,
                 PlayerDamageMultiplierSlider,
-                PlayerDamageMultiplierTextBox);
+                PlayerDamageMultiplierTextBox,
+                BrightnessMaskIntensitySlider,
+                BrightnessMaskIntensityTextBox,
+                BrightnessMaskWaveLengthSlider,
+                BrightnessMaskWaveLengthTextBox,
+                UndulationSpeedSlider,
+                UndulationSpeedTextBox,
+                UndulationWaveLengthSlider,
+                UndulationWaveLengthTextBox);
             
             settingsEventManager.WireUpTextBoxEvents(
                 NarrativeBalanceTextBox,
@@ -283,7 +337,15 @@ namespace RPGGame.UI.Avalonia
                 PlayerHealthMultiplierTextBox,
                 PlayerHealthMultiplierSlider,
                 PlayerDamageMultiplierTextBox,
-                PlayerDamageMultiplierSlider);
+                PlayerDamageMultiplierSlider,
+                BrightnessMaskIntensityTextBox,
+                BrightnessMaskIntensitySlider,
+                BrightnessMaskWaveLengthTextBox,
+                BrightnessMaskWaveLengthSlider,
+                UndulationSpeedTextBox,
+                UndulationSpeedSlider,
+                UndulationWaveLengthTextBox,
+                UndulationWaveLengthSlider);
             
             settingsEventManager.WireUpButtonEvents(
                 SaveButton,
@@ -297,6 +359,7 @@ namespace RPGGame.UI.Avalonia
                 DataUITestsButton,
                 ActionSystemTestsButton,
                 AdvancedIntegrationTestsButton,
+                CombatLogFilteringTestsButton,
                 GenerateRandomItemsButton,
                 ItemGenerationAnalysisButton,
                 TierDistributionTestButton,
@@ -340,6 +403,26 @@ namespace RPGGame.UI.Avalonia
             
             // Save text delay settings
             SaveTextDelaySettings();
+            
+            // Save animation settings
+            SaveAnimationSettings();
+        }
+        
+        /// <summary>
+        /// Saves animation settings from UI controls
+        /// </summary>
+        private void SaveAnimationSettings()
+        {
+            if (persistenceManager == null) return;
+            
+            persistenceManager.SaveAnimationSettings(
+                BrightnessMaskEnabledCheckBox,
+                BrightnessMaskIntensitySlider,
+                BrightnessMaskWaveLengthSlider,
+                BrightnessMaskUpdateIntervalTextBox,
+                UndulationSpeedSlider,
+                UndulationWaveLengthSlider,
+                UndulationIntervalTextBox);
         }
         
         /// <summary>

@@ -99,7 +99,7 @@ namespace RPGGame
             string primaryClass = GetClassTier(classes[0].name, classes[0].points);
             
             // Check for hybrid classes
-            if (classes[1].points >= 5)
+            if (classes[1].points >= 2)
             {
                 string secondaryClass = GetClassTier(classes[1].name, classes[1].points);
                 return $"{primaryClass}-{secondaryClass}";
@@ -137,7 +137,7 @@ namespace RPGGame
                 return $"Master {baseClass}";  // Tier 3
             if (points >= 20)
                 return $"Expert {baseClass}";   // Tier 2
-            if (points >= 5)
+            if (points >= 2)
                 return $"Adept {baseClass}";    // Tier 1
             return "Novice";
         }
@@ -154,7 +154,7 @@ namespace RPGGame
             };
 
             // Define upgrade thresholds - three tiers
-            int[] thresholds = { 5, 20, 60 };
+            int[] thresholds = { 2, 20, 60 };
             
             foreach (int threshold in thresholds)
             {

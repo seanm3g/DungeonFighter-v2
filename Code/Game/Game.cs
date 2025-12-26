@@ -179,6 +179,9 @@ namespace RPGGame
             menuInputValidator = result.MenuInputValidator;
             inputRouter = result.InputRouter;
             escapeKeyHandler = result.EscapeKeyHandler;
+            
+            // Set GameStateManager in BlockDisplayManager for character filtering
+            BlockDisplayManager.SetStateManager(stateManager);
         }
 
         // Static delegates for compatibility

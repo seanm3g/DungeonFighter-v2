@@ -88,7 +88,13 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// </summary>
         public void RenderDungeonSelection(int x, int y, int width, int height, List<Dungeon> dungeons)
         {
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "DungeonRenderer.cs:RenderDungeonSelection", message = "Entry", data = new { x, y, width, height, dungeonCount = dungeons?.Count ?? 0 }, sessionId = "debug-session", runId = "run1", hypothesisId = "H1" }) + "\n"); } catch { }
+            // #endregion
             currentLineCount = selectionRenderer.RenderDungeonSelection(x, y, width, height, dungeons);
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "DungeonRenderer.cs:RenderDungeonSelection", message = "After selectionRenderer.RenderDungeonSelection", data = new { currentLineCount }, sessionId = "debug-session", runId = "run1", hypothesisId = "H1" }) + "\n"); } catch { }
+            // #endregion
         }
         
         /// <summary>
@@ -115,6 +121,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             else
             {
                 // Fallback: render display buffer directly if not using CanvasTextManager
+                if (textManager == null)
+                    return;
                 var displayBuffer = textManager.DisplayBuffer;
                 int currentY = y;
                 int availableWidth = width - 2;
@@ -177,6 +185,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             else
             {
                 // Fallback: render display buffer directly if not using CanvasTextManager
+                if (textManager == null)
+                    return;
                 var displayBuffer = textManager.DisplayBuffer;
                 int currentY = y;
                 int availableWidth = width - 2;
@@ -205,6 +215,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// </summary>
         public void RenderCombatScreen(int x, int y, int width, int height, Dungeon? dungeon, Environment? room, Enemy enemy, ICanvasTextManager textManager, List<string>? dungeonContext = null)
         {
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "DungeonRenderer.cs:RenderCombatScreen", message = "RenderCombatScreen called", data = new { enemyName = enemy?.Name ?? "null", hasTextManager = textManager != null }, sessionId = "debug-session", runId = "run1", hypothesisId = "H8" }) + "\n"); } catch { }
+            // #endregion
             // Use the display buffer system which already handles scrolling and message ordering
             // The display buffer contains all messages in order: dungeon info, room info, enemy encounter, combat log
             // Messages are added to the bottom and the buffer automatically scrolls when content exceeds viewport
@@ -224,6 +237,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             else
             {
                 // Fallback: render display buffer directly if not using CanvasTextManager
+                if (textManager == null)
+                    return;
                 var displayBuffer = textManager.DisplayBuffer;
                 int currentY = y;
                 int availableWidth = width - 2;

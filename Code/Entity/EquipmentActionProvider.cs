@@ -76,11 +76,13 @@ namespace RPGGame
 
             // Get weapon-specific actions from JSON using tag matching
             // Actions must have both "weapon" tag and the weapon type tag (e.g., "wand", "mace")
+            // Exclude "class" tagged actions (class-only actions cannot appear on weapons)
             var weaponActions = allActions
                 .Where(action => action.Tags != null &&
                                 action.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
                                 action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)) &&
-                                !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)))
+                                !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)) &&
+                                !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)))
                 .Select(action => action.Name)
                 .ToList();
 

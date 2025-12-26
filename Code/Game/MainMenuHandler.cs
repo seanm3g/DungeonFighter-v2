@@ -27,12 +27,14 @@ namespace RPGGame
         public delegate void OnShowSettings();
         public delegate void OnShowGameLoop();
         public delegate void OnShowWeaponSelection();
+        public delegate void OnShowCharacterSelection();
         
         public event OnExitGame? ExitGameEvent;
         public event OnShowMessage? ShowMessageEvent;
         public event OnShowSettings? ShowSettingsEvent;
         public event OnShowGameLoop? ShowGameLoopEvent;
         public event OnShowWeaponSelection? ShowWeaponSelectionEvent;
+        public event OnShowCharacterSelection? ShowCharacterSelectionEvent;
 
         public MainMenuHandler(
             GameStateManager stateManager,
@@ -51,8 +53,20 @@ namespace RPGGame
         /// </summary>
         public void ShowMainMenu()
         {
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "MainMenuHandler.cs:ShowMainMenu", message = "ShowMainMenu called", data = new { currentState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "H4" }) + "\n"); } catch { }
+            // #endregion
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
+                // Suppress display buffer rendering FIRST before any operations that might trigger renders
+                // This prevents auto-renders from interfering with menu rendering and causing screen flashing
+                canvasUI.SuppressDisplayBufferRendering();
+                canvasUI.ClearDisplayBufferWithoutRender();
+                
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "MainMenuHandler.cs:ShowMainMenu", message = "About to render main menu", data = new { currentState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "H4" }) + "\n"); } catch { }
+                // #endregion
+                
                 // Check if we have a saved game - prefer in-memory player, but also check disk
                 bool hasSavedGame = false;
                 string? characterName = null;
@@ -77,8 +91,14 @@ namespace RPGGame
                 }
                 
                 canvasUI.RenderMainMenu(hasSavedGame, characterName, characterLevel);
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "MainMenuHandler.cs:ShowMainMenu", message = "Main menu rendered, transitioning state", data = new { currentState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "H4" }) + "\n"); } catch { }
+                // #endregion
             }
             stateManager.TransitionToState(GameState.MainMenu);
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "MainMenuHandler.cs:ShowMainMenu", message = "State transitioned to MainMenu", data = new { newState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "H4" }) + "\n"); } catch { }
+            // #endregion
         }
 
         /// <summary>
@@ -104,11 +124,16 @@ namespace RPGGame
                 case "3":
                     HandleSettingsSelection();
                     break;
+                case "4":
+                case "C":
+                    // Character Selection (multi-character support)
+                    ShowCharacterSelectionEvent?.Invoke();
+                    break;
                 case "0":
                     HandleQuitSelection();
                     break;
                 default:
-                    ShowMessageEvent?.Invoke($"Invalid choice: '{input}'. Please select 1 (New), 2 (Load), 3 (Settings), or 0 (Quit).");
+                    ShowMessageEvent?.Invoke($"Invalid choice: '{input}'. Please select 1 (New), 2 (Load), 3 (Settings), 4 (Characters), or 0 (Quit).");
                     break;
             }
         }
@@ -129,30 +154,50 @@ namespace RPGGame
                 }
                 
                 // Create new character (without equipment yet)
-                stateManager.SetCurrentPlayer(new Character(null, 1)); // null triggers random name generation
+                var newCharacter = new Character(null, 1); // null triggers random name generation
                 
-                if (stateManager.CurrentPlayer != null)
+                // Register character in state manager (multi-character support)
+                var characterId = stateManager.AddCharacter(newCharacter);
+                stateManager.SetCurrentPlayer(newCharacter);
+                
+                var activeCharacter = stateManager.GetActiveCharacter();
+                if (activeCharacter != null)
                 {
+                    // Suppress display buffer rendering FIRST before any operations that might trigger renders
+                    // This prevents auto-renders from interfering with menu rendering and causing screen flashing
+                    if (customUIManager is CanvasUICoordinator canvasUISuppress)
+                    {
+                        canvasUISuppress.SuppressDisplayBufferRendering();
+                        canvasUISuppress.ClearDisplayBufferWithoutRender();
+                    }
+                    
                     // Set character in UI manager for persistent display
                     if (customUIManager is CanvasUICoordinator canvasUI)
                     {
-                        canvasUI.SetCharacter(stateManager.CurrentPlayer);
+                        canvasUI.SetCharacter(activeCharacter);
                     }
                     
                     // Apply health multiplier if configured
                     var settings = GameSettings.Instance;
                     if (settings.PlayerHealthMultiplier != 1.0)
                     {
-                        stateManager.CurrentPlayer.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
+                        activeCharacter.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
                     }
                     
-                    // Go to weapon selection first
-                    stateManager.TransitionToState(GameState.WeaponSelection);
+                    // Render weapon selection BEFORE transitioning state to prevent canvas clearing during transition
+                    // This ensures the screen is rendered before any state-change-triggered clears happen
                     if (ShowWeaponSelectionEvent != null)
                     {
                         try
                         {
                             ShowWeaponSelectionEvent.Invoke();
+                            
+                            // Transition state AFTER rendering to prevent flashing
+                            // Only transition if not already in WeaponSelection state
+                            if (stateManager.CurrentState != GameState.WeaponSelection)
+                            {
+                                stateManager.TransitionToState(GameState.WeaponSelection);
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -225,34 +270,63 @@ namespace RPGGame
                         canvasUI.ShowLoadingAnimation("Loading saved game...");
                     }
                     
-                    // Load character and initialize game data on background thread to prevent UI freeze
-                    Character? savedCharacter = null;
+                    // Load all saved characters on background thread to prevent UI freeze
+                    List<Character> loadedCharacters = new List<Character>();
                     try
                     {
                         DebugLogger.Log("MainMenuHandler", $"Save file exists at: {saveFilePath}, starting load...");
                         
-                        savedCharacter = await Task.Run(async () =>
+                        loadedCharacters = await Task.Run(async () =>
                         {
+                            var characters = new List<Character>();
                             try
                             {
                                 DebugLogger.Log("MainMenuHandler", "Starting character load on background thread...");
-                                // Load character asynchronously on background thread
-                                var character = await Character.LoadCharacterAsync().ConfigureAwait(false);
                                 
-                                if (character != null)
+                                // Load all saved characters (multi-character support)
+                                var savedCharacterInfos = CharacterSaveManager.ListAllSavedCharacters();
+                                
+                                if (savedCharacterInfos.Count == 0)
                                 {
-                                    DebugLogger.Log("MainMenuHandler", $"Character loaded: {character.Name}, Level {character.Level}");
-                                    // Initialize game data on same background thread
-                                    // This may load JSON files synchronously, but it's on background thread
-                                    DebugLogger.Log("MainMenuHandler", "Initializing game data...");
-                                    gameInitializer.InitializeExistingGame(character, stateManager.AvailableDungeons);
-                                    DebugLogger.Log("MainMenuHandler", $"Game data initialized. Dungeons count: {stateManager.AvailableDungeons.Count}");
+                                    // Backward compatibility: try loading legacy save file
+                                    var legacyCharacter = await Character.LoadCharacterAsync().ConfigureAwait(false);
+                                    if (legacyCharacter != null)
+                                    {
+                                        characters.Add(legacyCharacter);
+                                        DebugLogger.Log("MainMenuHandler", $"Loaded legacy character: {legacyCharacter.Name}, Level {legacyCharacter.Level}");
+                                    }
                                 }
                                 else
                                 {
-                                    DebugLogger.Log("MainMenuHandler", "Character load returned null - save file may be corrupted");
+                                    // Load all characters by their IDs
+                                    foreach (var (characterId, characterName, level) in savedCharacterInfos)
+                                    {
+                                        try
+                                        {
+                                            var character = await Character.LoadCharacterAsync(characterId).ConfigureAwait(false);
+                                            if (character != null)
+                                            {
+                                                characters.Add(character);
+                                                DebugLogger.Log("MainMenuHandler", $"Loaded character: {character.Name}, Level {character.Level}, ID: {characterId}");
+                                            }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            DebugLogger.Log("MainMenuHandler", $"Error loading character {characterId}: {ex.Message}");
+                                            // Continue loading other characters
+                                        }
+                                    }
                                 }
-                                return character;
+                                
+                                // Initialize game data for the first character (dungeons are shared)
+                                if (characters.Count > 0)
+                                {
+                                    DebugLogger.Log("MainMenuHandler", "Initializing game data...");
+                                    gameInitializer.InitializeExistingGame(characters[0], stateManager.AvailableDungeons);
+                                    DebugLogger.Log("MainMenuHandler", $"Game data initialized. Dungeons count: {stateManager.AvailableDungeons.Count}");
+                                }
+                                
+                                return characters;
                             }
                             catch (Exception ex)
                             {
@@ -261,11 +335,11 @@ namespace RPGGame
                             }
                         }).ConfigureAwait(true); // Return to UI thread for UI updates
                         
-                        DebugLogger.Log("MainMenuHandler", $"Load completed. Character is {(savedCharacter != null ? "loaded" : "null")}");
+                        DebugLogger.Log("MainMenuHandler", $"Load completed. Loaded {loadedCharacters.Count} character(s)");
                     }
                     catch (Exception ex)
                     {
-                        string errorMsg = $"Error loading character: {ex.Message}";
+                        string errorMsg = $"Error loading characters: {ex.Message}";
                         DebugLogger.Log("MainMenuHandler", errorMsg);
                         ShowMessageEvent?.Invoke(errorMsg);
                         ShowMainMenu();
@@ -273,44 +347,73 @@ namespace RPGGame
                     }
                     
                     // Now update state and UI (we're back on UI thread)
-                    if (savedCharacter != null)
+                    if (loadedCharacters.Count > 0)
                     {
-                        stateManager.SetCurrentPlayer(savedCharacter);
-                        
-                        // Update UI - these should be thread-safe or called from UI thread
-                        if (customUIManager is CanvasUICoordinator canvasUI2)
+                        // Register all loaded characters in state manager
+                        Character? firstCharacter = null;
+                        foreach (var character in loadedCharacters)
                         {
-                            canvasUI2.SetCharacter(stateManager.CurrentPlayer);
-                        }
-                        
-                        // Apply health multiplier if configured
-                        var settings = GameSettings.Instance;
-                        if (settings.PlayerHealthMultiplier != 1.0 && stateManager.CurrentPlayer != null)
-                        {
-                            stateManager.CurrentPlayer.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
-                        }
-                        
-                        // Inventory is loaded from stateManager.CurrentPlayer.Inventory
-                        
-                        ShowMessageEvent?.Invoke($"Welcome back, {stateManager.CurrentPlayer?.Name ?? "Player"}!");
-                        
-                        // Go to game loop
-                        stateManager.TransitionToState(GameState.GameLoop);
-                        DebugLogger.Log("MainMenuHandler", $"Firing ShowGameLoopEvent - Event is {(ShowGameLoopEvent != null ? "not null" : "NULL")}");
-                        if (ShowGameLoopEvent != null)
-                        {
-                            try
+                            var characterId = stateManager.AddCharacter(character);
+                            if (firstCharacter == null)
                             {
-                                ShowGameLoopEvent.Invoke();
+                                firstCharacter = character;
                             }
-                            catch (Exception ex)
+                        }
+                        
+                        // Set the first character as active (or show selection if multiple)
+                        if (loadedCharacters.Count == 1)
+                        {
+                            // Single character - backward compatibility mode
+                            stateManager.SetCurrentPlayer(firstCharacter);
+                            
+                            // Update UI
+                            if (customUIManager is CanvasUICoordinator canvasUI2)
                             {
-                                ShowMessageEvent?.Invoke($"Error: {ex.Message}");
+                                canvasUI2.SetCharacter(stateManager.GetActiveCharacter());
+                            }
+                            
+                            // Apply health multiplier if configured
+                            var settings = GameSettings.Instance;
+                            var activeCharacter = stateManager.GetActiveCharacter();
+                            if (settings.PlayerHealthMultiplier != 1.0 && activeCharacter != null)
+                            {
+                                activeCharacter.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
+                            }
+                            
+                            ShowMessageEvent?.Invoke($"Welcome back, {activeCharacter?.Name ?? "Player"}!");
+                            
+                            // Go to game loop
+                            stateManager.TransitionToState(GameState.GameLoop);
+                            DebugLogger.Log("MainMenuHandler", $"Firing ShowGameLoopEvent - Event is {(ShowGameLoopEvent != null ? "not null" : "NULL")}");
+                            if (ShowGameLoopEvent != null)
+                            {
+                                try
+                                {
+                                    ShowGameLoopEvent.Invoke();
+                                }
+                                catch (Exception ex)
+                                {
+                                    ShowMessageEvent?.Invoke($"Error: {ex.Message}");
+                                }
+                            }
+                            else
+                            {
+                                ShowMessageEvent?.Invoke("Error: Game loop event not initialized. Please restart the game.");
                             }
                         }
                         else
                         {
-                            ShowMessageEvent?.Invoke("Error: Game loop event not initialized. Please restart the game.");
+                            // Multiple characters - show character selection
+                            ShowMessageEvent?.Invoke($"Loaded {loadedCharacters.Count} characters. Please select one to play.");
+                            // Character selection will be handled by CharacterManagementHandler
+                            // For now, set first character as active and let user switch
+                            stateManager.SetCurrentPlayer(firstCharacter);
+                            if (customUIManager is CanvasUICoordinator canvasUI3)
+                            {
+                                canvasUI3.SetCharacter(firstCharacter);
+                            }
+                            stateManager.TransitionToState(GameState.GameLoop);
+                            ShowGameLoopEvent?.Invoke();
                         }
                     }
                     else

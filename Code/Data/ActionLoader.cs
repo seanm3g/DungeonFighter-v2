@@ -42,6 +42,8 @@ namespace RPGGame
         public bool IsComboAction { get; set; }
         [JsonPropertyName("rollBonus")]
         public int RollBonus { get; set; }
+        [JsonPropertyName("rollBonusDuration")]
+        public int RollBonusDuration { get; set; }
         [JsonPropertyName("statBonus")]
         public int StatBonus { get; set; }
         [JsonPropertyName("statBonusType")]
@@ -94,6 +96,10 @@ namespace RPGGame
         public int MultipleDiceCount { get; set; } = 1;
         [JsonPropertyName("multipleDiceMode")]
         public string MultipleDiceMode { get; set; } = "Sum";
+        
+        // Starting action flag
+        [JsonPropertyName("isStartingAction")]
+        public bool IsStartingAction { get; set; }
     }
 
     public static class ActionLoader
@@ -206,6 +212,7 @@ namespace RPGGame
             
             // Set additional properties (using nested property structure)
             action.Advanced.RollBonus = data.RollBonus;
+            action.Advanced.RollBonusDuration = data.RollBonusDuration;
             action.Advanced.StatBonus = data.StatBonus;
             action.Advanced.StatBonusType = data.StatBonusType;
             action.Advanced.StatBonusDuration = data.StatBonusDuration;

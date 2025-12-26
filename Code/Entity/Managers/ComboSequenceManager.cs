@@ -145,21 +145,32 @@ namespace RPGGame
 
         /// <summary>
         /// Helper method to get weapon actions for combo initialization
+        /// Uses the weapon's actual actions (GearAction and ActionBonuses) instead of hardcoded values
         /// </summary>
         private List<string> GetWeaponActionsForCombo(WeaponItem weapon)
         {
-            // Return weapon-specific actions based on weapon type
-            return weapon.WeaponType switch
+            var actions = new List<string>();
+            
+            // Use the weapon's actual GearAction if it exists
+            if (!string.IsNullOrEmpty(weapon.GearAction))
             {
-                WeaponType.Axe => new List<string> { "AXE CHOP" },
-                WeaponType.Sword => new List<string> { "SWORD STRIKE" },
-                WeaponType.Dagger => new List<string> { "DAGGER SLASH" },
-                WeaponType.Wand => new List<string> { "MAGIC BOLT" },
-                WeaponType.Mace => new List<string> { "CRUSHING BLOW", "SHIELD BREAK" },
-                WeaponType.Staff => new List<string> { "STAFF STRIKE", "FOCUS" },
-                WeaponType.Bow => new List<string> { "AIMED SHOT", "RAPID FIRE" },
-                _ => new List<string> { "BASIC ATTACK" }
-            };
+                actions.Add(weapon.GearAction);
+            }
+            
+            // Add all ActionBonuses from the weapon
+            if (weapon.ActionBonuses != null)
+            {
+                foreach (var actionBonus in weapon.ActionBonuses)
+                {
+                    if (!string.IsNullOrEmpty(actionBonus.Name))
+                    {
+                        actions.Add(actionBonus.Name);
+                    }
+                }
+            }
+            
+            // If no actions found on weapon, return empty list (fallback handled in InitializeDefaultCombo)
+            return actions;
         }
 
         /// <summary>

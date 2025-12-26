@@ -170,6 +170,15 @@ namespace RPGGame.Tests
         {
             return new ItemBuilder();
         }
+
+        /// <summary>
+        /// Creates a mock action for testing
+        /// Wrapper method that delegates to MockFactories for backward compatibility
+        /// </summary>
+        public static RPGGame.Action CreateMockAction(string name = "MockAction", RPGGame.ActionType type = RPGGame.ActionType.Attack)
+        {
+            return MockFactories.CreateMockAction(name, type);
+        }
     }
 
     /// <summary>
@@ -196,9 +205,9 @@ namespace RPGGame.Tests
         /// <summary>
         /// Creates a mock action for testing
         /// </summary>
-        public static Action CreateMockAction(string name = "MockAction", ActionType type = ActionType.Attack)
+        public static RPGGame.Action CreateMockAction(string name = "MockAction", RPGGame.ActionType type = RPGGame.ActionType.Attack)
         {
-            return new Action
+            return new RPGGame.Action
             {
                 Name = name,
                 Type = type,

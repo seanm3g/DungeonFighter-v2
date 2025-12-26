@@ -110,19 +110,26 @@ namespace RPGGame.UI.Avalonia.Renderers
                     // Add bracket and number (no animation)
                     segments.Add(new ColoredText($"[{i + 1}] ", ColorPalette.Gray.GetColor()));
                     
+                    // Generate a small random offset for this animated element based on line position
+                    // This makes each animated element look different from others
+                    int elementOffset = GetElementRandomOffset(y);
+                    
                     // Apply animation effects to dungeon name character-by-character
                     int charPosition = $"[{i + 1}] ".Length;
                     foreach (var templateSegment in templateSegments)
                     {
                         foreach (char c in templateSegment.Text)
                         {
+                            // Add element offset to position to make this element's animation unique
+                            int adjustedPosition = charPosition + elementOffset;
+                            
                             // Get brightness mask adjustment from centralized state
-                            float brightnessAdjustment = animationState.GetBrightnessAt(charPosition, y);
+                            float brightnessAdjustment = animationState.GetBrightnessAt(adjustedPosition, y);
                             double brightnessFactor = 1.0 + (brightnessAdjustment / 100.0) * 2.0;
                             brightnessFactor = Math.Max(0.3, Math.Min(2.0, brightnessFactor));
                             
-                            // Get undulation brightness from centralized state
-                            double undulationBrightness = animationState.GetUndulationBrightness();
+                            // Get position-based undulation brightness (creates sine wave across text)
+                            double undulationBrightness = animationState.GetUndulationBrightnessAt(adjustedPosition, y);
                             brightnessFactor += undulationBrightness * 3.0;
                             brightnessFactor = Math.Max(0.3, Math.Min(2.0, brightnessFactor));
                             
@@ -182,6 +189,19 @@ namespace RPGGame.UI.Avalonia.Renderers
             byte b = (byte)Math.Min(255, (int)(color.B * factor));
             
             return Color.FromRgb(r, g, b);
+        }
+        
+        /// <summary>
+        /// Generates a small random offset for an animated element based on its line position
+        /// Uses a simple hash to ensure the same line always gets the same offset
+        /// Returns a value between -50 and +50 to create visual variation
+        /// </summary>
+        private int GetElementRandomOffset(int lineOffset)
+        {
+            // Use a simple hash function to generate a consistent but varied offset
+            // Multiply by a prime number and use modulo to get a pseudo-random value
+            int hash = (lineOffset * 7919 + 12345) % 101; // Prime number 7919, offset 12345, modulo 101 gives -50 to +50 range
+            return hash - 50; // Shift to -50 to +50 range
         }
         
         /// <summary>

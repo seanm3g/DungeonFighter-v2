@@ -137,14 +137,16 @@ namespace RPGGame
             var allActions = ActionLoader.GetAllActions();
             var weaponActions = new List<string>();
             
-            // Get actions that match the weapon type and have "weapon" tag, but exclude "unique" actions
+            // Get actions that match the weapon type and have "weapon" tag, but exclude "unique" and "class" actions
+            // Exclude "class" tagged actions (class-only actions cannot appear on weapons)
             // Uses case-insensitive comparison for robustness
             foreach (var actionData in allActions)
             {
                 if (actionData.Tags != null &&
                     actionData.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
                     actionData.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)) &&
-                    !actionData.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)))
+                    !actionData.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)) &&
+                    !actionData.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)))
                 {
                     weaponActions.Add(actionData.Name);
                 }

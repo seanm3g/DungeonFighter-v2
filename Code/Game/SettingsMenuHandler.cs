@@ -107,11 +107,14 @@ namespace RPGGame
         /// </summary>
         public void SaveGame()
         {
-            if (stateManager.CurrentPlayer != null)
+            var activeCharacter = stateManager.GetActiveCharacter();
+            if (activeCharacter != null)
             {
                 try
                 {
-                    stateManager.CurrentPlayer.SaveCharacter();
+                    // Get character ID for multi-character save support
+                    var characterId = stateManager.GetCharacterId(activeCharacter);
+                    activeCharacter.SaveCharacter(characterId);
                     ShowMessageEvent?.Invoke("Game saved successfully!");
                 }
                 catch (Exception ex)

@@ -180,6 +180,11 @@ namespace RPGGame.UI.Avalonia.Renderers
         {
             currentLineCount = weaponSelectionRenderer.RenderWeaponSelectionContent(x, y, width, height, weapons);
         }
+        
+        public int RenderCharacterSelectionContent(int x, int y, int width, int height, List<Character> characters, string? activeCharacterName, Dictionary<string, string> characterStatuses)
+        {
+            return mainMenuRenderer.RenderCharacterSelectionContent(x, y, width, height, characters, activeCharacterName, characterStatuses);
+        }
 
         /// <summary>
         /// Renders the developer menu content

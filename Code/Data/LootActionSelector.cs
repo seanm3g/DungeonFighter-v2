@@ -190,11 +190,13 @@ namespace RPGGame
 
             // Get weapon-specific actions from JSON using tag matching
             // Actions must have both "weapon" tag and the weapon type tag (e.g., "wand", "mace")
+            // Exclude "class" tagged actions (class-only actions cannot appear on weapons)
             var weaponActions = allActions
                 .Where(action => action.Tags != null &&
                                 action.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
                                 action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)) &&
-                                !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)))
+                                !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)) &&
+                                !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)))
                 .Select(action => action.Name)
                 .ToList();
 
@@ -210,12 +212,14 @@ namespace RPGGame
             var allActions = ActionLoader.GetAllActions();
 
             // Get all weapon actions (not unique or enemy/environment specific)
+            // Exclude "class" tagged actions (class-only actions cannot appear on weapons)
             var weaponActions = allActions
                 .Where(action => action.Tags != null &&
                                 action.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
                                 !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)) &&
                                 !action.Tags.Any(tag => tag.Equals("enemy", StringComparison.OrdinalIgnoreCase)) &&
-                                !action.Tags.Any(tag => tag.Equals("environment", StringComparison.OrdinalIgnoreCase)))
+                                !action.Tags.Any(tag => tag.Equals("environment", StringComparison.OrdinalIgnoreCase)) &&
+                                !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)))
                 .Select(action => action.Name)
                 .ToList();
 
@@ -244,6 +248,26 @@ namespace RPGGame
         public List<string> GetAvailableArmorActions()
         {
             return _tables.ArmorActions.Select(a => a.Name).ToList();
+        }
+
+        /// <summary>
+        /// Gets starting weapon actions from Actions.json using the "startingWeapon" tag
+        /// Returns all actions with "startingWeapon" tag that match the weapon type
+        /// </summary>
+        public List<string> GetStartingWeaponActions(string weaponType)
+        {
+            var weaponTag = weaponType.ToLower();
+            var allActions = ActionLoader.GetAllActions();
+
+            // Get all actions with "startingWeapon" tag that match the weapon type
+            var startingActions = allActions
+                .Where(action => action.Tags != null &&
+                                action.Tags.Any(tag => tag.Equals("startingWeapon", StringComparison.OrdinalIgnoreCase)) &&
+                                action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)))
+                .Select(action => action.Name)
+                .ToList();
+
+            return startingActions;
         }
     }
 }

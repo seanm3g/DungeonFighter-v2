@@ -367,6 +367,76 @@ namespace RPGGame.UI.Avalonia.Managers
         }
 
         /// <summary>
+        /// Loads animation settings into UI controls
+        /// </summary>
+        public void LoadAnimationSettings(
+            CheckBox? brightnessMaskEnabledCheckBox,
+            Slider? brightnessMaskIntensitySlider,
+            TextBox? brightnessMaskIntensityTextBox,
+            Slider? brightnessMaskWaveLengthSlider,
+            TextBox? brightnessMaskWaveLengthTextBox,
+            TextBox? brightnessMaskUpdateIntervalTextBox,
+            Slider? undulationSpeedSlider,
+            TextBox? undulationSpeedTextBox,
+            Slider? undulationWaveLengthSlider,
+            TextBox? undulationWaveLengthTextBox,
+            TextBox? undulationIntervalTextBox)
+        {
+            if (settingsManager == null) return;
+            
+            if (brightnessMaskEnabledCheckBox != null && brightnessMaskIntensitySlider != null &&
+                brightnessMaskIntensityTextBox != null && brightnessMaskWaveLengthSlider != null &&
+                brightnessMaskWaveLengthTextBox != null && brightnessMaskUpdateIntervalTextBox != null &&
+                undulationSpeedSlider != null && undulationSpeedTextBox != null &&
+                undulationWaveLengthSlider != null && undulationWaveLengthTextBox != null &&
+                undulationIntervalTextBox != null)
+            {
+                settingsManager.LoadAnimationSettings(
+                    brightnessMaskEnabledCheckBox!,
+                    brightnessMaskIntensitySlider!,
+                    brightnessMaskIntensityTextBox!,
+                    brightnessMaskWaveLengthSlider!,
+                    brightnessMaskWaveLengthTextBox!,
+                    brightnessMaskUpdateIntervalTextBox!,
+                    undulationSpeedSlider!,
+                    undulationSpeedTextBox!,
+                    undulationWaveLengthSlider!,
+                    undulationWaveLengthTextBox!,
+                    undulationIntervalTextBox!);
+            }
+        }
+
+        /// <summary>
+        /// Saves animation settings from UI controls
+        /// </summary>
+        public void SaveAnimationSettings(
+            CheckBox? brightnessMaskEnabledCheckBox,
+            Slider? brightnessMaskIntensitySlider,
+            Slider? brightnessMaskWaveLengthSlider,
+            TextBox? brightnessMaskUpdateIntervalTextBox,
+            Slider? undulationSpeedSlider,
+            Slider? undulationWaveLengthSlider,
+            TextBox? undulationIntervalTextBox)
+        {
+            if (settingsManager == null) return;
+            
+            if (brightnessMaskEnabledCheckBox != null && brightnessMaskIntensitySlider != null &&
+                brightnessMaskWaveLengthSlider != null && brightnessMaskUpdateIntervalTextBox != null &&
+                undulationSpeedSlider != null && undulationWaveLengthSlider != null &&
+                undulationIntervalTextBox != null)
+            {
+                settingsManager.SaveAnimationSettings(
+                    brightnessMaskEnabledCheckBox!,
+                    brightnessMaskIntensitySlider!,
+                    brightnessMaskWaveLengthSlider!,
+                    brightnessMaskUpdateIntervalTextBox!,
+                    undulationSpeedSlider!,
+                    undulationWaveLengthSlider!,
+                    undulationIntervalTextBox!);
+            }
+        }
+
+        /// <summary>
         /// Resets settings to defaults
         /// </summary>
         public void ResetToDefaults()

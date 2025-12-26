@@ -38,18 +38,52 @@ namespace RPGGame
         /// </summary>
         public async Task ShowDungeonSelection()
         {
+            // #region agent log
+            try { 
+                var logDir = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), ".cursor");
+                if (!System.IO.Directory.Exists(logDir)) System.IO.Directory.CreateDirectory(logDir);
+                var logPath = System.IO.Path.Combine(logDir, "debug.log");
+                var currentState = stateManager.CurrentState.ToString();
+                var stackTrace = new System.Diagnostics.StackTrace().ToString();
+                System.IO.File.AppendAllText(logPath, System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "DungeonSelectionHandler.cs:ShowDungeonSelection", message = "ShowDungeonSelection called", data = new { currentState, hasPlayer = stateManager.CurrentPlayer != null, stackTrace = stackTrace.Substring(0, Math.Min(1000, stackTrace.Length)) }, sessionId = "debug-session", runId = "run1", hypothesisId = "F" }) + "\n"); 
+                DebugLogger.WriteDebugAlways($"[DEBUG] ShowDungeonSelection called from state={currentState}");
+            } catch (Exception logEx) { DebugLogger.WriteDebugAlways($"[DEBUG] Logging error: {logEx.Message}"); }
+            // #endregion
+            
             if (stateManager.CurrentPlayer == null || dungeonManager == null) return;
             
             // Regenerate dungeons based on current player level
             dungeonManager.RegenerateDungeons(stateManager.CurrentPlayer, stateManager.AvailableDungeons);
             
-            // Set state to dungeon selection
+            // Transition state FIRST to prevent game menu from being re-rendered
+            // This ensures that when we clear the canvas, we're already in DungeonSelection state
+            // and nothing will try to re-render the game menu
             stateManager.TransitionToState(GameState.DungeonSelection);
             
-            // Show dungeon selection screen
-            if (customUIManager is CanvasUICoordinator canvasUI)
+            // Suppress display buffer FIRST, then clear buffer, set character, render, refresh
+            if (customUIManager is CanvasUICoordinator canvasUI && stateManager.AvailableDungeons != null)
             {
+                // Suppress display buffer auto-rendering FIRST to prevent any pending renders
+                // This must happen before any other operations to prevent the game menu from being cleared/re-rendered
+                canvasUI.SuppressDisplayBufferRendering();
+                // Clear buffer without triggering a render (since we're suppressing rendering anyway)
+                canvasUI.ClearDisplayBufferWithoutRender();
+                
+                // Clear dungeon/room context when transitioning to dungeon selection
+                canvasUI.ClearCurrentEnemy();
+                canvasUI.SetDungeonName(null);
+                canvasUI.SetRoomName(null);
+                
+                // Set character for persistent layout panel
+                // Note: We're now in DungeonSelection state, so SetCharacter won't trigger game menu rendering
+                canvasUI.SetCharacter(stateManager.CurrentPlayer);
+                
+                // Render the dungeon selection screen (this will clear the canvas and render the new screen)
                 canvasUI.RenderDungeonSelection(stateManager.CurrentPlayer, stateManager.AvailableDungeons);
+                
+                // Force a refresh to ensure the screen is displayed
+                // This is critical when transitioning from other screens
+                canvasUI.Refresh();
             }
             
             await Task.CompletedTask;

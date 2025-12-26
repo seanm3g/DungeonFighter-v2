@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 using Avalonia.Threading;
 using RPGGame;
 using RPGGame.UI.Avalonia;
@@ -24,6 +26,7 @@ namespace RPGGame.UI.Avalonia.Display.Render
         private readonly ICanvasContextManager contextManager;
         private readonly DisplayBuffer buffer;
         private readonly DisplayMode currentMode;
+        private GameStateManager? stateManager;
         
         // Render guard to prevent concurrent renders
         private bool isRendering = false;
@@ -39,7 +42,8 @@ namespace RPGGame.UI.Avalonia.Display.Render
             RenderStateManager renderStateManager,
             ICanvasContextManager contextManager,
             DisplayBuffer buffer,
-            DisplayMode currentMode)
+            DisplayMode currentMode,
+            GameStateManager? stateManager = null)
         {
             this.canvas = canvas ?? throw new ArgumentNullException(nameof(canvas));
             this.renderer = renderer ?? throw new ArgumentNullException(nameof(renderer));
@@ -48,6 +52,7 @@ namespace RPGGame.UI.Avalonia.Display.Render
             this.contextManager = contextManager ?? throw new ArgumentNullException(nameof(contextManager));
             this.buffer = buffer ?? throw new ArgumentNullException(nameof(buffer));
             this.currentMode = currentMode ?? throw new ArgumentNullException(nameof(currentMode));
+            this.stateManager = stateManager;
         }
         
         /// <summary>
@@ -56,6 +61,14 @@ namespace RPGGame.UI.Avalonia.Display.Render
         public void SetExternalRenderCallback(System.Action? renderCallback)
         {
             externalRenderCallback = renderCallback;
+        }
+        
+        /// <summary>
+        /// Sets the game state manager (called after construction when state manager is available)
+        /// </summary>
+        public void SetStateManager(GameStateManager stateManager)
+        {
+            this.stateManager = stateManager;
         }
         
         /// <summary>
@@ -71,7 +84,7 @@ namespace RPGGame.UI.Avalonia.Display.Render
             else
             {
                 // Standard auto-render
-                timing.ScheduleRender(new System.Action(PerformRender));
+                timing.ScheduleRender(() => PerformRender());
             }
         }
         
@@ -79,7 +92,8 @@ namespace RPGGame.UI.Avalonia.Display.Render
         /// Performs the actual rendering operation
         /// Uses RenderStateManager to determine what needs rendering
         /// </summary>
-        public void PerformRender()
+        /// <param name="force">If true, bypasses the NeedsRender check and always renders (used for animation updates)</param>
+        public void PerformRender(bool force = false)
         {
             // Prevent concurrent renders
             lock (renderLock)
@@ -92,9 +106,62 @@ namespace RPGGame.UI.Avalonia.Display.Render
                 isRendering = true;
             }
             
-            var state = renderStateManager.GetRenderState(buffer, contextManager);
+            var state = renderStateManager.GetRenderState(buffer, contextManager, stateManager);
             
-            if (!state.NeedsRender)
+            // CRITICAL: Clear enemy if character doesn't match active character OR if there's no external callback
+            // This prevents background combat enemies from being displayed even if callback hasn't been cleared yet
+            if (state.CurrentEnemy != null && stateManager != null && state.CurrentCharacter != null)
+            {
+                var activeCharacter = stateManager.GetActiveCharacter();
+                bool characterMatches = state.CurrentCharacter == activeCharacter;
+                
+                // CRITICAL: Only clear enemy if character doesn't match
+                // Don't clear based on callback - callback may not be set yet when combat first starts
+                // The callback is set up in RenderCombat, which happens after StartEnemyEncounter sets the enemy
+                if (!characterMatches)
+                {
+                    // Character doesn't match = enemy is from background combat
+                    // Clear it to prevent rendering
+                    state.CurrentEnemy = null;
+                    // Also clear from context manager to prevent it from being used in future renders
+                    contextManager.ClearCurrentEnemy();
+                }
+                // Note: We don't clear enemy if character matches but no callback - this handles the case
+                // where combat is starting and the callback hasn't been set up yet
+            }
+            // Note: We don't clear enemy if we can't check character and there's no callback
+            // This prevents clearing the enemy when combat is starting and the callback hasn't been set up yet
+            // The character-based checks above are sufficient to prevent background combat enemies
+            
+            // If we're in combat mode but external callback is null, that means combat rendering was blocked
+            // (character is inactive). Don't render the buffer to prevent showing background combat.
+            if (currentMode is CombatDisplayMode && externalRenderCallback == null)
+            {
+                // Combat mode but no external callback = character is inactive, don't render
+                lock (renderLock)
+                {
+                    isRendering = false;
+                }
+                return;
+            }
+            
+            // CRITICAL: Skip rendering if we're in a menu state OR if stateManager is null (title screen)
+            // Menu screens and title screen handle their own rendering and don't use the display buffer
+            // This prevents the center panel from being cleared when menus/title screen are displayed
+            // Force=true should NOT bypass this check - menus/title screen never want display buffer rendering
+            var currentState = stateManager?.CurrentState;
+            if (DisplayStateCoordinator.ShouldSuppressRendering(currentState, stateManager))
+            {
+                // StateManager is null (title screen) or menu state - don't render display buffer
+                lock (renderLock)
+                {
+                    isRendering = false;
+                }
+                return;
+            }
+            
+            // Only check NeedsRender if not forcing (force is used for animation updates)
+            if (!force && !state.NeedsRender)
             {
                 // Nothing to render, release lock
                 lock (renderLock)
@@ -116,13 +183,41 @@ namespace RPGGame.UI.Avalonia.Display.Render
                     
                     if (shouldClearCanvas || state.NeedsFullLayout)
                     {
+                        // FINAL CHECK: Ensure enemy is null if character is not active
+                        // This is a last-ditch check to prevent background combat enemies from rendering
+                        Enemy? enemyToRender = state.CurrentEnemy;
+                        if (enemyToRender != null && stateManager != null && state.CurrentCharacter != null)
+                        {
+                            var activeCharacter = stateManager.GetActiveCharacter();
+                            if (state.CurrentCharacter != activeCharacter)
+                            {
+                                // Character is not active - don't render enemy
+                                // Also clear it from context manager to prevent it from being used in future renders
+                                contextManager.ClearCurrentEnemy();
+                                enemyToRender = null;
+                            }
+                            else if (externalRenderCallback == null)
+                            {
+                                // No external callback means no active combat - clear enemy even if character matches
+                                // This handles the case where combat ended but enemy context wasn't cleared
+                                contextManager.ClearCurrentEnemy();
+                                enemyToRender = null;
+                            }
+                        }
+                        else if (enemyToRender != null && externalRenderCallback == null)
+                        {
+                            // No callback and no character check possible - clear enemy to be safe
+                            contextManager.ClearCurrentEnemy();
+                            enemyToRender = null;
+                        }
+                        
                         // Full layout render
-                        string title = TitleResolver.DetermineTitle(state.CurrentCharacter, state.CurrentEnemy);
+                        string title = TitleResolver.DetermineTitle(state.CurrentCharacter, enemyToRender);
                         layoutManager.RenderLayout(
                             state.CurrentCharacter,
                             (x, y, w, h) => renderer.Render(buffer, x, y, w, h),
                             title,
-                            state.CurrentEnemy,
+                            enemyToRender,  // Use the checked enemy (may be null)
                             state.DungeonName,
                             state.RoomName,
                             clearCanvas: shouldClearCanvas

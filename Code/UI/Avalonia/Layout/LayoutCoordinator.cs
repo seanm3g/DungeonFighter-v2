@@ -39,16 +39,26 @@ namespace RPGGame.UI.Avalonia.Layout
         {
             // Check if title changed - this determines if we need to clear canvas
             bool titleChanged = title != lastRenderedTitle;
-            if (titleChanged)
+            // Only force clearCanvas=true if title changed AND clearCanvas is not explicitly false
+            // This allows callers to prevent double-clearing when they've already cleared the canvas
+            // If clearCanvas was explicitly set to false, respect that and don't override it
+            if (titleChanged && clearCanvas)
             {
-                clearCanvas = true; // Force full render when title changes
+                clearCanvas = true; // Force full render when title changes (only if not explicitly false)
             }
+            // If clearCanvas is false, it stays false (caller has already cleared, don't clear again)
             
             if (clearCanvas)
             {
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "LayoutCoordinator.cs:RenderWithLayout", message = "Before canvas.Clear", data = new { title, clearCanvas, titleChanged }, sessionId = "debug-session", runId = "run1", hypothesisId = "H1" }) + "\n"); } catch { }
+                // #endregion
                 // Clear canvas right before rendering to prevent blank frame flicker
                 // This ensures we clear and immediately render, minimizing visible blank time
                 canvas.Clear();
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "LayoutCoordinator.cs:RenderWithLayout", message = "After canvas.Clear, before panel rendering", data = new { }, sessionId = "debug-session", runId = "run1", hypothesisId = "H1" }) + "\n"); } catch { }
+                // #endregion
                 
                 // Title rendering removed - panels now extend to top of frame
                 
@@ -79,13 +89,20 @@ namespace RPGGame.UI.Avalonia.Layout
             else
             {
                 // When not clearing, only update panels that need updating
-                // Don't re-render center panel border - preserve existing content
                 // Title rendering removed - panels now extend to top of frame
                 
                 // Update left panel (Character Info) - may have changed
                 if (character != null)
                 {
                     characterPanelRenderer.RenderCharacterPanel(character);
+                }
+                
+                // Only render center panel border if title changed (transitioning from different screen)
+                // This ensures the border is visible for menu screens that use clearCanvas: false
+                // but prevents double-drawing when the same screen is re-rendered
+                if (titleChanged)
+                {
+                    canvas.AddBorder(LayoutConstants.CENTER_PANEL_X, LayoutConstants.CENTER_PANEL_Y, LayoutConstants.CENTER_PANEL_WIDTH, LayoutConstants.CENTER_PANEL_HEIGHT, AsciiArtAssets.Colors.Cyan);
                 }
                 
                 // Note: We do NOT clear the center content area here when clearCanvas=false
@@ -103,7 +120,13 @@ namespace RPGGame.UI.Avalonia.Layout
             int centerY = LayoutConstants.CENTER_PANEL_Y + 1;
             int centerW = LayoutConstants.CENTER_PANEL_WIDTH - 2;
             int centerH = LayoutConstants.CENTER_PANEL_HEIGHT - 2;
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "LayoutCoordinator.cs:RenderWithLayout", message = "Before renderCenterContent.Invoke", data = new { centerX, centerY, centerW, centerH, hasRenderCallback = renderCenterContent != null }, sessionId = "debug-session", runId = "run1", hypothesisId = "H4" }) + "\n"); } catch { }
+            // #endregion
             renderCenterContent?.Invoke(centerX, centerY, centerW, centerH);
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "LayoutCoordinator.cs:RenderWithLayout", message = "After renderCenterContent.Invoke", data = new { }, sessionId = "debug-session", runId = "run1", hypothesisId = "H4" }) + "\n"); } catch { }
+            // #endregion
             // Render right panel (Dungeon/Enemy Info or Inventory Actions) - always update
             rightPanelRenderer.RenderRightPanel(enemy, dungeonName, roomName, title, characterForRightPanel);
             

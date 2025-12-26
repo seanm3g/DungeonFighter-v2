@@ -19,6 +19,7 @@ namespace RPGGame.UI.Avalonia.Managers
         private readonly Action<string, bool>? showStatusMessage;
         private readonly Action<string>? updateStatus;
         private readonly TextDelaySettingsManager textDelayManager;
+        private readonly Managers.Settings.AnimationSettingsManager animationSettingsManager;
 
         public SettingsManager(GameSettings settings, Action<string, bool>? showStatusMessage, Action<string>? updateStatus)
         {
@@ -26,6 +27,7 @@ namespace RPGGame.UI.Avalonia.Managers
             this.showStatusMessage = showStatusMessage;
             this.updateStatus = updateStatus;
             this.textDelayManager = new TextDelaySettingsManager(showStatusMessage);
+            this.animationSettingsManager = new Managers.Settings.AnimationSettingsManager(showStatusMessage);
         }
 
         public void LoadSettings(
@@ -276,6 +278,69 @@ namespace RPGGame.UI.Avalonia.Managers
                 narrativePresetMaxDelayTextBox, defaultPresetBaseDelayTextBox, defaultPresetMinDelayTextBox,
                 defaultPresetMaxDelayTextBox);
         }
+
+        /// <summary>
+        /// Loads animation settings from UIConfiguration into UI controls
+        /// Delegates to AnimationSettingsManager
+        /// </summary>
+        public void LoadAnimationSettings(
+            CheckBox brightnessMaskEnabledCheckBox,
+            Slider brightnessMaskIntensitySlider,
+            TextBox brightnessMaskIntensityTextBox,
+            Slider brightnessMaskWaveLengthSlider,
+            TextBox brightnessMaskWaveLengthTextBox,
+            TextBox brightnessMaskUpdateIntervalTextBox,
+            Slider undulationSpeedSlider,
+            TextBox undulationSpeedTextBox,
+            Slider undulationWaveLengthSlider,
+            TextBox undulationWaveLengthTextBox,
+            TextBox undulationIntervalTextBox)
+        {
+            animationSettingsManager.LoadAnimationSettings(
+                brightnessMaskEnabledCheckBox,
+                brightnessMaskIntensitySlider,
+                brightnessMaskIntensityTextBox,
+                brightnessMaskWaveLengthSlider,
+                brightnessMaskWaveLengthTextBox,
+                brightnessMaskUpdateIntervalTextBox,
+                undulationSpeedSlider,
+                undulationSpeedTextBox,
+                undulationWaveLengthSlider,
+                undulationWaveLengthTextBox,
+                undulationIntervalTextBox);
+        }
+
+        /// <summary>
+        /// Saves animation settings from UI controls to UIConfiguration
+        /// Delegates to AnimationSettingsManager
+        /// </summary>
+        public void SaveAnimationSettings(
+            CheckBox brightnessMaskEnabledCheckBox,
+            Slider brightnessMaskIntensitySlider,
+            Slider brightnessMaskWaveLengthSlider,
+            TextBox brightnessMaskUpdateIntervalTextBox,
+            Slider undulationSpeedSlider,
+            Slider undulationWaveLengthSlider,
+            TextBox undulationIntervalTextBox)
+        {
+            animationSettingsManager.SaveAnimationSettings(
+                brightnessMaskEnabledCheckBox,
+                brightnessMaskIntensitySlider,
+                brightnessMaskWaveLengthSlider,
+                brightnessMaskUpdateIntervalTextBox,
+                undulationSpeedSlider,
+                undulationWaveLengthSlider,
+                undulationIntervalTextBox);
+        }
+        
+        /// <summary>
+        /// Gets the animation settings manager for event wiring
+        /// </summary>
+        public Managers.Settings.AnimationSettingsManager GetAnimationSettingsManager()
+        {
+            return animationSettingsManager;
+        }
     }
 }
+
 

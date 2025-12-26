@@ -53,6 +53,7 @@ namespace RPGGame
                 canvasUI.RenderDeathScreen(player, defeatSummary);
                 
                 // Force refresh to ensure death screen is displayed
+                canvasUI.Refresh();
                 DebugLogger.Log("DeathScreenHandler", "Death screen rendered, forcing canvas refresh");
             }
             else

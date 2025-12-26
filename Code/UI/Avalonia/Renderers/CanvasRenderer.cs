@@ -7,6 +7,8 @@ using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.Avalonia.Renderers.Layout;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 
 namespace RPGGame.UI.Avalonia.Renderers
 {
@@ -64,17 +66,38 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel)
         {
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderMainMenu", message = "RenderMainMenu called", data = new { hasSavedGame = hasSavedGame, characterName = characterName ?? "null" }, sessionId = "debug-session", runId = "run1", hypothesisId = "H5" }) + "\n"); } catch { }
+            // #endregion
             // Clear canvas first to ensure clean main menu display (especially when transitioning from death screen)
             canvas.Clear();
+            
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderMainMenu", message = "Canvas cleared, about to render layout", data = new { }, sessionId = "debug-session", runId = "run1", hypothesisId = "H5" }) + "\n"); } catch { }
+            // #endregion
             
             // Use persistent layout with no character (null) to show blank panels
             RenderWithLayout(null, "MAIN MENU", (contentX, contentY, contentWidth, contentHeight) =>
             {
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderMainMenu", message = "Rendering menu content", data = new { contentX = contentX, contentY = contentY, contentWidth = contentWidth, contentHeight = contentHeight }, sessionId = "debug-session", runId = "run1", hypothesisId = "H5" }) + "\n"); } catch { }
+                // #endregion
                 menuRenderer.RenderMainMenuContent(contentX, contentY, contentWidth, contentHeight, hasSavedGame, characterName, characterLevel);
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderMainMenu", message = "Menu content rendered", data = new { }, sessionId = "debug-session", runId = "run1", hypothesisId = "H5" }) + "\n"); } catch { }
+                // #endregion
             }, new CanvasContext());
+            
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderMainMenu", message = "Layout rendered, refreshing canvas", data = new { }, sessionId = "debug-session", runId = "run1", hypothesisId = "H5" }) + "\n"); } catch { }
+            // #endregion
             
             // Force immediate refresh to display the main menu
             canvas.Refresh();
+            
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderMainMenu", message = "RenderMainMenu complete", data = new { }, sessionId = "debug-session", runId = "run1", hypothesisId = "H5" }) + "\n"); } catch { }
+            // #endregion
         }
 
         public void RenderInventory(Character character, List<Item> inventory, CanvasContext context)
@@ -144,9 +167,22 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderWeaponSelection(List<StartingWeapon> weapons, CanvasContext context)
         {
+            // Use clearCanvas: true to ensure clean transition, but render immediately to prevent flashing
+            // The canvas clear happens synchronously with the render in LayoutCoordinator
             RenderWithLayout(null, "WEAPON SELECTION", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 menuRenderer.RenderWeaponSelectionContent(contentX, contentY, contentWidth, contentHeight, weapons);
+            }, context, null, null, null, clearCanvas: true);
+            
+            // Force immediate refresh to minimize visible black frame
+            canvas.Refresh();
+        }
+
+        public void RenderCharacterSelection(List<Character> characters, string? activeCharacterName, Dictionary<string, string> characterStatuses, CanvasContext context)
+        {
+            RenderWithLayout(null, "CHARACTER SELECTION", (contentX, contentY, contentWidth, contentHeight) =>
+            {
+                menuRenderer.RenderCharacterSelectionContent(contentX, contentY, contentWidth, contentHeight, characters, activeCharacterName, characterStatuses);
             }, context);
         }
 
@@ -211,10 +247,16 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderDungeonSelection(Character player, List<Dungeon> dungeons, CanvasContext context)
         {
+            // Canvas is already cleared in CanvasUICoordinator before this is called
+            // Pass clearCanvas: false since we've already cleared - this prevents double-clear
             RenderWithLayout(player, "DUNGEON SELECTION", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 dungeonRenderer.RenderDungeonSelection(contentX, contentY, contentWidth, contentHeight, dungeons);
-            }, context);
+            }, context, null, null, null, clearCanvas: false);
+            
+            // Force immediate refresh to ensure the cleared canvas and new content are visible
+            // This removes any visible game menu from the previous state
+            canvas.Refresh();
         }
 
         public void RenderDungeonStart(Dungeon dungeon, Character player, CanvasContext context)
@@ -266,14 +308,47 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderCombat(Character player, Enemy enemy, List<string> combatLog, CanvasContext context)
         {
+            // Check if this character is currently active before rendering
+            // This prevents background combat from interrupting other character views
+            Character? activePlayer = contextManager.GetCurrentCharacter();
+            if (activePlayer != player)
+            {
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderCombat", message = "RenderCombat blocked - character inactive", data = new { combatPlayerName = player.Name, activePlayerName = activePlayer?.Name ?? "null" }, sessionId = "debug-session", runId = "post-fix", hypothesisId = "FIX" }) + "\n"); } catch { }
+                // #endregion
+                // Character is not active - don't render combat
+                return;
+            }
+            
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderCombat", message = "RenderCombat executing - character active", data = new { playerName = player.Name }, sessionId = "debug-session", runId = "post-fix", hypothesisId = "FIX" }) + "\n"); } catch { }
+            // #endregion
+            
             // Enable combat mode for proper timing and disable auto-rendering
             if (textManager is CanvasTextManager canvasTextManager)
             {
                 canvasTextManager.DisplayManager.SetMode(new Display.CombatDisplayMode());
                 
                 // Set up callback to re-render combat screen when new messages are added
+                // Only render if this character is still the active character
                 System.Action renderCallback = () =>
                 {
+                    // Check if the player from this combat is still the active character
+                    // This prevents rendering combat for inactive characters
+                    Character? currentActivePlayer = contextManager.GetCurrentCharacter();
+                    if (currentActivePlayer != player)
+                    {
+                        // #region agent log
+                        try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:renderCallback", message = "Callback blocked - character inactive", data = new { combatPlayerName = player.Name, activePlayerName = currentActivePlayer?.Name ?? "null" }, sessionId = "debug-session", runId = "post-fix", hypothesisId = "FIX" }) + "\n"); } catch { }
+                        // #endregion
+                        // Character is no longer active - don't render
+                        return;
+                    }
+                    
+                    // #region agent log
+                    try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:renderCallback", message = "Callback executing - character active", data = new { playerName = player.Name }, sessionId = "debug-session", runId = "post-fix", hypothesisId = "FIX" }) + "\n"); } catch { }
+                    // #endregion
+                    
                     if (Dispatcher.UIThread.CheckAccess())
                     {
                         RenderCombatScreenOnly(player, enemy, context);
@@ -299,6 +374,36 @@ namespace RPGGame.UI.Avalonia.Renderers
             // Use enemy from context if available (it's always up-to-date), otherwise fall back to parameter
             Enemy currentEnemy = context.Enemy ?? enemy;
             
+            // CRITICAL: Check if this character is still active before rendering
+            // This prevents background combat from rendering when we've switched to another character
+            Character? activePlayer = contextManager.GetCurrentCharacter();
+            if (activePlayer != player)
+            {
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderCombatScreenOnly", message = "RenderCombatScreenOnly blocked - character inactive", data = new { combatPlayerName = player.Name, activePlayerName = activePlayer?.Name ?? "null", enemyName = currentEnemy?.Name ?? "null" }, sessionId = "debug-session", runId = "run1", hypothesisId = "H6" }) + "\n"); } catch { }
+                // #endregion
+                // Character is not active - don't render combat screen
+                return;
+            }
+            
+            // CRITICAL: Also check if dungeon context contains enemy info when we shouldn't be showing it
+            // Filter out enemy info from dungeon context if it exists but enemy is null (menu state)
+            // This prevents stale enemy info from being displayed
+            List<string>? filteredDungeonContext = context.DungeonContext;
+            if (currentEnemy == null && filteredDungeonContext != null && filteredDungeonContext.Count > 0)
+            {
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderCombatScreenOnly", message = "Filtering dungeon context - enemy is null", data = new { contextCount = filteredDungeonContext.Count, playerName = player.Name }, sessionId = "debug-session", runId = "run1", hypothesisId = "H9" }) + "\n"); } catch { }
+                // #endregion
+                // Enemy is null but dungeon context exists - this shouldn't happen in combat mode
+                // Clear dungeon context to prevent stale enemy info from being displayed
+                filteredDungeonContext = new List<string>();
+            }
+            
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderCombatScreenOnly", message = "RenderCombatScreenOnly executing", data = new { playerName = player.Name, enemyName = currentEnemy?.Name ?? "null", activePlayerName = activePlayer?.Name ?? "null" }, sessionId = "debug-session", runId = "run1", hypothesisId = "H6" }) + "\n"); } catch { }
+            // #endregion
+            
             // Determine if we should clear canvas - clear on first render to ensure clean transition
             // The LayoutCoordinator will detect title changes and clear automatically, but we need
             // to ensure clean transition from dungeon selection screen
@@ -308,9 +413,13 @@ namespace RPGGame.UI.Avalonia.Renderers
             // First render should clear to ensure clean transition from other screens
             RenderWithLayout(player, "COMBAT", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                // Use the unified combat screen renderer with dungeon context
-                dungeonRenderer.RenderCombatScreen(contentX, contentY, contentWidth, contentHeight, 
-                    null, null, currentEnemy, textManager, context.DungeonContext);
+                // Use the unified combat screen renderer with filtered dungeon context
+                // currentEnemy is guaranteed non-null here due to earlier checks
+                if (currentEnemy != null)
+                {
+                    dungeonRenderer.RenderCombatScreen(contentX, contentY, contentWidth, contentHeight, 
+                        null, null, currentEnemy, textManager, filteredDungeonContext);
+                }
             }, context, currentEnemy, context.DungeonName, context.RoomName, clearCanvas: shouldClear);
             
             // Mark combat render as complete after first render
@@ -322,6 +431,18 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderEnemyEncounter(Enemy enemy, Character player, List<string> dungeonLog, string? dungeonName, string? roomName, CanvasContext context)
         {
+            // Check if this character is currently active before rendering
+            // This prevents background combat from interrupting other character views
+            Character? activePlayer = contextManager.GetCurrentCharacter();
+            if (activePlayer != player)
+            {
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderEnemyEncounter", message = "RenderEnemyEncounter blocked - character inactive", data = new { combatPlayerName = player.Name, activePlayerName = activePlayer?.Name ?? "null" }, sessionId = "debug-session", runId = "post-fix", hypothesisId = "FIX" }) + "\n"); } catch { }
+                // #endregion
+                // Character is not active - don't render enemy encounter
+                return;
+            }
+            
             // Render enemy encounter using structured format, below dungeon and room info
             // Canvas will be cleared automatically if title changes (handled by PersistentLayoutManager)
             RenderWithLayout(player, "COMBAT", (contentX, contentY, contentWidth, contentHeight) =>
@@ -392,10 +513,17 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderGameMenu(Character player, List<Item> inventory, CanvasContext context)
         {
+            // Canvas is already cleared in CanvasUICoordinator before this is called
+            // Pass clearCanvas: false since we've already cleared - this prevents double-clear
+            // and ensures the menu is properly redrawn after the clear
             RenderWithLayout(player, $"WELCOME, {player.Name.ToUpper()}!", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 menuRenderer.RenderGameMenu(contentX, contentY, contentWidth, contentHeight);
-            }, context);
+            }, context, null, null, null, clearCanvas: false);
+            
+            // Force immediate refresh to ensure the cleared canvas and new content are visible
+            // This ensures the game menu is always redrawn after clearing
+            canvas.Refresh();
         }
 
         // Message display methods - delegated to MessageDisplayRenderer

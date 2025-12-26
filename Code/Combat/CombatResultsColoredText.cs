@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Avalonia.Media;
 using RPGGame.Combat.Formatting;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.ColorSystem.Applications;
 using static RPGGame.Combat.Formatting.DamageFormatter;
 
 namespace RPGGame
@@ -288,7 +289,9 @@ namespace RPGGame
                 builder.AddSpace(); // Explicit space between "affected" and "by"
                 builder.Add("by", Colors.White);
                 builder.AddSpace(); // Explicit space between "by" and effect name
-                builder.Add(effectName, ColorPalette.Error);
+                // Use themed color template for status effect
+                var coloredEffect = StatusEffectColorHelper.GetColoredStatusEffect(effectName);
+                builder.AddRange(coloredEffect);
                 
                 if (stackCount.HasValue && stackCount.Value > 1)
                 {

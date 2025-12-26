@@ -16,11 +16,13 @@ namespace RPGGame
         public delegate void OnShowInventory();
         public delegate void OnShowMessage(string message);
         public delegate void OnExitGame();
+        public delegate void OnShowCharacterSelection();
         
         public event OnSelectDungeon? SelectDungeonEvent;
         public event OnShowInventory? ShowInventoryEvent;
         public event OnShowMessage? ShowMessageEvent;
         public event OnExitGame? ExitGameEvent;
+        public event OnShowCharacterSelection? ShowCharacterSelectionEvent;
 
         public GameLoopInputHandler(GameStateManager stateManager)
         {
@@ -38,7 +40,7 @@ namespace RPGGame
                 return;
             }
 
-            switch (input)
+            switch (input.ToUpper())
             {
                 case "1":
                     // Start Dungeon
@@ -49,17 +51,23 @@ namespace RPGGame
                     // Show Inventory
                     ShowInventoryEvent?.Invoke();
                     break;
+                case "C":
+                    // Character Selection (multi-character support)
+                    ShowCharacterSelectionEvent?.Invoke();
+                    break;
                 case "0":
                     // Save & Exit
-                    if (stateManager.CurrentPlayer != null)
+                    var activeCharacter = stateManager.GetActiveCharacter();
+                    if (activeCharacter != null)
                     {
                         // Save character before exit
-                        stateManager.CurrentPlayer.SaveCharacter();
+                        var characterId = stateManager.GetCharacterId(activeCharacter);
+                        activeCharacter.SaveCharacter(characterId);
                     }
                     ExitGameEvent?.Invoke();
                     break;
                 default:
-                    ShowMessageEvent?.Invoke("Invalid choice. Press 1 (Dungeon), 2 (Inventory), or 0 (Save & Exit).");
+                    ShowMessageEvent?.Invoke("Invalid choice. Press 1 (Dungeon), 2 (Inventory), C (Characters), or 0 (Save & Exit).");
                     break;
             }
         }

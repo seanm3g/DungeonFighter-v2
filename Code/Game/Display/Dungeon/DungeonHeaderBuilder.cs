@@ -19,7 +19,7 @@ namespace RPGGame.Display.Dungeon
 
             var headerText = $"===== {AsciiArtAssets.UIText.EnteringDungeonHeader} =====";
             var coloredHeader = new ColoredTextBuilder()
-                .Add(headerText, AsciiArtAssets.Colors.Gold)
+                .Add(headerText, ColorPalette.White)
                 .Build();
             header.Add(ColoredTextRenderer.RenderAsMarkup(coloredHeader));
 
@@ -27,7 +27,7 @@ namespace RPGGame.Display.Dungeon
             var dungeonNameColor = GetColorFromThemeCode(themeColorCode);
 
             var dungeonInfo = new ColoredTextBuilder()
-                .Add("Dungeon: ", ColorPalette.Warning)
+                .Add("Dungeon: ", AsciiArtAssets.Colors.Gold)
                 .Add(dungeon.Name, dungeonNameColor)
                 .Build();
             header.Add(ColoredTextRenderer.RenderAsMarkup(dungeonInfo));

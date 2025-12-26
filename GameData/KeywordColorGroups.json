@@ -262,9 +262,10 @@
       "colorPattern": "corrupted",
       "caseSensitive": false,
       "keywords": [
-        "weaken", "curse", "hex", "poison", "disease", "corrupt", 
+        "weaken", "weakened", "WEAKEN", "WEAKENED", "curse", "hex", "poison", "disease", "corrupt", 
         "debuff", "enfeeble"
-      ]
+      ],
+      "comment": "Added WEAKEN/WEAKENED variants for explicit matching in status messages"
     }
   ],
 

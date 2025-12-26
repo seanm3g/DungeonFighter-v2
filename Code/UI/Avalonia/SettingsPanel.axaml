@@ -84,7 +84,7 @@
                         
                         <!-- Narrative Settings - Left Column, Top Row -->
                         <Border Grid.Column="0" Grid.Row="0"
-                                Background="#FF252525" 
+                                Background="White" 
                                 BorderBrush="#FF404040" 
                                 BorderThickness="1" 
                                 CornerRadius="6" 
@@ -104,7 +104,7 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0" Spacing="8">
                                         <TextBlock Text="Narrative Balance:" 
-                                                   Foreground="#FFE0E0E0" 
+                                                   Foreground="Black" 
                                                    FontSize="15"/>
                                         <Slider x:Name="NarrativeBalanceSlider" 
                                                 Minimum="0" 
@@ -129,13 +129,13 @@
                                 
                                 <CheckBox x:Name="EnableNarrativeEventsCheckBox" 
                                           Content="Enable Narrative Events" 
-                                          Foreground="#FFE0E0E0"
+                                          Foreground="Black"
                                           FontSize="15"
                                           IsChecked="True"/>
                                 
                                 <CheckBox x:Name="EnableInformationalSummariesCheckBox" 
                                           Content="Enable Informational Summaries" 
-                                          Foreground="#FFE0E0E0"
+                                          Foreground="Black"
                                           FontSize="15"
                                           IsChecked="True"/>
                             </StackPanel>
@@ -143,7 +143,7 @@
                         
                         <!-- Combat Settings - Middle Column, Top Row -->
                         <Border Grid.Column="2" Grid.Row="0"
-                                Background="#FF252525" 
+                                Background="White" 
                                 BorderBrush="#FF404040" 
                                 BorderThickness="1" 
                                 CornerRadius="6" 
@@ -163,7 +163,7 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0" Spacing="8">
                                         <TextBlock Text="Combat Speed:" 
-                                                   Foreground="#FFE0E0E0" 
+                                                   Foreground="Black" 
                                                    FontSize="15"/>
                                         <Slider x:Name="CombatSpeedSlider" 
                                                 Minimum="0.5" 
@@ -188,25 +188,25 @@
                                 
                                 <CheckBox x:Name="ShowIndividualActionMessagesCheckBox" 
                                           Content="Show Individual Action Messages" 
-                                          Foreground="#FFE0E0E0"
+                                          Foreground="Black"
                                           FontSize="15"
                                           IsChecked="False"/>
                                 
                                 <CheckBox x:Name="EnableComboSystemCheckBox" 
                                           Content="Enable Combo System" 
-                                          Foreground="#FFE0E0E0"
+                                          Foreground="Black"
                                           FontSize="15"
                                           IsChecked="True"/>
                                 
                                 <CheckBox x:Name="EnableTextDisplayDelaysCheckBox" 
                                           Content="Enable Text Display Delays" 
-                                          Foreground="#FFE0E0E0"
+                                          Foreground="Black"
                                           FontSize="15"
                                           IsChecked="True"/>
                                 
                                 <CheckBox x:Name="FastCombatCheckBox" 
                                           Content="Fast Combat (No Delays)" 
-                                          Foreground="#FFE0E0E0"
+                                          Foreground="Black"
                                           FontSize="15"
                                           IsChecked="False"/>
                             </StackPanel>
@@ -214,7 +214,7 @@
                         
                         <!-- Gameplay Settings - Right Column, Top Row -->
                         <Border Grid.Column="4" Grid.Row="0"
-                                Background="#FF252525" 
+                                Background="White" 
                                 BorderBrush="#FF404040" 
                                 BorderThickness="1" 
                                 CornerRadius="6" 
@@ -228,7 +228,7 @@
                                 
                                 <CheckBox x:Name="EnableAutoSaveCheckBox" 
                                           Content="Enable Auto Save" 
-                                          Foreground="White"
+                                          Foreground="Black"
                                           FontSize="15"
                                           IsChecked="True"/>
                                 
@@ -239,7 +239,7 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" 
                                                Text="Auto Save Interval:" 
-                                               Foreground="#FFE0E0E0" 
+                                               Foreground="Black" 
                                                FontSize="15"
                                                VerticalAlignment="Center"/>
                                     <TextBox x:Name="AutoSaveIntervalTextBox" 
@@ -258,13 +258,13 @@
                                 
                                 <CheckBox x:Name="ShowDetailedStatsCheckBox" 
                                           Content="Show Detailed Stats" 
-                                          Foreground="#FFE0E0E0"
+                                          Foreground="Black"
                                           FontSize="15"
                                           IsChecked="True"/>
                                 
                                 <CheckBox x:Name="EnableSoundEffectsCheckBox" 
                                           Content="Enable Sound Effects" 
-                                          Foreground="#FFE0E0E0"
+                                          Foreground="Black"
                                           FontSize="15"
                                           IsChecked="False"/>
                             </StackPanel>
@@ -272,7 +272,7 @@
                         
                         <!-- UI Display Settings - Left Column, Bottom Row -->
                         <Border Grid.Column="0" Grid.Row="2"
-                                Background="#FF252525" 
+                                Background="White" 
                                 BorderBrush="#FF404040" 
                                 BorderThickness="1" 
                                 CornerRadius="6" 
@@ -286,43 +286,190 @@
                                 
                                 <CheckBox x:Name="ShowHealthBarsCheckBox" 
                                           Content="Show Health Bars" 
-                                          Foreground="#FFE0E0E0"
+                                          Foreground="Black"
                                           FontSize="15"
                                           IsChecked="True"/>
                                 
                                 <CheckBox x:Name="ShowDamageNumbersCheckBox" 
                                           Content="Show Damage Numbers" 
-                                          Foreground="#FFE0E0E0"
+                                          Foreground="Black"
                                           FontSize="15"
                                           IsChecked="True"/>
                                 
                                 <CheckBox x:Name="ShowComboProgressCheckBox" 
                                           Content="Show Combo Progress" 
-                                          Foreground="#FFE0E0E0"
+                                          Foreground="Black"
                                           FontSize="15"
                                           IsChecked="True"/>
                             </StackPanel>
                         </Border>
                         
-                        <!-- Additional UI Settings - Middle Column, Bottom Row -->
+                        <!-- Animation Settings - Middle Column, Bottom Row -->
                         <Border Grid.Column="2" Grid.Row="2"
-                                Background="#FF252525" 
+                                Background="White" 
                                 BorderBrush="#FF404040" 
                                 BorderThickness="1" 
                                 CornerRadius="6" 
                                 Padding="18">
-                            <StackPanel Spacing="12">
-                                <TextBlock Text="Additional UI Settings" 
-                                           FontSize="18" 
-                                           FontWeight="SemiBold" 
-                                           Foreground="#FFD700" 
-                                           Margin="0,0,0,8"/>
-                                
-                                <TextBlock Text="More UI customization options will be added here in future updates." 
-                                           Foreground="#FFAAAAAA"
-                                           FontSize="14"
-                                           TextWrapping="Wrap"/>
-                            </StackPanel>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="400">
+                                <StackPanel Spacing="16">
+                                    <TextBlock Text="Animation Settings" 
+                                               FontSize="18" 
+                                               FontWeight="SemiBold" 
+                                               Foreground="#FFD700" 
+                                               Margin="0,0,0,8"/>
+                                    
+                                    <!-- Brightness Mask Section -->
+                                    <Border Background="#FFF5F5F5" 
+                                            BorderBrush="#FFCCCCCC" 
+                                            BorderThickness="1" 
+                                            CornerRadius="4" 
+                                            Padding="12">
+                                        <StackPanel Spacing="10">
+                                            <TextBlock Text="Brightness Mask (Wave Effect)" 
+                                                       FontSize="16" 
+                                                       FontWeight="SemiBold" 
+                                                       Foreground="#FF333333"/>
+                                            
+                                            <CheckBox x:Name="BrightnessMaskEnabledCheckBox"
+                                                      Content="Enable Brightness Mask" 
+                                                      Foreground="Black"
+                                                      FontSize="14"
+                                                      IsChecked="False"/>
+                                            
+                                            <StackPanel Spacing="4">
+                                                <TextBlock Text="Intensity (Brightness Adjustment %)" 
+                                                           Foreground="#FF666666"
+                                                           FontSize="12"/>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Slider x:Name="BrightnessMaskIntensitySlider"
+                                                            Grid.Column="0"
+                                                            Minimum="0" 
+                                                            Maximum="50" 
+                                                            Value="10" 
+                                                            TickFrequency="5"
+                                                            Margin="0,0,8,0"/>
+                                                    <TextBox x:Name="BrightnessMaskIntensityTextBox"
+                                                             Grid.Column="1"
+                                                             Text="10.0"
+                                                             FontSize="12"
+                                                             Padding="4"/>
+                                                </Grid>
+                                            </StackPanel>
+                                            
+                                            <StackPanel Spacing="4">
+                                                <TextBlock Text="Wave Length (Higher = Smoother)" 
+                                                           Foreground="#FF666666"
+                                                           FontSize="12"/>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Slider x:Name="BrightnessMaskWaveLengthSlider"
+                                                            Grid.Column="0"
+                                                            Minimum="1" 
+                                                            Maximum="20" 
+                                                            Value="5" 
+                                                            TickFrequency="1"
+                                                            Margin="0,0,8,0"/>
+                                                    <TextBox x:Name="BrightnessMaskWaveLengthTextBox"
+                                                             Grid.Column="1"
+                                                             Text="5.0"
+                                                             FontSize="12"
+                                                             Padding="4"/>
+                                                </Grid>
+                                            </StackPanel>
+                                            
+                                            <StackPanel Spacing="4">
+                                                <TextBlock Text="Update Interval (ms)" 
+                                                           Foreground="#FF666666"
+                                                           FontSize="12"/>
+                                                <TextBox x:Name="BrightnessMaskUpdateIntervalTextBox"
+                                                         Text="1000"
+                                                         FontSize="12"
+                                                         Padding="4"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                    
+                                    <!-- Undulation Section -->
+                                    <Border Background="#FFF5F5F5" 
+                                            BorderBrush="#FFCCCCCC" 
+                                            BorderThickness="1" 
+                                            CornerRadius="4" 
+                                            Padding="12">
+                                        <StackPanel Spacing="10">
+                                            <TextBlock Text="Undulation (Brightness Pulsing)" 
+                                                       FontSize="16" 
+                                                       FontWeight="SemiBold" 
+                                                       Foreground="#FF333333"/>
+                                            
+                                            <StackPanel Spacing="4">
+                                                <TextBlock Text="Speed (Lower = Slower Pulsing)" 
+                                                           Foreground="#FF666666"
+                                                           FontSize="12"/>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Slider x:Name="UndulationSpeedSlider"
+                                                            Grid.Column="0"
+                                                            Minimum="0" 
+                                                            Maximum="0.2" 
+                                                            Value="0.05" 
+                                                            TickFrequency="0.01"
+                                                            Margin="0,0,8,0"/>
+                                                    <TextBox x:Name="UndulationSpeedTextBox"
+                                                             Grid.Column="1"
+                                                             Text="0.050"
+                                                             FontSize="12"
+                                                             Padding="4"/>
+                                                </Grid>
+                                            </StackPanel>
+                                            
+                                            <StackPanel Spacing="4">
+                                                <TextBlock Text="Wave Length (Higher = Wider Waves, More Letters)" 
+                                                           Foreground="#FF666666"
+                                                           FontSize="12"/>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="80"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Slider x:Name="UndulationWaveLengthSlider"
+                                                            Grid.Column="0"
+                                                            Minimum="1" 
+                                                            Maximum="20" 
+                                                            Value="4.0" 
+                                                            TickFrequency="0.5"
+                                                            Margin="0,0,8,0"/>
+                                                    <TextBox x:Name="UndulationWaveLengthTextBox"
+                                                             Grid.Column="1"
+                                                             Text="4.0"
+                                                             FontSize="12"
+                                                             Padding="4"/>
+                                                </Grid>
+                                            </StackPanel>
+                                            
+                                            <StackPanel Spacing="4">
+                                                <TextBlock Text="Update Interval (ms)" 
+                                                           Foreground="#FF666666"
+                                                           FontSize="12"/>
+                                                <TextBox x:Name="UndulationIntervalTextBox"
+                                                         Text="50"
+                                                         FontSize="12"
+                                                         Padding="4"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
                         </Border>
                     </Grid>
                 </ScrollViewer>
@@ -340,7 +487,7 @@
                         
                         <!-- Enemy Multipliers - Left Column -->
                         <Border Grid.Column="0"
-                                Background="#FF252525" 
+                                Background="White" 
                                 BorderBrush="#FF404040" 
                                 BorderThickness="1" 
                                 CornerRadius="6" 
@@ -360,7 +507,7 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0" Spacing="8">
                                         <TextBlock Text="Enemy Health:" 
-                                                   Foreground="#FFE0E0E0" 
+                                                   Foreground="Black" 
                                                    FontSize="15"/>
                                         <Slider x:Name="EnemyHealthMultiplierSlider" 
                                                 Minimum="0.5" 
@@ -391,7 +538,7 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0" Spacing="8">
                                         <TextBlock Text="Enemy Damage:" 
-                                                   Foreground="#FFE0E0E0" 
+                                                   Foreground="Black" 
                                                    FontSize="15"/>
                                         <Slider x:Name="EnemyDamageMultiplierSlider" 
                                                 Minimum="0.5" 
@@ -418,7 +565,7 @@
                         
                         <!-- Player Multipliers - Right Column -->
                         <Border Grid.Column="2"
-                                Background="#FF252525" 
+                                Background="White" 
                                 BorderBrush="#FF404040" 
                                 BorderThickness="1" 
                                 CornerRadius="6" 
@@ -438,7 +585,7 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0" Spacing="8">
                                         <TextBlock Text="Player Health:" 
-                                                   Foreground="#FFE0E0E0" 
+                                                   Foreground="Black" 
                                                    FontSize="15"/>
                                         <Slider x:Name="PlayerHealthMultiplierSlider" 
                                                 Minimum="0.5" 
@@ -469,7 +616,7 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0" Spacing="8">
                                         <TextBlock Text="Player Damage:" 
-                                                   Foreground="#FFE0E0E0" 
+                                                   Foreground="Black" 
                                                    FontSize="15"/>
                                         <Slider x:Name="PlayerDamageMultiplierSlider" 
                                                 Minimum="0.5" 
@@ -659,6 +806,24 @@
                                             CornerRadius="4"
                                             Cursor="Hand"
                                             FontSize="15"
+                                            Padding="12,8"
+                                            Margin="0,0,0,6">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FF5BA0F2"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                    
+                                    <Button x:Name="CombatLogFilteringTestsButton" 
+                                            Content="Combat Log Filtering Tests" 
+                                            Height="36"
+                                            Background="#FF4A90E2"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="4"
+                                            Cursor="Hand"
+                                            FontSize="15"
                                             Padding="12,8">
                                         <Button.Styles>
                                             <Style Selector="Button:pointerover">
@@ -804,7 +969,7 @@
                                          Margin="12,0,12,12">
                                 <TextBlock x:Name="TestOutputTextBlock" 
                                            Text="Test results will appear here..." 
-                                           Foreground="#FFE0E0E0"
+                                           Foreground="Black"
                                            TextWrapping="Wrap"
                                            FontFamily="Consolas"
                                            FontSize="14"/>
@@ -1006,7 +1171,7 @@
                                  HorizontalScrollBarVisibility="Disabled">
                         <StackPanel Spacing="18" Margin="12">
                             <!-- Test Configuration -->
-                            <Border Background="#FF252525" 
+                            <Border Background="White" 
                                     BorderBrush="#FF404040" 
                                     BorderThickness="1" 
                                     CornerRadius="6" 
@@ -1020,7 +1185,7 @@
                                     
                                     <TextBlock Text="Number of Battles:" 
                                                FontSize="15" 
-                                               Foreground="#FFE0E0E0" 
+                                               Foreground="Black" 
                                                Margin="0,0,0,4"/>
                                     <TextBox x:Name="NumberOfBattlesTextBox" 
                                              Text="100"
@@ -1035,7 +1200,7 @@
                                     <TextBlock Text="Quick Test Options:" 
                                                FontSize="15" 
                                                FontWeight="SemiBold"
-                                               Foreground="#FFE0E0E0" 
+                                               Foreground="Black" 
                                                Margin="0,0,0,8"/>
                                     
                                     <Button x:Name="QuickTestButton" 
@@ -1097,7 +1262,7 @@
                                     <TextBlock Text="Advanced Tests:" 
                                                FontSize="15" 
                                                FontWeight="SemiBold"
-                                               Foreground="#FFE0E0E0" 
+                                               Foreground="Black" 
                                                Margin="0,0,0,8"/>
                                     
                                     <Button x:Name="WeaponTypeTestButton" 
@@ -1138,7 +1303,7 @@
                             </Border>
                             
                             <!-- Progress Section -->
-                            <Border Background="#FF252525" 
+                            <Border Background="White" 
                                     BorderBrush="#FF404040" 
                                     BorderThickness="1" 
                                     CornerRadius="6" 
@@ -1155,7 +1320,7 @@
                                     <TextBlock x:Name="ProgressStatusText" 
                                                Text="Running tests..." 
                                                FontSize="14" 
-                                               Foreground="#FFE0E0E0" 
+                                               Foreground="Black" 
                                                TextWrapping="Wrap"
                                                Margin="0,0,0,8"/>
                                     
@@ -1202,7 +1367,7 @@
                                          Margin="12,0,12,12">
                                 <TextBlock x:Name="BattleStatisticsResultsText" 
                                            Text="Run a test to see results here..." 
-                                           Foreground="#FFE0E0E0"
+                                           Foreground="Black"
                                            TextWrapping="Wrap"
                                            FontFamily="Consolas"
                                            FontSize="14"/>
@@ -1229,7 +1394,7 @@
                         
                         <!-- Enable Flags - Top Left -->
                         <Border Grid.Column="0" Grid.Row="0"
-                                Background="#FF252525" 
+                                Background="White" 
                                 BorderBrush="#FF404040" 
                                 BorderThickness="1" 
                                 CornerRadius="6" 
@@ -1243,13 +1408,13 @@
                                 
                                 <CheckBox x:Name="EnableGuiDelaysCheckBox" 
                                           Content="Enable GUI Delays" 
-                                          Foreground="#FFE0E0E0"
+                                          Foreground="Black"
                                           FontSize="15"
                                           IsChecked="True"/>
                                 
                                 <CheckBox x:Name="EnableConsoleDelaysCheckBox" 
                                           Content="Enable Console Delays" 
-                                          Foreground="#FFE0E0E0"
+                                          Foreground="Black"
                                           FontSize="15"
                                           IsChecked="True"/>
                             </StackPanel>
@@ -1257,7 +1422,7 @@
                         
                         <!-- Combat Delays - Top Right -->
                         <Border Grid.Column="2" Grid.Row="0"
-                                Background="#FF252525" 
+                                Background="White" 
                                 BorderBrush="#FF404040" 
                                 BorderThickness="1" 
                                 CornerRadius="6" 
@@ -1277,7 +1442,7 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0" Spacing="8">
                                         <TextBlock Text="Action Delay (ms):" 
-                                                   Foreground="#FFE0E0E0" 
+                                                   Foreground="Black" 
                                                    FontSize="15"/>
                                         <Slider x:Name="ActionDelaySlider" 
                                                 Minimum="0" 
@@ -1308,7 +1473,7 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0" Spacing="8">
                                         <TextBlock Text="Message Delay (ms):" 
-                                                   Foreground="#FFE0E0E0" 
+                                                   Foreground="Black" 
                                                    FontSize="15"/>
                                         <Slider x:Name="MessageDelaySlider" 
                                                 Minimum="0" 
@@ -1335,7 +1500,7 @@
                         
                         <!-- Message Type Delays - Bottom Left -->
                         <Border Grid.Column="0" Grid.Row="2"
-                                Background="#FF252525" 
+                                Background="White" 
                                 BorderBrush="#FF404040" 
                                 BorderThickness="1" 
                                 CornerRadius="6" 
@@ -1355,7 +1520,7 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" 
                                                Text="Combat:" 
-                                               Foreground="#FFE0E0E0" 
+                                               Foreground="Black" 
                                                FontSize="14"
                                                VerticalAlignment="Center"/>
                                     <TextBox x:Name="CombatDelayTextBox" 
@@ -1379,7 +1544,7 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" 
                                                Text="System:" 
-                                               Foreground="#FFE0E0E0" 
+                                               Foreground="Black" 
                                                FontSize="14"
                                                VerticalAlignment="Center"/>
                                     <TextBox x:Name="SystemDelayTextBox" 
@@ -1403,7 +1568,7 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" 
                                                Text="Menu:" 
-                                               Foreground="#FFE0E0E0" 
+                                               Foreground="Black" 
                                                FontSize="14"
                                                VerticalAlignment="Center"/>
                                     <TextBox x:Name="MenuDelayTextBox" 
@@ -1427,7 +1592,7 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" 
                                                Text="Title:" 
-                                               Foreground="#FFE0E0E0" 
+                                               Foreground="Black" 
                                                FontSize="14"
                                                VerticalAlignment="Center"/>
                                     <TextBox x:Name="TitleDelayTextBox" 
@@ -1451,7 +1616,7 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" 
                                                Text="Main Title:" 
-                                               Foreground="#FFE0E0E0" 
+                                               Foreground="Black" 
                                                FontSize="14"
                                                VerticalAlignment="Center"/>
                                     <TextBox x:Name="MainTitleDelayTextBox" 
@@ -1475,7 +1640,7 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" 
                                                Text="Environmental:" 
-                                               Foreground="#FFE0E0E0" 
+                                               Foreground="Black" 
                                                FontSize="14"
                                                VerticalAlignment="Center"/>
                                     <TextBox x:Name="EnvironmentalDelayTextBox" 
@@ -1499,7 +1664,7 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" 
                                                Text="Effect Message:" 
-                                               Foreground="#FFE0E0E0" 
+                                               Foreground="Black" 
                                                FontSize="14"
                                                VerticalAlignment="Center"/>
                                     <TextBox x:Name="EffectMessageDelayTextBox" 
@@ -1523,7 +1688,7 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" 
                                                Text="Damage Over Time:" 
-                                               Foreground="#FFE0E0E0" 
+                                               Foreground="Black" 
                                                FontSize="14"
                                                VerticalAlignment="Center"/>
                                     <TextBox x:Name="DamageOverTimeDelayTextBox" 
@@ -1547,7 +1712,7 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" 
                                                Text="Encounter:" 
-                                               Foreground="#FFE0E0E0" 
+                                               Foreground="Black" 
                                                FontSize="14"
                                                VerticalAlignment="Center"/>
                                     <TextBox x:Name="EncounterDelayTextBox" 
@@ -1571,7 +1736,7 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" 
                                                Text="Roll Info:" 
-                                               Foreground="#FFE0E0E0" 
+                                               Foreground="Black" 
                                                FontSize="14"
                                                VerticalAlignment="Center"/>
                                     <TextBox x:Name="RollInfoDelayTextBox" 
@@ -1591,7 +1756,7 @@
                         
                         <!-- Progressive Menu Delays & Chunked Text Reveal - Bottom Right -->
                         <Border Grid.Column="2" Grid.Row="2"
-                                Background="#FF252525" 
+                                Background="White" 
                                 BorderBrush="#FF404040" 
                                 BorderThickness="1" 
                                 CornerRadius="6" 
@@ -1616,7 +1781,7 @@
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Grid.Column="0" 
                                                        Text="Base Menu Delay (ms):" 
-                                                       Foreground="#FFE0E0E0" 
+                                                       Foreground="Black" 
                                                        FontSize="14"
                                                        VerticalAlignment="Center"/>
                                             <TextBox x:Name="BaseMenuDelayTextBox" 
@@ -1640,7 +1805,7 @@
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Grid.Column="0" 
                                                        Text="Progressive Reduction Rate:" 
-                                                       Foreground="#FFE0E0E0" 
+                                                       Foreground="Black" 
                                                        FontSize="14"
                                                        VerticalAlignment="Center"/>
                                             <TextBox x:Name="ProgressiveReductionRateTextBox" 
@@ -1664,7 +1829,7 @@
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Grid.Column="0" 
                                                        Text="Progressive Threshold:" 
-                                                       Foreground="#FFE0E0E0" 
+                                                       Foreground="Black" 
                                                        FontSize="14"
                                                        VerticalAlignment="Center"/>
                                             <TextBox x:Name="ProgressiveThresholdTextBox" 
@@ -1705,7 +1870,7 @@
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0" 
                                                                Text="Base Delay Per Char (ms):" 
-                                                               Foreground="#FFE0E0E0" 
+                                                               Foreground="Black" 
                                                                FontSize="13"
                                                                VerticalAlignment="Center"/>
                                                     <TextBox x:Name="CombatPresetBaseDelayTextBox" 
@@ -1727,7 +1892,7 @@
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0" 
                                                                Text="Min Delay (ms):" 
-                                                               Foreground="#FFE0E0E0" 
+                                                               Foreground="Black" 
                                                                FontSize="13"
                                                                VerticalAlignment="Center"/>
                                                     <TextBox x:Name="CombatPresetMinDelayTextBox" 
@@ -1749,7 +1914,7 @@
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0" 
                                                                Text="Max Delay (ms):" 
-                                                               Foreground="#FFE0E0E0" 
+                                                               Foreground="Black" 
                                                                FontSize="13"
                                                                VerticalAlignment="Center"/>
                                                     <TextBox x:Name="CombatPresetMaxDelayTextBox" 
@@ -1781,7 +1946,7 @@
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0" 
                                                                Text="Base Delay Per Char (ms):" 
-                                                               Foreground="#FFE0E0E0" 
+                                                               Foreground="Black" 
                                                                FontSize="13"
                                                                VerticalAlignment="Center"/>
                                                     <TextBox x:Name="DungeonPresetBaseDelayTextBox" 
@@ -1803,7 +1968,7 @@
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0" 
                                                                Text="Min Delay (ms):" 
-                                                               Foreground="#FFE0E0E0" 
+                                                               Foreground="Black" 
                                                                FontSize="13"
                                                                VerticalAlignment="Center"/>
                                                     <TextBox x:Name="DungeonPresetMinDelayTextBox" 
@@ -1825,7 +1990,7 @@
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0" 
                                                                Text="Max Delay (ms):" 
-                                                               Foreground="#FFE0E0E0" 
+                                                               Foreground="Black" 
                                                                FontSize="13"
                                                                VerticalAlignment="Center"/>
                                                     <TextBox x:Name="DungeonPresetMaxDelayTextBox" 
@@ -1857,7 +2022,7 @@
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0" 
                                                                Text="Base Delay Per Char (ms):" 
-                                                               Foreground="#FFE0E0E0" 
+                                                               Foreground="Black" 
                                                                FontSize="13"
                                                                VerticalAlignment="Center"/>
                                                     <TextBox x:Name="RoomPresetBaseDelayTextBox" 
@@ -1879,7 +2044,7 @@
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0" 
                                                                Text="Min Delay (ms):" 
-                                                               Foreground="#FFE0E0E0" 
+                                                               Foreground="Black" 
                                                                FontSize="13"
                                                                VerticalAlignment="Center"/>
                                                     <TextBox x:Name="RoomPresetMinDelayTextBox" 
@@ -1901,7 +2066,7 @@
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0" 
                                                                Text="Max Delay (ms):" 
-                                                               Foreground="#FFE0E0E0" 
+                                                               Foreground="Black" 
                                                                FontSize="13"
                                                                VerticalAlignment="Center"/>
                                                     <TextBox x:Name="RoomPresetMaxDelayTextBox" 
@@ -1933,7 +2098,7 @@
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0" 
                                                                Text="Base Delay Per Char (ms):" 
-                                                               Foreground="#FFE0E0E0" 
+                                                               Foreground="Black" 
                                                                FontSize="13"
                                                                VerticalAlignment="Center"/>
                                                     <TextBox x:Name="NarrativePresetBaseDelayTextBox" 
@@ -1955,7 +2120,7 @@
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0" 
                                                                Text="Min Delay (ms):" 
-                                                               Foreground="#FFE0E0E0" 
+                                                               Foreground="Black" 
                                                                FontSize="13"
                                                                VerticalAlignment="Center"/>
                                                     <TextBox x:Name="NarrativePresetMinDelayTextBox" 
@@ -1977,7 +2142,7 @@
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0" 
                                                                Text="Max Delay (ms):" 
-                                                               Foreground="#FFE0E0E0" 
+                                                               Foreground="Black" 
                                                                FontSize="13"
                                                                VerticalAlignment="Center"/>
                                                     <TextBox x:Name="NarrativePresetMaxDelayTextBox" 
@@ -2009,7 +2174,7 @@
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0" 
                                                                Text="Base Delay Per Char (ms):" 
-                                                               Foreground="#FFE0E0E0" 
+                                                               Foreground="Black" 
                                                                FontSize="13"
                                                                VerticalAlignment="Center"/>
                                                     <TextBox x:Name="DefaultPresetBaseDelayTextBox" 
@@ -2031,7 +2196,7 @@
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0" 
                                                                Text="Min Delay (ms):" 
-                                                               Foreground="#FFE0E0E0" 
+                                                               Foreground="Black" 
                                                                FontSize="13"
                                                                VerticalAlignment="Center"/>
                                                     <TextBox x:Name="DefaultPresetMinDelayTextBox" 
@@ -2053,7 +2218,7 @@
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0" 
                                                                Text="Max Delay (ms):" 
-                                                               Foreground="#FFE0E0E0" 
+                                                               Foreground="Black" 
                                                                FontSize="13"
                                                                VerticalAlignment="Center"/>
                                                     <TextBox x:Name="DefaultPresetMaxDelayTextBox" 
@@ -2090,7 +2255,7 @@
                         
                         <!-- Game Information - Left Column -->
                         <Border Grid.Column="0"
-                                Background="#FF252525" 
+                                Background="White" 
                                 BorderBrush="#FF404040" 
                                 BorderThickness="1" 
                                 CornerRadius="6" 
@@ -2149,7 +2314,7 @@
                         <!-- Technical & Settings Information - Right Column -->
                         <StackPanel Grid.Column="2" Spacing="18">
                             <!-- Technical Information -->
-                            <Border Background="#FF252525" 
+                            <Border Background="White" 
                                     BorderBrush="#FF404040" 
                                     BorderThickness="1" 
                                     CornerRadius="6" 
@@ -2219,7 +2384,7 @@
                             </Border>
                             
                             <!-- Settings Information -->
-                            <Border Background="#FF252525" 
+                            <Border Background="White" 
                                     BorderBrush="#FF404040" 
                                     BorderThickness="1" 
                                     CornerRadius="6" 

@@ -85,19 +85,21 @@ namespace RPGGame.UI.BlockDisplay
                 if (combinedStatusEffects.Count > 0)
                 {
                     messageGroups.Add((combinedStatusEffects, UIMessageType.EffectMessage));
-                    // Add blank line after the last status effect
-                    messageGroups.Add((new List<ColoredText>(), UIMessageType.System));
+                    // Note: Blank line after status effects will be added after narratives (if present)
+                    // or at the end if no narratives, to ensure it appears before the next character's action
                 }
             }
             
             // Add all narratives (all part of the same turn block)
             // Narratives get keyword coloring and blank lines before/after
+            bool hasNarratives = false;
             if (narratives != null)
             {
                 foreach (var narrative in narratives)
                 {
                     if (narrative != null && narrative.Count > 0)
                     {
+                        hasNarratives = true;
                         // Add blank line before narrative
                         messageGroups.Add((new List<ColoredText>(), UIMessageType.System));
                         
@@ -113,6 +115,13 @@ namespace RPGGame.UI.BlockDisplay
                         messageGroups.Add((new List<ColoredText>(), UIMessageType.System));
                     }
                 }
+            }
+            
+            // Add blank line after status effects (if present) to separate from next character's action
+            // Only add if no narratives are present, since narratives already add a blank line at the end
+            if (statusEffects != null && statusEffects.Count > 0 && !hasNarratives)
+            {
+                messageGroups.Add((new List<ColoredText>(), UIMessageType.System));
             }
             
             return messageGroups;

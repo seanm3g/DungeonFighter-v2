@@ -48,18 +48,34 @@ namespace RPGGame
             var inventory = stateManager.CurrentInventory;
             var canvasUI = TryGetCanvasUI();
 
+            // Transition state FIRST to prevent any reactive systems from clearing the canvas
+            // This ensures that when we render, we're already in GameLoop state
+            stateManager.TransitionToState(GameState.GameLoop);
+
             if (canvasUI != null && player != null)
             {
-                // Restore display buffer rendering in case it was suppressed (e.g., from inventory screen)
-                // This ensures dungeon exploration and combat screens work correctly
-                canvasUI.RestoreDisplayBufferRendering();
+                // Suppress display buffer rendering FIRST to prevent any unwanted renders during transition
+                // This prevents the display buffer from auto-rendering and clearing the game menu
+                canvasUI.SuppressDisplayBufferRendering();
+                // Clear buffer without triggering a render (since we're suppressing rendering anyway)
+                canvasUI.ClearDisplayBufferWithoutRender();
                 
                 // Ensure character is set in UI coordinator for persistent display
+                // We're now in GameLoop state (menu state), so SetCharacter won't trigger unwanted renders
                 canvasUI.SetCharacter(player);
+                
+                // Render the game menu
                 canvasUI.RenderGameMenu(player, inventory);
+                
+                // Force a refresh to ensure the screen is displayed
+                // This ensures the game menu is visible and nothing clears it immediately after
+                canvasUI.Refresh();
+                
+                // DO NOT restore display buffer rendering here - Game Menu is a menu state
+                // Display buffer rendering should stay suppressed for menu states
+                // It will be restored automatically when entering a dungeon (in DungeonOrchestrator)
+                // Restoring it here causes the display buffer to auto-render and clear the menu
             }
-
-            stateManager.TransitionToState(GameState.GameLoop);
         }
 
         /// <summary>
@@ -99,6 +115,10 @@ namespace RPGGame
                 levelUpInfos ?? new List<LevelUpInfo>(),
                 itemsFoundDuringRun ?? new List<Item>()
             );
+            
+            // Force a refresh to ensure the screen is displayed
+            // This ensures the completion screen is visible and nothing clears it immediately after
+            canvasUI.Refresh();
         }
 
         /// <summary>

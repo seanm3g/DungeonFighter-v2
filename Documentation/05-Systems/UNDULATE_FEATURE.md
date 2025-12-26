@@ -1,8 +1,21 @@
 # Undulate Feature Documentation
 
+## ⚠️ Important Note
+
+**This document describes COLOR PATTERN UNDULATION**, which is different from the brightness undulation system used in the Avalonia UI.
+
+- **Color Pattern Undulation** (this document): Offsets color sequences in templates to create shimmering color effects
+- **Brightness Undulation** (actively used): Global brightness pulsing effect - see [ANIMATION_SYSTEM.md](ANIMATION_SYSTEM.md)
+
+The color pattern undulation feature documented here is **currently unused** in the Avalonia rendering system. The Avalonia UI uses brightness undulation instead, which is implemented in `BaseAnimationState` and its derived classes.
+
+---
+
 ## Overview
 
 The undulate feature creates shimmering effects by offsetting color patterns. When enabled, the color sequence starts at a different position, making colors appear to animate or "wave" across text.
+
+**Status:** Documented but not actively used in current Avalonia implementation. Kept for potential future use.
 
 ---
 

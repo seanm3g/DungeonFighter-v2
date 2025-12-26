@@ -18,10 +18,10 @@ namespace RPGGame.UI.Avalonia.Managers
         private readonly CenterPanelDisplayManager displayManager;
         private readonly ColoredTextWriter textWriter;
         
-        public CanvasTextManager(GameCanvasControl canvas, ColoredTextWriter textWriter, ICanvasContextManager contextManager, int maxLines = DISPLAY_BUFFER_MAX_LINES)
+        public CanvasTextManager(GameCanvasControl canvas, ColoredTextWriter textWriter, ICanvasContextManager contextManager, int maxLines = DISPLAY_BUFFER_MAX_LINES, GameStateManager? stateManager = null)
         {
             this.textWriter = textWriter;
-            this.displayManager = new CenterPanelDisplayManager(canvas, textWriter, contextManager, maxLines);
+            this.displayManager = new CenterPanelDisplayManager(canvas, textWriter, contextManager, maxLines, stateManager);
         }
         
         /// <summary>

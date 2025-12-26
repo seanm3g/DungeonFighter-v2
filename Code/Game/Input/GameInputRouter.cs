@@ -147,6 +147,10 @@ namespace RPGGame.GameCore.Input
                     if (handlers.DungeonSelectionHandler != null)
                         await handlers.DungeonSelectionHandler.HandleMenuInput(input);
                     break;
+                case GameState.CharacterSelection:
+                    if (handlers.CharacterManagementHandler != null)
+                        await handlers.CharacterManagementHandler.HandleCharacterSelectionInput(input);
+                    break;
                 case GameState.DungeonCompletion:
                     if (handlers.DungeonCompletionHandler != null)
                         await handlers.DungeonCompletionHandler.HandleMenuInput(input);
@@ -223,6 +227,7 @@ namespace RPGGame.GameCore.Input
         public DungeonCompletionHandler? DungeonCompletionHandler { get; set; }
         public DeathScreenHandler? DeathScreenHandler { get; set; }
         public TestingSystemHandler? TestingSystemHandler { get; set; }
+        public CharacterManagementHandler? CharacterManagementHandler { get; set; }
         public DungeonExitChoiceHandler? DungeonExitChoiceHandler { get; set; }
     }
 }

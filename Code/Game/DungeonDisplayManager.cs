@@ -2,7 +2,9 @@ namespace RPGGame
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
+    using System.Text.Json;
     using Avalonia.Media;
     using RPGGame.Display.Dungeon;
     using RPGGame.GameCore.Display.Helpers;
@@ -10,6 +12,7 @@ namespace RPGGame
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.Avalonia.Display;
     using RPGGame.UI.ColorSystem;
+    using RPGGame.UI.Services;
 
     /// <summary>
     /// Unified manager for all dungeon display information.
@@ -25,6 +28,9 @@ namespace RPGGame
         private readonly IUIManager? uiManager;
         private readonly CanvasUICoordinator? canvasUI;
         private readonly RPGGame.Display.Dungeon.DungeonDisplayBuffer displayBuffer;
+        private readonly GameStateManager? stateManager; // For checking if character is active
+        private readonly MessageFilterService filterService = new MessageFilterService();
+        private MessageRouter? messageRouter;
         
         // Specialized coordinators
         private readonly DungeonDisplayBufferCoordinator bufferCoordinator;
@@ -54,12 +60,17 @@ namespace RPGGame
         /// </summary>
         public List<string> CombatLog => displayBuffer.CombatLog;
 
-        public DungeonDisplayManager(GameNarrativeManager narrativeManager, IUIManager? uiManager = null)
+        public DungeonDisplayManager(GameNarrativeManager narrativeManager, IUIManager? uiManager = null, GameStateManager? stateManager = null)
         {
             this.narrativeManager = narrativeManager ?? throw new ArgumentNullException(nameof(narrativeManager));
             this.uiManager = uiManager;
             this.canvasUI = uiManager as CanvasUICoordinator;
+            this.stateManager = stateManager;
             this.displayBuffer = new DungeonDisplayBuffer();
+            
+            // Initialize MessageRouter with available components
+            // MessageRouter can work with just uiManager, which routes through the existing system
+            this.messageRouter = new MessageRouter(null, uiManager, stateManager, null);
             
             // Initialize specialized coordinators
             this.bufferCoordinator = new DungeonDisplayBufferCoordinator(displayBuffer, canvasUI);
@@ -75,6 +86,19 @@ namespace RPGGame
         {
             if (dungeon == null) throw new ArgumentNullException(nameof(dungeon));
             if (player == null) throw new ArgumentNullException(nameof(player));
+
+            // CRITICAL: Only update currentPlayer if this character is the active character
+            // This prevents overwriting currentPlayer when another character's dungeon is still running
+            // If another character's dungeon is active, we should not start a new dungeon for this character
+            var activeCharacter = stateManager?.GetActiveCharacter();
+            if (activeCharacter != null && player != activeCharacter)
+            {
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "DungeonDisplayManager.cs:StartDungeon", message = "Blocking StartDungeon - character inactive", data = new { requestedPlayerName = player.Name, activeCharacterName = activeCharacter?.Name ?? "null", currentPlayerName = currentPlayer?.Name ?? "null" }, sessionId = "debug-session", runId = "run1", hypothesisId = "H16" }) + "\n"); } catch { }
+                // #endregion
+                // Character is not active - don't start dungeon (another character's dungeon is still running)
+                return;
+            }
 
             // Clear all previous information
             ClearAll();
@@ -183,7 +207,21 @@ namespace RPGGame
             contextSync.SetUIContext(currentPlayer, GetDungeonName(), GetRoomName(), currentEnemy);
 
             var enemyInfoList = displayBuffer.EnemyInfo;
-            if (canvasUI != null && canvasUI is CanvasUICoordinator coordinator)
+            
+            // CRITICAL: Only add enemy info to display buffer if this character is currently active
+            // This prevents background combat from adding enemy info to the display buffer
+            bool shouldAddToDisplayBuffer = true;
+            if (canvasUI != null && stateManager != null && currentPlayer != null)
+            {
+                var activeCharacter = stateManager.GetActiveCharacter();
+                shouldAddToDisplayBuffer = (currentPlayer == activeCharacter);
+                
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "DungeonDisplayManager.cs:StartEnemyEncounter", message = "Checking if should add enemy info to display buffer", data = new { currentPlayerName = currentPlayer.Name, activeCharacterName = activeCharacter?.Name ?? "null", shouldAddToDisplayBuffer }, sessionId = "debug-session", runId = "run1", hypothesisId = "H10" }) + "\n"); } catch { }
+                // #endregion
+            }
+            
+            if (shouldAddToDisplayBuffer && canvasUI != null && canvasUI is CanvasUICoordinator coordinator)
             {
                 using (var batch = coordinator.StartBatch(autoRender: true))
                 {
@@ -203,7 +241,7 @@ namespace RPGGame
                     }
                 }
             }
-            else if (uiManager != null && enemyInfoList.Count > 0)
+            else if (shouldAddToDisplayBuffer && uiManager != null && enemyInfoList.Count > 0)
             {
                 SpacingApplier.ApplySpacingBefore(uiManager, TextSpacingSystem.BlockType.EnemyAppearance);
                 uiManager.WriteLine(enemyInfoList[0], UIMessageType.System);
@@ -229,34 +267,64 @@ namespace RPGGame
             if (message == null)
                 return;
             
-            // Add to display buffer (allows empty strings for blank lines)
-            displayBuffer.AddCombatEvent(message);
+            // CRITICAL: Capture currentPlayer at the start to prevent race conditions
+            // If currentPlayer is null, we can't determine the source character, so block the message
+            var sourceCharacter = currentPlayer;
+            
+            // Use MessageFilterService to determine if message should be displayed
+            // This consolidates all filtering logic (menu states, character matching)
+            bool shouldUpdateUI = filterService.ShouldDisplayMessage(
+                sourceCharacter,
+                UIMessageType.System, // Combat events use System type
+                stateManager,
+                null, // No context manager
+                false); // No race condition check needed here
+            
+            // Only add to display buffer if character is active
+            // This prevents inactive character combat messages from polluting the shared display buffer
+            if (shouldUpdateUI)
+            {
+                displayBuffer.AddCombatEvent(message);
+            }
             
             // Only add to narrative manager and UI if not empty (narrative doesn't need blank lines)
             if (!string.IsNullOrWhiteSpace(message))
             {
-                // Add to narrative manager's dungeon log
+                // Add to narrative manager's dungeon log (always - for character context tracking)
+                // This is per-character, so it's safe to always add
                 narrativeManager.LogDungeonEvent(message);
                 
-                // Add to display buffer so it's visible immediately
-                if (uiManager != null)
+                // Add to display buffer so it's visible immediately (only if character is active)
+                // Use MessageRouter if available, otherwise fall back to direct uiManager call
+                if (shouldUpdateUI)
                 {
-                    uiManager.WriteLine(message, UIMessageType.System);
+                    if (messageRouter != null)
+                    {
+                        messageRouter.RouteSystemMessage(message, UIMessageType.System, sourceCharacter);
+                    }
+                    else if (uiManager != null)
+                    {
+                        uiManager.WriteLine(message, UIMessageType.System);
+                    }
                 }
             }
-            else if (message == "" && uiManager != null)
+            else if (message == "" && shouldUpdateUI && uiManager != null)
             {
-                // Empty string - add blank line to UI for spacing
+                // Empty string - add blank line to UI for spacing (only if character is active)
                 uiManager.WriteLine("", UIMessageType.System);
             }
             
-            // Notify subscribers that a combat event was added (even for blank lines)
-            CombatEventAdded?.Invoke();
+            // Notify subscribers that a combat event was added (only if character is active)
+            if (shouldUpdateUI)
+            {
+                CombatEventAdded?.Invoke();
+            }
         }
 
         /// <summary>
         /// Adds a combat event to the combat log using colored text.
         /// Also adds to display buffer and narrative manager to keep everything in sync.
+        /// Only updates UI if the character is currently active (for background dungeon support).
         /// </summary>
         public void AddCombatEvent(ColoredTextBuilder builder)
         {
@@ -268,20 +336,41 @@ namespace RPGGame
             // Convert to markup string for display buffer and narrative manager
             string markupMessage = ColoredTextRenderer.RenderAsMarkup(segments);
             
-            // Add to display buffer
-            displayBuffer.AddCombatEvent(markupMessage);
+            // CRITICAL: Capture currentPlayer at the start to prevent race conditions
+            // If currentPlayer is null, we can't determine the source character, so block the message
+            var sourceCharacter = currentPlayer;
             
-            // Add to narrative manager's dungeon log
+            // Use MessageFilterService to determine if message should be displayed
+            // This consolidates all filtering logic (menu states, character matching)
+            bool shouldUpdateUI = filterService.ShouldDisplayMessage(
+                sourceCharacter,
+                UIMessageType.System, // Combat events use System type
+                stateManager,
+                null, // No context manager
+                false); // No race condition check needed here
+            
+            // Only add to display buffer if character is active
+            // This prevents inactive character combat messages from polluting the shared display buffer
+            if (shouldUpdateUI)
+            {
+                displayBuffer.AddCombatEvent(markupMessage);
+            }
+            
+            // Add to narrative manager's dungeon log (always - for character context tracking)
+            // This is per-character, so it's safe to always add
             narrativeManager.LogDungeonEvent(markupMessage);
             
-            // Add to UI using colored text directly
-            if (uiManager != null)
+            // Add to UI using colored text directly (only if character is active)
+            if (shouldUpdateUI && uiManager != null)
             {
                 uiManager.WriteLineColoredSegments(segments, UIMessageType.System);
             }
             
-            // Notify subscribers that a combat event was added
-            CombatEventAdded?.Invoke();
+            // Notify subscribers that a combat event was added (only if character is active)
+            if (shouldUpdateUI)
+            {
+                CombatEventAdded?.Invoke();
+            }
         }
 
         /// <summary>

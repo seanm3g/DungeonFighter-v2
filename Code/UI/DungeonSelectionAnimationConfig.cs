@@ -23,6 +23,14 @@ namespace RPGGame
         public int UndulationIntervalMs { get; set; } = 50;
         
         /// <summary>
+        /// Length of the undulation wave pattern across text (higher = wider waves, affects more letters)
+        /// Lower values = tighter waves, affects fewer letters at once
+        /// Higher values = wider waves, affects more letters in the wave
+        /// Default: 4.0
+        /// </summary>
+        public float UndulationWaveLength { get; set; } = 4.0f;
+        
+        /// <summary>
         /// Configuration for the brightness mask (wave effect across text)
         /// </summary>
         public DungeonBrightnessMaskConfig BrightnessMask { get; set; } = new DungeonBrightnessMaskConfig();

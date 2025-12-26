@@ -1,54 +1,67 @@
 {
-  "EnableDelays": true,
-  "FastCombat": false,
-  "DisableAllOutput": false,
-  "BeatTiming": {
-    "CombatBeatLengthMs": 2000,
-    "MenuBeatLengthMs": 35,
-    "BlockDelays": {
+  "enableDelays": true,
+  "fastCombat": false,
+  "disableAllOutput": false,
+  "addBlankLinesBetweenEntities": true,
+  "addBlankLinesAfterDamageOverTime": true,
+  "addBlankLinesAfterStunMessages": true,
+  "addBlankLinesBetweenActionBlocks": true,
+  "addBlankLinesBetweenEffectBlocks": true,
+  "addBlankLinesAroundNarrativeBlocks": true,
+  "showTimingInfo": true,
+  "showEntityNames": true,
+  "showDetailedCombatInfo": true,
+  "beatTiming": {
+    "combatBeatLengthMs": 2000,
+    "menuBeatLengthMs": 35,
+    "beatMultipliers": {
+      "combat": 1,
+      "system": 1,
+      "environmental": 1.5,
+      "effectMessage": 0.5,
+      "damageOverTime": 0.5,
+      "title": 10,
+      "mainTitle": 20,
+      "encounter": 0.67,
+      "rollInfo": 0.1
+    },
+    "blockDelays": {
       "ActionBlock": 0.8,
       "EffectBlock": 0.7,
-      "NarrativeBlock": 1.0,
+      "NarrativeBlock": 1,
       "EnvironmentalBlock": 0.8,
-      "MenuBlock": 1.0,
+      "MenuBlock": 1,
       "SystemBlock": 0.8
     },
-    "LegacyMultipliers": {
-      "Title": 15.0,
-      "MainTitle": 20.0,
-      "System": 1.0,
-      "Combat": 0.5,
-      "Environmental": 1.5,
-      "EffectMessage": 0.4,
-      "DamageOverTime": 0.4,
-      "RollInfo": 1.0,
-      "Encounter": 2.0
+    "legacyMultipliers": {
+      "title": 15,
+      "mainTitle": 20,
+      "system": 1,
+      "combat": 0.5,
+      "environmental": 1.5,
+      "effectMessage": 0.4,
+      "damageOverTime": 0.4,
+      "rollInfo": 1,
+      "encounter": 2
     }
   },
-  "ShowTimingInfo": true,
-  "ShowEntityNames": true,
-  "ShowDetailedCombatInfo": true,
-  "BlockSpacing": {
-    "AddBlankLinesBetweenActionBlocks": false,
-    "AddBlankLinesBetweenEffectBlocks": false,
-    "AddBlankLinesAroundNarrativeBlocks": true
+  "whiteTemperatureIntensity": 1.1,
+  "undulationTimerMs": 1000,
+  "brightnessMask": {
+    "enabled": false,
+    "intensity": 4,
+    "waveLength": 2,
+    "updateIntervalMs": 100
   },
-  "WhiteTemperatureIntensity": 1.1,
-  "UndulationTimerMs": 1000,
-  "BrightnessMask": {
-    "Enabled": false,
-    "Intensity": 4.0,
-    "WaveLength": 2.0,
-    "UpdateIntervalMs": 100
-  },
-  "DungeonSelectionAnimation": {
-    "UndulationSpeed": 0.05,
-    "UndulationIntervalMs": 50,
-    "BrightnessMask": {
-      "Enabled": false,
-      "Intensity": 10.0,
-      "WaveLength": 5.0,
-      "UpdateIntervalMs": 1000
+  "dungeonSelectionAnimation": {
+    "undulationSpeed": 0.05,
+    "undulationIntervalMs": 50,
+    "undulationWaveLength": 4,
+    "brightnessMask": {
+      "enabled": false,
+      "intensity": 10,
+      "waveLength": 5,
+      "updateIntervalMs": 100
     }
   }
 }

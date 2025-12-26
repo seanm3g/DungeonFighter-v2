@@ -140,27 +140,38 @@ namespace RPGGame.Data
             if (string.IsNullOrEmpty(templateName))
                 return null;
             
-            // Try unified configuration first by checking the config data directly
-            // (avoiding circular call to ColorConfigurationLoader.GetTemplate)
-            var unifiedConfig = ColorConfigurationLoader.LoadColorConfiguration();
-            if (unifiedConfig?.ColorTemplates != null && unifiedConfig.ColorTemplates.Count > 0)
+            try
             {
-                var unifiedTemplate = unifiedConfig.ColorTemplates.FirstOrDefault(
-                    t => string.Equals(t.Name, templateName, StringComparison.OrdinalIgnoreCase));
-                if (unifiedTemplate != null)
+                // Try unified configuration first by checking the config data directly
+                // (avoiding circular call to ColorConfigurationLoader.GetTemplate)
+                var unifiedConfig = ColorConfigurationLoader.LoadColorConfiguration();
+                if (unifiedConfig?.ColorTemplates != null && unifiedConfig.ColorTemplates.Count > 0)
                 {
-                    return unifiedTemplate;
+                    var unifiedTemplate = unifiedConfig.ColorTemplates.FirstOrDefault(
+                        t => string.Equals(t.Name, templateName, StringComparison.OrdinalIgnoreCase));
+                    if (unifiedTemplate != null)
+                    {
+                        return unifiedTemplate;
+                    }
                 }
+                
+                // Fallback to individual file loading
+                LoadColorTemplates(); // Ensure templates are loaded
+                
+                if (_templateCache == null)
+                    return null;
+                
+                _templateCache.TryGetValue(templateName, out var template);
+                return template;
             }
-            
-            // Fallback to individual file loading
-            LoadColorTemplates(); // Ensure templates are loaded
-            
-            if (_templateCache == null)
+            catch (Exception ex)
+            {
+                // If template loading fails, log error and return null
+                // This allows the calling code to use fallback white color
+                ErrorHandler.LogError(ex, "ColorTemplateLoader.GetTemplate", 
+                    $"Failed to get template '{templateName}'. Returning null for fallback handling.");
                 return null;
-            
-            _templateCache.TryGetValue(templateName, out var template);
-            return template;
+            }
         }
         
         /// <summary>

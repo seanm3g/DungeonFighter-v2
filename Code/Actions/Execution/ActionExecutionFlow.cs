@@ -82,7 +82,15 @@ namespace RPGGame.Actions.Execution
                 source, target, result.SelectedAction, result.AttackRoll, result.IsCombo, result.IsCritical);
 
             // Check for hit
-            result.Hit = CombatCalculator.CalculateHit(source, target, result.RollBonus, result.AttackRoll);
+            // Natural 1 always misses, regardless of bonuses
+            if (result.BaseRoll == 1)
+            {
+                result.Hit = false;
+            }
+            else
+            {
+                result.Hit = CombatCalculator.CalculateHit(source, target, result.RollBonus, result.AttackRoll);
+            }
 
             if (result.Hit)
             {
@@ -186,6 +194,16 @@ namespace RPGGame.Actions.Execution
                 {
                     targetEnemy.ApplyRollPenalty(result.SelectedAction.Advanced.EnemyRollPenalty, 1);
                     result.StatusEffectMessages.Add($"    {target.Name} suffers a -{result.SelectedAction.Advanced.EnemyRollPenalty} roll penalty!");
+                }
+
+                // Apply roll bonus with duration to source if the action has one (only for characters, not enemies)
+                if (result.SelectedAction.Advanced.RollBonusDuration > 0 &&
+                    source is Character rollBonusCharacter && !(rollBonusCharacter is Enemy))
+                {
+                    // Set temporary roll bonus that will apply to the next N rolls
+                    rollBonusCharacter.Effects.SetTempRollBonus(
+                        result.SelectedAction.Advanced.RollBonus,
+                        result.SelectedAction.Advanced.RollBonusDuration);
                 }
 
                 // Apply stat bonus to source if the action has one (only for characters, not enemies)

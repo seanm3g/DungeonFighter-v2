@@ -79,11 +79,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             menuStartY++;
             canvas.AddText(menuStartX, menuStartY, $"  Target: {actionData.TargetType}", AsciiArtAssets.Colors.White);
             menuStartY++;
+            canvas.AddText(menuStartX, menuStartY, $"  MultiHitCount: {actionData.MultiHitCount}", AsciiArtAssets.Colors.White);
+            menuStartY++;
             canvas.AddText(menuStartX, menuStartY, $"  Damage Multiplier: {actionData.DamageMultiplier}", AsciiArtAssets.Colors.White);
             menuStartY++;
             canvas.AddText(menuStartX, menuStartY, $"  Length: {actionData.Length}", AsciiArtAssets.Colors.White);
-            menuStartY++;
-            canvas.AddText(menuStartX, menuStartY, $"  Cooldown: {actionData.Cooldown}", AsciiArtAssets.Colors.White);
             menuStartY++;
             
             // Status Effects (only show if any are true)

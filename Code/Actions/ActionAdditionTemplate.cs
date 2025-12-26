@@ -66,19 +66,19 @@ namespace RPGGame
             {
                 ["Barbarian"] = new List<ClassActionConfig>
                 {
-                    new ClassActionConfig("BERSERKER RAGE", 0.3, 5)
+                    new ClassActionConfig("FOLLOW THROUGH", 0.3, 2)
                 },
                 ["Warrior"] = new List<ClassActionConfig>
                 {
-                    new ClassActionConfig("SHIELD WALL", 0.4, 5)
+                    new ClassActionConfig("TAUNT", 0.4, 2)
                 },
                 ["Rogue"] = new List<ClassActionConfig>
                 {
-                    new ClassActionConfig("SHADOW STRIKE", 0.35, 5)
+                    new ClassActionConfig("MISDIRECT", 0.35, 2)
                 },
                 ["Wizard"] = new List<ClassActionConfig>
                 {
-                    new ClassActionConfig("MAGIC MISSILE", 0.4, 5),   // Tier 1
+                    new ClassActionConfig("CHANNEL", 0.4, 2),   // Tier 1
                     new ClassActionConfig("HEAL", 0.2, 20),            // Tier 2
                     new ClassActionConfig("BLESS", 0.15, 60)           // Tier 3
                 }

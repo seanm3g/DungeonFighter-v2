@@ -29,8 +29,17 @@ namespace RPGGame.UI.Avalonia.Coordinators
         /// </summary>
         public void WriteLine(string message, UIMessageType messageType = UIMessageType.System)
         {
-            textManager.AddToDisplayBuffer(message, messageType);
+            var currentCharacter = contextManager?.GetCurrentCharacter();
+            
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{System.DateTime.UtcNow.Ticks}", timestamp = System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "MessageWritingCoordinator.cs:WriteLine", message = "WriteLine called", data = new { messageLength = message?.Length ?? 0, messageType = messageType.ToString(), currentCharacterName = currentCharacter?.Name ?? "null" }, sessionId = "debug-session", runId = "run1", hypothesisId = "H18" }) + "\n"); } catch { }
+            // #endregion
+            if (message != null)
+            {
+                textManager.AddToDisplayBuffer(message, messageType);
+            }
             // Rendering is now handled automatically by the unified display system
+            // Note: Character validation happens in CenterPanelDisplayManager.AddMessage
         }
         
         /// <summary>

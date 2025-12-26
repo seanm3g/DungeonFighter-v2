@@ -6,21 +6,20 @@ namespace RPGGame.UI.ColorSystem
 {
     /// <summary>
     /// Represents a piece of text with a specific color.
-    /// Supports undulation effects and brightness masks for animated text.
+    /// Supports color pattern undulation effects (for future use with color templates).
+    /// Note: Brightness mask and brightness undulation are handled by animation state classes
+    /// (BaseAnimationState, CritAnimationState, DungeonSelectionAnimationState) in the Avalonia UI.
     /// </summary>
     public class ColoredText
     {
         public string Text { get; set; } = "";
         public Color Color { get; set; } = Colors.White;
         
-        // Undulation properties for animated effects
+        // Undulation properties for color pattern animation (color sequence offsetting)
+        // Note: This is different from brightness undulation used in Avalonia renderers
         private double _undulationPhase = 0;
         private double _undulationSpeed = 0.005;
         private bool _isUndulating = false;
-        
-        // Brightness mask properties
-        private double[]? _brightnessMask = null;
-        private int _brightnessMaskLineOffset = 0;
         
         /// <summary>
         /// Gets whether this text has undulation enabled.
@@ -127,29 +126,9 @@ namespace RPGGame.UI.ColorSystem
         }
         
         /// <summary>
-        /// Sets a brightness mask for this text.
-        /// </summary>
-        /// <param name="mask">Array of brightness values (0.0 to 1.0)</param>
-        /// <returns>This instance for method chaining</returns>
-        public ColoredText BrightnessMask(double[] mask)
-        {
-            _brightnessMask = mask;
-            return this;
-        }
-        
-        /// <summary>
-        /// Sets the line offset for brightness mask.
-        /// </summary>
-        /// <param name="offset">The offset to apply to the mask position</param>
-        /// <returns>This instance for method chaining</returns>
-        public ColoredText BrightnessMaskLineOffset(int offset)
-        {
-            _brightnessMaskLineOffset = offset;
-            return this;
-        }
-        
-        /// <summary>
         /// Gets the current brightness adjustment from undulation.
+        /// Note: This is for color pattern undulation (unused in current Avalonia implementation).
+        /// Brightness undulation is handled by animation state classes.
         /// </summary>
         public double GetUndulationBrightness()
         {
@@ -157,19 +136,6 @@ namespace RPGGame.UI.ColorSystem
                 return 0;
                 
             return Math.Sin(_undulationPhase) * 0.3;
-        }
-        
-        /// <summary>
-        /// Gets the brightness adjustment from mask at a given position.
-        /// </summary>
-        /// <param name="position">The character position in the text</param>
-        public double GetMaskBrightness(int position)
-        {
-            if (_brightnessMask == null || _brightnessMask.Length == 0)
-                return 0;
-                
-            int adjustedPosition = (position + _brightnessMaskLineOffset) % _brightnessMask.Length;
-            return _brightnessMask[adjustedPosition];
         }
     }
 }

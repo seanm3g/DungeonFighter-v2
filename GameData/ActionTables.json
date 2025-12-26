@@ -21,7 +21,7 @@
       "weaponType": "Sword",
       "actions": [
         {
-          "name": "PRECISION STRIKE",
+          "name": "STRIKE",
           "weight": 10
         },
         {

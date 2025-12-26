@@ -5,7 +5,7 @@
     "Menu": 25,
     "Title": 400,
     "MainTitle": 400,
-    "Environmental": 150,
+    "Environmental": 1500,
     "EffectMessage": 50,
     "DamageOverTime": 50,
     "Encounter": 67,

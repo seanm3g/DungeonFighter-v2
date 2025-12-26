@@ -60,6 +60,9 @@ namespace RPGGame
                     .Add(" - Leave the dungeon", ColorPalette.White);
                 canvasUI.WriteLineColoredSegments(option2Builder.Build(), UIMessageType.System);
                 
+                // Blank line after menu options
+                canvasUI.WriteLineColoredSegments(new ColoredTextBuilder().Build(), UIMessageType.System);
+                
                 // Bottom separator line with color (same length as top separator)
                 var bottomSeparatorBuilder = new ColoredTextBuilder()
                     .Add(AsciiArtAssets.UIText.Divider, ColorPalette.Info);

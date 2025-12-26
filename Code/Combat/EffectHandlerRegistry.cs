@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using RPGGame.UI.ColorSystem.Applications;
 
 namespace RPGGame
 {
@@ -133,7 +134,9 @@ namespace RPGGame
             if (CombatCalculator.CalculateStatusEffectChance(action, dummyAttacker, target))
             {
                 target.ApplyWeaken(2); // 2 turns of weaken
-                results.Add($"    [{target.Name}] is weakened!");
+                // Format with proper indentation and color markup
+                string actorPattern = target is Enemy ? "enemy" : "player";
+                results.Add($"    [{{{{{actorPattern}|{target.Name}}}}}] is {{{{weakened|weakened}}}}!");
                 return true;
             }
             return false;
@@ -154,7 +157,9 @@ namespace RPGGame
             if (CombatCalculator.CalculateStatusEffectChance(action, dummyAttacker, target))
             {
                 // For now, just add a message - would need proper slow implementation
-                results.Add($"    [{target.Name}] is slowed!");
+                // Format with proper indentation and color markup
+                string actorPattern = target is Enemy ? "enemy" : "player";
+                results.Add($"    [{{{{{actorPattern}|{target.Name}}}}}] is {{{{slowed|slowed}}}}!");
                 return true;
             }
             return false;
@@ -176,7 +181,9 @@ namespace RPGGame
             {
                 var poisonConfig = GameConfiguration.Instance.StatusEffects.Poison;
                 target.ApplyPoison(poisonConfig.DamagePerTick, poisonConfig.StacksPerApplication);
-                results.Add($"    [{target.Name}] is poisoned!");
+                // Format with proper indentation and color markup
+                string actorPattern = target is Enemy ? "enemy" : "player";
+                results.Add($"    [{{{{{actorPattern}|{target.Name}}}}}] is {{{{poisoned|poisoned}}}}!");
                 return true;
             }
             return false;
@@ -199,7 +206,9 @@ namespace RPGGame
                 var stunConfig = GameConfiguration.Instance.StatusEffects.Stun;
                 target.IsStunned = true;
                 target.StunTurnsRemaining = stunConfig.SkipTurns;
-                results.Add($"    [{target.Name}] is stunned!");
+                // Format with proper indentation and color markup
+                string actorPattern = target is Enemy ? "enemy" : "player";
+                results.Add($"    [{{{{{actorPattern}|{target.Name}}}}}] is {{{{stunned|stunned}}}}!");
                 return true;
             }
             return false;
@@ -221,7 +230,9 @@ namespace RPGGame
             {
                 var burnConfig = GameConfiguration.Instance.StatusEffects.Burn;
                 target.ApplyBurn(burnConfig.DamagePerTick, burnConfig.MaxStacks);
-                results.Add($"    [{target.Name}] is burning!");
+                // Format with proper indentation and color markup
+                string actorPattern = target is Enemy ? "enemy" : "player";
+                results.Add($"    [{{{{{actorPattern}|{target.Name}}}}}] is {{{{burning|burning}}}}!");
                 return true;
             }
             return false;

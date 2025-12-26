@@ -118,6 +118,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                     (4, "Data & UI System Tests"),
                     (5, "Action System Tests"),
                     (6, "Advanced & Integration Tests"),
+                    (7, "Combat Log Filtering Tests"),
                     (0, "Back to Test Menu")
                 };
                 

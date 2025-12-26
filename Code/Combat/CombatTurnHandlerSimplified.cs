@@ -91,7 +91,8 @@ namespace RPGGame
                         }
                     }
                     // Display using the new ColoredText method (async to wait for display delay)
-                    await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, narrativeColored);
+                    // Pass player character to filter display for multi-character support (enemy actions are part of player's combat)
+                    await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, narrativeColored, player);
                 }
                 
                 // Update enemy's action timing in the action speed system
@@ -253,7 +254,8 @@ namespace RPGGame
                     }
                 }
                     // Display using the new ColoredText method (async to wait for display delay)
-                    await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, narrativeColored);
+                    // Pass player character to filter display for multi-character support
+                    await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, narrativeColored, player);
                 }
                 
                 // End turn for statistics tracking

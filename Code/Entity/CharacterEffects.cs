@@ -18,6 +18,10 @@ namespace RPGGame
         public int TempComboBonus { get; set; } = 0;
         public int TempComboBonusTurns { get; set; } = 0;
         
+        // Temporary roll bonus (for actions that grant roll bonuses for multiple turns)
+        public int TempRollBonus { get; set; } = 0;
+        public int TempRollBonusTurns { get; set; } = 0;
+        
         // Enemy roll penalty from actions like Arcane Shield
         public int EnemyRollPenalty { get; set; } = 0;
         public int EnemyRollPenaltyTurns { get; set; } = 0;
@@ -90,6 +94,9 @@ namespace RPGGame
                 ExtraDamage = Math.Max(0, ExtraDamage - (int)Math.Ceiling(turnsPassed));
             }
 
+            // Update temporary roll bonus (decrements per roll, not per turn)
+            // This is handled in ConsumeTempRollBonus() instead
+
             // Update slow debuff
             if (SlowTurns > 0)
             {
@@ -118,6 +125,24 @@ namespace RPGGame
                 TempComboBonusTurns--;
                 if (TempComboBonusTurns == 0)
                     TempComboBonus = 0;
+            }
+            return bonus;
+        }
+
+        public void SetTempRollBonus(int bonus, int turns)
+        {
+            TempRollBonus = bonus;
+            TempRollBonusTurns = turns;
+        }
+
+        public int ConsumeTempRollBonus()
+        {
+            int bonus = TempRollBonus;
+            if (TempRollBonusTurns > 0)
+            {
+                TempRollBonusTurns--;
+                if (TempRollBonusTurns == 0)
+                    TempRollBonus = 0;
             }
             return bonus;
         }
@@ -179,6 +204,8 @@ namespace RPGGame
             // Clear temporary bonuses
             TempComboBonus = 0;
             TempComboBonusTurns = 0;
+            TempRollBonus = 0;
+            TempRollBonusTurns = 0;
             ExtraDamage = 0;
             ExtraAttacks = 0;
             

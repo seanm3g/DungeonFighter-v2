@@ -42,7 +42,6 @@ namespace RPGGame.UI.Avalonia.Builders
             BuildBasicSection(actionFormPanel, action);
             BuildNumericSection(actionFormPanel, action);
             BuildStatusSection(actionFormPanel, action);
-            BuildComboSection(actionFormPanel, action);
             BuildAdvancedSection(actionFormPanel, action);
             BuildTagsSection(actionFormPanel, action);
             BuildButtons(actionFormPanel, action, isCreatingNewAction);
@@ -67,6 +66,7 @@ namespace RPGGame.UI.Avalonia.Builders
             
             AddFormField(stack, "TargetType", action.TargetType, (value) => action.TargetType = value, GetValidTargetTypes(action.Type));
             AddFormField(stack, "Description", action.Description, (value) => action.Description = value, isMultiline: true);
+            AddBooleanField(stack, "Is Starting Action", action.IsStartingAction, (value) => action.IsStartingAction = value);
         }
 
         private void BuildNumericSection(Panel parent, ActionData action)
@@ -77,7 +77,7 @@ namespace RPGGame.UI.Avalonia.Builders
             var stack = new StackPanel { Spacing = 10, Margin = new Thickness(10, 5, 0, 15) };
             section.Child = stack;
             
-            AddFormField(stack, "Cooldown", action.Cooldown.ToString(), (value) => { if (int.TryParse(value, out int v)) action.Cooldown = v; });
+            AddFormField(stack, "MultiHitCount", action.MultiHitCount.ToString(), (value) => { if (int.TryParse(value, out int v) && v >= 1) action.MultiHitCount = v; });
             AddFormField(stack, "DamageMultiplier", action.DamageMultiplier.ToString(), (value) => { if (double.TryParse(value, out double v)) action.DamageMultiplier = v; });
             AddFormField(stack, "Length", action.Length.ToString(), (value) => { if (double.TryParse(value, out double v)) action.Length = v; });
         }
@@ -97,20 +97,6 @@ namespace RPGGame.UI.Avalonia.Builders
             AddBooleanField(stack, "CausesBurn", action.CausesBurn, (value) => action.CausesBurn = value);
         }
 
-        private void BuildComboSection(Panel parent, ActionData action)
-        {
-            var section = CreateFormSection("Combo Properties");
-            parent.Children.Add(section);
-            
-            var stack = new StackPanel { Spacing = 10, Margin = new Thickness(10, 5, 0, 15) };
-            section.Child = stack;
-            
-            AddBooleanField(stack, "IsComboAction", action.IsComboAction, (value) => action.IsComboAction = value);
-            AddFormField(stack, "ComboOrder", action.ComboOrder.ToString(), (value) => { if (int.TryParse(value, out int v)) action.ComboOrder = v; });
-            AddFormField(stack, "ComboBonusAmount", action.ComboBonusAmount.ToString(), (value) => { if (int.TryParse(value, out int v)) action.ComboBonusAmount = v; });
-            AddFormField(stack, "ComboBonusDuration", action.ComboBonusDuration.ToString(), (value) => { if (int.TryParse(value, out int v)) action.ComboBonusDuration = v; });
-        }
-
         private void BuildAdvancedSection(Panel parent, ActionData action)
         {
             var section = CreateFormSection("Advanced Mechanics");
@@ -124,7 +110,6 @@ namespace RPGGame.UI.Avalonia.Builders
             AddFormField(stack, "StatBonusType", action.StatBonusType, (value) => action.StatBonusType = value, 
                 new[] { "", "Strength", "Agility", "Technique", "Intelligence" });
             AddFormField(stack, "StatBonusDuration", action.StatBonusDuration.ToString(), (value) => { if (int.TryParse(value, out int v)) action.StatBonusDuration = v; });
-            AddFormField(stack, "MultiHitCount", action.MultiHitCount.ToString(), (value) => { if (int.TryParse(value, out int v) && v >= 1) action.MultiHitCount = v; });
             AddFormField(stack, "SelfDamagePercent", action.SelfDamagePercent.ToString(), (value) => { if (int.TryParse(value, out int v)) action.SelfDamagePercent = v; });
             AddBooleanField(stack, "SkipNextTurn", action.SkipNextTurn, (value) => action.SkipNextTurn = value);
             AddBooleanField(stack, "RepeatLastAction", action.RepeatLastAction, (value) => action.RepeatLastAction = value);

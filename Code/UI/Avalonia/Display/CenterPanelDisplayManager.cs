@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Avalonia.Threading;
@@ -12,6 +14,7 @@ using RPGGame.UI.Avalonia.Display.Render;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.Services;
 using RPGGame.Utils;
 using static RPGGame.Utils.GameConstants;
 
@@ -27,6 +30,8 @@ namespace RPGGame.UI.Avalonia.Display
         private readonly ColoredTextWriter textWriter;
         private readonly ICanvasContextManager contextManager;
         private readonly PersistentLayoutManager layoutManager;
+        private GameStateManager? stateManager;
+        private readonly MessageFilterService filterService = new MessageFilterService();
         
         // Core components
         private DisplayBuffer buffer;
@@ -44,11 +49,13 @@ namespace RPGGame.UI.Avalonia.Display
             GameCanvasControl canvas,
             ColoredTextWriter textWriter,
             ICanvasContextManager contextManager,
-            int maxLines = DISPLAY_BUFFER_MAX_LINES)
+            int maxLines = DISPLAY_BUFFER_MAX_LINES,
+            GameStateManager? stateManager = null)
         {
             this.canvas = canvas;
             this.textWriter = textWriter;
             this.contextManager = contextManager;
+            this.stateManager = stateManager;
             this.layoutManager = new PersistentLayoutManager(canvas);
             
             // Initialize with standard mode
@@ -64,13 +71,23 @@ namespace RPGGame.UI.Avalonia.Display
                 renderStateManager,
                 contextManager,
                 buffer,
-                modeManager.CurrentMode);
+                modeManager.CurrentMode,
+                stateManager);
         }
         
         /// <summary>
         /// Gets the display buffer
         /// </summary>
         public DisplayBuffer Buffer => buffer;
+        
+        /// <summary>
+        /// Sets the game state manager (called after construction when state manager is available)
+        /// </summary>
+        public void SetStateManager(GameStateManager stateManager)
+        {
+            this.stateManager = stateManager;
+            renderCoordinator.SetStateManager(stateManager);
+        }
         
         /// <summary>
         /// Sets the display mode (Standard, Combat, Menu, etc.)
@@ -84,6 +101,7 @@ namespace RPGGame.UI.Avalonia.Display
         /// Sets an external render callback for cases where external renderer handles rendering
         /// When set, auto-rendering triggers the callback instead of PerformRender()
         /// Used for combat screen and other specialized rendering scenarios
+        /// When set to an empty function () => { }, rendering is suppressed (for menu screens)
         /// </summary>
         public void SetExternalRenderCallback(System.Action? renderCallback)
         {
@@ -114,6 +132,22 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public void AddMessage(string message, UIMessageType messageType = UIMessageType.System)
         {
+            // Use MessageFilterService to determine if message should be displayed
+            // This consolidates all filtering logic (menu states, character matching, race conditions)
+            var currentCharacter = contextManager?.GetCurrentCharacter();
+            bool shouldAddMessage = filterService.ShouldDisplayMessage(
+                null, // No source character - use context manager instead
+                messageType,
+                stateManager,
+                contextManager,
+                performRaceConditionCheck: true); // Enable race condition check for Dungeon state
+            
+            if (!shouldAddMessage)
+            {
+                // Message blocked by filter service - don't add to buffer
+                return;
+            }
+            
             buffer.Add(message);
             TriggerRender();
         }
@@ -124,6 +158,21 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public void AddMessage(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System)
         {
+            // Use MessageFilterService to determine if message should be displayed
+            // This consolidates all filtering logic (menu states, character matching, race conditions)
+            bool shouldAddMessage = filterService.ShouldDisplayMessage(
+                null, // No source character - use context manager instead
+                messageType,
+                stateManager,
+                contextManager,
+                performRaceConditionCheck: true); // Enable race condition check for Dungeon state
+            
+            if (!shouldAddMessage)
+            {
+                // Message blocked by filter service - don't add to buffer
+                return;
+            }
+            
             buffer.Add(segments);
             TriggerRender();
         }
@@ -133,6 +182,19 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public void AddMessages(IEnumerable<string> messages)
         {
+            // Use MessageFilterService to determine if messages should be displayed
+            bool shouldAddMessages = filterService.ShouldDisplayMessage(
+                null, // No source character - use context manager instead
+                UIMessageType.System, // Default to System for batch operations
+                stateManager,
+                contextManager);
+            
+            if (!shouldAddMessages)
+            {
+                // Messages blocked by filter service - don't add to buffer
+                return;
+            }
+            
             buffer.AddRange(messages);
             TriggerRender();
         }
@@ -143,30 +205,95 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public void AddMessages(IEnumerable<List<ColoredText>> segmentsList)
         {
+            // Use MessageFilterService to determine if messages should be displayed
+            bool shouldAddMessages = filterService.ShouldDisplayMessage(
+                null, // No source character - use context manager instead
+                UIMessageType.System, // Default to System for batch operations
+                stateManager,
+                contextManager);
+            
+            if (!shouldAddMessages)
+            {
+                // Messages blocked by filter service - don't add to buffer
+                return;
+            }
+            
             buffer.AddRange(segmentsList);
             TriggerRender();
         }
         
         public void AddMessageBatch(IEnumerable<string> messages, int delayAfterBatchMs = 0)
         {
+            // Use MessageFilterService to determine if messages should be displayed
+            bool shouldAddMessages = filterService.ShouldDisplayMessage(
+                null, // No source character - use context manager instead
+                UIMessageType.System, // Default to System for batch operations
+                stateManager,
+                contextManager);
+            
+            if (!shouldAddMessages)
+            {
+                // Messages blocked by filter service - don't add to buffer
+                return;
+            }
+            
             buffer.AddRange(messages);
             BatchOperationHelper.ScheduleRenderWithDelay(TriggerRender, delayAfterBatchMs);
         }
         
         public void AddMessageBatch(IEnumerable<List<ColoredText>> segmentsList, int delayAfterBatchMs = 0)
         {
+            // Use MessageFilterService to determine if messages should be displayed
+            bool shouldAddMessages = filterService.ShouldDisplayMessage(
+                null, // No source character - use context manager instead
+                UIMessageType.System, // Default to System for batch operations
+                stateManager,
+                contextManager);
+            
+            if (!shouldAddMessages)
+            {
+                // Messages blocked by filter service - don't add to buffer
+                return;
+            }
+            
             buffer.AddRange(segmentsList);
             BatchOperationHelper.ScheduleRenderWithDelay(TriggerRender, delayAfterBatchMs);
         }
         
         public async Task AddMessageBatchAsync(IEnumerable<string> messages, int delayAfterBatchMs = 0)
         {
+            // Use MessageFilterService to determine if messages should be displayed
+            bool shouldAddMessages = filterService.ShouldDisplayMessage(
+                null, // No source character - use context manager instead
+                UIMessageType.System, // Default to System for batch operations
+                stateManager,
+                contextManager);
+            
+            if (!shouldAddMessages)
+            {
+                // Messages blocked by filter service - don't add to buffer
+                return;
+            }
+            
             buffer.AddRange(messages);
             await BatchOperationHelper.ScheduleRenderWithDelayAsync(TriggerRender, delayAfterBatchMs);
         }
         
         public async Task AddMessageBatchAsync(IEnumerable<List<ColoredText>> segmentsList, int delayAfterBatchMs = 0)
         {
+            // Use MessageFilterService to determine if messages should be displayed
+            bool shouldAddMessages = filterService.ShouldDisplayMessage(
+                null, // No source character - use context manager instead
+                UIMessageType.System, // Default to System for batch operations
+                stateManager,
+                contextManager);
+            
+            if (!shouldAddMessages)
+            {
+                // Messages blocked by filter service - don't add to buffer
+                return;
+            }
+            
             buffer.AddRange(segmentsList);
             await BatchOperationHelper.ScheduleRenderWithDelayAsync(TriggerRender, delayAfterBatchMs);
         }
@@ -176,6 +303,19 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public void WriteChunked(string message, UI.ChunkedTextReveal.RevealConfig? config = null)
         {
+            // Use MessageFilterService to determine if message should be displayed
+            bool shouldAddMessage = filterService.ShouldDisplayMessage(
+                null, // No source character - use context manager instead
+                UIMessageType.System, // Default to System for chunked text
+                stateManager,
+                contextManager);
+            
+            if (!shouldAddMessage)
+            {
+                // Message blocked by filter service - don't add to buffer
+                return;
+            }
+            
             config ??= UI.ChunkedTextReveal.DefaultConfig;
             
             if (!config.Enabled)
@@ -216,7 +356,7 @@ namespace RPGGame.UI.Avalonia.Display
         {
             buffer.Clear();
             renderStateManager.Reset();
-            modeManager.Timing.ForceRender(new System.Action(renderCoordinator.PerformRender));
+            modeManager.Timing.ForceRender(() => renderCoordinator.PerformRender());
         }
         
         /// <summary>
@@ -238,7 +378,7 @@ namespace RPGGame.UI.Avalonia.Display
             // Calculate max scroll offset to ensure we don't scroll beyond valid range
             int maxOffset = renderCoordinator.CalculateMaxScrollOffset();
             buffer.ScrollUp(lines, maxOffset);
-            modeManager.Timing.ForceRender(new System.Action(renderCoordinator.PerformRender));
+            modeManager.Timing.ForceRender(() => renderCoordinator.PerformRender());
         }
         
         /// <summary>
@@ -249,7 +389,7 @@ namespace RPGGame.UI.Avalonia.Display
             // Calculate max scroll offset based on current content
             int maxOffset = renderCoordinator.CalculateMaxScrollOffset();
             buffer.ScrollDown(lines, maxOffset);
-            modeManager.Timing.ForceRender(new System.Action(renderCoordinator.PerformRender));
+            modeManager.Timing.ForceRender(() => renderCoordinator.PerformRender());
         }
         
         /// <summary>
@@ -258,15 +398,19 @@ namespace RPGGame.UI.Avalonia.Display
         public void ResetScroll()
         {
             buffer.ResetScroll();
-            modeManager.Timing.ScheduleRender(new System.Action(renderCoordinator.PerformRender));
+            modeManager.Timing.ScheduleRender(() => renderCoordinator.PerformRender());
         }
         
         /// <summary>
-        /// Forces an immediate render (bypasses timing)
+        /// Forces an immediate render (bypasses timing and NeedsRender check)
+        /// Used for animation updates that need to render even when buffer hasn't changed
         /// </summary>
         public void ForceRender()
         {
-            modeManager.Timing.ForceRender(new System.Action(renderCoordinator.PerformRender));
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CenterPanelDisplayManager.cs:ForceRender", message = "ForceRender called", data = new { }, sessionId = "debug-session", runId = "run1", hypothesisId = "H8" }) + "\n"); } catch { }
+            // #endregion
+            modeManager.Timing.ForceRender(() => renderCoordinator.PerformRender(force: true));
         }
         
         /// <summary>
@@ -276,7 +420,7 @@ namespace RPGGame.UI.Avalonia.Display
         public void ForceFullLayoutRender()
         {
             renderStateManager.Reset();
-            modeManager.Timing.ForceRender(new System.Action(renderCoordinator.PerformRender));
+            modeManager.Timing.ForceRender(() => renderCoordinator.PerformRender());
         }
         
         /// <summary>

@@ -45,31 +45,41 @@ namespace RPGGame
         /// </summary>
         public void ShowWeaponSelection()
         {
-            DebugLogger.Log("WeaponSelectionHandler", $"customUIManager type: {customUIManager?.GetType().Name ?? "null"}");
-            if (customUIManager is CanvasUICoordinator canvasUI)
+            try
             {
-                if (stateManager.CurrentPlayer != null)
+                DebugLogger.Log("WeaponSelectionHandler", $"customUIManager type: {customUIManager?.GetType().Name ?? "null"}");
+                if (customUIManager is CanvasUICoordinator canvasUI)
                 {
-                    // Load weapons from starting gear
-                    availableWeapons = LoadStartingWeapons();
-                    // Display the weapon selection screen
-                    try
+                    if (stateManager.CurrentPlayer != null)
                     {
+                        // Display buffer rendering should already be suppressed by the calling handler
+                        // to prevent auto-renders from interfering with menu rendering
+                        
+                        // Load weapons from starting gear
+                        availableWeapons = LoadStartingWeapons();
+                        
+                        // Display the weapon selection screen
                         canvasUI.RenderWeaponSelection(availableWeapons);
                     }
-                    catch (Exception)
+                    else
                     {
+                        ShowMessageEvent?.Invoke("No character selected. Cannot show weapon selection.");
+                        DebugLogger.Log("WeaponSelectionHandler", "CurrentPlayer is null");
                     }
                 }
                 else
                 {
+                    DebugLogger.Log("WeaponSelectionHandler", "customUIManager is not CanvasUICoordinator");
                 }
+                
+                // State transition is now handled by the calling handler AFTER rendering
+                // to prevent canvas clearing during state transition from causing flashing
             }
-            else
+            catch (Exception ex)
             {
+                ShowMessageEvent?.Invoke($"Error showing weapon selection: {ex.Message}");
+                DebugLogger.Log("WeaponSelectionHandler", $"Error in ShowWeaponSelection: {ex}");
             }
-            
-            stateManager.TransitionToState(GameState.WeaponSelection);
         }
 
         /// <summary>

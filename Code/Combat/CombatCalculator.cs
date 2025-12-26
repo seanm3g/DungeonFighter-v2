@@ -49,9 +49,14 @@ namespace RPGGame
             int totalBonus = 0;
             
             // Base action roll bonus
+            // Only apply immediate roll bonus if there's no duration (duration-based bonuses are handled separately)
             if (action != null)
             {
-                totalBonus += action.Advanced.RollBonus;
+                // Only add roll bonus if it doesn't have a duration (duration-based bonuses are set for future rolls)
+                if (action.Advanced.RollBonusDuration == 0)
+                {
+                    totalBonus += action.Advanced.RollBonus;
+                }
                 
                 // Apply combo scaling bonuses
                 if (action.Tags.Contains("comboScaling"))
@@ -80,6 +85,9 @@ namespace RPGGame
                 totalBonus += character.GetIntelligenceRollBonus();
                 totalBonus += character.GetModificationRollBonus();
                 totalBonus += character.GetEquipmentRollBonus();
+                
+                // Add temporary roll bonus (consumes one turn per use)
+                totalBonus += character.Effects.ConsumeTempRollBonus();
             }
             else if (attacker is Enemy enemy)
             {

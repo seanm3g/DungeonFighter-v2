@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Avalonia.Media;
 using RPGGame.UI.ColorSystem;
+using RPGGame.UI.ColorSystem.Applications;
 using static RPGGame.Combat.Formatting.DamageFormatter;
 
 namespace RPGGame
@@ -204,25 +205,12 @@ namespace RPGGame
             effectBuilder.Add("by", Colors.White);
             
             effectBuilder.AddSpace();
-            if (action.CausesBleed)
+            string? effectName = GetStatusEffectName(action);
+            if (effectName != null)
             {
-                effectBuilder.Add("BLEED", ColorPalette.Error);
-            }
-            else if (action.CausesWeaken)
-            {
-                effectBuilder.Add("WEAKEN", ColorPalette.Orange);
-            }
-            else if (action.CausesSlow)
-            {
-                effectBuilder.Add("SLOW", ColorPalette.Cyan);
-            }
-            else if (action.CausesPoison)
-            {
-                effectBuilder.Add("POISON", ColorPalette.Green);
-            }
-            else if (action.CausesStun)
-            {
-                effectBuilder.Add("STUN", ColorPalette.Magenta);
+                // Use themed color template for status effect
+                var coloredEffect = StatusEffectColorHelper.GetColoredStatusEffect(effectName);
+                effectBuilder.AddRange(coloredEffect);
             }
             else if (action.Type == ActionType.Attack)
             {
@@ -235,7 +223,8 @@ namespace RPGGame
             else
             {
                 // Generic environmental effect
-                effectBuilder.Add("EFFECT", ColorPalette.Warning);
+                var coloredEffect = StatusEffectColorHelper.GetColoredStatusEffect("EFFECT");
+                effectBuilder.AddRange(coloredEffect);
             }
             
             if (action.Type != ActionType.Attack)
@@ -269,34 +258,47 @@ namespace RPGGame
         {
             var builder = new ColoredTextBuilder();
             
-            if (action.CausesBleed)
+            string? effectName = GetStatusEffectName(action);
+            if (effectName != null)
             {
-                builder.Add("BLEED", ColorPalette.Error);
-            }
-            else if (action.CausesWeaken)
-            {
-                builder.Add("WEAKEN", ColorPalette.Orange);
-            }
-            else if (action.CausesSlow)
-            {
-                builder.Add("SLOW", ColorPalette.Cyan);
-            }
-            else if (action.CausesPoison)
-            {
-                builder.Add("POISON", ColorPalette.Green);
-            }
-            else if (action.CausesStun)
-            {
-                builder.Add("STUN", ColorPalette.Magenta);
+                // Use themed color template for status effect
+                var coloredEffect = StatusEffectColorHelper.GetColoredStatusEffect(effectName);
+                builder.AddRange(coloredEffect);
             }
             else
             {
-                builder.Add("EFFECT", ColorPalette.Warning);
+                // Generic environmental effect
+                var coloredEffect = StatusEffectColorHelper.GetColoredStatusEffect("EFFECT");
+                builder.AddRange(coloredEffect);
             }
             
             AddForAmountUnit(builder, duration.ToString(), ColorPalette.White, "turns", ColorPalette.White);
             
             return builder.Build();
+        }
+        
+        /// <summary>
+        /// Gets the status effect name for an action based on its properties
+        /// </summary>
+        /// <param name="action">The action to check</param>
+        /// <returns>The status effect name, or null if no status effect</returns>
+        private static string? GetStatusEffectName(Action action)
+        {
+            if (action.CausesBleed)
+                return "BLEED";
+            else if (action.CausesWeaken)
+                return "WEAKEN";
+            else if (action.CausesSlow)
+                return "SLOW";
+            else if (action.CausesPoison)
+                return "POISON";
+            else if (action.CausesStun)
+                return "STUN";
+            else if (action.CausesBurn)
+                return "BURN";
+            // Note: CausesFreeze doesn't exist on Action class, so removed
+            
+            return null;
         }
 
         /// <summary>

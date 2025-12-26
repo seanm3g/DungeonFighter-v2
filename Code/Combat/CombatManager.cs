@@ -1,4 +1,7 @@
 using System.Linq;
+using System;
+using System.IO;
+using System.Text.Json;
 
 namespace RPGGame
 {
@@ -300,6 +303,10 @@ namespace RPGGame
             EndBattleNarrative(player, currentEnemy);
             
             DebugLogger.WriteCombatDebug("CombatManager", $"Combat ended: {player.Name} {(player.IsAlive ? "survived" : "died")} vs {currentEnemy.Name}");
+            
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CombatManager.cs:RunCombat", message = "Combat ending", data = new { playerAlive = player.IsAlive, enemyAlive = currentEnemy.IsAlive, playerName = player.Name, enemyName = currentEnemy.Name }, sessionId = "debug-session", runId = "run1", hypothesisId = "A" }) + "\n"); } catch { }
+            // #endregion
             
             // Return true if player survived, false if player died
             return player.IsAlive;

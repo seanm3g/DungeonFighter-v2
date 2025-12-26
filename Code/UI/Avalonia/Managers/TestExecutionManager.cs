@@ -1,9 +1,13 @@
 using Avalonia.Controls;
+using Avalonia.Controls.Documents;
 using Avalonia.Threading;
 using Avalonia;
 using RPGGame;
 using RPGGame.Game.Testing.Commands;
+using RPGGame.UI.Avalonia.Helpers;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
 
@@ -78,6 +82,7 @@ namespace RPGGame.UI.Avalonia.Managers
                     "11" => new RunColorSystemTestsCommand(uiToUse, testCoordinator, stateManager),
                     "12" => new RunActionSystemTestsCommand(uiToUse, testCoordinator, stateManager),
                     "13" => new RunActionEditorTestCommand(uiToUse, testCoordinator, stateManager),
+                    "14" => new RunCombatLogFilteringTestsCommand(uiToUse, testCoordinator, stateManager),
                     _ => null
                 };
                 
@@ -102,12 +107,12 @@ namespace RPGGame.UI.Avalonia.Managers
                 {
                     try
                     {
-                        string currentOutput = uiToUse.GetDisplayBufferText();
-                        if (!string.IsNullOrWhiteSpace(currentOutput))
+                        var coloredSegments = uiToUse.GetDisplayBufferColoredSegments();
+                        if (coloredSegments != null && coloredSegments.Count > 0)
                         {
                             Dispatcher.UIThread.Post(() =>
                             {
-                                testOutputTextBlock.Text = currentOutput;
+                                UpdateTextBlockWithColoredText(coloredSegments);
                                 ScrollToBottom();
                             });
                         }
@@ -128,13 +133,13 @@ namespace RPGGame.UI.Avalonia.Managers
                         outputUpdateTimer?.Stop();
                         outputUpdateTimer?.Dispose();
                         
-                        string testOutput = uiToUse.GetDisplayBufferText();
+                        var coloredSegments = uiToUse.GetDisplayBufferColoredSegments();
                         
                         Dispatcher.UIThread.Post(() =>
                         {
-                            if (!string.IsNullOrWhiteSpace(testOutput))
+                            if (coloredSegments != null && coloredSegments.Count > 0)
                             {
-                                testOutputTextBlock.Text = testOutput;
+                                UpdateTextBlockWithColoredText(coloredSegments);
                                 ScrollToBottom();
                             }
                             else
@@ -182,6 +187,41 @@ namespace RPGGame.UI.Avalonia.Managers
                         testOutputScrollViewer.Offset = new Vector(testOutputScrollViewer.Offset.X, maxScroll);
                     }
                 }, DispatcherPriority.Background);
+            }
+        }
+        
+        /// <summary>
+        /// Updates the TextBlock with colored text from ColoredText segments
+        /// </summary>
+        private void UpdateTextBlockWithColoredText(IReadOnlyList<IReadOnlyList<ColorSystem.ColoredText>> coloredSegments)
+        {
+            try
+            {
+                var inlines = ColoredTextToAvaloniaHelper.ConvertLinesToInlines(coloredSegments).ToList();
+                
+                // Clear existing content - clear Text property first to avoid conflicts
+                testOutputTextBlock.Text = null;
+                
+                // Clear and set the inlines (Inlines is always initialized in Avalonia)
+                testOutputTextBlock.Inlines?.Clear();
+                
+                // Add all inlines
+                if (testOutputTextBlock.Inlines != null)
+                {
+                    foreach (var inline in inlines)
+                    {
+                        testOutputTextBlock.Inlines.Add(inline);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // Fallback to plain text if colored rendering fails
+                string plainText = string.Join("\n", 
+                    coloredSegments.Select(line => 
+                        string.Join("", line.Select(seg => seg.Text))));
+                testOutputTextBlock.Text = plainText;
+                testOutputTextBlock.Inlines?.Clear();
             }
         }
     }

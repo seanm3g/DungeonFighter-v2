@@ -23,6 +23,7 @@ namespace RPGGame.UI.Avalonia.Managers
         
         List<string> GetDungeonContext();
         void SetDungeonContext(List<string> context);
+        void ClearDungeonContext();
         void RestoreDungeonContext();
         
         bool GetDeleteConfirmationPending();

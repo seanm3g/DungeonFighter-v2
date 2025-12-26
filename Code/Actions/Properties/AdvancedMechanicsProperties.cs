@@ -8,6 +8,7 @@ namespace RPGGame
         public int MultiHitCount { get; set; } = 1;
         public int SelfDamagePercent { get; set; } = 0;
         public int RollBonus { get; set; } = 0;
+        public int RollBonusDuration { get; set; } = 0;
         public int StatBonus { get; set; } = 0;
         public string StatBonusType { get; set; } = "";
         public int StatBonusDuration { get; set; } = 0;

@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
 using RPGGame.UI.Avalonia;
+using System.IO;
+using System.Text.Json;
 
 namespace RPGGame.Handlers
 {
@@ -26,6 +28,7 @@ namespace RPGGame.Handlers
             public DungeonCompletionHandler? DungeonCompletionHandler { get; set; }
             public DeathScreenHandler? DeathScreenHandler { get; set; }
             public TestingSystemHandler? TestingSystemHandler { get; set; }
+            public CharacterManagementHandler? CharacterManagementHandler { get; set; }
         }
 
         /// <summary>
@@ -53,7 +56,8 @@ namespace RPGGame.Handlers
                 DungeonRunnerManager = new DungeonRunnerManager(stateManager, narrativeManager, combatManager, uiManager),
                 DungeonCompletionHandler = new DungeonCompletionHandler(stateManager),
                 DeathScreenHandler = new DeathScreenHandler(stateManager),
-                TestingSystemHandler = new TestingSystemHandler(stateManager, uiManager)
+                TestingSystemHandler = new TestingSystemHandler(stateManager, uiManager),
+                CharacterManagementHandler = new CharacterManagementHandler(stateManager, uiManager, initializationManager)
             };
         }
 
@@ -90,6 +94,7 @@ namespace RPGGame.Handlers
                     }
                 };
                 handlers.MainMenuHandler.ShowSettingsEvent += () => handlers.SettingsMenuHandler?.ShowSettings();
+                handlers.MainMenuHandler.ShowCharacterSelectionEvent += () => handlers.CharacterManagementHandler?.ShowCharacterSelection();
                 handlers.MainMenuHandler.ExitGameEvent += () => exitGame();
                 handlers.MainMenuHandler.ShowMessageEvent += (msg) => showMessage(msg);
             }
@@ -130,7 +135,24 @@ namespace RPGGame.Handlers
             {
                 handlers.GameLoopInputHandler.SelectDungeonEvent += async () => await (showDungeonSelection?.Invoke() ?? Task.CompletedTask);
                 handlers.GameLoopInputHandler.ShowInventoryEvent += () => showInventory();
+                handlers.GameLoopInputHandler.ShowCharacterSelectionEvent += () => handlers.CharacterManagementHandler?.ShowCharacterSelection();
                 handlers.GameLoopInputHandler.ExitGameEvent += () => exitGame();
+            }
+            
+            if (handlers.CharacterManagementHandler != null)
+            {
+                handlers.CharacterManagementHandler.ShowGameLoopEvent += () => showGameLoop();
+                handlers.CharacterManagementHandler.ShowMainMenuEvent += () => showMainMenu();
+                handlers.CharacterManagementHandler.ShowWeaponSelectionEvent += () => 
+                {
+                    if (handlers.WeaponSelectionHandler != null)
+                    {
+                        handlers.WeaponSelectionHandler.ShowWeaponSelection();
+                    }
+                };
+                handlers.CharacterManagementHandler.ShowMessageEvent += (msg) => showMessage(msg);
+                // Character creation will be handled by CharacterManagementHandler itself
+                // The ShowCharacterCreationEvent is optional and can be null
             }
             
             if (handlers.DungeonSelectionHandler != null)
@@ -143,32 +165,71 @@ namespace RPGGame.Handlers
                 {
                     handlers.DungeonSelectionHandler.StartDungeonEvent += async () => 
                     {
+                        // #region agent log
+                        try { 
+                            var logDir = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), ".cursor");
+                            if (!System.IO.Directory.Exists(logDir)) System.IO.Directory.CreateDirectory(logDir);
+                            var logPath = System.IO.Path.Combine(logDir, "debug.log");
+                            System.IO.File.AppendAllText(logPath, System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "HandlerInitializer.cs:StartDungeonEvent", message = "RunDungeon starting", data = new { currentState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "A" }) + "\n"); 
+                            DebugLogger.WriteDebugAlways($"[DEBUG] HandlerInitializer: RunDungeon starting, state={stateManager.CurrentState}");
+                        } catch (Exception logEx) { DebugLogger.WriteDebugAlways($"[DEBUG] Logging error: {logEx.Message}"); }
+                        // #endregion
                         try
                         {
                             await handlers.DungeonRunnerManager.RunDungeon();
                             
-                            // If we're still in Dungeon state after RunDungeon completes, something went wrong
-                            if (stateManager.CurrentState == GameState.Dungeon || stateManager.CurrentState == GameState.Combat)
-                            {
-                                stateManager.TransitionToState(GameState.DungeonSelection);
-                                if (customUIManager is CanvasUICoordinator canvasUI && stateManager.CurrentPlayer != null)
-                                {
-                                    canvasUI.RenderDungeonSelection(stateManager.CurrentPlayer, stateManager.AvailableDungeons);
-                                }
-                            }
+                            // #region agent log
+                            try { 
+                                var logDir = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), ".cursor");
+                                if (!System.IO.Directory.Exists(logDir)) System.IO.Directory.CreateDirectory(logDir);
+                                var logPath = System.IO.Path.Combine(logDir, "debug.log");
+                                System.IO.File.AppendAllText(logPath, System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "HandlerInitializer.cs:StartDungeonEvent", message = "RunDungeon completed", data = new { currentState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "A" }) + "\n"); 
+                                DebugLogger.WriteDebugAlways($"[DEBUG] HandlerInitializer: RunDungeon completed, state={stateManager.CurrentState}");
+                            } catch (Exception logEx) { DebugLogger.WriteDebugAlways($"[DEBUG] Logging error: {logEx.Message}"); }
+                            // #endregion
+                            
+                            // NOTE: Removed incorrect state check that was causing premature transitions to DungeonSelection.
+                            // DungeonOrchestrator.RunDungeon() properly manages state transitions:
+                            // - DungeonCompletion when dungeon completes successfully
+                            // - GameLoop when player exits early
+                            // - Death when player dies
+                            // The previous check was incorrectly triggering during combat, causing the bug.
                         }
                         catch (Exception ex)
                         {
-                            if (customUIManager is CanvasUICoordinator canvasUIError)
-                            {
-                                canvasUIError.WriteLine($"ERROR: Failed to start dungeon: {ex.Message}", UIMessageType.System);
-                            }
+                            // #region agent log
+                            try { 
+                                string? stackTrace = ex.StackTrace != null && ex.StackTrace.Length > 500 ? ex.StackTrace.Substring(0, 500) : ex.StackTrace;
+                                var logDir = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), ".cursor");
+                                if (!System.IO.Directory.Exists(logDir)) System.IO.Directory.CreateDirectory(logDir);
+                                var logPath = System.IO.Path.Combine(logDir, "debug.log");
+                                var loggedState = stateManager.CurrentState.ToString();
+                                System.IO.File.AppendAllText(logPath, System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "HandlerInitializer.cs:StartDungeonEvent", message = "Exception caught", data = new { exceptionType = ex.GetType().Name, exceptionMessage = ex.Message, currentState = loggedState, stackTrace }, sessionId = "debug-session", runId = "run1", hypothesisId = "C" }) + "\n"); 
+                                DebugLogger.WriteDebugAlways($"[DEBUG] HandlerInitializer: Exception caught: {ex.GetType().Name} - {ex.Message}, state={loggedState}");
+                            } catch (Exception logEx) { DebugLogger.WriteDebugAlways($"[DEBUG] Logging error: {logEx.Message}"); }
+                            // #endregion
                             
-                            // Return to dungeon selection on error
-                            stateManager.TransitionToState(GameState.DungeonSelection);
-                            if (customUIManager is CanvasUICoordinator canvasUIError2 && stateManager.CurrentPlayer != null)
+                            // Only transition to DungeonSelection if we're not in the middle of combat or dungeon
+                            // If we're in Combat or Dungeon state, let the orchestrator handle the error
+                            var currentState = stateManager.CurrentState;
+                            if (currentState != GameState.Combat && currentState != GameState.Dungeon)
                             {
-                                canvasUIError2.RenderDungeonSelection(stateManager.CurrentPlayer, stateManager.AvailableDungeons);
+                                if (customUIManager is CanvasUICoordinator canvasUIError)
+                                {
+                                    canvasUIError.WriteLine($"ERROR: Failed to start dungeon: {ex.Message}", UIMessageType.System);
+                                }
+                                
+                                // Return to dungeon selection on error (only if not in combat/dungeon)
+                                stateManager.TransitionToState(GameState.DungeonSelection);
+                                if (customUIManager is CanvasUICoordinator canvasUIError2 && stateManager.CurrentPlayer != null)
+                                {
+                                    canvasUIError2.RenderDungeonSelection(stateManager.CurrentPlayer, stateManager.AvailableDungeons);
+                                }
+                            }
+                            else
+                            {
+                                // Log that we're ignoring the exception because we're in combat/dungeon
+                                DebugLogger.WriteDebugAlways($"[DEBUG] HandlerInitializer: Ignoring exception during {currentState}, letting orchestrator handle it");
                             }
                         }
                     };
