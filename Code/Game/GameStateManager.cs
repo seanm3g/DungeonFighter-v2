@@ -19,10 +19,19 @@ namespace RPGGame
     /// - Validate state transitions
     /// - Provide clean API for state operations
     /// - Notify subscribers of state changes via events
-    /// - Multi-character support: Manage character registry and active character
+    /// - Multi-character support: Delegates to CharacterRegistry for character management
     /// </summary>
     public class GameStateManager
     {
+        /// <summary>
+        /// Initializes a new instance of GameStateManager
+        /// </summary>
+        public GameStateManager()
+        {
+            characterRegistry = new CharacterRegistry();
+            // Wire up character switched event from registry
+            characterRegistry.CharacterSwitched += (sender, e) => CharacterSwitched?.Invoke(this, e);
+        }
         // State fields
         private GameState currentState = GameState.MainMenu;
         private Character? currentPlayer;
@@ -31,9 +40,8 @@ namespace RPGGame
         private Dungeon? currentDungeon;
         private Environment? currentRoom;
         
-        // Multi-character support
-        private Dictionary<string, CharacterContext> _characters = new();
-        private string? _activeCharacterId;
+        // Multi-character support - delegated to CharacterRegistry
+        private readonly CharacterRegistry characterRegistry;
         
         /// <summary>
         /// Event fired when game state transitions occur.
@@ -219,18 +227,16 @@ namespace RPGGame
             if (player != null)
             {
                 // If character is not in registry, add it
-                var existingContext = _characters.Values.FirstOrDefault(c => c.Character == player);
-                if (existingContext == null)
+                var existingId = characterRegistry.GetCharacterId(player);
+                if (existingId == null)
                 {
-                    // Generate character ID and add to registry
-                    var characterId = GenerateCharacterId(player);
-                    AddCharacter(player, characterId);
+                    // Add to registry (will auto-generate ID)
+                    characterRegistry.AddCharacter(player);
                 }
                 else
                 {
                     // Switch to existing character
-                    _activeCharacterId = existingContext.CharacterId;
-                    existingContext.UpdateLastActive();
+                    characterRegistry.SwitchCharacter(existingId);
                 }
                 
                 if (player.Inventory != null)
@@ -240,7 +246,7 @@ namespace RPGGame
             }
             else
             {
-                _activeCharacterId = null;
+                characterRegistry.SetActiveCharacterId(null);
                 CurrentInventory.Clear();
             }
         }
@@ -307,11 +313,11 @@ namespace RPGGame
                    $"Player: {CurrentPlayer?.Name ?? "None"}, " +
                    $"Dungeon: {CurrentDungeon?.Theme ?? "None"}, " +
                    $"Room: {CurrentRoom?.Name ?? "None"}, " +
-                   $"Characters: {_characters.Count}, " +
-                   $"Active: {_activeCharacterId ?? "None"}";
+                   $"Characters: {characterRegistry.Count}, " +
+                   $"Active: {characterRegistry.ActiveCharacterId ?? "None"}";
         }
         
-        // ========== Multi-Character Support Methods ==========
+        // ========== Multi-Character Support Methods (Delegated to CharacterRegistry) ==========
         
         /// <summary>
         /// Adds a character to the registry and returns its ID.
@@ -322,29 +328,11 @@ namespace RPGGame
         /// <returns>The character ID</returns>
         public string AddCharacter(Character character, string? characterId = null)
         {
-            if (character == null) throw new ArgumentNullException(nameof(character));
+            var id = characterRegistry.AddCharacter(character, characterId);
             
-            // Check if character already exists
-            var existing = _characters.Values.FirstOrDefault(c => c.Character == character);
-            if (existing != null)
+            // If this becomes the active character, update currentPlayer and inventory
+            if (characterRegistry.ActiveCharacterId == id)
             {
-                return existing.CharacterId;
-            }
-            
-            // Generate ID if not provided
-            if (string.IsNullOrEmpty(characterId))
-            {
-                characterId = GenerateCharacterId(character);
-            }
-            
-            // Create context and add to registry
-            var context = new CharacterContext(character, characterId);
-            _characters[characterId] = context;
-            
-            // If no active character, make this one active
-            if (_activeCharacterId == null)
-            {
-                _activeCharacterId = characterId;
                 currentPlayer = character;
                 if (character.Inventory != null)
                 {
@@ -352,7 +340,7 @@ namespace RPGGame
                 }
             }
             
-            return characterId;
+            return id;
         }
         
         /// <summary>
@@ -362,23 +350,18 @@ namespace RPGGame
         /// <returns>True if switch was successful, false if character not found</returns>
         public bool SwitchCharacter(string characterId)
         {
-            if (string.IsNullOrEmpty(characterId)) return false;
-            
-            if (!_characters.TryGetValue(characterId, out var context))
+            var context = characterRegistry.SwitchCharacter(characterId);
+            if (context == null)
             {
                 return false;
             }
             
-            var previousCharacterId = _activeCharacterId;
-            _activeCharacterId = characterId;
-            currentPlayer = context.Character;
-            context.UpdateLastActive();
-            
             // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "GameStateManager.cs:SwitchCharacter", message = "Character switch", data = new { previousCharacterId, newCharacterId = characterId, previousCharacterName = _characters.TryGetValue(previousCharacterId ?? "", out var prev) ? prev.Character.Name : "null", newCharacterName = context.Character.Name }, sessionId = "debug-session", runId = "run1", hypothesisId = "A" }) + "\n"); } catch { }
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "GameStateManager.cs:SwitchCharacter", message = "Character switch", data = new { newCharacterId = characterId, newCharacterName = context.Character.Name }, sessionId = "debug-session", runId = "run1", hypothesisId = "A" }) + "\n"); } catch { }
             // #endregion
             
-            // Update inventory reference
+            // Update current player and inventory
+            currentPlayer = context.Character;
             if (context.Character.Inventory != null)
             {
                 CurrentInventory = context.Character.Inventory;
@@ -392,9 +375,6 @@ namespace RPGGame
             currentDungeon = context.ActiveDungeon;
             currentRoom = context.ActiveRoom;
             
-            // Fire character switched event
-            CharacterSwitched?.Invoke(this, new CharacterSwitchedEventArgs(previousCharacterId, characterId, context.Character));
-            
             return true;
         }
         
@@ -405,9 +385,7 @@ namespace RPGGame
         /// <returns>The character, or null if not found</returns>
         public Character? GetCharacter(string characterId)
         {
-            if (string.IsNullOrEmpty(characterId)) return null;
-            
-            return _characters.TryGetValue(characterId, out var context) ? context.Character : null;
+            return characterRegistry.GetCharacter(characterId);
         }
         
         /// <summary>
@@ -417,9 +395,7 @@ namespace RPGGame
         /// <returns>The character context, or null if not found</returns>
         public CharacterContext? GetCharacterContext(string characterId)
         {
-            if (string.IsNullOrEmpty(characterId)) return null;
-            
-            return _characters.TryGetValue(characterId, out var context) ? context : null;
+            return characterRegistry.GetCharacterContext(characterId);
         }
         
         /// <summary>
@@ -428,7 +404,7 @@ namespace RPGGame
         /// <returns>List of all characters</returns>
         public List<Character> GetAllCharacters()
         {
-            return _characters.Values.Select(c => c.Character).ToList();
+            return characterRegistry.GetAllCharacters();
         }
         
         /// <summary>
@@ -437,7 +413,7 @@ namespace RPGGame
         /// <returns>List of all character contexts</returns>
         public List<CharacterContext> GetAllCharacterContexts()
         {
-            return _characters.Values.ToList();
+            return characterRegistry.GetAllCharacterContexts();
         }
         
         /// <summary>
@@ -446,9 +422,7 @@ namespace RPGGame
         /// <returns>The active character, or null if none</returns>
         public Character? GetActiveCharacter()
         {
-            if (string.IsNullOrEmpty(_activeCharacterId)) return currentPlayer;
-            
-            return _characters.TryGetValue(_activeCharacterId, out var context) ? context.Character : currentPlayer;
+            return characterRegistry.GetActiveCharacter() ?? currentPlayer;
         }
         
         /// <summary>
@@ -457,9 +431,7 @@ namespace RPGGame
         /// <returns>The active character context, or null if none</returns>
         public CharacterContext? GetActiveCharacterContext()
         {
-            if (string.IsNullOrEmpty(_activeCharacterId)) return null;
-            
-            return _characters.TryGetValue(_activeCharacterId, out var context) ? context : null;
+            return characterRegistry.GetActiveCharacterContext();
         }
         
         /// <summary>
@@ -468,7 +440,7 @@ namespace RPGGame
         /// <returns>The active character ID, or null if none</returns>
         public string? GetActiveCharacterId()
         {
-            return _activeCharacterId;
+            return characterRegistry.ActiveCharacterId;
         }
         
         /// <summary>
@@ -478,10 +450,7 @@ namespace RPGGame
         /// <returns>The character ID, or null if not found</returns>
         public string? GetCharacterId(Character character)
         {
-            if (character == null) return null;
-            
-            var context = _characters.Values.FirstOrDefault(c => c.Character == character);
-            return context?.CharacterId;
+            return characterRegistry.GetCharacterId(character);
         }
         
         /// <summary>
@@ -491,46 +460,22 @@ namespace RPGGame
         /// <returns>True if removed successfully, false if not found</returns>
         public bool RemoveCharacter(string characterId)
         {
-            if (string.IsNullOrEmpty(characterId)) return false;
-            
-            if (!_characters.ContainsKey(characterId)) return false;
-            
-            // If removing active character, switch to another or clear
-            if (_activeCharacterId == characterId)
+            return characterRegistry.RemoveCharacter(characterId, (remaining) =>
             {
-                var remaining = _characters.Keys.Where(id => id != characterId).FirstOrDefault();
-                if (remaining != null)
+                // If removing active character, switch to another or clear
+                if (remaining.Count > 0)
                 {
-                    SwitchCharacter(remaining);
+                    SwitchCharacter(remaining[0]);
                 }
                 else
                 {
-                    _activeCharacterId = null;
+                    characterRegistry.SetActiveCharacterId(null);
                     currentPlayer = null;
                     CurrentInventory.Clear();
                     currentDungeon = null;
                     currentRoom = null;
                 }
-            }
-            
-            _characters.Remove(characterId);
-            return true;
-        }
-        
-        /// <summary>
-        /// Generates a unique character ID for a character.
-        /// Format: {Name}_{Level}_{ShortGuid}
-        /// </summary>
-        /// <param name="character">The character</param>
-        /// <returns>A unique character ID</returns>
-        private string GenerateCharacterId(Character character)
-        {
-            if (character == null) throw new ArgumentNullException(nameof(character));
-            
-            // Sanitize name for filename use
-            var sanitizedName = character.Name?.Replace(" ", "_").Replace("/", "_").Replace("\\", "_") ?? "Character";
-            var shortGuid = Guid.NewGuid().ToString("N")[..8];
-            return $"{sanitizedName}_{character.Level}_{shortGuid}";
+            });
         }
     }
     

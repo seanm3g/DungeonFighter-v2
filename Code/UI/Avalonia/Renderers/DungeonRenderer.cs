@@ -91,6 +91,10 @@ namespace RPGGame.UI.Avalonia.Renderers
             // #region agent log
             try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "DungeonRenderer.cs:RenderDungeonSelection", message = "Entry", data = new { x, y, width, height, dungeonCount = dungeons?.Count ?? 0 }, sessionId = "debug-session", runId = "run1", hypothesisId = "H1" }) + "\n"); } catch { }
             // #endregion
+            if (dungeons == null)
+            {
+                return;
+            }
             currentLineCount = selectionRenderer.RenderDungeonSelection(x, y, width, height, dungeons);
             // #region agent log
             try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "DungeonRenderer.cs:RenderDungeonSelection", message = "After selectionRenderer.RenderDungeonSelection", data = new { currentLineCount }, sessionId = "debug-session", runId = "run1", hypothesisId = "H1" }) + "\n"); } catch { }

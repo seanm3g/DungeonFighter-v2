@@ -57,6 +57,12 @@ namespace RPGGame
         private static BlockType? lastBlockType = null;
         
         /// <summary>
+        /// Tracks the last acting entity (character, enemy, or environment name)
+        /// Used to determine if we need a blank line between action blocks
+        /// </summary>
+        private static string? lastActingEntity = null;
+        
+        /// <summary>
         /// Lazy-initialized dictionary to avoid static initialization issues
         /// </summary>
         private static Dictionary<(BlockType? previous, BlockType current), int>? _spacingRules = null;
@@ -159,9 +165,10 @@ namespace RPGGame
         /// This method now writes the blank lines directly to avoid circular dependency issues.
         /// </summary>
         /// <param name="currentBlockType">The type of block being displayed</param>
-        public static void ApplySpacingBefore(BlockType currentBlockType)
+        /// <param name="currentEntity">The entity (character, enemy, or environment) performing this action. Used to determine if actor changed.</param>
+        public static void ApplySpacingBefore(BlockType currentBlockType, string? currentEntity = null)
         {
-            int blankLines = GetSpacingBefore(currentBlockType);
+            int blankLines = GetSpacingBefore(currentBlockType, currentEntity);
             
             if (blankLines > 0)
             {
@@ -194,11 +201,55 @@ namespace RPGGame
         /// <summary>
         /// Gets the number of blank lines that should appear before the current block type
         /// based on what block was displayed previously.
+        /// For CombatAction and EnvironmentalAction blocks, also checks if the actor changed.
         /// </summary>
         /// <param name="currentBlockType">The type of block being displayed</param>
+        /// <param name="currentEntity">The entity (character, enemy, or environment) performing this action. Used to determine if actor changed.</param>
         /// <returns>Number of blank lines to add before this block</returns>
-        public static int GetSpacingBefore(BlockType currentBlockType)
+        public static int GetSpacingBefore(BlockType currentBlockType, string? currentEntity = null)
         {
+            // For action blocks (CombatAction and EnvironmentalAction), check if actor changed
+            if (currentBlockType == BlockType.CombatAction || currentBlockType == BlockType.EnvironmentalAction)
+            {
+                // If we have entity information, check if actor changed
+                if (currentEntity != null)
+                {
+                    // If this is the same actor as last time, no blank line needed
+                    if (lastActingEntity != null && lastActingEntity == currentEntity)
+                    {
+                        return 0;
+                    }
+                    
+                    // If actor changed (or this is first action), check base spacing rules first
+                    // This handles transitions from non-action blocks (like EnemyStats) to first action
+                    if (SpacingRules.TryGetValue((lastBlockType, currentBlockType), out int baseSpacing))
+                    {
+                        // If actor changed from a previous action block, always add blank line
+                        if (lastActingEntity != null && lastActingEntity != currentEntity && 
+                            (lastBlockType == BlockType.CombatAction || lastBlockType == BlockType.EnvironmentalAction))
+                        {
+                            // Actor changed from previous action - always add blank line
+                            return 1;
+                        }
+                        // Use base spacing rule (handles first action after stats, etc.)
+                        return baseSpacing;
+                    }
+                    
+                    // If actor changed and no specific rule, add blank line
+                    if (lastActingEntity != null && lastActingEntity != currentEntity)
+                    {
+                        return 1;
+                    }
+                    
+                    // First action (no lastActingEntity) - check for "any previous" rule
+                    if (SpacingRules.TryGetValue((null, currentBlockType), out int firstActionSpacing))
+                    {
+                        return firstActionSpacing;
+                    }
+                }
+            }
+            
+            // For non-action blocks, or when entity info is not available, use standard rules
             // Check for specific transition rule
             if (SpacingRules.TryGetValue((lastBlockType, currentBlockType), out int spacing))
             {
@@ -220,7 +271,8 @@ namespace RPGGame
         /// so the next block knows what came before it.
         /// </summary>
         /// <param name="blockType">The type of block that was just displayed</param>
-        public static void RecordBlockDisplayed(BlockType blockType)
+        /// <param name="entity">The entity (character, enemy, or environment) that performed this action. Used to track actor changes.</param>
+        public static void RecordBlockDisplayed(BlockType blockType, string? entity = null)
         {
             // Don't record critical miss narratives as separate blocks
             // They're part of the action block and don't affect spacing
@@ -229,6 +281,12 @@ namespace RPGGame
             if (blockType != BlockType.CriticalMissNarrative)
             {
                 lastBlockType = blockType;
+                
+                // For action blocks, also track the entity
+                if (blockType == BlockType.CombatAction || blockType == BlockType.EnvironmentalAction)
+                {
+                    lastActingEntity = entity;
+                }
             }
         }
         
@@ -239,6 +297,7 @@ namespace RPGGame
         public static void Reset()
         {
             lastBlockType = null;
+            lastActingEntity = null;
         }
         
         /// <summary>

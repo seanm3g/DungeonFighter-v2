@@ -7,7 +7,7 @@
       "Yorin", "Zarek", "Aldric", "Baldric", "Cedric", "Doric", "Emeric",
       "Falric", "Garrick", "Hadric", "Ivor", "Jareth", "Kendric", "Lysander",
       "Magnus", "Neville", "Oswald", "Percival", "Quentin", "Roderick", "Severin",
-      "Theron", "Ulric", "Valen", "Winston", "Xander", "Yorick", "Zephyr",
+      "Theron", "Ulric", "Valen", "Winston","Sean","David","Chris","Michael", "Maxwell", "Xander", "Yorick", "Zephyr",
       "Aeron", "Bryce", "Cyrus", "Draven", "Ewan", "Finn", "Gareth", "Hector",
       "Ivan", "Jasper", "Kieran", "Lucian", "Marcus", "Nathan", "Orion", "Piers",
       "Quade", "Rex", "Silas", "Tristan", "Uther", "Vance", "Weston", "Xavier",
@@ -598,8 +598,8 @@
     ],
     "environmentalAction": [
       "The environment itself joins the fray! {effect}",
-      "Nature's power manifests as {effect}",
-      "The very air crackles with energy as {effect}",
+        "Nature's power manifests as {effect}",
+        "The very air crackles with energy as {effect}",
       "Environmental forces take hold: {effect}",
       "The surroundings react to the battle: {effect}"
     ],

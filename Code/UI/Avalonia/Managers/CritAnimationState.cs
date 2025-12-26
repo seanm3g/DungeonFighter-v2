@@ -48,8 +48,9 @@ namespace RPGGame.UI.Avalonia.Managers
             var uiConfig = UIConfiguration.LoadFromFile();
             var animConfig = uiConfig.DungeonSelectionAnimation;
             
-            // Set undulation speed from config
+            // Set undulation speed and wave length from config
             _undulationSpeed = animConfig.UndulationSpeed;
+            _undulationWaveLength = animConfig.UndulationWaveLength;
             
             // Set brightness mask configuration from config
             _brightnessMaskEnabled = animConfig.BrightnessMask.Enabled;

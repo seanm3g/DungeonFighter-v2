@@ -46,7 +46,7 @@ namespace RPGGame
             // Display the menu
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                // Option 1 with color
+                // Option 1 with color (no blank line - divider comes right before this)
                 var option1Builder = new ColoredTextBuilder()
                     .Add("  ", ColorPalette.White)
                     .Add("1", ColorPalette.Success)

@@ -13,7 +13,7 @@ namespace RPGGame.UI.Avalonia.Display
     /// </summary>
     public class DisplayBufferManager
     {
-        private readonly CanvasUICoordinator canvasUI;
+        private CanvasUICoordinator? canvasUI;
         private GameStateManager? stateManager;
         private bool isSubscribed = false;
         private bool isManuallySuppressed = false;
@@ -21,10 +21,18 @@ namespace RPGGame.UI.Avalonia.Display
         /// <summary>
         /// Creates a new DisplayBufferManager.
         /// </summary>
-        /// <param name="canvasUI">Canvas UI coordinator to manage</param>
-        public DisplayBufferManager(CanvasUICoordinator canvasUI)
+        /// <param name="canvasUI">Canvas UI coordinator to manage (can be null initially, set via SetCoordinator)</param>
+        public DisplayBufferManager(CanvasUICoordinator? canvasUI = null)
         {
-            this.canvasUI = canvasUI ?? throw new ArgumentNullException(nameof(canvasUI));
+            this.canvasUI = canvasUI;
+        }
+
+        /// <summary>
+        /// Sets the canvas UI coordinator (used to resolve circular dependency during initialization).
+        /// </summary>
+        public void SetCoordinator(CanvasUICoordinator coordinator)
+        {
+            this.canvasUI = coordinator ?? throw new ArgumentNullException(nameof(coordinator));
         }
 
         /// <summary>
@@ -57,7 +65,7 @@ namespace RPGGame.UI.Avalonia.Display
         public void ManuallySuppress()
         {
             isManuallySuppressed = true;
-            canvasUI.SuppressDisplayBufferRendering();
+            canvasUI?.SuppressDisplayBufferRendering();
         }
 
         /// <summary>
@@ -67,7 +75,7 @@ namespace RPGGame.UI.Avalonia.Display
         public void ManuallyRestore()
         {
             isManuallySuppressed = false;
-            canvasUI.RestoreDisplayBufferRendering();
+            canvasUI?.RestoreDisplayBufferRendering();
         }
 
         /// <summary>
@@ -75,7 +83,7 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public void ClearBufferWithoutRender()
         {
-            canvasUI.ClearDisplayBufferWithoutRender();
+            canvasUI?.ClearDisplayBufferWithoutRender();
         }
 
         /// <summary>
@@ -91,6 +99,9 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         private void HandleStateChange(GameState newState)
         {
+            if (canvasUI == null)
+                return;
+
             // If manually suppressed, don't auto-manage
             if (isManuallySuppressed)
                 return;

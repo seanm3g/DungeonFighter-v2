@@ -1,25 +1,28 @@
 using Avalonia.Controls;
+using RPGGame.UI.Avalonia.Managers.Settings;
 using System;
 
 namespace RPGGame.UI.Avalonia.Managers
 {
     /// <summary>
-    /// Handles loading and saving of settings from/to UI controls
-    /// Extracted from SettingsPanel to separate persistence logic
+    /// Facade for loading and saving settings from/to UI controls.
+    /// Delegates to SettingsLoader and SettingsSaver to improve Single Responsibility Principle compliance.
     /// </summary>
     public class SettingsPersistenceManager
     {
+        private readonly SettingsLoader loader;
+        private readonly SettingsSaver saver;
         private readonly SettingsManager? settingsManager;
-        private readonly GameVariablesTabManager? gameVariablesTabManager;
 
         public SettingsPersistenceManager(SettingsManager? settingsManager, GameVariablesTabManager? gameVariablesTabManager)
         {
             this.settingsManager = settingsManager;
-            this.gameVariablesTabManager = gameVariablesTabManager;
+            this.loader = new SettingsLoader(settingsManager);
+            this.saver = new SettingsSaver(settingsManager, gameVariablesTabManager);
         }
 
         /// <summary>
-        /// Loads current settings into the UI controls
+        /// Loads current settings into the UI controls (backward compatibility facade)
         /// </summary>
         public void LoadSettings(
             Slider? narrativeBalanceSlider,
@@ -48,54 +51,39 @@ namespace RPGGame.UI.Avalonia.Managers
             CheckBox? showDamageNumbersCheckBox,
             CheckBox? showComboProgressCheckBox)
         {
-            if (settingsManager == null) return;
-            
-            // Check all required parameters are non-null before calling
-            if (narrativeBalanceSlider != null && narrativeBalanceTextBox != null &&
-                enableNarrativeEventsCheckBox != null && enableInformationalSummariesCheckBox != null &&
-                combatSpeedSlider != null && combatSpeedTextBox != null &&
-                showIndividualActionMessagesCheckBox != null && enableComboSystemCheckBox != null &&
-                enableTextDisplayDelaysCheckBox != null && fastCombatCheckBox != null &&
-                enableAutoSaveCheckBox != null && autoSaveIntervalTextBox != null &&
-                showDetailedStatsCheckBox != null && enableSoundEffectsCheckBox != null &&
-                enemyHealthMultiplierSlider != null && enemyHealthMultiplierTextBox != null &&
-                enemyDamageMultiplierSlider != null && enemyDamageMultiplierTextBox != null &&
-                playerHealthMultiplierSlider != null && playerHealthMultiplierTextBox != null &&
-                playerDamageMultiplierSlider != null && playerDamageMultiplierTextBox != null &&
-                showHealthBarsCheckBox != null && showDamageNumbersCheckBox != null &&
-                showComboProgressCheckBox != null)
+            var controls = new MainSettingsControls
             {
-                settingsManager.LoadSettings(
-                    narrativeBalanceSlider,
-                    narrativeBalanceTextBox,
-                    enableNarrativeEventsCheckBox,
-                    enableInformationalSummariesCheckBox,
-                    combatSpeedSlider,
-                    combatSpeedTextBox,
-                    showIndividualActionMessagesCheckBox,
-                    enableComboSystemCheckBox,
-                    enableTextDisplayDelaysCheckBox,
-                    fastCombatCheckBox,
-                    enableAutoSaveCheckBox,
-                    autoSaveIntervalTextBox,
-                    showDetailedStatsCheckBox,
-                    enableSoundEffectsCheckBox,
-                    enemyHealthMultiplierSlider,
-                    enemyHealthMultiplierTextBox,
-                    enemyDamageMultiplierSlider,
-                    enemyDamageMultiplierTextBox,
-                    playerHealthMultiplierSlider,
-                    playerHealthMultiplierTextBox,
-                    playerDamageMultiplierSlider,
-                    playerDamageMultiplierTextBox,
-                    showHealthBarsCheckBox,
-                    showDamageNumbersCheckBox,
-                    showComboProgressCheckBox);
-            }
+                NarrativeBalanceSlider = narrativeBalanceSlider,
+                NarrativeBalanceTextBox = narrativeBalanceTextBox,
+                EnableNarrativeEventsCheckBox = enableNarrativeEventsCheckBox,
+                EnableInformationalSummariesCheckBox = enableInformationalSummariesCheckBox,
+                CombatSpeedSlider = combatSpeedSlider,
+                CombatSpeedTextBox = combatSpeedTextBox,
+                ShowIndividualActionMessagesCheckBox = showIndividualActionMessagesCheckBox,
+                EnableComboSystemCheckBox = enableComboSystemCheckBox,
+                EnableTextDisplayDelaysCheckBox = enableTextDisplayDelaysCheckBox,
+                FastCombatCheckBox = fastCombatCheckBox,
+                EnableAutoSaveCheckBox = enableAutoSaveCheckBox,
+                AutoSaveIntervalTextBox = autoSaveIntervalTextBox,
+                ShowDetailedStatsCheckBox = showDetailedStatsCheckBox,
+                EnableSoundEffectsCheckBox = enableSoundEffectsCheckBox,
+                EnemyHealthMultiplierSlider = enemyHealthMultiplierSlider,
+                EnemyHealthMultiplierTextBox = enemyHealthMultiplierTextBox,
+                EnemyDamageMultiplierSlider = enemyDamageMultiplierSlider,
+                EnemyDamageMultiplierTextBox = enemyDamageMultiplierTextBox,
+                PlayerHealthMultiplierSlider = playerHealthMultiplierSlider,
+                PlayerHealthMultiplierTextBox = playerHealthMultiplierTextBox,
+                PlayerDamageMultiplierSlider = playerDamageMultiplierSlider,
+                PlayerDamageMultiplierTextBox = playerDamageMultiplierTextBox,
+                ShowHealthBarsCheckBox = showHealthBarsCheckBox,
+                ShowDamageNumbersCheckBox = showDamageNumbersCheckBox,
+                ShowComboProgressCheckBox = showComboProgressCheckBox
+            };
+            loader.LoadMainSettings(controls);
         }
 
         /// <summary>
-        /// Loads text delay settings into UI controls
+        /// Loads text delay settings into UI controls (backward compatibility facade)
         /// </summary>
         public void LoadTextDelaySettings(
             CheckBox? enableGuiDelaysCheckBox,
@@ -135,85 +123,48 @@ namespace RPGGame.UI.Avalonia.Managers
             Action<Slider, TextBox>? wireUpActionDelaySlider = null,
             Action<Slider, TextBox>? wireUpMessageDelaySlider = null)
         {
-            if (settingsManager == null) return;
-            
-            if (enableGuiDelaysCheckBox != null && enableConsoleDelaysCheckBox != null &&
-                actionDelaySlider != null && actionDelayTextBox != null &&
-                messageDelaySlider != null && messageDelayTextBox != null &&
-                combatDelayTextBox != null && systemDelayTextBox != null &&
-                menuDelayTextBox != null && titleDelayTextBox != null &&
-                mainTitleDelayTextBox != null && environmentalDelayTextBox != null &&
-                effectMessageDelayTextBox != null && damageOverTimeDelayTextBox != null &&
-                encounterDelayTextBox != null && rollInfoDelayTextBox != null &&
-                baseMenuDelayTextBox != null && progressiveReductionRateTextBox != null &&
-                progressiveThresholdTextBox != null && combatPresetBaseDelayTextBox != null &&
-                combatPresetMinDelayTextBox != null && combatPresetMaxDelayTextBox != null &&
-                dungeonPresetBaseDelayTextBox != null && dungeonPresetMinDelayTextBox != null &&
-                dungeonPresetMaxDelayTextBox != null && roomPresetBaseDelayTextBox != null &&
-                roomPresetMinDelayTextBox != null && roomPresetMaxDelayTextBox != null &&
-                narrativePresetBaseDelayTextBox != null && narrativePresetMinDelayTextBox != null &&
-                narrativePresetMaxDelayTextBox != null && defaultPresetBaseDelayTextBox != null &&
-                defaultPresetMinDelayTextBox != null && defaultPresetMaxDelayTextBox != null)
+            var controls = new TextDelaySettingsControls
             {
-                settingsManager.LoadTextDelaySettings(
-                    enableGuiDelaysCheckBox,
-                    enableConsoleDelaysCheckBox,
-                    actionDelaySlider,
-                    actionDelayTextBox,
-                    messageDelaySlider,
-                    messageDelayTextBox,
-                    combatDelayTextBox,
-                    systemDelayTextBox,
-                    menuDelayTextBox,
-                    titleDelayTextBox,
-                    mainTitleDelayTextBox,
-                    environmentalDelayTextBox,
-                    effectMessageDelayTextBox,
-                    damageOverTimeDelayTextBox,
-                    encounterDelayTextBox,
-                    rollInfoDelayTextBox,
-                    baseMenuDelayTextBox,
-                    progressiveReductionRateTextBox,
-                    progressiveThresholdTextBox,
-                    combatPresetBaseDelayTextBox,
-                    combatPresetMinDelayTextBox,
-                    combatPresetMaxDelayTextBox,
-                    dungeonPresetBaseDelayTextBox,
-                    dungeonPresetMinDelayTextBox,
-                    dungeonPresetMaxDelayTextBox,
-                    roomPresetBaseDelayTextBox,
-                    roomPresetMinDelayTextBox,
-                    roomPresetMaxDelayTextBox,
-                    narrativePresetBaseDelayTextBox,
-                    narrativePresetMinDelayTextBox,
-                    narrativePresetMaxDelayTextBox,
-                    defaultPresetBaseDelayTextBox,
-                    defaultPresetMinDelayTextBox,
-                    defaultPresetMaxDelayTextBox);
-                
-                // Wire up slider events for action/message delays
-                if (wireUpActionDelaySlider != null)
-                {
-                    actionDelaySlider.ValueChanged += (s, e) =>
-                    {
-                        if (actionDelayTextBox != null)
-                            actionDelayTextBox.Text = ((int)actionDelaySlider.Value).ToString();
-                    };
-                }
-                
-                if (wireUpMessageDelaySlider != null)
-                {
-                    messageDelaySlider.ValueChanged += (s, e) =>
-                    {
-                        if (messageDelayTextBox != null)
-                            messageDelayTextBox.Text = ((int)messageDelaySlider.Value).ToString();
-                    };
-                }
-            }
+                EnableGuiDelaysCheckBox = enableGuiDelaysCheckBox,
+                EnableConsoleDelaysCheckBox = enableConsoleDelaysCheckBox,
+                ActionDelaySlider = actionDelaySlider,
+                ActionDelayTextBox = actionDelayTextBox,
+                MessageDelaySlider = messageDelaySlider,
+                MessageDelayTextBox = messageDelayTextBox,
+                CombatDelayTextBox = combatDelayTextBox,
+                SystemDelayTextBox = systemDelayTextBox,
+                MenuDelayTextBox = menuDelayTextBox,
+                TitleDelayTextBox = titleDelayTextBox,
+                MainTitleDelayTextBox = mainTitleDelayTextBox,
+                EnvironmentalDelayTextBox = environmentalDelayTextBox,
+                EffectMessageDelayTextBox = effectMessageDelayTextBox,
+                DamageOverTimeDelayTextBox = damageOverTimeDelayTextBox,
+                EncounterDelayTextBox = encounterDelayTextBox,
+                RollInfoDelayTextBox = rollInfoDelayTextBox,
+                BaseMenuDelayTextBox = baseMenuDelayTextBox,
+                ProgressiveReductionRateTextBox = progressiveReductionRateTextBox,
+                ProgressiveThresholdTextBox = progressiveThresholdTextBox,
+                CombatPresetBaseDelayTextBox = combatPresetBaseDelayTextBox,
+                CombatPresetMinDelayTextBox = combatPresetMinDelayTextBox,
+                CombatPresetMaxDelayTextBox = combatPresetMaxDelayTextBox,
+                DungeonPresetBaseDelayTextBox = dungeonPresetBaseDelayTextBox,
+                DungeonPresetMinDelayTextBox = dungeonPresetMinDelayTextBox,
+                DungeonPresetMaxDelayTextBox = dungeonPresetMaxDelayTextBox,
+                RoomPresetBaseDelayTextBox = roomPresetBaseDelayTextBox,
+                RoomPresetMinDelayTextBox = roomPresetMinDelayTextBox,
+                RoomPresetMaxDelayTextBox = roomPresetMaxDelayTextBox,
+                NarrativePresetBaseDelayTextBox = narrativePresetBaseDelayTextBox,
+                NarrativePresetMinDelayTextBox = narrativePresetMinDelayTextBox,
+                NarrativePresetMaxDelayTextBox = narrativePresetMaxDelayTextBox,
+                DefaultPresetBaseDelayTextBox = defaultPresetBaseDelayTextBox,
+                DefaultPresetMinDelayTextBox = defaultPresetMinDelayTextBox,
+                DefaultPresetMaxDelayTextBox = defaultPresetMaxDelayTextBox
+            };
+            loader.LoadTextDelaySettings(controls, wireUpActionDelaySlider, wireUpMessageDelaySlider);
         }
 
         /// <summary>
-        /// Saves current UI values to settings
+        /// Saves current UI values to settings (backward compatibility facade)
         /// </summary>
         public void SaveSettings(
             Slider? narrativeBalanceSlider,
@@ -236,46 +187,33 @@ namespace RPGGame.UI.Avalonia.Managers
             CheckBox? showDamageNumbersCheckBox,
             CheckBox? showComboProgressCheckBox)
         {
-            if (settingsManager == null) return;
-            
-            // Check all required parameters are non-null before calling
-            if (narrativeBalanceSlider != null && enableNarrativeEventsCheckBox != null &&
-                enableInformationalSummariesCheckBox != null && combatSpeedSlider != null &&
-                showIndividualActionMessagesCheckBox != null && enableComboSystemCheckBox != null &&
-                enableTextDisplayDelaysCheckBox != null && fastCombatCheckBox != null &&
-                enableAutoSaveCheckBox != null && autoSaveIntervalTextBox != null &&
-                showDetailedStatsCheckBox != null && enableSoundEffectsCheckBox != null &&
-                enemyHealthMultiplierSlider != null && enemyDamageMultiplierSlider != null &&
-                playerHealthMultiplierSlider != null && playerDamageMultiplierSlider != null &&
-                showHealthBarsCheckBox != null && showDamageNumbersCheckBox != null &&
-                showComboProgressCheckBox != null)
+            var controls = new MainSettingsControls
             {
-                settingsManager.SaveSettings(
-                    narrativeBalanceSlider,
-                    enableNarrativeEventsCheckBox,
-                    enableInformationalSummariesCheckBox,
-                    combatSpeedSlider,
-                    showIndividualActionMessagesCheckBox,
-                    enableComboSystemCheckBox,
-                    enableTextDisplayDelaysCheckBox,
-                    fastCombatCheckBox,
-                    enableAutoSaveCheckBox,
-                    autoSaveIntervalTextBox,
-                    showDetailedStatsCheckBox,
-                    enableSoundEffectsCheckBox,
-                    enemyHealthMultiplierSlider,
-                    enemyDamageMultiplierSlider,
-                    playerHealthMultiplierSlider,
-                    playerDamageMultiplierSlider,
-                    showHealthBarsCheckBox,
-                    showDamageNumbersCheckBox,
-                    showComboProgressCheckBox,
-                    () => gameVariablesTabManager?.SaveGameVariables());
-            }
+                NarrativeBalanceSlider = narrativeBalanceSlider,
+                EnableNarrativeEventsCheckBox = enableNarrativeEventsCheckBox,
+                EnableInformationalSummariesCheckBox = enableInformationalSummariesCheckBox,
+                CombatSpeedSlider = combatSpeedSlider,
+                ShowIndividualActionMessagesCheckBox = showIndividualActionMessagesCheckBox,
+                EnableComboSystemCheckBox = enableComboSystemCheckBox,
+                EnableTextDisplayDelaysCheckBox = enableTextDisplayDelaysCheckBox,
+                FastCombatCheckBox = fastCombatCheckBox,
+                EnableAutoSaveCheckBox = enableAutoSaveCheckBox,
+                AutoSaveIntervalTextBox = autoSaveIntervalTextBox,
+                ShowDetailedStatsCheckBox = showDetailedStatsCheckBox,
+                EnableSoundEffectsCheckBox = enableSoundEffectsCheckBox,
+                EnemyHealthMultiplierSlider = enemyHealthMultiplierSlider,
+                EnemyDamageMultiplierSlider = enemyDamageMultiplierSlider,
+                PlayerHealthMultiplierSlider = playerHealthMultiplierSlider,
+                PlayerDamageMultiplierSlider = playerDamageMultiplierSlider,
+                ShowHealthBarsCheckBox = showHealthBarsCheckBox,
+                ShowDamageNumbersCheckBox = showDamageNumbersCheckBox,
+                ShowComboProgressCheckBox = showComboProgressCheckBox
+            };
+            saver.SaveMainSettings(controls);
         }
 
         /// <summary>
-        /// Saves text delay settings from UI controls
+        /// Saves text delay settings from UI controls (backward compatibility facade)
         /// </summary>
         public void SaveTextDelaySettings(
             CheckBox? enableGuiDelaysCheckBox,
@@ -311,63 +249,46 @@ namespace RPGGame.UI.Avalonia.Managers
             TextBox? defaultPresetMinDelayTextBox,
             TextBox? defaultPresetMaxDelayTextBox)
         {
-            if (settingsManager == null) return;
-            
-            if (enableGuiDelaysCheckBox != null && enableConsoleDelaysCheckBox != null &&
-                actionDelaySlider != null && messageDelaySlider != null &&
-                combatDelayTextBox != null && systemDelayTextBox != null &&
-                menuDelayTextBox != null && titleDelayTextBox != null &&
-                mainTitleDelayTextBox != null && environmentalDelayTextBox != null &&
-                effectMessageDelayTextBox != null && damageOverTimeDelayTextBox != null &&
-                encounterDelayTextBox != null && rollInfoDelayTextBox != null &&
-                baseMenuDelayTextBox != null && progressiveReductionRateTextBox != null &&
-                progressiveThresholdTextBox != null && combatPresetBaseDelayTextBox != null &&
-                combatPresetMinDelayTextBox != null && combatPresetMaxDelayTextBox != null &&
-                dungeonPresetBaseDelayTextBox != null && dungeonPresetMinDelayTextBox != null &&
-                dungeonPresetMaxDelayTextBox != null && roomPresetBaseDelayTextBox != null &&
-                roomPresetMinDelayTextBox != null && roomPresetMaxDelayTextBox != null &&
-                narrativePresetBaseDelayTextBox != null && narrativePresetMinDelayTextBox != null &&
-                narrativePresetMaxDelayTextBox != null && defaultPresetBaseDelayTextBox != null &&
-                defaultPresetMinDelayTextBox != null && defaultPresetMaxDelayTextBox != null)
+            var controls = new TextDelaySettingsControls
             {
-                settingsManager.SaveTextDelaySettings(
-                    enableGuiDelaysCheckBox,
-                    enableConsoleDelaysCheckBox,
-                    actionDelaySlider,
-                    messageDelaySlider,
-                    combatDelayTextBox,
-                    systemDelayTextBox,
-                    menuDelayTextBox,
-                    titleDelayTextBox,
-                    mainTitleDelayTextBox,
-                    environmentalDelayTextBox,
-                    effectMessageDelayTextBox,
-                    damageOverTimeDelayTextBox,
-                    encounterDelayTextBox,
-                    rollInfoDelayTextBox,
-                    baseMenuDelayTextBox,
-                    progressiveReductionRateTextBox,
-                    progressiveThresholdTextBox,
-                    combatPresetBaseDelayTextBox,
-                    combatPresetMinDelayTextBox,
-                    combatPresetMaxDelayTextBox,
-                    dungeonPresetBaseDelayTextBox,
-                    dungeonPresetMinDelayTextBox,
-                    dungeonPresetMaxDelayTextBox,
-                    roomPresetBaseDelayTextBox,
-                    roomPresetMinDelayTextBox,
-                    roomPresetMaxDelayTextBox,
-                    narrativePresetBaseDelayTextBox,
-                    narrativePresetMinDelayTextBox,
-                    narrativePresetMaxDelayTextBox,
-                    defaultPresetBaseDelayTextBox,
-                    defaultPresetMinDelayTextBox,
-                    defaultPresetMaxDelayTextBox);
-            }
+                EnableGuiDelaysCheckBox = enableGuiDelaysCheckBox,
+                EnableConsoleDelaysCheckBox = enableConsoleDelaysCheckBox,
+                ActionDelaySlider = actionDelaySlider,
+                MessageDelaySlider = messageDelaySlider,
+                CombatDelayTextBox = combatDelayTextBox,
+                SystemDelayTextBox = systemDelayTextBox,
+                MenuDelayTextBox = menuDelayTextBox,
+                TitleDelayTextBox = titleDelayTextBox,
+                MainTitleDelayTextBox = mainTitleDelayTextBox,
+                EnvironmentalDelayTextBox = environmentalDelayTextBox,
+                EffectMessageDelayTextBox = effectMessageDelayTextBox,
+                DamageOverTimeDelayTextBox = damageOverTimeDelayTextBox,
+                EncounterDelayTextBox = encounterDelayTextBox,
+                RollInfoDelayTextBox = rollInfoDelayTextBox,
+                BaseMenuDelayTextBox = baseMenuDelayTextBox,
+                ProgressiveReductionRateTextBox = progressiveReductionRateTextBox,
+                ProgressiveThresholdTextBox = progressiveThresholdTextBox,
+                CombatPresetBaseDelayTextBox = combatPresetBaseDelayTextBox,
+                CombatPresetMinDelayTextBox = combatPresetMinDelayTextBox,
+                CombatPresetMaxDelayTextBox = combatPresetMaxDelayTextBox,
+                DungeonPresetBaseDelayTextBox = dungeonPresetBaseDelayTextBox,
+                DungeonPresetMinDelayTextBox = dungeonPresetMinDelayTextBox,
+                DungeonPresetMaxDelayTextBox = dungeonPresetMaxDelayTextBox,
+                RoomPresetBaseDelayTextBox = roomPresetBaseDelayTextBox,
+                RoomPresetMinDelayTextBox = roomPresetMinDelayTextBox,
+                RoomPresetMaxDelayTextBox = roomPresetMaxDelayTextBox,
+                NarrativePresetBaseDelayTextBox = narrativePresetBaseDelayTextBox,
+                NarrativePresetMinDelayTextBox = narrativePresetMinDelayTextBox,
+                NarrativePresetMaxDelayTextBox = narrativePresetMaxDelayTextBox,
+                DefaultPresetBaseDelayTextBox = defaultPresetBaseDelayTextBox,
+                DefaultPresetMinDelayTextBox = defaultPresetMinDelayTextBox,
+                DefaultPresetMaxDelayTextBox = defaultPresetMaxDelayTextBox
+            };
+            saver.SaveTextDelaySettings(controls);
         }
 
         /// <summary>
-        /// Loads animation settings into UI controls
+        /// Loads animation settings into UI controls (backward compatibility facade)
         /// </summary>
         public void LoadAnimationSettings(
             CheckBox? brightnessMaskEnabledCheckBox,
@@ -382,32 +303,25 @@ namespace RPGGame.UI.Avalonia.Managers
             TextBox? undulationWaveLengthTextBox,
             TextBox? undulationIntervalTextBox)
         {
-            if (settingsManager == null) return;
-            
-            if (brightnessMaskEnabledCheckBox != null && brightnessMaskIntensitySlider != null &&
-                brightnessMaskIntensityTextBox != null && brightnessMaskWaveLengthSlider != null &&
-                brightnessMaskWaveLengthTextBox != null && brightnessMaskUpdateIntervalTextBox != null &&
-                undulationSpeedSlider != null && undulationSpeedTextBox != null &&
-                undulationWaveLengthSlider != null && undulationWaveLengthTextBox != null &&
-                undulationIntervalTextBox != null)
+            var controls = new AnimationSettingsControls
             {
-                settingsManager.LoadAnimationSettings(
-                    brightnessMaskEnabledCheckBox!,
-                    brightnessMaskIntensitySlider!,
-                    brightnessMaskIntensityTextBox!,
-                    brightnessMaskWaveLengthSlider!,
-                    brightnessMaskWaveLengthTextBox!,
-                    brightnessMaskUpdateIntervalTextBox!,
-                    undulationSpeedSlider!,
-                    undulationSpeedTextBox!,
-                    undulationWaveLengthSlider!,
-                    undulationWaveLengthTextBox!,
-                    undulationIntervalTextBox!);
-            }
+                BrightnessMaskEnabledCheckBox = brightnessMaskEnabledCheckBox,
+                BrightnessMaskIntensitySlider = brightnessMaskIntensitySlider,
+                BrightnessMaskIntensityTextBox = brightnessMaskIntensityTextBox,
+                BrightnessMaskWaveLengthSlider = brightnessMaskWaveLengthSlider,
+                BrightnessMaskWaveLengthTextBox = brightnessMaskWaveLengthTextBox,
+                BrightnessMaskUpdateIntervalTextBox = brightnessMaskUpdateIntervalTextBox,
+                UndulationSpeedSlider = undulationSpeedSlider,
+                UndulationSpeedTextBox = undulationSpeedTextBox,
+                UndulationWaveLengthSlider = undulationWaveLengthSlider,
+                UndulationWaveLengthTextBox = undulationWaveLengthTextBox,
+                UndulationIntervalTextBox = undulationIntervalTextBox
+            };
+            loader.LoadAnimationSettings(controls);
         }
 
         /// <summary>
-        /// Saves animation settings from UI controls
+        /// Saves animation settings from UI controls (backward compatibility facade)
         /// </summary>
         public void SaveAnimationSettings(
             CheckBox? brightnessMaskEnabledCheckBox,
@@ -418,22 +332,17 @@ namespace RPGGame.UI.Avalonia.Managers
             Slider? undulationWaveLengthSlider,
             TextBox? undulationIntervalTextBox)
         {
-            if (settingsManager == null) return;
-            
-            if (brightnessMaskEnabledCheckBox != null && brightnessMaskIntensitySlider != null &&
-                brightnessMaskWaveLengthSlider != null && brightnessMaskUpdateIntervalTextBox != null &&
-                undulationSpeedSlider != null && undulationWaveLengthSlider != null &&
-                undulationIntervalTextBox != null)
+            var controls = new AnimationSettingsControls
             {
-                settingsManager.SaveAnimationSettings(
-                    brightnessMaskEnabledCheckBox!,
-                    brightnessMaskIntensitySlider!,
-                    brightnessMaskWaveLengthSlider!,
-                    brightnessMaskUpdateIntervalTextBox!,
-                    undulationSpeedSlider!,
-                    undulationWaveLengthSlider!,
-                    undulationIntervalTextBox!);
-            }
+                BrightnessMaskEnabledCheckBox = brightnessMaskEnabledCheckBox,
+                BrightnessMaskIntensitySlider = brightnessMaskIntensitySlider,
+                BrightnessMaskWaveLengthSlider = brightnessMaskWaveLengthSlider,
+                BrightnessMaskUpdateIntervalTextBox = brightnessMaskUpdateIntervalTextBox,
+                UndulationSpeedSlider = undulationSpeedSlider,
+                UndulationWaveLengthSlider = undulationWaveLengthSlider,
+                UndulationIntervalTextBox = undulationIntervalTextBox
+            };
+            saver.SaveAnimationSettings(controls);
         }
 
         /// <summary>

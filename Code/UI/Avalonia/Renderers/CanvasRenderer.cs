@@ -5,6 +5,8 @@ using RPGGame.Editors;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.Avalonia.Renderers.Layout;
+using RPGGame.UI.Avalonia.Renderers.Validators;
+using RPGGame.UI.Avalonia.Renderers.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,6 +25,10 @@ namespace RPGGame.UI.Avalonia.Renderers
         private readonly ICanvasInteractionManager interactionManager;
         private readonly ICanvasContextManager contextManager;
         private readonly LayoutCoordinator layoutCoordinator;
+        
+        // Validators and helpers
+        private readonly CombatRenderingValidator combatValidator;
+        private readonly MenuScreenRenderingHelper menuScreenHelper;
         
         // Core specialized renderers
         private readonly MenuRenderer menuRenderer;
@@ -43,6 +49,10 @@ namespace RPGGame.UI.Avalonia.Renderers
             this.interactionManager = interactionManager;
             this.contextManager = contextManager;
             this.layoutCoordinator = new LayoutCoordinator(canvas, interactionManager);
+            
+            // Initialize validators and helpers
+            this.combatValidator = new CombatRenderingValidator(contextManager);
+            this.menuScreenHelper = new MenuScreenRenderingHelper(canvas, layoutCoordinator);
             
             // Initialize core specialized renderers
             this.menuRenderer = new MenuRenderer(canvas, interactionManager.ClickableElements, textManager, interactionManager);
@@ -86,7 +96,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 // #region agent log
                 try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderMainMenu", message = "Menu content rendered", data = new { }, sessionId = "debug-session", runId = "run1", hypothesisId = "H5" }) + "\n"); } catch { }
                 // #endregion
-            }, new CanvasContext());
+            }, new CanvasContext(), null, null, null);
             
             // #region agent log
             try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderMainMenu", message = "Layout rendered, refreshing canvas", data = new { }, sessionId = "debug-session", runId = "run1", hypothesisId = "H5" }) + "\n"); } catch { }
@@ -114,7 +124,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderItemSelectionPrompt(contentX, contentY, contentWidth, contentHeight, character, inventory, promptMessage, actionType);
-            }, context);
+            }, context, null, null, null);
         }
 
         public void RenderSlotSelectionPrompt(Character character, CanvasContext context)
@@ -122,7 +132,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderSlotSelectionPrompt(contentX, contentY, contentWidth, contentHeight, character);
-            }, context);
+            }, context, null, null, null);
         }
         
         public void RenderRaritySelectionPrompt(Character character, List<System.Linq.IGrouping<string, Item>> rarityGroups, CanvasContext context)
@@ -130,7 +140,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderRaritySelectionPrompt(contentX, contentY, contentWidth, contentHeight, character, rarityGroups);
-            }, context);
+            }, context, null, null, null);
         }
         
         public void RenderTradeUpPreview(Character character, List<Item> itemsToTrade, Item resultingItem, string currentRarity, string nextRarity, CanvasContext context)
@@ -138,7 +148,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderTradeUpPreview(contentX, contentY, contentWidth, contentHeight, character, itemsToTrade, resultingItem, currentRarity, nextRarity);
-            }, context);
+            }, context, null, null, null);
         }
 
         public void RenderItemComparison(Character character, Item newItem, Item? currentItem, string slot, CanvasContext context)
@@ -146,7 +156,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderItemComparison(contentX, contentY, contentWidth, contentHeight, character, newItem, currentItem, slot);
-            }, context);
+            }, context, null, null, null);
         }
         
         public void RenderComboManagement(Character character, CanvasContext context)
@@ -154,7 +164,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, "COMBO MANAGEMENT", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderComboManagement(contentX, contentY, contentWidth, contentHeight, character);
-            }, context);
+            }, context, null, null, null);
         }
         
         public void RenderComboActionSelection(Character character, string actionType, CanvasContext context)
@@ -162,7 +172,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, "COMBO MANAGEMENT", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderComboActionSelection(contentX, contentY, contentWidth, contentHeight, character, actionType);
-            }, context);
+            }, context, null, null, null);
         }
         
         public void RenderComboReorderPrompt(Character character, string currentSequence, CanvasContext context)
@@ -170,7 +180,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, "COMBO MANAGEMENT", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderComboReorderPrompt(contentX, contentY, contentWidth, contentHeight, character, currentSequence);
-            }, context);
+            }, context, null, null, null);
         }
 
         public void RenderWeaponSelection(List<StartingWeapon> weapons, CanvasContext context)
@@ -191,7 +201,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(null, "CHARACTER SELECTION", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 menuRenderer.RenderCharacterSelectionContent(contentX, contentY, contentWidth, contentHeight, characters, activeCharacterName, characterStatuses);
-            }, context);
+            }, context, null, null, null);
         }
 
         public void RenderCharacterCreation(Character character, CanvasContext context)
@@ -204,38 +214,38 @@ namespace RPGGame.UI.Avalonia.Renderers
             menuRenderer.RenderSettings();
         }
 
-        public void RenderTestingMenu(string? subMenu = null) => RenderMenuScreen("COMPREHENSIVE GAME SYSTEM TESTS", 
+        public void RenderTestingMenu(string? subMenu = null) => menuScreenHelper.RenderMenuScreen("COMPREHENSIVE GAME SYSTEM TESTS", 
             (x, y, w, h) => menuRenderer.RenderTestingMenu(x, y, w, h, subMenu));
         
-        public void RenderDeveloperMenu() => RenderMenuScreen("DEVELOPER MENU", 
+        public void RenderDeveloperMenu() => menuScreenHelper.RenderMenuScreen("DEVELOPER MENU", 
             (x, y, w, h) => menuRenderer.RenderDeveloperMenuContent(x, y, w, h));
         
         public void RenderBattleStatisticsMenu(BattleStatisticsRunner.StatisticsResult? results, bool isRunning) => 
-            RenderMenuScreen("BATTLE STATISTICS", 
+            menuScreenHelper.RenderMenuScreen("BATTLE STATISTICS", 
                 (x, y, w, h) => menuRenderer.RenderBattleStatisticsMenuContent(x, y, w, h, results, isRunning));
         
         public void RenderBattleStatisticsResults(BattleStatisticsRunner.StatisticsResult results) => 
-            RenderMenuScreen("BATTLE STATISTICS RESULTS", 
+            menuScreenHelper.RenderMenuScreen("BATTLE STATISTICS RESULTS", 
                 (x, y, w, h) => menuRenderer.RenderBattleStatisticsResultsContent(x, y, w, h, results));
 
         public void RenderWeaponTestResults(List<BattleStatisticsRunner.WeaponTestResult> results) => 
-            RenderMenuScreen("WEAPON TYPE TEST RESULTS", 
+            menuScreenHelper.RenderMenuScreen("WEAPON TYPE TEST RESULTS", 
                 (x, y, w, h) => menuRenderer.RenderWeaponTestResultsContent(x, y, w, h, results));
 
         public void RenderComprehensiveWeaponEnemyResults(BattleStatisticsRunner.ComprehensiveWeaponEnemyTestResult results) => 
-            RenderMenuScreen("COMPREHENSIVE WEAPON-ENEMY TEST RESULTS", 
+            menuScreenHelper.RenderMenuScreen("COMPREHENSIVE WEAPON-ENEMY TEST RESULTS", 
                 (x, y, w, h) => menuRenderer.RenderComprehensiveWeaponEnemyResultsContent(x, y, w, h, results));
         
-        public void RenderVariableEditor(EditableVariable? selectedVariable = null, bool isEditing = false, string? currentInput = null, string? message = null) => RenderMenuScreen("EDIT GAME VARIABLES", 
+        public void RenderVariableEditor(EditableVariable? selectedVariable = null, bool isEditing = false, string? currentInput = null, string? message = null) => menuScreenHelper.RenderMenuScreen("EDIT GAME VARIABLES", 
             (x, y, w, h) => menuRenderer.RenderVariableEditorContent(x, y, w, h, selectedVariable, isEditing, currentInput, message));
         
-        public void RenderTuningParametersMenu(string? selectedCategory = null, EditableVariable? selectedVariable = null, bool isEditing = false, string? currentInput = null, string? message = null) => RenderMenuScreen("TUNING PARAMETERS", 
+        public void RenderTuningParametersMenu(string? selectedCategory = null, EditableVariable? selectedVariable = null, bool isEditing = false, string? currentInput = null, string? message = null) => menuScreenHelper.RenderMenuScreen("TUNING PARAMETERS", 
             (x, y, w, h) => menuRenderer.RenderTuningParametersContent(x, y, w, h, selectedCategory, selectedVariable, isEditing, currentInput, message));
         
-        public void RenderActionEditor() => RenderMenuScreen("EDIT ACTIONS", 
+        public void RenderActionEditor() => menuScreenHelper.RenderMenuScreen("EDIT ACTIONS", 
             (x, y, w, h) => menuRenderer.RenderActionEditorContent(x, y, w, h));
         
-        public void RenderActionList(List<ActionData> actions, int page) => RenderMenuScreen("ALL ACTIONS", 
+        public void RenderActionList(List<ActionData> actions, int page) => menuScreenHelper.RenderMenuScreen("ALL ACTIONS", 
             (x, y, w, h) => menuRenderer.RenderActionListContent(x, y, w, h, actions, page));
         
         public void RenderCreateActionForm(ActionData actionData, int currentStep, string[] formSteps, string? currentInput = null, bool isEditMode = false)
@@ -247,10 +257,10 @@ namespace RPGGame.UI.Avalonia.Renderers
                 new CanvasContext(), null, null, null, shouldClearCanvas);
         }
         
-        public void RenderActionDetails(ActionData action) => RenderMenuScreen("ACTION DETAILS", 
+        public void RenderActionDetails(ActionData action) => menuScreenHelper.RenderMenuScreen("ACTION DETAILS", 
             (x, y, w, h) => menuRenderer.RenderActionDetailContent(x, y, w, h, action));
 
-        public void RenderDeleteActionConfirmation(ActionData action, string? errorMessage = null) => RenderMenuScreen("DELETE ACTION CONFIRMATION", 
+        public void RenderDeleteActionConfirmation(ActionData action, string? errorMessage = null) => menuScreenHelper.RenderMenuScreen("DELETE ACTION CONFIRMATION", 
             (x, y, w, h) => menuRenderer.RenderDeleteActionConfirmationContent(x, y, w, h, action, errorMessage));
 
         public void RenderDungeonSelection(Character player, List<Dungeon> dungeons, CanvasContext context)
@@ -273,7 +283,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(player, "DUNGEON FIGHTERS", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 dungeonRenderer.RenderDungeonStart(contentX, contentY, contentWidth, contentHeight, dungeon, textManager, context.DungeonContext);
-            }, context);
+            }, context, null, context.DungeonName, null);
         }
 
         /// <summary>
@@ -318,12 +328,8 @@ namespace RPGGame.UI.Avalonia.Renderers
         {
             // Check if this character is currently active before rendering
             // This prevents background combat from interrupting other character views
-            Character? activePlayer = contextManager.GetCurrentCharacter();
-            if (activePlayer != player)
+            if (!combatValidator.ValidateCharacterActive(player))
             {
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderCombat", message = "RenderCombat blocked - character inactive", data = new { combatPlayerName = player.Name, activePlayerName = activePlayer?.Name ?? "null" }, sessionId = "debug-session", runId = "post-fix", hypothesisId = "FIX" }) + "\n"); } catch { }
-                // #endregion
                 // Character is not active - don't render combat
                 return;
             }
@@ -343,12 +349,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                 {
                     // Check if the player from this combat is still the active character
                     // This prevents rendering combat for inactive characters
-                    Character? currentActivePlayer = contextManager.GetCurrentCharacter();
-                    if (currentActivePlayer != player)
+                    if (!combatValidator.ValidateCharacterActive(player))
                     {
-                        // #region agent log
-                        try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:renderCallback", message = "Callback blocked - character inactive", data = new { combatPlayerName = player.Name, activePlayerName = currentActivePlayer?.Name ?? "null" }, sessionId = "debug-session", runId = "post-fix", hypothesisId = "FIX" }) + "\n"); } catch { }
-                        // #endregion
                         // Character is no longer active - don't render
                         return;
                     }
@@ -384,12 +386,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             
             // CRITICAL: Check if this character is still active before rendering
             // This prevents background combat from rendering when we've switched to another character
-            Character? activePlayer = contextManager.GetCurrentCharacter();
-            if (activePlayer != player)
+            if (!combatValidator.ValidateCharacterActive(player))
             {
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderCombatScreenOnly", message = "RenderCombatScreenOnly blocked - character inactive", data = new { combatPlayerName = player.Name, activePlayerName = activePlayer?.Name ?? "null", enemyName = currentEnemy?.Name ?? "null" }, sessionId = "debug-session", runId = "run1", hypothesisId = "H6" }) + "\n"); } catch { }
-                // #endregion
                 // Character is not active - don't render combat screen
                 return;
             }
@@ -409,7 +407,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
             
             // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderCombatScreenOnly", message = "RenderCombatScreenOnly executing", data = new { playerName = player.Name, enemyName = currentEnemy?.Name ?? "null", activePlayerName = activePlayer?.Name ?? "null" }, sessionId = "debug-session", runId = "run1", hypothesisId = "H6" }) + "\n"); } catch { }
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderCombatScreenOnly", message = "RenderCombatScreenOnly executing", data = new { playerName = player.Name, enemyName = currentEnemy?.Name ?? "null", activePlayerName = player.Name }, sessionId = "debug-session", runId = "run1", hypothesisId = "H6" }) + "\n"); } catch { }
             // #endregion
             
             // Determine if we should clear canvas - clear on first render to ensure clean transition
@@ -441,12 +439,8 @@ namespace RPGGame.UI.Avalonia.Renderers
         {
             // Check if this character is currently active before rendering
             // This prevents background combat from interrupting other character views
-            Character? activePlayer = contextManager.GetCurrentCharacter();
-            if (activePlayer != player)
+            if (!combatValidator.ValidateCharacterActive(player))
             {
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderEnemyEncounter", message = "RenderEnemyEncounter blocked - character inactive", data = new { combatPlayerName = player.Name, activePlayerName = activePlayer?.Name ?? "null" }, sessionId = "debug-session", runId = "post-fix", hypothesisId = "FIX" }) + "\n"); } catch { }
-                // #endregion
                 // Character is not active - don't render enemy encounter
                 return;
             }
@@ -480,7 +474,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(player, $"ROOM CLEARED: {room.Name.ToUpper()}", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 dungeonRenderer.RenderRoomCompletion(contentX, contentY, contentWidth, contentHeight, room, player);
-            }, context);
+            }, context, null, dungeonName, null);
         }
 
         public void RenderDungeonCompletion(Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos, List<Item> itemsFoundDuringRun, CanvasContext context)
@@ -488,7 +482,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(player, $"DUNGEON COMPLETED: {dungeon.Name.ToUpper()}", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 dungeonRenderer.RenderDungeonCompletion(contentX, contentY, contentWidth, contentHeight, dungeon, player, xpGained, lootReceived, levelUpInfos ?? new List<LevelUpInfo>(), itemsFoundDuringRun ?? new List<Item>(), context.DungeonContext);
-            }, context);
+            }, context, null, context.DungeonName, null);
         }
 
         public void RenderDeathScreen(Character player, string defeatSummary, CanvasContext context)
@@ -511,7 +505,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(player, "YOU DIED", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 dungeonRenderer.RenderDeathScreen(contentX, contentY, contentWidth, contentHeight, player, defeatSummary);
-            }, context);
+            }, context, null, context.DungeonName, null);
             
             // Force immediate refresh to display the death screen
             canvas.Refresh();
@@ -571,16 +565,6 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
 
         #region Private Helper Methods
-
-        private void RenderMenuScreen(string title, Action<int, int, int, int> renderContent)
-        {
-            RenderWithLayout(null, title, renderContent, new CanvasContext());
-        }
-
-        private void RenderWithLayout(Character? character, string title, Action<int, int, int, int> renderContent, CanvasContext context)
-        {
-            RenderWithLayout(character, title, renderContent, context, null, null, null);
-        }
 
         private void RenderWithLayout(Character? character, string title, Action<int, int, int, int> renderContent, CanvasContext context, Enemy? enemy, string? dungeonName, string? roomName, bool clearCanvas = true)
         {

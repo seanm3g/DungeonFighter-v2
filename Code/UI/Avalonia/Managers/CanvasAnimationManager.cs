@@ -28,8 +28,9 @@ namespace RPGGame.UI.Avalonia.Managers
         // Animation timers
         private Timer? undulationTimer = null;
         private Timer? brightnessMaskTimer = null;
-        private Timer? critUndulationTimer = null;
-        private Timer? critBrightnessMaskTimer = null;
+        
+        // Crit line animation manager (extracted for SRP)
+        private readonly CritLineAnimationManager critLineAnimationManager;
         
         // Animation configuration
         private int undulationInterval;
@@ -54,6 +55,9 @@ namespace RPGGame.UI.Avalonia.Managers
             this.undulationInterval = animConfig.UndulationIntervalMs;
             this.brightnessMaskInterval = animConfig.BrightnessMask.UpdateIntervalMs;
             
+            // Initialize crit line animation manager (will be configured with state manager later)
+            this.critLineAnimationManager = new CritLineAnimationManager(null);
+            
             // Start animation timers
             StartAnimationTimers();
         }
@@ -71,13 +75,6 @@ namespace RPGGame.UI.Avalonia.Managers
             if (dungeonAnimConfig?.BrightnessMask?.Enabled == true)
             {
                 brightnessMaskTimer = new Timer(UpdateBrightnessMask, null, brightnessMaskInterval, brightnessMaskInterval);
-            }
-            
-            // Start crit animation timers (always running for crit lines)
-            critUndulationTimer = new Timer(UpdateCritUndulation, null, undulationInterval, undulationInterval);
-            if (dungeonAnimConfig?.BrightnessMask?.Enabled == true)
-            {
-                critBrightnessMaskTimer = new Timer(UpdateCritBrightnessMask, null, brightnessMaskInterval, brightnessMaskInterval);
             }
         }
         
@@ -115,35 +112,8 @@ namespace RPGGame.UI.Avalonia.Managers
                 StopDungeonSelectionAnimation();
             }
             
-            // Pause crit line animations during menu states to prevent them from triggering renders
-            // that interfere with menu rendering
-            bool previousWasMenu = IsMenuState(e.PreviousState);
-            bool currentIsMenu = IsMenuState(e.NewState);
-            
-            if (!previousWasMenu && currentIsMenu)
-            {
-                // Entering menu state - pause crit line animations
-                critUndulationTimer?.Change(Timeout.Infinite, Timeout.Infinite);
-                critBrightnessMaskTimer?.Change(Timeout.Infinite, Timeout.Infinite);
-            }
-            else if (previousWasMenu && !currentIsMenu)
-            {
-                // Leaving menu state - resume crit line animations
-                critUndulationTimer?.Change(undulationInterval, undulationInterval);
-                var dungeonAnimConfig = uiConfig.DungeonSelectionAnimation;
-                if (dungeonAnimConfig?.BrightnessMask?.Enabled == true)
-                {
-                    critBrightnessMaskTimer?.Change(brightnessMaskInterval, brightnessMaskInterval);
-                }
-            }
-        }
-        
-        /// <summary>
-        /// Checks if a game state is a menu state (where crit line animations should be paused)
-        /// </summary>
-        private bool IsMenuState(GameState state)
-        {
-            return Display.DisplayStateCoordinator.IsMenuState(state);
+            // Delegate crit line animation state changes to crit line manager
+            critLineAnimationManager.OnStateChanged(e.PreviousState, e.NewState);
         }
         
         /// <summary>
@@ -243,7 +213,7 @@ namespace RPGGame.UI.Avalonia.Managers
             }
             
             // Also trigger re-render for display buffer (for "ENTERING DUNGEON" lines)
-            ThrottledCritLineRender();
+            // This is handled by crit line animation manager
         }
         
         /// <summary>
@@ -262,72 +232,9 @@ namespace RPGGame.UI.Avalonia.Managers
             }
             
             // Also trigger re-render for display buffer (for "ENTERING DUNGEON" lines)
-            ThrottledCritLineRender();
+            // This is handled by crit line animation manager
         }
         
-        /// <summary>
-        /// Update callback for crit line undulation animation
-        /// </summary>
-        private void UpdateCritUndulation(object? state)
-        {
-            // Always update crit animation state (no condition needed - animation runs continuously)
-            var critAnimationState = Managers.CritAnimationState.Instance;
-            critAnimationState.AdvanceUndulation();
-            
-            // Trigger throttled re-render of display buffer to show animation
-            ThrottledCritLineRender();
-        }
-        
-        /// <summary>
-        /// Update callback for crit line brightness mask animation
-        /// </summary>
-        private void UpdateCritBrightnessMask(object? state)
-        {
-            // Always update crit animation state (no condition needed - animation runs continuously)
-            var critAnimationState = Managers.CritAnimationState.Instance;
-            critAnimationState.AdvanceBrightnessMask();
-            
-            // Trigger throttled re-render of display buffer to show animation
-            ThrottledCritLineRender();
-        }
-        
-        /// <summary>
-        /// Throttled render method for crit lines that prevents excessive renders
-        /// Only renders if enough time has passed since last render
-        /// </summary>
-        private void ThrottledCritLineRender()
-        {
-            if (critLineReRenderCallback == null)
-                return;
-            
-            // CRITICAL: Don't trigger display buffer renders during menu states or when stateManager is null
-            // Menu screens and title screen handle their own rendering and don't use the display buffer
-            // This prevents the center panel from being cleared when menus/title screen are displayed
-            if (DisplayStateCoordinator.ShouldSuppressRendering(stateManager?.CurrentState, stateManager))
-            {
-                return;
-            }
-            
-            lock (renderThrottleLock)
-            {
-                var now = DateTime.Now;
-                var timeSinceLastRender = (now - lastRenderTime).TotalMilliseconds;
-                
-                // If we rendered recently, skip this render
-                if (timeSinceLastRender < minRenderIntervalMs)
-                {
-                    return;
-                }
-                
-                lastRenderTime = now;
-            }
-            
-            // Re-render the display buffer on UI thread
-            Dispatcher.UIThread.Post(() =>
-            {
-                critLineReRenderCallback?.Invoke();
-            }, DispatcherPriority.Background);
-        }
         
         /// <summary>
         /// Pauses all animations
@@ -336,8 +243,7 @@ namespace RPGGame.UI.Avalonia.Managers
         {
             undulationTimer?.Change(Timeout.Infinite, Timeout.Infinite);
             brightnessMaskTimer?.Change(Timeout.Infinite, Timeout.Infinite);
-            critUndulationTimer?.Change(Timeout.Infinite, Timeout.Infinite);
-            critBrightnessMaskTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+            critLineAnimationManager.PauseAnimations();
         }
         
         /// <summary>
@@ -347,8 +253,7 @@ namespace RPGGame.UI.Avalonia.Managers
         {
             undulationTimer?.Change(undulationInterval, undulationInterval);
             brightnessMaskTimer?.Change(brightnessMaskInterval, brightnessMaskInterval);
-            critUndulationTimer?.Change(undulationInterval, undulationInterval);
-            critBrightnessMaskTimer?.Change(brightnessMaskInterval, brightnessMaskInterval);
+            critLineAnimationManager.ResumeAnimations();
         }
         
         /// <summary>
@@ -394,29 +299,27 @@ namespace RPGGame.UI.Avalonia.Managers
             {
                 undulationInterval = newUndulationInterval;
                 undulationTimer?.Change(newUndulationInterval, newUndulationInterval);
-                critUndulationTimer?.Change(newUndulationInterval, newUndulationInterval);
             }
             
             if (newBrightnessMaskInterval != brightnessMaskInterval)
             {
                 brightnessMaskInterval = newBrightnessMaskInterval;
                 brightnessMaskTimer?.Change(newBrightnessMaskInterval, newBrightnessMaskInterval);
-                critBrightnessMaskTimer?.Change(newBrightnessMaskInterval, newBrightnessMaskInterval);
             }
             
             // Reload configuration in animation states
             var dungeonState = Managers.DungeonSelectionAnimationState.Instance;
-            var critState = Managers.CritAnimationState.Instance;
-            
             dungeonState.ReloadConfiguration();
-            critState.ReloadConfiguration();
+            
+            // Reload crit line animation configuration
+            critLineAnimationManager.ReloadConfiguration();
         }
         
         /// <summary>
         /// Sets up the animation manager with proper renderer and callback
         /// This method should be called after the UI coordinator is fully initialized
         /// </summary>
-        public void SetupAnimationManager(DungeonRenderer dungeonRenderer, Action<Character, List<Dungeon>> reRenderCallback, GameStateManager? stateManager = null)
+        public void SetupAnimationManager(DungeonRenderer dungeonRenderer, Action<Character, List<Dungeon>>? reRenderCallback, GameStateManager? stateManager = null)
         {
             this.dungeonRenderer = dungeonRenderer;
             this.reRenderCallback = reRenderCallback;
@@ -433,6 +336,9 @@ namespace RPGGame.UI.Avalonia.Managers
             {
                 this.stateManager.StateChanged += OnStateChanged;
             }
+            
+            // Update crit line animation manager with state manager
+            critLineAnimationManager.SetStateManager(stateManager);
         }
         
         /// <summary>
@@ -442,6 +348,7 @@ namespace RPGGame.UI.Avalonia.Managers
         public void SetCritLineReRenderCallback(System.Action? callback)
         {
             this.critLineReRenderCallback = callback;
+            critLineAnimationManager.SetCritLineReRenderCallback(callback);
         }
         
         /// <summary>
@@ -459,8 +366,7 @@ namespace RPGGame.UI.Avalonia.Managers
             // Stop animation timers
             undulationTimer?.Dispose();
             brightnessMaskTimer?.Dispose();
-            critUndulationTimer?.Dispose();
-            critBrightnessMaskTimer?.Dispose();
+            critLineAnimationManager.Dispose();
             
             // Clear animation state
             isDungeonSelectionActive = false;

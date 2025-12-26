@@ -22,7 +22,7 @@ namespace RPGGame
         /// <summary>
         /// Adds class-specific actions based on character progression
         /// </summary>
-        public void AddClassActions(Actor entity, CharacterProgression progression, WeaponType? weaponType)
+        public void AddClassActions(Actor entity, CharacterProgression? progression, WeaponType? weaponType)
         {
             RemoveClassActions(entity);
             
@@ -35,7 +35,7 @@ namespace RPGGame
         /// <summary>
         /// Adds barbarian-specific actions
         /// </summary>
-        private void AddBarbarianActions(Actor entity, CharacterProgression progression)
+        private void AddBarbarianActions(Actor entity, CharacterProgression? progression)
         {
             if (progression == null) return;
 
@@ -53,7 +53,7 @@ namespace RPGGame
         /// <summary>
         /// Adds warrior-specific actions
         /// </summary>
-        private void AddWarriorActions(Actor entity, CharacterProgression progression)
+        private void AddWarriorActions(Actor entity, CharacterProgression? progression)
         {
             if (progression == null) return;
 
@@ -74,7 +74,7 @@ namespace RPGGame
         /// <summary>
         /// Adds rogue-specific actions
         /// </summary>
-        private void AddRogueActions(Actor entity, CharacterProgression progression)
+        private void AddRogueActions(Actor entity, CharacterProgression? progression)
         {
             if (progression == null) return;
 
@@ -92,7 +92,7 @@ namespace RPGGame
         /// <summary>
         /// Adds wizard-specific actions
         /// </summary>
-        private void AddWizardActions(Actor entity, CharacterProgression progression, WeaponType? weaponType)
+        private void AddWizardActions(Actor entity, CharacterProgression? progression, WeaponType? weaponType)
         {
             if (progression == null) return;
 

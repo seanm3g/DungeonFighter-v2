@@ -70,9 +70,9 @@ namespace RPGGame
                     currentEntity = EntityNameExtractor.ExtractEntityNameFromMessage(plainText);
                 }
                 
-                // Apply context-aware spacing based on what came before
+                // Apply context-aware spacing based on what came before and actor changes
                 // Note: Spacing system handles all spacing - no manual blank lines needed
-                TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.CombatAction);
+                TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.CombatAction, currentEntity);
                 
                 // Collect all messages for this combat action block
                 var messageGroups = BlockMessageCollector.CollectActionBlockMessages(actionText, rollInfo, statusEffects, criticalMissNarrative, narratives);
@@ -88,14 +88,14 @@ namespace RPGGame
                     renderer.RenderMessageGroups(messageGroups, delayAfterBatchMs);
                 }
                 
-                // Update the last acting Actor
+                // Update the last acting Actor (for backward compatibility)
                 if (currentEntity != null)
                 {
                     lastActingEntity = currentEntity;
                 }
                 
-                // Record that this block was displayed for spacing system
-                TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.CombatAction);
+                // Record that this block was displayed for spacing system (with entity tracking)
+                TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.CombatAction, currentEntity);
                 
                 // Delay and spacing are now handled by the batch method for GUI
                 // For console, still apply delay and spacing
@@ -142,9 +142,9 @@ namespace RPGGame
                     currentEntity = EntityNameExtractor.ExtractEntityNameFromMessage(plainText);
                 }
                 
-                // Apply context-aware spacing based on what came before
+                // Apply context-aware spacing based on what came before and actor changes
                 // Note: Spacing system handles all spacing - no manual blank lines needed
-                TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.CombatAction);
+                TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.CombatAction, currentEntity);
                 
                 // Collect all messages for this combat action block
                 var messageGroups = BlockMessageCollector.CollectActionBlockMessages(actionText, rollInfo, statusEffects, criticalMissNarrative, narratives);
@@ -160,14 +160,14 @@ namespace RPGGame
                     await renderer.RenderMessageGroupsAsync(messageGroups, delayAfterBatchMs);
                 }
                 
-                // Update the last acting Actor
+                // Update the last acting Actor (for backward compatibility)
                 if (currentEntity != null)
                 {
                     lastActingEntity = currentEntity;
                 }
                 
-                // Record that this block was displayed for spacing system
-                TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.CombatAction);
+                // Record that this block was displayed for spacing system (with entity tracking)
+                TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.CombatAction, currentEntity);
                 
                 // Delay and spacing are now handled by the batch method for GUI
                 // For console, still apply delay and spacing
@@ -266,11 +266,31 @@ namespace RPGGame
         {
             if (UIManager.DisableAllUIOutput || environmentalText == null || environmentalText.Count == 0) return;
             
-            // Apply context-aware spacing (blank line before environmental actions)
-            TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.EnvironmentalAction);
+            // Extract environment name from environmental text for tracking
+            // Environmental actions typically start with room/environment name
+            string? environmentEntity = null;
+            if (environmentalText != null && environmentalText.Count > 0)
+            {
+                string plainText = ColoredTextRenderer.RenderAsPlainText(environmentalText);
+                // Remove emoji prefix if present (🌍 or similar) - emojis are typically single characters
+                plainText = System.Text.RegularExpressions.Regex.Replace(plainText, @"^[^\w\s\[\]]+\s*", "");
+                
+                // Use EntityNameExtractor to extract environment name
+                // It handles formats like "[EntityName] ..." or "EntityName uses ..."
+                environmentEntity = EntityNameExtractor.ExtractEntityNameFromMessage(plainText);
+                if (environmentEntity == null)
+                {
+                    // Fallback: use a generic identifier for environment
+                    // We'll use a consistent identifier so all environmental actions are treated as the same "actor"
+                    environmentEntity = "Environment";
+                }
+            }
             
-            // Display the environmental action
-            UIManager.WriteColoredText(environmentalText);
+            // Apply context-aware spacing (blank line before environmental actions, checking actor changes)
+            TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.EnvironmentalAction, environmentEntity);
+            
+            // Display the environmental action (environmentalText is already validated as non-null at line 267)
+            UIManager.WriteColoredText(environmentalText!);
             
             // Display effects if present (part of environmental block, no spacing)
             if (effects != null)
@@ -305,8 +325,8 @@ namespace RPGGame
                 }
             }
             
-            // Record that this block was displayed
-            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.EnvironmentalAction);
+            // Record that this block was displayed (with entity tracking)
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.EnvironmentalAction, environmentEntity);
             
             // Apply block delay
             BlockDelayManager.ApplyBlockDelay();

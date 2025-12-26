@@ -3,6 +3,7 @@ using Avalonia.Threading;
 using RPGGame;
 using RPGGame.Editors;
 using RPGGame.UI;
+using RPGGame.UI.Avalonia.Builders;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.UI.Avalonia.Coordinators;
@@ -33,12 +34,13 @@ namespace RPGGame.UI.Avalonia
         
         // Specialized coordinators (consolidated from 6 to 3)
         private readonly MessageWritingCoordinator messageWritingCoordinator;
-        private readonly ScreenRenderingCoordinator screenRenderingCoordinator;
         private readonly UtilityCoordinator utilityCoordinator;
         private readonly ColoredTextCoordinator coloredTextCoordinator;
         private readonly BatchOperationCoordinator batchOperationCoordinator;
         private readonly Display.DisplayUpdateCoordinator displayUpdateCoordinator;
         private readonly Display.DisplayBufferManager displayBufferManager;
+        private readonly Coordinators.CharacterSwitchHandler characterSwitchHandler;
+        private readonly UIContextCoordinator contextCoordinator;
         
         private System.Action? closeAction = null;
         private MainWindow? mainWindow = null;
@@ -67,53 +69,38 @@ namespace RPGGame.UI.Avalonia
         {
             this.canvas = canvas;
             
-            // Initialize specialized managers
-            this.contextManager = new CanvasContextManager();
-            this.layoutManager = new CanvasLayoutManager();
-            this.interactionManager = new CanvasInteractionManager();
-            this.textManager = new CanvasTextManager(canvas, new Renderers.ColoredTextWriter(canvas), contextManager, stateManager: stateManager);
-            this.renderer = new CanvasRenderer(canvas, textManager, interactionManager, contextManager);
+            // Use builder to initialize all dependencies
+            var builder = new CanvasUICoordinatorBuilder(canvas);
+            var buildResult = builder.Build();
             
-            // Initialize specialized coordinators (consolidated)
-            this.messageWritingCoordinator = new MessageWritingCoordinator(textManager, renderer, contextManager);
+            // Assign built dependencies
+            this.contextManager = buildResult.ContextManager;
+            this.layoutManager = buildResult.LayoutManager;
+            this.interactionManager = buildResult.InteractionManager;
+            this.textManager = buildResult.TextManager;
+            this.renderer = buildResult.Renderer;
+            this.animationManager = buildResult.AnimationManager;
+            this.messageWritingCoordinator = buildResult.MessageWritingCoordinator;
+            this.utilityCoordinator = buildResult.UtilityCoordinator;
+            this.coloredTextCoordinator = buildResult.ColoredTextCoordinator;
+            this.batchOperationCoordinator = buildResult.BatchOperationCoordinator;
+            this.displayUpdateCoordinator = buildResult.DisplayUpdateCoordinator;
+            this.displayBufferManager = buildResult.DisplayBufferManager;
             
-            // Create animation manager with null parameters initially (will be set up properly)
-            this.animationManager = new CanvasAnimationManager(canvas, null, null);
-            this.screenRenderingCoordinator = new ScreenRenderingCoordinator(renderer, contextManager, animationManager, textManager);
-            this.utilityCoordinator = new UtilityCoordinator(canvas, renderer, textManager, contextManager);
-            this.coloredTextCoordinator = new ColoredTextCoordinator(textManager, messageWritingCoordinator);
-            this.batchOperationCoordinator = new BatchOperationCoordinator(textManager, messageWritingCoordinator);
+            // Set up DisplayBufferManager with this coordinator (circular reference resolved)
+            displayBufferManager.SetCoordinator(this);
             
-            // Create DisplayUpdateCoordinator with display manager if available
-            Display.CenterPanelDisplayManager? displayManager = null;
-            Managers.CanvasTextManager? canvasTextManager = textManager as Managers.CanvasTextManager;
-            if (canvasTextManager != null)
-            {
-                displayManager = canvasTextManager.DisplayManager;
-            }
-            this.displayUpdateCoordinator = new Display.DisplayUpdateCoordinator(canvas, textManager, displayManager);
+            // Create context coordinator for context management operations
+            this.contextCoordinator = new UIContextCoordinator(contextManager, textManager, stateManager);
             
-            // Create DisplayBufferManager for automatic display buffer state management
-            this.displayBufferManager = new Display.DisplayBufferManager(this);
-            
-            // Set up animation manager with proper dependencies
-            var dungeonRenderer = new DungeonRenderer(canvas, new Renderers.ColoredTextWriter(canvas), interactionManager.ClickableElements);
-            Action<Character, List<Dungeon>> reRenderCallback = (player, dungeons) => 
-            {
-                if (player != null && dungeons != null)
-                    screenRenderingCoordinator.RenderDungeonSelection(player, dungeons);
-            };
-            animationManager.SetupAnimationManager(dungeonRenderer, reRenderCallback, null); // State manager will be set later via SetStateManager
-            
-            // Set up crit line re-render callback to trigger display buffer re-renders
-            if (animationManager is CanvasAnimationManager canvasAnimationManager && canvasTextManager != null)
-            {
-                System.Action critLineReRenderCallback = () =>
-                {
-                    canvasTextManager.DisplayManager.ForceRender();
-                };
-                canvasAnimationManager.SetCritLineReRenderCallback(critLineReRenderCallback);
-            }
+            // Create character switch handler
+            this.characterSwitchHandler = new Coordinators.CharacterSwitchHandler(
+                textManager,
+                contextManager,
+                null, // Will be set via SetStateManager
+                (System.Action<Character?>)SetCharacter,
+                (System.Action)ClearCurrentEnemy,
+                (System.Action)ForceFullLayoutRender);
         }
         
         /// <summary>
@@ -175,6 +162,9 @@ namespace RPGGame.UI.Avalonia
         {
             this.stateManager = stateManager;
             
+            // Update context coordinator with state manager
+            contextCoordinator.SetStateManager(stateManager);
+            
             // Update state manager in display manager and render coordinator
             if (textManager is Managers.CanvasTextManager canvasTextManager)
             {
@@ -184,10 +174,10 @@ namespace RPGGame.UI.Avalonia
             if (animationManager is CanvasAnimationManager canvasAnimationManager)
             {
                 var dungeonRenderer = new Renderers.DungeonRenderer(canvas, new Renderers.ColoredTextWriter(canvas), interactionManager.ClickableElements);
-                Action<Character, List<Dungeon>> reRenderCallback = (player, dungeons) => 
+                System.Action<Character, List<Dungeon>> reRenderCallback = (player, dungeons) => 
                 {
                     if (player != null && dungeons != null)
-                        screenRenderingCoordinator.RenderDungeonSelection(player, dungeons);
+                        RenderDungeonSelection(player, dungeons);
                 };
                 canvasAnimationManager.SetupAnimationManager(dungeonRenderer, reRenderCallback, stateManager);
                 
@@ -206,52 +196,11 @@ namespace RPGGame.UI.Avalonia
             // Set state manager in DisplayBufferManager for automatic state-based management
             displayBufferManager.SetStateManager(stateManager);
             
+            // Update character switch handler with state manager
+            characterSwitchHandler.SetStateManager(stateManager);
+            
             // Subscribe to character switch events for multi-character support
-            stateManager.CharacterSwitched += OnCharacterSwitched;
-        }
-        
-        /// <summary>
-        /// Handles character switch events - refreshes character panel and updates UI
-        /// </summary>
-        private void OnCharacterSwitched(object? sender, CharacterSwitchedEventArgs e)
-        {
-            Dispatcher.UIThread.Post(() =>
-            {
-                try
-                {
-                    // Clear any external render callbacks from previous character's combat
-                    // This prevents background combat from interrupting the new character's view
-                    if (textManager is CanvasTextManager canvasTextManager)
-                    {
-                        // Clear external render callback (prevents old combat callbacks from firing)
-                        canvasTextManager.DisplayManager.SetExternalRenderCallback(null);
-                        // Reset to standard display mode (prevents combat mode from persisting)
-                        canvasTextManager.DisplayManager.SetMode(new Display.StandardDisplayMode());
-                        // Clear display buffer to prevent old combat messages from showing for new character
-                        // This ensures clean transition when switching characters
-                        canvasTextManager.DisplayManager.Clear();
-                    }
-                    
-                    // Clear enemy context to prevent old combat from showing
-                    // This ensures the render system doesn't think combat is active for the new character
-                    ClearCurrentEnemy();
-                    
-                    // Clear dungeon context to prevent old character's enemy info from showing
-                    // This ensures the dungeon context doesn't contain enemy info from the previous character
-                    contextManager.ClearDungeonContext();
-                    
-                    // Force a full layout render to ensure clean state
-                    // This ensures the enemy is cleared from the right panel and everything is refreshed
-                    ForceFullLayoutRender();
-                    
-                    RefreshCharacterPanel();
-                }
-                catch (Exception ex)
-                {
-                    // Log error but don't crash
-                    System.Diagnostics.Debug.WriteLine($"Error refreshing character panel on switch: {ex.Message}");
-                }
-            }, DispatcherPriority.Normal);
+            stateManager.CharacterSwitched += characterSwitchHandler.OnCharacterSwitched;
         }
         
         /// <summary>
@@ -259,16 +208,7 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         public void RefreshCharacterPanel()
         {
-            if (stateManager != null)
-            {
-                var activeCharacter = stateManager.GetActiveCharacter();
-                if (activeCharacter != null)
-                {
-                    SetCharacter(activeCharacter);
-                    // Force a re-render of the character panel if needed
-                    // The character panel should auto-update via contextManager
-                }
-            }
+            characterSwitchHandler.RefreshCharacterPanel();
         }
 
         #region IUIManager Implementation
@@ -287,40 +227,7 @@ namespace RPGGame.UI.Avalonia
 
         public void SetCharacter(Character? character)
         {
-            // Only set character if it matches the active character
-            // This prevents background combat from changing the character context
-            var activeCharacter = stateManager?.GetActiveCharacter();
-            
-            if (character == null || character == activeCharacter)
-            {
-                var previousCharacter = contextManager.GetCurrentCharacter();
-                contextManager.SetCurrentCharacter(character);
-                
-                // CRITICAL: If the character changed, clear the display buffer
-                // However, if we're in a menu state, don't trigger a render as it will interfere
-                // with menu rendering and cause flashing. Use ClearWithoutRender instead.
-                if (previousCharacter != character && textManager is CanvasTextManager canvasTextManager)
-                {
-                    // Check if we're in a menu state where display buffer rendering should be suppressed
-                    var currentState = stateManager?.CurrentState;
-                    bool isMenuState = Display.DisplayStateCoordinator.IsMenuState(currentState);
-                    
-                    if (isMenuState)
-                    {
-                        // In menu state - clear without triggering render to avoid interfering with menu rendering
-                        canvasTextManager.DisplayManager.ClearWithoutRender();
-                    }
-                    else
-                    {
-                        // Not in menu state - clear and trigger render normally
-                        canvasTextManager.DisplayManager.Clear();
-                        canvasTextManager.DisplayManager.TriggerRender();
-                    }
-                }
-                
-                // Character panel will auto-update via contextManager
-            }
-            // If character doesn't match active, this is background combat - don't change context
+            contextCoordinator.SetCharacter(character);
         }
 
         // Message writing methods - delegated to MessageWritingCoordinator
@@ -349,21 +256,7 @@ namespace RPGGame.UI.Avalonia
 
         public void SetDungeonContext(List<string> context)
         {
-            // If we're in a menu state, don't set dungeon context that might contain enemy info
-            // This prevents background combat from setting dungeon context with enemy info when in menus
-            var currentState = stateManager?.CurrentState;
-            bool isMenuState = Display.DisplayStateCoordinator.IsMenuState(currentState);
-            
-            if (isMenuState)
-            {
-                // In menu state - clear dungeon context instead of setting it
-                // This ensures old enemy info doesn't persist when switching to menus
-                contextManager.ClearDungeonContext();
-            }
-            else
-            {
-                contextManager.SetDungeonContext(context);
-            }
+            contextCoordinator.SetDungeonContext(context);
         }
         
         /// <summary>
@@ -371,94 +264,86 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         public bool IsCharacterActive(Character? character)
         {
-            return Display.DisplayStateCoordinator.IsCharacterActive(character, stateManager);
+            return contextCoordinator.IsCharacterActive(character);
         }
         
         public void SetCurrentEnemy(Enemy enemy)
         {
-            // Only set enemy if:
-            // 1. The current character matches the active character
-            // 2. We're NOT in a menu state (menus don't allow combat enemy display)
-            // This prevents background combat from setting enemy context for inactive characters or when in menus
-            var currentCharacter = contextManager.GetCurrentCharacter();
-            var activeCharacter = stateManager?.GetActiveCharacter();
-            var currentState = stateManager?.CurrentState;
-            bool characterMatches = currentCharacter != null && currentCharacter == activeCharacter;
-            
-            // Menu states where combat shouldn't set enemy context
-            bool isMenuState = Display.DisplayStateCoordinator.IsMenuState(currentState);
-            
-            if (characterMatches && !isMenuState && enemy != null)
-            {
-                contextManager.SetCurrentEnemy(enemy);
-            }
-            else
-            {
-                // If we're in a menu state, also clear any existing enemy to ensure clean state
-                // This handles the case where an enemy was set before entering a menu
-                if (isMenuState)
-                {
-                    contextManager.ClearCurrentEnemy();
-                }
-            }
-            // If characters don't match or in menu state, this is background combat or menu - don't set enemy context
+            contextCoordinator.SetCurrentEnemy(enemy);
         }
-        public void SetDungeonName(string? dungeonName) => contextManager.SetDungeonName(dungeonName);
-        public void SetRoomName(string? roomName) => contextManager.SetRoomName(roomName);
-        public void ClearCurrentEnemy() => contextManager.ClearCurrentEnemy();
+        
+        public void SetDungeonName(string? dungeonName)
+        {
+            contextCoordinator.SetDungeonName(dungeonName);
+        }
+        
+        public void SetRoomName(string? roomName)
+        {
+            contextCoordinator.SetRoomName(roomName);
+        }
+        
+        public void ClearCurrentEnemy()
+        {
+            contextCoordinator.ClearCurrentEnemy();
+        }
 
         #endregion
 
-        #region Screen Rendering - Delegated to ScreenRenderingCoordinator
+        #region Screen Rendering - Delegated to CanvasRenderer
 
-        public void RenderMainMenu() => screenRenderingCoordinator.RenderMainMenu();
+        public void RenderMainMenu() => renderer.RenderMainMenu(false, null, 0);
         public void RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel) 
-            => screenRenderingCoordinator.RenderMainMenu(hasSavedGame, characterName, characterLevel);
+            => renderer.RenderMainMenu(hasSavedGame, characterName, characterLevel);
         public void RenderInventory(Character character, List<Item> inventory) 
-            => screenRenderingCoordinator.RenderInventory(character, inventory);
+            => renderer.RenderInventory(character, inventory, contextManager.GetCurrentContext());
         public void RenderItemSelectionPrompt(Character character, List<Item> inventory, string promptMessage, string actionType) 
-            => screenRenderingCoordinator.RenderItemSelectionPrompt(character, inventory, promptMessage, actionType);
+            => renderer.RenderItemSelectionPrompt(character, inventory, promptMessage, actionType, contextManager.GetCurrentContext());
         public void RenderSlotSelectionPrompt(Character character) 
-            => screenRenderingCoordinator.RenderSlotSelectionPrompt(character);
+            => renderer.RenderSlotSelectionPrompt(character, contextManager.GetCurrentContext());
         public void RenderRaritySelectionPrompt(Character character, List<System.Linq.IGrouping<string, Item>> rarityGroups) 
-            => screenRenderingCoordinator.RenderRaritySelectionPrompt(character, rarityGroups);
+            => renderer.RenderRaritySelectionPrompt(character, rarityGroups, contextManager.GetCurrentContext());
         public void RenderTradeUpPreview(Character character, List<Item> itemsToTrade, Item resultingItem, string currentRarity, string nextRarity)
-            => screenRenderingCoordinator.RenderTradeUpPreview(character, itemsToTrade, resultingItem, currentRarity, nextRarity);
+            => renderer.RenderTradeUpPreview(character, itemsToTrade, resultingItem, currentRarity, nextRarity, contextManager.GetCurrentContext());
         public void RenderItemComparison(Character character, Item newItem, Item? currentItem, string slot) 
-            => screenRenderingCoordinator.RenderItemComparison(character, newItem, currentItem, slot);
+            => renderer.RenderItemComparison(character, newItem, currentItem, slot, contextManager.GetCurrentContext());
         public void RenderComboManagement(Character character) 
-            => screenRenderingCoordinator.RenderComboManagement(character);
+            => renderer.RenderComboManagement(character, contextManager.GetCurrentContext());
         public void RenderComboActionSelection(Character character, string actionType) 
-            => screenRenderingCoordinator.RenderComboActionSelection(character, actionType);
+            => renderer.RenderComboActionSelection(character, actionType, contextManager.GetCurrentContext());
         public void RenderComboReorderPrompt(Character character, string currentSequence = "") 
-            => screenRenderingCoordinator.RenderComboReorderPrompt(character, currentSequence);
+            => renderer.RenderComboReorderPrompt(character, currentSequence, contextManager.GetCurrentContext());
         public void RenderCombat(Character player, Enemy enemy, List<string> combatLog) 
-            => screenRenderingCoordinator.RenderCombat(player, enemy, combatLog);
+        {
+            if (player != null && enemy != null && combatLog != null)
+            {
+                renderer.RenderCombat(player, enemy, combatLog, contextManager.GetCurrentContext());
+            }
+        }
         public void RenderWeaponSelection(List<StartingWeapon> weapons) 
-            => screenRenderingCoordinator.RenderWeaponSelection(weapons);
+            => renderer.RenderWeaponSelection(weapons, contextManager.GetCurrentContext());
         public void RenderCharacterSelection(List<Character> characters, string? activeCharacterName, Dictionary<string, string> characterStatuses)
-            => screenRenderingCoordinator.RenderCharacterSelection(characters, activeCharacterName, characterStatuses);
+            => renderer.RenderCharacterSelection(characters, activeCharacterName, characterStatuses, contextManager.GetCurrentContext());
         public void RenderCharacterCreation(Character character) 
-            => screenRenderingCoordinator.RenderCharacterCreation(character);
-        public void RenderSettings() => screenRenderingCoordinator.RenderSettings();
-        public void RenderTestingMenu(string? subMenu = null) => screenRenderingCoordinator.RenderTestingMenu(subMenu);
-        public void RenderDeveloperMenu() => screenRenderingCoordinator.RenderDeveloperMenu();
+            => renderer.RenderCharacterCreation(character, contextManager.GetCurrentContext());
+        public void RenderSettings() => renderer.RenderSettings();
+        public void RenderTestingMenu(string? subMenu = null) => renderer.RenderTestingMenu(subMenu);
+        public void RenderDeveloperMenu() => renderer.RenderDeveloperMenu();
         public void RenderBattleStatisticsMenu(BattleStatisticsRunner.StatisticsResult? results, bool isRunning) => 
-            screenRenderingCoordinator.RenderBattleStatisticsMenu(results, isRunning);
+            renderer.RenderBattleStatisticsMenu(results, isRunning);
         public void RenderBattleStatisticsResults(BattleStatisticsRunner.StatisticsResult results) => 
-            screenRenderingCoordinator.RenderBattleStatisticsResults(results);
+            renderer.RenderBattleStatisticsResults(results);
 
         public void RenderWeaponTestResults(List<BattleStatisticsRunner.WeaponTestResult> results) => 
-            screenRenderingCoordinator.RenderWeaponTestResults(results);
+            renderer.RenderWeaponTestResults(results);
 
         public void RenderComprehensiveWeaponEnemyResults(BattleStatisticsRunner.ComprehensiveWeaponEnemyTestResult results) => 
-            screenRenderingCoordinator.RenderComprehensiveWeaponEnemyResults(results);
+            renderer.RenderComprehensiveWeaponEnemyResults(results);
         public void UpdateBattleStatisticsProgress(int completed, int total, string status)
         {
             // Update progress display - for now just log it
             ScrollDebugLogger.Log($"Battle Statistics: {completed}/{total} - {status}");
         }
-        public void RenderVariableEditor(EditableVariable? selectedVariable = null, bool isEditing = false, string? currentInput = null, string? message = null) => screenRenderingCoordinator.RenderVariableEditor(selectedVariable, isEditing, currentInput, message);
+        public void RenderVariableEditor(EditableVariable? selectedVariable = null, bool isEditing = false, string? currentInput = null, string? message = null) => renderer.RenderVariableEditor(selectedVariable, isEditing, currentInput, message);
         public void RenderTuningParametersMenu(string? selectedCategory = null, EditableVariable? selectedVariable = null, bool isEditing = false, string? currentInput = null, string? message = null)
         {
             // Show the interactive tuning panel instead of rendering on canvas
@@ -484,7 +369,7 @@ namespace RPGGame.UI.Avalonia
             
             ScrollDebugLogger.Log("CanvasUICoordinator.RenderTuningParametersMenu: Falling back to canvas rendering");
             // Fallback to canvas rendering if interactive panel not available
-            screenRenderingCoordinator.RenderTuningParametersMenu(selectedCategory, selectedVariable, isEditing, currentInput, message);
+            renderer.RenderTuningParametersMenu(selectedCategory, selectedVariable, isEditing, currentInput, message);
         }
         
         public void HideTuningParametersMenu()
@@ -494,11 +379,11 @@ namespace RPGGame.UI.Avalonia
                 mainWindow.HideTuningMenuPanel();
             }
         }
-        public void RenderActionEditor() => screenRenderingCoordinator.RenderActionEditor();
-        public void RenderActionList(List<ActionData> actions, int page) => screenRenderingCoordinator.RenderActionList(actions, page);
-        public void RenderCreateActionForm(ActionData actionData, int currentStep, string[] formSteps, string? currentInput = null, bool isEditMode = false) => screenRenderingCoordinator.RenderCreateActionForm(actionData, currentStep, formSteps, currentInput, isEditMode);
-        public void RenderActionDetails(ActionData action) => screenRenderingCoordinator.RenderActionDetails(action);
-        public void RenderDeleteActionConfirmation(ActionData action, string? errorMessage = null) => screenRenderingCoordinator.RenderDeleteActionConfirmation(action, errorMessage);
+        public void RenderActionEditor() => renderer.RenderActionEditor();
+        public void RenderActionList(List<ActionData> actions, int page) => renderer.RenderActionList(actions, page);
+        public void RenderCreateActionForm(ActionData actionData, int currentStep, string[] formSteps, string? currentInput = null, bool isEditMode = false) => renderer.RenderCreateActionForm(actionData, currentStep, formSteps, currentInput, isEditMode);
+        public void RenderActionDetails(ActionData action) => renderer.RenderActionDetails(action);
+        public void RenderDeleteActionConfirmation(ActionData action, string? errorMessage = null) => renderer.RenderDeleteActionConfirmation(action, errorMessage);
 
         public void RenderDungeonSelection(Character player, List<Dungeon> dungeons)
         {
@@ -513,37 +398,42 @@ namespace RPGGame.UI.Avalonia
             // - State transition
             // This method just performs the actual rendering.
             
-            if (screenRenderingCoordinator != null)
+            // Handle animation for dungeon selection
+            if (animationManager != null)
             {
-                // After validation, player and dungeons are guaranteed to be non-null
-                screenRenderingCoordinator.RenderDungeonSelection(player!, dungeons!);
+                animationManager.StartDungeonSelectionAnimation(player!, dungeons!);
             }
+            
+            // After validation, player and dungeons are guaranteed to be non-null
+            renderer.RenderDungeonSelection(player!, dungeons!, contextManager.GetCurrentContext());
         }
 
-        public void StopDungeonSelectionAnimation() => screenRenderingCoordinator.StopDungeonSelectionAnimation();
+        public void StopDungeonSelectionAnimation() => animationManager?.StopDungeonSelectionAnimation();
         public void RenderDungeonStart(Dungeon dungeon, Character player) 
-            => screenRenderingCoordinator.RenderDungeonStart(dungeon, player);
+            => renderer.RenderDungeonStart(dungeon, player, contextManager.GetCurrentContext());
         public void RenderRoomEntry(Environment room, Character player, string? dungeonName = null, int? startFromBufferIndex = null) 
-            => screenRenderingCoordinator.RenderRoomEntry(room, player, dungeonName, startFromBufferIndex);
+            => renderer.RenderRoomEntry(room, player, dungeonName, contextManager.GetCurrentContext(), startFromBufferIndex);
         public void RenderEnemyEncounter(Enemy enemy, Character player, List<string> dungeonLog, string? dungeonName = null, string? roomName = null) 
-            => screenRenderingCoordinator.RenderEnemyEncounter(enemy, player, dungeonLog, dungeonName, roomName);
+            => renderer.RenderEnemyEncounter(enemy, player, dungeonLog, dungeonName, roomName, contextManager.GetCurrentContext());
         public void RenderCombatResult(bool playerSurvived, Character player, Enemy enemy, BattleNarrative? battleNarrative = null, string? dungeonName = null, string? roomName = null) 
-            => screenRenderingCoordinator.RenderCombatResult(playerSurvived, player, enemy, battleNarrative, dungeonName, roomName);
+            => renderer.RenderCombatResult(playerSurvived, player, enemy, battleNarrative, dungeonName, roomName, contextManager.GetCurrentContext());
         public void RenderRoomCompletion(Environment room, Character player, string? dungeonName = null) 
-            => screenRenderingCoordinator.RenderRoomCompletion(room, player, dungeonName);
+            => renderer.RenderRoomCompletion(room, player, dungeonName, contextManager.GetCurrentContext());
         public void RenderDungeonCompletion(Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos, List<Item> itemsFoundDuringRun) 
-            => screenRenderingCoordinator.RenderDungeonCompletion(dungeon, player, xpGained, lootReceived, levelUpInfos, itemsFoundDuringRun);
+            => renderer.RenderDungeonCompletion(dungeon, player, xpGained, lootReceived, levelUpInfos ?? new List<LevelUpInfo>(), itemsFoundDuringRun ?? new List<Item>(), contextManager.GetCurrentContext());
         public void RenderDeathScreen(Character player, string defeatSummary) 
-            => screenRenderingCoordinator.RenderDeathScreen(player, defeatSummary);
+            => renderer.RenderDeathScreen(player, defeatSummary, contextManager.GetCurrentContext());
         public void RenderDungeonExploration(Character player, string currentLocation, List<string> availableActions, List<string> recentEvents) 
-            => screenRenderingCoordinator.RenderDungeonExploration(player, currentLocation, availableActions, recentEvents);
+            => renderer.RenderDungeonExploration(player, currentLocation, availableActions, recentEvents, contextManager.GetCurrentContext());
         public void RenderGameMenu(Character player, List<Item> inventory)
         {
             // Explicitly clear canvas before render to ensure clean state
             // This ensures the menu is always redrawn whenever it's cleared
             // Prevents the dynamic title from causing unwanted clears during render
             Clear();
-            screenRenderingCoordinator.RenderGameMenu(player, inventory);
+            // Ensure character is set in context manager for persistent display
+            contextManager.SetCurrentCharacter(player);
+            renderer.RenderGameMenu(player, inventory, contextManager.GetCurrentContext());
         }
 
         #endregion

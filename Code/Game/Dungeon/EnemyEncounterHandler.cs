@@ -70,6 +70,7 @@ namespace RPGGame
                 };
                 displayManager.AddCombatEvent("");
                 displayManager.AddCombatEvent(surpriseMessages[random.Next(surpriseMessages.Length)]);
+                displayManager.AddCombatEvent("");
             }
             
             // Only render UI if this character is currently active

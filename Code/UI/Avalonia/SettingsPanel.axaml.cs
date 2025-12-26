@@ -30,12 +30,12 @@ namespace RPGGame.UI.Avalonia
         private BattleStatisticsTabManager? battleStatisticsTabManager;
         private SettingsManager? settingsManager;
         private TestExecutionManager? testExecutionManager;
-        private SettingsEventManager? settingsEventManager;
         
         // Extracted managers
-        private SettingsTabInitializer? tabInitializer;
         private SettingsPersistenceManager? persistenceManager;
         private SettingsTestExecutor? testExecutor;
+        private SettingsEventWiring? eventWiring;
+        private SettingsInitialization? initialization;
         
         public SettingsPanel()
         {
@@ -54,34 +54,16 @@ namespace RPGGame.UI.Avalonia
             battleStatisticsTabManager = new BattleStatisticsTabManager();
             
             // Initialize extracted managers
-            tabInitializer = new SettingsTabInitializer(
+            persistenceManager = new SettingsPersistenceManager(settingsManager, gameVariablesTabManager);
+            initialization = new SettingsInitialization(
+                settingsManager,
                 gameVariablesTabManager,
                 actionsTabManager,
                 battleStatisticsTabManager,
                 ShowStatusMessage);
-            persistenceManager = new SettingsPersistenceManager(settingsManager, gameVariablesTabManager);
             
             // Wire up animation configuration updates for real-time changes
-            if (settingsManager != null)
-            {
-                var animationManager = settingsManager.GetAnimationSettingsManager();
-                if (animationManager != null)
-                {
-                    animationManager.OnConfigurationUpdated += () =>
-                    {
-                        // Reload animation configuration in CanvasAnimationManager
-                        var uiManager = RPGGame.UIManager.GetCustomUIManager();
-                        if (uiManager is CanvasUICoordinator coordinator)
-                        {
-                            var animManager = coordinator.GetAnimationManager();
-                            if (animManager is Managers.CanvasAnimationManager canvasAnimManager)
-                            {
-                                canvasAnimManager.ReloadAnimationConfiguration();
-                            }
-                        }
-                    };
-                }
-            }
+            initialization.InitializeAnimationConfiguration();
         }
         
         /// <summary>
@@ -132,23 +114,18 @@ namespace RPGGame.UI.Avalonia
                 ShowStatusMessage);
             
             // Initialize tab managers
-            if (tabInitializer != null)
+            if (initialization != null)
             {
-                tabInitializer.InitializeGameVariablesTab(GameVariablesCategoryListBox, GameVariablesPanel);
-                tabInitializer.InitializeActionsTab(ActionsListBox, ActionFormPanel, CreateActionButton, DeleteActionButton);
-                
-                var progressBorder = this.FindControl<Border>("ProgressBorder");
-                var progressBar = this.FindControl<ProgressBar>("ProgressBar");
-                var progressStatusText = this.FindControl<TextBlock>("ProgressStatusText");
-                var progressPercentageText = this.FindControl<TextBlock>("ProgressPercentageText");
-                var battleStatisticsResultsText = this.FindControl<TextBlock>("BattleStatisticsResultsText");
-                
-                tabInitializer.InitializeBattleStatisticsTab(
-                    progressBorder,
-                    progressBar,
-                    progressStatusText,
-                    progressPercentageText,
-                    battleStatisticsResultsText);
+                initialization.InitializeHandlers(
+                    testExecutionManager,
+                    testExecutor,
+                    GameVariablesCategoryListBox,
+                    GameVariablesPanel,
+                    ActionsListBox,
+                    ActionFormPanel,
+                    CreateActionButton,
+                    DeleteActionButton,
+                    this);
             }
         }
         
@@ -267,12 +244,9 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         private void WireUpEvents()
         {
-            // Fix TextBox focus styling to prevent white-on-white text
-            TextBoxStylingHelper.FixTextBoxFocusStyling(this);
-            
-            if (settingsEventManager == null)
+            if (eventWiring == null)
             {
-                settingsEventManager = new SettingsEventManager(
+                eventWiring = new SettingsEventWiring(
                     async (key) => 
                     {
                         if (testExecutor != null)
@@ -293,17 +267,18 @@ namespace RPGGame.UI.Avalonia
                         if (testExecutor != null)
                             await testExecutor.RunComprehensiveWeaponEnemyTests();
                     },
-                    () => OnSaveButtonClick(null, null!),
-                    () => OnResetButtonClick(null, null!),
-                    () => OnBackButtonClick(null, null!),
-                    () => 
+                    (System.Action)(() => OnSaveButtonClick(null, null!)),
+                    (System.Action)(() => OnResetButtonClick(null, null!)),
+                    (System.Action)(() => OnBackButtonClick(null, null!)),
+                    (System.Action)(() => 
                     {
                         if (testExecutor != null)
                             testExecutor.ShowBattleStatistics();
-                    });
+                    }));
             }
             
-            settingsEventManager.WireUpSliderEvents(
+            eventWiring.WireUpAllEvents(
+                this,
                 NarrativeBalanceSlider,
                 NarrativeBalanceTextBox,
                 CombatSpeedSlider,
@@ -323,31 +298,7 @@ namespace RPGGame.UI.Avalonia
                 UndulationSpeedSlider,
                 UndulationSpeedTextBox,
                 UndulationWaveLengthSlider,
-                UndulationWaveLengthTextBox);
-            
-            settingsEventManager.WireUpTextBoxEvents(
-                NarrativeBalanceTextBox,
-                NarrativeBalanceSlider,
-                CombatSpeedTextBox,
-                CombatSpeedSlider,
-                EnemyHealthMultiplierTextBox,
-                EnemyHealthMultiplierSlider,
-                EnemyDamageMultiplierTextBox,
-                EnemyDamageMultiplierSlider,
-                PlayerHealthMultiplierTextBox,
-                PlayerHealthMultiplierSlider,
-                PlayerDamageMultiplierTextBox,
-                PlayerDamageMultiplierSlider,
-                BrightnessMaskIntensityTextBox,
-                BrightnessMaskIntensitySlider,
-                BrightnessMaskWaveLengthTextBox,
-                BrightnessMaskWaveLengthSlider,
-                UndulationSpeedTextBox,
-                UndulationSpeedSlider,
                 UndulationWaveLengthTextBox,
-                UndulationWaveLengthSlider);
-            
-            settingsEventManager.WireUpButtonEvents(
                 SaveButton,
                 ResetButton,
                 BackButton,
@@ -364,13 +315,7 @@ namespace RPGGame.UI.Avalonia
                 ItemGenerationAnalysisButton,
                 TierDistributionTestButton,
                 CommonItemModificationTestButton,
-                ActionEditorTestsButton,
-                this.FindControl<Button>("QuickTestButton"),
-                this.FindControl<Button>("StandardTestButton"),
-                this.FindControl<Button>("ComprehensiveTestButton"),
-                this.FindControl<Button>("WeaponTypeTestButton"),
-                this.FindControl<Button>("ComprehensiveWeaponEnemyTestButton"),
-                this.FindControl<Button>("BattleStatisticsButton"));
+                ActionEditorTestsButton);
         }
         
         /// <summary>
