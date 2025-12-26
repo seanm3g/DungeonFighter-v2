@@ -315,10 +315,8 @@ namespace RPGGame
 
         public void ShowDeathScreen(Character player)
         {
-            stateManager.TransitionToState(GameState.Death);
-            
-            // Display the death screen with statistics
-            deathScreenHandler?.ShowDeathScreen(player);
+            // Use GameScreenCoordinator for standardized screen transition
+            screenCoordinator.ShowDeathScreen(player);
         }
 
         public void ShowMessage(string message)

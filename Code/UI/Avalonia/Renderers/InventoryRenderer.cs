@@ -126,6 +126,14 @@ namespace RPGGame.UI.Avalonia.Renderers
         {
             currentLineCount = selectionRenderer.RenderRaritySelectionPrompt(x, y, width, height, character, rarityGroups);
         }
+        
+        /// <summary>
+        /// Renders trade-up preview screen showing items to trade and the resulting item
+        /// </summary>
+        public void RenderTradeUpPreview(int x, int y, int width, int height, Character character, List<Item> itemsToTrade, Item resultingItem, string currentRarity, string nextRarity)
+        {
+            currentLineCount = selectionRenderer.RenderTradeUpPreview(x, y, width, height, character, itemsToTrade, resultingItem, currentRarity, nextRarity);
+        }
 
         /// <summary>
         /// Renders the combo management menu

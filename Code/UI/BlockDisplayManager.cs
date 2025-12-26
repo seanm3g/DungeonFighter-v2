@@ -279,9 +279,27 @@ namespace RPGGame
                 {
                     if (effect != null && effect.Count > 0)
                     {
+                        // Remove any existing leading whitespace to avoid double indentation
+                        // (effects may already have indentation from EnvironmentalActionExecutor)
+                        var trimmedEffect = new List<ColoredText>(effect);
+                        if (trimmedEffect.Count > 0)
+                        {
+                            string firstText = trimmedEffect[0].Text;
+                            if (string.IsNullOrWhiteSpace(firstText))
+                            {
+                                // First segment is whitespace-only - remove it
+                                trimmedEffect.RemoveAt(0);
+                            }
+                            else if (firstText.TrimStart() != firstText)
+                            {
+                                // First segment has leading whitespace - trim it
+                                trimmedEffect[0] = new ColoredText(firstText.TrimStart(), trimmedEffect[0].Color);
+                            }
+                        }
+                        
                         var indentedEffect = new ColoredTextBuilder();
-                        indentedEffect.Add("    ");
-                        indentedEffect.AddRange(effect);
+                        indentedEffect.Add("     "); // 5 spaces to match roll info bracket lines
+                        indentedEffect.AddRange(trimmedEffect);
                         UIManager.WriteColoredText(indentedEffect.Build());
                     }
                 }

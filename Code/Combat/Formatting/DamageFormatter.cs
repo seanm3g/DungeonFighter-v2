@@ -207,9 +207,9 @@ namespace RPGGame.Combat.Formatting
         /// </summary>
         public static void AddActorNoLongerAffected(ColoredTextBuilder builder, string actorName, ColorPalette actorColor, string effectName, ColorPalette effectColor)
         {
-            // Add indentation (4 spaces) and opening parenthesis
+            // Add indentation (5 spaces) and opening parenthesis
             // Note: No newline here - caller handles newlines when combining multiple messages
-            builder.Add("    (", Colors.White);
+            builder.Add("     (", Colors.White);
             // Add actor name (matching primary action block format - no brackets)
             builder.Add(actorName, actorColor);
             // Add "is no longer" with proper spacing
@@ -232,8 +232,8 @@ namespace RPGGame.Combat.Formatting
         /// </summary>
         public static void AddEffectStacksRemain(ColoredTextBuilder builder, string effectName, ColorPalette effectColor, int stacks)
         {
-            // Add indentation (4 spaces)
-            builder.Add("    (", Colors.White);
+            // Add indentation (5 spaces)
+            builder.Add("     (", Colors.White);
             // Add effect name
             builder.Add(effectName, effectColor);
             // Add colon

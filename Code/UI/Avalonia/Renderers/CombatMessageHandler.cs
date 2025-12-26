@@ -120,6 +120,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
             textManager.AddToDisplayBuffer(AsciiArtAssets.UIText.Divider, UIMessageType.Combat);
             textManager.AddToDisplayBuffer("", UIMessageType.Combat);
+            textManager.AddToDisplayBuffer("", UIMessageType.Combat);
             
             // Record that room cleared was displayed
             TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.RoomCleared);

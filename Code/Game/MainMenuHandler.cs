@@ -49,56 +49,37 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Display the main menu with saved game info
+        /// Display the main menu with saved game info.
+        /// Uses GameScreenCoordinator for standardized screen transition.
         /// </summary>
         public void ShowMainMenu()
         {
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "MainMenuHandler.cs:ShowMainMenu", message = "ShowMainMenu called", data = new { currentState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "H4" }) + "\n"); } catch { }
-            // #endregion
-            if (customUIManager is CanvasUICoordinator canvasUI)
+            // Check if we have a saved game - prefer in-memory player, but also check disk
+            bool hasSavedGame = false;
+            string? characterName = null;
+            int characterLevel = 0;
+            
+            // First check if player is already loaded in memory
+            if (stateManager.CurrentPlayer != null)
             {
-                // Suppress display buffer rendering FIRST before any operations that might trigger renders
-                // This prevents auto-renders from interfering with menu rendering and causing screen flashing
-                canvasUI.SuppressDisplayBufferRendering();
-                canvasUI.ClearDisplayBufferWithoutRender();
-                
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "MainMenuHandler.cs:ShowMainMenu", message = "About to render main menu", data = new { currentState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "H4" }) + "\n"); } catch { }
-                // #endregion
-                
-                // Check if we have a saved game - prefer in-memory player, but also check disk
-                bool hasSavedGame = false;
-                string? characterName = null;
-                int characterLevel = 0;
-                
-                // First check if player is already loaded in memory
-                if (stateManager.CurrentPlayer != null)
-                {
-                    hasSavedGame = true;
-                    characterName = stateManager.CurrentPlayer.Name;
-                    characterLevel = stateManager.CurrentPlayer.Level;
-                }
-                else
-                {
-                    // Check if save file exists on disk
-                    hasSavedGame = CharacterSaveManager.SaveFileExists();
-                    if (hasSavedGame)
-                    {
-                        // Get character info from save file without loading the full character
-                        (characterName, characterLevel) = CharacterSaveManager.GetSavedCharacterInfo();
-                    }
-                }
-                
-                canvasUI.RenderMainMenu(hasSavedGame, characterName, characterLevel);
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "MainMenuHandler.cs:ShowMainMenu", message = "Main menu rendered, transitioning state", data = new { currentState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "H4" }) + "\n"); } catch { }
-                // #endregion
+                hasSavedGame = true;
+                characterName = stateManager.CurrentPlayer.Name;
+                characterLevel = stateManager.CurrentPlayer.Level;
             }
-            stateManager.TransitionToState(GameState.MainMenu);
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "MainMenuHandler.cs:ShowMainMenu", message = "State transitioned to MainMenu", data = new { newState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "H4" }) + "\n"); } catch { }
-            // #endregion
+            else
+            {
+                // Check if save file exists on disk
+                hasSavedGame = CharacterSaveManager.SaveFileExists();
+                if (hasSavedGame)
+                {
+                    // Get character info from save file without loading the full character
+                    (characterName, characterLevel) = CharacterSaveManager.GetSavedCharacterInfo();
+                }
+            }
+            
+            // Use GameScreenCoordinator for standardized screen transition
+            var screenCoordinator = new GameScreenCoordinator(stateManager);
+            screenCoordinator.ShowMainMenu(hasSavedGame, characterName, characterLevel);
         }
 
         /// <summary>

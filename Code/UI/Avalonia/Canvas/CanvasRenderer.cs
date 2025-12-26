@@ -89,7 +89,53 @@ namespace RPGGame.UI.Avalonia.Canvas
             // Background
             context.FillRectangle(new SolidColorBrush(progressBar.BackgroundColor), new Rect(x, y, width, height));
 
-            // Progress
+            // Calculate current health from progress
+            int currentHealth = (int)(progressBar.Progress * progressBar.MaxHealth);
+            
+            // Render damage delta overlay (yellow) if applicable
+            if (progressBar.PreviousHealth.HasValue && progressBar.DamageDeltaStartTime.HasValue)
+            {
+                int previousHealth = progressBar.PreviousHealth.Value;
+                int damageDelta = previousHealth - currentHealth;
+                
+                if (damageDelta > 0)
+                {
+                    // Calculate elapsed time since damage
+                    var elapsed = System.DateTime.Now - progressBar.DamageDeltaStartTime.Value;
+                    double fadeDuration = 1.0; // 1 second
+                    
+                    if (elapsed.TotalSeconds < fadeDuration)
+                    {
+                        // Calculate fade alpha (1.0 at start, 0.0 after 1 second)
+                        double alpha = 1.0 - (elapsed.TotalSeconds / fadeDuration);
+                        alpha = System.Math.Max(0.0, System.Math.Min(1.0, alpha));
+                        
+                        // Calculate the position and width of the damage delta overlay
+                        // The delta starts at the current health position and extends to previous health
+                        double previousProgress = (double)previousHealth / progressBar.MaxHealth;
+                        double currentProgress = progressBar.Progress;
+                        
+                        // Delta overlay starts at current health and extends to previous health
+                        double deltaStartX = x + (width * currentProgress);
+                        double deltaWidth = width * (previousProgress - currentProgress);
+                        
+                        if (deltaWidth > 0)
+                        {
+                            // Create yellow color with alpha fade
+                            var yellowColor = Color.FromArgb(
+                                (byte)(255 * alpha),
+                                Colors.Yellow.R,
+                                Colors.Yellow.G,
+                                Colors.Yellow.B
+                            );
+                            
+                            context.FillRectangle(new SolidColorBrush(yellowColor), new Rect(deltaStartX, y, deltaWidth, height));
+                        }
+                    }
+                }
+            }
+
+            // Progress (current health)
             double progressWidth = width * progressBar.Progress;
             context.FillRectangle(new SolidColorBrush(progressBar.ForegroundColor), new Rect(x, y, progressWidth, height));
 

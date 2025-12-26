@@ -405,11 +405,20 @@ The `GameScreenCoordinator` provides a **single place** to manage how core game 
 
 #### Current Implementation
 
-The coordinator currently handles three core screens:
+The coordinator now handles ALL screen transitions using the standardized `ScreenTransitionProtocol`:
 
 - **`ShowGameLoop()`**: Renders the main in-game menu with persistent character panel
-- **`ShowDungeonCompletion(int xpGained, Item? lootReceived)`**: Renders dungeon completion screen with rewards
 - **`ShowInventory()`**: Renders inventory screen with clean transitions from other screens
+- **`ShowDungeonCompletion(...)`**: Renders dungeon completion screen with rewards
+- **`ShowMainMenu(...)`**: Renders main menu with saved game info
+- **`ShowDeathScreen(Character)`**: Renders death screen with run statistics
+- **`ShowDungeonSelection()`**: Renders dungeon selection screen
+- **`ShowSettings()`**: Renders settings menu
+- **`ShowCharacterInfo()`**: Shows character info in persistent layout
+- **`ShowWeaponSelection(List<StartingWeapon>)`**: Renders weapon selection screen
+- **`ShowCharacterCreation(Character)`**: Renders character creation screen
+
+All methods use `ScreenTransitionProtocol` internally for consistent behavior.
 
 #### Usage Pattern
 
@@ -435,12 +444,16 @@ When adding new screens or refactoring existing ones:
 3. **Simplify handlers** to just trigger events (or call `Game.ShowX()` directly)
 4. **Document the screen** in this section
 
-#### Future Enhancements
+#### Screen Transition Protocol
 
-- Add `ShowDungeonSelection()` for dungeon selection screen
-- Add `ShowDeathScreen()` for death screen
-- Add `ShowCharacterInfo()` for character info screen
-- Consider adding a `ScreenContext` record type to carry required data for each screen
+All screen transitions now use the standardized `ScreenTransitionProtocol` which ensures:
+
+1. **Consistent Sequence**: All screens follow the same 9-step protocol
+2. **Automatic Display Buffer Management**: `DisplayBufferManager` handles suppression/restoration automatically
+3. **Explicit Canvas Clearing**: Canvas is always cleared explicitly, preventing title-change detection issues
+4. **State Tracking**: Last rendered screen state is tracked to prevent unnecessary re-renders
+
+See **[Canvas Rendering Architecture Analysis](./CANVAS_RENDERING_ARCHITECTURE_ANALYSIS.md)** for detailed protocol documentation.
 
 ## Related Documentation
 

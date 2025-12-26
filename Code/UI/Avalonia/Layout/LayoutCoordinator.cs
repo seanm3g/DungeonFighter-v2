@@ -37,16 +37,13 @@ namespace RPGGame.UI.Avalonia.Layout
             CharacterPanelRenderer characterPanelRenderer,
             RightPanelRenderer rightPanelRenderer)
         {
-            // Check if title changed - this determines if we need to clear canvas
+            // Check if title changed - used for border rendering, not for clearing decisions
+            // Clearing is now handled explicitly by ScreenTransitionProtocol, so we respect
+            // the clearCanvas parameter directly without title-change detection interfering
             bool titleChanged = title != lastRenderedTitle;
-            // Only force clearCanvas=true if title changed AND clearCanvas is not explicitly false
-            // This allows callers to prevent double-clearing when they've already cleared the canvas
-            // If clearCanvas was explicitly set to false, respect that and don't override it
-            if (titleChanged && clearCanvas)
-            {
-                clearCanvas = true; // Force full render when title changes (only if not explicitly false)
-            }
-            // If clearCanvas is false, it stays false (caller has already cleared, don't clear again)
+            
+            // Respect the clearCanvas parameter directly - no automatic clearing based on title changes
+            // This prevents unexpected clears with dynamic titles and ensures explicit control
             
             if (clearCanvas)
             {

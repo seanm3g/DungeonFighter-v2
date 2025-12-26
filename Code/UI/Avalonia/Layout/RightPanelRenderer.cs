@@ -198,7 +198,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 y++;
                 
                 int enemyHealthBarWidth = LayoutConstants.RIGHT_PANEL_WIDTH - 6;
-                canvas.AddHealthBar(x, y, enemyHealthBarWidth, enemy.CurrentHealth, enemy.MaxHealth, AsciiArtAssets.Colors.Green, AsciiArtAssets.Colors.DarkGreen);
+                canvas.AddHealthBar(x, y, enemyHealthBarWidth, enemy.CurrentHealth, enemy.MaxHealth, AsciiArtAssets.Colors.Green, AsciiArtAssets.Colors.DarkGreen, entityId: $"enemy_{enemy.Name}");
                 canvas.AddText(x, y + 1, $"{enemy.CurrentHealth}/{enemy.MaxHealth}", AsciiArtAssets.Colors.White);
                 y += 3;
                 

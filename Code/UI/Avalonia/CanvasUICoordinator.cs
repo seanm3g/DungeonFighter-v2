@@ -38,11 +38,30 @@ namespace RPGGame.UI.Avalonia
         private readonly ColoredTextCoordinator coloredTextCoordinator;
         private readonly BatchOperationCoordinator batchOperationCoordinator;
         private readonly Display.DisplayUpdateCoordinator displayUpdateCoordinator;
+        private readonly Display.DisplayBufferManager displayBufferManager;
         
         private System.Action? closeAction = null;
         private MainWindow? mainWindow = null;
         private GameCoordinator? game = null;
         private GameStateManager? stateManager = null;
+        
+        // Screen state tracking to prevent unnecessary re-renders
+        private GameState? lastRenderedScreenState = null;
+        
+        /// <summary>
+        /// Gets the last rendered screen state.
+        /// Used to prevent unnecessary re-renders when already showing the same screen.
+        /// </summary>
+        public GameState? LastRenderedScreenState => lastRenderedScreenState;
+        
+        /// <summary>
+        /// Sets the last rendered screen state.
+        /// Called by ScreenTransitionProtocol after rendering.
+        /// </summary>
+        internal void SetLastRenderedScreenState(GameState state)
+        {
+            lastRenderedScreenState = state;
+        }
 
         public CanvasUICoordinator(GameCanvasControl canvas)
         {
@@ -73,6 +92,9 @@ namespace RPGGame.UI.Avalonia
                 displayManager = canvasTextManager.DisplayManager;
             }
             this.displayUpdateCoordinator = new Display.DisplayUpdateCoordinator(canvas, textManager, displayManager);
+            
+            // Create DisplayBufferManager for automatic display buffer state management
+            this.displayBufferManager = new Display.DisplayBufferManager(this);
             
             // Set up animation manager with proper dependencies
             var dungeonRenderer = new DungeonRenderer(canvas, new Renderers.ColoredTextWriter(canvas), interactionManager.ClickableElements);
@@ -180,6 +202,9 @@ namespace RPGGame.UI.Avalonia
                     canvasAnimationManager.SetCritLineReRenderCallback(critLineReRenderCallback);
                 }
             }
+            
+            // Set state manager in DisplayBufferManager for automatic state-based management
+            displayBufferManager.SetStateManager(stateManager);
             
             // Subscribe to character switch events for multi-character support
             stateManager.CharacterSwitched += OnCharacterSwitched;
@@ -397,6 +422,8 @@ namespace RPGGame.UI.Avalonia
             => screenRenderingCoordinator.RenderSlotSelectionPrompt(character);
         public void RenderRaritySelectionPrompt(Character character, List<System.Linq.IGrouping<string, Item>> rarityGroups) 
             => screenRenderingCoordinator.RenderRaritySelectionPrompt(character, rarityGroups);
+        public void RenderTradeUpPreview(Character character, List<Item> itemsToTrade, Item resultingItem, string currentRarity, string nextRarity)
+            => screenRenderingCoordinator.RenderTradeUpPreview(character, itemsToTrade, resultingItem, currentRarity, nextRarity);
         public void RenderItemComparison(Character character, Item newItem, Item? currentItem, string slot) 
             => screenRenderingCoordinator.RenderItemComparison(character, newItem, currentItem, slot);
         public void RenderComboManagement(Character character) 
@@ -478,16 +505,13 @@ namespace RPGGame.UI.Avalonia
             RPGGame.Utils.InputValidator.ValidateNotNull(player, nameof(player));
             RPGGame.Utils.InputValidator.ValidateNotNull(dungeons, nameof(dungeons));
             
-            // Clear clickable elements to remove game menu options
-            ClearClickableElements();
-            
-            // Suppress display buffer rendering (matches pattern in ShowInventory)
-            SuppressDisplayBufferRendering();
-            ClearDisplayBufferWithoutRender();
-            
-            // Clear canvas BEFORE rendering to remove the game menu
-            // This ensures the game menu is removed when transitioning to dungeon selection
-            Clear();
+            // Note: When called from GameScreenCoordinator via ScreenTransitionProtocol,
+            // the protocol already handles:
+            // - Display buffer suppression and clearing
+            // - Clickable elements clearing
+            // - Canvas clearing
+            // - State transition
+            // This method just performs the actual rendering.
             
             if (screenRenderingCoordinator != null)
             {

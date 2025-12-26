@@ -67,7 +67,7 @@ namespace RPGGame.UI.Avalonia.Layout
             canvas.ClearProgressBarsInArea(x, healthBarY, healthBarWidth, 1);
             canvas.ClearTextInArea(x, hpValueY, healthBarWidth, 1);
             
-            canvas.AddHealthBar(x, y, healthBarWidth, character.CurrentHealth, character.GetEffectiveMaxHealth());
+            canvas.AddHealthBar(x, y, healthBarWidth, character.CurrentHealth, character.GetEffectiveMaxHealth(), entityId: $"player_{character.Name}");
             canvas.AddText(x, y + 1, $"{character.CurrentHealth}/{character.GetEffectiveMaxHealth()}", AsciiArtAssets.Colors.White);
             y += 3;
             
@@ -133,7 +133,8 @@ namespace RPGGame.UI.Avalonia.Layout
                     string actionName = action.Name;
                     
                     // Truncate long action names to fit in the panel (accounts for padding: panel width - left padding - right border - arrow space)
-                    const int maxActionNameLength = 30; // Increased from 18 to match expanded panel width
+                    // Panel width is 32, left padding is 2, right border is 1, arrow "→ " is 2, so available width is 27
+                    const int maxActionNameLength = 27; // Panel width (32) - left padding (2) - right border (1) - arrow (2) = 27
                     if (actionName.Length > maxActionNameLength)
                     {
                         actionName = actionName.Substring(0, maxActionNameLength - 3) + "...";
@@ -175,8 +176,8 @@ namespace RPGGame.UI.Avalonia.Layout
                 var itemNameSegments = ItemDisplayColoredText.FormatFullItemName(item);
                 
                 // Wrap text if it's too long (max width accounts for padding: panel width - left padding - right border)
-                // Panel width is 32, left padding is 2, right border is 1, so available width is ~29
-                const int maxWidth = 30; // Increased from 17 to utilize more of the expanded panel width
+                // Panel width is 32, left padding is 2, right border is 1, so available width is 29
+                const int maxWidth = 29; // Panel width (32) - left padding (2) - right border (1) = 29
                 var wrappedLines = textWriter.WrapColoredSegments(itemNameSegments, maxWidth);
                 
                 // Render each wrapped line with proper colors

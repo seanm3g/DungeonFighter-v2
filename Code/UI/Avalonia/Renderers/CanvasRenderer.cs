@@ -132,6 +132,14 @@ namespace RPGGame.UI.Avalonia.Renderers
                 inventoryRenderer.RenderRaritySelectionPrompt(contentX, contentY, contentWidth, contentHeight, character, rarityGroups);
             }, context);
         }
+        
+        public void RenderTradeUpPreview(Character character, List<Item> itemsToTrade, Item resultingItem, string currentRarity, string nextRarity, CanvasContext context)
+        {
+            RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
+            {
+                inventoryRenderer.RenderTradeUpPreview(contentX, contentY, contentWidth, contentHeight, character, itemsToTrade, resultingItem, currentRarity, nextRarity);
+            }, context);
+        }
 
         public void RenderItemComparison(Character character, Item newItem, Item? currentItem, string slot, CanvasContext context)
         {

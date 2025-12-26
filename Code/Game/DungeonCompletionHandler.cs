@@ -69,22 +69,13 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Clears the display buffer when transitioning from dungeon completion
-        /// to dungeon selection or inventory
+        /// Clears the display buffer when transitioning from dungeon completion.
+        /// DisplayBufferManager and ScreenTransitionProtocol will handle suppression/restoration automatically.
         /// </summary>
         private void ClearDisplayIfNeeded()
         {
-            // Access UI manager through a static reference or dependency injection
-            // For now, we'll need to get it from UIManager
-            var uiManager = UIManager.GetCustomUIManager();
-            if (uiManager is RPGGame.UI.Avalonia.CanvasUICoordinator canvasUI)
-            {
-                // Suppress display buffer rendering first to prevent any auto-renders
-                // that might interfere with the next screen transition
-                canvasUI.SuppressDisplayBufferRendering();
-                // Clear buffer without triggering a render
-                canvasUI.ClearDisplayBufferWithoutRender();
-            }
+            // Display buffer management is now handled automatically by DisplayBufferManager
+            // and ScreenTransitionProtocol, so no manual calls needed here
         }
     }
 }

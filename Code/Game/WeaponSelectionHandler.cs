@@ -41,39 +41,32 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Display weapon selection screen
+        /// Display weapon selection screen.
+        /// Uses GameScreenCoordinator for standardized screen transition.
         /// </summary>
         public void ShowWeaponSelection()
         {
             try
             {
-                DebugLogger.Log("WeaponSelectionHandler", $"customUIManager type: {customUIManager?.GetType().Name ?? "null"}");
-                if (customUIManager is CanvasUICoordinator canvasUI)
+                if (stateManager.CurrentPlayer == null)
                 {
-                    if (stateManager.CurrentPlayer != null)
-                    {
-                        // Display buffer rendering should already be suppressed by the calling handler
-                        // to prevent auto-renders from interfering with menu rendering
-                        
-                        // Load weapons from starting gear
-                        availableWeapons = LoadStartingWeapons();
-                        
-                        // Display the weapon selection screen
-                        canvasUI.RenderWeaponSelection(availableWeapons);
-                    }
-                    else
-                    {
-                        ShowMessageEvent?.Invoke("No character selected. Cannot show weapon selection.");
-                        DebugLogger.Log("WeaponSelectionHandler", "CurrentPlayer is null");
-                    }
-                }
-                else
-                {
-                    DebugLogger.Log("WeaponSelectionHandler", "customUIManager is not CanvasUICoordinator");
+                    ShowMessageEvent?.Invoke("No character selected. Cannot show weapon selection.");
+                    DebugLogger.Log("WeaponSelectionHandler", "CurrentPlayer is null");
+                    return;
                 }
                 
-                // State transition is now handled by the calling handler AFTER rendering
-                // to prevent canvas clearing during state transition from causing flashing
+                // Load weapons from starting gear
+                availableWeapons = LoadStartingWeapons();
+                
+                if (availableWeapons == null || availableWeapons.Count == 0)
+                {
+                    ShowMessageEvent?.Invoke("No weapons available. Cannot show weapon selection.");
+                    return;
+                }
+                
+                // Use GameScreenCoordinator for standardized screen transition
+                var screenCoordinator = new GameScreenCoordinator(stateManager);
+                screenCoordinator.ShowWeaponSelection(availableWeapons);
             }
             catch (Exception ex)
             {

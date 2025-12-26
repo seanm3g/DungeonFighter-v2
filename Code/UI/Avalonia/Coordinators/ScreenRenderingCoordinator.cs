@@ -77,6 +77,14 @@ namespace RPGGame.UI.Avalonia.Coordinators
         }
         
         /// <summary>
+        /// Renders trade-up preview screen
+        /// </summary>
+        public void RenderTradeUpPreview(Character character, List<Item> itemsToTrade, Item resultingItem, string currentRarity, string nextRarity)
+        {
+            renderer.RenderTradeUpPreview(character, itemsToTrade, resultingItem, currentRarity, nextRarity, contextManager.GetCurrentContext());
+        }
+        
+        /// <summary>
         /// Renders item comparison screen
         /// </summary>
         public void RenderItemComparison(Character character, Item newItem, Item? currentItem, string slot)

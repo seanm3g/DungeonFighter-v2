@@ -166,12 +166,37 @@ namespace RPGGame
                 if (rarityChoice > 0 && rarityChoice <= rarityGroups.Count)
                 {
                     var selectedRarity = rarityGroups[rarityChoice - 1].Key;
-                    tradeUpHandler.PerformTradeUp(selectedRarity);
+                    tradeUpHandler.ShowTradeUpPreview(selectedRarity);
                 }
                 else
                 {
                     ShowMessageEvent?.Invoke("Invalid rarity selection.");
                     ShowInventoryEvent?.Invoke();
+                }
+                return;
+            }
+            
+            // Handle trade-up confirmation
+            if (stateTracker.WaitingForTradeUpConfirmation && int.TryParse(input, out int confirmationChoice))
+            {
+                stateTracker.WaitingForTradeUpConfirmation = false;
+                
+                if (confirmationChoice == 1 && !string.IsNullOrEmpty(stateTracker.SelectedTradeUpRarity))
+                {
+                    // Confirm trade-up
+                    tradeUpHandler.PerformTradeUp(stateTracker.SelectedTradeUpRarity);
+                    stateTracker.SelectedTradeUpRarity = null;
+                }
+                else if (confirmationChoice == 0)
+                {
+                    // Cancel trade-up
+                    ShowMessageEvent?.Invoke("Trade-up cancelled.");
+                    stateTracker.SelectedTradeUpRarity = null;
+                    ShowInventoryEvent?.Invoke();
+                }
+                else
+                {
+                    ShowMessageEvent?.Invoke("Invalid choice. Press 1 to confirm or 0 to cancel.");
                 }
                 return;
             }

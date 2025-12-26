@@ -32,18 +32,19 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Display character creation/customization screen
+        /// Display character creation/customization screen.
+        /// Uses GameScreenCoordinator for standardized screen transition.
         /// </summary>
         public void ShowCharacterCreation()
         {
-            if (customUIManager is CanvasUICoordinator canvasUI && stateManager.CurrentPlayer != null)
+            if (stateManager.CurrentPlayer == null)
             {
-                // Ensure character is set in UI coordinator for persistent display
-                canvasUI.SetCharacter(stateManager.CurrentPlayer);
-                // Render the character creation screen showing character details
-                canvasUI.RenderCharacterCreation(stateManager.CurrentPlayer);
+                return;
             }
-            stateManager.TransitionToState(GameState.CharacterCreation);
+            
+            // Use GameScreenCoordinator for standardized screen transition
+            var screenCoordinator = new GameScreenCoordinator(stateManager);
+            screenCoordinator.ShowCharacterCreation(stateManager.CurrentPlayer);
         }
 
         /// <summary>

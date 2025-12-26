@@ -24,7 +24,10 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Display the death screen with run statistics
+        /// Display the death screen with run statistics.
+        /// Note: This method is kept for console UI fallback and backward compatibility.
+        /// For CanvasUI, Game.cs uses GameScreenCoordinator.ShowDeathScreen() which uses
+        /// the standardized ScreenTransitionProtocol.
         /// </summary>
         public void ShowDeathScreen(Character? player)
         {
@@ -36,25 +39,13 @@ namespace RPGGame
             // Get defeat summary
             string defeatSummary = player.GetDefeatSummary();
             
-            // Clear display buffer and suppress auto-rendering to prevent blank screen
             var uiManager = UIManager.GetCustomUIManager();
             if (uiManager is RPGGame.UI.Avalonia.CanvasUICoordinator canvasUI)
             {
-                // Suppress display buffer auto-rendering FIRST to prevent any pending renders
-                canvasUI.SuppressDisplayBufferRendering();
-                // Clear buffer without triggering a render (since we're suppressing rendering anyway)
-                canvasUI.ClearDisplayBufferWithoutRender();
-                canvasUI.ClearClickableElements();
-                
-                // Force a full clear of the canvas before rendering death screen
-                canvasUI.Clear();
-                
-                // Render death screen using the canvas UI
-                canvasUI.RenderDeathScreen(player, defeatSummary);
-                
-                // Force refresh to ensure death screen is displayed
-                canvasUI.Refresh();
-                DebugLogger.Log("DeathScreenHandler", "Death screen rendered, forcing canvas refresh");
+                // Use GameScreenCoordinator for standardized screen transition
+                // This ensures consistent behavior with the protocol
+                var screenCoordinator = new GameScreenCoordinator(stateManager);
+                screenCoordinator.ShowDeathScreen(player);
             }
             else
             {
@@ -120,16 +111,16 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Clears the display buffer when transitioning from death screen
-        /// Also restores display buffer rendering for the main menu
+        /// Clears the display buffer when transitioning from death screen.
+        /// DisplayBufferManager will automatically handle restoration when transitioning to MainMenu.
         /// </summary>
         private void ClearDisplayIfNeeded()
         {
             var uiManager = UIManager.GetCustomUIManager();
             if (uiManager is RPGGame.UI.Avalonia.CanvasUICoordinator canvasUI)
             {
-                // Restore display buffer rendering for main menu
-                canvasUI.RestoreDisplayBufferRendering();
+                // Clear buffer - DisplayBufferManager will handle restoration automatically
+                // when state transitions to MainMenu (non-menu state)
                 canvasUI.ClearDisplayBuffer();
             }
         }

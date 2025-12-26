@@ -16,6 +16,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         void RenderItemSelectionPrompt(Character character, List<Item> inventory, string promptMessage, string actionType, CanvasContext context);
         void RenderSlotSelectionPrompt(Character character, CanvasContext context);
         void RenderRaritySelectionPrompt(Character character, List<System.Linq.IGrouping<string, Item>> rarityGroups, CanvasContext context);
+        void RenderTradeUpPreview(Character character, List<Item> itemsToTrade, Item resultingItem, string currentRarity, string nextRarity, CanvasContext context);
         void RenderItemComparison(Character character, Item newItem, Item? currentItem, string slot, CanvasContext context);
         void RenderWeaponSelection(List<StartingWeapon> weapons, CanvasContext context);
         void RenderCharacterCreation(Character character, CanvasContext context);

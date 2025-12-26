@@ -29,7 +29,8 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Display the settings menu - now uses GUI panel instead of canvas rendering
+        /// Display the settings menu - now uses GUI panel instead of canvas rendering.
+        /// Uses GameScreenCoordinator for standardized screen transition when falling back to canvas.
         /// </summary>
         public void ShowSettings()
         {
@@ -51,16 +52,15 @@ namespace RPGGame
                     }
                 }
                 
-                // Fallback to canvas rendering if MainWindow not available or error occurred
-                canvasUI.SuppressDisplayBufferRendering();
-                canvasUI.ClearDisplayBufferWithoutRender();
-                canvasUI.RenderSettings();
+                // Fallback to canvas rendering using GameScreenCoordinator
+                var screenCoordinator = new GameScreenCoordinator(stateManager);
+                screenCoordinator.ShowSettings();
             }
             else
             {
                 ScrollDebugLogger.Log($"SettingsMenuHandler: UI manager is not CanvasUICoordinator (type={customUIManager?.GetType().Name ?? "null"})");
+                stateManager.TransitionToState(GameState.Settings);
             }
-            stateManager.TransitionToState(GameState.Settings);
         }
 
         /// <summary>

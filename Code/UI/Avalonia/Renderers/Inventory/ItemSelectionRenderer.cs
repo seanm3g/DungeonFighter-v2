@@ -193,6 +193,81 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         }
         
         /// <summary>
+        /// Renders trade-up preview screen showing items to trade and the resulting item
+        /// </summary>
+        public int RenderTradeUpPreview(int x, int y, int width, int height, Character character, List<Item> itemsToTrade, Item resultingItem, string currentRarity, string nextRarity)
+        {
+            int currentLineCount = 0;
+            
+            // Show header
+            canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader("TRADE UP PREVIEW"), AsciiArtAssets.Colors.Gold);
+            y += 2;
+            currentLineCount += 2;
+            
+            // Show trade-up information
+            canvas.AddText(x + 2, y, $"Trade Up: 5 {currentRarity} items → 1 {nextRarity} item", AsciiArtAssets.Colors.Cyan);
+            y += 2;
+            currentLineCount += 2;
+            
+            canvas.AddText(x + 2, y, "Items being traded (5 required):", AsciiArtAssets.Colors.White);
+            y += 2;
+            currentLineCount += 2;
+            
+            // Show the 5 items being traded
+            for (int i = 0; i < itemsToTrade.Count && i < 5; i++)
+            {
+                var item = itemsToTrade[i];
+                var itemStats = ItemStatFormatter.GetItemStats(item, character);
+                
+                // Render item name with colored text
+                ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, i, item, useColoredText: true);
+                y++;
+                currentLineCount++;
+                
+                // Render stats with colored text
+                ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, itemStats, ref y, ref currentLineCount, useColoredText: true);
+            }
+            
+            y += 2;
+            currentLineCount += 2;
+            
+            // Show separator and resulting item
+            canvas.AddText(x + 2, y, "─────────────────────────────────", AsciiArtAssets.Colors.Gray);
+            y += 2;
+            currentLineCount += 2;
+            
+            canvas.AddText(x + 2, y, $"Resulting {nextRarity} item:", AsciiArtAssets.Colors.Gold);
+            y += 2;
+            currentLineCount += 2;
+            
+            // Render resulting item
+            var resultingItemStats = ItemStatFormatter.GetItemStats(resultingItem, character);
+            ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, -1, resultingItem, useColoredText: true);
+            y++;
+            currentLineCount++;
+            
+            // Render resulting item stats
+            ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, resultingItemStats, ref y, ref currentLineCount, useColoredText: true);
+            
+            y += 2;
+            currentLineCount += 2;
+            
+            // Show confirmation options
+            var confirmButton = InventoryButtonFactory.CreateButton(x + 2, y, 28, "1", MenuOptionFormatter.Format(1, "Confirm Trade Up"));
+            clickableElements.Add(confirmButton);
+            canvas.AddMenuOption(x + 2, y, 1, "Confirm Trade Up", AsciiArtAssets.Colors.Green, confirmButton.IsHovered);
+            y++;
+            currentLineCount++;
+            
+            var cancelButton = InventoryButtonFactory.CreateButton(x + 2, y, 28, "0", MenuOptionFormatter.Format(0, UIConstants.MenuOptions.Cancel));
+            clickableElements.Add(cancelButton);
+            canvas.AddMenuOption(x + 2, y, 0, UIConstants.MenuOptions.Cancel, AsciiArtAssets.Colors.White, cancelButton.IsHovered);
+            currentLineCount++;
+            
+            return currentLineCount;
+        }
+        
+        /// <summary>
         /// Gets the next rarity tier in progression
         /// </summary>
         private string GetNextRarity(string currentRarity)

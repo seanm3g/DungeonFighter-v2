@@ -35,10 +35,11 @@ namespace RPGGame
 
         /// <summary>
         /// Selects an action based on dice roll logic:
-        /// - Roll 14+ = COMBO action (all actions in game are combo actions)
-        /// - Roll 6-13 = BASIC ATTACK (normal attack, non-combo)
-        /// - Roll < 6 = BASIC ATTACK (normal attack, non-combo)
+        /// - Natural 20 or total roll (base + bonuses) 14+ = COMBO action (all actions in game are combo actions)
+        /// - Total roll 6-13 = BASIC ATTACK (normal attack, non-combo)
+        /// - Total roll < 6 = BASIC ATTACK (normal attack, non-combo)
         /// For heroes only
+        /// Note: Bonuses can help trigger combo actions by pushing total roll to 14+
         /// </summary>
         /// <param name="source">The Actor selecting the action</param>
         /// <returns>The selected action or null if no action available</returns>
@@ -61,19 +62,19 @@ namespace RPGGame
             int rollBonus = ActionUtilities.CalculateRollBonus(source, null);
             int totalRoll = baseRoll + rollBonus;
             
-            // Determine action type based on base roll (not total roll with bonuses)
-            // Bonuses affect hit chance and damage, but base roll determines action type
+            // Determine action type based on total roll (base roll + bonuses)
+            // Natural 20 always triggers combo, otherwise use total roll for threshold
             Action? selectedAction = null;
             
             if (baseRoll == 20) // Natural 20 - always combo + critical hit
             {
                 selectedAction = SelectComboAction(source);
             }
-            else if (baseRoll >= 14) // Combo threshold (14-19) - base roll only, no bonuses
+            else if (totalRoll >= 14) // Combo threshold (14+) - use total roll so bonuses can trigger combos
             {
                 selectedAction = SelectComboAction(source);
             }
-            else // Rolls 6-13 or <6 - use non-combo action (normal attack)
+            else // Total roll < 14 - use non-combo action (normal attack)
             {
                 // Select a non-combo action for normal attacks
                 selectedAction = SelectNormalAction(source);
@@ -105,9 +106,9 @@ namespace RPGGame
             int rollBonus = ActionUtilities.CalculateRollBonus(source, null);
             int totalRoll = baseRoll + rollBonus;
 
-            // 20 or 14-19: use combo actions (all actions in game are combo actions)
-            // Action type determined by base roll, not total roll with bonuses
-            if (baseRoll == 20 || baseRoll >= 14)
+            // Natural 20 or total roll >= 14: use combo actions (all actions in game are combo actions)
+            // Action type determined by total roll (base + bonuses) so bonuses can trigger combos
+            if (baseRoll == 20 || totalRoll >= 14)
             {
                 var comboActions = ActionUtilities.GetComboActions(source);
                 if (comboActions.Count > 0)

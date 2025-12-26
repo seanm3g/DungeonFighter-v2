@@ -55,36 +55,9 @@ namespace RPGGame
             // Regenerate dungeons based on current player level
             dungeonManager.RegenerateDungeons(stateManager.CurrentPlayer, stateManager.AvailableDungeons);
             
-            // Transition state FIRST to prevent game menu from being re-rendered
-            // This ensures that when we clear the canvas, we're already in DungeonSelection state
-            // and nothing will try to re-render the game menu
-            stateManager.TransitionToState(GameState.DungeonSelection);
-            
-            // Suppress display buffer FIRST, then clear buffer, set character, render, refresh
-            if (customUIManager is CanvasUICoordinator canvasUI && stateManager.AvailableDungeons != null)
-            {
-                // Suppress display buffer auto-rendering FIRST to prevent any pending renders
-                // This must happen before any other operations to prevent the game menu from being cleared/re-rendered
-                canvasUI.SuppressDisplayBufferRendering();
-                // Clear buffer without triggering a render (since we're suppressing rendering anyway)
-                canvasUI.ClearDisplayBufferWithoutRender();
-                
-                // Clear dungeon/room context when transitioning to dungeon selection
-                canvasUI.ClearCurrentEnemy();
-                canvasUI.SetDungeonName(null);
-                canvasUI.SetRoomName(null);
-                
-                // Set character for persistent layout panel
-                // Note: We're now in DungeonSelection state, so SetCharacter won't trigger game menu rendering
-                canvasUI.SetCharacter(stateManager.CurrentPlayer);
-                
-                // Render the dungeon selection screen (this will clear the canvas and render the new screen)
-                canvasUI.RenderDungeonSelection(stateManager.CurrentPlayer, stateManager.AvailableDungeons);
-                
-                // Force a refresh to ensure the screen is displayed
-                // This is critical when transitioning from other screens
-                canvasUI.Refresh();
-            }
+            // Use GameScreenCoordinator for standardized screen transition
+            var screenCoordinator = new GameScreenCoordinator(stateManager);
+            screenCoordinator.ShowDungeonSelection();
             
             await Task.CompletedTask;
         }

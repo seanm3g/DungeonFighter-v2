@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Threading;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,8 @@ namespace RPGGame.UI.Avalonia
         private readonly CanvasElementManager elementManager;
         private readonly CanvasCoordinateConverter coordinateConverter;
         private readonly CanvasRenderer renderer;
+        private readonly HealthTracker healthTracker;
+        private DispatcherTimer? damageDeltaAnimationTimer;
         
         // Base grid dimensions (original design size)
         private const int BASE_GRID_WIDTH = 210;
@@ -69,8 +72,39 @@ namespace RPGGame.UI.Avalonia
             this.coordinateConverter = new CanvasCoordinateConverter();
             this.elementManager = new CanvasElementManager();
             this.renderer = new CanvasRenderer(coordinateConverter);
+            this.healthTracker = new HealthTracker();
+            InitializeDamageDeltaTimer();
             UpdateLayoutConstants();
         }
+        
+        /// <summary>
+        /// Initializes the timer for damage delta fade animations
+        /// </summary>
+        private void InitializeDamageDeltaTimer()
+        {
+            damageDeltaAnimationTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(16) // ~60fps for smooth animation
+            };
+            damageDeltaAnimationTimer.Tick += (s, e) =>
+            {
+                // Check if health tracker has any active damage deltas
+                if (healthTracker.HasActiveDamageDeltas())
+                {
+                    Refresh();
+                }
+                else
+                {
+                    // Stop timer when no active deltas
+                    damageDeltaAnimationTimer.Stop();
+                }
+            };
+        }
+        
+        /// <summary>
+        /// Gets the health tracker for tracking previous health values
+        /// </summary>
+        public HealthTracker HealthTracker => healthTracker;
         
         /// <summary>
         /// Updates LayoutConstants with current grid dimensions and effective visible width
@@ -382,13 +416,77 @@ namespace RPGGame.UI.Avalonia
             AddText(x, y, statText, nameColor);
         }
 
-        public void AddHealthBar(int x, int y, int width, int currentHealth, int maxHealth, Color healthColor = default, Color backgroundColor = default)
+        public void AddHealthBar(int x, int y, int width, int currentHealth, int maxHealth, Color healthColor = default, Color backgroundColor = default, string? entityId = null)
         {
             if (healthColor == default) healthColor = Colors.Red;
             if (backgroundColor == default) backgroundColor = Colors.DarkRed;
             
             double progress = (double)currentHealth / maxHealth;
-            AddProgressBar(x, y, width, progress, healthColor, backgroundColor, Colors.White);
+            
+            // Get previous health if entity ID is provided
+            int? previousHealth = null;
+            DateTime? damageDeltaStartTime = null;
+            
+            if (!string.IsNullOrEmpty(entityId))
+            {
+                // Get previous health BEFORE updating (so we can detect damage)
+                int? healthBeforeUpdate = healthTracker.GetPreviousHealth(entityId);
+                
+                // Update tracker with current health (this will set damage delta start time if health decreased)
+                healthTracker.UpdateHealth(entityId, currentHealth);
+                
+                // Get the health at damage time (preserved from when damage occurred)
+                previousHealth = healthTracker.GetHealthAtDamageTime(entityId);
+                
+                // If no damage time health, use the previous health (for first render or when no damage)
+                if (!previousHealth.HasValue)
+                {
+                    previousHealth = healthBeforeUpdate;
+                }
+                
+                // Get the damage delta start time from tracker
+                damageDeltaStartTime = healthTracker.GetDamageDeltaStartTime(entityId);
+                
+                // Only show delta if we have a valid damage start time and previous health is greater than current
+                if (damageDeltaStartTime.HasValue && previousHealth.HasValue && previousHealth.Value <= currentHealth)
+                {
+                    // Health increased or stayed same, clear the damage delta
+                    previousHealth = null;
+                    damageDeltaStartTime = null;
+                }
+            }
+            
+            var progressBar = new CanvasProgressBar
+            {
+                X = x,
+                Y = y,
+                Width = width,
+                Progress = progress,
+                ForegroundColor = healthColor,
+                BackgroundColor = backgroundColor,
+                BorderColor = Colors.White,
+                PreviousHealth = previousHealth,
+                MaxHealth = maxHealth,
+                DamageDeltaStartTime = damageDeltaStartTime
+            };
+            
+            elementManager.AddProgressBar(progressBar);
+            
+            // Start animation timer if damage delta is active
+            if (damageDeltaStartTime.HasValue && damageDeltaAnimationTimer != null && !damageDeltaAnimationTimer.IsEnabled)
+            {
+                damageDeltaAnimationTimer.Start();
+            }
+        }
+        
+        /// <summary>
+        /// Cleans up resources when control is disposed
+        /// </summary>
+        protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+        {
+            damageDeltaAnimationTimer?.Stop();
+            damageDeltaAnimationTimer = null;
+            base.OnDetachedFromVisualTree(e);
         }
 
         public void Refresh()

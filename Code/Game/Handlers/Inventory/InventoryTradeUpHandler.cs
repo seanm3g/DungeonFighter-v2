@@ -71,10 +71,10 @@ namespace RPGGame.Handlers.Inventory
                 return;
             }
             
-            // If only one tradeable rarity, proceed directly
+            // If only one tradeable rarity, show preview directly
             if (tradeableRarities.Count == 1)
             {
-                PerformTradeUp(tradeableRarities[0].Key);
+                ShowTradeUpPreview(tradeableRarities[0].Key);
                 return;
             }
             
@@ -88,7 +88,63 @@ namespace RPGGame.Handlers.Inventory
         }
         
         /// <summary>
-        /// Performs the trade-up operation for a specific rarity
+        /// Shows the trade-up preview screen for a specific rarity
+        /// </summary>
+        public void ShowTradeUpPreview(string rarity)
+        {
+            if (stateManager.CurrentPlayer == null) return;
+            
+            var nextRarity = GetNextRarity(rarity);
+            if (nextRarity == null)
+            {
+                ShowMessageEvent?.Invoke($"Cannot trade up {rarity} items - already at maximum rarity.");
+                ShowInventoryEvent?.Invoke();
+                return;
+            }
+            
+            // Get 5 items of the specified rarity
+            var itemsToTrade = stateManager.CurrentInventory
+                .Where(item => (item.Rarity ?? "Common").Equals(rarity, StringComparison.OrdinalIgnoreCase))
+                .Take(5)
+                .ToList();
+            
+            if (itemsToTrade.Count < 5)
+            {
+                ShowMessageEvent?.Invoke($"Not enough {rarity} items to trade up. Need 5, have {itemsToTrade.Count}.");
+                ShowInventoryEvent?.Invoke();
+                return;
+            }
+            
+            // Calculate average tier and level from the items being traded
+            int averageTier = (int)Math.Round(itemsToTrade.Average(item => item.Tier));
+            int averageLevel = (int)Math.Round(itemsToTrade.Average(item => item.Level));
+            
+            // Determine item type (use the most common type from the traded items)
+            bool isWeapon = itemsToTrade.Count(item => item.Type == ItemType.Weapon) >= 3;
+            
+            // Generate preview item with next rarity (don't add to inventory yet)
+            Item? previewItem = GenerateItemWithRarity(averageTier, averageLevel, isWeapon, nextRarity, stateManager.CurrentPlayer);
+            
+            if (previewItem == null)
+            {
+                ShowMessageEvent?.Invoke("Failed to generate trade-up preview. Please try again.");
+                ShowInventoryEvent?.Invoke();
+                return;
+            }
+            
+            // Show preview screen
+            if (customUIManager is CanvasUICoordinator canvasUI)
+            {
+                canvasUI.RenderTradeUpPreview(stateManager.CurrentPlayer, itemsToTrade, previewItem, rarity, nextRarity);
+            }
+            
+            // Store state for confirmation
+            stateTracker.WaitingForTradeUpConfirmation = true;
+            stateTracker.SelectedTradeUpRarity = rarity;
+        }
+        
+        /// <summary>
+        /// Performs the trade-up operation for a specific rarity (called after confirmation)
         /// </summary>
         public void PerformTradeUp(string rarity)
         {

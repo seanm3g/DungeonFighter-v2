@@ -25,6 +25,8 @@ namespace RPGGame.Handlers.Inventory
         
         // Trade-up state
         public bool WaitingForRaritySelection { get; set; } = false;
+        public bool WaitingForTradeUpConfirmation { get; set; } = false;
+        public string? SelectedTradeUpRarity { get; set; } = null;
         
         /// <summary>
         /// Resets all item action states
@@ -35,9 +37,11 @@ namespace RPGGame.Handlers.Inventory
             WaitingForSlotSelection = false;
             WaitingForComparisonChoice = false;
             WaitingForRaritySelection = false;
+            WaitingForTradeUpConfirmation = false;
             ItemSelectionAction = "";
             SelectedItemIndex = -1;
             SelectedSlot = "";
+            SelectedTradeUpRarity = null;
         }
         
         /// <summary>
@@ -57,7 +61,7 @@ namespace RPGGame.Handlers.Inventory
         /// </summary>
         public bool IsAnySelectionActive()
         {
-            return WaitingForItemSelection || WaitingForSlotSelection || WaitingForComparisonChoice || WaitingForRaritySelection;
+            return WaitingForItemSelection || WaitingForSlotSelection || WaitingForComparisonChoice || WaitingForRaritySelection || WaitingForTradeUpConfirmation;
         }
         
         /// <summary>

@@ -39,6 +39,11 @@ namespace RPGGame.UI.Avalonia.Canvas
         public Color ForegroundColor { get; set; } = Colors.Green;
         public Color BackgroundColor { get; set; } = Colors.DarkGreen;
         public Color BorderColor { get; set; } = Colors.White;
+        
+        // Damage delta tracking for health bars
+        public int? PreviousHealth { get; set; }
+        public int MaxHealth { get; set; }
+        public System.DateTime? DamageDeltaStartTime { get; set; }
     }
 }
 

@@ -24,16 +24,13 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Display character information (read-only)
+        /// Display character information (read-only).
+        /// Uses GameScreenCoordinator for standardized screen transition.
         /// </summary>
         public void ShowCharacterInfo()
         {
-            if (customUIManager is CanvasUICoordinator canvasUI && stateManager.CurrentPlayer != null)
-            {
-                canvasUI.SetCharacter(stateManager.CurrentPlayer);
-                // Character info displayed in UI
-            }
-            stateManager.TransitionToState(GameState.CharacterInfo);
+            var screenCoordinator = new GameScreenCoordinator(stateManager);
+            screenCoordinator.ShowCharacterInfo();
         }
 
         /// <summary>
