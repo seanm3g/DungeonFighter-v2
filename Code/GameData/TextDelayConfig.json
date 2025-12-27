@@ -2,42 +2,42 @@
   "MessageTypeDelays": {
     "Combat": 1515,
     "System": 100,
-    "Menu": 25,
-    "Title": 400,
+    "Menu": 255,
+    "Title": 500,
     "MainTitle": 400,
     "Environmental": 1500,
-    "EffectMessage": 555,
-    "DamageOverTime": 555,
-    "Encounter": 555,
-    "RollInfo": 5
+    "EffectMessage": 1500,
+    "DamageOverTime": 1500,
+    "Encounter": 1500,
+    "RollInfo": 111
   },
   "ChunkedTextReveal": {
     "Combat": {
-      "BaseDelayPerCharMs": 20,
+      "BaseDelayPerCharMs": 599,
       "MinDelayMs": 500,
       "MaxDelayMs": 2000,
       "Strategy": "Line"
     },
     "Dungeon": {
-      "BaseDelayPerCharMs": 25,
+      "BaseDelayPerCharMs": 500,
       "MinDelayMs": 800,
       "MaxDelayMs": 3000,
       "Strategy": "Semantic"
     },
     "Room": {
-      "BaseDelayPerCharMs": 30,
+      "BaseDelayPerCharMs": 500,
       "MinDelayMs": 1000,
       "MaxDelayMs": 3000,
       "Strategy": "Sentence"
     },
     "Narrative": {
-      "BaseDelayPerCharMs": 25,
+      "BaseDelayPerCharMs": 500,
       "MinDelayMs": 400,
       "MaxDelayMs": 2000,
       "Strategy": "Sentence"
     },
     "Default": {
-      "BaseDelayPerCharMs": 30,
+      "BaseDelayPerCharMs": 500,
       "MinDelayMs": 500,
       "MaxDelayMs": 4000,
       "Strategy": "Sentence"

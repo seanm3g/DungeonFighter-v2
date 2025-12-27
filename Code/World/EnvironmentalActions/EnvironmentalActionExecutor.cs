@@ -103,7 +103,7 @@ namespace RPGGame
                     var builder = new ColoredTextBuilder();
                     // Add 5 spaces for indentation to match roll detail lines
                     builder.Add("     ", Colors.White);
-                    builder.Add(displayName, target is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
+                    builder.Add(displayName, EntityColorHelper.GetActorColor(target));
                     builder.AddSpace();
                     builder.Add("affected", Colors.White);
                     builder.AddSpace();

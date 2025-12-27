@@ -73,8 +73,8 @@ namespace RPGGame.Actions.Execution
                     ActionStatisticsTracker.RecordDamageReceived(targetCharacter, totalDamage);
                 }
                 
-                // BASIC ATTACK removed - all actions are now combo actions
-                bool isCriticalHit = totalRoll >= 20;
+                // Use threshold manager to determine critical hit (consistent with ActionExecutionFlow)
+                bool isCriticalHit = totalRoll >= RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
                 ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, totalDamage, totalRoll, rollBonus, true, true, 0, 0, isCriticalHit, naturalRoll, battleNarrative);
                 
                 // Handle enemy roll penalty
@@ -172,7 +172,8 @@ namespace RPGGame.Actions.Execution
                 }
                 
                 bool isCombo = selectedAction.Name != "BASIC ATTACK";
-                bool isCriticalHit = totalRoll >= 20;
+                // Use threshold manager to determine critical hit (consistent with ActionExecutionFlow)
+                bool isCriticalHit = totalRoll >= RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
                 ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, damage, totalRoll, rollBonus, true, isCombo, 0, 0, isCriticalHit, naturalRoll, battleNarrative);
                 
                 var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, damage, damage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll);

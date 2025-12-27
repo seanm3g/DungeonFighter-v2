@@ -9,8 +9,8 @@ namespace RPGGame.UI.BlockDisplay
     /// </summary>
     public interface IBlockRenderer
     {
-        void RenderMessageGroups(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs);
-        Task RenderMessageGroupsAsync(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs);
+        void RenderMessageGroups(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs, Character? character = null);
+        Task RenderMessageGroupsAsync(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs, Character? character = null);
     }
 }
 

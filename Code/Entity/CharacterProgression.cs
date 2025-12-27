@@ -43,22 +43,11 @@ namespace RPGGame
         {
             var tuning = GameConfiguration.Instance;
             
-            // Use new ExperienceSystem configuration if available
-            if (tuning.ExperienceSystem != null)
-            {
-                var variables = new Dictionary<string, double>
-                {
-                    ["BaseXP"] = tuning.Progression.BaseXPToLevel2,
-                    ["Level"] = Level,
-                    ["ExponentFactor"] = tuning.ExperienceSystem.BaseXPFormula.Contains("^") ? 1.5 : 1.0
-                };
-                
-                // For now, use the existing formula but make it configurable
-                return (int)(tuning.Progression.BaseXPToLevel2 * Math.Pow(tuning.Progression.XPScalingFactor, Level - 1));
-            }
-            
-            // Fallback to old system
-            return (int)(tuning.Progression.BaseXPToLevel2 * Math.Pow(tuning.Progression.XPScalingFactor, Level - 1));
+            // Linear progression: Level N requires N dungeons to reach Level N+1
+            // XP per dungeon at level N: average = (enemyXPBase + 25) * N
+            // XP needed for level N: N dungeons * average XP per dungeon at level N = N * (enemyXPBase + 25) * N = N^2 * (enemyXPBase + 25)
+            int averageXPPerDungeonAtLevel1 = tuning.Progression.EnemyXPBase + 25;
+            return Level * Level * averageXPPerDungeonAtLevel1;
         }
 
         public void AwardClassPoint(WeaponType weaponType)

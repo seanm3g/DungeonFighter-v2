@@ -33,13 +33,11 @@ namespace RPGGame
         public delegate void OnShowInventory();
         public delegate void OnShowGameLoop();
         public delegate void OnShowMainMenu();
-        public delegate void OnExitGame();
         
         public event OnShowMessage? ShowMessageEvent;
         public event OnShowInventory? ShowInventoryEvent;
         public event OnShowGameLoop? ShowGameLoopEvent;
         public event OnShowMainMenu? ShowMainMenuEvent;
-        public event OnExitGame? ExitGameEvent;
 
         public InventoryMenuHandler(GameStateManager stateManager, IUIManager? customUIManager)
         {
@@ -239,16 +237,13 @@ namespace RPGGame
                     stateManager.TransitionToState(GameState.GameLoop);
                     ShowGameLoopEvent?.Invoke();
                     break;
-                case "7":
+                case "0":
+                    // Return to main menu
                     stateManager.TransitionToState(GameState.MainMenu);
                     ShowMainMenuEvent?.Invoke();
                     break;
-                case "0":
-                    // Exit game
-                    ExitGameEvent?.Invoke();
-                    break;
                 default:
-                    ShowMessageEvent?.Invoke("Invalid choice. Press 1-7, 0, or ESC to go back.");
+                    ShowMessageEvent?.Invoke("Invalid choice. Press 1-6, 0 (Return to Main Menu), or ESC to go back.");
                     break;
             }
         }

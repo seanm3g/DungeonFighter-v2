@@ -65,7 +65,7 @@ namespace RPGGame
             builder.Add("begins:", ColorPalette.Warning);
             builder.Add(playerName, ColorPalette.Player);
             builder.Add("vs", Colors.White);
-            builder.Add(enemyName, ColorPalette.Enemy);
+            builder.Add(enemyName, EntityColorHelper.GetEnemyColorByName(enemyName));
             builder.Add("in", Colors.White);
             
             // Use environment color template if theme is provided, otherwise use default color
@@ -108,7 +108,7 @@ namespace RPGGame
             }
             
             builder.Add("vs", Colors.White);
-            builder.Add(enemyName, ColorPalette.Enemy);
+            builder.Add(enemyName, EntityColorHelper.GetEnemyColorByName(enemyName));
             
             return builder.Build();
         }
@@ -180,7 +180,7 @@ namespace RPGGame
             var builder = new ColoredTextBuilder();
             
             builder.Add("💫 ", ColorPalette.Warning);
-            builder.Add(entityName, isPlayer ? ColorPalette.Player : ColorPalette.Enemy);
+            builder.Add(entityName, isPlayer ? ColorPalette.Player.GetColor() : EntityColorHelper.GetEnemyColorByName(entityName));
             builder.AddSpace();
             builder.Add("is", Colors.White);
             builder.AddSpace();
@@ -202,7 +202,7 @@ namespace RPGGame
             var builder = new ColoredTextBuilder();
             
             builder.Add("🩸 ", ColorPalette.Error);
-            builder.Add(entityName, isPlayer ? ColorPalette.Player : ColorPalette.Enemy);
+            builder.Add(entityName, isPlayer ? ColorPalette.Player.GetColor() : EntityColorHelper.GetEnemyColorByName(entityName));
             AddTakesDamageFrom(builder, damage, effectName, ColorPalette.Warning);
             
             return builder.Build();

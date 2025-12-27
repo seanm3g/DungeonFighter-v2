@@ -68,7 +68,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 Height = 1,
                 Type = ElementType.MenuOption,
                 Value = "0",
-                DisplayText = MenuOptionFormatter.Format(0, UIConstants.MenuOptions.SaveAndExit)
+                DisplayText = MenuOptionFormatter.Format(0, UIConstants.MenuOptions.BackToMainMenu)
             };
             
             clickableElements.AddRange(new[] { option1, option2, option3 });
@@ -77,7 +77,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             currentLineCount++;
             canvas.AddMenuOption(menuX, centerY + 1, 2, UIConstants.MenuOptions.ShowInventory, AsciiArtAssets.Colors.White, option2.IsHovered);
             currentLineCount++;
-            canvas.AddMenuOption(menuX, centerY + 2, 0, UIConstants.MenuOptions.SaveAndExit, AsciiArtAssets.Colors.White, option3.IsHovered);
+            canvas.AddMenuOption(menuX, centerY + 2, 0, UIConstants.MenuOptions.BackToMainMenu, AsciiArtAssets.Colors.White, option3.IsHovered);
             currentLineCount++;
             
             return currentLineCount;

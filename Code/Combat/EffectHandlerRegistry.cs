@@ -113,7 +113,7 @@ namespace RPGGame
                 
                 // Format with proper indentation and color markup
                 string actorPattern = target is Enemy ? "enemy" : "player";
-                results.Add($"    [{{{{{actorPattern}|{target.Name}}}}}] is {{{{error|bleeding}}}}!");
+                results.Add($"    {{{{actorPattern}|{target.Name}}}} is {{{{error|bleeding}}}}!");
                 return true;
             }
             return false;
@@ -136,7 +136,7 @@ namespace RPGGame
                 target.ApplyWeaken(2); // 2 turns of weaken
                 // Format with proper indentation and color markup
                 string actorPattern = target is Enemy ? "enemy" : "player";
-                results.Add($"    [{{{{{actorPattern}|{target.Name}}}}}] is {{{{weakened|weakened}}}}!");
+                results.Add($"    {{{{actorPattern}|{target.Name}}}} is {{{{weakened|weakened}}}}!");
                 return true;
             }
             return false;
@@ -159,7 +159,7 @@ namespace RPGGame
                 // For now, just add a message - would need proper slow implementation
                 // Format with proper indentation and color markup
                 string actorPattern = target is Enemy ? "enemy" : "player";
-                results.Add($"    [{{{{{actorPattern}|{target.Name}}}}}] is {{{{slowed|slowed}}}}!");
+                results.Add($"    {{{{actorPattern}|{target.Name}}}} is {{{{slowed|slowed}}}}!");
                 return true;
             }
             return false;
@@ -183,7 +183,7 @@ namespace RPGGame
                 target.ApplyPoison(poisonConfig.DamagePerTick, poisonConfig.StacksPerApplication);
                 // Format with proper indentation and color markup
                 string actorPattern = target is Enemy ? "enemy" : "player";
-                results.Add($"    [{{{{{actorPattern}|{target.Name}}}}}] is {{{{poisoned|poisoned}}}}!");
+                results.Add($"    {{{{actorPattern}|{target.Name}}}} is {{{{poisoned|poisoned}}}}!");
                 return true;
             }
             return false;
@@ -208,7 +208,7 @@ namespace RPGGame
                 target.StunTurnsRemaining = stunConfig.SkipTurns;
                 // Format with proper indentation and color markup
                 string actorPattern = target is Enemy ? "enemy" : "player";
-                results.Add($"    [{{{{{actorPattern}|{target.Name}}}}}] is {{{{stunned|stunned}}}}!");
+                results.Add($"    {{{{actorPattern}|{target.Name}}}} is {{{{stunned|stunned}}}}!");
                 return true;
             }
             return false;
@@ -232,7 +232,7 @@ namespace RPGGame
                 target.ApplyBurn(burnConfig.DamagePerTick, burnConfig.MaxStacks);
                 // Format with proper indentation and color markup
                 string actorPattern = target is Enemy ? "enemy" : "player";
-                results.Add($"    [{{{{{actorPattern}|{target.Name}}}}}] is {{{{burning|burning}}}}!");
+                results.Add($"    {{{{actorPattern}|{target.Name}}}} is {{{{burning|burning}}}}!");
                 return true;
             }
             return false;

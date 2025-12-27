@@ -160,14 +160,14 @@ namespace RPGGame
                                     }
                                 }
                                 
-                                if (customUIManager is CanvasUICoordinator canvasUIExit)
+                                if (customUIManager is CanvasUICoordinator canvasUIExit && stateManager.CurrentPlayer != null)
                                 {
-                                    displayManager.AddCombatEvent("");
+                                    displayManager.AddCombatEvent("", stateManager.CurrentPlayer);
                                     if (healthRestored > 0)
                                     {
-                                        displayManager.AddCombatEvent($"You have been fully healed! (+{healthRestored} health)");
+                                        displayManager.AddCombatEvent($"You have been fully healed! (+{healthRestored} health)", stateManager.CurrentPlayer);
                                     }
-                                    displayManager.AddCombatEvent("You leave the dungeon safely, but receive no rewards.");
+                                    displayManager.AddCombatEvent("You leave the dungeon safely, but receive no rewards.", stateManager.CurrentPlayer);
                                     if (stateManager.CurrentPlayer != null && stateManager.CurrentRoom != null)
                                     {
                                         canvasUIExit.RenderRoomEntry(

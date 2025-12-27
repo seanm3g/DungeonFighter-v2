@@ -11,6 +11,7 @@ namespace RPGGame
     using RPGGame.UI;
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.Avalonia.Display;
+    using RPGGame.UI.Avalonia.Managers;
     using RPGGame.UI.ColorSystem;
     using RPGGame.UI.Services;
 
@@ -36,13 +37,18 @@ namespace RPGGame
         private readonly DungeonDisplayBufferCoordinator bufferCoordinator;
         private readonly DungeonDisplayContextSync contextSync;
 
-        // Current state
+        // Current state (for active character's dungeon)
         private Dungeon? currentDungeon;
         private Environment? currentRoom;
         private Enemy? currentEnemy;
-        private Character? currentPlayer;
+        private Character? currentPlayer; // Active character's dungeon (for UI context)
         private int currentRoomNumber;
         private int totalRooms;
+        
+        // Per-character dungeon state tracking
+        // Maps character ID to the character that owns that character's dungeon state
+        // This allows Character A's dungeon to continue running in background while Character B is active
+        private readonly Dictionary<string, Character> dungeonOwners = new Dictionary<string, Character>();
 
         /// <summary>
         /// Event fired when a combat event is added to the combat log.
@@ -69,12 +75,27 @@ namespace RPGGame
             this.displayBuffer = new DungeonDisplayBuffer();
             
             // Initialize MessageRouter with available components
-            // MessageRouter can work with just uiManager, which routes through the existing system
-            this.messageRouter = new MessageRouter(null, uiManager, stateManager, null);
+            // Pass CanvasTextManager if available for per-character display manager support
+            CanvasTextManager? canvasTextManager = null;
+            if (canvasUI != null)
+            {
+                // Get CanvasTextManager from CanvasUICoordinator
+                // This allows MessageRouter to route to per-character display managers
+                var textManager = canvasUI.GetTextManager();
+                canvasTextManager = textManager as CanvasTextManager;
+            }
+            this.messageRouter = new MessageRouter(null, uiManager, stateManager, null, canvasTextManager);
             
             // Initialize specialized coordinators
             this.bufferCoordinator = new DungeonDisplayBufferCoordinator(displayBuffer, canvasUI);
             this.contextSync = new DungeonDisplayContextSync(narrativeManager, displayBuffer, canvasUI);
+            
+            // Subscribe to character switch events to clear combat log when switching characters
+            // This prevents combat log from character A from persisting when switching to character B
+            if (stateManager != null)
+            {
+                stateManager.CharacterSwitched += OnCharacterSwitched;
+            }
         }
 
         /// <summary>
@@ -102,6 +123,10 @@ namespace RPGGame
 
             // Clear all previous information
             ClearAll();
+            
+            // Explicitly clear combat log when starting a new dungeon
+            // This ensures the combat log from the previous dungeon is not visible
+            ClearCombatLog();
 
             // Clear display buffer to prevent duplicate messages from previous runs
             if (canvasUI != null)
@@ -120,6 +145,13 @@ namespace RPGGame
             currentPlayer = player;
             currentRoomNumber = 0;
             totalRooms = dungeon.Rooms.Count;
+            
+            // Store dungeon owner per-character for background dungeon support
+            string? characterId = stateManager?.GetCharacterId(player);
+            if (!string.IsNullOrEmpty(characterId))
+            {
+                dungeonOwners[characterId] = player;
+            }
 
             // Build dungeon header (in memory only - not added to buffer yet)
             var header = DungeonHeaderBuilder.BuildDungeonHeader(dungeon);
@@ -261,15 +293,60 @@ namespace RPGGame
         /// Adds a combat event to the combat log.
         /// Also adds to display buffer and narrative manager to keep everything in sync.
         /// </summary>
-        public void AddCombatEvent(string message)
+        /// <param name="message">The combat event message</param>
+        /// <param name="sourceCharacter">The character this combat event belongs to (optional, will be inferred if not provided)</param>
+        public void AddCombatEvent(string message, Character? sourceCharacter = null)
         {
             // Allow empty strings (for blank lines) but filter out null or whitespace-only strings
             if (message == null)
                 return;
             
-            // CRITICAL: Capture currentPlayer at the start to prevent race conditions
-            // If currentPlayer is null, we can't determine the source character, so block the message
-            var sourceCharacter = currentPlayer;
+            // DEBUG: Log initial state
+            var activeCharacter = stateManager?.GetActiveCharacter();
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "DungeonDisplayManager.cs:AddCombatEvent", message = "Entry", data = new { messagePreview = message?.Substring(0, Math.Min(50, message?.Length ?? 0)), providedSourceCharacter = sourceCharacter?.Name, activeCharacter = activeCharacter?.Name, currentPlayer = currentPlayer?.Name, dungeonOwnersCount = dungeonOwners.Count }, sessionId = "debug-session", runId = "run2", hypothesisId = "H1" }) + "\n"); } catch { }
+            // #endregion
+            
+            // CRITICAL: Determine the character that owns this message
+            // If sourceCharacter is provided, use it directly (most reliable)
+            // Otherwise, prioritize dungeonOwners over currentPlayer because currentPlayer is the ACTIVE character,
+            // not necessarily the character whose dungeon is running (for background dungeons)
+            if (sourceCharacter == null)
+            {
+                // First, try to find the character from dungeonOwners
+                // This is the character whose dungeon is actually running
+                if (dungeonOwners.Count > 0)
+                {
+                    // If there's only one dungeon owner, use it (most common case)
+                    if (dungeonOwners.Count == 1)
+                    {
+                        sourceCharacter = dungeonOwners.Values.First();
+                    }
+                    else
+                    {
+                        // Multiple dungeons running - try to match with currentPlayer if available
+                        if (currentPlayer != null)
+                        {
+                            string? characterId = stateManager?.GetCharacterId(currentPlayer);
+                            if (!string.IsNullOrEmpty(characterId) && dungeonOwners.TryGetValue(characterId, out var owner))
+                            {
+                                sourceCharacter = owner;
+                            }
+                        }
+                        
+                        // If still no match, use the first one (shouldn't happen in normal flow)
+                        if (sourceCharacter == null)
+                        {
+                            sourceCharacter = dungeonOwners.Values.FirstOrDefault();
+                        }
+                    }
+                }
+                else if (currentPlayer != null)
+                {
+                    // No dungeon owners - fall back to currentPlayer
+                    sourceCharacter = currentPlayer;
+                }
+            }
             
             // Use MessageFilterService to determine if message should be displayed
             // This consolidates all filtering logic (menu states, character matching)
@@ -280,9 +357,13 @@ namespace RPGGame
                 null, // No context manager
                 false); // No race condition check needed here
             
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "DungeonDisplayManager.cs:AddCombatEvent", message = "Final", data = new { sourceCharacter = sourceCharacter?.Name, activeCharacter = activeCharacter?.Name, shouldUpdateUI = shouldUpdateUI, charactersMatch = sourceCharacter == activeCharacter }, sessionId = "debug-session", runId = "run2", hypothesisId = "H1" }) + "\n"); } catch { }
+            // #endregion
+            
             // Only add to display buffer if character is active
             // This prevents inactive character combat messages from polluting the shared display buffer
-            if (shouldUpdateUI)
+            if (shouldUpdateUI && message != null)
             {
                 displayBuffer.AddCombatEvent(message);
             }
@@ -326,7 +407,9 @@ namespace RPGGame
         /// Also adds to display buffer and narrative manager to keep everything in sync.
         /// Only updates UI if the character is currently active (for background dungeon support).
         /// </summary>
-        public void AddCombatEvent(ColoredTextBuilder builder)
+        /// <param name="builder">The colored text builder for the combat event</param>
+        /// <param name="sourceCharacter">The character this combat event belongs to (optional, will be inferred if not provided)</param>
+        public void AddCombatEvent(ColoredTextBuilder builder, Character? sourceCharacter = null)
         {
             if (builder == null)
                 return;
@@ -336,9 +419,46 @@ namespace RPGGame
             // Convert to markup string for display buffer and narrative manager
             string markupMessage = ColoredTextRenderer.RenderAsMarkup(segments);
             
-            // CRITICAL: Capture currentPlayer at the start to prevent race conditions
-            // If currentPlayer is null, we can't determine the source character, so block the message
-            var sourceCharacter = currentPlayer;
+            // CRITICAL: Determine the character that owns this message
+            // If sourceCharacter is provided, use it directly (most reliable)
+            // Otherwise, prioritize dungeonOwners over currentPlayer because currentPlayer is the ACTIVE character,
+            // not necessarily the character whose dungeon is running (for background dungeons)
+            if (sourceCharacter == null)
+            {
+                // First, try to find the character from dungeonOwners
+                // This is the character whose dungeon is actually running
+                if (dungeonOwners.Count > 0)
+                {
+                    // If there's only one dungeon owner, use it (most common case)
+                    if (dungeonOwners.Count == 1)
+                    {
+                        sourceCharacter = dungeonOwners.Values.First();
+                    }
+                    else
+                    {
+                        // Multiple dungeons running - try to match with currentPlayer if available
+                        if (currentPlayer != null)
+                        {
+                            string? characterId = stateManager?.GetCharacterId(currentPlayer);
+                            if (!string.IsNullOrEmpty(characterId) && dungeonOwners.TryGetValue(characterId, out var owner))
+                            {
+                                sourceCharacter = owner;
+                            }
+                        }
+                        
+                        // If still no match, use the first one (shouldn't happen in normal flow)
+                        if (sourceCharacter == null)
+                        {
+                            sourceCharacter = dungeonOwners.Values.FirstOrDefault();
+                        }
+                    }
+                }
+                else if (currentPlayer != null)
+                {
+                    // No dungeon owners - fall back to currentPlayer
+                    sourceCharacter = currentPlayer;
+                }
+            }
             
             // Use MessageFilterService to determine if message should be displayed
             // This consolidates all filtering logic (menu states, character matching)
@@ -409,9 +529,51 @@ namespace RPGGame
             currentPlayer = null;
             currentRoomNumber = 0;
             totalRooms = 0;
+            
+            // Only clear dungeon owner for the active character, not all characters
+            // This allows background dungeons to continue running
+            var activeCharacter = stateManager?.GetActiveCharacter();
+            if (activeCharacter != null && stateManager != null)
+            {
+                string? characterId = stateManager.GetCharacterId(activeCharacter);
+                if (!string.IsNullOrEmpty(characterId))
+                {
+                    dungeonOwners.Remove(characterId);
+                }
+            }
             bufferCoordinator.ResetDungeonHeaderFlag();
 
             narrativeManager.ResetNarrative();
+        }
+
+        /// <summary>
+        /// Handles character switch events to clear combat log and update current player when switching between characters.
+        /// This prevents combat log from one character from persisting and influencing the display for another character.
+        /// Also updates currentPlayer so that filtering works correctly for background combat.
+        /// </summary>
+        private void OnCharacterSwitched(object? sender, CharacterSwitchedEventArgs e)
+        {
+            // Update currentPlayer to the new active character
+            // This ensures that filtering in AddCombatEvent works correctly for background combat
+            // If the new character is not in a dungeon, currentPlayer will be null (which is correct)
+            var newActiveCharacter = stateManager?.GetActiveCharacter();
+            
+            // Only update currentPlayer if the new character is different
+            // This prevents unnecessary updates when the same character is "switched" to
+            if (currentPlayer != newActiveCharacter)
+            {
+                // If the new character is in a dungeon, currentPlayer will be set when they enter combat
+                // For now, clear it to ensure background combat from old character doesn't interfere
+                // The currentPlayer will be set correctly when the new character starts combat
+                currentPlayer = null;
+                // Don't clear dungeonOwners here - they should persist so background combat messages route correctly
+                // Only clear dungeonOwners when explicitly clearing all (which happens when a character leaves their dungeon)
+                
+                // Clear all dungeon display data when switching characters
+                // This ensures that character A's dungeon info doesn't show for character B
+                // We clear everything (not just combat log) because each character should have their own dungeon context
+                ClearAll();
+            }
         }
 
         /// <summary>

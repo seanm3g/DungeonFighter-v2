@@ -168,7 +168,8 @@ namespace RPGGame.UI.Avalonia
             // Update state manager in display manager and render coordinator
             if (textManager is Managers.CanvasTextManager canvasTextManager)
             {
-                canvasTextManager.DisplayManager.SetStateManager(stateManager);
+                // Set state manager on CanvasTextManager (which will update all per-character display managers)
+                canvasTextManager.SetStateManager(stateManager);
             }
             
             if (animationManager is CanvasAnimationManager canvasAnimationManager)
@@ -475,6 +476,11 @@ namespace RPGGame.UI.Avalonia
         public void RenderDisplayBuffer() => renderer.RenderDisplayBuffer(contextManager.GetCurrentContext());
         
         /// <summary>
+        /// Gets the text manager (for advanced usage, e.g., per-character display managers)
+        /// </summary>
+        public ICanvasTextManager GetTextManager() => textManager;
+        
+        /// <summary>
         /// Gets the display buffer text as a single string
         /// </summary>
         public string GetDisplayBufferText()
@@ -616,10 +622,10 @@ namespace RPGGame.UI.Avalonia
             => coloredTextCoordinator.WriteColoredTextBuilder(builder, messageType);
         public void WriteLineColoredTextBuilder(ColoredTextBuilder builder, UIMessageType messageType = UIMessageType.System) 
             => coloredTextCoordinator.WriteLineColoredTextBuilder(builder, messageType);
-        public void WriteColoredSegmentsBatch(List<(List<ColoredText> segments, UIMessageType messageType)> messageGroups, int delayAfterBatchMs = 0) 
-            => batchOperationCoordinator.WriteColoredSegmentsBatch(messageGroups, delayAfterBatchMs);
-        public async System.Threading.Tasks.Task WriteColoredSegmentsBatchAsync(List<(List<ColoredText> segments, UIMessageType messageType)> messageGroups, int delayAfterBatchMs = 0) 
-            => await batchOperationCoordinator.WriteColoredSegmentsBatchAsync(messageGroups, delayAfterBatchMs);
+        public void WriteColoredSegmentsBatch(List<(List<ColoredText> segments, UIMessageType messageType)> messageGroups, int delayAfterBatchMs = 0, Character? character = null) 
+            => batchOperationCoordinator.WriteColoredSegmentsBatch(messageGroups, delayAfterBatchMs, character);
+        public async System.Threading.Tasks.Task WriteColoredSegmentsBatchAsync(List<(List<ColoredText> segments, UIMessageType messageType)> messageGroups, int delayAfterBatchMs = 0, Character? character = null) 
+            => await batchOperationCoordinator.WriteColoredSegmentsBatchAsync(messageGroups, delayAfterBatchMs, character);
 
         #endregion
 

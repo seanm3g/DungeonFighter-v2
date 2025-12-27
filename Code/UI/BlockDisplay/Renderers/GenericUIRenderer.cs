@@ -19,7 +19,7 @@ namespace RPGGame.UI.BlockDisplay.Renderers
             this.uiManager = uiManager ?? throw new ArgumentNullException(nameof(uiManager));
         }
         
-        public void RenderMessageGroups(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs)
+        public void RenderMessageGroups(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs, Character? character = null)
         {
             try
             {
@@ -56,7 +56,7 @@ namespace RPGGame.UI.BlockDisplay.Renderers
             }
         }
         
-        public async Task RenderMessageGroupsAsync(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs)
+        public async Task RenderMessageGroupsAsync(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs, Character? character = null)
         {
             if (groups != null)
             {

@@ -29,13 +29,32 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Checks if combat logs should be displayed based on game state and character
+        /// Checks if combat logs should be displayed based on game state (menu states only)
+        /// Note: Character filtering is no longer done here - messages are routed to per-character display managers
+        /// and only the active character's display manager is rendered
         /// </summary>
-        /// <param name="character">The character this combat action belongs to</param>
+        /// <param name="character">The character this combat action belongs to (unused, kept for compatibility)</param>
         /// <returns>True if combat logs should be displayed, false otherwise</returns>
         private static bool ShouldDisplayCombatLog(Character? character)
         {
-            return filterService.ShouldDisplayMessage(character, UIMessageType.Combat, stateManager, null, false);
+            // Only check menu states - don't filter by character
+            // Messages will be routed to the correct per-character display manager
+            // Only the active character's display manager will be rendered
+            if (stateManager == null)
+            {
+                return true; // Backward compatibility
+            }
+            
+            var currentState = stateManager.CurrentState;
+            bool isMenuState = filterService.IsMenuState(stateManager);
+            
+            // Don't add combat messages if we're in a menu state
+            if (isMenuState)
+            {
+                return false;
+            }
+            
+            return true;
         }
         
         // ===== COLORED TEXT OVERLOADS =====
@@ -84,8 +103,9 @@ namespace RPGGame
                     int delayAfterBatchMs = BlockDelayManager.CalculateActionBlockDelay();
                     
                     // Render using appropriate renderer
+                    // Pass character to route to correct per-character display manager
                     var renderer = BlockRendererFactory.GetRenderer();
-                    renderer.RenderMessageGroups(messageGroups, delayAfterBatchMs);
+                    renderer.RenderMessageGroups(messageGroups, delayAfterBatchMs, character);
                 }
                 
                 // Update the last acting Actor (for backward compatibility)
@@ -156,8 +176,9 @@ namespace RPGGame
                     int delayAfterBatchMs = BlockDelayManager.CalculateActionBlockDelay();
                     
                     // Render using appropriate renderer (async)
+                    // Pass character to route to correct per-character display manager
                     var renderer = BlockRendererFactory.GetRenderer();
-                    await renderer.RenderMessageGroupsAsync(messageGroups, delayAfterBatchMs);
+                    await renderer.RenderMessageGroupsAsync(messageGroups, delayAfterBatchMs, character);
                 }
                 
                 // Update the last acting Actor (for backward compatibility)
@@ -293,6 +314,9 @@ namespace RPGGame
             UIManager.WriteColoredText(environmentalText!);
             
             // Display effects if present (part of environmental block, no spacing)
+            // Use same indentation logic as normal action blocks:
+            // - 4 spaces for regular text lines
+            // - 5 spaces for bracket-style lines (starting with "(")
             if (effects != null)
             {
                 foreach (var effect in effects)
@@ -304,7 +328,7 @@ namespace RPGGame
                         var trimmedEffect = new List<ColoredText>(effect);
                         if (trimmedEffect.Count > 0)
                         {
-                            string firstText = trimmedEffect[0].Text;
+                            string firstText = trimmedEffect[0].Text ?? "";
                             if (string.IsNullOrWhiteSpace(firstText))
                             {
                                 // First segment is whitespace-only - remove it
@@ -317,8 +341,32 @@ namespace RPGGame
                             }
                         }
                         
+                        // Determine indentation: 5 spaces for bracket-style lines, 4 spaces otherwise
+                        // Check if this is a bracket-style message (starts with "(")
+                        string indentSpaces = "    "; // Default: 4 spaces (matches normal action status effects)
+                        if (trimmedEffect.Count > 0)
+                        {
+                            // Find the first non-whitespace segment to check for bracket style
+                            string? firstNonWhitespaceText = null;
+                            for (int i = 0; i < trimmedEffect.Count; i++)
+                            {
+                                string segmentText = trimmedEffect[i].Text ?? "";
+                                if (!string.IsNullOrWhiteSpace(segmentText))
+                                {
+                                    firstNonWhitespaceText = segmentText.TrimStart();
+                                    break;
+                                }
+                            }
+                            
+                            // If first non-whitespace text starts with "(", use 5 spaces (matches roll info)
+                            if (firstNonWhitespaceText != null && firstNonWhitespaceText.StartsWith("("))
+                            {
+                                indentSpaces = "     "; // 5 spaces for bracket-style (matches roll info)
+                            }
+                        }
+                        
                         var indentedEffect = new ColoredTextBuilder();
-                        indentedEffect.Add("     "); // 5 spaces to match roll info bracket lines
+                        indentedEffect.Add(indentSpaces);
                         indentedEffect.AddRange(trimmedEffect);
                         UIManager.WriteColoredText(indentedEffect.Build());
                     }

@@ -68,9 +68,9 @@ namespace RPGGame
                     "The enemy has the element of surprise! They act first!",
                     "You're taken by surprise! The enemy strikes first!"
                 };
-                displayManager.AddCombatEvent("");
-                displayManager.AddCombatEvent(surpriseMessages[random.Next(surpriseMessages.Length)]);
-                displayManager.AddCombatEvent("");
+                displayManager.AddCombatEvent("", player);
+                displayManager.AddCombatEvent(surpriseMessages[random.Next(surpriseMessages.Length)], player);
+                displayManager.AddCombatEvent("", player);
             }
             
             // Only render UI if this character is currently active
@@ -165,7 +165,7 @@ namespace RPGGame
                 displayManager.AddCombatEvent("");
                 displayManager.AddCombatEvent("");
                 var victoryBuilder = new ColoredTextBuilder();
-                victoryBuilder.Add(enemy.Name, ColorPalette.Enemy);
+                victoryBuilder.Add(enemy.Name, EntityColorHelper.GetEnemyColor(enemy));
                 victoryBuilder.Add(" has been defeated!", ColorPalette.Success);
                 displayManager.AddCombatEvent(ColoredTextRenderer.RenderAsMarkup(victoryBuilder.Build()));
                 

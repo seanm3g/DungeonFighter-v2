@@ -26,7 +26,9 @@ namespace RPGGame.Combat.Turn
                 var coloredEvent = ColoredTextParser.Parse(evt);
                 if (coloredEvent.Count > 0)
                 {
-                    TextDisplayIntegration.DisplayCombatAction(coloredEvent, new List<ColoredText>(), null, null);
+                    // Pass character if actor is a Character (for multi-character support)
+                    Character? character = actor as Character;
+                    TextDisplayIntegration.DisplayCombatAction(coloredEvent, new List<ColoredText>(), null, null, character);
                 }
             }
         }

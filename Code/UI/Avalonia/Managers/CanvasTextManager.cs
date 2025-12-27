@@ -12,40 +12,211 @@ namespace RPGGame.UI.Avalonia.Managers
     /// Facade for the unified center panel display system
     /// Delegates to CenterPanelDisplayManager for all operations
     /// Maintains backward compatibility with ICanvasTextManager interface
+    /// Now supports per-character display managers for complete isolation in multi-character scenarios
     /// </summary>
     public class CanvasTextManager : ICanvasTextManager
     {
-        private readonly CenterPanelDisplayManager displayManager;
+        // Per-character display managers for complete isolation
+        private readonly Dictionary<string, CenterPanelDisplayManager> characterDisplayManagers = new();
+        private CenterPanelDisplayManager? currentDisplayManager;
+        private readonly GameCanvasControl canvas;
         private readonly ColoredTextWriter textWriter;
+        private readonly ICanvasContextManager contextManager;
+        private readonly int maxLines;
+        private GameStateManager? stateManager;
         
         public CanvasTextManager(GameCanvasControl canvas, ColoredTextWriter textWriter, ICanvasContextManager contextManager, int maxLines = DISPLAY_BUFFER_MAX_LINES, GameStateManager? stateManager = null)
         {
+            this.canvas = canvas;
             this.textWriter = textWriter;
-            this.displayManager = new CenterPanelDisplayManager(canvas, textWriter, contextManager, maxLines, stateManager);
+            this.contextManager = contextManager;
+            this.maxLines = maxLines;
+            this.stateManager = stateManager;
+            
+            // Create default display manager (for when no character is active)
+            this.currentDisplayManager = new CenterPanelDisplayManager(canvas, textWriter, contextManager, maxLines, stateManager);
         }
         
         /// <summary>
-        /// Gets the underlying display manager (for advanced usage)
+        /// Sets the game state manager (called after construction when state manager is available)
         /// </summary>
-        public CenterPanelDisplayManager DisplayManager => displayManager;
+        public void SetStateManager(GameStateManager stateManager)
+        {
+            this.stateManager = stateManager;
+            
+            // Update state manager in current display manager
+            if (currentDisplayManager != null)
+            {
+                currentDisplayManager.SetStateManager(stateManager);
+            }
+            
+            // Update state manager in all character display managers
+            foreach (var displayManager in characterDisplayManagers.Values)
+            {
+                displayManager.SetStateManager(stateManager);
+            }
+        }
+        
+        /// <summary>
+        /// Switches to the display manager for the specified character
+        /// Creates a new display manager if one doesn't exist for this character
+        /// </summary>
+        public void SwitchToCharacterDisplayManager(Character? character)
+        {
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasTextManager.cs:SwitchToCharacterDisplayManager", message = "Entry", data = new { character = character?.Name, currentDisplayManagerCharacter = currentDisplayManager != null ? "exists" : "null", characterDisplayManagersCount = characterDisplayManagers.Count }, sessionId = "debug-session", runId = "run1", hypothesisId = "H3" }) + "\n"); } catch { }
+            // #endregion
+            if (character == null)
+            {
+                // No character - use default display manager
+                currentDisplayManager = GetOrCreateDefaultDisplayManager();
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasTextManager.cs:SwitchToCharacterDisplayManager", message = "Using default display manager", data = new { }, sessionId = "debug-session", runId = "run1", hypothesisId = "H3" }) + "\n"); } catch { }
+                // #endregion
+                return;
+            }
+            
+            // Get character ID from state manager
+            string? characterId = stateManager?.GetCharacterId(character);
+            if (string.IsNullOrEmpty(characterId))
+            {
+                // No character ID - use default display manager
+                currentDisplayManager = GetOrCreateDefaultDisplayManager();
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasTextManager.cs:SwitchToCharacterDisplayManager", message = "No character ID, using default", data = new { character = character?.Name }, sessionId = "debug-session", runId = "run1", hypothesisId = "H3" }) + "\n"); } catch { }
+                // #endregion
+                return;
+            }
+            
+            // Get or create display manager for this character
+            currentDisplayManager = GetOrCreateCharacterDisplayManager(characterId);
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasTextManager.cs:SwitchToCharacterDisplayManager", message = "Switched to character display manager", data = new { character = character?.Name, characterId = characterId, newBufferCount = currentDisplayManager?.Buffer.Count ?? 0 }, sessionId = "debug-session", runId = "run1", hypothesisId = "H3" }) + "\n"); } catch { }
+            // #endregion
+        }
+        
+        /// <summary>
+        /// Gets or creates the display manager for a specific character ID
+        /// This allows messages to be routed to the correct character's display manager
+        /// even when that character is not currently active
+        /// </summary>
+        private CenterPanelDisplayManager GetOrCreateCharacterDisplayManager(string characterId)
+        {
+            if (!characterDisplayManagers.TryGetValue(characterId, out var displayManager))
+            {
+                // Create new display manager for this character
+                displayManager = new CenterPanelDisplayManager(canvas, textWriter, contextManager, maxLines, stateManager);
+                characterDisplayManagers[characterId] = displayManager;
+            }
+            
+            return displayManager;
+        }
+        
+        /// <summary>
+        /// Gets the display manager for a specific character
+        /// Returns the active character's display manager if character is null or not found
+        /// This allows messages to be routed to the correct character's buffer
+        /// </summary>
+        public CenterPanelDisplayManager GetDisplayManagerForCharacter(Character? character)
+        {
+            var activeCharacter = stateManager?.GetActiveCharacter();
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasTextManager.cs:GetDisplayManagerForCharacter", message = "Entry", data = new { character = character?.Name, activeCharacter = activeCharacter?.Name, currentDisplayManagerCharacter = currentDisplayManager != null ? "exists" : "null" }, sessionId = "debug-session", runId = "run2", hypothesisId = "H3" }) + "\n"); } catch { }
+            // #endregion
+            if (character == null)
+            {
+                var result = DisplayManager; // Return active character's display manager
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasTextManager.cs:GetDisplayManagerForCharacter", message = "Character null, using active", data = new { activeCharacter = activeCharacter?.Name, resultBufferCount = result.Buffer.Count }, sessionId = "debug-session", runId = "run2", hypothesisId = "H3" }) + "\n"); } catch { }
+                // #endregion
+                return result;
+            }
+            
+            // Get character ID from state manager
+            string? characterId = stateManager?.GetCharacterId(character);
+            if (string.IsNullOrEmpty(characterId))
+            {
+                var result = DisplayManager; // Return active character's display manager
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasTextManager.cs:GetDisplayManagerForCharacter", message = "CharacterId null, using active", data = new { character = character?.Name, activeCharacter = activeCharacter?.Name, resultBufferCount = result.Buffer.Count }, sessionId = "debug-session", runId = "run2", hypothesisId = "H3" }) + "\n"); } catch { }
+                // #endregion
+                return result;
+            }
+            
+            // Get or create display manager for this character
+            var displayManager = GetOrCreateCharacterDisplayManager(characterId);
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasTextManager.cs:GetDisplayManagerForCharacter", message = "Returning character display manager", data = new { character = character?.Name, characterId = characterId, activeCharacter = activeCharacter?.Name, displayManagerBufferCount = displayManager.Buffer.Count, charactersMatch = character == activeCharacter }, sessionId = "debug-session", runId = "run2", hypothesisId = "H3" }) + "\n"); } catch { }
+            // #endregion
+            return displayManager;
+        }
+        
+        /// <summary>
+        /// Gets or creates the default display manager (for when no character is active)
+        /// </summary>
+        private CenterPanelDisplayManager GetOrCreateDefaultDisplayManager()
+        {
+            const string DEFAULT_KEY = "__default__";
+            
+            if (!characterDisplayManagers.TryGetValue(DEFAULT_KEY, out var displayManager))
+            {
+                displayManager = new CenterPanelDisplayManager(canvas, textWriter, contextManager, maxLines, stateManager);
+                characterDisplayManagers[DEFAULT_KEY] = displayManager;
+            }
+            
+            return displayManager;
+        }
+        
+        /// <summary>
+        /// Gets the game state manager (for advanced usage)
+        /// </summary>
+        public GameStateManager? StateManager => stateManager;
+        
+        /// <summary>
+        /// Gets the underlying display manager (for advanced usage)
+        /// Returns the active character's display manager, or default if no character is active
+        /// </summary>
+        public CenterPanelDisplayManager DisplayManager
+        {
+            get
+            {
+                // Ensure we have a current display manager
+                if (currentDisplayManager == null)
+                {
+                    // Try to get display manager for active character
+                    var activeCharacter = stateManager?.GetActiveCharacter();
+                    if (activeCharacter != null)
+                    {
+                        SwitchToCharacterDisplayManager(activeCharacter);
+                    }
+                    else
+                    {
+                        currentDisplayManager = GetOrCreateDefaultDisplayManager();
+                    }
+                }
+                
+                // Fallback to default if somehow still null (should never happen, but satisfies compiler)
+                return currentDisplayManager ?? GetOrCreateDefaultDisplayManager();
+            }
+        }
         
         /// <summary>
         /// Gets the current display buffer (for compatibility)
         /// Returns as strings for backwards compatibility
         /// </summary>
-        public List<string> DisplayBuffer => new List<string>(displayManager.Buffer.MessagesAsStrings);
+        public List<string> DisplayBuffer => new List<string>(DisplayManager.Buffer.MessagesAsStrings);
         
         /// <summary>
         /// Gets the number of lines in the buffer
         /// </summary>
-        public int BufferLineCount => displayManager.Buffer.Count;
+        public int BufferLineCount => DisplayManager.Buffer.Count;
         
         /// <summary>
         /// Adds a message to the display buffer
         /// </summary>
         public void AddToDisplayBuffer(string message, UIMessageType messageType = UIMessageType.System)
         {
-            displayManager.AddMessage(message, messageType);
+            DisplayManager.AddMessage(message, messageType);
         }
         
         /// <summary>
@@ -55,7 +226,7 @@ namespace RPGGame.UI.Avalonia.Managers
         /// <param name="autoRender">If true, automatically triggers render when transaction completes. If false, caller must call Render() explicitly.</param>
         public DisplayBatchTransaction StartBatch(bool autoRender = true)
         {
-            return displayManager.StartBatch(autoRender);
+            return DisplayManager.StartBatch(autoRender);
         }
         
         /// <summary>
@@ -63,7 +234,7 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public void ClearDisplayBuffer()
         {
-            displayManager.Clear();
+            DisplayManager.Clear();
         }
         
         /// <summary>
@@ -72,7 +243,7 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public void ClearDisplayBufferWithoutRender()
         {
-            displayManager.ClearWithoutRender();
+            DisplayManager.ClearWithoutRender();
         }
         
         /// <summary>
@@ -82,7 +253,7 @@ namespace RPGGame.UI.Avalonia.Managers
         {
             // This is handled by the display manager automatically
             // Force a render to ensure it's displayed
-            displayManager.ForceRender();
+            DisplayManager.ForceRender();
         }
         
         /// <summary>
@@ -114,7 +285,7 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public void WriteChunked(string message, UI.ChunkedTextReveal.RevealConfig? config = null)
         {
-            displayManager.WriteChunked(message, config);
+            DisplayManager.WriteChunked(message, config);
         }
         
         /// <summary>
@@ -122,7 +293,7 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public void ClearDisplay()
         {
-            displayManager.Clear();
+            DisplayManager.Clear();
         }
         
         /// <summary>
@@ -130,7 +301,7 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public void ScrollUp(int lines = 3)
         {
-            displayManager.ScrollUp(lines);
+            DisplayManager.ScrollUp(lines);
         }
         
         /// <summary>
@@ -138,7 +309,7 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public void ScrollDown(int lines = 3)
         {
-            displayManager.ScrollDown(lines);
+            DisplayManager.ScrollDown(lines);
         }
         
         /// <summary>
@@ -146,7 +317,7 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public void ResetScroll()
         {
-            displayManager.ResetScroll();
+            DisplayManager.ResetScroll();
         }
         
         /// <summary>
@@ -155,7 +326,7 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public void AddMessageBatch(IEnumerable<string> messages, int delayAfterBatchMs = 0)
         {
-            displayManager.AddMessageBatch(messages, delayAfterBatchMs);
+            DisplayManager.AddMessageBatch(messages, delayAfterBatchMs);
         }
         
         /// <summary>
@@ -164,7 +335,7 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public async System.Threading.Tasks.Task AddMessageBatchAsync(IEnumerable<string> messages, int delayAfterBatchMs = 0)
         {
-            await displayManager.AddMessageBatchAsync(messages, delayAfterBatchMs);
+            await DisplayManager.AddMessageBatchAsync(messages, delayAfterBatchMs);
         }
     }
 }

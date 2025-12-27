@@ -85,7 +85,7 @@ namespace RPGGame
                 var explorationRollBuilder = new ColoredTextBuilder()
                     .Add("Exploration Roll: ", ColorPalette.Info)
                     .Add(explorationResult.Roll.ToString(), ColorPalette.Success);
-                displayManager.AddCombatEvent(explorationRollBuilder);
+                displayManager.AddCombatEvent(explorationRollBuilder, stateManager.CurrentPlayer);
                 
                 // Apply keyword coloring to exploration message
                 // Skip displaying the message for environmental hazards - it will be displayed with proper formatting below
@@ -93,7 +93,7 @@ namespace RPGGame
                 {
                     var explorationMessageColored = KeywordColorSystem.Colorize(explorationResult.Message);
                     string explorationMessageMarkup = ColoredTextRenderer.RenderAsMarkup(explorationMessageColored);
-                    displayManager.AddCombatEvent(explorationMessageMarkup);
+                    displayManager.AddCombatEvent(explorationMessageMarkup, stateManager.CurrentPlayer);
                 }
                 
                 if (explorationResult.EnvironmentInfo != null)
@@ -101,7 +101,7 @@ namespace RPGGame
                     // Apply keyword coloring to environment info
                     var environmentInfoColored = KeywordColorSystem.Colorize(explorationResult.EnvironmentInfo);
                     string environmentInfoMarkup = ColoredTextRenderer.RenderAsMarkup(environmentInfoColored);
-                    displayManager.AddCombatEvent(environmentInfoMarkup);
+                    displayManager.AddCombatEvent(environmentInfoMarkup, stateManager.CurrentPlayer);
                 }
                 
                 // Handle environmental hazard
@@ -148,7 +148,7 @@ namespace RPGGame
                         hazardBuilder.Add(message, Colors.White);
                     }
                     
-                    displayManager.AddCombatEvent(hazardBuilder);
+                    displayManager.AddCombatEvent(hazardBuilder, stateManager.CurrentPlayer);
                     
                     if (hazard.SkipToCombat && hazard.Damage > 0)
                     {
@@ -183,12 +183,12 @@ namespace RPGGame
                     if (customUIManager is CanvasUICoordinator canvasUISafe && stateManager.CurrentPlayer != null)
                     {
                         // Add blank line before safe message (after room info)
-                        displayManager.AddCombatEvent("");
+                        displayManager.AddCombatEvent("", stateManager.CurrentPlayer);
                         var safeMessageBuilder = new ColoredTextBuilder()
                             .Add("It appears you are safe... ", Colors.White)
                             .Add("for now.", ColorPalette.Red);
-                        displayManager.AddCombatEvent(safeMessageBuilder);
-                        displayManager.AddCombatEvent(""); // Blank line after safe message
+                        displayManager.AddCombatEvent(safeMessageBuilder, stateManager.CurrentPlayer);
+                        displayManager.AddCombatEvent("", stateManager.CurrentPlayer); // Blank line after safe message
                         // Re-render room entry to show the safe message
                         canvasUISafe.RenderRoomEntry(room, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
                         if (!RPGGame.MCP.MCPMode.IsActive)
@@ -211,11 +211,11 @@ namespace RPGGame
                             "You've gained the upper hand! You'll act first!",
                             "The element of surprise is yours! You strike first!"
                         };
-                        displayManager.AddCombatEvent("");
+                        displayManager.AddCombatEvent("", stateManager.CurrentPlayer);
                         var advantageMessage = advantageMessages[random.Next(advantageMessages.Length)];
                         var advantageBuilder = new ColoredTextBuilder()
                             .Add(advantageMessage, ColorPalette.Red);
-                        displayManager.AddCombatEvent(advantageBuilder);
+                        displayManager.AddCombatEvent(advantageBuilder, stateManager.CurrentPlayer);
                     }
                     else if (enemyGetsFirstAttack)
                     {
@@ -272,23 +272,23 @@ namespace RPGGame
                     stateManager.CurrentDungeon.MinLevel, isLastRoom);
                 
                 // Display search result with colors
-                displayManager.AddCombatEvent(""); // Blank line before search roll
+                displayManager.AddCombatEvent("", stateManager.CurrentPlayer); // Blank line before search roll
                 var searchRollBuilder = new ColoredTextBuilder()
                     .Add("Search Roll: ", ColorPalette.Info)
                     .Add(searchResult.Roll.ToString(), ColorPalette.Success);
-                displayManager.AddCombatEvent(searchRollBuilder);
+                displayManager.AddCombatEvent(searchRollBuilder, stateManager.CurrentPlayer);
                 
                 // Apply keyword coloring to search message
                 var searchMessageColored = KeywordColorSystem.Colorize(searchResult.Message);
                 string searchMessageMarkup = ColoredTextRenderer.RenderAsMarkup(searchMessageColored);
-                displayManager.AddCombatEvent(searchMessageMarkup);
+                displayManager.AddCombatEvent(searchMessageMarkup, stateManager.CurrentPlayer);
                 
                 // If loot found, add it to inventory
+                // Note: The search message already contains the loot information, so we don't need to display it again
                 if (searchResult.FoundLoot && searchResult.LootItem != null)
                 {
                     foundLoot = true;
                     stateManager.CurrentPlayer.AddToInventory(searchResult.LootItem);
-                    displayManager.AddCombatEvent($"You found: {searchResult.LootItem.Name}");
                 }
                 
                 // Re-render and delay

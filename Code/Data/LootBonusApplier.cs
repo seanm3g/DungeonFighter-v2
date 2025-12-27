@@ -28,21 +28,34 @@ namespace RPGGame
         /// </summary>
         public void ApplyBonuses(Item item, RarityData rarity, LootContext? context = null)
         {
-            // Special handling for Common items: 25% chance to have mods/stat bonuses
+            // Special handling for Common items: 10% chance to have mods/stat bonuses
             if (rarity.Name.Equals("Common", StringComparison.OrdinalIgnoreCase))
             {
-                // 25% chance for Common items to have bonuses
-                if (_random.NextDouble() < 0.25)
+                // 10% chance for Common items to have bonuses (reduced from 25%)
+                if (_random.NextDouble() < 0.10)
                 {
                     // Apply 1 stat bonus and 1 modification for Common items that get bonuses
                     ApplyStatBonuses(item, 1);
                     ApplyModifications(item, 1, context);
                 }
-                // If the 25% roll fails, Common items get no bonuses (as intended)
+                // If the 10% roll fails, Common items get no bonuses (as intended)
+            }
+            else if (rarity.Name.Equals("Uncommon", StringComparison.OrdinalIgnoreCase))
+            {
+                // Uncommon items: 80% chance to get modifications (not guaranteed)
+                ApplyStatBonuses(item, rarity.StatBonuses);
+                ApplyActionBonuses(item, rarity.ActionBonuses, context);
+                
+                // Roll for modifications: 80% chance to get the full count
+                if (_random.NextDouble() < 0.80)
+                {
+                    ApplyModifications(item, rarity.Modifications, context);
+                }
+                // 20% chance Uncommon items get no modifications
             }
             else
             {
-                // Apply bonuses normally for all other rarities
+                // Apply bonuses normally for all other rarities (Rare+)
                 ApplyStatBonuses(item, rarity.StatBonuses);
                 ApplyActionBonuses(item, rarity.ActionBonuses, context);
                 ApplyModifications(item, rarity.Modifications, context);

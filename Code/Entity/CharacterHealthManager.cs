@@ -57,7 +57,8 @@ namespace RPGGame
                 shieldBuilder.Add("]'s Arcane Shield reduces damage by ", Colors.White);
                 shieldBuilder.Add(shieldReduction.ToString(), ColorPalette.Success);
                 shieldBuilder.Add("!", Colors.White);
-                TextDisplayIntegration.DisplayCombatAction(shieldBuilder.Build(), new List<ColoredText>(), null, null);
+                // Pass character for multi-character support
+                TextDisplayIntegration.DisplayCombatAction(shieldBuilder.Build(), new List<ColoredText>(), null, null, character);
             }
 
             // Apply damage reduction if active

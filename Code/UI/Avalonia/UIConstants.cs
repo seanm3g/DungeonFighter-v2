@@ -38,6 +38,7 @@ namespace RPGGame.UI.Avalonia
             public const string TradeUpItems = "Trade Up Items";
             public const string ContinueToDungeon = "Continue to Dungeon";
             public const string ReturnToMainMenu = "Return to Main Menu";
+            public const string BackToMainMenu = "Back to Main Menu";
             public const string ExitGame = "Exit Game";
             public const string SelectSlotToUnequip = "SELECT SLOT TO UNEQUIP";
         }

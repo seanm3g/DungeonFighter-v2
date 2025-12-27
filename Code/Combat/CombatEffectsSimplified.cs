@@ -134,7 +134,7 @@ namespace RPGGame
                     
                     // Use ColoredTextBuilder for proper spacing
                     var builder = new ColoredTextBuilder();
-                    ColorPalette actorColor = Actor is Enemy ? ColorPalette.Enemy : ColorPalette.Player;
+                    var actorColor = EntityColorHelper.GetActorColor(Actor);
                     DamageFormatter.AddActorTakesDamage(builder, Actor.Name, actorColor, poisonDamage, damageType);
                     var coloredText = builder.Build();
                     
@@ -163,7 +163,7 @@ namespace RPGGame
                     
                     // Use ColoredTextBuilder for proper spacing
                     var builder = new ColoredTextBuilder();
-                    ColorPalette actorColor = Actor is Enemy ? ColorPalette.Enemy : ColorPalette.Player;
+                    var actorColor = EntityColorHelper.GetActorColor(Actor);
                     ColorPalette effectColor = damageType == "bleed" ? ColorPalette.Error : ColorPalette.Green;
                     DamageFormatter.AddActorNoLongerAffected(builder, Actor.Name, actorColor, effectEndMessage, effectColor);
                     var coloredText = builder.Build();
@@ -183,7 +183,7 @@ namespace RPGGame
                     
                     // Use ColoredTextBuilder for proper spacing
                     var builder = new ColoredTextBuilder();
-                    ColorPalette actorColor = Actor is Enemy ? ColorPalette.Enemy : ColorPalette.Player;
+                    var actorColor = EntityColorHelper.GetActorColor(Actor);
                     DamageFormatter.AddActorTakesDamage(builder, Actor.Name, actorColor, burnDamage, "burn");
                     var coloredText = builder.Build();
                     
@@ -206,7 +206,7 @@ namespace RPGGame
                 {
                     // Use ColoredTextBuilder for proper spacing
                     var builder = new ColoredTextBuilder();
-                    ColorPalette actorColor = Actor is Enemy ? ColorPalette.Enemy : ColorPalette.Player;
+                    var actorColor = EntityColorHelper.GetActorColor(Actor);
                     DamageFormatter.AddActorNoLongerAffected(builder, Actor.Name, actorColor, "burning", ColorPalette.Orange);
                     var coloredText = builder.Build();
                     

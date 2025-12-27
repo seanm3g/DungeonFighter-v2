@@ -82,7 +82,8 @@ namespace RPGGame.Actions.Execution
                 ActionStatisticsTracker.RecordDamageReceived(selfCharacter, totalDamage);
             }
 
-            bool isCriticalHit = totalRoll >= 20;
+            // Use threshold manager to determine critical hit (consistent with ActionExecutionFlow)
+            bool isCriticalHit = totalRoll >= RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
             // BASIC ATTACK removed - all actions are now combo actions
             ActionUtilities.CreateAndAddBattleEvent(source, target, action, totalDamage, totalRoll, rollBonus, true, true, 0, 0, isCriticalHit, naturalRoll, battleNarrative);
 

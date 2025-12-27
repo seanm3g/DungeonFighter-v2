@@ -88,8 +88,11 @@ namespace RPGGame.UI.Services
                 // Character doesn't match - block the message
                 if (activeCharacter != sourceCharacter)
                 {
+                    System.Diagnostics.Debug.WriteLine($"[DEBUG MessageFilterService] BLOCKED: activeCharacter={activeCharacter?.Name} != sourceCharacter={sourceCharacter?.Name}");
                     return false;
                 }
+                
+                System.Diagnostics.Debug.WriteLine($"[DEBUG MessageFilterService] ALLOWED: activeCharacter={activeCharacter?.Name} == sourceCharacter={sourceCharacter?.Name}");
 
                 // Optional race condition check for Dungeon state
                 // This ensures that even if the context manager was updated between the check and now,

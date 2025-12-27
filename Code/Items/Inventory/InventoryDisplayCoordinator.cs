@@ -54,12 +54,9 @@ namespace RPGGame
                             break;
                         case 6:
                             return true; // Continue to dungeon
-                        case 7:
-                            return false; // Exit inventory menu and return to main menu
                         case 0:
-                            // Exit game completely
-                            Console.WriteLine("Exiting game...");
-                            return null; // Signal to exit game
+                            // Return to main menu
+                            return false; // Return to main menu
                         default:
                             Console.WriteLine("Invalid option.");
                             break;

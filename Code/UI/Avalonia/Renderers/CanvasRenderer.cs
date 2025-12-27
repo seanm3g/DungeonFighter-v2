@@ -423,8 +423,10 @@ namespace RPGGame.UI.Avalonia.Renderers
                 // currentEnemy is guaranteed non-null here due to earlier checks
                 if (currentEnemy != null)
                 {
+                    // CRITICAL: Pass the player character so RenderCombatScreen uses the correct display manager
+                    // This ensures we render the combat player's buffer, not the active character's buffer
                     dungeonRenderer.RenderCombatScreen(contentX, contentY, contentWidth, contentHeight, 
-                        null, null, currentEnemy, textManager, filteredDungeonContext);
+                        null, null, currentEnemy, textManager, player, filteredDungeonContext);
                 }
             }, context, currentEnemy, context.DungeonName, context.RoomName, clearCanvas: shouldClear);
             

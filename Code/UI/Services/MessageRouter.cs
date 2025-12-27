@@ -12,11 +12,13 @@ namespace RPGGame.UI.Services
     /// Primary routing service for all game messages
     /// Consolidates message entry points and routes to appropriate display managers
     /// Uses MessageFilterService internally for consistent filtering
+    /// Now supports per-character display managers for complete isolation
     /// </summary>
     public class MessageRouter
     {
         private readonly MessageFilterService filterService;
         private readonly CenterPanelDisplayManager? displayManager;
+        private readonly CanvasTextManager? canvasTextManager;
         private readonly IUIManager? uiManager;
         private readonly GameStateManager? stateManager;
         private readonly ICanvasContextManager? contextManager;
@@ -24,21 +26,40 @@ namespace RPGGame.UI.Services
         /// <summary>
         /// Creates a new MessageRouter
         /// </summary>
-        /// <param name="displayManager">The center panel display manager to route messages to (optional, preferred)</param>
+        /// <param name="displayManager">The center panel display manager to route messages to (optional, preferred for single display manager)</param>
         /// <param name="uiManager">The UI manager to route messages to (optional, fallback)</param>
         /// <param name="stateManager">Game state manager for filtering (optional)</param>
         /// <param name="contextManager">Context manager for character tracking (optional)</param>
+        /// <param name="canvasTextManager">The canvas text manager for per-character display managers (optional, preferred for multi-character support)</param>
         public MessageRouter(
             CenterPanelDisplayManager? displayManager = null,
             IUIManager? uiManager = null,
             GameStateManager? stateManager = null,
-            ICanvasContextManager? contextManager = null)
+            ICanvasContextManager? contextManager = null,
+            CanvasTextManager? canvasTextManager = null)
         {
             this.filterService = new MessageFilterService();
             this.displayManager = displayManager;
+            this.canvasTextManager = canvasTextManager;
             this.uiManager = uiManager;
             this.stateManager = stateManager;
             this.contextManager = contextManager;
+        }
+        
+        /// <summary>
+        /// Gets the display manager for a specific character
+        /// Uses per-character display managers if available, otherwise falls back to single display manager
+        /// </summary>
+        private CenterPanelDisplayManager? GetDisplayManagerForCharacter(Character? character)
+        {
+            // If we have CanvasTextManager, use per-character display managers
+            if (canvasTextManager != null)
+            {
+                return canvasTextManager.GetDisplayManagerForCharacter(character);
+            }
+            
+            // Fall back to single display manager
+            return displayManager;
         }
 
         /// <summary>
@@ -64,8 +85,11 @@ namespace RPGGame.UI.Services
                 return;
             }
 
+            // Get the display manager for this character (per-character display managers if available)
+            var targetDisplayManager = GetDisplayManagerForCharacter(character);
+            
             // Route to display manager if available
-            if (displayManager != null)
+            if (targetDisplayManager != null)
             {
                 // Collect all messages for this combat action block
                 var allMessages = new List<List<ColoredText>>();
@@ -97,7 +121,9 @@ namespace RPGGame.UI.Services
 
                 if (allMessages.Count > 0)
                 {
-                    displayManager.AddMessages(allMessages);
+                    // Pass character through to AddMessages for proper filtering
+                    // This ensures that even if context manager is stale, filtering works correctly
+                    targetDisplayManager.AddMessages(allMessages, character);
                 }
             }
         }
@@ -113,19 +139,34 @@ namespace RPGGame.UI.Services
             UIMessageType messageType = UIMessageType.System,
             Character? character = null)
         {
+            var activeCharacter = stateManager?.GetActiveCharacter();
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "MessageRouter.cs:RouteSystemMessage", message = "Entry", data = new { character = character?.Name, activeCharacter = activeCharacter?.Name, messageType = messageType.ToString(), messagePreview = message?.Substring(0, Math.Min(50, message?.Length ?? 0)) }, sessionId = "debug-session", runId = "run2", hypothesisId = "H2" }) + "\n"); } catch { }
+            // #endregion
             // Check if message should be displayed
-            if (!filterService.ShouldDisplayMessage(character, messageType, stateManager, contextManager))
+            bool shouldDisplay = filterService.ShouldDisplayMessage(character, messageType, stateManager, contextManager);
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "MessageRouter.cs:RouteSystemMessage", message = "Filter result", data = new { shouldDisplay = shouldDisplay, character = character?.Name, activeCharacter = activeCharacter?.Name }, sessionId = "debug-session", runId = "run2", hypothesisId = "H2" }) + "\n"); } catch { }
+            // #endregion
+
+            if (!shouldDisplay)
             {
                 return;
             }
 
+            // Get the display manager for this character (per-character display managers if available)
+            var targetDisplayManager = GetDisplayManagerForCharacter(character);
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "MessageRouter.cs:RouteSystemMessage", message = "Target display manager", data = new { targetDisplayManagerExists = targetDisplayManager != null, character = character?.Name, activeCharacter = activeCharacter?.Name, targetBufferCount = targetDisplayManager?.Buffer.Count ?? 0 }, sessionId = "debug-session", runId = "run2", hypothesisId = "H2" }) + "\n"); } catch { }
+            // #endregion
+            
             // Route to display manager if available (preferred)
-            if (displayManager != null)
+            if (targetDisplayManager != null && message != null)
             {
-                displayManager.AddMessage(message, messageType);
+                targetDisplayManager.AddMessage(message, messageType);
             }
             // Fallback to UI manager
-            else if (uiManager != null)
+            else if (uiManager != null && message != null)
             {
                 uiManager.WriteLine(message, messageType);
             }
@@ -148,10 +189,13 @@ namespace RPGGame.UI.Services
                 return;
             }
 
+            // Get the display manager for this character (per-character display managers if available)
+            var targetDisplayManager = GetDisplayManagerForCharacter(character);
+            
             // Route to display manager if available (preferred)
-            if (displayManager != null)
+            if (targetDisplayManager != null)
             {
-                displayManager.AddMessage(segments, messageType);
+                targetDisplayManager.AddMessage(segments, messageType);
             }
             // Fallback to UI manager (convert segments to markup string)
             else if (uiManager != null)
@@ -180,10 +224,13 @@ namespace RPGGame.UI.Services
                 return;
             }
 
+            // Get the display manager for this character (per-character display managers if available)
+            var targetDisplayManager = GetDisplayManagerForCharacter(character);
+            
             // Route to display manager if available (preferred)
-            if (displayManager != null)
+            if (targetDisplayManager != null)
             {
-                displayManager.AddMessageBatch(messages, delayAfterBatchMs);
+                targetDisplayManager.AddMessageBatch(messages, delayAfterBatchMs);
             }
             // Fallback: add messages individually through UI manager
             else if (uiManager != null)
@@ -214,10 +261,13 @@ namespace RPGGame.UI.Services
                 return;
             }
 
+            // Get the display manager for this character (per-character display managers if available)
+            var targetDisplayManager = GetDisplayManagerForCharacter(character);
+            
             // Route to display manager if available (preferred)
-            if (displayManager != null)
+            if (targetDisplayManager != null)
             {
-                await displayManager.AddMessageBatchAsync(segmentsList, delayAfterBatchMs);
+                await targetDisplayManager.AddMessageBatchAsync(segmentsList, delayAfterBatchMs);
             }
             // Fallback: add messages individually through UI manager
             else if (uiManager != null)

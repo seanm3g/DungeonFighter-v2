@@ -109,7 +109,9 @@ namespace RPGGame
             if (!DisableCombatUIOutput)
             {
                 // Use TextDisplayIntegration for consistent Actor tracking with ColoredText
-                TextDisplayIntegration.DisplayCombatAction(actionText, rollInfo, statusEffects, null);
+                // Pass character if Actor is a Character (for multi-character support)
+                Character? actorCharacter = Actor as Character;
+                TextDisplayIntegration.DisplayCombatAction(actionText, rollInfo, statusEffects, null, actorCharacter);
             }
 
             // Track last player action for DEJA VU functionality
@@ -163,7 +165,8 @@ namespace RPGGame
                         // Use ColoredText for regeneration message
                         var regenText = CombatFlowColoredText.FormatHealthRegenerationColored(
                             player.Name, actualRegen, player.CurrentHealth, player.GetEffectiveMaxHealth());
-                        TextDisplayIntegration.DisplayCombatAction(regenText, new List<ColoredText>(), null, null);
+                        // Pass player character for multi-character support
+                        TextDisplayIntegration.DisplayCombatAction(regenText, new List<ColoredText>(), null, null, player);
                         UIManager.WriteLine(""); // Add blank line after regeneration message
                     }
                 }

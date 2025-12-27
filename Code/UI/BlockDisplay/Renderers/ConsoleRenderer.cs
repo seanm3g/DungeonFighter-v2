@@ -12,7 +12,7 @@ namespace RPGGame.UI.BlockDisplay.Renderers
     /// </summary>
     public class ConsoleRenderer : IBlockRenderer
     {
-        public void RenderMessageGroups(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs)
+        public void RenderMessageGroups(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs, Character? character = null)
         {
             if (groups != null)
             {
@@ -42,7 +42,7 @@ namespace RPGGame.UI.BlockDisplay.Renderers
             }
         }
         
-        public async Task RenderMessageGroupsAsync(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs)
+        public async Task RenderMessageGroupsAsync(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs, Character? character = null)
         {
             if (groups != null)
             {

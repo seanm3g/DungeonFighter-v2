@@ -188,35 +188,33 @@ namespace RPGGame.UI.Avalonia.Layout
                 if (enemyName.Length > 20)
                     enemyName = enemyName.Substring(0, 17) + "...";
                 
-                canvas.AddText(x, y, enemyName, ColorPalette.Enemy.GetColor());
+                canvas.AddText(x, y, enemyName, EntityColorHelper.GetEnemyColor(enemy));
                 y++;
                 canvas.AddText(x, y, $"Lvl {enemy.Level}", AsciiArtAssets.Colors.Yellow);
                 y += 2;
                 
-                // Enemy health bar
-                canvas.AddText(x, y, "HP:", AsciiArtAssets.Colors.White);
-                y++;
-                
-                int enemyHealthBarWidth = LayoutConstants.RIGHT_PANEL_WIDTH - 6;
-                canvas.AddHealthBar(x, y, enemyHealthBarWidth, enemy.CurrentHealth, enemy.MaxHealth, AsciiArtAssets.Colors.Green, AsciiArtAssets.Colors.DarkGreen, entityId: $"enemy_{enemy.Name}");
-                canvas.AddText(x, y + 1, $"{enemy.CurrentHealth}/{enemy.MaxHealth}", AsciiArtAssets.Colors.White);
-                y += 3;
+                // Calculate enemy damage (Strength + weapon damage)
+                int weaponDamage = (enemy.Weapon is WeaponItem w) ? w.GetTotalDamage() : 0;
+                int totalDamage = enemy.GetEffectiveStrength() + weaponDamage;
                 
                 // Enemy stats
-                canvas.AddText(x, y, "Armor:", AsciiArtAssets.Colors.White);
+                canvas.AddText(x, y, "DMG:", AsciiArtAssets.Colors.White);
+                y++;
+                canvas.AddText(x, y, $"{totalDamage}", AsciiArtAssets.Colors.Yellow);
+                y += 2;
+                
+                canvas.AddText(x, y, "ARM:", AsciiArtAssets.Colors.White);
                 y++;
                 canvas.AddText(x, y, $"{enemy.Armor}", AsciiArtAssets.Colors.Yellow);
                 y += 2;
                 
-                canvas.AddText(x, y, "Attack:", AsciiArtAssets.Colors.White);
+                canvas.AddText(x, y, $"STR: {enemy.Strength}", AsciiArtAssets.Colors.Yellow);
                 y++;
-                canvas.AddText(x, y, $"STR {enemy.Strength}", AsciiArtAssets.Colors.Yellow);
+                canvas.AddText(x, y, $"AGI: {enemy.Agility}", AsciiArtAssets.Colors.Yellow);
                 y++;
-                canvas.AddText(x, y, $"AGI {enemy.Agility}", AsciiArtAssets.Colors.Yellow);
+                canvas.AddText(x, y, $"TECH: {enemy.Technique}", AsciiArtAssets.Colors.Yellow);
                 y++;
-                canvas.AddText(x, y, $"TEC {enemy.Technique}", AsciiArtAssets.Colors.Yellow);
-                y++;
-                canvas.AddText(x, y, $"INT {enemy.Intelligence}", AsciiArtAssets.Colors.Yellow);
+                canvas.AddText(x, y, $"INT: {enemy.Intelligence}", AsciiArtAssets.Colors.Yellow);
             }
             else
             {

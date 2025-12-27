@@ -149,7 +149,7 @@ namespace RPGGame
             
             return new NarrativeTextBuilder()
                 .AddEmoji("🔥 ", ColorPalette.Critical)
-                .AddTextWithDualHighlight(text, playerName, enemyName, ColorPalette.Warning, ColorPalette.Player, ColorPalette.Enemy)
+                .AddTextWithDualHighlight(text, playerName, enemyName, ColorPalette.Warning.GetColor(), ColorPalette.Player.GetColor(), EntityColorHelper.GetEnemyColorByName(enemyName))
                 .Build();
         }
     }
@@ -162,7 +162,7 @@ namespace RPGGame
             
             return new NarrativeTextBuilder()
                 .AddEmoji("☠️ ", ColorPalette.Critical)
-                .AddTextWithHighlight(text, enemyName, ColorPalette.Error, ColorPalette.Enemy, ColorPalette.Error)
+                .AddTextWithHighlight(text, enemyName, ColorPalette.Error.GetColor(), EntityColorHelper.GetEnemyColorByName(enemyName), ColorPalette.Error.GetColor())
                 .Build();
         }
     }
@@ -175,7 +175,7 @@ namespace RPGGame
             
             return new NarrativeTextBuilder()
                 .AddEmoji("✨ ", ColorPalette.Success)
-                .AddTextWithDualHighlight(text, enemyName, playerName, ColorPalette.Success, ColorPalette.Enemy, ColorPalette.Player)
+                .AddTextWithDualHighlight(text, enemyName, playerName, ColorPalette.Success.GetColor(), EntityColorHelper.GetEnemyColorByName(enemyName), ColorPalette.Player.GetColor())
                 .Build();
         }
     }
@@ -205,7 +205,7 @@ namespace RPGGame
                     
                     if (playerIndex >= 0 && enemyIndex >= 0)
                     {
-                        builder.AddTextWithDualHighlight(remaining, playerName, enemyName, ColorPalette.Info, ColorPalette.Player, ColorPalette.Enemy);
+                        builder.AddTextWithDualHighlight(remaining, playerName, enemyName, ColorPalette.Info.GetColor(), ColorPalette.Player.GetColor(), EntityColorHelper.GetEnemyColorByName(enemyName));
                     }
                     else if (playerIndex >= 0)
                     {
@@ -223,7 +223,7 @@ namespace RPGGame
             }
             else
             {
-                builder.AddTextWithDualHighlight(text, playerName, enemyName, ColorPalette.Info, ColorPalette.Player, ColorPalette.Enemy);
+                builder.AddTextWithDualHighlight(text, playerName, enemyName, ColorPalette.Info.GetColor(), ColorPalette.Player.GetColor(), EntityColorHelper.GetEnemyColorByName(enemyName));
             }
             
             return builder.Build();
@@ -251,11 +251,11 @@ namespace RPGGame
                     
                     if (enemyIndex >= 0 && playerIndex >= 0)
                     {
-                        builder.AddTextWithDualHighlight(remaining, enemyName, playerName, ColorPalette.Warning, ColorPalette.Enemy, ColorPalette.Player);
+                        builder.AddTextWithDualHighlight(remaining, enemyName, playerName, ColorPalette.Warning.GetColor(), EntityColorHelper.GetEnemyColorByName(enemyName), ColorPalette.Player.GetColor());
                     }
                     else if (enemyIndex >= 0)
                     {
-                        builder.AddTextWithHighlight(remaining, enemyName, ColorPalette.Warning, ColorPalette.Enemy, ColorPalette.Warning);
+                        builder.AddTextWithHighlight(remaining, enemyName, ColorPalette.Warning.GetColor(), EntityColorHelper.GetEnemyColorByName(enemyName), ColorPalette.Warning.GetColor());
                     }
                     else
                     {
@@ -269,7 +269,7 @@ namespace RPGGame
             }
             else
             {
-                builder.AddTextWithDualHighlight(text, enemyName, playerName, ColorPalette.Warning, ColorPalette.Enemy, ColorPalette.Player);
+                builder.AddTextWithDualHighlight(text, enemyName, playerName, ColorPalette.Warning.GetColor(), EntityColorHelper.GetEnemyColorByName(enemyName), ColorPalette.Player.GetColor());
             }
             
             return builder.Build();
@@ -297,7 +297,7 @@ namespace RPGGame
             else
             {
                 builder
-                    .AddText(actorName, ColorPalette.Enemy)
+                    .AddText(actorName, EntityColorHelper.GetEnemyColorByName(actorName))
                     .AddText(" demonstrates ", ColorPalette.Warning)
                     .AddText("masterful technique", ColorPalette.Critical)
                     .AddText(" with a brutal combo that leaves ", ColorPalette.Warning)

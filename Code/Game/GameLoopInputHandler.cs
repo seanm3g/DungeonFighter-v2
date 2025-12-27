@@ -17,12 +17,16 @@ namespace RPGGame
         public delegate void OnShowMessage(string message);
         public delegate void OnExitGame();
         public delegate void OnShowCharacterSelection();
+        public delegate void OnShowMainMenu();
         
         public event OnSelectDungeon? SelectDungeonEvent;
         public event OnShowInventory? ShowInventoryEvent;
         public event OnShowMessage? ShowMessageEvent;
+#pragma warning disable CS0067 // Event is never used - reserved for future use
         public event OnExitGame? ExitGameEvent;
+#pragma warning restore CS0067
         public event OnShowCharacterSelection? ShowCharacterSelectionEvent;
+        public event OnShowMainMenu? ShowMainMenuEvent;
 
         public GameLoopInputHandler(GameStateManager stateManager)
         {
@@ -56,18 +60,19 @@ namespace RPGGame
                     ShowCharacterSelectionEvent?.Invoke();
                     break;
                 case "0":
-                    // Save & Exit
+                    // Save & Return to Main Menu
                     var activeCharacter = stateManager.GetActiveCharacter();
                     if (activeCharacter != null)
                     {
-                        // Save character before exit
+                        // Save character before returning to main menu
                         var characterId = stateManager.GetCharacterId(activeCharacter);
                         activeCharacter.SaveCharacter(characterId);
                     }
-                    ExitGameEvent?.Invoke();
+                    stateManager.TransitionToState(GameState.MainMenu);
+                    ShowMainMenuEvent?.Invoke();
                     break;
                 default:
-                    ShowMessageEvent?.Invoke("Invalid choice. Press 1 (Dungeon), 2 (Inventory), C (Characters), or 0 (Save & Exit).");
+                    ShowMessageEvent?.Invoke("Invalid choice. Press 1 (Dungeon), 2 (Inventory), C (Characters), or 0 (Back to Main Menu).");
                     break;
             }
         }

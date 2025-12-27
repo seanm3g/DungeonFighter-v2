@@ -44,17 +44,27 @@ namespace RPGGame.UI.Avalonia.Coordinators
             {
                 try
                 {
-                    // Clear any external render callbacks from previous character's combat
-                    // This prevents background combat from interrupting the new character's view
+                    // Switch to the new character's display manager FIRST
+                    // This ensures each character has their own isolated display buffer
                     if (textManager is Managers.CanvasTextManager canvasTextManager)
                     {
+                        // Switch to the new character's display manager
+                        // This provides complete isolation - each character has their own buffer
+                        var newCharacter = e.NewCharacter;
+                        // #region agent log
+                        try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CharacterSwitchHandler.cs:OnCharacterSwitched", message = "Switching display manager", data = new { newCharacter = newCharacter?.Name }, sessionId = "debug-session", runId = "run1", hypothesisId = "H3" }) + "\n"); } catch { }
+                        // #endregion
+                        canvasTextManager.SwitchToCharacterDisplayManager(newCharacter);
+                        // #region agent log
+                        try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CharacterSwitchHandler.cs:OnCharacterSwitched", message = "Display manager switched", data = new { newCharacter = newCharacter?.Name, currentDisplayManagerBufferCount = canvasTextManager.DisplayManager.Buffer.Count }, sessionId = "debug-session", runId = "run1", hypothesisId = "H3" }) + "\n"); } catch { }
+                        // #endregion
+                        
                         // Clear external render callback (prevents old combat callbacks from firing)
                         canvasTextManager.DisplayManager.SetExternalRenderCallback(null);
                         // Reset to standard display mode (prevents combat mode from persisting)
                         canvasTextManager.DisplayManager.SetMode(new StandardDisplayMode());
-                        // Clear display buffer to prevent old combat messages from showing for new character
-                        // This ensures clean transition when switching characters
-                        canvasTextManager.DisplayManager.Clear();
+                        // Note: We don't need to clear the buffer here because we've switched to a different display manager
+                        // The new character's display manager will have its own clean buffer
                     }
                     
                     // Clear enemy context to prevent old combat from showing

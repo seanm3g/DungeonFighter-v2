@@ -1,57 +1,57 @@
 {
   "MessageTypeDelays": {
-    "Combat": 0,
-    "System": 0,
-    "Menu": 0,
-    "Title": 0,
-    "MainTitle": 0,
-    "Environmental": 0,
-    "EffectMessage": 0,
-    "DamageOverTime": 0,
-    "Encounter": 0,
-    "RollInfo": 0
+    "Combat": 50,
+    "System": 50,
+    "Menu": 25,
+    "Title": 200,
+    "MainTitle": 300,
+    "Environmental": 75,
+    "EffectMessage": 30,
+    "DamageOverTime": 30,
+    "Encounter": 50,
+    "RollInfo": 5
   },
   "ChunkedTextReveal": {
     "Combat": {
-      "BaseDelayPerCharMs": 0,
-      "MinDelayMs": 0,
-      "MaxDelayMs": 0,
+      "BaseDelayPerCharMs": 10,
+      "MinDelayMs": 100,
+      "MaxDelayMs": 500,
       "Strategy": "Line"
     },
     "Dungeon": {
-      "BaseDelayPerCharMs": 0,
-      "MinDelayMs": 0,
-      "MaxDelayMs": 0,
+      "BaseDelayPerCharMs": 15,
+      "MinDelayMs": 200,
+      "MaxDelayMs": 800,
       "Strategy": "Semantic"
     },
     "Room": {
-      "BaseDelayPerCharMs": 0,
-      "MinDelayMs": 0,
-      "MaxDelayMs": 0,
+      "BaseDelayPerCharMs": 20,
+      "MinDelayMs": 300,
+      "MaxDelayMs": 1000,
       "Strategy": "Sentence"
     },
     "Narrative": {
-      "BaseDelayPerCharMs": 0,
-      "MinDelayMs": 0,
-      "MaxDelayMs": 0,
+      "BaseDelayPerCharMs": 15,
+      "MinDelayMs": 200,
+      "MaxDelayMs": 800,
       "Strategy": "Sentence"
     },
     "Default": {
-      "BaseDelayPerCharMs": 0,
-      "MinDelayMs": 0,
-      "MaxDelayMs": 0,
+      "BaseDelayPerCharMs": 20,
+      "MinDelayMs": 200,
+      "MaxDelayMs": 1000,
       "Strategy": "Sentence"
     }
   },
   "CombatDelays": {
-    "ActionDelayMs": 0,
-    "MessageDelayMs": 0
+    "ActionDelayMs": 300,
+    "MessageDelayMs": 50
   },
   "ProgressiveMenuDelays": {
-    "BaseMenuDelay": 0,
+    "BaseMenuDelay": 25,
     "ProgressiveReductionRate": 1,
     "ProgressiveThreshold": 20
   },
-  "EnableGuiDelays": false,
-  "EnableConsoleDelays": false
+  "EnableGuiDelays": true,
+  "EnableConsoleDelays": true
 }

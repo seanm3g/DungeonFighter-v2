@@ -61,10 +61,21 @@ namespace RPGGame.Combat.Formatting
         /// <summary>
         /// Adds "hits [target]" pattern to a ColoredTextBuilder with proper spacing
         /// </summary>
-        public static void AddHitsTarget(ColoredTextBuilder builder, string targetName, ColorPalette targetColor)
+        public static void AddHitsTarget(ColoredTextBuilder builder, string targetName, ColorPalette targetColor, ColorPalette? hitsColor = null)
         {
             builder.AddSpace();
-            builder.Add("hits", Colors.White);
+            builder.Add("hits", hitsColor.HasValue ? hitsColor.Value.GetColor() : Colors.White);
+            builder.AddSpace();
+            builder.Add(targetName, targetColor);
+        }
+
+        /// <summary>
+        /// Adds "hits [target]" pattern to a ColoredTextBuilder with proper spacing (Color overload)
+        /// </summary>
+        public static void AddHitsTarget(ColoredTextBuilder builder, string targetName, Color targetColor, ColorPalette? hitsColor = null)
+        {
+            builder.AddSpace();
+            builder.Add("hits", hitsColor.HasValue ? hitsColor.Value.GetColor() : Colors.White);
             builder.AddSpace();
             builder.Add(targetName, targetColor);
         }
@@ -152,7 +163,7 @@ namespace RPGGame.Combat.Formatting
         /// Adds "Actor takes X [damageType] damage" pattern to a ColoredTextBuilder with proper spacing
         /// Used for poison/bleed damage over time messages, matching primary action block format (no brackets)
         /// </summary>
-        public static void AddActorTakesDamage(ColoredTextBuilder builder, string actorName, ColorPalette actorColor, int damage, string damageType)
+        public static void AddActorTakesDamage(ColoredTextBuilder builder, string actorName, Color actorColor, int damage, string damageType)
         {
             // Add actor name (matching primary action block format - no brackets)
             builder.Add(actorName, actorColor);
@@ -205,7 +216,7 @@ namespace RPGGame.Combat.Formatting
         /// Message is formatted on its own line with indentation
         /// Note: Newlines between messages are handled by the caller when combining messages
         /// </summary>
-        public static void AddActorNoLongerAffected(ColoredTextBuilder builder, string actorName, ColorPalette actorColor, string effectName, ColorPalette effectColor)
+        public static void AddActorNoLongerAffected(ColoredTextBuilder builder, string actorName, Color actorColor, string effectName, ColorPalette effectColor)
         {
             // Add indentation (5 spaces) and opening parenthesis
             // Note: No newline here - caller handles newlines when combining multiple messages
@@ -267,32 +278,41 @@ namespace RPGGame.Combat.Formatting
             
             string actionName = action?.Name ?? "attack";
             
-            // Check if this is a critical hit
+            // Create combat outcome to centralize color decisions
             int totalRoll = roll + rollBonus;
-            bool isCritical = totalRoll >= 20;
+            bool isComboAction = CombatColorStrategy.IsComboAction(actionName);
             
-            if (isCritical)
+            // Create outcome before modifying actionName for critical
+            var outcome = CombatOutcome.CreateHit(action, totalRoll, roll, isComboAction);
+            
+            if (outcome.IsCritical)
             {
                 actionName = $"CRITICAL {actionName}";
             }
             
-            // Determine if this is a combo action
-            bool isComboAction = actionName != "BASIC ATTACK" && actionName != "CRITICAL BASIC ATTACK";
+            // Update combo action status after potential critical prefix
+            isComboAction = CombatColorStrategy.IsComboAction(actionName);
+            outcome.IsComboAction = isComboAction;
             
-            // Attacker name (check Enemy first since Enemy inherits from Character)
-            builder.Add(attacker.Name, attacker is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
+            // Use centralized color strategy
+            ColorPalette hitsColor = CombatColorStrategy.GetHitsColor(outcome);
+            ColorPalette actionColor = CombatColorStrategy.GetActionColor(outcome);
+            ColorPalette damageColor = CombatColorStrategy.GetDamageColor(outcome);
             
-            // Target name with "hits" verb (check Enemy first since Enemy inherits from Character)
-            AddHitsTarget(builder, target.Name, target is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
+            // Attacker name with enemy-specific colors
+            builder.Add(attacker.Name, EntityColorHelper.GetActorColor(attacker));
+            
+            // Target name with "hits" verb with appropriate color based on outcome
+            AddHitsTarget(builder, target.Name, EntityColorHelper.GetActorColor(target), hitsColor);
             
             // Action name for combo actions
             if (isComboAction)
             {
-                AddWithAction(builder, actionName, isCritical ? ColorPalette.Critical : ColorPalette.Green);
+                AddWithAction(builder, actionName, actionColor);
             }
             
             // Damage amount
-            AddForAmountUnit(builder, actualDamage.ToString(), isCritical ? ColorPalette.Critical : ColorPalette.Damage, "damage", Colors.White);
+            AddForAmountUnit(builder, actualDamage.ToString(), damageColor, "damage", Colors.White);
             
             var damageText = builder.Build();
             

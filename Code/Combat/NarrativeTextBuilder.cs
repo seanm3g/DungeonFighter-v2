@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Avalonia.Media;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
@@ -36,6 +37,15 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Adds plain text with a specific color (Color overload).
+        /// </summary>
+        public NarrativeTextBuilder AddText(string text, Color color)
+        {
+            builder.Add(text, color);
+            return this;
+        }
+
+        /// <summary>
         /// Highlights a name within text by coloring it differently.
         /// </summary>
         /// <param name="fullText">The complete text</param>
@@ -49,6 +59,24 @@ namespace RPGGame
             ColorPalette beforeColor, 
             ColorPalette nameColor, 
             ColorPalette afterColor)
+        {
+            return AddTextWithHighlight(fullText, nameToHighlight, beforeColor.GetColor(), nameColor.GetColor(), afterColor.GetColor());
+        }
+        
+        /// <summary>
+        /// Highlights a name within text by coloring it differently (Color overload).
+        /// </summary>
+        /// <param name="fullText">The complete text</param>
+        /// <param name="nameToHighlight">The name to highlight</param>
+        /// <param name="beforeColor">Color for text before the name</param>
+        /// <param name="nameColor">Color for the name</param>
+        /// <param name="afterColor">Color for text after the name</param>
+        public NarrativeTextBuilder AddTextWithHighlight(
+            string fullText, 
+            string nameToHighlight, 
+            Avalonia.Media.Color beforeColor, 
+            Avalonia.Media.Color nameColor, 
+            Avalonia.Media.Color afterColor)
         {
             if (fullText.Contains(nameToHighlight))
             {
@@ -80,6 +108,20 @@ namespace RPGGame
             ColorPalette baseColor,
             ColorPalette firstNameColor,
             ColorPalette secondNameColor)
+        {
+            return AddTextWithDualHighlight(fullText, firstName, secondName, baseColor.GetColor(), firstNameColor.GetColor(), secondNameColor.GetColor());
+        }
+        
+        /// <summary>
+        /// Highlights two names within text by coloring them differently (Color overload).
+        /// </summary>
+        public NarrativeTextBuilder AddTextWithDualHighlight(
+            string fullText,
+            string firstName,
+            string secondName,
+            Avalonia.Media.Color baseColor,
+            Avalonia.Media.Color firstNameColor,
+            Avalonia.Media.Color secondNameColor)
         {
             int firstIndex = fullText.IndexOf(firstName);
             int secondIndex = fullText.IndexOf(secondName);

@@ -159,8 +159,8 @@ namespace RPGGame.Actions.Execution
                             ActionStatisticsTracker.RecordDamageReceived(selfCharacter, result.Damage);
                         }
 
-                        bool isCriticalHit = totalRoll >= 20;
-                        ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction, result.Damage, totalRoll, result.RollBonus, true, result.IsCombo, 0, 0, isCriticalHit, result.BaseRoll, battleNarrative);
+                        // Use the already-calculated IsCritical from threshold manager instead of hardcoded check
+                        ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction, result.Damage, totalRoll, result.RollBonus, true, result.IsCombo, 0, 0, result.IsCritical, result.BaseRoll, battleNarrative);
                     }
                 }
                 else if (result.SelectedAction.Type == ActionType.Heal)

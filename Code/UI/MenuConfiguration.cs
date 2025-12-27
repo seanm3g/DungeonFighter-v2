@@ -47,7 +47,7 @@ namespace RPGGame
             {
                 "1. Choose a Dungeon",
                 "2. Inventory", 
-                "0. Exit"
+                "0. Back to Main Menu"
             };
         }
 
@@ -66,8 +66,7 @@ namespace RPGGame
                 "4. Manage Combo Actions",
                 "5. Trade Up Items (5 of same rarity → 1 higher rarity)",
                 "6. Continue to Dungeon",
-                "7. Return to Main Menu",
-                "0. Exit"
+                "0. Return to Main Menu"
             };
         }
 

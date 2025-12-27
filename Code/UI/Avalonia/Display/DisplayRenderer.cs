@@ -139,9 +139,13 @@ namespace RPGGame.UI.Avalonia.Display
         
         /// <summary>
         /// Calculates the scroll offset based on buffer state
+        /// Scrolling starts when content reaches 3/4 of the screen height (instead of full height)
+        /// This ensures text starts scrolling earlier, keeping the bottom 1/4 of the screen clear
         /// </summary>
         private int CalculateScrollOffset(DisplayBuffer buffer, int totalHeight, int contentHeight)
         {
+            // Calculate the threshold at which scrolling should start (3/4 of screen height)
+            int scrollThreshold = (contentHeight * 3) / 4;
             int maxScrollOffset = Math.Max(0, totalHeight - contentHeight);
             
             if (buffer.IsManualScrolling)
@@ -152,14 +156,16 @@ namespace RPGGame.UI.Avalonia.Display
                 int scrollOffset = Math.Max(0, Math.Min(buffer.ManualScrollOffset, maxScrollOffset));
                 return scrollOffset;
             }
-            else if (totalHeight > contentHeight)
+            else if (totalHeight > scrollThreshold)
             {
-                // Auto-scroll to bottom
+                // Auto-scroll to bottom when content exceeds 3/4 of screen height
+                // This starts scrolling earlier than waiting for full screen height
+                // maxScrollOffset will be 0 if content doesn't exceed full height, which is correct
                 return maxScrollOffset;
             }
             else
             {
-                // Content fits in viewport, no scrolling needed
+                // Content fits within 3/4 of viewport, no scrolling needed
                 return 0;
             }
         }
@@ -182,6 +188,7 @@ namespace RPGGame.UI.Avalonia.Display
         /// <summary>
         /// Calculates the maximum scroll offset for the given buffer
         /// This is the total height of all wrapped lines minus the viewport height
+        /// Scrolling starts when content reaches 3/4 of the screen height (instead of full height)
         /// </summary>
         public int CalculateMaxScrollOffset(DisplayBuffer buffer, int contentWidth, int contentHeight)
         {
@@ -199,7 +206,18 @@ namespace RPGGame.UI.Avalonia.Display
                 totalHeight += linesNeeded;
             }
             
-            return Math.Max(0, totalHeight - contentHeight);
+            // Calculate the threshold at which scrolling should start (3/4 of screen height)
+            int scrollThreshold = (contentHeight * 3) / 4;
+            
+            // If content exceeds the threshold, calculate scroll offset
+            // This starts scrolling earlier than waiting for full screen height
+            if (totalHeight > scrollThreshold)
+            {
+                return Math.Max(0, totalHeight - contentHeight);
+            }
+            
+            // Content fits within threshold, no scrolling needed
+            return 0;
         }
         
         /// <summary>

@@ -128,7 +128,6 @@ namespace RPGGame.Handlers
                 handlers.InventoryMenuHandler.ShowGameLoopEvent += () => showGameLoop();
                 handlers.InventoryMenuHandler.ShowMainMenuEvent += () => showMainMenu();
                 handlers.InventoryMenuHandler.ShowMessageEvent += (msg) => showMessage(msg);
-                handlers.InventoryMenuHandler.ExitGameEvent += () => exitGame();
             }
             
             if (handlers.GameLoopInputHandler != null)
@@ -137,6 +136,7 @@ namespace RPGGame.Handlers
                 handlers.GameLoopInputHandler.ShowInventoryEvent += () => showInventory();
                 handlers.GameLoopInputHandler.ShowCharacterSelectionEvent += () => handlers.CharacterManagementHandler?.ShowCharacterSelection();
                 handlers.GameLoopInputHandler.ExitGameEvent += () => exitGame();
+                handlers.GameLoopInputHandler.ShowMainMenuEvent += () => showMainMenu();
             }
             
             if (handlers.CharacterManagementHandler != null)

@@ -26,7 +26,7 @@ namespace RPGGame
                 var builder = new ColoredTextBuilder();
                 
                 // Add actor name with appropriate color (no brackets)
-                builder.Add(entity.Name, entity is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
+                builder.Add(entity.Name, EntityColorHelper.GetActorColor(entity));
                 // Add "is" with space
                 builder.AddSpace();
                 builder.Add("is", Colors.White);

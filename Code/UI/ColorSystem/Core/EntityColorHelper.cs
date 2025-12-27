@@ -13,14 +13,14 @@ namespace RPGGame.UI.ColorSystem
     public static class EntityColorHelper
     {
         /// <summary>
-        /// Gets the color for an enemy, checking for color override first, then falling back to defaults
+        /// Gets the color for an enemy, checking for color override first, then name-based mapping, then falling back to defaults
         /// </summary>
         public static Color GetEnemyColor(Enemy enemy)
         {
             if (enemy == null)
                 return ColorPalette.White.GetColor();
             
-            // Check for color override
+            // Check for color override first (highest priority)
             var colorOverride = GetColorOverride(enemy);
             if (colorOverride != null)
             {
@@ -31,6 +31,13 @@ namespace RPGGame.UI.ColorSystem
                 }
             }
             
+            // Check for name-based color mapping
+            var nameBasedColor = GetEnemyColorByNameInternal(enemy.Name);
+            if (nameBasedColor.HasValue)
+            {
+                return nameBasedColor.Value;
+            }
+            
             // Fallback to default enemy color
             var defaultPaletteName = ColorConfigurationLoader.GetEntityDefault("enemy");
             if (Enum.TryParse<ColorPalette>(defaultPaletteName, true, out var defaultPalette))
@@ -39,6 +46,124 @@ namespace RPGGame.UI.ColorSystem
             }
             
             return ColorPalette.Enemy.GetColor();
+        }
+        
+        /// <summary>
+        /// Gets a color for an enemy based on its name (string version, for cases where Enemy object is not available)
+        /// Maps each enemy type to a thematically appropriate color
+        /// </summary>
+        public static Color GetEnemyColorByName(string enemyName)
+        {
+            var color = GetEnemyColorByNameInternal(enemyName);
+            if (color.HasValue)
+                return color.Value;
+            
+            // Fallback to default enemy color
+            return ColorPalette.Enemy.GetColor();
+        }
+        
+        /// <summary>
+        /// Gets a color for an enemy based on its name
+        /// Maps each enemy type to a thematically appropriate color
+        /// </summary>
+        private static Color? GetEnemyColorByNameInternal(string enemyName)
+        {
+            if (string.IsNullOrEmpty(enemyName))
+                return null;
+            
+            // Normalize the name for comparison (case-insensitive, trim whitespace)
+            var normalizedName = enemyName.Trim();
+            
+            // Map enemy names to appropriate colors
+            return normalizedName.ToLowerInvariant() switch
+            {
+                "goblin" => ColorPalette.Green.GetColor(),           // Classic green goblin
+                "spider" => ColorPalette.DarkMagenta.GetColor(),     // Dark purple for spider
+                "wolf" => ColorPalette.Gray.GetColor(),               // Gray for wolf
+                "fire elemental" => ColorPalette.Red.GetColor(),     // Red for fire
+                "lava golem" => ColorPalette.Orange.GetColor(),      // Orange for lava
+                "bat" => ColorPalette.DarkGray.GetColor(),           // Dark gray for bat
+                "skeleton" => ColorPalette.LightGray.GetColor(),     // Light gray/white for bones
+                "zombie" => ColorPalette.DarkGreen.GetColor(),       // Dark green for rotting undead
+                "wraith" => ColorPalette.Purple.GetColor(),          // Purple for spectral being
+                _ => null  // Unknown enemy, return null to fall back to default
+            };
+        }
+        
+        /// <summary>
+        /// Gets the color for an actor (Character or Enemy), using enemy-specific colors for enemies
+        /// For characters: white for Fighters, class color for leveled classes
+        /// </summary>
+        public static Color GetActorColor(Actor actor)
+        {
+            if (actor == null)
+                return ColorPalette.White.GetColor();
+            
+            if (actor is Enemy enemy)
+            {
+                return GetEnemyColor(enemy);
+            }
+            
+            // For characters, check their class and use appropriate color
+            if (actor is Character character)
+            {
+                return GetCharacterColor(character);
+            }
+            
+            // Fallback to player color for other actor types
+            return ColorPalette.Player.GetColor();
+        }
+        
+        /// <summary>
+        /// Gets the color for a character based on their class
+        /// White for Fighters, class-specific color for leveled classes
+        /// </summary>
+        private static Color GetCharacterColor(Character character)
+        {
+            if (character == null)
+                return ColorPalette.White.GetColor();
+            
+            string currentClass = character.GetCurrentClass();
+            
+            // If Fighter (base class with no class points), use white
+            if (string.Equals(currentClass, "Fighter", StringComparison.OrdinalIgnoreCase))
+            {
+                return ColorPalette.White.GetColor();
+            }
+            
+            // For hybrid classes (e.g., "Barbarian-Warrior"), use the primary class color
+            string primaryClass = currentClass;
+            if (currentClass.Contains('-'))
+            {
+                primaryClass = currentClass.Split('-')[0];
+            }
+            
+            // Map class name to color based on weapon type colors
+            return GetClassColor(primaryClass);
+        }
+        
+        /// <summary>
+        /// Gets the color for a class name based on weapon type colors
+        /// Barbarian (Mace) -> Cyan, Warrior (Sword) -> Gold/Yellow, Rogue (Dagger) -> Magenta, Wizard (Wand) -> Purple
+        /// </summary>
+        private static Color GetClassColor(string className)
+        {
+            if (string.IsNullOrEmpty(className))
+                return ColorPalette.White.GetColor();
+            
+            // Normalize class name for comparison
+            string normalizedClass = className.Trim();
+            
+            // Map class to weapon template color
+            // Using the first color from each weapon template
+            return normalizedClass.ToLowerInvariant() switch
+            {
+                "barbarian" => ColorConfigurationLoader.GetColorCode("C"),  // Cyan from mace_weapon
+                "warrior" => ColorConfigurationLoader.GetColorCode("W"),      // Gold/Yellow from sword_weapon
+                "rogue" => ColorConfigurationLoader.GetColorCode("M"),        // Magenta from dagger_weapon
+                "wizard" => ColorConfigurationLoader.GetColorCode("m"),    // Purple from wand_weapon
+                _ => ColorPalette.White.GetColor()  // Unknown class, fallback to white
+            };
         }
         
         /// <summary>

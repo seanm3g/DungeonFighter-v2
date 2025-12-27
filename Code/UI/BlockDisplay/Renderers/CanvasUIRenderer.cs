@@ -19,13 +19,13 @@ namespace RPGGame.UI.BlockDisplay.Renderers
             this.coordinator = coordinator ?? throw new ArgumentNullException(nameof(coordinator));
         }
         
-        public void RenderMessageGroups(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs)
+        public void RenderMessageGroups(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs, Character? character = null)
         {
             try
             {
                 if (groups != null && groups.Count > 0)
                 {
-                    coordinator.WriteColoredSegmentsBatch(groups, delayMs);
+                    coordinator.WriteColoredSegmentsBatch(groups, delayMs, character);
                 }
             }
             catch (Exception ex)
@@ -35,13 +35,13 @@ namespace RPGGame.UI.BlockDisplay.Renderers
             }
         }
         
-        public Task RenderMessageGroupsAsync(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs)
+        public Task RenderMessageGroupsAsync(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs, Character? character = null)
         {
             try
             {
                 if (groups != null && groups.Count > 0)
                 {
-                    return coordinator.WriteColoredSegmentsBatchAsync(groups, delayMs);
+                    return coordinator.WriteColoredSegmentsBatchAsync(groups, delayMs, character);
                 }
             }
             catch (Exception ex)

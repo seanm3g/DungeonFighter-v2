@@ -26,7 +26,7 @@ The gear rarity system determines how powerful items are when they drop. Rarity 
 
 **Drop Rate Calculation**: `(Rarity Weight / Total Weight) × 100%`
 
-*Note: Common items have a special 25% chance to get 1 stat bonus and 1 modification, otherwise they get none.
+*Note: Common items have a special 10% chance to get 1 stat bonus and 1 modification, otherwise they get none. Uncommon items have an 80% chance to get modifications (not guaranteed).
 
 ### Drop Rate Breakdown
 
@@ -77,10 +77,18 @@ Each rarity level grants a specific number of bonuses:
 ### 3. Common Item Special Case
 
 Common items have a special rule:
-- **75% chance**: No bonuses (pure base item)
-- **25% chance**: 1 stat bonus + 1 modification (slightly enhanced)
+- **90% chance**: No bonuses (pure base item)
+- **10% chance**: 1 stat bonus + 1 modification (slightly enhanced)
 
-This creates variety even in common items.
+This creates variety even in common items while keeping modifications rare.
+
+### 4. Uncommon Item Modification Chance
+
+Uncommon items have a special rule:
+- **80% chance**: Get modifications as configured (1 modification)
+- **20% chance**: No modifications (only stat and action bonuses)
+
+This makes modifications less common overall while still providing them for most Uncommon items.
 
 ## Power Scaling Analysis
 
@@ -96,7 +104,7 @@ This creates variety even in common items.
 | Mythic | 11 | +70-100% | Exceptional |
 | Transcendent | 14 | +100-150% | Game-changing |
 
-*Common: 0 normally, 2 with 25% chance
+*Common: 0 normally, 2 with 10% chance
 
 ### Modification Power Tiers
 
@@ -152,15 +160,27 @@ To change how powerful each rarity is, modify bonus counts:
 
 ### 3. Common Item Tuning
 
-The 25% bonus chance for Common items is hardcoded in `LootBonusApplier.cs`:
+The 10% bonus chance for Common items is hardcoded in `LootBonusApplier.cs`:
 
 ```csharp
-if (_random.NextDouble() < 0.25)  // Line 30
+if (_random.NextDouble() < 0.10)  // Line 35
 ```
 
 To change this:
-- **More common bonuses**: Increase `0.25` (e.g., `0.40` = 40% chance)
-- **Rarer bonuses**: Decrease `0.25` (e.g., `0.15` = 15% chance)
+- **More common bonuses**: Increase `0.10` (e.g., `0.15` = 15% chance)
+- **Rarer bonuses**: Decrease `0.10` (e.g., `0.05` = 5% chance)
+
+### 3.5. Uncommon Item Modification Tuning
+
+The 80% modification chance for Uncommon items is hardcoded in `LootBonusApplier.cs`:
+
+```csharp
+if (_random.NextDouble() < 0.80)  // Line 48
+```
+
+To change this:
+- **More common modifications**: Increase `0.80` (e.g., `0.90` = 90% chance)
+- **Rarer modifications**: Decrease `0.80` (e.g., `0.60` = 60% chance)
 
 ### 4. Modification Power Tuning
 
@@ -341,10 +361,13 @@ public RarityData RollRarity(double magicFind = 0.0, int playerLevel = 1)
    - Modifications: Special effects
    - ActionBonuses: Tactical variety
 
-3. **Common Items**: Modify 25% chance in `LootBonusApplier.cs`
+3. **Common Items**: Modify 10% chance in `LootBonusApplier.cs`
    - Controls how often common items get bonuses
+   
+4. **Uncommon Items**: Modify 80% chance in `LootBonusApplier.cs`
+   - Controls how often uncommon items get modifications
 
-4. **Modification Quality**: Adjust `ModificationRarity` in `TuningConfig.json`
+5. **Modification Quality**: Adjust `ModificationRarity` in `TuningConfig.json`
    - Controls power level of modifications
 
 ### Quick Reference

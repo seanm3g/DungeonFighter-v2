@@ -17,9 +17,9 @@
     "intelligenceRollBonusPer": 10
   },
   "progression": {
-    "baseXPToLevel2": 100,
-    "xpScalingFactor": 1.5,
-    "enemyXPBase": 10,
+    "baseXPToLevel2": 40,
+    "xpScalingFactor": 1,
+    "enemyXPBase": 15,
     "enemyXPPerLevel": 5,
     "enemyGoldBase": 5,
     "enemyGoldPerLevel": 3

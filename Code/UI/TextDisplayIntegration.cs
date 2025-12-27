@@ -70,11 +70,12 @@ namespace RPGGame
                         {
                             criticalMissNarrative = narrative;
                         }
-                        else
+                        else if (!isCriticalMissNarrative)
                         {
-                            // Keep other narratives to display separately
+                            // Keep other narratives to display separately (but skip critical miss narratives if action is not a miss)
                             remainingNarratives.Add(narrative);
                         }
+                        // If isCriticalMissNarrative is true but isCriticalMiss is false, skip it (don't display critical miss narrative for successful hits)
                     }
                 }
             }
@@ -129,11 +130,12 @@ namespace RPGGame
                         {
                             criticalMissNarrative = narrative;
                         }
-                        else
+                        else if (!isCriticalMissNarrative)
                         {
-                            // Keep other narratives to display separately
+                            // Keep other narratives to display separately (but skip critical miss narratives if action is not a miss)
                             remainingNarratives.Add(narrative);
                         }
+                        // If isCriticalMissNarrative is true but isCriticalMiss is false, skip it (don't display critical miss narrative for successful hits)
                     }
                 }
             }
