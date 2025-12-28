@@ -163,9 +163,6 @@ namespace RPGGame.UI.Avalonia.Display
             {
                 buffer.Add(message);
             }
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CenterPanelDisplayManager.cs:AddMessage", message = "Message added to buffer", data = new { newBufferCount = buffer.Count, activeCharacter = activeCharacter?.Name }, sessionId = "debug-session", runId = "run1", hypothesisId = "H4" }) + "\n"); } catch { }
-            // #endregion
             TriggerRender();
         }
         

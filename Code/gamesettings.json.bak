@@ -1,0 +1,21 @@
+{
+  "NarrativeBalance": 0.8,
+  "EnableNarrativeEvents": true,
+  "EnableInformationalSummaries": true,
+  "CombatSpeed": 0.5,
+  "ShowIndividualActionMessages": false,
+  "EnableComboSystem": true,
+  "EnableTextDisplayDelays": true,
+  "FastCombat": false,
+  "EnableAutoSave": true,
+  "AutoSaveInterval": 5,
+  "ShowDetailedStats": true,
+  "EnableSoundEffects": false,
+  "EnemyHealthMultiplier": 1,
+  "EnemyDamageMultiplier": 1,
+  "PlayerHealthMultiplier": 1,
+  "PlayerDamageMultiplier": 1,
+  "ShowHealthBars": true,
+  "ShowDamageNumbers": true,
+  "ShowComboProgress": true
+}

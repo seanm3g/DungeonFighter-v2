@@ -9,11 +9,29 @@ This document describes the test suite organization and structure implemented in
 Code/Tests/
 ├── README.md           # Test suite documentation
 ├── Unit/              # Unit tests for specific components
-│   ├── ColorParserTest.cs
-│   ├── GameDataGeneratorTest.cs
-│   ├── TierDistributionTest.cs
-│   └── TuningSystemTest.cs
-├── Integration/       # Integration tests (reserved for future)
+│   ├── ActionSystemTests.cs
+│   ├── ActionExecutionFlowTests.cs
+│   ├── DiceMechanicsTests.cs
+│   ├── CombatOutcomeTests.cs
+│   ├── RollBonusTests.cs
+│   ├── ComboExecutionTests.cs
+│   ├── ColorSystemCoreTests.cs
+│   ├── ColorSystemApplicationTests.cs
+│   ├── ColorSystemRenderingTests.cs
+│   ├── CombatLogDisplayTests.cs
+│   ├── CharacterAttributesTests.cs
+│   ├── StatusEffectsTests.cs
+│   ├── EnvironmentalActionsTests.cs
+│   ├── ConditionalTriggersTests.cs
+│   ├── ColorParserTest.cs (existing)
+│   ├── GameDataGeneratorTest.cs (existing)
+│   ├── TierDistributionTest.cs (existing)
+│   └── TuningSystemTest.cs (existing)
+├── Integration/       # Integration tests
+│   ├── CombatIntegrationTests.cs
+│   └── SystemInteractionTests.cs
+├── Runners/           # Test runners
+│   └── ComprehensiveTestRunner.cs
 └── Examples/          # Example/demo files
     ├── ColorLayerExamples.cs
     ├── ColorSystemExamples.cs
@@ -50,10 +68,23 @@ Code/Tests/
 ### Integration Tests (`Tests/Integration/`)
 **Purpose**: Test interaction between multiple components
 
-**Status**: Reserved for future integration tests
+**Files**:
+- **CombatIntegrationTests.cs** - End-to-end combat flow tests
+  - Complete combat flow
+  - Multiple action sequences
+  - Combo execution in combat
+  - Status effect application in combat
+  - Environmental effects in combat
+  - Character progression through combat
+  
+- **SystemInteractionTests.cs** - System interaction tests
+  - Action + Dice + Combo interaction
+  - Status Effects + Damage interaction
+  - Equipment + Stats + Actions interaction
+  - Color System + Display System interaction
+  - Character + Enemy + Environment interaction
 
-**Potential Tests**:
-- Combat system integration (Character + Enemy + Actions)
+**Potential Future Tests**:
 - Dungeon generation flow (Dungeon + Rooms + Enemies)
 - Item generation pipeline (LootGenerator + ItemGenerator + Character)
 - UI rendering pipeline (UIManager + ColorSystem + TextDisplay)
@@ -133,6 +164,26 @@ The following debug/test files were removed as no longer needed:
 
 ## Running Tests
 
+### Comprehensive Test Runner
+Run all tests using the comprehensive test runner:
+```csharp
+// Run all tests
+ComprehensiveTestRunner.RunAllTests();
+
+// Run quick tests (fast unit tests)
+ComprehensiveTestRunner.RunQuickTests();
+
+// Run specific test categories
+ComprehensiveTestRunner.RunActionSystemTests();
+ComprehensiveTestRunner.RunDiceMechanicsTests();
+ComprehensiveTestRunner.RunComboSystemTests();
+ComprehensiveTestRunner.RunColorSystemTests();
+ComprehensiveTestRunner.RunDisplaySystemTests();
+ComprehensiveTestRunner.RunCharacterSystemTests();
+ComprehensiveTestRunner.RunStatusEffectsTests();
+ComprehensiveTestRunner.RunIntegrationTests();
+```
+
 ### Command Line
 From the main application, tests can be accessed through:
 ```csharp
@@ -144,6 +195,15 @@ TestManager.RunAllTests();
 Individual tests can be run:
 ```csharp
 // Run specific unit tests
+ActionSystemTests.RunAllTests();
+DiceMechanicsTests.RunAllTests();
+CombatOutcomeTests.RunAllTests();
+ComboExecutionTests.RunAllTests();
+ColorSystemCoreTests.RunAllTests();
+CharacterAttributesTests.RunAllTests();
+StatusEffectsTests.RunAllTests();
+
+// Run existing tests
 ColorParserTest.RunAllTests();
 GameDataGeneratorTest.TestRefactoredGenerator();
 TierDistributionTest.RunTierDistributionTest();

@@ -2,114 +2,6 @@
   "BuildMetrics": [],
   "ExecutionMetrics": [
     {
-      "Timestamp": "2025-12-25T08:19:55.4988951Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 2821,
-      "ExecutionTimeSeconds": 2.821089
-    },
-    {
-      "Timestamp": "2025-12-25T08:20:11.0968754Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 7896,
-      "ExecutionTimeSeconds": 7.8967411
-    },
-    {
-      "Timestamp": "2025-12-25T08:22:13.6159429Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 7195,
-      "ExecutionTimeSeconds": 7.1955675
-    },
-    {
-      "Timestamp": "2025-12-25T08:25:40.0788078Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 17492,
-      "ExecutionTimeSeconds": 17.4925199
-    },
-    {
-      "Timestamp": "2025-12-25T08:28:45.3793699Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 9567,
-      "ExecutionTimeSeconds": 9.5671341
-    },
-    {
-      "Timestamp": "2025-12-25T08:32:03.7973976Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 7267,
-      "ExecutionTimeSeconds": 7.2677537
-    },
-    {
-      "Timestamp": "2025-12-25T08:35:43.4519261Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 12034,
-      "ExecutionTimeSeconds": 12.0345823
-    },
-    {
-      "Timestamp": "2025-12-25T08:40:42.9292467Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 7309,
-      "ExecutionTimeSeconds": 7.3098801
-    },
-    {
-      "Timestamp": "2025-12-25T08:47:41.0339833Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 3396,
-      "ExecutionTimeSeconds": 3.396501
-    },
-    {
-      "Timestamp": "2025-12-25T08:47:53.0002142Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 8994,
-      "ExecutionTimeSeconds": 8.9941061
-    },
-    {
-      "Timestamp": "2025-12-25T08:56:21.6034605Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 2367,
-      "ExecutionTimeSeconds": 2.3671384
-    },
-    {
-      "Timestamp": "2025-12-25T08:56:30.3032784Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 5370,
-      "ExecutionTimeSeconds": 5.3703317
-    },
-    {
-      "Timestamp": "2025-12-25T09:00:02.0961158Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 2357,
-      "ExecutionTimeSeconds": 2.3573313
-    },
-    {
-      "Timestamp": "2025-12-25T09:00:14.145097Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 8595,
-      "ExecutionTimeSeconds": 8.5956807
-    },
-    {
-      "Timestamp": "2025-12-25T09:01:35.9785613Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 6075,
-      "ExecutionTimeSeconds": 6.0758432
-    },
-    {
-      "Timestamp": "2025-12-25T18:38:20.9776982Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 8758,
-      "ExecutionTimeSeconds": 8.7582651
-    },
-    {
-      "Timestamp": "2025-12-25T21:23:47.7006417Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 7320,
-      "ExecutionTimeSeconds": 7.3208617
-    },
-    {
-      "Timestamp": "2025-12-25T21:29:09.6792857Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 2438,
-      "ExecutionTimeSeconds": 2.43843
-    },
-    {
       "Timestamp": "2025-12-25T21:43:44.9016444Z",
       "Mode": "GUI",
       "ExecutionTimeMs": 6665,
@@ -600,6 +492,114 @@
       "Mode": "GUI",
       "ExecutionTimeMs": 7600,
       "ExecutionTimeSeconds": 7.6001036
+    },
+    {
+      "Timestamp": "2025-12-28T05:44:07.4138813Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 121731,
+      "ExecutionTimeSeconds": 121.7316385
+    },
+    {
+      "Timestamp": "2025-12-28T05:50:02.5746283Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 83503,
+      "ExecutionTimeSeconds": 83.5037813
+    },
+    {
+      "Timestamp": "2025-12-28T05:50:32.8043838Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 22015,
+      "ExecutionTimeSeconds": 22.0159566
+    },
+    {
+      "Timestamp": "2025-12-28T05:52:08.8692496Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 16856,
+      "ExecutionTimeSeconds": 16.8566062
+    },
+    {
+      "Timestamp": "2025-12-28T05:55:07.2922355Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 38685,
+      "ExecutionTimeSeconds": 38.6858858
+    },
+    {
+      "Timestamp": "2025-12-28T05:56:13.4175962Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 51527,
+      "ExecutionTimeSeconds": 51.5270326
+    },
+    {
+      "Timestamp": "2025-12-28T05:59:12.4537245Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 168315,
+      "ExecutionTimeSeconds": 168.3156159
+    },
+    {
+      "Timestamp": "2025-12-28T05:59:39.5964003Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 16636,
+      "ExecutionTimeSeconds": 16.6363914
+    },
+    {
+      "Timestamp": "2025-12-28T06:02:31.705875Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 22977,
+      "ExecutionTimeSeconds": 22.9776632
+    },
+    {
+      "Timestamp": "2025-12-28T06:05:12.9595822Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 17330,
+      "ExecutionTimeSeconds": 17.3308132
+    },
+    {
+      "Timestamp": "2025-12-28T06:05:29.5094958Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 3675,
+      "ExecutionTimeSeconds": 3.6756207
+    },
+    {
+      "Timestamp": "2025-12-28T06:06:59.0689977Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 17036,
+      "ExecutionTimeSeconds": 17.0367931
+    },
+    {
+      "Timestamp": "2025-12-28T06:10:36.0381641Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 9209,
+      "ExecutionTimeSeconds": 9.2092572
+    },
+    {
+      "Timestamp": "2025-12-28T06:14:08.6803461Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 6162,
+      "ExecutionTimeSeconds": 6.1620529
+    },
+    {
+      "Timestamp": "2025-12-28T06:16:13.050017Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 3018,
+      "ExecutionTimeSeconds": 3.0185968
+    },
+    {
+      "Timestamp": "2025-12-28T06:16:29.3442464Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 6903,
+      "ExecutionTimeSeconds": 6.9036523
+    },
+    {
+      "Timestamp": "2025-12-28T06:16:56.395525Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 15792,
+      "ExecutionTimeSeconds": 15.7927827
+    },
+    {
+      "Timestamp": "2025-12-28T06:18:03.786594Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 2470,
+      "ExecutionTimeSeconds": 2.4701123
     }
   ]
 }

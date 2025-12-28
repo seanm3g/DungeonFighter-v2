@@ -261,6 +261,14 @@ namespace RPGGame
             settingsMenuHandler?.ShowSettings();
         }
 
+        /// <summary>
+        /// Closes the settings window if it's open
+        /// </summary>
+        public void CloseSettingsWindow()
+        {
+            settingsMenuHandler?.CloseSettingsWindow();
+        }
+
         public void ShowDeveloperMenu()
         {
             developerMenuHandler?.ShowDeveloperMenu();

@@ -967,10 +967,28 @@
                                             CornerRadius="4"
                                             Cursor="Hand"
                                             FontSize="14"
-                                            Padding="12,8">
+                                            Padding="12,8"
+                                            Margin="0,0,0,6">
                                         <Button.Styles>
                                             <Style Selector="Button:pointerover">
                                                 <Setter Property="Background" Value="#FFAB69C6"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                    
+                                    <Button x:Name="GenerateRandomActionBlockButton" 
+                                            Content="Generate Random Action Block" 
+                                            Height="36"
+                                            Background="#FFE67E22"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="4"
+                                            Cursor="Hand"
+                                            FontSize="14"
+                                            Padding="12,8">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FFF68E32"/>
                                             </Style>
                                         </Button.Styles>
                                     </Button>
@@ -1918,6 +1936,303 @@
                     </ScrollViewer>
                 </TabItem>
             
+            <TabItem Header="Testing">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                             HorizontalScrollBarVisibility="Disabled">
+                    <Grid Margin="12">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <!-- Test Categories Section -->
+                        <Border Grid.Row="0"
+                                Background="White" 
+                                BorderBrush="#FF404040" 
+                                BorderThickness="1" 
+                                CornerRadius="6" 
+                                Padding="20"
+                                Margin="0,0,0,12">
+                            <StackPanel Spacing="15">
+                                <TextBlock Text="Test Runner" 
+                                           FontSize="24" 
+                                           FontWeight="Bold" 
+                                           Foreground="Black" 
+                                           Margin="0,0,0,10"/>
+                                
+                                <TextBlock Text="Run comprehensive tests to verify game systems. Test results will be displayed in the center panel." 
+                                           FontSize="15" 
+                                           Foreground="Black" 
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,15"/>
+                                
+                                <!-- Test Category Buttons -->
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="12"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="12"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <!-- Row 1 -->
+                                    <Button x:Name="RunAllTestsButton"
+                                            Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
+                                            Content="Run All Tests"
+                                            Height="45"
+                                            Background="#FF4CAF50"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="4"
+                                            Cursor="Hand"
+                                            FontSize="16"
+                                            FontWeight="SemiBold"
+                                            Margin="0,0,0,0">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FF66BB6A"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                    
+                                    <!-- Row 2 -->
+                                    <Button x:Name="RunQuickTestsButton"
+                                            Grid.Row="2" Grid.Column="0"
+                                            Content="Quick Tests"
+                                            Height="40"
+                                            Background="#FF2196F3"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="4"
+                                            Cursor="Hand"
+                                            FontSize="15"
+                                            FontWeight="SemiBold"
+                                            Margin="0,0,0,0">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FF42A5F5"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                    
+                                    <Button x:Name="RunActionSystemTestsButton"
+                                            Grid.Row="2" Grid.Column="2"
+                                            Content="Action System"
+                                            Height="40"
+                                            Background="#FF2196F3"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="4"
+                                            Cursor="Hand"
+                                            FontSize="15"
+                                            FontWeight="SemiBold"
+                                            Margin="0,0,0,0">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FF42A5F5"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                    
+                                    <!-- Row 3 -->
+                                    <Button x:Name="RunDiceMechanicsTestsButton"
+                                            Grid.Row="4" Grid.Column="0"
+                                            Content="Dice Mechanics"
+                                            Height="40"
+                                            Background="#FF2196F3"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="4"
+                                            Cursor="Hand"
+                                            FontSize="15"
+                                            FontWeight="SemiBold"
+                                            Margin="0,0,0,0">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FF42A5F5"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                    
+                                    <Button x:Name="RunComboSystemTestsButton"
+                                            Grid.Row="4" Grid.Column="2"
+                                            Content="Combo System"
+                                            Height="40"
+                                            Background="#FF2196F3"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="4"
+                                            Cursor="Hand"
+                                            FontSize="15"
+                                            FontWeight="SemiBold"
+                                            Margin="0,0,0,0">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FF42A5F5"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                </Grid>
+                                
+                                <!-- Additional Test Categories -->
+                                <Grid Margin="0,12,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="12"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="12"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <!-- Row 1 -->
+                                    <Button x:Name="RunColorSystemTestsButton"
+                                            Grid.Row="0" Grid.Column="0"
+                                            Content="Color System"
+                                            Height="40"
+                                            Background="#FF9C27B0"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="4"
+                                            Cursor="Hand"
+                                            FontSize="15"
+                                            FontWeight="SemiBold">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FFBA68C8"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                    
+                                    <Button x:Name="RunDisplaySystemTestsButton"
+                                            Grid.Row="0" Grid.Column="2"
+                                            Content="Display System"
+                                            Height="40"
+                                            Background="#FF9C27B0"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="4"
+                                            Cursor="Hand"
+                                            FontSize="15"
+                                            FontWeight="SemiBold">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FFBA68C8"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                    
+                                    <!-- Row 2 -->
+                                    <Button x:Name="RunCharacterSystemTestsButton"
+                                            Grid.Row="2" Grid.Column="0"
+                                            Content="Character System"
+                                            Height="40"
+                                            Background="#FF9C27B0"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="4"
+                                            Cursor="Hand"
+                                            FontSize="15"
+                                            FontWeight="SemiBold">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FFBA68C8"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                    
+                                    <Button x:Name="RunStatusEffectsTestsButton"
+                                            Grid.Row="2" Grid.Column="2"
+                                            Content="Status Effects"
+                                            Height="40"
+                                            Background="#FF9C27B0"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="4"
+                                            Cursor="Hand"
+                                            FontSize="15"
+                                            FontWeight="SemiBold">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FFBA68C8"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                    
+                                    <!-- Row 3 -->
+                                    <Button x:Name="RunIntegrationTestsButton"
+                                            Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3"
+                                            Content="Integration Tests"
+                                            Height="40"
+                                            Background="#FFFF9800"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            CornerRadius="4"
+                                            Cursor="Hand"
+                                            FontSize="15"
+                                            FontWeight="SemiBold">
+                                        <Button.Styles>
+                                            <Style Selector="Button:pointerover">
+                                                <Setter Property="Background" Value="#FFFFB74D"/>
+                                            </Style>
+                                        </Button.Styles>
+                                    </Button>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Test Information -->
+                        <Border Grid.Row="1"
+                                Background="White" 
+                                BorderBrush="#FF404040" 
+                                BorderThickness="1" 
+                                CornerRadius="6" 
+                                Padding="20">
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="Test Information" 
+                                           FontSize="20" 
+                                           FontWeight="Bold" 
+                                           Foreground="Black" 
+                                           Margin="0,0,0,10"/>
+                                
+                                <TextBlock Text="• Test results are displayed in the center panel of the main screen" 
+                                           FontSize="15" 
+                                           Foreground="Black" 
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,5"/>
+                                
+                                <TextBlock Text="• Tests run synchronously and may take a few moments to complete" 
+                                           FontSize="15" 
+                                           Foreground="Black" 
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,5"/>
+                                
+                                <TextBlock Text="• Use 'Run All Tests' to execute the complete test suite" 
+                                           FontSize="15" 
+                                           Foreground="Black" 
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,5"/>
+                                
+                                <TextBlock Text="• Individual test categories can be run separately for focused testing" 
+                                           FontSize="15" 
+                                           Foreground="Black" 
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+            
             <TabItem Header="About">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
                              HorizontalScrollBarVisibility="Disabled">
@@ -1951,7 +2266,7 @@
                                 
                                 <TextBlock Text="A sophisticated turn-based RPG/dungeon crawler game featuring advanced combat mechanics, intelligent battle narrative generation, and a comprehensive data-driven architecture." 
                                            FontSize="15" 
-                                           Foreground="White" 
+                                           Foreground="Black" 
                                            TextWrapping="Wrap"
                                            Margin="0,0,0,20"/>
                                 
@@ -1966,22 +2281,22 @@
                                 <StackPanel Spacing="8" Margin="10,0,0,0">
                                     <TextBlock Text="• Advanced turn-based combat system with combo mechanics" 
                                                FontSize="15" 
-                                               Foreground="White"/>
+                                               Foreground="Black"/>
                                     <TextBlock Text="• Dice-based mechanics with strategic thresholds" 
                                                FontSize="15" 
-                                               Foreground="White"/>
+                                               Foreground="Black"/>
                                     <TextBlock Text="• Dynamic narrative generation" 
                                                FontSize="15" 
-                                               Foreground="White"/>
+                                               Foreground="Black"/>
                                     <TextBlock Text="• Comprehensive item and loot system" 
                                                FontSize="15" 
-                                               Foreground="White"/>
+                                               Foreground="Black"/>
                                     <TextBlock Text="• Modular architecture with design patterns" 
                                                FontSize="15" 
-                                               Foreground="White"/>
+                                               Foreground="Black"/>
                                     <TextBlock Text="• Extensive testing and balance systems" 
                                                FontSize="15" 
-                                               Foreground="White"/>
+                                               Foreground="Black"/>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
@@ -2021,7 +2336,7 @@
                                         <TextBlock Grid.Row="0" Grid.Column="1" 
                                                    Text=".NET 8.0" 
                                                    FontSize="15" 
-                                                   Foreground="White" 
+                                                   Foreground="Black" 
                                                    Margin="0,0,0,8"/>
                                         
                                         <TextBlock Grid.Row="1" Grid.Column="0" 
@@ -2032,7 +2347,7 @@
                                         <TextBlock Grid.Row="1" Grid.Column="1" 
                                                    Text="Avalonia UI" 
                                                    FontSize="15" 
-                                                   Foreground="White" 
+                                                   Foreground="Black" 
                                                    Margin="0,0,0,8"/>
                                         
                                         <TextBlock Grid.Row="2" Grid.Column="0" 
@@ -2043,7 +2358,7 @@
                                         <TextBlock Grid.Row="2" Grid.Column="1" 
                                                    Text="C#" 
                                                    FontSize="15" 
-                                                   Foreground="White" 
+                                                   Foreground="Black" 
                                                    Margin="0,0,0,8"/>
                                         
                                         <TextBlock Grid.Row="3" Grid.Column="0" 
@@ -2053,7 +2368,7 @@
                                         <TextBlock Grid.Row="3" Grid.Column="1" 
                                                    Text="Modular, Data-Driven" 
                                                    FontSize="15" 
-                                                   Foreground="White"/>
+                                                   Foreground="Black"/>
                                     </Grid>
                                 </StackPanel>
                             </Border>
@@ -2073,13 +2388,13 @@
                                     
                                     <TextBlock Text="All game settings are saved automatically when you click 'Save Changes'. Settings are stored in gamesettings.json and persist between game sessions." 
                                                FontSize="15" 
-                                               Foreground="White" 
+                                               Foreground="Black" 
                                                TextWrapping="Wrap"
                                                Margin="0,0,0,10"/>
                                     
                                     <TextBlock Text="Use the 'Reset to Defaults' button to restore all settings to their original values." 
                                                FontSize="15" 
-                                               Foreground="White" 
+                                               Foreground="Black" 
                                                TextWrapping="Wrap"/>
                                 </StackPanel>
                             </Border>

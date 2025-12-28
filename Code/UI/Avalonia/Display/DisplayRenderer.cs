@@ -139,19 +139,20 @@ namespace RPGGame.UI.Avalonia.Display
         
         /// <summary>
         /// Calculates the scroll offset based on buffer state
-        /// Scrolling starts when content reaches 3/4 of the screen height (instead of full height)
-        /// When scrolling, maintains a gap at the bottom by only showing the top 3/4 of the viewport
-        /// This ensures there's always a gap at the bottom when text reaches 3/4 down
+        /// Scrolling starts when content reaches 2 lines from the bottom
+        /// When scrolling, maintains a gap at the bottom by only showing contentHeight - 2 lines
+        /// This ensures there's always 2 blank lines at the bottom when text reaches the threshold
         /// </summary>
         private int CalculateScrollOffset(DisplayBuffer buffer, int totalHeight, int contentHeight)
         {
-            // Calculate the threshold at which scrolling should start (3/4 of screen height)
-            int scrollThreshold = (contentHeight * 3) / 4;
-            // Calculate the visible area we want to show (top 3/4 of viewport)
-            int visibleArea = (contentHeight * 3) / 4;
+            // Calculate the threshold at which scrolling should start (2 lines from bottom)
+            const int BOTTOM_PADDING_LINES = 2;
+            int scrollThreshold = contentHeight - BOTTOM_PADDING_LINES;
+            // Calculate the visible area we want to show (all but bottom 2 lines)
+            int visibleArea = contentHeight - BOTTOM_PADDING_LINES;
             // Maximum scroll offset if we were to fill the entire viewport
             int maxScrollOffsetFull = Math.Max(0, totalHeight - contentHeight);
-            // Scroll offset to maintain bottom gap (only show top 3/4 of viewport)
+            // Scroll offset to maintain bottom gap (only show visibleArea lines)
             int maxScrollOffsetWithGap = Math.Max(0, totalHeight - visibleArea);
             
             if (buffer.IsManualScrolling)
@@ -164,14 +165,14 @@ namespace RPGGame.UI.Avalonia.Display
             }
             else if (totalHeight > scrollThreshold)
             {
-                // Auto-scroll when content exceeds 3/4 of screen height
-                // Scroll to maintain a gap at the bottom (only show top 3/4 of viewport)
-                // This ensures there's always a gap until the bottom when text reaches 3/4 down
+                // Auto-scroll when content exceeds threshold (2 lines from bottom)
+                // Scroll to maintain a gap at the bottom (only show visibleArea lines)
+                // This ensures there's always 2 blank lines at the bottom when text reaches the threshold
                 return maxScrollOffsetWithGap;
             }
             else
             {
-                // Content fits within 3/4 of viewport, no scrolling needed
+                // Content fits within threshold, no scrolling needed
                 return 0;
             }
         }
@@ -193,9 +194,9 @@ namespace RPGGame.UI.Avalonia.Display
         
         /// <summary>
         /// Calculates the maximum scroll offset for the given buffer
-        /// This is the total height of all wrapped lines minus the visible area (top 3/4 of viewport)
-        /// Scrolling starts when content reaches 3/4 of the screen height (instead of full height)
-        /// When scrolling, maintains a gap at the bottom by only showing the top 3/4 of the viewport
+        /// This is the total height of all wrapped lines minus the visible area (contentHeight - 2 lines)
+        /// Scrolling starts when content reaches 2 lines from the bottom
+        /// When scrolling, maintains a gap at the bottom by only showing contentHeight - 2 lines
         /// </summary>
         public int CalculateMaxScrollOffset(DisplayBuffer buffer, int contentWidth, int contentHeight)
         {
@@ -213,13 +214,14 @@ namespace RPGGame.UI.Avalonia.Display
                 totalHeight += linesNeeded;
             }
             
-            // Calculate the threshold at which scrolling should start (3/4 of screen height)
-            int scrollThreshold = (contentHeight * 3) / 4;
-            // Calculate the visible area we want to show (top 3/4 of viewport)
-            int visibleArea = (contentHeight * 3) / 4;
+            // Calculate the threshold at which scrolling should start (2 lines from bottom)
+            const int BOTTOM_PADDING_LINES = 2;
+            int scrollThreshold = contentHeight - BOTTOM_PADDING_LINES;
+            // Calculate the visible area we want to show (all but bottom 2 lines)
+            int visibleArea = contentHeight - BOTTOM_PADDING_LINES;
             
             // If content exceeds the threshold, calculate scroll offset
-            // Scroll to maintain a gap at the bottom (only show top 3/4 of viewport)
+            // Scroll to maintain a gap at the bottom (only show visibleArea lines)
             if (totalHeight > scrollThreshold)
             {
                 return Math.Max(0, totalHeight - visibleArea);

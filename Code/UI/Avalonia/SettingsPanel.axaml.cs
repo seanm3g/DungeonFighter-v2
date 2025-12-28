@@ -6,10 +6,12 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using RPGGame;
+using RPGGame.Data;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Helpers;
 using RPGGame.Utils;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Timers;
 
@@ -31,6 +33,7 @@ namespace RPGGame.UI.Avalonia
         private ActionsTabManager? actionsTabManager;
         private BattleStatisticsTabManager? battleStatisticsTabManager;
         private SettingsManager? settingsManager;
+        private Managers.TestRunnerUI? testRunnerUI;
         
         // Extracted managers
         private SettingsPersistenceManager? persistenceManager;
@@ -220,6 +223,17 @@ namespace RPGGame.UI.Avalonia
                     CreateActionButton,
                     DeleteActionButton,
                     this);
+            }
+            
+            // Initialize test runner UI
+            if (canvasUI != null)
+            {
+                testRunnerUI = new Managers.TestRunnerUI(canvasUI);
+                // Wire test buttons after a short delay to ensure controls are loaded
+                Dispatcher.UIThread.Post(() =>
+                {
+                    WireUpTestButtons();
+                }, DispatcherPriority.Loaded);
             }
             
             // Wire events if not already wired
@@ -446,7 +460,6 @@ namespace RPGGame.UI.Avalonia
                     BackButton);
                 
                 eventsWired = true;
-                ScrollDebugLogger.Log("SettingsPanel: Events wired successfully.");
             }
             catch (Exception ex)
             {
@@ -663,6 +676,232 @@ namespace RPGGame.UI.Avalonia
                 });
             };
             timer.Start();
+        }
+        
+        /// <summary>
+        /// Wires up test runner button events
+        /// </summary>
+        private void WireUpTestButtons()
+        {
+            try
+            {
+                if (testRunnerUI == null) return;
+                
+                // Find test buttons by name
+                var runAllTestsButton = this.FindControl<Button>("RunAllTestsButton");
+                var runQuickTestsButton = this.FindControl<Button>("RunQuickTestsButton");
+                var runActionSystemTestsButton = this.FindControl<Button>("RunActionSystemTestsButton");
+                var runDiceMechanicsTestsButton = this.FindControl<Button>("RunDiceMechanicsTestsButton");
+                var runComboSystemTestsButton = this.FindControl<Button>("RunComboSystemTestsButton");
+                var runColorSystemTestsButton = this.FindControl<Button>("RunColorSystemTestsButton");
+                var runDisplaySystemTestsButton = this.FindControl<Button>("RunDisplaySystemTestsButton");
+                var runCharacterSystemTestsButton = this.FindControl<Button>("RunCharacterSystemTestsButton");
+                var runStatusEffectsTestsButton = this.FindControl<Button>("RunStatusEffectsTestsButton");
+                var runIntegrationTestsButton = this.FindControl<Button>("RunIntegrationTestsButton");
+                
+                if (runAllTestsButton != null)
+                {
+                    runAllTestsButton.Click += (s, e) =>
+                    {
+                        Task.Run(() => testRunnerUI.RunAllTests());
+                        ShowStatusMessage("Running all tests...", true);
+                    };
+                }
+                
+                if (runQuickTestsButton != null)
+                {
+                    runQuickTestsButton.Click += (s, e) =>
+                    {
+                        Task.Run(() => testRunnerUI.RunQuickTests());
+                        ShowStatusMessage("Running quick tests...", true);
+                    };
+                }
+                
+                if (runActionSystemTestsButton != null)
+                {
+                    runActionSystemTestsButton.Click += (s, e) =>
+                    {
+                        Task.Run(() => testRunnerUI.RunActionSystemTests());
+                        ShowStatusMessage("Running action system tests...", true);
+                    };
+                }
+                
+                if (runDiceMechanicsTestsButton != null)
+                {
+                    runDiceMechanicsTestsButton.Click += (s, e) =>
+                    {
+                        Task.Run(() => testRunnerUI.RunDiceMechanicsTests());
+                        ShowStatusMessage("Running dice mechanics tests...", true);
+                    };
+                }
+                
+                if (runComboSystemTestsButton != null)
+                {
+                    runComboSystemTestsButton.Click += (s, e) =>
+                    {
+                        Task.Run(() => testRunnerUI.RunComboSystemTests());
+                        ShowStatusMessage("Running combo system tests...", true);
+                    };
+                }
+                
+                if (runColorSystemTestsButton != null)
+                {
+                    runColorSystemTestsButton.Click += (s, e) =>
+                    {
+                        Task.Run(() => testRunnerUI?.RunColorSystemTests());
+                        ShowStatusMessage("Running color system tests...", true);
+                    };
+                }
+                
+                if (runDisplaySystemTestsButton != null)
+                {
+                    runDisplaySystemTestsButton.Click += (s, e) =>
+                    {
+                        Task.Run(() => testRunnerUI.RunDisplaySystemTests());
+                        ShowStatusMessage("Running display system tests...", true);
+                    };
+                }
+                
+                if (runCharacterSystemTestsButton != null)
+                {
+                    runCharacterSystemTestsButton.Click += (s, e) =>
+                    {
+                        Task.Run(() => testRunnerUI.RunCharacterSystemTests());
+                        ShowStatusMessage("Running character system tests...", true);
+                    };
+                }
+                
+                if (runStatusEffectsTestsButton != null)
+                {
+                    runStatusEffectsTestsButton.Click += (s, e) =>
+                    {
+                        Task.Run(() => testRunnerUI.RunStatusEffectsTests());
+                        ShowStatusMessage("Running status effects tests...", true);
+                    };
+                }
+                
+                if (runIntegrationTestsButton != null)
+                {
+                    runIntegrationTestsButton.Click += (s, e) =>
+                    {
+                        Task.Run(() => testRunnerUI.RunIntegrationTests());
+                        ShowStatusMessage("Running integration tests...", true);
+                    };
+                }
+                
+                var generateRandomActionBlockButton = this.FindControl<Button>("GenerateRandomActionBlockButton");
+                if (generateRandomActionBlockButton != null)
+                {
+                    generateRandomActionBlockButton.Click += (s, e) =>
+                    {
+                        GenerateAndDisplayRandomActionBlock();
+                        ShowStatusMessage("Generated random action block", false);
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.Log($"SettingsPanel: Error wiring up test buttons: {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+        
+        /// <summary>
+        /// Generates a random action block and displays it in the center panel
+        /// </summary>
+        private void GenerateAndDisplayRandomActionBlock()
+        {
+            try
+            {
+                // Get a random action from all available actions
+                var allActions = ActionLoader.GetAllActions();
+                if (allActions == null || allActions.Count == 0)
+                {
+                    ShowStatusMessage("No actions available", false);
+                    return;
+                }
+                
+                var random = new Random();
+                var randomAction = allActions[random.Next(allActions.Count)];
+                
+                // Create mock characters for the action
+                var attacker = Tests.TestDataBuilders.Character()
+                    .WithName("Test Hero")
+                    .Build();
+                var target = Tests.TestDataBuilders.Enemy()
+                    .WithName("Test Enemy")
+                    .Build();
+                
+                // Generate random roll values
+                int roll = random.Next(1, 21); // 1-20
+                int rollBonus = random.Next(-3, 4); // -3 to +3
+                int rawDamage = random.Next(10, 51); // 10-50
+                int targetDefense = random.Next(0, 21); // 0-20
+                double actualSpeed = random.NextDouble() * 2.0 + 0.5; // 0.5-2.5
+                double? comboAmplifier = randomAction.IsComboAction ? (double?)random.NextDouble() * 0.5 + 1.0 : null; // 1.0-1.5 if combo
+                
+                // Generate action text
+                var actionText = GenerateActionText(attacker, target, randomAction, rawDamage);
+                
+                // Generate roll info
+                var rollInfo = Combat.Formatting.RollInfoFormatter.FormatRollInfoColored(
+                    roll, rollBonus, rawDamage, targetDefense, actualSpeed, comboAmplifier, randomAction);
+                
+                // Display the action block
+                BlockDisplayManager.DisplayActionBlock(actionText, rollInfo);
+            }
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.Log($"SettingsPanel: Error generating random action block: {ex.Message}\n{ex.StackTrace}");
+                ShowStatusMessage($"Error: {ex.Message}", false);
+            }
+        }
+        
+        /// <summary>
+        /// Generates action text for a combat action
+        /// </summary>
+        private List<UI.ColorSystem.ColoredText> GenerateActionText(Actor attacker, Actor target, Action action, int damage)
+        {
+            var builder = new UI.ColorSystem.ColoredTextBuilder();
+            
+            // Attacker name with appropriate color
+            builder.Add(attacker.Name, UI.ColorSystem.EntityColorHelper.GetActorColor(attacker));
+            
+            // Action verb and name
+            string actionName = action.Name;
+            bool isComboAction = action.IsComboAction;
+            
+            // Determine if it's a critical hit (random for demo)
+            var random = new Random();
+            bool isCritical = random.Next(100) < 10; // 10% chance
+            
+            if (isCritical)
+            {
+                actionName = $"CRITICAL {actionName}";
+            }
+            
+            // Use appropriate color for action
+            var actionColor = isComboAction ? UI.ColorSystem.ColorPalette.Green : UI.ColorSystem.ColorPalette.White;
+            if (isCritical)
+            {
+                actionColor = UI.ColorSystem.ColorPalette.Warning;
+            }
+            
+            builder.AddSpace();
+            builder.Add("hits", UI.ColorSystem.ColorPalette.Success);
+            builder.AddSpace();
+            builder.Add(target.Name, UI.ColorSystem.EntityColorHelper.GetActorColor(target));
+            builder.AddSpace();
+            builder.Add("with", UI.ColorSystem.ColorPalette.White);
+            builder.AddSpace();
+            builder.Add(actionName, actionColor);
+            builder.AddSpace();
+            builder.Add("for", UI.ColorSystem.ColorPalette.White);
+            builder.AddSpace();
+            builder.Add(damage.ToString(), UI.ColorSystem.ColorPalette.Error);
+            builder.AddSpace();
+            builder.Add("damage", UI.ColorSystem.ColorPalette.White);
+            
+            return builder.Build();
         }
         
     }

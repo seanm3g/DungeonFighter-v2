@@ -1,6 +1,10 @@
 namespace RPGGame
 {
     using System;
+    using System.ComponentModel;
+    using System.Linq;
+    using Avalonia;
+    using Avalonia.Controls.ApplicationLifetimes;
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.Avalonia.Layout;
     using RPGGame.Utils;
@@ -13,6 +17,7 @@ namespace RPGGame
     {
         private GameStateManager stateManager;
         private IUIManager? customUIManager;
+        private SettingsWindow? currentSettingsWindow;
         
         // Delegates
         public delegate void OnShowMainMenu();
@@ -61,26 +66,84 @@ namespace RPGGame
                     // Get game references from the UI coordinator
                     var game = canvasUI.GetGame();
                     
-                    // Create and show the settings window
-                    var settingsWindow = new SettingsWindow();
-                    
-                    // Initialize the settings window
-                    settingsWindow.Initialize(
-                        game,
-                        canvasUI,
-                        stateManager,
-                        (message) => 
-                        {
-                            // Status update callback - can update main window status if needed
-                            ScrollDebugLogger.Log($"Settings: {message}");
-                        });
-                    
-                    // Show the window
+                    // Close any existing settings window first (synchronously on UI thread)
+                    // We need to do this synchronously to avoid race conditions
                     Avalonia.Threading.Dispatcher.UIThread.Post(() =>
                     {
-                        settingsWindow.Show();
-                        stateManager.TransitionToState(GameState.Settings);
-                    });
+                        try
+                        {
+                            // Close the tracked window if it exists
+                            var oldWindow = currentSettingsWindow;
+                            if (oldWindow != null)
+                            {
+                                try
+                                {
+                                    oldWindow.Close();
+                                    ScrollDebugLogger.Log("SettingsMenuHandler.ShowSettings: Closed existing settings window");
+                                }
+                                catch (Exception ex)
+                                {
+                                    ScrollDebugLogger.Log($"SettingsMenuHandler.ShowSettings: Error closing old window: {ex.Message}");
+                                }
+                                currentSettingsWindow = null;
+                            }
+                            
+                            // Also find and close any other SettingsWindow instances
+                            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                            {
+                                var settingsWindows = desktop.Windows.OfType<SettingsWindow>().ToList();
+                                foreach (var window in settingsWindows)
+                                {
+                                    if (window != null && window != oldWindow)
+                                    {
+                                        try
+                                        {
+                                            window.Close();
+                                            ScrollDebugLogger.Log("SettingsMenuHandler.ShowSettings: Closed additional SettingsWindow instance");
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            ScrollDebugLogger.Log($"SettingsMenuHandler.ShowSettings: Error closing additional window: {ex.Message}");
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // Now create and show the new window
+                            var newWindow = new SettingsWindow();
+                            
+                            // Initialize the settings window
+                            newWindow.Initialize(
+                                game,
+                                canvasUI,
+                                stateManager,
+                                (message) => 
+                                {
+                                    // Status update callback - can update main window status if needed
+                                    ScrollDebugLogger.Log($"Settings: {message}");
+                                });
+                            
+                            // Handle window closing to clear reference
+                            newWindow.Closing += (sender, e) =>
+                            {
+                                if (sender == newWindow)
+                                {
+                                    currentSettingsWindow = null;
+                                }
+                            };
+                            
+                            // Store the new window reference
+                            currentSettingsWindow = newWindow;
+                            
+                            // Show the new window
+                            newWindow.Show();
+                            stateManager.TransitionToState(GameState.Settings);
+                        }
+                        catch (Exception ex)
+                        {
+                            ScrollDebugLogger.Log($"SettingsMenuHandler.ShowSettings: Error in UI thread operation: {ex.Message}\n{ex.StackTrace}");
+                        }
+                    }, Avalonia.Threading.DispatcherPriority.Normal);
                     
                     return;
                 }
@@ -159,6 +222,78 @@ namespace RPGGame
                     ShowMessageEvent?.Invoke($"Error saving game: {ex.Message}");
                 }
             }
+        }
+
+        /// <summary>
+        /// Closes the settings window if it's open
+        /// </summary>
+        public void CloseSettingsWindow()
+        {
+            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+            {
+                try
+                {
+                    // Capture the window reference to avoid race conditions
+                    var windowToClose = currentSettingsWindow;
+                    
+                    // First, try to close the tracked window
+                    if (windowToClose != null)
+                    {
+                        try
+                        {
+                            // Only clear the reference if it's still the same window
+                            if (currentSettingsWindow == windowToClose)
+                            {
+                                windowToClose.Close();
+                                currentSettingsWindow = null;
+                                ScrollDebugLogger.Log("SettingsMenuHandler.CloseSettingsWindow: Tracked settings window closed");
+                            }
+                            else
+                            {
+                                // Window was replaced, just close the old one without clearing the reference
+                                windowToClose.Close();
+                                ScrollDebugLogger.Log("SettingsMenuHandler.CloseSettingsWindow: Closed old settings window (new window exists)");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            ScrollDebugLogger.Log($"SettingsMenuHandler.CloseSettingsWindow: Error closing tracked window: {ex.Message}");
+                            // Only clear reference if we successfully closed it or if it's still the same window
+                            if (currentSettingsWindow == windowToClose)
+                            {
+                                currentSettingsWindow = null;
+                            }
+                        }
+                    }
+                    
+                    // Also find and close any SettingsWindow instances that might exist
+                    // This is a fallback in case the reference wasn't tracked properly
+                    if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                    {
+                        var settingsWindows = desktop.Windows.OfType<SettingsWindow>().ToList();
+                        foreach (var window in settingsWindows)
+                        {
+                            try
+                            {
+                                // Don't close the current window if it exists
+                                if (window != null && window.IsVisible && window != currentSettingsWindow)
+                                {
+                                    window.Close();
+                                    ScrollDebugLogger.Log("SettingsMenuHandler.CloseSettingsWindow: Found and closed SettingsWindow instance");
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                ScrollDebugLogger.Log($"SettingsMenuHandler.CloseSettingsWindow: Error closing found window: {ex.Message}");
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ScrollDebugLogger.Log($"SettingsMenuHandler.CloseSettingsWindow: Unexpected error: {ex.Message}");
+                }
+            });
         }
 
         /// <summary>

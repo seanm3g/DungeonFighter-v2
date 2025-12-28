@@ -20,7 +20,161 @@ Comprehensive testing approach and verification methods for the DungeonFighter c
 
 ## Test Categories
 
-### 1. System Tests
+### 1. Action System Tests
+**Purpose**: Verify action system functionality
+
+**Test Areas**:
+- Action loading from Actions.json
+- Action properties (damage multiplier, length, cooldown, etc.)
+- Action types (Attack, Heal, Buff, Debuff, Interact, Move, UseItem, Spell)
+- Target types (Self, SingleTarget, AreaOfEffect, Environment, SelfAndTarget)
+- Action execution flow
+- Action validation and error handling
+- Action cooldown management
+- Action availability checks
+
+**Test Files**:
+- `ActionSystemTests.cs` - Individual action tests
+- `ActionExecutionFlowTests.cs` - Action execution flow tests
+
+### 2. Dice Mechanics Tests
+**Purpose**: Verify dice roll mechanics and outcomes
+
+**Test Areas**:
+- Base roll generation (1d20)
+- Roll range validation
+- Roll distribution
+- Multiple dice modes (Sum, TakeHighest, TakeLowest, Average)
+- Exploding dice mechanics
+- Roll modifiers (additive, multiplicative, clamp, reroll)
+- Hit/miss/critical detection
+- Roll bonus calculations
+
+**Test Files**:
+- `DiceMechanicsTests.cs` - Dice roll mechanics
+- `CombatOutcomeTests.cs` - Hit/miss/critical detection
+- `RollBonusTests.cs` - Roll bonus calculations
+
+### 3. Combo System Tests
+**Purpose**: Verify combo system functionality
+
+**Test Areas**:
+- Combo sequence management
+- Combo step progression
+- Combo damage scaling
+- Combo routing (jump, skip, repeat, loop, stop, disable, random)
+- Combo execution
+- Combo interruption
+- Combo continuation after miss/hit/critical
+
+**Test Files**:
+- `ComboExecutionTests.cs` - Combo execution tests
+- `ComboSequenceManagerTests.cs` - Combo sequence management (existing)
+
+### 4. Color System Tests
+**Purpose**: Verify color system functionality
+
+**Test Areas**:
+- Color code parsing (`&X` codes)
+- Template parsing (`{{template|text}}` syntax)
+- Keyword coloring (200+ keywords)
+- Color layer system (event significance, dungeon depth)
+- Color rendering (console, Avalonia UI)
+- Color utilities and validation
+
+**Test Files**:
+- `ColorSystemCoreTests.cs` - Core color functions
+- `ColorSystemApplicationTests.cs` - Color applications
+- `ColorSystemRenderingTests.cs` - Color rendering
+
+### 5. Display System Tests
+**Purpose**: Verify display system functionality
+
+**Test Areas**:
+- Action block formatting
+- Combat log display
+- Display buffer management
+- Block spacing
+- Entity change spacing
+- Multi-character display
+
+**Test Files**:
+- `CombatLogDisplayTests.cs` - Combat log display
+
+### 6. Character Attributes Tests
+**Purpose**: Verify character system functionality
+
+**Test Areas**:
+- Base stats (Strength, Agility, Technique, Intelligence)
+- Stat calculations
+- Temporary stat bonuses
+- Equipment stat bonuses
+- Leveling and progression
+- Health system
+- XP gain
+
+**Test Files**:
+- `CharacterAttributesTests.cs` - Character attributes and stats
+
+### 7. Status Effects Tests
+**Purpose**: Verify status effect system
+
+**Test Areas**:
+- Basic status effects (Bleed, Weaken, Slow, Poison, Stun, Burn)
+- Advanced status effects (17 effects: Vulnerability, Harden, Fortify, etc.)
+- Status effect application
+- Effect duration tracking
+- Effect stacking
+- Effect removal
+
+**Test Files**:
+- `StatusEffectsTests.cs` - Status effects tests
+
+### 8. Environmental Actions Tests
+**Purpose**: Verify environmental action system
+
+**Test Areas**:
+- Theme-based actions (Forest, Lava, Crypt, etc.)
+- Room-type actions
+- Environmental effect application
+- Duration calculation (2d2-2 system)
+- Target selection
+
+**Test Files**:
+- `EnvironmentalActionsTests.cs` - Environmental actions tests
+
+### 9. Conditional Triggers Tests
+**Purpose**: Verify conditional trigger system
+
+**Test Areas**:
+- OnMiss triggers
+- OnHit triggers
+- OnCritical triggers
+- OnCombo triggers
+- OnKill triggers
+- HP threshold triggers
+- Event bus integration
+
+**Test Files**:
+- `ConditionalTriggersTests.cs` - Conditional triggers tests
+
+### 10. Integration Tests
+**Purpose**: Verify system interactions
+
+**Test Areas**:
+- End-to-end combat flows
+- Multiple action sequences
+- Combo execution in combat
+- Status effect application in combat
+- Environmental effects in combat
+- Character progression through combat
+- System interactions (Action+Dice+Combo, Status+Damage, Equipment+Stats+Actions, etc.)
+
+**Test Files**:
+- `CombatIntegrationTests.cs` - Combat integration tests
+- `SystemInteractionTests.cs` - System interaction tests
+
+### 11. System Tests (Legacy)
 **Purpose**: Verify core system functionality
 
 **Test Areas**:

@@ -62,8 +62,9 @@ namespace RPGGame.UI.Services
             var currentState = stateManager.CurrentState;
             bool isMenuState = MenuStates.Contains(currentState);
 
-            // Special case: Allow System messages in Testing state (for test output display)
-            if (currentState == GameState.Testing && messageType == UIMessageType.System)
+            // Special case: Allow System messages in Testing and Settings states (for test output display)
+            // Settings state is used when running tests from the Settings panel
+            if ((currentState == GameState.Testing || currentState == GameState.Settings) && messageType == UIMessageType.System)
             {
                 return true;
             }

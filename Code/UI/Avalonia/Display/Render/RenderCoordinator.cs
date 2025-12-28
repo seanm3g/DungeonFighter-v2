@@ -156,16 +156,24 @@ namespace RPGGame.UI.Avalonia.Display.Render
             // CRITICAL: Skip rendering if we're in a menu state OR if stateManager is null (title screen)
             // Menu screens and title screen handle their own rendering and don't use the display buffer
             // This prevents the center panel from being cleared when menus/title screen are displayed
-            // Force=true should NOT bypass this check - menus/title screen never want display buffer rendering
+            // EXCEPTION: Allow forced rendering in Settings state for test output display
             var currentState = stateManager?.CurrentState;
             if (DisplayStateCoordinator.ShouldSuppressRendering(currentState, stateManager))
             {
-                // StateManager is null (title screen) or menu state - don't render display buffer
-                lock (renderLock)
+                // Allow forced rendering in Settings state (for test output from Settings panel)
+                if (force && currentState == GameState.Settings)
                 {
-                    isRendering = false;
+                    // Continue with rendering - test output should be visible even in Settings
                 }
-                return;
+                else
+                {
+                    // StateManager is null (title screen) or menu state - don't render display buffer
+                    lock (renderLock)
+                    {
+                        isRendering = false;
+                    }
+                    return;
+                }
             }
             
             // Only check NeedsRender if not forcing (force is used for animation updates)

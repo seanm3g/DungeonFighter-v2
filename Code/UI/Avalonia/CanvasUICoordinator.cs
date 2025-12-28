@@ -210,6 +210,33 @@ namespace RPGGame.UI.Avalonia
             
             // Subscribe to character switch events for multi-character support
             stateManager.CharacterSwitched += characterSwitchHandler.OnCharacterSwitched;
+            
+            // Subscribe to state changes to close settings panel when main menu closes
+            stateManager.StateChanged += OnStateChanged;
+        }
+        
+        /// <summary>
+        /// Handles state changes to close settings panel when main menu closes
+        /// </summary>
+        private void OnStateChanged(object? sender, StateChangedEventArgs e)
+        {
+            // If transitioning away from MainMenu (to any state except Settings), close settings panel and window
+            // This ensures that closing the main menu also closes the settings menu
+            // Note: We exclude Settings state to allow transitioning from MainMenu to Settings
+            if (e.PreviousState == GameState.MainMenu && e.NewState != GameState.Settings)
+            {
+                // Close settings panel overlay in MainWindow
+                if (mainWindow != null)
+                {
+                    mainWindow.HideSettingsPanel();
+                }
+                
+                // Close settings window if it's open
+                if (game != null)
+                {
+                    game.CloseSettingsWindow();
+                }
+            }
         }
         
         /// <summary>

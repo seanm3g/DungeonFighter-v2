@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Input;
+using RPGGame;
 using RPGGame.UI.Avalonia;
 
 namespace RPGGame.UI.Avalonia.Handlers
@@ -56,11 +57,40 @@ namespace RPGGame.UI.Avalonia.Handlers
         }
 
         /// <summary>
+        /// Handles pointer wheel events (mouse wheel scrolling).
+        /// </summary>
+        public void HandlePointerWheelChanged(PointerWheelEventArgs e)
+        {
+            if (canvasUI == null) return;
+
+            // Get wheel delta (positive = scroll up, negative = scroll down)
+            var delta = e.Delta.Y;
+            
+            // Only handle scrolling if there's a significant delta
+            if (Math.Abs(delta) < 0.1) return;
+
+            // Scroll the center panel display
+            if (delta > 0)
+            {
+                // Scroll up (show earlier content)
+                canvasUI.ScrollUp(3);
+            }
+            else
+            {
+                // Scroll down (show later content)
+                canvasUI.ScrollDown(3);
+            }
+            
+            // Mark event as handled to prevent default scrolling behavior
+            e.Handled = true;
+        }
+
+        /// <summary>
         /// Handles a mouse click at the given position.
         /// </summary>
         private void HandleMouseClick(Point position)
         {
-            if (canvasUI == null) return;
+            if (canvasUI == null || game == null) return;
 
             // Convert screen coordinates to character grid coordinates
             var gridPos = ScreenToGrid(position);
@@ -71,6 +101,17 @@ namespace RPGGame.UI.Avalonia.Handlers
             {
                 // Process the click
                 ProcessElementClick(clickedElement);
+            }
+            else
+            {
+                // If no clickable element was clicked, check if we're in Settings state
+                // and prevent accidental settings menu opening after tests
+                if (game.StateManager != null && game.StateManager.CurrentState == GameState.Settings)
+                {
+                    // If clicking on empty space while in Settings state, don't do anything
+                    // This prevents the settings menu from opening again
+                    return;
+                }
             }
         }
 

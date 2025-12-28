@@ -52,7 +52,13 @@ namespace RPGGame.GameCore.Input
                     handlers.CharacterMenuHandler?.HandleMenuInput(input);
                     break;
                 case GameState.Settings:
-                    if (handlers.SettingsMenuHandler != null)
+                    // Allow scrolling during settings to view test results
+                    if (input == "up" || input == "down" || input == "pageup" || input == "pagedown")
+                    {
+                        handleCombatScroll(input);
+                        return; // Don't process other input when scrolling
+                    }
+                    else if (handlers.SettingsMenuHandler != null)
                     {
                         handlers.SettingsMenuHandler.HandleMenuInput(input);
                     }
