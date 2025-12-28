@@ -62,9 +62,26 @@ namespace RPGGame
                     var settings = JsonSerializer.Deserialize<GameSettings>(json);
                     if (settings != null)
                     {
+                        // Validate loaded settings and fix any invalid values
+                        settings.ValidateAndFix();
                         return settings;
                     }
                 }
+            }
+            catch (JsonException ex)
+            {
+                // Corrupted JSON file - backup and create new
+                ErrorHandler.LogError(ex, "GameSettings.LoadSettings", "Settings file is corrupted");
+                try
+                {
+                    string backupPath = SettingsFilePath + ".corrupted." + DateTime.Now.ToString("yyyyMMddHHmmss");
+                    if (File.Exists(SettingsFilePath))
+                    {
+                        File.Copy(SettingsFilePath, backupPath, true);
+                        File.Delete(SettingsFilePath);
+                    }
+                }
+                catch { /* Ignore backup errors */ }
             }
             catch (Exception ex)
             {
@@ -75,12 +92,48 @@ namespace RPGGame
             return new GameSettings();
         }
         
+        /// <summary>
+        /// Validates all settings values and fixes any that are out of range
+        /// </summary>
+        public void ValidateAndFix()
+        {
+            // Narrative Settings
+            NarrativeBalance = Math.Clamp(NarrativeBalance, 0.0, 1.0);
+            
+            // Combat Settings
+            CombatSpeed = Math.Clamp(CombatSpeed, 0.5, 2.0);
+            
+            // Difficulty Settings
+            EnemyHealthMultiplier = Math.Clamp(EnemyHealthMultiplier, 0.5, 3.0);
+            EnemyDamageMultiplier = Math.Clamp(EnemyDamageMultiplier, 0.5, 3.0);
+            PlayerHealthMultiplier = Math.Clamp(PlayerHealthMultiplier, 0.5, 3.0);
+            PlayerDamageMultiplier = Math.Clamp(PlayerDamageMultiplier, 0.5, 3.0);
+            
+            // Gameplay Settings
+            AutoSaveInterval = Math.Max(1, AutoSaveInterval);
+        }
+        
         public void SaveSettings()
         {
+            // Validate settings before saving
+            ValidateAndFix();
+            
             ErrorHandler.TrySaveJson(() =>
             {
+                // Write to temporary file first, then replace (atomic operation)
+                string tempPath = SettingsFilePath + ".tmp";
                 string json = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(SettingsFilePath, json);
+                File.WriteAllText(tempPath, json);
+                
+                // Replace original file atomically
+                if (File.Exists(SettingsFilePath))
+                {
+                    File.Replace(tempPath, SettingsFilePath, SettingsFilePath + ".bak");
+                }
+                else
+                {
+                    File.Move(tempPath, SettingsFilePath);
+                }
             }, "GameSettings.json");
         }
         

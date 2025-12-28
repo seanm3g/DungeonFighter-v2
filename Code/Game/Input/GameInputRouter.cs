@@ -159,22 +159,6 @@ namespace RPGGame.GameCore.Input
                     if (handlers.DeathScreenHandler != null)
                         await handlers.DeathScreenHandler.HandleMenuInput(input);
                     break;
-                case GameState.Testing:
-                    // Allow scrolling during testing to view test results
-                    if (input == "up" || input == "down" || input == "pageup" || input == "pagedown")
-                    {
-                        // Don't show message - it replaces the content we're trying to scroll
-                        handleCombatScroll(input);
-                        return; // Don't process other input when scrolling
-                    }
-                    else if (handlers.TestingSystemHandler != null)
-                    {
-                        await handlers.TestingSystemHandler.HandleMenuInput(input);
-                    }
-                    else
-                    {
-                    }
-                    break;
                 case GameState.CharacterCreation:
                     if (handlers.CharacterCreationHandler != null)
                     {
@@ -226,7 +210,6 @@ namespace RPGGame.GameCore.Input
         public DungeonSelectionHandler? DungeonSelectionHandler { get; set; }
         public DungeonCompletionHandler? DungeonCompletionHandler { get; set; }
         public DeathScreenHandler? DeathScreenHandler { get; set; }
-        public TestingSystemHandler? TestingSystemHandler { get; set; }
         public CharacterManagementHandler? CharacterManagementHandler { get; set; }
         public DungeonExitChoiceHandler? DungeonExitChoiceHandler { get; set; }
     }

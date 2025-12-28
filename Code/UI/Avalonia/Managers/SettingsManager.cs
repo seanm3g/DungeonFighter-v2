@@ -117,6 +117,39 @@ namespace RPGGame.UI.Avalonia.Managers
         {
             try
             {
+                // Validate controls exist
+                if (narrativeBalanceSlider == null || combatSpeedSlider == null ||
+                    enemyHealthMultiplierSlider == null || enemyDamageMultiplierSlider == null ||
+                    playerHealthMultiplierSlider == null || playerDamageMultiplierSlider == null)
+                {
+                    showStatusMessage?.Invoke("Error: Some settings controls are missing", false);
+                    return;
+                }
+
+                // Store original values for rollback
+                var originalSettings = new GameSettings
+                {
+                    NarrativeBalance = settings.NarrativeBalance,
+                    EnableNarrativeEvents = settings.EnableNarrativeEvents,
+                    EnableInformationalSummaries = settings.EnableInformationalSummaries,
+                    CombatSpeed = settings.CombatSpeed,
+                    ShowIndividualActionMessages = settings.ShowIndividualActionMessages,
+                    EnableComboSystem = settings.EnableComboSystem,
+                    EnableTextDisplayDelays = settings.EnableTextDisplayDelays,
+                    FastCombat = settings.FastCombat,
+                    EnableAutoSave = settings.EnableAutoSave,
+                    AutoSaveInterval = settings.AutoSaveInterval,
+                    ShowDetailedStats = settings.ShowDetailedStats,
+                    EnableSoundEffects = settings.EnableSoundEffects,
+                    EnemyHealthMultiplier = settings.EnemyHealthMultiplier,
+                    EnemyDamageMultiplier = settings.EnemyDamageMultiplier,
+                    PlayerHealthMultiplier = settings.PlayerHealthMultiplier,
+                    PlayerDamageMultiplier = settings.PlayerDamageMultiplier,
+                    ShowHealthBars = settings.ShowHealthBars,
+                    ShowDamageNumbers = settings.ShowDamageNumbers,
+                    ShowComboProgress = settings.ShowComboProgress
+                };
+
                 // Narrative Settings
                 settings.NarrativeBalance = narrativeBalanceSlider.Value;
                 settings.EnableNarrativeEvents = enableNarrativeEventsCheckBox.IsChecked ?? true;
@@ -131,7 +164,7 @@ namespace RPGGame.UI.Avalonia.Managers
                 
                 // Gameplay Settings
                 settings.EnableAutoSave = enableAutoSaveCheckBox.IsChecked ?? true;
-                if (int.TryParse(autoSaveIntervalTextBox.Text, out int autoSaveInterval))
+                if (autoSaveIntervalTextBox != null && int.TryParse(autoSaveIntervalTextBox.Text, out int autoSaveInterval))
                 {
                     settings.AutoSaveInterval = Math.Max(1, autoSaveInterval);
                 }
@@ -149,11 +182,25 @@ namespace RPGGame.UI.Avalonia.Managers
                 settings.ShowDamageNumbers = showDamageNumbersCheckBox.IsChecked ?? true;
                 settings.ShowComboProgress = showComboProgressCheckBox.IsChecked ?? true;
                 
-                // Save to file
+                // Validate all settings before saving
+                settings.ValidateAndFix();
+                
+                // Save to file (with atomic write)
                 settings.SaveSettings();
                 
                 // Save Game Variables if any were modified
-                saveGameVariables?.Invoke();
+                try
+                {
+                    saveGameVariables?.Invoke();
+                }
+                catch (Exception ex)
+                {
+                    // Rollback settings if game variables save fails
+                    RestoreSettings(originalSettings);
+                    showStatusMessage?.Invoke($"Error saving game variables: {ex.Message}. Settings rolled back.", false);
+                    updateStatus?.Invoke($"Error saving game variables: {ex.Message}");
+                    return;
+                }
                 
                 showStatusMessage?.Invoke("Settings saved successfully!", true);
                 updateStatus?.Invoke("Settings saved successfully!");
@@ -162,7 +209,34 @@ namespace RPGGame.UI.Avalonia.Managers
             {
                 showStatusMessage?.Invoke($"Error saving settings: {ex.Message}", false);
                 updateStatus?.Invoke($"Error saving settings: {ex.Message}");
+                RPGGame.Utils.ScrollDebugLogger.Log($"SettingsManager.SaveSettings error: {ex.Message}\n{ex.StackTrace}");
             }
+        }
+        
+        /// <summary>
+        /// Restores settings from a backup
+        /// </summary>
+        private void RestoreSettings(GameSettings backup)
+        {
+            settings.NarrativeBalance = backup.NarrativeBalance;
+            settings.EnableNarrativeEvents = backup.EnableNarrativeEvents;
+            settings.EnableInformationalSummaries = backup.EnableInformationalSummaries;
+            settings.CombatSpeed = backup.CombatSpeed;
+            settings.ShowIndividualActionMessages = backup.ShowIndividualActionMessages;
+            settings.EnableComboSystem = backup.EnableComboSystem;
+            settings.EnableTextDisplayDelays = backup.EnableTextDisplayDelays;
+            settings.FastCombat = backup.FastCombat;
+            settings.EnableAutoSave = backup.EnableAutoSave;
+            settings.AutoSaveInterval = backup.AutoSaveInterval;
+            settings.ShowDetailedStats = backup.ShowDetailedStats;
+            settings.EnableSoundEffects = backup.EnableSoundEffects;
+            settings.EnemyHealthMultiplier = backup.EnemyHealthMultiplier;
+            settings.EnemyDamageMultiplier = backup.EnemyDamageMultiplier;
+            settings.PlayerHealthMultiplier = backup.PlayerHealthMultiplier;
+            settings.PlayerDamageMultiplier = backup.PlayerDamageMultiplier;
+            settings.ShowHealthBars = backup.ShowHealthBars;
+            settings.ShowDamageNumbers = backup.ShowDamageNumbers;
+            settings.ShowComboProgress = backup.ShowComboProgress;
         }
 
         public void ResetToDefaults()
@@ -342,5 +416,4 @@ namespace RPGGame.UI.Avalonia.Managers
         }
     }
 }
-
 

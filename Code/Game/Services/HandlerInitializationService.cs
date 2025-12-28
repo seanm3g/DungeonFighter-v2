@@ -35,7 +35,6 @@ namespace RPGGame.Game.Services
             public DungeonRunnerManager? DungeonRunnerManager { get; set; }
             public DungeonCompletionHandler? DungeonCompletionHandler { get; set; }
             public DeathScreenHandler? DeathScreenHandler { get; set; }
-            public TestingSystemHandler? TestingSystemHandler { get; set; }
             public CharacterManagementHandler? CharacterManagementHandler { get; set; }
             public MenuInputRouter? MenuInputRouter { get; set; }
             public MenuInputValidator? MenuInputValidator { get; set; }
@@ -88,7 +87,6 @@ namespace RPGGame.Game.Services
             result.DungeonRunnerManager = handlerResult.DungeonRunnerManager;
             result.DungeonCompletionHandler = handlerResult.DungeonCompletionHandler;
             result.DeathScreenHandler = handlerResult.DeathScreenHandler;
-            result.TestingSystemHandler = handlerResult.TestingSystemHandler;
             result.CharacterManagementHandler = handlerResult.CharacterManagementHandler;
             
             // Create additional handlers that aren't in HandlerInitializer
@@ -186,7 +184,6 @@ namespace RPGGame.Game.Services
                 DungeonSelectionHandler = result.DungeonSelectionHandler,
                 DungeonCompletionHandler = result.DungeonCompletionHandler,
                 DeathScreenHandler = result.DeathScreenHandler,
-                TestingSystemHandler = result.TestingSystemHandler,
                 CharacterManagementHandler = result.CharacterManagementHandler,
                 DungeonExitChoiceHandler = result.DungeonRunnerManager?.GetExitChoiceHandler()
             };

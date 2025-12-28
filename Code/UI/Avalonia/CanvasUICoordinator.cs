@@ -154,6 +154,14 @@ namespace RPGGame.UI.Avalonia
         }
         
         /// <summary>
+        /// Gets the game instance reference
+        /// </summary>
+        public GameCoordinator? GetGame()
+        {
+            return this.game;
+        }
+        
+        /// <summary>
         /// Sets the game state manager for the animation system.
         /// This allows the animation manager to subscribe to state change events.
         /// Should be called after Game is initialized.
@@ -327,7 +335,6 @@ namespace RPGGame.UI.Avalonia
         public void RenderCharacterCreation(Character character) 
             => renderer.RenderCharacterCreation(character, contextManager.GetCurrentContext());
         public void RenderSettings() => renderer.RenderSettings();
-        public void RenderTestingMenu(string? subMenu = null) => renderer.RenderTestingMenu(subMenu);
         public void RenderDeveloperMenu() => renderer.RenderDeveloperMenu();
         public void RenderBattleStatisticsMenu(BattleStatisticsRunner.StatisticsResult? results, bool isRunning) => 
             renderer.RenderBattleStatisticsMenu(results, isRunning);

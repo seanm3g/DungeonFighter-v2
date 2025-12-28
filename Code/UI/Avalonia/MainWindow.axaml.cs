@@ -95,8 +95,7 @@ namespace RPGGame.UI.Avalonia
         private void ToggleHelp()
         {
             // Toggle help display on canvas
-            if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
-            {
+            if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI) {
                 canvasUI.ToggleHelp();
             }
         }
@@ -104,8 +103,7 @@ namespace RPGGame.UI.Avalonia
         private void UpdateStatus(string message)
         {
             // Update status on canvas
-            if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
-            {
+            if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI) {
                 canvasUI.UpdateStatus(message);
             }
             
@@ -142,8 +140,7 @@ namespace RPGGame.UI.Avalonia
 
         private async Task CopyCenterPanelToClipboard()
         {
-            if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
-            {
+            if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI) {
                 await ClipboardHelper.CopyDisplayBufferToClipboard(canvasUI, this, null);
             }
             else
@@ -191,8 +188,11 @@ namespace RPGGame.UI.Avalonia
                 if (SettingsPanelOverlay != null && SettingsMenuPanel != null)
                 {
                     // Suppress canvas rendering to hide ASCII menu
-                    if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
-                    {
+                    if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI) {
+                        // Clear the entire canvas to remove the main menu
+                        canvasUI.Clear();
+
+                        // Suppress display buffer rendering to prevent main menu from re-rendering
                         canvasUI.SuppressDisplayBufferRendering();
                         canvasUI.ClearDisplayBufferWithoutRender();
                     }
@@ -215,7 +215,6 @@ namespace RPGGame.UI.Avalonia
                     // This ensures the panel has references to what's available
                     CanvasUICoordinator? canvasUIForHandlers = initializationHandler?.CanvasUIManager as CanvasUICoordinator;
                     SettingsMenuPanel.InitializeHandlers(
-                        initializationHandler?.Game?.TestingSystemHandler,
                         initializationHandler?.Game?.DeveloperMenuHandler,
                         initializationHandler?.Game,
                         canvasUIForHandlers,
@@ -238,8 +237,7 @@ namespace RPGGame.UI.Avalonia
                     SettingsPanelOverlay.IsVisible = false;
                     
                     // Restore canvas rendering when hiding settings
-                    if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
-                    {
+                    if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI) {
                         canvasUI.RestoreDisplayBufferRendering();
                     }
                 }

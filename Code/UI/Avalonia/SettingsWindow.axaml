@@ -1,0 +1,42 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RPGGame.UI.Avalonia"
+        mc:Ignorable="d" d:DesignWidth="1728" d:DesignHeight="972"
+        x:Class="RPGGame.UI.Avalonia.SettingsWindow"
+        Title="Game Settings - DungeonFighter v2"
+        Background="#FF1A1A1A"
+        Width="1728" Height="972" MinWidth="1400" MinHeight="800" 
+        WindowStartupLocation="CenterScreen"
+        ShowInTaskbar="True"
+        CanResize="True">
+    <Window.Styles>
+        <!-- Style to ensure TextBoxes maintain dark background and white text when focused -->
+        <Style Selector="TextBox">
+            <Setter Property="Background" Value="#FF2A2A2A"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="TextBox:focus">
+            <Setter Property="Background" Value="#FF2A2A2A"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FF0078D4"/>
+        </Style>
+        <Style Selector="TextBox:pointerover">
+            <Setter Property="Background" Value="#FF353535"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="TextBox:pointerover:focus">
+            <Setter Property="Background" Value="#FF2A2A2A"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FF0078D4"/>
+        </Style>
+    </Window.Styles>
+    <Grid Background="#FF1A1A1A">
+        <local:SettingsPanel x:Name="SettingsMenuPanel" 
+                            HorizontalAlignment="Stretch" 
+                            VerticalAlignment="Stretch"
+                            Margin="0"/>
+    </Grid>
+</Window>
+

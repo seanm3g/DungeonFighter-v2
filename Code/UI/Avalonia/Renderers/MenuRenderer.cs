@@ -29,7 +29,6 @@ namespace RPGGame.UI.Avalonia.Renderers
         private readonly SettingsMenuRenderer settingsMenuRenderer;
         private readonly WeaponSelectionRenderer weaponSelectionRenderer;
         private readonly GameMenuRenderer gameMenuRenderer;
-        private readonly TestingMenuRenderer testingMenuRenderer;
         private readonly DeveloperMenuRenderer developerMenuRenderer;
         private readonly BattleStatisticsRenderer battleStatisticsRenderer;
         private readonly VariableEditorRenderer variableEditorRenderer;
@@ -52,7 +51,6 @@ namespace RPGGame.UI.Avalonia.Renderers
             this.settingsMenuRenderer = new SettingsMenuRenderer(canvas, clickableElements, textManager);
             this.weaponSelectionRenderer = new WeaponSelectionRenderer(canvas, clickableElements, interactionManager, textManager);
             this.gameMenuRenderer = new GameMenuRenderer(canvas, clickableElements, textManager);
-            this.testingMenuRenderer = new TestingMenuRenderer(canvas, clickableElements, textManager);
             this.developerMenuRenderer = new DeveloperMenuRenderer(canvas, clickableElements, textManager);
             this.battleStatisticsRenderer = new BattleStatisticsRenderer(canvas, clickableElements, textManager);
             this.variableEditorRenderer = new VariableEditorRenderer(canvas, clickableElements, textManager);
@@ -154,15 +152,6 @@ namespace RPGGame.UI.Avalonia.Renderers
         private void RenderSettingsContent(int x, int y, int width, int height, bool hasSavedCharacter, string? characterName, int characterLevel)
         {
             currentLineCount = settingsMenuRenderer.RenderSettingsContent(x, y, width, height, hasSavedCharacter, characterName, characterLevel);
-        }
-        
-        
-        /// <summary>
-        /// Renders the testing menu screen using the 3-panel layout
-        /// </summary>
-        public void RenderTestingMenu(int x, int y, int width, int height, string? subMenu = null)
-        {
-            currentLineCount = testingMenuRenderer.RenderTestingMenu(x, y, width, height, subMenu);
         }
         
         /// <summary>

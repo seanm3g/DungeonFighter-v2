@@ -27,7 +27,6 @@ namespace RPGGame.Handlers
             public DungeonRunnerManager? DungeonRunnerManager { get; set; }
             public DungeonCompletionHandler? DungeonCompletionHandler { get; set; }
             public DeathScreenHandler? DeathScreenHandler { get; set; }
-            public TestingSystemHandler? TestingSystemHandler { get; set; }
             public CharacterManagementHandler? CharacterManagementHandler { get; set; }
         }
 
@@ -56,7 +55,6 @@ namespace RPGGame.Handlers
                 DungeonRunnerManager = new DungeonRunnerManager(stateManager, narrativeManager, combatManager, uiManager),
                 DungeonCompletionHandler = new DungeonCompletionHandler(stateManager),
                 DeathScreenHandler = new DeathScreenHandler(stateManager),
-                TestingSystemHandler = new TestingSystemHandler(stateManager, uiManager),
                 CharacterManagementHandler = new CharacterManagementHandler(stateManager, uiManager, initializationManager)
             };
         }
@@ -107,7 +105,6 @@ namespace RPGGame.Handlers
             if (handlers.SettingsMenuHandler != null)
             {
                 handlers.SettingsMenuHandler.ShowMainMenuEvent += () => showMainMenu();
-                handlers.SettingsMenuHandler.ShowTestingMenuEvent += () => handlers.TestingSystemHandler?.ResetToMainMenu();
             }
             
             if (handlers.WeaponSelectionHandler != null)
@@ -256,10 +253,6 @@ namespace RPGGame.Handlers
                 handlers.DeathScreenHandler.ShowMainMenuEvent += () => showMainMenu();
             }
             
-            if (handlers.TestingSystemHandler != null)
-            {
-                handlers.TestingSystemHandler.ShowMainMenuEvent += () => handlers.SettingsMenuHandler?.ShowSettings();
-            }
         }
     }
 }

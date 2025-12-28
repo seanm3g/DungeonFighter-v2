@@ -61,11 +61,9 @@ namespace RPGGame.UI.Avalonia.Managers
         }
 
         /// <summary>
-        /// Initializes handlers for testing and developer tools
+        /// Initializes handlers for developer tools
         /// </summary>
         public void InitializeHandlers(
-            TestExecutionManager testExecutionManager,
-            SettingsTestExecutor testExecutor,
             ListBox gameVariablesCategoryListBox,
             Panel gameVariablesPanel,
             ListBox actionsListBox,

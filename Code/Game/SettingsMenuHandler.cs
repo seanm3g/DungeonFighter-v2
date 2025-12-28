@@ -2,6 +2,7 @@ namespace RPGGame
 {
     using System;
     using RPGGame.UI.Avalonia;
+    using RPGGame.UI.Avalonia.Layout;
     using RPGGame.Utils;
 
     /// <summary>
@@ -29,27 +30,63 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Display the settings menu - now uses GUI panel instead of canvas rendering.
+        /// Display the settings menu - now opens a separate window instead of an overlay panel.
         /// Uses GameScreenCoordinator for standardized screen transition when falling back to canvas.
+        /// Clears and prepares the center panel for test output when tests are run from settings.
         /// </summary>
         public void ShowSettings()
         {
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
-                // Show the GUI settings panel instead of rendering on canvas
-                var mainWindow = canvasUI.GetMainWindow();
-                if (mainWindow != null)
+                try
                 {
-                    try
+                    // Clear and prepare the center panel for test output
+                    // This ensures the center panel is ready to display test results when tests are run from settings
+                    var centerX = LayoutConstants.CENTER_PANEL_X + 1;
+                    var centerY = LayoutConstants.CENTER_PANEL_Y + 1;
+                    var centerWidth = LayoutConstants.CENTER_PANEL_WIDTH - 2;
+                    var centerHeight = LayoutConstants.CENTER_PANEL_HEIGHT - 2;
+                    canvasUI.ClearTextInArea(centerX, centerY, centerWidth, centerHeight);
+                    
+                    // Clear the display buffer to start fresh
+                    canvasUI.ClearDisplayBuffer();
+                    
+                    // Restore display buffer rendering so test output can be displayed in the center panel
+                    // This ensures the center panel is ready for test output when tests are run from settings
+                    canvasUI.RestoreDisplayBufferRendering();
+                    
+                    // Force a layout render to ensure the center panel is visible and ready
+                    canvasUI.ForceFullLayoutRender();
+                    
+                    // Get game references from the UI coordinator
+                    var game = canvasUI.GetGame();
+                    
+                    // Create and show the settings window
+                    var settingsWindow = new SettingsWindow();
+                    
+                    // Initialize the settings window
+                    settingsWindow.Initialize(
+                        game,
+                        canvasUI,
+                        stateManager,
+                        (message) => 
+                        {
+                            // Status update callback - can update main window status if needed
+                            ScrollDebugLogger.Log($"Settings: {message}");
+                        });
+                    
+                    // Show the window
+                    Avalonia.Threading.Dispatcher.UIThread.Post(() =>
                     {
-                        mainWindow.ShowSettingsPanel();
+                        settingsWindow.Show();
                         stateManager.TransitionToState(GameState.Settings);
-                        return;
-                    }
-                    catch (Exception ex)
-                    {
-                        ScrollDebugLogger.Log($"SettingsMenuHandler: Error showing settings panel: {ex.Message}");
-                    }
+                    });
+                    
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    ScrollDebugLogger.Log($"SettingsMenuHandler: Error showing settings window: {ex.Message}\n{ex.StackTrace}");
                 }
                 
                 // Fallback to canvas rendering using GameScreenCoordinator

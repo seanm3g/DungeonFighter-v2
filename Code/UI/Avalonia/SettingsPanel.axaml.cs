@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
@@ -7,6 +8,7 @@ using Avalonia.VisualTree;
 using RPGGame;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Helpers;
+using RPGGame.Utils;
 using System;
 using System.Threading.Tasks;
 using System.Timers;
@@ -29,21 +31,131 @@ namespace RPGGame.UI.Avalonia
         private ActionsTabManager? actionsTabManager;
         private BattleStatisticsTabManager? battleStatisticsTabManager;
         private SettingsManager? settingsManager;
-        private TestExecutionManager? testExecutionManager;
         
         // Extracted managers
         private SettingsPersistenceManager? persistenceManager;
-        private SettingsTestExecutor? testExecutor;
         private SettingsEventWiring? eventWiring;
         private SettingsInitialization? initialization;
+        private bool eventsWired = false;
         
         public SettingsPanel()
         {
             InitializeComponent();
             settings = GameSettings.Instance;
             InitializeManagers();
-            LoadSettings();
-            WireUpEvents();
+            
+            // Load settings immediately (doesn't require event wiring)
+            // Delay event wiring until after controls are fully loaded and handlers are initialized
+            this.AttachedToVisualTree += (s, e) =>
+            {
+                LoadSettings();
+                RestoreLastTab();
+                SetupKeyboardNavigation();
+                // Events will be wired in InitializeHandlers after testExecutor is ready
+            };
+            
+            // Fallback: if AttachedToVisualTree doesn't fire, load settings after a short delay
+            Dispatcher.UIThread.Post(() =>
+            {
+                LoadSettings();
+                RestoreLastTab();
+                SetupKeyboardNavigation();
+            }, DispatcherPriority.Loaded);
+        }
+        
+        /// <summary>
+        /// Restores the last viewed tab from user preferences
+        /// </summary>
+        private void RestoreLastTab()
+        {
+            try
+            {
+                if (SettingsTabControl != null)
+                {
+                    // Try to load last tab index from a simple storage mechanism
+                    // For now, default to first tab (Gameplay)
+                    int lastTabIndex = 0;
+                    
+                    // In the future, this could load from a user preferences file
+                    // For now, we'll just ensure the tab control is properly initialized
+                    if (SettingsTabControl.Items != null && SettingsTabControl.Items.Count > 0)
+                    {
+                        SettingsTabControl.SelectedIndex = Math.Clamp(lastTabIndex, 0, SettingsTabControl.Items.Count - 1);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.Log($"SettingsPanel: Error restoring last tab: {ex.Message}");
+            }
+        }
+        
+        /// <summary>
+        /// Saves the current tab index for persistence
+        /// </summary>
+        private void SaveCurrentTab()
+        {
+            try
+            {
+                if (SettingsTabControl != null && SettingsTabControl.SelectedIndex >= 0)
+                {
+                    // In the future, this could save to a user preferences file
+                    // For now, we'll just log it for debugging
+                    ScrollDebugLogger.Log($"SettingsPanel: Current tab index: {SettingsTabControl.SelectedIndex}");
+                }
+            }
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.Log($"SettingsPanel: Error saving current tab: {ex.Message}");
+            }
+        }
+        
+        /// <summary>
+        /// Sets up keyboard navigation for the settings panel
+        /// </summary>
+        private void SetupKeyboardNavigation()
+        {
+            try
+            {
+                // Handle Tab key navigation
+                this.KeyDown += (s, e) =>
+                {
+                    // Tab key navigation is handled automatically by Avalonia
+                    // Arrow keys for tab navigation (when TabControl has focus)
+                    if (SettingsTabControl != null && SettingsTabControl.IsFocused)
+                    {
+                        if (e.Key == Key.Left)
+                        {
+                            if (SettingsTabControl.SelectedIndex > 0)
+                            {
+                                SettingsTabControl.SelectedIndex--;
+                                e.Handled = true;
+                            }
+                        }
+                        else if (e.Key == Key.Right)
+                        {
+                            if (SettingsTabControl.SelectedIndex < SettingsTabControl.Items.Count - 1)
+                            {
+                                SettingsTabControl.SelectedIndex++;
+                                e.Handled = true;
+                            }
+                        }
+                    }
+                };
+                
+                // Save tab when it changes
+                if (SettingsTabControl != null)
+                {
+                    SettingsTabControl.SelectionChanged += (s, e) =>
+                    {
+                        SaveCurrentTab();
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.Log($"SettingsPanel: Error setting up keyboard navigation: {ex.Message}");
+            }
         }
         
         private void InitializeManagers()
@@ -83,9 +195,9 @@ namespace RPGGame.UI.Avalonia
         }
         
         /// <summary>
-        /// Initializes handlers for testing and developer tools
+        /// Initializes handlers for developer tools
         /// </summary>
-        public void InitializeHandlers(TestingSystemHandler? testingHandler, DeveloperMenuHandler? developerHandler, GameCoordinator? game, CanvasUICoordinator? ui, GameStateManager? stateManager)
+        public void InitializeHandlers(DeveloperMenuHandler? developerHandler, GameCoordinator? game, CanvasUICoordinator? ui, GameStateManager? stateManager)
         {
             gameCoordinator = game;
             canvasUI = ui;
@@ -97,28 +209,10 @@ namespace RPGGame.UI.Avalonia
                 canvasUI = uiManager as CanvasUICoordinator;
             }
             
-            // Initialize test execution manager
-            testExecutionManager = new TestExecutionManager(
-                canvasUI,
-                gameStateManager,
-                TestOutputTextBlock,
-                TestOutputScrollViewer,
-                ShowStatusMessage);
-            
-            // Initialize test executor
-            testExecutor = new SettingsTestExecutor(
-                testExecutionManager,
-                battleStatisticsTabManager,
-                gameCoordinator,
-                canvasUI,
-                ShowStatusMessage);
-            
             // Initialize tab managers
             if (initialization != null)
             {
                 initialization.InitializeHandlers(
-                    testExecutionManager,
-                    testExecutor,
                     GameVariablesCategoryListBox,
                     GameVariablesPanel,
                     ActionsListBox,
@@ -127,6 +221,12 @@ namespace RPGGame.UI.Avalonia
                     DeleteActionButton,
                     this);
             }
+            
+            // Wire events if not already wired
+            if (!eventsWired)
+            {
+                WireUpEvents();
+            }
         }
         
         /// <summary>
@@ -134,7 +234,14 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         private void LoadSettings()
         {
-            if (persistenceManager == null) return;
+            if (persistenceManager == null)
+            {
+                ScrollDebugLogger.Log("SettingsPanel: PersistenceManager is null, cannot load settings");
+                return;
+            }
+
+            try
+            {
             
             persistenceManager.LoadSettings(
                 NarrativeBalanceSlider,
@@ -163,11 +270,17 @@ namespace RPGGame.UI.Avalonia
                 ShowDamageNumbersCheckBox,
                 ShowComboProgressCheckBox);
             
-            // Load text delay settings
-            LoadTextDelaySettings();
-            
-            // Load animation settings
-            LoadAnimationSettings();
+                // Load text delay settings
+                LoadTextDelaySettings();
+                
+                // Load animation settings
+                LoadAnimationSettings();
+            }
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.Log($"SettingsPanel: Error loading settings: {ex.Message}\n{ex.StackTrace}");
+                ShowStatusMessage($"Error loading settings: {ex.Message}", false);
+            }
         }
         
         /// <summary>
@@ -177,7 +290,9 @@ namespace RPGGame.UI.Avalonia
         {
             if (persistenceManager == null) return;
             
-            persistenceManager.LoadAnimationSettings(
+            try
+            {
+                persistenceManager.LoadAnimationSettings(
                 BrightnessMaskEnabledCheckBox,
                 BrightnessMaskIntensitySlider,
                 BrightnessMaskIntensityTextBox,
@@ -185,10 +300,15 @@ namespace RPGGame.UI.Avalonia
                 BrightnessMaskWaveLengthTextBox,
                 BrightnessMaskUpdateIntervalTextBox,
                 UndulationSpeedSlider,
-                UndulationSpeedTextBox,
-                UndulationWaveLengthSlider,
-                UndulationWaveLengthTextBox,
-                UndulationIntervalTextBox);
+                    UndulationSpeedTextBox,
+                    UndulationWaveLengthSlider,
+                    UndulationWaveLengthTextBox,
+                    UndulationIntervalTextBox);
+            }
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.Log($"SettingsPanel: Error loading animation settings: {ex.Message}");
+            }
         }
         
         /// <summary>
@@ -198,9 +318,11 @@ namespace RPGGame.UI.Avalonia
         {
             if (persistenceManager == null) return;
             
-            var controls = TextDelayControlsHelper.FindControls(this);
-            
-            persistenceManager.LoadTextDelaySettings(
+            try
+            {
+                var controls = TextDelayControlsHelper.FindControls(this);
+                
+                persistenceManager.LoadTextDelaySettings(
                 controls.EnableGuiDelaysCheckBox,
                 controls.EnableConsoleDelaysCheckBox,
                 controls.ActionDelaySlider,
@@ -235,8 +357,13 @@ namespace RPGGame.UI.Avalonia
                 controls.DefaultPresetBaseDelayTextBox,
                 controls.DefaultPresetMinDelayTextBox,
                 controls.DefaultPresetMaxDelayTextBox,
-                (slider, textBox) => { /* Action delay slider wired in manager */ },
-                (slider, textBox) => { /* Message delay slider wired in manager */ });
+                    (slider, textBox) => { /* Action delay slider wired in manager */ },
+                    (slider, textBox) => { /* Message delay slider wired in manager */ });
+            }
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.Log($"SettingsPanel: Error loading text delay settings: {ex.Message}");
+            }
         }
         
         /// <summary>
@@ -244,78 +371,88 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         private void WireUpEvents()
         {
-            if (eventWiring == null)
+            try
             {
+                // Verify critical controls exist before wiring
+                if (NarrativeBalanceSlider == null || NarrativeBalanceTextBox == null ||
+                    CombatSpeedSlider == null || CombatSpeedTextBox == null ||
+                    SaveButton == null || ResetButton == null || BackButton == null)
+                {
+                    ScrollDebugLogger.Log("SettingsPanel: Critical controls not initialized. Event wiring skipped.");
+                    return;
+                }
+
+                // Only wire events once to prevent duplicate handlers
+                // If events are already wired, skip (unless we're re-wiring after testExecutor is initialized)
+                if (eventsWired && eventWiring != null)
+                {
+                    ScrollDebugLogger.Log("SettingsPanel: Events already wired, skipping duplicate wiring.");
+                    return;
+                }
+
+                // Create eventWiring
                 eventWiring = new SettingsEventWiring(
-                    async (key) => 
-                    {
-                        if (testExecutor != null)
-                            await testExecutor.ExecuteTest(key);
-                    },
                     async (count) => 
                     {
-                        if (testExecutor != null)
-                            await testExecutor.RunBattleTest(count);
+                        // Battle test functionality can be added here if needed
+                        ScrollDebugLogger.Log($"SettingsPanel: Battle test functionality not yet implemented");
+                        await Task.CompletedTask;
                     },
                     async () => 
                     {
-                        if (testExecutor != null)
-                            await testExecutor.RunWeaponTypeTests();
+                        // Weapon type test functionality can be added here if needed
+                        ScrollDebugLogger.Log($"SettingsPanel: Weapon type test functionality not yet implemented");
+                        await Task.CompletedTask;
                     },
                     async () => 
                     {
-                        if (testExecutor != null)
-                            await testExecutor.RunComprehensiveWeaponEnemyTests();
+                        // Comprehensive test functionality can be added here if needed
+                        ScrollDebugLogger.Log($"SettingsPanel: Comprehensive test functionality not yet implemented");
+                        await Task.CompletedTask;
                     },
                     (System.Action)(() => OnSaveButtonClick(null, null!)),
                     (System.Action)(() => OnResetButtonClick(null, null!)),
                     (System.Action)(() => OnBackButtonClick(null, null!)),
                     (System.Action)(() => 
                     {
-                        if (testExecutor != null)
-                            testExecutor.ShowBattleStatistics();
+                        // Battle statistics functionality can be added here if needed
+                        ScrollDebugLogger.Log($"SettingsPanel: Battle statistics functionality not yet implemented");
                     }));
+                
+                eventWiring.WireUpAllEvents(
+                    this,
+                    NarrativeBalanceSlider,
+                    NarrativeBalanceTextBox,
+                    CombatSpeedSlider,
+                    CombatSpeedTextBox,
+                    EnemyHealthMultiplierSlider,
+                    EnemyHealthMultiplierTextBox,
+                    EnemyDamageMultiplierSlider,
+                    EnemyDamageMultiplierTextBox,
+                    PlayerHealthMultiplierSlider,
+                    PlayerHealthMultiplierTextBox,
+                    PlayerDamageMultiplierSlider,
+                    PlayerDamageMultiplierTextBox,
+                    BrightnessMaskIntensitySlider,
+                    BrightnessMaskIntensityTextBox,
+                    BrightnessMaskWaveLengthSlider,
+                    BrightnessMaskWaveLengthTextBox,
+                    UndulationSpeedSlider,
+                    UndulationSpeedTextBox,
+                    UndulationWaveLengthSlider,
+                    UndulationWaveLengthTextBox,
+                    SaveButton,
+                    ResetButton,
+                    BackButton);
+                
+                eventsWired = true;
+                ScrollDebugLogger.Log("SettingsPanel: Events wired successfully.");
             }
-            
-            eventWiring.WireUpAllEvents(
-                this,
-                NarrativeBalanceSlider,
-                NarrativeBalanceTextBox,
-                CombatSpeedSlider,
-                CombatSpeedTextBox,
-                EnemyHealthMultiplierSlider,
-                EnemyHealthMultiplierTextBox,
-                EnemyDamageMultiplierSlider,
-                EnemyDamageMultiplierTextBox,
-                PlayerHealthMultiplierSlider,
-                PlayerHealthMultiplierTextBox,
-                PlayerDamageMultiplierSlider,
-                PlayerDamageMultiplierTextBox,
-                BrightnessMaskIntensitySlider,
-                BrightnessMaskIntensityTextBox,
-                BrightnessMaskWaveLengthSlider,
-                BrightnessMaskWaveLengthTextBox,
-                UndulationSpeedSlider,
-                UndulationSpeedTextBox,
-                UndulationWaveLengthSlider,
-                UndulationWaveLengthTextBox,
-                SaveButton,
-                ResetButton,
-                BackButton,
-                RunAllTestsButton,
-                ColorSystemTestsButton,
-                CharacterSystemTestsButton,
-                CombatSystemTestsButton,
-                InventoryDungeonTestsButton,
-                DataUITestsButton,
-                ActionSystemTestsButton,
-                AdvancedIntegrationTestsButton,
-                CombatLogFilteringTestsButton,
-                GenerateRandomItemsButton,
-                ItemGenerationAnalysisButton,
-                TierDistributionTestButton,
-                CommonItemModificationTestButton,
-                ActionEditorTestsButton);
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.Log($"SettingsPanel: Error wiring up events: {ex.Message}\n{ex.StackTrace}");
+                ShowStatusMessage($"Error initializing controls: {ex.Message}", false);
+            }
         }
         
         /// <summary>
@@ -323,34 +460,48 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         private void SaveSettings()
         {
-            if (persistenceManager == null) return;
+            if (persistenceManager == null)
+            {
+                ScrollDebugLogger.Log("SettingsPanel: PersistenceManager is null, cannot save settings");
+                ShowStatusMessage("Error: Settings manager not initialized", false);
+                return;
+            }
+
+            try
+            {
             
-            persistenceManager.SaveSettings(
-                NarrativeBalanceSlider,
-                EnableNarrativeEventsCheckBox,
-                EnableInformationalSummariesCheckBox,
-                CombatSpeedSlider,
-                ShowIndividualActionMessagesCheckBox,
-                EnableComboSystemCheckBox,
-                EnableTextDisplayDelaysCheckBox,
-                FastCombatCheckBox,
-                EnableAutoSaveCheckBox,
-                AutoSaveIntervalTextBox,
-                ShowDetailedStatsCheckBox,
-                EnableSoundEffectsCheckBox,
-                EnemyHealthMultiplierSlider,
-                EnemyDamageMultiplierSlider,
-                PlayerHealthMultiplierSlider,
-                PlayerDamageMultiplierSlider,
-                ShowHealthBarsCheckBox,
-                ShowDamageNumbersCheckBox,
-                ShowComboProgressCheckBox);
-            
-            // Save text delay settings
-            SaveTextDelaySettings();
-            
-            // Save animation settings
-            SaveAnimationSettings();
+                persistenceManager.SaveSettings(
+                    NarrativeBalanceSlider,
+                    EnableNarrativeEventsCheckBox,
+                    EnableInformationalSummariesCheckBox,
+                    CombatSpeedSlider,
+                    ShowIndividualActionMessagesCheckBox,
+                    EnableComboSystemCheckBox,
+                    EnableTextDisplayDelaysCheckBox,
+                    FastCombatCheckBox,
+                    EnableAutoSaveCheckBox,
+                    AutoSaveIntervalTextBox,
+                    ShowDetailedStatsCheckBox,
+                    EnableSoundEffectsCheckBox,
+                    EnemyHealthMultiplierSlider,
+                    EnemyDamageMultiplierSlider,
+                    PlayerHealthMultiplierSlider,
+                    PlayerDamageMultiplierSlider,
+                    ShowHealthBarsCheckBox,
+                    ShowDamageNumbersCheckBox,
+                    ShowComboProgressCheckBox);
+                
+                // Save text delay settings
+                SaveTextDelaySettings();
+                
+                // Save animation settings
+                SaveAnimationSettings();
+            }
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.Log($"SettingsPanel: Error saving settings: {ex.Message}\n{ex.StackTrace}");
+                ShowStatusMessage($"Error saving settings: {ex.Message}", false);
+            }
         }
         
         /// <summary>
@@ -360,14 +511,21 @@ namespace RPGGame.UI.Avalonia
         {
             if (persistenceManager == null) return;
             
-            persistenceManager.SaveAnimationSettings(
+            try
+            {
+                persistenceManager.SaveAnimationSettings(
                 BrightnessMaskEnabledCheckBox,
                 BrightnessMaskIntensitySlider,
                 BrightnessMaskWaveLengthSlider,
                 BrightnessMaskUpdateIntervalTextBox,
-                UndulationSpeedSlider,
-                UndulationWaveLengthSlider,
-                UndulationIntervalTextBox);
+                    UndulationSpeedSlider,
+                    UndulationWaveLengthSlider,
+                    UndulationIntervalTextBox);
+            }
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.Log($"SettingsPanel: Error saving animation settings: {ex.Message}");
+            }
         }
         
         /// <summary>
@@ -377,9 +535,11 @@ namespace RPGGame.UI.Avalonia
         {
             if (persistenceManager == null) return;
             
-            var controls = TextDelayControlsHelper.FindControls(this);
-            
-            persistenceManager.SaveTextDelaySettings(
+            try
+            {
+                var controls = TextDelayControlsHelper.FindControls(this);
+                
+                persistenceManager.SaveTextDelaySettings(
                 controls.EnableGuiDelaysCheckBox,
                 controls.EnableConsoleDelaysCheckBox,
                 controls.ActionDelaySlider,
@@ -409,22 +569,61 @@ namespace RPGGame.UI.Avalonia
                 controls.NarrativePresetBaseDelayTextBox,
                 controls.NarrativePresetMinDelayTextBox,
                 controls.NarrativePresetMaxDelayTextBox,
-                controls.DefaultPresetBaseDelayTextBox,
-                controls.DefaultPresetMinDelayTextBox,
-                controls.DefaultPresetMaxDelayTextBox);
+                    controls.DefaultPresetBaseDelayTextBox,
+                    controls.DefaultPresetMinDelayTextBox,
+                    controls.DefaultPresetMaxDelayTextBox);
+            }
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.Log($"SettingsPanel: Error saving text delay settings: {ex.Message}");
+            }
         }
         
+        private bool resetConfirmationPending = false;
+        
         /// <summary>
-        /// Resets settings to defaults
+        /// Resets settings to defaults with two-click confirmation
         /// </summary>
         private void OnResetButtonClick(object? sender, RoutedEventArgs e)
         {
             if (persistenceManager == null) return;
             
-            persistenceManager.ResetToDefaults();
-            LoadSettings();
-            ShowStatusMessage("Settings reset to defaults", true);
-            updateStatus?.Invoke("Settings reset to defaults");
+            if (!resetConfirmationPending)
+            {
+                // First click: show confirmation message
+                resetConfirmationPending = true;
+                ShowStatusMessage("Click Reset again to confirm. This will reset all settings to defaults.", false);
+                updateStatus?.Invoke("Click Reset again to confirm resetting all settings");
+                
+                // Reset confirmation after 5 seconds
+                var timer = new System.Timers.Timer(5000);
+                timer.Elapsed += (s, args) =>
+                {
+                    timer.Stop();
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        resetConfirmationPending = false;
+                    });
+                };
+                timer.Start();
+            }
+            else
+            {
+                // Second click: perform reset
+                resetConfirmationPending = false;
+                try
+                {
+                    persistenceManager.ResetToDefaults();
+                    LoadSettings();
+                    ShowStatusMessage("Settings reset to defaults", true);
+                    updateStatus?.Invoke("Settings reset to defaults");
+                }
+                catch (Exception ex)
+                {
+                    ScrollDebugLogger.Log($"SettingsPanel: Error resetting settings: {ex.Message}");
+                    ShowStatusMessage($"Error resetting settings: {ex.Message}", false);
+                }
+            }
         }
         
         /// <summary>

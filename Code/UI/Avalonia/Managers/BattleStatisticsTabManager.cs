@@ -2,6 +2,8 @@ using Avalonia.Controls;
 using Avalonia.Threading;
 using RPGGame;
 using RPGGame.Simulation;
+using RPGGame.UI.Avalonia;
+using RPGGame.UI.Avalonia.Layout;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,6 +69,20 @@ namespace RPGGame.UI.Avalonia.Managers
 
             try
             {
+                // Clear display buffer and center panel for test output
+                var uiManager = UIManager.GetCustomUIManager();
+                if (uiManager is CanvasUICoordinator canvasUI)
+                {
+                    canvasUI.ClearDisplayBuffer();
+                    var centerX = LayoutConstants.CENTER_PANEL_X + 1;
+                    var centerY = LayoutConstants.CENTER_PANEL_Y + 1;
+                    var centerWidth = LayoutConstants.CENTER_PANEL_WIDTH - 2;
+                    var centerHeight = LayoutConstants.CENTER_PANEL_HEIGHT - 2;
+                    canvasUI.ClearTextInArea(centerX, centerY, centerWidth, centerHeight);
+                    // Note: ClearProgressBarsInArea not available on CanvasUICoordinator - progress bars will be cleared by canvas rendering
+                    canvasUI.RestoreDisplayBufferRendering();
+                }
+                
                 var config = new BattleStatisticsRunner.BattleConfiguration
                 {
                     PlayerDamage = 10,
@@ -100,10 +116,11 @@ namespace RPGGame.UI.Avalonia.Managers
             }
             catch (Exception ex)
             {
+                // Write error to center panel
+                UIManager.WriteLine($"Error running battle test: {ex.Message}");
+                UIManager.WriteLine(ex.StackTrace ?? "");
                 Dispatcher.UIThread.Post(() =>
                 {
-                    if (battleStatisticsResultsText != null) 
-                        battleStatisticsResultsText.Text = $"Error running battle test: {ex.Message}\n\n{ex.StackTrace}";
                     showStatusMessage?.Invoke($"Error: {ex.Message}", false);
                 });
             }
@@ -141,6 +158,20 @@ namespace RPGGame.UI.Avalonia.Managers
 
             try
             {
+                // Clear display buffer and center panel for test output
+                var uiManager = UIManager.GetCustomUIManager();
+                if (uiManager is CanvasUICoordinator canvasUI)
+                {
+                    canvasUI.ClearDisplayBuffer();
+                    var centerX = LayoutConstants.CENTER_PANEL_X + 1;
+                    var centerY = LayoutConstants.CENTER_PANEL_Y + 1;
+                    var centerWidth = LayoutConstants.CENTER_PANEL_WIDTH - 2;
+                    var centerHeight = LayoutConstants.CENTER_PANEL_HEIGHT - 2;
+                    canvasUI.ClearTextInArea(centerX, centerY, centerWidth, centerHeight);
+                    // Note: ClearProgressBarsInArea not available on CanvasUICoordinator - progress bars will be cleared by canvas rendering
+                    canvasUI.RestoreDisplayBufferRendering();
+                }
+                
                 var progress = new Progress<(int completed, int total, string status)>(p =>
                 {
                     Dispatcher.UIThread.Post(() =>
@@ -163,10 +194,11 @@ namespace RPGGame.UI.Avalonia.Managers
             }
             catch (Exception ex)
             {
+                // Write error to center panel
+                UIManager.WriteLine($"Error running weapon type tests: {ex.Message}");
+                UIManager.WriteLine(ex.StackTrace ?? "");
                 Dispatcher.UIThread.Post(() =>
                 {
-                    if (battleStatisticsResultsText != null) 
-                        battleStatisticsResultsText.Text = $"Error running weapon type tests: {ex.Message}\n\n{ex.StackTrace}";
                     showStatusMessage?.Invoke($"Error: {ex.Message}", false);
                 });
             }
@@ -204,6 +236,20 @@ namespace RPGGame.UI.Avalonia.Managers
 
             try
             {
+                // Clear display buffer and center panel for test output
+                var uiManager = UIManager.GetCustomUIManager();
+                if (uiManager is CanvasUICoordinator canvasUI)
+                {
+                    canvasUI.ClearDisplayBuffer();
+                    var centerX = LayoutConstants.CENTER_PANEL_X + 1;
+                    var centerY = LayoutConstants.CENTER_PANEL_Y + 1;
+                    var centerWidth = LayoutConstants.CENTER_PANEL_WIDTH - 2;
+                    var centerHeight = LayoutConstants.CENTER_PANEL_HEIGHT - 2;
+                    canvasUI.ClearTextInArea(centerX, centerY, centerWidth, centerHeight);
+                    // Note: ClearProgressBarsInArea not available on CanvasUICoordinator - progress bars will be cleared by canvas rendering
+                    canvasUI.RestoreDisplayBufferRendering();
+                }
+                
                 var progress = new Progress<(int completed, int total, string status)>(p =>
                 {
                     Dispatcher.UIThread.Post(() =>
@@ -226,10 +272,11 @@ namespace RPGGame.UI.Avalonia.Managers
             }
             catch (Exception ex)
             {
+                // Write error to center panel
+                UIManager.WriteLine($"Error running comprehensive tests: {ex.Message}");
+                UIManager.WriteLine(ex.StackTrace ?? "");
                 Dispatcher.UIThread.Post(() =>
                 {
-                    if (battleStatisticsResultsText != null) 
-                        battleStatisticsResultsText.Text = $"Error running comprehensive tests: {ex.Message}\n\n{ex.StackTrace}";
                     showStatusMessage?.Invoke($"Error: {ex.Message}", false);
                 });
             }
@@ -247,108 +294,88 @@ namespace RPGGame.UI.Avalonia.Managers
         {
             if (results == null) return;
 
-            var output = new System.Text.StringBuilder();
-            output.AppendLine("=== BATTLE STATISTICS RESULTS ===");
-            output.AppendLine();
-            
-            output.AppendLine("Configuration:");
-            output.AppendLine($"  Player: {results.Config.PlayerDamage} dmg, {results.Config.PlayerAttackSpeed:F2} speed, {results.Config.PlayerArmor} armor, {results.Config.PlayerHealth} HP");
-            output.AppendLine($"  Enemy:  {results.Config.EnemyDamage} dmg, {results.Config.EnemyAttackSpeed:F2} speed, {results.Config.EnemyArmor} armor, {results.Config.EnemyHealth} HP");
-            output.AppendLine();
-            
-            output.AppendLine("Results:");
-            output.AppendLine($"  Total Battles: {results.TotalBattles}");
-            output.AppendLine($"  Player Wins: {results.PlayerWins} ({results.WinRate:F1}%)");
-            output.AppendLine($"  Enemy Wins: {results.EnemyWins} ({100.0 - results.WinRate:F1}%)");
-            output.AppendLine();
-            
-            output.AppendLine("Turn Statistics:");
-            output.AppendLine($"  Average Turns: {results.AverageTurns:F2}");
-            output.AppendLine($"  Min Turns: {results.MinTurns}");
-            output.AppendLine($"  Max Turns: {results.MaxTurns}");
-            output.AppendLine();
-            
-            output.AppendLine("Damage Statistics:");
-            output.AppendLine($"  Average Player Damage Dealt: {results.AveragePlayerDamageDealt:F2}");
-            output.AppendLine($"  Average Enemy Damage Dealt: {results.AverageEnemyDamageDealt:F2}");
-
-            Dispatcher.UIThread.Post(() =>
-            {
-                if (battleStatisticsResultsText != null) battleStatisticsResultsText.Text = output.ToString();
-            });
+            // Write results to center panel (display buffer) instead of TextBlock
+            UIManager.WriteLine("=== BATTLE STATISTICS RESULTS ===");
+            UIManager.WriteLine("");
+            UIManager.WriteLine("Configuration:");
+            UIManager.WriteLine($"  Player: {results.Config.PlayerDamage} dmg, {results.Config.PlayerAttackSpeed:F2} speed, {results.Config.PlayerArmor} armor, {results.Config.PlayerHealth} HP");
+            UIManager.WriteLine($"  Enemy:  {results.Config.EnemyDamage} dmg, {results.Config.EnemyAttackSpeed:F2} speed, {results.Config.EnemyArmor} armor, {results.Config.EnemyHealth} HP");
+            UIManager.WriteLine("");
+            UIManager.WriteLine("Results:");
+            UIManager.WriteLine($"  Total Battles: {results.TotalBattles}");
+            UIManager.WriteLine($"  Player Wins: {results.PlayerWins} ({results.WinRate:F1}%)");
+            UIManager.WriteLine($"  Enemy Wins: {results.EnemyWins} ({100.0 - results.WinRate:F1}%)");
+            UIManager.WriteLine("");
+            UIManager.WriteLine("Turn Statistics:");
+            UIManager.WriteLine($"  Average Turns: {results.AverageTurns:F2}");
+            UIManager.WriteLine($"  Min Turns: {results.MinTurns}");
+            UIManager.WriteLine($"  Max Turns: {results.MaxTurns}");
+            UIManager.WriteLine("");
+            UIManager.WriteLine("Damage Statistics:");
+            UIManager.WriteLine($"  Average Player Damage Dealt: {results.AveragePlayerDamageDealt:F2}");
+            UIManager.WriteLine($"  Average Enemy Damage Dealt: {results.AverageEnemyDamageDealt:F2}");
         }
 
         private void DisplayWeaponTestResults(List<BattleStatisticsRunner.WeaponTestResult> results)
         {
             if (results == null || results.Count == 0) return;
 
-            var output = new System.Text.StringBuilder();
-            output.AppendLine("=== WEAPON TYPE TEST RESULTS ===");
-            output.AppendLine();
+            // Write results to center panel (display buffer) instead of TextBlock
+            UIManager.WriteLine("=== WEAPON TYPE TEST RESULTS ===");
+            UIManager.WriteLine("");
             
             foreach (var result in results.OrderByDescending(r => r.WinRate))
             {
-                output.AppendLine($"{result.WeaponType}:");
-                output.AppendLine($"  Wins: {result.PlayerWins}/{result.TotalBattles} ({result.WinRate:F1}%)");
-                output.AppendLine($"  Average Turns: {result.AverageTurns:F2}");
-                output.AppendLine($"  Average Player Damage: {result.AveragePlayerDamageDealt:F2}");
-                output.AppendLine($"  Average Enemy Damage: {result.AverageEnemyDamageDealt:F2}");
-                output.AppendLine();
+                UIManager.WriteLine($"{result.WeaponType}:");
+                UIManager.WriteLine($"  Wins: {result.PlayerWins}/{result.TotalBattles} ({result.WinRate:F1}%)");
+                UIManager.WriteLine($"  Average Turns: {result.AverageTurns:F2}");
+                UIManager.WriteLine($"  Average Player Damage: {result.AveragePlayerDamageDealt:F2}");
+                UIManager.WriteLine($"  Average Enemy Damage: {result.AverageEnemyDamageDealt:F2}");
+                UIManager.WriteLine("");
             }
-
-            Dispatcher.UIThread.Post(() =>
-            {
-                if (battleStatisticsResultsText != null) battleStatisticsResultsText.Text = output.ToString();
-            });
         }
 
         private void DisplayComprehensiveResults(BattleStatisticsRunner.ComprehensiveWeaponEnemyTestResult results)
         {
             if (results == null) return;
 
-            var output = new System.Text.StringBuilder();
-            output.AppendLine("=== COMPREHENSIVE WEAPON VS ENEMY TEST RESULTS ===");
-            output.AppendLine();
-            
-            output.AppendLine("Overall Statistics:");
-            output.AppendLine($"  Total Battles: {results.TotalBattles}");
-            output.AppendLine($"  Player Wins: {results.TotalPlayerWins} ({results.OverallWinRate:F1}%)");
-            output.AppendLine($"  Enemy Wins: {results.TotalEnemyWins}");
-            output.AppendLine($"  Average Turns: {results.OverallAverageTurns:F1}");
-            output.AppendLine($"  Average Player Damage: {results.OverallAveragePlayerDamage:F1}");
-            output.AppendLine($"  Average Enemy Damage: {results.OverallAverageEnemyDamage:F1}");
-            output.AppendLine();
+            // Write results to center panel (display buffer) instead of TextBlock
+            UIManager.WriteLine("=== COMPREHENSIVE WEAPON VS ENEMY TEST RESULTS ===");
+            UIManager.WriteLine("");
+            UIManager.WriteLine("Overall Statistics:");
+            UIManager.WriteLine($"  Total Battles: {results.TotalBattles}");
+            UIManager.WriteLine($"  Player Wins: {results.TotalPlayerWins} ({results.OverallWinRate:F1}%)");
+            UIManager.WriteLine($"  Enemy Wins: {results.TotalEnemyWins}");
+            UIManager.WriteLine($"  Average Turns: {results.OverallAverageTurns:F1}");
+            UIManager.WriteLine($"  Average Player Damage: {results.OverallAveragePlayerDamage:F1}");
+            UIManager.WriteLine($"  Average Enemy Damage: {results.OverallAverageEnemyDamage:F1}");
+            UIManager.WriteLine("");
             
             if (results.WeaponStatistics != null && results.WeaponStatistics.Count > 0)
             {
-                output.AppendLine("Weapon Performance (across all enemies):");
+                UIManager.WriteLine("Weapon Performance (across all enemies):");
                 foreach (var weaponType in results.WeaponTypes)
                 {
                     if (results.WeaponStatistics.TryGetValue(weaponType, out var weaponStats))
                     {
-                        output.AppendLine($"  {weaponType,-8}: {weaponStats.Wins,3}/{weaponStats.TotalBattles,3} wins ({weaponStats.WinRate,5:F1}%) | Avg Turns: {weaponStats.AverageTurns,5:F1} | Avg Damage: {weaponStats.AverageDamage,5:F1}");
+                        UIManager.WriteLine($"  {weaponType,-8}: {weaponStats.Wins,3}/{weaponStats.TotalBattles,3} wins ({weaponStats.WinRate,5:F1}%) | Avg Turns: {weaponStats.AverageTurns,5:F1} | Avg Damage: {weaponStats.AverageDamage,5:F1}");
                     }
                 }
-                output.AppendLine();
+                UIManager.WriteLine("");
             }
             
             if (results.EnemyStatistics != null && results.EnemyStatistics.Count > 0)
             {
-                output.AppendLine("Enemy Difficulty (across all weapons):");
+                UIManager.WriteLine("Enemy Difficulty (across all weapons):");
                 foreach (var enemyType in results.EnemyTypes.OrderByDescending(e => 
                     results.EnemyStatistics.TryGetValue(e, out var enemyStats) ? enemyStats.WinRate : 0))
                 {
                     if (results.EnemyStatistics.TryGetValue(enemyType, out var enemyStats))
                     {
-                        output.AppendLine($"  {enemyType,-15}: {enemyStats.Wins,3}/{enemyStats.TotalBattles,3} wins ({enemyStats.WinRate,5:F1}%) | Avg Turns: {enemyStats.AverageTurns,5:F1}");
+                        UIManager.WriteLine($"  {enemyType,-15}: {enemyStats.Wins,3}/{enemyStats.TotalBattles,3} wins ({enemyStats.WinRate,5:F1}%) | Avg Turns: {enemyStats.AverageTurns,5:F1}");
                     }
                 }
             }
-
-            Dispatcher.UIThread.Post(() =>
-            {
-                if (battleStatisticsResultsText != null) battleStatisticsResultsText.Text = output.ToString();
-            });
         }
     }
 }

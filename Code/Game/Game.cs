@@ -47,7 +47,6 @@ namespace RPGGame
         private DungeonRunnerManager? dungeonRunnerManager;
         private DungeonCompletionHandler? dungeonCompletionHandler;
         private DeathScreenHandler? deathScreenHandler;
-        private TestingSystemHandler? testingSystemHandler;
         
         // Game loop state
         private DungeonManagerWithRegistry? dungeonManager;
@@ -174,7 +173,6 @@ namespace RPGGame
             dungeonRunnerManager = result.DungeonRunnerManager;
             dungeonCompletionHandler = result.DungeonCompletionHandler;
             deathScreenHandler = result.DeathScreenHandler;
-            testingSystemHandler = result.TestingSystemHandler;
             menuInputRouter = result.MenuInputRouter;
             menuInputValidator = result.MenuInputValidator;
             inputRouter = result.InputRouter;
@@ -199,7 +197,6 @@ namespace RPGGame
         public Dungeon? CurrentDungeon => stateManager.CurrentDungeon;
         public Environment? CurrentRoom => stateManager.CurrentRoom;
         public GameStateManager StateManager => stateManager;
-        public TestingSystemHandler? TestingSystemHandler => testingSystemHandler;
         public DeveloperMenuHandler? DeveloperMenuHandler => developerMenuHandler;
 
         // Main entry points
