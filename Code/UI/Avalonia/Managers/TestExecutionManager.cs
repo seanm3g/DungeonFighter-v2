@@ -61,8 +61,9 @@ namespace RPGGame.UI.Avalonia.Managers
                     testOutputTextBlock.Text = "Running test...\n";
                 });
                 
-                uiToUse.ClearDisplayBuffer();
-                uiToUse.RestoreDisplayBufferRendering();
+                // Use TestUICoordinator to properly prepare for test execution
+                // This clears canvas, manually restores display buffer rendering, and clears buffer
+                TestUICoordinator.ClearAndPrepareForTest(uiToUse);
                 
                 var testCoordinator = new TestExecutionCoordinator(uiToUse);
                 var stateManager = gameStateManager ?? new GameStateManager();

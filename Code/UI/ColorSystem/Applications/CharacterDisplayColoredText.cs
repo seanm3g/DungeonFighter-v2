@@ -101,10 +101,10 @@ namespace RPGGame.UI.ColorSystem
             var lines = new List<List<ColoredText>>();
             
             // Use base stats without bonuses for now (can be enhanced later)
-            lines.Add(FormatStat("STR", character.Strength));
-            lines.Add(FormatStat("AGI", character.Agility));
-            lines.Add(FormatStat("TEC", character.Technique));
-            lines.Add(FormatStat("INT", character.Intelligence));
+            lines.Add(FormatStat("Strength", character.Strength));
+            lines.Add(FormatStat("Agility", character.Agility));
+            lines.Add(FormatStat("Technique", character.Technique));
+            lines.Add(FormatStat("Intelligence", character.Intelligence));
             
             return lines;
         }

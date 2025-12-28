@@ -48,10 +48,9 @@ namespace RPGGame
             
             if (narrativeMessages != null)
             {
-                // Check if action text contains "CRITICAL MISS" or "misses"
+                // Check if action text contains "CRITICAL MISS" (only for critical misses, not regular misses)
                 string actionPlainText = ColoredTextRenderer.RenderAsPlainText(actionText);
-                bool isCriticalMiss = actionPlainText.Contains("CRITICAL MISS", StringComparison.OrdinalIgnoreCase) || 
-                                     actionPlainText.Contains("misses", StringComparison.OrdinalIgnoreCase);
+                bool isCriticalMiss = actionPlainText.Contains("CRITICAL MISS", StringComparison.OrdinalIgnoreCase);
                 
                 foreach (var narrative in narrativeMessages)
                 {
@@ -75,7 +74,7 @@ namespace RPGGame
                             // Keep other narratives to display separately (but skip critical miss narratives if action is not a miss)
                             remainingNarratives.Add(narrative);
                         }
-                        // If isCriticalMissNarrative is true but isCriticalMiss is false, skip it (don't display critical miss narrative for successful hits)
+                        // If isCriticalMissNarrative is true but isCriticalMiss is false, skip it (don't display critical miss narrative for regular misses or successful hits)
                     }
                 }
             }
@@ -108,10 +107,9 @@ namespace RPGGame
             
             if (narrativeMessages != null)
             {
-                // Check if action text contains "CRITICAL MISS" or "misses"
+                // Check if action text contains "CRITICAL MISS" (only for critical misses, not regular misses)
                 string actionPlainText = ColoredTextRenderer.RenderAsPlainText(actionText);
-                bool isCriticalMiss = actionPlainText.Contains("CRITICAL MISS", StringComparison.OrdinalIgnoreCase) || 
-                                     actionPlainText.Contains("misses", StringComparison.OrdinalIgnoreCase);
+                bool isCriticalMiss = actionPlainText.Contains("CRITICAL MISS", StringComparison.OrdinalIgnoreCase);
                 
                 foreach (var narrative in narrativeMessages)
                 {
@@ -135,7 +133,7 @@ namespace RPGGame
                             // Keep other narratives to display separately (but skip critical miss narratives if action is not a miss)
                             remainingNarratives.Add(narrative);
                         }
-                        // If isCriticalMissNarrative is true but isCriticalMiss is false, skip it (don't display critical miss narrative for successful hits)
+                        // If isCriticalMissNarrative is true but isCriticalMiss is false, skip it (don't display critical miss narrative for regular misses or successful hits)
                     }
                 }
             }

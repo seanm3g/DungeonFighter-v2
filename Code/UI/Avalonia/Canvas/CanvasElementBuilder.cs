@@ -177,8 +177,25 @@ namespace RPGGame.UI.Avalonia.Canvas
             if (nameColor == default) nameColor = Colors.White;
             if (valueColor == default) valueColor = Colors.Yellow;
             
+            // Format stat name with colon (no space before colon)
+            // Then add spacing after colon based on stat name
+            // STR:   # (3 spaces), AGI:   # (3 spaces), TECH: # (1 space), INT:   # (3 spaces)
+            string statNameWithColon = statName + ":";
+            
+            // Determine spacing based on stat name
+            int spacesNeeded;
+            if (statName == "TECH")
+            {
+                spacesNeeded = 1; // TECH: # (1 space)
+            }
+            else
+            {
+                spacesNeeded = 2; // STR:   #, AGI:   #, INT:   # (3 spaces)
+            }
+            string spaceAfterColon = new string(' ', spacesNeeded);
+            
             // Only show maxValue if it's greater than 0
-            string statText = maxValue > 0 ? $"{statName}: {value}/{maxValue}" : $"{statName}: {value}";
+            string statText = maxValue > 0 ? $"{statNameWithColon}{spaceAfterColon}{value}/{maxValue}" : $"{statNameWithColon}{spaceAfterColon}{value}";
             AddText(x, y, statText, nameColor);
         }
 

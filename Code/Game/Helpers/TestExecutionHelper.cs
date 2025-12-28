@@ -51,7 +51,7 @@ namespace RPGGame
             {
                 Console.WriteLine($"[TestingSystemHandler] Error in {testName}: {ex.Message}");
                 canvasUI.WriteLine($"Error running tests: {ex.Message}", UIMessageType.System);
-                canvasUI.RenderDisplayBuffer();
+                canvasUI.ForceRenderDisplayBuffer();
                 return false;
             }
         }
@@ -64,7 +64,7 @@ namespace RPGGame
             canvasUI.WriteBlankLine();
             canvasUI.WriteLine("=== Tests Complete ===", UIMessageType.System);
             canvasUI.WriteLine("Press any key to return to test menu...", UIMessageType.System);
-            canvasUI.RenderDisplayBuffer();
+            canvasUI.ForceRenderDisplayBuffer();
         }
     }
 }

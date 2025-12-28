@@ -53,9 +53,11 @@ Blessed Phantom uses DIVINE BLESSING on Pax Stormcaller
 
 ### 2. Actor Changes
 
-**Rule**: Add a blank line when the acting character changes (player ↔ enemy).
+**Rule**: Add a blank line when the acting entity changes (player ↔ enemy ↔ environment).
 
 **Exception**: No blank line between consecutive actions by the same actor.
+
+**Applies to**: Characters, enemies, environment, and standalone status effects.
 
 **Example - Actor Change:**
 ```
@@ -101,6 +103,7 @@ Blessed Phantom hits Pax Stormcaller for 2 damage
 **Rule**: Each combat action block is a single unit with no internal blank lines.
 
 **Action block structure:**
+All subsequent lines (roll info, status effects, etc.) use 5-space indentation:
 ```
 [Action Text]
      (Roll Information)
@@ -245,7 +248,8 @@ Sections are identified by:
 
 ### Status Effects
 - Status effects are part of the action block (no blank line)
-- Displayed with 4-space indentation
+- Displayed with 5-space indentation (matches roll info)
+- Standalone status effects follow actor-based spacing (no blank line for same actor, blank line for different actor)
 
 ### Critical Miss Narratives
 - Critical miss narratives are part of the action block (no blank line)

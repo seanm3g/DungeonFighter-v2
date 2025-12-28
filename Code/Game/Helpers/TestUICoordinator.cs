@@ -2,6 +2,7 @@ namespace RPGGame
 {
     using System;
     using RPGGame.UI.Avalonia;
+    using RPGGame.UI.Avalonia.Display;
 
     /// <summary>
     /// Helper class for coordinating UI operations during test execution.
@@ -12,12 +13,31 @@ namespace RPGGame
         /// <summary>
         /// Clears the display buffer and prepares for a new test.
         /// Re-enables display buffer rendering so test output can be displayed.
+        /// Also clears the canvas to remove menu rendering and ensures display buffer will be visible.
         /// </summary>
         /// <param name="canvasUI">The UI coordinator</param>
         public static void ClearAndPrepareForTest(CanvasUICoordinator canvasUI)
         {
-            // Re-enable display buffer rendering (it may have been suppressed by menu rendering)
-            canvasUI.RestoreDisplayBufferRendering();
+            // Clear the canvas to remove any menu rendering
+            canvasUI.Clear();
+            
+            // Manually restore display buffer rendering (override automatic suppression for Testing state)
+            // This ensures test output will be displayed even though we're in a menu state
+            // Access the displayBufferManager via reflection or add a public getter
+            var displayBufferManagerField = typeof(CanvasUICoordinator).GetField("displayBufferManager", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            
+            if (displayBufferManagerField?.GetValue(canvasUI) is DisplayBufferManager manager)
+            {
+                manager.ManuallyRestore();
+            }
+            else
+            {
+                // Fallback to direct restoration if manager not available
+                canvasUI.RestoreDisplayBufferRendering();
+            }
+            
+            // Clear the display buffer to start fresh
             canvasUI.ClearDisplayBuffer();
         }
 
@@ -52,7 +72,7 @@ namespace RPGGame
             }
             
             canvasUI.WriteLine(errorMessage, UIMessageType.System);
-            canvasUI.RenderDisplayBuffer();
+            canvasUI.ForceRenderDisplayBuffer();
             MarkWaitingForReturn(testCoordinator);
         }
 
@@ -73,7 +93,7 @@ namespace RPGGame
                 canvasUI.WriteLine(completionMessage, UIMessageType.System);
             }
             
-            canvasUI.RenderDisplayBuffer();
+            canvasUI.ForceRenderDisplayBuffer();
             MarkWaitingForReturn(testCoordinator);
         }
     }

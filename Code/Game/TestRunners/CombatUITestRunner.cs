@@ -90,7 +90,7 @@ namespace RPGGame.Game.TestRunners
                         $"Expected at least 3 messages in buffer, got {bufferCount}"));
                 }
                 
-                uiCoordinator.RenderDisplayBuffer();
+                uiCoordinator.ForceRenderDisplayBuffer();
                 
                 return Task.FromResult(new TestResult("Combat Panel Containment", true, 
                     $"Successfully rendered {bufferCount} combat messages in persistent layout"));

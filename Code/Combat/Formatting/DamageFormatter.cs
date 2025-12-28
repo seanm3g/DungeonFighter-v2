@@ -189,9 +189,9 @@ namespace RPGGame.Combat.Formatting
         /// </summary>
         public static void AddBracketedActorNoLongerAffected(ColoredTextBuilder builder, string actorName, ColorPalette actorColor, string effectName, ColorPalette effectColor)
         {
-            // Add indentation (4 spaces), opening parenthesis, and opening bracket
+            // Add indentation (5 spaces), opening parenthesis, and opening bracket
             // Note: No newline here - caller handles newlines when combining multiple messages
-            builder.Add("    ([", Colors.White);
+            builder.Add("     ([", Colors.White);
             // Add actor name
             builder.Add(actorName, actorColor);
             // Add closing bracket

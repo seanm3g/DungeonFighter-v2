@@ -50,6 +50,13 @@ TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.CombatAction)
 - Follow semantic naming: `ColorPalette.Damage`, `ColorPalette.Player`, etc.
 - See `Code/UI/ColorSystem/ColorPalette.cs` for all available colors
 
+### 5. **Action Block Indentation Standard**
+- All subsequent lines in action blocks (roll info, status effects, etc.) use **5 spaces** of indentation
+- This applies to: roll information, status effects, environmental effects, and stat bonus messages
+- Use the constant `ACTION_BLOCK_INDENT = "     "` (5 spaces) for consistency
+- Actor-based spacing: No blank line between actions by the same actor; blank line between different actors
+- Applies to: characters, enemies, environment, and standalone status effects
+
 ---
 
 ## 📁 File-by-File Guide
@@ -372,7 +379,7 @@ var actionText = new ColoredTextBuilder()
     .Build();
 
 var rollInfo = new ColoredTextBuilder()
-    .Add($"    (roll: {roll} | attack {attack} - {armor} armor)", Colors.White)
+    .Add($"     (roll: {roll} | attack {attack} - {armor} armor)", Colors.White)
     .Build();
 
 BlockDisplayManager.DisplayActionBlock(actionText, rollInfo);

@@ -251,30 +251,43 @@ namespace RPGGame
         
         /// <summary>
         /// Displays an EFFECT BLOCK using ColoredText
+        /// Supports actor-based spacing (no blank line for same actor, blank line for different actor)
+        /// All combat logs follow the same action block pattern: first line normal, subsequent lines indented
         /// </summary>
         public static void DisplayEffectBlock(List<ColoredText> effectText, List<ColoredText>? details = null)
         {
             if (UIManager.DisableAllUIOutput || effectText == null || effectText.Count == 0) return;
             
-            // Apply context-aware spacing based on what came before
-            TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.StatusEffect);
+            // Extract entity name from effect text for tracking
+            // Status effect messages may be in formats like "[Actor] takes X damage" or "Actor is affected by..."
+            string? effectEntity = null;
+            if (effectText != null && effectText.Count > 0)
+            {
+                string plainText = ColoredTextRenderer.RenderAsPlainText(effectText);
+                effectEntity = EntityNameExtractor.ExtractEntityNameFromMessage(plainText);
+            }
             
-            // Display the effect
-            UIManager.WriteColoredText(effectText);
+            // Apply context-aware spacing with entity tracking
+            TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.StatusEffect, effectEntity);
             
-            // Display details if present
+            // Display the effect (first line - no indentation, as per action block pattern)
+            UIManager.WriteColoredText(effectText!); // effectText is guaranteed non-null due to check at line 258
+            
+            // Display details if present (subsequent line - 5-space indentation to match action block pattern)
             if (details != null && details.Count > 0)
             {
+                const string ACTION_BLOCK_INDENT = "     "; // 5 spaces
                 var detailsBuilder = new ColoredTextBuilder();
-                detailsBuilder.Add("     ("); // 5 spaces to match roll info indentation
+                detailsBuilder.Add(ACTION_BLOCK_INDENT);
+                detailsBuilder.Add("(");
                 detailsBuilder.AddRange(details);
                 detailsBuilder.Add(")");
                 UIManager.WriteColoredText(detailsBuilder.Build());
             }
             
-            // Record that this standalone status effect block was displayed
+            // Record that this standalone status effect block was displayed (with entity tracking)
             // (DisplayEffectBlock is only used for standalone status effects like stun messages)
-            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.StatusEffect);
+            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.StatusEffect, effectEntity);
             
             // Apply block delay
             BlockDelayManager.ApplyBlockDelay();
@@ -282,6 +295,7 @@ namespace RPGGame
         
         /// <summary>
         /// Displays an ENVIRONMENTAL BLOCK using ColoredText
+        /// All combat logs follow the same action block pattern: first line normal, subsequent lines indented
         /// </summary>
         public static void DisplayEnvironmentalBlock(List<ColoredText> environmentalText, List<List<ColoredText>>? effects = null)
         {
@@ -310,13 +324,11 @@ namespace RPGGame
             // Apply context-aware spacing (blank line before environmental actions, checking actor changes)
             TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.EnvironmentalAction, environmentEntity);
             
-            // Display the environmental action (environmentalText is already validated as non-null at line 267)
+            // Display the environmental action (first line - no indentation, as per action block pattern)
             UIManager.WriteColoredText(environmentalText!);
             
-            // Display effects if present (part of environmental block, no spacing)
-            // Use same indentation logic as normal action blocks:
-            // - 4 spaces for regular text lines
-            // - 5 spaces for bracket-style lines (starting with "(")
+            // Display effects if present (subsequent lines - 5-space indentation to match action block pattern)
+            const string ACTION_BLOCK_INDENT = "     "; // 5 spaces
             if (effects != null)
             {
                 foreach (var effect in effects)
@@ -341,32 +353,9 @@ namespace RPGGame
                             }
                         }
                         
-                        // Determine indentation: 5 spaces for bracket-style lines, 4 spaces otherwise
-                        // Check if this is a bracket-style message (starts with "(")
-                        string indentSpaces = "    "; // Default: 4 spaces (matches normal action status effects)
-                        if (trimmedEffect.Count > 0)
-                        {
-                            // Find the first non-whitespace segment to check for bracket style
-                            string? firstNonWhitespaceText = null;
-                            for (int i = 0; i < trimmedEffect.Count; i++)
-                            {
-                                string segmentText = trimmedEffect[i].Text ?? "";
-                                if (!string.IsNullOrWhiteSpace(segmentText))
-                                {
-                                    firstNonWhitespaceText = segmentText.TrimStart();
-                                    break;
-                                }
-                            }
-                            
-                            // If first non-whitespace text starts with "(", use 5 spaces (matches roll info)
-                            if (firstNonWhitespaceText != null && firstNonWhitespaceText.StartsWith("("))
-                            {
-                                indentSpaces = "     "; // 5 spaces for bracket-style (matches roll info)
-                            }
-                        }
-                        
+                        // Always use 5-space indentation for all effect lines (subsequent lines in action block)
                         var indentedEffect = new ColoredTextBuilder();
-                        indentedEffect.Add(indentSpaces);
+                        indentedEffect.Add(ACTION_BLOCK_INDENT);
                         indentedEffect.AddRange(trimmedEffect);
                         UIManager.WriteColoredText(indentedEffect.Build());
                     }

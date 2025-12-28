@@ -82,9 +82,9 @@ namespace RPGGame.UI.Avalonia.Layout
             int totalDamage = character.GetEffectiveStrength() + weaponDamage + equipmentDamageBonus + modificationDamageBonus;
             
             // Add damage and armor stats first
-            canvas.AddCharacterStat(x, y, "DMG", totalDamage, 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.Magenta);
+            canvas.AddCharacterStat(x, y, "Damage", totalDamage, 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.Magenta);
             y++;
-            canvas.AddCharacterStat(x, y, "ARM", character.GetTotalArmor(), 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.Magenta);
+            canvas.AddCharacterStat(x, y, "Armor", character.GetTotalArmor(), 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.Magenta);
             y++;
             y++; // Blank line after armor
             
@@ -93,16 +93,16 @@ namespace RPGGame.UI.Avalonia.Layout
             
             // All stats are white by default, primary stat is purple
             canvas.AddCharacterStat(x, y, "STR", character.GetEffectiveStrength(), 0, 
-                primaryStat == "STR" ? AsciiArtAssets.Colors.Purple : AsciiArtAssets.Colors.White);
+                primaryStat == "Strength" ? AsciiArtAssets.Colors.Purple : AsciiArtAssets.Colors.White);
             y++;
             canvas.AddCharacterStat(x, y, "AGI", character.GetEffectiveAgility(), 0, 
-                primaryStat == "AGI" ? AsciiArtAssets.Colors.Purple : AsciiArtAssets.Colors.White);
+                primaryStat == "Agility" ? AsciiArtAssets.Colors.Purple : AsciiArtAssets.Colors.White);
             y++;
-            canvas.AddCharacterStat(x, y, "TEC", character.GetEffectiveTechnique(), 0, 
-                primaryStat == "TEC" ? AsciiArtAssets.Colors.Purple : AsciiArtAssets.Colors.White);
+            canvas.AddCharacterStat(x, y, "TECH", character.GetEffectiveTechnique(), 0, 
+                primaryStat == "Technique" ? AsciiArtAssets.Colors.Purple : AsciiArtAssets.Colors.White);
             y++;
             canvas.AddCharacterStat(x, y, "INT", character.GetEffectiveIntelligence(), 0, 
-                primaryStat == "INT" ? AsciiArtAssets.Colors.Purple : AsciiArtAssets.Colors.White);
+                primaryStat == "Intelligence" ? AsciiArtAssets.Colors.Purple : AsciiArtAssets.Colors.White);
             y += 2;
             
             // Equipment section
@@ -265,10 +265,10 @@ namespace RPGGame.UI.Avalonia.Layout
             // Find the class with the most points
             var classes = new List<(string stat, int points)>
             {
-                ("STR", barbarianPoints),  // Barbarian - Strength
-                ("AGI", warriorPoints),    // Warrior - Agility
-                ("TEC", roguePoints),      // Rogue - Technique
-                ("INT", wizardPoints)      // Wizard - Intelligence
+                ("Strength", barbarianPoints),  // Barbarian - Strength
+                ("Agility", warriorPoints),    // Warrior - Agility
+                ("Technique", roguePoints),      // Rogue - Technique
+                ("Intelligence", wizardPoints)      // Wizard - Intelligence
             };
             
             classes.Sort((a, b) => b.points.CompareTo(a.points));

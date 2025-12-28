@@ -56,7 +56,7 @@ namespace RPGGame.UI.BlockDisplay
             // Add status effects
             // Multiple status effects from one action should be grouped together:
             // - No blank lines between them
-            // - First one has no indentation, subsequent ones are indented
+            // - All effects use 5-space indentation to match roll info
             // - Blank line after the last status effect
             if (statusEffects != null && statusEffects.Count > 0)
             {
@@ -128,10 +128,15 @@ namespace RPGGame.UI.BlockDisplay
         }
         
         /// <summary>
+        /// Standard indentation for action block subsequent lines (roll info, effects, etc.)
+        /// </summary>
+        private const string ACTION_BLOCK_INDENT = "     "; // 5 spaces
+        
+        /// <summary>
         /// Processes status effect indentation:
-        /// - First effect: removes leading indentation (4 spaces)
-        /// - Subsequent effects: ensures they have 4 spaces of indentation
-        /// - Stat bonus messages (starting with "     (") always keep 5-space indentation to match roll info
+        /// - All effects use 5-space indentation to match roll info
+        /// - All effects are always indented (they are subsequent lines in the action block)
+        /// - The isFirst parameter only affects newline insertion, not indentation
         /// </summary>
         private static List<ColoredText> ProcessStatusEffectIndentation(List<ColoredText> effect, bool isFirst)
         {
@@ -147,83 +152,32 @@ namespace RPGGame.UI.BlockDisplay
                 var firstSegment = result[0];
                 string firstText = firstSegment.Text ?? "";
                 
-                // Check if this is a stat bonus message (starts with 5 spaces and opening paren)
-                // Stat bonus messages should always keep their 5-space indentation to match roll info
-                // Check if first segment starts with "     (" or if first segment is "     " (5 spaces) and next segment starts with "("
-                bool isStatBonus = firstText.StartsWith("     (") || 
-                                  (firstText == "     " && result.Count > 1 && result[1].Text?.StartsWith("(") == true);
+                // All status effects should be indented (they are subsequent lines in action blocks)
+                // Check if already has 5-space indentation
+                bool hasIndentation = firstText.StartsWith(ACTION_BLOCK_INDENT) || 
+                                     (firstText == ACTION_BLOCK_INDENT && result.Count > 0);
                 
-                // Remove leading indentation from first effect
-                if (isFirst)
+                if (!hasIndentation)
                 {
-                    // Stat bonus messages keep their 5-space indentation even when first
-                    if (isStatBonus)
+                    // Check if it has 4-space indentation (upgrade to 5)
+                    if (firstText.StartsWith("    ") || firstText == "    ")
                     {
-                        // If first segment is exactly "     " (5 spaces), keep it
-                        // Otherwise it already starts with "     (", keep as-is
-                        return result;
-                    }
-                    
-                    // Check if first segment starts with 4 spaces
-                    if (firstText.StartsWith("    "))
-                    {
-                        // Remove the 4-space indentation
-                        string remainingText = firstText.Substring(4);
-                        if (string.IsNullOrEmpty(remainingText))
+                        // Replace 4-space indentation with 5-space
+                        if (firstText == "    " && result.Count > 1)
                         {
-                            // If the entire segment was just indentation, remove it
-                            result.RemoveAt(0);
+                            // Replace the 4-space segment with 5-space
+                            result[0] = new ColoredText(ACTION_BLOCK_INDENT, Colors.White);
                         }
-                        else
+                        else if (firstText.StartsWith("    "))
                         {
-                            // Replace with the text without indentation
-                            result[0] = new ColoredText(remainingText, firstSegment.Color);
+                            // Add one more space to make it 5 spaces
+                            result[0] = new ColoredText(" " + firstText, firstSegment.Color);
                         }
                     }
-                    // Check if first segment is exactly 4 spaces (separate whitespace segment)
-                    else if (firstText == "    " && result.Count > 1)
+                    else
                     {
-                        // Remove the whitespace segment
-                        result.RemoveAt(0);
-                    }
-                }
-                // Ensure subsequent effects have indentation
-                else
-                {
-                    // Stat bonus messages keep their 5-space indentation
-                    if (isStatBonus)
-                    {
-                        // Ensure it has 5-space indentation
-                        if (firstText == "     " && result.Count > 1)
-                        {
-                            // Already has 5-space segment, keep as-is
-                            return result;
-                        }
-                        else if (!firstText.StartsWith("     "))
-                        {
-                            // If it doesn't start with 5 spaces, add them
-                            if (firstText.StartsWith("    "))
-                            {
-                                // Replace 4 spaces with 5 spaces
-                                result[0] = new ColoredText(" " + firstText, firstSegment.Color);
-                            }
-                            else
-                            {
-                                // Add 5-space indentation
-                                result.Insert(0, new ColoredText("     ", Colors.White));
-                            }
-                        }
-                        return result;
-                    }
-                    
-                    // Check if already has indentation
-                    bool hasIndentation = firstText.StartsWith("    ") || 
-                                         (firstText == "    " && result.Count > 0);
-                    
-                    if (!hasIndentation)
-                    {
-                        // Add 4-space indentation at the beginning
-                        result.Insert(0, new ColoredText("    ", Colors.White));
+                        // Add 5-space indentation at the beginning
+                        result.Insert(0, new ColoredText(ACTION_BLOCK_INDENT, Colors.White));
                     }
                 }
             }

@@ -81,12 +81,6 @@ namespace RPGGame
             {
                 var explorationResult = explorationManager.ExploreRoom(room, stateManager.CurrentPlayer, isLastRoom);
                 
-                // Display exploration result using existing displayManager with colors
-                var explorationRollBuilder = new ColoredTextBuilder()
-                    .Add("Exploration Roll: ", ColorPalette.Info)
-                    .Add(explorationResult.Roll.ToString(), ColorPalette.Success);
-                displayManager.AddCombatEvent(explorationRollBuilder, stateManager.CurrentPlayer);
-                
                 // Apply keyword coloring to exploration message
                 // Skip displaying the message for environmental hazards - it will be displayed with proper formatting below
                 if (explorationResult.Outcome != ExplorationOutcome.EnvironmentalHazard)

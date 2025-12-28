@@ -201,15 +201,19 @@ namespace RPGGame
         /// <summary>
         /// Gets the number of blank lines that should appear before the current block type
         /// based on what block was displayed previously.
-        /// For CombatAction and EnvironmentalAction blocks, also checks if the actor changed.
+        /// For CombatAction, EnvironmentalAction, and StatusEffect blocks, also checks if the actor changed.
         /// </summary>
         /// <param name="currentBlockType">The type of block being displayed</param>
         /// <param name="currentEntity">The entity (character, enemy, or environment) performing this action. Used to determine if actor changed.</param>
         /// <returns>Number of blank lines to add before this block</returns>
         public static int GetSpacingBefore(BlockType currentBlockType, string? currentEntity = null)
         {
-            // For action blocks (CombatAction and EnvironmentalAction), check if actor changed
-            if (currentBlockType == BlockType.CombatAction || currentBlockType == BlockType.EnvironmentalAction)
+            // For action blocks (CombatAction, EnvironmentalAction, and StatusEffect), check if actor changed
+            bool isActionBlock = currentBlockType == BlockType.CombatAction || 
+                                currentBlockType == BlockType.EnvironmentalAction ||
+                                currentBlockType == BlockType.StatusEffect;
+            
+            if (isActionBlock)
             {
                 // If we have entity information, check if actor changed
                 if (currentEntity != null)
@@ -225,8 +229,10 @@ namespace RPGGame
                     if (SpacingRules.TryGetValue((lastBlockType, currentBlockType), out int baseSpacing))
                     {
                         // If actor changed from a previous action block, always add blank line
-                        if (lastActingEntity != null && lastActingEntity != currentEntity && 
-                            (lastBlockType == BlockType.CombatAction || lastBlockType == BlockType.EnvironmentalAction))
+                        bool wasActionBlock = lastBlockType == BlockType.CombatAction || 
+                                           lastBlockType == BlockType.EnvironmentalAction ||
+                                           lastBlockType == BlockType.StatusEffect;
+                        if (lastActingEntity != null && lastActingEntity != currentEntity && wasActionBlock)
                         {
                             // Actor changed from previous action - always add blank line
                             return 1;
@@ -282,8 +288,10 @@ namespace RPGGame
             {
                 lastBlockType = blockType;
                 
-                // For action blocks, also track the entity
-                if (blockType == BlockType.CombatAction || blockType == BlockType.EnvironmentalAction)
+                // For action blocks (including standalone status effects), also track the entity
+                if (blockType == BlockType.CombatAction || 
+                    blockType == BlockType.EnvironmentalAction ||
+                    blockType == BlockType.StatusEffect)
                 {
                     lastActingEntity = entity;
                 }

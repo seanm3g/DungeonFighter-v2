@@ -149,7 +149,7 @@ string rollInfo = CombatLogSpacingManager.FormatRollInfo(
     speedText: "8.5s",
     amplifierText: "1.5x"
 );
-// Result: "    (roll: 9 + 2 = 11 | attack 4 - 2 armor | speed: 8.5s | amp: 1.5x)"
+// Result: "     (roll: 9 + 2 = 11 | attack 4 - 2 armor | speed: 8.5s | amp: 1.5x)"
 ```
 
 **Benefits:**

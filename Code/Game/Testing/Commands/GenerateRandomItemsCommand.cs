@@ -48,7 +48,7 @@ namespace RPGGame.Game.Testing.Commands
 
                 // Use helper to display items
                 RandomItemDisplayHelper.DisplayItems(CanvasUI, items, StateManager.CurrentPlayer);
-                CanvasUI.RenderDisplayBuffer();
+                CanvasUI.ForceRenderDisplayBuffer();
                 TestUICoordinator.MarkWaitingForReturn(TestCoordinator);
             }
             catch (Exception ex)

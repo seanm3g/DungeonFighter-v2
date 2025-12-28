@@ -111,9 +111,9 @@ namespace RPGGame
                 var bleedConfig = GameConfiguration.Instance.StatusEffects.Bleed;
                 target.ApplyPoison(bleedConfig.DamagePerTick, bleedConfig.StacksPerApplication, true);
                 
-                // Format with proper indentation and color markup
+                // Format with proper indentation and color markup (5 spaces to match roll info)
                 string actorPattern = target is Enemy ? "enemy" : "player";
-                results.Add($"    {{{{actorPattern}|{target.Name}}}} is {{{{error|bleeding}}}}!");
+                results.Add($"     {{{{actorPattern}}|" + $"{target.Name}" + "}} is " + $"{{{{error|bleeding}}}}!");
                 return true;
             }
             return false;
@@ -134,9 +134,9 @@ namespace RPGGame
             if (CombatCalculator.CalculateStatusEffectChance(action, dummyAttacker, target))
             {
                 target.ApplyWeaken(2); // 2 turns of weaken
-                // Format with proper indentation and color markup
+                // Format with proper indentation and color markup (5 spaces to match roll info)
                 string actorPattern = target is Enemy ? "enemy" : "player";
-                results.Add($"    {{{{actorPattern}|{target.Name}}}} is {{{{weakened|weakened}}}}!");
+                results.Add($"     {{{{actorPattern}}|" + $"{target.Name}" + "}} is " + $"{{{{weakened|weakened}}}}!");
                 return true;
             }
             return false;
@@ -157,9 +157,9 @@ namespace RPGGame
             if (CombatCalculator.CalculateStatusEffectChance(action, dummyAttacker, target))
             {
                 // For now, just add a message - would need proper slow implementation
-                // Format with proper indentation and color markup
+                // Format with proper indentation and color markup (5 spaces to match roll info)
                 string actorPattern = target is Enemy ? "enemy" : "player";
-                results.Add($"    {{{{actorPattern}|{target.Name}}}} is {{{{slowed|slowed}}}}!");
+                results.Add($"     {{{{actorPattern}}|" + $"{target.Name}" + "}} is " + $"{{{{slowed|slowed}}}}!");
                 return true;
             }
             return false;
@@ -181,9 +181,9 @@ namespace RPGGame
             {
                 var poisonConfig = GameConfiguration.Instance.StatusEffects.Poison;
                 target.ApplyPoison(poisonConfig.DamagePerTick, poisonConfig.StacksPerApplication);
-                // Format with proper indentation and color markup
+                // Format with proper indentation and color markup (5 spaces to match roll info)
                 string actorPattern = target is Enemy ? "enemy" : "player";
-                results.Add($"    {{{{actorPattern}|{target.Name}}}} is {{{{poisoned|poisoned}}}}!");
+                results.Add($"     {{{{actorPattern}}|" + $"{target.Name}" + "}} is " + $"{{{{poisoned|poisoned}}}}!");
                 return true;
             }
             return false;
@@ -206,9 +206,9 @@ namespace RPGGame
                 var stunConfig = GameConfiguration.Instance.StatusEffects.Stun;
                 target.IsStunned = true;
                 target.StunTurnsRemaining = stunConfig.SkipTurns;
-                // Format with proper indentation and color markup
+                // Format with proper indentation and color markup (5 spaces to match roll info)
                 string actorPattern = target is Enemy ? "enemy" : "player";
-                results.Add($"    {{{{actorPattern}|{target.Name}}}} is {{{{stunned|stunned}}}}!");
+                results.Add($"     {{{{actorPattern}}|" + $"{target.Name}" + "}} is " + $"{{{{stunned|stunned}}}}!");
                 return true;
             }
             return false;
@@ -230,9 +230,9 @@ namespace RPGGame
             {
                 var burnConfig = GameConfiguration.Instance.StatusEffects.Burn;
                 target.ApplyBurn(burnConfig.DamagePerTick, burnConfig.MaxStacks);
-                // Format with proper indentation and color markup
+                // Format with proper indentation and color markup (5 spaces to match roll info)
                 string actorPattern = target is Enemy ? "enemy" : "player";
-                results.Add($"    {{{{actorPattern}|{target.Name}}}} is {{{{burning|burning}}}}!");
+                results.Add($"     {{{{actorPattern}}|" + $"{target.Name}" + "}} is " + $"{{{{burning|burning}}}}!");
                 return true;
             }
             return false;

@@ -37,7 +37,7 @@ namespace RPGGame
                 canvasUI.WriteBlankLine();
                 canvasUI.WriteLine("Starting test (this may take a moment)...", UIMessageType.System);
                 canvasUI.WriteBlankLine();
-                canvasUI.RenderDisplayBuffer();
+                canvasUI.ForceRenderDisplayBuffer();
 
                 // Capture console output
                 var originalOut = Console.Out;
@@ -86,7 +86,7 @@ namespace RPGGame
                 // Display completion message
                 canvasUI.WriteBlankLine();
                 canvasUI.WriteLine(completionMessage, UIMessageType.System);
-                canvasUI.RenderDisplayBuffer();
+                canvasUI.ForceRenderDisplayBuffer();
                 
                 return true;
             }
@@ -94,7 +94,7 @@ namespace RPGGame
             {
                 Console.WriteLine($"[ConsoleTestRunnerHelper] Error in RunConsoleTestWithUI: {ex.Message}");
                 canvasUI.WriteLine($"Error running test: {ex.Message}", UIMessageType.System);
-                canvasUI.RenderDisplayBuffer();
+                canvasUI.ForceRenderDisplayBuffer();
                 return false;
             }
         }

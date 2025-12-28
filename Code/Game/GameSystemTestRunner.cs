@@ -40,58 +40,58 @@ namespace RPGGame
             uiCoordinator.WriteLine("=== COMPREHENSIVE GAME SYSTEM TESTS ===");
             uiCoordinator.WriteLine("Running all system tests...");
             uiCoordinator.WriteBlankLine();
-            uiCoordinator.RenderDisplayBuffer(); // Render initial message
+            uiCoordinator.ForceRenderDisplayBuffer(); // Render initial message
 
             // Core System Tests - Delegated to specialized test runners
             var characterRunner = new CharacterSystemTestRunner(uiCoordinator, testResults);
             await characterRunner.RunAllTests();
-            uiCoordinator.RenderDisplayBuffer();
+            uiCoordinator.ForceRenderDisplayBuffer();
 
             var combatRunner = new CombatSystemTestRunner(uiCoordinator, testResults);
             await combatRunner.RunAllTests();
-            uiCoordinator.RenderDisplayBuffer();
+            uiCoordinator.ForceRenderDisplayBuffer();
 
             var inventoryRunner = new InventorySystemTestRunner(uiCoordinator, testResults);
             await inventoryRunner.RunAllTests();
-            uiCoordinator.RenderDisplayBuffer();
+            uiCoordinator.ForceRenderDisplayBuffer();
 
             var dungeonRunner = new DungeonSystemTestRunner(uiCoordinator, testResults);
             await dungeonRunner.RunAllTests();
-            uiCoordinator.RenderDisplayBuffer();
+            uiCoordinator.ForceRenderDisplayBuffer();
 
             var itemGenRunner = new RPGGame.Game.TestRunners.ItemGenerationTestRunner(uiCoordinator, testResults);
             await itemGenRunner.RunAllTests();
-            uiCoordinator.RenderDisplayBuffer();
+            uiCoordinator.ForceRenderDisplayBuffer();
 
             var dataLoadingRunner = new DataLoadingTestRunner(uiCoordinator, testResults);
             await dataLoadingRunner.RunAllTests();
-            uiCoordinator.RenderDisplayBuffer();
+            uiCoordinator.ForceRenderDisplayBuffer();
 
             var uiRunner = new UISystemTestRunner(uiCoordinator, testResults);
             await uiRunner.RunAllTests();
-            uiCoordinator.RenderDisplayBuffer();
+            uiCoordinator.ForceRenderDisplayBuffer();
 
             var saveLoadRunner = new SaveLoadTestRunner(uiCoordinator, testResults);
             await saveLoadRunner.RunAllTests();
-            uiCoordinator.RenderDisplayBuffer();
+            uiCoordinator.ForceRenderDisplayBuffer();
 
             var actionRunner = new ActionSystemTestRunner(uiCoordinator, testResults);
             await actionRunner.RunAllTests();
-            uiCoordinator.RenderDisplayBuffer();
+            uiCoordinator.ForceRenderDisplayBuffer();
 
             var colorRunner = new ColorSystemTestRunner(uiCoordinator, testResults);
             await colorRunner.RunAllTests();
-            uiCoordinator.RenderDisplayBuffer();
+            uiCoordinator.ForceRenderDisplayBuffer();
 
             // Combat UI Fixes
             var combatUIRunner = new RPGGame.Game.TestRunners.CombatUITestRunner(uiCoordinator, testResults);
             await combatUIRunner.RunAllTests();
-            uiCoordinator.RenderDisplayBuffer();
+            uiCoordinator.ForceRenderDisplayBuffer();
 
             // Integration Tests
             var integrationRunner = new IntegrationTestRunner(uiCoordinator, testResults);
             await integrationRunner.RunAllTests();
-            uiCoordinator.RenderDisplayBuffer();
+            uiCoordinator.ForceRenderDisplayBuffer();
 
             // Note: Analysis Tests (Item Generation Analysis, Tier Distribution, Common Item Modification)
             // are skipped in "Run All Tests" because they:
@@ -106,7 +106,7 @@ namespace RPGGame
             var passed = testResults.Count(r => r.Passed);
             var total = testResults.Count;
             uiCoordinator.WriteLine($"Passed: {passed}/{total}", UIMessageType.System);
-            uiCoordinator.RenderDisplayBuffer();
+            uiCoordinator.ForceRenderDisplayBuffer();
 
             return new List<TestResult>(testResults);
         }
@@ -205,7 +205,7 @@ namespace RPGGame
             var passed = testResults.Count(r => r.Passed);
             var total = testResults.Count;
             uiCoordinator.WriteLine($"Passed: {passed}/{total}", UIMessageType.System);
-            uiCoordinator.RenderDisplayBuffer();
+            uiCoordinator.ForceRenderDisplayBuffer();
 
             return new List<TestResult>(testResults);
         }
