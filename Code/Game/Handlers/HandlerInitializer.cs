@@ -28,6 +28,7 @@ namespace RPGGame.Handlers
             public DungeonCompletionHandler? DungeonCompletionHandler { get; set; }
             public DeathScreenHandler? DeathScreenHandler { get; set; }
             public CharacterManagementHandler? CharacterManagementHandler { get; set; }
+            public LoadCharacterSelectionHandler? LoadCharacterSelectionHandler { get; set; }
         }
 
         /// <summary>
@@ -55,7 +56,8 @@ namespace RPGGame.Handlers
                 DungeonRunnerManager = new DungeonRunnerManager(stateManager, narrativeManager, combatManager, uiManager),
                 DungeonCompletionHandler = new DungeonCompletionHandler(stateManager),
                 DeathScreenHandler = new DeathScreenHandler(stateManager),
-                CharacterManagementHandler = new CharacterManagementHandler(stateManager, uiManager, initializationManager)
+                CharacterManagementHandler = new CharacterManagementHandler(stateManager, uiManager, initializationManager),
+                LoadCharacterSelectionHandler = new LoadCharacterSelectionHandler(stateManager, uiManager, gameInitializer)
             };
         }
 
@@ -150,6 +152,13 @@ namespace RPGGame.Handlers
                 handlers.CharacterManagementHandler.ShowMessageEvent += (msg) => showMessage(msg);
                 // Character creation will be handled by CharacterManagementHandler itself
                 // The ShowCharacterCreationEvent is optional and can be null
+            }
+            
+            if (handlers.LoadCharacterSelectionHandler != null)
+            {
+                handlers.LoadCharacterSelectionHandler.ShowGameLoopEvent += () => showGameLoop();
+                handlers.LoadCharacterSelectionHandler.ShowMainMenuEvent += () => showMainMenu();
+                handlers.LoadCharacterSelectionHandler.ShowMessageEvent += (msg) => showMessage(msg);
             }
             
             if (handlers.DungeonSelectionHandler != null)

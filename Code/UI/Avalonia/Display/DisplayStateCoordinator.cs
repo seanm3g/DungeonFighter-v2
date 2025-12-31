@@ -23,6 +23,7 @@ namespace RPGGame.UI.Avalonia.Display
                    state == GameState.WeaponSelection ||
                    state == GameState.CharacterCreation ||
                    state == GameState.CharacterSelection ||
+                   state == GameState.LoadCharacterSelection ||
                    state == GameState.Inventory ||
                    state == GameState.CharacterInfo ||
                    state == GameState.Settings ||

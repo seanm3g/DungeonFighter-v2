@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Transitions;
+using RPGGame.Utils;
 
 namespace RPGGame
 {
@@ -54,7 +55,7 @@ namespace RPGGame
                 // If no character is available, log error and return to main menu
                 if (player == null)
                 {
-                    RPGGame.Utils.DebugLogger.Log("GameScreenCoordinator", "Error: ShowGameLoop called but no character is available");
+                    DebugLogger.Log("GameScreenCoordinator", "Error: ShowGameLoop called but no character is available");
                 }
                 stateManager.TransitionToState(GameState.GameLoop);
                 return;

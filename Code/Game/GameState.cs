@@ -21,6 +21,7 @@ namespace RPGGame
         DeleteActionConfirmation,
         DungeonSelection,
         CharacterSelection,
+        LoadCharacterSelection,
         Dungeon,
         Combat,
         DungeonCompletion,

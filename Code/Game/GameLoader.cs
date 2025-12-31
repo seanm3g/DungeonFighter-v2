@@ -224,19 +224,22 @@ namespace RPGGame
                             activeCharacter.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
                         }
                         
-                        onMessage($"Welcome back, {activeCharacter.Name}!");
-                        
-                        // Go to game loop
-                        stateManager.TransitionToState(GameState.GameLoop);
-                        DebugLogger.Log("GameLoader", $"Firing onGameLoop callback for character: {activeCharacter.Name}");
-                        try
+                        if (activeCharacter != null)
                         {
-                            onGameLoop();
-                        }
-                        catch (Exception ex)
-                        {
-                            DebugLogger.Log("GameLoader", $"Error in onGameLoop callback: {ex.Message}\n{ex.StackTrace}");
-                            onMessage($"Error: {ex.Message}");
+                            onMessage($"Welcome back, {activeCharacter.Name}!");
+                            
+                            // Go to game loop
+                            stateManager.TransitionToState(GameState.GameLoop);
+                            DebugLogger.Log("GameLoader", $"Firing onGameLoop callback for character: {activeCharacter.Name}");
+                            try
+                            {
+                                onGameLoop();
+                            }
+                            catch (Exception ex)
+                            {
+                                DebugLogger.Log("GameLoader", $"Error in onGameLoop callback: {ex.Message}\n{ex.StackTrace}");
+                                onMessage($"Error: {ex.Message}");
+                            }
                         }
                     }
                     else

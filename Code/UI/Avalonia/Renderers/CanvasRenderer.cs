@@ -186,6 +186,14 @@ namespace RPGGame.UI.Avalonia.Renderers
             }, context, null, null, null);
         }
 
+        public void RenderLoadCharacterSelection(List<(string characterId, string characterName, int level)> savedCharacters, CanvasContext context)
+        {
+            RenderWithLayout(null, "LOAD CHARACTER", (contentX, contentY, contentWidth, contentHeight) =>
+            {
+                menuRenderer.RenderLoadCharacterSelectionContent(contentX, contentY, contentWidth, contentHeight, savedCharacters);
+            }, context, null, null, null);
+        }
+
         public void RenderCharacterCreation(Character character, CanvasContext context)
         {
             characterCreationRenderer.RenderCharacterCreation(character, context);

@@ -4,6 +4,7 @@ using RPGGame.UI;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Handlers;
 using RPGGame.UI.TitleScreen;
+using RPGGame.Utils;
 using System;
 using System.Threading.Tasks;
 
@@ -227,7 +228,7 @@ namespace RPGGame.UI.Avalonia.Handlers
             catch (Exception ex)
             {
                 // Log error but don't show to user - just silently show main menu
-                RPGGame.Utils.DebugLogger.Log("GameInitializationHandler", $"Error auto-loading character: {ex.Message}");
+                DebugLogger.Log("GameInitializationHandler", $"Error auto-loading character: {ex.Message}");
                 // On error, silently show main menu without character
                 game?.ShowMainMenu();
             }

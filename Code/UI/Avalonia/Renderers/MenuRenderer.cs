@@ -175,6 +175,11 @@ namespace RPGGame.UI.Avalonia.Renderers
             return mainMenuRenderer.RenderCharacterSelectionContent(x, y, width, height, characters, activeCharacterName, characterStatuses);
         }
 
+        public int RenderLoadCharacterSelectionContent(int x, int y, int width, int height, List<(string characterId, string characterName, int level)> savedCharacters)
+        {
+            return mainMenuRenderer.RenderLoadCharacterSelectionContent(x, y, width, height, savedCharacters);
+        }
+
         /// <summary>
         /// Renders the developer menu content
         /// </summary>

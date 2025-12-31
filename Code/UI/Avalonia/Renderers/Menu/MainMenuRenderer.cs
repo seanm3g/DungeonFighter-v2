@@ -280,6 +280,104 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         {
             return characterSelectionRenderer.RenderCharacterSelectionContent(x, y, width, height, characters, activeCharacterName, characterStatuses);
         }
+
+        /// <summary>
+        /// Renders the load character selection menu content (shows saved characters from disk)
+        /// </summary>
+        public int RenderLoadCharacterSelectionContent(int x, int y, int width, int height, List<(string characterId, string characterName, int level)> savedCharacters)
+        {
+            clickableElements.Clear();
+            int currentLineCount = 0;
+            
+            // Position menu at top-left of center panel
+            var (menuStartX, menuStartY) = MenuLayoutCalculator.CalculateTopLeftMenu(x, y);
+            
+            // Color palette for menu items
+            var cyanColor = ColorPalette.Cyan.GetColor();
+            var goldColor = ColorPalette.Gold.GetColor();
+            var whiteColor = ColorLayerSystem.GetWhite(WhiteTemperature.Cool);
+            
+            int currentY = menuStartY;
+            
+            // Handle empty characters list
+            if (savedCharacters == null || savedCharacters.Count == 0)
+            {
+                canvas.AddText(menuStartX, currentY, "No saved characters found.", whiteColor);
+                currentY += 2;
+                currentLineCount += 2;
+                
+                string backText = MenuOptionFormatter.Format(0, "Back to Main Menu");
+                var backOption = new ClickableElement
+                {
+                    X = menuStartX,
+                    Y = currentY,
+                    Width = backText.Length,
+                    Height = 1,
+                    Type = ElementType.MenuOption,
+                    Value = "0",
+                    DisplayText = backText
+                };
+                clickableElements.Add(backOption);
+                menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 0, "Back to Main Menu", goldColor, backOption.IsHovered);
+                currentY += 2;
+                currentLineCount += 2;
+                
+                canvas.AddText(menuStartX, currentY, "Press 0 to return to main menu.", whiteColor);
+                currentLineCount++;
+            }
+            else
+            {
+                // Render saved character list
+                for (int i = 0; i < savedCharacters.Count; i++)
+                {
+                    var (characterId, characterName, level) = savedCharacters[i];
+                    
+                    var optionText = $"{characterName} - Level {level}";
+                    string formattedText = MenuOptionFormatter.Format(i + 1, optionText);
+                    var option = new ClickableElement
+                    {
+                        X = menuStartX,
+                        Y = currentY,
+                        Width = formattedText.Length,
+                        Height = 1,
+                        Type = ElementType.MenuOption,
+                        Value = (i + 1).ToString(),
+                        DisplayText = formattedText
+                    };
+                    clickableElements.Add(option);
+                    
+                    menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, i + 1, optionText, cyanColor, option.IsHovered);
+                    currentY++;
+                    currentLineCount++;
+                }
+                
+                currentY++;
+                currentLineCount++;
+                
+                // Back to main menu option
+                string backText = MenuOptionFormatter.Format(0, "Back to Main Menu");
+                var backOption = new ClickableElement
+                {
+                    X = menuStartX,
+                    Y = currentY,
+                    Width = backText.Length,
+                    Height = 1,
+                    Type = ElementType.MenuOption,
+                    Value = "0",
+                    DisplayText = backText
+                };
+                clickableElements.Add(backOption);
+                menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 0, "Back to Main Menu", goldColor, backOption.IsHovered);
+                currentY += 2;
+                currentLineCount += 2;
+                
+                canvas.AddText(menuStartX, currentY, "Select a character number to load, or press 0 to return.", whiteColor);
+                currentLineCount++;
+            }
+            
+            canvas.Refresh();
+            return currentLineCount;
+        }
     }
 }
 

@@ -20,7 +20,7 @@ namespace RPGGame
         private GameInitializationManager initializationManager;
         private IUIManager? customUIManager;
         private GameInitializer gameInitializer;
-        private GameLoader? gameLoader;
+        private LoadCharacterSelectionHandler? loadCharacterSelectionHandler;
         
         // Delegates for game actions
         public delegate void OnExitGame();
@@ -210,18 +210,16 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Load a saved game
+        /// Load a saved game - shows character selection menu
         /// </summary>
         private async Task LoadGame()
         {
-            if (gameLoader == null)
+            // Show load character selection menu instead of directly loading
+            if (loadCharacterSelectionHandler == null)
             {
-                gameLoader = new GameLoader(stateManager, gameInitializer, customUIManager);
-            }
-            
-            await gameLoader.LoadGame(
-                (msg) => ShowMessageEvent?.Invoke(msg),
-                () => 
+                loadCharacterSelectionHandler = new LoadCharacterSelectionHandler(stateManager, customUIManager, gameInitializer);
+                // Wire up events
+                loadCharacterSelectionHandler.ShowGameLoopEvent += () => 
                 {
                     if (ShowGameLoopEvent != null)
                     {
@@ -231,8 +229,13 @@ namespace RPGGame
                     {
                         ShowMessageEvent?.Invoke("Error: Game loop event not initialized. Please restart the game.");
                     }
-                },
-                () => ShowMainMenu());
+                };
+                loadCharacterSelectionHandler.ShowMainMenuEvent += () => ShowMainMenu();
+                loadCharacterSelectionHandler.ShowMessageEvent += (msg) => ShowMessageEvent?.Invoke(msg);
+            }
+            
+            loadCharacterSelectionHandler.ShowLoadCharacterSelection();
+            await Task.CompletedTask;
         }
 
         /// <summary>

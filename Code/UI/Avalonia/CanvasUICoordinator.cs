@@ -346,6 +346,8 @@ namespace RPGGame.UI.Avalonia
             => renderer.RenderWeaponSelection(weapons, contextManager.GetCurrentContext());
         public void RenderCharacterSelection(List<Character> characters, string? activeCharacterName, Dictionary<string, string> characterStatuses)
             => renderer.RenderCharacterSelection(characters, activeCharacterName, characterStatuses, contextManager.GetCurrentContext());
+        public void RenderLoadCharacterSelection(List<(string characterId, string characterName, int level)> savedCharacters)
+            => renderer.RenderLoadCharacterSelection(savedCharacters, contextManager.GetCurrentContext());
         public void RenderCharacterCreation(Character character) 
             => renderer.RenderCharacterCreation(character, contextManager.GetCurrentContext());
         public void RenderSettings() => renderer.RenderSettings();
