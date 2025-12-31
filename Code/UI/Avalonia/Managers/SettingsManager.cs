@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using RPGGame;
 using RPGGame.Config;
 using RPGGame.UI;
+using RPGGame.UI.Avalonia.Helpers;
 using RPGGame.UI.Avalonia.Managers.Settings;
 using System;
 using ActionDelegate = System.Action;
@@ -22,6 +23,9 @@ namespace RPGGame.UI.Avalonia.Managers
         private readonly Managers.Settings.AnimationSettingsManager animationSettingsManager;
         private readonly GameplaySettingsManager gameplaySettingsManager;
         private readonly DifficultySettingsManager difficultySettingsManager;
+        private readonly SettingsLoader loader;
+        private SettingsSaver saver;
+        private GameVariablesTabManager? gameVariablesTabManager;
 
         public SettingsManager(GameSettings settings, Action<string, bool>? showStatusMessage, Action<string>? updateStatus)
         {
@@ -32,6 +36,18 @@ namespace RPGGame.UI.Avalonia.Managers
             this.animationSettingsManager = new Managers.Settings.AnimationSettingsManager(showStatusMessage);
             this.gameplaySettingsManager = new GameplaySettingsManager(settings, showStatusMessage);
             this.difficultySettingsManager = new DifficultySettingsManager(settings, showStatusMessage);
+            this.loader = new SettingsLoader(this);
+            this.saver = new SettingsSaver(this, null); // Will be set via SetGameVariablesTabManager
+        }
+
+        /// <summary>
+        /// Sets the game variables tab manager (called after construction when available)
+        /// </summary>
+        public void SetGameVariablesTabManager(GameVariablesTabManager? gameVariablesTabManager)
+        {
+            this.gameVariablesTabManager = gameVariablesTabManager;
+            // Update saver with game variables tab manager
+            this.saver = new SettingsSaver(this, gameVariablesTabManager);
         }
 
         public void LoadSettings(
@@ -472,6 +488,58 @@ namespace RPGGame.UI.Avalonia.Managers
         {
             return animationSettingsManager;
         }
+
+        #region DTO-based Methods (merged from SettingsPersistenceManager)
+
+        /// <summary>
+        /// Loads current settings into the UI controls using DTO (backward compatibility)
+        /// </summary>
+        public void LoadSettings(MainSettingsControls controls)
+        {
+            loader.LoadMainSettings(controls);
+        }
+
+        /// <summary>
+        /// Loads text delay settings into UI controls using DTO (backward compatibility)
+        /// </summary>
+        public void LoadTextDelaySettings(TextDelaySettingsControls controls, Action<Slider, TextBox>? wireUpActionDelaySlider = null, Action<Slider, TextBox>? wireUpMessageDelaySlider = null)
+        {
+            loader.LoadTextDelaySettings(controls, wireUpActionDelaySlider, wireUpMessageDelaySlider);
+        }
+
+        /// <summary>
+        /// Loads animation settings into UI controls using DTO (backward compatibility)
+        /// </summary>
+        public void LoadAnimationSettings(AnimationSettingsControls controls)
+        {
+            loader.LoadAnimationSettings(controls);
+        }
+
+        /// <summary>
+        /// Saves current UI values to settings using DTO (backward compatibility)
+        /// </summary>
+        public void SaveSettings(MainSettingsControls controls)
+        {
+            saver.SaveMainSettings(controls);
+        }
+
+        /// <summary>
+        /// Saves text delay settings from UI controls using DTO (backward compatibility)
+        /// </summary>
+        public void SaveTextDelaySettings(TextDelaySettingsControls controls)
+        {
+            saver.SaveTextDelaySettings(controls);
+        }
+
+        /// <summary>
+        /// Saves animation settings from UI controls using DTO (backward compatibility)
+        /// </summary>
+        public void SaveAnimationSettings(AnimationSettingsControls controls)
+        {
+            saver.SaveAnimationSettings(controls);
+        }
+
+        #endregion
     }
 }
 

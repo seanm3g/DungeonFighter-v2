@@ -59,46 +59,52 @@ namespace RPGGame.UI.Avalonia.Managers
         }
         
         /// <summary>
+        /// Resolves the display manager key for a character
+        /// Returns the character ID if available, otherwise returns the default key
+        /// </summary>
+        private string ResolveDisplayManagerKey(Character? character)
+        {
+            if (character == null)
+            {
+                return DEFAULT_DISPLAY_MANAGER_KEY;
+            }
+            
+            string? characterId = stateManager?.GetCharacterId(character);
+            return string.IsNullOrEmpty(characterId) ? DEFAULT_DISPLAY_MANAGER_KEY : characterId;
+        }
+        
+        /// <summary>
+        /// Gets or creates a display manager for the given key
+        /// </summary>
+        private CenterPanelDisplayManager GetOrCreateDisplayManager(string key)
+        {
+            if (!characterDisplayManagers.TryGetValue(key, out var displayManager))
+            {
+                displayManager = new CenterPanelDisplayManager(canvas, textWriter, contextManager, maxLines, stateManager);
+                characterDisplayManagers[key] = displayManager;
+            }
+            
+            return displayManager;
+        }
+        
+        private const string DEFAULT_DISPLAY_MANAGER_KEY = "__default__";
+        
+        /// <summary>
+        /// Gets or creates the default display manager
+        /// </summary>
+        private CenterPanelDisplayManager GetOrCreateDefaultDisplayManager()
+        {
+            return GetOrCreateDisplayManager(DEFAULT_DISPLAY_MANAGER_KEY);
+        }
+        
+        /// <summary>
         /// Switches to the display manager for the specified character
         /// Creates a new display manager if one doesn't exist for this character
         /// </summary>
         public void SwitchToCharacterDisplayManager(Character? character)
         {
-            if (character == null)
-            {
-                // No character - use default display manager
-                currentDisplayManager = GetOrCreateDefaultDisplayManager();
-                return;
-            }
-            
-            // Get character ID from state manager
-            string? characterId = stateManager?.GetCharacterId(character);
-            if (string.IsNullOrEmpty(characterId))
-            {
-                // No character ID - use default display manager
-                currentDisplayManager = GetOrCreateDefaultDisplayManager();
-                return;
-            }
-            
-            // Get or create display manager for this character
-            currentDisplayManager = GetOrCreateCharacterDisplayManager(characterId);
-        }
-        
-        /// <summary>
-        /// Gets or creates the display manager for a specific character ID
-        /// This allows messages to be routed to the correct character's display manager
-        /// even when that character is not currently active
-        /// </summary>
-        private CenterPanelDisplayManager GetOrCreateCharacterDisplayManager(string characterId)
-        {
-            if (!characterDisplayManagers.TryGetValue(characterId, out var displayManager))
-            {
-                // Create new display manager for this character
-                displayManager = new CenterPanelDisplayManager(canvas, textWriter, contextManager, maxLines, stateManager);
-                characterDisplayManagers[characterId] = displayManager;
-            }
-            
-            return displayManager;
+            string key = ResolveDisplayManagerKey(character);
+            currentDisplayManager = GetOrCreateDisplayManager(key);
         }
         
         /// <summary>
@@ -113,31 +119,13 @@ namespace RPGGame.UI.Avalonia.Managers
                 return DisplayManager; // Return active character's display manager
             }
             
-            // Get character ID from state manager
-            string? characterId = stateManager?.GetCharacterId(character);
-            if (string.IsNullOrEmpty(characterId))
+            string key = ResolveDisplayManagerKey(character);
+            if (key == DEFAULT_DISPLAY_MANAGER_KEY)
             {
-                return DisplayManager; // Return active character's display manager
+                return DisplayManager; // Return active character's display manager if no ID
             }
             
-            // Get or create display manager for this character
-            return GetOrCreateCharacterDisplayManager(characterId);
-        }
-        
-        /// <summary>
-        /// Gets or creates the default display manager (for when no character is active)
-        /// </summary>
-        private CenterPanelDisplayManager GetOrCreateDefaultDisplayManager()
-        {
-            const string DEFAULT_KEY = "__default__";
-            
-            if (!characterDisplayManagers.TryGetValue(DEFAULT_KEY, out var displayManager))
-            {
-                displayManager = new CenterPanelDisplayManager(canvas, textWriter, contextManager, maxLines, stateManager);
-                characterDisplayManagers[DEFAULT_KEY] = displayManager;
-            }
-            
-            return displayManager;
+            return GetOrCreateDisplayManager(key);
         }
         
         /// <summary>

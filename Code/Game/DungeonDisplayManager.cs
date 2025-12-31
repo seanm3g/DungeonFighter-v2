@@ -371,22 +371,22 @@ namespace RPGGame
         /// <summary>
         /// Gets the current dungeon name.
         /// </summary>
-        public string? GetDungeonName() => DungeonDisplayStateOperations.GetDungeonName(state);
+        public string? GetDungeonName() => state.GetDungeonName();
 
         /// <summary>
         /// Gets the current room name.
         /// </summary>
-        public string? GetRoomName() => DungeonDisplayStateOperations.GetRoomName(state);
+        public string? GetRoomName() => state.GetRoomName();
 
         /// <summary>
         /// Gets the current enemy.
         /// </summary>
-        public Enemy? GetCurrentEnemy() => DungeonDisplayStateOperations.GetCurrentEnemy(state);
+        public Enemy? GetCurrentEnemy() => state.CurrentEnemy;
 
         /// <summary>
         /// Gets the current player.
         /// </summary>
-        public Character? GetCurrentPlayer() => DungeonDisplayStateOperations.GetCurrentPlayer(state);
+        public Character? GetCurrentPlayer() => state.CurrentPlayer;
 
         /// <summary>
         /// Adds the current dungeon and room info to the display buffer using a batch transaction.

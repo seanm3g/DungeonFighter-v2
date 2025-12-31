@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using RPGGame.Utils;
 using RPGGame.UI.Avalonia;
@@ -33,16 +34,24 @@ namespace RPGGame.Entity.Services
         /// </summary>
         public void SaveCharacter(Character character, string? characterId = null, string? filename = null)
         {
+            if (character == null)
+                throw new ArgumentNullException(nameof(character));
+            
             string? errorMessage = null;
             try
             {
                 filename = fileManager.ResolveFilename(characterId, filename);
+                if (filename == null)
+                    throw new InvalidOperationException("Failed to resolve filename for character save");
                 
-                string json = serializer.Serialize(character);
+                // filename is guaranteed to be non-null after ResolveFilename and null check above
+                string resolvedFilename = filename!;
+                // character is guaranteed to be non-null after null check at method start
+                string json = serializer.Serialize(character!);
                 
                 bool success = ErrorHandler.TryFileOperation(() =>
                 {
-                    fileManager.WriteAllText(filename, json);
+                    fileManager.WriteAllText(resolvedFilename, json);
                 }, $"SaveCharacter({filename})", () =>
                 {
                     errorMessage = "Failed to write file";
@@ -286,6 +295,7 @@ namespace RPGGame.Entity.Services
         /// Gets information about a saved character without loading it
         /// Checks both the default save file and per-character save files
         /// Returns info from the most recently modified save file (last played character)
+        /// Prioritizes per-character save files over the legacy default file
         /// </summary>
         public (string? characterName, int level) GetSavedCharacterInfo(string? filename = null)
         {
@@ -306,15 +316,7 @@ namespace RPGGame.Entity.Services
                 // Collect all potential save files with their modification times
                 var saveFilesWithTimes = new List<(string file, DateTime lastWriteTime)>();
                 
-                // Check for default save file (backward compatibility)
-                var defaultFile = fileManager.GetDefaultSaveFilename();
-                if (fileManager.FileExists(defaultFile))
-                {
-                    var lastWriteTime = File.GetLastWriteTime(defaultFile);
-                    saveFilesWithTimes.Add((defaultFile, lastWriteTime));
-                }
-                
-                // Check for per-character save files
+                // First, check for per-character save files (prioritize these)
                 var characterSaveFiles = fileManager.GetCharacterSaveFiles();
                 foreach (var saveFile in characterSaveFiles)
                 {
@@ -322,6 +324,43 @@ namespace RPGGame.Entity.Services
                     {
                         var lastWriteTime = File.GetLastWriteTime(saveFile);
                         saveFilesWithTimes.Add((saveFile, lastWriteTime));
+                    }
+                }
+                
+                // Only check default save file if no per-character files exist
+                // This prevents test/default files from being shown when real characters exist
+                if (saveFilesWithTimes.Count == 0)
+                {
+                    var defaultFile = fileManager.GetDefaultSaveFilename();
+                    if (fileManager.FileExists(defaultFile))
+                    {
+                        var lastWriteTime = File.GetLastWriteTime(defaultFile);
+                        saveFilesWithTimes.Add((defaultFile, lastWriteTime));
+                    }
+                }
+                else
+                {
+                    // If we have per-character files, check the default file but exclude it if it's a test character
+                    var defaultFile = fileManager.GetDefaultSaveFilename();
+                    if (fileManager.FileExists(defaultFile))
+                    {
+                        try
+                        {
+                            string defaultJson = fileManager.ReadAllText(defaultFile);
+                            var defaultSaveData = serializer.Deserialize(defaultJson);
+                            
+                            // Only include default file if it's not a test character
+                            if (defaultSaveData != null && 
+                                !string.Equals(defaultSaveData.Name, "TestCharacter", StringComparison.OrdinalIgnoreCase))
+                            {
+                                var lastWriteTime = File.GetLastWriteTime(defaultFile);
+                                saveFilesWithTimes.Add((defaultFile, lastWriteTime));
+                            }
+                        }
+                        catch
+                        {
+                            // If we can't read the default file, skip it
+                        }
                     }
                 }
                 

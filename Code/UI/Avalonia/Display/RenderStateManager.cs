@@ -79,9 +79,6 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public void RecordRender(DisplayBuffer buffer, ICanvasContextManager contextManager)
         {
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "RenderStateManager.cs:RecordRender", message = "Recording render state", data = new { characterName = contextManager.GetCurrentCharacter()?.Name ?? "null", enemyName = contextManager.GetCurrentEnemy()?.Name ?? "null", lastRenderedEnemyName = lastRenderedEnemy?.Name ?? "null" }, sessionId = "debug-session", runId = "run1", hypothesisId = "H2" }) + "\n"); } catch { }
-            // #endregion
             lastRenderedCharacter = contextManager.GetCurrentCharacter();
             lastRenderedEnemy = contextManager.GetCurrentEnemy();
             lastRenderedDungeonName = contextManager.GetDungeonName();

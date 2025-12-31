@@ -58,9 +58,6 @@ namespace RPGGame.UI.Avalonia.Renderers
             int headerLines = 0;
             if (dungeonContext != null && dungeonContext.Count > 0)
             {
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CombatRenderer.cs:RenderCombatScreen", message = "Rendering dungeon context", data = new { contextCount = dungeonContext.Count, hasEnemy = enemy != null, enemyName = enemy?.Name ?? "null" }, sessionId = "debug-session", runId = "run1", hypothesisId = "H9" }) + "\n"); } catch { }
-                // #endregion
                 // Render the dungeon context info (dungeon header, room info, enemy encounter)
                 // This includes dungeon name, room name, room number, enemy stats, etc.
                 foreach (var contextLine in dungeonContext)

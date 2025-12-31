@@ -12,19 +12,19 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
     public class GameplayPanelHandler : ISettingsPanelHandler
     {
         private readonly GameSettings settings;
-        private readonly SettingsPersistenceManager? persistenceManager;
+        private readonly SettingsManager? settingsManager;
 
         public string PanelType => "Gameplay";
 
-        public GameplayPanelHandler(GameSettings settings, SettingsPersistenceManager? persistenceManager)
+        public GameplayPanelHandler(GameSettings settings, SettingsManager? settingsManager)
         {
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
-            this.persistenceManager = persistenceManager;
+            this.settingsManager = settingsManager;
         }
 
         public void WireUp(UserControl panel)
         {
-            if (panel is not GameplaySettingsPanel gameplayPanel || persistenceManager == null) return;
+            if (panel is not GameplaySettingsPanel gameplayPanel || settingsManager == null) return;
 
             // Wire up checkboxes
             if (gameplayPanel.ShowIndividualActionMessagesCheckBox != null)
@@ -103,7 +103,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 
         public void LoadSettings(UserControl panel)
         {
-            if (panel is not GameplaySettingsPanel gameplayPanel || persistenceManager == null) return;
+            if (panel is not GameplaySettingsPanel gameplayPanel || settingsManager == null) return;
 
             // Load settings into panel controls with null checks
             // Use FindControl as fallback to ensure controls are found

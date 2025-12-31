@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
 {
@@ -49,7 +50,13 @@ namespace RPGGame
         public void DisplayCharacterInfo()
         {
             UIManager.WriteLine($"=== CHARACTER INFORMATION ===");
-            UIManager.WriteLine($"Name: {player.Name}");
+            
+            // Display character name with color
+            var nameBuilder = new ColoredTextBuilder();
+            nameBuilder.Add("Name: ", ColorPalette.White);
+            nameBuilder.Add(player.Name, EntityColorHelper.GetActorColor(player));
+            UIManager.WriteLineColoredSegments(nameBuilder.Build());
+            
             UIManager.WriteLine($"Class: {player.GetCurrentClass()}");
             UIManager.WriteLine($"Level: {player.Level}");
             UIManager.WriteLine($"Health: {player.CurrentHealth}/{player.MaxHealth}");
@@ -94,7 +101,13 @@ namespace RPGGame
             int damage = player.GetEffectiveStrength() + weaponDamage + equipmentDamageBonus + modificationDamageBonus;
             double attackSpeed = player.GetTotalAttackSpeed();
             int armor = player.GetTotalArmor();
-            UIManager.WriteMenuLine($"{player.Name} (Level {player.Level}) - {player.GetCurrentClass()}");
+            
+            // Display character name with color
+            var statsBuilder = new ColoredTextBuilder();
+            statsBuilder.Add(player.Name, EntityColorHelper.GetActorColor(player));
+            statsBuilder.Add($" (Level {player.Level}) - {player.GetCurrentClass()}", ColorPalette.White);
+            UIManager.WriteColoredSegments(statsBuilder.Build(), UIMessageType.Menu);
+            
             UIManager.WriteMenuLine($"Health: {player.CurrentHealth}/{player.GetEffectiveMaxHealth()}  Strength: {player.GetEffectiveStrength()}  Agility: {player.GetEffectiveAgility()}  Technique: {player.GetEffectiveTechnique()}  Intelligence: {player.GetEffectiveIntelligence()}");
             int totalRollBonus = player.GetIntelligenceRollBonus() + player.GetModificationRollBonus() + player.GetEquipmentRollBonus();
             double secondsPerAttack = attackSpeed;

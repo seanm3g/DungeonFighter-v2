@@ -88,17 +88,11 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// </summary>
         public void RenderDungeonSelection(int x, int y, int width, int height, List<Dungeon> dungeons)
         {
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "DungeonRenderer.cs:RenderDungeonSelection", message = "Entry", data = new { x, y, width, height, dungeonCount = dungeons?.Count ?? 0 }, sessionId = "debug-session", runId = "run1", hypothesisId = "H1" }) + "\n"); } catch { }
-            // #endregion
             if (dungeons == null)
             {
                 return;
             }
             currentLineCount = selectionRenderer.RenderDungeonSelection(x, y, width, height, dungeons);
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "DungeonRenderer.cs:RenderDungeonSelection", message = "After selectionRenderer.RenderDungeonSelection", data = new { currentLineCount }, sessionId = "debug-session", runId = "run1", hypothesisId = "H1" }) + "\n"); } catch { }
-            // #endregion
         }
         
         /// <summary>
@@ -114,9 +108,6 @@ namespace RPGGame.UI.Avalonia.Renderers
                 // Get the display buffer from the display manager
                 var displayManager = canvasTextManager.DisplayManager;
                 var buffer = displayManager.Buffer;
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "DungeonRenderer.cs:RenderDungeonStart", message = "Rendering", data = new { activeCharacter = canvasTextManager.StateManager?.GetActiveCharacter()?.Name, bufferCount = buffer.Count, usingDisplayManager = "DisplayManager property" }, sessionId = "debug-session", runId = "run2", hypothesisId = "H4" }) + "\n"); } catch { }
-                // #endregion
                 // Create a display renderer to render the buffer with scrolling support
                 var displayRenderer = new DisplayRenderer(textWriter);
                 
@@ -180,9 +171,6 @@ namespace RPGGame.UI.Avalonia.Renderers
                 // Get the display buffer from the display manager
                 var displayManager = canvasTextManager.DisplayManager;
                 var buffer = displayManager.Buffer;
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "DungeonRenderer.cs:RenderEnemyEncounter", message = "Rendering", data = new { activeCharacter = canvasTextManager.StateManager?.GetActiveCharacter()?.Name, bufferCount = buffer.Count, usingDisplayManager = "DisplayManager property" }, sessionId = "debug-session", runId = "run2", hypothesisId = "H4" }) + "\n"); } catch { }
-                // #endregion
                 // Create a display renderer to render the buffer with scrolling support
                 var displayRenderer = new DisplayRenderer(textWriter);
                 
@@ -224,9 +212,6 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// <param name="player">The character whose combat is being rendered (used to get the correct display manager)</param>
         public void RenderCombatScreen(int x, int y, int width, int height, Dungeon? dungeon, Environment? room, Enemy enemy, ICanvasTextManager textManager, Character? player = null, List<string>? dungeonContext = null)
         {
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "DungeonRenderer.cs:RenderCombatScreen", message = "RenderCombatScreen called", data = new { playerName = player?.Name, enemyName = enemy?.Name ?? "null", hasTextManager = textManager != null }, sessionId = "debug-session", runId = "run2", hypothesisId = "H4" }) + "\n"); } catch { }
-            // #endregion
             // Use the display buffer system which already handles scrolling and message ordering
             // The display buffer contains all messages in order: dungeon info, room info, enemy encounter, combat log
             // Messages are added to the bottom and the buffer automatically scrolls when content exceeds viewport
@@ -237,9 +222,6 @@ namespace RPGGame.UI.Avalonia.Renderers
                 // This ensures we render the correct character's buffer even when another character is active
                 var displayManager = canvasTextManager.GetDisplayManagerForCharacter(player);
                 var buffer = displayManager.Buffer;
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "DungeonRenderer.cs:RenderCombatScreen", message = "Using character display manager", data = new { playerName = player?.Name, activeCharacter = canvasTextManager.StateManager?.GetActiveCharacter()?.Name, bufferCount = buffer.Count, charactersMatch = player == canvasTextManager.StateManager?.GetActiveCharacter() }, sessionId = "debug-session", runId = "run2", hypothesisId = "H4" }) + "\n"); } catch { }
-                // #endregion
                 
                 // Create a display renderer to render the buffer with scrolling support
                 var displayRenderer = new DisplayRenderer(textWriter);

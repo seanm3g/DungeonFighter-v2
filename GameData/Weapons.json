@@ -1,119 +1,425 @@
 [
   {
-    "type": "Sword",
-    "name": "Iron Sword",
-    "baseDamage": 1,
-    "attackSpeed": 1.2,
-    "hitCount": 2,
-    "effect": "none",
-    "tier": 1
-  },
-  {
-    "type": "Sword",
+    "type": "Dagger",
     "name": "Iron Blade",
     "baseDamage": 1,
-    "attackSpeed": 1.2,
-    "hitCount": 2,
-    "effect": "none",
-    "tier": 1
+    "attackSpeed": 1.4,
+    "tier": 1,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Dagger",
+    "name": "Iron Blade",
+    "baseDamage": 1,
+    "attackSpeed": 1.4,
+    "tier": 1,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Mace",
+    "name": "Iron Club",
+    "baseDamage": 1,
+    "attackSpeed": 0.8,
+    "tier": 1,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Dagger",
+    "name": "Iron Dagger",
+    "baseDamage": 1,
+    "attackSpeed": 1.4,
+    "tier": 1,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Mace",
+    "name": "Iron Hammer",
+    "baseDamage": 1,
+    "attackSpeed": 0.8,
+    "tier": 1,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Dagger",
+    "name": "Iron Knife",
+    "baseDamage": 1,
+    "attackSpeed": 1.4,
+    "tier": 1,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Mace",
+    "name": "Iron Mace",
+    "baseDamage": 1,
+    "attackSpeed": 0.8,
+    "tier": 1,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Wand",
+    "name": "Iron Rod",
+    "baseDamage": 1,
+    "attackSpeed": 1.1,
+    "tier": 1,
+    "attributeRequirements": null
   },
   {
     "type": "Sword",
     "name": "Iron Saber",
     "baseDamage": 1,
     "attackSpeed": 1.2,
-    "hitCount": 2,
-    "effect": "none",
-    "tier": 1
+    "tier": 1,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Wand",
+    "name": "Iron Staff",
+    "baseDamage": 1,
+    "attackSpeed": 1.1,
+    "tier": 1,
+    "attributeRequirements": null
   },
   {
     "type": "Sword",
-    "name": "Steel Sword",
+    "name": "Iron Sword",
     "baseDamage": 1,
     "attackSpeed": 1.2,
-    "hitCount": 2,
-    "effect": "none",
-    "tier": 2
+    "tier": 1,
+    "attributeRequirements": null
   },
   {
-    "type": "Sword",
+    "type": "Wand",
+    "name": "Iron Wand",
+    "baseDamage": 1,
+    "attackSpeed": 1.1,
+    "tier": 1,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Dagger",
     "name": "Steel Blade",
     "baseDamage": 1,
-    "attackSpeed": 1.2,
-    "hitCount": 2,
-    "effect": "none",
-    "tier": 2
+    "attackSpeed": 1.4,
+    "tier": 2,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Dagger",
+    "name": "Steel Blade",
+    "baseDamage": 1,
+    "attackSpeed": 1.4,
+    "tier": 2,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Mace",
+    "name": "Steel Club",
+    "baseDamage": 1,
+    "attackSpeed": 0.8,
+    "tier": 2,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Dagger",
+    "name": "Steel Dagger",
+    "baseDamage": 1,
+    "attackSpeed": 1.4,
+    "tier": 2,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Mace",
+    "name": "Steel Hammer",
+    "baseDamage": 1,
+    "attackSpeed": 0.8,
+    "tier": 2,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Dagger",
+    "name": "Steel Knife",
+    "baseDamage": 1,
+    "attackSpeed": 1.4,
+    "tier": 2,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Mace",
+    "name": "Steel Mace",
+    "baseDamage": 1,
+    "attackSpeed": 0.8,
+    "tier": 2,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Wand",
+    "name": "Steel Rod",
+    "baseDamage": 1,
+    "attackSpeed": 1.1,
+    "tier": 2,
+    "attributeRequirements": null
   },
   {
     "type": "Sword",
     "name": "Steel Saber",
     "baseDamage": 1,
     "attackSpeed": 1.2,
-    "hitCount": 2,
-    "effect": "none",
-    "tier": 2
+    "tier": 2,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Wand",
+    "name": "Steel Staff",
+    "baseDamage": 1,
+    "attackSpeed": 1.1,
+    "tier": 2,
+    "attributeRequirements": null
   },
   {
     "type": "Sword",
-    "name": "Silver Sword",
+    "name": "Steel Sword",
     "baseDamage": 1,
     "attackSpeed": 1.2,
-    "hitCount": 2,
-    "effect": "none",
-    "tier": 3
+    "tier": 2,
+    "attributeRequirements": null
   },
   {
-    "type": "Sword",
+    "type": "Wand",
+    "name": "Steel Wand",
+    "baseDamage": 1,
+    "attackSpeed": 1.1,
+    "tier": 2,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Dagger",
     "name": "Silver Blade",
     "baseDamage": 1,
-    "attackSpeed": 1.2,
-    "hitCount": 2,
-    "effect": "none",
-    "tier": 3
+    "attackSpeed": 1.4,
+    "tier": 3,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Dagger",
+    "name": "Silver Blade",
+    "baseDamage": 1,
+    "attackSpeed": 1.4,
+    "tier": 3,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Mace",
+    "name": "Silver Club",
+    "baseDamage": 1,
+    "attackSpeed": 0.8,
+    "tier": 3,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Dagger",
+    "name": "Silver Dagger",
+    "baseDamage": 1,
+    "attackSpeed": 1.4,
+    "tier": 3,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Mace",
+    "name": "Silver Hammer",
+    "baseDamage": 1,
+    "attackSpeed": 0.8,
+    "tier": 3,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Dagger",
+    "name": "Silver Knife",
+    "baseDamage": 1,
+    "attackSpeed": 1.4,
+    "tier": 3,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Mace",
+    "name": "Silver Mace",
+    "baseDamage": 1,
+    "attackSpeed": 0.8,
+    "tier": 3,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Wand",
+    "name": "Silver Rod",
+    "baseDamage": 1,
+    "attackSpeed": 1.1,
+    "tier": 3,
+    "attributeRequirements": null
   },
   {
     "type": "Sword",
     "name": "Silver Saber",
     "baseDamage": 1,
     "attackSpeed": 1.2,
-    "hitCount": 2,
-    "effect": "none",
-    "tier": 3
+    "tier": 3,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Wand",
+    "name": "Silver Staff",
+    "baseDamage": 1,
+    "attackSpeed": 1.1,
+    "tier": 3,
+    "attributeRequirements": null
   },
   {
     "type": "Sword",
-    "name": "Mithril Sword",
+    "name": "Silver Sword",
     "baseDamage": 1,
     "attackSpeed": 1.2,
-    "hitCount": 2,
-    "effect": "none",
-    "tier": 4
+    "tier": 3,
+    "attributeRequirements": null
   },
   {
-    "type": "Sword",
+    "type": "Wand",
+    "name": "Silver Wand",
+    "baseDamage": 1,
+    "attackSpeed": 1.1,
+    "tier": 3,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Dagger",
     "name": "Mithril Blade",
     "baseDamage": 1,
-    "attackSpeed": 1.2,
-    "hitCount": 2,
-    "effect": "none",
-    "tier": 4
+    "attackSpeed": 1.4,
+    "tier": 4,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Dagger",
+    "name": "Mithril Blade",
+    "baseDamage": 1,
+    "attackSpeed": 1.4,
+    "tier": 4,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Mace",
+    "name": "Mithril Club",
+    "baseDamage": 1,
+    "attackSpeed": 0.8,
+    "tier": 4,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Dagger",
+    "name": "Mithril Dagger",
+    "baseDamage": 1,
+    "attackSpeed": 1.4,
+    "tier": 4,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Mace",
+    "name": "Mithril Hammer",
+    "baseDamage": 1,
+    "attackSpeed": 0.8,
+    "tier": 4,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Dagger",
+    "name": "Mithril Knife",
+    "baseDamage": 1,
+    "attackSpeed": 1.4,
+    "tier": 4,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Mace",
+    "name": "Mithril Mace",
+    "baseDamage": 1,
+    "attackSpeed": 0.8,
+    "tier": 4,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Wand",
+    "name": "Mithril Rod",
+    "baseDamage": 1,
+    "attackSpeed": 1.1,
+    "tier": 4,
+    "attributeRequirements": null
   },
   {
     "type": "Sword",
     "name": "Mithril Saber",
     "baseDamage": 1,
     "attackSpeed": 1.2,
-    "hitCount": 2,
-    "effect": "none",
-    "tier": 4
+    "tier": 4,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Wand",
+    "name": "Mithril Staff",
+    "baseDamage": 1,
+    "attackSpeed": 1.1,
+    "tier": 4,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Sword",
+    "name": "Mithril Sword",
+    "baseDamage": 1,
+    "attackSpeed": 1.2,
+    "tier": 4,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Wand",
+    "name": "Mithril Wand",
+    "baseDamage": 1,
+    "attackSpeed": 1.1,
+    "tier": 4,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Dagger",
+    "name": "Assassin\u0027s Blade",
+    "baseDamage": 1,
+    "attackSpeed": 1.4,
+    "tier": 5,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Sword",
+    "name": "Blade of Light",
+    "baseDamage": 1,
+    "attackSpeed": 1.2,
+    "tier": 5,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Dagger",
+    "name": "Dragon Dagger",
+    "baseDamage": 1,
+    "attackSpeed": 1.4,
+    "tier": 5,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Mace",
+    "name": "Dragon Mace",
+    "baseDamage": 1,
+    "attackSpeed": 0.8,
+    "tier": 5,
+    "attributeRequirements": null
   },
   {
     "type": "Sword",
     "name": "Dragon Sword",
     "baseDamage": 1,
     "attackSpeed": 1.2,
-    "hitCount": 2,
-    "effect": "none",
     "tier": 5,
     "attributeRequirements": {
       "Strength": 15,
@@ -121,432 +427,63 @@
     }
   },
   {
+    "type": "Wand",
+    "name": "Dragon Wand",
+    "baseDamage": 1,
+    "attackSpeed": 1.1,
+    "tier": 5,
+    "attributeRequirements": null
+  },
+  {
     "type": "Sword",
     "name": "Excalibur",
     "baseDamage": 1,
     "attackSpeed": 1.2,
-    "hitCount": 2,
-    "effect": "none",
     "tier": 5,
     "attributeRequirements": {
       "Strength": 20
     }
   },
   {
-    "type": "Sword",
-    "name": "Blade of Light",
-    "baseDamage": 1,
-    "attackSpeed": 1.2,
-    "hitCount": 2,
-    "effect": "none",
-    "tier": 5
-  },
-  {
-    "type": "Mace",
-    "name": "Iron Mace",
-    "baseDamage": 1,
-    "attackSpeed": 0.8,
-    "hitCount": 1,
-    "effect": "stun",
-    "tier": 1
-  },
-  {
-    "type": "Mace",
-    "name": "Iron Club",
-    "baseDamage": 1,
-    "attackSpeed": 0.8,
-    "hitCount": 1,
-    "effect": "stun",
-    "tier": 1
-  },
-  {
-    "type": "Mace",
-    "name": "Iron Hammer",
-    "baseDamage": 1,
-    "attackSpeed": 0.8,
-    "hitCount": 1,
-    "effect": "stun",
-    "tier": 1
-  },
-  {
-    "type": "Mace",
-    "name": "Steel Mace",
-    "baseDamage": 1,
-    "attackSpeed": 0.8,
-    "hitCount": 1,
-    "effect": "stun",
-    "tier": 2
-  },
-  {
-    "type": "Mace",
-    "name": "Steel Club",
-    "baseDamage": 1,
-    "attackSpeed": 0.8,
-    "hitCount": 1,
-    "effect": "stun",
-    "tier": 2
-  },
-  {
-    "type": "Mace",
-    "name": "Steel Hammer",
-    "baseDamage": 1,
-    "attackSpeed": 0.8,
-    "hitCount": 1,
-    "effect": "stun",
-    "tier": 2
-  },
-  {
-    "type": "Mace",
-    "name": "Silver Mace",
-    "baseDamage": 1,
-    "attackSpeed": 0.8,
-    "hitCount": 1,
-    "effect": "stun",
-    "tier": 3
-  },
-  {
-    "type": "Mace",
-    "name": "Silver Club",
-    "baseDamage": 1,
-    "attackSpeed": 0.8,
-    "hitCount": 1,
-    "effect": "stun",
-    "tier": 3
-  },
-  {
-    "type": "Mace",
-    "name": "Silver Hammer",
-    "baseDamage": 1,
-    "attackSpeed": 0.8,
-    "hitCount": 1,
-    "effect": "stun",
-    "tier": 3
-  },
-  {
-    "type": "Mace",
-    "name": "Mithril Mace",
-    "baseDamage": 1,
-    "attackSpeed": 0.8,
-    "hitCount": 1,
-    "effect": "stun",
-    "tier": 4
-  },
-  {
-    "type": "Mace",
-    "name": "Mithril Club",
-    "baseDamage": 1,
-    "attackSpeed": 0.8,
-    "hitCount": 1,
-    "effect": "stun",
-    "tier": 4
-  },
-  {
-    "type": "Mace",
-    "name": "Mithril Hammer",
-    "baseDamage": 1,
-    "attackSpeed": 0.8,
-    "hitCount": 1,
-    "effect": "stun",
-    "tier": 4
-  },
-  {
-    "type": "Mace",
-    "name": "Dragon Mace",
-    "baseDamage": 1,
-    "attackSpeed": 0.8,
-    "hitCount": 1,
-    "effect": "stun",
-    "tier": 5
-  },
-  {
-    "type": "Mace",
-    "name": "Warhammer of Power",
-    "baseDamage": 1,
-    "attackSpeed": 0.8,
-    "hitCount": 1,
-    "effect": "stun",
-    "tier": 5
-  },
-  {
     "type": "Mace",
     "name": "Mace of Destruction",
     "baseDamage": 1,
     "attackSpeed": 0.8,
-    "hitCount": 1,
-    "effect": "stun",
-    "tier": 5
-  },
-  {
-    "type": "Dagger",
-    "name": "Iron Dagger",
-    "baseDamage": 1,
-    "attackSpeed": 1.4,
-    "hitCount": 1,
-    "effect": "bleed",
-    "tier": 1
-  },
-  {
-    "type": "Dagger",
-    "name": "Iron Knife",
-    "baseDamage": 1,
-    "attackSpeed": 1.4,
-    "hitCount": 1,
-    "effect": "bleed",
-    "tier": 1
-  },
-  {
-    "type": "Dagger",
-    "name": "Iron Blade",
-    "baseDamage": 1,
-    "attackSpeed": 1.4,
-    "hitCount": 1,
-    "effect": "bleed",
-    "tier": 1
-  },
-  {
-    "type": "Dagger",
-    "name": "Steel Dagger",
-    "baseDamage": 1,
-    "attackSpeed": 1.4,
-    "hitCount": 1,
-    "effect": "bleed",
-    "tier": 2
-  },
-  {
-    "type": "Dagger",
-    "name": "Steel Knife",
-    "baseDamage": 1,
-    "attackSpeed": 1.4,
-    "hitCount": 1,
-    "effect": "bleed",
-    "tier": 2
-  },
-  {
-    "type": "Dagger",
-    "name": "Steel Blade",
-    "baseDamage": 1,
-    "attackSpeed": 1.4,
-    "hitCount": 1,
-    "effect": "bleed",
-    "tier": 2
-  },
-  {
-    "type": "Dagger",
-    "name": "Silver Dagger",
-    "baseDamage": 1,
-    "attackSpeed": 1.4,
-    "hitCount": 1,
-    "effect": "bleed",
-    "tier": 3
-  },
-  {
-    "type": "Dagger",
-    "name": "Silver Knife",
-    "baseDamage": 1,
-    "attackSpeed": 1.4,
-    "hitCount": 1,
-    "effect": "bleed",
-    "tier": 3
-  },
-  {
-    "type": "Dagger",
-    "name": "Silver Blade",
-    "baseDamage": 1,
-    "attackSpeed": 1.4,
-    "hitCount": 1,
-    "effect": "bleed",
-    "tier": 3
-  },
-  {
-    "type": "Dagger",
-    "name": "Mithril Dagger",
-    "baseDamage": 1,
-    "attackSpeed": 1.4,
-    "hitCount": 1,
-    "effect": "bleed",
-    "tier": 4
-  },
-  {
-    "type": "Dagger",
-    "name": "Mithril Knife",
-    "baseDamage": 1,
-    "attackSpeed": 1.4,
-    "hitCount": 1,
-    "effect": "bleed",
-    "tier": 4
-  },
-  {
-    "type": "Dagger",
-    "name": "Mithril Blade",
-    "baseDamage": 1,
-    "attackSpeed": 1.4,
-    "hitCount": 1,
-    "effect": "bleed",
-    "tier": 4
-  },
-  {
-    "type": "Dagger",
-    "name": "Dragon Dagger",
-    "baseDamage": 1,
-    "attackSpeed": 1.4,
-    "hitCount": 1,
-    "effect": "bleed",
-    "tier": 5
-  },
-  {
-    "type": "Dagger",
-    "name": "Shadow Blade",
-    "baseDamage": 1,
-    "attackSpeed": 1.4,
-    "hitCount": 1,
-    "effect": "bleed",
-    "tier": 5
-  },
-  {
-    "type": "Dagger",
-    "name": "Assassin's Blade",
-    "baseDamage": 1,
-    "attackSpeed": 1.4,
-    "hitCount": 1,
-    "effect": "bleed",
-    "tier": 5
-  },
-  {
-    "type": "Wand",
-    "name": "Iron Wand",
-    "baseDamage": 1,
-    "attackSpeed": 1.1,
-    "hitCount": 2,
-    "effect": "burn",
-    "tier": 1
-  },
-  {
-    "type": "Wand",
-    "name": "Iron Staff",
-    "baseDamage": 1,
-    "attackSpeed": 1.1,
-    "hitCount": 2,
-    "effect": "burn",
-    "tier": 1
-  },
-  {
-    "type": "Wand",
-    "name": "Iron Rod",
-    "baseDamage": 1,
-    "attackSpeed": 1.1,
-    "hitCount": 2,
-    "effect": "burn",
-    "tier": 1
-  },
-  {
-    "type": "Wand",
-    "name": "Steel Wand",
-    "baseDamage": 1,
-    "attackSpeed": 1.1,
-    "hitCount": 2,
-    "effect": "burn",
-    "tier": 2
-  },
-  {
-    "type": "Wand",
-    "name": "Steel Staff",
-    "baseDamage": 1,
-    "attackSpeed": 1.1,
-    "hitCount": 2,
-    "effect": "burn",
-    "tier": 2
-  },
-  {
-    "type": "Wand",
-    "name": "Steel Rod",
-    "baseDamage": 1,
-    "attackSpeed": 1.1,
-    "hitCount": 2,
-    "effect": "burn",
-    "tier": 2
-  },
-  {
-    "type": "Wand",
-    "name": "Silver Wand",
-    "baseDamage": 1,
-    "attackSpeed": 1.1,
-    "hitCount": 2,
-    "effect": "burn",
-    "tier": 3
-  },
-  {
-    "type": "Wand",
-    "name": "Silver Staff",
-    "baseDamage": 1,
-    "attackSpeed": 1.1,
-    "hitCount": 2,
-    "effect": "burn",
-    "tier": 3
-  },
-  {
-    "type": "Wand",
-    "name": "Silver Rod",
-    "baseDamage": 1,
-    "attackSpeed": 1.1,
-    "hitCount": 2,
-    "effect": "burn",
-    "tier": 3
-  },
-  {
-    "type": "Wand",
-    "name": "Mithril Wand",
-    "baseDamage": 1,
-    "attackSpeed": 1.1,
-    "hitCount": 2,
-    "effect": "burn",
-    "tier": 4
-  },
-  {
-    "type": "Wand",
-    "name": "Mithril Staff",
-    "baseDamage": 1,
-    "attackSpeed": 1.1,
-    "hitCount": 2,
-    "effect": "burn",
-    "tier": 4
-  },
-  {
-    "type": "Wand",
-    "name": "Mithril Rod",
-    "baseDamage": 1,
-    "attackSpeed": 1.1,
-    "hitCount": 2,
-    "effect": "burn",
-    "tier": 4
-  },
-  {
-    "type": "Wand",
-    "name": "Dragon Wand",
-    "baseDamage": 1,
-    "attackSpeed": 1.1,
-    "hitCount": 2,
-    "effect": "burn",
-    "tier": 5
-  },
-  {
-    "type": "Wand",
-    "name": "Staff of Power",
-    "baseDamage": 1,
-    "attackSpeed": 1.1,
-    "hitCount": 2,
-    "effect": "burn",
     "tier": 5,
-    "attributeRequirements": {
-      "Intelligence": 20
-    }
+    "attributeRequirements": null
   },
   {
     "type": "Wand",
     "name": "Rod of Destruction",
     "baseDamage": 1,
     "attackSpeed": 1.1,
-    "hitCount": 2,
-    "effect": "burn",
-    "tier": 5
+    "tier": 5,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Dagger",
+    "name": "Shadow Blade",
+    "baseDamage": 1,
+    "attackSpeed": 1.4,
+    "tier": 5,
+    "attributeRequirements": null
+  },
+  {
+    "type": "Wand",
+    "name": "Staff of Power",
+    "baseDamage": 1,
+    "attackSpeed": 1.1,
+    "tier": 5,
+    "attributeRequirements": {
+      "Intelligence": 20
+    }
+  },
+  {
+    "type": "Mace",
+    "name": "Warhammer of Power",
+    "baseDamage": 1,
+    "attackSpeed": 0.8,
+    "tier": 5,
+    "attributeRequirements": null
   }
 ]

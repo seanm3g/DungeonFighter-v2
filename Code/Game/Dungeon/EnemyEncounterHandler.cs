@@ -49,10 +49,6 @@ namespace RPGGame
             // Check if this character is currently active (for background combat support)
             bool isCharacterActive = IsCharacterActive(player);
             
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "EnemyEncounterHandler.cs:ProcessEnemyEncounter", message = "Combat starting", data = new { playerName = player.Name, isCharacterActive, currentState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "C" }) + "\n"); } catch { }
-            // #endregion
-            
             // Start enemy encounter using unified display manager
             displayManager.StartEnemyEncounter(enemy);
             
@@ -109,14 +105,8 @@ namespace RPGGame
                 {
                     // Double-check character is still active before rendering
                     bool stillActive = IsCharacterActive(player);
-                    // #region agent log
-                    try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "EnemyEncounterHandler.cs:debouncer callback", message = "Debouncer callback", data = new { playerName = player.Name, stillActive }, sessionId = "debug-session", runId = "run1", hypothesisId = "D" }) + "\n"); } catch { }
-                    // #endregion
                     if (stillActive)
                     {
-                        // #region agent log
-                        try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "EnemyEncounterHandler.cs:debouncer callback", message = "Rendering combat", data = new { playerName = player.Name }, sessionId = "debug-session", runId = "run1", hypothesisId = "D" }) + "\n"); } catch { }
-                        // #endregion
                         canvasUI.RenderCombat(player, enemy, displayManager.CompleteDisplayLog);
                     }
                 });
@@ -247,19 +237,12 @@ namespace RPGGame
             
             if (isMenuState)
             {
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "EnemyEncounterHandler.cs:IsCharacterActive", message = "Character inactive - menu state", data = new { characterName = character.Name, currentState = currentState.ToString(), isMenuState }, sessionId = "debug-session", runId = "run1", hypothesisId = "E" }) + "\n"); } catch { }
-                // #endregion
                 return false;
             }
             
             // Check if character matches active character (for multi-character support)
             var activeCharacter = stateManager.GetActiveCharacter();
             bool isActive = activeCharacter == character;
-            
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "EnemyEncounterHandler.cs:IsCharacterActive", message = "Character active check", data = new { characterName = character.Name, activeCharacterName = activeCharacter?.Name ?? "null", isActive, areEqual = activeCharacter == character }, sessionId = "debug-session", runId = "run1", hypothesisId = "E" }) + "\n"); } catch { }
-            // #endregion
             
             return isActive;
         }

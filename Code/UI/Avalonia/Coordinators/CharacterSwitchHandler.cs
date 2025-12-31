@@ -51,13 +51,7 @@ namespace RPGGame.UI.Avalonia.Coordinators
                         // Switch to the new character's display manager
                         // This provides complete isolation - each character has their own buffer
                         var newCharacter = e.NewCharacter;
-                        // #region agent log
-                        try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CharacterSwitchHandler.cs:OnCharacterSwitched", message = "Switching display manager", data = new { newCharacter = newCharacter?.Name }, sessionId = "debug-session", runId = "run1", hypothesisId = "H3" }) + "\n"); } catch { }
-                        // #endregion
                         canvasTextManager.SwitchToCharacterDisplayManager(newCharacter);
-                        // #region agent log
-                        try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CharacterSwitchHandler.cs:OnCharacterSwitched", message = "Display manager switched", data = new { newCharacter = newCharacter?.Name, currentDisplayManagerBufferCount = canvasTextManager.DisplayManager.Buffer.Count }, sessionId = "debug-session", runId = "run1", hypothesisId = "H3" }) + "\n"); } catch { }
-                        // #endregion
                         
                         // Clear external render callback (prevents old combat callbacks from firing)
                         canvasTextManager.DisplayManager.SetExternalRenderCallback(null);

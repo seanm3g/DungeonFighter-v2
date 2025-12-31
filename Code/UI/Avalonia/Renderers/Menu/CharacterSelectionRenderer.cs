@@ -107,16 +107,17 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                     try
                     {
                         var className = character.GetCurrentClass() ?? "Unknown";
-                        var optionText = $"{character.Name} - Level {character.Level} - {className}";
+                        var suffixText = $" - Level {character.Level} - {className}";
                         if (isActive)
                         {
-                            optionText += " [ACTIVE]";
+                            suffixText += " [ACTIVE]";
                         }
                         if (!string.IsNullOrEmpty(status))
                         {
-                            optionText += $" {status}";
+                            suffixText += $" {status}";
                         }
                         
+                        var optionText = $"{character.Name}{suffixText}";
                         string formattedText = MenuOptionFormatter.Format(i + 1, optionText);
                         var option = new ClickableElement
                         {
@@ -131,7 +132,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                         clickableElements.Add(option);
                         
                         var color = isActive ? goldColor : cyanColor;
-                        menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, i + 1, optionText, color, option.IsHovered);
+                        menuOptionRenderer.RenderColoredMenuOptionWithCharacter(menuStartX, currentY, i + 1, character, suffixText, color, option.IsHovered);
                         currentY++;
                         currentLineCount++;
                     }
@@ -139,16 +140,17 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                     {
                         // If GetCurrentClass fails, just show name and level
                         // status is already declared above, reuse it
-                        var optionText = $"{character.Name} - Level {character.Level}";
+                        var suffixText = $" - Level {character.Level}";
                         if (isActive)
                         {
-                            optionText += " [ACTIVE]";
+                            suffixText += " [ACTIVE]";
                         }
                         if (!string.IsNullOrEmpty(status))
                         {
-                            optionText += $" {status}";
+                            suffixText += $" {status}";
                         }
                         
+                        var optionText = $"{character.Name}{suffixText}";
                         string formattedText = MenuOptionFormatter.Format(i + 1, optionText);
                         var option = new ClickableElement
                         {
@@ -163,7 +165,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                         clickableElements.Add(option);
                         
                         var color = isActive ? goldColor : cyanColor;
-                        menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, i + 1, optionText, color, option.IsHovered);
+                        menuOptionRenderer.RenderColoredMenuOptionWithCharacter(menuStartX, currentY, i + 1, character, suffixText, color, option.IsHovered);
                         currentY++;
                         currentLineCount++;
                     }

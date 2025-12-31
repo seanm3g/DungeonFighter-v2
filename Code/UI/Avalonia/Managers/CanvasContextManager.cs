@@ -33,17 +33,11 @@ namespace RPGGame.UI.Avalonia.Managers
 
         public void SetCurrentEnemy(Enemy enemy)
         {
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasContextManager.cs:SetCurrentEnemy", message = "Setting enemy in context", data = new { enemyName = enemy?.Name ?? "null", currentCharacterName = currentCharacter?.Name ?? "null" }, sessionId = "debug-session", runId = "run1", hypothesisId = "H4" }) + "\n"); } catch { }
-            // #endregion
             currentEnemy = enemy;
         }
 
         public void ClearCurrentEnemy()
         {
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasContextManager.cs:ClearCurrentEnemy", message = "Clearing enemy from context", data = new { currentCharacterName = currentCharacter?.Name ?? "null", hadEnemy = currentEnemy != null, enemyName = currentEnemy?.Name ?? "null" }, sessionId = "debug-session", runId = "run1", hypothesisId = "H1" }) + "\n"); } catch { }
-            // #endregion
             currentEnemy = null;
             // Note: Do NOT clear dungeonName and roomName here - location information should persist
             // even when there's no enemy, as the player is still in that dungeon/room.
@@ -82,9 +76,6 @@ namespace RPGGame.UI.Avalonia.Managers
 
         public void ClearDungeonContext()
         {
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasContextManager.cs:ClearDungeonContext", message = "Clearing dungeon context", data = new { currentCharacterName = currentCharacter?.Name ?? "null", contextCount = dungeonContext.Count }, sessionId = "debug-session", runId = "run1", hypothesisId = "H8" }) + "\n"); } catch { }
-            // #endregion
             dungeonContext.Clear();
         }
 

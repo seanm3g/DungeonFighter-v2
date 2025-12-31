@@ -47,15 +47,9 @@ namespace RPGGame.UI.Avalonia.Layout
             
             if (clearCanvas)
             {
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "LayoutCoordinator.cs:RenderWithLayout", message = "Before canvas.Clear", data = new { title, clearCanvas, titleChanged }, sessionId = "debug-session", runId = "run1", hypothesisId = "H1" }) + "\n"); } catch { }
-                // #endregion
                 // Clear canvas right before rendering to prevent blank frame flicker
                 // This ensures we clear and immediately render, minimizing visible blank time
                 canvas.Clear();
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "LayoutCoordinator.cs:RenderWithLayout", message = "After canvas.Clear, before panel rendering", data = new { }, sessionId = "debug-session", runId = "run1", hypothesisId = "H1" }) + "\n"); } catch { }
-                // #endregion
                 
                 // Title rendering removed - panels now extend to top of frame
                 
@@ -117,13 +111,7 @@ namespace RPGGame.UI.Avalonia.Layout
             int centerY = LayoutConstants.CENTER_PANEL_Y + 1;
             int centerW = LayoutConstants.CENTER_PANEL_WIDTH - 2;
             int centerH = LayoutConstants.CENTER_PANEL_HEIGHT - 2;
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "LayoutCoordinator.cs:RenderWithLayout", message = "Before renderCenterContent.Invoke", data = new { centerX, centerY, centerW, centerH, hasRenderCallback = renderCenterContent != null }, sessionId = "debug-session", runId = "run1", hypothesisId = "H4" }) + "\n"); } catch { }
-            // #endregion
             renderCenterContent?.Invoke(centerX, centerY, centerW, centerH);
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "LayoutCoordinator.cs:RenderWithLayout", message = "After renderCenterContent.Invoke", data = new { }, sessionId = "debug-session", runId = "run1", hypothesisId = "H4" }) + "\n"); } catch { }
-            // #endregion
             // Render right panel (Dungeon/Enemy Info or Inventory Actions) - always update
             rightPanelRenderer.RenderRightPanel(enemy, dungeonName, roomName, title, characterForRightPanel);
             

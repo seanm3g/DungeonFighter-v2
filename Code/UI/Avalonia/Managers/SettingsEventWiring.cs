@@ -3,6 +3,7 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using RPGGame;
 using RPGGame.UI.Avalonia.Helpers;
+using RPGGame.UI.Avalonia.Managers.Settings;
 using System;
 using System.Threading.Tasks;
 using ActionDelegate = System.Action;
@@ -180,74 +181,26 @@ namespace RPGGame.UI.Avalonia.Managers
                 return;
             }
 
-            narrativeBalanceSlider.ValueChanged += (s, e) => 
-            {
-                if (narrativeBalanceTextBox != null)
-                    narrativeBalanceTextBox.Text = narrativeBalanceSlider.Value.ToString("F2");
-            };
-            
-            combatSpeedSlider.ValueChanged += (s, e) => 
-            {
-                if (combatSpeedTextBox != null)
-                    combatSpeedTextBox.Text = combatSpeedSlider.Value.ToString("F2");
-            };
-            
-            enemyHealthMultiplierSlider.ValueChanged += (s, e) => 
-            {
-                if (enemyHealthMultiplierTextBox != null)
-                    enemyHealthMultiplierTextBox.Text = enemyHealthMultiplierSlider.Value.ToString("F2");
-            };
-            
-            enemyDamageMultiplierSlider.ValueChanged += (s, e) => 
-            {
-                if (enemyDamageMultiplierTextBox != null)
-                    enemyDamageMultiplierTextBox.Text = enemyDamageMultiplierSlider.Value.ToString("F2");
-            };
-            
-            playerHealthMultiplierSlider.ValueChanged += (s, e) => 
-            {
-                if (playerHealthMultiplierTextBox != null)
-                    playerHealthMultiplierTextBox.Text = playerHealthMultiplierSlider.Value.ToString("F2");
-            };
-            
-            playerDamageMultiplierSlider.ValueChanged += (s, e) => 
-            {
-                if (playerDamageMultiplierTextBox != null)
-                    playerDamageMultiplierTextBox.Text = playerDamageMultiplierSlider.Value.ToString("F2");
-            };
+            // Bind sliders to textboxes using helper
+            SliderTextBoxBinder.BindSliderToTextBox(narrativeBalanceSlider, narrativeBalanceTextBox, "F2");
+            SliderTextBoxBinder.BindSliderToTextBox(combatSpeedSlider, combatSpeedTextBox, "F2");
+            SliderTextBoxBinder.BindSliderToTextBox(enemyHealthMultiplierSlider, enemyHealthMultiplierTextBox, "F2");
+            SliderTextBoxBinder.BindSliderToTextBox(enemyDamageMultiplierSlider, enemyDamageMultiplierTextBox, "F2");
+            SliderTextBoxBinder.BindSliderToTextBox(playerHealthMultiplierSlider, playerHealthMultiplierTextBox, "F2");
+            SliderTextBoxBinder.BindSliderToTextBox(playerDamageMultiplierSlider, playerDamageMultiplierTextBox, "F2");
             
             // Animation sliders
             if (brightnessMaskIntensitySlider != null && brightnessMaskIntensityTextBox != null)
-            {
-                brightnessMaskIntensitySlider.ValueChanged += (s, e) => 
-                {
-                    brightnessMaskIntensityTextBox.Text = brightnessMaskIntensitySlider.Value.ToString("F1");
-                };
-            }
+                SliderTextBoxBinder.BindSliderToTextBox(brightnessMaskIntensitySlider, brightnessMaskIntensityTextBox, "F1");
             
             if (brightnessMaskWaveLengthSlider != null && brightnessMaskWaveLengthTextBox != null)
-            {
-                brightnessMaskWaveLengthSlider.ValueChanged += (s, e) => 
-                {
-                    brightnessMaskWaveLengthTextBox.Text = brightnessMaskWaveLengthSlider.Value.ToString("F1");
-                };
-            }
+                SliderTextBoxBinder.BindSliderToTextBox(brightnessMaskWaveLengthSlider, brightnessMaskWaveLengthTextBox, "F1");
             
             if (undulationSpeedSlider != null && undulationSpeedTextBox != null)
-            {
-                undulationSpeedSlider.ValueChanged += (s, e) => 
-                {
-                    undulationSpeedTextBox.Text = undulationSpeedSlider.Value.ToString("F3");
-                };
-            }
+                SliderTextBoxBinder.BindSliderToTextBox(undulationSpeedSlider, undulationSpeedTextBox, "F3");
             
             if (undulationWaveLengthSlider != null && undulationWaveLengthTextBox != null)
-            {
-                undulationWaveLengthSlider.ValueChanged += (s, e) => 
-                {
-                    undulationWaveLengthTextBox.Text = undulationWaveLengthSlider.Value.ToString("F1");
-                };
-            }
+                SliderTextBoxBinder.BindSliderToTextBox(undulationWaveLengthSlider, undulationWaveLengthTextBox, "F1");
         }
 
         /// <summary>
@@ -287,124 +240,26 @@ namespace RPGGame.UI.Avalonia.Managers
                 return;
             }
 
-            narrativeBalanceTextBox.LostFocus += (s, e) => 
-            {
-                if (narrativeBalanceTextBox != null && narrativeBalanceSlider != null &&
-                    double.TryParse(narrativeBalanceTextBox.Text, out double value))
-                {
-                    value = Math.Clamp(value, 0.0, 1.0);
-                    narrativeBalanceSlider.Value = value;
-                    narrativeBalanceTextBox.Text = value.ToString("F2");
-                }
-            };
-            
-            combatSpeedTextBox.LostFocus += (s, e) => 
-            {
-                if (combatSpeedTextBox != null && combatSpeedSlider != null &&
-                    double.TryParse(combatSpeedTextBox.Text, out double value))
-                {
-                    value = Math.Clamp(value, 0.5, 2.0);
-                    combatSpeedSlider.Value = value;
-                    combatSpeedTextBox.Text = value.ToString("F2");
-                }
-            };
-            
-            enemyHealthMultiplierTextBox.LostFocus += (s, e) => 
-            {
-                if (enemyHealthMultiplierTextBox != null && enemyHealthMultiplierSlider != null &&
-                    double.TryParse(enemyHealthMultiplierTextBox.Text, out double value))
-                {
-                    value = Math.Clamp(value, 0.5, 3.0);
-                    enemyHealthMultiplierSlider.Value = value;
-                    enemyHealthMultiplierTextBox.Text = value.ToString("F2");
-                }
-            };
-            
-            enemyDamageMultiplierTextBox.LostFocus += (s, e) => 
-            {
-                if (enemyDamageMultiplierTextBox != null && enemyDamageMultiplierSlider != null &&
-                    double.TryParse(enemyDamageMultiplierTextBox.Text, out double value))
-                {
-                    value = Math.Clamp(value, 0.5, 3.0);
-                    enemyDamageMultiplierSlider.Value = value;
-                    enemyDamageMultiplierTextBox.Text = value.ToString("F2");
-                }
-            };
-            
-            playerHealthMultiplierTextBox.LostFocus += (s, e) => 
-            {
-                if (playerHealthMultiplierTextBox != null && playerHealthMultiplierSlider != null &&
-                    double.TryParse(playerHealthMultiplierTextBox.Text, out double value))
-                {
-                    value = Math.Clamp(value, 0.5, 3.0);
-                    playerHealthMultiplierSlider.Value = value;
-                    playerHealthMultiplierTextBox.Text = value.ToString("F2");
-                }
-            };
-            
-            playerDamageMultiplierTextBox.LostFocus += (s, e) => 
-            {
-                if (playerDamageMultiplierTextBox != null && playerDamageMultiplierSlider != null &&
-                    double.TryParse(playerDamageMultiplierTextBox.Text, out double value))
-                {
-                    value = Math.Clamp(value, 0.5, 3.0);
-                    playerDamageMultiplierSlider.Value = value;
-                    playerDamageMultiplierTextBox.Text = value.ToString("F2");
-                }
-            };
+            // Bind textboxes to sliders using helper with validation
+            SliderTextBoxBinder.BindTextBoxToSlider(narrativeBalanceTextBox, narrativeBalanceSlider, 0.0, 1.0, "F2");
+            SliderTextBoxBinder.BindTextBoxToSlider(combatSpeedTextBox, combatSpeedSlider, 0.5, 2.0, "F2");
+            SliderTextBoxBinder.BindTextBoxToSlider(enemyHealthMultiplierTextBox, enemyHealthMultiplierSlider, 0.5, 3.0, "F2");
+            SliderTextBoxBinder.BindTextBoxToSlider(enemyDamageMultiplierTextBox, enemyDamageMultiplierSlider, 0.5, 3.0, "F2");
+            SliderTextBoxBinder.BindTextBoxToSlider(playerHealthMultiplierTextBox, playerHealthMultiplierSlider, 0.5, 3.0, "F2");
+            SliderTextBoxBinder.BindTextBoxToSlider(playerDamageMultiplierTextBox, playerDamageMultiplierSlider, 0.5, 3.0, "F2");
             
             // Animation textboxes
             if (brightnessMaskIntensityTextBox != null && brightnessMaskIntensitySlider != null)
-            {
-                brightnessMaskIntensityTextBox.LostFocus += (s, e) => 
-                {
-                    if (float.TryParse(brightnessMaskIntensityTextBox.Text, out float value))
-                    {
-                        value = Math.Clamp(value, 0f, 50f);
-                        brightnessMaskIntensitySlider.Value = value;
-                        brightnessMaskIntensityTextBox.Text = value.ToString("F1");
-                    }
-                };
-            }
+                SliderTextBoxBinder.BindTextBoxToSliderFloat(brightnessMaskIntensityTextBox, brightnessMaskIntensitySlider, 0f, 50f, "F1");
             
             if (brightnessMaskWaveLengthTextBox != null && brightnessMaskWaveLengthSlider != null)
-            {
-                brightnessMaskWaveLengthTextBox.LostFocus += (s, e) => 
-                {
-                    if (float.TryParse(brightnessMaskWaveLengthTextBox.Text, out float value))
-                    {
-                        value = Math.Clamp(value, 1f, 20f);
-                        brightnessMaskWaveLengthSlider.Value = value;
-                        brightnessMaskWaveLengthTextBox.Text = value.ToString("F1");
-                    }
-                };
-            }
+                SliderTextBoxBinder.BindTextBoxToSliderFloat(brightnessMaskWaveLengthTextBox, brightnessMaskWaveLengthSlider, 1f, 20f, "F1");
             
             if (undulationSpeedTextBox != null && undulationSpeedSlider != null)
-            {
-                undulationSpeedTextBox.LostFocus += (s, e) => 
-                {
-                    if (double.TryParse(undulationSpeedTextBox.Text, out double value))
-                    {
-                        value = Math.Clamp(value, 0.0, 0.2);
-                        undulationSpeedSlider.Value = value;
-                        undulationSpeedTextBox.Text = value.ToString("F3");
-                    }
-                };
-            }
+                SliderTextBoxBinder.BindTextBoxToSlider(undulationSpeedTextBox, undulationSpeedSlider, 0.0, 0.2, "F3");
             
             if (undulationWaveLengthTextBox != null && undulationWaveLengthSlider != null)
-            {
-                undulationWaveLengthTextBox.LostFocus += (s, e) => 
-                {
-                    if (float.TryParse(undulationWaveLengthTextBox.Text, out float value))
-                    {
-                        value = Math.Clamp(value, 1f, 20f);
-                        undulationWaveLengthSlider.Value = value;
-                        undulationWaveLengthTextBox.Text = value.ToString("F1");
-                    }
-                };
-            }
+                SliderTextBoxBinder.BindTextBoxToSliderFloat(undulationWaveLengthTextBox, undulationWaveLengthSlider, 1f, 20f, "F1");
         }
 
         /// <summary>
@@ -427,20 +282,16 @@ namespace RPGGame.UI.Avalonia.Managers
                 return;
             }
 
-            saveButton.Click += (s, e) => onSave?.Invoke();
-            resetButton.Click += (s, e) => onReset?.Invoke();
-            backButton.Click += (s, e) => onBack?.Invoke();
+            // Wire up button events using helper
+            ButtonEventHandler.WireAction(saveButton, onSave);
+            ButtonEventHandler.WireAction(resetButton, onReset);
+            ButtonEventHandler.WireAction(backButton, onBack);
             
-            if (quickTestButton != null && runBattleTest != null)
-                quickTestButton.Click += async (s, e) => await runBattleTest(100);
-            if (standardTestButton != null && runBattleTest != null)
-                standardTestButton.Click += async (s, e) => await runBattleTest(500);
-            if (comprehensiveTestButton != null && runBattleTest != null)
-                comprehensiveTestButton.Click += async (s, e) => await runBattleTest(1000);
-            if (weaponTypeTestButton != null && runWeaponTypeTests != null)
-                weaponTypeTestButton.Click += async (s, e) => await runWeaponTypeTests();
-            if (comprehensiveWeaponEnemyTestButton != null && runComprehensiveWeaponEnemyTests != null)
-                comprehensiveWeaponEnemyTestButton.Click += async (s, e) => await runComprehensiveWeaponEnemyTests();
+            ButtonEventHandler.WireAsyncAction(quickTestButton, runBattleTest != null ? () => runBattleTest(100) : null);
+            ButtonEventHandler.WireAsyncAction(standardTestButton, runBattleTest != null ? () => runBattleTest(500) : null);
+            ButtonEventHandler.WireAsyncAction(comprehensiveTestButton, runBattleTest != null ? () => runBattleTest(1000) : null);
+            ButtonEventHandler.WireAsyncAction(weaponTypeTestButton, runWeaponTypeTests);
+            ButtonEventHandler.WireAsyncAction(comprehensiveWeaponEnemyTestButton, runComprehensiveWeaponEnemyTests);
         }
     }
 }

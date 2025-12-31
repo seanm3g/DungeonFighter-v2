@@ -304,6 +304,14 @@ namespace RPGGame.UI.ColorSystem
         
         private static Color GetColorForWord(string word)
         {
+            // Exclude common articles from being colored
+            var lowerWord = word.ToLowerInvariant().TrimEnd('.', ',', '!', '?', ';', ':');
+            var commonArticles = new HashSet<string> { "the", "a", "an", "and", "or", "but", "for", "with", "to", "of", "in", "on", "at", "by" };
+            if (commonArticles.Contains(lowerWord))
+            {
+                return Colors.White;
+            }
+            
             foreach (var group in _keywordGroups.Values)
             {
                 if (group.ContainsKeyword(word))

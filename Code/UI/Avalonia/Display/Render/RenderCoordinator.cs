@@ -95,9 +95,6 @@ namespace RPGGame.UI.Avalonia.Display.Render
         /// <param name="force">If true, bypasses the NeedsRender check and always renders (used for animation updates)</param>
         public void PerformRender(bool force = false)
         {
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "RenderCoordinator.cs:PerformRender", message = "Entry", data = new { force = force, bufferCount = buffer.Count }, sessionId = "debug-session", runId = "run2", hypothesisId = "H5" }) + "\n"); } catch { }
-            // #endregion
             // Prevent concurrent renders
             lock (renderLock)
             {
@@ -112,9 +109,6 @@ namespace RPGGame.UI.Avalonia.Display.Render
             var state = renderStateManager.GetRenderState(buffer, contextManager, stateManager);
             var activeCharacter = stateManager?.GetActiveCharacter();
             var currentCharacter = contextManager.GetCurrentCharacter();
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "RenderCoordinator.cs:PerformRender", message = "Render state", data = new { currentCharacter = currentCharacter?.Name, activeCharacter = activeCharacter?.Name, charactersMatch = currentCharacter == activeCharacter, bufferCount = buffer.Count, needsRender = state.NeedsRender }, sessionId = "debug-session", runId = "run2", hypothesisId = "H5" }) + "\n"); } catch { }
-            // #endregion
             
             // CRITICAL: Clear enemy if character doesn't match active character OR if there's no external callback
             // This prevents background combat enemies from being displayed even if callback hasn't been cleared yet

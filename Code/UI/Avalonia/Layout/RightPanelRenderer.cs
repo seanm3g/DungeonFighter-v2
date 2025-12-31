@@ -24,9 +24,6 @@ namespace RPGGame.UI.Avalonia.Layout
         /// </summary>
         public void RenderRightPanel(Enemy? enemy, string? dungeonName, string? roomName, string title, Character? character)
         {
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "RightPanelRenderer.cs:RenderRightPanel", message = "Rendering right panel", data = new { enemyName = enemy?.Name ?? "null", characterName = character?.Name ?? "null", title = title }, sessionId = "debug-session", runId = "run1", hypothesisId = "H5" }) + "\n"); } catch { }
-            // #endregion
             // Clear the right panel content area before rendering to prevent text overlap
             int contentX = LayoutConstants.RIGHT_PANEL_X + 2;
             int contentY = LayoutConstants.RIGHT_PANEL_Y + 1;

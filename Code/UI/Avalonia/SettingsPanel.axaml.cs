@@ -35,7 +35,6 @@ namespace RPGGame.UI.Avalonia
         private Managers.SettingsColorManager? colorManager;
         
         // Extracted managers
-        private SettingsPersistenceManager? persistenceManager;
         private SettingsInitialization? initialization;
         private SettingsActionTestGenerator? actionTestGenerator;
         
@@ -72,8 +71,10 @@ namespace RPGGame.UI.Avalonia
             itemModifiersTabManager = new Managers.ItemModifiersTabManager(ShowStatusMessage);
             itemsTabManager = new Managers.ItemsTabManager(ShowStatusMessage);
             
+            // Set game variables tab manager in settings manager (needed for save operations)
+            settingsManager.SetGameVariablesTabManager(gameVariablesTabManager);
+            
             // Initialize extracted managers
-            persistenceManager = new SettingsPersistenceManager(settingsManager, gameVariablesTabManager);
             initialization = new SettingsInitialization(
                 settingsManager,
                 gameVariablesTabManager,
@@ -88,7 +89,7 @@ namespace RPGGame.UI.Avalonia
             
             // Initialize panel handler registry
             panelHandlerRegistry = new PanelHandlerRegistry();
-            panelHandlerRegistry.Register(new GameplayPanelHandler(settings, persistenceManager));
+            panelHandlerRegistry.Register(new GameplayPanelHandler(settings, settingsManager));
             panelHandlerRegistry.Register(new TextDelaysPanelHandler(settingsManager));
             panelHandlerRegistry.Register(new AppearancePanelHandler(settings, colorManager));
             // Testing handler will be registered when canvasUI is available

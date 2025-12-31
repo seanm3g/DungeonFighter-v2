@@ -2,42 +2,6 @@
   "BuildMetrics": [],
   "ExecutionMetrics": [
     {
-      "Timestamp": "2025-12-28T19:46:34.5956392Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 6837,
-      "ExecutionTimeSeconds": 6.837324
-    },
-    {
-      "Timestamp": "2025-12-28T19:51:06.2782246Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 6071,
-      "ExecutionTimeSeconds": 6.07152
-    },
-    {
-      "Timestamp": "2025-12-28T19:52:43.0754915Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 5553,
-      "ExecutionTimeSeconds": 5.5530784
-    },
-    {
-      "Timestamp": "2025-12-28T19:54:00.6036315Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 6383,
-      "ExecutionTimeSeconds": 6.3831495
-    },
-    {
-      "Timestamp": "2025-12-28T20:03:20.1875714Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 5919,
-      "ExecutionTimeSeconds": 5.9191711
-    },
-    {
-      "Timestamp": "2025-12-28T20:04:28.834379Z",
-      "Mode": "GUI",
-      "ExecutionTimeMs": 5923,
-      "ExecutionTimeSeconds": 5.923556
-    },
-    {
       "Timestamp": "2025-12-28T20:05:49.6921993Z",
       "Mode": "GUI",
       "ExecutionTimeMs": 4239,
@@ -600,6 +564,42 @@
       "Mode": "GUI",
       "ExecutionTimeMs": 3117,
       "ExecutionTimeSeconds": 3.1178062
+    },
+    {
+      "Timestamp": "2025-12-31T15:45:52.2167332Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 326617,
+      "ExecutionTimeSeconds": 326.6179415
+    },
+    {
+      "Timestamp": "2025-12-31T15:57:25.3561051Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 5977,
+      "ExecutionTimeSeconds": 5.9776669
+    },
+    {
+      "Timestamp": "2025-12-31T16:03:49.7516113Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 6726,
+      "ExecutionTimeSeconds": 6.7261048
+    },
+    {
+      "Timestamp": "2025-12-31T16:06:00.5658512Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 3941,
+      "ExecutionTimeSeconds": 3.9416382
+    },
+    {
+      "Timestamp": "2025-12-31T16:07:52.9019245Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 2546,
+      "ExecutionTimeSeconds": 2.5463611
+    },
+    {
+      "Timestamp": "2025-12-31T16:08:01.4094409Z",
+      "Mode": "GUI",
+      "ExecutionTimeMs": 5366,
+      "ExecutionTimeSeconds": 5.3664644
     }
   ]
 }

@@ -51,14 +51,8 @@ namespace RPGGame
         /// </summary>
         public async Task RunDungeon()
         {
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "DungeonOrchestrator.cs:RunDungeon", message = "Entry", data = new { currentState = stateManager.CurrentState.ToString(), hasPlayer = stateManager.CurrentPlayer != null, hasDungeon = stateManager.CurrentDungeon != null }, sessionId = "debug-session", runId = "run1", hypothesisId = "A" }) + "\n"); } catch { }
-            // #endregion
             if (stateManager.CurrentPlayer == null || stateManager.CurrentDungeon == null)
             {
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "DungeonOrchestrator.cs:RunDungeon", message = "Early return - missing components", data = new { hasPlayer = stateManager.CurrentPlayer != null, hasDungeon = stateManager.CurrentDungeon != null }, sessionId = "debug-session", runId = "run1", hypothesisId = "A" }) + "\n"); } catch { }
-                // #endregion
                 DungeonErrorHandler.HandleMissingComponents(stateManager, customUIManager);
                 return;
             }
@@ -198,10 +192,6 @@ namespace RPGGame
                 // Dungeon completed successfully
                 var (xpGained, lootReceived, levelUpInfos, itemsFoundDuringRun) = await rewardManager.CompleteDungeon();
                 
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "DungeonOrchestrator.cs:RunDungeon", message = "Dungeon completed successfully", data = new { currentState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "A" }) + "\n"); } catch { }
-                // #endregion
-                
                 // Transition to completion state
                 stateManager.TransitionToState(GameState.DungeonCompletion);
                 
@@ -210,12 +200,6 @@ namespace RPGGame
             }
             catch (Exception ex)
             {
-                // #region agent log
-                try { 
-                    string? stackTrace = ex.StackTrace != null && ex.StackTrace.Length > 500 ? ex.StackTrace.Substring(0, 500) : ex.StackTrace;
-                    System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "DungeonOrchestrator.cs:RunDungeon", message = "Exception in RunDungeon", data = new { exceptionType = ex.GetType().Name, exceptionMessage = ex.Message, stackTrace }, sessionId = "debug-session", runId = "run1", hypothesisId = "C" }) + "\n"); 
-                } catch { }
-                // #endregion
                 DungeonErrorHandler.HandleException(ex, customUIManager);
                 throw;
             }

@@ -38,17 +38,6 @@ namespace RPGGame
         /// </summary>
         public async Task ShowDungeonSelection()
         {
-            // #region agent log
-            try { 
-                var logDir = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), ".cursor");
-                if (!System.IO.Directory.Exists(logDir)) System.IO.Directory.CreateDirectory(logDir);
-                var logPath = System.IO.Path.Combine(logDir, "debug.log");
-                var currentState = stateManager.CurrentState.ToString();
-                var stackTrace = new System.Diagnostics.StackTrace().ToString();
-                System.IO.File.AppendAllText(logPath, System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "DungeonSelectionHandler.cs:ShowDungeonSelection", message = "ShowDungeonSelection called", data = new { currentState, hasPlayer = stateManager.CurrentPlayer != null, stackTrace = stackTrace.Substring(0, Math.Min(1000, stackTrace.Length)) }, sessionId = "debug-session", runId = "run1", hypothesisId = "F" }) + "\n"); 
-                DebugLogger.WriteDebugAlways($"[DEBUG] ShowDungeonSelection called from state={currentState}");
-            } catch (Exception logEx) { DebugLogger.WriteDebugAlways($"[DEBUG] Logging error: {logEx.Message}"); }
-            // #endregion
             
             if (stateManager.CurrentPlayer == null || dungeonManager == null) return;
             

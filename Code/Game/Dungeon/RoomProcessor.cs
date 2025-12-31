@@ -42,9 +42,6 @@ namespace RPGGame
         /// </summary>
         public async Task<bool> ProcessRoom(Environment room, int roomNumber, int totalRooms, bool isFirstRoom)
         {
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "RoomProcessor.cs:ProcessRoom", message = "Entry", data = new { roomNumber, totalRooms, currentState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "A" }) + "\n"); } catch { }
-            // #endregion
             if (stateManager.CurrentPlayer == null || combatManager == null) return false;
             
             stateManager.SetCurrentRoom(room);
@@ -233,19 +230,10 @@ namespace RPGGame
                         Enemy? currentEnemy = room.GetNextLivingEnemy();
                         if (currentEnemy == null) break;
                         
-                        // #region agent log
-                        try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "RoomProcessor.cs:ProcessRoom", message = "Before ProcessEnemyEncounter", data = new { enemyName = currentEnemy.Name, currentState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "A" }) + "\n"); } catch { }
-                        // #endregion
                         if (!await enemyEncounterHandler.ProcessEnemyEncounter(currentEnemy, playerGetsFirstAttack, enemyGetsFirstAttack))
                         {
-                            // #region agent log
-                            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "RoomProcessor.cs:ProcessRoom", message = "Player died in combat", data = new { currentState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "A" }) + "\n"); } catch { }
-                            // #endregion
                             return false; // Player died
                         }
-                        // #region agent log
-                        try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "RoomProcessor.cs:ProcessRoom", message = "After ProcessEnemyEncounter", data = new { currentState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "A" }) + "\n"); } catch { }
-                        // #endregion
                         
                         // Reset flags after first enemy encounter
                         playerGetsFirstAttack = false;
@@ -253,10 +241,6 @@ namespace RPGGame
                     }
                 }
             }
-            
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "RoomProcessor.cs:ProcessRoom", message = "Room processing complete", data = new { roomNumber, currentState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "A" }) + "\n"); } catch { }
-            // #endregion
             
             // Post-combat search (happens FIRST, before room cleared message)
             bool foundLoot = false;

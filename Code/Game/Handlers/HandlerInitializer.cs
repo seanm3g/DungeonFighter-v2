@@ -162,28 +162,9 @@ namespace RPGGame.Handlers
                 {
                     handlers.DungeonSelectionHandler.StartDungeonEvent += async () => 
                     {
-                        // #region agent log
-                        try { 
-                            var logDir = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), ".cursor");
-                            if (!System.IO.Directory.Exists(logDir)) System.IO.Directory.CreateDirectory(logDir);
-                            var logPath = System.IO.Path.Combine(logDir, "debug.log");
-                            System.IO.File.AppendAllText(logPath, System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "HandlerInitializer.cs:StartDungeonEvent", message = "RunDungeon starting", data = new { currentState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "A" }) + "\n"); 
-                            DebugLogger.WriteDebugAlways($"[DEBUG] HandlerInitializer: RunDungeon starting, state={stateManager.CurrentState}");
-                        } catch (Exception logEx) { DebugLogger.WriteDebugAlways($"[DEBUG] Logging error: {logEx.Message}"); }
-                        // #endregion
                         try
                         {
                             await handlers.DungeonRunnerManager.RunDungeon();
-                            
-                            // #region agent log
-                            try { 
-                                var logDir = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), ".cursor");
-                                if (!System.IO.Directory.Exists(logDir)) System.IO.Directory.CreateDirectory(logDir);
-                                var logPath = System.IO.Path.Combine(logDir, "debug.log");
-                                System.IO.File.AppendAllText(logPath, System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "HandlerInitializer.cs:StartDungeonEvent", message = "RunDungeon completed", data = new { currentState = stateManager.CurrentState.ToString() }, sessionId = "debug-session", runId = "run1", hypothesisId = "A" }) + "\n"); 
-                                DebugLogger.WriteDebugAlways($"[DEBUG] HandlerInitializer: RunDungeon completed, state={stateManager.CurrentState}");
-                            } catch (Exception logEx) { DebugLogger.WriteDebugAlways($"[DEBUG] Logging error: {logEx.Message}"); }
-                            // #endregion
                             
                             // NOTE: Removed incorrect state check that was causing premature transitions to DungeonSelection.
                             // DungeonOrchestrator.RunDungeon() properly manages state transitions:
@@ -194,18 +175,6 @@ namespace RPGGame.Handlers
                         }
                         catch (Exception ex)
                         {
-                            // #region agent log
-                            try { 
-                                string? stackTrace = ex.StackTrace != null && ex.StackTrace.Length > 500 ? ex.StackTrace.Substring(0, 500) : ex.StackTrace;
-                                var logDir = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), ".cursor");
-                                if (!System.IO.Directory.Exists(logDir)) System.IO.Directory.CreateDirectory(logDir);
-                                var logPath = System.IO.Path.Combine(logDir, "debug.log");
-                                var loggedState = stateManager.CurrentState.ToString();
-                                System.IO.File.AppendAllText(logPath, System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "HandlerInitializer.cs:StartDungeonEvent", message = "Exception caught", data = new { exceptionType = ex.GetType().Name, exceptionMessage = ex.Message, currentState = loggedState, stackTrace }, sessionId = "debug-session", runId = "run1", hypothesisId = "C" }) + "\n"); 
-                                DebugLogger.WriteDebugAlways($"[DEBUG] HandlerInitializer: Exception caught: {ex.GetType().Name} - {ex.Message}, state={loggedState}");
-                            } catch (Exception logEx) { DebugLogger.WriteDebugAlways($"[DEBUG] Logging error: {logEx.Message}"); }
-                            // #endregion
-                            
                             // Only transition to DungeonSelection if we're not in the middle of combat or dungeon
                             // If we're in Combat or Dungeon state, let the orchestrator handle the error
                             var currentState = stateManager.CurrentState;

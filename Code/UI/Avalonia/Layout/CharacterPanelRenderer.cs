@@ -38,7 +38,7 @@ namespace RPGGame.UI.Avalonia.Layout
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Hero), AsciiArtAssets.Colors.Gold);
             y += 2;
             
-            canvas.AddText(x, y, character.Name, ColorPalette.Player.GetColor());
+            canvas.AddText(x, y, character.Name, EntityColorHelper.GetActorColor(character));
             y++;
             canvas.AddText(x, y, $"Lvl {character.Level}", AsciiArtAssets.Colors.Yellow);
             y++;
@@ -82,9 +82,9 @@ namespace RPGGame.UI.Avalonia.Layout
             int totalDamage = character.GetEffectiveStrength() + weaponDamage + equipmentDamageBonus + modificationDamageBonus;
             
             // Add damage and armor stats first
-            canvas.AddCharacterStat(x, y, "Damage", totalDamage, 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.Magenta);
+            canvas.AddCharacterStat(x, y, "dmg", totalDamage, 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.Magenta);
             y++;
-            canvas.AddCharacterStat(x, y, "Armor", character.GetTotalArmor(), 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.Magenta);
+            canvas.AddCharacterStat(x, y, "arm", character.GetTotalArmor(), 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.Magenta);
             y++;
             y++; // Blank line after armor
             

@@ -122,13 +122,26 @@ namespace RPGGame.Entity.Services
         /// <returns>The GameData directory path</returns>
         public string GetGameDataDirectory()
         {
-            var gameDataPath = GameConstants.GetGameDataFilePath("");
-            var directory = Path.GetDirectoryName(gameDataPath);
+            // Use a known file to get the GameData directory path
+            // This ensures we get the correct resolved path
+            var gameDataFilePath = GameConstants.GetGameDataFilePath(GameConstants.CharacterSaveJson);
+            var directory = Path.GetDirectoryName(gameDataFilePath);
+            
+            // Normalize the path to resolve any ".." components
+            if (!string.IsNullOrEmpty(directory))
+            {
+                directory = Path.GetFullPath(directory);
+            }
             
             if (string.IsNullOrEmpty(directory) || !Directory.Exists(directory))
             {
-                // Try to find GameData directory
-                directory = Path.GetDirectoryName(GameConstants.GetGameDataFilePath(GameConstants.CharacterSaveJson));
+                // Fallback: try to find GameData directory using empty string
+                var gameDataPath = GameConstants.GetGameDataFilePath("");
+                directory = Path.GetDirectoryName(gameDataPath);
+                if (!string.IsNullOrEmpty(directory))
+                {
+                    directory = Path.GetFullPath(directory);
+                }
             }
             
             return directory ?? "";

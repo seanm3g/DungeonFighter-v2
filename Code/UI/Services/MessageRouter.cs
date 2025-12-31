@@ -140,14 +140,8 @@ namespace RPGGame.UI.Services
             Character? character = null)
         {
             var activeCharacter = stateManager?.GetActiveCharacter();
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "MessageRouter.cs:RouteSystemMessage", message = "Entry", data = new { character = character?.Name, activeCharacter = activeCharacter?.Name, messageType = messageType.ToString(), messagePreview = message?.Substring(0, Math.Min(50, message?.Length ?? 0)) }, sessionId = "debug-session", runId = "run2", hypothesisId = "H2" }) + "\n"); } catch { }
-            // #endregion
             // Check if message should be displayed
             bool shouldDisplay = filterService.ShouldDisplayMessage(character, messageType, stateManager, contextManager);
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "MessageRouter.cs:RouteSystemMessage", message = "Filter result", data = new { shouldDisplay = shouldDisplay, character = character?.Name, activeCharacter = activeCharacter?.Name }, sessionId = "debug-session", runId = "run2", hypothesisId = "H2" }) + "\n"); } catch { }
-            // #endregion
 
             if (!shouldDisplay)
             {
@@ -156,9 +150,6 @@ namespace RPGGame.UI.Services
 
             // Get the display manager for this character (per-character display managers if available)
             var targetDisplayManager = GetDisplayManagerForCharacter(character);
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "MessageRouter.cs:RouteSystemMessage", message = "Target display manager", data = new { targetDisplayManagerExists = targetDisplayManager != null, character = character?.Name, activeCharacter = activeCharacter?.Name, targetBufferCount = targetDisplayManager?.Buffer.Count ?? 0 }, sessionId = "debug-session", runId = "run2", hypothesisId = "H2" }) + "\n"); } catch { }
-            // #endregion
             
             // Route to display manager if available (preferred)
             if (targetDisplayManager != null && message != null)
