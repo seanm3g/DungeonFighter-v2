@@ -46,6 +46,15 @@ namespace RPGGame.GameCore.Input
             switch (stateManager.CurrentState)
             {
                 case GameState.Inventory:
+                    // Prevent ESC during trade-up flow - must complete trade-up once started
+                    if (handlers.InventoryMenuHandler != null && handlers.InventoryMenuHandler.IsInTradeUpFlow())
+                    {
+                        // Do nothing - cannot escape from trade-up menu
+                        return Task.CompletedTask;
+                    }
+                    stateManager.TransitionToState(GameState.MainMenu);
+                    showMainMenu();
+                    break;
                 case GameState.CharacterInfo:
                 case GameState.Settings:
                     stateManager.TransitionToState(GameState.MainMenu);
@@ -101,6 +110,7 @@ namespace RPGGame.GameCore.Input
     public class EscapeKeyHandlers
     {
         public ActionEditorHandler? ActionEditorHandler { get; set; }
+        public InventoryMenuHandler? InventoryMenuHandler { get; set; }
     }
 }
 

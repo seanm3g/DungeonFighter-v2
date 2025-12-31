@@ -6,17 +6,17 @@ using RPGGame.Tests;
 namespace RPGGame.Tests
 {
     /// <summary>
-    /// Test runner for Common item modification chance verification
+    /// Test runner for Common item bonus chance verification
     /// </summary>
     public static class CommonItemModificationTestRunner
     {
         /// <summary>
-        /// Tests Common item modification chance to verify 25% chance for mods/stat bonuses
+        /// Tests Common item bonus chance to verify 10% chance for stat bonuses only (no modifications)
         /// </summary>
         public static void RunTest()
         {
-            TextDisplayIntegration.DisplaySystem("Starting Common Item Modification Test...");
-            TextDisplayIntegration.DisplaySystem("This will generate 1000 Common items and verify the 25% chance for modifications.");
+            TextDisplayIntegration.DisplaySystem("Starting Common Item Bonus Test...");
+            TextDisplayIntegration.DisplaySystem("This will generate 1000 Common items and verify the 10% chance for stat bonuses (no modifications).");
             
             if (!TestHarnessBase.PromptContinue())
                 return;
@@ -26,7 +26,6 @@ namespace RPGGame.Tests
             int totalCommonItems = 0;
             int commonItemsWithMods = 0;
             int commonItemsWithStatBonuses = 0;
-            int commonItemsWithBoth = 0;
             var sampleItems = new List<string>();
             
             // Generate items until we have 1000 Common items
@@ -45,16 +44,13 @@ namespace RPGGame.Tests
                     
                     if (hasMods) commonItemsWithMods++;
                     if (hasStatBonuses) commonItemsWithStatBonuses++;
-                    if (hasMods && hasStatBonuses) commonItemsWithBoth++;
                     
                     // Collect sample items for display
                     if (sampleItems.Count < 20)
                     {
                         string bonusInfo = "";
-                        if (hasMods && hasStatBonuses)
-                            bonusInfo = " (Mods + Stat Bonuses)";
-                        else if (hasMods)
-                            bonusInfo = " (Mods)";
+                        if (hasMods)
+                            bonusInfo = " (⚠ HAS MODIFICATIONS - ERROR!)";
                         else if (hasStatBonuses)
                             bonusInfo = " (Stat Bonuses)";
                         else
@@ -66,39 +62,39 @@ namespace RPGGame.Tests
             }
             
             // Display results
-            TestHarnessBase.DisplayTestHeader("COMMON ITEM MODIFICATION TEST RESULTS");
+            TestHarnessBase.DisplayTestHeader("COMMON ITEM BONUS TEST RESULTS");
             
             TextDisplayIntegration.DisplaySystem($"Total items generated: {itemsGenerated:N0}");
             TextDisplayIntegration.DisplaySystem($"Common items found: {totalCommonItems:N0}");
-            TextDisplayIntegration.DisplaySystem($"Common items with modifications: {commonItemsWithMods:N0}");
+            TextDisplayIntegration.DisplaySystem($"Common items with modifications: {commonItemsWithMods:N0} (Expected: 0)");
             TextDisplayIntegration.DisplaySystem($"Common items with stat bonuses: {commonItemsWithStatBonuses:N0}");
-            TextDisplayIntegration.DisplaySystem($"Common items with both: {commonItemsWithBoth:N0}");
             
             if (totalCommonItems > 0)
             {
                 double modChance = (double)commonItemsWithMods / totalCommonItems * 100;
                 double statBonusChance = (double)commonItemsWithStatBonuses / totalCommonItems * 100;
-                double bothChance = (double)commonItemsWithBoth / totalCommonItems * 100;
                 
-                TextDisplayIntegration.DisplaySystem($"\nModification chance: {modChance:F1}% (Expected: 25.0%)");
-                TextDisplayIntegration.DisplaySystem($"Stat bonus chance: {statBonusChance:F1}% (Expected: 25.0%)");
-                TextDisplayIntegration.DisplaySystem($"Both bonuses chance: {bothChance:F1}% (Expected: 25.0%)");
+                TextDisplayIntegration.DisplaySystem($"\nModification chance: {modChance:F1}% (Expected: 0.0% - Common items should NEVER have modifications)");
+                TextDisplayIntegration.DisplaySystem($"Stat bonus chance: {statBonusChance:F1}% (Expected: ~10.0%)");
                 
-                // Check if results are within acceptable range (20-30%)
-                bool modChanceValid = modChance >= 20.0 && modChance <= 30.0;
-                bool statBonusChanceValid = statBonusChance >= 20.0 && statBonusChance <= 30.0;
+                // Check if results are within acceptable range
+                bool modChanceValid = modChance == 0.0; // Should be exactly 0%
+                bool statBonusChanceValid = statBonusChance >= 5.0 && statBonusChance <= 15.0; // 10% ± 5% tolerance
                 
                 TextDisplayIntegration.DisplaySystem($"\nValidation Results:");
-                TextDisplayIntegration.DisplaySystem($"  Modification chance: {(modChanceValid ? "✓ PASS" : "✗ FAIL")} (20-30% range)");
-                TextDisplayIntegration.DisplaySystem($"  Stat bonus chance: {(statBonusChanceValid ? "✓ PASS" : "✗ FAIL")} (20-30% range)");
+                TextDisplayIntegration.DisplaySystem($"  No modifications: {(modChanceValid ? "✓ PASS" : "✗ FAIL")} (Expected: 0%)");
+                TextDisplayIntegration.DisplaySystem($"  Stat bonus chance: {(statBonusChanceValid ? "✓ PASS" : "✗ FAIL")} (Expected: ~10%, tolerance: 5-15%)");
                 
                 if (modChanceValid && statBonusChanceValid)
                 {
-                    TextDisplayIntegration.DisplaySystem("\n🎉 TEST PASSED! Common items have approximately 25% chance for modifications.");
+                    TextDisplayIntegration.DisplaySystem("\n🎉 TEST PASSED! Common items have 10% chance for stat bonuses and never have modifications.");
                 }
                 else
                 {
-                    TextDisplayIntegration.DisplaySystem("\n❌ TEST FAILED! Common item modification chance is not within expected range.");
+                    if (!modChanceValid)
+                        TextDisplayIntegration.DisplaySystem("\n❌ TEST FAILED! Common items should NEVER have modifications.");
+                    if (!statBonusChanceValid)
+                        TextDisplayIntegration.DisplaySystem("\n❌ TEST FAILED! Common item stat bonus chance is not within expected range (5-15%).");
                 }
             }
             

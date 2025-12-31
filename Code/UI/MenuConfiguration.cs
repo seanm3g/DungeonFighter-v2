@@ -93,9 +93,13 @@ namespace RPGGame
             return new List<string>
             {
                 "=== TESTS ===",
-                "1. Test 1: Item Generation Analysis (100 items per level 1-20)",
-                "2. Test 2: Tier Distribution Verification",
-                "3. Test 3: Common Item Modification Chance (25% verification)",
+                "1. Test Action Blocks",
+                "2. Test Dice Roll Mechanics",
+                "3. Test Dungeon/Enemy Generation",
+                "4. Test Action Execution",
+                "5. Test 1: Item Generation Analysis (100 items per level 1-20)",
+                "6. Test 2: Tier Distribution Verification",
+                "7. Test 3: Common Item Bonus Chance (10% stat bonus verification)",
                 "0. Exit"
             };
         }

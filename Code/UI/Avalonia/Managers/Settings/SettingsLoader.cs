@@ -26,6 +26,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             
             if (AreMainSettingsControlsValid(controls))
             {
+#pragma warning disable CS8604 // Nullable parameters are handled by SettingsManager
                 settingsManager.LoadSettings(
                     controls.NarrativeBalanceSlider!,
                     controls.NarrativeBalanceTextBox!,
@@ -34,13 +35,13 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                     controls.CombatSpeedSlider!,
                     controls.CombatSpeedTextBox!,
                     controls.ShowIndividualActionMessagesCheckBox!,
-                    controls.EnableComboSystemCheckBox!,
+                    controls.EnableComboSystemCheckBox!, // Nullable - handled by SettingsManager
                     controls.EnableTextDisplayDelaysCheckBox!,
                     controls.FastCombatCheckBox!,
-                    controls.EnableAutoSaveCheckBox!,
-                    controls.AutoSaveIntervalTextBox!,
+                    controls.EnableAutoSaveCheckBox!, // Nullable - handled by SettingsManager
+                    controls.AutoSaveIntervalTextBox!, // Nullable - handled by SettingsManager
                     controls.ShowDetailedStatsCheckBox!,
-                    controls.EnableSoundEffectsCheckBox!,
+                    controls.EnableSoundEffectsCheckBox!, // Nullable - handled by SettingsManager
                     controls.EnemyHealthMultiplierSlider!,
                     controls.EnemyHealthMultiplierTextBox!,
                     controls.EnemyDamageMultiplierSlider!,
@@ -52,6 +53,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                     controls.ShowHealthBarsCheckBox!,
                     controls.ShowDamageNumbersCheckBox!,
                     controls.ShowComboProgressCheckBox!);
+#pragma warning restore CS8604
             }
         }
 
@@ -67,10 +69,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 settingsManager.LoadTextDelaySettings(
                     controls.EnableGuiDelaysCheckBox!,
                     controls.EnableConsoleDelaysCheckBox!,
-                    controls.ActionDelaySlider!,
-                    controls.ActionDelayTextBox!,
-                    controls.MessageDelaySlider!,
-                    controls.MessageDelayTextBox!,
+                    null, // ActionDelaySlider - Deprecated, removed from DTO
+                    null, // ActionDelayTextBox - Deprecated, removed from DTO
+                    null, // MessageDelaySlider - Deprecated, removed from DTO
+                    null, // MessageDelayTextBox - Deprecated, removed from DTO
                     controls.CombatDelayTextBox!,
                     controls.SystemDelayTextBox!,
                     controls.MenuDelayTextBox!,
@@ -100,22 +102,9 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                     controls.DefaultPresetMinDelayTextBox!,
                     controls.DefaultPresetMaxDelayTextBox!);
                 
-                // Wire up slider events for action/message delays
-                if (wireUpActionDelaySlider != null && controls.ActionDelaySlider != null && controls.ActionDelayTextBox != null)
-                {
-                    controls.ActionDelaySlider.ValueChanged += (s, e) =>
-                    {
-                        controls.ActionDelayTextBox.Text = ((int)controls.ActionDelaySlider.Value).ToString();
-                    };
-                }
-                
-                if (wireUpMessageDelaySlider != null && controls.MessageDelaySlider != null && controls.MessageDelayTextBox != null)
-                {
-                    controls.MessageDelaySlider.ValueChanged += (s, e) =>
-                    {
-                        controls.MessageDelayTextBox.Text = ((int)controls.MessageDelaySlider.Value).ToString();
-                    };
-                }
+                // Note: ActionDelay and MessageDelay sliders removed - combat timing is now controlled by
+                // MessageTypeDelays.Combat and ChunkedTextReveal.Combat presets
+                // Wire-up code removed as these controls no longer exist
             }
         }
 
@@ -148,23 +137,23 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             return controls.NarrativeBalanceSlider != null && controls.NarrativeBalanceTextBox != null &&
                 controls.EnableNarrativeEventsCheckBox != null && controls.EnableInformationalSummariesCheckBox != null &&
                 controls.CombatSpeedSlider != null && controls.CombatSpeedTextBox != null &&
-                controls.ShowIndividualActionMessagesCheckBox != null && controls.EnableComboSystemCheckBox != null &&
+                controls.ShowIndividualActionMessagesCheckBox != null &&
                 controls.EnableTextDisplayDelaysCheckBox != null && controls.FastCombatCheckBox != null &&
-                controls.EnableAutoSaveCheckBox != null && controls.AutoSaveIntervalTextBox != null &&
-                controls.ShowDetailedStatsCheckBox != null && controls.EnableSoundEffectsCheckBox != null &&
+                controls.ShowDetailedStatsCheckBox != null &&
                 controls.EnemyHealthMultiplierSlider != null && controls.EnemyHealthMultiplierTextBox != null &&
                 controls.EnemyDamageMultiplierSlider != null && controls.EnemyDamageMultiplierTextBox != null &&
                 controls.PlayerHealthMultiplierSlider != null && controls.PlayerHealthMultiplierTextBox != null &&
                 controls.PlayerDamageMultiplierSlider != null && controls.PlayerDamageMultiplierTextBox != null &&
                 controls.ShowHealthBarsCheckBox != null && controls.ShowDamageNumbersCheckBox != null &&
                 controls.ShowComboProgressCheckBox != null;
+            // Note: EnableComboSystemCheckBox, EnableAutoSaveCheckBox, AutoSaveIntervalTextBox, 
+            // and EnableSoundEffectsCheckBox are nullable and handled by SettingsManager
         }
 
         private bool AreTextDelaySettingsControlsValid(TextDelaySettingsControls controls)
         {
             return controls.EnableGuiDelaysCheckBox != null && controls.EnableConsoleDelaysCheckBox != null &&
-                controls.ActionDelaySlider != null && controls.ActionDelayTextBox != null &&
-                controls.MessageDelaySlider != null && controls.MessageDelayTextBox != null &&
+                // ActionDelaySlider and MessageDelaySlider removed - no longer required
                 controls.CombatDelayTextBox != null && controls.SystemDelayTextBox != null &&
                 controls.MenuDelayTextBox != null && controls.TitleDelayTextBox != null &&
                 controls.MainTitleDelayTextBox != null && controls.EnvironmentalDelayTextBox != null &&

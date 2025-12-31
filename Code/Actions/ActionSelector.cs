@@ -170,8 +170,25 @@ namespace RPGGame
         /// <returns>Basic attack action (non-combo) for normal attacks</returns>
         private static Action SelectNormalAction(Actor source)
         {
-            // For rolls 6-13, always use a basic attack (non-combo action)
-            // All other actions in the game are combo actions and only trigger at 14+
+            // First, try to find a non-combo action from the source's ActionPool
+            foreach (var actionEntry in source.ActionPool)
+            {
+                if (!actionEntry.action.IsComboAction)
+                {
+                    return actionEntry.action;
+                }
+            }
+            
+            // If no non-combo action found, try to find "BASIC ATTACK" by name
+            foreach (var actionEntry in source.ActionPool)
+            {
+                if (actionEntry.action.Name == "BASIC ATTACK")
+                {
+                    return actionEntry.action;
+                }
+            }
+            
+            // Last resort: create a new normal attack (shouldn't happen if entities are properly initialized)
             return ActionFactory.CreateNormalAttack();
         }
 

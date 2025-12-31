@@ -209,9 +209,9 @@ namespace RPGGame.UI.Avalonia.Layout
                 int totalDamage = enemy.GetEffectiveStrength() + weaponDamage;
                 
                 // Damage and Armor on same line
-                canvas.AddText(x, y, $"Damage: {totalDamage}", AsciiArtAssets.Colors.White);
+                canvas.AddText(x, y, $"DMG: {totalDamage}", AsciiArtAssets.Colors.White);
                 y++;
-                canvas.AddText(x, y, $"Armor: {enemy.Armor}", AsciiArtAssets.Colors.White);
+                canvas.AddText(x, y, $"ARM: {enemy.Armor}", AsciiArtAssets.Colors.White);
                 y += 2;
                 
                 // Attributes

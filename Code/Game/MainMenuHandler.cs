@@ -55,6 +55,12 @@ namespace RPGGame
         /// </summary>
         public void ShowMainMenu()
         {
+            // Show loading message in bottom left corner while data is being loaded
+            if (customUIManager is CanvasUICoordinator canvasUI)
+            {
+                canvasUI.ShowLoadingStatus("Loading data...");
+            }
+            
             // Check if we have a saved game - prefer in-memory player, but also check disk
             bool hasSavedGame = false;
             string? characterName = null;
@@ -115,7 +121,7 @@ namespace RPGGame
                     HandleQuitSelection();
                     break;
                 default:
-                    ShowMessageEvent?.Invoke($"Invalid choice: '{input}'. Please select 1 (New), 2 (Load), 3 (Settings), 4 (Characters), or 0 (Quit).");
+                    ShowMessageEvent?.Invoke($"Invalid choice: '{input}'. Please select 1 (New), 2 (Load), 3 (Settings), or 0 (Quit).");
                     break;
             }
         }
@@ -231,10 +237,12 @@ namespace RPGGame
 
         /// <summary>
         /// Handle settings menu selection
+        /// Opens settings in a separate window without changing main window state
         /// </summary>
         private void HandleSettingsSelection()
         {
-            stateManager.TransitionToState(GameState.Settings);
+            // Don't transition to Settings state - keep MainMenu state so main menu stays visible
+            // The settings window is independent and doesn't affect the main window
             ShowSettingsEvent?.Invoke();
         }
 

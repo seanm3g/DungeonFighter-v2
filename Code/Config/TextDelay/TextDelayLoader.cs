@@ -32,9 +32,16 @@ namespace RPGGame.Config.TextDelay
                         configData.MessageTypeDelays = new Dictionary<UIMessageType, int>();
                         foreach (var prop in messageTypeDelays.EnumerateObject())
                         {
-                            if (Enum.TryParse<UIMessageType>(prop.Name, out var messageType))
+                            // Try case-insensitive parsing first, then case-sensitive
+                            if (Enum.TryParse<UIMessageType>(prop.Name, true, out var messageType) ||
+                                Enum.TryParse<UIMessageType>(prop.Name, false, out messageType))
                             {
                                 configData.MessageTypeDelays[messageType] = prop.Value.GetInt32();
+                            }
+                            else
+                            {
+                                // Log warning for unparseable enum values
+                                System.Diagnostics.Debug.WriteLine($"Warning: Could not parse message type '{prop.Name}' from TextDelayConfig.json");
                             }
                         }
                     }

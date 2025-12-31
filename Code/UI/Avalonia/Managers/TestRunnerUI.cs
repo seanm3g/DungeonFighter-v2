@@ -24,14 +24,14 @@ namespace RPGGame.UI.Avalonia.Managers
         }
 
         /// <summary>
-        /// Runs all tests and displays results in the center panel
+        /// Common test execution pattern that handles setup, execution, and cleanup
         /// </summary>
-        public void RunAllTests()
+        /// <param name="testRunner">The test runner method to execute</param>
+        /// <param name="testSuiteName">Name of the test suite for error messages</param>
+        /// <param name="headerText">Optional header text to display before running tests (can be multi-line)</param>
+        private void RunTestSuite(System.Action testRunner, string testSuiteName, string? headerText = null)
         {
-            if (isRunning)
-            {
-                return;
-            }
+            if (isRunning) return;
 
             try
             {
@@ -39,27 +39,47 @@ namespace RPGGame.UI.Avalonia.Managers
                 PrepareUIForTestOutput();
                 StartCapturingOutput();
                 
-                // Write header
-                uiCoordinator?.WriteLine("========================================");
-                uiCoordinator?.WriteLine("  COMPREHENSIVE GAME TEST SUITE");
-                uiCoordinator?.WriteLine("========================================");
-                uiCoordinator?.WriteBlankLine();
+                // Write header if provided (handle multi-line headers)
+                if (!string.IsNullOrEmpty(headerText))
+                {
+                    var headerLines = headerText.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
+                    foreach (var line in headerLines)
+                    {
+                        if (!string.IsNullOrEmpty(line))
+                        {
+                            uiCoordinator?.WriteLine(line);
+                        }
+                    }
+                    uiCoordinator?.WriteBlankLine();
+                }
 
-                // Run all tests
-                ComprehensiveTestRunner.RunAllTests();
+                // Run the tests
+                testRunner();
                 
                 // Force render to ensure results are displayed
                 ForceTestOutputRender();
             }
             catch (Exception ex)
             {
-                uiCoordinator?.WriteLine($"Error running tests: {ex.Message}");
+                uiCoordinator?.WriteLine($"Error running {testSuiteName}: {ex.Message}");
             }
             finally
             {
                 StopCapturingOutput();
                 isRunning = false;
             }
+        }
+
+        /// <summary>
+        /// Runs all tests and displays results in the center panel
+        /// </summary>
+        public void RunAllTests()
+        {
+            RunTestSuite(
+                () => ComprehensiveTestRunner.RunAllTests(),
+                "tests",
+                "========================================\n  COMPREHENSIVE GAME TEST SUITE\n========================================"
+            );
         }
 
         /// <summary>
@@ -67,31 +87,11 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public void RunQuickTests()
         {
-            if (isRunning) return;
-
-            try
-            {
-                isRunning = true;
-                PrepareUIForTestOutput();
-                StartCapturingOutput();
-                
-                uiCoordinator?.WriteLine("=== QUICK TESTS ===");
-                uiCoordinator?.WriteBlankLine();
-
-                ComprehensiveTestRunner.RunQuickTests();
-                
-                // Force render to ensure results are displayed
-                ForceTestOutputRender();
-            }
-            catch (Exception ex)
-            {
-                uiCoordinator?.WriteLine($"Error running quick tests: {ex.Message}");
-            }
-            finally
-            {
-                StopCapturingOutput();
-                isRunning = false;
-            }
+            RunTestSuite(
+                () => ComprehensiveTestRunner.RunQuickTests(),
+                "quick tests",
+                "=== QUICK TESTS ==="
+            );
         }
 
         /// <summary>
@@ -99,27 +99,10 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public void RunActionSystemTests()
         {
-            if (isRunning) return;
-
-            try
-            {
-                isRunning = true;
-                PrepareUIForTestOutput();
-                StartCapturingOutput();
-                
-                ComprehensiveTestRunner.RunActionSystemTests();
-                
-                ForceTestOutputRender();
-            }
-            catch (Exception ex)
-            {
-                uiCoordinator?.WriteLine($"Error running action system tests: {ex.Message}");
-            }
-            finally
-            {
-                StopCapturingOutput();
-                isRunning = false;
-            }
+            RunTestSuite(
+                () => ComprehensiveTestRunner.RunActionSystemTests(),
+                "action system tests"
+            );
         }
 
         /// <summary>
@@ -127,27 +110,10 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public void RunDiceMechanicsTests()
         {
-            if (isRunning) return;
-
-            try
-            {
-                isRunning = true;
-                PrepareUIForTestOutput();
-                StartCapturingOutput();
-                
-                ComprehensiveTestRunner.RunDiceMechanicsTests();
-                
-                ForceTestOutputRender();
-            }
-            catch (Exception ex)
-            {
-                uiCoordinator?.WriteLine($"Error running dice mechanics tests: {ex.Message}");
-            }
-            finally
-            {
-                StopCapturingOutput();
-                isRunning = false;
-            }
+            RunTestSuite(
+                () => ComprehensiveTestRunner.RunDiceMechanicsTests(),
+                "dice mechanics tests"
+            );
         }
 
         /// <summary>
@@ -155,27 +121,10 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public void RunComboSystemTests()
         {
-            if (isRunning) return;
-
-            try
-            {
-                isRunning = true;
-                PrepareUIForTestOutput();
-                StartCapturingOutput();
-                
-                ComprehensiveTestRunner.RunComboSystemTests();
-                
-                ForceTestOutputRender();
-            }
-            catch (Exception ex)
-            {
-                uiCoordinator?.WriteLine($"Error running combo system tests: {ex.Message}");
-            }
-            finally
-            {
-                StopCapturingOutput();
-                isRunning = false;
-            }
+            RunTestSuite(
+                () => ComprehensiveTestRunner.RunComboSystemTests(),
+                "combo system tests"
+            );
         }
 
         /// <summary>
@@ -183,28 +132,10 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public void RunColorSystemTests()
         {
-            if (isRunning) return;
-
-            try
-            {
-                isRunning = true;
-                PrepareUIForTestOutput();
-                StartCapturingOutput();
-                
-                ComprehensiveTestRunner.RunColorSystemTests();
-                
-                // Force render to ensure results are displayed
-                ForceTestOutputRender();
-            }
-            catch (Exception ex)
-            {
-                uiCoordinator?.WriteLine($"Error running color system tests: {ex.Message}");
-            }
-            finally
-            {
-                StopCapturingOutput();
-                isRunning = false;
-            }
+            RunTestSuite(
+                () => ComprehensiveTestRunner.RunColorSystemTests(),
+                "color system tests"
+            );
         }
 
         /// <summary>
@@ -212,27 +143,10 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public void RunDisplaySystemTests()
         {
-            if (isRunning) return;
-
-            try
-            {
-                isRunning = true;
-                PrepareUIForTestOutput();
-                StartCapturingOutput();
-                
-                ComprehensiveTestRunner.RunDisplaySystemTests();
-                
-                ForceTestOutputRender();
-            }
-            catch (Exception ex)
-            {
-                uiCoordinator?.WriteLine($"Error running display system tests: {ex.Message}");
-            }
-            finally
-            {
-                StopCapturingOutput();
-                isRunning = false;
-            }
+            RunTestSuite(
+                () => ComprehensiveTestRunner.RunDisplaySystemTests(),
+                "display system tests"
+            );
         }
 
         /// <summary>
@@ -240,27 +154,10 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public void RunCharacterSystemTests()
         {
-            if (isRunning) return;
-
-            try
-            {
-                isRunning = true;
-                PrepareUIForTestOutput();
-                StartCapturingOutput();
-                
-                ComprehensiveTestRunner.RunCharacterSystemTests();
-                
-                ForceTestOutputRender();
-            }
-            catch (Exception ex)
-            {
-                uiCoordinator?.WriteLine($"Error running character system tests: {ex.Message}");
-            }
-            finally
-            {
-                StopCapturingOutput();
-                isRunning = false;
-            }
+            RunTestSuite(
+                () => ComprehensiveTestRunner.RunCharacterSystemTests(),
+                "character system tests"
+            );
         }
 
         /// <summary>
@@ -268,27 +165,10 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public void RunStatusEffectsTests()
         {
-            if (isRunning) return;
-
-            try
-            {
-                isRunning = true;
-                PrepareUIForTestOutput();
-                StartCapturingOutput();
-                
-                ComprehensiveTestRunner.RunStatusEffectsTests();
-                
-                ForceTestOutputRender();
-            }
-            catch (Exception ex)
-            {
-                uiCoordinator?.WriteLine($"Error running status effects tests: {ex.Message}");
-            }
-            finally
-            {
-                StopCapturingOutput();
-                isRunning = false;
-            }
+            RunTestSuite(
+                () => ComprehensiveTestRunner.RunStatusEffectsTests(),
+                "status effects tests"
+            );
         }
 
         /// <summary>
@@ -296,27 +176,54 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public void RunIntegrationTests()
         {
-            if (isRunning) return;
+            RunTestSuite(
+                () => ComprehensiveTestRunner.RunIntegrationTests(),
+                "integration tests"
+            );
+        }
 
-            try
-            {
-                isRunning = true;
-                PrepareUIForTestOutput();
-                StartCapturingOutput();
-                
-                ComprehensiveTestRunner.RunIntegrationTests();
-                
-                ForceTestOutputRender();
-            }
-            catch (Exception ex)
-            {
-                uiCoordinator?.WriteLine($"Error running integration tests: {ex.Message}");
-            }
-            finally
-            {
-                StopCapturingOutput();
-                isRunning = false;
-            }
+        /// <summary>
+        /// Runs action block tests
+        /// </summary>
+        public void RunActionBlockTests()
+        {
+            RunTestSuite(
+                () => ComprehensiveTestRunner.RunActionBlockTests(),
+                "action block tests"
+            );
+        }
+
+        /// <summary>
+        /// Runs dice roll mechanics tests
+        /// </summary>
+        public void RunDiceRollMechanicsTests()
+        {
+            RunTestSuite(
+                () => ComprehensiveTestRunner.RunDiceRollMechanicsTests(),
+                "dice roll mechanics tests"
+            );
+        }
+
+        /// <summary>
+        /// Runs dungeon and enemy generation tests
+        /// </summary>
+        public void RunDungeonEnemyGenerationTests()
+        {
+            RunTestSuite(
+                () => ComprehensiveTestRunner.RunDungeonEnemyGenerationTests(),
+                "dungeon/enemy generation tests"
+            );
+        }
+
+        /// <summary>
+        /// Runs action execution tests
+        /// </summary>
+        public void RunActionExecutionTests()
+        {
+            RunTestSuite(
+                () => ComprehensiveTestRunner.RunActionExecutionTests(),
+                "action execution tests"
+            );
         }
 
         /// <summary>

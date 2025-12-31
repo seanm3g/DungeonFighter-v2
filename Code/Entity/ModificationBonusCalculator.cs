@@ -138,6 +138,106 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Gets poison chance from modifications.
+        /// </summary>
+        public double GetPoisonChance()
+        {
+            double totalPoisonChance = 0.0;
+
+            var equippedItems = slots.GetEquippedItems();
+            foreach (var item in equippedItems)
+            {
+                if (item != null)
+                {
+                    foreach (var modification in item.Modifications)
+                    {
+                        if (modification.Effect == "poisonChance")
+                        {
+                            totalPoisonChance += modification.RolledValue;
+                        }
+                    }
+                }
+            }
+
+            return totalPoisonChance;
+        }
+
+        /// <summary>
+        /// Gets burn chance from modifications.
+        /// </summary>
+        public double GetBurnChance()
+        {
+            double totalBurnChance = 0.0;
+
+            var equippedItems = slots.GetEquippedItems();
+            foreach (var item in equippedItems)
+            {
+                if (item != null)
+                {
+                    foreach (var modification in item.Modifications)
+                    {
+                        if (modification.Effect == "burnChance")
+                        {
+                            totalBurnChance += modification.RolledValue;
+                        }
+                    }
+                }
+            }
+
+            return totalBurnChance;
+        }
+
+        /// <summary>
+        /// Gets freeze chance from modifications.
+        /// </summary>
+        public double GetFreezeChance()
+        {
+            double totalFreezeChance = 0.0;
+
+            var equippedItems = slots.GetEquippedItems();
+            foreach (var item in equippedItems)
+            {
+                if (item != null)
+                {
+                    foreach (var modification in item.Modifications)
+                    {
+                        if (modification.Effect == "freezeChance")
+                        {
+                            totalFreezeChance += modification.RolledValue;
+                        }
+                    }
+                }
+            }
+
+            return totalFreezeChance;
+        }
+
+        /// <summary>
+        /// Gets stun chance from modifications.
+        /// </summary>
+        public double GetStunChance()
+        {
+            double totalStunChance = 0.0;
+
+            var equippedItems = slots.GetEquippedItems();
+            foreach (var item in equippedItems)
+            {
+                if (item != null)
+                {
+                    foreach (var modification in item.Modifications)
+                    {
+                        if (modification.Effect == "stunChance")
+                        {
+                            totalStunChance += modification.RolledValue;
+                        }
+                    }
+                }
+            }
+
+            return totalStunChance;
+        }
+
+        /// <summary>
         /// Gets unique action chance from modifications.
         /// </summary>
         public double GetUniqueActionChance()

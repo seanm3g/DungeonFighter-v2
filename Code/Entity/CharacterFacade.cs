@@ -69,7 +69,8 @@ namespace RPGGame
             var levelUpInfos = new List<LevelUpInfo>();
             for (int i = 0; i < levelsGained; i++)
             {
-                var levelUpInfo = _levelUp.LevelUpWithInfo();
+                // Level was already incremented by Progression.AddXP(), so pass true
+                var levelUpInfo = _levelUp.LevelUpWithInfo(levelAlreadyIncremented: true);
                 levelUpInfos.Add(levelUpInfo);
             }
             
@@ -244,6 +245,10 @@ namespace RPGGame
         public double GetModificationLifesteal() => _character.Equipment.GetModificationLifesteal();
         public int GetModificationGodlikeBonus() => _character.Equipment.GetModificationGodlikeBonus();
         public double GetModificationBleedChance() => _character.Equipment.GetModificationBleedChance();
+        public double GetModificationPoisonChance() => _character.Equipment.GetModificationPoisonChance();
+        public double GetModificationBurnChance() => _character.Equipment.GetModificationBurnChance();
+        public double GetModificationFreezeChance() => _character.Equipment.GetModificationFreezeChance();
+        public double GetModificationStunChance() => _character.Equipment.GetModificationStunChance();
         public double GetModificationUniqueActionChance() => _character.Equipment.GetModificationUniqueActionChance();
         public double GetArmorSpikeDamage() => _character.Equipment.GetArmorSpikeDamage();
         public List<ArmorStatus> GetEquippedArmorStatuses() => _character.Equipment.GetEquippedArmorStatuses();

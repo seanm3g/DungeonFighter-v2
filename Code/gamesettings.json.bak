@@ -17,5 +17,21 @@
   "PlayerDamageMultiplier": 1,
   "ShowHealthBars": true,
   "ShowDamageNumbers": true,
-  "ShowComboProgress": true
+  "ShowComboProgress": true,
+  "PanelBackgroundColor": "#FFFFFF",
+  "PanelBorderColor": "#000000",
+  "PanelTextColor": "#FFFFF",
+  "SettingsBackgroundColor": "#1A1010",
+  "SettingsTitleColor": "#FFD700",
+  "ListBoxSelectedColor": "#FFD700",
+  "ListBoxSelectedBackgroundColor": "#2A2A2A",
+  "ListBoxHoverBackgroundColor": "#258312",
+  "ButtonPrimaryColor": "#5555FF",
+  "ButtonSecondaryColor": "#555555",
+  "ButtonBackColor": "#202020",
+  "TextBoxTextColor": "#FFFFFF",
+  "TextBoxBackgroundColor": "#2A2A2A",
+  "TextBoxHoverBackgroundColor": "#258312",
+  "TextBoxBorderColor": "#555555",
+  "TextBoxFocusBorderColor": "#0078D4"
 }

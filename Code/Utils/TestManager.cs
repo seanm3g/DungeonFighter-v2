@@ -442,7 +442,7 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Tests Common item modification chance to verify 25% chance for mods/stat bonuses
+        /// Tests Common item bonus chance to verify 10% chance for stat bonuses only (no modifications)
         /// Delegates to CommonItemModificationTestRunner
         /// </summary>
         public static void RunCommonItemModificationTest()

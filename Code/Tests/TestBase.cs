@@ -8,6 +8,16 @@ namespace RPGGame.Tests
     /// </summary>
     public static class TestBase
     {
+        private static string? _currentTestName;
+
+        /// <summary>
+        /// Sets the current test name for result tracking
+        /// </summary>
+        public static void SetCurrentTestName(string testName)
+        {
+            _currentTestName = testName;
+        }
+
         public static void AssertTrue(bool condition, string message, ref int testsRun, ref int testsPassed, ref int testsFailed)
         {
             testsRun++;
@@ -15,11 +25,13 @@ namespace RPGGame.Tests
             {
                 testsPassed++;
                 Console.WriteLine($"  ✓ {message}");
+                TestResultCollector.RecordTest(_currentTestName ?? message, true, message);
             }
             else
             {
                 testsFailed++;
                 Console.WriteLine($"  ✗ FAILED: {message}");
+                TestResultCollector.RecordTest(_currentTestName ?? message, false, message);
             }
         }
         
@@ -35,11 +47,14 @@ namespace RPGGame.Tests
             {
                 testsPassed++;
                 Console.WriteLine($"  ✓ {message}");
+                TestResultCollector.RecordTest(_currentTestName ?? message, true, message);
             }
             else
             {
                 testsFailed++;
-                Console.WriteLine($"  ✗ FAILED: {message} (Expected: {expected}, Actual: {actual})");
+                string failureMessage = $"{message} (Expected: {expected}, Actual: {actual})";
+                Console.WriteLine($"  ✗ FAILED: {failureMessage}");
+                TestResultCollector.RecordTest(_currentTestName ?? message, false, failureMessage);
             }
         }
         
@@ -50,11 +65,34 @@ namespace RPGGame.Tests
             {
                 testsPassed++;
                 Console.WriteLine($"  ✓ {message}");
+                TestResultCollector.RecordTest(_currentTestName ?? message, true, message);
             }
             else
             {
                 testsFailed++;
-                Console.WriteLine($"  ✗ FAILED: {message} (Expected: {expected}, Actual: {actual})");
+                string failureMessage = $"{message} (Expected: {expected}, Actual: {actual})";
+                Console.WriteLine($"  ✗ FAILED: {failureMessage}");
+                TestResultCollector.RecordTest(_currentTestName ?? message, false, failureMessage);
+            }
+        }
+        
+        // Overload for enums (which don't implement IEquatable<T>)
+        // Using object parameters to avoid signature conflict with generic method
+        public static void AssertEqualEnum(Enum expected, Enum actual, string message, ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            testsRun++;
+            if (expected.Equals(actual))
+            {
+                testsPassed++;
+                Console.WriteLine($"  ✓ {message}");
+                TestResultCollector.RecordTest(_currentTestName ?? message, true, message);
+            }
+            else
+            {
+                testsFailed++;
+                string failureMessage = $"{message} (Expected: {expected}, Actual: {actual})";
+                Console.WriteLine($"  ✗ FAILED: {failureMessage}");
+                TestResultCollector.RecordTest(_currentTestName ?? message, false, failureMessage);
             }
         }
         

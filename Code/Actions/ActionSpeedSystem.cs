@@ -96,14 +96,15 @@ namespace RPGGame
                 // For characters: use the new attack speed system
                 double attackSpeed = character.GetTotalAttackSpeed();
                 
-                // Apply critical miss penalty (doubles action speed/recovery time for THIS action)
-                if (isCriticalMiss || entity.HasCriticalMissPenalty)
-                {
-                    attackSpeed *= 2.0;
-                }
-                
                 // Use default length (1.0) for basic attacks, action length for combo actions
                 double lengthMultiplier = isBasicAttack ? 1.0 : action.Length;
+                
+                // Apply critical miss penalty (doubles action length/recovery time for THIS action)
+                if (isCriticalMiss || entity.HasCriticalMissPenalty)
+                {
+                    lengthMultiplier *= 2.0;
+                }
+                
                 actionDuration = attackSpeed * lengthMultiplier;
             }
             else if (entity is Enemy enemy)
@@ -112,13 +113,14 @@ namespace RPGGame
                 double baseSpeed = combatEntity.BaseSpeed;
                 double agilityModifier = Math.Max(0.5, 1.0 - (enemy.GetEffectiveAgility() * 0.05)); // Agility reduces action time
                 
-                // Apply critical miss penalty (doubles action speed/recovery time for THIS action)
+                // Get action length and apply critical miss penalty (doubles action length/recovery time for THIS action)
+                double actionLength = action.Length;
                 if (isCriticalMiss || entity.HasCriticalMissPenalty)
                 {
-                    baseSpeed *= 2.0;
+                    actionLength *= 2.0;
                 }
                 
-                actionDuration = baseSpeed * agilityModifier * action.Length;
+                actionDuration = baseSpeed * agilityModifier * actionLength;
             }
             else if (entity is Environment environment)
             {

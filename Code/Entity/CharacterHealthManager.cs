@@ -19,7 +19,17 @@ namespace RPGGame
         }
 
         // Health properties
-        public int CurrentHealth { get; set; }
+        private int _currentHealth;
+        public int CurrentHealth 
+        { 
+            get => _currentHealth;
+            set 
+            {
+                // Clamp health between 0 and effective max health (includes equipment bonuses)
+                int maxHealth = GetEffectiveMaxHealth();
+                _currentHealth = Math.Max(0, Math.Min(value, maxHealth));
+            }
+        }
         public int MaxHealth { get; set; }
 
         /// <summary>
@@ -138,7 +148,13 @@ namespace RPGGame
         /// <returns>Health percentage as a decimal (0.0 to 1.0)</returns>
         public double GetHealthPercentage()
         {
-            return (double)CurrentHealth / GetEffectiveMaxHealth();
+            int effectiveMaxHealth = GetEffectiveMaxHealth();
+            // Handle division by zero when max health is 0
+            if (effectiveMaxHealth <= 0)
+            {
+                return 0.0;
+            }
+            return (double)CurrentHealth / effectiveMaxHealth;
         }
 
         /// <summary>

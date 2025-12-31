@@ -43,6 +43,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             var cyanColor = ColorPalette.Cyan.GetColor();
             var goldColor = ColorPalette.Gold.GetColor();
             var orangeColor = ColorPalette.Orange.GetColor();
+            var playerColor = ColorPalette.Player.GetColor();
             var coolWhiteColor = ColorLayerSystem.GetWhite(WhiteTemperature.Cool);
             
             // Render [1] New Game - Cyan
@@ -90,7 +91,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             if (hasSavedGame && characterName != null)
             {
                 // Render with colored character name and level
-                menuOptionRenderer.RenderColoredLoadGameOption(menuStartX, currentY, 2, characterName, characterLevel, goldColor, orangeColor, loadGameOption.IsHovered);
+                menuOptionRenderer.RenderColoredLoadGameOption(menuStartX, currentY, 2, characterName, characterLevel, playerColor, orangeColor, loadGameOption.IsHovered);
             }
             else
             {
@@ -117,23 +118,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             currentLineCount++;
             currentY++;
             
-            // Render [4] Characters - Purple/Magenta (for multi-character support)
-            var purpleColor = ColorPalette.Magenta.GetColor();
-            string charactersText = MenuOptionFormatter.Format(4, "Characters");
-            var charactersOption = new ClickableElement
-            {
-                X = menuStartX,
-                Y = currentY,
-                Width = charactersText.Length,
-                Height = 1,
-                Type = ElementType.MenuOption,
-                Value = "4",
-                DisplayText = charactersText
-            };
-            clickableElements.Add(charactersOption);
-            menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 4, "Characters", purpleColor, charactersOption.IsHovered);
-            currentLineCount++;
-            currentY++;
+            // Note: Characters option (4 or C) is hidden from UI but still accessible via keyboard
             
             // Render [0] Quit - Cool white
             string quitText = MenuOptionFormatter.Format(0, UIConstants.MenuOptions.Quit);
@@ -175,6 +160,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             var cyanColor = ColorPalette.Cyan.GetColor();
             var goldColor = ColorPalette.Gold.GetColor();
             var orangeColor = ColorPalette.Orange.GetColor();
+            var playerColor = ColorPalette.Player.GetColor();
             var coolWhiteColor = ColorLayerSystem.GetWhite(WhiteTemperature.Cool);
             
             // Find the longest menu option for centering
@@ -232,7 +218,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             if (hasSavedGame && characterName != null)
             {
                 // Render with colored character name and level
-                menuOptionRenderer.RenderColoredLoadGameOption(menuStartX, currentY, 2, characterName, characterLevel, goldColor, orangeColor, loadGameOption.IsHovered);
+                menuOptionRenderer.RenderColoredLoadGameOption(menuStartX, currentY, 2, characterName, characterLevel, playerColor, orangeColor, loadGameOption.IsHovered);
             }
             else
             {
@@ -259,23 +245,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             currentLineCount++;
             currentY++;
             
-            // Render [4] Characters - Purple/Magenta (for multi-character support)
-            var purpleColor = ColorPalette.Magenta.GetColor();
-            string charactersText = MenuOptionFormatter.Format(4, "Characters");
-            var charactersOption = new ClickableElement
-            {
-                X = menuStartX,
-                Y = currentY,
-                Width = maxOptionLength,
-                Height = 1,
-                Type = ElementType.MenuOption,
-                Value = "4",
-                DisplayText = charactersText
-            };
-            clickableElements.Add(charactersOption);
-            menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 4, "Characters", purpleColor, charactersOption.IsHovered);
-            currentLineCount++;
-            currentY++;
+            // Note: Characters option (4 or C) is hidden from UI but still accessible via keyboard
             
             // Render [0] Quit - Cool white
             string quitText = MenuOptionFormatter.Format(0, UIConstants.MenuOptions.Quit);

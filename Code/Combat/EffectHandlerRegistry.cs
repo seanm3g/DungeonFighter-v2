@@ -104,9 +104,8 @@ namespace RPGGame
     {
         public bool Apply(Actor target, Action action, List<string> results)
         {
-            // Create a dummy attacker for the calculation
-            var dummyAttacker = new Character("Dummy", 1);
-            if (CombatCalculator.CalculateStatusEffectChance(action, dummyAttacker, target))
+            // Apply bleed if action causes it (guaranteed application when flag is set)
+            if (action.CausesBleed)
             {
                 var bleedConfig = GameConfiguration.Instance.StatusEffects.Bleed;
                 target.ApplyPoison(bleedConfig.DamagePerTick, bleedConfig.StacksPerApplication, true);
@@ -129,9 +128,8 @@ namespace RPGGame
     {
         public bool Apply(Actor target, Action action, List<string> results)
         {
-            // Create a dummy attacker for the calculation
-            var dummyAttacker = new Character("Dummy", 1);
-            if (CombatCalculator.CalculateStatusEffectChance(action, dummyAttacker, target))
+            // Apply weaken if action causes it (guaranteed application when flag is set)
+            if (action.CausesWeaken)
             {
                 target.ApplyWeaken(2); // 2 turns of weaken
                 // Format with proper indentation and color markup (5 spaces to match roll info)
@@ -152,11 +150,17 @@ namespace RPGGame
     {
         public bool Apply(Actor target, Action action, List<string> results)
         {
-            // Create a dummy attacker for the calculation
-            var dummyAttacker = new Character("Dummy", 1);
-            if (CombatCalculator.CalculateStatusEffectChance(action, dummyAttacker, target))
+            // Apply slow if action causes it (guaranteed application when flag is set)
+            if (action.CausesSlow)
             {
-                // For now, just add a message - would need proper slow implementation
+                // Apply slow effect to the target (Enemy inherits from Character, so this works for both)
+                if (target is Character character)
+                {
+                    // Use Freeze config for Slow since they're functionally similar (both reduce speed)
+                    var freezeConfig = GameConfiguration.Instance.StatusEffects.Freeze;
+                    character.ApplySlow(freezeConfig.SpeedReduction, (int)freezeConfig.Duration);
+                }
+                
                 // Format with proper indentation and color markup (5 spaces to match roll info)
                 string actorPattern = target is Enemy ? "enemy" : "player";
                 results.Add($"     {{{{actorPattern}}|" + $"{target.Name}" + "}} is " + $"{{{{slowed|slowed}}}}!");
@@ -175,9 +179,8 @@ namespace RPGGame
     {
         public bool Apply(Actor target, Action action, List<string> results)
         {
-            // Create a dummy attacker for the calculation
-            var dummyAttacker = new Character("Dummy", 1);
-            if (CombatCalculator.CalculateStatusEffectChance(action, dummyAttacker, target))
+            // Apply poison if action causes it (guaranteed application when flag is set)
+            if (action.CausesPoison)
             {
                 var poisonConfig = GameConfiguration.Instance.StatusEffects.Poison;
                 target.ApplyPoison(poisonConfig.DamagePerTick, poisonConfig.StacksPerApplication);
@@ -199,9 +202,8 @@ namespace RPGGame
     {
         public bool Apply(Actor target, Action action, List<string> results)
         {
-            // Create a dummy attacker for the calculation
-            var dummyAttacker = new Character("Dummy", 1);
-            if (CombatCalculator.CalculateStatusEffectChance(action, dummyAttacker, target))
+            // Apply stun if action causes it (guaranteed application when flag is set)
+            if (action.CausesStun)
             {
                 var stunConfig = GameConfiguration.Instance.StatusEffects.Stun;
                 target.IsStunned = true;
@@ -224,9 +226,8 @@ namespace RPGGame
     {
         public bool Apply(Actor target, Action action, List<string> results)
         {
-            // Create a dummy attacker for the calculation
-            var dummyAttacker = new Character("Dummy", 1);
-            if (CombatCalculator.CalculateStatusEffectChance(action, dummyAttacker, target))
+            // Apply burn if action causes it (guaranteed application when flag is set)
+            if (action.CausesBurn)
             {
                 var burnConfig = GameConfiguration.Instance.StatusEffects.Burn;
                 target.ApplyBurn(burnConfig.DamagePerTick, burnConfig.MaxStacks);

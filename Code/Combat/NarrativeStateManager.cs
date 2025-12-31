@@ -34,6 +34,9 @@ namespace RPGGame
 
         // Narrative event counter
         private int narrativeEventCount;
+        
+        // Critical hit narrative cooldown (to prevent every critical hit from showing narrative)
+        private int criticalHitNarrativeCooldown;
 
         public NarrativeStateManager()
         {
@@ -66,6 +69,7 @@ namespace RPGGame
             enemyTauntCount = 0;
 
             narrativeEventCount = 0;
+            criticalHitNarrativeCooldown = 0;
         }
 
         // ===== First Blood State =====
@@ -139,6 +143,15 @@ namespace RPGGame
         // ===== Narrative Event Counter =====
         public int NarrativeEventCount => narrativeEventCount;
         public void IncrementNarrativeEventCount() => narrativeEventCount++;
+        
+        // ===== Critical Hit Narrative Cooldown =====
+        public bool HasRecentCriticalHitNarrative => criticalHitNarrativeCooldown > 0;
+        public void SetRecentCriticalHitNarrative() => criticalHitNarrativeCooldown = 3; // Cooldown for 3 critical hits
+        public void DecrementCriticalHitCooldown()
+        {
+            if (criticalHitNarrativeCooldown > 0)
+                criticalHitNarrativeCooldown--;
+        }
     }
 }
 

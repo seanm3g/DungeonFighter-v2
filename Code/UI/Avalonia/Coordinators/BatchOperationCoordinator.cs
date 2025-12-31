@@ -3,6 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.Avalonia.Managers;
+using RPGGame.Utils;
+using RPGGame;
 
 namespace RPGGame.UI.Avalonia.Coordinators
 {
@@ -21,9 +23,8 @@ namespace RPGGame.UI.Avalonia.Coordinators
         }
 
         /// <summary>
-        /// Writes multiple ColoredText segment lists as a single batch
-        /// All messages are added to the buffer together, then a single render is scheduled
-        /// This ensures combat action blocks appear as a single unit
+        /// Writes multiple ColoredText segment lists with delays between each message
+        /// Messages are added one at a time with delays between them for better pacing
         /// Stores structured data directly to eliminate round-trip conversions
         /// </summary>
         /// <param name="messageGroups">List of tuples containing (segments, messageType) to write</param>
@@ -48,24 +49,14 @@ namespace RPGGame.UI.Avalonia.Coordinators
             if (segmentsList.Count == 0)
                 return;
             
-            // Store structured data directly - no conversion needed
-            // Route to the correct per-character display manager if available
-            if (textManager is CanvasTextManager canvasTextManager)
-            {
-                var targetDisplayManager = canvasTextManager.GetDisplayManagerForCharacter(character);
-                targetDisplayManager.AddMessageBatch(segmentsList, delayAfterBatchMs);
-            }
-            else
-            {
-                // Fallback: convert to strings for non-CanvasTextManager implementations
-                var markupMessages = segmentsList.Select(segments => ColoredTextRenderer.RenderAsMarkup(segments)).ToList();
-                messageWritingCoordinator.AddMessageBatch(markupMessages, delayAfterBatchMs);
-            }
+            // Fire and forget - use async version but don't wait
+            _ = WriteColoredSegmentsBatchAsync(messageGroups, delayAfterBatchMs, character);
         }
         
         /// <summary>
-        /// Writes multiple ColoredText segment lists as a single batch and waits for the delay
+        /// Writes multiple ColoredText segment lists with delays between each message and waits for completion
         /// This async version allows the combat loop to wait for each action's display to complete
+        /// Adds delays between each message group (line) within the action block
         /// </summary>
         /// <param name="messageGroups">List of tuples containing (segments, messageType) to write</param>
         /// <param name="delayAfterBatchMs">Optional delay in milliseconds after the batch is added (for combat timing)</param>
@@ -94,13 +85,63 @@ namespace RPGGame.UI.Avalonia.Coordinators
             if (textManager is CanvasTextManager canvasTextManager)
             {
                 var targetDisplayManager = canvasTextManager.GetDisplayManagerForCharacter(character);
-                await targetDisplayManager.AddMessageBatchAsync(segmentsList, delayAfterBatchMs);
+                
+                // Add messages one at a time with delays between them
+                // This creates a line-by-line reveal effect for action blocks
+                for (int i = 0; i < segmentsList.Count; i++)
+                {
+                    var segment = segmentsList[i];
+                    
+                    // Add this single message
+                    targetDisplayManager.AddMessage(segment);
+                    
+                    // Add delay between messages (but not after the last one - that's handled by delayAfterBatchMs)
+                    if (i < segmentsList.Count - 1)
+                    {
+                        // Use MessageDelayMs for delays between lines within an action block
+                        await CombatDelayManager.DelayAfterMessageAsync();
+                    }
+                }
+                
+                // Apply final delay after the entire batch (delay between action blocks)
+                if (delayAfterBatchMs > 0)
+                {
+                    await Task.Delay(delayAfterBatchMs);
+                }
             }
             else
             {
                 // Fallback: convert to strings for non-CanvasTextManager implementations
                 var markupMessages = segmentsList.Select(segments => ColoredTextRenderer.RenderAsMarkup(segments)).ToList();
-                await messageWritingCoordinator.AddMessageBatchAsync(markupMessages, delayAfterBatchMs);
+                
+                // Add messages one at a time with delays between them
+                for (int i = 0; i < markupMessages.Count; i++)
+                {
+                    var message = markupMessages[i];
+                    
+                    // Add this single message (use WriteLine for individual messages)
+                    if (string.IsNullOrEmpty(message))
+                    {
+                        messageWritingCoordinator.WriteBlankLine();
+                    }
+                    else
+                    {
+                        messageWritingCoordinator.WriteLine(message);
+                    }
+                    
+                    // Add delay between messages (but not after the last one - that's handled by delayAfterBatchMs)
+                    if (i < markupMessages.Count - 1)
+                    {
+                        // Use MessageDelayMs for delays between lines within an action block
+                        await CombatDelayManager.DelayAfterMessageAsync();
+                    }
+                }
+                
+                // Apply final delay after the entire batch (delay between action blocks)
+                if (delayAfterBatchMs > 0)
+                {
+                    await Task.Delay(delayAfterBatchMs);
+                }
             }
         }
     }

@@ -4,5 +4,19 @@
              RequestedThemeVariant="Default">
     <Application.Styles>
         <FluentTheme />
+        <!-- Override TextBox selection colors globally to fix white-on-white selection issue -->
+        <!-- Force selection background to dark blue and text to white for visibility -->
+        <Style Selector="TextBox">
+            <Setter Property="SelectionBrush" Value="#FF0078D4"/>
+            <Setter Property="SelectionForegroundBrush" Value="#FFFFFFFF"/>
+        </Style>
+        <Style Selector="TextBox:focus">
+            <Setter Property="SelectionBrush" Value="#FF0078D4"/>
+            <Setter Property="SelectionForegroundBrush" Value="#FFFFFFFF"/>
+        </Style>
+        <Style Selector="TextBox:pointerover">
+            <Setter Property="SelectionBrush" Value="#FF0078D4"/>
+            <Setter Property="SelectionForegroundBrush" Value="#FFFFFFFF"/>
+        </Style>
     </Application.Styles>
 </Application>

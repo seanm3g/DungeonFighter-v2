@@ -63,6 +63,14 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     canvas.AddText(x + 4, y, $"{i + 1}. {action.Name}{currentStep}", AsciiArtAssets.Colors.White);
                     y++;
                     currentLineCount++;
+                    
+                    // Show action description below the action name
+                    if (!string.IsNullOrEmpty(action.Description))
+                    {
+                        canvas.AddText(x + 6, y, action.Description, AsciiArtAssets.Colors.Gray);
+                        y++;
+                        currentLineCount++;
+                    }
                 }
                 y++;
                 currentLineCount++;

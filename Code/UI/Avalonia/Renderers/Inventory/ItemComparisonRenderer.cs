@@ -62,7 +62,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             
             // Left column: Current Item
             int leftY = y;
-            canvas.AddText(leftColumnX, leftY, "CURRENT ITEM:", ColorPalette.Warning.GetColor());
+            canvas.AddText(leftColumnX, leftY, "[1] CURRENT ITEM:", ColorPalette.Warning.GetColor());
             leftY++;
             currentLineCount++;
             
@@ -94,7 +94,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             
             // Right column: New Item
             int rightY = y;
-            canvas.AddText(rightColumnX, rightY, "NEW ITEM:", ColorPalette.Success.GetColor());
+            canvas.AddText(rightColumnX, rightY, "[2] NEW ITEM:", ColorPalette.Success.GetColor());
             rightY++;
             currentLineCount++;
             

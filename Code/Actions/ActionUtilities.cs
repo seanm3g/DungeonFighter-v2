@@ -70,6 +70,9 @@ namespace RPGGame
 
         /// <summary>
         /// Calculates damage multiplier based on entity type and action
+        /// Uses amplification based on the step the action is executing at
+        /// ComboStep represents which action in the sequence we're executing (0-indexed)
+        /// Step 0 = 1st action (1.0x), Step 1 = 2nd action (baseAmp^1), Step 2 = 3rd action (baseAmp^2), etc.
         /// </summary>
         /// <param name="source">The entity performing the action</param>
         /// <param name="action">The action being performed</param>
@@ -78,18 +81,33 @@ namespace RPGGame
         {
             if (source is Character character)
             {
-                // Only apply combo amplification to combo actions, starting at step 2 (step 0 and 1 add no bonus)
-                if (action.IsComboAction && character.ComboStep > 1)
+                // Only apply combo amplification to combo actions
+                if (action.IsComboAction)
                 {
-                    return character.GetCurrentComboAmplification();
+                    var comboActions = character.GetComboActions();
+                    if (comboActions.Count > 0)
+                    {
+                        int currentStep = character.ComboStep % comboActions.Count;
+                        double baseAmp = character.GetComboAmplifier();
+                        // Step 0 adds no bonus (1.0x), bonus starts at Step 1+
+                        // This ensures each sequential action gets progressively higher amplification
+                        return Math.Pow(baseAmp, currentStep);
+                    }
                 }
             }
             else if (source is Enemy enemy)
             {
-                // Enemies also get combo amplification (same as heroes), starting at step 2 (step 0 and 1 add no bonus)
-                if (action.IsComboAction && enemy.ComboStep > 1)
+                // Enemies also get combo amplification (same as heroes)
+                if (action.IsComboAction)
                 {
-                    return enemy.GetCurrentComboAmplification();
+                    var comboActions = enemy.GetComboActions();
+                    if (comboActions.Count > 0)
+                    {
+                        int currentStep = enemy.ComboStep % comboActions.Count;
+                        double baseAmp = enemy.GetComboAmplifier();
+                        // Step 0 adds no bonus (1.0x), bonus starts at Step 1+
+                        return Math.Pow(baseAmp, currentStep);
+                    }
                 }
             }
             return 1.0;

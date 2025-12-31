@@ -3,6 +3,7 @@ namespace RPGGame
     using System;
     using System.ComponentModel;
     using System.Linq;
+    using System.Text.Json;
     using Avalonia;
     using Avalonia.Controls.ApplicationLifetimes;
     using RPGGame.UI.Avalonia;
@@ -21,11 +22,9 @@ namespace RPGGame
         
         // Delegates
         public delegate void OnShowMainMenu();
-        public delegate void OnShowTestingMenu();
         public delegate void OnShowMessage(string message);
         
         public event OnShowMainMenu? ShowMainMenuEvent;
-        public event OnShowTestingMenu? ShowTestingMenuEvent;
         public event OnShowMessage? ShowMessageEvent;
 
         public SettingsMenuHandler(GameStateManager stateManager, IUIManager? customUIManager)
@@ -35,9 +34,8 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Display the settings menu - now opens a separate window instead of an overlay panel.
-        /// Uses GameScreenCoordinator for standardized screen transition when falling back to canvas.
-        /// Clears and prepares the center panel for test output when tests are run from settings.
+        /// Display the settings menu - opens a separate pop-out window.
+        /// Main window continues to function normally (main menu stays visible and interactive).
         /// </summary>
         public void ShowSettings()
         {
@@ -45,81 +43,73 @@ namespace RPGGame
             {
                 try
                 {
-                    // Clear and prepare the center panel for test output
-                    // This ensures the center panel is ready to display test results when tests are run from settings
-                    var centerX = LayoutConstants.CENTER_PANEL_X + 1;
-                    var centerY = LayoutConstants.CENTER_PANEL_Y + 1;
-                    var centerWidth = LayoutConstants.CENTER_PANEL_WIDTH - 2;
-                    var centerHeight = LayoutConstants.CENTER_PANEL_HEIGHT - 2;
-                    canvasUI.ClearTextInArea(centerX, centerY, centerWidth, centerHeight);
-                    
-                    // Clear the display buffer to start fresh
-                    canvasUI.ClearDisplayBuffer();
-                    
-                    // Restore display buffer rendering so test output can be displayed in the center panel
-                    // This ensures the center panel is ready for test output when tests are run from settings
-                    canvasUI.RestoreDisplayBufferRendering();
-                    
-                    // Force a layout render to ensure the center panel is visible and ready
-                    canvasUI.ForceFullLayoutRender();
-                    
                     // Get game references from the UI coordinator
                     var game = canvasUI.GetGame();
                     
-                    // Close any existing settings window first (synchronously on UI thread)
-                    // We need to do this synchronously to avoid race conditions
-                    Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                    // Check if we're already on the UI thread - if so, execute directly
+                    // If not, post to UI thread. This avoids unnecessary thread switching delays.
+                    System.Action showWindowAction = () =>
                     {
                         try
                         {
-                            // Close the tracked window if it exists
-                            var oldWindow = currentSettingsWindow;
-                            if (oldWindow != null)
+                            // Check if settings window is already open
+                            var existingWindow = currentSettingsWindow;
+                            
+                            // Also check for any other SettingsWindow instances
+                            SettingsWindow? foundWindow = null;
+                            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                            {
+                                var settingsWindows = desktop.Windows.OfType<SettingsWindow>().ToList();
+                                foundWindow = settingsWindows.FirstOrDefault(w => w != null && w.IsVisible);
+                                
+                                // If we found a window but don't have it tracked, track it
+                                if (foundWindow != null && existingWindow == null)
+                                {
+                                    existingWindow = foundWindow;
+                                    currentSettingsWindow = foundWindow;
+                                }
+                            }
+                            
+                            // If window is already open and visible, just bring it to front
+                            if (existingWindow != null && existingWindow.IsVisible)
                             {
                                 try
                                 {
-                                    oldWindow.Close();
-                                    ScrollDebugLogger.Log("SettingsMenuHandler.ShowSettings: Closed existing settings window");
+                                    existingWindow.Activate();
+                                    ScrollDebugLogger.Log("SettingsMenuHandler.ShowSettings: Settings window already open, brought to front");
+                                    return; // Don't create a new window
                                 }
                                 catch (Exception ex)
                                 {
-                                    ScrollDebugLogger.Log($"SettingsMenuHandler.ShowSettings: Error closing old window: {ex.Message}");
+                                    ScrollDebugLogger.Log($"SettingsMenuHandler.ShowSettings: Error activating existing window: {ex.Message}");
+                                    // If activation fails, continue to create new window
+                                }
+                            }
+                            
+                            // Close any non-visible or invalid windows before creating new one
+                            if (existingWindow != null && !existingWindow.IsVisible)
+                            {
+                                try
+                                {
+                                    existingWindow.Close();
+                                    ScrollDebugLogger.Log("SettingsMenuHandler.ShowSettings: Closed non-visible settings window");
+                                }
+                                catch (Exception ex)
+                                {
+                                    ScrollDebugLogger.Log($"SettingsMenuHandler.ShowSettings: Error closing non-visible window: {ex.Message}");
                                 }
                                 currentSettingsWindow = null;
                             }
                             
-                            // Also find and close any other SettingsWindow instances
-                            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-                            {
-                                var settingsWindows = desktop.Windows.OfType<SettingsWindow>().ToList();
-                                foreach (var window in settingsWindows)
-                                {
-                                    if (window != null && window != oldWindow)
-                                    {
-                                        try
-                                        {
-                                            window.Close();
-                                            ScrollDebugLogger.Log("SettingsMenuHandler.ShowSettings: Closed additional SettingsWindow instance");
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            ScrollDebugLogger.Log($"SettingsMenuHandler.ShowSettings: Error closing additional window: {ex.Message}");
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            // Now create and show the new window
+                            // Create and initialize the new window
                             var newWindow = new SettingsWindow();
                             
-                            // Initialize the settings window
                             newWindow.Initialize(
                                 game,
                                 canvasUI,
                                 stateManager,
                                 (message) => 
                                 {
-                                    // Status update callback - can update main window status if needed
                                     ScrollDebugLogger.Log($"Settings: {message}");
                                 });
                             
@@ -135,15 +125,28 @@ namespace RPGGame
                             // Store the new window reference
                             currentSettingsWindow = newWindow;
                             
-                            // Show the new window
+                            // Show the window - must be called synchronously on UI thread
                             newWindow.Show();
-                            stateManager.TransitionToState(GameState.Settings);
+                            
+                            // Don't transition to Settings state - keep current state (MainMenu or GameLoop)
+                            // This ensures the main window continues to function normally
+                            // The settings window is independent and doesn't affect the main window state
                         }
                         catch (Exception ex)
                         {
                             ScrollDebugLogger.Log($"SettingsMenuHandler.ShowSettings: Error in UI thread operation: {ex.Message}\n{ex.StackTrace}");
                         }
-                    }, Avalonia.Threading.DispatcherPriority.Normal);
+                    };
+                    
+                    // Execute directly if on UI thread, otherwise post
+                    if (Avalonia.Threading.Dispatcher.UIThread.CheckAccess())
+                    {
+                        showWindowAction();
+                    }
+                    else
+                    {
+                        Avalonia.Threading.Dispatcher.UIThread.Post(showWindowAction, Avalonia.Threading.DispatcherPriority.Normal);
+                    }
                     
                     return;
                 }
@@ -152,19 +155,20 @@ namespace RPGGame
                     ScrollDebugLogger.Log($"SettingsMenuHandler: Error showing settings window: {ex.Message}\n{ex.StackTrace}");
                 }
                 
-                // Fallback to canvas rendering using GameScreenCoordinator
+                // Fallback to canvas rendering using GameScreenCoordinator (shouldn't normally happen)
                 var screenCoordinator = new GameScreenCoordinator(stateManager);
                 screenCoordinator.ShowSettings();
             }
             else
             {
                 ScrollDebugLogger.Log($"SettingsMenuHandler: UI manager is not CanvasUICoordinator (type={customUIManager?.GetType().Name ?? "null"})");
-                stateManager.TransitionToState(GameState.Settings);
+                // Don't transition state - settings window should be independent
             }
         }
 
         /// <summary>
         /// Handle settings menu input
+        /// Note: Settings are now accessed via GUI panel, this is kept for backward compatibility
         /// </summary>
         public void HandleMenuInput(string input)
         {
@@ -173,10 +177,6 @@ namespace RPGGame
                 switch (input)
                 {
                     case "1":
-                        // Run Tests
-                        // ShowTestingMenu will transition the state, so don't do it here
-                        ShowTestingMenuEvent?.Invoke();
-                        break;
                     case "2":
                         // Developer Menu
                         canvasUI.ResetDeleteConfirmation();
@@ -190,7 +190,7 @@ namespace RPGGame
                         ShowMainMenuEvent?.Invoke();
                         break;
                     default:
-                        // Any other input goes back to settings
+                        // Any other input goes back to settings (opens GUI panel)
                         canvasUI.ResetDeleteConfirmation();
                         ShowSettings();
                         break;

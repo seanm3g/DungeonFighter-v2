@@ -65,8 +65,16 @@ namespace RPGGame
                     if (activeCharacter != null)
                     {
                         // Save character before returning to main menu
-                        var characterId = stateManager.GetCharacterId(activeCharacter);
-                        activeCharacter.SaveCharacter(characterId);
+                        try
+                        {
+                            var characterId = stateManager.GetCharacterId(activeCharacter);
+                            activeCharacter.SaveCharacter(characterId);
+                        }
+                        catch (Exception)
+                        {
+                            // Error already logged and shown by CharacterSaveService
+                            // Continue to return to main menu even if save failed
+                        }
                     }
                     stateManager.TransitionToState(GameState.MainMenu);
                     ShowMainMenuEvent?.Invoke();

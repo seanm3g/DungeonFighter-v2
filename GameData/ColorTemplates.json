@@ -1,997 +1,1686 @@
 {
-  "$schema": "ColorTemplates Schema",
-  "description": "Color templates for Caves of Qud-style text coloring",
-  
+  "$schema": null,
+  "description": null,
+  "colorCodes": null,
   "templates": [
     {
       "name": "fiery",
       "shaderType": "sequence",
-      "colors": ["R", "O", "W", "Y", "W", "O", "R"],
+      "colors": [
+        "R",
+        "O",
+        "W",
+        "Y",
+        "W",
+        "O",
+        "R"
+      ],
       "description": "Blazing fire effect"
     },
     {
       "name": "icy",
       "shaderType": "sequence",
-      "colors": ["C", "B", "Y", "C", "b", "C", "Y"],
+      "colors": [
+        "C",
+        "B",
+        "Y",
+        "C",
+        "b",
+        "C",
+        "Y"
+      ],
       "description": "Frozen ice effect"
     },
     {
       "name": "toxic",
       "shaderType": "sequence",
-      "colors": ["g", "G", "Y", "G", "g"],
+      "colors": [
+        "g",
+        "G",
+        "Y",
+        "G",
+        "g"
+      ],
       "description": "Poisonous green effect"
     },
     {
       "name": "crystalline",
       "shaderType": "sequence",
-      "colors": ["m", "M", "B", "Y", "B", "M", "m"],
+      "colors": [
+        "m",
+        "M",
+        "B",
+        "Y",
+        "B",
+        "M",
+        "m"
+      ],
       "description": "Crystal prism effect"
     },
     {
       "name": "electric",
       "shaderType": "sequence",
-      "colors": ["C", "Y", "W", "Y", "C"],
+      "colors": [
+        "C",
+        "Y",
+        "W",
+        "Y",
+        "C"
+      ],
       "description": "Electrical discharge"
     },
     {
       "name": "holy",
       "shaderType": "sequence",
-      "colors": ["W", "Y", "W", "Y", "W"],
+      "colors": [
+        "W",
+        "Y",
+        "W",
+        "Y",
+        "W"
+      ],
       "description": "Divine light"
     },
     {
       "name": "demonic",
       "shaderType": "sequence",
-      "colors": ["r", "R", "m", "r", "R"],
+      "colors": [
+        "r",
+        "R",
+        "m",
+        "r",
+        "R"
+      ],
       "description": "Hellfire and darkness"
     },
     {
       "name": "arcane",
       "shaderType": "sequence",
-      "colors": ["m", "M", "C", "M", "m"],
+      "colors": [
+        "m",
+        "M",
+        "C",
+        "M",
+        "m"
+      ],
       "description": "Magical energy"
     },
     {
       "name": "natural",
       "shaderType": "sequence",
-      "colors": ["g", "G", "w", "G", "g"],
-      "description": "Nature's essence"
+      "colors": [
+        "g",
+        "G",
+        "w",
+        "G",
+        "g"
+      ],
+      "description": "Nature\u0027s essence"
     },
     {
       "name": "shadow",
       "shaderType": "sequence",
-      "colors": ["m", "M", "y", "m", "M"],
+      "colors": [
+        "m",
+        "M",
+        "y",
+        "m",
+        "M"
+      ],
       "description": "Dark shadows"
     },
     {
       "name": "golden",
       "shaderType": "sequence",
-      "colors": ["W", "O", "W", "O", "W"],
+      "colors": [
+        "W",
+        "O",
+        "W",
+        "O",
+        "W"
+      ],
       "description": "Golden gleam"
     },
     {
       "name": "bloodied",
       "shaderType": "sequence",
-      "colors": ["r", "R", "r", "r"],
+      "colors": [
+        "r",
+        "R",
+        "r",
+        "r"
+      ],
       "description": "Blood-soaked"
     },
     {
       "name": "ethereal",
       "shaderType": "sequence",
-      "colors": ["C", "M", "Y", "M", "C"],
+      "colors": [
+        "C",
+        "M",
+        "Y",
+        "M",
+        "C"
+      ],
       "description": "Otherworldly glow"
     },
     {
       "name": "corrupted",
       "shaderType": "sequence",
-      "colors": ["m", "r", "M", "r", "m"],
+      "colors": [
+        "m",
+        "r",
+        "M",
+        "r",
+        "m"
+      ],
       "description": "Dark corruption"
     },
     {
       "name": "rainbow",
       "shaderType": "alternation",
-      "colors": ["R", "O", "W", "G", "C", "B", "M"],
+      "colors": [
+        "R",
+        "O",
+        "W",
+        "G",
+        "C",
+        "B",
+        "M"
+      ],
       "description": "Rainbow colors"
     },
     {
       "name": "common",
       "shaderType": "solid",
-      "colors": ["Y"],
+      "colors": [
+        "Y"
+      ],
       "description": "Common rarity (white)"
     },
     {
       "name": "uncommon",
       "shaderType": "solid",
-      "colors": ["G"],
+      "colors": [
+        "G"
+      ],
       "description": "Uncommon rarity (green)"
     },
     {
       "name": "rare",
       "shaderType": "solid",
-      "colors": ["B"],
+      "colors": [
+        "B"
+      ],
       "description": "Rare rarity (blue)"
     },
     {
       "name": "epic",
       "shaderType": "solid",
-      "colors": ["M"],
+      "colors": [
+        "M"
+      ],
       "description": "Epic rarity (purple)"
     },
     {
       "name": "legendary",
       "shaderType": "sequence",
-      "colors": ["O", "W", "O"],
+      "colors": [
+        "O",
+        "W",
+        "O"
+      ],
       "description": "Legendary rarity (golden shimmer)"
     },
     {
       "name": "mythic",
       "shaderType": "sequence",
-      "colors": ["M", "C", "Y", "C", "M"],
+      "colors": [
+        "M",
+        "C",
+        "Y",
+        "C",
+        "M"
+      ],
       "description": "Mythic rarity (prismatic glow)"
     },
     {
       "name": "transcendent",
       "shaderType": "sequence",
-      "colors": ["Y", "M", "C", "B", "M", "Y"],
+      "colors": [
+        "Y",
+        "M",
+        "C",
+        "B",
+        "M",
+        "Y"
+      ],
       "description": "Transcendent rarity (ethereal radiance)"
     },
     {
       "name": "critical",
       "shaderType": "sequence",
-      "colors": ["R", "O", "Y", "O", "R"],
+      "colors": [
+        "R",
+        "O",
+        "Y",
+        "O",
+        "R"
+      ],
       "description": "Critical hit effect"
     },
     {
       "name": "miss",
       "shaderType": "solid",
-      "colors": ["W"],
+      "colors": [
+        "W"
+      ],
       "description": "Miss text (bright yellow)"
     },
     {
       "name": "damage",
       "shaderType": "solid",
-      "colors": ["r"],
+      "colors": [
+        "r"
+      ],
       "description": "Damage numbers (darker neutral red)"
     },
     {
       "name": "heal",
       "shaderType": "solid",
-      "colors": ["G"],
+      "colors": [
+        "G"
+      ],
       "description": "Healing numbers (green)"
     },
     {
       "name": "mana",
       "shaderType": "solid",
-      "colors": ["B"],
+      "colors": [
+        "B"
+      ],
       "description": "Mana/magic (blue)"
     },
     {
       "name": "poisoned",
       "shaderType": "sequence",
-      "colors": ["g", "G", "g", "g"],
+      "colors": [
+        "g",
+        "G",
+        "g",
+        "g"
+      ],
       "description": "Poison status effect"
     },
     {
       "name": "stunned",
       "shaderType": "sequence",
-      "colors": ["W", "Y", "W", "y"],
+      "colors": [
+        "W",
+        "Y",
+        "W",
+        "y"
+      ],
       "description": "Stun status effect"
     },
     {
       "name": "burning",
       "shaderType": "sequence",
-      "colors": ["R", "O", "R", "r"],
+      "colors": [
+        "R",
+        "O",
+        "R",
+        "r"
+      ],
       "description": "Burn status effect"
     },
     {
       "name": "frozen",
       "shaderType": "sequence",
-      "colors": ["C", "B", "Y", "C"],
+      "colors": [
+        "C",
+        "B",
+        "Y",
+        "C"
+      ],
       "description": "Freeze status effect"
     },
     {
       "name": "bleeding",
       "shaderType": "sequence",
-      "colors": ["r", "R", "r", "r"],
+      "colors": [
+        "r",
+        "R",
+        "r",
+        "r"
+      ],
       "description": "Bleed status effect"
     },
     {
       "name": "weakened",
       "shaderType": "sequence",
-      "colors": ["y", "r", "y", "r"],
+      "colors": [
+        "y",
+        "r",
+        "y",
+        "r"
+      ],
       "description": "Weaken status effect"
     },
     {
       "name": "slowed",
       "shaderType": "sequence",
-      "colors": ["b", "C", "y", "b"],
+      "colors": [
+        "b",
+        "C",
+        "y",
+        "b"
+      ],
       "description": "Slow status effect"
     },
     {
       "name": "worn",
       "shaderType": "solid",
-      "colors": ["r"],
+      "colors": [
+        "r"
+      ],
       "description": "Worn modifier (negative)"
     },
     {
       "name": "dull",
       "shaderType": "solid",
-      "colors": ["y"],
+      "colors": [
+        "y"
+      ],
       "description": "Dull modifier (negative)"
     },
     {
       "name": "sturdy",
       "shaderType": "solid",
-      "colors": ["y"],
+      "colors": [
+        "y"
+      ],
       "description": "Sturdy modifier (basic positive)"
     },
     {
       "name": "balanced",
       "shaderType": "solid",
-      "colors": ["y"],
+      "colors": [
+        "y"
+      ],
       "description": "Balanced modifier (basic positive)"
     },
     {
       "name": "sharp",
       "shaderType": "sequence",
-      "colors": ["y", "Y"],
+      "colors": [
+        "y",
+        "Y"
+      ],
       "description": "Sharp modifier (uncommon)"
     },
     {
       "name": "swift",
       "shaderType": "sequence",
-      "colors": ["C", "y"],
+      "colors": [
+        "C",
+        "y"
+      ],
       "description": "Swift modifier (uncommon)"
     },
     {
       "name": "precise",
       "shaderType": "sequence",
-      "colors": ["Y", "y"],
+      "colors": [
+        "Y",
+        "y"
+      ],
       "description": "Precise modifier (uncommon)"
     },
     {
       "name": "reinforced",
       "shaderType": "sequence",
-      "colors": ["w", "y"],
+      "colors": [
+        "w",
+        "y"
+      ],
       "description": "Reinforced modifier (uncommon)"
     },
     {
       "name": "keen",
       "shaderType": "sequence",
-      "colors": ["Y", "C", "Y"],
+      "colors": [
+        "Y",
+        "C",
+        "Y"
+      ],
       "description": "Keen modifier (rare)"
     },
     {
       "name": "agile",
       "shaderType": "sequence",
-      "colors": ["C", "Y", "C"],
+      "colors": [
+        "C",
+        "Y",
+        "C"
+      ],
       "description": "Agile modifier (rare)"
     },
     {
       "name": "lucky",
       "shaderType": "sequence",
-      "colors": ["W", "Y", "W"],
+      "colors": [
+        "W",
+        "Y",
+        "W"
+      ],
       "description": "Lucky modifier (rare)"
     },
     {
       "name": "vampiric",
       "shaderType": "sequence",
-      "colors": ["r", "M", "r"],
+      "colors": [
+        "r",
+        "M",
+        "r"
+      ],
       "description": "Vampiric modifier (rare)"
     },
     {
       "name": "brutal",
       "shaderType": "sequence",
-      "colors": ["R", "Y", "R"],
+      "colors": [
+        "R",
+        "Y",
+        "R"
+      ],
       "description": "Brutal modifier (epic)"
     },
     {
       "name": "lightning",
       "shaderType": "sequence",
-      "colors": ["C", "Y", "C", "Y"],
+      "colors": [
+        "C",
+        "Y",
+        "C",
+        "Y"
+      ],
       "description": "Lightning modifier (epic)"
     },
     {
       "name": "blessed",
       "shaderType": "sequence",
-      "colors": ["W", "Y", "M", "Y"],
+      "colors": [
+        "W",
+        "Y",
+        "M",
+        "Y"
+      ],
       "description": "Blessed modifier (epic)"
     },
     {
       "name": "venomous",
       "shaderType": "sequence",
-      "colors": ["g", "G", "Y"],
+      "colors": [
+        "g",
+        "G",
+        "Y"
+      ],
       "description": "Venomous modifier (epic)"
     },
     {
       "name": "masterwork",
       "shaderType": "sequence",
-      "colors": ["O", "W", "Y", "W"],
+      "colors": [
+        "O",
+        "W",
+        "Y",
+        "W"
+      ],
       "description": "Masterwork modifier (legendary)"
     },
     {
       "name": "godlike",
       "shaderType": "sequence",
-      "colors": ["M", "W", "Y", "W", "M"],
+      "colors": [
+        "M",
+        "W",
+        "Y",
+        "W",
+        "M"
+      ],
       "description": "Godlike modifier (legendary)"
     },
     {
       "name": "enchanted",
       "shaderType": "sequence",
-      "colors": ["m", "M", "C", "Y"],
+      "colors": [
+        "m",
+        "M",
+        "C",
+        "Y"
+      ],
       "description": "Enchanted modifier (legendary)"
     },
     {
       "name": "annihilation",
       "shaderType": "sequence",
-      "colors": ["R", "O", "Y", "M", "R"],
+      "colors": [
+        "R",
+        "O",
+        "Y",
+        "M",
+        "R"
+      ],
       "description": "Annihilation modifier (mythic)"
     },
     {
       "name": "timewarp",
       "shaderType": "sequence",
-      "colors": ["C", "M", "Y", "B", "C"],
+      "colors": [
+        "C",
+        "M",
+        "Y",
+        "B",
+        "C"
+      ],
       "description": "Time Warp modifier (mythic)"
     },
     {
       "name": "perfect",
       "shaderType": "sequence",
-      "colors": ["Y", "C", "M", "Y"],
+      "colors": [
+        "Y",
+        "C",
+        "M",
+        "Y"
+      ],
       "description": "Perfect modifier (mythic)"
     },
     {
       "name": "divine",
       "shaderType": "sequence",
-      "colors": ["W", "Y", "M", "C", "Y"],
+      "colors": [
+        "W",
+        "Y",
+        "M",
+        "C",
+        "Y"
+      ],
       "description": "Divine modifier (mythic)"
     },
     {
       "name": "realitybreaker",
       "shaderType": "sequence",
-      "colors": ["M", "R", "Y", "C", "B", "M"],
+      "colors": [
+        "M",
+        "R",
+        "Y",
+        "C",
+        "B",
+        "M"
+      ],
       "description": "Reality Breaker modifier (transcendent)"
     },
     {
       "name": "omnipotent",
       "shaderType": "sequence",
-      "colors": ["Y", "M", "C", "Y", "W", "Y"],
+      "colors": [
+        "Y",
+        "M",
+        "C",
+        "Y",
+        "W",
+        "Y"
+      ],
       "description": "Omnipotent modifier (transcendent)"
     },
     {
       "name": "infinite",
       "shaderType": "sequence",
-      "colors": ["C", "Y", "M", "Y", "C", "B"],
+      "colors": [
+        "C",
+        "Y",
+        "M",
+        "Y",
+        "C",
+        "B"
+      ],
       "description": "Infinite modifier (transcendent)"
     },
     {
       "name": "cosmic",
       "shaderType": "sequence",
-      "colors": ["M", "B", "Y", "C", "M", "Y"],
+      "colors": [
+        "M",
+        "B",
+        "Y",
+        "C",
+        "M",
+        "Y"
+      ],
       "description": "Cosmic modifier (transcendent)"
     },
     {
       "name": "magicfingers",
       "shaderType": "solid",
-      "colors": ["y"],
+      "colors": [
+        "y"
+      ],
       "description": "Magic Fingers modifier"
     },
     {
       "name": "magicallamp",
       "shaderType": "sequence",
-      "colors": ["W", "O", "Y"],
+      "colors": [
+        "W",
+        "O",
+        "Y"
+      ],
       "description": "Magical Lamp modifier"
     },
     {
       "name": "protection",
       "shaderType": "solid",
-      "colors": ["y"],
+      "colors": [
+        "y"
+      ],
       "description": "of Protection suffix"
     },
     {
       "name": "vitality",
       "shaderType": "solid",
-      "colors": ["y"],
+      "colors": [
+        "y"
+      ],
       "description": "of Vitality suffix"
     },
     {
       "name": "swiftness",
       "shaderType": "solid",
-      "colors": ["y"],
+      "colors": [
+        "y"
+      ],
       "description": "of Swiftness suffix"
     },
     {
       "name": "power",
       "shaderType": "solid",
-      "colors": ["y"],
+      "colors": [
+        "y"
+      ],
       "description": "of Power suffix"
     },
     {
       "name": "recovery",
       "shaderType": "solid",
-      "colors": ["y"],
+      "colors": [
+        "y"
+      ],
       "description": "of Recovery suffix"
     },
     {
       "name": "intelligence",
       "shaderType": "solid",
-      "colors": ["Y"],
+      "colors": [
+        "Y"
+      ],
       "description": "of Intelligence suffix"
     },
     {
       "name": "strength",
       "shaderType": "solid",
-      "colors": ["Y"],
+      "colors": [
+        "Y"
+      ],
       "description": "of Strength suffix"
     },
     {
       "name": "agility",
       "shaderType": "solid",
-      "colors": ["Y"],
+      "colors": [
+        "Y"
+      ],
       "description": "of Agility suffix"
     },
     {
       "name": "technique",
       "shaderType": "solid",
-      "colors": ["Y"],
+      "colors": [
+        "Y"
+      ],
       "description": "of Technique suffix"
     },
     {
       "name": "accuracy",
       "shaderType": "solid",
-      "colors": ["Y"],
+      "colors": [
+        "Y"
+      ],
       "description": "of Accuracy suffix"
     },
     {
       "name": "fortification",
       "shaderType": "sequence",
-      "colors": ["y", "Y"],
+      "colors": [
+        "y",
+        "Y"
+      ],
       "description": "of Fortification suffix"
     },
     {
       "name": "vigor",
       "shaderType": "sequence",
-      "colors": ["Y", "y"],
+      "colors": [
+        "Y",
+        "y"
+      ],
       "description": "of Vigor suffix"
     },
     {
       "name": "alacrity",
       "shaderType": "sequence",
-      "colors": ["C", "Y"],
+      "colors": [
+        "C",
+        "Y"
+      ],
       "description": "of Alacrity suffix"
     },
     {
       "name": "might",
       "shaderType": "sequence",
-      "colors": ["Y", "W"],
+      "colors": [
+        "Y",
+        "W"
+      ],
       "description": "of Might suffix"
     },
     {
       "name": "resilience",
       "shaderType": "sequence",
-      "colors": ["y", "Y", "y"],
+      "colors": [
+        "y",
+        "Y",
+        "y"
+      ],
       "description": "of Resilience suffix"
     },
     {
       "name": "bear",
       "shaderType": "sequence",
-      "colors": ["w", "Y", "w"],
+      "colors": [
+        "w",
+        "Y",
+        "w"
+      ],
       "description": "of the Bear suffix"
     },
     {
       "name": "cat",
       "shaderType": "sequence",
-      "colors": ["y", "C", "Y"],
+      "colors": [
+        "y",
+        "C",
+        "Y"
+      ],
       "description": "of the Cat suffix"
     },
     {
       "name": "owl",
       "shaderType": "sequence",
-      "colors": ["B", "Y", "C"],
+      "colors": [
+        "B",
+        "Y",
+        "C"
+      ],
       "description": "of the Owl suffix"
     },
     {
       "name": "hawk",
       "shaderType": "sequence",
-      "colors": ["Y", "C", "y"],
+      "colors": [
+        "Y",
+        "C",
+        "y"
+      ],
       "description": "of the Hawk suffix"
     },
     {
       "name": "precision",
       "shaderType": "sequence",
-      "colors": ["Y", "C", "Y"],
+      "colors": [
+        "Y",
+        "C",
+        "Y"
+      ],
       "description": "of Precision suffix"
     },
     {
       "name": "warding",
       "shaderType": "sequence",
-      "colors": ["C", "Y", "C"],
+      "colors": [
+        "C",
+        "Y",
+        "C"
+      ],
       "description": "of Warding suffix"
     },
     {
       "name": "endurance",
       "shaderType": "sequence",
-      "colors": ["Y", "W", "Y"],
+      "colors": [
+        "Y",
+        "W",
+        "Y"
+      ],
       "description": "of Endurance suffix"
     },
     {
       "name": "haste",
       "shaderType": "sequence",
-      "colors": ["C", "Y", "C", "Y"],
+      "colors": [
+        "C",
+        "Y",
+        "C",
+        "Y"
+      ],
       "description": "of Haste suffix"
     },
     {
       "name": "destruction",
       "shaderType": "sequence",
-      "colors": ["R", "Y", "R"],
+      "colors": [
+        "R",
+        "Y",
+        "R"
+      ],
       "description": "of Destruction suffix"
     },
     {
       "name": "regeneration",
       "shaderType": "sequence",
-      "colors": ["G", "Y", "G"],
+      "colors": [
+        "G",
+        "Y",
+        "G"
+      ],
       "description": "of Regeneration suffix"
     },
     {
       "name": "titan",
       "shaderType": "sequence",
-      "colors": ["Y", "W", "O", "Y"],
+      "colors": [
+        "Y",
+        "W",
+        "O",
+        "Y"
+      ],
       "description": "of the Titan suffix"
     },
     {
       "name": "wind",
       "shaderType": "sequence",
-      "colors": ["C", "Y", "B", "C"],
+      "colors": [
+        "C",
+        "Y",
+        "B",
+        "C"
+      ],
       "description": "of the Wind suffix"
     },
     {
       "name": "sage",
       "shaderType": "sequence",
-      "colors": ["B", "M", "Y", "B"],
+      "colors": [
+        "B",
+        "M",
+        "Y",
+        "B"
+      ],
       "description": "of the Sage suffix"
     },
     {
       "name": "master",
       "shaderType": "sequence",
-      "colors": ["Y", "C", "Y", "W"],
+      "colors": [
+        "Y",
+        "C",
+        "Y",
+        "W"
+      ],
       "description": "of the Master suffix"
     },
     {
       "name": "marksman",
       "shaderType": "sequence",
-      "colors": ["Y", "W", "C", "Y"],
+      "colors": [
+        "Y",
+        "W",
+        "C",
+        "Y"
+      ],
       "description": "of the Marksman suffix"
     },
     {
       "name": "invulnerability",
       "shaderType": "sequence",
-      "colors": ["C", "Y", "B", "Y", "C"],
+      "colors": [
+        "C",
+        "Y",
+        "B",
+        "Y",
+        "C"
+      ],
       "description": "of Invulnerability suffix"
     },
     {
       "name": "immortality",
       "shaderType": "sequence",
-      "colors": ["W", "Y", "M", "Y", "W"],
+      "colors": [
+        "W",
+        "Y",
+        "M",
+        "Y",
+        "W"
+      ],
       "description": "of Immortality suffix"
     },
     {
       "name": "phoenix",
       "shaderType": "sequence",
-      "colors": ["R", "O", "Y", "O", "R"],
+      "colors": [
+        "R",
+        "O",
+        "Y",
+        "O",
+        "R"
+      ],
       "description": "of the Phoenix suffix"
     },
     {
       "name": "colossus",
       "shaderType": "sequence",
-      "colors": ["Y", "W", "O", "Y", "W"],
+      "colors": [
+        "Y",
+        "W",
+        "O",
+        "Y",
+        "W"
+      ],
       "description": "of the Colossus suffix"
     },
     {
       "name": "storm",
       "shaderType": "sequence",
-      "colors": ["C", "Y", "B", "Y", "C"],
+      "colors": [
+        "C",
+        "Y",
+        "B",
+        "Y",
+        "C"
+      ],
       "description": "of the Storm suffix"
     },
     {
       "name": "archmage",
       "shaderType": "sequence",
-      "colors": ["M", "C", "Y", "B", "M"],
+      "colors": [
+        "M",
+        "C",
+        "Y",
+        "B",
+        "M"
+      ],
       "description": "of the Archmage suffix"
     },
     {
       "name": "grandmaster",
       "shaderType": "sequence",
-      "colors": ["Y", "M", "C", "Y", "W"],
+      "colors": [
+        "Y",
+        "M",
+        "C",
+        "Y",
+        "W"
+      ],
       "description": "of the Grandmaster suffix"
     },
     {
       "name": "gods",
       "shaderType": "sequence",
-      "colors": ["Y", "M", "C", "B", "Y", "W"],
+      "colors": [
+        "Y",
+        "M",
+        "C",
+        "B",
+        "Y",
+        "W"
+      ],
       "description": "of the Gods suffix"
     },
     {
       "name": "discovery",
       "shaderType": "sequence",
-      "colors": ["y", "W"],
+      "colors": [
+        "y",
+        "W"
+      ],
       "description": "of Discovery suffix"
     },
     {
       "name": "fortune",
       "shaderType": "sequence",
-      "colors": ["W", "Y", "W"],
+      "colors": [
+        "W",
+        "Y",
+        "W"
+      ],
       "description": "of Fortune suffix"
     },
     {
       "name": "treasurehunter",
       "shaderType": "sequence",
-      "colors": ["W", "O", "Y"],
+      "colors": [
+        "W",
+        "O",
+        "Y"
+      ],
       "description": "of the Treasure Hunter suffix"
     },
     {
       "name": "collector",
       "shaderType": "sequence",
-      "colors": ["O", "W", "Y", "W"],
+      "colors": [
+        "O",
+        "W",
+        "Y",
+        "W"
+      ],
       "description": "of the Collector suffix"
     },
     {
       "name": "legendaryfortune",
       "shaderType": "sequence",
-      "colors": ["O", "W", "Y", "M", "W"],
+      "colors": [
+        "O",
+        "W",
+        "Y",
+        "M",
+        "W"
+      ],
       "description": "of Legendary Fortune suffix"
     },
     {
       "name": "lootmaster",
       "shaderType": "sequence",
-      "colors": ["W", "O", "M", "Y"],
+      "colors": [
+        "W",
+        "O",
+        "M",
+        "Y"
+      ],
       "description": "of the Loot Master suffix"
     },
     {
       "name": "forest",
       "shaderType": "sequence",
-      "colors": ["g", "G", "Y", "w"],
+      "colors": [
+        "g",
+        "G",
+        "Y",
+        "w"
+      ],
       "description": "Ancient Forest - Dark green/green/golden/brown (ancient mystical forest)"
     },
     {
       "name": "lava",
       "shaderType": "sequence",
-      "colors": ["r", "R", "O", "R"],
+      "colors": [
+        "r",
+        "R",
+        "O",
+        "R"
+      ],
       "description": "Lava environment - Dark red/red/orange/red (4 shades)"
     },
     {
       "name": "crypt",
       "shaderType": "sequence",
-      "colors": ["K", "k", "m", "K"],
+      "colors": [
+        "K",
+        "k",
+        "m",
+        "K"
+      ],
       "description": "Haunted Crypt - Dark/very dark/purple/dark (supernatural undead)"
     },
     {
       "name": "crystal",
       "shaderType": "sequence",
-      "colors": ["m", "M", "C", "Y", "C", "M"],
+      "colors": [
+        "m",
+        "M",
+        "C",
+        "Y",
+        "C",
+        "M"
+      ],
       "description": "Crystal Caverns - Dark magenta/magenta/cyan/white/cyan/magenta (prismatic crystal shimmer)"
     },
     {
       "name": "temple",
       "shaderType": "sequence",
-      "colors": ["W", "y", "w", "Y"],
+      "colors": [
+        "W",
+        "y",
+        "w",
+        "Y"
+      ],
       "description": "Abandoned Temple - Gold/grey/brown/white (decayed sacred ruins)"
     },
     {
       "name": "ice",
       "shaderType": "sequence",
-      "colors": ["C", "B", "Y", "C"],
+      "colors": [
+        "C",
+        "B",
+        "Y",
+        "C"
+      ],
       "description": "Ice environment - Cyan/blue/white/cyan (4 shades)"
     },
     {
       "name": "shadow",
       "shaderType": "sequence",
-      "colors": ["K", "m", "M", "k"],
+      "colors": [
+        "K",
+        "m",
+        "M",
+        "k"
+      ],
       "description": "Shadow Realm - Dark/purple/magenta/very dark (mystical shadow realm)"
     },
     {
       "name": "steampunk",
       "shaderType": "sequence",
-      "colors": ["w", "o", "R", "y"],
+      "colors": [
+        "w",
+        "o",
+        "R",
+        "y"
+      ],
       "description": "Mechanical Foundry - Brown/dark orange/red/grey (fiery mechanical forge)"
     },
     {
       "name": "swamp",
       "shaderType": "sequence",
-      "colors": ["g", "G", "Y", "g"],
+      "colors": [
+        "g",
+        "G",
+        "Y",
+        "g"
+      ],
       "description": "Poisoned Swamp - Dark green/bright green/yellow/dark green (toxic poisonous swamp)"
     },
     {
       "name": "astral",
       "shaderType": "sequence",
-      "colors": ["Y", "M", "B", "W"],
+      "colors": [
+        "Y",
+        "M",
+        "B",
+        "W"
+      ],
       "description": "Celestial Observatory - White/magenta/blue/gold (starry celestial cosmos)"
     },
     {
       "name": "underground",
       "shaderType": "sequence",
-      "colors": ["K", "w", "y", "k"],
+      "colors": [
+        "K",
+        "w",
+        "y",
+        "k"
+      ],
       "description": "Underground environment - Dark/brown/grey/very dark (4 shades)"
     },
     {
       "name": "storm",
       "shaderType": "sequence",
-      "colors": ["C", "Y", "B", "C"],
+      "colors": [
+        "C",
+        "Y",
+        "B",
+        "C"
+      ],
       "description": "Stormy Cliffs - Cyan/white/blue/cyan (electric stormy weather)"
     },
     {
       "name": "nature",
       "shaderType": "sequence",
-      "colors": ["g", "G", "Y", "M"],
+      "colors": [
+        "g",
+        "G",
+        "Y",
+        "M"
+      ],
       "description": "Mystical Garden - Dark green/green/white/magenta (mystical enchanted nature)"
     },
     {
       "name": "arcane",
       "shaderType": "sequence",
-      "colors": ["m", "M", "Y", "B"],
+      "colors": [
+        "m",
+        "M",
+        "Y",
+        "B"
+      ],
       "description": "Ancient Library - Dark magenta/magenta/white/blue (ancient arcane knowledge)"
     },
     {
       "name": "desert",
       "shaderType": "sequence",
-      "colors": ["W", "O", "C", "Y", "w"],
+      "colors": [
+        "W",
+        "O",
+        "C",
+        "Y",
+        "w"
+      ],
       "description": "Desert Oasis - Gold/orange/cyan/white/brown (desert heat with oasis water)"
     },
     {
       "name": "volcano",
       "shaderType": "sequence",
-      "colors": ["R", "O", "Y", "O", "R"],
+      "colors": [
+        "R",
+        "O",
+        "Y",
+        "O",
+        "R"
+      ],
       "description": "Volcanic Crater - Red/orange/white/orange/red (intense volcanic heat)"
     },
     {
       "name": "ruins",
       "shaderType": "sequence",
-      "colors": ["K", "w", "y", "Y", "y"],
+      "colors": [
+        "K",
+        "w",
+        "y",
+        "Y",
+        "y"
+      ],
       "description": "Mystic Ruins - Dark/brown/grey/white/grey (ancient mystical ruins)"
     },
     {
       "name": "ocean",
       "shaderType": "sequence",
-      "colors": ["b", "B", "C", "K"],
+      "colors": [
+        "b",
+        "B",
+        "C",
+        "K"
+      ],
       "description": "Ocean Depths - Dark blue/blue/cyan/dark (deep abyssal depths)"
     },
     {
       "name": "mountain",
       "shaderType": "sequence",
-      "colors": ["K", "y", "Y", "C"],
+      "colors": [
+        "K",
+        "y",
+        "Y",
+        "C"
+      ],
       "description": "Mountain Summit - Dark/grey/white/cyan (snowy peak with sky)"
     },
     {
       "name": "temporal",
       "shaderType": "sequence",
-      "colors": ["C", "M", "Y", "M"],
+      "colors": [
+        "C",
+        "M",
+        "Y",
+        "M"
+      ],
       "description": "Time Distortion - Cyan/magenta/white/magenta (time-bending temporal effects)"
     },
     {
       "name": "dream",
       "shaderType": "sequence",
-      "colors": ["M", "C", "Y", "B"],
+      "colors": [
+        "M",
+        "C",
+        "Y",
+        "B"
+      ],
       "description": "Dreamscape - Magenta/cyan/white/blue (surreal dreamlike realm)"
     },
     {
       "name": "void",
       "shaderType": "sequence",
-      "colors": ["k", "K", "m", "k"],
+      "colors": [
+        "k",
+        "K",
+        "m",
+        "k"
+      ],
       "description": "Void Nexus - Very dark/dark/dark magenta/very dark (absolute emptiness)"
     },
     {
       "name": "dimensional",
       "shaderType": "sequence",
-      "colors": ["M", "C", "B", "R"],
+      "colors": [
+        "M",
+        "C",
+        "B",
+        "R"
+      ],
       "description": "Reality Rift - Magenta/cyan/blue/red (reality-bending dimensional chaos)"
     },
     {
       "name": "divine",
       "shaderType": "sequence",
-      "colors": ["W", "Y", "W", "Y"],
+      "colors": [
+        "W",
+        "Y",
+        "W",
+        "Y"
+      ],
       "description": "Final Sanctum - Gold/white/gold/white (divine holy radiance)"
     },
     {
       "name": "generic",
       "shaderType": "sequence",
-      "colors": ["w", "o", "y", "w"],
+      "colors": [
+        "w",
+        "o",
+        "y",
+        "w"
+      ],
       "description": "Bandit Hideout - Brown/dark orange/grey/brown (rustic earthy hideout)"
     },
     {
       "name": "title_dungeon",
       "shaderType": "sequence",
-      "colors": ["k", "K", "y", "Y", "W"],
+      "colors": [
+        "k",
+        "K",
+        "y",
+        "Y",
+        "W"
+      ],
       "description": "Title screen DUNGEON gradient - black to warm white to yellow/gold"
     },
     {
       "name": "title_fighter",
       "shaderType": "sequence",
-      "colors": ["k", "K", "y", "O", "o"],
+      "colors": [
+        "k",
+        "K",
+        "y",
+        "O",
+        "o"
+      ],
       "description": "Title screen FIGHTER gradient - black to warm orange to vibrant orange"
     },
     {
       "name": "title_dungeon_yellow_orange",
       "shaderType": "sequence",
-      "colors": ["W", "O", "W", "O"],
+      "colors": [
+        "W",
+        "O",
+        "W",
+        "O"
+      ],
       "description": "Title screen DUNGEON - yellow and orange gradient (no white)"
     },
     {
       "name": "title_fighter_yellow_orange",
       "shaderType": "sequence",
-      "colors": ["O", "W", "O", "W"],
+      "colors": [
+        "O",
+        "W",
+        "O",
+        "W"
+      ],
       "description": "Title screen FIGHTER - orange and yellow gradient (no white)"
     },
     {
       "name": "weapon_class",
       "shaderType": "sequence",
-      "colors": ["R", "O", "Y"],
+      "colors": [
+        "R",
+        "O",
+        "Y"
+      ],
       "description": "Weapon class theme - red to orange to yellow (combat/offensive)"
     },
     {
       "name": "armor_class",
       "shaderType": "sequence",
-      "colors": ["B", "C", "Y"],
+      "colors": [
+        "B",
+        "C",
+        "Y"
+      ],
       "description": "Armor class theme - blue to cyan to white (defensive/protective)"
     },
     {
       "name": "head_armor",
       "shaderType": "sequence",
-      "colors": ["C", "B", "Y"],
+      "colors": [
+        "C",
+        "B",
+        "Y"
+      ],
       "description": "Head armor theme - cyan to blue to white (mental/protective)"
     },
     {
       "name": "chest_armor",
       "shaderType": "sequence",
-      "colors": ["B", "C", "Y"],
+      "colors": [
+        "B",
+        "C",
+        "Y"
+      ],
       "description": "Chest armor theme - blue to cyan to white (core protection)"
     },
     {
       "name": "feet_armor",
       "shaderType": "sequence",
-      "colors": ["G", "C", "Y"],
+      "colors": [
+        "G",
+        "C",
+        "Y"
+      ],
       "description": "Feet armor theme - green to cyan to white (mobility/grounded)"
     },
     {
       "name": "sword_weapon",
       "shaderType": "sequence",
-      "colors": ["W", "W", "W"],
+      "colors": [
+        "W",
+        "W",
+        "W"
+      ],
       "description": "Sword weapon type - yellow/gold (balanced/classic)"
     },
     {
       "name": "dagger_weapon",
       "shaderType": "sequence",
-      "colors": ["M", "M", "M"],
+      "colors": [
+        "M",
+        "M",
+        "M"
+      ],
       "description": "Dagger weapon type - magenta (quick/precise)"
     },
     {
       "name": "mace_weapon",
       "shaderType": "sequence",
-      "colors": ["C", "C", "C"],
+      "colors": [
+        "C",
+        "C",
+        "C"
+      ],
       "description": "Mace weapon type - cyan (heavy/blunt)"
     },
     {
       "name": "wand_weapon",
       "shaderType": "sequence",
-      "colors": ["m", "m", "m"],
+      "colors": [
+        "m",
+        "m",
+        "m"
+      ],
       "description": "Wand weapon type - purple (magical/mystical)"
     },
     {
       "name": "damage_effect",
       "shaderType": "sequence",
-      "colors": ["R", "O", "Y"],
+      "colors": [
+        "R",
+        "O",
+        "Y"
+      ],
       "description": "Damage effects - red to orange to yellow (destructive)"
     },
     {
       "name": "speed_effect",
       "shaderType": "sequence",
-      "colors": ["C", "Y", "W"],
+      "colors": [
+        "C",
+        "Y",
+        "W"
+      ],
       "description": "Speed effects - cyan to white (fast/dynamic)"
     },
     {
       "name": "magical_effect",
       "shaderType": "sequence",
-      "colors": ["M", "C", "B"],
+      "colors": [
+        "M",
+        "C",
+        "B"
+      ],
       "description": "Magical effects - magenta to cyan to blue (mystical)"
     },
     {
       "name": "defensive_effect",
       "shaderType": "sequence",
-      "colors": ["B", "C", "Y"],
+      "colors": [
+        "B",
+        "C",
+        "Y"
+      ],
       "description": "Defensive effects - blue to cyan to white (protective)"
     },
     {
       "name": "life_effect",
       "shaderType": "sequence",
-      "colors": ["G", "Y", "W"],
+      "colors": [
+        "G",
+        "Y",
+        "W"
+      ],
       "description": "Life/health effects - green to white (vitality)"
     },
     {
       "name": "death_effect",
       "shaderType": "sequence",
-      "colors": ["r", "R", "m"],
+      "colors": [
+        "r",
+        "R",
+        "m"
+      ],
       "description": "Death/dark effects - dark red to red to magenta (corruption)"
     },
     {
       "name": "divine_effect",
       "shaderType": "sequence",
-      "colors": ["W", "Y", "W"],
+      "colors": [
+        "W",
+        "Y",
+        "W"
+      ],
       "description": "Divine effects - white to yellow to white (holy)"
     },
     {
       "name": "enhanced_common",
       "shaderType": "solid",
-      "colors": ["y"],
+      "colors": [
+        "y"
+      ],
       "description": "Enhanced common rarity - light grey (basic but clean)"
     },
     {
       "name": "enhanced_uncommon",
       "shaderType": "sequence",
-      "colors": ["G", "Y"],
+      "colors": [
+        "G",
+        "Y"
+      ],
       "description": "Enhanced uncommon rarity - green to white (nature/improvement)"
     },
     {
       "name": "enhanced_rare",
       "shaderType": "sequence",
-      "colors": ["B", "C", "Y"],
+      "colors": [
+        "B",
+        "C",
+        "Y"
+      ],
       "description": "Enhanced rare rarity - blue to cyan to white (valuable)"
     },
     {
       "name": "enhanced_epic",
       "shaderType": "sequence",
-      "colors": ["M", "C", "Y"],
+      "colors": [
+        "M",
+        "C",
+        "Y"
+      ],
       "description": "Enhanced epic rarity - magenta to cyan to white (exceptional)"
     },
     {
       "name": "enhanced_legendary",
       "shaderType": "sequence",
-      "colors": ["O", "W", "Y", "W", "O"],
+      "colors": [
+        "O",
+        "W",
+        "Y",
+        "W",
+        "O"
+      ],
       "description": "Enhanced legendary rarity - orange to white to yellow (legendary shimmer)"
     },
     {
       "name": "enhanced_mythic",
       "shaderType": "sequence",
-      "colors": ["M", "C", "Y", "B", "M"],
+      "colors": [
+        "M",
+        "C",
+        "Y",
+        "B",
+        "M"
+      ],
       "description": "Enhanced mythic rarity - magenta to cyan to yellow to blue (prismatic)"
     },
     {
       "name": "enhanced_transcendent",
       "shaderType": "sequence",
-      "colors": ["Y", "M", "C", "B", "Y", "W"],
+      "colors": [
+        "Y",
+        "M",
+        "C",
+        "B",
+        "Y",
+        "W"
+      ],
       "description": "Enhanced transcendent rarity - white to magenta to cyan to blue (ethereal)"
     }
   ],
-
-  "usageExamples": [
-    {
-      "description": "Simple foreground color",
-      "example": "&RThis text is red"
-    },
-    {
-      "description": "Foreground and background",
-      "example": "&R^gRed text on green background"
-    },
-    {
-      "description": "Using a color template",
-      "example": "{{fiery|Blazing Sword of Fire}}"
-    },
-    {
-      "description": "Mixing templates and codes",
-      "example": "You found a {{legendary|Legendary Sword}}! It deals &R100 damage&y."
-    },
-    {
-      "description": "Reset color with &y",
-      "example": "&RRed text&y then grey text"
-    },
-    {
-      "description": "Item with rarity",
-      "example": "{{epic|Epic Steel Sword}} (+15 damage)"
-    },
-    {
-      "description": "Combat message",
-      "example": "{{critical|CRITICAL HIT}}! You deal &R{{damage|55}}&y damage!"
-    },
-    {
-      "description": "Status effect",
-      "example": "Enemy is {{poisoned|POISONED}} and takes &G5&y damage per turn."
-    }
-  ]
+  "usageExamples": null
 }
-

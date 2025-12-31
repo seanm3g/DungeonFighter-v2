@@ -17,7 +17,7 @@ Audited all tests in the settings menu and integrated missing tests into the cur
 - **Tests:**
   - Test 1: Item Generation Analysis (`TestManager.RunItemGenerationTest()`)
   - Test 2: Tier Distribution Verification (`TierDistributionTest.TestTierDistribution()`)
-  - Test 3: Common Item Modification Chance (`TestManager.RunCommonItemModificationTest()`)
+  - Test 3: Common Item Bonus Chance (`TestManager.RunCommonItemModificationTest()`)
 - **Issue:** Uses `Console.ReadLine()` and `Console.ReadKey()` which block in Avalonia UI
 
 #### New Avalonia-Based System (ACTIVE)
@@ -75,7 +75,7 @@ The three tests from the old system were not accessible through the new UI. They
 7. Generate 10 Random Items
 8. **Item Generation Analysis (100 items per level 1-20)** ← NEW
 9. **Tier Distribution Verification** ← NEW
-10. **Common Item Modification Chance (25% verification)** ← NEW
+10. **Common Item Bonus Chance (10% stat bonus verification)** ← NEW
 0. Back to Settings
 
 ## Recommendations

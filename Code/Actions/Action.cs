@@ -31,7 +31,13 @@ namespace RPGGame
         public ActionType Type { get; set; }
         public TargetType Target { get; set; }
         public int Cooldown { get; set; }
-        public int CurrentCooldown { get; set; }
+        
+        private int _currentCooldown = 0;
+        public int CurrentCooldown 
+        { 
+            get => _currentCooldown;
+            set => _currentCooldown = value < 0 ? 0 : value;
+        }
         public string Description { get; set; } = "";
         public int ComboOrder { get; set; }
         public double DamageMultiplier { get; set; }

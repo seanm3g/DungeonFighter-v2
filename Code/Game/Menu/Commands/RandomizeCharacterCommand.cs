@@ -29,7 +29,8 @@ namespace DungeonFighter.Game.Menu.Commands
                 int baseHealth = 100;
                 int healthVariation = RandomUtility.Next(-50, 51);
                 player.MaxHealth = baseHealth + healthVariation;
-                player.CurrentHealth = player.MaxHealth;
+                // Heal to full effective max health (including equipment bonuses)
+                player.CurrentHealth = player.GetEffectiveMaxHealth();
                 
                 LogStep("Character randomized");
             }

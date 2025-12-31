@@ -1,0 +1,38 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="300"
+             x:Class="RPGGame.UI.Avalonia.Components.SettingsSection">
+    <Border Background="White" 
+            BorderBrush="#FF404040" 
+            BorderThickness="1" 
+            CornerRadius="6" 
+            Padding="18">
+        <StackPanel Spacing="12">
+            <Button x:Name="HeaderButton"
+                    Content="Section Title"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Left"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Padding="0"
+                    Cursor="Hand">
+                <Button.Styles>
+                    <Style Selector="Button">
+                        <Setter Property="Foreground" Value="Black"/>
+                        <Setter Property="FontSize" Value="18"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                    </Style>
+                    <Style Selector="Button:pointerover">
+                        <Setter Property="Foreground" Value="#FF0078D4"/>
+                    </Style>
+                </Button.Styles>
+            </Button>
+            <ContentControl x:Name="ContentArea">
+                <!-- Content will be set programmatically -->
+            </ContentControl>
+        </StackPanel>
+    </Border>
+</UserControl>
+

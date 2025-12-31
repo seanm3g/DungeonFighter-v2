@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.Avalonia.Renderers;
@@ -63,16 +64,10 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public void SwitchToCharacterDisplayManager(Character? character)
         {
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasTextManager.cs:SwitchToCharacterDisplayManager", message = "Entry", data = new { character = character?.Name, currentDisplayManagerCharacter = currentDisplayManager != null ? "exists" : "null", characterDisplayManagersCount = characterDisplayManagers.Count }, sessionId = "debug-session", runId = "run1", hypothesisId = "H3" }) + "\n"); } catch { }
-            // #endregion
             if (character == null)
             {
                 // No character - use default display manager
                 currentDisplayManager = GetOrCreateDefaultDisplayManager();
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasTextManager.cs:SwitchToCharacterDisplayManager", message = "Using default display manager", data = new { }, sessionId = "debug-session", runId = "run1", hypothesisId = "H3" }) + "\n"); } catch { }
-                // #endregion
                 return;
             }
             
@@ -82,17 +77,11 @@ namespace RPGGame.UI.Avalonia.Managers
             {
                 // No character ID - use default display manager
                 currentDisplayManager = GetOrCreateDefaultDisplayManager();
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasTextManager.cs:SwitchToCharacterDisplayManager", message = "No character ID, using default", data = new { character = character?.Name }, sessionId = "debug-session", runId = "run1", hypothesisId = "H3" }) + "\n"); } catch { }
-                // #endregion
                 return;
             }
             
             // Get or create display manager for this character
             currentDisplayManager = GetOrCreateCharacterDisplayManager(characterId);
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasTextManager.cs:SwitchToCharacterDisplayManager", message = "Switched to character display manager", data = new { character = character?.Name, characterId = characterId, newBufferCount = currentDisplayManager?.Buffer.Count ?? 0 }, sessionId = "debug-session", runId = "run1", hypothesisId = "H3" }) + "\n"); } catch { }
-            // #endregion
         }
         
         /// <summary>
@@ -119,36 +108,20 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public CenterPanelDisplayManager GetDisplayManagerForCharacter(Character? character)
         {
-            var activeCharacter = stateManager?.GetActiveCharacter();
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasTextManager.cs:GetDisplayManagerForCharacter", message = "Entry", data = new { character = character?.Name, activeCharacter = activeCharacter?.Name, currentDisplayManagerCharacter = currentDisplayManager != null ? "exists" : "null" }, sessionId = "debug-session", runId = "run2", hypothesisId = "H3" }) + "\n"); } catch { }
-            // #endregion
             if (character == null)
             {
-                var result = DisplayManager; // Return active character's display manager
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasTextManager.cs:GetDisplayManagerForCharacter", message = "Character null, using active", data = new { activeCharacter = activeCharacter?.Name, resultBufferCount = result.Buffer.Count }, sessionId = "debug-session", runId = "run2", hypothesisId = "H3" }) + "\n"); } catch { }
-                // #endregion
-                return result;
+                return DisplayManager; // Return active character's display manager
             }
             
             // Get character ID from state manager
             string? characterId = stateManager?.GetCharacterId(character);
             if (string.IsNullOrEmpty(characterId))
             {
-                var result = DisplayManager; // Return active character's display manager
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasTextManager.cs:GetDisplayManagerForCharacter", message = "CharacterId null, using active", data = new { character = character?.Name, activeCharacter = activeCharacter?.Name, resultBufferCount = result.Buffer.Count }, sessionId = "debug-session", runId = "run2", hypothesisId = "H3" }) + "\n"); } catch { }
-                // #endregion
-                return result;
+                return DisplayManager; // Return active character's display manager
             }
             
             // Get or create display manager for this character
-            var displayManager = GetOrCreateCharacterDisplayManager(characterId);
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasTextManager.cs:GetDisplayManagerForCharacter", message = "Returning character display manager", data = new { character = character?.Name, characterId = characterId, activeCharacter = activeCharacter?.Name, displayManagerBufferCount = displayManager.Buffer.Count, charactersMatch = character == activeCharacter }, sessionId = "debug-session", runId = "run2", hypothesisId = "H3" }) + "\n"); } catch { }
-            // #endregion
-            return displayManager;
+            return GetOrCreateCharacterDisplayManager(characterId);
         }
         
         /// <summary>

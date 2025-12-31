@@ -12,10 +12,14 @@
         ShowInTaskbar="True"
         CanResize="True">
     <Window.Styles>
-        <!-- Style to ensure TextBoxes maintain dark background and white text when focused -->
+        <!-- Aggressive style overrides to force dark background on TextBox -->
+        <!-- Target the TextBox and its internal template parts -->
         <Style Selector="TextBox">
             <Setter Property="Background" Value="#FF2A2A2A"/>
             <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FF555555"/>
+            <Setter Property="SelectionBrush" Value="#FF0078D4"/>
+            <Setter Property="SelectionForegroundBrush" Value="White"/>
         </Style>
         <Style Selector="TextBox:focus">
             <Setter Property="Background" Value="#FF2A2A2A"/>
@@ -25,18 +29,30 @@
         <Style Selector="TextBox:pointerover">
             <Setter Property="Background" Value="#FF353535"/>
             <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FF555555"/>
         </Style>
         <Style Selector="TextBox:pointerover:focus">
             <Setter Property="Background" Value="#FF2A2A2A"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderBrush" Value="#FF0078D4"/>
         </Style>
+        <!-- Target the internal border element that might have white background -->
+        <Style Selector="TextBox /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="#FF2A2A2A"/>
+        </Style>
+        <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="#FF2A2A2A"/>
+        </Style>
+        <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="#FF353535"/>
+        </Style>
+        <Style Selector="TextBox:pointerover:focus /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="#FF2A2A2A"/>
+        </Style>
     </Window.Styles>
-    <Grid Background="#FF1A1A1A">
-        <local:SettingsPanel x:Name="SettingsMenuPanel" 
-                            HorizontalAlignment="Stretch" 
-                            VerticalAlignment="Stretch"
-                            Margin="0"/>
+    <Grid Background="#FF1A1A1A" x:Name="MainGrid">
+        <!-- SettingsPanel will be added dynamically after window is shown to prevent blocking layout pass -->
+        <!-- Using ContentControl to defer panel creation until after Show() completes -->
     </Grid>
 </Window>
 

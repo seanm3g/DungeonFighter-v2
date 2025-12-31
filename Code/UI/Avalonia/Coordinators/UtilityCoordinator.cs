@@ -116,6 +116,22 @@ namespace RPGGame.UI.Avalonia.Coordinators
         }
         
         /// <summary>
+        /// Shows a loading message in the bottom left corner of the window
+        /// </summary>
+        public void ShowLoadingStatus(string message = "Loading data...")
+        {
+            renderer.ShowLoadingStatus(message);
+        }
+        
+        /// <summary>
+        /// Clears the loading status message from the bottom left corner
+        /// </summary>
+        public void ClearLoadingStatus()
+        {
+            renderer.ClearLoadingStatus();
+        }
+        
+        /// <summary>
         /// Toggles help display
         /// </summary>
         public void ToggleHelp()

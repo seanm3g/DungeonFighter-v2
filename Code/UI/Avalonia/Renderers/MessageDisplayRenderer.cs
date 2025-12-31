@@ -131,5 +131,34 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.AddText(CanvasLayoutManager.LEFT_MARGIN + 2, statusY, message, AsciiArtAssets.Colors.Yellow);
             canvas.Refresh();
         }
+        
+        /// <summary>
+        /// Shows a loading message in the bottom left corner of the window
+        /// This is used to indicate data is being loaded while the menu is displayed
+        /// </summary>
+        public void ShowLoadingStatus(string message = "Loading data...")
+        {
+            // Position at the very bottom left of the screen (SCREEN_HEIGHT - 1 for last line)
+            int statusY = CanvasLayoutManager.SCREEN_HEIGHT - 1;
+            int statusX = CanvasLayoutManager.LEFT_MARGIN + 2;
+            
+            // Clear the area first to remove any previous message
+            canvas.ClearTextInRange(statusY - 1, statusY + 1);
+            
+            // Add the loading message in gray color
+            canvas.AddText(statusX, statusY, message, AsciiArtAssets.Colors.Gray);
+            canvas.Refresh();
+        }
+        
+        /// <summary>
+        /// Clears the loading status message from the bottom left corner
+        /// </summary>
+        public void ClearLoadingStatus()
+        {
+            // Clear the bottom left area where loading status is displayed
+            int statusY = CanvasLayoutManager.SCREEN_HEIGHT - 1;
+            canvas.ClearTextInRange(statusY - 1, statusY + 1);
+            canvas.Refresh();
+        }
     }
 }

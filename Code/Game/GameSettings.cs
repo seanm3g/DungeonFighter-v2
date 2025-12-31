@@ -35,6 +35,24 @@ namespace RPGGame
         public bool ShowDamageNumbers { get; set; } = true;
         public bool ShowComboProgress { get; set; } = true;
         
+        // Appearance/Color Settings
+        public string PanelBackgroundColor { get; set; } = "#FFFFFF"; // White
+        public string PanelBorderColor { get; set; } = "#404040"; // Dark gray
+        public string PanelTextColor { get; set; } = "#000000"; // Black
+        public string SettingsBackgroundColor { get; set; } = "#1A1A1A"; // Dark gray
+        public string SettingsTitleColor { get; set; } = "#FFD700"; // Gold
+        public string ListBoxSelectedColor { get; set; } = "#FFD700"; // Gold
+        public string ListBoxSelectedBackgroundColor { get; set; } = "#2A2A2A"; // Dark gray
+        public string ListBoxHoverBackgroundColor { get; set; } = "#353535"; // Medium gray
+        public string ButtonPrimaryColor { get; set; } = "#0078D4"; // Blue
+        public string ButtonSecondaryColor { get; set; } = "#555555"; // Gray
+        public string ButtonBackColor { get; set; } = "#404040"; // Dark gray
+        public string TextBoxTextColor { get; set; } = "#FFFFFF"; // White
+        public string TextBoxBackgroundColor { get; set; } = "#2A2A2A"; // Dark gray
+        public string TextBoxHoverBackgroundColor { get; set; } = "#353535"; // Medium gray
+        public string TextBoxBorderColor { get; set; } = "#555555"; // Gray
+        public string TextBoxFocusBorderColor { get; set; } = "#0078D4"; // Blue
+        
         private static readonly string SettingsFilePath = "gamesettings.json";
         private static GameSettings? _instance;
         
@@ -59,6 +77,10 @@ namespace RPGGame
                 if (File.Exists(SettingsFilePath))
                 {
                     string json = File.ReadAllText(SettingsFilePath);
+                    if (string.IsNullOrEmpty(json))
+                    {
+                        return new GameSettings();
+                    }
                     var settings = JsonSerializer.Deserialize<GameSettings>(json);
                     if (settings != null)
                     {
@@ -158,6 +180,22 @@ namespace RPGGame
             ShowHealthBars = true;
             ShowDamageNumbers = true;
             ShowComboProgress = true;
+            PanelBackgroundColor = "#FFFFFF";
+            PanelBorderColor = "#404040";
+            PanelTextColor = "#000000";
+            SettingsBackgroundColor = "#1A1A1A";
+            SettingsTitleColor = "#FFD700";
+            ListBoxSelectedColor = "#FFD700";
+            ListBoxSelectedBackgroundColor = "#2A2A2A";
+            ListBoxHoverBackgroundColor = "#353535";
+            ButtonPrimaryColor = "#0078D4";
+            ButtonSecondaryColor = "#555555";
+            ButtonBackColor = "#404040";
+            TextBoxTextColor = "#FFFFFF";
+            TextBoxBackgroundColor = "#2A2A2A";
+            TextBoxHoverBackgroundColor = "#353535";
+            TextBoxBorderColor = "#555555";
+            TextBoxFocusBorderColor = "#0078D4";
         }
         
         public string GetNarrativeBalanceDescription()

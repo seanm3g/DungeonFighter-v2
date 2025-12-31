@@ -14,25 +14,21 @@ namespace RPGGame.UI.Avalonia.Managers
         private readonly SettingsTabInitializer tabInitializer;
         private readonly GameVariablesTabManager gameVariablesTabManager;
         private readonly ActionsTabManager actionsTabManager;
-        private readonly BattleStatisticsTabManager battleStatisticsTabManager;
         private readonly SettingsManager settingsManager;
 
         public SettingsInitialization(
             SettingsManager settingsManager,
             GameVariablesTabManager gameVariablesTabManager,
             ActionsTabManager actionsTabManager,
-            BattleStatisticsTabManager battleStatisticsTabManager,
             Action<string, bool> showStatusMessage)
         {
             this.settingsManager = settingsManager;
             this.gameVariablesTabManager = gameVariablesTabManager;
             this.actionsTabManager = actionsTabManager;
-            this.battleStatisticsTabManager = battleStatisticsTabManager;
             
             this.tabInitializer = new SettingsTabInitializer(
                 gameVariablesTabManager,
                 actionsTabManager,
-                battleStatisticsTabManager,
                 showStatusMessage);
         }
 
@@ -78,19 +74,35 @@ namespace RPGGame.UI.Avalonia.Managers
                 tabInitializer.InitializeGameVariablesTab(gameVariablesCategoryListBox, gameVariablesPanel);
                 tabInitializer.InitializeActionsTab(actionsListBox, actionFormPanel, createActionButton, deleteActionButton);
                 
-                var progressBorder = settingsPanel.FindControl<Border>("ProgressBorder");
-                var progressBar = settingsPanel.FindControl<ProgressBar>("ProgressBar");
-                var progressStatusText = settingsPanel.FindControl<TextBlock>("ProgressStatusText");
-                var progressPercentageText = settingsPanel.FindControl<TextBlock>("ProgressPercentageText");
-                var battleStatisticsResultsText = settingsPanel.FindControl<TextBlock>("BattleStatisticsResultsText");
-                
-                tabInitializer.InitializeBattleStatisticsTab(
-                    progressBorder,
-                    progressBar,
-                    progressStatusText,
-                    progressPercentageText,
-                    battleStatisticsResultsText);
             }
+        }
+
+        /// <summary>
+        /// Initialize GameVariables tab from panel controls
+        /// </summary>
+        public void InitializeGameVariablesTab(UserControl panel)
+        {
+            if (panel == null || tabInitializer == null) return;
+            
+            var categoryListBox = panel.FindControl<ListBox>("GameVariablesCategoryListBox");
+            var variablesPanel = panel.FindControl<Panel>("GameVariablesPanel");
+            
+            tabInitializer.InitializeGameVariablesTab(categoryListBox, variablesPanel);
+        }
+
+        /// <summary>
+        /// Initialize Actions tab from panel controls
+        /// </summary>
+        public void InitializeActionsTab(UserControl panel)
+        {
+            if (panel == null || tabInitializer == null) return;
+            
+            var actionsListBox = panel.FindControl<ListBox>("ActionsListBox");
+            var actionFormPanel = panel.FindControl<Panel>("ActionFormPanel");
+            var createActionButton = panel.FindControl<Button>("CreateActionButton");
+            var deleteActionButton = panel.FindControl<Button>("DeleteActionButton");
+            
+            tabInitializer.InitializeActionsTab(actionsListBox, actionFormPanel, createActionButton, deleteActionButton);
         }
     }
 }

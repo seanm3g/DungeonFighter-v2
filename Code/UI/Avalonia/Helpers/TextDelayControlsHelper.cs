@@ -16,6 +16,8 @@ namespace RPGGame.UI.Avalonia.Helpers
         {
             public CheckBox? EnableGuiDelaysCheckBox { get; set; }
             public CheckBox? EnableConsoleDelaysCheckBox { get; set; }
+            // Deprecated: ActionDelay and MessageDelay sliders removed - combat timing is now controlled by
+            // MessageTypeDelays.Combat and ChunkedTextReveal.Combat presets
             public Slider? ActionDelaySlider { get; set; }
             public TextBox? ActionDelayTextBox { get; set; }
             public Slider? MessageDelaySlider { get; set; }
@@ -59,6 +61,7 @@ namespace RPGGame.UI.Avalonia.Helpers
             {
                 EnableGuiDelaysCheckBox = parent.FindControl<CheckBox>("EnableGuiDelaysCheckBox"),
                 EnableConsoleDelaysCheckBox = parent.FindControl<CheckBox>("EnableConsoleDelaysCheckBox"),
+                // Deprecated: These controls no longer exist in the UI - will return null
                 ActionDelaySlider = parent.FindControl<Slider>("ActionDelaySlider"),
                 ActionDelayTextBox = parent.FindControl<TextBox>("ActionDelayTextBox"),
                 MessageDelaySlider = parent.FindControl<Slider>("MessageDelaySlider"),

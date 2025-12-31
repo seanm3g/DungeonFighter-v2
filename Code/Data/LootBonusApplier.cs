@@ -28,15 +28,14 @@ namespace RPGGame
         /// </summary>
         public void ApplyBonuses(Item item, RarityData rarity, LootContext? context = null)
         {
-            // Special handling for Common items: 10% chance to have mods/stat bonuses
+            // Special handling for Common items: 10% chance to have stat bonuses only
             if (rarity.Name.Equals("Common", StringComparison.OrdinalIgnoreCase))
             {
-                // 10% chance for Common items to have bonuses (reduced from 25%)
+                // 10% chance for Common items to have stat bonuses (no modifications)
                 if (_random.NextDouble() < 0.10)
                 {
-                    // Apply 1 stat bonus and 1 modification for Common items that get bonuses
+                    // Apply 1 stat bonus only for Common items that get bonuses
                     ApplyStatBonuses(item, 1);
-                    ApplyModifications(item, 1, context);
                 }
                 // If the 10% roll fails, Common items get no bonuses (as intended)
             }

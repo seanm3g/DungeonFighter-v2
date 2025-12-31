@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using RPGGame.Utils;
+using RPGGame.UI.Avalonia;
 
 namespace RPGGame.Entity.Services
 {
@@ -31,55 +33,81 @@ namespace RPGGame.Entity.Services
         /// </summary>
         public void SaveCharacter(Character character, string? characterId = null, string? filename = null)
         {
+            string? errorMessage = null;
             try
             {
                 filename = fileManager.ResolveFilename(characterId, filename);
                 
                 string json = serializer.Serialize(character);
                 
-                ErrorHandler.TryFileOperation(() =>
+                bool success = ErrorHandler.TryFileOperation(() =>
                 {
                     fileManager.WriteAllText(filename, json);
                 }, $"SaveCharacter({filename})", () =>
                 {
-                    // Only show error in console mode (not in custom UI mode)
-                    if (UIManager.GetCustomUIManager() == null)
-                    {
-                        UIManager.WriteLine($"Error saving character: Failed to write file");
-                    }
+                    errorMessage = "Failed to write file";
                 });
+                
+                if (!success)
+                {
+                    errorMessage = errorMessage ?? "Failed to save character";
+                    HandleSaveError(errorMessage, filename);
+                    throw new IOException(errorMessage);
+                }
             }
             catch (IOException ex)
             {
-                // Only show error in console mode (not in custom UI mode)
-                if (UIManager.GetCustomUIManager() == null)
-                {
-                    UIManager.WriteLine($"Error saving character: I/O error - {ex.Message}");
-                }
+                errorMessage = $"I/O error: {ex.Message}";
+                HandleSaveError(errorMessage, filename);
+                throw; // Re-throw so caller can handle it
             }
             catch (UnauthorizedAccessException ex)
             {
-                // Only show error in console mode (not in custom UI mode)
-                if (UIManager.GetCustomUIManager() == null)
-                {
-                    UIManager.WriteLine($"Error saving character: Access denied - {ex.Message}");
-                }
+                errorMessage = $"Access denied: {ex.Message}";
+                HandleSaveError(errorMessage, filename);
+                throw; // Re-throw so caller can handle it
             }
             catch (System.Text.Json.JsonException ex)
             {
-                // Only show error in console mode (not in custom UI mode)
-                if (UIManager.GetCustomUIManager() == null)
-                {
-                    UIManager.WriteLine($"Error saving character: JSON serialization error - {ex.Message}");
-                }
+                errorMessage = $"JSON serialization error: {ex.Message}";
+                HandleSaveError(errorMessage, filename);
+                throw; // Re-throw so caller can handle it
             }
             catch (Exception ex)
             {
-                // Catch-all for any other unexpected errors
-                // Only show error in console mode (not in custom UI mode)
-                if (UIManager.GetCustomUIManager() == null)
+                errorMessage = ex.Message;
+                HandleSaveError(errorMessage, filename);
+                throw; // Re-throw so caller can handle it
+            }
+        }
+        
+        /// <summary>
+        /// Handles save errors by logging and showing messages to the user
+        /// </summary>
+        private void HandleSaveError(string errorMessage, string? filename)
+        {
+            string fullMessage = $"Error saving character{(filename != null ? $" to {filename}" : "")}: {errorMessage}";
+            
+            // Always log to debug logger
+            ScrollDebugLogger.LogAlways(fullMessage);
+            
+            // Show error in console mode
+            if (UIManager.GetCustomUIManager() == null)
+            {
+                UIManager.WriteLine(fullMessage);
+            }
+            else
+            {
+                // Show error in custom UI mode
+                var customUI = UIManager.GetCustomUIManager();
+                if (customUI is CanvasUICoordinator canvasUI)
                 {
-                    UIManager.WriteLine($"Error saving character: {ex.Message}");
+                    canvasUI.ShowError($"Failed to save character", errorMessage);
+                }
+                else
+                {
+                    // Fallback for other UI types
+                    UIManager.WriteLine(fullMessage);
                 }
             }
         }
@@ -257,7 +285,7 @@ namespace RPGGame.Entity.Services
         /// <summary>
         /// Gets information about a saved character without loading it
         /// Checks both the default save file and per-character save files
-        /// Returns info from the first valid save file found
+        /// Returns info from the most recently modified save file (last played character)
         /// </summary>
         public (string? characterName, int level) GetSavedCharacterInfo(string? filename = null)
         {
@@ -269,39 +297,51 @@ namespace RPGGame.Entity.Services
                     if (!fileManager.FileExists(filename))
                         return (null, 0);
 
-                    string json = fileManager.ReadAllText(filename);
-                    var saveData = serializer.Deserialize(json);
+                    string fileJson = fileManager.ReadAllText(filename);
+                    var fileSaveData = serializer.Deserialize(fileJson);
                     
-                    return saveData != null ? (saveData.Name, saveData.Level) : (null, 0);
+                    return fileSaveData != null ? (fileSaveData.Name, fileSaveData.Level) : (null, 0);
                 }
                 
-                // Check for default save file first (backward compatibility)
+                // Collect all potential save files with their modification times
+                var saveFilesWithTimes = new List<(string file, DateTime lastWriteTime)>();
+                
+                // Check for default save file (backward compatibility)
                 var defaultFile = fileManager.GetDefaultSaveFilename();
                 if (fileManager.FileExists(defaultFile))
                 {
-                    string json = fileManager.ReadAllText(defaultFile);
-                    var saveData = serializer.Deserialize(json);
-                    
-                    if (saveData != null)
-                    {
-                        return (saveData.Name, saveData.Level);
-                    }
+                    var lastWriteTime = File.GetLastWriteTime(defaultFile);
+                    saveFilesWithTimes.Add((defaultFile, lastWriteTime));
                 }
                 
                 // Check for per-character save files
                 var characterSaveFiles = fileManager.GetCharacterSaveFiles();
-                if (characterSaveFiles.Length > 0)
+                foreach (var saveFile in characterSaveFiles)
                 {
-                    // Use the first character save file found
-                    // (Could be enhanced to use most recent file based on modification time)
-                    var firstSaveFile = characterSaveFiles[0];
-                    string json = fileManager.ReadAllText(firstSaveFile);
-                    var saveData = serializer.Deserialize(json);
-                    
-                    if (saveData != null)
+                    if (fileManager.FileExists(saveFile))
                     {
-                        return (saveData.Name, saveData.Level);
+                        var lastWriteTime = File.GetLastWriteTime(saveFile);
+                        saveFilesWithTimes.Add((saveFile, lastWriteTime));
                     }
+                }
+                
+                // If no save files found, return empty
+                if (saveFilesWithTimes.Count == 0)
+                {
+                    return (null, 0);
+                }
+                
+                // Sort by modification time (most recent first) and use the most recent one
+                var mostRecentSaveFile = saveFilesWithTimes
+                    .OrderByDescending(x => x.lastWriteTime)
+                    .First().file;
+                
+                string json = fileManager.ReadAllText(mostRecentSaveFile);
+                var saveData = serializer.Deserialize(json);
+                
+                if (saveData != null)
+                {
+                    return (saveData.Name, saveData.Level);
                 }
                 
                 return (null, 0);

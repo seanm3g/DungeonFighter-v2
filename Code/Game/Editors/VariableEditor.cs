@@ -225,6 +225,7 @@ namespace RPGGame.Editors
 
         /// <summary>
         /// Save changes to TuningConfig.json and gamesettings.json
+        /// After saving, reloads GameConfiguration to ensure new characters use updated values
         /// </summary>
         public bool SaveChanges()
         {
@@ -235,6 +236,15 @@ namespace RPGGame.Editors
                 
                 // Save GameSettings to gamesettings.json
                 gameSettings.SaveSettings();
+                
+                // Reload GameConfiguration singleton to ensure new characters use updated values
+                // This is important because GameConfiguration is a singleton that's cached,
+                // and new characters read from it when they're created
+                if (configSaved)
+                {
+                    GameConfiguration.ResetInstance();
+                    // The next access to GameConfiguration.Instance will reload from the saved file
+                }
                 
                 return configSaved;
             }

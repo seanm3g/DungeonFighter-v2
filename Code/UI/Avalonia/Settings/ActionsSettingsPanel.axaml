@@ -1,0 +1,50 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="RPGGame.UI.Avalonia.Settings.ActionsSettingsPanel"
+             Background="Transparent">
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                 HorizontalScrollBarVisibility="Disabled">
+        <Grid Margin="20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="250"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Actions List -->
+            <ListBox x:Name="ActionsListBox"
+                     Grid.Column="0"
+                     Background="Transparent"
+                     BorderThickness="0"/>
+            
+            <!-- Action Form Panel -->
+            <StackPanel x:Name="ActionFormPanel"
+                        Grid.Column="2"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"/>
+            
+            <!-- Action Buttons -->
+            <StackPanel Grid.Column="2"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Spacing="10"
+                        Margin="0,10,0,0">
+                <Button x:Name="CreateActionButton"
+                        Content="Create"
+                        Width="100"
+                        Height="35"
+                        FontSize="14"/>
+                <Button x:Name="DeleteActionButton"
+                        Content="Delete"
+                        Width="100"
+                        Height="35"
+                        FontSize="14"/>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</UserControl>
+

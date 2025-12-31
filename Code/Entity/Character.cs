@@ -327,6 +327,10 @@ namespace RPGGame
         public double GetModificationLifesteal() => Facade.GetModificationLifesteal();
         public int GetModificationGodlikeBonus() => Facade.GetModificationGodlikeBonus();
         public double GetModificationBleedChance() => Facade.GetModificationBleedChance();
+        public double GetModificationPoisonChance() => Facade.GetModificationPoisonChance();
+        public double GetModificationBurnChance() => Facade.GetModificationBurnChance();
+        public double GetModificationFreezeChance() => Facade.GetModificationFreezeChance();
+        public double GetModificationStunChance() => Facade.GetModificationStunChance();
         public double GetModificationUniqueActionChance() => Facade.GetModificationUniqueActionChance();
         public double GetArmorSpikeDamage() => Facade.GetArmorSpikeDamage();
         public List<ArmorStatus> GetEquippedArmorStatuses() => Facade.GetEquippedArmorStatuses();

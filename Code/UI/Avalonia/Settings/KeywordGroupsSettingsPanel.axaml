@@ -1,0 +1,61 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="RPGGame.UI.Avalonia.Settings.KeywordGroupsSettingsPanel"
+             Background="Transparent">
+    <Border Background="White" 
+            BorderBrush="#FF404040" 
+            BorderThickness="1" 
+            CornerRadius="6" 
+            Padding="10"
+            Margin="0,0,0,8"
+            MinHeight="550">
+        <Grid ColumnDefinitions="250,*" RowDefinitions="Auto,*">
+            <!-- Buttons -->
+            <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,10">
+                <Button x:Name="AddKeywordGroupButton"
+                        Grid.Column="0"
+                        Content="+ Add Group"
+                        HorizontalAlignment="Left"
+                        Padding="10,5"
+                        Background="#FF28A745"
+                        Foreground="White"
+                        BorderThickness="0"
+                        CornerRadius="4"
+                        FontSize="11"
+                        Cursor="Hand"/>
+                <Button x:Name="SaveKeywordColorsButton"
+                        Grid.Column="1"
+                        Content="Save"
+                        HorizontalAlignment="Right"
+                        Padding="10,5"
+                        Background="#FF0078D4"
+                        Foreground="White"
+                        BorderThickness="0"
+                        CornerRadius="4"
+                        FontSize="11"
+                        Cursor="Hand"/>
+            </Grid>
+            <!-- Dropdown -->
+            <Border Grid.Column="0" Grid.Row="1" 
+                    BorderBrush="#FFCCCCCC" 
+                    BorderThickness="0,1,1,0"
+                    Margin="0,0,5,0"
+                    VerticalAlignment="Top">
+                <ComboBox x:Name="KeywordsComboBox"
+                        Background="Transparent"
+                        BorderThickness="1"
+                        Padding="5"
+                        Margin="0,5,0,0"/>
+            </Border>
+            <!-- Editor -->
+            <ScrollViewer Grid.Column="1" Grid.Row="1" 
+                         VerticalScrollBarVisibility="Auto"
+                         Padding="10,10,10,20">
+                <StackPanel x:Name="KeywordEditorPanel" Spacing="5"/>
+            </ScrollViewer>
+        </Grid>
+    </Border>
+</UserControl>

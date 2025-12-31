@@ -1,7 +1,10 @@
 using Avalonia.Media;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Managers;
+using RPGGame.UI.ColorSystem;
+using RPGGame.UI.ColorSystem.Applications;
 using System;
+using System.Collections.Generic;
 
 namespace RPGGame.UI.Avalonia.Renderers
 {
@@ -44,7 +47,13 @@ namespace RPGGame.UI.Avalonia.Renderers
             canvas.AddText(x + (width / 2) - 20, centerY, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.YourHeroHasBeenCreated), AsciiArtAssets.Colors.Gold);
             centerY += 3;
             
-            canvas.AddText(x + 4, centerY, $"Welcome, {character.Name}!", AsciiArtAssets.Colors.White);
+            // Render welcome message with character name in Player color
+            var welcomeSegments = new ColoredTextBuilder()
+                .Add("Welcome, ", Colors.White)
+                .Add(character.Name, ColorPalette.Player)
+                .Add("!", Colors.White)
+                .Build();
+            textManager.WriteLineColoredSegments(welcomeSegments, x + 4, centerY);
             centerY += 2;
             canvas.AddText(x + 4, centerY, "Your adventure in the dungeons begins now.", AsciiArtAssets.Colors.White);
             centerY += 2;

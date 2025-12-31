@@ -172,6 +172,143 @@ namespace RPGGame.Tests
         }
 
         /// <summary>
+        /// Builds a test weapon with configurable properties
+        /// </summary>
+        public class WeaponBuilder
+        {
+            private string _name = "TestWeapon";
+            private int _tier = 1;
+            private int _baseDamage = 10;
+            private double _baseAttackSpeed = 0.05;
+            private WeaponType _weaponType = WeaponType.Sword;
+            private List<StatBonus> _statBonuses = new List<StatBonus>();
+            private List<Modification> _modifications = new List<Modification>();
+
+            public WeaponBuilder WithName(string name)
+            {
+                _name = name;
+                return this;
+            }
+
+            public WeaponBuilder WithTier(int tier)
+            {
+                _tier = tier;
+                return this;
+            }
+
+            public WeaponBuilder WithBaseDamage(int damage)
+            {
+                _baseDamage = damage;
+                return this;
+            }
+
+            public WeaponBuilder WithWeaponType(WeaponType weaponType)
+            {
+                _weaponType = weaponType;
+                return this;
+            }
+
+            public WeaponBuilder WithStatBonus(string statType, double value)
+            {
+                _statBonuses.Add(new StatBonus { StatType = statType, Value = value });
+                return this;
+            }
+
+            public WeaponBuilder WithModification(Modification modification)
+            {
+                _modifications.Add(modification);
+                return this;
+            }
+
+            public WeaponItem Build()
+            {
+                var weapon = new WeaponItem(_name, _tier, _baseDamage, _baseAttackSpeed, _weaponType);
+                weapon.StatBonuses = _statBonuses;
+                weapon.Modifications = _modifications;
+                return weapon;
+            }
+        }
+
+        /// <summary>
+        /// Builds a test armor item with configurable properties
+        /// </summary>
+        public class ArmorBuilder
+        {
+            private ItemType _armorType = ItemType.Head;
+            private string _name = "TestArmor";
+            private int _tier = 1;
+            private int _armor = 5;
+            private List<StatBonus> _statBonuses = new List<StatBonus>();
+            private List<Modification> _modifications = new List<Modification>();
+
+            public ArmorBuilder WithType(ItemType armorType)
+            {
+                _armorType = armorType;
+                return this;
+            }
+
+            public ArmorBuilder WithName(string name)
+            {
+                _name = name;
+                return this;
+            }
+
+            public ArmorBuilder WithTier(int tier)
+            {
+                _tier = tier;
+                return this;
+            }
+
+            public ArmorBuilder WithArmor(int armor)
+            {
+                _armor = armor;
+                return this;
+            }
+
+            public ArmorBuilder WithStatBonus(string statType, double value)
+            {
+                _statBonuses.Add(new StatBonus { StatType = statType, Value = value });
+                return this;
+            }
+
+            public ArmorBuilder WithModification(Modification modification)
+            {
+                _modifications.Add(modification);
+                return this;
+            }
+
+            public Item Build()
+            {
+                Item armor = _armorType switch
+                {
+                    ItemType.Head => new HeadItem(_name, _tier, _armor),
+                    ItemType.Chest => new ChestItem(_name, _tier, _armor),
+                    ItemType.Feet => new FeetItem(_name, _tier, _armor),
+                    _ => new HeadItem(_name, _tier, _armor)
+                };
+                armor.StatBonuses = _statBonuses;
+                armor.Modifications = _modifications;
+                return armor;
+            }
+        }
+
+        /// <summary>
+        /// Creates a new weapon builder
+        /// </summary>
+        public static WeaponBuilder Weapon()
+        {
+            return new WeaponBuilder();
+        }
+
+        /// <summary>
+        /// Creates a new armor builder
+        /// </summary>
+        public static ArmorBuilder Armor()
+        {
+            return new ArmorBuilder();
+        }
+
+        /// <summary>
         /// Creates a mock action for testing
         /// Wrapper method that delegates to MockFactories for backward compatibility
         /// </summary>

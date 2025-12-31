@@ -22,6 +22,8 @@ namespace RPGGame.Data
         
         [JsonPropertyName("description")]
         public string? Description { get; set; }
+        
+        public override string ToString() => Name ?? "Unnamed";
     }
     
     /// <summary>

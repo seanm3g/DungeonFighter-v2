@@ -46,7 +46,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             if (useColoredText)
             {
                 var displayBuilder = new ColoredTextBuilder();
-                displayBuilder.Add($"[{itemIndex + 1}] ", Colors.White);
+                // Only add index if it's >= 0 (negative values indicate no index should be shown)
+                if (itemIndex >= 0)
+                {
+                    displayBuilder.Add($"[{itemIndex + 1}] ", Colors.White);
+                }
                 displayBuilder.Add("[", Colors.Gray);
                 displayBuilder.Add(rarity, rarityColor);
                 displayBuilder.Add("] ", Colors.Gray);
@@ -58,7 +62,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             else
             {
                 string coloredItemName = ItemDisplayFormatter.GetColoredItemName(item);
-                string displayLine = $"[{itemIndex + 1}] [{rarity}] [{slotName}] {coloredItemName}";
+                string indexPrefix = itemIndex >= 0 ? $"[{itemIndex + 1}] " : "";
+                string displayLine = $"{indexPrefix}[{rarity}] [{slotName}] {coloredItemName}";
                 var coloredSegments = ColoredTextParser.Parse(displayLine);
                 if (coloredSegments != null && coloredSegments.Count > 0)
                 {
@@ -66,7 +71,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 }
                 else
                 {
-                    canvas.AddText(x, y, $"[{itemIndex + 1}] [{rarity}] [{slotName}] {item.Name}", AsciiArtAssets.Colors.White);
+                    canvas.AddText(x, y, $"{indexPrefix}[{rarity}] [{slotName}] {item.Name}", AsciiArtAssets.Colors.White);
                 }
             }
         }

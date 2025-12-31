@@ -42,7 +42,7 @@ namespace RPGGame
         /// <summary>
         /// Generates enemies for this environment based on room level.
         /// </summary>
-        public void GenerateEnemies(int roomLevel, List<string>? possibleEnemies = null)
+        public void GenerateEnemies(int roomLevel, List<string>? possibleEnemies = null, int? minLevel = null, int? maxLevel = null)
         {
             if (!isHostile)
                 return;
@@ -54,7 +54,7 @@ namespace RPGGame
             var jsonEnemies = LoadEnemyDataFromJson();
             if (jsonEnemies != null && jsonEnemies.Count > 0)
             {
-                GenerateEnemiesFromJson(roomLevel, enemyCount, jsonEnemies, possibleEnemies);
+                GenerateEnemiesFromJson(roomLevel, enemyCount, jsonEnemies, possibleEnemies, minLevel, maxLevel);
                 return;
             }
 
@@ -67,7 +67,7 @@ namespace RPGGame
 
             for (int i = 0; i < enemyCount; i++)
             {
-                int enemyLevel = Math.Max(1, roomLevel + random.Next(-tuning.EnemySystem.LevelVariance, tuning.EnemySystem.LevelVariance + 1));
+                int enemyLevel = CalculateEnemyLevel(roomLevel, tuning.EnemySystem.LevelVariance, minLevel, maxLevel);
                 var enemyType = basicEnemies[random.Next(basicEnemies.Length)];
 
                 var calculatedStats = new
@@ -137,7 +137,7 @@ namespace RPGGame
             return null;
         }
 
-        private void GenerateEnemiesFromJson(int roomLevel, int enemyCount, List<EnemyData> enemyData, List<string>? possibleEnemies = null)
+        private void GenerateEnemiesFromJson(int roomLevel, int enemyCount, List<EnemyData> enemyData, List<string>? possibleEnemies = null, int? minLevel = null, int? maxLevel = null)
         {
             var tuning = GameConfiguration.Instance;
 
@@ -171,7 +171,7 @@ namespace RPGGame
 
             for (int i = 0; i < enemyCount; i++)
             {
-                int enemyLevel = Math.Max(1, roomLevel + random.Next(-tuning.EnemySystem.LevelVariance, tuning.EnemySystem.LevelVariance + 1));
+                int enemyLevel = CalculateEnemyLevel(roomLevel, tuning.EnemySystem.LevelVariance, minLevel, maxLevel);
                 var enemyTemplate = availableEnemies[random.Next(availableEnemies.Count)];
 
                 var enemy = EnemyLoader.CreateEnemy(enemyTemplate.Name, enemyLevel);
@@ -198,6 +198,27 @@ namespace RPGGame
                     enemies.Add(basicEnemy);
                 }
             }
+        }
+
+        /// <summary>
+        /// Calculates enemy level with variance, clamped to dungeon level bounds if provided.
+        /// </summary>
+        private int CalculateEnemyLevel(int roomLevel, int levelVariance, int? minLevel, int? maxLevel)
+        {
+            // Calculate base level with variance
+            int enemyLevel = Math.Max(1, roomLevel + random.Next(-levelVariance, levelVariance + 1));
+            
+            // Clamp to dungeon bounds if provided
+            if (minLevel.HasValue)
+            {
+                enemyLevel = Math.Max(enemyLevel, minLevel.Value);
+            }
+            if (maxLevel.HasValue)
+            {
+                enemyLevel = Math.Min(enemyLevel, maxLevel.Value);
+            }
+            
+            return enemyLevel;
         }
 
         private List<EnemyData> GetThemeAppropriateEnemies(List<EnemyData> allEnemies)

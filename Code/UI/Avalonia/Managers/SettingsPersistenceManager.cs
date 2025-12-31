@@ -127,10 +127,8 @@ namespace RPGGame.UI.Avalonia.Managers
             {
                 EnableGuiDelaysCheckBox = enableGuiDelaysCheckBox,
                 EnableConsoleDelaysCheckBox = enableConsoleDelaysCheckBox,
-                ActionDelaySlider = actionDelaySlider,
-                ActionDelayTextBox = actionDelayTextBox,
-                MessageDelaySlider = messageDelaySlider,
-                MessageDelayTextBox = messageDelayTextBox,
+                // ActionDelaySlider, ActionDelayTextBox, MessageDelaySlider, MessageDelayTextBox removed from DTO
+                // These are deprecated - combat timing is now controlled by MessageTypeDelays.Combat and ChunkedTextReveal.Combat presets
                 CombatDelayTextBox = combatDelayTextBox,
                 SystemDelayTextBox = systemDelayTextBox,
                 MenuDelayTextBox = menuDelayTextBox,
@@ -253,8 +251,8 @@ namespace RPGGame.UI.Avalonia.Managers
             {
                 EnableGuiDelaysCheckBox = enableGuiDelaysCheckBox,
                 EnableConsoleDelaysCheckBox = enableConsoleDelaysCheckBox,
-                ActionDelaySlider = actionDelaySlider,
-                MessageDelaySlider = messageDelaySlider,
+                // ActionDelaySlider and MessageDelaySlider removed from DTO
+                // These are deprecated - combat timing is now controlled by MessageTypeDelays.Combat and ChunkedTextReveal.Combat presets
                 CombatDelayTextBox = combatDelayTextBox,
                 SystemDelayTextBox = systemDelayTextBox,
                 MenuDelayTextBox = menuDelayTextBox,

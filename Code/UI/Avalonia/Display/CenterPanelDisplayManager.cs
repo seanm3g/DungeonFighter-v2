@@ -41,6 +41,10 @@ namespace RPGGame.UI.Avalonia.Display
         private readonly DisplayModeManager modeManager;
         private readonly RenderCoordinator renderCoordinator;
         
+        // Extracted helpers
+        private readonly DisplayBufferOperations bufferOperations;
+        private readonly DisplayScrollManager scrollManager;
+        
         // Callback to trigger combat screen re-render when new messages are added
         // Used when external renderer (like combat screen) handles rendering
         private System.Action? externalRenderCallback = null;
@@ -73,6 +77,18 @@ namespace RPGGame.UI.Avalonia.Display
                 buffer,
                 modeManager.CurrentMode,
                 stateManager);
+            
+            // Initialize extracted helpers
+            this.bufferOperations = new DisplayBufferOperations(
+                buffer,
+                filterService,
+                stateManager,
+                contextManager,
+                TriggerRender);
+            this.scrollManager = new DisplayScrollManager(
+                buffer,
+                renderCoordinator,
+                modeManager);
         }
         
         /// <summary>
@@ -132,38 +148,10 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public void AddMessage(string message, UIMessageType messageType = UIMessageType.System)
         {
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CenterPanelDisplayManager.cs:AddMessage", message = "Entry", data = new { messagePreview = message?.Substring(0, Math.Min(50, message?.Length ?? 0)), messageType = messageType.ToString(), bufferCount = buffer.Count }, sessionId = "debug-session", runId = "run1", hypothesisId = "H4" }) + "\n"); } catch { }
-            // #endregion
-            // Use MessageFilterService to determine if message should be displayed
-            // This consolidates all filtering logic (menu states, character matching, race conditions)
-            var currentCharacter = contextManager?.GetCurrentCharacter();
-            var activeCharacter = stateManager?.GetActiveCharacter();
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CenterPanelDisplayManager.cs:AddMessage", message = "Character check", data = new { currentCharacter = currentCharacter?.Name, activeCharacter = activeCharacter?.Name, charactersMatch = currentCharacter == activeCharacter }, sessionId = "debug-session", runId = "run1", hypothesisId = "H4" }) + "\n"); } catch { }
-            // #endregion
-            bool shouldAddMessage = filterService.ShouldDisplayMessage(
-                null, // No source character - use context manager instead
-                messageType,
-                stateManager,
-                contextManager,
-                performRaceConditionCheck: true); // Enable race condition check for Dungeon state
-            
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CenterPanelDisplayManager.cs:AddMessage", message = "Filter result", data = new { shouldAddMessage = shouldAddMessage }, sessionId = "debug-session", runId = "run1", hypothesisId = "H4" }) + "\n"); } catch { }
-            // #endregion
-            
-            if (!shouldAddMessage)
+            if (bufferOperations.TryAddMessage(message, messageType))
             {
-                // Message blocked by filter service - don't add to buffer
-                return;
+                TriggerRender();
             }
-            
-            if (message != null)
-            {
-                buffer.Add(message);
-            }
-            TriggerRender();
         }
         
         /// <summary>
@@ -172,23 +160,10 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public void AddMessage(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System)
         {
-            // Use MessageFilterService to determine if message should be displayed
-            // This consolidates all filtering logic (menu states, character matching, race conditions)
-            bool shouldAddMessage = filterService.ShouldDisplayMessage(
-                null, // No source character - use context manager instead
-                messageType,
-                stateManager,
-                contextManager,
-                performRaceConditionCheck: true); // Enable race condition check for Dungeon state
-            
-            if (!shouldAddMessage)
+            if (bufferOperations.TryAddMessage(segments, messageType))
             {
-                // Message blocked by filter service - don't add to buffer
-                return;
+                TriggerRender();
             }
-            
-            buffer.Add(segments);
-            TriggerRender();
         }
         
         /// <summary>
@@ -196,21 +171,10 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public void AddMessages(IEnumerable<string> messages)
         {
-            // Use MessageFilterService to determine if messages should be displayed
-            bool shouldAddMessages = filterService.ShouldDisplayMessage(
-                null, // No source character - use context manager instead
-                UIMessageType.System, // Default to System for batch operations
-                stateManager,
-                contextManager);
-            
-            if (!shouldAddMessages)
+            if (bufferOperations.TryAddMessages(messages))
             {
-                // Messages blocked by filter service - don't add to buffer
-                return;
+                TriggerRender();
             }
-            
-            buffer.AddRange(messages);
-            TriggerRender();
         }
         
         /// <summary>
@@ -232,107 +196,45 @@ namespace RPGGame.UI.Avalonia.Display
         /// <param name="sourceCharacter">The character these messages belong to (for reference, not filtering)</param>
         public void AddMessages(IEnumerable<List<ColoredText>> segmentsList, Character? sourceCharacter)
         {
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CenterPanelDisplayManager.cs:AddMessages", message = "Entry", data = new { sourceCharacter = sourceCharacter?.Name, bufferCount = buffer.Count, segmentCount = segmentsList?.Count() ?? 0 }, sessionId = "debug-session", runId = "run1", hypothesisId = "H1" }) + "\n"); } catch { }
-            // #endregion
             // Only check menu states - don't filter by character
             // Messages are already routed to the correct per-character display manager
             // Only the active character's display manager will be rendered
-            var activeCharacter = stateManager?.GetActiveCharacter();
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CenterPanelDisplayManager.cs:AddMessages", message = "Character check", data = new { sourceCharacter = sourceCharacter?.Name, activeCharacter = activeCharacter?.Name, charactersMatch = sourceCharacter == activeCharacter }, sessionId = "debug-session", runId = "run1", hypothesisId = "H1" }) + "\n"); } catch { }
-            // #endregion
-            if (stateManager != null)
+            if (bufferOperations.TryAddMessages(segmentsList))
             {
-                bool isMenuState = filterService.IsMenuState(stateManager);
-                if (isMenuState)
-                {
-                    // Don't add messages if we're in a menu state
-                    return;
-                }
+                TriggerRender();
             }
-            
-            if (segmentsList != null)
-            {
-                buffer.AddRange(segmentsList);
-            }
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CenterPanelDisplayManager.cs:AddMessages", message = "Messages added to buffer", data = new { newBufferCount = buffer.Count, activeCharacter = activeCharacter?.Name }, sessionId = "debug-session", runId = "run1", hypothesisId = "H1" }) + "\n"); } catch { }
-            // #endregion
-            TriggerRender();
         }
         
         public void AddMessageBatch(IEnumerable<string> messages, int delayAfterBatchMs = 0)
         {
-            // Use MessageFilterService to determine if messages should be displayed
-            bool shouldAddMessages = filterService.ShouldDisplayMessage(
-                null, // No source character - use context manager instead
-                UIMessageType.System, // Default to System for batch operations
-                stateManager,
-                contextManager);
-            
-            if (!shouldAddMessages)
+            if (bufferOperations.TryAddMessages(messages))
             {
-                // Messages blocked by filter service - don't add to buffer
-                return;
+                BatchOperationHelper.ScheduleRenderWithDelay(TriggerRender, delayAfterBatchMs);
             }
-            
-            buffer.AddRange(messages);
-            BatchOperationHelper.ScheduleRenderWithDelay(TriggerRender, delayAfterBatchMs);
         }
         
         public void AddMessageBatch(IEnumerable<List<ColoredText>> segmentsList, int delayAfterBatchMs = 0)
         {
-            // Only check menu states - don't filter by character
-            // Messages are already routed to the correct per-character display manager
-            if (stateManager != null)
+            if (bufferOperations.TryAddMessages(segmentsList))
             {
-                bool isMenuState = filterService.IsMenuState(stateManager);
-                if (isMenuState)
-                {
-                    // Don't add messages if we're in a menu state
-                    return;
-                }
+                BatchOperationHelper.ScheduleRenderWithDelay(TriggerRender, delayAfterBatchMs);
             }
-            
-            buffer.AddRange(segmentsList);
-            BatchOperationHelper.ScheduleRenderWithDelay(TriggerRender, delayAfterBatchMs);
         }
         
         public async Task AddMessageBatchAsync(IEnumerable<string> messages, int delayAfterBatchMs = 0)
         {
-            // Only check menu states - don't filter by character
-            // Messages are already routed to the correct per-character display manager
-            if (stateManager != null)
+            if (bufferOperations.TryAddMessages(messages))
             {
-                bool isMenuState = filterService.IsMenuState(stateManager);
-                if (isMenuState)
-                {
-                    // Don't add messages if we're in a menu state
-                    return;
-                }
+                await BatchOperationHelper.ScheduleRenderWithDelayAsync(TriggerRender, delayAfterBatchMs);
             }
-            
-            buffer.AddRange(messages);
-            await BatchOperationHelper.ScheduleRenderWithDelayAsync(TriggerRender, delayAfterBatchMs);
         }
         
         public async Task AddMessageBatchAsync(IEnumerable<List<ColoredText>> segmentsList, int delayAfterBatchMs = 0)
         {
-            // Only check menu states - don't filter by character
-            // Messages are already routed to the correct per-character display manager
-            if (stateManager != null)
+            if (bufferOperations.TryAddMessages(segmentsList))
             {
-                bool isMenuState = filterService.IsMenuState(stateManager);
-                if (isMenuState)
-                {
-                    // Don't add messages if we're in a menu state
-                    return;
-                }
+                await BatchOperationHelper.ScheduleRenderWithDelayAsync(TriggerRender, delayAfterBatchMs);
             }
-            
-            buffer.AddRange(segmentsList);
-            await BatchOperationHelper.ScheduleRenderWithDelayAsync(TriggerRender, delayAfterBatchMs);
         }
         
         /// <summary>
@@ -391,7 +293,7 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public void Clear()
         {
-            buffer.Clear();
+            bufferOperations.Clear();
             renderStateManager.Reset();
             modeManager.Timing.ForceRender(() => renderCoordinator.PerformRender());
         }
@@ -402,7 +304,7 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public void ClearWithoutRender()
         {
-            buffer.Clear();
+            bufferOperations.Clear();
             renderStateManager.Reset();
             // Don't trigger a render - let the menu screen handle its own rendering
         }
@@ -412,10 +314,7 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public void ScrollUp(int lines = 3)
         {
-            // Calculate max scroll offset to ensure we don't scroll beyond valid range
-            int maxOffset = renderCoordinator.CalculateMaxScrollOffset();
-            buffer.ScrollUp(lines, maxOffset);
-            modeManager.Timing.ForceRender(() => renderCoordinator.PerformRender());
+            scrollManager.ScrollUp(lines);
         }
         
         /// <summary>
@@ -423,10 +322,7 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public void ScrollDown(int lines = 3)
         {
-            // Calculate max scroll offset based on current content
-            int maxOffset = renderCoordinator.CalculateMaxScrollOffset();
-            buffer.ScrollDown(lines, maxOffset);
-            modeManager.Timing.ForceRender(() => renderCoordinator.PerformRender());
+            scrollManager.ScrollDown(lines);
         }
         
         /// <summary>
@@ -434,8 +330,7 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public void ResetScroll()
         {
-            buffer.ResetScroll();
-            modeManager.Timing.ScheduleRender(() => renderCoordinator.PerformRender());
+            scrollManager.ResetScroll();
         }
         
         /// <summary>
@@ -444,9 +339,6 @@ namespace RPGGame.UI.Avalonia.Display
         /// </summary>
         public void ForceRender()
         {
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CenterPanelDisplayManager.cs:ForceRender", message = "ForceRender called", data = new { }, sessionId = "debug-session", runId = "run1", hypothesisId = "H8" }) + "\n"); } catch { }
-            // #endregion
             modeManager.Timing.ForceRender(() => renderCoordinator.PerformRender(force: true));
         }
         

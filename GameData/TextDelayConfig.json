@@ -45,7 +45,7 @@
   },
   "CombatDelays": {
     "ActionDelayMs": 300,
-    "MessageDelayMs": 50
+    "MessageDelayMs": 250
   },
   "ProgressiveMenuDelays": {
     "BaseMenuDelay": 25,

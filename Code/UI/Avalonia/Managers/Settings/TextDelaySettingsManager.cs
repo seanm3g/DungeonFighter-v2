@@ -19,116 +19,126 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         }
 
         /// <summary>
+        /// Helper method to safely set text box value
+        /// </summary>
+        private static void SetTextBoxValue(TextBox? textBox, int value)
+        {
+            if (textBox != null)
+            {
+                textBox.Text = value.ToString();
+            }
+        }
+
+        /// <summary>
         /// Loads text delay settings from TextDelayConfiguration into UI controls
         /// </summary>
         public void LoadTextDelaySettings(
-            CheckBox enableGuiDelaysCheckBox,
-            CheckBox enableConsoleDelaysCheckBox,
-            Slider actionDelaySlider,
-            TextBox actionDelayTextBox,
-            Slider messageDelaySlider,
-            TextBox messageDelayTextBox,
-            TextBox combatDelayTextBox,
-            TextBox systemDelayTextBox,
-            TextBox menuDelayTextBox,
-            TextBox titleDelayTextBox,
-            TextBox mainTitleDelayTextBox,
-            TextBox environmentalDelayTextBox,
-            TextBox effectMessageDelayTextBox,
-            TextBox damageOverTimeDelayTextBox,
-            TextBox encounterDelayTextBox,
-            TextBox rollInfoDelayTextBox,
-            TextBox baseMenuDelayTextBox,
-            TextBox progressiveReductionRateTextBox,
-            TextBox progressiveThresholdTextBox,
-            TextBox combatPresetBaseDelayTextBox,
-            TextBox combatPresetMinDelayTextBox,
-            TextBox combatPresetMaxDelayTextBox,
-            TextBox dungeonPresetBaseDelayTextBox,
-            TextBox dungeonPresetMinDelayTextBox,
-            TextBox dungeonPresetMaxDelayTextBox,
-            TextBox roomPresetBaseDelayTextBox,
-            TextBox roomPresetMinDelayTextBox,
-            TextBox roomPresetMaxDelayTextBox,
-            TextBox narrativePresetBaseDelayTextBox,
-            TextBox narrativePresetMinDelayTextBox,
-            TextBox narrativePresetMaxDelayTextBox,
-            TextBox defaultPresetBaseDelayTextBox,
-            TextBox defaultPresetMinDelayTextBox,
-            TextBox defaultPresetMaxDelayTextBox)
+            CheckBox? enableGuiDelaysCheckBox,
+            CheckBox? enableConsoleDelaysCheckBox,
+            Slider? actionDelaySlider, // Deprecated - kept for compatibility but not used
+            TextBox? actionDelayTextBox, // Deprecated - kept for compatibility but not used
+            Slider? messageDelaySlider, // Deprecated - kept for compatibility but not used
+            TextBox? messageDelayTextBox, // Deprecated - kept for compatibility but not used
+            TextBox? combatDelayTextBox,
+            TextBox? systemDelayTextBox,
+            TextBox? menuDelayTextBox,
+            TextBox? titleDelayTextBox,
+            TextBox? mainTitleDelayTextBox,
+            TextBox? environmentalDelayTextBox,
+            TextBox? effectMessageDelayTextBox,
+            TextBox? damageOverTimeDelayTextBox,
+            TextBox? encounterDelayTextBox,
+            TextBox? rollInfoDelayTextBox,
+            TextBox? baseMenuDelayTextBox,
+            TextBox? progressiveReductionRateTextBox,
+            TextBox? progressiveThresholdTextBox,
+            TextBox? combatPresetBaseDelayTextBox,
+            TextBox? combatPresetMinDelayTextBox,
+            TextBox? combatPresetMaxDelayTextBox,
+            TextBox? dungeonPresetBaseDelayTextBox,
+            TextBox? dungeonPresetMinDelayTextBox,
+            TextBox? dungeonPresetMaxDelayTextBox,
+            TextBox? roomPresetBaseDelayTextBox,
+            TextBox? roomPresetMinDelayTextBox,
+            TextBox? roomPresetMaxDelayTextBox,
+            TextBox? narrativePresetBaseDelayTextBox,
+            TextBox? narrativePresetMinDelayTextBox,
+            TextBox? narrativePresetMaxDelayTextBox,
+            TextBox? defaultPresetBaseDelayTextBox,
+            TextBox? defaultPresetMinDelayTextBox,
+            TextBox? defaultPresetMaxDelayTextBox)
         {
             try
             {
+                // Ensure config is loaded before accessing values
+                TextDelayConfiguration.ReloadConfig();
+                
                 // Enable flags
-                enableGuiDelaysCheckBox.IsChecked = TextDelayConfiguration.GetEnableGuiDelays();
-                enableConsoleDelaysCheckBox.IsChecked = TextDelayConfiguration.GetEnableConsoleDelays();
+                if (enableGuiDelaysCheckBox != null)
+                    enableGuiDelaysCheckBox.IsChecked = TextDelayConfiguration.GetEnableGuiDelays();
+                if (enableConsoleDelaysCheckBox != null)
+                    enableConsoleDelaysCheckBox.IsChecked = TextDelayConfiguration.GetEnableConsoleDelays();
                 
-                // Combat delays
-                int actionDelay = TextDelayConfiguration.GetActionDelayMs();
-                actionDelaySlider.Value = actionDelay;
-                actionDelayTextBox.Text = actionDelay.ToString();
+                // Note: ActionDelay and MessageDelay sliders removed - combat timing is now controlled by
+                // MessageTypeDelays.Combat and ChunkedTextReveal.Combat presets
                 
-                int messageDelay = TextDelayConfiguration.GetMessageDelayMs();
-                messageDelaySlider.Value = messageDelay;
-                messageDelayTextBox.Text = messageDelay.ToString();
-                
-                // Message type delays
-                combatDelayTextBox.Text = TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.Combat).ToString();
-                systemDelayTextBox.Text = TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.System).ToString();
-                menuDelayTextBox.Text = TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.Menu).ToString();
-                titleDelayTextBox.Text = TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.Title).ToString();
-                mainTitleDelayTextBox.Text = TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.MainTitle).ToString();
-                environmentalDelayTextBox.Text = TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.Environmental).ToString();
-                effectMessageDelayTextBox.Text = TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.EffectMessage).ToString();
-                damageOverTimeDelayTextBox.Text = TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.DamageOverTime).ToString();
-                encounterDelayTextBox.Text = TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.Encounter).ToString();
-                rollInfoDelayTextBox.Text = TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.RollInfo).ToString();
+                // Message type delays - always set values even if 0
+                SetTextBoxValue(combatDelayTextBox, TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.Combat));
+                SetTextBoxValue(systemDelayTextBox, TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.System));
+                SetTextBoxValue(menuDelayTextBox, TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.Menu));
+                SetTextBoxValue(titleDelayTextBox, TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.Title));
+                SetTextBoxValue(mainTitleDelayTextBox, TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.MainTitle));
+                SetTextBoxValue(environmentalDelayTextBox, TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.Environmental));
+                SetTextBoxValue(effectMessageDelayTextBox, TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.EffectMessage));
+                SetTextBoxValue(damageOverTimeDelayTextBox, TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.DamageOverTime));
+                SetTextBoxValue(encounterDelayTextBox, TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.Encounter));
+                SetTextBoxValue(rollInfoDelayTextBox, TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.RollInfo));
                 
                 // Progressive menu delays
                 var progressiveMenuDelays = TextDelayConfiguration.GetProgressiveMenuDelays();
-                baseMenuDelayTextBox.Text = progressiveMenuDelays.BaseMenuDelay.ToString();
-                progressiveReductionRateTextBox.Text = progressiveMenuDelays.ProgressiveReductionRate.ToString();
-                progressiveThresholdTextBox.Text = progressiveMenuDelays.ProgressiveThreshold.ToString();
+                SetTextBoxValue(baseMenuDelayTextBox, progressiveMenuDelays.BaseMenuDelay);
+                SetTextBoxValue(progressiveReductionRateTextBox, progressiveMenuDelays.ProgressiveReductionRate);
+                SetTextBoxValue(progressiveThresholdTextBox, progressiveMenuDelays.ProgressiveThreshold);
                 
                 // Chunked text reveal presets
                 var combatPreset = TextDelayConfiguration.GetChunkedTextRevealPreset("Combat");
                 if (combatPreset != null)
                 {
-                    combatPresetBaseDelayTextBox.Text = combatPreset.BaseDelayPerCharMs.ToString();
-                    combatPresetMinDelayTextBox.Text = combatPreset.MinDelayMs.ToString();
-                    combatPresetMaxDelayTextBox.Text = combatPreset.MaxDelayMs.ToString();
+                    SetTextBoxValue(combatPresetBaseDelayTextBox, combatPreset.BaseDelayPerCharMs);
+                    SetTextBoxValue(combatPresetMinDelayTextBox, combatPreset.MinDelayMs);
+                    SetTextBoxValue(combatPresetMaxDelayTextBox, combatPreset.MaxDelayMs);
                 }
                 
                 var dungeonPreset = TextDelayConfiguration.GetChunkedTextRevealPreset("Dungeon");
                 if (dungeonPreset != null)
                 {
-                    dungeonPresetBaseDelayTextBox.Text = dungeonPreset.BaseDelayPerCharMs.ToString();
-                    dungeonPresetMinDelayTextBox.Text = dungeonPreset.MinDelayMs.ToString();
-                    dungeonPresetMaxDelayTextBox.Text = dungeonPreset.MaxDelayMs.ToString();
+                    SetTextBoxValue(dungeonPresetBaseDelayTextBox, dungeonPreset.BaseDelayPerCharMs);
+                    SetTextBoxValue(dungeonPresetMinDelayTextBox, dungeonPreset.MinDelayMs);
+                    SetTextBoxValue(dungeonPresetMaxDelayTextBox, dungeonPreset.MaxDelayMs);
                 }
                 
                 var roomPreset = TextDelayConfiguration.GetChunkedTextRevealPreset("Room");
                 if (roomPreset != null)
                 {
-                    roomPresetBaseDelayTextBox.Text = roomPreset.BaseDelayPerCharMs.ToString();
-                    roomPresetMinDelayTextBox.Text = roomPreset.MinDelayMs.ToString();
-                    roomPresetMaxDelayTextBox.Text = roomPreset.MaxDelayMs.ToString();
+                    SetTextBoxValue(roomPresetBaseDelayTextBox, roomPreset.BaseDelayPerCharMs);
+                    SetTextBoxValue(roomPresetMinDelayTextBox, roomPreset.MinDelayMs);
+                    SetTextBoxValue(roomPresetMaxDelayTextBox, roomPreset.MaxDelayMs);
                 }
                 
                 var narrativePreset = TextDelayConfiguration.GetChunkedTextRevealPreset("Narrative");
                 if (narrativePreset != null)
                 {
-                    narrativePresetBaseDelayTextBox.Text = narrativePreset.BaseDelayPerCharMs.ToString();
-                    narrativePresetMinDelayTextBox.Text = narrativePreset.MinDelayMs.ToString();
-                    narrativePresetMaxDelayTextBox.Text = narrativePreset.MaxDelayMs.ToString();
+                    SetTextBoxValue(narrativePresetBaseDelayTextBox, narrativePreset.BaseDelayPerCharMs);
+                    SetTextBoxValue(narrativePresetMinDelayTextBox, narrativePreset.MinDelayMs);
+                    SetTextBoxValue(narrativePresetMaxDelayTextBox, narrativePreset.MaxDelayMs);
                 }
                 
                 var defaultPreset = TextDelayConfiguration.GetChunkedTextRevealPreset("Default");
                 if (defaultPreset != null)
                 {
-                    defaultPresetBaseDelayTextBox.Text = defaultPreset.BaseDelayPerCharMs.ToString();
-                    defaultPresetMinDelayTextBox.Text = defaultPreset.MinDelayMs.ToString();
-                    defaultPresetMaxDelayTextBox.Text = defaultPreset.MaxDelayMs.ToString();
+                    SetTextBoxValue(defaultPresetBaseDelayTextBox, defaultPreset.BaseDelayPerCharMs);
+                    SetTextBoxValue(defaultPresetMinDelayTextBox, defaultPreset.MinDelayMs);
+                    SetTextBoxValue(defaultPresetMaxDelayTextBox, defaultPreset.MaxDelayMs);
                 }
             }
             catch (Exception ex)
@@ -141,73 +151,75 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         /// Saves text delay settings from UI controls to TextDelayConfiguration
         /// </summary>
         public void SaveTextDelaySettings(
-            CheckBox enableGuiDelaysCheckBox,
-            CheckBox enableConsoleDelaysCheckBox,
-            Slider actionDelaySlider,
-            Slider messageDelaySlider,
-            TextBox combatDelayTextBox,
-            TextBox systemDelayTextBox,
-            TextBox menuDelayTextBox,
-            TextBox titleDelayTextBox,
-            TextBox mainTitleDelayTextBox,
-            TextBox environmentalDelayTextBox,
-            TextBox effectMessageDelayTextBox,
-            TextBox damageOverTimeDelayTextBox,
-            TextBox encounterDelayTextBox,
-            TextBox rollInfoDelayTextBox,
-            TextBox baseMenuDelayTextBox,
-            TextBox progressiveReductionRateTextBox,
-            TextBox progressiveThresholdTextBox,
-            TextBox combatPresetBaseDelayTextBox,
-            TextBox combatPresetMinDelayTextBox,
-            TextBox combatPresetMaxDelayTextBox,
-            TextBox dungeonPresetBaseDelayTextBox,
-            TextBox dungeonPresetMinDelayTextBox,
-            TextBox dungeonPresetMaxDelayTextBox,
-            TextBox roomPresetBaseDelayTextBox,
-            TextBox roomPresetMinDelayTextBox,
-            TextBox roomPresetMaxDelayTextBox,
-            TextBox narrativePresetBaseDelayTextBox,
-            TextBox narrativePresetMinDelayTextBox,
-            TextBox narrativePresetMaxDelayTextBox,
-            TextBox defaultPresetBaseDelayTextBox,
-            TextBox defaultPresetMinDelayTextBox,
-            TextBox defaultPresetMaxDelayTextBox)
+            CheckBox? enableGuiDelaysCheckBox,
+            CheckBox? enableConsoleDelaysCheckBox,
+            Slider? actionDelaySlider, // Deprecated - kept for compatibility but not used
+            Slider? messageDelaySlider, // Deprecated - kept for compatibility but not used
+            TextBox? combatDelayTextBox,
+            TextBox? systemDelayTextBox,
+            TextBox? menuDelayTextBox,
+            TextBox? titleDelayTextBox,
+            TextBox? mainTitleDelayTextBox,
+            TextBox? environmentalDelayTextBox,
+            TextBox? effectMessageDelayTextBox,
+            TextBox? damageOverTimeDelayTextBox,
+            TextBox? encounterDelayTextBox,
+            TextBox? rollInfoDelayTextBox,
+            TextBox? baseMenuDelayTextBox,
+            TextBox? progressiveReductionRateTextBox,
+            TextBox? progressiveThresholdTextBox,
+            TextBox? combatPresetBaseDelayTextBox,
+            TextBox? combatPresetMinDelayTextBox,
+            TextBox? combatPresetMaxDelayTextBox,
+            TextBox? dungeonPresetBaseDelayTextBox,
+            TextBox? dungeonPresetMinDelayTextBox,
+            TextBox? dungeonPresetMaxDelayTextBox,
+            TextBox? roomPresetBaseDelayTextBox,
+            TextBox? roomPresetMinDelayTextBox,
+            TextBox? roomPresetMaxDelayTextBox,
+            TextBox? narrativePresetBaseDelayTextBox,
+            TextBox? narrativePresetMinDelayTextBox,
+            TextBox? narrativePresetMaxDelayTextBox,
+            TextBox? defaultPresetBaseDelayTextBox,
+            TextBox? defaultPresetMinDelayTextBox,
+            TextBox? defaultPresetMaxDelayTextBox)
         {
             try
             {
                 // Enable flags
-                TextDelayConfiguration.SetEnableGuiDelays(enableGuiDelaysCheckBox.IsChecked ?? true);
-                TextDelayConfiguration.SetEnableConsoleDelays(enableConsoleDelaysCheckBox.IsChecked ?? true);
+                if (enableGuiDelaysCheckBox != null)
+                    TextDelayConfiguration.SetEnableGuiDelays(enableGuiDelaysCheckBox.IsChecked ?? true);
+                if (enableConsoleDelaysCheckBox != null)
+                    TextDelayConfiguration.SetEnableConsoleDelays(enableConsoleDelaysCheckBox.IsChecked ?? true);
                 
-                // Combat delays
-                TextDelayConfiguration.SetActionDelayMs((int)actionDelaySlider.Value);
-                TextDelayConfiguration.SetMessageDelayMs((int)messageDelaySlider.Value);
+                // Note: ActionDelay and MessageDelay sliders removed - combat timing is now controlled by
+                // MessageTypeDelays.Combat and ChunkedTextReveal.Combat presets
                 
                 // Message type delays
-                if (int.TryParse(combatDelayTextBox.Text, out int combatDelay))
+                if (combatDelayTextBox != null && int.TryParse(combatDelayTextBox.Text, out int combatDelay))
                     TextDelayConfiguration.SetMessageTypeDelay(UIMessageType.Combat, combatDelay);
-                if (int.TryParse(systemDelayTextBox.Text, out int systemDelay))
+                if (systemDelayTextBox != null && int.TryParse(systemDelayTextBox.Text, out int systemDelay))
                     TextDelayConfiguration.SetMessageTypeDelay(UIMessageType.System, systemDelay);
-                if (int.TryParse(menuDelayTextBox.Text, out int menuDelay))
+                if (menuDelayTextBox != null && int.TryParse(menuDelayTextBox.Text, out int menuDelay))
                     TextDelayConfiguration.SetMessageTypeDelay(UIMessageType.Menu, menuDelay);
-                if (int.TryParse(titleDelayTextBox.Text, out int titleDelay))
+                if (titleDelayTextBox != null && int.TryParse(titleDelayTextBox.Text, out int titleDelay))
                     TextDelayConfiguration.SetMessageTypeDelay(UIMessageType.Title, titleDelay);
-                if (int.TryParse(mainTitleDelayTextBox.Text, out int mainTitleDelay))
+                if (mainTitleDelayTextBox != null && int.TryParse(mainTitleDelayTextBox.Text, out int mainTitleDelay))
                     TextDelayConfiguration.SetMessageTypeDelay(UIMessageType.MainTitle, mainTitleDelay);
-                if (int.TryParse(environmentalDelayTextBox.Text, out int environmentalDelay))
+                if (environmentalDelayTextBox != null && int.TryParse(environmentalDelayTextBox.Text, out int environmentalDelay))
                     TextDelayConfiguration.SetMessageTypeDelay(UIMessageType.Environmental, environmentalDelay);
-                if (int.TryParse(effectMessageDelayTextBox.Text, out int effectMessageDelay))
+                if (effectMessageDelayTextBox != null && int.TryParse(effectMessageDelayTextBox.Text, out int effectMessageDelay))
                     TextDelayConfiguration.SetMessageTypeDelay(UIMessageType.EffectMessage, effectMessageDelay);
-                if (int.TryParse(damageOverTimeDelayTextBox.Text, out int damageOverTimeDelay))
+                if (damageOverTimeDelayTextBox != null && int.TryParse(damageOverTimeDelayTextBox.Text, out int damageOverTimeDelay))
                     TextDelayConfiguration.SetMessageTypeDelay(UIMessageType.DamageOverTime, damageOverTimeDelay);
-                if (int.TryParse(encounterDelayTextBox.Text, out int encounterDelay))
+                if (encounterDelayTextBox != null && int.TryParse(encounterDelayTextBox.Text, out int encounterDelay))
                     TextDelayConfiguration.SetMessageTypeDelay(UIMessageType.Encounter, encounterDelay);
-                if (int.TryParse(rollInfoDelayTextBox.Text, out int rollInfoDelay))
+                if (rollInfoDelayTextBox != null && int.TryParse(rollInfoDelayTextBox.Text, out int rollInfoDelay))
                     TextDelayConfiguration.SetMessageTypeDelay(UIMessageType.RollInfo, rollInfoDelay);
                 
                 // Progressive menu delays
-                if (int.TryParse(baseMenuDelayTextBox.Text, out int baseMenuDelay) &&
+                if (baseMenuDelayTextBox != null && progressiveReductionRateTextBox != null && progressiveThresholdTextBox != null &&
+                    int.TryParse(baseMenuDelayTextBox.Text, out int baseMenuDelay) &&
                     int.TryParse(progressiveReductionRateTextBox.Text, out int progressiveReductionRate) &&
                     int.TryParse(progressiveThresholdTextBox.Text, out int progressiveThreshold))
                 {
@@ -221,7 +233,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 }
                 
                 // Chunked text reveal presets
-                if (int.TryParse(combatPresetBaseDelayTextBox.Text, out int combatBase) &&
+                if (combatPresetBaseDelayTextBox != null && combatPresetMinDelayTextBox != null && combatPresetMaxDelayTextBox != null &&
+                    int.TryParse(combatPresetBaseDelayTextBox.Text, out int combatBase) &&
                     int.TryParse(combatPresetMinDelayTextBox.Text, out int combatMin) &&
                     int.TryParse(combatPresetMaxDelayTextBox.Text, out int combatMax))
                 {
@@ -232,7 +245,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                     TextDelayConfiguration.SetChunkedTextRevealPreset("Combat", combatPreset);
                 }
                 
-                if (int.TryParse(dungeonPresetBaseDelayTextBox.Text, out int dungeonBase) &&
+                if (dungeonPresetBaseDelayTextBox != null && dungeonPresetMinDelayTextBox != null && dungeonPresetMaxDelayTextBox != null &&
+                    int.TryParse(dungeonPresetBaseDelayTextBox.Text, out int dungeonBase) &&
                     int.TryParse(dungeonPresetMinDelayTextBox.Text, out int dungeonMin) &&
                     int.TryParse(dungeonPresetMaxDelayTextBox.Text, out int dungeonMax))
                 {
@@ -243,7 +257,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                     TextDelayConfiguration.SetChunkedTextRevealPreset("Dungeon", dungeonPreset);
                 }
                 
-                if (int.TryParse(roomPresetBaseDelayTextBox.Text, out int roomBase) &&
+                if (roomPresetBaseDelayTextBox != null && roomPresetMinDelayTextBox != null && roomPresetMaxDelayTextBox != null &&
+                    int.TryParse(roomPresetBaseDelayTextBox.Text, out int roomBase) &&
                     int.TryParse(roomPresetMinDelayTextBox.Text, out int roomMin) &&
                     int.TryParse(roomPresetMaxDelayTextBox.Text, out int roomMax))
                 {
@@ -254,7 +269,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                     TextDelayConfiguration.SetChunkedTextRevealPreset("Room", roomPreset);
                 }
                 
-                if (int.TryParse(narrativePresetBaseDelayTextBox.Text, out int narrativeBase) &&
+                if (narrativePresetBaseDelayTextBox != null && narrativePresetMinDelayTextBox != null && narrativePresetMaxDelayTextBox != null &&
+                    int.TryParse(narrativePresetBaseDelayTextBox.Text, out int narrativeBase) &&
                     int.TryParse(narrativePresetMinDelayTextBox.Text, out int narrativeMin) &&
                     int.TryParse(narrativePresetMaxDelayTextBox.Text, out int narrativeMax))
                 {
@@ -265,7 +281,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                     TextDelayConfiguration.SetChunkedTextRevealPreset("Narrative", narrativePreset);
                 }
                 
-                if (int.TryParse(defaultPresetBaseDelayTextBox.Text, out int defaultBase) &&
+                if (defaultPresetBaseDelayTextBox != null && defaultPresetMinDelayTextBox != null && defaultPresetMaxDelayTextBox != null &&
+                    int.TryParse(defaultPresetBaseDelayTextBox.Text, out int defaultBase) &&
                     int.TryParse(defaultPresetMinDelayTextBox.Text, out int defaultMin) &&
                     int.TryParse(defaultPresetMaxDelayTextBox.Text, out int defaultMax))
                 {

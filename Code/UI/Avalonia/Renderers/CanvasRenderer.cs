@@ -76,38 +76,20 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel)
         {
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderMainMenu", message = "RenderMainMenu called", data = new { hasSavedGame = hasSavedGame, characterName = characterName ?? "null" }, sessionId = "debug-session", runId = "run1", hypothesisId = "H5" }) + "\n"); } catch { }
-            // #endregion
             // Clear canvas first to ensure clean main menu display (especially when transitioning from death screen)
             canvas.Clear();
-            
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderMainMenu", message = "Canvas cleared, about to render layout", data = new { }, sessionId = "debug-session", runId = "run1", hypothesisId = "H5" }) + "\n"); } catch { }
-            // #endregion
             
             // Use persistent layout with no character (null) to show blank panels
             RenderWithLayout(null, "MAIN MENU", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderMainMenu", message = "Rendering menu content", data = new { contentX = contentX, contentY = contentY, contentWidth = contentWidth, contentHeight = contentHeight }, sessionId = "debug-session", runId = "run1", hypothesisId = "H5" }) + "\n"); } catch { }
-                // #endregion
                 menuRenderer.RenderMainMenuContent(contentX, contentY, contentWidth, contentHeight, hasSavedGame, characterName, characterLevel);
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderMainMenu", message = "Menu content rendered", data = new { }, sessionId = "debug-session", runId = "run1", hypothesisId = "H5" }) + "\n"); } catch { }
-                // #endregion
             }, new CanvasContext(), null, null, null);
             
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderMainMenu", message = "Layout rendered, refreshing canvas", data = new { }, sessionId = "debug-session", runId = "run1", hypothesisId = "H5" }) + "\n"); } catch { }
-            // #endregion
+            // Clear loading status message now that menu is fully rendered
+            messageRenderer.ClearLoadingStatus();
             
             // Force immediate refresh to display the main menu
             canvas.Refresh();
-            
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderMainMenu", message = "RenderMainMenu complete", data = new { }, sessionId = "debug-session", runId = "run1", hypothesisId = "H5" }) + "\n"); } catch { }
-            // #endregion
         }
 
         public void RenderInventory(Character character, List<Item> inventory, CanvasContext context)
@@ -331,10 +313,6 @@ namespace RPGGame.UI.Avalonia.Renderers
                 return;
             }
             
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderCombat", message = "RenderCombat executing - character active", data = new { playerName = player.Name }, sessionId = "debug-session", runId = "post-fix", hypothesisId = "FIX" }) + "\n"); } catch { }
-            // #endregion
-            
             // Enable combat mode for proper timing and disable auto-rendering
             if (textManager is CanvasTextManager canvasTextManager)
             {
@@ -351,10 +329,6 @@ namespace RPGGame.UI.Avalonia.Renderers
                         // Character is no longer active - don't render
                         return;
                     }
-                    
-                    // #region agent log
-                    try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:renderCallback", message = "Callback executing - character active", data = new { playerName = player.Name }, sessionId = "debug-session", runId = "post-fix", hypothesisId = "FIX" }) + "\n"); } catch { }
-                    // #endregion
                     
                     if (Dispatcher.UIThread.CheckAccess())
                     {
@@ -378,8 +352,10 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// </summary>
         private void RenderCombatScreenOnly(Character player, Enemy enemy, CanvasContext context)
         {
-            // Use enemy from context if available (it's always up-to-date), otherwise fall back to parameter
-            Enemy currentEnemy = context.Enemy ?? enemy;
+            // CRITICAL: Always prefer the enemy parameter over context.Enemy
+            // The parameter is the current enemy for this combat, while context might not be updated yet
+            // This ensures the enemy info stays visible in the right panel from the moment it appears
+            Enemy? currentEnemy = enemy ?? context.Enemy;
             
             // CRITICAL: Check if this character is still active before rendering
             // This prevents background combat from rendering when we've switched to another character
@@ -395,17 +371,10 @@ namespace RPGGame.UI.Avalonia.Renderers
             List<string>? filteredDungeonContext = context.DungeonContext;
             if (currentEnemy == null && filteredDungeonContext != null && filteredDungeonContext.Count > 0)
             {
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderCombatScreenOnly", message = "Filtering dungeon context - enemy is null", data = new { contextCount = filteredDungeonContext.Count, playerName = player.Name }, sessionId = "debug-session", runId = "run1", hypothesisId = "H9" }) + "\n"); } catch { }
-                // #endregion
                 // Enemy is null but dungeon context exists - this shouldn't happen in combat mode
                 // Clear dungeon context to prevent stale enemy info from being displayed
                 filteredDungeonContext = new List<string>();
             }
-            
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { id = $"log_{DateTime.UtcNow.Ticks}", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), location = "CanvasRenderer.cs:RenderCombatScreenOnly", message = "RenderCombatScreenOnly executing", data = new { playerName = player.Name, enemyName = currentEnemy?.Name ?? "null", activePlayerName = player.Name }, sessionId = "debug-session", runId = "run1", hypothesisId = "H6" }) + "\n"); } catch { }
-            // #endregion
             
             // Determine if we should clear canvas - clear on first render to ensure clean transition
             // The LayoutCoordinator will detect title changes and clear automatically, but we need
@@ -538,6 +507,8 @@ namespace RPGGame.UI.Avalonia.Renderers
         public void ShowLoadingAnimation(string message = "Loading...") => messageRenderer.ShowLoadingAnimation(message);
         public void UpdateStatus(string message) => messageRenderer.UpdateStatus(message);
         public void ShowInvalidKeyMessage(string message) => messageRenderer.ShowInvalidKeyMessage(message);
+        public void ShowLoadingStatus(string message = "Loading data...") => messageRenderer.ShowLoadingStatus(message);
+        public void ClearLoadingStatus() => messageRenderer.ClearLoadingStatus();
 
         // Help system methods - delegated to HelpSystemRenderer
         public void ToggleHelp()

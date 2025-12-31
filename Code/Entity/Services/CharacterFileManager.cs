@@ -80,11 +80,19 @@ namespace RPGGame.Entity.Services
 
         /// <summary>
         /// Writes text to a file
+        /// Ensures the directory exists before writing
         /// </summary>
         /// <param name="filename">The filename to write to</param>
         /// <param name="content">The content to write</param>
         public void WriteAllText(string filename, string content)
         {
+            // Ensure the directory exists before writing
+            var directory = Path.GetDirectoryName(filename);
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+            
             File.WriteAllText(filename, content);
         }
 

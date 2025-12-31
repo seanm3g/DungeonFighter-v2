@@ -143,53 +143,17 @@ $distribution = foreach ($range in $sizeRanges) {
 $topFiles = $allFilesWithDetails | Sort-Object Lines -Descending | Select-Object -First 20
 
 # ============================================================================
-# OUTPUT SECTION - Ordered from least to most important
+# OUTPUT SECTION - Ordered: Overview -> 400+ Lines -> Total
 # ============================================================================
 
-# 1. Test files (reference only - least important)
-Write-Host "Test/Utility files (excluded from production metrics):" -ForegroundColor Yellow
-Write-Host ""
-$testFilesSorted = $testFiles | Sort-Object Lines -Descending
-$testFilesSorted | Format-Table File, Lines -AutoSize | Out-Host
-Write-Host ""
-
-# 2. Basic overall statistics
-Write-Host "=== Overall Codebase Statistics ===" -ForegroundColor Cyan
-Write-Host ""
-Write-Host "ALL production files: $totalFileCount" -ForegroundColor Cyan
-Write-Host "Total lines in ALL production code: $totalAllLines" -ForegroundColor Cyan
-Write-Host "Average lines per file: $avgLinesPerFile" -ForegroundColor Cyan
-Write-Host ""
-
-# 3. Test vs Production ratio
-Write-Host "=== Code Distribution (Production vs Test) ===" -ForegroundColor Yellow
-Write-Host ""
-Write-Host "  Production: $totalFileCount files, $totalAllLines lines ($([math]::Round(($totalFileCount / $totalCodeFiles) * 100, 1))% files, $([math]::Round(($totalAllLines / $totalCodeLines) * 100, 1))% lines)" -ForegroundColor Green
-Write-Host "  Test/Utility: $testFileCount files, $testLines lines ($([math]::Round(($testFileCount / $totalCodeFiles) * 100, 1))% files, $([math]::Round(($testLines / $totalCodeLines) * 100, 1))% lines)" -ForegroundColor Yellow
-Write-Host "  Total: $totalCodeFiles files, $totalCodeLines lines" -ForegroundColor Cyan
-Write-Host ""
-
-# 4. File size distribution
-Write-Host "=== File Size Distribution ===" -ForegroundColor Yellow
-Write-Host ""
-$distribution | Format-Table Range, Files, Percentage -AutoSize | Out-Host
-Write-Host ""
-
-# 5. Top 20 largest files
-Write-Host "=== Top 20 Largest Files ===" -ForegroundColor Yellow
-Write-Host ""
-$topFiles | Format-Table @{Label="File"; Expression={$_.File}}, @{Label="Folder"; Expression={$_.Folder}}, Lines -AutoSize | Out-Host
-Write-Host ""
-
-# 6. Lines per major folder
-Write-Host "=== Lines Per Major Folder ===" -ForegroundColor Magenta
+# 1. OVERVIEW: Lines per major folder (code per section)
+Write-Host "=== Code Overview by Section ===" -ForegroundColor Magenta
 Write-Host ""
 $folderStats | Format-Table Folder, Files, Lines, @{Label="Avg/File"; Expression={$_.AvgLines}} -AutoSize | Out-Host
 $folderTotalLines = ($folderStats | Measure-Object -Property Lines -Sum).Sum
-Write-Host "Total lines across all folders: $folderTotalLines" -ForegroundColor Magenta
 Write-Host ""
 
-# 7. Subfolder breakdown for folders over 3000 lines
+# Subfolder breakdown for folders over 3000 lines
 $largeFolders = $folderStats | Where-Object { $_.Lines -gt 3000 }
 if ($largeFolders.Count -gt 0) {
     Write-Host "=== Subfolder Breakdown (Folders with > 3000 lines) ===" -ForegroundColor Yellow
@@ -258,9 +222,9 @@ if ($largeFolders.Count -gt 0) {
     }
 }
 
-# 8. FILES ABOVE 400 LINES - MOST IMPORTANT (at the bottom)
+# 2. FILES ABOVE 400+ LINES
 Write-Host "======================================================================" -ForegroundColor Red
-Write-Host "=== CODE HEALTH ALERT: Files Above ${threshold} Lines ===" -ForegroundColor Red
+Write-Host "=== Files Above ${threshold} Lines ===" -ForegroundColor Red
 Write-Host "======================================================================" -ForegroundColor Red
 Write-Host ""
 Write-Host "Production files above ${threshold} lines: $filesAboveThresholdCount" -ForegroundColor Red
@@ -278,5 +242,15 @@ if ($filesAboveThresholdCount -gt 0) {
 } else {
     Write-Host "  ✅ No files above ${threshold} lines - Excellent code organization!" -ForegroundColor Green
 }
+Write-Host ""
+
+# 3. TOTAL LINES (at the very bottom)
+Write-Host "======================================================================" -ForegroundColor Cyan
+Write-Host "=== TOTAL LINES ===" -ForegroundColor Cyan
+Write-Host "======================================================================" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "TOTAL production files: $totalFileCount" -ForegroundColor Cyan
+Write-Host "TOTAL lines in production code: $totalAllLines" -ForegroundColor Cyan
+Write-Host "Average lines per file: $avgLinesPerFile" -ForegroundColor Cyan
 Write-Host ""
 

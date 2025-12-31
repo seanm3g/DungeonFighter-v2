@@ -67,7 +67,8 @@ namespace RPGGame
                     }
 
                     // Generate enemies with scaled levels and dungeon-specific enemy list
-                    room.GenerateEnemies(roomLevel, PossibleEnemies);
+                    // Pass dungeon level bounds to ensure enemy levels stay within range
+                    room.GenerateEnemies(roomLevel, PossibleEnemies, MinLevel, MaxLevel);
                     Rooms.Add(room);
                 }
                 catch (Exception)

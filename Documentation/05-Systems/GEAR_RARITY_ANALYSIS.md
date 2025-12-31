@@ -26,7 +26,7 @@ The gear rarity system determines how powerful items are when they drop. Rarity 
 
 **Drop Rate Calculation**: `(Rarity Weight / Total Weight) × 100%`
 
-*Note: Common items have a special 10% chance to get 1 stat bonus and 1 modification, otherwise they get none. Uncommon items have an 80% chance to get modifications (not guaranteed).
+*Note: Common items have a special 10% chance to get 1 stat bonus only (no modifications), otherwise they get none. Uncommon items have an 80% chance to get modifications (not guaranteed).
 
 ### Drop Rate Breakdown
 
@@ -78,9 +78,9 @@ Each rarity level grants a specific number of bonuses:
 
 Common items have a special rule:
 - **90% chance**: No bonuses (pure base item)
-- **10% chance**: 1 stat bonus + 1 modification (slightly enhanced)
+- **10% chance**: 1 stat bonus only (no modifications)
 
-This creates variety even in common items while keeping modifications rare.
+This creates variety even in common items while keeping modifications exclusive to Uncommon+ rarities.
 
 ### 4. Uncommon Item Modification Chance
 
@@ -96,7 +96,7 @@ This makes modifications less common overall while still providing them for most
 
 | Rarity | Total Bonuses | Power Level | Example Impact |
 |--------|--------------|-------------|----------------|
-| Common | 0-2* | Baseline | Base stats only |
+| Common | 0-1* | Baseline | Base stats only |
 | Uncommon | 4 | +20-30% | Noticeable upgrade |
 | Rare | 7 | +40-60% | Significant boost |
 | Epic | 7 | +40-60% | Strong item |
@@ -104,7 +104,7 @@ This makes modifications less common overall while still providing them for most
 | Mythic | 11 | +70-100% | Exceptional |
 | Transcendent | 14 | +100-150% | Game-changing |
 
-*Common: 0 normally, 2 with 10% chance
+*Common: 0 normally, 1 stat bonus with 10% chance (no modifications)
 
 ### Modification Power Tiers
 
@@ -160,15 +160,20 @@ To change how powerful each rarity is, modify bonus counts:
 
 ### 3. Common Item Tuning
 
-The 10% bonus chance for Common items is hardcoded in `LootBonusApplier.cs`:
+The 10% stat bonus chance for Common items is hardcoded in `LootBonusApplier.cs`:
 
 ```csharp
 if (_random.NextDouble() < 0.10)  // Line 35
+{
+    ApplyStatBonuses(item, 1);  // Only stat bonuses, no modifications
+}
 ```
 
 To change this:
 - **More common bonuses**: Increase `0.10` (e.g., `0.15` = 15% chance)
 - **Rarer bonuses**: Decrease `0.10` (e.g., `0.05` = 5% chance)
+
+**Note**: Common items never receive modifications - only stat bonuses. Modifications start at Uncommon rarity.
 
 ### 3.5. Uncommon Item Modification Tuning
 

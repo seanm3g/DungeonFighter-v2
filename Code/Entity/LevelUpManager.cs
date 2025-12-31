@@ -30,10 +30,18 @@ namespace RPGGame
         /// <summary>
         /// Handles the complete level up process and returns level-up information
         /// </summary>
-        public LevelUpInfo LevelUpWithInfo()
+        /// <param name="levelAlreadyIncremented">If true, level was already incremented by AddXP. If false (default), increment it now.</param>
+        public LevelUpInfo LevelUpWithInfo(bool levelAlreadyIncremented = false)
         {
-            // Note: Level has already been incremented by Progression.AddXP()
-            int newLevel = _character.Level;
+            // If level hasn't been incremented yet (e.g., called directly from tests),
+            // increment it now. Otherwise, it was already incremented by Progression.AddXP()
+            int newLevel;
+            if (!levelAlreadyIncremented)
+            {
+                _character.Progression.LevelUp();
+            }
+            newLevel = _character.Level;
+            
             _character.Stats.LevelUp((_character.Equipment.Weapon as WeaponItem)?.WeaponType ?? WeaponType.Mace);
             
             // Track level up statistics
@@ -41,19 +49,28 @@ namespace RPGGame
             
             var tuning = GameConfiguration.Instance;
             
-            // Apply class balance multipliers if available
+            // Apply class balance multipliers if available and valid
             var classBalance = tuning.ClassBalance;
             if (classBalance != null && _character.Equipment.Weapon is WeaponItem weapon)
             {
                 var classMultipliers = GetClassMultipliers(weapon.WeaponType, classBalance);
-                _character.Health.MaxHealth += (int)(tuning.Character.HealthPerLevel * classMultipliers.HealthMultiplier);
+                // If multiplier is 0 or invalid, fall back to base health per level
+                if (classMultipliers.HealthMultiplier > 0)
+                {
+                    _character.Health.MaxHealth += (int)(tuning.Character.HealthPerLevel * classMultipliers.HealthMultiplier);
+                }
+                else
+                {
+                    _character.Health.MaxHealth += tuning.Character.HealthPerLevel;
+                }
             }
             else
             {
                 _character.Health.MaxHealth += tuning.Character.HealthPerLevel;
             }
             
-            _character.Health.CurrentHealth = _character.Health.MaxHealth;
+            // Heal to full effective max health (including equipment bonuses)
+            _character.Health.CurrentHealth = _character.GetEffectiveMaxHealth();
             
             // Award class point and stat increases based on equipped weapon
             LevelUpInfo levelUpInfo;

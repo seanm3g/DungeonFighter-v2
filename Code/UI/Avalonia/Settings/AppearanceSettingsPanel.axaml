@@ -1,0 +1,689 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:settings="clr-namespace:RPGGame.UI.Avalonia.Settings"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="RPGGame.UI.Avalonia.Settings.AppearanceSettingsPanel"
+             Background="Transparent">
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                 HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="12" Margin="20">
+            
+            <!-- UI Colors Section -->
+            <Expander Header="UI Colors (Settings Panel)"
+                     IsExpanded="True"
+                     Margin="0,0,0,8">
+                <Border Background="White" 
+                        BorderBrush="#FF404040" 
+                        BorderThickness="1" 
+                        CornerRadius="6" 
+                        Padding="14"
+                        Margin="8,8,0,8">
+                    <StackPanel Spacing="12">
+                        <!-- Panel Colors -->
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Panel Colors" 
+                                       FontSize="17" 
+                                       FontWeight="SemiBold" 
+                                       Foreground="Black" 
+                                       Margin="0,0,0,6"/>
+                            <UniformGrid Columns="3" Rows="1">
+                                <!-- Panel Background -->
+                                <StackPanel Spacing="5" Margin="0,0,12,0">
+                                    <TextBlock Text="Panel Background:" 
+                                               Foreground="Black" 
+                                               FontSize="14"
+                                               Margin="0,0,0,4"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="55"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="PanelBackgroundTextBox" 
+                                                 Grid.Column="0"
+                                                 Height="28"
+                                                 Background="#FF2A2A2A"
+                                                 Foreground="White"
+                                                 BorderBrush="#FF555555"
+                                                 BorderThickness="1"
+                                                 Padding="6,4"
+                                                 FontSize="14"
+                                                 VerticalAlignment="Center"
+                                                 Margin="0,0,10,0"
+                                                 Text="#FFFFFFFF"/>
+                                        <Border x:Name="PanelBackgroundPreview"
+                                                Grid.Column="1"
+                                                Width="55"
+                                                Height="28"
+                                                Background="White"
+                                                BorderBrush="#FF555555"
+                                                BorderThickness="1"
+                                                VerticalAlignment="Center"/>
+                                    </Grid>
+                                </StackPanel>
+                                
+                                <!-- Panel Border -->
+                                <StackPanel Spacing="5" Margin="0,0,12,0">
+                                    <TextBlock Text="Panel Border:" 
+                                               Foreground="Black" 
+                                               FontSize="14"
+                                               Margin="0,0,0,4"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="55"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="PanelBorderTextBox" 
+                                                 Grid.Column="0"
+                                                 Height="28"
+                                                 Background="#FF2A2A2A"
+                                                 Foreground="White"
+                                                 BorderBrush="#FF555555"
+                                                 BorderThickness="1"
+                                                 Padding="6,4"
+                                                 FontSize="14"
+                                                 VerticalAlignment="Center"
+                                                 Margin="0,0,10,0"
+                                                 Text="#FF404040"/>
+                                        <Border x:Name="PanelBorderPreview"
+                                                Grid.Column="1"
+                                                Width="55"
+                                                Height="28"
+                                                Background="Transparent"
+                                                BorderBrush="#FF404040"
+                                                BorderThickness="2"
+                                                VerticalAlignment="Center"/>
+                                    </Grid>
+                                </StackPanel>
+                                
+                                <!-- Panel Text -->
+                                <StackPanel Spacing="5">
+                                    <TextBlock Text="Panel Text:" 
+                                               Foreground="Black" 
+                                               FontSize="14"
+                                               Margin="0,0,0,4"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="55"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="PanelTextTextBox" 
+                                                 Grid.Column="0"
+                                                 Height="28"
+                                                 Background="#FF2A2A2A"
+                                                 Foreground="White"
+                                                 BorderBrush="#FF555555"
+                                                 BorderThickness="1"
+                                                 Padding="6,4"
+                                                 FontSize="14"
+                                                 VerticalAlignment="Center"
+                                                 Margin="0,0,10,0"
+                                                 Text="#FF000000"/>
+                                        <Border x:Name="PanelTextPreview"
+                                                Grid.Column="1"
+                                                Width="55"
+                                                Height="28"
+                                                Background="Black"
+                                                BorderBrush="#FF555555"
+                                                BorderThickness="1"
+                                                VerticalAlignment="Center">
+                                            <TextBlock Text="Aa" 
+                                                       Foreground="Black"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       FontSize="14"
+                                                       FontWeight="SemiBold"/>
+                                        </Border>
+                                    </Grid>
+                                </StackPanel>
+                            </UniformGrid>
+                        </StackPanel>
+                        
+                        <!-- Divider -->
+                        <Border Height="1" Background="#FFE0E0E0" Margin="0,8,0,8"/>
+                        
+                        <!-- Settings Window Colors -->
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Settings Window Colors" 
+                                       FontSize="17" 
+                                       FontWeight="SemiBold" 
+                                       Foreground="Black" 
+                                       Margin="0,0,0,6"/>
+                            <UniformGrid Columns="2" Rows="1">
+                                <!-- Window Background -->
+                                <StackPanel Spacing="5" Margin="0,0,12,0">
+                                    <TextBlock Text="Window Background:" 
+                                               Foreground="Black" 
+                                               FontSize="14"
+                                               Margin="0,0,0,4"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="55"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="SettingsBackgroundTextBox" 
+                                                 Grid.Column="0"
+                                                 Height="28"
+                                                 Background="#FF2A2A2A"
+                                                 Foreground="White"
+                                                 BorderBrush="#FF555555"
+                                                 BorderThickness="1"
+                                                 Padding="6,4"
+                                                 FontSize="14"
+                                                 VerticalAlignment="Center"
+                                                 Margin="0,0,10,0"
+                                                 Text="#FF1A1A1A"/>
+                                        <Border x:Name="SettingsBackgroundPreview"
+                                                Grid.Column="1"
+                                                Width="55"
+                                                Height="28"
+                                                Background="#FF1A1A1A"
+                                                BorderBrush="#FF555555"
+                                                BorderThickness="1"
+                                                VerticalAlignment="Center"/>
+                                    </Grid>
+                                </StackPanel>
+                                
+                                <!-- Title Color -->
+                                <StackPanel Spacing="5">
+                                    <TextBlock Text="Title Color:" 
+                                               Foreground="Black" 
+                                               FontSize="14"
+                                               Margin="0,0,0,4"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="55"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="SettingsTitleTextBox" 
+                                                 Grid.Column="0"
+                                                 Height="28"
+                                                 Background="#FF2A2A2A"
+                                                 Foreground="White"
+                                                 BorderBrush="#FF555555"
+                                                 BorderThickness="1"
+                                                 Padding="6,4"
+                                                 FontSize="14"
+                                                 VerticalAlignment="Center"
+                                                 Margin="0,0,10,0"
+                                                 Text="#FFD700"/>
+                                        <Border x:Name="SettingsTitlePreview"
+                                                Grid.Column="1"
+                                                Width="55"
+                                                Height="28"
+                                                Background="Transparent"
+                                                BorderBrush="#FF555555"
+                                                BorderThickness="1"
+                                                VerticalAlignment="Center">
+                                            <TextBlock Text="Title" 
+                                                       Foreground="#FFD700"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       FontSize="14"
+                                                       FontWeight="SemiBold"/>
+                                        </Border>
+                                    </Grid>
+                                </StackPanel>
+                            </UniformGrid>
+                        </StackPanel>
+                        
+                        <!-- Divider -->
+                        <Border Height="1" Background="#FFE0E0E0" Margin="0,8,0,8"/>
+                        
+                        <!-- Navigation List Colors -->
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Navigation List Colors" 
+                                       FontSize="17" 
+                                       FontWeight="SemiBold" 
+                                       Foreground="Black" 
+                                       Margin="0,0,0,6"/>
+                            <UniformGrid Columns="3" Rows="1">
+                                <!-- Selected Text -->
+                                <StackPanel Spacing="5" Margin="0,0,12,0">
+                                    <TextBlock Text="Selected Text:" 
+                                               Foreground="Black" 
+                                               FontSize="14"
+                                               Margin="0,0,0,4"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="55"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="ListBoxSelectedTextBox" 
+                                                 Grid.Column="0"
+                                                 Height="28"
+                                                 Background="#FF2A2A2A"
+                                                 Foreground="White"
+                                                 BorderBrush="#FF555555"
+                                                 BorderThickness="1"
+                                                 Padding="6,4"
+                                                 FontSize="14"
+                                                 VerticalAlignment="Center"
+                                                 Margin="0,0,10,0"
+                                                 Text="#FFD700"/>
+                                        <Border x:Name="ListBoxSelectedPreview"
+                                                Grid.Column="1"
+                                                Width="55"
+                                                Height="28"
+                                                Background="Transparent"
+                                                BorderBrush="#FF555555"
+                                                BorderThickness="1"
+                                                VerticalAlignment="Center">
+                                            <TextBlock Text="Selected" 
+                                                       Foreground="#FFD700"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       FontSize="14"
+                                                       FontWeight="SemiBold"/>
+                                        </Border>
+                                    </Grid>
+                                </StackPanel>
+                                
+                                <!-- Selected Background -->
+                                <StackPanel Spacing="5" Margin="0,0,12,0">
+                                    <TextBlock Text="Selected Background:" 
+                                               Foreground="Black" 
+                                               FontSize="14"
+                                               Margin="0,0,0,4"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="55"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="ListBoxSelectedBackgroundTextBox" 
+                                                 Grid.Column="0"
+                                                 Height="28"
+                                                 Background="#FF2A2A2A"
+                                                 Foreground="White"
+                                                 BorderBrush="#FF555555"
+                                                 BorderThickness="1"
+                                                 Padding="6,4"
+                                                 FontSize="14"
+                                                 VerticalAlignment="Center"
+                                                 Margin="0,0,10,0"
+                                                 Text="#FF2A2A2A"/>
+                                        <Border x:Name="ListBoxSelectedBackgroundPreview"
+                                                Grid.Column="1"
+                                                Width="55"
+                                                Height="28"
+                                                Background="#FF2A2A2A"
+                                                BorderBrush="#FF555555"
+                                                BorderThickness="1"
+                                                VerticalAlignment="Center"/>
+                                    </Grid>
+                                </StackPanel>
+                                
+                                <!-- Hover Background -->
+                                <StackPanel Spacing="5">
+                                    <TextBlock Text="Hover Background:" 
+                                               Foreground="Black" 
+                                               FontSize="14"
+                                               Margin="0,0,0,4"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="55"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="ListBoxHoverBackgroundTextBox" 
+                                                 Grid.Column="0"
+                                                 Height="28"
+                                                 Background="#FF2A2A2A"
+                                                 Foreground="White"
+                                                 BorderBrush="#FF555555"
+                                                 BorderThickness="1"
+                                                 Padding="6,4"
+                                                 FontSize="14"
+                                                 VerticalAlignment="Center"
+                                                 Margin="0,0,10,0"
+                                                 Text="#FF353535"/>
+                                        <Border x:Name="ListBoxHoverBackgroundPreview"
+                                                Grid.Column="1"
+                                                Width="55"
+                                                Height="28"
+                                                Background="#FF353535"
+                                                BorderBrush="#FF555555"
+                                                BorderThickness="1"
+                                                VerticalAlignment="Center"/>
+                                    </Grid>
+                                </StackPanel>
+                            </UniformGrid>
+                        </StackPanel>
+                        
+                        <!-- Divider -->
+                        <Border Height="1" Background="#FFE0E0E0" Margin="0,8,0,8"/>
+                        
+                        <!-- Text Input Colors -->
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Text Input Colors" 
+                                       FontSize="17" 
+                                       FontWeight="SemiBold" 
+                                       Foreground="Black" 
+                                       Margin="0,0,0,6"/>
+                            <UniformGrid Columns="3" Rows="2">
+                                <!-- Text Color -->
+                                <StackPanel Spacing="5" Margin="0,0,12,10">
+                                    <TextBlock Text="Text Color:" 
+                                               Foreground="Black" 
+                                               FontSize="14"
+                                               Margin="0,0,0,4"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="55"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="TextBoxTextColorTextBox" 
+                                                 Grid.Column="0"
+                                                 Height="28"
+                                                 Background="#FF2A2A2A"
+                                                 Foreground="White"
+                                                 BorderBrush="#FF555555"
+                                                 BorderThickness="1"
+                                                 Padding="6,4"
+                                                 FontSize="14"
+                                                 VerticalAlignment="Center"
+                                                 Margin="0,0,10,0"
+                                                 SelectionBrush="#FF0078D4"
+                                                 SelectionForegroundBrush="White"
+                                                 Text="#FFFFFF"/>
+                                        <Border x:Name="TextBoxTextColorPreview"
+                                                Grid.Column="1"
+                                                Width="55"
+                                                Height="28"
+                                                Background="Transparent"
+                                                BorderBrush="#FF555555"
+                                                BorderThickness="1"
+                                                VerticalAlignment="Center">
+                                            <TextBlock Text="Aa" 
+                                                       Foreground="#FFFFFF"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       FontSize="14"
+                                                       FontWeight="SemiBold"/>
+                                        </Border>
+                                    </Grid>
+                                </StackPanel>
+                                
+                                <!-- Background -->
+                                <StackPanel Spacing="5" Margin="0,0,12,10">
+                                    <TextBlock Text="Background:" 
+                                               Foreground="Black" 
+                                               FontSize="14"
+                                               Margin="0,0,0,4"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="55"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="TextBoxBackgroundTextBox" 
+                                                 Grid.Column="0"
+                                                 Height="28"
+                                                 Background="#FF2A2A2A"
+                                                 Foreground="White"
+                                                 BorderBrush="#FF555555"
+                                                 BorderThickness="1"
+                                                 Padding="6,4"
+                                                 FontSize="14"
+                                                 VerticalAlignment="Center"
+                                                 Margin="0,0,10,0"
+                                                 Text="#FF2A2A2A"/>
+                                        <Border x:Name="TextBoxBackgroundPreview"
+                                                Grid.Column="1"
+                                                Width="55"
+                                                Height="28"
+                                                Background="#FF2A2A2A"
+                                                BorderBrush="#FF555555"
+                                                BorderThickness="1"
+                                                VerticalAlignment="Center"/>
+                                    </Grid>
+                                </StackPanel>
+                                
+                                <!-- Hover Background -->
+                                <StackPanel Spacing="5" Margin="0,0,0,10">
+                                    <TextBlock Text="Hover Background:" 
+                                               Foreground="Black" 
+                                               FontSize="14"
+                                               Margin="0,0,0,4"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="55"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="TextBoxHoverBackgroundTextBox" 
+                                                 Grid.Column="0"
+                                                 Height="28"
+                                                 Background="#FF2A2A2A"
+                                                 Foreground="White"
+                                                 BorderBrush="#FF555555"
+                                                 BorderThickness="1"
+                                                 Padding="6,4"
+                                                 FontSize="14"
+                                                 VerticalAlignment="Center"
+                                                 Margin="0,0,10,0"
+                                                 Text="#FF353535"/>
+                                        <Border x:Name="TextBoxHoverBackgroundPreview"
+                                                Grid.Column="1"
+                                                Width="55"
+                                                Height="28"
+                                                Background="#FF353535"
+                                                BorderBrush="#FF555555"
+                                                BorderThickness="1"
+                                                VerticalAlignment="Center"/>
+                                    </Grid>
+                                </StackPanel>
+                                
+                                <!-- Border Color -->
+                                <StackPanel Spacing="5" Margin="0,0,12,0">
+                                    <TextBlock Text="Border Color:" 
+                                               Foreground="Black" 
+                                               FontSize="14"
+                                               Margin="0,0,0,4"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="55"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="TextBoxBorderTextBox" 
+                                                 Grid.Column="0"
+                                                 Height="28"
+                                                 Background="#FF2A2A2A"
+                                                 Foreground="White"
+                                                 BorderBrush="#FF555555"
+                                                 BorderThickness="1"
+                                                 Padding="6,4"
+                                                 FontSize="14"
+                                                 VerticalAlignment="Center"
+                                                 Margin="0,0,10,0"
+                                                 Text="#FF555555"/>
+                                        <Border x:Name="TextBoxBorderPreview"
+                                                Grid.Column="1"
+                                                Width="55"
+                                                Height="28"
+                                                Background="Transparent"
+                                                BorderBrush="#FF555555"
+                                                BorderThickness="2"
+                                                VerticalAlignment="Center"/>
+                                    </Grid>
+                                </StackPanel>
+                                
+                                <!-- Focus Border -->
+                                <StackPanel Spacing="5" Margin="0,0,12,0">
+                                    <TextBlock Text="Focus Border:" 
+                                               Foreground="Black" 
+                                               FontSize="14"
+                                               Margin="0,0,0,4"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="55"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="TextBoxFocusBorderTextBox" 
+                                                 Grid.Column="0"
+                                                 Height="28"
+                                                 Background="#FF2A2A2A"
+                                                 Foreground="White"
+                                                 BorderBrush="#FF555555"
+                                                 BorderThickness="1"
+                                                 Padding="6,4"
+                                                 FontSize="14"
+                                                 VerticalAlignment="Center"
+                                                 Margin="0,0,10,0"
+                                                 Text="#FF0078D4"/>
+                                        <Border x:Name="TextBoxFocusBorderPreview"
+                                                Grid.Column="1"
+                                                Width="55"
+                                                Height="28"
+                                                Background="Transparent"
+                                                BorderBrush="#FF0078D4"
+                                                BorderThickness="2"
+                                                VerticalAlignment="Center"/>
+                                    </Grid>
+                                </StackPanel>
+                                
+                                <!-- Empty cell for alignment -->
+                                <StackPanel Spacing="5"/>
+                            </UniformGrid>
+                        </StackPanel>
+                        
+                        <!-- Divider -->
+                        <Border Height="1" Background="#FFE0E0E0" Margin="0,8,0,8"/>
+                        
+                        <!-- Button Colors -->
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Button Colors" 
+                                       FontSize="17" 
+                                       FontWeight="SemiBold" 
+                                       Foreground="Black" 
+                                       Margin="0,0,0,6"/>
+                            <UniformGrid Columns="3" Rows="1">
+                                <!-- Primary Button -->
+                                <StackPanel Spacing="5" Margin="0,0,12,0">
+                                    <TextBlock Text="Primary Button:" 
+                                               Foreground="Black" 
+                                               FontSize="14"
+                                               Margin="0,0,0,4"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="55"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="ButtonPrimaryTextBox" 
+                                                 Grid.Column="0"
+                                                 Height="28"
+                                                 Background="#FF2A2A2A"
+                                                 Foreground="White"
+                                                 BorderBrush="#FF555555"
+                                                 BorderThickness="1"
+                                                 Padding="6,4"
+                                                 FontSize="14"
+                                                 VerticalAlignment="Center"
+                                                 Margin="0,0,10,0"
+                                                 Text="#FF0078D4"/>
+                                        <Border x:Name="ButtonPrimaryPreview"
+                                                Grid.Column="1"
+                                                Width="55"
+                                                Height="28"
+                                                Background="#FF0078D4"
+                                                BorderBrush="#FF555555"
+                                                BorderThickness="1"
+                                                VerticalAlignment="Center"/>
+                                    </Grid>
+                                </StackPanel>
+                                
+                                <!-- Secondary Button -->
+                                <StackPanel Spacing="5" Margin="0,0,12,0">
+                                    <TextBlock Text="Secondary Button:" 
+                                               Foreground="Black" 
+                                               FontSize="14"
+                                               Margin="0,0,0,4"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="55"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="ButtonSecondaryTextBox" 
+                                                 Grid.Column="0"
+                                                 Height="28"
+                                                 Background="#FF2A2A2A"
+                                                 Foreground="White"
+                                                 BorderBrush="#FF555555"
+                                                 BorderThickness="1"
+                                                 Padding="6,4"
+                                                 FontSize="14"
+                                                 VerticalAlignment="Center"
+                                                 Margin="0,0,10,0"
+                                                 Text="#FF555555"/>
+                                        <Border x:Name="ButtonSecondaryPreview"
+                                                Grid.Column="1"
+                                                Width="55"
+                                                Height="28"
+                                                Background="#FF555555"
+                                                BorderBrush="#FF555555"
+                                                BorderThickness="1"
+                                                VerticalAlignment="Center"/>
+                                    </Grid>
+                                </StackPanel>
+                                
+                                <!-- Back Button -->
+                                <StackPanel Spacing="5">
+                                    <TextBlock Text="Back Button:" 
+                                               Foreground="Black" 
+                                               FontSize="14"
+                                               Margin="0,0,0,4"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="55"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="ButtonBackTextBox" 
+                                                 Grid.Column="0"
+                                                 Height="28"
+                                                 Background="#FF2A2A2A"
+                                                 Foreground="White"
+                                                 BorderBrush="#FF555555"
+                                                 BorderThickness="1"
+                                                 Padding="6,4"
+                                                 FontSize="14"
+                                                 VerticalAlignment="Center"
+                                                 Margin="0,0,10,0"
+                                                 Text="#FF404040"/>
+                                        <Border x:Name="ButtonBackPreview"
+                                                Grid.Column="1"
+                                                Width="55"
+                                                Height="28"
+                                                Background="#FF404040"
+                                                BorderBrush="#FF555555"
+                                                BorderThickness="1"
+                                                VerticalAlignment="Center"/>
+                                    </Grid>
+                                </StackPanel>
+                            </UniformGrid>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Expander>
+            
+            <!-- Game Text Colors Section (Color Codes) -->
+            <Expander Header="Game Text Colors (Color Codes)"
+                     IsExpanded="False"
+                     Margin="0,0,0,8">
+                <settings:ColorCodesSettingsPanel Margin="8,8,0,8"/>
+            </Expander>
+            
+            <!-- Color Templates Section -->
+            <Expander Header="Color Templates"
+                     IsExpanded="False"
+                     Margin="0,0,0,8">
+                <settings:ColorTemplatesSettingsPanel Margin="8,8,0,8"/>
+            </Expander>
+            
+            <!-- Keyword Colors Section -->
+            <Expander Header="Keyword Colors"
+                     IsExpanded="False"
+                     Margin="0,0,0,8">
+                <settings:KeywordGroupsSettingsPanel Margin="8,8,0,8"/>
+            </Expander>
+            
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

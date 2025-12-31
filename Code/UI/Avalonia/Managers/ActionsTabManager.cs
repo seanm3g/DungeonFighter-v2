@@ -4,6 +4,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Threading;
 using RPGGame.Editors;
 using RPGGame.UI.Avalonia.Builders;
 using System;
@@ -48,7 +49,12 @@ namespace RPGGame.UI.Avalonia.Managers
             formBuilder.SaveActionRequested += SaveAction;
             formBuilder.CancelActionRequested += OnCancelAction;
             
-            LoadActionsList();
+            // Defer loading actions list until after UI is ready to avoid blocking
+            Dispatcher.UIThread.Post(() =>
+            {
+                LoadActionsList();
+            }, DispatcherPriority.Background);
+            
             createActionButton.Click += OnCreateActionClick;
             deleteActionButton.Click += OnDeleteActionClick;
             actionsListBox.SelectionChanged += OnActionSelectionChanged;

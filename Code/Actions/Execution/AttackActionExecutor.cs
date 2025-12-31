@@ -57,7 +57,9 @@ namespace RPGGame.Actions.Execution
                     }
                     
                     // Format damage display for this hit
-                    var (hitDamageText, hitRollInfo) = CombatResults.FormatDamageDisplayColored(source, target, hitDamage, hitDamage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll);
+                    // Only show multi-hit count on the first hit
+                    int multiHitDisplay = (hit == 0) ? multiHitCount : 1;
+                    var (hitDamageText, hitRollInfo) = CombatResults.FormatDamageDisplayColored(source, target, hitDamage, hitDamage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll, multiHitDisplay);
                     if (hitDamageText != null) allDamageText.AddRange(hitDamageText);
                     if (hitRollInfo != null) allRollInfo.AddRange(hitRollInfo);
                 }

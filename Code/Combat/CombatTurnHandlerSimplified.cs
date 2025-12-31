@@ -73,10 +73,11 @@ namespace RPGGame
                 }
                 
                 // Get triggered narratives and display everything together
+                // Only retrieve significant narratives (not every critical hit)
                 var battleNarrative = stateManager.GetCurrentBattleNarrative();
                 if (textDisplayed && actionText != null && rollInfo != null && battleNarrative != null)
                 {
-                    var narratives = battleNarrative.GetTriggeredNarratives();
+                    var narratives = battleNarrative.GetTriggeredNarrativesIfSignificant();
                     // Convert narrative strings to ColoredText
                     var narrativeColored = new List<List<ColoredText>>();
                     foreach (var narrative in narratives)
@@ -236,10 +237,11 @@ namespace RPGGame
             }
             
             // Get triggered narratives and display everything together
+            // Only retrieve significant narratives (not every critical hit)
             var battleNarrative = stateManager.GetCurrentBattleNarrative();
             if (textDisplayed && actionText != null && rollInfo != null && battleNarrative != null)
             {
-                var narratives = battleNarrative.GetTriggeredNarratives();
+                var narratives = battleNarrative.GetTriggeredNarrativesIfSignificant();
                 // Convert narrative strings to ColoredText
                 var narrativeColored = new List<List<ColoredText>>();
                 foreach (var narrative in narratives)
@@ -253,10 +255,10 @@ namespace RPGGame
                         }
                     }
                 }
-                    // Display using the new ColoredText method (async to wait for display delay)
-                    // Pass player character to filter display for multi-character support
-                    await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, narrativeColored, player);
-                }
+                // Display using the new ColoredText method (async to wait for display delay)
+                // Pass player character to filter display for multi-character support
+                await TextDisplayIntegration.DisplayCombatActionAsync(actionText, rollInfo, statusEffects, narrativeColored, player);
+            }
                 
                 // End turn for statistics tracking
             player.EndTurn();

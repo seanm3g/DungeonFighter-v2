@@ -36,7 +36,6 @@ namespace RPGGame.UI
             // Damage keywords
             AddKeyword("damage", "damage");
             AddKeyword("hit", "damage");
-            AddKeyword("hits", "damage");
             AddKeyword("attack", "damage");
             AddKeyword("attacks", "damage");
             AddKeyword("critical", "critical");

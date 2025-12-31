@@ -46,7 +46,8 @@ namespace RPGGame
             List<ColoredText>? criticalMissNarrative = null;
             var remainingNarratives = new List<List<ColoredText>>();
             
-            if (narrativeMessages != null)
+            // Only process narratives if the list is not null and not empty
+            if (narrativeMessages != null && narrativeMessages.Count > 0)
             {
                 // Check if action text contains "CRITICAL MISS" (only for critical misses, not regular misses)
                 string actionPlainText = ColoredTextRenderer.RenderAsPlainText(actionText);
@@ -105,7 +106,8 @@ namespace RPGGame
             List<ColoredText>? criticalMissNarrative = null;
             var remainingNarratives = new List<List<ColoredText>>();
             
-            if (narrativeMessages != null)
+            // Only process narratives if the list is not null and not empty
+            if (narrativeMessages != null && narrativeMessages.Count > 0)
             {
                 // Check if action text contains "CRITICAL MISS" (only for critical misses, not regular misses)
                 string actionPlainText = ColoredTextRenderer.RenderAsPlainText(actionText);

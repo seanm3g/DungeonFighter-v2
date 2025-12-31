@@ -271,6 +271,10 @@ namespace RPGGame
             PoisonStacks += stacks;
             LastPoisonTick = GameTicker.Instance.GetCurrentGameTime();
             IsBleeding = isBleeding;
+            if (isBleeding)
+            {
+                BleedStacks = PoisonStacks; // Sync BleedStacks with PoisonStacks for bleed effects
+            }
         }
         
         /// <summary>

@@ -2,604 +2,604 @@
   "BuildMetrics": [],
   "ExecutionMetrics": [
     {
-      "Timestamp": "2025-12-25T21:43:44.9016444Z",
+      "Timestamp": "2025-12-28T19:46:34.5956392Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 6665,
-      "ExecutionTimeSeconds": 6.6653204
+      "ExecutionTimeMs": 6837,
+      "ExecutionTimeSeconds": 6.837324
     },
     {
-      "Timestamp": "2025-12-25T21:46:37.0153497Z",
+      "Timestamp": "2025-12-28T19:51:06.2782246Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 7743,
-      "ExecutionTimeSeconds": 7.7438647
+      "ExecutionTimeMs": 6071,
+      "ExecutionTimeSeconds": 6.07152
     },
     {
-      "Timestamp": "2025-12-25T21:48:26.687217Z",
+      "Timestamp": "2025-12-28T19:52:43.0754915Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 2620,
-      "ExecutionTimeSeconds": 2.62022
+      "ExecutionTimeMs": 5553,
+      "ExecutionTimeSeconds": 5.5530784
     },
     {
-      "Timestamp": "2025-12-25T21:48:39.1794488Z",
+      "Timestamp": "2025-12-28T19:54:00.6036315Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 5478,
-      "ExecutionTimeSeconds": 5.4785117
+      "ExecutionTimeMs": 6383,
+      "ExecutionTimeSeconds": 6.3831495
     },
     {
-      "Timestamp": "2025-12-25T21:53:28.9919102Z",
+      "Timestamp": "2025-12-28T20:03:20.1875714Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 4713,
-      "ExecutionTimeSeconds": 4.7134171
+      "ExecutionTimeMs": 5919,
+      "ExecutionTimeSeconds": 5.9191711
     },
     {
-      "Timestamp": "2025-12-25T21:57:41.0693893Z",
+      "Timestamp": "2025-12-28T20:04:28.834379Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 58182,
-      "ExecutionTimeSeconds": 58.1826374
+      "ExecutionTimeMs": 5923,
+      "ExecutionTimeSeconds": 5.923556
     },
     {
-      "Timestamp": "2025-12-25T23:16:03.6220887Z",
+      "Timestamp": "2025-12-28T20:05:49.6921993Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 7573,
-      "ExecutionTimeSeconds": 7.5738694
+      "ExecutionTimeMs": 4239,
+      "ExecutionTimeSeconds": 4.2398546
     },
     {
-      "Timestamp": "2025-12-25T23:18:06.0068425Z",
+      "Timestamp": "2025-12-28T20:06:00.2269197Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 4867,
-      "ExecutionTimeSeconds": 4.8670103
+      "ExecutionTimeMs": 6325,
+      "ExecutionTimeSeconds": 6.3253044
     },
     {
-      "Timestamp": "2025-12-25T23:36:47.2152454Z",
+      "Timestamp": "2025-12-28T20:14:22.3504988Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 13401,
-      "ExecutionTimeSeconds": 13.4014983
+      "ExecutionTimeMs": 5872,
+      "ExecutionTimeSeconds": 5.8724998
     },
     {
-      "Timestamp": "2025-12-26T00:00:10.0765046Z",
+      "Timestamp": "2025-12-28T20:16:54.2417158Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 736777,
-      "ExecutionTimeSeconds": 736.7773135
+      "ExecutionTimeMs": 6109,
+      "ExecutionTimeSeconds": 6.1093484
     },
     {
-      "Timestamp": "2025-12-26T00:04:13.3916715Z",
+      "Timestamp": "2025-12-28T20:21:01.7564257Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 116549,
-      "ExecutionTimeSeconds": 116.5491022
+      "ExecutionTimeMs": 5958,
+      "ExecutionTimeSeconds": 5.9588672
     },
     {
-      "Timestamp": "2025-12-26T00:13:50.2987852Z",
+      "Timestamp": "2025-12-28T20:28:20.3833634Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 45321,
-      "ExecutionTimeSeconds": 45.3213706
+      "ExecutionTimeMs": 5983,
+      "ExecutionTimeSeconds": 5.9832015
     },
     {
-      "Timestamp": "2025-12-26T00:16:12.4132563Z",
+      "Timestamp": "2025-12-28T20:33:35.9878617Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 32588,
-      "ExecutionTimeSeconds": 32.58876
+      "ExecutionTimeMs": 71886,
+      "ExecutionTimeSeconds": 71.8865722
     },
     {
-      "Timestamp": "2025-12-26T01:02:35.3986263Z",
+      "Timestamp": "2025-12-29T00:44:18.4385535Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 46879,
-      "ExecutionTimeSeconds": 46.8790769
+      "ExecutionTimeMs": 8018,
+      "ExecutionTimeSeconds": 8.0181198
     },
     {
-      "Timestamp": "2025-12-26T01:09:54.7576565Z",
+      "Timestamp": "2025-12-29T02:00:56.9084413Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 65158,
-      "ExecutionTimeSeconds": 65.1581778
+      "ExecutionTimeMs": 6796,
+      "ExecutionTimeSeconds": 6.7964631
     },
     {
-      "Timestamp": "2025-12-26T01:17:07.0896962Z",
+      "Timestamp": "2025-12-29T02:02:15.1354499Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 92626,
-      "ExecutionTimeSeconds": 92.6264263
+      "ExecutionTimeMs": 10670,
+      "ExecutionTimeSeconds": 10.6705124
     },
     {
-      "Timestamp": "2025-12-26T01:18:27.5360155Z",
+      "Timestamp": "2025-12-29T19:50:36.1346669Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 38068,
-      "ExecutionTimeSeconds": 38.0686574
+      "ExecutionTimeMs": 1236246,
+      "ExecutionTimeSeconds": 1236.2465987
     },
     {
-      "Timestamp": "2025-12-26T04:19:23.336051Z",
+      "Timestamp": "2025-12-29T19:51:17.2034181Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 101853,
-      "ExecutionTimeSeconds": 101.8536917
+      "ExecutionTimeMs": 30375,
+      "ExecutionTimeSeconds": 30.3757933
     },
     {
-      "Timestamp": "2025-12-26T04:25:06.7865988Z",
+      "Timestamp": "2025-12-29T20:03:37.998567Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 227025,
-      "ExecutionTimeSeconds": 227.0254503
+      "ExecutionTimeMs": 77629,
+      "ExecutionTimeSeconds": 77.62937
     },
     {
-      "Timestamp": "2025-12-26T04:29:38.6033879Z",
+      "Timestamp": "2025-12-29T20:04:25.9877978Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 105551,
-      "ExecutionTimeSeconds": 105.5517141
+      "ExecutionTimeMs": 44781,
+      "ExecutionTimeSeconds": 44.7819211
     },
     {
-      "Timestamp": "2025-12-26T04:33:22.5066751Z",
+      "Timestamp": "2025-12-29T20:11:00.2852212Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 86301,
-      "ExecutionTimeSeconds": 86.3018056
+      "ExecutionTimeMs": 241832,
+      "ExecutionTimeSeconds": 241.8322905
     },
     {
-      "Timestamp": "2025-12-26T04:33:50.7185877Z",
+      "Timestamp": "2025-12-29T20:24:06.8794695Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 2522,
-      "ExecutionTimeSeconds": 2.5224619
+      "ExecutionTimeMs": 192772,
+      "ExecutionTimeSeconds": 192.7727519
     },
     {
-      "Timestamp": "2025-12-26T04:36:18.4926893Z",
+      "Timestamp": "2025-12-29T20:49:52.7971914Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 132795,
-      "ExecutionTimeSeconds": 132.795745
+      "ExecutionTimeMs": 182007,
+      "ExecutionTimeSeconds": 182.0078935
     },
     {
-      "Timestamp": "2025-12-26T05:52:52.724386Z",
+      "Timestamp": "2025-12-29T20:50:32.92041Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 13717,
-      "ExecutionTimeSeconds": 13.7172061
+      "ExecutionTimeMs": 31662,
+      "ExecutionTimeSeconds": 31.6625882
     },
     {
-      "Timestamp": "2025-12-26T06:02:50.6136827Z",
+      "Timestamp": "2025-12-29T22:00:37.9000346Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 434320,
-      "ExecutionTimeSeconds": 434.3206053
+      "ExecutionTimeMs": 4105550,
+      "ExecutionTimeSeconds": 4105.5503458
     },
     {
-      "Timestamp": "2025-12-26T06:51:07.6355308Z",
+      "Timestamp": "2025-12-29T22:03:44.1716695Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 2892451,
-      "ExecutionTimeSeconds": 2892.4515209
+      "ExecutionTimeMs": 174962,
+      "ExecutionTimeSeconds": 174.9621755
     },
     {
-      "Timestamp": "2025-12-26T07:16:47.4942835Z",
+      "Timestamp": "2025-12-29T22:16:41.3232302Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 487135,
-      "ExecutionTimeSeconds": 487.1353654
+      "ExecutionTimeMs": 10487,
+      "ExecutionTimeSeconds": 10.4875616
     },
     {
-      "Timestamp": "2025-12-26T17:31:36.1149297Z",
+      "Timestamp": "2025-12-29T22:35:39.5982793Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 7120,
-      "ExecutionTimeSeconds": 7.1202496
+      "ExecutionTimeMs": 10417,
+      "ExecutionTimeSeconds": 10.417649
     },
     {
-      "Timestamp": "2025-12-26T18:15:22.2729519Z",
+      "Timestamp": "2025-12-29T22:54:23.1539416Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 4471,
-      "ExecutionTimeSeconds": 4.4716954
+      "ExecutionTimeMs": 290619,
+      "ExecutionTimeSeconds": 290.6191148
     },
     {
-      "Timestamp": "2025-12-26T18:16:38.0770432Z",
+      "Timestamp": "2025-12-29T23:21:57.2170791Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 1824,
-      "ExecutionTimeSeconds": 1.8249488
+      "ExecutionTimeMs": 268380,
+      "ExecutionTimeSeconds": 268.3804168
     },
     {
-      "Timestamp": "2025-12-26T18:17:53.0525867Z",
+      "Timestamp": "2025-12-29T23:22:08.592706Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 2151,
-      "ExecutionTimeSeconds": 2.1511101
+      "ExecutionTimeMs": 7719,
+      "ExecutionTimeSeconds": 7.7192891
     },
     {
-      "Timestamp": "2025-12-26T18:19:02.0093332Z",
+      "Timestamp": "2025-12-29T23:40:17.8490257Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 2700,
-      "ExecutionTimeSeconds": 2.700174
+      "ExecutionTimeMs": 379021,
+      "ExecutionTimeSeconds": 379.0214196
     },
     {
-      "Timestamp": "2025-12-26T18:19:06.2026694Z",
+      "Timestamp": "2025-12-29T23:41:36.2862041Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 2509,
-      "ExecutionTimeSeconds": 2.5093658
+      "ExecutionTimeMs": 73184,
+      "ExecutionTimeSeconds": 73.184777
     },
     {
-      "Timestamp": "2025-12-26T19:05:44.1953979Z",
+      "Timestamp": "2025-12-29T23:50:51.2222945Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 2165,
-      "ExecutionTimeSeconds": 2.1652775
+      "ExecutionTimeMs": 465429,
+      "ExecutionTimeSeconds": 465.429599
     },
     {
-      "Timestamp": "2025-12-26T19:05:49.5922293Z",
+      "Timestamp": "2025-12-30T00:08:48.9177615Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 2016,
-      "ExecutionTimeSeconds": 2.0168173
+      "ExecutionTimeMs": 1070170,
+      "ExecutionTimeSeconds": 1070.1705651
     },
     {
-      "Timestamp": "2025-12-26T20:06:46.407406Z",
+      "Timestamp": "2025-12-30T00:27:01.9634942Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 54494,
-      "ExecutionTimeSeconds": 54.4942494
+      "ExecutionTimeMs": 1078908,
+      "ExecutionTimeSeconds": 1078.908278
     },
     {
-      "Timestamp": "2025-12-27T00:45:06.4341186Z",
+      "Timestamp": "2025-12-30T00:52:33.2863696Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 27463,
-      "ExecutionTimeSeconds": 27.463621
+      "ExecutionTimeMs": 1354760,
+      "ExecutionTimeSeconds": 1354.7601665
     },
     {
-      "Timestamp": "2025-12-27T00:49:49.6367021Z",
+      "Timestamp": "2025-12-30T01:25:06.3433729Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 10792,
-      "ExecutionTimeSeconds": 10.7926946
+      "ExecutionTimeMs": 62067,
+      "ExecutionTimeSeconds": 62.0671244
     },
     {
-      "Timestamp": "2025-12-27T00:57:44.4861016Z",
+      "Timestamp": "2025-12-30T01:56:18.4023566Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 16181,
-      "ExecutionTimeSeconds": 16.1812814
+      "ExecutionTimeMs": 140034,
+      "ExecutionTimeSeconds": 140.0343789
     },
     {
-      "Timestamp": "2025-12-27T01:08:35.5306147Z",
+      "Timestamp": "2025-12-30T01:56:50.046554Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 130687,
-      "ExecutionTimeSeconds": 130.6877262
+      "ExecutionTimeMs": 22434,
+      "ExecutionTimeSeconds": 22.4345388
     },
     {
-      "Timestamp": "2025-12-27T01:23:59.3083484Z",
+      "Timestamp": "2025-12-30T01:58:23.4604624Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 11921,
-      "ExecutionTimeSeconds": 11.9213147
+      "ExecutionTimeMs": 87456,
+      "ExecutionTimeSeconds": 87.4562458
     },
     {
-      "Timestamp": "2025-12-27T01:27:12.040362Z",
+      "Timestamp": "2025-12-30T02:01:28.9899946Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 19288,
-      "ExecutionTimeSeconds": 19.2884344
+      "ExecutionTimeMs": 128389,
+      "ExecutionTimeSeconds": 128.3899538
     },
     {
-      "Timestamp": "2025-12-27T01:30:05.2076876Z",
+      "Timestamp": "2025-12-30T02:23:45.6557091Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 29625,
-      "ExecutionTimeSeconds": 29.6250885
+      "ExecutionTimeMs": 740014,
+      "ExecutionTimeSeconds": 740.014041
     },
     {
-      "Timestamp": "2025-12-27T01:38:28.5082304Z",
+      "Timestamp": "2025-12-30T02:53:00.0651368Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 163991,
-      "ExecutionTimeSeconds": 163.9917176
+      "ExecutionTimeMs": 140580,
+      "ExecutionTimeSeconds": 140.5808276
     },
     {
-      "Timestamp": "2025-12-27T01:45:32.8604272Z",
+      "Timestamp": "2025-12-30T02:56:36.6288561Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 39489,
-      "ExecutionTimeSeconds": 39.4890146
+      "ExecutionTimeMs": 208005,
+      "ExecutionTimeSeconds": 208.0053498
     },
     {
-      "Timestamp": "2025-12-27T01:46:56.0062101Z",
+      "Timestamp": "2025-12-30T06:43:25.4865383Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 34048,
-      "ExecutionTimeSeconds": 34.0482833
+      "ExecutionTimeMs": 12856880,
+      "ExecutionTimeSeconds": 12856.8805536
     },
     {
-      "Timestamp": "2025-12-27T01:58:26.2558608Z",
+      "Timestamp": "2025-12-30T06:47:20.7057939Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 150397,
-      "ExecutionTimeSeconds": 150.3970717
+      "ExecutionTimeMs": 212239,
+      "ExecutionTimeSeconds": 212.2394511
     },
     {
-      "Timestamp": "2025-12-27T02:04:16.3086892Z",
+      "Timestamp": "2025-12-30T06:50:27.7246607Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 82281,
-      "ExecutionTimeSeconds": 82.2817582
+      "ExecutionTimeMs": 141561,
+      "ExecutionTimeSeconds": 141.5612986
     },
     {
-      "Timestamp": "2025-12-27T02:19:02.1779346Z",
+      "Timestamp": "2025-12-30T06:58:31.3204817Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 99459,
-      "ExecutionTimeSeconds": 99.4598208
+      "ExecutionTimeMs": 12131,
+      "ExecutionTimeSeconds": 12.1313473
     },
     {
-      "Timestamp": "2025-12-27T02:23:13.0028824Z",
+      "Timestamp": "2025-12-30T07:04:43.1046378Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 61953,
-      "ExecutionTimeSeconds": 61.9533675
+      "ExecutionTimeMs": 44486,
+      "ExecutionTimeSeconds": 44.4866701
     },
     {
-      "Timestamp": "2025-12-27T02:23:41.6700724Z",
+      "Timestamp": "2025-12-30T07:10:10.7310707Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 23675,
-      "ExecutionTimeSeconds": 23.6757625
+      "ExecutionTimeMs": 2497,
+      "ExecutionTimeSeconds": 2.4970711
     },
     {
-      "Timestamp": "2025-12-27T02:28:30.9121061Z",
+      "Timestamp": "2025-12-30T07:14:06.3214272Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 129839,
-      "ExecutionTimeSeconds": 129.8396753
+      "ExecutionTimeMs": 71657,
+      "ExecutionTimeSeconds": 71.6573143
     },
     {
-      "Timestamp": "2025-12-27T02:32:58.6024827Z",
+      "Timestamp": "2025-12-30T07:17:22.7265689Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 17956,
-      "ExecutionTimeSeconds": 17.9564391
+      "ExecutionTimeMs": 29847,
+      "ExecutionTimeSeconds": 29.8471099
     },
     {
-      "Timestamp": "2025-12-27T02:36:36.3966822Z",
+      "Timestamp": "2025-12-30T07:29:13.1204062Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 15151,
-      "ExecutionTimeSeconds": 15.1516348
+      "ExecutionTimeMs": 370846,
+      "ExecutionTimeSeconds": 370.8463485
     },
     {
-      "Timestamp": "2025-12-27T03:56:37.2143936Z",
+      "Timestamp": "2025-12-30T07:29:52.0677621Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 45915,
-      "ExecutionTimeSeconds": 45.9156786
+      "ExecutionTimeMs": 30536,
+      "ExecutionTimeSeconds": 30.5368085
     },
     {
-      "Timestamp": "2025-12-27T04:04:37.3652063Z",
+      "Timestamp": "2025-12-30T07:34:39.7113665Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 347456,
-      "ExecutionTimeSeconds": 347.456177
+      "ExecutionTimeMs": 17602,
+      "ExecutionTimeSeconds": 17.6024551
     },
     {
-      "Timestamp": "2025-12-27T05:42:52.7163526Z",
+      "Timestamp": "2025-12-30T07:41:45.7426401Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 82071,
-      "ExecutionTimeSeconds": 82.071562
+      "ExecutionTimeMs": 24720,
+      "ExecutionTimeSeconds": 24.720057
     },
     {
-      "Timestamp": "2025-12-27T07:30:01.3742756Z",
+      "Timestamp": "2025-12-30T07:47:23.3566246Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 10277,
-      "ExecutionTimeSeconds": 10.2777744
+      "ExecutionTimeMs": 111514,
+      "ExecutionTimeSeconds": 111.5145252
     },
     {
-      "Timestamp": "2025-12-27T07:30:42.9807671Z",
+      "Timestamp": "2025-12-30T08:18:37.0345972Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 25085,
-      "ExecutionTimeSeconds": 25.0854649
+      "ExecutionTimeMs": 38166,
+      "ExecutionTimeSeconds": 38.1663042
     },
     {
-      "Timestamp": "2025-12-27T07:47:14.4309175Z",
+      "Timestamp": "2025-12-30T08:27:57.7628423Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 624186,
-      "ExecutionTimeSeconds": 624.1867768
+      "ExecutionTimeMs": 26474,
+      "ExecutionTimeSeconds": 26.4745586
     },
     {
-      "Timestamp": "2025-12-27T08:01:23.9164783Z",
+      "Timestamp": "2025-12-30T08:38:05.5675782Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 195169,
-      "ExecutionTimeSeconds": 195.1692636
+      "ExecutionTimeMs": 17791,
+      "ExecutionTimeSeconds": 17.7915869
     },
     {
-      "Timestamp": "2025-12-27T17:54:16.29914Z",
+      "Timestamp": "2025-12-30T08:41:41.9643643Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 10179,
-      "ExecutionTimeSeconds": 10.1795662
+      "ExecutionTimeMs": 9423,
+      "ExecutionTimeSeconds": 9.4231402
     },
     {
-      "Timestamp": "2025-12-27T18:00:19.0822761Z",
+      "Timestamp": "2025-12-30T08:49:57.5671891Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 87694,
-      "ExecutionTimeSeconds": 87.6940868
+      "ExecutionTimeMs": 36927,
+      "ExecutionTimeSeconds": 36.9275462
     },
     {
-      "Timestamp": "2025-12-27T21:46:45.2671461Z",
+      "Timestamp": "2025-12-30T08:56:14.9250658Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 32948,
-      "ExecutionTimeSeconds": 32.948439
+      "ExecutionTimeMs": 31715,
+      "ExecutionTimeSeconds": 31.7156973
     },
     {
-      "Timestamp": "2025-12-27T21:48:47.2364697Z",
+      "Timestamp": "2025-12-30T08:59:32.6680435Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 68356,
-      "ExecutionTimeSeconds": 68.3562941
+      "ExecutionTimeMs": 58117,
+      "ExecutionTimeSeconds": 58.1171546
     },
     {
-      "Timestamp": "2025-12-27T22:14:16.7152961Z",
+      "Timestamp": "2025-12-30T17:34:07.9714843Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 592942,
-      "ExecutionTimeSeconds": 592.9429881
+      "ExecutionTimeMs": 78525,
+      "ExecutionTimeSeconds": 78.5255949
     },
     {
-      "Timestamp": "2025-12-27T22:20:21.0026399Z",
+      "Timestamp": "2025-12-30T17:36:58.6239467Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 31392,
-      "ExecutionTimeSeconds": 31.3926159
+      "ExecutionTimeMs": 88052,
+      "ExecutionTimeSeconds": 88.0527376
     },
     {
-      "Timestamp": "2025-12-27T22:40:34.2592599Z",
+      "Timestamp": "2025-12-30T17:44:33.1969898Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 1078254,
-      "ExecutionTimeSeconds": 1078.254261
+      "ExecutionTimeMs": 45467,
+      "ExecutionTimeSeconds": 45.4674817
     },
     {
-      "Timestamp": "2025-12-28T00:56:30.9660422Z",
+      "Timestamp": "2025-12-30T17:49:12.7340306Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 8146495,
-      "ExecutionTimeSeconds": 8146.4950156
+      "ExecutionTimeMs": 2349,
+      "ExecutionTimeSeconds": 2.3494178
     },
     {
-      "Timestamp": "2025-12-28T01:17:49.8647134Z",
+      "Timestamp": "2025-12-30T18:00:21.758702Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 34394,
-      "ExecutionTimeSeconds": 34.3947362
+      "ExecutionTimeMs": 117098,
+      "ExecutionTimeSeconds": 117.0986276
     },
     {
-      "Timestamp": "2025-12-28T01:47:49.0165167Z",
+      "Timestamp": "2025-12-30T18:04:04.7730895Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 388263,
-      "ExecutionTimeSeconds": 388.2631709
+      "ExecutionTimeMs": 215235,
+      "ExecutionTimeSeconds": 215.2358244
     },
     {
-      "Timestamp": "2025-12-28T02:06:11.5305955Z",
+      "Timestamp": "2025-12-30T18:05:14.3561317Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 1094006,
-      "ExecutionTimeSeconds": 1094.006474
+      "ExecutionTimeMs": 60667,
+      "ExecutionTimeSeconds": 60.6671234
     },
     {
-      "Timestamp": "2025-12-28T02:06:42.1943884Z",
+      "Timestamp": "2025-12-30T18:08:05.7546227Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 19216,
-      "ExecutionTimeSeconds": 19.2161803
+      "ExecutionTimeMs": 163907,
+      "ExecutionTimeSeconds": 163.907766
     },
     {
-      "Timestamp": "2025-12-28T02:26:29.800243Z",
+      "Timestamp": "2025-12-30T18:08:40.0612221Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 10693,
-      "ExecutionTimeSeconds": 10.6936537
+      "ExecutionTimeMs": 10940,
+      "ExecutionTimeSeconds": 10.9403414
     },
     {
-      "Timestamp": "2025-12-28T02:30:46.7361254Z",
+      "Timestamp": "2025-12-30T18:12:20.9484937Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 25416,
-      "ExecutionTimeSeconds": 25.4167567
+      "ExecutionTimeMs": 25334,
+      "ExecutionTimeSeconds": 25.3340911
     },
     {
-      "Timestamp": "2025-12-28T02:43:52.5382792Z",
+      "Timestamp": "2025-12-30T18:15:59.9717117Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 21790,
-      "ExecutionTimeSeconds": 21.790568
+      "ExecutionTimeMs": 22944,
+      "ExecutionTimeSeconds": 22.944185
     },
     {
-      "Timestamp": "2025-12-28T03:08:04.4995045Z",
+      "Timestamp": "2025-12-30T18:18:02.3735902Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 234519,
-      "ExecutionTimeSeconds": 234.5199315
+      "ExecutionTimeMs": 15249,
+      "ExecutionTimeSeconds": 15.2499494
     },
     {
-      "Timestamp": "2025-12-28T03:17:44.75834Z",
+      "Timestamp": "2025-12-30T18:21:55.4211141Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 569776,
-      "ExecutionTimeSeconds": 569.776712
+      "ExecutionTimeMs": 33883,
+      "ExecutionTimeSeconds": 33.8830709
     },
     {
-      "Timestamp": "2025-12-28T03:47:42.7648264Z",
+      "Timestamp": "2025-12-30T18:22:29.2152737Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 154715,
-      "ExecutionTimeSeconds": 154.715314
+      "ExecutionTimeMs": 13339,
+      "ExecutionTimeSeconds": 13.3394264
     },
     {
-      "Timestamp": "2025-12-28T05:16:10.3354196Z",
+      "Timestamp": "2025-12-30T18:25:23.3680709Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 12512,
-      "ExecutionTimeSeconds": 12.5122999
+      "ExecutionTimeMs": 161328,
+      "ExecutionTimeSeconds": 161.3284357
     },
     {
-      "Timestamp": "2025-12-28T05:19:40.2607606Z",
+      "Timestamp": "2025-12-30T18:28:59.7470193Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 10871,
-      "ExecutionTimeSeconds": 10.8715902
+      "ExecutionTimeMs": 200714,
+      "ExecutionTimeSeconds": 200.7146691
     },
     {
-      "Timestamp": "2025-12-28T05:27:41.6904347Z",
+      "Timestamp": "2025-12-30T18:29:13.5743432Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 7600,
-      "ExecutionTimeSeconds": 7.6001036
+      "ExecutionTimeMs": 7091,
+      "ExecutionTimeSeconds": 7.0916176
     },
     {
-      "Timestamp": "2025-12-28T05:44:07.4138813Z",
+      "Timestamp": "2025-12-30T19:30:47.9130524Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 121731,
-      "ExecutionTimeSeconds": 121.7316385
+      "ExecutionTimeMs": 5841,
+      "ExecutionTimeSeconds": 5.8419822
     },
     {
-      "Timestamp": "2025-12-28T05:50:02.5746283Z",
+      "Timestamp": "2025-12-30T19:59:30.9147156Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 83503,
-      "ExecutionTimeSeconds": 83.5037813
+      "ExecutionTimeMs": 798212,
+      "ExecutionTimeSeconds": 798.2129934
     },
     {
-      "Timestamp": "2025-12-28T05:50:32.8043838Z",
+      "Timestamp": "2025-12-30T20:40:28.2256558Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 22015,
-      "ExecutionTimeSeconds": 22.0159566
+      "ExecutionTimeMs": 75028,
+      "ExecutionTimeSeconds": 75.0287557
     },
     {
-      "Timestamp": "2025-12-28T05:52:08.8692496Z",
+      "Timestamp": "2025-12-31T00:45:48.6176833Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 16856,
-      "ExecutionTimeSeconds": 16.8566062
+      "ExecutionTimeMs": 253890,
+      "ExecutionTimeSeconds": 253.8909301
     },
     {
-      "Timestamp": "2025-12-28T05:55:07.2922355Z",
+      "Timestamp": "2025-12-31T01:06:31.4317378Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 38685,
-      "ExecutionTimeSeconds": 38.6858858
+      "ExecutionTimeMs": 1175545,
+      "ExecutionTimeSeconds": 1175.5458826
     },
     {
-      "Timestamp": "2025-12-28T05:56:13.4175962Z",
+      "Timestamp": "2025-12-31T02:49:02.5179311Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 51527,
-      "ExecutionTimeSeconds": 51.5270326
+      "ExecutionTimeMs": 9352,
+      "ExecutionTimeSeconds": 9.3529925
     },
     {
-      "Timestamp": "2025-12-28T05:59:12.4537245Z",
+      "Timestamp": "2025-12-31T06:46:19.4364655Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 168315,
-      "ExecutionTimeSeconds": 168.3156159
+      "ExecutionTimeMs": 141003,
+      "ExecutionTimeSeconds": 141.003582
     },
     {
-      "Timestamp": "2025-12-28T05:59:39.5964003Z",
+      "Timestamp": "2025-12-31T07:05:32.3464698Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 16636,
-      "ExecutionTimeSeconds": 16.6363914
+      "ExecutionTimeMs": 169405,
+      "ExecutionTimeSeconds": 169.4059747
     },
     {
-      "Timestamp": "2025-12-28T06:02:31.705875Z",
+      "Timestamp": "2025-12-31T07:07:49.6563631Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 22977,
-      "ExecutionTimeSeconds": 22.9776632
+      "ExecutionTimeMs": 134174,
+      "ExecutionTimeSeconds": 134.1744683
     },
     {
-      "Timestamp": "2025-12-28T06:05:12.9595822Z",
+      "Timestamp": "2025-12-31T07:13:09.6047699Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 17330,
-      "ExecutionTimeSeconds": 17.3308132
+      "ExecutionTimeMs": 137492,
+      "ExecutionTimeSeconds": 137.492388
     },
     {
-      "Timestamp": "2025-12-28T06:05:29.5094958Z",
+      "Timestamp": "2025-12-31T07:26:14.8165937Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 3675,
-      "ExecutionTimeSeconds": 3.6756207
+      "ExecutionTimeMs": 202330,
+      "ExecutionTimeSeconds": 202.3308393
     },
     {
-      "Timestamp": "2025-12-28T06:06:59.0689977Z",
+      "Timestamp": "2025-12-31T07:29:03.7903859Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 17036,
-      "ExecutionTimeSeconds": 17.0367931
+      "ExecutionTimeMs": 62186,
+      "ExecutionTimeSeconds": 62.1866828
     },
     {
-      "Timestamp": "2025-12-28T06:10:36.0381641Z",
+      "Timestamp": "2025-12-31T07:29:15.7253387Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 9209,
-      "ExecutionTimeSeconds": 9.2092572
+      "ExecutionTimeMs": 3538,
+      "ExecutionTimeSeconds": 3.538964
     },
     {
-      "Timestamp": "2025-12-28T06:14:08.6803461Z",
+      "Timestamp": "2025-12-31T07:29:21.8897638Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 6162,
-      "ExecutionTimeSeconds": 6.1620529
+      "ExecutionTimeMs": 4260,
+      "ExecutionTimeSeconds": 4.260355
     },
     {
-      "Timestamp": "2025-12-28T06:16:13.050017Z",
+      "Timestamp": "2025-12-31T07:34:16.8502306Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 3018,
-      "ExecutionTimeSeconds": 3.0185968
+      "ExecutionTimeMs": 291334,
+      "ExecutionTimeSeconds": 291.3343681
     },
     {
-      "Timestamp": "2025-12-28T06:16:29.3442464Z",
+      "Timestamp": "2025-12-31T07:40:50.8409357Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 6903,
-      "ExecutionTimeSeconds": 6.9036523
+      "ExecutionTimeMs": 187219,
+      "ExecutionTimeSeconds": 187.2193136
     },
     {
-      "Timestamp": "2025-12-28T06:16:56.395525Z",
+      "Timestamp": "2025-12-31T07:54:54.3086219Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 15792,
-      "ExecutionTimeSeconds": 15.7927827
+      "ExecutionTimeMs": 365492,
+      "ExecutionTimeSeconds": 365.4929676
     },
     {
-      "Timestamp": "2025-12-28T06:18:03.786594Z",
+      "Timestamp": "2025-12-31T07:59:50.5924437Z",
       "Mode": "GUI",
-      "ExecutionTimeMs": 2470,
-      "ExecutionTimeSeconds": 2.4701123
+      "ExecutionTimeMs": 3117,
+      "ExecutionTimeSeconds": 3.1178062
     }
   ]
 }

@@ -41,10 +41,8 @@ namespace RPGGame.UI.Avalonia
         private readonly Display.DisplayBufferManager displayBufferManager;
         private readonly Coordinators.CharacterSwitchHandler characterSwitchHandler;
         private readonly UIContextCoordinator contextCoordinator;
+        private readonly CanvasWindowManager windowManager;
         
-        private System.Action? closeAction = null;
-        private MainWindow? mainWindow = null;
-        private GameCoordinator? game = null;
         private GameStateManager? stateManager = null;
         
         // Screen state tracking to prevent unnecessary re-renders
@@ -101,6 +99,9 @@ namespace RPGGame.UI.Avalonia
                 (System.Action<Character?>)SetCharacter,
                 (System.Action)ClearCurrentEnemy,
                 (System.Action)ForceFullLayoutRender);
+            
+            // Create window manager
+            this.windowManager = new CanvasWindowManager();
         }
         
         /// <summary>
@@ -108,7 +109,7 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         public void SetMainWindow(MainWindow window)
         {
-            this.mainWindow = window;
+            windowManager.SetMainWindow(window);
         }
         
         /// <summary>
@@ -116,7 +117,7 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         public MainWindow? GetMainWindow()
         {
-            return this.mainWindow;
+            return windowManager.GetMainWindow();
         }
         
         /// <summary>
@@ -150,7 +151,7 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         public void SetGame(GameCoordinator gameInstance)
         {
-            this.game = gameInstance;
+            windowManager.SetGame(gameInstance);
         }
         
         /// <summary>
@@ -158,7 +159,7 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         public GameCoordinator? GetGame()
         {
-            return this.game;
+            return windowManager.GetGame();
         }
         
         /// <summary>
@@ -216,27 +217,13 @@ namespace RPGGame.UI.Avalonia
         }
         
         /// <summary>
-        /// Handles state changes to close settings panel when main menu closes
+        /// Handles state changes - settings window stays open regardless of state transitions
         /// </summary>
         private void OnStateChanged(object? sender, StateChangedEventArgs e)
         {
-            // If transitioning away from MainMenu (to any state except Settings), close settings panel and window
-            // This ensures that closing the main menu also closes the settings menu
-            // Note: We exclude Settings state to allow transitioning from MainMenu to Settings
-            if (e.PreviousState == GameState.MainMenu && e.NewState != GameState.Settings)
-            {
-                // Close settings panel overlay in MainWindow
-                if (mainWindow != null)
-                {
-                    mainWindow.HideSettingsPanel();
-                }
-                
-                // Close settings window if it's open
-                if (game != null)
-                {
-                    game.CloseSettingsWindow();
-                }
-            }
+            // Don't close settings window on state changes - it should stay open independently
+            // The settings window is a separate pop-out window that doesn't depend on game state
+            // Users can interact with the main menu while settings window is open
         }
         
         /// <summary>
@@ -251,14 +238,14 @@ namespace RPGGame.UI.Avalonia
 
         public void SetCloseAction(System.Action action)
         {
-            closeAction = action;
+            windowManager.SetCloseAction(action);
         }
 
         public int CenterX => canvas.CenterX;
 
         public void Close()
         {
-            closeAction?.Invoke();
+            windowManager.Close();
         }
 
         public void SetCharacter(Character? character)
@@ -382,6 +369,8 @@ namespace RPGGame.UI.Avalonia
         public void RenderTuningParametersMenu(string? selectedCategory = null, EditableVariable? selectedVariable = null, bool isEditing = false, string? currentInput = null, string? message = null)
         {
             // Show the interactive tuning panel instead of rendering on canvas
+            var mainWindow = windowManager.GetMainWindow();
+            var game = windowManager.GetGame();
             ScrollDebugLogger.Log($"CanvasUICoordinator.RenderTuningParametersMenu: mainWindow={mainWindow != null}, game={game != null}");
             
             if (mainWindow != null && game != null)
@@ -409,6 +398,7 @@ namespace RPGGame.UI.Avalonia
         
         public void HideTuningParametersMenu()
         {
+            var mainWindow = windowManager.GetMainWindow();
             if (mainWindow != null)
             {
                 mainWindow.HideTuningMenuPanel();
@@ -608,6 +598,8 @@ namespace RPGGame.UI.Avalonia
         public void ShowError(string error, string suggestion = "") => utilityCoordinator.ShowError(error, suggestion);
         public void UpdateStatus(string message) => utilityCoordinator.UpdateStatus(message);
         public void ShowInvalidKeyMessage(string message) => utilityCoordinator.ShowInvalidKeyMessage(message);
+        public void ShowLoadingStatus(string message = "Loading data...") => utilityCoordinator.ShowLoadingStatus(message);
+        public void ClearLoadingStatus() => utilityCoordinator.ClearLoadingStatus();
         public void ToggleHelp() => utilityCoordinator.ToggleHelp();
         public void RenderHelp() => utilityCoordinator.RenderHelp();
         public void ShowPressKeyMessage() => utilityCoordinator.ShowPressKeyMessage();

@@ -17,6 +17,8 @@ SettingsPanel (UI)
 ├── SettingsEventWiring (Event Management)
 ├── SettingsInitialization (Tab Initialization)
 │   └── SettingsTabInitializer
+├── SettingsTabManager (Tab Navigation & Persistence)
+├── SettingsActionTestGenerator (Action Test Generation)
 ├── GameVariablesTabManager
 ├── ActionsTabManager
 ├── BattleStatisticsTabManager
@@ -31,9 +33,10 @@ SettingsPanel (UI)
 - **Responsibility**: Main UI container with tabbed interface
 - **Features**:
   - 8 tabs: Gameplay, Difficulty, Testing, Game Variables, Actions, Battle Statistics, Text Delays, About
-  - Keyboard navigation (arrow keys for tabs)
-  - Tab persistence (remembers last viewed tab)
+  - Keyboard navigation (arrow keys for tabs) - delegated to `SettingsTabManager`
+  - Tab persistence (remembers last viewed tab) - delegated to `SettingsTabManager`
   - Two-click confirmation for destructive operations (Reset)
+  - Action test generation - delegated to `SettingsActionTestGenerator`
 
 #### 2. SettingsManager (Core Logic)
 - **File**: `Code/UI/Avalonia/Managers/SettingsManager.cs`
@@ -60,7 +63,26 @@ SettingsPanel (UI)
   - Handles test execution events
   - Null-safe event wiring with validation
 
-#### 5. GameSettings (Data Model)
+#### 5. SettingsTabManager (Tab Management)
+- **File**: `Code/UI/Avalonia/Managers/SettingsTabManager.cs`
+- **Responsibility**: Tab navigation and persistence
+- **Features**:
+  - Keyboard navigation (arrow keys for tabs)
+  - Tab persistence (remembers last viewed tab)
+  - Tab selection change handling
+- **Extracted from**: SettingsPanel.axaml.cs (v6.2+ refactoring)
+
+#### 6. SettingsActionTestGenerator (Action Test Generation)
+- **File**: `Code/UI/Avalonia/Managers/SettingsActionTestGenerator.cs`
+- **Responsibility**: Generates and displays action test blocks
+- **Features**:
+  - Generates random action blocks for testing
+  - Generates multiple action tests (character, environment, status effect)
+  - Formats action text with colored output
+  - Displays test results in canvas UI
+- **Extracted from**: SettingsPanel.axaml.cs (v6.2+ refactoring)
+
+#### 7. GameSettings (Data Model)
 - **File**: `Code/Game/GameSettings.cs`
 - **Responsibility**: Settings data model and persistence
 - **Features**:
@@ -175,6 +197,9 @@ WireUpButtonEvents() → Button.Click → Action handlers
 6. ✅ Added tab persistence infrastructure
 7. ✅ Added two-click confirmation for Reset
 8. ✅ Improved error messages and user feedback
+9. ✅ **Extracted SettingsActionTestGenerator** - Separated action test generation logic (~400 lines) from SettingsPanel
+10. ✅ **Extracted SettingsTabManager** - Separated tab management logic from SettingsPanel
+11. ✅ **Reduced SettingsPanel size** - From 1377 lines to ~900 lines through extraction
 
 ## Future Enhancements
 

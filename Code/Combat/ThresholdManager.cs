@@ -29,7 +29,9 @@ namespace RPGGame.Combat
                 CriticalMissThreshold = 1; // Natural 1 is always critical miss
                 CriticalHitThreshold = config.Combat.CriticalHitThreshold;
                 ComboThreshold = config.RollSystem.ComboThreshold.Min;
-                HitThreshold = config.RollSystem.BasicAttackThreshold.Min;
+                // Hit threshold should be MissThreshold.Max (so that MissThreshold.Max + 1 is the minimum roll to hit)
+                int missThresholdMax = config.RollSystem.MissThreshold.Max;
+                HitThreshold = missThresholdMax > 0 ? missThresholdMax : 5;
             }
         }
 
@@ -74,6 +76,7 @@ namespace RPGGame.Combat
 
         /// <summary>
         /// Gets the hit threshold for an actor
+        /// Hit threshold is the maximum miss value (so 6+ hits when threshold is 5)
         /// </summary>
         public int GetHitThreshold(Actor actor)
         {
@@ -82,7 +85,10 @@ namespace RPGGame.Combat
                 return modifiers.HitThreshold.Value;
             }
             
-            return GameConfiguration.Instance.RollSystem.BasicAttackThreshold.Min;
+            // Hit threshold should be MissThreshold.Max (5), meaning 6+ hits
+            // BasicAttackThreshold.Min (6) is the minimum roll for a basic attack, not the hit threshold
+            int missThresholdMax = GameConfiguration.Instance.RollSystem.MissThreshold.Max;
+            return missThresholdMax > 0 ? missThresholdMax : 5;
         }
 
         /// <summary>

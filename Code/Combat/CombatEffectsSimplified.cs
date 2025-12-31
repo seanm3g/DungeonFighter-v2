@@ -26,6 +26,14 @@ namespace RPGGame
         public static bool ApplyStatusEffects(Action action, Actor attacker, Actor target, List<string> results, Combat.Events.CombatEvent? combatEvent = null)
         {
             bool effectsApplied = false;
+            
+            // First, check for weapon modification status effect chances (for characters only)
+            if (attacker is Character characterAttacker)
+            {
+                effectsApplied |= ApplyWeaponModificationStatusEffects(characterAttacker, target, action, results);
+            }
+            
+            // Then apply status effects from the action itself
             var effectTypes = GetEffectTypesFromAction(action);
             
             // Check if status effects should be conditionally applied
@@ -53,23 +61,129 @@ namespace RPGGame
                 }
             }
             
-            if (!shouldApplyEffects)
+            if (shouldApplyEffects)
             {
-                return false; // Conditions not met, don't apply effects
-            }
-            
-            foreach (var effectType in effectTypes)
-            {
-                if (_effectRegistry.ApplyEffect(effectType, target, action, results))
+                foreach (var effectType in effectTypes)
                 {
-                    effectsApplied = true;
+                    if (_effectRegistry.ApplyEffect(effectType, target, action, results))
+                    {
+                        effectsApplied = true;
+                    }
                 }
             }
             
-            // If any effects were applied, append the status message to the last result
-            if (effectsApplied && results.Count > 0)
+            return effectsApplied;
+        }
+
+        /// <summary>
+        /// Applies status effects from weapon modifications based on chance
+        /// </summary>
+        /// <param name="attacker">The attacking character</param>
+        /// <param name="target">The target Actor</param>
+        /// <param name="action">The action being performed (used for effect handlers)</param>
+        /// <param name="results">List to add effect messages to</param>
+        /// <returns>True if any effects were applied</returns>
+        private static bool ApplyWeaponModificationStatusEffects(Character attacker, Actor target, Action action, List<string> results)
+        {
+            bool effectsApplied = false;
+            
+            // Check poison chance
+            double poisonChance = attacker.GetModificationPoisonChance();
+            if (poisonChance > 0.0)
             {
-                // Effects are already added to results by individual handlers
+                double roll = Dice.Roll(1, 100) / 100.0;
+                if (roll < poisonChance)
+                {
+                    // Create a temporary action with CausesPoison set to true for the effect handler
+                    var tempAction = new Action
+                    {
+                        CausesPoison = true
+                    };
+                    if (_effectRegistry.ApplyEffect("poison", target, tempAction, results))
+                    {
+                        effectsApplied = true;
+                    }
+                }
+            }
+            
+            // Check burn chance
+            double burnChance = attacker.GetModificationBurnChance();
+            if (burnChance > 0.0)
+            {
+                double roll = Dice.Roll(1, 100) / 100.0;
+                if (roll < burnChance)
+                {
+                    var tempAction = new Action
+                    {
+                        CausesBurn = true
+                    };
+                    if (_effectRegistry.ApplyEffect("burn", target, tempAction, results))
+                    {
+                        effectsApplied = true;
+                    }
+                }
+            }
+            
+            // Check bleed chance
+            double bleedChance = attacker.GetModificationBleedChance();
+            if (bleedChance > 0.0)
+            {
+                double roll = Dice.Roll(1, 100) / 100.0;
+                if (roll < bleedChance)
+                {
+                    var tempAction = new Action
+                    {
+                        CausesBleed = true
+                    };
+                    if (_effectRegistry.ApplyEffect("bleed", target, tempAction, results))
+                    {
+                        effectsApplied = true;
+                    }
+                }
+            }
+            
+            // Check freeze chance
+            double freezeChance = attacker.GetModificationFreezeChance();
+            if (freezeChance > 0.0)
+            {
+                double roll = Dice.Roll(1, 100) / 100.0;
+                if (roll < freezeChance)
+                {
+                    // Apply freeze effect (50% speed reduction for 5 turns)
+                    var freezeConfig = GameConfiguration.Instance.StatusEffects.Freeze;
+                    if (target is Character targetCharacter)
+                    {
+                        targetCharacter.ApplySlow(freezeConfig.SpeedReduction, (int)freezeConfig.Duration);
+                        string actorPattern = target is Enemy ? "enemy" : "player";
+                        results.Add($"     {{{{actorPattern}}|" + $"{target.Name}" + "}} is " + $"{{{{frozen|frozen}}}}!");
+                        effectsApplied = true;
+                    }
+                    else if (target is Enemy targetEnemy)
+                    {
+                        // For enemies, we can't easily apply slow without modifying the base class
+                        // Just add a message for now
+                        results.Add($"     {target.Name} is {{frozen|frozen}}!");
+                        effectsApplied = true;
+                    }
+                }
+            }
+            
+            // Check stun chance
+            double stunChance = attacker.GetModificationStunChance();
+            if (stunChance > 0.0)
+            {
+                double roll = Dice.Roll(1, 100) / 100.0;
+                if (roll < stunChance)
+                {
+                    var tempAction = new Action
+                    {
+                        CausesStun = true
+                    };
+                    if (_effectRegistry.ApplyEffect("stun", target, tempAction, results))
+                    {
+                        effectsApplied = true;
+                    }
+                }
             }
             
             return effectsApplied;

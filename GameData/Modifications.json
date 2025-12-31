@@ -1,33 +1,317 @@
 [
-  { "DiceResult": 1, "ItemRank": "Common", "Name": "Worn", "Description": "-1 to -3 damage", "Effect": "damage", "MinValue": -3, "MaxValue": -1 },
-  { "DiceResult": 2, "ItemRank": "Common", "Name": "Dull", "Description": "5% slower attack speed", "Effect": "speedMultiplier", "MinValue": 0.95, "MaxValue": 0.95 },
-  { "DiceResult": 3, "ItemRank": "Common", "Name": "Sturdy", "Description": "+1 damage", "Effect": "damage", "MinValue": 1, "MaxValue": 1 },
-  { "DiceResult": 4, "ItemRank": "Common", "Name": "Balanced", "Description": "+1 to attack rolls", "Effect": "rollBonus", "MinValue": 1, "MaxValue": 1 },
-  { "DiceResult": 5, "ItemRank": "Uncommon", "Name": "Sharp", "Description": "+2 damage", "Effect": "damage", "MinValue": 2, "MaxValue": 2 },
-  { "DiceResult": 6, "ItemRank": "Uncommon", "Name": "Swift", "Description": "10% faster attack speed", "Effect": "speedMultiplier", "MinValue": 1.1, "MaxValue": 1.1 },
-  { "DiceResult": 7, "ItemRank": "Uncommon", "Name": "Precise", "Description": "+2 to attack rolls", "Effect": "rollBonus", "MinValue": 2, "MaxValue": 2 },
-  { "DiceResult": 8, "ItemRank": "Uncommon", "Name": "Reinforced", "Description": "+5 to +10 durability", "Effect": "durability", "MinValue": 5, "MaxValue": 10 },
-  { "DiceResult": 9, "ItemRank": "Rare", "Name": "Keen", "Description": "+3 damage", "Effect": "damage", "MinValue": 3, "MaxValue": 3 },
-  { "DiceResult": 10, "ItemRank": "Rare", "Name": "Agile", "Description": "20% faster attack speed", "Effect": "speedMultiplier", "MinValue": 1.2, "MaxValue": 1.2 },
-  { "DiceResult": 11, "ItemRank": "Rare", "Name": "Lucky", "Description": "+3 to attack rolls", "Effect": "rollBonus", "MinValue": 3, "MaxValue": 3 },
-  { "DiceResult": 12, "ItemRank": "Rare", "Name": "Vampiric", "Description": "1-3% lifesteal on hit", "Effect": "lifesteal", "MinValue": 0.01, "MaxValue": 0.03 },
-  { "DiceResult": 13, "ItemRank": "Epic", "Name": "Brutal", "Description": "+2 to +3 damage", "Effect": "damage", "MinValue": 2, "MaxValue": 3 },
-  { "DiceResult": 14, "ItemRank": "Epic", "Name": "Lightning", "Description": "30% faster attack speed", "Effect": "speedMultiplier", "MinValue": 1.3, "MaxValue": 1.3 },
-  { "DiceResult": 15, "ItemRank": "Epic", "Name": "Blessed", "Description": "+4 to attack rolls", "Effect": "rollBonus", "MinValue": 4, "MaxValue": 4 },
-  { "DiceResult": 16, "ItemRank": "Epic", "Name": "Venomous", "Description": "50% chance to cause bleeding", "Effect": "bleedChance", "MinValue": 0.5, "MaxValue": 0.5 },
-  { "DiceResult": 17, "ItemRank": "Legendary", "Name": "Masterwork", "Description": "15% more damage", "Effect": "damageMultiplier", "MinValue": 1.15, "MaxValue": 1.15 },
-  { "DiceResult": 18, "ItemRank": "Legendary", "Name": "Ethereal", "Description": "40% faster attack speed", "Effect": "speedMultiplier", "MinValue": 1.4, "MaxValue": 1.4 },
-  { "DiceResult": 19, "ItemRank": "Legendary", "Name": "Enchanted", "Description": "5%-15% Unique Action Chance", "Effect": "uniqueActionChance", "MinValue": 0.05, "MaxValue": 0.15 },
-  { "DiceResult": 20, "ItemRank": "Legendary", "Name": "Godlike", "Description": "+5 to attack rolls & +1 STR", "Effect": "godlike", "MinValue": 5, "MaxValue": 5 },
-  { "DiceResult": 21, "ItemRank": "Mythic", "Name": "Annihilation", "Description": "25% more damage on all attacks", "Effect": "damageMultiplier", "MinValue": 1.25, "MaxValue": 1.25 },
-  { "DiceResult": 22, "ItemRank": "Mythic", "Name": "Time Warp", "Description": "50% faster attack speed", "Effect": "speedMultiplier", "MinValue": 1.5, "MaxValue": 1.5 },
-  { "DiceResult": 23, "ItemRank": "Mythic", "Name": "Perfect", "Description": "All attacks automatically succeed", "Effect": "autoSuccess", "MinValue": 1, "MaxValue": 1 },
-  { "DiceResult": 24, "ItemRank": "Mythic", "Name": "Divine", "Description": "ADD +3 TO MODS AND REROLL", "Effect": "reroll", "MinValue": 3, "MaxValue": 3 },
-  { "DiceResult": 25, "ItemRank": "Transcendent", "Name": "Reality Breaker", "Description": "50% more damage & 100% faster attack speed", "Effect": "realityBreaker", "MinValue": 1.5, "MaxValue": 2.0 },
-  { "DiceResult": 26, "ItemRank": "Transcendent", "Name": "Omnipotent", "Description": "All attacks succeed & +10 to all rolls", "Effect": "omnipotent", "MinValue": 10, "MaxValue": 10 },
-  { "DiceResult": 27, "ItemRank": "Transcendent", "Name": "Infinite", "Description": "Infinite durability & perfect stats", "Effect": "infinite", "MinValue": 1, "MaxValue": 1 },
-  { "DiceResult": 28, "ItemRank": "Transcendent", "Name": "Cosmic", "Description": "Transcends all limitations", "Effect": "cosmic", "MinValue": 1, "MaxValue": 1 },
-  { "DiceResult": 29, "ItemRank": "Common", "Name": "Magic Fingers", "Description": "+1 Magic Find", "Effect": "magicFind", "MinValue": 1, "MaxValue": 1 },
-  { "DiceResult": 30, "ItemRank": "Uncommon", "Name": "Lucky", "Description": "+3 to +5 Magic Find", "Effect": "magicFind", "MinValue": 3, "MaxValue": 5 },
-  { "DiceResult": 31, "ItemRank": "Epic", "Name": "Magical Lamp", "Description": "+5 to +15 Magic Find", "Effect": "magicFind", "MinValue": 5, "MaxValue": 15 }
+  {
+    "DiceResult": 1,
+    "ItemRank": "Common",
+    "Name": "Worn",
+    "Description": "-1 to -3 damage",
+    "Effect": "damage",
+    "MinValue": -3,
+    "MaxValue": -1
+  },
+  {
+    "DiceResult": 2,
+    "ItemRank": "Common",
+    "Name": "Dull",
+    "Description": "5% slower attack speed",
+    "Effect": "speedMultiplier",
+    "MinValue": 0.95,
+    "MaxValue": 0.95
+  },
+  {
+    "DiceResult": 3,
+    "ItemRank": "Common",
+    "Name": "Sturdy",
+    "Description": "\u002B1-3 damage",
+    "Effect": "damage",
+    "MinValue": 1,
+    "MaxValue": 3
+  },
+  {
+    "DiceResult": 4,
+    "ItemRank": "Common",
+    "Name": "Balanced",
+    "Description": "\u002B1 to attack rolls",
+    "Effect": "rollBonus",
+    "MinValue": 1,
+    "MaxValue": 1
+  },
+  {
+    "DiceResult": 29,
+    "ItemRank": "Common",
+    "Name": "Enchanted",
+    "Description": "\u002B1 Magic Find",
+    "Effect": "magicFind",
+    "MinValue": 1,
+    "MaxValue": 1
+  },
+  {
+    "DiceResult": 5,
+    "ItemRank": "Uncommon",
+    "Name": "Sharp",
+    "Description": "\u002B2 damage",
+    "Effect": "damage",
+    "MinValue": 2,
+    "MaxValue": 2
+  },
+  {
+    "DiceResult": 6,
+    "ItemRank": "Uncommon",
+    "Name": "Swift",
+    "Description": "10% faster attack speed",
+    "Effect": "speedMultiplier",
+    "MinValue": 1.1,
+    "MaxValue": 1.1
+  },
+  {
+    "DiceResult": 7,
+    "ItemRank": "Uncommon",
+    "Name": "Precise",
+    "Description": "\u002B2 to attack rolls",
+    "Effect": "rollBonus",
+    "MinValue": 2,
+    "MaxValue": 2
+  },
+  {
+    "DiceResult": 8,
+    "ItemRank": "Uncommon",
+    "Name": "Reinforced",
+    "Description": "\u002B5 to \u002B10 durability",
+    "Effect": "durability",
+    "MinValue": 5,
+    "MaxValue": 10
+  },
+  {
+    "DiceResult": 30,
+    "ItemRank": "Uncommon",
+    "Name": "Lucky",
+    "Description": "\u002B3 to \u002B5 Magic Find",
+    "Effect": "magicFind",
+    "MinValue": 3,
+    "MaxValue": 5
+  },
+  {
+    "DiceResult": 9,
+    "ItemRank": "Rare",
+    "Name": "Keen",
+    "Description": "\u002B3 damage",
+    "Effect": "damage",
+    "MinValue": 3,
+    "MaxValue": 3
+  },
+  {
+    "DiceResult": 10,
+    "ItemRank": "Rare",
+    "Name": "Agile",
+    "Description": "20% faster attack speed",
+    "Effect": "speedMultiplier",
+    "MinValue": 1.2,
+    "MaxValue": 1.2
+  },
+  {
+    "DiceResult": 11,
+    "ItemRank": "Rare",
+    "Name": "Lucky",
+    "Description": "\u002B3 to attack rolls",
+    "Effect": "rollBonus",
+    "MinValue": 3,
+    "MaxValue": 3
+  },
+  {
+    "DiceResult": 12,
+    "ItemRank": "Rare",
+    "Name": "Vampiric",
+    "Description": "1-3% lifesteal on hit",
+    "Effect": "lifesteal",
+    "MinValue": 0.01,
+    "MaxValue": 0.03
+  },
+  {
+    "DiceResult": 32,
+    "ItemRank": "Rare",
+    "Name": "Burning",
+    "Description": "30% chance to cause burn",
+    "Effect": "burnChance",
+    "MinValue": 0.3,
+    "MaxValue": 0.3
+  },
+  {
+    "DiceResult": 33,
+    "ItemRank": "Rare",
+    "Name": "Bleeding",
+    "Description": "30% chance to cause bleed",
+    "Effect": "bleedChance",
+    "MinValue": 0.3,
+    "MaxValue": 0.3
+  },
+  {
+    "DiceResult": 13,
+    "ItemRank": "Epic",
+    "Name": "Brutal",
+    "Description": "\u002B2 to \u002B3 damage",
+    "Effect": "damage",
+    "MinValue": 2,
+    "MaxValue": 3
+  },
+  {
+    "DiceResult": 14,
+    "ItemRank": "Epic",
+    "Name": "Lightning",
+    "Description": "30% faster attack speed",
+    "Effect": "speedMultiplier",
+    "MinValue": 1.3,
+    "MaxValue": 1.3
+  },
+  {
+    "DiceResult": 15,
+    "ItemRank": "Epic",
+    "Name": "Blessed",
+    "Description": "\u002B4 to attack rolls",
+    "Effect": "rollBonus",
+    "MinValue": 4,
+    "MaxValue": 4
+  },
+  {
+    "DiceResult": 16,
+    "ItemRank": "Epic",
+    "Name": "Venomous",
+    "Description": "50% chance to cause poison",
+    "Effect": "poisonChance",
+    "MinValue": 0.5,
+    "MaxValue": 0.5
+  },
+  {
+    "DiceResult": 31,
+    "ItemRank": "Epic",
+    "Name": "Magical Lamp",
+    "Description": "\u002B5 to \u002B15 Magic Find",
+    "Effect": "magicFind",
+    "MinValue": 5,
+    "MaxValue": 15
+  },
+  {
+    "DiceResult": 34,
+    "ItemRank": "Epic",
+    "Name": "Freezing",
+    "Description": "40% chance to cause freeze",
+    "Effect": "freezeChance",
+    "MinValue": 0.4,
+    "MaxValue": 0.4
+  },
+  {
+    "DiceResult": 35,
+    "ItemRank": "Epic",
+    "Name": "Stunning",
+    "Description": "25% chance to cause stun",
+    "Effect": "stunChance",
+    "MinValue": 0.25,
+    "MaxValue": 0.25
+  },
+  {
+    "DiceResult": 17,
+    "ItemRank": "Legendary",
+    "Name": "Masterwork",
+    "Description": "15% more damage",
+    "Effect": "damageMultiplier",
+    "MinValue": 1.15,
+    "MaxValue": 1.15
+  },
+  {
+    "DiceResult": 18,
+    "ItemRank": "Legendary",
+    "Name": "Ethereal",
+    "Description": "40% faster attack speed",
+    "Effect": "speedMultiplier",
+    "MinValue": 1.4,
+    "MaxValue": 1.4
+  },
+  {
+    "DiceResult": 19,
+    "ItemRank": "Legendary",
+    "Name": "Enchanted",
+    "Description": "5%-15% Unique Action Chance",
+    "Effect": "uniqueActionChance",
+    "MinValue": 0.05,
+    "MaxValue": 0.15
+  },
+  {
+    "DiceResult": 20,
+    "ItemRank": "Legendary",
+    "Name": "Godlike",
+    "Description": "\u002B5 to attack rolls \u0026 \u002B1 STR",
+    "Effect": "godlike",
+    "MinValue": 5,
+    "MaxValue": 5
+  },
+  {
+    "DiceResult": 21,
+    "ItemRank": "Mythic",
+    "Name": "Annihilation",
+    "Description": "25% more damage on all attacks",
+    "Effect": "damageMultiplier",
+    "MinValue": 1.25,
+    "MaxValue": 1.25
+  },
+  {
+    "DiceResult": 22,
+    "ItemRank": "Mythic",
+    "Name": "Time Warp",
+    "Description": "50% faster attack speed",
+    "Effect": "speedMultiplier",
+    "MinValue": 1.5,
+    "MaxValue": 1.5
+  },
+  {
+    "DiceResult": 23,
+    "ItemRank": "Mythic",
+    "Name": "Perfect",
+    "Description": "All attacks automatically succeed",
+    "Effect": "autoSuccess",
+    "MinValue": 1,
+    "MaxValue": 1
+  },
+  {
+    "DiceResult": 24,
+    "ItemRank": "Mythic",
+    "Name": "Divine",
+    "Description": "ADD \u002B3 TO MODS AND REROLL",
+    "Effect": "reroll",
+    "MinValue": 3,
+    "MaxValue": 3
+  },
+  {
+    "DiceResult": 25,
+    "ItemRank": "Transcendent",
+    "Name": "Reality Breaker",
+    "Description": "50% more damage \u0026 100% faster attack speed",
+    "Effect": "realityBreaker",
+    "MinValue": 1.5,
+    "MaxValue": 2
+  },
+  {
+    "DiceResult": 26,
+    "ItemRank": "Transcendent",
+    "Name": "Omnipotent",
+    "Description": "All attacks succeed \u0026 \u002B10 to all rolls",
+    "Effect": "omnipotent",
+    "MinValue": 10,
+    "MaxValue": 10
+  },
+  {
+    "DiceResult": 27,
+    "ItemRank": "Transcendent",
+    "Name": "Infinite",
+    "Description": "Infinite durability \u0026 perfect stats",
+    "Effect": "infinite",
+    "MinValue": 1,
+    "MaxValue": 1
+  },
+  {
+    "DiceResult": 28,
+    "ItemRank": "Transcendent",
+    "Name": "Cosmic",
+    "Description": "Transcends all limitations",
+    "Effect": "cosmic",
+    "MinValue": 1,
+    "MaxValue": 1
+  }
 ]

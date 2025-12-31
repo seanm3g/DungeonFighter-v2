@@ -73,14 +73,25 @@ namespace RPGGame
             }
 
             // Critical Hit - when a critical hit occurs
+            // Only generate narrative if it's significant (checked by IsSignificantEvent)
+            // This prevents every critical hit from generating a narrative
             if (evt.IsCritical && evt.IsSuccess)
             {
-                var replacements = new Dictionary<string, string> { { "name", evt.Actor } };
-                string narrative = textProvider.ReplacePlaceholders(
-                    textProvider.GetRandomNarrative("criticalHit"),
-                    replacements);
-                triggeredNarratives.Add(narrative);
-                stateManager.IncrementNarrativeEventCount();
+                // Decrement cooldown on each critical hit
+                stateManager.DecrementCriticalHitCooldown();
+                
+                // Only generate critical hit narrative if it's significant
+                // (very high roll, high narrative balance, and cooldown expired)
+                if ((settings.NarrativeBalance >= 0.7 || evt.Roll >= 18) && !stateManager.HasRecentCriticalHitNarrative)
+                {
+                    stateManager.SetRecentCriticalHitNarrative();
+                    var replacements = new Dictionary<string, string> { { "name", evt.Actor } };
+                    string narrative = textProvider.ReplacePlaceholders(
+                        textProvider.GetRandomNarrative("criticalHit"),
+                        replacements);
+                    triggeredNarratives.Add(narrative);
+                    stateManager.IncrementNarrativeEventCount();
+                }
             }
 
             // Critical Miss - when a critical miss occurs (natural 1 only)
@@ -185,6 +196,118 @@ namespace RPGGame
             {
                 stateManager.IncrementEnemyActionCount();
             }
+        }
+
+        /// <summary>
+        /// Determines if an event is significant enough to warrant narrative display
+        /// Only truly significant events should show narratives (not every critical hit)
+        /// </summary>
+        public bool IsSignificantEvent(BattleEvent evt, GameSettings settings)
+        {
+            // Always show narratives for these events:
+            // - First blood (handled by state manager flag)
+            // - Defeats (player or enemy)
+            // - Critical misses (natural 1)
+            // - Environmental actions
+            // - Health thresholds (below 50%, below 10%)
+            // - Intense battle
+            // - Good combos
+            
+            // Check for first blood (will be handled by state manager)
+            if (!stateManager.HasFirstBloodOccurred && evt.Damage > 0 && evt.IsSuccess)
+            {
+                return true;
+            }
+
+            // Defeat events
+            if ((!stateManager.HasPlayerDefeated && finalPlayerHealth <= 0) ||
+                (!stateManager.HasEnemyDefeated && finalEnemyHealth <= 0))
+            {
+                return true;
+            }
+
+            // Critical miss (natural 1)
+            if (!evt.IsSuccess && evt.NaturalRoll == 1)
+            {
+                return true;
+            }
+
+            // Environmental actions
+            if (!string.IsNullOrEmpty(evt.EnvironmentEffect) && !stateManager.HasEnvironmentalActionOccurred)
+            {
+                return true;
+            }
+
+            // Health thresholds
+            var playerHealthPercentage = (double)finalPlayerHealth / initialPlayerHealth;
+            var enemyHealthPercentage = (double)finalEnemyHealth / initialEnemyHealth;
+            if ((!stateManager.HasPlayerBelow50Percent && playerHealthPercentage < 0.5 && finalPlayerHealth > 0) ||
+                (!stateManager.HasEnemyBelow50Percent && enemyHealthPercentage < 0.5 && finalEnemyHealth > 0) ||
+                (!stateManager.HasPlayerBelow10Percent && playerHealthPercentage < 0.1 && finalPlayerHealth > 0) ||
+                (!stateManager.HasEnemyBelow10Percent && enemyHealthPercentage < 0.1 && finalEnemyHealth > 0))
+            {
+                return true;
+            }
+
+            // Intense battle
+            if (!stateManager.HasIntenseBattleTriggered && playerHealthPercentage < 0.5 && enemyHealthPercentage < 0.5 && finalPlayerHealth > 0 && finalEnemyHealth > 0)
+            {
+                return true;
+            }
+
+            // Good combos
+            if (!stateManager.HasGoodComboOccurred && evt.IsCombo && evt.ComboStep >= 2)
+            {
+                return true;
+            }
+
+            // Health lead changes (significant damage only)
+            if (evt.Damage >= 3)
+            {
+                bool playerCurrentlyLeads = finalPlayerHealth > finalEnemyHealth;
+                bool enemyCurrentlyLeads = finalEnemyHealth > finalPlayerHealth;
+                if ((playerCurrentlyLeads && !stateManager.HasPlayerHealthLead) ||
+                    (enemyCurrentlyLeads && !stateManager.HasEnemyHealthLead))
+                {
+                    return true;
+                }
+            }
+
+            // Critical hits: Only show for very high rolls or based on narrative balance
+            // Higher narrative balance = more frequent critical hit narratives
+            // Use cooldown to prevent every critical hit from showing a narrative
+            // Note: The narrative is only generated if this returns true (checked in AnalyzeEvent)
+            if (evt.IsCritical && evt.IsSuccess)
+            {
+                // Roll property in BattleEvent is the base roll (without bonuses)
+                // Since IsCritical is true, we know totalRoll >= 20 (critical threshold)
+                // Only show critical hit narratives if:
+                // 1. Narrative balance is high (>= 0.7) AND cooldown has expired, OR
+                // 2. Very high base roll (>= 18) AND cooldown has expired
+                // This prevents every critical hit from showing a narrative
+                if (!stateManager.HasRecentCriticalHitNarrative)
+                {
+                    if (settings.NarrativeBalance >= 0.7 || evt.Roll >= 18)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            // Taunts: Only show if narrative balance is high enough
+            if (settings.NarrativeBalance >= 0.6)
+            {
+                // Taunt logic is handled separately in AddTauntNarratives
+                // This is just a placeholder - actual taunt significance is checked there
+            }
+
+            // Health recovery: Only show if narrative balance is high
+            if (evt.IsHeal && evt.HealAmount > 0 && settings.NarrativeBalance >= 0.7)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         // ===== Private Helper Methods =====

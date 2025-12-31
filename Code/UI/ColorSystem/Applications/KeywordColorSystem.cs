@@ -13,6 +13,7 @@ namespace RPGGame.UI.ColorSystem
     {
         private static readonly Dictionary<string, KeywordGroup> _keywordGroups = new Dictionary<string, KeywordGroup>();
         private static readonly Dictionary<string, Color> _colorPatterns = new Dictionary<string, Color>();
+        private static readonly Dictionary<string, Color> _characterNames = new Dictionary<string, Color>(StringComparer.OrdinalIgnoreCase);
         
         static KeywordColorSystem()
         {
@@ -21,6 +22,7 @@ namespace RPGGame.UI.ColorSystem
         
         /// <summary>
         /// Colors text by applying keyword coloring to all registered groups
+        /// Also checks for character names and colors them appropriately
         /// </summary>
         public static List<ColoredText> Colorize(string text)
         {
@@ -30,19 +32,71 @@ namespace RPGGame.UI.ColorSystem
             var result = new List<ColoredText>();
             var words = text.Split(' ');
             
-            foreach (var word in words)
+            // Check for multi-word character names first
+            int i = 0;
+            while (i < words.Length)
             {
+                var word = words[i];
                 var cleanWord = word.Trim();
+                
                 if (string.IsNullOrEmpty(cleanWord))
                 {
                     result.Add(new ColoredText(" ", Colors.White));
+                    i++;
                     continue;
                 }
                 
-                // Check if this word matches any keyword groups
-                var color = GetColorForWord(cleanWord);
-                result.Add(new ColoredText(cleanWord, color));
-                result.Add(new ColoredText(" ", Colors.White));
+                // Try to match character names (check current word and next word if available)
+                // Strip punctuation for matching but preserve it in the output
+                var wordWithoutPunctuation = cleanWord.TrimEnd('.', ',', '!', '?', ';', ':');
+                Color? characterColor = null;
+                int wordsToConsume = 1;
+                
+                // Check single word character name
+                if (_characterNames.TryGetValue(wordWithoutPunctuation, out var singleWordColor))
+                {
+                    characterColor = singleWordColor;
+                }
+                // Check two-word character name (e.g., "Joren Blackthorn")
+                else if (i + 1 < words.Length)
+                {
+                    var nextWord = words[i + 1].Trim();
+                    var nextWordWithoutPunctuation = nextWord.TrimEnd('.', ',', '!', '?', ';', ':');
+                    var twoWordName = $"{wordWithoutPunctuation} {nextWordWithoutPunctuation}";
+                    if (_characterNames.TryGetValue(twoWordName, out var twoWordColor))
+                    {
+                        characterColor = twoWordColor;
+                        wordsToConsume = 2;
+                    }
+                }
+                
+                if (characterColor.HasValue)
+                {
+                    // Found a character name - use character color
+                    if (wordsToConsume == 2)
+                    {
+                        result.Add(new ColoredText($"{cleanWord} {words[i + 1].Trim()}", characterColor.Value));
+                        i += 2;
+                    }
+                    else
+                    {
+                        result.Add(new ColoredText(cleanWord, characterColor.Value));
+                        i++;
+                    }
+                    
+                    if (i < words.Length)
+                    {
+                        result.Add(new ColoredText(" ", Colors.White));
+                    }
+                }
+                else
+                {
+                    // Not a character name - check if this word matches any keyword groups
+                    var color = GetColorForWord(cleanWord);
+                    result.Add(new ColoredText(cleanWord, color));
+                    result.Add(new ColoredText(" ", Colors.White));
+                    i++;
+                }
             }
             
             // Remove trailing space
@@ -139,6 +193,56 @@ namespace RPGGame.UI.ColorSystem
         public static void ClearColorPatternCache()
         {
             _colorPatterns.Clear();
+        }
+        
+        /// <summary>
+        /// Registers a character name for automatic coloring
+        /// Character names will be colored using the player color palette
+        /// </summary>
+        public static void RegisterCharacterName(string characterName, Color? color = null)
+        {
+            if (string.IsNullOrEmpty(characterName))
+                return;
+            
+            var colorToUse = color ?? ColorPalette.Player.GetColor();
+            _characterNames[characterName] = colorToUse;
+        }
+        
+        /// <summary>
+        /// Registers multiple character names for automatic coloring
+        /// </summary>
+        public static void RegisterCharacterNames(IEnumerable<string> characterNames, Color? color = null)
+        {
+            if (characterNames == null)
+                return;
+            
+            var colorToUse = color ?? ColorPalette.Player.GetColor();
+            foreach (var name in characterNames)
+            {
+                if (!string.IsNullOrEmpty(name))
+                {
+                    _characterNames[name] = colorToUse;
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Unregisters a character name
+        /// </summary>
+        public static void UnregisterCharacterName(string characterName)
+        {
+            if (string.IsNullOrEmpty(characterName))
+                return;
+            
+            _characterNames.Remove(characterName);
+        }
+        
+        /// <summary>
+        /// Clears all registered character names
+        /// </summary>
+        public static void ClearCharacterNames()
+        {
+            _characterNames.Clear();
         }
         
         /// <summary>

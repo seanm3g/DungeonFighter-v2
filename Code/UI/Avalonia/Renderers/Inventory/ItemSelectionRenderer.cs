@@ -183,11 +183,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             y++;
             currentLineCount++;
             
-            // Add cancel button
-            var cancelButton = InventoryButtonFactory.CreateButton(x + 2, y, 28, "0", MenuOptionFormatter.Format(0, UIConstants.MenuOptions.Cancel));
-            clickableElements.Add(cancelButton);
-            canvas.AddMenuOption(x + 2, y, 0, UIConstants.MenuOptions.Cancel, AsciiArtAssets.Colors.White, cancelButton.IsHovered);
-            currentLineCount++;
+            // No cancel option - must complete trade-up once started
+            // Note: Cancel button removed to force completion of trade-up
             
             return currentLineCount;
         }
@@ -252,16 +249,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             y += 2;
             currentLineCount += 2;
             
-            // Show confirmation options
+            // Show confirmation option
+            // Note: Cancel button removed to force completion of trade-up
             var confirmButton = InventoryButtonFactory.CreateButton(x + 2, y, 28, "1", MenuOptionFormatter.Format(1, "Confirm Trade Up"));
             clickableElements.Add(confirmButton);
             canvas.AddMenuOption(x + 2, y, 1, "Confirm Trade Up", AsciiArtAssets.Colors.Green, confirmButton.IsHovered);
-            y++;
-            currentLineCount++;
-            
-            var cancelButton = InventoryButtonFactory.CreateButton(x + 2, y, 28, "0", MenuOptionFormatter.Format(0, UIConstants.MenuOptions.Cancel));
-            clickableElements.Add(cancelButton);
-            canvas.AddMenuOption(x + 2, y, 0, UIConstants.MenuOptions.Cancel, AsciiArtAssets.Colors.White, cancelButton.IsHovered);
             currentLineCount++;
             
             return currentLineCount;

@@ -18,10 +18,10 @@ namespace RPGGame.UI.Avalonia.Helpers
         /// Ensures all TextBoxes maintain dark background and white text when focused
         /// This is a backup to the XAML styles to handle cases where the template overrides styles
         /// </summary>
-        public static void FixTextBoxFocusStyling(UserControl parent)
+        public static void FixTextBoxFocusStyling(UserControl parent, Color? textColor = null)
         {
             var darkBackground = new SolidColorBrush(Color.FromRgb(42, 42, 42)); // #FF2A2A2A
-            var whiteForeground = Brushes.White;
+            var textForeground = textColor.HasValue ? new SolidColorBrush(textColor.Value) : new SolidColorBrush(Colors.White);
             var blueBorder = new SolidColorBrush(Color.FromRgb(0, 120, 212)); // #FF0078D4
             var defaultBorder = new SolidColorBrush(Color.FromRgb(85, 85, 85)); // #FF555555
             
@@ -39,18 +39,56 @@ namespace RPGGame.UI.Avalonia.Helpers
                     var bg = textBox.Background as SolidColorBrush;
                     if (bg != null && (bg.Color.R == 42 && bg.Color.G == 42 && bg.Color.B == 42))
                     {
+                        // Set selection colors immediately
+                        textBox.SelectionBrush = blueBorder;
+                        textBox.SelectionForegroundBrush = new SolidColorBrush(Colors.White);
+                        
                         textBox.GotFocus += (s, e) =>
                         {
                             textBox.Background = darkBackground;
-                            textBox.Foreground = whiteForeground;
+                            textBox.Foreground = textForeground;
                             textBox.BorderBrush = blueBorder;
+                            textBox.SelectionBrush = blueBorder;
+                            textBox.SelectionForegroundBrush = new SolidColorBrush(Colors.White);
                         };
                         
                         textBox.LostFocus += (s, e) =>
                         {
                             textBox.Background = darkBackground;
-                            textBox.Foreground = whiteForeground;
+                            textBox.Foreground = textForeground;
                             textBox.BorderBrush = defaultBorder;
+                            textBox.SelectionBrush = blueBorder;
+                            textBox.SelectionForegroundBrush = new SolidColorBrush(Colors.White);
+                        };
+                        
+                        // Add hover handlers to maintain dark background
+                        textBox.PointerEntered += (s, e) =>
+                        {
+                            var hoverBackground = new SolidColorBrush(Color.FromRgb(53, 53, 53)); // #FF353535
+                            if (!textBox.IsFocused)
+                            {
+                                textBox.Background = hoverBackground;
+                                textBox.BorderBrush = defaultBorder;
+                            }
+                            else
+                            {
+                                textBox.Background = darkBackground;
+                                textBox.BorderBrush = blueBorder;
+                            }
+                        };
+                        
+                        textBox.PointerExited += (s, e) =>
+                        {
+                            if (textBox.IsFocused)
+                            {
+                                textBox.Background = darkBackground;
+                                textBox.BorderBrush = blueBorder;
+                            }
+                            else
+                            {
+                                textBox.Background = darkBackground;
+                                textBox.BorderBrush = defaultBorder;
+                            }
                         };
                     }
                 }

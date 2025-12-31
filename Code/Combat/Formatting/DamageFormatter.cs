@@ -272,7 +272,8 @@ namespace RPGGame.Combat.Formatting
             double comboAmplifier = 1.0, 
             double damageMultiplier = 1.0, 
             int rollBonus = 0, 
-            int roll = 0)
+            int roll = 0,
+            int multiHitCount = 1)
         {
             var builder = new ColoredTextBuilder();
             
@@ -309,6 +310,22 @@ namespace RPGGame.Combat.Formatting
             if (isComboAction)
             {
                 AddWithAction(builder, actionName, actionColor);
+                
+                // Add multi-hit indicator after action name for combo actions
+                if (multiHitCount > 1)
+                {
+                    builder.AddSpace();
+                    builder.Add($"({multiHitCount} hits)", ColorPalette.Info);
+                }
+            }
+            else
+            {
+                // For basic attacks, add multi-hit indicator after "hits"
+                if (multiHitCount > 1)
+                {
+                    builder.AddSpace();
+                    builder.Add($"({multiHitCount} hits)", ColorPalette.Info);
+                }
             }
             
             // Damage amount

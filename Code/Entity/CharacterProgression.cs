@@ -10,7 +10,13 @@ namespace RPGGame
     public class CharacterProgression
     {
         public int Level { get; set; }
-        public int XP { get; set; }
+        
+        private int _xp = 0;
+        public int XP 
+        { 
+            get => _xp; 
+            set => _xp = Math.Max(0, value); // Clamp negative values to 0
+        }
 
         // Class points system
         public int BarbarianPoints { get; set; } = 0; // Mace weapon
@@ -43,11 +49,21 @@ namespace RPGGame
         {
             var tuning = GameConfiguration.Instance;
             
-            // Linear progression: Level N requires N dungeons to reach Level N+1
-            // XP per dungeon at level N: average = (enemyXPBase + 25) * N
-            // XP needed for level N: N dungeons * average XP per dungeon at level N = N * (enemyXPBase + 25) * N = N^2 * (enemyXPBase + 25)
+            // Adjusted progression: First dungeon always levels you up, then progression slows down
+            // Level 1->2: Level^2 * base (guaranteed by RewardManager)
+            // Level 2+: Level^2.2 * base (slower progression after first level)
             int averageXPPerDungeonAtLevel1 = tuning.Progression.EnemyXPBase + 25;
-            return Level * Level * averageXPPerDungeonAtLevel1;
+            
+            if (Level == 1)
+            {
+                // Level 1->2: standard quadratic scaling
+                return Level * Level * averageXPPerDungeonAtLevel1;
+            }
+            else
+            {
+                // Level 2+: slower progression using exponent 2.2 instead of 2.0
+                return (int)(Math.Pow(Level, 2.2) * averageXPPerDungeonAtLevel1);
+            }
         }
 
         public void AwardClassPoint(WeaponType weaponType)

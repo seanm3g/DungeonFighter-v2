@@ -1,5 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Media;
+using RPGGame;
 using RPGGame.UI.Avalonia.Helpers;
 using System;
 using System.Threading.Tasks;
@@ -19,7 +21,6 @@ namespace RPGGame.UI.Avalonia.Managers
         private readonly ActionDelegate? onSave;
         private readonly ActionDelegate? onReset;
         private readonly ActionDelegate? onBack;
-        private readonly ActionDelegate? onBattleStatisticsClick;
 
         public SettingsEventWiring(
             Func<int, Task>? runBattleTest,
@@ -27,8 +28,7 @@ namespace RPGGame.UI.Avalonia.Managers
             Func<Task>? runComprehensiveWeaponEnemyTests,
             ActionDelegate? onSave,
             ActionDelegate? onReset,
-            ActionDelegate? onBack,
-            ActionDelegate? onBattleStatisticsClick)
+            ActionDelegate? onBack)
         {
             this.runBattleTest = runBattleTest;
             this.runWeaponTypeTests = runWeaponTypeTests;
@@ -36,7 +36,6 @@ namespace RPGGame.UI.Avalonia.Managers
             this.onSave = onSave;
             this.onReset = onReset;
             this.onBack = onBack;
-            this.onBattleStatisticsClick = onBattleStatisticsClick;
         }
 
         /// <summary>
@@ -77,7 +76,9 @@ namespace RPGGame.UI.Avalonia.Managers
             // Fix TextBox focus styling to prevent white-on-white text
             try
             {
-                TextBoxStylingHelper.FixTextBoxFocusStyling(settingsPanel);
+                var settings = GameSettings.Instance;
+                var textColor = SettingsColorManager.ParseColor(settings.TextBoxTextColor);
+                TextBoxStylingHelper.FixTextBoxFocusStyling(settingsPanel, textColor);
             }
             catch (Exception ex)
             {
@@ -139,8 +140,7 @@ namespace RPGGame.UI.Avalonia.Managers
                 settingsPanel.FindControl<Button>("StandardTestButton"),
                 settingsPanel.FindControl<Button>("ComprehensiveTestButton"),
                 settingsPanel.FindControl<Button>("WeaponTypeTestButton"),
-                settingsPanel.FindControl<Button>("ComprehensiveWeaponEnemyTestButton"),
-                settingsPanel.FindControl<Button>("BattleStatisticsButton"));
+                settingsPanel.FindControl<Button>("ComprehensiveWeaponEnemyTestButton"));
         }
 
         /// <summary>
@@ -418,8 +418,7 @@ namespace RPGGame.UI.Avalonia.Managers
             Button? standardTestButton,
             Button? comprehensiveTestButton,
             Button? weaponTypeTestButton,
-            Button? comprehensiveWeaponEnemyTestButton,
-            Button? battleStatisticsButton)
+            Button? comprehensiveWeaponEnemyTestButton)
         {
             // Validate required buttons
             if (saveButton == null || resetButton == null || backButton == null)
@@ -442,8 +441,6 @@ namespace RPGGame.UI.Avalonia.Managers
                 weaponTypeTestButton.Click += async (s, e) => await runWeaponTypeTests();
             if (comprehensiveWeaponEnemyTestButton != null && runComprehensiveWeaponEnemyTests != null)
                 comprehensiveWeaponEnemyTestButton.Click += async (s, e) => await runComprehensiveWeaponEnemyTests();
-            if (battleStatisticsButton != null)
-                battleStatisticsButton.Click += (s, e) => onBattleStatisticsClick?.Invoke();
         }
     }
 }

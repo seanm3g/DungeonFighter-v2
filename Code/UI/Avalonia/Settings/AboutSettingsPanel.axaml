@@ -1,0 +1,97 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="RPGGame.UI.Avalonia.Settings.AboutSettingsPanel"
+             Background="Transparent">
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                 HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="20" Margin="20">
+            <!-- Game Information -->
+            <Border Background="White" 
+                    BorderBrush="#FF404040" 
+                    BorderThickness="1" 
+                    CornerRadius="6" 
+                    Padding="20">
+                <StackPanel Spacing="15">
+                    <TextBlock Text="DungeonFighter v2" 
+                               FontSize="28" 
+                               FontWeight="Bold" 
+                               Foreground="Black" 
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,10"/>
+                    
+                    <TextBlock Text="Version 6.2 - Production Ready" 
+                               FontSize="18" 
+                               Foreground="#FFAAAAAA" 
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,20"/>
+                    
+                    <TextBlock Text="A sophisticated turn-based RPG/dungeon crawler game featuring advanced combat mechanics, intelligent battle narrative generation, and a comprehensive data-driven architecture." 
+                               FontSize="15" 
+                               Foreground="Black" 
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,20"/>
+                    
+                    <Separator Background="#FF555555" Margin="0,10,0,10"/>
+                    
+                    <TextBlock Text="Key Features:" 
+                               FontSize="20" 
+                               FontWeight="Bold" 
+                               Foreground="Black" 
+                               Margin="0,0,0,10"/>
+                    
+                    <StackPanel Spacing="8" Margin="10,0,0,0">
+                        <TextBlock Text="• Advanced turn-based combat system with combo mechanics" 
+                                   FontSize="15" 
+                                   Foreground="Black"/>
+                        <TextBlock Text="• Dice-based mechanics with strategic thresholds" 
+                                   FontSize="15" 
+                                   Foreground="Black"/>
+                        <TextBlock Text="• Intelligent narrative generation for battle events" 
+                                   FontSize="15" 
+                                   Foreground="Black"/>
+                        <TextBlock Text="• Comprehensive settings and customization options" 
+                                   FontSize="15" 
+                                   Foreground="Black"/>
+                        <TextBlock Text="• Data-driven architecture for easy content expansion" 
+                                   FontSize="15" 
+                                   Foreground="Black"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+            
+            <!-- Technical Information -->
+            <Border Background="White" 
+                    BorderBrush="#FF404040" 
+                    BorderThickness="1" 
+                    CornerRadius="6" 
+                    Padding="20">
+                <StackPanel Spacing="15">
+                    <TextBlock Text="Technical Information" 
+                               FontSize="20" 
+                               FontWeight="Bold" 
+                               Foreground="Black" 
+                               Margin="0,0,0,10"/>
+                    
+                    <StackPanel Spacing="8" Margin="10,0,0,0">
+                        <TextBlock Text="• Built with Avalonia UI framework" 
+                                   FontSize="15" 
+                                   Foreground="Black"/>
+                        <TextBlock Text="• C# .NET implementation" 
+                                   FontSize="15" 
+                                   Foreground="Black"/>
+                        <TextBlock Text="• Modular architecture with clear separation of concerns" 
+                                   FontSize="15" 
+                                   Foreground="Black"/>
+                        <TextBlock Text="• Comprehensive test coverage" 
+                                   FontSize="15" 
+                                   Foreground="Black"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
+

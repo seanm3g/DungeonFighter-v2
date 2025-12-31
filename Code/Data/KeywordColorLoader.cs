@@ -39,6 +39,8 @@ namespace RPGGame.Data
         
         [JsonPropertyName("keywords")]
         public List<string>? Keywords { get; set; }
+        
+        public override string ToString() => Name ?? "Unnamed";
     }
     
     /// <summary>

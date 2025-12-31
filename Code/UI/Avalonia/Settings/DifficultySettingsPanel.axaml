@@ -1,0 +1,98 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:components="clr-namespace:RPGGame.UI.Avalonia.Components"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+             x:Class="RPGGame.UI.Avalonia.Settings.DifficultySettingsPanel"
+             Background="Transparent">
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                 HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="20" Margin="20">
+            <!-- Enemy Multipliers -->
+            <Border Background="White" 
+                    BorderBrush="#FF404040" 
+                    BorderThickness="1" 
+                    CornerRadius="6" 
+                    Padding="18">
+                <StackPanel Spacing="15">
+                    <TextBlock Text="Enemy Multipliers" 
+                               FontSize="18" 
+                               FontWeight="SemiBold" 
+                               Foreground="Black" 
+                               Margin="0,0,0,8"/>
+                    <components:SliderWithTextBox x:Name="EnemyHealthMultiplierControl"
+                                                   Label="Enemy Health:"
+                                                   Minimum="0.5"
+                                                   Maximum="3.0"
+                                                   Value="1.0"
+                                                   TickFrequency="0.1"/>
+                    <components:SliderWithTextBox x:Name="EnemyDamageMultiplierControl"
+                                                   Label="Enemy Damage:"
+                                                   Minimum="0.5"
+                                                   Maximum="3.0"
+                                                   Value="1.0"
+                                                   TickFrequency="0.1"/>
+                </StackPanel>
+            </Border>
+            
+            <!-- Player Multipliers -->
+            <Border Background="White" 
+                    BorderBrush="#FF404040" 
+                    BorderThickness="1" 
+                    CornerRadius="6" 
+                    Padding="18">
+                <StackPanel Spacing="15">
+                    <TextBlock Text="Player Multipliers" 
+                               FontSize="18" 
+                               FontWeight="SemiBold" 
+                               Foreground="Black" 
+                               Margin="0,0,0,8"/>
+                    <components:SliderWithTextBox x:Name="PlayerHealthMultiplierControl"
+                                                   Label="Player Health:"
+                                                   Minimum="0.5"
+                                                   Maximum="3.0"
+                                                   Value="1.0"
+                                                   TickFrequency="0.1"/>
+                    <components:SliderWithTextBox x:Name="PlayerDamageMultiplierControl"
+                                                   Label="Player Damage:"
+                                                   Minimum="0.5"
+                                                   Maximum="3.0"
+                                                   Value="1.0"
+                                                   TickFrequency="0.1"/>
+                </StackPanel>
+            </Border>
+            
+            <!-- Visual Indicators -->
+            <Border Background="White" 
+                    BorderBrush="#FF404040" 
+                    BorderThickness="1" 
+                    CornerRadius="6" 
+                    Padding="18">
+                <StackPanel Spacing="15">
+                    <TextBlock Text="Visual Indicators" 
+                               FontSize="18" 
+                               FontWeight="SemiBold" 
+                               Foreground="Black" 
+                               Margin="0,0,0,8"/>
+                    <CheckBox x:Name="ShowHealthBarsCheckBox" 
+                              Content="Show Health Bars" 
+                              Foreground="Black"
+                              FontSize="15"
+                              IsChecked="True"/>
+                    <CheckBox x:Name="ShowDamageNumbersCheckBox" 
+                              Content="Show Damage Numbers" 
+                              Foreground="Black"
+                              FontSize="15"
+                              IsChecked="True"/>
+                    <CheckBox x:Name="ShowComboProgressCheckBox" 
+                              Content="Show Combo Progress" 
+                              Foreground="Black"
+                              FontSize="15"
+                              IsChecked="True"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
+

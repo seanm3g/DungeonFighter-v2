@@ -4,6 +4,7 @@ using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Input;
+using Avalonia.Threading;
 using RPGGame.Editors;
 using RPGGame.UI.Avalonia.Builders;
 using RPGGame.UI.Avalonia.Validators;
@@ -41,7 +42,12 @@ namespace RPGGame.UI.Avalonia.Managers
             this.variablesPanel = variablesPanel;
             this.showStatusMessage = showStatusMessage;
             
-            LoadGameVariableCategories();
+            // Defer loading categories until after UI is ready to avoid blocking
+            Dispatcher.UIThread.Post(() =>
+            {
+                LoadGameVariableCategories();
+            }, DispatcherPriority.Background);
+            
             categoryListBox.SelectionChanged += OnGameVariableCategorySelectionChanged;
         }
 
@@ -205,20 +211,37 @@ namespace RPGGame.UI.Avalonia.Managers
             
             try
             {
+                // Ensure any focused text box commits its value
                 foreach (var kvp in gameVariableTextBoxes)
                 {
                     var textBox = kvp.Value;
                     if (textBox.IsFocused)
                     {
+                        // Force the text box to lose focus so any pending changes are committed
                         textBox.Focusable = false;
                         textBox.Focusable = true;
+                        // Trigger validation to ensure the value is updated in memory
+                        var variable = variableEditor.GetVariables().FirstOrDefault(v => v.Name == kvp.Key);
+                        if (variable != null)
+                        {
+                            ValidateAndUpdateGameVariable(variable, textBox);
+                        }
                     }
                 }
                 
+                // Save all changes to file and reload GameConfiguration singleton
                 bool saved = variableEditor.SaveChanges();
-                if (saved && !string.IsNullOrEmpty(selectedGameVariableCategory))
+                if (saved)
                 {
-                    RefreshGameVariableValues();
+                    if (!string.IsNullOrEmpty(selectedGameVariableCategory))
+                    {
+                        RefreshGameVariableValues();
+                    }
+                    showStatusMessage?.Invoke("Game variables saved successfully", true);
+                }
+                else
+                {
+                    showStatusMessage?.Invoke("Failed to save game variables", false);
                 }
             }
             catch (Exception ex)

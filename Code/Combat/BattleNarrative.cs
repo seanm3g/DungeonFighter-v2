@@ -174,6 +174,94 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Gets only the significant narratives that should be displayed for the last event
+        /// Filters out narratives that shouldn't be shown (like every critical hit)
+        /// </summary>
+        /// <returns>List of significant narrative messages that should be displayed</returns>
+        public List<string> GetTriggeredNarrativesIfSignificant()
+        {
+            if (events.Count == 0)
+            {
+                return new List<string>();
+            }
+
+            // Convert to list to access last element (ConcurrentBag doesn't support indexing)
+            var eventsList = events.ToList();
+            var lastEvent = eventsList[eventsList.Count - 1];
+            
+            // Check if this event is significant enough to warrant narrative display
+            if (!ShouldDisplayNarrativesForEvent(lastEvent))
+            {
+                return new List<string>();
+            }
+            
+            // Return cached narratives if this is the same event we've already analyzed
+            if (lastCachedEvent == lastEvent && lastCachedNarratives != null)
+            {
+                // Filter to only significant narratives
+                return FilterSignificantNarratives(new List<string>(lastCachedNarratives), lastEvent);
+            }
+            
+            // If not cached or different event, analyze and cache it
+            var triggeredNarratives = AnalyzeEventForNarratives(lastEvent);
+            lastCachedEvent = lastEvent;
+            lastCachedNarratives = new List<string>(triggeredNarratives);
+            
+            // Filter to only significant narratives
+            return FilterSignificantNarratives(triggeredNarratives, lastEvent);
+        }
+
+        /// <summary>
+        /// Determines if narratives should be displayed for a given event
+        /// </summary>
+        public bool ShouldDisplayNarrativesForEvent(BattleEvent evt)
+        {
+            var settings = GameSettings.Instance;
+            return eventAnalyzer.IsSignificantEvent(evt, settings);
+        }
+
+        /// <summary>
+        /// Filters narratives to only include those that should be displayed
+        /// </summary>
+        private List<string> FilterSignificantNarratives(List<string> narratives, BattleEvent evt)
+        {
+            if (narratives == null || narratives.Count == 0)
+            {
+                return new List<string>();
+            }
+
+            var settings = GameSettings.Instance;
+            var filtered = new List<string>();
+
+            foreach (var narrative in narratives)
+            {
+                if (string.IsNullOrEmpty(narrative))
+                {
+                    continue;
+                }
+
+                // Check if this narrative type should be displayed
+                // Critical hit narratives are filtered by IsSignificantEvent
+                // Other narratives (first blood, defeats, etc.) are always shown
+                bool shouldDisplay = true;
+
+                // Critical hit narratives: only show if event is significant
+                if (narrative.Contains("devastating blow", StringComparison.OrdinalIgnoreCase) ||
+                    narrative.Contains("strikes true", StringComparison.OrdinalIgnoreCase))
+                {
+                    shouldDisplay = eventAnalyzer.IsSignificantEvent(evt, settings);
+                }
+
+                if (shouldDisplay)
+                {
+                    filtered.Add(narrative);
+                }
+            }
+
+            return filtered;
+        }
+
+        /// <summary>
         /// Analyzes an event for significant narrative triggers using the event analyzer
         /// </summary>
         private List<string> AnalyzeEventForNarratives(BattleEvent evt)

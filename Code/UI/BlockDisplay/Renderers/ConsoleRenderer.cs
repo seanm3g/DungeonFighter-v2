@@ -14,40 +14,18 @@ namespace RPGGame.UI.BlockDisplay.Renderers
     {
         public void RenderMessageGroups(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs, Character? character = null)
         {
-            if (groups != null)
-            {
-                foreach (var (segments, messageType) in groups)
-                {
-                    if (segments != null)
-                    {
-                        if (segments.Count == 0)
-                        {
-                            // Empty segments are treated as blank lines
-                            Console.WriteLine();
-                        }
-                        else
-                        {
-                            ColoredConsoleWriter.WriteSegments(segments);
-                            Console.WriteLine();
-                        }
-                    }
-                }
-            }
-            
-            // Apply delay after all lines are written (skip if combat UI is disabled)
-            if (!CombatManager.DisableCombatUIOutput && UIManager.EnableDelays)
-            {
-                // Fire and forget - don't block sync method
-                _ = CombatDelayManager.DelayAfterMessageAsync();
-            }
+            // Fire and forget - use async version but don't wait
+            _ = RenderMessageGroupsAsync(groups, delayMs, character);
         }
         
         public async Task RenderMessageGroupsAsync(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs, Character? character = null)
         {
-            if (groups != null)
+            if (groups != null && groups.Count > 0)
             {
-                foreach (var (segments, messageType) in groups)
+                for (int i = 0; i < groups.Count; i++)
                 {
+                    var (segments, messageType) = groups[i];
+                    
                     if (segments != null)
                     {
                         if (segments.Count == 0)
@@ -61,13 +39,23 @@ namespace RPGGame.UI.BlockDisplay.Renderers
                             Console.WriteLine();
                         }
                     }
+                    
+                    // Add delay between messages (but not after the last one - that's handled by delayMs)
+                    if (i < groups.Count - 1)
+                    {
+                        // Use MessageDelayMs for delays between lines within an action block
+                        if (!CombatManager.DisableCombatUIOutput && UIManager.EnableDelays)
+                        {
+                            await CombatDelayManager.DelayAfterMessageAsync();
+                        }
+                    }
                 }
             }
             
-            // Apply delay after all lines are written (skip if combat UI is disabled)
-            if (!CombatManager.DisableCombatUIOutput && UIManager.EnableDelays)
+            // Apply final delay after the entire batch (delay between action blocks)
+            if (delayMs > 0 && !CombatManager.DisableCombatUIOutput && UIManager.EnableDelays)
             {
-                await CombatDelayManager.DelayAfterMessageAsync();
+                await Task.Delay(delayMs);
             }
         }
     }

@@ -276,6 +276,9 @@ namespace RPGGame
             // Display details if present (subsequent line - 5-space indentation to match action block pattern)
             if (details != null && details.Count > 0)
             {
+                // Add delay between effect line and details line
+                BlockDelayManager.ApplyBlockDelay();
+                
                 const string ACTION_BLOCK_INDENT = "     "; // 5 spaces
                 var detailsBuilder = new ColoredTextBuilder();
                 detailsBuilder.Add(ACTION_BLOCK_INDENT);
@@ -331,10 +334,21 @@ namespace RPGGame
             const string ACTION_BLOCK_INDENT = "     "; // 5 spaces
             if (effects != null)
             {
+                // Add delay after first environmental line before effects start
+                BlockDelayManager.ApplyBlockDelay();
+                
+                bool isFirstEffect = true;
                 foreach (var effect in effects)
                 {
                     if (effect != null && effect.Count > 0)
                     {
+                        // Add delay between effects (including before the first one, which we already did above)
+                        if (!isFirstEffect)
+                        {
+                            BlockDelayManager.ApplyBlockDelay();
+                        }
+                        isFirstEffect = false;
+                        
                         // Remove any existing leading whitespace to avoid double indentation
                         // (effects may already have indentation from EnvironmentalActionExecutor)
                         var trimmedEffect = new List<ColoredText>(effect);

@@ -146,10 +146,11 @@ namespace RPGGame
             {
                 stateTracker.WaitingForRaritySelection = false;
                 
+                // No cancel option - must complete trade-up once started
                 if (rarityChoice == 0)
                 {
-                    ShowMessageEvent?.Invoke("Cancelled.");
-                    ShowInventoryEvent?.Invoke();
+                    ShowMessageEvent?.Invoke("You must select a rarity to trade up. Cannot cancel.");
+                    stateTracker.WaitingForRaritySelection = true; // Keep waiting
                     return;
                 }
                 
@@ -169,7 +170,7 @@ namespace RPGGame
                 else
                 {
                     ShowMessageEvent?.Invoke("Invalid rarity selection.");
-                    ShowInventoryEvent?.Invoke();
+                    stateTracker.WaitingForRaritySelection = true; // Keep waiting
                 }
                 return;
             }
@@ -177,25 +178,22 @@ namespace RPGGame
             // Handle trade-up confirmation
             if (stateTracker.WaitingForTradeUpConfirmation && int.TryParse(input, out int confirmationChoice))
             {
-                stateTracker.WaitingForTradeUpConfirmation = false;
-                
                 if (confirmationChoice == 1 && !string.IsNullOrEmpty(stateTracker.SelectedTradeUpRarity))
                 {
                     // Confirm trade-up
+                    stateTracker.WaitingForTradeUpConfirmation = false;
                     tradeUpHandler.PerformTradeUp(stateTracker.SelectedTradeUpRarity);
                     stateTracker.SelectedTradeUpRarity = null;
                 }
                 else if (confirmationChoice == 0)
                 {
-                    // Cancel trade-up
-                    ShowMessageEvent?.Invoke("Trade-up cancelled.");
-                    stateTracker.SelectedTradeUpRarity = null;
-                    stateTracker.PreviewTradeUpItem = null;
-                    ShowInventoryEvent?.Invoke();
+                    // No cancel option - must complete trade-up once started
+                    ShowMessageEvent?.Invoke("You must confirm the trade-up. Press 1 to confirm.");
+                    // Keep waiting for confirmation
                 }
                 else
                 {
-                    ShowMessageEvent?.Invoke("Invalid choice. Press 1 to confirm or 0 to cancel.");
+                    ShowMessageEvent?.Invoke("Invalid choice. Press 1 to confirm the trade-up.");
                 }
                 return;
             }
@@ -246,6 +244,14 @@ namespace RPGGame
                     ShowMessageEvent?.Invoke("Invalid choice. Press 1-6, 0 (Return to Main Menu), or ESC to go back.");
                     break;
             }
+        }
+        
+        /// <summary>
+        /// Checks if the player is currently in a trade-up flow (cannot go back)
+        /// </summary>
+        public bool IsInTradeUpFlow()
+        {
+            return stateTracker.WaitingForRaritySelection || stateTracker.WaitingForTradeUpConfirmation;
         }
         
         /// <summary>

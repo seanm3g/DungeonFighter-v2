@@ -33,9 +33,10 @@ namespace RPGGame
             double comboAmplifier = 1.0, 
             double damageMultiplier = 1.0, 
             int rollBonus = 0, 
-            int roll = 0)
+            int roll = 0,
+            int multiHitCount = 1)
         {
-            return DamageFormatter.FormatDamageDisplayColored(attacker, target, rawDamage, actualDamage, action, comboAmplifier, damageMultiplier, rollBonus, roll);
+            return DamageFormatter.FormatDamageDisplayColored(attacker, target, rawDamage, actualDamage, action, comboAmplifier, damageMultiplier, rollBonus, roll, multiHitCount);
         }
         
         /// <summary>
