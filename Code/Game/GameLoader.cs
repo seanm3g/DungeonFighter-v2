@@ -114,12 +114,22 @@ namespace RPGGame
                                             characters.Add(character);
                                             DebugLogger.Log("GameLoader", $"Loaded character: {character.Name}, Level {character.Level}, ID: {characterId}");
                                         }
+                                        else
+                                        {
+                                            DebugLogger.Log("GameLoader", $"Warning: Character {characterId} ({characterName}) failed to load - returned null");
+                                        }
                                     }
                                     catch (Exception ex)
                                     {
-                                        DebugLogger.Log("GameLoader", $"Error loading character {characterId}: {ex.Message}");
+                                        DebugLogger.Log("GameLoader", $"Error loading character {characterId} ({characterName}): {ex.Message}\n{ex.StackTrace}");
                                         // Continue loading other characters
                                     }
+                                }
+                                
+                                if (characters.Count == 0 && savedCharacterInfos.Count > 0)
+                                {
+                                    DebugLogger.Log("GameLoader", $"Error: Failed to load any of {savedCharacterInfos.Count} saved characters");
+                                    throw new Exception($"Failed to load any saved characters. {savedCharacterInfos.Count} character(s) found but none could be loaded.");
                                 }
                             }
                             
@@ -146,6 +156,7 @@ namespace RPGGame
                 {
                     string errorMsg = $"Error loading characters: {ex.Message}";
                     DebugLogger.Log("GameLoader", errorMsg);
+                    // Show error message (auto-load will filter these out in its callback)
                     onMessage(errorMsg);
                     onShowMainMenu();
                     return false;
@@ -158,11 +169,27 @@ namespace RPGGame
                     Character? firstCharacter = null;
                     foreach (var character in loadedCharacters)
                     {
+                        if (character == null)
+                        {
+                            DebugLogger.Log("GameLoader", "Warning: Attempted to register null character");
+                            continue;
+                        }
+                        
                         var characterId = stateManager.AddCharacter(character);
+                        DebugLogger.Log("GameLoader", $"Registered character {character.Name} (Level {character.Level}) with ID: {characterId}");
                         if (firstCharacter == null)
                         {
                             firstCharacter = character;
                         }
+                    }
+                    
+                    if (firstCharacter == null)
+                    {
+                        DebugLogger.Log("GameLoader", "Error: No valid characters to set as active");
+                        // Show error message (auto-load will filter these out in its callback)
+                        onMessage("Error: Failed to load character data.");
+                        onShowMainMenu();
+                        return false;
                     }
                     
                     // Set the first character as active (or show selection if multiple)
@@ -170,32 +197,45 @@ namespace RPGGame
                     {
                         // Single character - backward compatibility mode
                         stateManager.SetCurrentPlayer(firstCharacter);
+                        DebugLogger.Log("GameLoader", $"Set active character: {firstCharacter.Name} (Level {firstCharacter.Level})");
+                        
+                        // Verify character is set correctly
+                        var activeCharacter = stateManager.GetActiveCharacter();
+                        if (activeCharacter == null || activeCharacter != firstCharacter)
+                        {
+                            DebugLogger.Log("GameLoader", $"Error: Active character mismatch. Expected: {firstCharacter?.Name}, Got: {activeCharacter?.Name}");
+                            // Show error message (auto-load will filter these out in its callback)
+                            onMessage("Error: Failed to set active character.");
+                            onShowMainMenu();
+                            return false;
+                        }
                         
                         // Update UI
                         if (customUIManager is CanvasUICoordinator canvasUI2)
                         {
-                            canvasUI2.SetCharacter(stateManager.GetActiveCharacter());
+                            canvasUI2.SetCharacter(activeCharacter);
+                            DebugLogger.Log("GameLoader", $"Set character in UI: {activeCharacter.Name}");
                         }
                         
                         // Apply health multiplier if configured
                         var settings = GameSettings.Instance;
-                        var activeCharacter = stateManager.GetActiveCharacter();
                         if (settings.PlayerHealthMultiplier != 1.0 && activeCharacter != null)
                         {
                             activeCharacter.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
                         }
                         
-                        onMessage($"Welcome back, {activeCharacter?.Name ?? "Player"}!");
+                        onMessage($"Welcome back, {activeCharacter.Name}!");
                         
                         // Go to game loop
                         stateManager.TransitionToState(GameState.GameLoop);
-                        DebugLogger.Log("GameLoader", $"Firing onGameLoop callback");
+                        DebugLogger.Log("GameLoader", $"Firing onGameLoop callback for character: {activeCharacter.Name}");
                         try
                         {
                             onGameLoop();
                         }
                         catch (Exception ex)
                         {
+                            DebugLogger.Log("GameLoader", $"Error in onGameLoop callback: {ex.Message}\n{ex.StackTrace}");
                             onMessage($"Error: {ex.Message}");
                         }
                     }
@@ -206,6 +246,7 @@ namespace RPGGame
                         // Character selection will be handled by CharacterManagementHandler
                         // For now, set first character as active and let user switch
                         stateManager.SetCurrentPlayer(firstCharacter);
+                        DebugLogger.Log("GameLoader", $"Set first character as active (multi-character mode): {firstCharacter.Name}");
                         if (customUIManager is CanvasUICoordinator canvasUI3)
                         {
                             canvasUI3.SetCharacter(firstCharacter);

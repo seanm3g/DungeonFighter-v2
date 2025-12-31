@@ -45,12 +45,17 @@ namespace RPGGame
         /// </summary>
         public void ShowGameLoop()
         {
-            var player = stateManager.CurrentPlayer;
+            var player = stateManager.CurrentPlayer ?? stateManager.GetActiveCharacter();
             var inventory = stateManager.CurrentInventory;
             var canvasUI = TryGetCanvasUI();
 
             if (canvasUI == null || player == null)
             {
+                // If no character is available, log error and return to main menu
+                if (player == null)
+                {
+                    RPGGame.Utils.DebugLogger.Log("GameScreenCoordinator", "Error: ShowGameLoop called but no character is available");
+                }
                 stateManager.TransitionToState(GameState.GameLoop);
                 return;
             }

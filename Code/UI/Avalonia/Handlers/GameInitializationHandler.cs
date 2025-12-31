@@ -156,7 +156,7 @@ namespace RPGGame.UI.Avalonia.Handlers
 
         /// <summary>
         /// Automatically loads the first available saved character
-        /// If no save exists or loading fails, shows the main menu
+        /// If no save exists or loading fails, silently shows the main menu without a character
         /// </summary>
         private async Task AutoLoadCharacter(Action<string> updateStatus)
         {
@@ -164,7 +164,7 @@ namespace RPGGame.UI.Avalonia.Handlers
             {
                 if (game == null || canvasUIManager == null)
                 {
-                    updateStatus("Error: Game not initialized");
+                    // Silently show main menu if game not initialized
                     game?.ShowMainMenu();
                     return;
                 }
@@ -172,12 +172,12 @@ namespace RPGGame.UI.Avalonia.Handlers
                 // Check if save file exists first (same check MainMenuHandler uses)
                 if (!CharacterSaveManager.SaveFileExists())
                 {
-                    // No save file, show main menu
+                    // No save file, silently show main menu without character
                     game.ShowMainMenu();
                     return;
                 }
 
-                // Show loading message
+                // Show loading message briefly
                 if (canvasUIManager is CanvasUICoordinator canvasUI)
                 {
                     canvasUI.ShowLoadingStatus("Loading saved character...");
@@ -190,12 +190,19 @@ namespace RPGGame.UI.Avalonia.Handlers
                 // Load the character with appropriate callbacks
                 // The GameLoader will handle showing the game loop on success
                 // or calling the onShowMainMenu callback on failure
+                // For auto-load, we suppress error messages - just show main menu silently
                 bool loadSuccess = await gameLoader.LoadGame(
                     (msg) => {
-                        // Show loading messages
-                        if (canvasUIManager is CanvasUICoordinator canvasUIMsg)
+                        // Only show loading status messages (not error messages) during auto-load
+                        // Error messages start with "Error:" - suppress those for auto-load
+                        if (!msg.StartsWith("Error:", StringComparison.OrdinalIgnoreCase) && 
+                            !msg.StartsWith("No saved", StringComparison.OrdinalIgnoreCase) &&
+                            !msg.StartsWith("Failed", StringComparison.OrdinalIgnoreCase))
                         {
-                            canvasUIMsg.ShowLoadingStatus(msg);
+                            if (canvasUIManager is CanvasUICoordinator canvasUIMsg)
+                            {
+                                canvasUIMsg.ShowLoadingStatus(msg);
+                            }
                         }
                     },
                     () => {
@@ -205,13 +212,13 @@ namespace RPGGame.UI.Avalonia.Handlers
                     },
                     () => {
                         // This callback is only called if load fails
-                        // Show main menu as fallback
+                        // Silently show main menu without character (no error message)
                         game.ShowMainMenu();
                     }
                 );
 
                 // If load failed, GameLoader already called onShowMainMenu callback
-                // But just to be safe, check here too
+                // Silently show main menu without character
                 if (!loadSuccess)
                 {
                     game.ShowMainMenu();
@@ -219,8 +226,9 @@ namespace RPGGame.UI.Avalonia.Handlers
             }
             catch (Exception ex)
             {
-                updateStatus($"Error auto-loading character: {ex.Message}");
-                // On error, show main menu
+                // Log error but don't show to user - just silently show main menu
+                RPGGame.Utils.DebugLogger.Log("GameInitializationHandler", $"Error auto-loading character: {ex.Message}");
+                // On error, silently show main menu without character
                 game?.ShowMainMenu();
             }
         }
