@@ -259,7 +259,7 @@ namespace RPGGame.Tests.Unit
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Test GetActions with mixed valid/invalid names
-            var mixedActions = ActionLoader.GetActions("JAB", "INVALID", "CRUSHING BLOW");
+            var mixedActions = ActionLoader.GetActions("JAB", "INVALID", "CRUSH");
             TestBase.AssertTrue(mixedActions.Count >= 2, 
                 $"GetActions should return valid actions only, got {mixedActions.Count}", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
