@@ -51,7 +51,10 @@ namespace RPGGame.UI.Avalonia.Layout
                 y++;
             }
             
-            canvas.AddText(x, y, character.GetCurrentClass(), AsciiArtAssets.Colors.Cyan);
+            // Display class title with class-appropriate color
+            string currentClass = character.GetCurrentClass();
+            var classColor = EntityColorHelper.GetClassColorForDisplay(character);
+            canvas.AddText(x, y, currentClass, classColor);
             y += 2;
             
             // Health bar

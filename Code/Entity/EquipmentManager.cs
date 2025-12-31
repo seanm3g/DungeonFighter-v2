@@ -116,14 +116,11 @@ namespace RPGGame
             // Update combo sequence after equipment change
             _character.Actions.UpdateComboSequenceAfterGearChange(_character);
             
-            // If weapon was changed, handle combo sequence intelligently
-            if (slot.ToLower() == "weapon")
+            // If combo is now empty after gear change (regardless of slot), reinitialize default combo
+            // This ensures that changing any gear that removes actions doesn't leave the player without a default action
+            if (_character.Actions.ComboSequence.Count == 0)
             {
-                // If combo is now empty, initialize default combo
-                if (_character.Actions.ComboSequence.Count == 0)
-                {
-                    _character.Actions.InitializeDefaultCombo(_character, _character.Equipment.Weapon as WeaponItem);
-                }
+                _character.Actions.InitializeDefaultCombo(_character, _character.Equipment.Weapon as WeaponItem);
             }
             
             // Track item equipping statistics

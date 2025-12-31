@@ -5,6 +5,7 @@ using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Handlers;
 using RPGGame.UI.TitleScreen;
 using System;
+using System.Threading.Tasks;
 
 namespace RPGGame.UI.Avalonia.Handlers
 {
@@ -111,7 +112,7 @@ namespace RPGGame.UI.Avalonia.Handlers
         /// <summary>
         /// Completes game initialization after title screen animation
         /// </summary>
-        public void InitializeGameAfterAnimation(Action<string> updateStatus)
+        public async void InitializeGameAfterAnimation(Action<string> updateStatus)
         {
             try
             {
@@ -138,8 +139,9 @@ namespace RPGGame.UI.Avalonia.Handlers
                     mouseHandler = new MouseInteractionHandler(gameCanvas, canvasUIForMouse, game);
                 }
 
-                // Show the main menu (now async)
-                game.ShowMainMenu();
+                // Always try to auto-load a saved character first
+                // If no save exists or load fails, it will show the main menu
+                await AutoLoadCharacter(updateStatus);
 
                 isInitialized = true;
                 waitingForKeyAfterAnimation = false;
@@ -147,6 +149,79 @@ namespace RPGGame.UI.Avalonia.Handlers
             catch (Exception ex)
             {
                 updateStatus($"Error initializing game: {ex.Message}");
+                // On error, show main menu as fallback
+                game?.ShowMainMenu();
+            }
+        }
+
+        /// <summary>
+        /// Automatically loads the first available saved character
+        /// If no save exists or loading fails, shows the main menu
+        /// </summary>
+        private async Task AutoLoadCharacter(Action<string> updateStatus)
+        {
+            try
+            {
+                if (game == null || canvasUIManager == null)
+                {
+                    updateStatus("Error: Game not initialized");
+                    game?.ShowMainMenu();
+                    return;
+                }
+
+                // Check if save file exists first (same check MainMenuHandler uses)
+                if (!CharacterSaveManager.SaveFileExists())
+                {
+                    // No save file, show main menu
+                    game.ShowMainMenu();
+                    return;
+                }
+
+                // Show loading message
+                if (canvasUIManager is CanvasUICoordinator canvasUI)
+                {
+                    canvasUI.ShowLoadingStatus("Loading saved character...");
+                }
+
+                var stateManager = game.StateManager;
+                var gameInitializer = new GameInitializer();
+                var gameLoader = new GameLoader(stateManager, gameInitializer, canvasUIManager);
+
+                // Load the character with appropriate callbacks
+                // The GameLoader will handle showing the game loop on success
+                // or calling the onShowMainMenu callback on failure
+                bool loadSuccess = await gameLoader.LoadGame(
+                    (msg) => {
+                        // Show loading messages
+                        if (canvasUIManager is CanvasUICoordinator canvasUIMsg)
+                        {
+                            canvasUIMsg.ShowLoadingStatus(msg);
+                        }
+                    },
+                    () => {
+                        // Show game loop after successful load
+                        // This is called by GameLoader when load succeeds
+                        game.ShowGameLoop();
+                    },
+                    () => {
+                        // This callback is only called if load fails
+                        // Show main menu as fallback
+                        game.ShowMainMenu();
+                    }
+                );
+
+                // If load failed, GameLoader already called onShowMainMenu callback
+                // But just to be safe, check here too
+                if (!loadSuccess)
+                {
+                    game.ShowMainMenu();
+                }
+            }
+            catch (Exception ex)
+            {
+                updateStatus($"Error auto-loading character: {ex.Message}");
+                // On error, show main menu
+                game?.ShowMainMenu();
             }
         }
 

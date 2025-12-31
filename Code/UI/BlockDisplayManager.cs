@@ -351,23 +351,31 @@ namespace RPGGame
                         
                         // Remove any existing leading whitespace to avoid double indentation
                         // (effects may already have indentation from EnvironmentalActionExecutor)
+                        // Remove ALL leading whitespace segments, not just the first one
                         var trimmedEffect = new List<ColoredText>(effect);
-                        if (trimmedEffect.Count > 0)
+                        while (trimmedEffect.Count > 0)
                         {
                             string firstText = trimmedEffect[0].Text ?? "";
                             if (string.IsNullOrWhiteSpace(firstText))
                             {
-                                // First segment is whitespace-only - remove it
+                                // This segment is whitespace-only - remove it and continue
                                 trimmedEffect.RemoveAt(0);
                             }
                             else if (firstText.TrimStart() != firstText)
                             {
-                                // First segment has leading whitespace - trim it
+                                // First segment has leading whitespace - trim it and stop
                                 trimmedEffect[0] = new ColoredText(firstText.TrimStart(), trimmedEffect[0].Color);
+                                break;
+                            }
+                            else
+                            {
+                                // First segment has no leading whitespace - stop
+                                break;
                             }
                         }
                         
                         // Always use 5-space indentation for all effect lines (subsequent lines in action block)
+                        // This matches the indentation used for roll details in combat actions
                         var indentedEffect = new ColoredTextBuilder();
                         indentedEffect.Add(ACTION_BLOCK_INDENT);
                         indentedEffect.AddRange(trimmedEffect);
