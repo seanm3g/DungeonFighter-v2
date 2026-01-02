@@ -241,6 +241,13 @@ namespace RPGGame.Actions.Execution
                     // Stat bonus message is now handled by ActionStatusEffectApplier.ApplyStatBonusColored
                 }
 
+                // Apply skip next turn if the action has it (only for characters, not enemies)
+                if (result.SelectedAction.Advanced.SkipNextTurn &&
+                    source is Character skipCharacter && !(skipCharacter is Enemy))
+                {
+                    skipCharacter.Effects.SkipNextTurn = true;
+                }
+
                 // Check for enemy death and HP thresholds
                 if (target is Enemy enemyTarget)
                 {

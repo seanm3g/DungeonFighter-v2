@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\Code.csproj": {}
+    "C:\\Users\\maxwe\\Documents\\GitHub\\DungeonFighter-v2\\code\\Code.csproj": {}
   },
   "projects": {
-    "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\Code.csproj": {
+    "C:\\Users\\maxwe\\Documents\\GitHub\\DungeonFighter-v2\\code\\Code.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\Code.csproj",
+        "projectUniqueName": "C:\\Users\\maxwe\\Documents\\GitHub\\DungeonFighter-v2\\code\\Code.csproj",
         "projectName": "DF",
-        "projectPath": "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\Code.csproj",
-        "packagesPath": "C:\\Users\\Seanye\\.nuget\\packages\\",
-        "outputPath": "D:\\Code Projects\\github projects\\DungeonFighter-v2\\code\\obj\\",
+        "projectPath": "C:\\Users\\maxwe\\Documents\\GitHub\\DungeonFighter-v2\\code\\Code.csproj",
+        "packagesPath": "C:\\Users\\maxwe\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\maxwe\\Documents\\GitHub\\DungeonFighter-v2\\code\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Seanye\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\maxwe\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -37,7 +37,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "net8.0": {
@@ -83,12 +84,30 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.22, 8.0.22]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.win-x64",
+              "version": "[8.0.22, 8.0.22]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.22, 8.0.22]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[8.0.22, 8.0.22]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.407/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.101/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

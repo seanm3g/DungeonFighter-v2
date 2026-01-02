@@ -191,6 +191,23 @@ namespace RPGGame
         }
         
         /// <summary>
+        /// Formats skip turn message with the new ColoredText system
+        /// </summary>
+        public static List<ColoredText> FormatSkipTurnColored(string entityName)
+        {
+            var builder = new ColoredTextBuilder();
+            
+            builder.Add("⏭️ ", ColorPalette.Info);
+            builder.Add(entityName, ColorPalette.Player);
+            builder.AddSpace();
+            builder.Add("skips", Colors.White);
+            builder.AddSpace();
+            builder.Add("their turn", ColorPalette.Info);
+            
+            return builder.Build();
+        }
+        
+        /// <summary>
         /// Formats damage over time tick message with the new ColoredText system
         /// </summary>
         public static List<ColoredText> FormatDamageOverTimeColored(

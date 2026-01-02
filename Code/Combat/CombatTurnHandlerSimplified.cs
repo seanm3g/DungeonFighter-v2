@@ -23,8 +23,25 @@ namespace RPGGame
         /// </summary>
         public async System.Threading.Tasks.Task<bool> ProcessPlayerTurnAsync(Character player, Enemy currentEnemy, Environment room)
         {
+            // Check if player should skip this turn
+            if (player.SkipNextTurn)
+            {
+                // Skip the turn and clear the flag
+                player.Effects.SkipNextTurn = false;
+                if (!CombatManager.DisableCombatUIOutput)
+                {
+                    var skipText = CombatFlowColoredText.FormatSkipTurnColored(player.Name);
+                    BlockDisplayManager.DisplaySystemBlock(skipText);
+                }
+                // Still advance the turn in the action speed system
+                var actionSpeedSystem = stateManager.GetCurrentActionSpeedSystem();
+                if (actionSpeedSystem != null)
+                {
+                    actionSpeedSystem.AdvanceEntityTurn(player, 1.0);
+                }
+            }
             // Check if player is stunned
-            if (player.StunTurnsRemaining > 0)
+            else if (player.StunTurnsRemaining > 0)
             {
                 StunProcessor.ProcessStunnedEntity(player, stateManager);
             }
