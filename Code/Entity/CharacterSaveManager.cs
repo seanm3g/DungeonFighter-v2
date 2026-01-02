@@ -115,6 +115,16 @@ namespace RPGGame
         {
             return Service.ListAllSavedCharacters();
         }
+
+        /// <summary>
+        /// Clears all saved characters by deleting all save files
+        /// Delegates to the service instance for implementation.
+        /// </summary>
+        /// <returns>The number of save files deleted</returns>
+        public static int ClearAllSavedCharacters()
+        {
+            return Service.ClearAllSavedCharacters();
+        }
     }
 
 }

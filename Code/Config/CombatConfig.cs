@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RPGGame
 {
@@ -14,6 +15,12 @@ namespace RPGGame
         public double BaseAttackTime { get; set; }
         public double AgilitySpeedReduction { get; set; }
         public double MinimumAttackTime { get; set; }
+        
+        // Agility speed mapping parameters
+        public int AgilityMin { get; set; } = 1;
+        public int AgilityMax { get; set; } = 100;
+        public double AgilityMinSpeedMultiplier { get; set; } = 0.99; // Speed multiplier at minimum agility (1% faster)
+        public double AgilityMaxSpeedMultiplier { get; set; } = 0.01; // Speed multiplier at maximum agility (99% faster)
     }
 
     /// <summary>
@@ -96,16 +103,164 @@ namespace RPGGame
     }
 
     /// <summary>
-    /// Status effects configuration
+    /// Status effects configuration - now supports dynamic status effects
     /// </summary>
     public class StatusEffectsConfig
     {
-        public StatusEffectConfig Bleed { get; set; } = new();
-        public StatusEffectConfig Burn { get; set; } = new();
-        public StatusEffectConfig Freeze { get; set; } = new();
-        public StatusEffectConfig Stun { get; set; } = new();
-        public StatusEffectConfig Poison { get; set; } = new();
+        /// <summary>
+        /// Dictionary of status effects by name (e.g., "Bleed", "Burn", "Stun")
+        /// Allows dynamic addition/removal of status effects
+        /// </summary>
+        public Dictionary<string, StatusEffectConfig> Effects { get; set; } = new();
+        
+        /// <summary>
+        /// Description of the status effects configuration
+        /// </summary>
         public string Description { get; set; } = "";
+        
+        /// <summary>
+        /// Legacy properties for backward compatibility - these now read/write to/from the Effects dictionary
+        /// </summary>
+        [System.Text.Json.Serialization.JsonIgnore]
+        public StatusEffectConfig Bleed
+        {
+            get => Effects.TryGetValue("Bleed", out var effect) ? effect : new StatusEffectConfig();
+            set => Effects["Bleed"] = value;
+        }
+        
+        [System.Text.Json.Serialization.JsonIgnore]
+        public StatusEffectConfig Burn
+        {
+            get => Effects.TryGetValue("Burn", out var effect) ? effect : new StatusEffectConfig();
+            set => Effects["Burn"] = value;
+        }
+        
+        [System.Text.Json.Serialization.JsonIgnore]
+        public StatusEffectConfig Freeze
+        {
+            get => Effects.TryGetValue("Freeze", out var effect) ? effect : new StatusEffectConfig();
+            set => Effects["Freeze"] = value;
+        }
+        
+        [System.Text.Json.Serialization.JsonIgnore]
+        public StatusEffectConfig Stun
+        {
+            get => Effects.TryGetValue("Stun", out var effect) ? effect : new StatusEffectConfig();
+            set => Effects["Stun"] = value;
+        }
+        
+        [System.Text.Json.Serialization.JsonIgnore]
+        public StatusEffectConfig Poison
+        {
+            get => Effects.TryGetValue("Poison", out var effect) ? effect : new StatusEffectConfig();
+            set => Effects["Poison"] = value;
+        }
+        
+        /// <summary>
+        /// Initialize default status effects if the dictionary is empty
+        /// Also normalizes dictionary keys to PascalCase after JSON deserialization
+        /// </summary>
+        public void InitializeDefaults()
+        {
+            // Normalize dictionary keys from camelCase (JSON) to PascalCase
+            var normalizedEffects = new Dictionary<string, StatusEffectConfig>();
+            foreach (var kvp in Effects)
+            {
+                string normalizedKey = NormalizeKey(kvp.Key);
+                normalizedEffects[normalizedKey] = kvp.Value;
+            }
+            Effects = normalizedEffects;
+            
+            // Ensure default effects exist
+            if (!Effects.ContainsKey("Bleed"))
+                Effects["Bleed"] = new StatusEffectConfig();
+            if (!Effects.ContainsKey("Burn"))
+                Effects["Burn"] = new StatusEffectConfig();
+            if (!Effects.ContainsKey("Freeze"))
+                Effects["Freeze"] = new StatusEffectConfig();
+            if (!Effects.ContainsKey("Stun"))
+                Effects["Stun"] = new StatusEffectConfig();
+            if (!Effects.ContainsKey("Poison"))
+                Effects["Poison"] = new StatusEffectConfig();
+        }
+        
+        /// <summary>
+        /// Normalize a key from camelCase to PascalCase
+        /// </summary>
+        private string NormalizeKey(string key)
+        {
+            if (string.IsNullOrEmpty(key))
+                return key;
+            
+            // If already PascalCase, return as-is
+            if (char.IsUpper(key[0]))
+                return key;
+            
+            // Convert camelCase to PascalCase
+            return char.ToUpper(key[0]) + key.Substring(1);
+        }
+        
+        /// <summary>
+        /// Get a status effect by name (case-insensitive)
+        /// </summary>
+        public StatusEffectConfig? GetEffect(string name)
+        {
+            InitializeDefaults();
+            var key = Effects.Keys.FirstOrDefault(k => k.Equals(name, StringComparison.OrdinalIgnoreCase));
+            return key != null ? Effects[key] : null;
+        }
+        
+        /// <summary>
+        /// Add or update a status effect
+        /// </summary>
+        public void SetEffect(string name, StatusEffectConfig config)
+        {
+            InitializeDefaults();
+            var key = Effects.Keys.FirstOrDefault(k => k.Equals(name, StringComparison.OrdinalIgnoreCase));
+            if (key != null)
+            {
+                Effects[key] = config;
+            }
+            else
+            {
+                Effects[name] = config;
+            }
+        }
+        
+        /// <summary>
+        /// Remove a status effect (cannot remove default effects)
+        /// </summary>
+        public bool RemoveEffect(string name)
+        {
+            InitializeDefaults();
+            var key = Effects.Keys.FirstOrDefault(k => k.Equals(name, StringComparison.OrdinalIgnoreCase));
+            if (key != null && !IsDefaultEffect(key))
+            {
+                return Effects.Remove(key);
+            }
+            return false;
+        }
+        
+        /// <summary>
+        /// Check if an effect is a default effect (cannot be removed)
+        /// </summary>
+        public bool IsDefaultEffect(string name)
+        {
+            return name.Equals("Bleed", StringComparison.OrdinalIgnoreCase) ||
+                   name.Equals("Burn", StringComparison.OrdinalIgnoreCase) ||
+                   name.Equals("Freeze", StringComparison.OrdinalIgnoreCase) ||
+                   name.Equals("Stun", StringComparison.OrdinalIgnoreCase) ||
+                   name.Equals("Poison", StringComparison.OrdinalIgnoreCase);
+        }
+        
+        /// <summary>
+        /// Get all status effect names
+        /// </summary>
+        public List<string> GetEffectNames()
+        {
+            InitializeDefaults();
+            return Effects.Keys.ToList();
+        }
     }
 
     /// <summary>

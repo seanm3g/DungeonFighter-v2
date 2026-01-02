@@ -40,6 +40,15 @@ namespace RPGGame
         public Enemy? GetNextLivingEnemy => enemies.FirstOrDefault(e => e.IsAlive);
 
         /// <summary>
+        /// Removes dead enemies from the enemies list.
+        /// This ensures dead enemies don't persist and cause issues during room transitions.
+        /// </summary>
+        public void RemoveDeadEnemies()
+        {
+            enemies.RemoveAll(e => !e.IsAlive);
+        }
+
+        /// <summary>
         /// Generates enemies for this environment based on room level.
         /// </summary>
         public void GenerateEnemies(int roomLevel, List<string>? possibleEnemies = null, int? minLevel = null, int? maxLevel = null)

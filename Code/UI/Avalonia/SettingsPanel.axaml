@@ -94,6 +94,7 @@
             <ListBoxItem Content="Gameplay" Tag="Gameplay"/>
             <ListBoxItem Content="Game Variables" Tag="GameVariables"/>
             <ListBoxItem Content="Actions" Tag="Actions"/>
+            <ListBoxItem Content="Status Effects" Tag="StatusEffects"/>
             <ListBoxItem Content="Text Delays" Tag="TextDelays"/>
             <ListBoxItem Content="Appearance" Tag="Appearance"/>
             <ListBoxItem Content="Item Modifiers" Tag="ItemModifiers"/>

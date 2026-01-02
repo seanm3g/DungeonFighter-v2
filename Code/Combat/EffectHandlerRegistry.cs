@@ -108,7 +108,10 @@ namespace RPGGame
             if (action.CausesBleed)
             {
                 var bleedConfig = GameConfiguration.Instance.StatusEffects.Bleed;
-                target.ApplyPoison(bleedConfig.DamagePerTick, bleedConfig.StacksPerApplication, true);
+                // Use fallback defaults if config values are 0 (e.g., in tests or if config not loaded)
+                int damagePerTick = bleedConfig.DamagePerTick > 0 ? bleedConfig.DamagePerTick : 1;
+                int stacksPerApplication = bleedConfig.StacksPerApplication > 0 ? bleedConfig.StacksPerApplication : 1;
+                target.ApplyPoison(damagePerTick, stacksPerApplication, true);
                 
                 // Format with proper indentation and color markup (5 spaces to match roll info)
                 string actorPattern = target is Enemy ? "enemy" : "player";
@@ -158,7 +161,10 @@ namespace RPGGame
                 {
                     // Use Freeze config for Slow since they're functionally similar (both reduce speed)
                     var freezeConfig = GameConfiguration.Instance.StatusEffects.Freeze;
-                    character.ApplySlow(freezeConfig.SpeedReduction, (int)freezeConfig.Duration);
+                    // Use fallback defaults if config values are 0 (e.g., in tests or if config not loaded)
+                    double speedReduction = freezeConfig.SpeedReduction > 0 ? freezeConfig.SpeedReduction : 0.5;
+                    int duration = freezeConfig.Duration > 0 ? (int)freezeConfig.Duration : 3;
+                    character.ApplySlow(speedReduction, duration);
                 }
                 
                 // Format with proper indentation and color markup (5 spaces to match roll info)
@@ -183,7 +189,10 @@ namespace RPGGame
             if (action.CausesPoison)
             {
                 var poisonConfig = GameConfiguration.Instance.StatusEffects.Poison;
-                target.ApplyPoison(poisonConfig.DamagePerTick, poisonConfig.StacksPerApplication);
+                // Use fallback defaults if config values are 0 (e.g., in tests or if config not loaded)
+                int damagePerTick = poisonConfig.DamagePerTick > 0 ? poisonConfig.DamagePerTick : 3;
+                int stacksPerApplication = poisonConfig.StacksPerApplication > 0 ? poisonConfig.StacksPerApplication : 1;
+                target.ApplyPoison(damagePerTick, stacksPerApplication);
                 // Format with proper indentation and color markup (5 spaces to match roll info)
                 string actorPattern = target is Enemy ? "enemy" : "player";
                 results.Add($"     {{{{actorPattern}}|" + $"{target.Name}" + "}} is " + $"{{{{poisoned|poisoned}}}}!");
@@ -207,7 +216,9 @@ namespace RPGGame
             {
                 var stunConfig = GameConfiguration.Instance.StatusEffects.Stun;
                 target.IsStunned = true;
-                target.StunTurnsRemaining = stunConfig.SkipTurns;
+                // Use fallback defaults if config values are 0 (e.g., in tests or if config not loaded)
+                int skipTurns = stunConfig.SkipTurns > 0 ? stunConfig.SkipTurns : 1;
+                target.StunTurnsRemaining = skipTurns;
                 // Format with proper indentation and color markup (5 spaces to match roll info)
                 string actorPattern = target is Enemy ? "enemy" : "player";
                 results.Add($"     {{{{actorPattern}}|" + $"{target.Name}" + "}} is " + $"{{{{stunned|stunned}}}}!");
@@ -230,7 +241,10 @@ namespace RPGGame
             if (action.CausesBurn)
             {
                 var burnConfig = GameConfiguration.Instance.StatusEffects.Burn;
-                target.ApplyBurn(burnConfig.DamagePerTick, burnConfig.MaxStacks);
+                // Use fallback defaults if config values are 0 (e.g., in tests or if config not loaded)
+                int damagePerTick = burnConfig.DamagePerTick > 0 ? burnConfig.DamagePerTick : 3;
+                int stacksPerApplication = burnConfig.StacksPerApplication > 0 ? burnConfig.StacksPerApplication : 1;
+                target.ApplyBurn(damagePerTick, stacksPerApplication);
                 // Format with proper indentation and color markup (5 spaces to match roll info)
                 string actorPattern = target is Enemy ? "enemy" : "player";
                 results.Add($"     {{{{actorPattern}}|" + $"{target.Name}" + "}} is " + $"{{{{burning|burning}}}}!");

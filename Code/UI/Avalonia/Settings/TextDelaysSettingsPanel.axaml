@@ -88,6 +88,7 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Combat:" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
@@ -137,6 +138,11 @@
                         
                         <TextBlock Grid.Row="9" Grid.Column="0" Text="Roll Info:" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
                         <TextBox x:Name="RollInfoDelayTextBox" Grid.Row="9" Grid.Column="2" Width="90" Height="28" 
+                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
+                                 BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
+                        
+                        <TextBlock Grid.Row="10" Grid.Column="0" Text="Environmental Line Delay:" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBox x:Name="EnvironmentalLineDelayTextBox" Grid.Row="10" Grid.Column="2" Width="90" Height="28" 
                                  Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
                                  BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
                     </Grid>

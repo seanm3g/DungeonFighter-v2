@@ -49,7 +49,7 @@ namespace RPGGame
         }
 
         // Turn system constants
-        public const double DEFAULT_ACTION_LENGTH = 1.0; // Basic attack length defines one turn
+        public const double DEFAULT_ACTION_LENGTH = 1.0; // Default action length defines one turn
 
         public Character(string? name = null, int level = 1)
             : base(name ?? FlavorText.GenerateCharacterName())
@@ -77,7 +77,20 @@ namespace RPGGame
 
             // Initialize health based on tuning config
             var tuning = GameConfiguration.Instance;
-            Health.MaxHealth = tuning.Character.PlayerBaseHealth + (level - 1) * tuning.Character.HealthPerLevel;
+            int baseHealth = tuning.Character.PlayerBaseHealth;
+            int healthPerLevel = tuning.Character.HealthPerLevel;
+            
+            // Fallback to sensible defaults if config values are 0 (e.g., in tests or if config not loaded)
+            if (baseHealth <= 0)
+            {
+                baseHealth = 60; // Default base health
+            }
+            if (healthPerLevel <= 0)
+            {
+                healthPerLevel = 3; // Default health per level
+            }
+            
+            Health.MaxHealth = baseHealth + (level - 1) * healthPerLevel;
             Health.CurrentHealth = Health.MaxHealth;
 
             // Ensure actions are loaded from JSON before adding them

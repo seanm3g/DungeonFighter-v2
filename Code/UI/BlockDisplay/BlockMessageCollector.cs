@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using RPGGame.UI.ColorSystem;
 using Avalonia.Media;
+using System;
+using RPGGame;
 
 namespace RPGGame.UI.BlockDisplay
 {
@@ -10,6 +12,23 @@ namespace RPGGame.UI.BlockDisplay
     /// </summary>
     public static class BlockMessageCollector
     {
+        /// <summary>
+        /// Gets the darkening factor for subsequent lines from UIConfiguration
+        /// Defaults to 0.8 (20% darker) if not configured
+        /// </summary>
+        private static double GetSubsequentLineDarkening()
+        {
+            try
+            {
+                var config = UIConfiguration.LoadFromFile();
+                return config.SubsequentLineDarkening;
+            }
+            catch
+            {
+                // Default to 0.8 (20% darker) if config can't be loaded
+                return 0.8;
+            }
+        }
         /// <summary>
         /// Collects all messages for an action block into a structured list
         /// </summary>
@@ -28,10 +47,11 @@ namespace RPGGame.UI.BlockDisplay
                 messageGroups.Add((actionText, UIMessageType.Combat));
             }
             
-            // Add roll info
+            // Add roll info (subsequent line - darken by 20%)
             if (rollInfo != null && rollInfo.Count > 0)
             {
-                messageGroups.Add((rollInfo, UIMessageType.RollInfo));
+                var darkenedRollInfo = DarkenColors(rollInfo);
+                messageGroups.Add((darkenedRollInfo, UIMessageType.RollInfo));
             }
             
             // Add critical miss narrative
@@ -46,8 +66,11 @@ namespace RPGGame.UI.BlockDisplay
                 string plainText = ColoredTextRenderer.RenderAsPlainText(criticalMissNarrative);
                 List<ColoredText> keywordColoredNarrative = KeywordColorSystem.Colorize(plainText);
                 
+                // Darken the narrative (subsequent line - darken by 20%)
+                var darkenedNarrative = DarkenColors(keywordColoredNarrative);
+                
                 // Add the keyword-colored narrative
-                messageGroups.Add((keywordColoredNarrative, UIMessageType.System));
+                messageGroups.Add((darkenedNarrative, UIMessageType.System));
                 
                 // Add blank line after narrative
                 messageGroups.Add((new List<ColoredText>(), UIMessageType.System));
@@ -81,10 +104,11 @@ namespace RPGGame.UI.BlockDisplay
                     }
                 }
                 
-                // Add the combined status effects as a single message group
+                // Add the combined status effects as a single message group (subsequent lines - darken by 20%)
                 if (combinedStatusEffects.Count > 0)
                 {
-                    messageGroups.Add((combinedStatusEffects, UIMessageType.EffectMessage));
+                    var darkenedStatusEffects = DarkenColors(combinedStatusEffects);
+                    messageGroups.Add((darkenedStatusEffects, UIMessageType.EffectMessage));
                     // Note: Blank line after status effects will be added after narratives (if present)
                     // or at the end if no narratives, to ensure it appears before the next character's action
                 }
@@ -108,8 +132,11 @@ namespace RPGGame.UI.BlockDisplay
                         string plainText = ColoredTextRenderer.RenderAsPlainText(narrative);
                         List<ColoredText> keywordColoredNarrative = KeywordColorSystem.Colorize(plainText);
                         
+                        // Darken the narrative (subsequent line - darken by 20%)
+                        var darkenedNarrative = DarkenColors(keywordColoredNarrative);
+                        
                         // Add the keyword-colored narrative
-                        messageGroups.Add((keywordColoredNarrative, UIMessageType.System));
+                        messageGroups.Add((darkenedNarrative, UIMessageType.System));
                         
                         // Add blank line after narrative
                         messageGroups.Add((new List<ColoredText>(), UIMessageType.System));
@@ -183,6 +210,46 @@ namespace RPGGame.UI.BlockDisplay
             }
             
             return result;
+        }
+        
+        /// <summary>
+        /// Darkens all colors in a list of ColoredText segments by the specified factor (20% darker = 0.8 brightness)
+        /// Used to make subsequent lines in action blocks visually distinct from the primary line
+        /// </summary>
+        private static List<ColoredText> DarkenColors(List<ColoredText> segments)
+        {
+            if (segments == null || segments.Count == 0)
+            {
+                return segments ?? new List<ColoredText>();
+            }
+            
+            var darkenedSegments = new List<ColoredText>();
+            
+            foreach (var segment in segments)
+            {
+                if (segment == null)
+                {
+                    // Skip null segments to avoid null reference warnings
+                    continue;
+                }
+                
+                // Get darkening factor from configuration
+                double darkeningFactor = GetSubsequentLineDarkening();
+                
+                // Darken the color by multiplying RGB values by the darkening factor
+                // Clamp values to ensure they stay within valid byte range (0-255)
+                byte r = (byte)Math.Min(255, Math.Max(0, (int)(segment.Color.R * darkeningFactor)));
+                byte g = (byte)Math.Min(255, Math.Max(0, (int)(segment.Color.G * darkeningFactor)));
+                byte b = (byte)Math.Min(255, Math.Max(0, (int)(segment.Color.B * darkeningFactor)));
+                
+                // Preserve alpha channel
+                Color darkenedColor = Color.FromArgb(segment.Color.A, r, g, b);
+                
+                // Create new ColoredText with darkened color
+                darkenedSegments.Add(new ColoredText(segment.Text, darkenedColor));
+            }
+            
+            return darkenedSegments;
         }
     }
 }

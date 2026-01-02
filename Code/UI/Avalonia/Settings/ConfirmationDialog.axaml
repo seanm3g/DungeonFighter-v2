@@ -1,0 +1,61 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="200"
+        x:Class="RPGGame.UI.Avalonia.Settings.ConfirmationDialog"
+        Title="Confirm Action"
+        Width="500" Height="200"
+        WindowStartupLocation="CenterOwner"
+        Background="#FF1A1A1A">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <TextBlock x:Name="TitleTextBlock"
+                   Grid.Row="0"
+                   Text="Confirm Action"
+                   FontSize="20"
+                   FontWeight="Bold"
+                   Foreground="#FFD700"
+                   Margin="0,0,0,15"/>
+        
+        <TextBlock x:Name="MessageTextBlock"
+                   Grid.Row="1"
+                   Text="Are you sure?"
+                   FontSize="16"
+                   Foreground="White"
+                   TextWrapping="Wrap"
+                   VerticalAlignment="Center"/>
+        
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Spacing="10"
+                    Margin="0,15,0,0">
+            <Button x:Name="YesButton"
+                    Content="Yes"
+                    Width="100"
+                    Height="35"
+                    FontSize="15"
+                    FontWeight="SemiBold"
+                    Background="#FF0078D4"
+                    Foreground="White"
+                    BorderThickness="0"
+                    CornerRadius="4"/>
+            <Button x:Name="NoButton"
+                    Content="No"
+                    Width="100"
+                    Height="35"
+                    FontSize="15"
+                    FontWeight="SemiBold"
+                    Background="#FF555555"
+                    Foreground="White"
+                    BorderThickness="0"
+                    CornerRadius="4"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -310,22 +310,13 @@ namespace RPGGame.Combat.Formatting
             if (isComboAction)
             {
                 AddWithAction(builder, actionName, actionColor);
-                
-                // Add multi-hit indicator after action name for combo actions
-                if (multiHitCount > 1)
-                {
-                    builder.AddSpace();
-                    builder.Add($"({multiHitCount} hits)", ColorPalette.Info);
-                }
             }
-            else
+            
+            // Add multi-hit indicator if applicable
+            if (multiHitCount > 1)
             {
-                // For basic attacks, add multi-hit indicator after "hits"
-                if (multiHitCount > 1)
-                {
-                    builder.AddSpace();
-                    builder.Add($"({multiHitCount} hits)", ColorPalette.Info);
-                }
+                builder.AddSpace();
+                builder.Add($"({multiHitCount} hits)", ColorPalette.Info);
             }
             
             // Damage amount

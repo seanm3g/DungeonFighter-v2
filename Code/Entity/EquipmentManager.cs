@@ -113,6 +113,13 @@ namespace RPGGame
 
             // Removed: BASIC ATTACK is no longer used in the game
 
+            // Re-add class actions after any gear change
+            // Class actions are based on character progression, not equipment, so they should persist
+            // This ensures class actions (like TAUNT for Warriors) remain available after equipment changes
+            // We re-add them after every gear change to ensure they're always present
+            var weaponType = (_character.Equipment.Weapon as WeaponItem)?.WeaponType;
+            _character.Actions.AddClassActions(_character, _character.Progression, weaponType);
+
             // Update combo sequence after equipment change
             _character.Actions.UpdateComboSequenceAfterGearChange(_character);
             

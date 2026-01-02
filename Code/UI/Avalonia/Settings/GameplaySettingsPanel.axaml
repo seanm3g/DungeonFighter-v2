@@ -58,6 +58,37 @@
                               IsChecked="True"/>
                 </StackPanel>
             </Border>
+            
+            <!-- Save Management -->
+            <Border Background="White" 
+                    BorderBrush="#FF404040" 
+                    BorderThickness="1" 
+                    CornerRadius="6" 
+                    Padding="18">
+                <StackPanel Spacing="15">
+                    <TextBlock Text="Save Management" 
+                               FontSize="18" 
+                               FontWeight="SemiBold" 
+                               Foreground="Black" 
+                               Margin="0,0,0,8"/>
+                    <TextBlock Text="Clear all saved characters. This action cannot be undone." 
+                               Foreground="Black"
+                               FontSize="14"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,10"/>
+                    <Button x:Name="ClearSavedCharactersButton"
+                            Content="Clear All Saved Characters"
+                            Width="250"
+                            Height="40"
+                            FontSize="15"
+                            FontWeight="SemiBold"
+                            Background="#FFDC3545"
+                            Foreground="White"
+                            BorderThickness="0"
+                            CornerRadius="4"
+                            HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Border>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

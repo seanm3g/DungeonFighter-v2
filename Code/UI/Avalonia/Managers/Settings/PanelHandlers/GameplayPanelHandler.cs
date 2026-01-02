@@ -1,8 +1,11 @@
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using RPGGame;
 using RPGGame.UI.Avalonia.Settings;
 using System;
+using System.Threading.Tasks;
 
 namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 {
@@ -13,13 +16,15 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
     {
         private readonly GameSettings settings;
         private readonly SettingsManager? settingsManager;
+        private readonly Action<string, bool>? showStatusMessage;
 
         public string PanelType => "Gameplay";
 
-        public GameplayPanelHandler(GameSettings settings, SettingsManager? settingsManager)
+        public GameplayPanelHandler(GameSettings settings, SettingsManager? settingsManager, Action<string, bool>? showStatusMessage = null)
         {
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             this.settingsManager = settingsManager;
+            this.showStatusMessage = showStatusMessage;
         }
 
         public void WireUp(UserControl panel)
@@ -91,6 +96,15 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 };
             }
 
+            // Wire up clear saved characters button
+            if (gameplayPanel.ClearSavedCharactersButton != null)
+            {
+                gameplayPanel.ClearSavedCharactersButton.Click += async (s, e) =>
+                {
+                    await HandleClearSavedCharactersAsync();
+                };
+            }
+
             // Load current settings after panel is fully loaded
             gameplayPanel.Loaded += (s, e) =>
             {
@@ -99,6 +113,45 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     LoadSettings(gameplayPanel);
                 }, DispatcherPriority.Loaded);
             };
+        }
+
+        private async Task HandleClearSavedCharactersAsync()
+        {
+            // Get the parent window for the dialog - find it from the current control tree
+            Window? parentWindow = null;
+            
+            // Try to find the window from the application
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                parentWindow = desktop.MainWindow;
+            }
+
+            // Show confirmation dialog
+            bool confirmed = await ConfirmationDialog.ShowAsync(
+                parentWindow,
+                "Clear All Saved Characters",
+                "Are you sure you want to delete all saved characters? This action cannot be undone.");
+
+            if (confirmed)
+            {
+                try
+                {
+                    int deletedCount = CharacterSaveManager.ClearAllSavedCharacters();
+                    
+                    if (deletedCount > 0)
+                    {
+                        showStatusMessage?.Invoke($"Successfully deleted {deletedCount} saved character(s).", true);
+                    }
+                    else
+                    {
+                        showStatusMessage?.Invoke("No saved characters found to delete.", true);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    showStatusMessage?.Invoke($"Error clearing saved characters: {ex.Message}", false);
+                }
+            }
         }
 
         public void LoadSettings(UserControl panel)

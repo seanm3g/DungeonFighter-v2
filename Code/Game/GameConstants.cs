@@ -63,6 +63,34 @@ namespace RPGGame
         public static string InvalidChoiceMessage => GameConfiguration.Instance.UICustomization.InvalidChoiceMessage;
         public static string PressAnyKeyMessage => GameConfiguration.Instance.UICustomization.PressAnyKeyMessage;
         
+        // Separator Constants - Standardized separator lines for consistent UI formatting
+        /// <summary>
+        /// Standard length for separator lines (matches TuningConfig.json menuSeparator length)
+        /// </summary>
+        public const int StandardSeparatorLength = 42;
+        
+        /// <summary>
+        /// Generates a separator line of the standard length using the specified character
+        /// </summary>
+        /// <param name="character">The character to use for the separator (default: '=')</param>
+        /// <returns>A string of StandardSeparatorLength characters</returns>
+        public static string GetSeparator(char character = '=')
+        {
+            return new string(character, StandardSeparatorLength);
+        }
+        
+        /// <summary>
+        /// Generates a separator line of the standard length using equals signs
+        /// This is the primary separator used throughout the game UI
+        /// </summary>
+        public static string StandardSeparator => GetSeparator('=');
+        
+        /// <summary>
+        /// Generates a separator line of the standard length using dashes
+        /// Used for sub-menu separators
+        /// </summary>
+        public static string StandardDashSeparator => GetSeparator('-');
+        
         // Game Constants
         public const int DefaultLevel = 1;
         public const int DefaultHealth = 100;

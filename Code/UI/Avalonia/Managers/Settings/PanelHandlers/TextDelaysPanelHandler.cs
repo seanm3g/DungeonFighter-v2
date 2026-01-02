@@ -117,6 +117,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 var damageOverTimeDelayTextBox = textDelaysPanel.DamageOverTimeDelayTextBox ?? textDelaysPanel.FindControl<TextBox>("DamageOverTimeDelayTextBox");
                 var encounterDelayTextBox = textDelaysPanel.EncounterDelayTextBox ?? textDelaysPanel.FindControl<TextBox>("EncounterDelayTextBox");
                 var rollInfoDelayTextBox = textDelaysPanel.RollInfoDelayTextBox ?? textDelaysPanel.FindControl<TextBox>("RollInfoDelayTextBox");
+                var environmentalLineDelayTextBox = textDelaysPanel.EnvironmentalLineDelayTextBox ?? textDelaysPanel.FindControl<TextBox>("EnvironmentalLineDelayTextBox");
                 var baseMenuDelayTextBox = textDelaysPanel.BaseMenuDelayTextBox ?? textDelaysPanel.FindControl<TextBox>("BaseMenuDelayTextBox");
                 var progressiveReductionRateTextBox = textDelaysPanel.ProgressiveReductionRateTextBox ?? textDelaysPanel.FindControl<TextBox>("ProgressiveReductionRateTextBox");
                 var progressiveThresholdTextBox = textDelaysPanel.ProgressiveThresholdTextBox ?? textDelaysPanel.FindControl<TextBox>("ProgressiveThresholdTextBox");
@@ -154,6 +155,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     damageOverTimeDelayTextBox,
                     encounterDelayTextBox,
                     rollInfoDelayTextBox,
+                    environmentalLineDelayTextBox,
                     baseMenuDelayTextBox,
                     progressiveReductionRateTextBox,
                     progressiveThresholdTextBox,

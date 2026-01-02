@@ -35,11 +35,11 @@ namespace RPGGame
 
         /// <summary>
         /// Selects an action based on dice roll logic:
-        /// - Natural 20 or total roll (base + bonuses) 14+ = COMBO action (all actions in game are combo actions)
-        /// - Total roll 6-13 = BASIC ATTACK (normal attack, non-combo)
-        /// - Total roll < 6 = BASIC ATTACK (normal attack, non-combo)
+        /// - Natural 20 or base roll 14+ = COMBO action
+        /// - Base roll 6-13 = Normal action (non-combo)
+        /// - Base roll < 6 = Normal action (non-combo)
         /// For heroes only
-        /// Note: Bonuses can help trigger combo actions by pushing total roll to 14+
+        /// Note: Action type is determined by base roll only, not total roll with bonuses
         /// </summary>
         /// <param name="source">The Actor selecting the action</param>
         /// <returns>The selected action or null if no action available</returns>
@@ -58,24 +58,19 @@ namespace RPGGame
             // Store the base roll for use in the main execution
             _lastActionSelectionRolls.AddOrUpdate(source, baseRoll, (_, _) => baseRoll);
             
-            // Calculate roll bonus for action selection (using null action for base bonus)
-            // Don't consume temporary roll bonus during selection - only consume during execution
-            int rollBonus = ActionUtilities.CalculateRollBonus(source, null, consumeTempBonus: false);
-            int totalRoll = baseRoll + rollBonus;
-            
-            // Determine action type based on total roll (base roll + bonuses)
-            // Natural 20 always triggers combo, otherwise use total roll for threshold
+            // Determine action type based on base roll only (not total roll with bonuses)
+            // Natural 20 always triggers combo, otherwise use base roll for threshold
             Action? selectedAction = null;
             
             if (baseRoll == 20) // Natural 20 - always combo + critical hit
             {
                 selectedAction = SelectComboAction(source);
             }
-            else if (totalRoll >= 14) // Combo threshold (14+) - use total roll so bonuses can trigger combos
+            else if (baseRoll >= 14) // Combo threshold (14+) - use base roll only
             {
                 selectedAction = SelectComboAction(source);
             }
-            else // Total roll < 14 - use non-combo action (normal attack)
+            else // Base roll < 14 - use non-combo action (normal attack)
             {
                 // Select a non-combo action for normal attacks
                 selectedAction = SelectNormalAction(source);
@@ -103,14 +98,9 @@ namespace RPGGame
             // Store the base roll for use in hit calculation (same as heroes)
             _lastActionSelectionRolls.AddOrUpdate(source, baseRoll, (_, _) => baseRoll);
 
-            // Calculate roll bonus for action selection (enemies generally have no base roll bonus)
-            // Don't consume temporary roll bonus during selection - only consume during execution
-            int rollBonus = ActionUtilities.CalculateRollBonus(source, null, consumeTempBonus: false);
-            int totalRoll = baseRoll + rollBonus;
-
-            // Natural 20 or total roll >= 14: use combo actions (all actions in game are combo actions)
-            // Action type determined by total roll (base + bonuses) so bonuses can trigger combos
-            if (baseRoll == 20 || totalRoll >= 14)
+            // Natural 20 or base roll >= 14: use combo actions
+            // Action type determined by base roll only (not total roll with bonuses)
+            if (baseRoll == 20 || baseRoll >= 14)
             {
                 var comboActions = ActionUtilities.GetComboActions(source);
                 if (comboActions.Count > 0)
@@ -130,7 +120,7 @@ namespace RPGGame
         /// Selects a combo action for the given Actor
         /// </summary>
         /// <param name="source">The Actor to select combo action for</param>
-        /// <returns>Selected combo action or fallback to basic attack</returns>
+        /// <returns>Selected combo action or fallback to first available action</returns>
         private static Action SelectComboAction(Actor source)
         {
             var comboActions = ActionUtilities.GetComboActions(source);
@@ -151,7 +141,7 @@ namespace RPGGame
                     }
                 }
                 
-                // Last resort: use first available action (BASIC ATTACK removed)
+                // Last resort: use first available action
                 if (source.ActionPool.Count > 0)
                 {
                     return source.ActionPool[0].action;
@@ -163,11 +153,11 @@ namespace RPGGame
 
         /// <summary>
         /// Selects a normal (non-combo) action for the given Actor
-        /// Used when roll is less than 14 (normal attack range)
-        /// Returns a basic attack action that is NOT a combo action
+        /// Used when base roll is less than 14 (normal attack range)
+        /// Returns a non-combo action if available, otherwise falls back to any available action
         /// </summary>
         /// <param name="source">The Actor to select normal action for</param>
-        /// <returns>Basic attack action (non-combo) for normal attacks</returns>
+        /// <returns>Non-combo action for normal attacks, or first available action if no non-combo actions exist</returns>
         private static Action SelectNormalAction(Actor source)
         {
             // First, try to find a non-combo action from the source's ActionPool
@@ -179,17 +169,14 @@ namespace RPGGame
                 }
             }
             
-            // If no non-combo action found, try to find "BASIC ATTACK" by name
-            foreach (var actionEntry in source.ActionPool)
+            // If no non-combo action found, use first available action
+            if (source.ActionPool.Count > 0)
             {
-                if (actionEntry.action.Name == "BASIC ATTACK")
-                {
-                    return actionEntry.action;
-                }
+                return source.ActionPool[0].action;
             }
             
-            // Last resort: create a new normal attack (shouldn't happen if entities are properly initialized)
-            return ActionFactory.CreateNormalAttack();
+            // This should never happen if entities are properly initialized
+            return null!;
         }
 
         /// <summary>

@@ -78,8 +78,8 @@ namespace RPGGame.Tests.Unit
             var character = TestDataBuilders.Character()
                 .WithName("TestHero")
                 .WithLevel(1)
+                .WithStats(15, 10, 10, 10)
                 .Build();
-            character.Stats.Strength = 15;
 
             var enemy = TestDataBuilders.Enemy()
                 .WithName("TestEnemy")
@@ -133,8 +133,8 @@ namespace RPGGame.Tests.Unit
             var character = TestDataBuilders.Character()
                 .WithName("TestHero")
                 .WithLevel(1)
+                .WithStats(20, 10, 10, 10)
                 .Build();
-            character.Stats.Strength = 20;
 
             // Create enemy with low health that will die before all hits
             var enemy = TestDataBuilders.Enemy()
@@ -184,8 +184,8 @@ namespace RPGGame.Tests.Unit
             var character = TestDataBuilders.Character()
                 .WithName("TestHero")
                 .WithLevel(1)
+                .WithStats(10, 10, 10, 10)
                 .Build();
-            character.Stats.Strength = 10;
 
             // Test 2-hit
             var enemy2 = TestDataBuilders.Enemy()
@@ -267,8 +267,8 @@ namespace RPGGame.Tests.Unit
             var character = TestDataBuilders.Character()
                 .WithName("TestHero")
                 .WithLevel(1)
+                .WithStats(12, 10, 10, 10)
                 .Build();
-            character.Stats.Strength = 12;
 
             var enemy = TestDataBuilders.Enemy()
                 .WithName("TestEnemy")
@@ -316,8 +316,8 @@ namespace RPGGame.Tests.Unit
             var character = TestDataBuilders.Character()
                 .WithName("TestHero")
                 .WithLevel(1)
+                .WithStats(10, 10, 10, 10)
                 .Build();
-            character.Stats.Strength = 10;
 
             var enemy = TestDataBuilders.Enemy()
                 .WithName("TestEnemy")

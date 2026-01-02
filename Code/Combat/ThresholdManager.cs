@@ -86,7 +86,7 @@ namespace RPGGame.Combat
             }
             
             // Hit threshold should be MissThreshold.Max (5), meaning 6+ hits
-            // BasicAttackThreshold.Min (6) is the minimum roll for a basic attack, not the hit threshold
+            // Normal attack threshold (6) is the minimum roll for normal attacks, not the hit threshold
             int missThresholdMax = GameConfiguration.Instance.RollSystem.MissThreshold.Max;
             return missThresholdMax > 0 ? missThresholdMax : 5;
         }

@@ -56,7 +56,6 @@ namespace RPGGame.UI.Avalonia.Managers
             try
             {
                 LoadModifiersData(panel);
-                showStatusMessage?.Invoke("Item modifiers loaded successfully", true);
             }
             catch (Exception ex)
             {

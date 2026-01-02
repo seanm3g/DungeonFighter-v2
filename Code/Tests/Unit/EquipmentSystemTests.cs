@@ -270,7 +270,10 @@ namespace RPGGame.Tests.Unit
             Console.WriteLine("\n--- Testing Health Adjustment On Equip ---");
 
             var character = TestDataBuilders.Character().WithName("TestHero").Build();
+            int baseMaxHealth = character.MaxHealth;
+            int baseEffectiveMaxHealth = character.GetEffectiveMaxHealth();
             character.CurrentHealth = 50; // Set to half health
+            int initialHealth = character.CurrentHealth;
             double healthPercentage = character.GetHealthPercentage();
 
             var chestItem = TestDataBuilders.Armor()
@@ -281,10 +284,17 @@ namespace RPGGame.Tests.Unit
 
             character.EquipItem(chestItem, "body");
 
-            // Health should maintain percentage or be adjusted appropriately
-            double newHealthPercentage = character.GetHealthPercentage();
-            TestBase.AssertTrue(character.CurrentHealth >= 50,
-                $"Health should be adjusted when max health increases: {character.CurrentHealth}",
+            int newEffectiveMaxHealth = character.GetEffectiveMaxHealth();
+            int finalHealth = character.CurrentHealth;
+
+            // When max health increases, current health should be set to the new effective max health
+            TestBase.AssertTrue(newEffectiveMaxHealth > baseEffectiveMaxHealth,
+                $"Effective max health should increase: {baseEffectiveMaxHealth} -> {newEffectiveMaxHealth}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Health should be adjusted to new effective max when max health increases
+            TestBase.AssertEqual(newEffectiveMaxHealth, finalHealth,
+                $"Health should be adjusted to new effective max when max health increases. Expected: {newEffectiveMaxHealth}, Actual: {finalHealth}, Base Max: {baseMaxHealth}, Initial Health: {initialHealth}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

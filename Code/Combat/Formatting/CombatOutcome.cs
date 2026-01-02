@@ -16,7 +16,7 @@ namespace RPGGame.Combat.Formatting
         public bool IsCriticalMiss { get; set; }
         
         /// <summary>
-        /// The action that was performed (null for basic attacks)
+        /// The action that was performed
         /// </summary>
         public Action? Action { get; set; }
         

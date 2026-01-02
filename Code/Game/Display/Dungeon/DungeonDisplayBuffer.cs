@@ -31,6 +31,22 @@ namespace RPGGame.Display.Dungeon
         }
 
         /// <summary>
+        /// Gets the dungeon context (header + room + enemy info, without combat log)
+        /// Used for rendering the header section in combat screens
+        /// </summary>
+        public List<string> DungeonContext
+        {
+            get
+            {
+                var context = new List<string>();
+                context.AddRange(dungeonHeader);
+                context.AddRange(roomInfo);
+                context.AddRange(enemyInfo);
+                return context;
+            }
+        }
+
+        /// <summary>
         /// Gets just the combat log (for combat screen rendering)
         /// </summary>
         public List<string> CombatLog => new List<string>(combatLog);

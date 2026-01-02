@@ -109,6 +109,15 @@ namespace RPGGame
 
         public static void LoadActions()
         {
+            LoadActions(validate: false);
+        }
+
+        /// <summary>
+        /// Loads actions from JSON with optional validation
+        /// </summary>
+        /// <param name="validate">If true, validates loaded actions and logs any issues</param>
+        public static void LoadActions(bool validate)
+        {
             ErrorHandler.TryExecute(() =>
             {
                 // Use the new JsonLoader for consistent loading
@@ -146,11 +155,42 @@ namespace RPGGame
                         DebugLogger.LogFormat("ActionLoader", "Path '{0}' exists: {1}", path, exists);
                     }
                 }
+
+                // Optional validation
+                if (validate)
+                {
+                    ValidateLoadedActions();
+                }
             }, "ActionLoader.LoadActions", () => 
             {
                 _actions = new Dictionary<string, ActionData>();
                 ErrorHandler.LogError(new Exception("Failed to load actions"), "ActionLoader.LoadActions", "Action loading failed, using empty dictionary");
             });
+        }
+
+        /// <summary>
+        /// Validates loaded actions and logs any issues
+        /// </summary>
+        private static void ValidateLoadedActions()
+        {
+            try
+            {
+                var validator = new Data.Validation.ActionDataValidator();
+                var result = validator.Validate();
+                
+                if (!result.IsValid)
+                {
+                    ErrorHandler.LogWarning($"Action validation found {result.Errors.Count} errors and {result.Warnings.Count} warnings", "ActionLoader");
+                    foreach (var error in result.Errors)
+                    {
+                        ErrorHandler.LogWarning($"Action validation error: {error.Message}", "ActionLoader");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.LogWarning($"Action validation failed: {ex.Message}", "ActionLoader");
+            }
         }
 
         public static Action? GetAction(string actionName)
@@ -344,7 +384,7 @@ namespace RPGGame
             // Fallback names if no actions found
             return type switch
             {
-                ActionType.Attack => GameConstants.BasicAttackName,
+                ActionType.Attack => "Attack",
                 ActionType.Heal => "Heal",
                 ActionType.Buff => "Buff",
                 ActionType.Debuff => "Debuff",

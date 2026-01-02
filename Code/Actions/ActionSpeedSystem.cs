@@ -83,7 +83,7 @@ namespace RPGGame
             combatEntity.NextActionTime = currentTime + turnDuration + buffer;
         }
 
-        public double ExecuteAction(Actor entity, Action action, bool isBasicAttack = false, bool isCriticalMiss = false)
+        public double ExecuteAction(Actor entity, Action action, bool isCriticalMiss = false)
         {
             var combatEntity = entities.FirstOrDefault(e => e.Entity == entity);
             if (combatEntity == null) return 0.0;
@@ -96,8 +96,8 @@ namespace RPGGame
                 // For characters: use the new attack speed system
                 double attackSpeed = character.GetTotalAttackSpeed();
                 
-                // Use default length (1.0) for basic attacks, action length for combo actions
-                double lengthMultiplier = isBasicAttack ? 1.0 : action.Length;
+                // Use action length for all actions
+                double lengthMultiplier = action.Length;
                 
                 // Apply critical miss penalty (doubles action length/recovery time for THIS action)
                 if (isCriticalMiss || entity.HasCriticalMissPenalty)

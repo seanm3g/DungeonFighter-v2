@@ -23,6 +23,9 @@ namespace RPGGame.Tests.Unit
             _testsPassed = 0;
             _testsFailed = 0;
 
+            // Initialize LootGenerator to ensure data cache is loaded
+            LootGenerator.Initialize();
+
             TestLootGeneration();
             TestLootTierCalculation();
             TestLootLevelCalculation();

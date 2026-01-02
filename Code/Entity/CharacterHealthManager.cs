@@ -187,15 +187,18 @@ namespace RPGGame
             if (newMaxHealth > oldMaxHealth)
             {
                 // If max health increased, heal to full health
-                CurrentHealth = newMaxHealth;
+                // Set directly to avoid clamping issues during equipment change
+                _currentHealth = newMaxHealth;
             }
             else if (newMaxHealth < oldMaxHealth)
             {
                 // If max health decreased, maintain health percentage but cap at new max
-                double healthPercentage = (double)CurrentHealth / oldMaxHealth;
+                double healthPercentage = (double)_currentHealth / oldMaxHealth;
                 int newCurrentHealth = (int)(newMaxHealth * healthPercentage);
-                CurrentHealth = Math.Min(newCurrentHealth, newMaxHealth);
+                // Set directly to avoid clamping issues during equipment change
+                _currentHealth = Math.Max(0, Math.Min(newCurrentHealth, newMaxHealth));
             }
+            // If equal, no adjustment needed
         }
 
         /// <summary>

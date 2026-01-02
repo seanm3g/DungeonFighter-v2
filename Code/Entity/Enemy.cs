@@ -101,14 +101,6 @@
         private void AddDefaultActions()
         {
             // Use simpler base values - the unified damage system will handle scaling
-            var basicAttack = new Action(
-                "BASIC ATTACK",
-                ActionType.Attack,
-                TargetType.SingleTarget,
-                cooldown: 0,
-                description: "A basic attack"
-            );
-
             var jab = new Action(
                 "Jab",
                 ActionType.Attack,
@@ -129,15 +121,13 @@
             if (Level >= 5)
             {
                 // Higher level enemies get access to special attacks
-                AddAction(basicAttack, 0.5);
-                AddAction(jab, 0.3);
-                AddAction(specialAttack, 0.2);
+                AddAction(jab, 0.6);
+                AddAction(specialAttack, 0.4);
             }
             else
             {
-                // Lower level enemies use basic attacks
-                AddAction(basicAttack, 0.7);
-                AddAction(jab, 0.3);
+                // Lower level enemies use simpler attacks
+                AddAction(jab, 1.0);
             }
         }
 
@@ -181,6 +171,11 @@
         public new int GetIntelligenceRollBonus()
         {
             var tuning = GameConfiguration.Instance;
+            // Prevent divide by zero - if IntelligenceRollBonusPer is 0 or not configured, return 0
+            if (tuning.Attributes.IntelligenceRollBonusPer <= 0)
+            {
+                return 0;
+            }
             return Intelligence / tuning.Attributes.IntelligenceRollBonusPer; // Every X points of INT gives +1 to rolls
         }
 

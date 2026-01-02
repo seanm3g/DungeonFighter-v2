@@ -44,6 +44,13 @@ namespace RPGGame
         {
             if (stateManager.CurrentPlayer == null || combatManager == null) return false;
             
+            // Clear enemy context before processing a new room
+            // This prevents old dead enemies from briefly showing during room transitions
+            if (customUIManager is CanvasUICoordinator canvasUIClear)
+            {
+                canvasUIClear.ClearCurrentEnemy();
+            }
+            
             stateManager.SetCurrentRoom(room);
             bool isLastRoom = (roomNumber == totalRooms);
             

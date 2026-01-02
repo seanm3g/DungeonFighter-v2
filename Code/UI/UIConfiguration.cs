@@ -83,6 +83,13 @@ namespace RPGGame
         /// </summary>
         public double WhiteTemperatureIntensity { get; set; } = 1.0;
         
+        /// <summary>
+        /// Darkening factor for subsequent lines in action blocks (roll info, status effects, etc.)
+        /// 0.0 = completely black, 1.0 = no darkening (same as primary line), 0.8 = 20% darker (default)
+        /// Lower values = darker subsequent lines, higher values = brighter subsequent lines
+        /// </summary>
+        public double SubsequentLineDarkening { get; set; } = 0.8;
+        
         // Animation Configuration
         /// <summary>
         /// [LEGACY/UNUSED] Controls the speed of the undulation/shimmer effect on colored text (in milliseconds)

@@ -83,7 +83,7 @@ namespace RPGGame
                 // This ensures the enemy encounter information is visible before combat starts
                 if (customUIManager is CanvasUICoordinator canvasUIEnemy)
                 {
-                    canvasUIEnemy.RenderEnemyEncounter(enemy, player, displayManager.CompleteDisplayLog, 
+                    canvasUIEnemy.RenderEnemyEncounter(enemy, player, displayManager.DungeonContext, 
                         stateManager.CurrentDungeon?.Name, stateManager.CurrentRoom?.Name);
                     // Brief delay to show enemy encounter information
                     await Task.Delay(2000);
@@ -93,7 +93,7 @@ namespace RPGGame
                 // This sets up the layout and enables structured combat mode
                 if (customUIManager is CanvasUICoordinator canvasUIInitial)
                 {
-                    canvasUIInitial.RenderCombat(player, enemy, displayManager.CompleteDisplayLog);
+                    canvasUIInitial.RenderCombat(player, enemy, displayManager.CombatLog);
                 }
             }
             
@@ -107,7 +107,7 @@ namespace RPGGame
                     bool stillActive = IsCharacterActive(player);
                     if (stillActive)
                     {
-                        canvasUI.RenderCombat(player, enemy, displayManager.CompleteDisplayLog);
+                        canvasUI.RenderCombat(player, enemy, displayManager.CombatLog);
                     }
                 });
                 displayManager.CombatEventAdded += debouncer.TriggerRefresh;
@@ -187,7 +187,7 @@ namespace RPGGame
                     // Double-check character is still active before rendering
                     if (IsCharacterActive(player))
                     {
-                        canvasUI4.RenderCombat(player, enemy, displayManager.CompleteDisplayLog);
+                        canvasUI4.RenderCombat(player, enemy, displayManager.CombatLog);
                     }
                 });
                 // Small delay to ensure the final render completes before continuing
@@ -195,6 +195,19 @@ namespace RPGGame
                 {
                     await Task.Delay(100);
                 }
+            }
+            
+            // Remove the dead enemy from the room's enemy list
+            // This prevents dead enemies from persisting and showing up during room transitions
+            if (enemy != null && !enemy.IsAlive && room != null)
+            {
+                room.RemoveDeadEnemies();
+            }
+            
+            // Clear enemy context after combat ends to prevent old enemies from showing during transitions
+            if (isCharacterActive && customUIManager is CanvasUICoordinator canvasUIClear)
+            {
+                canvasUIClear.ClearCurrentEnemy();
             }
             
             // Small delay before next

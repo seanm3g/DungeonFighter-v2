@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RPGGame.Data;
+using RPGGame;
 
 namespace RPGGame.Tests
 {
@@ -46,7 +47,11 @@ namespace RPGGame.Tests
             public Character Build()
             {
                 var character = new Character(_name, _level);
-                // Stats are set during character creation, but we can adjust if needed
+                // Always override stats with builder values to ensure test consistency
+                character.Stats.Strength = _strength;
+                character.Stats.Agility = _agility;
+                character.Stats.Technique = _technique;
+                character.Stats.Intelligence = _intelligence;
                 return character;
             }
         }
@@ -315,6 +320,42 @@ namespace RPGGame.Tests
         public static RPGGame.Action CreateMockAction(string name = "MockAction", RPGGame.ActionType type = RPGGame.ActionType.Attack)
         {
             return MockFactories.CreateMockAction(name, type);
+        }
+
+        /// <summary>
+        /// Creates a test character for testing
+        /// </summary>
+        public static Character CreateTestCharacter(string name = "TestCharacter", int level = 1)
+        {
+            return new Character(name, level);
+        }
+
+        /// <summary>
+        /// Creates a test LootDataCache with minimal test data
+        /// </summary>
+        public static LootDataCache CreateLootDataCache()
+        {
+            var cache = LootDataCache.CreateEmpty();
+            // Add a test tier distribution
+            cache.TierDistributions.Add(new TierDistribution
+            {
+                Level = 5,
+                Tier1 = 50.0,
+                Tier2 = 30.0,
+                Tier3 = 15.0,
+                Tier4 = 4.0,
+                Tier5 = 1.0
+            });
+            // Add a test rarity
+            cache.RarityData.Add(new RarityData
+            {
+                Name = "Common",
+                Weight = 500,
+                StatBonuses = 1,
+                ActionBonuses = 0,
+                Modifications = 0
+            });
+            return cache;
         }
     }
 

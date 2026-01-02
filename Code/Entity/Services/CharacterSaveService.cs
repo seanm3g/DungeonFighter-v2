@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using RPGGame;
 using RPGGame.Utils;
 using RPGGame.UI.Avalonia;
 
@@ -405,56 +406,116 @@ namespace RPGGame.Entity.Services
         public List<(string characterId, string characterName, int level)> ListAllSavedCharacters()
         {
             var results = new List<(string, string, int)>();
+            var processedFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             
             try
             {
-                // Look for character save files
+                // Look for character save files (includes both per-character and legacy files)
                 var saveFiles = fileManager.GetCharacterSaveFiles();
                 
                 foreach (var file in saveFiles)
                 {
                     try
                     {
+                        // Skip if we've already processed this file
+                        if (processedFiles.Contains(file))
+                        {
+                            continue;
+                        }
+                        processedFiles.Add(file);
+                        
+                        // Get character info
+                        var (name, level) = GetSavedCharacterInfo(file);
+                        if (name == null)
+                        {
+                            continue;
+                        }
+                        
                         // Extract character ID from filename
                         var fileName = Path.GetFileName(file);
-                        if (fileName.StartsWith("character_") && fileName.EndsWith("_save.json"))
+                        string characterId;
+                        
+                        // Check if this is the legacy save file (character_save.json)
+                        if (string.Equals(fileName, GameConstants.CharacterSaveJson, StringComparison.OrdinalIgnoreCase))
                         {
-                            var characterId = fileName.Substring(9, fileName.Length - 18); // Remove "character_" and "_save.json"
-                            
-                            // Get character info
-                            var (name, level) = GetSavedCharacterInfo(file);
-                            if (name != null)
+                            // Generate a character ID for legacy save
+                            characterId = $"{name}_{level}_legacy";
+                        }
+                        else if (fileName.StartsWith("character_") && fileName.EndsWith("_save.json"))
+                        {
+                            // Extract character ID from per-character save file
+                            // Remove "character_" (9 chars) and "_save.json" (11 chars)
+                            var idLength = fileName.Length - 20;
+                            if (idLength > 0)
                             {
-                                results.Add((characterId, name, level));
+                                characterId = fileName.Substring(9, idLength);
+                            }
+                            else
+                            {
+                                // Fallback if extraction fails
+                                characterId = $"{name}_{level}";
                             }
                         }
+                        else
+                        {
+                            // Unknown format, generate ID from name and level
+                            characterId = $"{name}_{level}";
+                        }
+                        
+                        results.Add((characterId, name, level));
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // Skip files that can't be read
+                        // Log error but continue processing other files
+                        ScrollDebugLogger.LogAlways($"Error reading save file {file}: {ex.Message}");
                         continue;
                     }
                 }
-                
-                // Also check for legacy single-character save file
-                var legacyFile = fileManager.GetDefaultSaveFilename();
-                if (fileManager.FileExists(legacyFile))
-                {
-                    var (name, level) = GetSavedCharacterInfo(legacyFile);
-                    if (name != null)
-                    {
-                        // Generate a character ID for legacy save
-                        var legacyId = $"{name}_{level}_legacy";
-                        results.Add((legacyId, name, level));
-                    }
-                }
             }
-            catch
+            catch (Exception ex)
             {
-                // Return empty list on error
+                // Log error but return what we've found so far
+                ScrollDebugLogger.LogAlways($"Error listing saved characters: {ex.Message}");
             }
             
             return results;
+        }
+
+        /// <summary>
+        /// Clears all saved characters by deleting all save files
+        /// </summary>
+        /// <returns>The number of save files deleted</returns>
+        public int ClearAllSavedCharacters()
+        {
+            int deletedCount = 0;
+            
+            try
+            {
+                var saveFiles = fileManager.GetCharacterSaveFiles();
+                
+                foreach (var file in saveFiles)
+                {
+                    try
+                    {
+                        if (fileManager.FileExists(file))
+                        {
+                            fileManager.DeleteFile(file);
+                            deletedCount++;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log error but continue deleting other files
+                        ScrollDebugLogger.LogAlways($"Error deleting save file {file}: {ex.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.LogAlways($"Error clearing saved characters: {ex.Message}");
+            }
+            
+            return deletedCount;
         }
     }
 }

@@ -49,6 +49,7 @@
                                  FontSize="14"
                                  Padding="8"
                                  Background="#FFF5F5F5"
+                                 Foreground="Black"
                                  BorderBrush="#FFCCCCCC"
                                  BorderThickness="1"/>
                     </StackPanel>
@@ -62,6 +63,7 @@
                                  FontSize="14"
                                  Padding="8"
                                  Background="#FFF5F5F5"
+                                 Foreground="Black"
                                  BorderBrush="#FFCCCCCC"
                                  BorderThickness="1"
                                  AcceptsReturn="True"
@@ -78,6 +80,7 @@
                                  FontSize="14"
                                  Padding="8"
                                  Background="#FFF5F5F5"
+                                 Foreground="Black"
                                  BorderBrush="#FFCCCCCC"
                                  BorderThickness="1"/>
                     </StackPanel>
@@ -91,6 +94,7 @@
                                  FontSize="14"
                                  Padding="8"
                                  Background="#FFF5F5F5"
+                                 Foreground="Black"
                                  BorderBrush="#FFCCCCCC"
                                  BorderThickness="1"
                                  AcceptsReturn="True"
@@ -109,6 +113,7 @@
                                      FontSize="14"
                                      Padding="8"
                                      Background="#FFF5F5F5"
+                                     Foreground="Black"
                                      BorderBrush="#FFCCCCCC"
                                      BorderThickness="1"
                                      Margin="0,0,10,0"/>
@@ -164,6 +169,7 @@
                                      FontSize="14"
                                      Padding="8"
                                      Background="#FFF5F5F5"
+                                     Foreground="Black"
                                      BorderBrush="#FFCCCCCC"
                                      BorderThickness="1"
                                      Margin="0,0,10,0"/>

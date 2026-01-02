@@ -85,9 +85,9 @@ namespace RPGGame.UI.Avalonia.Layout
             int totalDamage = character.GetEffectiveStrength() + weaponDamage + equipmentDamageBonus + modificationDamageBonus;
             
             // Add damage and armor stats first
-            canvas.AddCharacterStat(x, y, "dmg", totalDamage, 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.Magenta);
+            canvas.AddCharacterStat(x, y, "DMG", totalDamage, 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.Magenta);
             y++;
-            canvas.AddCharacterStat(x, y, "arm", character.GetTotalArmor(), 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.Magenta);
+            canvas.AddCharacterStat(x, y, "ARM", character.GetTotalArmor(), 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.Magenta);
             y++;
             y++; // Blank line after armor
             

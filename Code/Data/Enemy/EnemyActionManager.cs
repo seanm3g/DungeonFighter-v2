@@ -36,35 +36,11 @@ namespace RPGGame
                 }
             }
 
-            // Ensure ALL enemies have a BASIC ATTACK action
-            bool hasBasicAttack = enemy.ActionPool.Any(a => string.Equals(a.action.Name, "BASIC ATTACK", StringComparison.OrdinalIgnoreCase));
-            if (!hasBasicAttack)
-            {
-                // Try to inject BASIC ATTACK from actions data
-                var basic = ActionLoader.GetAction("BASIC ATTACK");
-                if (basic != null)
-                {
-                    enemy.AddAction(basic, 1.0);
-                }
-                else
-                {
-                    // Final fallback: create a simple basic attack
-                    var createdBasic = new Action(
-                        name: "BASIC ATTACK",
-                        type: ActionType.Attack,
-                        targetType: TargetType.SingleTarget,
-                        cooldown: 0,
-                        description: "A standard physical attack"
-                    );
-                    enemy.AddAction(createdBasic, 1.0);
-                }
-            }
-
             // Additional safeguard: ensure enemy has at least one damaging action (Attack or Spell)
             bool hasDamagingAction = enemy.ActionPool.Any(a => a.action.Type == ActionType.Attack || a.action.Type == ActionType.Spell);
             if (!hasDamagingAction)
             {
-                UIManager.WriteSystemLine($"Warning: Enemy '{data.Name}' still has no damaging actions after adding BASIC ATTACK.");
+                UIManager.WriteSystemLine($"Warning: Enemy '{data.Name}' has no damaging actions.");
             }
         }
     }

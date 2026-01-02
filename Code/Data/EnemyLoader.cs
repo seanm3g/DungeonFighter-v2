@@ -54,6 +54,15 @@ namespace RPGGame
 
         public static void LoadEnemies()
         {
+            LoadEnemies(validate: false);
+        }
+
+        /// <summary>
+        /// Loads enemies from JSON with optional validation
+        /// </summary>
+        /// <param name="validate">If true, validates loaded enemies and logs any issues</param>
+        public static void LoadEnemies(bool validate)
+        {
             try
             {
                 string? foundPath = null;
@@ -97,12 +106,43 @@ namespace RPGGame
                     UIManager.WriteSystemLine($"Warning: Enemies file not found. Tried paths: {string.Join(", ", PossibleEnemyPaths)}");
                     _enemies = new Dictionary<string, EnemyData>();
                 }
+
+                // Optional validation
+                if (validate)
+                {
+                    ValidateLoadedEnemies();
+                }
             }
             catch (Exception ex)
             {
                 UIManager.WriteSystemLine($"Error loading enemies: {ex.Message}");
                 UIManager.WriteSystemLine($"Stack trace: {ex.StackTrace}");
                 _enemies = new Dictionary<string, EnemyData>();
+            }
+        }
+
+        /// <summary>
+        /// Validates loaded enemies and logs any issues
+        /// </summary>
+        private static void ValidateLoadedEnemies()
+        {
+            try
+            {
+                var validator = new Data.Validation.EnemyDataValidator();
+                var result = validator.Validate();
+                
+                if (!result.IsValid)
+                {
+                    UIManager.WriteSystemLine($"Enemy validation found {result.Errors.Count} errors and {result.Warnings.Count} warnings");
+                    foreach (var error in result.Errors)
+                    {
+                        UIManager.WriteSystemLine($"Enemy validation error: {error.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UIManager.WriteSystemLine($"Enemy validation failed: {ex.Message}");
             }
         }
 

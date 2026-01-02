@@ -24,7 +24,7 @@ namespace RPGGame
                 return;
             }
 
-            // Start tracking execution time
+            // Start tracking execution time and launch time
             BuildExecutionMetrics.StartExecutionTracking();
             string executionMode = "GUI";
 
@@ -34,6 +34,7 @@ namespace RPGGame
                 if (args.Length > 0 && args[0] == "MCP")
                 {
                     executionMode = "MCP";
+                    BuildExecutionMetrics.RecordLaunchTime("MCP");
                     // Run MCP server instead of GUI
                     await RPGGame.MCP.MCPServerProgram.RunMCPServer(args);
                     return;
@@ -43,6 +44,7 @@ namespace RPGGame
                 if (args.Length > 0 && args[0].Equals("PLAY", StringComparison.OrdinalIgnoreCase))
                 {
                     executionMode = "PLAY";
+                    BuildExecutionMetrics.RecordLaunchTime("PLAY");
                     // Run interactive game player using MCP tools
                     await RPGGame.Game.InteractiveMCPGamePlayer.Main(args);
                     return;
@@ -52,6 +54,7 @@ namespace RPGGame
                 if (args.Length > 0 && args[0].Equals("CLAUDE", StringComparison.OrdinalIgnoreCase))
                 {
                     executionMode = "CLAUDE";
+                    BuildExecutionMetrics.RecordLaunchTime("CLAUDE");
                     // Run Claude AI game player with strategic decisions
                     await RPGGame.Game.ClaudeAIGamePlayer.Main(args);
                     return;
@@ -61,6 +64,7 @@ namespace RPGGame
                 if (args.Length > 0 && args[0] == "TUNING")
                 {
                     executionMode = "TUNING";
+                    BuildExecutionMetrics.RecordLaunchTime("TUNING");
                     // Run balance tuning runner
                     int iterations = args.Length > 1 && int.TryParse(args[1], out int iter) ? iter : 5;
                     await RPGGame.Tuning.TuningRunner.RunTuning(iterations);
@@ -71,12 +75,14 @@ namespace RPGGame
                 if (args.Length > 0 && args[0] == "TEST")
                 {
                     executionMode = "TEST";
+                    BuildExecutionMetrics.RecordLaunchTime("TEST");
                     // Run test battle comparison
                     await RPGGame.Tests.TestBattleComparison.Main(args);
                     return;
                 }
 
                 // Launch Avalonia GUI (execution time tracked until app closes)
+                // Launch time will be recorded when the window is ready
                 BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
             }
             finally

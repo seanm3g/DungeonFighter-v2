@@ -112,7 +112,7 @@ namespace RPGGame
         public Dungeon ChooseDungeon(List<Dungeon> availableDungeons)
         {
             UIManager.WriteMenuLine("\nAvailable Dungeons:");
-            UIManager.WriteMenuLine("--------------------------");
+            UIManager.WriteMenuLine(GameConstants.SubMenuSeparator);
             for (int i = 0; i < availableDungeons.Count; i++)
             {
                 var d = availableDungeons[i];

@@ -101,7 +101,7 @@ namespace RPGGame
                 if (actionSpeedSystem != null && usedAction != null)
                 {
                     bool isCriticalMiss = ActionExecutor.GetLastCriticalMissStatus(currentEnemy);
-                    actionSpeedSystem.ExecuteAction(currentEnemy, usedAction, isBasicAttack: false, isCriticalMiss: isCriticalMiss);
+                    actionSpeedSystem.ExecuteAction(currentEnemy, usedAction, isCriticalMiss: isCriticalMiss);
                 }
             }
             
@@ -274,8 +274,7 @@ namespace RPGGame
             if (actionSpeedSystem != null && usedAction != null)
             {
                 bool isCriticalMiss = ActionExecutor.GetLastCriticalMissStatus(player);
-                // BASIC ATTACK removed - all actions use normal length
-                actionSpeedSystem.ExecuteAction(player, usedAction, isBasicAttack: false, isCriticalMiss: isCriticalMiss);
+                actionSpeedSystem.ExecuteAction(player, usedAction, isCriticalMiss: isCriticalMiss);
             }
         }
 

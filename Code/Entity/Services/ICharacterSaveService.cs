@@ -67,6 +67,12 @@ namespace RPGGame.Entity.Services
         /// </summary>
         /// <returns>List of tuples containing (characterId, characterName, level) for each saved character</returns>
         List<(string characterId, string characterName, int level)> ListAllSavedCharacters();
+
+        /// <summary>
+        /// Clears all saved characters by deleting all save files
+        /// </summary>
+        /// <returns>The number of save files deleted</returns>
+        int ClearAllSavedCharacters();
     }
 }
 

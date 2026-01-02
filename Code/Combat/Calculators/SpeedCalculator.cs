@@ -17,17 +17,43 @@ namespace RPGGame.Combat.Calculators
             var tuning = GameConfiguration.Instance;
             double baseAttackTime = tuning.Combat.BaseAttackTime;
             
-            // Agility reduces attack time (makes you faster)
-            double agilityReduction = 0;
+            // Agility speed system: Uses configurable min/max agility and speed multipliers
+            // Linear interpolation between min and max agility values
+            double agilityAdjustedTime = baseAttackTime;
             if (actor is Character character)
             {
-                agilityReduction = character.Agility * tuning.Combat.AgilitySpeedReduction;
+                int agility = character.GetEffectiveAgility();
+                // Clamp agility to configured range
+                int agilityMin = tuning.Combat.AgilityMin;
+                int agilityMax = tuning.Combat.AgilityMax;
+                agility = Math.Max(agilityMin, Math.Min(agilityMax, agility));
+                
+                // Linear interpolation between min and max speed multipliers
+                double minMultiplier = tuning.Combat.AgilityMinSpeedMultiplier;
+                double maxMultiplier = tuning.Combat.AgilityMaxSpeedMultiplier;
+                double agilityRange = agilityMax - agilityMin;
+                double progress = agilityRange > 0 ? (agility - agilityMin) / (double)agilityRange : 0.0;
+                double speedMultiplier = minMultiplier + (maxMultiplier - minMultiplier) * progress;
+                
+                agilityAdjustedTime = baseAttackTime * speedMultiplier;
             }
             else if (actor is Enemy enemy)
             {
-                agilityReduction = enemy.Agility * tuning.Combat.AgilitySpeedReduction;
+                int agility = enemy.GetEffectiveAgility();
+                // Clamp agility to configured range
+                int agilityMin = tuning.Combat.AgilityMin;
+                int agilityMax = tuning.Combat.AgilityMax;
+                agility = Math.Max(agilityMin, Math.Min(agilityMax, agility));
+                
+                // Linear interpolation between min and max speed multipliers
+                double minMultiplier = tuning.Combat.AgilityMinSpeedMultiplier;
+                double maxMultiplier = tuning.Combat.AgilityMaxSpeedMultiplier;
+                double agilityRange = agilityMax - agilityMin;
+                double progress = agilityRange > 0 ? (agility - agilityMin) / (double)agilityRange : 0.0;
+                double speedMultiplier = minMultiplier + (maxMultiplier - minMultiplier) * progress;
+                
+                agilityAdjustedTime = baseAttackTime * speedMultiplier;
             }
-            double agilityAdjustedTime = baseAttackTime - agilityReduction;
             
             // Apply Actor-specific modifiers
             if (actor is Character charEntity)

@@ -2,8 +2,11 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Threading;
 using RPGGame;
+using RPGGame.Config;
+using RPGGame.UI;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Settings;
+using System;
 
 namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 {
@@ -178,6 +181,42 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     (color) => { settings.TextBoxFocusBorderColor = color; colorManager.ApplyColors(); },
                     (preview, color) => preview.BorderBrush = new SolidColorBrush(SettingsColorManager.ParseColor(color)));
 
+            // Wire up subsequent line darkening controls
+            var subsequentLineDarkeningSlider = appearancePanel.FindControl<Slider>("SubsequentLineDarkeningSlider");
+            var subsequentLineDarkeningTextBox = appearancePanel.FindControl<TextBox>("SubsequentLineDarkeningTextBox");
+            
+            if (subsequentLineDarkeningSlider != null && subsequentLineDarkeningTextBox != null)
+            {
+                // Load initial value from UIConfiguration
+                var uiConfig = UIConfiguration.LoadFromFile();
+                subsequentLineDarkeningSlider.Value = uiConfig.SubsequentLineDarkening;
+                subsequentLineDarkeningTextBox.Text = uiConfig.SubsequentLineDarkening.ToString("F2");
+                
+                // Bind slider to textbox
+                subsequentLineDarkeningSlider.ValueChanged += (s, e) =>
+                {
+                    subsequentLineDarkeningTextBox.Text = e.NewValue.ToString("F2");
+                    SaveSubsequentLineDarkening(e.NewValue);
+                };
+                
+                // Bind textbox to slider with validation
+                subsequentLineDarkeningTextBox.LostFocus += (s, e) =>
+                {
+                    if (double.TryParse(subsequentLineDarkeningTextBox.Text, out double value))
+                    {
+                        value = Math.Max(0.0, Math.Min(1.0, value)); // Clamp to 0-1
+                        subsequentLineDarkeningSlider.Value = value;
+                        subsequentLineDarkeningTextBox.Text = value.ToString("F2");
+                        SaveSubsequentLineDarkening(value);
+                    }
+                    else
+                    {
+                        // Reset to current slider value if invalid
+                        subsequentLineDarkeningTextBox.Text = subsequentLineDarkeningSlider.Value.ToString("F2");
+                    }
+                };
+            }
+
             // Load current settings
             appearancePanel.Loaded += (s, e) =>
             {
@@ -226,6 +265,42 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             if (textBoxHoverBackgroundTextBox != null) textBoxHoverBackgroundTextBox.Text = settings.TextBoxHoverBackgroundColor;
             if (textBoxBorderTextBox != null) textBoxBorderTextBox.Text = settings.TextBoxBorderColor;
             if (textBoxFocusBorderTextBox != null) textBoxFocusBorderTextBox.Text = settings.TextBoxFocusBorderColor;
+            
+            // Load subsequent line darkening setting
+            var subsequentLineDarkeningSlider = appearancePanel.FindControl<Slider>("SubsequentLineDarkeningSlider");
+            var subsequentLineDarkeningTextBox = appearancePanel.FindControl<TextBox>("SubsequentLineDarkeningTextBox");
+            
+            if (subsequentLineDarkeningSlider != null && subsequentLineDarkeningTextBox != null)
+            {
+                var uiConfig = UIConfiguration.LoadFromFile();
+                subsequentLineDarkeningSlider.Value = uiConfig.SubsequentLineDarkening;
+                subsequentLineDarkeningTextBox.Text = uiConfig.SubsequentLineDarkening.ToString("F2");
+            }
+        }
+        
+        private void SaveSubsequentLineDarkening(double value)
+        {
+            try
+            {
+                var uiConfig = UIConfiguration.LoadFromFile();
+                uiConfig.SubsequentLineDarkening = value;
+                
+                string? foundPath = JsonLoader.FindGameDataFile("UIConfiguration.json");
+                if (foundPath != null)
+                {
+                    var jsonOptions = new System.Text.Json.JsonSerializerOptions
+                    {
+                        WriteIndented = true,
+                        PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                    };
+                    string json = System.Text.Json.JsonSerializer.Serialize(uiConfig, jsonOptions);
+                    System.IO.File.WriteAllText(foundPath, json);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error saving subsequent line darkening: {ex.Message}");
+            }
         }
 
         private void WireUpColorTextBox(TextBox textBox, Border preview,

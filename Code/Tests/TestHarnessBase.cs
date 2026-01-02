@@ -54,9 +54,9 @@ namespace RPGGame.Tests
         /// </summary>
         public static void DisplayTestHeader(string testName)
         {
-            TextDisplayIntegration.DisplaySystem("\n" + new string('=', 80));
+            TextDisplayIntegration.DisplaySystem($"\n{GameConstants.StandardSeparator}");
             TextDisplayIntegration.DisplaySystem(testName);
-            TextDisplayIntegration.DisplaySystem(new string('=', 80));
+            TextDisplayIntegration.DisplaySystem(GameConstants.StandardSeparator);
         }
 
         /// <summary>

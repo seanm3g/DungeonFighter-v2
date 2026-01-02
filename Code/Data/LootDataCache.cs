@@ -29,6 +29,14 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Creates an empty LootDataCache instance for testing purposes
+        /// </summary>
+        internal static LootDataCache CreateEmpty()
+        {
+            return new LootDataCache();
+        }
+
+        /// <summary>
         /// Loads all loot data from JSON files
         /// </summary>
         public static LootDataCache Load()

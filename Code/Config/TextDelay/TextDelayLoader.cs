@@ -76,6 +76,10 @@ namespace RPGGame.Config.TextDelay
                             ?? new ProgressiveMenuDelaysConfig();
                     }
 
+                    // Load environmental line delay
+                    if (config.TryGetProperty("EnvironmentalLineDelay", out var environmentalLineDelay))
+                        configData.EnvironmentalLineDelay = environmentalLineDelay.GetInt32();
+
                     // Load enable flags
                     if (config.TryGetProperty("EnableGuiDelays", out var enableGui))
                         configData.EnableGuiDelays = enableGui.GetBoolean();
@@ -100,6 +104,12 @@ namespace RPGGame.Config.TextDelay
         /// </summary>
         private static void InitializeDefaults(TextDelayConfigData configData)
         {
+            // Default environmental line delay (500ms)
+            if (configData.EnvironmentalLineDelay == 0)
+            {
+                configData.EnvironmentalLineDelay = 500;
+            }
+
             // Default message type delays
             if (configData.MessageTypeDelays.Count == 0)
             {
@@ -201,6 +211,9 @@ namespace RPGGame.Config.TextDelay
                     ProgressiveThreshold = configData.ProgressiveMenuDelays.ProgressiveThreshold
                 };
                 
+                // Add environmental line delay
+                saveData.EnvironmentalLineDelay = configData.EnvironmentalLineDelay;
+
                 // Add enable flags
                 saveData.EnableGuiDelays = configData.EnableGuiDelays;
                 saveData.EnableConsoleDelays = configData.EnableConsoleDelays;
@@ -230,6 +243,7 @@ namespace RPGGame.Config.TextDelay
             public Dictionary<string, ChunkedTextRevealPreset> ChunkedTextRevealPresets { get; set; } = new Dictionary<string, ChunkedTextRevealPreset>();
             public int ActionDelayMs { get; set; } = 1000;
             public int MessageDelayMs { get; set; } = 200;
+            public int EnvironmentalLineDelay { get; set; } = 500;
             public ProgressiveMenuDelaysConfig ProgressiveMenuDelays { get; set; } = new ProgressiveMenuDelaysConfig();
             public bool EnableGuiDelays { get; set; } = true;
             public bool EnableConsoleDelays { get; set; } = true;
@@ -243,6 +257,7 @@ namespace RPGGame.Config.TextDelay
             public Dictionary<string, int> MessageTypeDelays { get; set; } = new Dictionary<string, int>();
             public Dictionary<string, ChunkedTextRevealPreset> ChunkedTextReveal { get; set; } = new Dictionary<string, ChunkedTextRevealPreset>();
             public CombatDelaysData CombatDelays { get; set; } = new CombatDelaysData();
+            public int EnvironmentalLineDelay { get; set; } = 500;
             public ProgressiveMenuDelaysConfig ProgressiveMenuDelays { get; set; } = new ProgressiveMenuDelaysConfig();
             public bool EnableGuiDelays { get; set; } = true;
             public bool EnableConsoleDelays { get; set; } = true;

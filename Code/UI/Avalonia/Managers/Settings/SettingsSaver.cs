@@ -78,6 +78,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                     controls.DamageOverTimeDelayTextBox!,
                     controls.EncounterDelayTextBox!,
                     controls.RollInfoDelayTextBox!,
+                    controls.EnvironmentalLineDelayTextBox!,
                     controls.BaseMenuDelayTextBox!,
                     controls.ProgressiveReductionRateTextBox!,
                     controls.ProgressiveThresholdTextBox!,
@@ -143,7 +144,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 controls.MainTitleDelayTextBox != null && controls.EnvironmentalDelayTextBox != null &&
                 controls.EffectMessageDelayTextBox != null && controls.DamageOverTimeDelayTextBox != null &&
                 controls.EncounterDelayTextBox != null && controls.RollInfoDelayTextBox != null &&
-                controls.BaseMenuDelayTextBox != null && controls.ProgressiveReductionRateTextBox != null &&
+                controls.EnvironmentalLineDelayTextBox != null && controls.BaseMenuDelayTextBox != null && controls.ProgressiveReductionRateTextBox != null &&
                 controls.ProgressiveThresholdTextBox != null && controls.CombatPresetBaseDelayTextBox != null &&
                 controls.CombatPresetMinDelayTextBox != null && controls.CombatPresetMaxDelayTextBox != null &&
                 controls.DungeonPresetBaseDelayTextBox != null && controls.DungeonPresetMinDelayTextBox != null &&

@@ -56,6 +56,12 @@ namespace RPGGame
         /// </summary>
         public List<string> CombatLog => displayBuffer.CombatLog;
 
+        /// <summary>
+        /// Gets the dungeon context (header + room + enemy info, without combat log)
+        /// Used for rendering the header section in combat screens
+        /// </summary>
+        public List<string> DungeonContext => displayBuffer.DungeonContext;
+
         public DungeonDisplayManager(GameNarrativeManager narrativeManager, IUIManager? uiManager = null, GameStateManager? stateManager = null)
         {
             this.narrativeManager = narrativeManager ?? throw new ArgumentNullException(nameof(narrativeManager));

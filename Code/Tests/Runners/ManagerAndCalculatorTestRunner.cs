@@ -1,4 +1,5 @@
 using System;
+using RPGGame;
 using RPGGame.Tests.Unit;
 
 namespace RPGGame.Tests.Runners
@@ -15,15 +16,15 @@ namespace RPGGame.Tests.Runners
         /// </summary>
         public static void RunAllTests()
         {
-            Console.WriteLine("========================================");
+            Console.WriteLine(GameConstants.StandardSeparator);
             Console.WriteLine("Manager and Calculator Test Suite");
-            Console.WriteLine("========================================\n");
+            Console.WriteLine($"{GameConstants.StandardSeparator}\n");
 
             try
             {
                 // Run manager tests
                 Console.WriteLine("\n[MANAGER TESTS]");
-                Console.WriteLine("===============\n");
+                Console.WriteLine($"{GameConstants.StandardSeparator}\n");
                 
                 ClassActionManagerTests.RunAllTests();
                 Console.WriteLine();
@@ -39,21 +40,21 @@ namespace RPGGame.Tests.Runners
 
                 // Run calculator tests
                 Console.WriteLine("\n[CALCULATOR TESTS]");
-                Console.WriteLine("==================\n");
+                Console.WriteLine($"{GameConstants.StandardSeparator}\n");
                 
                 CombatCalculatorTests.RunAllTests();
                 Console.WriteLine();
 
                 // Run UI builder tests
                 Console.WriteLine("\n[UI BUILDER TESTS]");
-                Console.WriteLine("==================\n");
+                Console.WriteLine($"{GameConstants.StandardSeparator}\n");
                 
                 UIMessageBuilderTests.RunAllTests();
                 Console.WriteLine();
 
-                Console.WriteLine("\n========================================");
+                Console.WriteLine($"\n{GameConstants.StandardSeparator}");
                 Console.WriteLine("All Manager and Calculator Tests Complete");
-                Console.WriteLine("========================================\n");
+                Console.WriteLine($"{GameConstants.StandardSeparator}\n");
             }
             catch (Exception ex)
             {
@@ -67,9 +68,9 @@ namespace RPGGame.Tests.Runners
         /// </summary>
         public static void RunManagerTests()
         {
-            Console.WriteLine("========================================");
+            Console.WriteLine(GameConstants.StandardSeparator);
             Console.WriteLine("Manager Test Suite");
-            Console.WriteLine("========================================\n");
+            Console.WriteLine($"{GameConstants.StandardSeparator}\n");
 
             ClassActionManagerTests.RunAllTests();
             Console.WriteLine();
@@ -85,9 +86,9 @@ namespace RPGGame.Tests.Runners
         /// </summary>
         public static void RunCalculatorTests()
         {
-            Console.WriteLine("========================================");
+            Console.WriteLine(GameConstants.StandardSeparator);
             Console.WriteLine("Calculator Test Suite");
-            Console.WriteLine("========================================\n");
+            Console.WriteLine($"{GameConstants.StandardSeparator}\n");
 
             CombatCalculatorTests.RunAllTests();
         }
@@ -97,9 +98,9 @@ namespace RPGGame.Tests.Runners
         /// </summary>
         public static void RunUIBuilderTests()
         {
-            Console.WriteLine("========================================");
+            Console.WriteLine(GameConstants.StandardSeparator);
             Console.WriteLine("UI Builder Test Suite");
-            Console.WriteLine("========================================\n");
+            Console.WriteLine($"{GameConstants.StandardSeparator}\n");
 
             UIMessageBuilderTests.RunAllTests();
         }

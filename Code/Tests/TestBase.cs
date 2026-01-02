@@ -96,6 +96,25 @@ namespace RPGGame.Tests
             }
         }
         
+        // Overload for nullable strings (to handle null comparisons properly)
+        public static void AssertEqual(string? expected, string? actual, string message, ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            testsRun++;
+            if (expected == actual || (expected != null && expected.Equals(actual)))
+            {
+                testsPassed++;
+                Console.WriteLine($"  ✓ {message}");
+                TestResultCollector.RecordTest(_currentTestName ?? message, true, message);
+            }
+            else
+            {
+                testsFailed++;
+                string failureMessage = $"{message} (Expected: {expected ?? "null"}, Actual: {actual ?? "null"})";
+                Console.WriteLine($"  ✗ FAILED: {failureMessage}");
+                TestResultCollector.RecordTest(_currentTestName ?? message, false, failureMessage);
+            }
+        }
+        
         public static void AssertNotNull(object? obj, string message, ref int testsRun, ref int testsPassed, ref int testsFailed)
         {
             AssertTrue(obj != null, message, ref testsRun, ref testsPassed, ref testsFailed);

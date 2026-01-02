@@ -5,6 +5,35 @@ namespace RPGGame
     public class Dice
     {
         private static readonly Random _random = new Random();
+        
+        // Test mode support - allows setting specific roll values for testing
+        private static int? _testRollValue = null;
+        private static bool _testModeEnabled = false;
+
+        /// <summary>
+        /// Sets a test roll value for testing purposes.
+        /// When test mode is enabled, Roll() will return this value instead of a random value.
+        /// </summary>
+        /// <param name="rollValue">The roll value to return (or null to disable test mode)</param>
+        public static void SetTestRoll(int? rollValue)
+        {
+            _testRollValue = rollValue;
+            _testModeEnabled = rollValue.HasValue;
+        }
+
+        /// <summary>
+        /// Clears test mode and returns to normal random behavior
+        /// </summary>
+        public static void ClearTestRoll()
+        {
+            _testRollValue = null;
+            _testModeEnabled = false;
+        }
+
+        /// <summary>
+        /// Checks if test mode is currently enabled
+        /// </summary>
+        public static bool IsTestModeEnabled => _testModeEnabled;
 
         /// <summary>
         /// Rolls X dice with Y sides each (XdY)
@@ -19,6 +48,24 @@ namespace RPGGame
             if (sides < 2)
                 throw new ArgumentException("Dice must have at least 2 sides", nameof(sides));
 
+            // If test mode is enabled, return the test value
+            if (_testModeEnabled && _testRollValue.HasValue)
+            {
+                // For multiple dice, return the test value multiplied by number of dice
+                // This allows testing single die rolls (1d20) with specific values
+                if (numberOfDice == 1)
+                {
+                    return _testRollValue.Value;
+                }
+                else
+                {
+                    // For multiple dice, return test value * numberOfDice
+                    // Tests should set test roll for single die scenarios
+                    return _testRollValue.Value * numberOfDice;
+                }
+            }
+
+            // Normal random behavior
             int total = 0;
             for (int i = 0; i < numberOfDice; i++)
             {

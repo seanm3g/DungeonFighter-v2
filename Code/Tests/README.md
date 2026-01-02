@@ -28,13 +28,46 @@ Contains example/demo files showing system usage:
 
 ## Running Tests
 
-### From Code
-Call test methods directly:
+### From Code - Comprehensive Test Suite (Recommended)
 ```csharp
-// Run comprehensive test suite
+using RPGGame.Tests.Runners;
+
+// Run all tests (includes all new system tests)
+ComprehensiveTestRunner.RunAllTests();
+
+// Run specific system test suites
+DataSystemTestRunner.RunAllTests();
+ItemsSystemTestRunner.RunAllTests();
+ActionsSystemTestRunner.RunAllTests();
+ConfigSystemTestRunner.RunAllTests();
+EntitySystemTestRunner.RunAllTests();
+CombatSystemTestRunner.RunAllTests();
+WorldSystemTestRunner.RunAllTests();
+GameSystemTestRunner.RunAllTests();
+UISystemTestRunner.RunAllTests();
+```
+
+### From Code - Individual Test Classes
+```csharp
+// Data system tests
+using RPGGame.Tests.Unit.Data;
+ActionLoaderTests.RunAllTests();
+JsonLoaderTests.RunAllTests();
+
+// Items system tests
+using RPGGame.Tests.Unit.Items;
+InventoryManagerTests.RunAllTests();
+ItemTests.RunAllTests();
+
+// And so on for other systems...
+```
+
+### From Code - Legacy Test Manager
+```csharp
+// Run comprehensive test suite (legacy method)
 TestManager.RunAllTests();
 
-// Run specific tests
+// Run specific legacy tests
 ActionEditorTest.RunAllTests();
 BattleNarrativeManagersTest.RunAllTests();
 ColorConfigurationLoaderTest.RunAllTests();

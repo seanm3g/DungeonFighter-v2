@@ -57,6 +57,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         public TextBox? DamageOverTimeDelayTextBox { get; set; }
         public TextBox? EncounterDelayTextBox { get; set; }
         public TextBox? RollInfoDelayTextBox { get; set; }
+        public TextBox? EnvironmentalLineDelayTextBox { get; set; }
         public TextBox? BaseMenuDelayTextBox { get; set; }
         public TextBox? ProgressiveReductionRateTextBox { get; set; }
         public TextBox? ProgressiveThresholdTextBox { get; set; }

@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using Avalonia.Threading;
+using RPGGame;
 using RPGGame.Tests.Runners;
 using RPGGame.UI.Avalonia;
 
@@ -78,7 +79,7 @@ namespace RPGGame.UI.Avalonia.Managers
             RunTestSuite(
                 () => ComprehensiveTestRunner.RunAllTests(),
                 "tests",
-                "========================================\n  COMPREHENSIVE GAME TEST SUITE\n========================================"
+                $"{GameConstants.StandardSeparator}\n  COMPREHENSIVE GAME TEST SUITE\n{GameConstants.StandardSeparator}"
             );
         }
 

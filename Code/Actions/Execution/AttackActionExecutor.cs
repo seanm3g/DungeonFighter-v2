@@ -85,13 +85,13 @@ namespace RPGGame.Actions.Execution
                     targetEnemy.ApplyRollPenalty(selectedAction.Advanced.EnemyRollPenalty, 1);
                 }
                 
-                // Reset combo if normal attack hits with roll 6-13
+                // Reset combo if non-combo action hits with roll 6-13
                 if (source is Character resetCharacter && !(resetCharacter is Enemy))
                 {
-                    // Check if this is a normal attack (not a combo action)
-                    bool isNormalAttack = selectedAction.Name == "BASIC ATTACK" || !selectedAction.IsComboAction;
+                    // Check if this is a non-combo action
+                    bool isNormalAttack = !selectedAction.IsComboAction;
                     
-                    // If normal attack with roll 6-13, reset the combo
+                    // If non-combo action with roll 6-13, reset the combo
                     if (isNormalAttack && baseRoll >= 6 && baseRoll <= 13)
                     {
                         resetCharacter.ResetCombo();
@@ -173,7 +173,7 @@ namespace RPGGame.Actions.Execution
                     ActionStatisticsTracker.RecordDamageReceived(targetCharacter, damage);
                 }
                 
-                bool isCombo = selectedAction.Name != "BASIC ATTACK";
+                bool isCombo = selectedAction.IsComboAction;
                 // Use threshold manager to determine critical hit (consistent with ActionExecutionFlow)
                 bool isCriticalHit = totalRoll >= RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
                 ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, damage, totalRoll, rollBonus, true, isCombo, 0, 0, isCriticalHit, naturalRoll, battleNarrative);
@@ -186,13 +186,13 @@ namespace RPGGame.Actions.Execution
                     targetEnemy.ApplyRollPenalty(selectedAction.Advanced.EnemyRollPenalty, 1);
                 }
                 
-                // Reset combo if normal attack hits with roll 6-13
+                // Reset combo if non-combo action hits with roll 6-13
                 if (source is Character resetCharacter && !(resetCharacter is Enemy))
                 {
-                    // Check if this is a normal attack (not a combo action)
-                    bool isNormalAttack = selectedAction.Name == "BASIC ATTACK" || !selectedAction.IsComboAction;
+                    // Check if this is a non-combo action
+                    bool isNormalAttack = !selectedAction.IsComboAction;
                     
-                    // If normal attack with roll 6-13, reset the combo
+                    // If non-combo action with roll 6-13, reset the combo
                     if (isNormalAttack && baseRoll >= 6 && baseRoll <= 13)
                     {
                         resetCharacter.ResetCombo();

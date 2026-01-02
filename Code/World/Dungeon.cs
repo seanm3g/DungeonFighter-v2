@@ -25,17 +25,22 @@ namespace RPGGame
 
         public void Generate()
         {
-            // Use TuningConfig for dungeon scaling
-            var dungeonScaling = GameConfiguration.Instance.DungeonScaling;
-            var dungeonConfig = GameCoordinator.GetDungeonGenerationConfig();
-            
-            int roomCount = Math.Max(dungeonScaling.RoomCountBase, (int)Math.Ceiling(MinLevel * dungeonScaling.RoomCountPerLevel));
             Rooms.Clear();
 
-            bool hasHostileRoom = false; // Track if we've generated at least one hostile room
+            try
+            {
+                // Use TuningConfig for dungeon scaling
+                var dungeonScaling = GameConfiguration.Instance.DungeonScaling;
+                var dungeonConfig = GameCoordinator.GetDungeonGenerationConfig();
+                
+                // Calculate room count with fallback to ensure at least 1 room
+                int roomCount = Math.Max(1, Math.Max(dungeonScaling.RoomCountBase, (int)Math.Ceiling(MinLevel * dungeonScaling.RoomCountPerLevel)));
+
+                bool hasHostileRoom = false; // Track if we've generated at least one hostile room
 
             for (int i = 0; i < roomCount; i++)
             {
+                Environment? room = null;
                 try
                 {
                     // Determine room type and difficulty
@@ -59,25 +64,116 @@ namespace RPGGame
                     int roomLevel = random.Next(MinLevel, MaxLevel + 1);
 
                     // Use RoomGenerator to create theme-appropriate rooms
-                    var room = RoomGenerator.GenerateRoom(Theme, roomLevel, isHostile);
+                    try
+                    {
+                        room = RoomGenerator.GenerateRoom(Theme, roomLevel, isHostile);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log error but continue with fallback
+                        if (GameConfiguration.IsDebugEnabled)
+                        {
+                            System.Console.WriteLine($"RoomGenerator.GenerateRoom failed for {Theme} room {i}: {ex.Message}");
+                        }
+                        room = null; // Will trigger fallback below
+                    }
                     
                     if (room == null)
                     {
-                        continue;
+                        // Fallback: create a basic room if RoomGenerator fails
+                        room = new Environment(
+                            name: $"{Theme} Room",
+                            description: $"A {Theme.ToLower()} room.",
+                            isHostile: isHostile,
+                            theme: Theme
+                        );
                     }
 
                     // Generate enemies with scaled levels and dungeon-specific enemy list
                     // Pass dungeon level bounds to ensure enemy levels stay within range
-                    room.GenerateEnemies(roomLevel, PossibleEnemies, MinLevel, MaxLevel);
+                    try
+                    {
+                        room.GenerateEnemies(roomLevel, PossibleEnemies, MinLevel, MaxLevel);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log error but continue - room will be added without enemies if needed
+                        if (GameConfiguration.IsDebugEnabled)
+                        {
+                            System.Console.WriteLine($"GenerateEnemies failed for room {i}: {ex.Message}");
+                        }
+                    }
+                    
                     Rooms.Add(room);
+                }
+                catch (Exception ex)
+                {
+                    // If room creation completely fails, try to create a minimal fallback room
+                    if (GameConfiguration.IsDebugEnabled)
+                    {
+                        System.Console.WriteLine($"Room generation failed for room {i}: {ex.Message}");
+                    }
+                    
+                    // Try to create a minimal fallback room
+                    try
+                    {
+                        int roomLevel = random.Next(MinLevel, MaxLevel + 1);
+                        var fallbackRoom = new Environment(
+                            name: $"{Theme} Room {i + 1}",
+                            description: $"A {Theme.ToLower()} room.",
+                            isHostile: true,
+                            theme: Theme
+                        );
+                        try
+                        {
+                            fallbackRoom.GenerateEnemies(roomLevel, PossibleEnemies, MinLevel, MaxLevel);
+                        }
+                        catch
+                        {
+                            // Room will be added even without enemies
+                        }
+                        Rooms.Add(fallbackRoom);
+                        hasHostileRoom = true;
+                    }
+                    catch
+                    {
+                        // If even the fallback fails, continue to next room
+                        // The final fallback at the end will ensure at least one room
+                    }
+                }
+            }
+            }
+            catch (Exception)
+            {
+                // If initialization or generation fails completely, ensure we still create at least one room
+            }
+            
+            // Final fallback: if no rooms were generated, create at least one
+            if (Rooms.Count == 0)
+            {
+                try
+                {
+                    int roomLevel = random.Next(MinLevel, MaxLevel + 1);
+                    var fallbackRoom = new Environment(
+                        name: $"{Theme} Room",
+                        description: $"A {Theme.ToLower()} room.",
+                        isHostile: true,
+                        theme: Theme
+                    );
+                    fallbackRoom.GenerateEnemies(roomLevel, PossibleEnemies, MinLevel, MaxLevel);
+                    Rooms.Add(fallbackRoom);
                 }
                 catch (Exception)
                 {
-                    // Continue generating other rooms even if one fails
+                    // Even the fallback failed - create a minimal room without enemies
+                    var minimalRoom = new Environment(
+                        name: $"{Theme} Room",
+                        description: $"A {Theme.ToLower()} room.",
+                        isHostile: true,
+                        theme: Theme
+                    );
+                    Rooms.Add(minimalRoom);
                 }
-            }
-            if (Rooms.Count == 0)
-            {
             }
         }
 

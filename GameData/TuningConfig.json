@@ -12,17 +12,17 @@
       "intelligence": 3
     },
     "playerAttributesPerLevel": 2,
-    "enemyAttributesPerLevel": 3,
+    "enemyAttributesPerLevel": 2,
     "enemyPrimaryAttributeBonus": 1,
-    "intelligenceRollBonusPer": 10
+    "intelligenceRollBonusPer": 5
   },
   "progression": {
-    "baseXPToLevel2": 40,
-    "xpScalingFactor": 1,
-    "enemyXPBase": 15,
-    "enemyXPPerLevel": 5,
-    "enemyGoldBase": 5,
-    "enemyGoldPerLevel": 3
+    "baseXPToLevel2": 0,
+    "xpScalingFactor": 0,
+    "enemyXPBase": 0,
+    "enemyXPPerLevel": 0,
+    "enemyGoldBase": 0,
+    "enemyGoldPerLevel": 0
   },
   "xpRewards": {
     "baseXPFormula": "",
@@ -69,36 +69,40 @@
   },
   "combat": {
     "criticalHitThreshold": 20,
-    "criticalHitMultiplier": 1.35,
+    "criticalHitMultiplier": 2,
     "minimumDamage": 1,
-    "baseAttackTime": 8,
-    "agilitySpeedReduction": 0.1,
-    "minimumAttackTime": 0.1
+    "baseAttackTime": 8.0,
+    "agilitySpeedReduction": 0.01,
+    "minimumAttackTime": 0.08,
+    "agilityMin": 1,
+    "agilityMax": 100,
+    "agilityMinSpeedMultiplier": 0.99,
+    "agilityMaxSpeedMultiplier": 0.01
   },
   "combatBalance": {
     "criticalHitChance": 0.05,
-    "criticalHitDamageMultiplier": 1.5,
+    "criticalHitDamageMultiplier": 2,
     "rollDamageMultipliers": {
-      "comboRollDamageMultiplier": 1.1,
+      "comboRollDamageMultiplier": 1.2,
       "basicRollDamageMultiplier": 1,
-      "comboAmplificationScalingMultiplier": 1.5,
-      "tierScalingFallbackMultiplier": 0.3
+      "comboAmplificationScalingMultiplier": 1,
+      "tierScalingFallbackMultiplier": 1
     },
     "statusEffectScaling": {
-      "bleedDuration": 3,
-      "poisonDuration": 5,
-      "stunDuration": 2,
-      "burnDuration": 4,
-      "freezeDuration": 3,
-      "statusEffectDamageScaling": 1
+      "bleedDuration": 0,
+      "poisonDuration": 0,
+      "stunDuration": 0,
+      "burnDuration": 0,
+      "freezeDuration": 0,
+      "statusEffectDamageScaling": 0
     },
     "environmentalEffects": {
-      "enableEnvironmentalEffects": true,
-      "environmentalDamageMultiplier": 0.1,
-      "environmentalDebuffChance": 0.15,
-      "environmentalBuffChance": 0.1
+      "enableEnvironmentalEffects": false,
+      "environmentalDamageMultiplier": 0,
+      "environmentalDebuffChance": 0,
+      "environmentalBuffChance": 0
     },
-    "description": "Advanced combat mechanics and balance settings"
+    "description": ""
   },
   "rollSystem": {
     "missThreshold": {
@@ -116,9 +120,9 @@
     "criticalThreshold": 20
   },
   "comboSystem": {
-    "comboAmplifierAtTech5": 1.05,
-    "comboAmplifierMax": 2,
-    "comboAmplifierMaxTech": 100
+    "comboAmplifierAtTech5": 1.1,
+    "comboAmplifierMax": 1.3,
+    "comboAmplifierMaxTech": 20
   },
   "poison": {
     "tickInterval": 0,
@@ -127,19 +131,19 @@
   },
   "statusEffects": {
     "bleed": {
-      "damagePerTick": 1,
-      "tickInterval": 3,
-      "maxStacks": 5,
-      "stacksPerApplication": 2,
+      "damagePerTick": 0,
+      "tickInterval": 0,
+      "maxStacks": 0,
+      "stacksPerApplication": 0,
       "speedReduction": 0,
       "duration": 0,
       "skipTurns": 0
     },
     "burn": {
-      "damagePerTick": 3,
-      "tickInterval": 2,
-      "maxStacks": 3,
-      "stacksPerApplication": 1,
+      "damagePerTick": 0,
+      "tickInterval": 0,
+      "maxStacks": 0,
+      "stacksPerApplication": 0,
       "speedReduction": 0,
       "duration": 0,
       "skipTurns": 0
@@ -147,31 +151,31 @@
     "freeze": {
       "damagePerTick": 0,
       "tickInterval": 0,
-      "maxStacks": 1,
-      "stacksPerApplication": 1,
-      "speedReduction": 0.5,
-      "duration": 5,
+      "maxStacks": 0,
+      "stacksPerApplication": 0,
+      "speedReduction": 0,
+      "duration": 0,
       "skipTurns": 0
     },
     "stun": {
       "damagePerTick": 0,
       "tickInterval": 0,
-      "maxStacks": 1,
-      "stacksPerApplication": 1,
-      "speedReduction": 0,
-      "duration": 2,
-      "skipTurns": 1
-    },
-    "poison": {
-      "damagePerTick": 3,
-      "tickInterval": 2,
-      "maxStacks": 5,
-      "stacksPerApplication": 1,
+      "maxStacks": 0,
+      "stacksPerApplication": 0,
       "speedReduction": 0,
       "duration": 0,
       "skipTurns": 0
     },
-    "description": "Status effect configurations and balance"
+    "poison": {
+      "damagePerTick": 0,
+      "tickInterval": 0,
+      "maxStacks": 0,
+      "stacksPerApplication": 0,
+      "speedReduction": 0,
+      "duration": 0,
+      "skipTurns": 0
+    },
+    "description": ""
   },
   "enemyScaling": {
     "enemyHealthMultiplier": 0,
@@ -273,75 +277,29 @@
   },
   "enemySystem": {
     "globalMultipliers": {
-      "healthMultiplier": 1.05,
-      "damageMultiplier": 1.03,
+      "healthMultiplier": 1.5,
+      "damageMultiplier": 1,
       "armorMultiplier": 1,
       "speedMultiplier": 1,
-      "description": "Global multipliers applied to all enemies"
+      "description": ""
     },
     "baselineStats": {
-      "health": 30,
+      "health": 50,
       "strength": 3,
       "agility": 3,
       "technique": 3,
       "intelligence": 3,
       "armor": 2,
-      "description": "Base stats that all enemies start with"
+      "description": ""
     },
     "scalingPerLevel": {
-      "health": 3,
-      "attributes": 2,
-      "armor": 0.1
+      "health": 0,
+      "attributes": 0,
+      "armor": 0
     },
-    "archetypes": {
-      "Berserker": {
-        "health": 0.8,
-        "strength": 1.5,
-        "agility": 0.9,
-        "technique": 0.9,
-        "intelligence": 0.8,
-        "armor": 0.5,
-        "description": "High damage - aggressive fighters"
-      },
-      "Guardian": {
-        "health": 1,
-        "strength": 0.8,
-        "agility": 0.8,
-        "technique": 0.8,
-        "intelligence": 0.8,
-        "armor": 1.8,
-        "description": "High armor - protective tanks"
-      },
-      "Assassin": {
-        "health": 0.7,
-        "strength": 1,
-        "agility": 1.05,
-        "technique": 1.2,
-        "intelligence": 1,
-        "armor": 0.4,
-        "description": "High attack speed - quick strikers"
-      },
-      "Brute": {
-        "health": 1.05,
-        "strength": 1,
-        "agility": 0.7,
-        "technique": 0.7,
-        "intelligence": 0.7,
-        "armor": 0.8,
-        "description": "High health - heavy hitters"
-      },
-      "Mage": {
-        "health": 0.6,
-        "strength": 0.6,
-        "agility": 0.8,
-        "technique": 0.8,
-        "intelligence": 1.8,
-        "armor": 0.3,
-        "description": "High intelligence - magical casters"
-      }
-    },
+    "archetypes": {},
     "levelVariance": 1,
-    "description": "Unified enemy system with archetypes and scaling"
+    "description": ""
   },
   "itemScaling": {
     "startingWeaponDamage": {},
@@ -356,10 +314,10 @@
   },
   "weaponScaling": {
     "startingWeaponDamage": {
-      "mace": 6,
-      "sword": 5,
-      "dagger": 3,
-      "wand": 4
+      "mace": 0,
+      "sword": 0,
+      "dagger": 0,
+      "wand": 0
     },
     "tierDamageRanges": {
       "tier1": {
@@ -383,8 +341,8 @@
         "max": 0
       }
     },
-    "globalDamageMultiplier": 0.8,
-    "description": "Weapon damage scaling and starting weapon configuration"
+    "globalDamageMultiplier": 0,
+    "description": ""
   },
   "rarityScaling": {
     "statBonusMultipliers": {
@@ -455,21 +413,21 @@
     }
   },
   "equipmentScaling": {
-    "weaponDamagePerTier": 2,
-    "armorValuePerTier": 1,
-    "speedBonusPerTier": 0.05,
-    "maxTier": 5,
-    "enchantmentChance": 0.1,
-    "description": "Equipment progression and scaling parameters"
+    "weaponDamagePerTier": 0,
+    "armorValuePerTier": 0,
+    "speedBonusPerTier": 0,
+    "maxTier": 0,
+    "enchantmentChance": 0,
+    "description": ""
   },
   "lootSystem": {
-    "baseDropChance": 0.2,
-    "dropChancePerLevel": 0.015,
-    "maxDropChance": 0.6,
-    "guaranteedLootChance": 1,
-    "magicFindEffectiveness": 0.01,
-    "goldDropMultiplier": 1,
-    "itemValueMultiplier": 1,
+    "baseDropChance": 0,
+    "dropChancePerLevel": 0,
+    "maxDropChance": 0,
+    "guaranteedLootChance": 0,
+    "magicFindEffectiveness": 0,
+    "goldDropMultiplier": 0,
+    "itemValueMultiplier": 0,
     "rarityUpgrade": {
       "enabled": false,
       "baseUpgradeChance": 0.05,
@@ -478,7 +436,7 @@
       "magicFindBonus": 0.0001,
       "description": "Cascading rarity upgrade system - items can upgrade to next tier with exponentially decreasing probability"
     },
-    "description": "Loot drop rates and economy settings"
+    "description": ""
   },
   "startingGear": {
     "weapons": [
@@ -536,7 +494,7 @@
     "bossRoomChance": 0.1,
     "trapRoomChance": 0.2,
     "treasureRoomChance": 0.15,
-    "description": "Dungeon generation and scaling parameters"
+    "description": ""
   },
   "dungeonGeneration": {
     "minRooms": 2,
@@ -565,23 +523,23 @@
     "description": "Dungeon generation defaults and configuration"
   },
   "gameSpeed": {
-    "gameTickerInterval": 1,
-    "gameSpeedMultiplier": 1
+    "gameTickerInterval": 0,
+    "gameSpeedMultiplier": 0
   },
   "gameData": {
-    "autoGenerateOnLaunch": true,
+    "autoGenerateOnLaunch": false,
     "showGenerationMessages": false,
     "createBackupsOnAutoGenerate": true,
     "forceOverwriteOnAutoGenerate": false,
-    "description": "Controls automatic generation of game data files at launch. CreateBackupsOnAutoGenerate creates backup files before writing. ForceOverwriteOnAutoGenerate forces regeneration even when no changes are needed."
+    "description": ""
   },
   "debug": {
-    "enableDebugOutput": true,
+    "enableDebugOutput": false,
     "showCombatSimulationDebug": false,
     "maxDetailedBattles": 10,
     "logCombatActions": false,
     "logOnlyOnErrors": true,
-    "description": "Controls whether debug messages are displayed throughout the game. MaxDetailedBattles controls how many battles are logged in detail for balance analysis. LogCombatActions controls verbose combat logging. LogOnlyOnErrors enables logging only when errors occur."
+    "description": ""
   },
   "balanceAnalysis": {
     "simulationsPerMatchup": 100,
@@ -684,33 +642,33 @@
     "quadraticGrowth": 0
   },
   "uiCustomization": {
-    "menuSeparator": "==========================================",
-    "subMenuSeparator": "------------------------------------------",
-    "invalidChoiceMessage": "Invalid choice. Please try again.",
-    "pressAnyKeyMessage": "Press any key to continue...",
+    "menuSeparator": "",
+    "subMenuSeparator": "",
+    "invalidChoiceMessage": "",
+    "pressAnyKeyMessage": "",
     "rarityPrefixes": {
-      "common": "Common",
-      "uncommon": "Uncommon",
-      "rare": "Rare",
-      "epic": "Epic",
-      "legendary": "Legendary"
+      "common": "",
+      "uncommon": "",
+      "rare": "",
+      "epic": "",
+      "legendary": ""
     },
     "actionNames": {
-      "basicAttackName": "BASIC ATTACK",
-      "defaultActionDescription": "A basic action"
+      "basicAttackName": "",
+      "defaultActionDescription": ""
     },
     "errorMessages": {
-      "fileNotFoundError": "File not found",
-      "jsonDeserializationError": "JSON deserialization failed",
-      "invalidDataError": "Invalid data format",
-      "saveError": "Failed to save data",
-      "loadError": "Failed to load data"
+      "fileNotFoundError": "",
+      "jsonDeserializationError": "",
+      "invalidDataError": "",
+      "saveError": "",
+      "loadError": ""
     },
     "debugMessages": {
-      "debugPrefix": "DEBUG",
-      "warningPrefix": "Warning",
-      "errorPrefix": "Error",
-      "infoPrefix": "Info"
+      "debugPrefix": "",
+      "warningPrefix": "",
+      "errorPrefix": "",
+      "infoPrefix": ""
     }
   },
   "modificationRarity": {

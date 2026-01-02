@@ -44,7 +44,10 @@ namespace RPGGame.BattleStatistics
             character.InitializeDefaultCombo();
             
             double baseAttackTime = tuning.Combat.BaseAttackTime;
-            int targetAgility = (int)Math.Max(1, (baseAttackTime - attackSpeed) / tuning.Combat.AgilitySpeedReduction);
+            // New agility formula: speed = baseAttackTime * (1.0 - (agility - 1) / 99.0)
+            // Solving for agility: agility = 1 + (1.0 - speed/baseAttackTime) * 99.0
+            double speedMultiplier = attackSpeed / baseAttackTime;
+            int targetAgility = (int)Math.Max(1, Math.Min(100, 1 + (1.0 - speedMultiplier) * 99.0));
             character.Agility = targetAgility;
             
             if (armor > 0)

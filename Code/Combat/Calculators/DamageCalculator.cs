@@ -196,7 +196,7 @@ namespace RPGGame.Combat.Calculators
                     {
                         totalDamage *= rollMultipliers.ComboRollDamageMultiplier;
                     }
-                    else if (roll >= rollSystem.BasicAttackThreshold.Min)
+                    else if (roll >= rollSystem.BasicAttackThreshold.Min) // Normal attack range (6-13)
                     {
                         totalDamage *= rollMultipliers.BasicRollDamageMultiplier;
                     }

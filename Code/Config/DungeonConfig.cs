@@ -8,12 +8,12 @@ namespace RPGGame
     /// </summary>
     public class DungeonScalingConfig
     {
-        public int RoomCountBase { get; set; }
-        public double RoomCountPerLevel { get; set; }
-        public int EnemyCountPerRoom { get; set; }
-        public double BossRoomChance { get; set; }
-        public double TrapRoomChance { get; set; }
-        public double TreasureRoomChance { get; set; }
+        public int RoomCountBase { get; set; } = 2;
+        public double RoomCountPerLevel { get; set; } = 0.5;
+        public int EnemyCountPerRoom { get; set; } = 2;
+        public double BossRoomChance { get; set; } = 0.1;
+        public double TrapRoomChance { get; set; } = 0.2;
+        public double TreasureRoomChance { get; set; } = 0.15;
         public string Description { get; set; } = "";
     }
 

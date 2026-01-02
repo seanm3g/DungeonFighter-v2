@@ -37,10 +37,10 @@ namespace RPGGame
                 actionName = $"CRITICAL {actionName}";
             }
             
-            // Determine if this is a combo action (anything that's not BASIC ATTACK)
-            bool isComboAction = actionName != "BASIC ATTACK" && actionName != "CRITICAL BASIC ATTACK";
+            // Determine if this is a combo action (all actions in the game are combo actions)
+            bool isComboAction = action != null && action.IsComboAction;
             
-            // First line: Different format for basic attacks vs combo actions
+            // First line: Format for combo actions
             // Using template-based coloring {{damage|number}} for proper spacing
             string damageText;
             if (isComboAction)

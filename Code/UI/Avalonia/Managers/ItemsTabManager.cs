@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia.Threading;
+using RPGGame;
 
 namespace RPGGame.UI.Avalonia.Managers
 {
@@ -58,7 +59,6 @@ namespace RPGGame.UI.Avalonia.Managers
             try
             {
                 LoadItemsData(panel);
-                showStatusMessage?.Invoke("Items loaded successfully", true);
             }
             catch (Exception ex)
             {
@@ -86,7 +86,7 @@ namespace RPGGame.UI.Avalonia.Managers
             showStatusMessage?.Invoke("Add armor functionality - to be implemented", false);
         }
 
-        private void OnEditItemClick(object? sender, RoutedEventArgs e)
+        private async void OnEditItemClick(object? sender, RoutedEventArgs e)
         {
             if (selectedItem == null)
             {
@@ -94,8 +94,116 @@ namespace RPGGame.UI.Avalonia.Managers
                 return;
             }
             
-            // For now, just show a message - can be extended with a dialog later
-            showStatusMessage?.Invoke($"Edit {selectedItem.Name} - to be implemented", false);
+            // Create view model with current item data
+            var viewModel = new ItemEditViewModel
+            {
+                Name = selectedItem.Name,
+                Type = selectedItem.Type,
+                Slot = selectedItem.Slot,
+                Tier = selectedItem.SelectedTier,
+                BaseDamage = selectedItem.BaseDamage,
+                AttackSpeed = selectedItem.AttackSpeed,
+                Armor = selectedItem.Armor,
+                IsWeapon = selectedItem.IsWeapon
+            };
+            
+            // Populate available weapon types
+            foreach (var weaponType in Enum.GetNames(typeof(WeaponType)))
+            {
+                viewModel.AvailableWeaponTypes.Add(weaponType);
+            }
+            
+            // Populate available armor slots
+            foreach (var itemType in Enum.GetNames(typeof(ItemType)))
+            {
+                if (itemType != "Weapon") // Exclude Weapon from armor slots
+                {
+                    viewModel.AvailableSlots.Add(itemType);
+                }
+            }
+            
+            // Populate available tiers
+            for (int i = 1; i <= 5; i++)
+            {
+                viewModel.AvailableTiers.Add(i);
+            }
+            
+            // Open dialog
+            var dialog = new ItemEditDialog(viewModel);
+            if (panel != null)
+            {
+                var window = panel.GetLogicalAncestors().OfType<Window>().FirstOrDefault();
+                if (window != null)
+                {
+                    dialog.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                    var result = await dialog.ShowDialog<bool?>(window);
+                    if (result == true && viewModel.Validate())
+                    {
+                        // Store old name before updating
+                        var oldName = selectedItem.Name;
+                        var nameChanged = viewModel.Name != oldName;
+                        
+                        // Update the selected item with new values
+                        selectedItem.Name = viewModel.Name;
+                        selectedItem.Type = viewModel.Type;
+                        selectedItem.Slot = viewModel.Slot;
+                        selectedItem.SelectedTier = viewModel.Tier;
+                        selectedItem.BaseDamage = viewModel.BaseDamage;
+                        selectedItem.AttackSpeed = viewModel.AttackSpeed;
+                        selectedItem.Armor = viewModel.Armor;
+                        
+                        // Update original data if it exists
+                        if (selectedItem.IsWeapon && originalWeapons.TryGetValue(oldName, out var originalWeapon))
+                        {
+                            // If name changed, we need to handle it differently
+                            if (nameChanged)
+                            {
+                                // Remove old entry and add new one
+                                originalWeapons.Remove(oldName);
+                                originalWeapons[viewModel.Name] = new WeaponData
+                                {
+                                    Type = viewModel.Type,
+                                    Name = viewModel.Name,
+                                    Tier = viewModel.Tier,
+                                    BaseDamage = viewModel.BaseDamage,
+                                    AttackSpeed = viewModel.AttackSpeed
+                                };
+                            }
+                            else
+                            {
+                                originalWeapon.Type = viewModel.Type;
+                                originalWeapon.Tier = viewModel.Tier;
+                                originalWeapon.BaseDamage = viewModel.BaseDamage;
+                                originalWeapon.AttackSpeed = viewModel.AttackSpeed;
+                            }
+                        }
+                        else if (!selectedItem.IsWeapon && originalArmor.TryGetValue(oldName, out var originalArmorItem))
+                        {
+                            // If name changed, we need to handle it differently
+                            if (nameChanged)
+                            {
+                                // Remove old entry and add new one
+                                originalArmor.Remove(oldName);
+                                originalArmor[viewModel.Name] = new ArmorData
+                                {
+                                    Slot = viewModel.Slot,
+                                    Name = viewModel.Name,
+                                    Tier = viewModel.Tier,
+                                    Armor = viewModel.Armor
+                                };
+                            }
+                            else
+                            {
+                                originalArmorItem.Slot = viewModel.Slot;
+                                originalArmorItem.Tier = viewModel.Tier;
+                                originalArmorItem.Armor = viewModel.Armor;
+                            }
+                        }
+                        
+                        showStatusMessage?.Invoke($"Item '{viewModel.Name}' updated. Click Save to apply changes.", true);
+                    }
+                }
+            }
         }
 
         private void OnDeleteItemClick(object? sender, RoutedEventArgs e)
@@ -229,6 +337,8 @@ namespace RPGGame.UI.Avalonia.Managers
                     if (originalWeapons.TryGetValue(weaponVM.Name, out var originalWeapon))
                     {
                         // Update existing weapon
+                        originalWeapon.Name = weaponVM.Name;
+                        originalWeapon.Type = weaponVM.Type;
                         originalWeapon.Tier = weaponVM.SelectedTier;
                         originalWeapon.BaseDamage = weaponVM.BaseDamage;
                         originalWeapon.AttackSpeed = weaponVM.AttackSpeed;
@@ -258,6 +368,8 @@ namespace RPGGame.UI.Avalonia.Managers
                     if (originalArmor.TryGetValue(armorVM.Name, out var originalArmorItem))
                     {
                         // Update existing armor
+                        originalArmorItem.Name = armorVM.Name;
+                        originalArmorItem.Slot = armorVM.Slot;
                         originalArmorItem.Tier = armorVM.SelectedTier;
                         originalArmorItem.Armor = armorVM.Armor;
                         allArmor.Add(originalArmorItem);

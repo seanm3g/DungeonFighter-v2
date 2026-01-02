@@ -164,10 +164,10 @@ namespace RPGGame.Tests.Unit
             var character = new Character("TestHero", 1);
             
             // Add some actions to the pool
-            var basicAttack = new Action { Name = "BASIC ATTACK", IsComboAction = false };
+            var normalAction = new Action { Name = "NORMAL STRIKE", IsComboAction = false };
             var comboAction = new Action { Name = "COMBO STRIKE", IsComboAction = true };
             
-            character.AddAction(basicAttack, 1.0);
+            character.AddAction(normalAction, 1.0);
             character.AddAction(comboAction, 1.0);
             
             // Test that action selector can select actions
@@ -180,8 +180,8 @@ namespace RPGGame.Tests.Unit
             Console.WriteLine("\n--- Testing Action Selection for Characters ---");
             
             var character = new Character("TestHero", 1);
-            var basicAttack = new Action { Name = "BASIC ATTACK", IsComboAction = false };
-            character.AddAction(basicAttack, 1.0);
+            var normalAction = new Action { Name = "NORMAL STRIKE", IsComboAction = false };
+            character.AddAction(normalAction, 1.0);
             
             // Characters should use roll-based selection
             AssertTrue(character.ActionPool.Count > 0, "Character should have actions available");
@@ -192,7 +192,7 @@ namespace RPGGame.Tests.Unit
             Console.WriteLine("\n--- Testing Action Selection for Enemies ---");
             
             var enemy = new Enemy("TestEnemy", 1, 100, 10, 10, 10, 10);
-            var enemyAction = new Action { Name = "ENEMY BASIC ATTACK", IsComboAction = false };
+            var enemyAction = new Action { Name = "ENEMY STRIKE", IsComboAction = false };
             enemy.AddAction(enemyAction, 1.0);
             
             // Enemies should use probability-based selection
@@ -374,10 +374,10 @@ namespace RPGGame.Tests.Unit
             
             var character = new Character("TestHero", 1);
             var comboAction = new Action { Name = "COMBO STRIKE", IsComboAction = true };
-            var basicAction = new Action { Name = "BASIC ATTACK", IsComboAction = false };
+            var normalAction = new Action { Name = "NORMAL STRIKE", IsComboAction = false };
             
             character.AddAction(comboAction, 1.0);
-            character.AddAction(basicAction, 1.0);
+            character.AddAction(normalAction, 1.0);
             
             var comboActions = ActionUtilities.GetComboActions(character);
             

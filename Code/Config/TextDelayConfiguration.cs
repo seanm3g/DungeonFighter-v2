@@ -104,6 +104,15 @@ namespace RPGGame.Config
         }
 
         /// <summary>
+        /// Gets the environmental line delay (delay between lines in environmental actions)
+        /// </summary>
+        public static int GetEnvironmentalLineDelay()
+        {
+            var configData = GetConfigData();
+            return configData.EnvironmentalLineDelay;
+        }
+
+        /// <summary>
         /// Gets the progressive menu delays configuration
         /// </summary>
         public static ProgressiveMenuDelaysConfig GetProgressiveMenuDelays()
@@ -178,6 +187,19 @@ namespace RPGGame.Config
             lock (_lockObject)
             {
                 configData.MessageDelayMs = delayMs;
+                TextDelayLoader.SaveConfig(configData);
+            }
+        }
+
+        /// <summary>
+        /// Sets the environmental line delay and saves to config
+        /// </summary>
+        public static void SetEnvironmentalLineDelay(int delayMs)
+        {
+            var configData = GetConfigData();
+            lock (_lockObject)
+            {
+                configData.EnvironmentalLineDelay = delayMs;
                 TextDelayLoader.SaveConfig(configData);
             }
         }

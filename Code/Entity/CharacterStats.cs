@@ -24,11 +24,32 @@ namespace RPGGame
         {
             var tuning = GameConfiguration.Instance;
             
+            // Get base attributes from config, with fallback defaults if config not loaded
+            int baseStrength = tuning.Attributes.PlayerBaseAttributes?.Strength ?? 0;
+            int baseAgility = tuning.Attributes.PlayerBaseAttributes?.Agility ?? 0;
+            int baseTechnique = tuning.Attributes.PlayerBaseAttributes?.Technique ?? 0;
+            int baseIntelligence = tuning.Attributes.PlayerBaseAttributes?.Intelligence ?? 0;
+            int attributesPerLevel = tuning.Attributes.PlayerAttributesPerLevel;
+            
+            // Fallback to sensible defaults if config values are 0 (config not loaded or invalid)
+            // Check if all base attributes are 0, which indicates config wasn't loaded properly
+            if (baseStrength == 0 && baseAgility == 0 && baseTechnique == 0 && baseIntelligence == 0)
+            {
+                baseStrength = 3;
+                baseAgility = 3;
+                baseTechnique = 3;
+                baseIntelligence = 3;
+            }
+            if (attributesPerLevel == 0)
+            {
+                attributesPerLevel = 2;
+            }
+            
             // Initialize attributes based on tuning config
-            Strength = tuning.Attributes.PlayerBaseAttributes.Strength + (level - 1) * tuning.Attributes.PlayerAttributesPerLevel;
-            Agility = tuning.Attributes.PlayerBaseAttributes.Agility + (level - 1) * tuning.Attributes.PlayerAttributesPerLevel;
-            Technique = tuning.Attributes.PlayerBaseAttributes.Technique + (level - 1) * tuning.Attributes.PlayerAttributesPerLevel;
-            Intelligence = tuning.Attributes.PlayerBaseAttributes.Intelligence + (level - 1) * tuning.Attributes.PlayerAttributesPerLevel;
+            Strength = baseStrength + (level - 1) * attributesPerLevel;
+            Agility = baseAgility + (level - 1) * attributesPerLevel;
+            Technique = baseTechnique + (level - 1) * attributesPerLevel;
+            Intelligence = baseIntelligence + (level - 1) * attributesPerLevel;
         }
 
         public void LevelUp(WeaponType weaponType)

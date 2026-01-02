@@ -89,6 +89,7 @@ namespace RPGGame.Combat.Formatting
         
         /// <summary>
         /// Determines if an action is a combo action based on its name
+        /// All actions in the game are combo actions
         /// </summary>
         public static bool IsComboAction(string? actionName)
         {
@@ -97,8 +98,8 @@ namespace RPGGame.Combat.Formatting
                 return false;
             }
             
-            return actionName != "BASIC ATTACK" && 
-                   actionName != "CRITICAL BASIC ATTACK";
+            // All actions in the game are combo actions
+            return true;
         }
     }
 }

@@ -129,6 +129,11 @@ namespace RPGGame
         public int GetIntelligenceRollBonus()
         {
             var tuning = GameConfiguration.Instance;
+            // Prevent divide by zero - if IntelligenceRollBonusPer is 0 or not configured, return 0
+            if (tuning.Attributes.IntelligenceRollBonusPer <= 0)
+            {
+                return 0;
+            }
             return character.Intelligence / tuning.Attributes.IntelligenceRollBonusPer; // Every X points of INT gives +1 to rolls
         }
 

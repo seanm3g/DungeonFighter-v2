@@ -47,6 +47,7 @@
     "ActionDelayMs": 300,
     "MessageDelayMs": 250
   },
+  "EnvironmentalLineDelay": 500,
   "ProgressiveMenuDelays": {
     "BaseMenuDelay": 25,
     "ProgressiveReductionRate": 1,

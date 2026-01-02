@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame;
 using RPGGame.Tests;
 using RPGGame.Tests.Unit;
 using RPGGame.Tests.Integration;
+using RPGGame.Tests.Settings;
+using RPGGame.Tests.Runners;
 
 namespace RPGGame.Tests.Runners
 {
@@ -20,9 +23,9 @@ namespace RPGGame.Tests.Runners
             // Clear previous results and start fresh
             TestResultCollector.Clear();
 
-            Console.WriteLine("========================================");
+            Console.WriteLine(GameConstants.StandardSeparator);
             Console.WriteLine("  COMPREHENSIVE GAME TEST SUITE");
-            Console.WriteLine("========================================\n");
+            Console.WriteLine($"{GameConstants.StandardSeparator}\n");
 
             // Phase 1: Core Mechanics
             string phase1 = "PHASE 1: CORE MECHANICS";
@@ -110,6 +113,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             GameStateManagementTests.RunAllTests();
             Console.WriteLine();
+            LoadCharacterMenuTests.RunAllTests();
+            Console.WriteLine();
 
             // Phase 8: Error Handling
             string phase8 = "PHASE 8: ERROR HANDLING";
@@ -118,12 +123,37 @@ namespace RPGGame.Tests.Runners
             ErrorHandlingTests.RunAllTests();
             Console.WriteLine();
 
+            // Phase 9: System-Specific Tests
+            string phase9 = "PHASE 9: SYSTEM-SPECIFIC TESTS";
+            TestResultCollector.SetCurrentCategory(phase9);
+            Console.WriteLine($"\n=== {phase9} ===\n");
+            DataSystemTestRunner.RunAllTests();
+            Console.WriteLine();
+            ItemsSystemTestRunner.RunAllTests();
+            Console.WriteLine();
+            ActionsSystemTestRunner.RunAllTests();
+            Console.WriteLine();
+            ConfigSystemTestRunner.RunAllTests();
+            Console.WriteLine();
+            EntitySystemTestRunner.RunAllTests();
+            Console.WriteLine();
+            CombatSystemTestRunner.RunAllTests();
+            Console.WriteLine();
+            WorldSystemTestRunner.RunAllTests();
+            Console.WriteLine();
+            GameSystemTestRunner.RunAllTests();
+            Console.WriteLine();
+            UISystemTestRunner.RunAllTests();
+            Console.WriteLine();
+            MCPSystemTestRunner.RunAllTests();
+            Console.WriteLine();
+
             // Display overall summary
             DisplayOverallSummary();
 
-            Console.WriteLine("\n========================================");
+            Console.WriteLine($"\n{GameConstants.StandardSeparator}");
             Console.WriteLine("  ALL TESTS COMPLETE");
-            Console.WriteLine("========================================\n");
+            Console.WriteLine($"{GameConstants.StandardSeparator}\n");
         }
 
         /// <summary>
@@ -134,9 +164,9 @@ namespace RPGGame.Tests.Runners
             var (total, passed, failed, successRate) = TestResultCollector.GetStatistics();
             var failedTestsByCategory = TestResultCollector.GetFailedTestsByCategory();
 
-            Console.WriteLine("\n========================================");
+            Console.WriteLine($"\n{GameConstants.StandardSeparator}");
             Console.WriteLine("  OVERALL TEST SUMMARY");
-            Console.WriteLine("========================================");
+            Console.WriteLine(GameConstants.StandardSeparator);
             Console.WriteLine($"Total Tests: {total}");
             Console.WriteLine($"Passed: {passed}");
             Console.WriteLine($"Failed: {failed}");
@@ -153,9 +183,9 @@ namespace RPGGame.Tests.Runners
                 // Display failed tests grouped by category
                 if (failedTestsByCategory.Count > 0)
                 {
-                    Console.WriteLine("\n========================================");
+                    Console.WriteLine($"\n{GameConstants.StandardSeparator}");
                     Console.WriteLine("  FAILED TESTS BY CATEGORY");
-                    Console.WriteLine("========================================");
+                    Console.WriteLine(GameConstants.StandardSeparator);
 
                     foreach (var category in failedTestsByCategory.Keys.OrderBy(k => k))
                     {

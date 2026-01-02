@@ -32,6 +32,7 @@ namespace RPGGame.UI.Avalonia.Helpers
             public TextBox? DamageOverTimeDelayTextBox { get; set; }
             public TextBox? EncounterDelayTextBox { get; set; }
             public TextBox? RollInfoDelayTextBox { get; set; }
+            public TextBox? EnvironmentalLineDelayTextBox { get; set; }
             public TextBox? BaseMenuDelayTextBox { get; set; }
             public TextBox? ProgressiveReductionRateTextBox { get; set; }
             public TextBox? ProgressiveThresholdTextBox { get; set; }
@@ -76,6 +77,7 @@ namespace RPGGame.UI.Avalonia.Helpers
                 DamageOverTimeDelayTextBox = parent.FindControl<TextBox>("DamageOverTimeDelayTextBox"),
                 EncounterDelayTextBox = parent.FindControl<TextBox>("EncounterDelayTextBox"),
                 RollInfoDelayTextBox = parent.FindControl<TextBox>("RollInfoDelayTextBox"),
+                EnvironmentalLineDelayTextBox = parent.FindControl<TextBox>("EnvironmentalLineDelayTextBox"),
                 BaseMenuDelayTextBox = parent.FindControl<TextBox>("BaseMenuDelayTextBox"),
                 ProgressiveReductionRateTextBox = parent.FindControl<TextBox>("ProgressiveReductionRateTextBox"),
                 ProgressiveThresholdTextBox = parent.FindControl<TextBox>("ProgressiveThresholdTextBox"),

@@ -135,11 +135,14 @@ namespace RPGGame
             // Calculate loot chance based on tuning config
             double lootChance = CalculateLootChance(playerLevel, player, guaranteedLoot, tuning);
             
-            // Roll for loot chance
-            double roll = _random.NextDouble();
-            if (roll >= lootChance) 
+            // Roll for loot chance (skip if guaranteed loot)
+            if (!guaranteedLoot)
             {
-                return null;
+                double roll = _random.NextDouble();
+                if (roll >= lootChance) 
+                {
+                    return null;
+                }
             }
 
             // ROLL 1: Calculate loot level
@@ -152,7 +155,53 @@ namespace RPGGame
             int tier = TierCalculator.RollTier(lootLevel);
             
             // ROLL 4: Specific item selection
+            // For guaranteed loot, retry with different tiers/types if needed
             Item? item = ItemSelector.SelectItem(tier, isWeapon);
+            
+            if (item == null && guaranteedLoot)
+            {
+                // Try all tiers from 1 to 5, and both weapon and armor types
+                for (int fallbackTier = 1; fallbackTier <= 5; fallbackTier++)
+                {
+                    // Try current item type first
+                    item = ItemSelector.SelectItem(fallbackTier, isWeapon);
+                    if (item != null) 
+                    {
+                        tier = fallbackTier;
+                        break;
+                    }
+                    
+                    // Try opposite item type
+                    item = ItemSelector.SelectItem(fallbackTier, !isWeapon);
+                    if (item != null) 
+                    {
+                        tier = fallbackTier;
+                        isWeapon = !isWeapon;
+                        break;
+                    }
+                }
+                
+                // If still no item found and guaranteed loot is requested, create a fallback item
+                if (item == null)
+                {
+                    // Use tier 1 as fallback if no items were found in any tier
+                    int fallbackTier = tier > 0 ? tier : 1;
+                    
+                    // Create a basic fallback item to ensure guaranteed loot always generates something
+                    if (isWeapon)
+                    {
+                        item = new WeaponItem("Basic Sword", fallbackTier, 5 + playerLevel, 1.0, WeaponType.Sword);
+                    }
+                    else
+                    {
+                        item = new ChestItem("Basic Armor", fallbackTier, 5);
+                    }
+                    item.Level = Math.Max(1, lootLevel);
+                    item.Tier = fallbackTier;
+                    item.Rarity = "Common";
+                }
+            }
+            
             if (item == null) 
             {
                 return null;

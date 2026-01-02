@@ -146,6 +146,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                                     textDelays.DamageOverTimeDelayTextBox,
                                     textDelays.EncounterDelayTextBox,
                                     textDelays.RollInfoDelayTextBox,
+                                    textDelays.EnvironmentalLineDelayTextBox,
                                     textDelays.BaseMenuDelayTextBox,
                                     textDelays.ProgressiveReductionRateTextBox,
                                     textDelays.ProgressiveThresholdTextBox,

@@ -119,6 +119,11 @@ namespace RPGGame.Entity.Services
             if (character.Equipment.Feet != null)
                 character.Actions.AddArmorActions(character, character.Equipment.Feet);
 
+            // Re-add class actions based on character progression
+            // Class actions should persist regardless of equipment changes
+            var weaponType = (character.Equipment.Weapon as WeaponItem)?.WeaponType;
+            character.Actions.AddClassActions(character, character.Progression, weaponType);
+
             // Initialize combo sequence after all actions are loaded
             character.InitializeDefaultCombo();
             

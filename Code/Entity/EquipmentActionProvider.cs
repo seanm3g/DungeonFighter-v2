@@ -19,6 +19,7 @@ namespace RPGGame
 
         /// <summary>
         /// Gets all available actions from a piece of equipment.
+        /// Matches the behavior of GearActionManager.GetGearActions to ensure inventory display matches equipped actions.
         /// </summary>
         /// <param name="gear">The equipment piece to get actions from</param>
         /// <returns>List of action names from this gear</returns>
@@ -26,13 +27,10 @@ namespace RPGGame
         {
             var actions = new List<string>();
 
-            if (gear is WeaponItem weapon)
+            // Add the specific GearAction assigned to this item (if any)
+            if (!string.IsNullOrEmpty(gear.GearAction))
             {
-                actions.AddRange(GetWeaponActions(weapon));
-            }
-            else if (gear is HeadItem || gear is ChestItem || gear is FeetItem)
-            {
-                actions.AddRange(GetArmorActions(gear));
+                actions.Add(gear.GearAction);
             }
 
             // Add action bonuses from any gear
@@ -42,6 +40,18 @@ namespace RPGGame
                 {
                     actions.Add(actionBonus.Name);
                 }
+            }
+
+            // For weapons: If no actions found, fall back to ALL weapon-type actions
+            // This ensures weapons ALWAYS show at least one action in inventory
+            // This matches what gets equipped (GearActionManager behavior)
+            if (gear is WeaponItem weapon && actions.Count == 0)
+            {
+                actions.AddRange(GetWeaponActions(weapon));
+            }
+            else if (gear is HeadItem || gear is ChestItem || gear is FeetItem)
+            {
+                actions.AddRange(GetArmorActions(gear));
             }
 
             return actions;
@@ -86,12 +96,8 @@ namespace RPGGame
                 .Select(action => action.Name)
                 .ToList();
 
-            // Fallback to BASIC ATTACK if no weapon-specific actions found
-            if (weaponActions.Count == 0)
-            {
-                return new List<string> { "BASIC ATTACK" };
-            }
-
+            // Return empty list if no weapon-specific actions found
+            // (No fallback - weapons should have actions defined)
             return weaponActions;
         }
 

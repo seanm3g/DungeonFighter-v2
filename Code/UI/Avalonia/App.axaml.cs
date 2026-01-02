@@ -21,6 +21,9 @@ namespace RPGGame.UI.Avalonia
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
+                // Record launch time when GUI is ready
+                BuildExecutionMetrics.RecordLaunchTime("GUI");
+                
                 desktop.MainWindow = new MainWindow();
                 
                 // Track execution time when window closes

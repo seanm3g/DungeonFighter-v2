@@ -151,6 +151,7 @@ namespace RPGGame
         /// <summary>
         /// Gets list of action names that should be added for given gear
         /// Returns the GearAction if it exists, plus all ActionBonuses
+        /// For weapons: If no actions are found, falls back to weapon-type actions to ensure weapons always have at least one action
         /// </summary>
         public List<string> GetGearActions(Item gear)
         {
@@ -177,6 +178,28 @@ namespace RPGGame
                         DebugLogger.LogFormat("GearActionManager", 
                             "Found ActionBonus '{0}' on item '{1}'", actionBonus.Name, gear.Name);
                     }
+                }
+            }
+
+            // For weapons: If no actions found, fall back to ALL weapon-type actions
+            // This ensures weapons ALWAYS have at least one action when equipped
+            // This matches what's shown in inventory (all weapon-type actions)
+            if (gear is WeaponItem weapon && actions.Count == 0)
+            {
+                var weaponTypeActions = GetWeaponTypeActions(weapon.WeaponType);
+                if (weaponTypeActions.Count > 0)
+                {
+                    // Add ALL weapon-type actions as fallback (matches inventory display)
+                    actions.AddRange(weaponTypeActions);
+                    DebugLogger.LogFormat("GearActionManager", 
+                        "No GearAction or ActionBonuses found for weapon '{0}', using fallback weapon-type actions: {1}", 
+                        weapon.Name, string.Join(", ", weaponTypeActions));
+                }
+                else
+                {
+                    DebugLogger.LogFormat("GearActionManager", 
+                        "WARNING: Weapon '{0}' has no actions (no GearAction, no ActionBonuses, and no weapon-type actions found)", 
+                        weapon.Name);
                 }
             }
 

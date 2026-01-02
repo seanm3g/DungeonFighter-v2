@@ -297,8 +297,38 @@ namespace RPGGame
         }
         
         /// <summary>
+        /// Applies a delay specifically for environmental action lines
+        /// Uses configurable delay from TextDelayConfiguration (default: 500ms)
+        /// Works for both GUI and console by using synchronous blocking delay
+        /// </summary>
+        private static void ApplyEnvironmentalLineDelay()
+        {
+            // Skip delays if combat UI output is disabled (e.g., during statistics runs)
+            if (CombatManager.DisableCombatUIOutput) return;
+            
+            if (!UIManager.EnableDelays) return;
+            
+            // Get delay from configuration (default: 500ms)
+            int delayMs = Config.TextDelayConfiguration.GetEnvironmentalLineDelay();
+            
+            // Apply delay for environmental action lines
+            // Use Task.Delay().Wait() to block synchronously while using async delay internally
+            // This works for both GUI and console, though it will block the thread briefly
+            // Environmental actions are infrequent, so this is acceptable
+            try
+            {
+                Task.Delay(delayMs).Wait();
+            }
+            catch (AggregateException)
+            {
+                // Ignore cancellation exceptions - delays are best-effort
+            }
+        }
+        
+        /// <summary>
         /// Displays an ENVIRONMENTAL BLOCK using ColoredText
         /// All combat logs follow the same action block pattern: first line normal, subsequent lines indented
+        /// Each line has approximately 500ms delay for better readability
         /// </summary>
         public static void DisplayEnvironmentalBlock(List<ColoredText> environmentalText, List<List<ColoredText>>? effects = null)
         {
@@ -328,26 +358,19 @@ namespace RPGGame
             TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.EnvironmentalAction, environmentEntity);
             
             // Display the environmental action (first line - no indentation, as per action block pattern)
-            UIManager.WriteColoredText(environmentalText!);
+            UIManager.WriteColoredText(environmentalText!, UIMessageType.Environmental);
             
             // Display effects if present (subsequent lines - 5-space indentation to match action block pattern)
             const string ACTION_BLOCK_INDENT = "     "; // 5 spaces
             if (effects != null)
             {
-                // Add delay after first environmental line before effects start
-                BlockDelayManager.ApplyBlockDelay();
-                
-                bool isFirstEffect = true;
                 foreach (var effect in effects)
                 {
                     if (effect != null && effect.Count > 0)
                     {
-                        // Add delay between effects (including before the first one, which we already did above)
-                        if (!isFirstEffect)
-                        {
-                            BlockDelayManager.ApplyBlockDelay();
-                        }
-                        isFirstEffect = false;
+                        // Add 500ms delay before each effect line
+                        // This ensures consistent 500ms delay between all lines in the environmental action
+                        ApplyEnvironmentalLineDelay();
                         
                         // Remove any existing leading whitespace to avoid double indentation
                         // (effects may already have indentation from EnvironmentalActionExecutor)
@@ -379,7 +402,7 @@ namespace RPGGame
                         var indentedEffect = new ColoredTextBuilder();
                         indentedEffect.Add(ACTION_BLOCK_INDENT);
                         indentedEffect.AddRange(trimmedEffect);
-                        UIManager.WriteColoredText(indentedEffect.Build());
+                        UIManager.WriteColoredText(indentedEffect.Build(), UIMessageType.Environmental);
                     }
                 }
             }
@@ -387,7 +410,7 @@ namespace RPGGame
             // Record that this block was displayed (with entity tracking)
             TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.EnvironmentalAction, environmentEntity);
             
-            // Apply block delay
+            // Apply final block delay after the entire environmental action
             BlockDelayManager.ApplyBlockDelay();
         }
         

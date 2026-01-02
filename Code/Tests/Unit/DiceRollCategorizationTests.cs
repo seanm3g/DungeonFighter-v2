@@ -429,7 +429,7 @@ namespace RPGGame.Tests.Unit
     {
         CriticalMiss,      // Base roll <= critical miss threshold (default: 1)
         Miss,              // Base roll 1-5 (but natural 1 is critical miss)
-        Hit,               // Attack roll 6-13 (basic attack range)
+        Hit,               // Attack roll 6-13 (normal attack range)
         ComboAction,       // Attack roll >= 14 (combo threshold)
         CriticalHit,       // Attack roll >= 20 (critical hit threshold) - should not occur without combo
         CriticalHitCombo   // Attack roll >= 20 AND >= 14 (both critical and combo)

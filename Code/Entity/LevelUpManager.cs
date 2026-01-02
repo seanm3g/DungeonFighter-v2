@@ -49,25 +49,32 @@ namespace RPGGame
             
             var tuning = GameConfiguration.Instance;
             
-            // Apply class balance multipliers if available and valid
+            // Calculate health increase based on class balance multipliers
+            int healthIncrease = tuning.Character.HealthPerLevel;
             var classBalance = tuning.ClassBalance;
+            
+            // Apply class balance multipliers if available and valid
             if (classBalance != null && _character.Equipment.Weapon is WeaponItem weapon)
             {
                 var classMultipliers = GetClassMultipliers(weapon.WeaponType, classBalance);
-                // If multiplier is 0 or invalid, fall back to base health per level
+                // If multiplier is greater than 0, use it; otherwise use base health per level
                 if (classMultipliers.HealthMultiplier > 0)
                 {
-                    _character.Health.MaxHealth += (int)(tuning.Character.HealthPerLevel * classMultipliers.HealthMultiplier);
-                }
-                else
-                {
-                    _character.Health.MaxHealth += tuning.Character.HealthPerLevel;
+                    healthIncrease = (int)(tuning.Character.HealthPerLevel * classMultipliers.HealthMultiplier);
                 }
             }
-            else
+            
+            // Ensure health always increases (defensive check)
+            // If healthPerLevel is 0 or negative, use a minimum of 1
+            if (healthIncrease <= 0)
             {
-                _character.Health.MaxHealth += tuning.Character.HealthPerLevel;
+                healthIncrease = tuning.Character.HealthPerLevel > 0 
+                    ? tuning.Character.HealthPerLevel 
+                    : 1; // Fallback to minimum increase
             }
+            
+            // Apply health increase
+            _character.Health.MaxHealth += healthIncrease;
             
             // Heal to full effective max health (including equipment bonuses)
             _character.Health.CurrentHealth = _character.GetEffectiveMaxHealth();

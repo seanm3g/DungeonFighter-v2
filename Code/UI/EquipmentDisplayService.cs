@@ -152,12 +152,8 @@ namespace RPGGame
                 }
             }
             
-            // Fallback to BASIC ATTACK if no weapon-specific actions found
-            if (weaponActions.Count == 0)
-            {
-                return new List<string> { "BASIC ATTACK" };
-            }
-            
+            // Return empty list if no weapon-specific actions found
+            // (No fallback - weapons should have actions defined)
             return weaponActions;
         }
 

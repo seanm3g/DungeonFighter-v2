@@ -63,10 +63,59 @@ $testFiles = Get-ChildItem -Path Code -Filter *.cs -Recurse |
         
         # Try to match test file to system based on path
         $system = "Tests"
-        if ($relPath -match 'Code\\([^\\]+)') {
+        
+        # First check for Code/Tests/Unit/{System}/ pattern (files in subdirectories)
+        if ($relPath -match 'Code\\Tests\\Unit\\([^\\]+)\\') {
+            # Test file is in Code/Tests/Unit/{System}/, map to that system
+            $system = $matches[1]
+        }
+        # Check for test files directly in Code/Tests/Unit/ (no subdirectory)
+        # Try to infer system from filename patterns
+        elseif ($relPath -match 'Code\\Tests\\Unit\\([^\\]+)\.cs$') {
+            $fileName = $matches[1]
+            # Map common test file patterns to systems
+            if ($fileName -match '^(Combat|Battle|Combo|DiceRoll|EnemyRoll|MultiHit|StatusEffects)') {
+                $system = "Combat"
+            }
+            elseif ($fileName -match '^(Game|GameState|Dungeon|LevelUp|XP)') {
+                $system = "Game"
+            }
+            elseif ($fileName -match '^(UI|BlockDisplay|Canvas|Color|ColoredText|UIMessage|KeywordColor|Display|DungeonRenderer|Settings|ItemModifiers|ItemsTab|GameCanvas)') {
+                $system = "UI"
+            }
+            elseif ($fileName -match '^(Action|ClassAction|GearAction|DefaultAction|ComboSequence|Conditional|Environmental)') {
+                $system = "Actions"
+            }
+            elseif ($fileName -match '^(Character|Enemy|Equipment|LevelUp|Health)') {
+                $system = "Entity"
+            }
+            elseif ($fileName -match '^(Item|Inventory|ComboManager|AttributeRequirement|BasicGear)') {
+                $system = "Items"
+            }
+            elseif ($fileName -match '^(Data|Loader|Generator|Cache|Loot)') {
+                $system = "Data"
+            }
+            elseif ($fileName -match '^(Config|CharacterConfig|CombatConfig|ItemConfig|EnemyConfig|UIConfig)') {
+                $system = "Config"
+            }
+            elseif ($fileName -match '^(World|Dungeon|Room|Environment)') {
+                $system = "World"
+            }
+            elseif ($fileName -match '^(MCP|DungeonFighterMCP)') {
+                $system = "MCP"
+            }
+            elseif ($fileName -match '^(Simulation|Scenario)') {
+                $system = "Simulation"
+            }
+            else {
+                # Default to "Tests" if we can't determine
+                $system = "Tests"
+            }
+        }
+        # Check for test files in Code/{System}/ that contain "Test" in path
+        elseif ($relPath -match 'Code\\([^\\]+)\\') {
             $potentialSystem = $matches[1]
-            # If it's in a system folder, use that
-            if ($potentialSystem -ne "Tests") {
+            if ($potentialSystem -ne "Tests" -and $potentialSystem -match '^(UI|Game|Combat|Actions|Entity|Items|Data|Config|World|MCP|Simulation)$') {
                 $system = $potentialSystem
             }
         }
@@ -136,7 +185,7 @@ Write-Host ""
 
 Write-Host "=== Coverage by System ===" -ForegroundColor Magenta
 Write-Host ""
-$coverageData = $systemCoverage.Values | Sort-Object LineRatio -Descending
+$coverageData = $systemCoverage.Values | Sort-Object ProdFiles -Descending
 $coverageData | Format-Table System, ProdFiles, TestFiles, ProdLines, TestLines, @{Label="File%"; Expression={"$($_.FileRatio)%"}}, @{Label="Line%"; Expression={"$($_.LineRatio)%"}}, Coverage -AutoSize | Out-Host
 Write-Host ""
 

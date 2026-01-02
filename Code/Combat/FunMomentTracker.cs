@@ -100,7 +100,7 @@ namespace RPGGame
         public void RecordEvent(BattleEvent evt, int playerHealth, int enemyHealth)
         {
             // Track action variety
-            if (!string.IsNullOrEmpty(evt.Action) && evt.Action != "BASIC ATTACK")
+            if (!string.IsNullOrEmpty(evt.Action))
             {
                 actionsUsed.Add(evt.Action);
                 actionCounts[evt.Action] = actionCounts.GetValueOrDefault(evt.Action, 0) + 1;
@@ -161,7 +161,7 @@ namespace RPGGame
             }
 
             // Track action variety
-            if (lastAction != null && evt.Action != lastAction && evt.Action != "BASIC ATTACK")
+            if (lastAction != null && evt.Action != lastAction)
             {
                 RecordFunMoment(FunMomentDataStructures.FunMomentType.ActionVariety, evt.Actor, evt.Target,
                     intensity: 0.3,

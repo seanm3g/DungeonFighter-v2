@@ -283,11 +283,11 @@ namespace RPGGame
         /// <summary>
         /// Show the weapon selection screen.
         /// Uses standardized ScreenTransitionProtocol for consistent behavior.
+        /// Weapon selection should not show character info since character isn't fully initialized yet.
         /// </summary>
         public void ShowWeaponSelection(List<StartingWeapon> weapons)
         {
             var canvasUI = TryGetCanvasUI();
-            var player = stateManager.CurrentPlayer;
 
             if (canvasUI == null || weapons == null)
             {
@@ -300,7 +300,7 @@ namespace RPGGame
                 canvasUI,
                 GameState.WeaponSelection,
                 (ui) => ui.RenderWeaponSelection(weapons),
-                character: player,
+                character: null, // Don't show character panel - character isn't fully initialized yet
                 clearEnemyContext: true,
                 clearDungeonContext: true
             );

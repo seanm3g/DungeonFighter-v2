@@ -101,6 +101,15 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Removes dead enemies from this environment.
+        /// This ensures dead enemies don't persist and cause issues during room transitions.
+        /// </summary>
+        public void RemoveDeadEnemies()
+        {
+            enemyGenerator.RemoveDeadEnemies();
+        }
+
+        /// <summary>
         /// Resets the environment combat state for a new fight.
         /// </summary>
         public void ResetForNewFight()

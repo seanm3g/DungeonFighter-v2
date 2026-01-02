@@ -114,7 +114,7 @@ namespace RPGGame.Tests.Unit
 
         private static void TestEnemyHit()
         {
-            Console.WriteLine("\n--- Testing Enemy Hit (Basic Attack) ---");
+            Console.WriteLine("\n--- Testing Enemy Hit (Normal Attack) ---");
 
             var enemy = TestDataBuilders.Enemy().WithName("TestEnemy").Build();
             var target = TestDataBuilders.Character().WithName("TestTarget").Build();
@@ -123,7 +123,7 @@ namespace RPGGame.Tests.Unit
             int hitThreshold = thresholdManager.GetHitThreshold(enemy);
             int comboThreshold = thresholdManager.GetComboThreshold(enemy);
 
-            // Test rolls 6-13 should hit (basic attack range)
+            // Test rolls 6-13 should hit (normal attack range)
             for (int roll = 6; roll <= 13; roll++)
             {
                 int rollBonus = 0;

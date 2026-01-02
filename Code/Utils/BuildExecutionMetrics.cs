@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -15,6 +16,8 @@ namespace RPGGame.Utils
         private static readonly object _lockObject = new object();
         private static Stopwatch? _executionStopwatch;
         private static DateTime? _executionStartTime;
+        private static Stopwatch? _launchStopwatch;
+        private static DateTime? _launchStartTime;
 
         /// <summary>
         /// Starts tracking application execution time
@@ -23,6 +26,74 @@ namespace RPGGame.Utils
         {
             _executionStopwatch = Stopwatch.StartNew();
             _executionStartTime = DateTime.UtcNow;
+            
+            // Also start launch time tracking
+            _launchStopwatch = Stopwatch.StartNew();
+            _launchStartTime = DateTime.UtcNow;
+        }
+        
+        /// <summary>
+        /// Gets the compile/build time from the DLL's last write time
+        /// Only returns a value if the DLL was written recently (within last 10 minutes)
+        /// to avoid showing stale build times
+        /// </summary>
+        public static TimeSpan? GetCompileTime()
+        {
+            try
+            {
+                var assembly = Assembly.GetExecutingAssembly();
+                var assemblyPath = assembly.Location;
+                
+                if (string.IsNullOrEmpty(assemblyPath) || !File.Exists(assemblyPath))
+                    return null;
+                
+                var compileTime = File.GetLastWriteTimeUtc(assemblyPath);
+                var now = DateTime.UtcNow;
+                var timeSinceCompile = now - compileTime;
+                
+                // Only return compile time if it was within the last 10 minutes
+                // This ensures we only show compile time for fresh builds
+                if (timeSinceCompile.TotalMinutes > 10)
+                    return null;
+                
+                return timeSinceCompile;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        
+        /// <summary>
+        /// Records and outputs launch time (time from program start to ready)
+        /// </summary>
+        public static void RecordLaunchTime(string mode = "GUI")
+        {
+            if (_launchStopwatch == null || _launchStartTime == null)
+                return;
+            
+            _launchStopwatch.Stop();
+            var launchTimeMs = _launchStopwatch.ElapsedMilliseconds;
+            var launchTimeSeconds = _launchStopwatch.Elapsed.TotalSeconds;
+            
+            // Get compile time
+            var compileTime = GetCompileTime();
+            
+            // Output to console
+            Console.WriteLine("\n═══════════════════════════════════════════════════════");
+            if (compileTime.HasValue)
+            {
+                var compileTimeSeconds = compileTime.Value.TotalSeconds;
+                var compileTimeMs = (long)compileTime.Value.TotalMilliseconds;
+                Console.WriteLine($"  Compile Time: {compileTimeSeconds:F2} seconds ({compileTimeMs} ms) ago");
+            }
+            else
+            {
+                Console.WriteLine($"  Compile Time: Unable to determine");
+            }
+            Console.WriteLine($"  Launch Time: {launchTimeSeconds:F2} seconds ({launchTimeMs} ms)");
+            Console.WriteLine($"  Mode: {mode}");
+            Console.WriteLine($"═══════════════════════════════════════════════════════\n");
         }
 
         /// <summary>

@@ -32,12 +32,12 @@ namespace RPGGame
             
             UIManager.WriteMenuLine("\n--- Inventory ---");
             ShowCharacterStats();
-            UIManager.WriteMenuLine("---------------------");
+            UIManager.WriteMenuLine(GameConstants.SubMenuSeparator);
             equipmentService.DisplayCurrentEquipment(player, UIManager.WriteMenuLine);
-            UIManager.WriteMenuLine("---------------------");
+            UIManager.WriteMenuLine(GameConstants.SubMenuSeparator);
             ShowComboInfo();
             ShowInventory();
-            UIManager.WriteMenuLine("---------------------");
+            UIManager.WriteMenuLine(GameConstants.SubMenuSeparator);
             ShowOptions();
             
             // Reset menu delay counter after inventory display is complete
@@ -144,7 +144,7 @@ namespace RPGGame
                 return;
             }
 
-            UIManager.WriteMenuLine("---------------------");
+            UIManager.WriteMenuLine(GameConstants.SubMenuSeparator);
             UIManager.WriteMenuLine("Inventory:");
 
             for (int i = 0; i < inventory.Count; i++)

@@ -49,6 +49,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             TextBox? damageOverTimeDelayTextBox,
             TextBox? encounterDelayTextBox,
             TextBox? rollInfoDelayTextBox,
+            TextBox? environmentalLineDelayTextBox,
             TextBox? baseMenuDelayTextBox,
             TextBox? progressiveReductionRateTextBox,
             TextBox? progressiveThresholdTextBox,
@@ -93,6 +94,9 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 SetTextBoxValue(damageOverTimeDelayTextBox, TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.DamageOverTime));
                 SetTextBoxValue(encounterDelayTextBox, TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.Encounter));
                 SetTextBoxValue(rollInfoDelayTextBox, TextDelayConfiguration.GetMessageTypeDelay(UIMessageType.RollInfo));
+                
+                // Environmental line delay
+                SetTextBoxValue(environmentalLineDelayTextBox, TextDelayConfiguration.GetEnvironmentalLineDelay());
                 
                 // Progressive menu delays
                 var progressiveMenuDelays = TextDelayConfiguration.GetProgressiveMenuDelays();
@@ -165,6 +169,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             TextBox? damageOverTimeDelayTextBox,
             TextBox? encounterDelayTextBox,
             TextBox? rollInfoDelayTextBox,
+            TextBox? environmentalLineDelayTextBox,
             TextBox? baseMenuDelayTextBox,
             TextBox? progressiveReductionRateTextBox,
             TextBox? progressiveThresholdTextBox,
@@ -216,6 +221,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                     TextDelayConfiguration.SetMessageTypeDelay(UIMessageType.Encounter, encounterDelay);
                 if (rollInfoDelayTextBox != null && int.TryParse(rollInfoDelayTextBox.Text, out int rollInfoDelay))
                     TextDelayConfiguration.SetMessageTypeDelay(UIMessageType.RollInfo, rollInfoDelay);
+                
+                // Environmental line delay
+                if (environmentalLineDelayTextBox != null && int.TryParse(environmentalLineDelayTextBox.Text, out int environmentalLineDelay))
+                    TextDelayConfiguration.SetEnvironmentalLineDelay(environmentalLineDelay);
                 
                 // Progressive menu delays
                 if (baseMenuDelayTextBox != null && progressiveReductionRateTextBox != null && progressiveThresholdTextBox != null &&

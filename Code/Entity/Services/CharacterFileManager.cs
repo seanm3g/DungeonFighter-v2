@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using RPGGame.Utils;
 
@@ -149,6 +150,7 @@ namespace RPGGame.Entity.Services
 
         /// <summary>
         /// Gets all character save files in the GameData directory
+        /// Includes both per-character saves (character_*_save.json) and legacy save (character_save.json)
         /// </summary>
         /// <returns>Array of save file paths</returns>
         public string[] GetCharacterSaveFiles()
@@ -156,10 +158,32 @@ namespace RPGGame.Entity.Services
             var directory = GetGameDataDirectory();
             if (string.IsNullOrEmpty(directory) || !Directory.Exists(directory))
             {
+                // Log for debugging
+                ScrollDebugLogger.LogAlways($"GetCharacterSaveFiles: Directory not found or empty. Directory: '{directory}'");
                 return Array.Empty<string>();
             }
             
-            return Directory.GetFiles(directory, "character_*_save.json");
+            var files = new List<string>();
+            
+            try
+            {
+                // Get per-character save files (character_*_save.json)
+                var perCharacterFiles = Directory.GetFiles(directory, "character_*_save.json");
+                files.AddRange(perCharacterFiles);
+                
+                // Also check for legacy save file (character_save.json) if it exists
+                var legacyFile = GetDefaultSaveFilename();
+                if (File.Exists(legacyFile))
+                {
+                    files.Add(legacyFile);
+                }
+            }
+            catch (Exception ex)
+            {
+                ScrollDebugLogger.LogAlways($"GetCharacterSaveFiles: Error searching directory '{directory}': {ex.Message}");
+            }
+            
+            return files.ToArray();
         }
     }
 }

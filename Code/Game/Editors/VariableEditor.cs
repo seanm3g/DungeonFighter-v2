@@ -36,8 +36,12 @@ namespace RPGGame.Editors
                 new EditableVariable("Combat.CriticalHitMultiplier", () => config.Combat.CriticalHitMultiplier, v => config.Combat.CriticalHitMultiplier = Convert.ToDouble(v), "Critical hit damage multiplier"),
                 new EditableVariable("Combat.MinimumDamage", () => config.Combat.MinimumDamage, v => config.Combat.MinimumDamage = Convert.ToInt32(v), "Minimum damage dealt"),
                 new EditableVariable("Combat.BaseAttackTime", () => config.Combat.BaseAttackTime, v => config.Combat.BaseAttackTime = Convert.ToDouble(v), "Base attack time in seconds"),
-                new EditableVariable("Combat.AgilitySpeedReduction", () => config.Combat.AgilitySpeedReduction, v => config.Combat.AgilitySpeedReduction = Convert.ToDouble(v), "Agility speed reduction per point"),
+                new EditableVariable("Combat.AgilitySpeedReduction", () => config.Combat.AgilitySpeedReduction, v => config.Combat.AgilitySpeedReduction = Convert.ToDouble(v), "Agility speed reduction per point (legacy, not used)"),
                 new EditableVariable("Combat.MinimumAttackTime", () => config.Combat.MinimumAttackTime, v => config.Combat.MinimumAttackTime = Convert.ToDouble(v), "Minimum attack time"),
+                new EditableVariable("Combat.AgilityMin", () => config.Combat.AgilityMin, v => config.Combat.AgilityMin = Convert.ToInt32(v), "Minimum agility value for speed calculation"),
+                new EditableVariable("Combat.AgilityMax", () => config.Combat.AgilityMax, v => config.Combat.AgilityMax = Convert.ToInt32(v), "Maximum agility value for speed calculation"),
+                new EditableVariable("Combat.AgilityMinSpeedMultiplier", () => config.Combat.AgilityMinSpeedMultiplier, v => config.Combat.AgilityMinSpeedMultiplier = Convert.ToDouble(v), "Speed multiplier at minimum agility (e.g., 0.99 = 1% faster)"),
+                new EditableVariable("Combat.AgilityMaxSpeedMultiplier", () => config.Combat.AgilityMaxSpeedMultiplier, v => config.Combat.AgilityMaxSpeedMultiplier = Convert.ToDouble(v), "Speed multiplier at maximum agility (e.g., 0.01 = 99% faster)"),
                 new EditableVariable("CombatBalance.CriticalHitChance", () => config.CombatBalance.CriticalHitChance, v => config.CombatBalance.CriticalHitChance = Convert.ToDouble(v), "Base critical hit chance"),
                 new EditableVariable("CombatBalance.CriticalHitDamageMultiplier", () => config.CombatBalance.CriticalHitDamageMultiplier, v => config.CombatBalance.CriticalHitDamageMultiplier = Convert.ToDouble(v), "Critical hit damage multiplier"),
                 new EditableVariable("CombatBalance.RollDamageMultipliers.ComboRollDamageMultiplier", () => config.CombatBalance.RollDamageMultipliers.ComboRollDamageMultiplier, v => config.CombatBalance.RollDamageMultipliers.ComboRollDamageMultiplier = Convert.ToDouble(v), "Combo roll damage multiplier"),
@@ -50,8 +54,8 @@ namespace RPGGame.Editors
             {
                 new EditableVariable("RollSystem.MissThreshold.Min", () => config.RollSystem.MissThreshold.Min, v => config.RollSystem.MissThreshold.Min = Convert.ToInt32(v), "Minimum roll for miss"),
                 new EditableVariable("RollSystem.MissThreshold.Max", () => config.RollSystem.MissThreshold.Max, v => config.RollSystem.MissThreshold.Max = Convert.ToInt32(v), "Maximum roll for miss"),
-                new EditableVariable("RollSystem.BasicAttackThreshold.Min", () => config.RollSystem.BasicAttackThreshold.Min, v => config.RollSystem.BasicAttackThreshold.Min = Convert.ToInt32(v), "Minimum roll for basic attack"),
-                new EditableVariable("RollSystem.BasicAttackThreshold.Max", () => config.RollSystem.BasicAttackThreshold.Max, v => config.RollSystem.BasicAttackThreshold.Max = Convert.ToInt32(v), "Maximum roll for basic attack"),
+                new EditableVariable("RollSystem.BasicAttackThreshold.Min", () => config.RollSystem.BasicAttackThreshold.Min, v => config.RollSystem.BasicAttackThreshold.Min = Convert.ToInt32(v), "Minimum roll for normal attack"),
+                new EditableVariable("RollSystem.BasicAttackThreshold.Max", () => config.RollSystem.BasicAttackThreshold.Max, v => config.RollSystem.BasicAttackThreshold.Max = Convert.ToInt32(v), "Maximum roll for normal attack"),
                 new EditableVariable("RollSystem.ComboThreshold.Min", () => config.RollSystem.ComboThreshold.Min, v => config.RollSystem.ComboThreshold.Min = Convert.ToInt32(v), "Minimum roll for combo"),
                 new EditableVariable("RollSystem.ComboThreshold.Max", () => config.RollSystem.ComboThreshold.Max, v => config.RollSystem.ComboThreshold.Max = Convert.ToInt32(v), "Maximum roll for combo"),
                 new EditableVariable("RollSystem.CriticalThreshold", () => config.RollSystem.CriticalThreshold, v => config.RollSystem.CriticalThreshold = Convert.ToInt32(v), "Roll required for critical hit"),
@@ -128,19 +132,49 @@ namespace RPGGame.Editors
             };
             variablesByCategory["Progression"] = progressionVars;
 
-            // Status Effects
-            var statusVars = new List<EditableVariable>
+            // Status Effects - dynamically generated from dictionary
+            var statusVars = new List<EditableVariable>();
+            config.StatusEffects.InitializeDefaults();
+            foreach (var kvp in config.StatusEffects.Effects)
             {
-                new EditableVariable("StatusEffects.Bleed.DamagePerTick", () => config.StatusEffects.Bleed.DamagePerTick, v => config.StatusEffects.Bleed.DamagePerTick = Convert.ToInt32(v), "Bleed damage per tick"),
-                new EditableVariable("StatusEffects.Bleed.TickInterval", () => config.StatusEffects.Bleed.TickInterval, v => config.StatusEffects.Bleed.TickInterval = Convert.ToDouble(v), "Bleed tick interval"),
-                new EditableVariable("StatusEffects.Bleed.MaxStacks", () => config.StatusEffects.Bleed.MaxStacks, v => config.StatusEffects.Bleed.MaxStacks = Convert.ToInt32(v), "Bleed max stacks"),
-                new EditableVariable("StatusEffects.Poison.DamagePerTick", () => config.StatusEffects.Poison.DamagePerTick, v => config.StatusEffects.Poison.DamagePerTick = Convert.ToInt32(v), "Poison damage per tick"),
-                new EditableVariable("StatusEffects.Poison.TickInterval", () => config.StatusEffects.Poison.TickInterval, v => config.StatusEffects.Poison.TickInterval = Convert.ToDouble(v), "Poison tick interval"),
-                new EditableVariable("StatusEffects.Burn.DamagePerTick", () => config.StatusEffects.Burn.DamagePerTick, v => config.StatusEffects.Burn.DamagePerTick = Convert.ToInt32(v), "Burn damage per tick"),
-                new EditableVariable("StatusEffects.Burn.TickInterval", () => config.StatusEffects.Burn.TickInterval, v => config.StatusEffects.Burn.TickInterval = Convert.ToDouble(v), "Burn tick interval"),
-                new EditableVariable("StatusEffects.Stun.SkipTurns", () => config.StatusEffects.Stun.SkipTurns, v => config.StatusEffects.Stun.SkipTurns = Convert.ToInt32(v), "Stun skip turns"),
-                new EditableVariable("StatusEffects.Stun.Duration", () => config.StatusEffects.Stun.Duration, v => config.StatusEffects.Stun.Duration = Convert.ToDouble(v), "Stun duration"),
-            };
+                string effectName = kvp.Key;
+                var effectConfig = kvp.Value;
+                
+                statusVars.Add(new EditableVariable($"StatusEffects.{effectName}.DamagePerTick", 
+                    () => effectConfig.DamagePerTick, 
+                    v => effectConfig.DamagePerTick = Convert.ToInt32(v), 
+                    $"{effectName} damage per tick"));
+                
+                statusVars.Add(new EditableVariable($"StatusEffects.{effectName}.TickInterval", 
+                    () => effectConfig.TickInterval, 
+                    v => effectConfig.TickInterval = Convert.ToDouble(v), 
+                    $"{effectName} tick interval"));
+                
+                statusVars.Add(new EditableVariable($"StatusEffects.{effectName}.MaxStacks", 
+                    () => effectConfig.MaxStacks, 
+                    v => effectConfig.MaxStacks = Convert.ToInt32(v), 
+                    $"{effectName} max stacks"));
+                
+                statusVars.Add(new EditableVariable($"StatusEffects.{effectName}.StacksPerApplication", 
+                    () => effectConfig.StacksPerApplication, 
+                    v => effectConfig.StacksPerApplication = Convert.ToInt32(v), 
+                    $"{effectName} stacks per application"));
+                
+                statusVars.Add(new EditableVariable($"StatusEffects.{effectName}.SpeedReduction", 
+                    () => effectConfig.SpeedReduction, 
+                    v => effectConfig.SpeedReduction = Convert.ToDouble(v), 
+                    $"{effectName} speed reduction"));
+                
+                statusVars.Add(new EditableVariable($"StatusEffects.{effectName}.Duration", 
+                    () => effectConfig.Duration, 
+                    v => effectConfig.Duration = Convert.ToDouble(v), 
+                    $"{effectName} duration"));
+                
+                statusVars.Add(new EditableVariable($"StatusEffects.{effectName}.SkipTurns", 
+                    () => effectConfig.SkipTurns, 
+                    v => effectConfig.SkipTurns = Convert.ToInt32(v), 
+                    $"{effectName} skip turns"));
+            }
             variablesByCategory["StatusEffects"] = statusVars;
 
             // Dungeon Generation

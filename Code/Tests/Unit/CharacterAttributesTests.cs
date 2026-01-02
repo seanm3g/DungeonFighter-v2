@@ -17,6 +17,9 @@ namespace RPGGame.Tests.Unit
         {
             Console.WriteLine("=== Character Attributes Tests ===\n");
             
+            // Ensure GameConfiguration is initialized before running tests
+            _ = GameConfiguration.Instance;
+            
             _testsRun = 0;
             _testsPassed = 0;
             _testsFailed = 0;

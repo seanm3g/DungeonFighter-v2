@@ -30,6 +30,7 @@ namespace RPGGame.UI.Avalonia
         private ActionsTabManager? actionsTabManager;
         private ItemModifiersTabManager? itemModifiersTabManager;
         private ItemsTabManager? itemsTabManager;
+        private Managers.StatusEffectsTabManager? statusEffectsTabManager;
         private SettingsManager? settingsManager;
         private Managers.TestRunnerUI? testRunnerUI;
         private Managers.SettingsColorManager? colorManager;
@@ -70,6 +71,7 @@ namespace RPGGame.UI.Avalonia
             actionsTabManager = new ActionsTabManager();
             itemModifiersTabManager = new Managers.ItemModifiersTabManager(ShowStatusMessage);
             itemsTabManager = new Managers.ItemsTabManager(ShowStatusMessage);
+            statusEffectsTabManager = new Managers.StatusEffectsTabManager();
             
             // Set game variables tab manager in settings manager (needed for save operations)
             settingsManager.SetGameVariablesTabManager(gameVariablesTabManager);
@@ -89,7 +91,7 @@ namespace RPGGame.UI.Avalonia
             
             // Initialize panel handler registry
             panelHandlerRegistry = new PanelHandlerRegistry();
-            panelHandlerRegistry.Register(new GameplayPanelHandler(settings, settingsManager));
+            panelHandlerRegistry.Register(new GameplayPanelHandler(settings, settingsManager, ShowStatusMessage));
             panelHandlerRegistry.Register(new TextDelaysPanelHandler(settingsManager));
             panelHandlerRegistry.Register(new AppearancePanelHandler(settings, colorManager));
             // Testing handler will be registered when canvasUI is available
@@ -175,6 +177,7 @@ namespace RPGGame.UI.Avalonia
                 "Gameplay" => new GameplaySettingsPanel(),
                 "GameVariables" => new GameVariablesSettingsPanel(),
                 "Actions" => new ActionsSettingsPanel(),
+                "StatusEffects" => new StatusEffectsSettingsPanel(),
                 "TextDelays" => new TextDelaysSettingsPanel(),
                 "Appearance" => new AppearanceSettingsPanel(),
                 "ItemModifiers" => new ItemModifiersSettingsPanel(),
@@ -227,6 +230,24 @@ namespace RPGGame.UI.Avalonia
                         Dispatcher.UIThread.Post(() =>
                         {
                             initialization.InitializeActionsTab(actionsPanel);
+                        }, DispatcherPriority.Loaded);
+                    }
+                    break;
+                case "StatusEffects":
+                    if (panel is StatusEffectsSettingsPanel statusEffectsPanel && this.statusEffectsTabManager != null)
+                    {
+                        // Initialize the Status Effects tab with its controls
+                        Dispatcher.UIThread.Post(() =>
+                        {
+                            var listBox = statusEffectsPanel.FindControl<ListBox>("StatusEffectsListBox");
+                            var formPanel = statusEffectsPanel.FindControl<StackPanel>("StatusEffectFormPanel");
+                            var createButton = statusEffectsPanel.FindControl<Button>("CreateStatusEffectButton");
+                            var deleteButton = statusEffectsPanel.FindControl<Button>("DeleteStatusEffectButton");
+                            
+                            if (listBox != null && formPanel != null && createButton != null && deleteButton != null)
+                            {
+                                this.statusEffectsTabManager.Initialize(listBox, formPanel, createButton, deleteButton, ShowStatusMessage);
+                            }
                         }, DispatcherPriority.Loaded);
                     }
                     break;

@@ -159,9 +159,9 @@ namespace RPGGame
         /// <param name="results">The test results to display</param>
         private static void DisplayTestResults(List<LevelTestResult> results)
         {
-            TextDisplayIntegration.DisplaySystem("\n" + new string('=', 80));
+            TextDisplayIntegration.DisplaySystem($"\n{GameConstants.StandardSeparator}");
             TextDisplayIntegration.DisplaySystem("ITEM GENERATION TEST RESULTS");
-            TextDisplayIntegration.DisplaySystem(new string('=', 80));
+            TextDisplayIntegration.DisplaySystem(GameConstants.StandardSeparator);
             
             // Summary statistics
             var totalItems = results.Sum(r => r.TotalItems);
@@ -272,7 +272,7 @@ namespace RPGGame
                 using (var writer = new StreamWriter(fileName))
                 {
                     writer.WriteLine("ITEM GENERATION TEST RESULTS");
-                    writer.WriteLine(new string('=', 80));
+                    writer.WriteLine(GameConstants.StandardSeparator);
                     writer.WriteLine($"Generated on: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
                     writer.WriteLine($"Total Items: {results.Sum(r => r.TotalItems):N0}");
                     writer.WriteLine($"Levels Tested: {results.Count}");
@@ -510,9 +510,9 @@ namespace RPGGame
         /// </summary>
         public static void RunAllTests()
         {
-            TextDisplayIntegration.DisplaySystem("==========================================");
+            TextDisplayIntegration.DisplaySystem(GameConstants.StandardSeparator);
             TextDisplayIntegration.DisplaySystem("    DUNGEON FIGHTER v2 - TEST SUITE");
-            TextDisplayIntegration.DisplaySystem("==========================================");
+            TextDisplayIntegration.DisplaySystem(GameConstants.StandardSeparator);
             TextDisplayIntegration.DisplaySystem("This will run all available tests to verify system functionality.");
             TextDisplayIntegration.DisplaySystem("Press any key to continue or 'q' to quit...");
             
@@ -679,9 +679,9 @@ namespace RPGGame
             // Display test results summary
             DisplayTestResultsSummary(testResults);
             
-            TextDisplayIntegration.DisplaySystem("\n==========================================");
+            TextDisplayIntegration.DisplaySystem($"\n{GameConstants.StandardSeparator}");
             TextDisplayIntegration.DisplaySystem("    TEST SUITE COMPLETED");
-            TextDisplayIntegration.DisplaySystem("==========================================");
+            TextDisplayIntegration.DisplaySystem(GameConstants.StandardSeparator);
             TextDisplayIntegration.DisplaySystem("Press any key to continue...");
             Console.ReadKey();
         }
@@ -692,9 +692,9 @@ namespace RPGGame
         /// <param name="results">List of test results</param>
         private static void DisplayTestResultsSummary(List<(string testName, bool success, string message)> results)
         {
-            TextDisplayIntegration.DisplaySystem("\n" + new string('=', 60));
+            TextDisplayIntegration.DisplaySystem($"\n{GameConstants.StandardSeparator}");
             TextDisplayIntegration.DisplaySystem("TEST RESULTS SUMMARY");
-            TextDisplayIntegration.DisplaySystem(new string('=', 60));
+            TextDisplayIntegration.DisplaySystem(GameConstants.StandardSeparator);
             
             int passedTests = 0;
             int failedTests = 0;
