@@ -9,7 +9,7 @@ namespace RPGGame
 
     /// <summary>
     /// Handles loading saved characters from disk.
-    /// Shows a menu of all saved characters and allows selection.
+    /// Automatically loads the last or only saved character without showing a menu.
     /// </summary>
     public class LoadCharacterSelectionHandler
     {
@@ -36,32 +36,36 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Shows the load character selection menu with all saved characters
+        /// Automatically loads the last or only saved character without showing a menu
         /// </summary>
-        public void ShowLoadCharacterSelection()
+        public async Task ShowLoadCharacterSelection()
         {
             try
             {
-                stateManager.TransitionToState(GameState.LoadCharacterSelection);
-                
                 // Get list of all saved characters from disk
                 var savedCharacters = CharacterSaveManager.ListAllSavedCharacters();
                 
-                if (customUIManager is CanvasUICoordinator canvasUI)
+                // Handle no saved characters
+                if (savedCharacters == null || savedCharacters.Count == 0)
                 {
-                    // Render load character selection screen
-                    RenderLoadCharacterSelection(canvasUI, savedCharacters);
+                    ShowMessageEvent?.Invoke("No saved characters found.");
+                    stateManager.TransitionToState(GameState.MainMenu);
+                    ShowMainMenuEvent?.Invoke();
+                    return;
                 }
-                else
-                {
-                    // Console mode - show character list
-                    ShowLoadCharacterListConsole(savedCharacters);
-                }
+                
+                // Get the last character in the list (or only character if there's just one)
+                var characterToLoad = savedCharacters[savedCharacters.Count - 1];
+                
+                // Automatically load the character
+                await LoadCharacter(characterToLoad.characterId, characterToLoad.characterName);
             }
             catch (Exception ex)
             {
-                ShowMessageEvent?.Invoke($"Error showing load character selection: {ex.Message}");
+                ShowMessageEvent?.Invoke($"Error loading character: {ex.Message}");
                 DebugLogger.Log("LoadCharacterSelectionHandler", $"Error in ShowLoadCharacterSelection: {ex}");
+                stateManager.TransitionToState(GameState.MainMenu);
+                ShowMainMenuEvent?.Invoke();
             }
         }
 

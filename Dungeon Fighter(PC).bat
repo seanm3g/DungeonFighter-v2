@@ -3,6 +3,17 @@ setlocal enabledelayedexpansion
 
 title Dungeon Fighter v2
 
+REM Ensure we can see output
+echo.
+echo ========================================
+echo    Dungeon Fighter v2 - Launcher
+echo ========================================
+echo.
+echo Starting launcher...
+echo Script location: %~dp0
+echo Current directory: %CD%
+echo.
+
 REM Lock file to prevent duplicate execution
 set "LOCKFILE=%TEMP%\DF2_Launcher_%USERNAME%.lock"
 if exist "%LOCKFILE%" del "%LOCKFILE%" 2>nul >nul
@@ -15,15 +26,23 @@ if exist "%LOCKFILE%" del "%LOCKFILE%" 2>nul >nul
 exit /b %1
 
 :main
+echo [Step 1/5] Checking script directory...
 cd /d "%~dp0" 2>nul
 if errorlevel 1 (
+    echo.
     echo ERROR: Could not access script directory.
+    echo Current directory: %CD%
+    echo Script path: %~dp0
+    echo.
     call :cleanup 1
     pause
     exit /b 1
 )
+echo Script directory: %CD%
+echo.
 
 REM Check for .NET 8.0 SDK
+echo [Step 2/5] Checking for .NET 8.0 SDK...
 REM First, try to find dotnet in common locations
 set "DOTNET_FOUND=0"
 set "DOTNET_VERSION="
@@ -147,56 +166,105 @@ if !DOTNET_FOUND!==0 (
 )
 
 REM Check if game is already running
+echo [Step 3/5] Checking if game is already running...
 tasklist /FI "IMAGENAME eq DF.exe" 2>NUL | find /I /N "DF.exe">NUL
 if not errorlevel 1 (
+    echo.
     echo Game is already running!
+    echo Please close the existing game instance first.
+    echo.
     call :cleanup 1
     pause
     exit /b 1
 )
+echo No existing game instance found.
+echo.
 
 REM Build the game
-dotnet build Code\Code.csproj --configuration Debug >nul 2>&1
+echo [Step 4/5] Building game...
+echo This may take a moment...
+echo.
+dotnet build Code\Code.csproj --configuration Debug
 if errorlevel 1 (
+    echo.
+    echo ========================================
     echo ERROR: Build failed!
-    dotnet build Code\Code.csproj --configuration Debug
+    echo ========================================
+    echo.
+    echo Please check the error messages above.
+    echo.
     call :cleanup 1
     pause
     exit /b 1
 )
+echo Build successful!
+echo.
 
 REM Verify executable exists
+echo [Step 5/5] Verifying executable...
 set "GAME_EXE=%~dp0Code\bin\Debug\net8.0\DF.exe"
 if not exist "%GAME_EXE%" (
-    echo ERROR: Executable not found: %GAME_EXE%
+    echo.
+    echo ========================================
+    echo ERROR: Executable not found!
+    echo ========================================
+    echo.
+    echo Expected location: %GAME_EXE%
+    echo.
+    echo The build may have failed. Please check the build output above.
+    echo.
     call :cleanup 1
     pause
     exit /b 1
 )
+echo Executable found: %GAME_EXE%
+echo.
 
 REM Launch the game
-set "VBS_FILE=%TEMP%\launch_df_%RANDOM%.vbs"
-echo Set WshShell = CreateObject("WScript.Shell"^) > "%VBS_FILE%"
-echo WshShell.CurrentDirectory = "%CD%" >> "%VBS_FILE%"
-echo WshShell.Run """%GAME_EXE%""", 0, False >> "%VBS_FILE%"
-start /min wscript.exe "%VBS_FILE%"
-timeout /t 2 /nobreak >nul
-del "%VBS_FILE%" 2>nul >nul
+echo Launching game...
+echo.
+REM Set working directory to project root so GameData can be found
+cd /d "%~dp0"
+echo Working directory: %CD%
+echo.
+REM Launch the game visibly (window style 1 = normal window, not hidden)
+start "" "%GAME_EXE%"
 
-REM Wait for game to start
-timeout /t 1 /nobreak >nul
+REM Wait a moment for game to start
+timeout /t 2 /nobreak >nul
 
 REM Check if game is running
 tasklist /FI "IMAGENAME eq DF.exe" 2>NUL | find /I /N "DF.exe">NUL
 if errorlevel 1 (
-    echo ERROR: Game failed to start!
-    "%GAME_EXE%"
-    call :cleanup 1
+    echo.
+    echo ========================================
+    echo WARNING: Game process not detected
+    echo ========================================
+    echo.
+    echo The game may have started but exited immediately.
+    echo Check for error messages in the game window.
+    echo.
+    echo If the game window appeared, you can close this launcher.
+    echo Otherwise, try running the game manually:
+    echo   "%GAME_EXE%"
+    echo.
     pause
-    exit /b 1
+    call :cleanup 0
+    exit /b 0
 )
 
-REM Game launched successfully - close this window
+REM Game launched successfully
+echo.
+echo ========================================
+echo Game launched successfully!
+echo ========================================
+echo.
+echo The game window should have opened.
+echo.
+echo If the game window did not appear, check for error messages above.
+echo.
+echo Press any key to close this window...
+pause >nul
 call :cleanup 0
 endlocal
-exit
+exit /b 0

@@ -147,9 +147,24 @@ namespace RPGGame
                 player.RecordEnemyDefeat();
             }
             
+            // Check for one-shot kill and scale dungeon level if needed
+            if (playerWon && combatManager != null && combatManager.HadOneShotKill() && stateManager.CurrentDungeon != null)
+            {
+                stateManager.CurrentDungeon.ScaleLevelUp(1);
+                
+                // Notify player about dungeon scaling
+                if (displayManager != null)
+                {
+                    var scalingBuilder = new ColoredTextBuilder();
+                    scalingBuilder.Add("The dungeon difficulty has increased! ", ColorPalette.Warning);
+                    scalingBuilder.Add($"(Level {stateManager.CurrentDungeon.MinLevel})", ColorPalette.Info);
+                    displayManager.AddCombatEvent(ColoredTextRenderer.RenderAsMarkup(scalingBuilder.Build()));
+                }
+            }
+            
             // Enemy defeated - add victory message with proper spacing BEFORE final render
             // This ensures the victory message is included in the final render and prevents overlapping text
-            if (enemy != null)
+            if (enemy != null && displayManager != null)
             {
                 // Add blank line for spacing after informational summary
                 displayManager.AddCombatEvent("");
@@ -185,7 +200,7 @@ namespace RPGGame
                 Dispatcher.UIThread.Post(() =>
                 {
                     // Double-check character is still active before rendering
-                    if (IsCharacterActive(player))
+                    if (IsCharacterActive(player) && displayManager != null)
                     {
                         canvasUI4.RenderCombat(player, enemy, displayManager.CombatLog);
                     }

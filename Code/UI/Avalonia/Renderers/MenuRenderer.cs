@@ -163,6 +163,62 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
 
         /// <summary>
+        /// Renders character info content in the center panel
+        /// </summary>
+        public void RenderCharacterInfoContent(int x, int y, int width, int height, Character character)
+        {
+            int currentY = y + 2;
+            int indent = x + 2;
+            
+            // Character name and basic info
+            canvas.AddText(indent, currentY, $"Name: {character.Name}", AsciiArtAssets.Colors.White);
+            currentY += 2;
+            canvas.AddText(indent, currentY, $"Class: {character.GetCurrentClass()}", AsciiArtAssets.Colors.Yellow);
+            currentY++;
+            canvas.AddText(indent, currentY, $"Level: {character.Level}", AsciiArtAssets.Colors.White);
+            currentY++;
+            canvas.AddText(indent, currentY, $"Health: {character.CurrentHealth}/{character.GetEffectiveMaxHealth()}", AsciiArtAssets.Colors.Green);
+            currentY++;
+            canvas.AddText(indent, currentY, $"XP: {character.XP}", AsciiArtAssets.Colors.White);
+            currentY += 2;
+            
+            // Stats section
+            canvas.AddText(indent, currentY, "=== STATS ===", AsciiArtAssets.Colors.Gold);
+            currentY += 2;
+            canvas.AddText(indent, currentY, $"Strength: {character.GetEffectiveStrength()}", AsciiArtAssets.Colors.White);
+            currentY++;
+            canvas.AddText(indent, currentY, $"Agility: {character.GetEffectiveAgility()}", AsciiArtAssets.Colors.White);
+            currentY++;
+            canvas.AddText(indent, currentY, $"Technique: {character.GetEffectiveTechnique()}", AsciiArtAssets.Colors.White);
+            currentY++;
+            canvas.AddText(indent, currentY, $"Intelligence: {character.GetEffectiveIntelligence()}", AsciiArtAssets.Colors.White);
+            currentY += 2;
+            
+            // Class points section
+            canvas.AddText(indent, currentY, "=== CLASS POINTS ===", AsciiArtAssets.Colors.Gold);
+            currentY += 2;
+            canvas.AddText(indent, currentY, $"Barbarian (Mace): {character.BarbarianPoints}", AsciiArtAssets.Colors.White);
+            currentY++;
+            canvas.AddText(indent, currentY, $"Warrior (Sword): {character.WarriorPoints}", AsciiArtAssets.Colors.White);
+            currentY++;
+            canvas.AddText(indent, currentY, $"Rogue (Dagger): {character.RoguePoints}", AsciiArtAssets.Colors.White);
+            currentY++;
+            canvas.AddText(indent, currentY, $"Wizard (Wand): {character.WizardPoints}", AsciiArtAssets.Colors.White);
+            currentY += 2;
+            
+            // Equipment section
+            canvas.AddText(indent, currentY, "=== EQUIPMENT ===", AsciiArtAssets.Colors.Gold);
+            currentY += 2;
+            canvas.AddText(indent, currentY, $"Weapon: {(character.Weapon != null ? character.Weapon.Name : "None")}", AsciiArtAssets.Colors.White);
+            currentY++;
+            canvas.AddText(indent, currentY, $"Head: {(character.Head != null ? character.Head.Name : "None")}", AsciiArtAssets.Colors.White);
+            currentY++;
+            canvas.AddText(indent, currentY, $"Body: {(character.Body != null ? character.Body.Name : "None")}", AsciiArtAssets.Colors.White);
+            currentY++;
+            canvas.AddText(indent, currentY, $"Feet: {(character.Feet != null ? character.Feet.Name : "None")}", AsciiArtAssets.Colors.White);
+        }
+
+        /// <summary>
         /// Renders the weapon selection content with centered layout
         /// </summary>
         public void RenderWeaponSelectionContent(int x, int y, int width, int height, List<StartingWeapon> weapons)

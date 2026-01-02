@@ -1,6 +1,7 @@
 namespace RPGGame
 {
     using System;
+    using System.Threading.Tasks;
     using RPGGame.UI.Avalonia;
 
     /// <summary>
@@ -14,8 +15,10 @@ namespace RPGGame
         
         // Delegates
         public delegate void OnShowMainMenu();
+        public delegate Task OnShowDungeonSelection();
         
         public event OnShowMainMenu? ShowMainMenuEvent;
+        public event OnShowDungeonSelection? ShowDungeonSelectionEvent;
 
         public CharacterMenuHandler(GameStateManager stateManager, IUIManager? customUIManager)
         {
@@ -34,13 +37,22 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Handle character info input (read-only, just go back)
+        /// Handle character info input - transition to dungeon selection for new characters
         /// </summary>
-        public void HandleMenuInput(string input)
+        public async Task HandleMenuInput(string input)
         {
-            // Character info is read-only, any input returns to main menu
-            stateManager.TransitionToState(GameState.MainMenu);
-            ShowMainMenuEvent?.Invoke();
+            // For new characters, go directly to dungeon selection
+            // Any input transitions to dungeon selection
+            if (ShowDungeonSelectionEvent != null)
+            {
+                await ShowDungeonSelectionEvent.Invoke();
+            }
+            else
+            {
+                // Fallback to main menu if dungeon selection event is not wired
+                stateManager.TransitionToState(GameState.MainMenu);
+                ShowMainMenuEvent?.Invoke();
+            }
         }
     }
 }

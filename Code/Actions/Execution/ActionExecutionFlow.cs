@@ -12,6 +12,10 @@ namespace RPGGame.Actions.Execution
     internal static class ActionExecutionFlow
     {
         /// <summary>
+        /// Event fired when a one-shot kill occurs (enemy killed from full health in a single action)
+        /// </summary>
+        public static event System.Action? OneShotKillOccurred;
+        /// <summary>
         /// Executes the core action execution sequence
         /// </summary>
         public static ActionExecutionResult Execute(
@@ -119,6 +123,15 @@ namespace RPGGame.Actions.Execution
                         // Single hit (original behavior)
                         result.Damage = CombatCalculator.CalculateDamage(source, target, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, totalRoll);
                         
+                        // Track enemy health before damage to detect one-shot kills
+                        int enemyHealthBeforeDamage = 0;
+                        bool wasEnemyAtFullHealth = false;
+                        if (target is Enemy enemyBeforeDamage)
+                        {
+                            enemyHealthBeforeDamage = enemyBeforeDamage.CurrentHealth;
+                            wasEnemyAtFullHealth = enemyBeforeDamage.CurrentHealth >= enemyBeforeDamage.MaxHealth;
+                        }
+                        
                         // Handle SelfAndTarget - apply damage to both self and enemy
                         if (result.SelectedAction.Target == TargetType.SelfAndTarget)
                         {
@@ -137,6 +150,14 @@ namespace RPGGame.Actions.Execution
                         {
                             // Normal single target behavior
                             ActionUtilities.ApplyDamage(target, result.Damage);
+                        }
+                        
+                        // Check for one-shot kill: enemy was at full health and died from this single action
+                        if (target is Enemy killedEnemy && killedEnemy.CurrentHealth <= 0 && wasEnemyAtFullHealth && source is Character)
+                        {
+                            result.WasOneShotKill = true;
+                            // Fire event to notify combat system
+                            OneShotKillOccurred?.Invoke();
                         }
 
                         if (!ActionExecutor.DisableCombatDebugOutput)

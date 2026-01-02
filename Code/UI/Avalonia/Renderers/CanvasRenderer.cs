@@ -199,6 +199,14 @@ namespace RPGGame.UI.Avalonia.Renderers
             characterCreationRenderer.RenderCharacterCreation(character, context);
         }
 
+        public void RenderCharacterInfo(Character character, CanvasContext context)
+        {
+            RenderWithLayout(character, "CHARACTER INFO", (contentX, contentY, contentWidth, contentHeight) =>
+            {
+                menuRenderer.RenderCharacterInfoContent(contentX, contentY, contentWidth, contentHeight, character);
+            }, context, null, null, null, clearCanvas: false);
+        }
+
         public void RenderSettings()
         {
             menuRenderer.RenderSettings();

@@ -133,14 +133,25 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets action pool with combo actions from actor
+        /// Gets all actions from the actor's action pool
+        /// Returns all available actions from equipped items (GearAction and ActionBonuses)
         /// </summary>
         public List<Action> GetActionPool(Actor actor)
         {
+            if (actor == null)
+            {
+                return new List<Action>();
+            }
+            
+            if (actor.ActionPool == null)
+            {
+                return new List<Action>();
+            }
+            
             var allActions = new List<Action>();
             foreach (var (action, _) in actor.ActionPool)
             {
-                if (action.IsComboAction)
+                if (action != null)
                 {
                     allActions.Add(action);
                 }

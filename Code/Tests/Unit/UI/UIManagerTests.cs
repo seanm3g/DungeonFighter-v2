@@ -76,11 +76,22 @@ namespace RPGGame.Tests.Unit.UI
         {
             Console.WriteLine("\n--- Testing SetCustomUIManager ---");
 
-            // Test setting custom UI manager (null is acceptable)
-            UIManager.SetCustomUIManager(null);
-            TestBase.AssertTrue(true,
-                "SetCustomUIManager should accept null",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            // Save original value to restore after test
+            var originalUIManager = UIManager.GetCustomUIManager();
+
+            try
+            {
+                // Test setting custom UI manager (null is acceptable)
+                UIManager.SetCustomUIManager(null);
+                TestBase.AssertTrue(true,
+                    "SetCustomUIManager should accept null",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                // Always restore original value to prevent interference with game initialization
+                UIManager.SetCustomUIManager(originalUIManager);
+            }
         }
 
         private static void TestDisableAllUIOutput()

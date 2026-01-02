@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using RPGGame.UI.ColorSystem;
 using Avalonia.Media;
+using RPGGame;
 
 namespace RPGGame.Utils
 {
@@ -18,6 +19,12 @@ namespace RPGGame.Utils
         /// </summary>
         public static void Write(string text)
         {
+            // Skip writing if UI output is disabled (e.g., during tests)
+            if (UIManager.DisableAllUIOutput)
+            {
+                return;
+            }
+
             var segments = ColoredTextParser.Parse(text);
             WriteSegments(segments);
         }
@@ -27,6 +34,12 @@ namespace RPGGame.Utils
         /// </summary>
         public static void WriteLine(string text)
         {
+            // Skip writing if UI output is disabled (e.g., during tests)
+            if (UIManager.DisableAllUIOutput)
+            {
+                return;
+            }
+
             Write(text);
             Console.WriteLine();
         }
@@ -36,6 +49,12 @@ namespace RPGGame.Utils
         /// </summary>
         public static void WriteSegments(List<ColoredText> segments)
         {
+            // Skip writing if UI output is disabled (e.g., during tests)
+            if (UIManager.DisableAllUIOutput)
+            {
+                return;
+            }
+
             foreach (var segment in segments)
             {
                 var consoleColor = ConvertToConsoleColor(segment.Color);
@@ -60,6 +79,12 @@ namespace RPGGame.Utils
         /// </summary>
         public static void WriteLineColoredText(ColoredTextBuilder builder)
         {
+            // Skip writing if UI output is disabled (e.g., during tests)
+            if (UIManager.DisableAllUIOutput)
+            {
+                return;
+            }
+
             WriteColoredText(builder);
             Console.WriteLine();
         }
@@ -69,6 +94,12 @@ namespace RPGGame.Utils
         /// </summary>
         public static void Write(string text, ColorPalette color)
         {
+            // Skip writing if UI output is disabled (e.g., during tests)
+            if (UIManager.DisableAllUIOutput)
+            {
+                return;
+            }
+
             var consoleColor = ConvertToConsoleColor(color.GetColor());
             Console.ForegroundColor = consoleColor;
             Console.Write(text);
@@ -79,6 +110,12 @@ namespace RPGGame.Utils
         /// </summary>
         public static void WriteLine(string text, ColorPalette color)
         {
+            // Skip writing if UI output is disabled (e.g., during tests)
+            if (UIManager.DisableAllUIOutput)
+            {
+                return;
+            }
+
             Write(text, color);
             Console.WriteLine();
         }
@@ -88,6 +125,12 @@ namespace RPGGame.Utils
         /// </summary>
         public static void WriteWithPattern(string text, string pattern)
         {
+            // Skip writing if UI output is disabled (e.g., during tests)
+            if (UIManager.DisableAllUIOutput)
+            {
+                return;
+            }
+
             var color = ColorPatterns.GetColorForPattern(pattern);
             var consoleColor = ConvertToConsoleColor(color);
             Console.ForegroundColor = consoleColor;
@@ -99,6 +142,12 @@ namespace RPGGame.Utils
         /// </summary>
         public static void WriteLineWithPattern(string text, string pattern)
         {
+            // Skip writing if UI output is disabled (e.g., during tests)
+            if (UIManager.DisableAllUIOutput)
+            {
+                return;
+            }
+
             WriteWithPattern(text, pattern);
             Console.WriteLine();
         }

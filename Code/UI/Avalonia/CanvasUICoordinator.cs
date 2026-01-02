@@ -463,6 +463,13 @@ namespace RPGGame.UI.Avalonia
             renderer.RenderGameMenu(player, inventory, contextManager.GetCurrentContext());
         }
 
+        public void RenderCharacterInfo(Character player)
+        {
+            // Ensure character is set in context manager for persistent display
+            contextManager.SetCurrentCharacter(player);
+            renderer.RenderCharacterInfo(player, contextManager.GetCurrentContext());
+        }
+
         #endregion
 
         #region Message Display - Delegated to MessageWritingCoordinator

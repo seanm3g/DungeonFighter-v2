@@ -181,6 +181,10 @@ namespace RPGGame
             
             player.EquipItem(starterWeapon, "weapon");
             
+            // Add class actions based on character progression and weapon type
+            // This ensures characters have actions even if weapon doesn't have actions assigned
+            player.Actions.AddClassActions(player, player.Progression, weaponType);
+            
             // Initialize combo sequence with weapon actions now that weapon is equipped
             player.InitializeDefaultCombo();
             
@@ -206,6 +210,18 @@ namespace RPGGame
                 };
                 
                 player.EquipItem(armorItem, slot);
+            }
+
+            // Validate that character has actions after initialization
+            if (player.ActionPool.Count == 0)
+            {
+                ErrorHandler.LogWarning(
+                    $"Character '{player.Name}' has no actions after initialization. " +
+                    $"Weapon: {player.Equipment.Weapon?.Name ?? "None"}, " +
+                    $"WeaponType: {weaponType}, " +
+                    $"Class: {player.Progression.GetCurrentClass()}, " +
+                    $"Actions loaded from JSON: {ActionLoader.GetAllActionNames().Count}",
+                    "GameInitializer");
             }
 
             // Generate dungeons for the new game

@@ -210,11 +210,11 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Load a saved game - shows character selection menu
+        /// Load a saved game - automatically loads the last or only saved character
         /// </summary>
         private async Task LoadGame()
         {
-            // Show load character selection menu instead of directly loading
+            // Automatically load the last or only saved character
             if (loadCharacterSelectionHandler == null)
             {
                 loadCharacterSelectionHandler = new LoadCharacterSelectionHandler(stateManager, customUIManager, gameInitializer);
@@ -234,8 +234,7 @@ namespace RPGGame
                 loadCharacterSelectionHandler.ShowMessageEvent += (msg) => ShowMessageEvent?.Invoke(msg);
             }
             
-            loadCharacterSelectionHandler.ShowLoadCharacterSelection();
-            await Task.CompletedTask;
+            await loadCharacterSelectionHandler.ShowLoadCharacterSelection();
         }
 
         /// <summary>

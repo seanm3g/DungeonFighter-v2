@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame;
+using RPGGame.Combat.Events;
 using RPGGame.Tests;
 using RPGGame.Tests.Unit;
 using RPGGame.Tests.Integration;
@@ -53,6 +54,8 @@ namespace RPGGame.Tests.Runners
             TestResultCollector.SetCurrentCategory(phase2);
             Console.WriteLine($"\n=== {phase2} ===\n");
             ComboExecutionTests.RunAllTests();
+            Console.WriteLine();
+            ActionSequenceTests.RunAllTests();
             Console.WriteLine();
             StatusEffectsTests.RunAllTests();
             Console.WriteLine();
@@ -151,9 +154,46 @@ namespace RPGGame.Tests.Runners
             // Display overall summary
             DisplayOverallSummary();
 
+            // Clean up static state to prevent interference with game initialization
+            CleanupStaticState();
+
             Console.WriteLine($"\n{GameConstants.StandardSeparator}");
             Console.WriteLine("  ALL TESTS COMPLETE");
             Console.WriteLine($"{GameConstants.StandardSeparator}\n");
+        }
+
+        /// <summary>
+        /// Cleans up static state that tests may have modified
+        /// This prevents tests from interfering with normal game initialization
+        /// </summary>
+        private static void CleanupStaticState()
+        {
+            try
+            {
+                // Reset UIManager custom UI manager (tests may set it to null)
+                UIManager.SetCustomUIManager(null);
+                UIManager.ReloadConfiguration();
+                
+                // Clear CombatEventBus subscribers (tests may add subscribers)
+                CombatEventBus.Instance.Clear();
+                
+                // Stop GameTicker if it's running (tests may start it)
+                if (GameTicker.Instance.IsRunning)
+                {
+                    GameTicker.Instance.Stop();
+                }
+                
+                // Reset GameTicker time
+                GameTicker.Instance.Reset();
+                
+                // Reset UIManager flags
+                UIManager.DisableAllUIOutput = false;
+            }
+            catch (Exception ex)
+            {
+                // Log but don't fail - cleanup is best effort
+                Console.WriteLine($"Warning: Error during test cleanup: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -256,6 +296,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine("=== COMBO SYSTEM TESTS ===\n");
             
             ComboExecutionTests.RunAllTests();
+            Console.WriteLine();
+            ActionSequenceTests.RunAllTests();
         }
 
         /// <summary>

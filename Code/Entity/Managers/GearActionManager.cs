@@ -300,25 +300,35 @@ namespace RPGGame
             {
                 if (entity == null)
                 {
+                    DebugLogger.LogFormat("GearActionManager", 
+                        "ERROR: Entity is null when trying to load action '{0}'", actionName);
+                    return;
+                }
+                
+                if (string.IsNullOrEmpty(actionName))
+                {
+                    DebugLogger.LogFormat("GearActionManager", 
+                        "ERROR: Action name is null or empty");
                     return;
                 }
                 
                 DebugLogger.LogFormat("GearActionManager", 
                     "Attempting to load action '{0}' from JSON for entity '{1}'", actionName, entity.Name);
                 
+                // Ensure actions are loaded (GetAction will load if needed, but we ensure it here)
+                ActionLoader.LoadActions();
+                
                 var action = ActionLoader.GetAction(actionName);
                 if (action != null)
                 {
-                    // CRITICAL: Mark gear actions as combo actions so they appear in the action pool
-                    // The GetActionPool() method only returns actions with IsComboAction == true
-                    if (!action.IsComboAction)
-                    {
-                        action.IsComboAction = true;
-                        DebugLogger.LogFormat("GearActionManager", 
-                            "Marked action '{0}' as combo action so it appears in action pool", actionName);
-                    }
+                    // Mark gear actions as combo actions so they can be used in combo sequences
+                    // GetActionPool() returns all actions, but marking as combo actions allows them to be added to combo sequences
+                    action.IsComboAction = true;
+                    DebugLogger.LogFormat("GearActionManager", 
+                        "Marked gear action '{0}' as combo action", actionName);
                     
-                    if (action.IsComboAction && entity.ActionPool != null)
+                    // Set ComboOrder for the action
+                    if (entity.ActionPool != null)
                     {
                         var comboActions = entity.ActionPool
                             .Where(a => a.action.IsComboAction)
@@ -331,10 +341,30 @@ namespace RPGGame
                         action.ComboOrder = maxOrder + 1;
                     }
 
+                    // Verify ActionPool is not null before adding
+                    if (entity.ActionPool == null)
+                    {
+                        DebugLogger.LogFormat("GearActionManager", 
+                            "ERROR: Entity ActionPool is null for entity '{0}'", entity.Name);
+                        return;
+                    }
+                    
+                    int poolSizeBefore = entity.ActionPool.Count;
                     entity.AddAction(action, 1.0);
+                    int poolSizeAfter = entity.ActionPool.Count;
+                    
+                    // Verify action was actually added
+                    bool actionExists = entity.ActionPool.Any(a => a.action.Name == actionName);
+                    
                     DebugLogger.LogFormat("GearActionManager", 
-                        "Successfully loaded and added gear action '{0}' to entity '{1}' action pool (pool size: {2}, isComboAction: {3})", 
-                        actionName, entity?.Name ?? "null", entity?.ActionPool?.Count ?? 0, action.IsComboAction);
+                        "Successfully loaded and added gear action '{0}' to entity '{1}' action pool (pool size before: {2}, after: {3}, action exists: {4}, isComboAction: {5})", 
+                        actionName, entity?.Name ?? "null", poolSizeBefore, poolSizeAfter, actionExists, action.IsComboAction);
+                    
+                    if (!actionExists)
+                    {
+                        DebugLogger.LogFormat("GearActionManager", 
+                            "ERROR: Action '{0}' was not found in ActionPool after AddAction call", actionName);
+                    }
                 }
                 else
                 {
@@ -345,7 +375,7 @@ namespace RPGGame
             catch (Exception ex)
             {
                 DebugLogger.LogFormat("GearActionManager", 
-                    "Error loading gear action {0}: {1}", actionName, ex.Message);
+                    "Error loading gear action {0}: {1}\nStack trace: {2}", actionName, ex.Message, ex.StackTrace ?? "N/A");
             }
         }
 

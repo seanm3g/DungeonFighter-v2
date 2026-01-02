@@ -49,7 +49,8 @@ namespace RPGGame.GameCore.Input
                     }
                     break;
                 case GameState.CharacterInfo:
-                    handlers.CharacterMenuHandler?.HandleMenuInput(input);
+                    if (handlers.CharacterMenuHandler != null)
+                        await handlers.CharacterMenuHandler.HandleMenuInput(input);
                     break;
                 case GameState.Settings:
                     // Allow scrolling during settings to view test results

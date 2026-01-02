@@ -70,6 +70,9 @@
                     <Button x:Name="TestStatusEffectsButton" Content="Status Effects" Width="140" Height="35"
                             Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
+                    <Button x:Name="TestComboSystemButton" Content="Combo System" Width="140" Height="35"
+                            Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
+                            FontSize="14" FontWeight="SemiBold"/>
                 </StackPanel>
             </StackPanel>
             

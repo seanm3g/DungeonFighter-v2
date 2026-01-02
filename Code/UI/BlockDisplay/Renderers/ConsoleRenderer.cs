@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using RPGGame;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
 using RPGGame.Utils;
@@ -20,6 +21,12 @@ namespace RPGGame.UI.BlockDisplay.Renderers
         
         public async Task RenderMessageGroupsAsync(List<(List<ColoredText> segments, UIMessageType messageType)> groups, int delayMs, Character? character = null)
         {
+            // Skip rendering if UI output is disabled (e.g., during tests)
+            if (UIManager.DisableAllUIOutput)
+            {
+                return;
+            }
+
             if (groups != null && groups.Count > 0)
             {
                 for (int i = 0; i < groups.Count; i++)

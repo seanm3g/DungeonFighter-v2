@@ -59,6 +59,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             var testErrorHandlingButton = panel.FindControl<Button>("TestErrorHandlingButton");
             var testMultiHitButton = panel.FindControl<Button>("TestMultiHitButton");
             var testStatusEffectsButton = panel.FindControl<Button>("TestStatusEffectsButton");
+            var testComboSystemButton = panel.FindControl<Button>("TestComboSystemButton");
             var testCombatButton = panel.FindControl<Button>("TestCombatButton");
             var testDungeonButton = panel.FindControl<Button>("TestDungeonButton");
             var testGameplayFlowButton = panel.FindControl<Button>("TestGameplayFlowButton");
@@ -175,6 +176,14 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 testStatusEffectsButton.Click += async (s, e) =>
                 {
                     await textBoxTestRunner.RunStatusEffectsTestsAsync();
+                };
+            }
+
+            if (testComboSystemButton != null)
+            {
+                testComboSystemButton.Click += async (s, e) =>
+                {
+                    await textBoxTestRunner.RunComboSystemTestsAsync();
                 };
             }
 

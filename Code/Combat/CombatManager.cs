@@ -27,6 +27,34 @@ namespace RPGGame
         {
             stateManager = new CombatStateManager();
             turnHandler = new CombatTurnHandlerSimplified(stateManager);
+            
+            // Subscribe to one-shot kill events
+            Actions.Execution.ActionExecutionFlow.OneShotKillOccurred += OnOneShotKill;
+        }
+        
+        /// <summary>
+        /// Handles one-shot kill events
+        /// </summary>
+        private void OnOneShotKill()
+        {
+            stateManager.RecordOneShotKill();
+        }
+        
+        /// <summary>
+        /// Gets whether a one-shot kill occurred in the last combat
+        /// </summary>
+        public bool HadOneShotKill()
+        {
+            return stateManager.HadOneShotKill();
+        }
+        
+        /// <summary>
+        /// Cleanup method to unsubscribe from events
+        /// Should be called when CombatManager is no longer needed
+        /// </summary>
+        public void Cleanup()
+        {
+            Actions.Execution.ActionExecutionFlow.OneShotKillOccurred -= OnOneShotKill;
         }
 
         /// <summary>

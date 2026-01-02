@@ -256,6 +256,17 @@ namespace RPGGame.UI.Avalonia.Managers
         }
 
         /// <summary>
+        /// Runs combo system tests (including action sequence tests)
+        /// </summary>
+        public async Task RunComboSystemTestsAsync()
+        {
+            await orchestrator.RunTestAsync(
+                () => ComprehensiveTestRunner.RunComboSystemTests(),
+                "Running combo system tests...",
+                "Combo system tests complete");
+        }
+
+        /// <summary>
         /// Clears the output TextBox
         /// </summary>
         public void ClearOutput()

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,12 +24,28 @@ namespace RPGGame
         /// </summary>
         public void AddClassActions(Actor entity, CharacterProgression? progression, WeaponType? weaponType)
         {
-            RemoveClassActions(entity);
+            // Only remove class actions if character has class points (to avoid removing gear actions)
+            // If character has no class points, skip removal to preserve gear actions with class action names
+            if (progression != null && HasAnyClassPoints(progression))
+            {
+                RemoveClassActions(entity, progression, weaponType);
+            }
             
             AddBarbarianActions(entity, progression);
             AddWarriorActions(entity, progression);
             AddRogueActions(entity, progression);
             AddWizardActions(entity, progression, weaponType);
+        }
+        
+        /// <summary>
+        /// Checks if character has any class points
+        /// </summary>
+        private bool HasAnyClassPoints(CharacterProgression progression)
+        {
+            return progression.BarbarianPoints > 0 || 
+                   progression.WarriorPoints > 0 || 
+                   progression.RoguePoints > 0 || 
+                   progression.WizardPoints > 0;
         }
 
         /// <summary>
@@ -123,14 +139,12 @@ namespace RPGGame
                 var action = ActionLoader.GetAction(actionName);
                 if (action != null)
                 {
-                    // CRITICAL: Mark class actions as combo actions so they appear in GetActionPool()
+                    // CRITICAL: ALWAYS mark class actions as combo actions so they appear in GetActionPool()
                     // The GetActionPool() method only returns actions with IsComboAction == true
-                    if (!action.IsComboAction)
-                    {
-                        action.IsComboAction = true;
-                        DebugLogger.LogFormat("ClassActionManager", 
-                            "Marked class action '{0}' as combo action", actionName);
-                    }
+                    // Class actions should always be available in the action pool regardless of their JSON setting
+                    action.IsComboAction = true;
+                    DebugLogger.LogFormat("ClassActionManager", 
+                        "Marked class action '{0}' as combo action", actionName);
                     
                     entity.AddAction(action, 1.0);
                     DebugLogger.LogFormat("ClassActionManager", 
@@ -145,14 +159,69 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Removes all class-specific actions from entity
+        /// Removes class-specific actions from entity that the character should have based on progression
+        /// Only removes actions that would be added by the class system, preserving gear actions
         /// </summary>
-        private void RemoveClassActions(Actor entity) {  
+        private void RemoveClassActions(Actor entity, CharacterProgression? progression, WeaponType? weaponType) {
+            if (progression == null) return;
+            
             var actionsToRemove = new List<(Action action, double probability)>();
             
+            // Build list of actions that should be present based on class points
+            var expectedClassActions = new HashSet<string>();
+            
+            // Barbarian actions
+            if (progression.BarbarianPoints >= 2)
+            {
+                expectedClassActions.Add("FOLLOW THROUGH");
+            }
+            if (progression.BarbarianPoints >= 3)
+            {
+                expectedClassActions.Add("BERSERK");
+            }
+            
+            // Warrior actions
+            if (progression.WarriorPoints >= 1)
+            {
+                expectedClassActions.Add("TAUNT");
+            }
+            if (progression.WarriorPoints >= 3)
+            {
+                expectedClassActions.Add("SHIELD BASH");
+                expectedClassActions.Add("DEFENSIVE STANCE");
+            }
+            
+            // Rogue actions
+            if (progression.RoguePoints >= 2)
+            {
+                expectedClassActions.Add("MISDIRECT");
+            }
+            if (progression.RoguePoints >= 3)
+            {
+                expectedClassActions.Add("QUICK REFLEXES");
+            }
+            
+            // Wizard actions
+            bool isWizardClass = IsWizardClass(progression, weaponType);
+            if (isWizardClass)
+            {
+                if (progression.WizardPoints >= 1)
+                {
+                    expectedClassActions.Add("CHANNEL");
+                }
+                if (progression.WizardPoints >= 3)
+                {
+                    expectedClassActions.Add("FIREBALL");
+                    expectedClassActions.Add("FOCUS");
+                }
+            }
+            
+            // Only remove actions that are class actions AND the character should have from class points
+            // This preserves gear actions that happen to have the same name
             foreach (var actionEntry in entity.ActionPool)
             {
-                if (AllClassActions.Contains(actionEntry.action.Name))
+                if (AllClassActions.Contains(actionEntry.action.Name) && 
+                    expectedClassActions.Contains(actionEntry.action.Name))
                 {
                     actionsToRemove.Add(actionEntry);
                 }
@@ -174,7 +243,7 @@ namespace RPGGame
             if (actionsToRemove.Count > 0)
             {
                 DebugLogger.LogFormat("ClassActionManager", 
-                    "Removed {0} class actions", actionsToRemove.Count);
+                    "Removed {0} class actions (preserved gear actions with same names)", actionsToRemove.Count);
             }
         }
 

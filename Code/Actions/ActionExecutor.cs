@@ -29,6 +29,7 @@ namespace RPGGame
         public int HealAmount { get; set; }
         public List<string> StatusEffectMessages { get; set; } = new List<string>();
         public List<List<ColoredText>> ColoredStatusEffects { get; set; } = new List<List<ColoredText>>();
+        public bool WasOneShotKill { get; set; }
     }
 
     /// <summary>

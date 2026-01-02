@@ -13,6 +13,7 @@ namespace RPGGame
         private BattleNarrative? currentBattleNarrative;
         private TurnManager turnManager;
         private FunMomentTracker? funMomentTracker;
+        private bool hadOneShotKill;
 
         public CombatStateManager()
         {
@@ -26,6 +27,9 @@ namespace RPGGame
         {
             // Clear previous battle's narrative before starting a new one
             currentBattleNarrative = null;
+            
+            // Reset one-shot kill tracking for new battle
+            hadOneShotKill = false;
 
             currentBattleNarrative = new BattleNarrative(playerName, enemyName, locationName, playerHealth, enemyHealth);
             
@@ -267,6 +271,22 @@ namespace RPGGame
         public FunMomentTracker? GetFunMomentTracker()
         {
             return funMomentTracker;
+        }
+
+        /// <summary>
+        /// Records that a one-shot kill occurred in this combat
+        /// </summary>
+        public void RecordOneShotKill()
+        {
+            hadOneShotKill = true;
+        }
+
+        /// <summary>
+        /// Gets whether a one-shot kill occurred in this combat
+        /// </summary>
+        public bool HadOneShotKill()
+        {
+            return hadOneShotKill;
         }
     }
 }

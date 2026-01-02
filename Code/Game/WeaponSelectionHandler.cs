@@ -23,10 +23,8 @@ namespace RPGGame
         private List<StartingWeapon>? availableWeapons;
         
         // Delegates
-        public delegate void OnShowCharacterCreation();
         public delegate void OnShowMessage(string message);
         
-        public event OnShowCharacterCreation? ShowCharacterCreationEvent;
         public event OnShowMessage? ShowMessageEvent;
 
         public WeaponSelectionHandler(
@@ -122,9 +120,10 @@ namespace RPGGame
                 
                 ShowMessageEvent?.Invoke($"You selected weapon {weaponChoice}.");
                 
-                // Move to character creation (class selection, etc.)
-                stateManager.TransitionToState(GameState.CharacterCreation);
-                ShowCharacterCreationEvent?.Invoke();
+                // Skip character creation screen - go directly to character info screen
+                // ShowCharacterInfo handles null checks internally, so we can always call it
+                var screenCoordinator = new GameScreenCoordinator(stateManager);
+                screenCoordinator.ShowCharacterInfo();
             }
             else
             {

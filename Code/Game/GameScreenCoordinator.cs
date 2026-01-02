@@ -251,7 +251,7 @@ namespace RPGGame
 
         /// <summary>
         /// Show the character info screen.
-        /// Character info is displayed in the persistent layout panel, so we just set the character and transition state.
+        /// Character info is displayed in the persistent layout panel, with detailed info in the center.
         /// </summary>
         public void ShowCharacterInfo()
         {
@@ -264,15 +264,15 @@ namespace RPGGame
                 return;
             }
 
-            // Character info is displayed in the persistent layout, so we use a simple transition
+            // Character info is displayed in the persistent layout, with detailed info in center
             ScreenTransitionProtocol.TransitionToMenuScreen(
                 stateManager,
                 canvasUI,
                 GameState.CharacterInfo,
                 (ui) => 
                 {
-                    // Character info is displayed in the persistent layout panel
-                    // No additional rendering needed beyond setting the character
+                    // Use the renderer to render character info with persistent layout
+                    ui.RenderCharacterInfo(player);
                 },
                 character: player,
                 clearEnemyContext: true,
