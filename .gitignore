@@ -387,6 +387,7 @@ DebugAnalysis/
 GameData/character_save.json
 GameData/gamesettings.json
 *.backup
+build_execution_metrics.json
 
 # macOS
 .DS_Store
