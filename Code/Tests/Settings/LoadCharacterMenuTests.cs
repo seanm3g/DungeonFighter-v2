@@ -53,7 +53,7 @@ namespace RPGGame.Tests.Settings
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
                 // Show load character selection
-                handler.ShowLoadCharacterSelection();
+                handler.ShowLoadCharacterSelection().GetAwaiter().GetResult();
 
                 // Should transition to LoadCharacterSelection state
                 TestBase.AssertEqualEnum(GameState.LoadCharacterSelection, stateManager.CurrentState,
@@ -81,7 +81,7 @@ namespace RPGGame.Tests.Settings
 
             // Start from different states
             stateManager.TransitionToState(GameState.GameLoop);
-            handler.ShowLoadCharacterSelection();
+            handler.ShowLoadCharacterSelection().GetAwaiter().GetResult();
 
             TestBase.AssertEqualEnum(GameState.LoadCharacterSelection, stateManager.CurrentState,
                 $"State should transition to LoadCharacterSelection from GameLoop: {stateManager.CurrentState}",
@@ -89,7 +89,7 @@ namespace RPGGame.Tests.Settings
 
             // Test from MainMenu
             stateManager.TransitionToState(GameState.MainMenu);
-            handler.ShowLoadCharacterSelection();
+            handler.ShowLoadCharacterSelection().GetAwaiter().GetResult();
 
             TestBase.AssertEqualEnum(GameState.LoadCharacterSelection, stateManager.CurrentState,
                 $"State should transition to LoadCharacterSelection from MainMenu: {stateManager.CurrentState}",
