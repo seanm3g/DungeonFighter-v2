@@ -33,6 +33,8 @@ namespace RPGGame.Tests.Unit
             TestActionMarkingAsComboAction();
             TestMultipleGearActions();
             TestGearActionNotFoundHandling();
+            TestDuplicateActionsFromGear();
+            TestDuplicateActionsRemoval();
 
             TestBase.PrintSummary("GearActionManager Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -343,6 +345,89 @@ namespace RPGGame.Tests.Unit
                 TestBase.AssertTrue(false, $"Should handle missing actions gracefully: {ex.Message}", 
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
+        }
+
+        #endregion
+
+        #region Duplicate Action Tests
+
+        private static void TestDuplicateActionsFromGear()
+        {
+            Console.WriteLine("\n--- Testing Duplicate Actions from Gear ---");
+
+            var manager = new GearActionManager();
+            var character = TestDataBuilders.Character().WithName("DuplicateGearTest").Build();
+            
+            var weapon = new WeaponItem
+            {
+                Name = "TestWeapon",
+                GearAction = "ARCANE ECHO",
+                WeaponType = WeaponType.Wand,
+                ActionBonuses = new List<ActionBonus>
+                {
+                    new ActionBonus { Name = "ARCANE ECHO" }
+                }
+            };
+
+            var beforeCount = character.ActionPool.Count;
+            manager.AddWeaponActions(character, weapon);
+            var afterCount = character.ActionPool.Count;
+
+            // Should add 2 actions (both ARCANE ECHO instances)
+            TestBase.AssertTrue(afterCount >= beforeCount + 2,
+                $"Should add at least 2 actions for duplicate ARCANE ECHO (before: {beforeCount}, after: {afterCount})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Verify both instances are in the pool
+            var arcaneEchoCount = character.ActionPool.Count(a => a.action.Name == "ARCANE ECHO");
+            TestBase.AssertTrue(arcaneEchoCount >= 2,
+                $"Should have at least 2 instances of ARCANE ECHO in action pool, got {arcaneEchoCount}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Verify they have different ComboOrder values
+            var arcaneEchoActions = character.ActionPool
+                .Where(a => a.action.Name == "ARCANE ECHO")
+                .Select(a => a.action.ComboOrder)
+                .Distinct()
+                .ToList();
+            
+            TestBase.AssertTrue(arcaneEchoActions.Count >= 2,
+                $"Duplicate actions should have different ComboOrder values, got {arcaneEchoActions.Count} unique orders",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestDuplicateActionsRemoval()
+        {
+            Console.WriteLine("\n--- Testing Duplicate Actions Removal ---");
+
+            var manager = new GearActionManager();
+            var character = TestDataBuilders.Character().WithName("DuplicateRemovalTest").Build();
+            
+            var armor = new Item(ItemType.Head, "TestArmor")
+            {
+                ActionBonuses = new List<ActionBonus>
+                {
+                    new ActionBonus { Name = "TAUNT" },
+                    new ActionBonus { Name = "TAUNT" },
+                    new ActionBonus { Name = "TAUNT" }
+                }
+            };
+
+            // Add duplicate actions
+            manager.AddArmorActions(character, armor);
+            var beforeCount = character.ActionPool.Count(a => a.action.Name == "TAUNT");
+            
+            TestBase.AssertTrue(beforeCount >= 3,
+                $"Should have at least 3 instances of TAUNT before removal, got {beforeCount}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Remove all instances
+            manager.RemoveArmorActions(character, armor);
+            var afterCount = character.ActionPool.Count(a => a.action.Name == "TAUNT");
+
+            TestBase.AssertEqual(0, afterCount,
+                $"All instances of TAUNT should be removed, got {afterCount}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

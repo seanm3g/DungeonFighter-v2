@@ -42,26 +42,7 @@ namespace RPGGame.UI.Avalonia
         private readonly Coordinators.CharacterSwitchHandler characterSwitchHandler;
         private readonly UIContextCoordinator contextCoordinator;
         private readonly CanvasWindowManager windowManager;
-        
-        private GameStateManager? stateManager = null;
-        
-        // Screen state tracking to prevent unnecessary re-renders
-        private GameState? lastRenderedScreenState = null;
-        
-        /// <summary>
-        /// Gets the last rendered screen state.
-        /// Used to prevent unnecessary re-renders when already showing the same screen.
-        /// </summary>
-        public GameState? LastRenderedScreenState => lastRenderedScreenState;
-        
-        /// <summary>
-        /// Sets the last rendered screen state.
-        /// Called by ScreenTransitionProtocol after rendering.
-        /// </summary>
-        internal void SetLastRenderedScreenState(GameState state)
-        {
-            lastRenderedScreenState = state;
-        }
+        private readonly Managers.CanvasUIStateManager stateManager;
 
         public CanvasUICoordinator(GameCanvasControl canvas)
         {
@@ -89,7 +70,7 @@ namespace RPGGame.UI.Avalonia
             displayBufferManager.SetCoordinator(this);
             
             // Create context coordinator for context management operations
-            this.contextCoordinator = new UIContextCoordinator(contextManager, textManager, stateManager);
+            this.contextCoordinator = new UIContextCoordinator(contextManager, textManager, null);
             
             // Create character switch handler
             this.characterSwitchHandler = new Coordinators.CharacterSwitchHandler(
@@ -102,6 +83,9 @@ namespace RPGGame.UI.Avalonia
             
             // Create window manager
             this.windowManager = new CanvasWindowManager();
+            
+            // Create state manager
+            this.stateManager = new Managers.CanvasUIStateManager();
         }
         
         /// <summary>
@@ -126,6 +110,21 @@ namespace RPGGame.UI.Avalonia
         public ICanvasAnimationManager GetAnimationManager()
         {
             return this.animationManager;
+        }
+        
+        /// <summary>
+        /// Gets the last rendered screen state.
+        /// Used to prevent unnecessary re-renders when already showing the same screen.
+        /// </summary>
+        public GameState? LastRenderedScreenState => stateManager.LastRenderedScreenState;
+        
+        /// <summary>
+        /// Sets the last rendered screen state.
+        /// Called by ScreenTransitionProtocol after rendering.
+        /// </summary>
+        internal void SetLastRenderedScreenState(GameState state)
+        {
+            stateManager.SetLastRenderedScreenState(state);
         }
 
         /// <summary>
@@ -169,61 +168,22 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         public void SetStateManager(GameStateManager stateManager)
         {
-            this.stateManager = stateManager;
-            
-            // Update context coordinator with state manager
-            contextCoordinator.SetStateManager(stateManager);
-            
-            // Update state manager in display manager and render coordinator
-            if (textManager is Managers.CanvasTextManager canvasTextManager)
+            System.Action<Character, List<Dungeon>> reRenderCallback = (player, dungeons) => 
             {
-                // Set state manager on CanvasTextManager (which will update all per-character display managers)
-                canvasTextManager.SetStateManager(stateManager);
-            }
+                if (player != null && dungeons != null)
+                    RenderDungeonSelection(player, dungeons);
+            };
             
-            if (animationManager is CanvasAnimationManager canvasAnimationManager)
-            {
-                var dungeonRenderer = new Renderers.DungeonRenderer(canvas, new Renderers.ColoredTextWriter(canvas), interactionManager.ClickableElements);
-                System.Action<Character, List<Dungeon>> reRenderCallback = (player, dungeons) => 
-                {
-                    if (player != null && dungeons != null)
-                        RenderDungeonSelection(player, dungeons);
-                };
-                canvasAnimationManager.SetupAnimationManager(dungeonRenderer, reRenderCallback, stateManager);
-                
-                // Set up crit line re-render callback to trigger display buffer re-renders
-                // Reuse canvasTextManager from outer scope if it exists
-                if (textManager is Managers.CanvasTextManager textMgr)
-                {
-                    System.Action critLineReRenderCallback = () =>
-                    {
-                        textMgr.DisplayManager.ForceRender();
-                    };
-                    canvasAnimationManager.SetCritLineReRenderCallback(critLineReRenderCallback);
-                }
-            }
-            
-            // Set state manager in DisplayBufferManager for automatic state-based management
-            displayBufferManager.SetStateManager(stateManager);
-            
-            // Update character switch handler with state manager
-            characterSwitchHandler.SetStateManager(stateManager);
-            
-            // Subscribe to character switch events for multi-character support
-            stateManager.CharacterSwitched += characterSwitchHandler.OnCharacterSwitched;
-            
-            // Subscribe to state changes to close settings panel when main menu closes
-            stateManager.StateChanged += OnStateChanged;
-        }
-        
-        /// <summary>
-        /// Handles state changes - settings window stays open regardless of state transitions
-        /// </summary>
-        private void OnStateChanged(object? sender, StateChangedEventArgs e)
-        {
-            // Don't close settings window on state changes - it should stay open independently
-            // The settings window is a separate pop-out window that doesn't depend on game state
-            // Users can interact with the main menu while settings window is open
+            this.stateManager.SetupStateManager(
+                stateManager,
+                textManager,
+                animationManager,
+                displayBufferManager,
+                characterSwitchHandler,
+                contextCoordinator,
+                canvas,
+                interactionManager,
+                reRenderCallback);
         }
         
         /// <summary>

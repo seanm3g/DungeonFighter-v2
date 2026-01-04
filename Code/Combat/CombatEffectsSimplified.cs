@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using RPGGame.Combat.Formatting;
 using RPGGame.UI.ColorSystem;
@@ -234,102 +234,7 @@ namespace RPGGame
         /// <returns>Total damage dealt by effects</returns>
         public static int ProcessStatusEffects(Actor Actor, List<string> results)
         {
-            int totalEffectDamage = 0;
-            double currentTime = GameTicker.Instance.GetCurrentGameTime();
-            
-            // Process poison damage
-            if (Actor.PoisonStacks > 0)
-            {
-                int poisonDamage = Actor.ProcessPoison(currentTime);
-                if (poisonDamage > 0)
-                {
-                    totalEffectDamage += poisonDamage;
-                    string damageType = Actor.GetDamageTypeText();
-                    
-                    // Use ColoredTextBuilder for proper spacing
-                    var builder = new ColoredTextBuilder();
-                    var actorColor = EntityColorHelper.GetActorColor(Actor);
-                    DamageFormatter.AddActorTakesDamage(builder, Actor.Name, actorColor, poisonDamage, damageType);
-                    var coloredText = builder.Build();
-                    
-                    // Convert to markup string for results list
-                    results.Add(ColoredTextRenderer.RenderAsMarkup(coloredText));
-                }
-                
-                // Check if effect ended (regardless of whether damage was dealt)
-                if (Actor.PoisonStacks > 0)
-                {
-                    string damageType = Actor.GetDamageTypeText();
-                    
-                    // Use ColoredTextBuilder for proper spacing
-                    var builder = new ColoredTextBuilder();
-                    ColorPalette effectColor = damageType == "bleed" ? ColorPalette.Error : ColorPalette.Green;
-                    DamageFormatter.AddEffectStacksRemain(builder, damageType, effectColor, Actor.PoisonStacks);
-                    var coloredText = builder.Build();
-                    
-                    // Convert to markup string for results list
-                    results.Add(ColoredTextRenderer.RenderAsMarkup(coloredText));
-                }
-                else
-                {
-                    string damageType = Actor.GetDamageTypeText();
-                    string effectEndMessage = damageType == "bleed" ? "bleeding" : "poisoned";
-                    
-                    // Use ColoredTextBuilder for proper spacing
-                    var builder = new ColoredTextBuilder();
-                    var actorColor = EntityColorHelper.GetActorColor(Actor);
-                    ColorPalette effectColor = damageType == "bleed" ? ColorPalette.Error : ColorPalette.Green;
-                    DamageFormatter.AddActorNoLongerAffected(builder, Actor.Name, actorColor, effectEndMessage, effectColor);
-                    var coloredText = builder.Build();
-                    
-                    // Convert to markup string for results list
-                    results.Add(ColoredTextRenderer.RenderAsMarkup(coloredText));
-                }
-            }
-            
-            // Process burn damage
-            if (Actor.BurnStacks > 0)
-            {
-                int burnDamage = Actor.ProcessBurn(currentTime);
-                if (burnDamage > 0)
-                {
-                    totalEffectDamage += burnDamage;
-                    
-                    // Use ColoredTextBuilder for proper spacing
-                    var builder = new ColoredTextBuilder();
-                    var actorColor = EntityColorHelper.GetActorColor(Actor);
-                    DamageFormatter.AddActorTakesDamage(builder, Actor.Name, actorColor, burnDamage, "burn");
-                    var coloredText = builder.Build();
-                    
-                    // Convert to markup string for results list
-                    results.Add(ColoredTextRenderer.RenderAsMarkup(coloredText));
-                }
-                
-                // Check if effect ended (regardless of whether damage was dealt)
-                if (Actor.BurnStacks > 0)
-                {
-                    // Use ColoredTextBuilder for proper spacing
-                    var builder = new ColoredTextBuilder();
-                    DamageFormatter.AddEffectStacksRemain(builder, "burn", ColorPalette.Orange, Actor.BurnStacks);
-                    var coloredText = builder.Build();
-                    
-                    // Convert to markup string for results list
-                    results.Add(ColoredTextRenderer.RenderAsMarkup(coloredText));
-                }
-                else
-                {
-                    // Use ColoredTextBuilder for proper spacing
-                    var builder = new ColoredTextBuilder();
-                    var actorColor = EntityColorHelper.GetActorColor(Actor);
-                    DamageFormatter.AddActorNoLongerAffected(builder, Actor.Name, actorColor, "burning", ColorPalette.Orange);
-                    var coloredText = builder.Build();
-                    
-                    // Convert to markup string for results list
-                    results.Add(ColoredTextRenderer.RenderAsMarkup(coloredText));
-                }
-            }
-            
-            return totalEffectDamage;
+            return StatusEffectDamageProcessor.ProcessStatusEffects(Actor, results);
         }
 
         /// <summary>

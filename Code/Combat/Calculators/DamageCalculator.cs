@@ -75,6 +75,14 @@ namespace RPGGame.Combat.Calculators
         }
         
         /// <summary>
+        /// Clears caches on game start to prevent stale zero-damage values
+        /// </summary>
+        public static void Initialize()
+        {
+            ClearAllCaches();
+        }
+        
+        /// <summary>
         /// Gets cache statistics for monitoring
         /// </summary>
         public static (int rawHits, int rawMisses, int finalHits, int finalMisses, double rawHitRate, double finalHitRate) GetCacheStats()
@@ -102,10 +110,15 @@ namespace RPGGame.Combat.Calculators
             lock (_cacheLock)
             {
                 cacheHit = _rawDamageCache.TryGetValue(cacheKey, out cachedDamage);
-                if (cacheHit)
+                if (cacheHit && cachedDamage > 0) // Don't return cached 0 damage values
                 {
                     _rawCacheHits++;
                     return cachedDamage;
+                }
+                if (cacheHit && cachedDamage <= 0)
+                {
+                    // Remove invalid 0 damage from cache
+                    _rawDamageCache.Remove(cacheKey);
                 }
                 _rawCacheMisses++;
             }
@@ -137,6 +150,13 @@ namespace RPGGame.Combat.Calculators
                 {
                     baseDamage += weapon.GetTotalDamage();
                 }
+            }
+            
+            // Ensure base damage is at least 1 to prevent zero damage issues
+            // This can happen if stats/equipment are not properly initialized
+            if (baseDamage <= 0)
+            {
+                baseDamage = 1;
             }
             
             // Apply action damage multiplier if action is provided
@@ -205,12 +225,21 @@ namespace RPGGame.Combat.Calculators
             
             int result = (int)totalDamage;
             
-            // Cache the result (with size limit)
-            lock (_cacheLock)
+            // Ensure raw damage is never 0 (safeguard against calculation errors)
+            if (result <= 0)
             {
-                if (_rawDamageCache.Count < MaxCacheSize)
+                result = 1;
+            }
+            
+            // Cache the result (with size limit) - but don't cache 0 damage values
+            if (result > 0)
+            {
+                lock (_cacheLock)
                 {
-                    _rawDamageCache[cacheKey] = result;
+                    if (_rawDamageCache.Count < MaxCacheSize)
+                    {
+                        _rawDamageCache[cacheKey] = result;
+                    }
                 }
             }
             
@@ -231,10 +260,15 @@ namespace RPGGame.Combat.Calculators
             lock (_cacheLock)
             {
                 cacheHit = _finalDamageCache.TryGetValue(cacheKey, out cachedDamage);
-                if (cacheHit)
+                if (cacheHit && cachedDamage > 0) // Don't return cached 0 damage values
                 {
                     _finalCacheHits++;
                     return cachedDamage;
+                }
+                if (cacheHit && cachedDamage <= 0)
+                {
+                    // Remove invalid 0 damage from cache
+                    _finalDamageCache.Remove(cacheKey);
                 }
                 _finalCacheMisses++;
             }
@@ -266,9 +300,10 @@ namespace RPGGame.Combat.Calculators
 
             // Get combat configuration
             var combatBalance = GameConfiguration.Instance.CombatBalance;
+            int minimumDamage = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage); // Ensure at least 1
 
             // Apply simple armor reduction (flat reduction)
-            finalDamage = Math.Max(GameConfiguration.Instance.Combat.MinimumDamage, (int)totalDamage - targetArmor);
+            finalDamage = Math.Max(minimumDamage, (int)totalDamage - targetArmor);
             
             // Apply weakened effect if target is weakened
             if (target.IsWeakened && showWeakenedMessage)
@@ -276,12 +311,21 @@ namespace RPGGame.Combat.Calculators
                 finalDamage = (int)(finalDamage * 1.5); // 50% more damage to weakened targets
             }
             
-            // Cache the result (with size limit)
-            lock (_cacheLock)
+            // Final safeguard: ensure damage is never 0 (prevents issues with misconfigured MinimumDamage or cache)
+            if (finalDamage <= 0)
             {
-                if (_finalDamageCache.Count < MaxCacheSize)
+                finalDamage = 1;
+            }
+            
+            // Cache the result (with size limit) - but don't cache 0 damage values
+            if (finalDamage > 0)
+            {
+                lock (_cacheLock)
                 {
-                    _finalDamageCache[cacheKey] = finalDamage;
+                    if (_finalDamageCache.Count < MaxCacheSize)
+                    {
+                        _finalDamageCache[cacheKey] = finalDamage;
+                    }
                 }
             }
             

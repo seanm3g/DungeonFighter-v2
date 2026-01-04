@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
 
@@ -139,11 +140,46 @@ namespace RPGGame.UI.Avalonia.Managers
 
         public new void Flush()
         {
-            FlushBuffer(null);
-            
-            // Stop the timer
+            // Stop the timer first to prevent new scheduled flushes
             flushTimer?.Dispose();
             flushTimer = null;
+            
+            // Flush any remaining buffer content synchronously
+            string? finalContent = null;
+            lock (bufferLock)
+            {
+                if (buffer.Length > 0)
+                {
+                    finalContent = buffer.ToString();
+                    buffer.Clear();
+                }
+            }
+            
+            // Write final content directly to UI thread synchronously if possible
+            if (!string.IsNullOrEmpty(finalContent) && textBox != null)
+            {
+                try
+                {
+                    // Use Invoke to ensure synchronous update
+                    Dispatcher.UIThread.Invoke(() =>
+                    {
+                        textBox.Text += finalContent;
+                        textBox.CaretIndex = textBox.Text.Length;
+                    });
+                }
+                catch
+                {
+                    // Fallback to async if sync fails
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        textBox.Text += finalContent;
+                        textBox.CaretIndex = textBox.Text.Length;
+                    });
+                }
+            }
+            
+            // Also call the async flush buffer in case there's any remaining content
+            FlushBuffer(null);
         }
     }
 }

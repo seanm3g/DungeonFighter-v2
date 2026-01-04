@@ -19,7 +19,7 @@ namespace RPGGame.UI.Avalonia.Managers
     public class ItemsTabManager
     {
         private readonly Action<string, bool>? showStatusMessage;
-        private readonly ItemsDataService dataService;
+        private readonly ItemsDataCoordinator dataCoordinator;
         private ObservableCollection<ItemViewModel>? weapons;
         private ObservableCollection<ItemViewModel>? armor;
         private ItemsSettingsPanel? panel;
@@ -32,7 +32,8 @@ namespace RPGGame.UI.Avalonia.Managers
         public ItemsTabManager(Action<string, bool>? showStatusMessage = null)
         {
             this.showStatusMessage = showStatusMessage;
-            this.dataService = new ItemsDataService(showStatusMessage);
+            var dataService = new ItemsDataService(showStatusMessage);
+            this.dataCoordinator = new ItemsDataCoordinator(dataService, showStatusMessage);
         }
 
         /// <summary>
@@ -243,64 +244,11 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         private void LoadItemsData(ItemsSettingsPanel panel)
         {
-            // Load weapons
-            var weaponsData = dataService.LoadWeapons();
-            weapons = new ObservableCollection<ItemViewModel>();
-
-            foreach (var weapon in weaponsData.OrderBy(w => w.Tier).ThenBy(w => w.Name))
-            {
-                // Store original weapon data
-                originalWeapons[weapon.Name] = weapon;
-                
-                var weaponVM = new ItemViewModel
-                {
-                    Name = weapon.Name,
-                    Type = weapon.Type,
-                    CurrentTier = weapon.Tier,
-                    SelectedTier = weapon.Tier,
-                    BaseDamage = weapon.BaseDamage,
-                    AttackSpeed = weapon.AttackSpeed,
-                    HitCount = 0, // Not available in WeaponData class
-                    Effect = "none", // Not available in WeaponData class
-                    IsWeapon = true
-                };
-
-                // Add available tiers
-                for (int i = 1; i <= 5; i++)
-                {
-                    weaponVM.AvailableTiers.Add(i);
-                }
-
-                weapons.Add(weaponVM);
-            }
-
-            // Load armor
-            var armorData = dataService.LoadArmor();
-            armor = new ObservableCollection<ItemViewModel>();
-
-            foreach (var armorItem in armorData.OrderBy(a => a.Tier).ThenBy(a => a.Name))
-            {
-                // Store original armor data
-                originalArmor[armorItem.Name] = armorItem;
-                
-                var armorVM = new ItemViewModel
-                {
-                    Name = armorItem.Name,
-                    Slot = armorItem.Slot,
-                    CurrentTier = armorItem.Tier,
-                    SelectedTier = armorItem.Tier,
-                    Armor = armorItem.Armor,
-                    IsWeapon = false
-                };
-
-                // Add available tiers
-                for (int i = 1; i <= 5; i++)
-                {
-                    armorVM.AvailableTiers.Add(i);
-                }
-
-                armor.Add(armorVM);
-            }
+            var (loadedWeapons, loadedArmor, loadedOriginalWeapons, loadedOriginalArmor) = dataCoordinator.LoadItemsData();
+            weapons = loadedWeapons;
+            armor = loadedArmor;
+            originalWeapons = loadedOriginalWeapons;
+            originalArmor = loadedOriginalArmor;
 
             // Bind to ItemsControls
             var weaponsControl = panel.FindControl<ItemsControl>("WeaponsItemsControl");
@@ -329,67 +277,7 @@ namespace RPGGame.UI.Avalonia.Managers
 
             try
             {
-                // Collect all weapons (existing and modified)
-                var allWeapons = new List<WeaponData>();
-                
-                foreach (var weaponVM in weapons)
-                {
-                    if (originalWeapons.TryGetValue(weaponVM.Name, out var originalWeapon))
-                    {
-                        // Update existing weapon
-                        originalWeapon.Name = weaponVM.Name;
-                        originalWeapon.Type = weaponVM.Type;
-                        originalWeapon.Tier = weaponVM.SelectedTier;
-                        originalWeapon.BaseDamage = weaponVM.BaseDamage;
-                        originalWeapon.AttackSpeed = weaponVM.AttackSpeed;
-                        // HitCount and Effect not available in WeaponData class
-                        allWeapons.Add(originalWeapon);
-                    }
-                    else
-                    {
-                        // New weapon (if we had add functionality)
-                        allWeapons.Add(new WeaponData
-                        {
-                            Type = weaponVM.Type,
-                            Name = weaponVM.Name,
-                            Tier = weaponVM.SelectedTier,
-                            BaseDamage = weaponVM.BaseDamage,
-                            AttackSpeed = weaponVM.AttackSpeed
-                            // HitCount and Effect not available in WeaponData class
-                        });
-                    }
-                }
-
-                // Collect all armor (existing and modified)
-                var allArmor = new List<ArmorData>();
-                
-                foreach (var armorVM in armor)
-                {
-                    if (originalArmor.TryGetValue(armorVM.Name, out var originalArmorItem))
-                    {
-                        // Update existing armor
-                        originalArmorItem.Name = armorVM.Name;
-                        originalArmorItem.Slot = armorVM.Slot;
-                        originalArmorItem.Tier = armorVM.SelectedTier;
-                        originalArmorItem.Armor = armorVM.Armor;
-                        allArmor.Add(originalArmorItem);
-                    }
-                    else
-                    {
-                        // New armor (if we had add functionality)
-                        allArmor.Add(new ArmorData
-                        {
-                            Slot = armorVM.Slot,
-                            Name = armorVM.Name,
-                            Tier = armorVM.SelectedTier,
-                            Armor = armorVM.Armor
-                        });
-                    }
-                }
-
-                // Save back to JSON files
-                dataService.SaveWeapons(allWeapons);
-                dataService.SaveArmor(allArmor);
+                dataCoordinator.SaveItems(weapons, armor, originalWeapons, originalArmor);
                 
                 // Reload data to refresh UI
                 if (panel != null)

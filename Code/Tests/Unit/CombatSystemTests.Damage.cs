@@ -37,9 +37,13 @@ namespace RPGGame.Tests.Unit
             var character = new Character("TestHero", 1);
             character.Stats.Strength = 10;
             
+            // Equip a weapon (required for damage in real game)
+            var weapon = new WeaponItem("TestSword", 1, 10);
+            character.EquipItem(weapon, "weapon");
+            
             var damage = CombatCalculator.CalculateRawDamage(character);
             
-            AssertTrue(damage > 0, $"Raw damage should be positive, got: {damage}");
+            AssertTrue(damage > 0, $"Raw damage should be positive, got: {damage}. This indicates a critical bug!");
         }
         
         private static void TestDamageWithMultiplier()
@@ -48,11 +52,16 @@ namespace RPGGame.Tests.Unit
             
             var character = new Character("TestHero", 1);
             character.Stats.Strength = 10;
+            
+            // Equip a weapon (required for damage in real game)
+            var weapon = new WeaponItem("TestSword", 1, 10);
+            character.EquipItem(weapon, "weapon");
+            
             var action = new Action { DamageMultiplier = 2.0 };
             
             var damage = CombatCalculator.CalculateRawDamage(character, action);
             
-            AssertTrue(damage > 0, $"Damage with multiplier should be positive, got: {damage}");
+            AssertTrue(damage > 0, $"Damage with multiplier should be positive, got: {damage}. This indicates a critical bug!");
         }
         
         private static void TestDamageWithArmor()
@@ -62,11 +71,16 @@ namespace RPGGame.Tests.Unit
             var attacker = new Character("TestHero", 1);
             attacker.Stats.Strength = 20;
             
+            // Equip a weapon (required for damage in real game)
+            var weapon = new WeaponItem("TestSword", 1, 10);
+            attacker.EquipItem(weapon, "weapon");
+            
             var defender = new Enemy("TestEnemy", 1, 100, 10, 10, 10, 10);
             
             var damage = CombatCalculator.CalculateDamage(attacker, defender);
             
-            AssertTrue(damage >= 0, $"Damage after armor should be non-negative, got: {damage}");
+            // CRITICAL: Damage should ALWAYS be positive, not just non-negative
+            AssertTrue(damage > 0, $"Damage after armor should be positive, got: {damage}. This indicates a critical bug!");
             var rawDamage = CombatCalculator.CalculateRawDamage(attacker);
             AssertTrue(damage <= rawDamage, $"Armored damage ({damage}) should be <= raw damage ({rawDamage})");
         }

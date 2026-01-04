@@ -36,37 +36,56 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Automatically loads the last or only saved character without showing a menu
+        /// Shows the load character selection menu and transitions to LoadCharacterSelection state
         /// </summary>
         public async Task ShowLoadCharacterSelection()
         {
             try
             {
+                // Transition to LoadCharacterSelection state first
+                stateManager.TransitionToState(GameState.LoadCharacterSelection);
+                
                 // Get list of all saved characters from disk
                 var savedCharacters = CharacterSaveManager.ListAllSavedCharacters();
+                
+                // Check UI type once
+                var canvasUI = customUIManager as CanvasUICoordinator;
                 
                 // Handle no saved characters
                 if (savedCharacters == null || savedCharacters.Count == 0)
                 {
                     ShowMessageEvent?.Invoke("No saved characters found.");
-                    stateManager.TransitionToState(GameState.MainMenu);
-                    ShowMainMenuEvent?.Invoke();
+                    // Still show the menu (with empty list) so user can return to main menu
+                    if (canvasUI != null)
+                    {
+                        RenderLoadCharacterSelection(canvasUI, new List<(string, string, int)>());
+                    }
+                    else
+                    {
+                        ShowLoadCharacterListConsole(new List<(string, string, int)>());
+                    }
                     return;
                 }
                 
-                // Get the last character in the list (or only character if there's just one)
-                var characterToLoad = savedCharacters[savedCharacters.Count - 1];
-                
-                // Automatically load the character
-                await LoadCharacter(characterToLoad.characterId, characterToLoad.characterName);
+                // Render the character selection menu
+                if (canvasUI != null)
+                {
+                    RenderLoadCharacterSelection(canvasUI, savedCharacters);
+                }
+                else
+                {
+                    ShowLoadCharacterListConsole(savedCharacters);
+                }
             }
             catch (Exception ex)
             {
-                ShowMessageEvent?.Invoke($"Error loading character: {ex.Message}");
+                ShowMessageEvent?.Invoke($"Error showing character selection: {ex.Message}");
                 DebugLogger.Log("LoadCharacterSelectionHandler", $"Error in ShowLoadCharacterSelection: {ex}");
                 stateManager.TransitionToState(GameState.MainMenu);
                 ShowMainMenuEvent?.Invoke();
             }
+            
+            await Task.CompletedTask;
         }
 
         /// <summary>

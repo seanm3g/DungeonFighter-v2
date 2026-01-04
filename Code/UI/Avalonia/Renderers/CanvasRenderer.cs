@@ -41,6 +41,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         private readonly HelpSystemRenderer helpRenderer;
         private readonly CharacterCreationRenderer characterCreationRenderer;
         private readonly DungeonExplorationRenderer dungeonExplorationRenderer;
+        private readonly StatisticsRendererCoordinator statisticsCoordinator;
 
         public CanvasRenderer(GameCanvasControl canvas, ICanvasTextManager textManager, ICanvasInteractionManager interactionManager, ICanvasContextManager contextManager)
         {
@@ -65,6 +66,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             this.helpRenderer = new HelpSystemRenderer(canvas);
             this.characterCreationRenderer = new CharacterCreationRenderer(canvas, textManager, interactionManager);
             this.dungeonExplorationRenderer = new DungeonExplorationRenderer(canvas, interactionManager);
+            this.statisticsCoordinator = new StatisticsRendererCoordinator(menuScreenHelper, menuRenderer);
         }
 
         public void RenderDisplayBuffer(CanvasContext context)
@@ -216,20 +218,16 @@ namespace RPGGame.UI.Avalonia.Renderers
             (x, y, w, h) => menuRenderer.RenderDeveloperMenuContent(x, y, w, h));
         
         public void RenderBattleStatisticsMenu(BattleStatisticsRunner.StatisticsResult? results, bool isRunning) => 
-            menuScreenHelper.RenderMenuScreen("BATTLE STATISTICS", 
-                (x, y, w, h) => menuRenderer.RenderBattleStatisticsMenuContent(x, y, w, h, results, isRunning));
+            statisticsCoordinator.RenderBattleStatisticsMenu(results, isRunning);
         
         public void RenderBattleStatisticsResults(BattleStatisticsRunner.StatisticsResult results) => 
-            menuScreenHelper.RenderMenuScreen("BATTLE STATISTICS RESULTS", 
-                (x, y, w, h) => menuRenderer.RenderBattleStatisticsResultsContent(x, y, w, h, results));
+            statisticsCoordinator.RenderBattleStatisticsResults(results);
 
         public void RenderWeaponTestResults(List<BattleStatisticsRunner.WeaponTestResult> results) => 
-            menuScreenHelper.RenderMenuScreen("WEAPON TYPE TEST RESULTS", 
-                (x, y, w, h) => menuRenderer.RenderWeaponTestResultsContent(x, y, w, h, results));
+            statisticsCoordinator.RenderWeaponTestResults(results);
 
         public void RenderComprehensiveWeaponEnemyResults(BattleStatisticsRunner.ComprehensiveWeaponEnemyTestResult results) => 
-            menuScreenHelper.RenderMenuScreen("COMPREHENSIVE WEAPON-ENEMY TEST RESULTS", 
-                (x, y, w, h) => menuRenderer.RenderComprehensiveWeaponEnemyResultsContent(x, y, w, h, results));
+            statisticsCoordinator.RenderComprehensiveWeaponEnemyResults(results);
         
         public void RenderVariableEditor(EditableVariable? selectedVariable = null, bool isEditing = false, string? currentInput = null, string? message = null) => menuScreenHelper.RenderMenuScreen("EDIT GAME VARIABLES", 
             (x, y, w, h) => menuRenderer.RenderVariableEditorContent(x, y, w, h, selectedVariable, isEditing, currentInput, message));

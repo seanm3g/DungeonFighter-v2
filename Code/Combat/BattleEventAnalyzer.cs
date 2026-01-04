@@ -12,6 +12,7 @@ namespace RPGGame
         private readonly NarrativeTextProvider textProvider;
         private readonly NarrativeStateManager stateManager;
         private readonly TauntSystem tauntSystem;
+        private readonly NarrativeTriggerEvaluator triggerEvaluator;
 
         // References for health calculations
         private int initialPlayerHealth;
@@ -30,6 +31,8 @@ namespace RPGGame
             this.textProvider = textProvider;
             this.stateManager = stateManager;
             this.tauntSystem = tauntSystem;
+            this.triggerEvaluator = new NarrativeTriggerEvaluator(
+                textProvider, stateManager, tauntSystem, playerName, enemyName, currentLocation, initialPlayerHealth, initialEnemyHealth);
         }
 
         /// <summary>
@@ -54,6 +57,7 @@ namespace RPGGame
         {
             finalPlayerHealth = playerHealth;
             finalEnemyHealth = enemyHealth;
+            triggerEvaluator.UpdateFinalHealth(playerHealth, enemyHealth);
         }
 
         /// <summary>
@@ -128,16 +132,16 @@ namespace RPGGame
             }
 
             // Health Lead Change - when someone gains or loses health advantage
-            AddHealthLeadNarratives(evt, triggeredNarratives, settings);
+            triggerEvaluator.AddHealthLeadNarratives(evt, triggeredNarratives, settings);
 
             // Taunt System - characters and enemies taunt periodically
-            AddTauntNarratives(evt, triggeredNarratives, settings);
+            triggerEvaluator.AddTauntNarratives(evt, triggeredNarratives, settings);
 
             // Health Thresholds
-            AddHealthThresholdNarratives(triggeredNarratives, settings);
+            triggerEvaluator.AddHealthThresholdNarratives(triggeredNarratives, settings);
 
             // Intense Battle - when both combatants are below 50% health
-            AddIntenseBattleNarrative(triggeredNarratives, settings);
+            triggerEvaluator.AddIntenseBattleNarrative(triggeredNarratives, settings);
 
             // Good Combo - when someone gets a 3+ step combo
             if (!stateManager.HasGoodComboOccurred && evt.IsCombo && evt.ComboStep >= 2)
@@ -183,20 +187,6 @@ namespace RPGGame
             return triggeredNarratives;
         }
 
-        /// <summary>
-        /// Tracks actor actions for taunt and combo systems
-        /// </summary>
-        public void TrackActorAction(string actorName)
-        {
-            if (actorName == playerName)
-            {
-                stateManager.IncrementPlayerActionCount();
-            }
-            else if (actorName == enemyName)
-            {
-                stateManager.IncrementEnemyActionCount();
-            }
-        }
 
         /// <summary>
         /// Determines if an event is significant enough to warrant narrative display
@@ -310,151 +300,6 @@ namespace RPGGame
             return false;
         }
 
-        // ===== Private Helper Methods =====
-
-        private void AddHealthLeadNarratives(BattleEvent evt, List<string> triggeredNarratives, GameSettings settings)
-        {
-            // Determine current health lead
-            bool playerCurrentlyLeads = finalPlayerHealth > finalEnemyHealth;
-            bool enemyCurrentlyLeads = finalEnemyHealth > finalPlayerHealth;
-
-            // Only trigger health lead change narratives for significant damage (3+ damage)
-            bool significantDamage = evt.Damage >= 3;
-
-            // Check if lead has changed
-            if (playerCurrentlyLeads && !stateManager.HasPlayerHealthLead && significantDamage)
-            {
-                stateManager.SetPlayerHealthLead();
-                var replacements = new Dictionary<string, string> { { "name", playerName } };
-                string narrative = textProvider.ReplacePlaceholders(
-                    textProvider.GetRandomNarrative("healthLeadChange"),
-                    replacements);
-                triggeredNarratives.Add(narrative);
-                stateManager.IncrementNarrativeEventCount();
-            }
-            else if (enemyCurrentlyLeads && !stateManager.HasEnemyHealthLead && significantDamage)
-            {
-                stateManager.SetEnemyHealthLead();
-                var replacements = new Dictionary<string, string> { { "name", enemyName } };
-                string narrative = textProvider.ReplacePlaceholders(
-                    textProvider.GetRandomNarrative("healthLeadChange"),
-                    replacements);
-                triggeredNarratives.Add(narrative);
-                stateManager.IncrementNarrativeEventCount();
-            }
-        }
-
-        private void AddTauntNarratives(BattleEvent evt, List<string> triggeredNarratives, GameSettings settings)
-        {
-            TrackActorAction(evt.Actor);
-
-            // Player taunts
-            if (evt.Actor == playerName && stateManager.CanPlayerTaunt)
-            {
-                var (shouldTaunt, tauntText) = tauntSystem.CheckPlayerTaunt(
-                    stateManager.PlayerActionCount,
-                    stateManager.PlayerTauntCount,
-                    playerName,
-                    enemyName,
-                    currentLocation,
-                    settings);
-
-                if (shouldTaunt)
-                {
-                    triggeredNarratives.Add(tauntText);
-                    stateManager.IncrementNarrativeEventCount();
-                    stateManager.IncrementPlayerTauntCount();
-                }
-            }
-
-            // Enemy taunts
-            if (evt.Actor == enemyName && stateManager.CanEnemyTaunt)
-            {
-                var (shouldTaunt, tauntText) = tauntSystem.CheckEnemyTaunt(
-                    stateManager.EnemyActionCount,
-                    stateManager.EnemyTauntCount,
-                    enemyName,
-                    playerName,
-                    currentLocation,
-                    settings);
-
-                if (shouldTaunt)
-                {
-                    triggeredNarratives.Add(tauntText);
-                    stateManager.IncrementNarrativeEventCount();
-                    stateManager.IncrementEnemyTauntCount();
-                }
-            }
-        }
-
-        private void AddHealthThresholdNarratives(List<string> triggeredNarratives, GameSettings settings)
-        {
-            var playerHealthPercentage = (double)finalPlayerHealth / initialPlayerHealth;
-            var enemyHealthPercentage = (double)finalEnemyHealth / initialEnemyHealth;
-
-            // Below 50% Health
-            if (!stateManager.HasPlayerBelow50Percent && playerHealthPercentage < 0.5 && finalPlayerHealth > 0)
-            {
-                stateManager.SetPlayerBelow50Percent();
-                var replacements = new Dictionary<string, string> { { "name", playerName } };
-                string narrative = textProvider.ReplacePlaceholders(
-                    textProvider.GetRandomNarrative("below50Percent"),
-                    replacements);
-                triggeredNarratives.Add(narrative);
-            }
-
-            if (!stateManager.HasEnemyBelow50Percent && enemyHealthPercentage < 0.5 && finalEnemyHealth > 0)
-            {
-                stateManager.SetEnemyBelow50Percent();
-                var replacements = new Dictionary<string, string> { { "name", enemyName } };
-                string narrative = textProvider.ReplacePlaceholders(
-                    textProvider.GetRandomNarrative("below50Percent"),
-                    replacements);
-                triggeredNarratives.Add(narrative);
-            }
-
-            // Below 10% Health
-            if (!stateManager.HasPlayerBelow10Percent && playerHealthPercentage < 0.1 && finalPlayerHealth > 0)
-            {
-                stateManager.SetPlayerBelow10Percent();
-                var replacements = new Dictionary<string, string> { { "name", playerName } };
-                string narrative = textProvider.ReplacePlaceholders(
-                    textProvider.GetRandomNarrative("below10Percent"),
-                    replacements);
-                triggeredNarratives.Add(narrative);
-            }
-
-            if (!stateManager.HasEnemyBelow10Percent && enemyHealthPercentage < 0.1 && finalEnemyHealth > 0)
-            {
-                stateManager.SetEnemyBelow10Percent();
-                var replacements = new Dictionary<string, string> { { "name", enemyName } };
-                string narrative = textProvider.ReplacePlaceholders(
-                    textProvider.GetRandomNarrative("below10Percent"),
-                    replacements);
-                triggeredNarratives.Add(narrative);
-            }
-        }
-
-        private void AddIntenseBattleNarrative(List<string> triggeredNarratives, GameSettings settings)
-        {
-            var playerHealthPercentage = (double)finalPlayerHealth / initialPlayerHealth;
-            var enemyHealthPercentage = (double)finalEnemyHealth / initialEnemyHealth;
-
-            if (!stateManager.HasIntenseBattleTriggered && playerHealthPercentage < 0.5 && enemyHealthPercentage < 0.5 && finalPlayerHealth > 0 && finalEnemyHealth > 0)
-            {
-                stateManager.SetIntenseBattleTriggered();
-                var replacements = new Dictionary<string, string>
-                {
-                    { "player", playerName },
-                    { "enemy", enemyName }
-                };
-                string narrative = textProvider.ReplacePlaceholders(
-                    textProvider.GetRandomNarrative("intenseBattle"),
-                    replacements);
-                triggeredNarratives.Add(narrative);
-                stateManager.IncrementNarrativeEventCount();
-            }
-        }
     }
 }
 

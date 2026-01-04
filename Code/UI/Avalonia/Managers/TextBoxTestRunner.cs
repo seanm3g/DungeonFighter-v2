@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
+using Avalonia;
 using RPGGame.Tests.Runners;
 
 namespace RPGGame.UI.Avalonia.Managers
@@ -29,10 +30,102 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public async Task RunAllTestsAsync()
         {
+            // Run tests and write summary through console (while capture is active)
             await orchestrator.RunTestAsync(
-                () => ComprehensiveTestRunner.RunAllTests(),
+                () => ComprehensiveTestRunner.RunAllTests(displaySummary: false),
                 "Running all tests...",
-                "All tests complete");
+                "All tests complete",
+                getSummaryAfter: () => ComprehensiveTestRunner.GetOverallSummary());
+        }
+
+        /// <summary>
+        /// Appends the test summary directly to the TextBox after all tests complete
+        /// </summary>
+        private async Task AppendSummaryDirectly()
+        {
+            try
+            {
+                // Get the summary on a background thread
+                var summary = await Task.Run(() =>
+                {
+                    try
+                    {
+                        var result = ComprehensiveTestRunner.GetOverallSummary();
+                        // Add a clear separator before the summary to make it visible
+                        if (!string.IsNullOrEmpty(result))
+                        {
+                            // Ensure summary starts with newlines for separation
+                            if (!result.StartsWith("\n"))
+                            {
+                                result = "\n\n" + result;
+                            }
+                        }
+                        return result;
+                    }
+                    catch (Exception ex)
+                    {
+                        // Return error message if summary generation fails
+                        return $"\n\n{new string('=', 60)}\n⚠️ Error generating summary: {ex.Message}\n{ex.StackTrace}\n{new string('=', 60)}";
+                    }
+                });
+                
+                if (string.IsNullOrEmpty(summary))
+                {
+                    // If summary is empty, append a message indicating this
+                    summary = $"\n\n{new string('=', 60)}\n⚠️ Summary could not be generated (no test results collected)\nThis may indicate tests did not record results properly.\n{new string('=', 60)}";
+                }
+                
+                // Append directly to TextBox on UI thread
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    try
+                    {
+                        if (outputTextBox != null)
+                        {
+                            var currentText = outputTextBox.Text ?? string.Empty;
+                            
+                            // Get current length for debugging
+                            var lengthBefore = currentText.Length;
+                            
+                            // Ensure we append to the end
+                            // Don't trim - just append the summary as-is
+                            outputTextBox.Text = currentText + summary;
+                            
+                            // Auto-scroll to bottom to show the summary
+                            outputTextBox.CaretIndex = outputTextBox.Text.Length;
+                            
+                            // Verify the summary was actually appended
+                            var lengthAfter = outputTextBox.Text.Length;
+                            if (lengthAfter <= lengthBefore)
+                            {
+                                // Summary wasn't appended - try again with force
+                                System.Diagnostics.Debug.WriteLine($"Warning: Summary may not have been appended. Before: {lengthBefore}, After: {lengthAfter}");
+                                outputTextBox.Text = currentText + "\n\n[SUMMARY APPENDED]" + summary;
+                                outputTextBox.CaretIndex = outputTextBox.Text.Length;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log error but don't crash
+                        System.Diagnostics.Debug.WriteLine($"Error appending summary to TextBox: {ex.Message}\n{ex.StackTrace}");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                // Final fallback - try to append error message
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    if (outputTextBox != null)
+                    {
+                        var currentText = outputTextBox.Text ?? string.Empty;
+                        var errorMsg = $"\n\n{new string('=', 60)}\n⚠️ Error appending summary: {ex.Message}\n{ex.StackTrace}\n{new string('=', 60)}";
+                        outputTextBox.Text = currentText + errorMsg;
+                        outputTextBox.CaretIndex = outputTextBox.Text.Length;
+                    }
+                });
+            }
         }
 
         /// <summary>
@@ -264,6 +357,69 @@ namespace RPGGame.UI.Avalonia.Managers
                 () => ComprehensiveTestRunner.RunComboSystemTests(),
                 "Running combo system tests...",
                 "Combo system tests complete");
+        }
+
+        /// <summary>
+        /// Copies the output TextBox content to the clipboard
+        /// </summary>
+        public async Task CopyOutputAsync()
+        {
+            await Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                try
+                {
+                    if (outputTextBox != null && !string.IsNullOrEmpty(outputTextBox.Text))
+                    {
+                        // Get the clipboard from the top-level window
+                        var topLevel = TopLevel.GetTopLevel(outputTextBox);
+                        if (topLevel?.Clipboard != null)
+                        {
+                            await topLevel.Clipboard.SetTextAsync(outputTextBox.Text);
+                            // Update status to show copy was successful
+                            if (statusTextBlock != null)
+                            {
+                                var originalText = statusTextBlock.Text;
+                                statusTextBlock.Text = "Copied to clipboard!";
+                                // Reset status after 2 seconds
+                                _ = Task.Run(async () =>
+                                {
+                                    await Task.Delay(2000);
+                                    await Dispatcher.UIThread.InvokeAsync(() =>
+                                    {
+                                        if (statusTextBlock != null)
+                                        {
+                                            statusTextBlock.Text = originalText;
+                                        }
+                                    });
+                                });
+                            }
+                        }
+                        else
+                        {
+                            if (statusTextBlock != null)
+                            {
+                                statusTextBlock.Text = "Clipboard not available";
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (statusTextBlock != null)
+                        {
+                            statusTextBlock.Text = "No text to copy";
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Log error but don't crash
+                    System.Diagnostics.Debug.WriteLine($"Error copying to clipboard: {ex.Message}");
+                    if (statusTextBlock != null)
+                    {
+                        statusTextBlock.Text = $"Error: {ex.Message}";
+                    }
+                }
+            });
         }
 
         /// <summary>

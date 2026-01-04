@@ -24,12 +24,18 @@ namespace RPGGame
 
         /// <summary>
         /// Adds an action to the combo sequence if it's a valid combo action
+        /// Allows duplicate actions (same name) by checking if the exact Action object is already in combo
+        /// This supports items that have the same action multiple times
         /// </summary>
         public void AddToCombo(Action action)
         {
             if (action.IsComboAction)
             {
-                if (!ComboSequence.Any(comboAction => comboAction.Name == action.Name))
+                // Check if this exact Action object is already in the combo
+                // This allows multiple instances of the same action name (duplicates)
+                bool alreadyInCombo = ComboSequence.Contains(action);
+
+                if (!alreadyInCombo)
                 {
                     ComboSequence.Add(action);
                     ReorderComboSequence();
@@ -39,14 +45,13 @@ namespace RPGGame
 
         /// <summary>
         /// Removes an action from the combo sequence
+        /// Removes the exact Action object if it exists in the combo
         /// </summary>
         public void RemoveFromCombo(Action action)
         {
-            var actionToRemove = ComboSequence.FirstOrDefault(comboAction => comboAction.Name == action.Name);
-            if (actionToRemove != null)
+            if (ComboSequence.Remove(action))
             {
-                ComboSequence.Remove(actionToRemove);
-                actionToRemove.ComboOrder = 0;
+                action.ComboOrder = 0;
                 ReorderComboSequence();
             }
         }

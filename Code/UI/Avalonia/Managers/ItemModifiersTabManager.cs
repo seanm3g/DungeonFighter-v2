@@ -21,7 +21,7 @@ namespace RPGGame.UI.Avalonia.Managers
     public class ItemModifiersTabManager
     {
         private readonly Action<string, bool>? showStatusMessage;
-        private readonly ItemModifiersDataService dataService;
+        private readonly ItemModifiersDataCoordinator dataCoordinator;
         private ObservableCollection<RarityGroupViewModel>? rarityGroups;
         private ItemModifiersSettingsPanel? panel;
         private ModifierViewModel? selectedModifier;
@@ -31,7 +31,8 @@ namespace RPGGame.UI.Avalonia.Managers
         public ItemModifiersTabManager(Action<string, bool>? showStatusMessage = null)
         {
             this.showStatusMessage = showStatusMessage;
-            this.dataService = new ItemModifiersDataService(showStatusMessage);
+            var dataService = new ItemModifiersDataService(showStatusMessage);
+            this.dataCoordinator = new ItemModifiersDataCoordinator(dataService, showStatusMessage);
         }
 
         /// <summary>
@@ -73,8 +74,8 @@ namespace RPGGame.UI.Avalonia.Managers
 
         private async void OnAddModifierClick(object? sender, RoutedEventArgs e)
         {
-            var availableRarities = dataService.GetAvailableRarities();
-            var nextDiceResult = GetNextAvailableDiceResult();
+            var availableRarities = dataCoordinator.GetAvailableRarities();
+            var nextDiceResult = dataCoordinator.GetNextAvailableDiceResult(rarityGroups);
             
             var viewModel = new ItemModifierEditViewModel
             {
@@ -117,7 +118,7 @@ namespace RPGGame.UI.Avalonia.Managers
                 return;
             }
             
-            var availableRarities = dataService.GetAvailableRarities();
+            var availableRarities = dataCoordinator.GetAvailableRarities();
             var viewModel = new ItemModifierEditViewModel
             {
                 DiceResult = selectedModifier.DiceResult,
@@ -186,7 +187,7 @@ namespace RPGGame.UI.Avalonia.Managers
         {
             if (rarityGroups == null) return;
             
-            var availableRarities = dataService.GetAvailableRarities();
+            var availableRarities = dataCoordinator.GetAvailableRarities();
             var modifierVM = new ModifierViewModel
             {
                 DiceResult = viewModel.DiceResult,
@@ -211,7 +212,7 @@ namespace RPGGame.UI.Avalonia.Managers
                 rarityGroup = new RarityGroupViewModel { RarityName = viewModel.ItemRank };
                 rarityGroups.Add(rarityGroup);
                 // Re-sort groups
-                var sorted = rarityGroups.OrderBy(g => GetRarityOrder(g.RarityName)).ToList();
+                var sorted = rarityGroups.OrderBy(g => GetRarityOrderInternal(g.RarityName)).ToList();
                 rarityGroups.Clear();
                 foreach (var group in sorted)
                 {
@@ -263,7 +264,7 @@ namespace RPGGame.UI.Avalonia.Managers
                     newGroup = new RarityGroupViewModel { RarityName = viewModel.ItemRank };
                     rarityGroups.Add(newGroup);
                     // Re-sort groups
-                    var sorted = rarityGroups.OrderBy(g => GetRarityOrder(g.RarityName)).ToList();
+                    var sorted = rarityGroups.OrderBy(g => GetRarityOrderInternal(g.RarityName)).ToList();
                     rarityGroups.Clear();
                     foreach (var group in sorted)
                     {
@@ -289,82 +290,15 @@ namespace RPGGame.UI.Avalonia.Managers
             showStatusMessage?.Invoke($"Modifier '{viewModel.Name}' updated. Click Save to apply changes.", true);
         }
 
-        private int GetNextAvailableDiceResult()
-        {
-            if (rarityGroups == null) return 1;
-            
-            var existingResults = new HashSet<int>();
-            foreach (var group in rarityGroups)
-            {
-                foreach (var modifier in group.Modifiers)
-                {
-                    existingResults.Add(modifier.DiceResult);
-                }
-            }
-            
-            int next = 1;
-            while (existingResults.Contains(next))
-            {
-                next++;
-            }
-            return next;
-        }
-
         /// <summary>
         /// Load modifiers from Modifications.json and group by rarity
         /// </summary>
         private void LoadModifiersData(ItemModifiersSettingsPanel panel)
         {
-            // Get available rarities from RarityTable.json
-            var availableRarities = dataService.GetAvailableRarities();
+            var (loadedGroups, loadedOriginals) = dataCoordinator.LoadModifiersData();
+            rarityGroups = loadedGroups;
+            originalModifications = loadedOriginals;
             
-            // Load modifications from Modifications.json
-            var modifications = dataService.LoadModifications();
-            
-            // Group modifiers by their current rarity
-            var groupedByRarity = modifications
-                .GroupBy(m => m.ItemRank ?? "Common")
-                .OrderBy(g => GetRarityOrder(g.Key))
-                .ToList();
-
-            rarityGroups = new ObservableCollection<RarityGroupViewModel>();
-
-            foreach (var group in groupedByRarity)
-            {
-                var rarityGroup = new RarityGroupViewModel
-                {
-                    RarityName = group.Key
-                };
-
-                foreach (var mod in group.OrderBy(m => m.DiceResult))
-                {
-                    // Store original modification data
-                    originalModifications[mod.DiceResult] = mod;
-                    
-                    var modifierVM = new ModifierViewModel
-                    {
-                        Name = mod.Name ?? "",
-                        Description = mod.Description ?? "",
-                        CurrentRarity = mod.ItemRank ?? "Common",
-                        SelectedRarity = mod.ItemRank ?? "Common",
-                        DiceResult = mod.DiceResult,
-                        Effect = mod.Effect ?? "",
-                        MinValue = mod.MinValue,
-                        MaxValue = mod.MaxValue
-                    };
-
-                    // Add all available rarities to the dropdown
-                    foreach (var rarity in availableRarities)
-                    {
-                        modifierVM.AvailableRarities.Add(rarity);
-                    }
-
-                    rarityGroup.Modifiers.Add(modifierVM);
-                }
-
-                rarityGroups.Add(rarityGroup);
-            }
-
             // Bind to ItemsControl
             var itemsControl = panel.FindControl<ItemsControl>("RarityGroupsItemsControl");
             if (itemsControl != null)
@@ -387,54 +321,7 @@ namespace RPGGame.UI.Avalonia.Managers
 
             try
             {
-                // Collect all modifiers (existing and new)
-                var allModifiers = new List<ItemModifiersDataService.ModificationData>();
-                
-                // Load all original modifications first
-                var allOriginalMods = dataService.LoadModifications();
-                var existingDiceResults = new HashSet<int>();
-                
-                // Process modifiers from UI
-                foreach (var group in rarityGroups)
-                {
-                    foreach (var modifier in group.Modifiers)
-                    {
-                        existingDiceResults.Add(modifier.DiceResult);
-                        
-                        // Check if this is a new modifier or existing one
-                        if (originalModifications.TryGetValue(modifier.DiceResult, out var originalMod))
-                        {
-                            // Update existing modifier
-                            originalMod.Name = modifier.Name;
-                            originalMod.Description = modifier.Description;
-                            originalMod.Effect = modifier.Effect;
-                            originalMod.ItemRank = modifier.SelectedRarity;
-                            originalMod.MinValue = modifier.MinValue;
-                            originalMod.MaxValue = modifier.MaxValue;
-                            allModifiers.Add(originalMod);
-                        }
-                        else
-                        {
-                            // New modifier
-                            allModifiers.Add(new ItemModifiersDataService.ModificationData
-                            {
-                                DiceResult = modifier.DiceResult,
-                                Name = modifier.Name,
-                                Description = modifier.Description,
-                                Effect = modifier.Effect,
-                                ItemRank = modifier.SelectedRarity,
-                                MinValue = modifier.MinValue,
-                                MaxValue = modifier.MaxValue
-                            });
-                        }
-                    }
-                }
-                
-                // Remove deleted modifiers (they're not in existingDiceResults and are in deletedDiceResults)
-                // This is already handled since we only add modifiers that exist in the UI
-
-                // Save back to Modifications.json using data service
-                dataService.SaveModifierRarities(allModifiers);
+                dataCoordinator.SaveModifiers(rarityGroups, originalModifications);
                 
                 // Reload data to refresh UI
                 if (panel != null)
@@ -455,7 +342,7 @@ namespace RPGGame.UI.Avalonia.Managers
         /// <summary>
         /// Get rarity order for sorting (lower = more common)
         /// </summary>
-        private int GetRarityOrder(string rarity)
+        private int GetRarityOrderInternal(string rarity)
         {
             return rarity.ToLower() switch
             {

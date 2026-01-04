@@ -100,9 +100,43 @@ namespace RPGGame
             ActionPool.Add((action, probability));
         }
 
+        /// <summary>
+        /// Adds an action to the action pool, allowing duplicates.
+        /// Used when an item has the same action multiple times (e.g., ARCANE ECHO appearing twice).
+        /// Each duplicate will have a unique ComboOrder to distinguish it.
+        /// </summary>
+        public void AddActionAllowDuplicates(Action action, double probability)
+        {
+            if (probability < 0 || probability > 1)
+                throw new ArgumentException("Probability must be between 0 and 1", nameof(probability));
+
+            // Ensure this action has a unique ComboOrder
+            // Find the highest ComboOrder for actions with the same name
+            int maxComboOrder = ActionPool
+                .Where(item => item.action.Name == action.Name)
+                .Select(item => item.action.ComboOrder)
+                .DefaultIfEmpty(0)
+                .Max();
+
+            // Set this action's ComboOrder to be unique
+            action.ComboOrder = maxComboOrder + 1;
+
+            // Add without removing existing actions
+            ActionPool.Add((action, probability));
+        }
+
         public virtual void RemoveAction(Action action)
         {
             ActionPool.RemoveAll(item => item.action.Name == action.Name && item.action.ComboOrder == action.ComboOrder);
+        }
+
+        /// <summary>
+        /// Removes all instances of an action by name from the action pool
+        /// Used when removing gear that may have added duplicate actions
+        /// </summary>
+        public virtual void RemoveAllActionsByName(string actionName)
+        {
+            ActionPool.RemoveAll(item => item.action.Name == actionName);
         }
         
         /// <summary>

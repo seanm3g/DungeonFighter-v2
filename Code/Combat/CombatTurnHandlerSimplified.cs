@@ -97,11 +97,22 @@ namespace RPGGame
                 }
                 
                 // Update enemy's action timing in the action speed system
+                // CRITICAL: Always update action speed system, even if no action was selected
+                // This prevents infinite loops when ActionSelector returns null
                 var actionSpeedSystem = stateManager.GetCurrentActionSpeedSystem();
-                if (actionSpeedSystem != null && usedAction != null)
+                if (actionSpeedSystem != null)
                 {
-                    bool isCriticalMiss = ActionExecutor.GetLastCriticalMissStatus(currentEnemy);
-                    actionSpeedSystem.ExecuteAction(currentEnemy, usedAction, isCriticalMiss: isCriticalMiss);
+                    if (usedAction != null)
+                    {
+                        bool isCriticalMiss = ActionExecutor.GetLastCriticalMissStatus(currentEnemy);
+                        actionSpeedSystem.ExecuteAction(currentEnemy, usedAction, isCriticalMiss: isCriticalMiss);
+                    }
+                    else
+                    {
+                        // No action was selected (empty ActionPool or stunned) - still advance turn to prevent infinite loop
+                        DebugLogger.WriteCombatDebug("CombatTurnHandlerSimplified", $"Enemy {currentEnemy.Name} had no action selected - advancing turn to prevent infinite loop");
+                        actionSpeedSystem.AdvanceEntityTurn(currentEnemy, 1.0);
+                    }
                 }
             }
             
@@ -130,15 +141,27 @@ namespace RPGGame
                     // Create list of all characters in the room (player and current enemy)
                     var allTargets = new List<Actor> { player, currentEnemy };
                     
-                    // Use area of effect action to target all characters
-                    string result = EnvironmentalActionHandler.ExecuteAreaOfEffectAction(room, allTargets, room, envAction);
-                    bool textDisplayed = !string.IsNullOrEmpty(result);
+                    // Use structured environmental action execution
+                    var ((actionText, rollInfo), statusEffects) = EnvironmentalActionHandler.ExecuteEnvironmentalActionStructured(room, allTargets, envAction, room);
+                    bool textDisplayed = actionText != null && actionText.Count > 0;
                     
-                    // Add environmental action to narrative system
+                    // Add environmental action to narrative system (convert to string for backward compatibility)
                     var battleNarrative = stateManager.GetCurrentBattleNarrative();
-                    if (battleNarrative != null && textDisplayed)
+                    if (battleNarrative != null && textDisplayed && actionText != null)
                     {
-                        battleNarrative.AddEnvironmentalAction(result);
+                        string resultString = UI.ColorSystem.ColoredTextRenderer.RenderAsPlainText(actionText);
+                        if (rollInfo != null && rollInfo.Count > 0)
+                        {
+                            resultString += "\n" + UI.ColorSystem.ColoredTextRenderer.RenderAsPlainText(rollInfo);
+                        }
+                        foreach (var effect in statusEffects)
+                        {
+                            if (effect != null && effect.Count > 0)
+                            {
+                                resultString += "\n" + UI.ColorSystem.ColoredTextRenderer.RenderAsPlainText(effect);
+                            }
+                        }
+                        battleNarrative.AddEnvironmentalAction(resultString);
                     }
                     
                     // Record the environmental action for turn counting
@@ -148,39 +171,12 @@ namespace RPGGame
                         // Turn separator line removed for cleaner combat logs
                     }
                     
-                    // Display environmental action result using block system
-                    if (textDisplayed)
+                    // Display environmental action result using unified action block system
+                    if (textDisplayed && actionText != null)
                     {
-                        // Parse the environmental action to extract main text and effects
-                        var lines = result.Split('\n');
-                        string mainText = lines[0];
-                        var effects = new List<string>();
-                        
-                        // Extract any effects from additional lines
-                        // Preserve leading spaces (for indentation) but check for empty lines
-                        for (int i = 1; i < lines.Length; i++)
-                        {
-                            // Only trim trailing whitespace to preserve leading indentation
-                            string line = lines[i].TrimEnd();
-                            if (!string.IsNullOrWhiteSpace(line))
-                            {
-                                effects.Add(line);
-                            }
-                        }
-                        
-                        // Convert to ColoredText
-                        var mainTextColored = ColoredTextParser.Parse(mainText);
-                        var effectsColored = new List<List<ColoredText>>();
-                        foreach (var effect in effects)
-                        {
-                            var effectColored = ColoredTextParser.Parse(effect);
-                            if (effectColored.Count > 0)
-                            {
-                                effectsColored.Add(effectColored);
-                            }
-                        }
-                        
-                        BlockDisplayManager.DisplayEnvironmentalBlock(mainTextColored, effectsColored);
+                        // Use empty list if rollInfo is null (DisplayActionBlock expects non-nullable rollInfo)
+                        var rollInfoToDisplay = rollInfo ?? new List<UI.ColorSystem.ColoredText>();
+                        BlockDisplayManager.DisplayActionBlock(actionText, rollInfoToDisplay, statusEffects, null, null, null);
                     }
                     
                     // Update environment's action timing in the action speed system
@@ -270,11 +266,22 @@ namespace RPGGame
             }
             
             // Update player's action timing in the action speed system
+            // CRITICAL: Always update action speed system, even if no action was selected
+            // This prevents infinite loops when ActionSelector returns null
             var actionSpeedSystem = stateManager.GetCurrentActionSpeedSystem();
-            if (actionSpeedSystem != null && usedAction != null)
+            if (actionSpeedSystem != null)
             {
-                bool isCriticalMiss = ActionExecutor.GetLastCriticalMissStatus(player);
-                actionSpeedSystem.ExecuteAction(player, usedAction, isCriticalMiss: isCriticalMiss);
+                if (usedAction != null)
+                {
+                    bool isCriticalMiss = ActionExecutor.GetLastCriticalMissStatus(player);
+                    actionSpeedSystem.ExecuteAction(player, usedAction, isCriticalMiss: isCriticalMiss);
+                }
+                else
+                {
+                    // No action was selected (empty ActionPool or stunned) - still advance turn to prevent infinite loop
+                    DebugLogger.WriteCombatDebug("CombatTurnHandlerSimplified", $"Player {player.Name} had no action selected - advancing turn to prevent infinite loop");
+                    actionSpeedSystem.AdvanceEntityTurn(player, 1.0);
+                }
             }
         }
 

@@ -54,11 +54,16 @@ namespace RPGGame.Tests.Unit.Combat
             var action = TestDataBuilders.CreateMockAction("JAB");
             action.DamageMultiplier = 1.0;
 
+            // Equip a weapon (required for damage in real game)
+            var weapon = new WeaponItem("TestSword", 1, 10);
+            attacker.EquipItem(weapon, "weapon");
+            
             // Test basic raw damage calculation
             var damage = DamageCalculator.CalculateRawDamage(attacker, action, 1.0, 1.0, 10);
             
-            TestBase.AssertTrue(damage >= 0,
-                "Raw damage should be non-negative",
+            // CRITICAL: Raw damage should ALWAYS be positive, not just non-negative
+            TestBase.AssertTrue(damage > 0,
+                $"Raw damage should be positive, got: {damage}. This indicates a critical bug!",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Test with combo amplifier
@@ -92,14 +97,19 @@ namespace RPGGame.Tests.Unit.Combat
                 .WithHealth(100)
                 .Build();
 
+            // Equip a weapon (required for damage in real game)
+            var weapon = new WeaponItem("TestSword", 1, 10);
+            attacker.EquipItem(weapon, "weapon");
+
             var action = TestDataBuilders.CreateMockAction("JAB");
             action.DamageMultiplier = 1.0;
 
             // Test basic damage calculation
             var damage = DamageCalculator.CalculateDamage(attacker, target, action, 1.0, 1.0, 0, 10);
             
-            TestBase.AssertTrue(damage >= 0,
-                "Damage should be non-negative",
+            // CRITICAL: Damage should ALWAYS be positive, not just non-negative
+            TestBase.AssertTrue(damage > 0,
+                $"Damage should be positive, got: {damage}. This indicates a critical bug!",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Damage should be less than or equal to raw damage (due to armor)

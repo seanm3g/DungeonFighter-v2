@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using RPGGame.UI;
@@ -327,91 +327,16 @@ namespace RPGGame
         
         /// <summary>
         /// Displays an ENVIRONMENTAL BLOCK using ColoredText
-        /// All combat logs follow the same action block pattern: first line normal, subsequent lines indented
-        /// Each line has approximately 500ms delay for better readability
+        /// [Obsolete] This method is deprecated. Use DisplayActionBlock() instead.
+        /// Environmental actions now use the unified action block system.
         /// </summary>
+        [System.Obsolete("Use DisplayActionBlock() instead. Environmental actions now use the unified action block system.")]
         public static void DisplayEnvironmentalBlock(List<ColoredText> environmentalText, List<List<ColoredText>>? effects = null)
         {
-            if (UIManager.DisableAllUIOutput || environmentalText == null || environmentalText.Count == 0) return;
-            
-            // Extract environment name from environmental text for tracking
-            // Environmental actions typically start with room/environment name
-            string? environmentEntity = null;
-            if (environmentalText != null && environmentalText.Count > 0)
-            {
-                string plainText = ColoredTextRenderer.RenderAsPlainText(environmentalText);
-                // Remove emoji prefix if present (🌍 or similar) - emojis are typically single characters
-                plainText = System.Text.RegularExpressions.Regex.Replace(plainText, @"^[^\w\s\[\]]+\s*", "");
-                
-                // Use EntityNameExtractor to extract environment name
-                // It handles formats like "[EntityName] ..." or "EntityName uses ..."
-                environmentEntity = EntityNameExtractor.ExtractEntityNameFromMessage(plainText);
-                if (environmentEntity == null)
-                {
-                    // Fallback: use a generic identifier for environment
-                    // We'll use a consistent identifier so all environmental actions are treated as the same "actor"
-                    environmentEntity = "Environment";
-                }
-            }
-            
-            // Apply context-aware spacing (blank line before environmental actions, checking actor changes)
-            TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.EnvironmentalAction, environmentEntity);
-            
-            // Display the environmental action (first line - no indentation, as per action block pattern)
-            UIManager.WriteColoredText(environmentalText!, UIMessageType.Environmental);
-            
-            // Display effects if present (subsequent lines - 5-space indentation to match action block pattern)
-            const string ACTION_BLOCK_INDENT = "     "; // 5 spaces
-            if (effects != null)
-            {
-                foreach (var effect in effects)
-                {
-                    if (effect != null && effect.Count > 0)
-                    {
-                        // Add 500ms delay before each effect line
-                        // This ensures consistent 500ms delay between all lines in the environmental action
-                        ApplyEnvironmentalLineDelay();
-                        
-                        // Remove any existing leading whitespace to avoid double indentation
-                        // (effects may already have indentation from EnvironmentalActionExecutor)
-                        // Remove ALL leading whitespace segments, not just the first one
-                        var trimmedEffect = new List<ColoredText>(effect);
-                        while (trimmedEffect.Count > 0)
-                        {
-                            string firstText = trimmedEffect[0].Text ?? "";
-                            if (string.IsNullOrWhiteSpace(firstText))
-                            {
-                                // This segment is whitespace-only - remove it and continue
-                                trimmedEffect.RemoveAt(0);
-                            }
-                            else if (firstText.TrimStart() != firstText)
-                            {
-                                // First segment has leading whitespace - trim it and stop
-                                trimmedEffect[0] = new ColoredText(firstText.TrimStart(), trimmedEffect[0].Color);
-                                break;
-                            }
-                            else
-                            {
-                                // First segment has no leading whitespace - stop
-                                break;
-                            }
-                        }
-                        
-                        // Always use 5-space indentation for all effect lines (subsequent lines in action block)
-                        // This matches the indentation used for roll details in combat actions
-                        var indentedEffect = new ColoredTextBuilder();
-                        indentedEffect.Add(ACTION_BLOCK_INDENT);
-                        indentedEffect.AddRange(trimmedEffect);
-                        UIManager.WriteColoredText(indentedEffect.Build(), UIMessageType.Environmental);
-                    }
-                }
-            }
-            
-            // Record that this block was displayed (with entity tracking)
-            TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.EnvironmentalAction, environmentEntity);
-            
-            // Apply final block delay after the entire environmental action
-            BlockDelayManager.ApplyBlockDelay();
+            // Delegate to the unified action block system for backward compatibility
+            // Use empty list for rollInfo since DisplayActionBlock expects non-nullable rollInfo
+            var emptyRollInfo = new List<ColoredText>();
+            DisplayActionBlock(environmentalText, emptyRollInfo, effects, null, null, null);
         }
         
         /// <summary>

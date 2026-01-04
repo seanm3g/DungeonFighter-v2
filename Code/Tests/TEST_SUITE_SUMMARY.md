@@ -204,9 +204,28 @@ This document summarizes the comprehensive test suite created for all systems in
 
 **Test Files:**
 - `GameCoordinatorTests.cs` - Tests game initialization, state management, and handler coordination
-- `GameStateManagerTests.cs` - Tests state transitions, state validation, and state persistence
+- `GameStateManagerTests.cs` - Tests state transitions, state validation, and state persistence (ENHANCED)
+- `GameStateValidatorTests.cs` - Tests state validation logic, invalid state detection, and state recovery (NEW)
 - `GameInitializerTests.cs` - Tests game initialization, character creation, starting equipment, and initial state
+- `GameInitializationManagerTests.cs` - Tests game initialization flow (NEW)
+- `GameLoaderTests.cs` - Tests game loading from files (NEW)
+- `FileManagerTests.cs` - Tests file operations (save/load) (NEW)
 - `DungeonRunnerManagerTests.cs` - Tests dungeon execution, room progression, and combat integration
+- **Menu Handler Tests** (`Code/Tests/Unit/Game/Handlers/`):
+  - `MainMenuHandlerTests.cs` - Tests main menu navigation, new game, load game, settings (NEW)
+  - `CharacterMenuHandlerTests.cs` - Tests character menu display and navigation (NEW)
+  - `SettingsMenuHandlerTests.cs` - Tests settings menu functionality (NEW)
+  - `WeaponSelectionHandlerTests.cs` - Tests weapon selection flow (NEW)
+  - `CharacterCreationHandlerTests.cs` - Tests character creation process (NEW)
+  - `DungeonSelectionHandlerTests.cs` - Tests dungeon selection and display (NEW)
+  - `DungeonCompletionHandlerTests.cs` - Tests dungeon completion flow (NEW)
+  - `DeathScreenHandlerTests.cs` - Tests death screen and character management (NEW)
+  - `LoadCharacterSelectionHandlerTests.cs` - Tests character loading interface (NEW)
+  - `DungeonExitChoiceHandlerTests.cs` - Tests dungeon exit choice handling (NEW)
+  - `HandlerInitializerTests.cs` - Tests handler creation and event wiring (NEW)
+- **Input Routing Tests** (`Code/Tests/Unit/Game/Input/`):
+  - `GameInputRouterTests.cs` - Tests input routing to correct handlers based on game state (NEW)
+  - `EscapeKeyHandlerTests.cs` - Tests escape key handling and navigation (NEW)
 
 **Test Runner:** `GameSystemTestRunner.cs`
 
@@ -217,13 +236,26 @@ This document summarizes the comprehensive test suite created for all systems in
 - `UIManagerTests.cs` - Tests UI manager core, display methods, text formatting, and timing
 - `BlockDisplayManagerTests.cs` - Tests message grouping, block formatting, and display coordination
 - `ItemDisplayFormatterTests.cs` - Tests item formatting, comparison display, and stat display
+- **Spacing System Tests** (`Code/Tests/Unit/UI/Spacing/`):
+  - `TextSpacingSystemTests.cs` - Tests spacing rules and application
+  - `SpacingFormatterTests.cs` - Tests spacing formatting logic
+  - `SpacingValidatorTests.cs` - Tests spacing validation
+- **Chunking System Tests** (`Code/Tests/Unit/UI/Chunking/`):
+  - `ChunkStrategyFactoryTests.cs` - Tests chunk strategy selection
+- **Block Display Tests** (`Code/Tests/Unit/UI/BlockDisplay/`):
+  - `BlockDelayManagerTests.cs` - Tests delay calculation and application
+  - `BlockMessageCollectorTests.cs` - Tests message grouping and collection
+  - `EntityNameExtractorTests.cs` - Tests entity name extraction from messages
+- **UI Services Tests** (`Code/Tests/Unit/UI/Services/`):
+  - `MessageRouterTests.cs` - Tests message routing logic
+  - `MessageFilterServiceTests.cs` - Tests message filtering
 
 **Test Runner:** `UISystemTestRunner.cs`
 
 ## Test Statistics
 
-**Total Test Files:** 50+ (including existing and new)
-**Total Test Methods:** 200+ (estimated across all systems)
+**Total Test Files:** 80+ (including existing and new)
+**Total Test Methods:** 300+ (estimated across all systems)
 **Test Categories:**
 - Data System Tests: 9 test files
 - Items System Tests: 4 test files
@@ -232,8 +264,8 @@ This document summarizes the comprehensive test suite created for all systems in
 - Entity System Tests: 6 test files
 - Combat System Tests: 5 test files
 - World System Tests: 4 test files
-- Game System Tests: 4 test files
-- UI System Tests: 3 test files
+- Game System Tests: 25+ test files (includes handlers, input routing, initialization)
+- UI System Tests: 20+ test files (includes spacing, chunking, block display, services)
 - Existing Tests: Manager, Calculator, UI Builder, and Integration tests
 
 ## Test Patterns Used

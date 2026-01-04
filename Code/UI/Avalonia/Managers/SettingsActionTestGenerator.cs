@@ -1,6 +1,7 @@
 using RPGGame;
 using RPGGame.Data;
 using RPGGame.UI.Avalonia.Managers;
+using RPGGame.UI.Avalonia.Managers.Settings;
 using RPGGame.UI.ColorSystem;
 using RPGGame.Utils;
 using System;
@@ -146,17 +147,17 @@ namespace RPGGame.UI.Avalonia.Managers
                         switch (actionType)
                         {
                             case 0: // Character Action
-                                selectedAction = GetRandomCharacterAction();
+                                selectedAction = Settings.ActionSelector.GetRandomCharacterAction();
                                 actionTypeLabel = "Character Action";
                                 labelColor = ColorPalette.Success;
                                 break;
                             case 1: // Environment Action
-                                selectedAction = GetRandomEnvironmentAction();
+                                selectedAction = Settings.ActionSelector.GetRandomEnvironmentAction();
                                 actionTypeLabel = "Environment Action";
                                 labelColor = ColorPalette.Info;
                                 break;
                             case 2: // Status Effect Action
-                                selectedAction = GetRandomStatusEffectAction();
+                                selectedAction = Settings.ActionSelector.GetRandomStatusEffectAction();
                                 actionTypeLabel = "Status Effect Action";
                                 labelColor = ColorPalette.Warning;
                                 break;
@@ -310,114 +311,6 @@ namespace RPGGame.UI.Avalonia.Managers
             return builder.Build();
         }
         
-        /// <summary>
-        /// Gets a random environment action
-        /// </summary>
-        private Action? GetRandomEnvironmentAction()
-        {
-            try
-            {
-                var loader = new EnvironmentalActionLoader();
-                var allActions = loader.LoadAllActions();
-                
-                if (allActions == null || allActions.Count == 0)
-                    return null;
-                
-                var random = new Random();
-                var randomData = allActions[random.Next(allActions.Count)];
-                
-                // Convert to Action
-                var actionType = Enum.TryParse<ActionType>(randomData.Type, true, out var parsedType)
-                    ? parsedType
-                    : ActionType.Debuff;
-                
-                var action = new Action(
-                    name: randomData.Name ?? "Unknown Environment Action",
-                    type: actionType,
-                    targetType: TargetType.AreaOfEffect,
-                    cooldown: 0,
-                    description: randomData.Description ?? "",
-                    comboOrder: -1,
-                    damageMultiplier: randomData.DamageMultiplier,
-                    length: randomData.Length,
-                    causesBleed: randomData.CausesBleed,
-                    causesWeaken: randomData.CausesWeaken,
-                    isComboAction: false,
-                    comboBonusAmount: 0,
-                    comboBonusDuration: 0
-                );
-                
-                action.CausesStun = randomData.CausesStun;
-                action.CausesSlow = randomData.CausesSlow;
-                action.CausesPoison = randomData.CausesPoison;
-                
-                return action;
-            }
-            catch (Exception ex)
-            {
-                ScrollDebugLogger.Log($"SettingsActionTestGenerator: Error getting random environment action: {ex.Message}");
-                return null;
-            }
-        }
-        
-        /// <summary>
-        /// Gets a random character action (any regular action from ActionLoader)
-        /// </summary>
-        private Action? GetRandomCharacterAction()
-        {
-            try
-            {
-                var allActions = ActionLoader.GetAllActions();
-                
-                if (allActions == null || allActions.Count == 0)
-                    return null;
-                
-                var random = new Random();
-                return allActions[random.Next(allActions.Count)];
-            }
-            catch (Exception ex)
-            {
-                ScrollDebugLogger.Log($"SettingsActionTestGenerator: Error getting random character action: {ex.Message}");
-                return null;
-            }
-        }
-        
-        /// <summary>
-        /// Gets a random status effect action (action that causes at least one status effect)
-        /// </summary>
-        private Action? GetRandomStatusEffectAction()
-        {
-            try
-            {
-                var allActions = ActionLoader.GetAllActions();
-                
-                if (allActions == null || allActions.Count == 0)
-                    return null;
-                
-                // Filter actions that have at least one status effect
-                var statusEffectActions = allActions.Where(action =>
-                    action.CausesBleed || action.CausesWeaken || action.CausesSlow ||
-                    action.CausesPoison || action.CausesBurn || action.CausesStun ||
-                    action.CausesVulnerability || action.CausesHarden || action.CausesFortify ||
-                    action.CausesFocus || action.CausesExpose || action.CausesHPRegen ||
-                    action.CausesArmorBreak || action.CausesPierce || action.CausesReflect ||
-                    action.CausesSilence || action.CausesStatDrain || action.CausesAbsorb ||
-                    action.CausesTemporaryHP || action.CausesConfusion || action.CausesCleanse ||
-                    action.CausesMark || action.CausesDisrupt
-                ).ToList();
-                
-                if (statusEffectActions.Count == 0)
-                    return null;
-                
-                var random = new Random();
-                return statusEffectActions[random.Next(statusEffectActions.Count)];
-            }
-            catch (Exception ex)
-            {
-                ScrollDebugLogger.Log($"SettingsActionTestGenerator: Error getting random status effect action: {ex.Message}");
-                return null;
-            }
-        }
     }
 }
 

@@ -18,16 +18,18 @@ namespace RPGGame.Entity.Services
     {
         private readonly CharacterFileManager fileManager;
         private readonly CharacterSerializer serializer;
+        private readonly CharacterSaveErrorHandler errorHandler;
 
         /// <summary>
         /// Initializes a new instance of CharacterSaveService
         /// </summary>
         /// <param name="fileManager">The file manager for file operations</param>
         /// <param name="serializer">The serializer for character data</param>
-        public CharacterSaveService(CharacterFileManager? fileManager = null, CharacterSerializer? serializer = null)
+        public CharacterSaveService(CharacterFileManager? fileManager = null, CharacterSerializer? serializer = null, CharacterSaveErrorHandler? errorHandler = null)
         {
             this.fileManager = fileManager ?? new CharacterFileManager();
             this.serializer = serializer ?? new CharacterSerializer();
+            this.errorHandler = errorHandler ?? new CharacterSaveErrorHandler();
         }
 
         /// <summary>
@@ -61,64 +63,33 @@ namespace RPGGame.Entity.Services
                 if (!success)
                 {
                     errorMessage = errorMessage ?? "Failed to save character";
-                    HandleSaveError(errorMessage, filename);
+                    errorHandler.HandleSaveError(errorMessage, filename);
                     throw new IOException(errorMessage);
                 }
             }
             catch (IOException ex)
             {
                 errorMessage = $"I/O error: {ex.Message}";
-                HandleSaveError(errorMessage, filename);
+                errorHandler.HandleSaveError(errorMessage, filename);
                 throw; // Re-throw so caller can handle it
             }
             catch (UnauthorizedAccessException ex)
             {
                 errorMessage = $"Access denied: {ex.Message}";
-                HandleSaveError(errorMessage, filename);
+                errorHandler.HandleSaveError(errorMessage, filename);
                 throw; // Re-throw so caller can handle it
             }
             catch (System.Text.Json.JsonException ex)
             {
                 errorMessage = $"JSON serialization error: {ex.Message}";
-                HandleSaveError(errorMessage, filename);
+                errorHandler.HandleSaveError(errorMessage, filename);
                 throw; // Re-throw so caller can handle it
             }
             catch (Exception ex)
             {
                 errorMessage = ex.Message;
-                HandleSaveError(errorMessage, filename);
+                errorHandler.HandleSaveError(errorMessage, filename);
                 throw; // Re-throw so caller can handle it
-            }
-        }
-        
-        /// <summary>
-        /// Handles save errors by logging and showing messages to the user
-        /// </summary>
-        private void HandleSaveError(string errorMessage, string? filename)
-        {
-            string fullMessage = $"Error saving character{(filename != null ? $" to {filename}" : "")}: {errorMessage}";
-            
-            // Always log to debug logger
-            ScrollDebugLogger.LogAlways(fullMessage);
-            
-            // Show error in console mode
-            if (UIManager.GetCustomUIManager() == null)
-            {
-                UIManager.WriteLine(fullMessage);
-            }
-            else
-            {
-                // Show error in custom UI mode
-                var customUI = UIManager.GetCustomUIManager();
-                if (customUI is CanvasUICoordinator canvasUI)
-                {
-                    canvasUI.ShowError($"Failed to save character", errorMessage);
-                }
-                else
-                {
-                    // Fallback for other UI types
-                    UIManager.WriteLine(fullMessage);
-                }
             }
         }
 
@@ -133,11 +104,7 @@ namespace RPGGame.Entity.Services
                 
                 if (!fileManager.FileExists(filename))
                 {
-                    // Only show message in console mode (not in custom UI mode)
-                    if (UIManager.GetCustomUIManager() == null)
-                    {
-                        UIManager.WriteLine($"No save file found at {filename}");
-                    }
+                    errorHandler.HandleFileNotFoundError(filename);
                     return null;
                 }
 
@@ -146,67 +113,38 @@ namespace RPGGame.Entity.Services
 
                 if (saveData == null)
                 {
-                    // Only show message in console mode (not in custom UI mode)
-                    if (UIManager.GetCustomUIManager() == null)
-                    {
-                        UIManager.WriteLine("Failed to deserialize character data");
-                    }
+                    errorHandler.HandleDeserializationError();
                     return null;
                 }
 
                 var character = serializer.CreateCharacterFromSaveData(saveData);
-
-                // Only show load message in console mode (not in custom UI mode)
-                if (UIManager.GetCustomUIManager() == null)
-                {
-                    UIManager.WriteLine($"Character loaded from {filename}");
-                }
+                errorHandler.ShowLoadSuccess(filename);
                 return character;
             }
             catch (FileNotFoundException ex)
             {
-                // Only show error in console mode (not in custom UI mode)
-                if (UIManager.GetCustomUIManager() == null)
-                {
-                    UIManager.WriteLine($"Error loading character: File not found - {ex.Message}");
-                }
+                errorHandler.HandleGenericError("loading character", $"File not found - {ex.Message}");
                 return null;
             }
             catch (IOException ex)
             {
-                // Only show error in console mode (not in custom UI mode)
-                if (UIManager.GetCustomUIManager() == null)
-                {
-                    UIManager.WriteLine($"Error loading character: I/O error - {ex.Message}");
-                }
+                errorHandler.HandleIOError("loading character", ex.Message);
                 return null;
             }
             catch (UnauthorizedAccessException ex)
             {
-                // Only show error in console mode (not in custom UI mode)
-                if (UIManager.GetCustomUIManager() == null)
-                {
-                    UIManager.WriteLine($"Error loading character: Access denied - {ex.Message}");
-                }
+                errorHandler.HandleAccessDeniedError("loading character", ex.Message);
                 return null;
             }
             catch (System.Text.Json.JsonException ex)
             {
-                // Only show error in console mode (not in custom UI mode)
-                if (UIManager.GetCustomUIManager() == null)
-                {
-                    UIManager.WriteLine($"Error loading character: JSON deserialization error - {ex.Message}");
-                }
+                errorHandler.HandleJsonError("loading character", ex.Message);
                 return null;
             }
             catch (Exception ex)
             {
                 // Catch-all for any other unexpected errors
-                // Only show error in console mode (not in custom UI mode)
-                if (UIManager.GetCustomUIManager() == null)
-                {
-                    UIManager.WriteLine($"Error loading character: {ex.Message}");
-                }
+                errorHandler.HandleGenericError("loading character", ex.Message);
                 return null;
             }
         }
@@ -243,28 +181,16 @@ namespace RPGGame.Entity.Services
             }
             catch (IOException ex)
             {
-                // Only show error in console mode (not in custom UI mode)
-                if (UIManager.GetCustomUIManager() == null)
-                {
-                    UIManager.WriteLine($"Error deleting save file: I/O error - {ex.Message}");
-                }
+                errorHandler.HandleIOError("deleting save file", ex.Message);
             }
             catch (UnauthorizedAccessException ex)
             {
-                // Only show error in console mode (not in custom UI mode)
-                if (UIManager.GetCustomUIManager() == null)
-                {
-                    UIManager.WriteLine($"Error deleting save file: Access denied - {ex.Message}");
-                }
+                errorHandler.HandleAccessDeniedError("deleting save file", ex.Message);
             }
             catch (Exception ex)
             {
                 // Catch-all for any other unexpected errors
-                // Only show error in console mode (not in custom UI mode)
-                if (UIManager.GetCustomUIManager() == null)
-                {
-                    UIManager.WriteLine($"Error deleting save file: {ex.Message}");
-                }
+                errorHandler.HandleGenericError("deleting save file", ex.Message);
             }
         }
 

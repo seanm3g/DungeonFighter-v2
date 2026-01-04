@@ -28,6 +28,9 @@ namespace RPGGame
             stateManager = new CombatStateManager();
             turnHandler = new CombatTurnHandlerSimplified(stateManager);
             
+            // Clear damage cache on combat manager creation to prevent stale zero-damage values
+            Combat.Calculators.DamageCalculator.ClearAllCaches();
+            
             // Subscribe to one-shot kill events
             Actions.Execution.ActionExecutionFlow.OneShotKillOccurred += OnOneShotKill;
         }

@@ -15,13 +15,14 @@ namespace RPGGame
     {
         /// <summary>
         /// Executes an environmental action with duration-based effects
+        /// Returns structured ColoredText data matching the action block format
         /// </summary>
         /// <param name="source">The environment performing the action</param>
         /// <param name="targets">List of target entities</param>
         /// <param name="action">The action to perform</param>
         /// <param name="environment">The environment context</param>
-        /// <returns>A string describing the results</returns>
-        public static string ExecuteEnvironmentalAction(Actor source, List<Actor> targets, Action action, Environment? environment = null)
+        /// <returns>Structured ColoredText data: ((actionText, rollInfo), statusEffects)</returns>
+        public static ((List<ColoredText> actionText, List<ColoredText>? rollInfo) mainResult, List<List<ColoredText>> statusEffects) ExecuteEnvironmentalAction(Actor source, List<Actor> targets, Action action, Environment? environment = null)
         {
             // Get list of alive targets
             var aliveTargets = new List<Actor>();
@@ -39,15 +40,23 @@ namespace RPGGame
                 }
             }
             
+            // Build main action text
+            var actionTextBuilder = new ColoredTextBuilder();
+            actionTextBuilder.Add(source.Name, ColorPalette.Green);
+            AddUsesAction(actionTextBuilder, action.Name, ColorPalette.Success);
+            actionTextBuilder.Add("!", Colors.White);
+            var actionText = actionTextBuilder.Build();
+            
+            // If no targets, return no effect message
             if (aliveTargets.Count == 0)
             {
-                var builder = new ColoredTextBuilder();
-                builder.Add(source.Name, ColorPalette.Green);
-                builder.Add("'s", Colors.White);
-                builder.AddSpace();
-                builder.Add(action.Name, ColorPalette.Success);
-                builder.Add(" has no effect!", Colors.White);
-                return ColoredTextRenderer.RenderAsMarkup(builder.Build());
+                var noEffectBuilder = new ColoredTextBuilder();
+                noEffectBuilder.Add(source.Name, ColorPalette.Green);
+                noEffectBuilder.Add("'s", Colors.White);
+                noEffectBuilder.AddSpace();
+                noEffectBuilder.Add(action.Name, ColorPalette.Success);
+                noEffectBuilder.Add(" has no effect!", Colors.White);
+                return ((noEffectBuilder.Build(), null), new List<List<ColoredText>>());
             }
             
             // Roll separately for each target and track which ones are affected
@@ -69,59 +78,45 @@ namespace RPGGame
             // If no targets were affected, show no effect message
             if (affectedTargets.Count == 0)
             {
-                var builder = new ColoredTextBuilder();
-                builder.Add(source.Name, ColorPalette.Green);
-                builder.Add("'s", Colors.White);
-                builder.AddSpace();
-                builder.Add(action.Name, ColorPalette.Success);
-                builder.Add(" has no effect!", Colors.White);
-                return ColoredTextRenderer.RenderAsMarkup(builder.Build());
+                var noEffectBuilder = new ColoredTextBuilder();
+                noEffectBuilder.Add(source.Name, ColorPalette.Green);
+                noEffectBuilder.Add("'s", Colors.White);
+                noEffectBuilder.AddSpace();
+                noEffectBuilder.Add(action.Name, ColorPalette.Success);
+                noEffectBuilder.Add(" has no effect!", Colors.White);
+                return ((noEffectBuilder.Build(), null), new List<List<ColoredText>>());
             }
             
-            // Format the message based on number of affected targets
-            if (affectedTargets.Count == 1)
+            // Build status effects list (one per affected target)
+            var statusEffects = new List<List<ColoredText>>();
+            List<ColoredText>? rollInfo = null;
+            
+            // Handle attack type environmental actions separately (they need rollInfo)
+            if (action.Type == ActionType.Attack && affectedTargets.Count == 1)
             {
-                // Single target affected - use the original format
                 var (target, duration) = affectedTargets[0];
-                return FormatEnvironmentalEffectMessage(source, target, action, duration);
+                double damageMultiplier = CalculateDamageMultiplier(source, action);
+                int damage = CombatCalculator.CalculateDamage(source, target, action, damageMultiplier, 1.0, 0, 0);
+                
+                // Use standard damage formatting for attacks
+                var (damageText, attackRollInfo) = CombatResults.FormatDamageDisplayColored(source, target, damage, damage, action, 1.0, damageMultiplier, 0, 0);
+                
+                // For environmental attacks, we replace the action text with the damage text
+                // and use the roll info
+                return ((damageText, attackRollInfo), new List<List<ColoredText>>());
             }
-            else
+            
+            // For non-attack actions or multi-target attacks, build status effects
+            foreach (var (target, duration) in affectedTargets)
             {
-                // Multiple targets affected - format as area of effect with individual results
-                var mainBuilder = new ColoredTextBuilder();
-                mainBuilder.Add(source.Name, ColorPalette.Green);
-                AddUsesAction(mainBuilder, action.Name, ColorPalette.Success);
-                mainBuilder.Add("!", Colors.White);
-                var result = ColoredTextRenderer.RenderAsMarkup(mainBuilder.Build());
-                
-                // Add individual effect messages for each affected target
-                for (int i = 0; i < affectedTargets.Count; i++)
+                var effectMessage = FormatEnvironmentalEffectMessageColored(source, target, action, duration);
+                if (effectMessage != null && effectMessage.Count > 0)
                 {
-                    var (target, duration) = affectedTargets[i];
-                    string displayName = GetDisplayName(target);
-                    var effectMessage = GetEnvironmentalEffectMessageColored(action, duration);
-                    var builder = new ColoredTextBuilder();
-                    // Add 5 spaces for indentation to match roll detail lines
-                    builder.Add("     ", Colors.White);
-                    builder.Add(displayName, EntityColorHelper.GetActorColor(target));
-                    builder.AddSpace();
-                    builder.Add("affected", Colors.White);
-                    builder.AddSpace();
-                    builder.Add("by", Colors.White);
-                    builder.AddSpace();
-                    builder.AddRange(effectMessage);
-                    result += "\n" + ColoredTextRenderer.RenderAsMarkup(builder.Build());
-                    
-                    // Add blank line after last status effect message to separate from next character action
-                    bool isLast = i == affectedTargets.Count - 1;
-                    if (isLast)
-                    {
-                        result += "\n";
-                    }
+                    statusEffects.Add(effectMessage);
                 }
-                
-                return result;
             }
+            
+            return ((actionText, rollInfo), statusEffects);
         }
 
         /// <summary>
@@ -176,49 +171,34 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Formats a single environmental effect message
+        /// Formats a single environmental effect message as ColoredText
+        /// Note: Indentation is handled by BlockMessageCollector, so we don't add it here
         /// </summary>
         /// <param name="source">The environment source</param>
         /// <param name="target">The target Actor</param>
         /// <param name="action">The action being applied</param>
         /// <param name="duration">Duration of the effect</param>
-        /// <returns>Formatted message</returns>
-        private static string FormatEnvironmentalEffectMessage(Actor source, Actor target, Action action, int duration)
+        /// <returns>Formatted effect message as ColoredText, or null if not applicable</returns>
+        private static List<ColoredText>? FormatEnvironmentalEffectMessageColored(Actor source, Actor target, Action action, int duration)
         {
             string displayName = GetDisplayName(target);
             
-            // Build main action line - just "uses Ancient Trap!" without target
-            var mainBuilder = new ColoredTextBuilder();
-            mainBuilder.Add(source.Name, ColorPalette.Green);
-            AddUsesAction(mainBuilder, action.Name, ColorPalette.Success);
-            mainBuilder.Add("!", Colors.White);
-            string mainLine = ColoredTextRenderer.RenderAsMarkup(mainBuilder.Build());
-            
             // Build effect line - "affected by BLEED for x turns"
-            // Add 5 spaces for indentation to match roll detail lines
+            // Note: Don't add indentation here - BlockMessageCollector handles it
             var effectBuilder = new ColoredTextBuilder();
-            effectBuilder.Add("     ", Colors.White);
-            effectBuilder.Add(displayName, target is Enemy ? ColorPalette.Enemy : ColorPalette.Player);
+            effectBuilder.Add(displayName, EntityColorHelper.GetActorColor(target));
             effectBuilder.AddSpace();
             effectBuilder.Add("affected", Colors.White);
             effectBuilder.AddSpace();
             effectBuilder.Add("by", Colors.White);
-            
             effectBuilder.AddSpace();
+            
             string? effectName = GetStatusEffectName(action);
             if (effectName != null)
             {
                 // Use themed color template for status effect
                 var coloredEffect = StatusEffectColorHelper.GetColoredStatusEffect(effectName);
                 effectBuilder.AddRange(coloredEffect);
-            }
-            else if (action.Type == ActionType.Attack)
-            {
-                // For environmental attacks, calculate damage normally
-                double damageMultiplier = CalculateDamageMultiplier(source, action);
-                int damage = CombatCalculator.CalculateDamage(source, target, action, damageMultiplier, 1.0, 0, 0);
-                var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, damage, damage, action, 1.0, damageMultiplier, 0, 0);
-                return ColoredTextRenderer.RenderAsMarkup(damageText) + "\n" + ColoredTextRenderer.RenderAsMarkup(rollInfo);
             }
             else
             {
@@ -227,15 +207,10 @@ namespace RPGGame
                 effectBuilder.AddRange(coloredEffect);
             }
             
-            if (action.Type != ActionType.Attack)
-            {
-                AddForAmountUnit(effectBuilder, duration.ToString(), ColorPalette.White, "turns", ColorPalette.White);
-                string effectLine = ColoredTextRenderer.RenderAsMarkup(effectBuilder.Build());
-                // Add blank line after all status effect messages to separate from next character action
-                return mainLine + "\n" + effectLine + "\n";
-            }
+            // Add duration information
+            AddForAmountUnit(effectBuilder, duration.ToString(), ColorPalette.White, "turns", ColorPalette.White);
             
-            return mainLine;
+            return effectBuilder.Build();
         }
 
         /// <summary>

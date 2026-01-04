@@ -19,7 +19,8 @@ namespace RPGGame.Tests.Runners
         /// <summary>
         /// Runs all tests in the comprehensive test suite
         /// </summary>
-        public static void RunAllTests()
+        /// <param name="displaySummary">Whether to display the summary inline (default: true for console compatibility)</param>
+        public static void RunAllTests(bool displaySummary = true)
         {
             // Clear previous results and start fresh
             TestResultCollector.Clear();
@@ -151,15 +152,18 @@ namespace RPGGame.Tests.Runners
             MCPSystemTestRunner.RunAllTests();
             Console.WriteLine();
 
-            // Display overall summary
-            DisplayOverallSummary();
-
             // Clean up static state to prevent interference with game initialization
             CleanupStaticState();
 
             Console.WriteLine($"\n{GameConstants.StandardSeparator}");
             Console.WriteLine("  ALL TESTS COMPLETE");
             Console.WriteLine($"{GameConstants.StandardSeparator}\n");
+
+            // Display overall summary if requested (after completion message)
+            if (displaySummary)
+            {
+                DisplayOverallSummary();
+            }
         }
 
         /// <summary>
@@ -201,47 +205,59 @@ namespace RPGGame.Tests.Runners
         /// </summary>
         private static void DisplayOverallSummary()
         {
+            var summary = GetOverallSummary();
+            Console.WriteLine(summary);
+        }
+
+        /// <summary>
+        /// Gets the overall test summary as a string
+        /// </summary>
+        public static string GetOverallSummary()
+        {
             var (total, passed, failed, successRate) = TestResultCollector.GetStatistics();
             var failedTestsByCategory = TestResultCollector.GetFailedTestsByCategory();
 
-            Console.WriteLine($"\n{GameConstants.StandardSeparator}");
-            Console.WriteLine("  OVERALL TEST SUMMARY");
-            Console.WriteLine(GameConstants.StandardSeparator);
-            Console.WriteLine($"Total Tests: {total}");
-            Console.WriteLine($"Passed: {passed}");
-            Console.WriteLine($"Failed: {failed}");
-            Console.WriteLine($"Success Rate: {successRate:F1}%");
+            var summary = new System.Text.StringBuilder();
+            summary.AppendLine($"\n{GameConstants.StandardSeparator}");
+            summary.AppendLine("  OVERALL TEST SUMMARY");
+            summary.AppendLine(GameConstants.StandardSeparator);
+            summary.AppendLine($"Total Tests: {total}");
+            summary.AppendLine($"Passed: {passed}");
+            summary.AppendLine($"Failed: {failed}");
+            summary.AppendLine($"Success Rate: {successRate:F1}%");
 
             if (failed == 0)
             {
-                Console.WriteLine("\n✅ All tests passed!");
+                summary.AppendLine("\n✅ All tests passed!");
             }
             else
             {
-                Console.WriteLine($"\n❌ {failed} test(s) failed");
+                summary.AppendLine($"\n❌ {failed} test(s) failed");
 
                 // Display failed tests grouped by category
                 if (failedTestsByCategory.Count > 0)
                 {
-                    Console.WriteLine($"\n{GameConstants.StandardSeparator}");
-                    Console.WriteLine("  FAILED TESTS BY CATEGORY");
-                    Console.WriteLine(GameConstants.StandardSeparator);
+                    summary.AppendLine($"\n{GameConstants.StandardSeparator}");
+                    summary.AppendLine("  FAILED TESTS BY CATEGORY");
+                    summary.AppendLine(GameConstants.StandardSeparator);
 
                     foreach (var category in failedTestsByCategory.Keys.OrderBy(k => k))
                     {
                         var failedTests = failedTestsByCategory[category];
-                        Console.WriteLine($"\n{category}:");
+                        summary.AppendLine($"\n{category}:");
                         foreach (var test in failedTests)
                         {
-                            Console.WriteLine($"  ✗ {test.TestName}");
+                            summary.AppendLine($"  ✗ {test.TestName}");
                             if (!string.IsNullOrEmpty(test.Message))
                             {
-                                Console.WriteLine($"    {test.Message}");
+                                summary.AppendLine($"    {test.Message}");
                             }
                         }
                     }
                 }
             }
+
+            return summary.ToString();
         }
 
         /// <summary>

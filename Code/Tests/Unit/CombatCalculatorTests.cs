@@ -60,12 +60,17 @@ namespace RPGGame.Tests.Unit
 
             var attacker = TestDataBuilders.Character().WithName("Attacker").Build();
             attacker.Stats.Strength = 15;
+            
+            // Equip a weapon (required for damage in real game)
+            var weapon = new WeaponItem("TestSword", 1, 10);
+            attacker.EquipItem(weapon, "weapon");
 
             var target = TestDataBuilders.Enemy().WithName("Target").WithHealth(100).Build();
 
             var damage = CombatCalculator.CalculateDamage(attacker, target);
 
-            TestBase.AssertTrue(damage >= 0, $"Damage should be non-negative, got: {damage}", 
+            // CRITICAL: Damage should ALWAYS be positive, not just non-negative
+            TestBase.AssertTrue(damage > 0, $"Damage should be positive, got: {damage}. This indicates a critical bug!", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

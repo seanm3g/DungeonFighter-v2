@@ -36,10 +36,12 @@ namespace RPGGame.UI.Avalonia.Managers
         /// <param name="testMethod">The test method to execute</param>
         /// <param name="statusMessage">Status message to display while running</param>
         /// <param name="completionMessage">Message to display when complete</param>
+        /// <param name="getSummaryAfter">Optional function to get summary text after tests complete (before stopping capture)</param>
         public async Task RunTestAsync(
             System.Action testMethod,
             string statusMessage,
-            string completionMessage)
+            string completionMessage,
+            System.Func<string>? getSummaryAfter = null)
         {
             lock (lockObject)
             {
@@ -55,16 +57,68 @@ namespace RPGGame.UI.Avalonia.Managers
                 
                 StartCapturingOutput();
                 
-                await Task.Run(testMethod);
+                // Run test method with timeout protection
+                try
+                {
+                    await Task.Run(testMethod);
+                }
+                catch (Exception testEx)
+                {
+                    // Log test execution errors but continue to show summary
+                    Console.WriteLine($"\n⚠️ Test execution error: {testEx.Message}");
+                    Console.WriteLine($"Stack trace: {testEx.StackTrace}");
+                }
                 
-                // Flush output to ensure all test results are captured
+                // Get and append summary if provided (while console capture is still active)
+                if (getSummaryAfter != null)
+                {
+                    try
+                    {
+                        // Write a marker to indicate summary is about to be written
+                        Console.WriteLine("\n" + new string('=', 60));
+                        Console.WriteLine("GENERATING TEST SUMMARY...");
+                        Console.WriteLine(new string('=', 60));
+                        
+                        var summary = getSummaryAfter();
+                        if (!string.IsNullOrEmpty(summary))
+                        {
+                            Console.WriteLine(summary);
+                            Console.WriteLine("\n" + new string('=', 60));
+                            Console.WriteLine("SUMMARY COMPLETE");
+                            Console.WriteLine(new string('=', 60));
+                        }
+                        else
+                        {
+                            Console.WriteLine("\n⚠️ WARNING: Summary is empty - no test results were collected!");
+                            Console.WriteLine("This may indicate tests did not record results properly.");
+                            Console.WriteLine(new string('=', 60));
+                        }
+                    }
+                    catch (Exception summaryEx)
+                    {
+                        Console.WriteLine($"\n⚠️ Error generating summary: {summaryEx.Message}");
+                        Console.WriteLine($"Stack trace: {summaryEx.StackTrace}");
+                        Console.WriteLine(new string('=', 60));
+                    }
+                }
+                
+                // Force immediate flush of all buffered content
                 if (testOutputWriter != null)
                 {
                     testOutputWriter.Flush();
                 }
                 
-                // Wait a moment for UI to update
-                await Task.Delay(200);
+                // Wait longer to ensure all batched writes complete and UI updates
+                await Task.Delay(800);
+                
+                // Final flush to catch any remaining buffered content
+                if (testOutputWriter != null)
+                {
+                    testOutputWriter.Flush();
+                }
+                
+                // Additional wait for UI to fully update and ensure summary is visible
+                await Task.Delay(500);
                 
                 // Calculate pass rate from captured output
                 var (passedCount, totalCount, passRate) = CalculateTestResults();
@@ -85,6 +139,22 @@ namespace RPGGame.UI.Avalonia.Managers
                 {
                     isRunning = false;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Appends text directly to the output TextBox (use after StopCapturingOutput)
+        /// </summary>
+        public void AppendTextDirectly(string text)
+        {
+            if (outputTextBox != null)
+            {
+                Dispatcher.UIThread.Post(() =>
+                {
+                    var currentText = outputTextBox.Text ?? string.Empty;
+                    outputTextBox.Text = currentText + text;
+                    outputTextBox.CaretIndex = outputTextBox.Text.Length;
+                });
             }
         }
 

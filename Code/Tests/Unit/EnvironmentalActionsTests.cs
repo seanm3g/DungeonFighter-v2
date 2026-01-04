@@ -72,8 +72,8 @@ namespace RPGGame.Tests.Unit
             var targets = new List<Actor> { TestDataBuilders.Enemy().Build() };
             var action = TestDataBuilders.CreateMockAction("EnvironmentalAction");
 
-            var result = EnvironmentalActionExecutor.ExecuteEnvironmentalAction(environment, targets, action);
-            TestBase.AssertTrue(!string.IsNullOrEmpty(result), 
+            var ((actionText, rollInfo), statusEffects) = EnvironmentalActionExecutor.ExecuteEnvironmentalAction(environment, targets, action);
+            TestBase.AssertTrue(actionText != null && actionText.Count > 0, 
                 "Environmental action should execute and return result", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
@@ -87,8 +87,8 @@ namespace RPGGame.Tests.Unit
             var action = TestDataBuilders.CreateMockAction("EnvironmentalAction");
             action.CausesBleed = true;
 
-            var result = EnvironmentalActionExecutor.ExecuteEnvironmentalAction(environment, targets, action);
-            TestBase.AssertTrue(!string.IsNullOrEmpty(result), 
+            var ((actionText, rollInfo), statusEffects) = EnvironmentalActionExecutor.ExecuteEnvironmentalAction(environment, targets, action);
+            TestBase.AssertTrue(actionText != null && actionText.Count > 0, 
                 "Environmental effect should be applicable", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }

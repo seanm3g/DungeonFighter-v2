@@ -11,13 +11,12 @@ namespace RPGGame.UI.ColorSystem
     /// </summary>
     public static class KeywordColorSystem
     {
-        private static readonly Dictionary<string, KeywordGroup> _keywordGroups = new Dictionary<string, KeywordGroup>();
         private static readonly Dictionary<string, Color> _colorPatterns = new Dictionary<string, Color>();
         private static readonly Dictionary<string, Color> _characterNames = new Dictionary<string, Color>(StringComparer.OrdinalIgnoreCase);
         
         static KeywordColorSystem()
         {
-            InitializeDefaultGroups();
+            KeywordGroupManager.InitializeDefaultGroups();
         }
         
         /// <summary>
@@ -113,10 +112,12 @@ namespace RPGGame.UI.ColorSystem
         /// </summary>
         public static List<ColoredText> ColorizeWithGroups(string text, string groupName)
         {
-            if (string.IsNullOrEmpty(text) || !_keywordGroups.ContainsKey(groupName))
+            if (string.IsNullOrEmpty(text))
                 return new List<ColoredText> { new ColoredText(text) };
             
-            var group = _keywordGroups[groupName];
+            var group = KeywordGroupManager.GetKeywordGroup(groupName);
+            if (group == null)
+                return new List<ColoredText> { new ColoredText(text) };
             var result = new List<ColoredText>();
             var words = text.Split(' ');
             
@@ -149,17 +150,7 @@ namespace RPGGame.UI.ColorSystem
         /// </summary>
         public static void CreateGroup(string name, string colorPattern, bool caseSensitive, params string[] keywords)
         {
-            var color = GetColorFromPattern(colorPattern);
-            var group = new KeywordGroup
-            {
-                Name = name,
-                ColorPattern = colorPattern,
-                Color = color,
-                CaseSensitive = caseSensitive,
-                Keywords = new HashSet<string>(keywords, caseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase)
-            };
-            
-            _keywordGroups[name] = group;
+            KeywordGroupManager.CreateGroup(name, colorPattern, caseSensitive, keywords);
         }
         
         /// <summary>
@@ -167,7 +158,7 @@ namespace RPGGame.UI.ColorSystem
         /// </summary>
         public static void RemoveGroup(string name)
         {
-            _keywordGroups.Remove(name);
+            KeywordGroupManager.RemoveGroup(name);
         }
         
         /// <summary>
@@ -175,7 +166,7 @@ namespace RPGGame.UI.ColorSystem
         /// </summary>
         public static IEnumerable<string> GetAllGroupNames()
         {
-            return _keywordGroups.Keys;
+            return KeywordGroupManager.GetAllGroupNames();
         }
         
         /// <summary>
@@ -183,7 +174,7 @@ namespace RPGGame.UI.ColorSystem
         /// </summary>
         public static KeywordGroup? GetKeywordGroup(string name)
         {
-            return _keywordGroups.TryGetValue(name, out var group) ? group : null;
+            return KeywordGroupManager.GetKeywordGroup(name);
         }
         
         /// <summary>
@@ -253,54 +244,6 @@ namespace RPGGame.UI.ColorSystem
             return Colorize(text);
         }
         
-        private static void InitializeDefaultGroups()
-        {
-            // Damage-related keywords
-            CreateGroup("damage", "damage", false,
-                "damage", "hit", "strike", "attack", "critical", "crit", "wound", "bleed", "bleeding",
-                "slash", "stab", "pierce", "crush", "smash", "punch", "kick", "claw", "bite");
-            
-            // Healing-related keywords
-            CreateGroup("healing", "healing", false,
-                "heal", "healing", "cure", "restore", "recover", "regenerate", "revive", "resurrect");
-            
-            // Enemy-related keywords
-            CreateGroup("enemy", "enemy", false,
-                "goblin", "orc", "troll", "dragon", "demon", "undead", "skeleton", "zombie", "ghost",
-                "bandit", "thief", "assassin", "cultist", "wizard", "mage", "sorcerer", "necromancer");
-            
-            // Fire-related keywords
-            CreateGroup("fire", "fire", false,
-                "fire", "flame", "burn", "burning", "blaze", "inferno", "ember", "spark", "ignite");
-            
-            // Ice-related keywords
-            CreateGroup("ice", "ice", false,
-                "ice", "frost", "freeze", "frozen", "chill", "cold", "blizzard", "snow", "crystal");
-            
-            // Poison-related keywords
-            CreateGroup("poison", "poison", false,
-                "poison", "toxic", "venom", "acid", "corrupt", "taint", "disease", "plague");
-            
-            // Class-related keywords
-            CreateGroup("class", "class", false,
-                "warrior", "fighter", "knight", "paladin", "barbarian", "rogue", "thief", "assassin",
-                "wizard", "mage", "sorcerer", "cleric", "priest", "druid", "ranger", "archer");
-            
-            // Status effect keywords
-            CreateGroup("status", "status", false,
-                "stun", "stunned", "paralyze", "paralyzed", "charm", "charmed", "fear", "feared",
-                "confuse", "confused", "blind", "blinded", "silence", "silenced", "slow", "slowed");
-            
-            // Experience and progression keywords
-            CreateGroup("progression", "progression", false,
-                "experience", "xp", "level", "leveled", "skill", "ability", "talent", "perk",
-                "upgrade", "enhance", "improve", "advance", "progress");
-            
-            // Currency and loot keywords
-            CreateGroup("loot", "loot", false,
-                "gold", "coin", "money", "treasure", "loot", "reward", "prize", "gem", "jewel",
-                "artifact", "relic", "magic", "enchanted", "legendary", "epic", "rare");
-        }
         
         private static Color GetColorForWord(string word)
         {
@@ -312,7 +255,7 @@ namespace RPGGame.UI.ColorSystem
                 return Colors.White;
             }
             
-            foreach (var group in _keywordGroups.Values)
+            foreach (var group in KeywordGroupManager.GetAllGroups())
             {
                 if (group.ContainsKeyword(word))
                 {

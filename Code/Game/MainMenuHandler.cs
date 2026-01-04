@@ -210,7 +210,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Load a saved game - automatically loads the last or only saved character
+        /// Load a saved game - shows the character selection menu
         /// </summary>
         private async Task LoadGame()
         {

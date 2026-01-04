@@ -1,20 +1,20 @@
 {
   "character": {
-    "playerBaseHealth": 60,
-    "healthPerLevel": 3,
+    "playerBaseHealth": 0,
+    "healthPerLevel": 0,
     "enemyHealthPerLevel": 0
   },
   "attributes": {
     "playerBaseAttributes": {
-      "strength": 3,
-      "agility": 3,
-      "technique": 3,
-      "intelligence": 3
+      "strength": 0,
+      "agility": 0,
+      "technique": 0,
+      "intelligence": 0
     },
-    "playerAttributesPerLevel": 2,
-    "enemyAttributesPerLevel": 2,
-    "enemyPrimaryAttributeBonus": 1,
-    "intelligenceRollBonusPer": 5
+    "playerAttributesPerLevel": 0,
+    "enemyAttributesPerLevel": 0,
+    "enemyPrimaryAttributeBonus": 0,
+    "intelligenceRollBonusPer": 0
   },
   "progression": {
     "baseXPToLevel2": 0,
@@ -69,24 +69,24 @@
   },
   "combat": {
     "criticalHitThreshold": 20,
-    "criticalHitMultiplier": 2,
+    "criticalHitMultiplier": 1.35,
     "minimumDamage": 1,
-    "baseAttackTime": 8.0,
-    "agilitySpeedReduction": 0.01,
-    "minimumAttackTime": 0.08,
+    "baseAttackTime": 10.0,
+    "agilitySpeedReduction": 0.1,
+    "minimumAttackTime": 0.5,
     "agilityMin": 1,
     "agilityMax": 100,
-    "agilityMinSpeedMultiplier": 0.99,
-    "agilityMaxSpeedMultiplier": 0.01
+    "agilityMinSpeedMultiplier": 0.95,
+    "agilityMaxSpeedMultiplier": 0.7
   },
   "combatBalance": {
     "criticalHitChance": 0.05,
-    "criticalHitDamageMultiplier": 2,
+    "criticalHitDamageMultiplier": 1.5,
     "rollDamageMultipliers": {
-      "comboRollDamageMultiplier": 1.2,
-      "basicRollDamageMultiplier": 1,
-      "comboAmplificationScalingMultiplier": 1,
-      "tierScalingFallbackMultiplier": 1
+      "comboRollDamageMultiplier": 1.1,
+      "basicRollDamageMultiplier": 1.0,
+      "comboAmplificationScalingMultiplier": 1.5,
+      "tierScalingFallbackMultiplier": 1.0
     },
     "statusEffectScaling": {
       "bleedDuration": 0,
@@ -106,23 +106,23 @@
   },
   "rollSystem": {
     "missThreshold": {
-      "min": 1,
-      "max": 5
+      "min": 0,
+      "max": 0
     },
     "basicAttackThreshold": {
-      "min": 6,
-      "max": 13
+      "min": 0,
+      "max": 0
     },
     "comboThreshold": {
-      "min": 14,
-      "max": 19
+      "min": 0,
+      "max": 0
     },
-    "criticalThreshold": 20
+    "criticalThreshold": 0
   },
   "comboSystem": {
-    "comboAmplifierAtTech5": 1.1,
-    "comboAmplifierMax": 1.3,
-    "comboAmplifierMaxTech": 20
+    "comboAmplifierAtTech5": 0,
+    "comboAmplifierMax": 0,
+    "comboAmplifierMaxTech": 0
   },
   "poison": {
     "tickInterval": 0,
@@ -130,50 +130,52 @@
     "stacksPerApplication": 0
   },
   "statusEffects": {
-    "bleed": {
-      "damagePerTick": 0,
-      "tickInterval": 0,
-      "maxStacks": 0,
-      "stacksPerApplication": 0,
-      "speedReduction": 0,
-      "duration": 0,
-      "skipTurns": 0
-    },
-    "burn": {
-      "damagePerTick": 0,
-      "tickInterval": 0,
-      "maxStacks": 0,
-      "stacksPerApplication": 0,
-      "speedReduction": 0,
-      "duration": 0,
-      "skipTurns": 0
-    },
-    "freeze": {
-      "damagePerTick": 0,
-      "tickInterval": 0,
-      "maxStacks": 0,
-      "stacksPerApplication": 0,
-      "speedReduction": 0,
-      "duration": 0,
-      "skipTurns": 0
-    },
-    "stun": {
-      "damagePerTick": 0,
-      "tickInterval": 0,
-      "maxStacks": 0,
-      "stacksPerApplication": 0,
-      "speedReduction": 0,
-      "duration": 0,
-      "skipTurns": 0
-    },
-    "poison": {
-      "damagePerTick": 0,
-      "tickInterval": 0,
-      "maxStacks": 0,
-      "stacksPerApplication": 0,
-      "speedReduction": 0,
-      "duration": 0,
-      "skipTurns": 0
+    "effects": {
+      "Bleed": {
+        "damagePerTick": 0,
+        "tickInterval": 0,
+        "maxStacks": 0,
+        "stacksPerApplication": 0,
+        "speedReduction": 0,
+        "duration": 0,
+        "skipTurns": 0
+      },
+      "Burn": {
+        "damagePerTick": 0,
+        "tickInterval": 0,
+        "maxStacks": 0,
+        "stacksPerApplication": 0,
+        "speedReduction": 0,
+        "duration": 0,
+        "skipTurns": 0
+      },
+      "Freeze": {
+        "damagePerTick": 0,
+        "tickInterval": 0,
+        "maxStacks": 0,
+        "stacksPerApplication": 0,
+        "speedReduction": 0,
+        "duration": 0,
+        "skipTurns": 0
+      },
+      "Stun": {
+        "damagePerTick": 0,
+        "tickInterval": 0,
+        "maxStacks": 0,
+        "stacksPerApplication": 0,
+        "speedReduction": 0,
+        "duration": 0,
+        "skipTurns": 0
+      },
+      "Poison": {
+        "damagePerTick": 0,
+        "tickInterval": 0,
+        "maxStacks": 0,
+        "stacksPerApplication": 0,
+        "speedReduction": 0,
+        "duration": 0,
+        "skipTurns": 0
+      }
     },
     "description": ""
   },
@@ -293,7 +295,7 @@
       "description": ""
     },
     "scalingPerLevel": {
-      "health": 0,
+      "health": 5,
       "attributes": 0,
       "armor": 0
     },
@@ -305,7 +307,7 @@
     "startingWeaponDamage": {},
     "startingWeaponSpeed": {},
     "tierDamageRanges": {},
-    "globalDamageMultiplier": 0,
+    "globalDamageMultiplier": 1.0,
     "weaponDamagePerTier": 0,
     "armorValuePerTier": 0,
     "speedBonusPerTier": 0,
@@ -341,7 +343,7 @@
         "max": 0
       }
     },
-    "globalDamageMultiplier": 0,
+    "globalDamageMultiplier": 1.0,
     "description": ""
   },
   "rarityScaling": {

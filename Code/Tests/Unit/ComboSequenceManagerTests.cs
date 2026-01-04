@@ -30,6 +30,9 @@ namespace RPGGame.Tests.Unit
             TestUpdateComboSequenceAfterGearChange();
             TestClearCombo();
             TestDuplicateActionPrevention();
+            TestDuplicateActionsAllowed();
+            TestMultipleDuplicateActionsInCombo();
+            TestDuplicateActionsRemoval();
             TestNonComboActionRejection();
             TestComboOrdering();
 
@@ -279,7 +282,7 @@ namespace RPGGame.Tests.Unit
 
         private static void TestDuplicateActionPrevention()
         {
-            Console.WriteLine("\n--- Testing Duplicate Action Prevention ---");
+            Console.WriteLine("\n--- Testing Duplicate Action Prevention (Same Instance) ---");
 
             var manager = new ComboSequenceManager();
             var character = TestDataBuilders.Character().WithName("DuplicateTest").Build();
@@ -291,12 +294,141 @@ namespace RPGGame.Tests.Unit
             manager.AddToCombo(action);
             var firstCount = manager.GetComboActions().Count;
             
-            // Try to add same action again
+            // Try to add same Action object instance again (should be prevented)
             manager.AddToCombo(action);
             var secondCount = manager.GetComboActions().Count;
             
             TestBase.AssertEqual(firstCount, secondCount, 
-                "Should not add duplicate actions to combo", 
+                "Should not add the same Action object instance twice to combo", 
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestDuplicateActionsAllowed()
+        {
+            Console.WriteLine("\n--- Testing Duplicate Actions Allowed (Different Instances) ---");
+
+            var manager = new ComboSequenceManager();
+            var character = TestDataBuilders.Character().WithName("DuplicateAllowedTest").Build();
+            
+            // Create two different Action instances with the same name (simulating duplicate from item)
+            var action1 = ActionLoader.GetAction("JAB");
+            if (action1 == null)
+            {
+                TestBase.AssertTrue(false, "JAB action not found in ActionLoader", 
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+            action1.IsComboAction = true;
+            action1.ComboOrder = 1;
+            character.AddActionAllowDuplicates(action1, 1.0);
+            
+            var action2 = ActionLoader.GetAction("JAB");
+            if (action2 == null)
+            {
+                TestBase.AssertTrue(false, "JAB action not found in ActionLoader (second instance)", 
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+            action2.IsComboAction = true;
+            action2.ComboOrder = 2;
+            character.AddActionAllowDuplicates(action2, 1.0);
+            
+            // Add both instances to combo
+            manager.AddToCombo(action1);
+            manager.AddToCombo(action2);
+            
+            var comboActions = manager.GetComboActions();
+            int jabCount = comboActions.Count(a => a.Name == "JAB");
+            
+            TestBase.AssertTrue(jabCount >= 2,
+                $"Should allow multiple instances of same action name in combo, got {jabCount}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestMultipleDuplicateActionsInCombo()
+        {
+            Console.WriteLine("\n--- Testing Multiple Duplicate Actions in Combo ---");
+
+            var manager = new ComboSequenceManager();
+            var character = TestDataBuilders.Character().WithName("MultipleDuplicateTest").Build();
+            
+            // Create three instances of the same action (simulating item with 3x same action)
+            var action1 = ActionLoader.GetAction("ARCANE ECHO");
+            var action2 = ActionLoader.GetAction("ARCANE ECHO");
+            var action3 = ActionLoader.GetAction("ARCANE ECHO");
+            
+            if (action1 == null || action2 == null || action3 == null)
+            {
+                TestBase.AssertTrue(false, "ARCANE ECHO action not found in ActionLoader", 
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+            
+            action1.IsComboAction = true;
+            action1.ComboOrder = 1;
+            action2.IsComboAction = true;
+            action2.ComboOrder = 2;
+            action3.IsComboAction = true;
+            action3.ComboOrder = 3;
+            
+            character.AddActionAllowDuplicates(action1, 1.0);
+            character.AddActionAllowDuplicates(action2, 1.0);
+            character.AddActionAllowDuplicates(action3, 1.0);
+            
+            // Add all three to combo
+            manager.AddToCombo(action1);
+            manager.AddToCombo(action2);
+            manager.AddToCombo(action3);
+            
+            var comboActions = manager.GetComboActions();
+            int arcaneEchoCount = comboActions.Count(a => a.Name == "ARCANE ECHO");
+            
+            TestBase.AssertTrue(arcaneEchoCount >= 3,
+                $"Should allow 3 instances of same action in combo, got {arcaneEchoCount}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestDuplicateActionsRemoval()
+        {
+            Console.WriteLine("\n--- Testing Duplicate Actions Removal ---");
+
+            var manager = new ComboSequenceManager();
+            var character = TestDataBuilders.Character().WithName("DuplicateRemovalTest").Build();
+            
+            // Create two instances of the same action
+            var action1 = ActionLoader.GetAction("TAUNT");
+            var action2 = ActionLoader.GetAction("TAUNT");
+            
+            if (action1 == null || action2 == null)
+            {
+                TestBase.AssertTrue(false, "TAUNT action not found in ActionLoader", 
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+            
+            action1.IsComboAction = true;
+            action1.ComboOrder = 1;
+            action2.IsComboAction = true;
+            action2.ComboOrder = 2;
+            
+            character.AddActionAllowDuplicates(action1, 1.0);
+            character.AddActionAllowDuplicates(action2, 1.0);
+            
+            // Add both to combo
+            manager.AddToCombo(action1);
+            manager.AddToCombo(action2);
+            
+            var beforeCount = manager.GetComboActions().Count(a => a.Name == "TAUNT");
+            TestBase.AssertTrue(beforeCount >= 2,
+                $"Should have 2 instances of TAUNT in combo before removal, got {beforeCount}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            
+            // Remove one instance
+            manager.RemoveFromCombo(action1);
+            var afterCount = manager.GetComboActions().Count(a => a.Name == "TAUNT");
+            
+            TestBase.AssertTrue(afterCount == beforeCount - 1,
+                $"Should remove only the specific instance, got {afterCount} instances remaining",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

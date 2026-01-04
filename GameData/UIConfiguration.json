@@ -46,7 +46,7 @@
     }
   },
   "whiteTemperatureIntensity": 1.1,
-  "subsequentLineDarkening": 0.8,
+  "subsequentLineDarkening": 0.65,
   "undulationTimerMs": 1000,
   "brightnessMask": {
     "enabled": false,

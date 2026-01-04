@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.Entity.Managers;
 
 namespace RPGGame
 {
@@ -296,110 +297,28 @@ namespace RPGGame
         /// </summary>
         private void LoadGearActionFromJson(Actor entity, string actionName)
         {
-            try
-            {
-                if (entity == null)
-                {
-                    DebugLogger.LogFormat("GearActionManager", 
-                        "ERROR: Entity is null when trying to load action '{0}'", actionName);
-                    return;
-                }
-                
-                if (string.IsNullOrEmpty(actionName))
-                {
-                    DebugLogger.LogFormat("GearActionManager", 
-                        "ERROR: Action name is null or empty");
-                    return;
-                }
-                
-                DebugLogger.LogFormat("GearActionManager", 
-                    "Attempting to load action '{0}' from JSON for entity '{1}'", actionName, entity.Name);
-                
-                // Ensure actions are loaded (GetAction will load if needed, but we ensure it here)
-                ActionLoader.LoadActions();
-                
-                var action = ActionLoader.GetAction(actionName);
-                if (action != null)
-                {
-                    // Mark gear actions as combo actions so they can be used in combo sequences
-                    // GetActionPool() returns all actions, but marking as combo actions allows them to be added to combo sequences
-                    action.IsComboAction = true;
-                    DebugLogger.LogFormat("GearActionManager", 
-                        "Marked gear action '{0}' as combo action", actionName);
-                    
-                    // Set ComboOrder for the action
-                    if (entity.ActionPool != null)
-                    {
-                        var comboActions = entity.ActionPool
-                            .Where(a => a.action.IsComboAction)
-                            .ToList();
-                        
-                        int maxOrder = comboActions.Count > 0 
-                            ? comboActions.Max(a => a.action.ComboOrder) 
-                            : 0;
-                        
-                        action.ComboOrder = maxOrder + 1;
-                    }
-
-                    // Verify ActionPool is not null before adding
-                    if (entity.ActionPool == null)
-                    {
-                        DebugLogger.LogFormat("GearActionManager", 
-                            "ERROR: Entity ActionPool is null for entity '{0}'", entity.Name);
-                        return;
-                    }
-                    
-                    int poolSizeBefore = entity.ActionPool.Count;
-                    entity.AddAction(action, 1.0);
-                    int poolSizeAfter = entity.ActionPool.Count;
-                    
-                    // Verify action was actually added
-                    bool actionExists = entity.ActionPool.Any(a => a.action.Name == actionName);
-                    
-                    DebugLogger.LogFormat("GearActionManager", 
-                        "Successfully loaded and added gear action '{0}' to entity '{1}' action pool (pool size before: {2}, after: {3}, action exists: {4}, isComboAction: {5})", 
-                        actionName, entity?.Name ?? "null", poolSizeBefore, poolSizeAfter, actionExists, action.IsComboAction);
-                    
-                    if (!actionExists)
-                    {
-                        DebugLogger.LogFormat("GearActionManager", 
-                            "ERROR: Action '{0}' was not found in ActionPool after AddAction call", actionName);
-                    }
-                }
-                else
-                {
-                    DebugLogger.LogFormat("GearActionManager", 
-                        "WARNING: Action '{0}' not found in Actions.json - cannot add to action pool", actionName);
-                }
-            }
-            catch (Exception ex)
-            {
-                DebugLogger.LogFormat("GearActionManager", 
-                    "Error loading gear action {0}: {1}\nStack trace: {2}", actionName, ex.Message, ex.StackTrace ?? "N/A");
-            }
+            GearActionLoader.LoadGearActionFromJson(entity, actionName);
         }
 
         /// <summary>
         /// Removes actions from entity's action pool
+        /// Removes all instances of each action name to handle duplicates
         /// </summary>
         private void RemoveActionsFromPool(Actor entity, List<string> actionNames)
         {
             foreach (var actionName in actionNames)
             {
-                var actionToRemove = entity.ActionPool.FirstOrDefault(a => 
-                    a.action.Name == actionName);
-                
-                if (actionToRemove.action != null)
+                try
                 {
-                    try
-                    {
-                        entity.RemoveAction(actionToRemove.action);
-                    }
-                    catch (Exception ex)
-                    {
-                        DebugLogger.LogFormat("GearActionManager", 
-                            "Error removing action {0}: {1}", actionName, ex.Message);
-                    }
+                    // Remove all instances of this action name (handles duplicates)
+                    entity.RemoveAllActionsByName(actionName);
+                    DebugLogger.LogFormat("GearActionManager", 
+                        "Removed all instances of action '{0}' from action pool", actionName);
+                }
+                catch (Exception ex)
+                {
+                    DebugLogger.LogFormat("GearActionManager", 
+                        "Error removing action {0}: {1}", actionName, ex.Message);
                 }
             }
         }

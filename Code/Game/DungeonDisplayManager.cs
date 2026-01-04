@@ -409,20 +409,5 @@ namespace RPGGame
             bufferCoordinator.AddCurrentInfoToDisplayBuffer(includeDungeonHeader, includeRoomInfo, autoRender);
         }
 
-        #region Private Methods
-
-        private ColorPalette GetColorFromThemeCode(char themeCode)
-        {
-            return themeCode switch
-            {
-                'R' => ColorPalette.Error,
-                'G' => ColorPalette.Success,
-                'B' => ColorPalette.Info,
-                'Y' => ColorPalette.Warning,
-                _ => ColorPalette.White
-            };
-        }
-
-        #endregion
     }
 }

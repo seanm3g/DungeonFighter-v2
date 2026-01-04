@@ -16,6 +16,13 @@ This document identifies gameplay aspects that could benefit from additional tes
 - **Dungeon Generation**: Basic dungeon creation and room generation
 - **Color System**: Parsing, rendering, keyword matching
 - **UI Components**: Message building, display formatting
+- **Game Handlers**: Menu handlers, input routing, handler initialization (NEW)
+- **Game Initialization**: Game initialization manager, game loader, file manager (NEW)
+- **Game State Management**: State transitions, validation, persistence (ENHANCED)
+- **UI Spacing System**: Text spacing rules, formatting, validation (NEW)
+- **UI Chunking System**: Chunk strategy selection (NEW)
+- **UI Block Display**: Delay management, message collection, entity extraction (NEW)
+- **UI Services**: Message routing, message filtering (NEW)
 
 ## Areas Needing Additional Test Coverage
 

@@ -32,6 +32,15 @@ namespace RPGGame.Tests.Unit.Game
             TestAvailableDungeons();
             TestCurrentDungeon();
             TestCurrentRoom();
+            
+            // Enhanced tests for state transitions and persistence
+            TestTransitionToState();
+            TestTransitionToState_StatePersistence();
+            TestSetCurrentPlayer();
+            TestSetCurrentDungeon();
+            TestSetCurrentRoom();
+            TestAddCharacter();
+            TestGetCharacterId();
 
             TestBase.PrintSummary("GameStateManager Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -155,6 +164,136 @@ namespace RPGGame.Tests.Unit.Game
             // Room might be null initially, which is acceptable
             TestBase.AssertTrue(room == null || room != null,
                 "CurrentRoom should be accessible",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        #endregion
+
+        #region State Transition Tests
+
+        private static void TestTransitionToState()
+        {
+            Console.WriteLine("\n--- Testing TransitionToState ---");
+
+            var manager = new GameStateManager();
+            
+            // Test state transition
+            manager.TransitionToState(GameState.GameLoop);
+            
+            TestBase.AssertEqualEnum(GameState.GameLoop, manager.CurrentState,
+                "State should transition to GameLoop",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestTransitionToState_StatePersistence()
+        {
+            Console.WriteLine("\n--- Testing TransitionToState - State Persistence ---");
+
+            var manager = new GameStateManager();
+            
+            // Test multiple state transitions
+            manager.TransitionToState(GameState.GameLoop);
+            TestBase.AssertEqualEnum(GameState.GameLoop, manager.CurrentState,
+                "State should be GameLoop",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            
+            manager.TransitionToState(GameState.Inventory);
+            TestBase.AssertEqualEnum(GameState.Inventory, manager.CurrentState,
+                "State should be Inventory",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            
+            manager.TransitionToState(GameState.MainMenu);
+            TestBase.AssertEqualEnum(GameState.MainMenu, manager.CurrentState,
+                "State should be MainMenu",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        #endregion
+
+        #region Player Management Tests
+
+        private static void TestSetCurrentPlayer()
+        {
+            Console.WriteLine("\n--- Testing SetCurrentPlayer ---");
+
+            var manager = new GameStateManager();
+            var character = new Character("TestHero", 1);
+            
+            manager.SetCurrentPlayer(character);
+            
+            TestBase.AssertTrue(manager.CurrentPlayer == character,
+                "CurrentPlayer should be set correctly",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        #endregion
+
+        #region Dungeon Management Tests
+
+        private static void TestSetCurrentDungeon()
+        {
+            Console.WriteLine("\n--- Testing SetCurrentDungeon ---");
+
+            var manager = new GameStateManager();
+            var dungeon = new Dungeon("Test Dungeon", 1, 1, "Test");
+            
+            manager.SetCurrentDungeon(dungeon);
+            
+            TestBase.AssertTrue(manager.CurrentDungeon == dungeon,
+                "CurrentDungeon should be set correctly",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestSetCurrentRoom()
+        {
+            Console.WriteLine("\n--- Testing SetCurrentRoom ---");
+
+            var manager = new GameStateManager();
+            var dungeon = new Dungeon("Test Dungeon", 1, 1, "Test");
+            dungeon.Generate();
+            var room = dungeon.Rooms[0];
+            
+            manager.SetCurrentRoom(room);
+            
+            TestBase.AssertTrue(manager.CurrentRoom == room,
+                "CurrentRoom should be set correctly",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        #endregion
+
+        #region Character Management Tests
+
+        private static void TestAddCharacter()
+        {
+            Console.WriteLine("\n--- Testing AddCharacter ---");
+
+            var manager = new GameStateManager();
+            var character = new Character("TestHero", 1);
+            
+            string characterId = manager.AddCharacter(character);
+            
+            TestBase.AssertNotNull(characterId,
+                "AddCharacter should return a character ID",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            
+            TestBase.AssertTrue(!string.IsNullOrEmpty(characterId),
+                "Character ID should not be empty",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestGetCharacterId()
+        {
+            Console.WriteLine("\n--- Testing GetCharacterId ---");
+
+            var manager = new GameStateManager();
+            var character = new Character("TestHero", 1);
+            
+            string characterId = manager.AddCharacter(character);
+            string? retrievedId = manager.GetCharacterId(character);
+            
+            TestBase.AssertEqual(characterId, retrievedId,
+                "GetCharacterId should return the correct ID",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

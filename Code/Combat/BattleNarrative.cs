@@ -66,8 +66,7 @@ namespace RPGGame
         private readonly ConcurrentBag<string> pendingNarrativeEvents;
         
         // Cache narratives for the last event to prevent re-analysis
-        private BattleEvent? lastCachedEvent;
-        private List<string>? lastCachedNarratives;
+        private readonly BattleNarrativeCache narrativeCache;
 
         public BattleNarrative(string playerName, string enemyName, string environmentName = "", int playerHealth = 0, int enemyHealth = 0)
         {
@@ -83,8 +82,7 @@ namespace RPGGame
             this.events = new ConcurrentBag<BattleEvent>();
             this.narrativeEvents = new ConcurrentBag<string>();
             this.pendingNarrativeEvents = new ConcurrentBag<string>();
-            this.lastCachedEvent = null;
-            this.lastCachedNarratives = null;
+            this.narrativeCache = new BattleNarrativeCache();
 
             // Initialize specialized managers
             this.stateManager = new NarrativeStateManager();
@@ -161,15 +159,15 @@ namespace RPGGame
             var lastEvent = eventsList[eventsList.Count - 1];
             
             // Return cached narratives if this is the same event we've already analyzed
-            if (lastCachedEvent == lastEvent && lastCachedNarratives != null)
+            var cachedNarratives = narrativeCache.GetCachedNarratives(lastEvent);
+            if (cachedNarratives != null)
             {
-                return new List<string>(lastCachedNarratives);
+                return cachedNarratives;
             }
             
             // If not cached or different event, analyze and cache it
             var triggeredNarratives = AnalyzeEventForNarratives(lastEvent);
-            lastCachedEvent = lastEvent;
-            lastCachedNarratives = new List<string>(triggeredNarratives);
+            narrativeCache.CacheNarratives(lastEvent, triggeredNarratives);
             return triggeredNarratives;
         }
 
@@ -196,16 +194,16 @@ namespace RPGGame
             }
             
             // Return cached narratives if this is the same event we've already analyzed
-            if (lastCachedEvent == lastEvent && lastCachedNarratives != null)
+            var cachedNarratives = narrativeCache.GetCachedNarratives(lastEvent);
+            if (cachedNarratives != null)
             {
                 // Filter to only significant narratives
-                return FilterSignificantNarratives(new List<string>(lastCachedNarratives), lastEvent);
+                return FilterSignificantNarratives(cachedNarratives, lastEvent);
             }
             
             // If not cached or different event, analyze and cache it
             var triggeredNarratives = AnalyzeEventForNarratives(lastEvent);
-            lastCachedEvent = lastEvent;
-            lastCachedNarratives = new List<string>(triggeredNarratives);
+            narrativeCache.CacheNarratives(lastEvent, triggeredNarratives);
             
             // Filter to only significant narratives
             return FilterSignificantNarratives(triggeredNarratives, lastEvent);
@@ -336,131 +334,6 @@ namespace RPGGame
                 playerName,
                 enemyName,
                 showDamageWhenEnemyKilled);
-        }
-        
-        // ===== NEW COLORED TEXT SYSTEM WRAPPERS =====
-        
-        // NOTE: Formatting methods have been moved to BattleNarrativeFormatter
-        // Keeping these methods for backwards compatibility - they delegate to the formatter
-        
-        /// <summary>
-        /// Formats first blood narrative using the new ColoredText system
-        /// </summary>
-        public List<UI.ColorSystem.ColoredText> FormatFirstBloodColored(string narrativeText)
-        {
-            return BattleNarrativeFormatter.FormatFirstBlood(narrativeText);
-        }
-        
-        /// <summary>
-        /// Formats critical hit narrative using the new ColoredText system
-        /// </summary>
-        public List<UI.ColorSystem.ColoredText> FormatCriticalHitColored(string actorName, string narrativeText)
-        {
-            return BattleNarrativeFormatter.FormatCriticalHit(actorName, narrativeText);
-        }
-        
-        /// <summary>
-        /// Formats critical miss narrative using the new ColoredText system
-        /// </summary>
-        public List<UI.ColorSystem.ColoredText> FormatCriticalMissColored(string actorName, string narrativeText)
-        {
-            return BattleNarrativeFormatter.FormatCriticalMiss(actorName, narrativeText);
-        }
-        
-        /// <summary>
-        /// Formats environmental action narrative using the new ColoredText system
-        /// </summary>
-        public List<UI.ColorSystem.ColoredText> FormatEnvironmentalActionColored(string effectDescription, string narrativeText)
-        {
-            return BattleNarrativeFormatter.FormatEnvironmentalAction(effectDescription, narrativeText);
-        }
-        
-        /// <summary>
-        /// Formats health recovery narrative using the new ColoredText system
-        /// </summary>
-        public List<UI.ColorSystem.ColoredText> FormatHealthRecoveryColored(string targetName, string narrativeText)
-        {
-            return BattleNarrativeFormatter.FormatHealthRecovery(targetName, narrativeText);
-        }
-        
-        /// <summary>
-        /// Formats health lead change narrative using the new ColoredText system
-        /// </summary>
-        public List<UI.ColorSystem.ColoredText> FormatHealthLeadChangeColored(string leaderName, string narrativeText, bool isPlayer)
-        {
-            return BattleNarrativeFormatter.FormatHealthLeadChange(leaderName, narrativeText, isPlayer);
-        }
-        
-        /// <summary>
-        /// Formats below 50% health narrative using the new ColoredText system
-        /// </summary>
-        public List<UI.ColorSystem.ColoredText> FormatBelow50PercentColored(string entityName, string narrativeText, bool isPlayer)
-        {
-            return BattleNarrativeFormatter.FormatBelow50Percent(entityName, narrativeText, isPlayer);
-        }
-        
-        /// <summary>
-        /// Formats below 10% health narrative using the new ColoredText system
-        /// </summary>
-        public List<UI.ColorSystem.ColoredText> FormatBelow10PercentColored(string entityName, string narrativeText, bool isPlayer)
-        {
-            return BattleNarrativeFormatter.FormatBelow10Percent(entityName, narrativeText, isPlayer);
-        }
-        
-        /// <summary>
-        /// Formats intense battle narrative using the new ColoredText system
-        /// </summary>
-        public List<UI.ColorSystem.ColoredText> FormatIntenseBattleColored(string narrativeText)
-        {
-            return BattleNarrativeFormatter.FormatIntenseBattle(playerName, enemyName, narrativeText);
-        }
-        
-        /// <summary>
-        /// Formats good combo narrative using the new ColoredText system
-        /// </summary>
-        public List<UI.ColorSystem.ColoredText> FormatGoodComboColored(string actorName, string targetName, bool isPlayerCombo)
-        {
-            return BattleNarrativeFormatter.FormatGoodCombo(actorName, targetName, isPlayerCombo);
-        }
-        
-        /// <summary>
-        /// Formats player defeated narrative using the new ColoredText system
-        /// </summary>
-        public List<UI.ColorSystem.ColoredText> FormatPlayerDefeatedColored(string narrativeText)
-        {
-            return BattleNarrativeFormatter.FormatPlayerDefeated(enemyName, narrativeText);
-        }
-        
-        /// <summary>
-        /// Formats enemy defeated narrative using the new ColoredText system
-        /// </summary>
-        public List<UI.ColorSystem.ColoredText> FormatEnemyDefeatedColored(string narrativeText)
-        {
-            return BattleNarrativeFormatter.FormatEnemyDefeated(enemyName, playerName, narrativeText);
-        }
-        
-        /// <summary>
-        /// Formats player taunt narrative using the new ColoredText system
-        /// </summary>
-        public List<UI.ColorSystem.ColoredText> FormatPlayerTauntColored(string tauntText)
-        {
-            return BattleNarrativeFormatter.FormatPlayerTaunt(playerName, enemyName, tauntText);
-        }
-        
-        /// <summary>
-        /// Formats enemy taunt narrative using the new ColoredText system
-        /// </summary>
-        public List<UI.ColorSystem.ColoredText> FormatEnemyTauntColored(string tauntText)
-        {
-            return BattleNarrativeFormatter.FormatEnemyTaunt(enemyName, playerName, tauntText);
-        }
-        
-        /// <summary>
-        /// Formats a generic narrative message using the new ColoredText system
-        /// </summary>
-        public List<UI.ColorSystem.ColoredText> FormatGenericNarrativeColored(string narrativeText, UI.ColorSystem.ColorPalette primaryColor = UI.ColorSystem.ColorPalette.Info)
-        {
-            return BattleNarrativeFormatter.FormatGenericNarrative(narrativeText, primaryColor);
         }
 
         /// <summary>

@@ -40,6 +40,9 @@ namespace RPGGame.Tests.Unit
             TestActionPoolViaActionPoolProperty();
             TestActionsRemovedOnUnequip();
             TestActionsReplacedOnEquipNewItem();
+            TestDuplicateActionsFromItem();
+            TestDuplicateActionsInActionPool();
+            TestDuplicateActionsRemovedOnUnequip();
 
             TestBase.PrintSummary("Item Action Pool Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -446,6 +449,134 @@ namespace RPGGame.Tests.Unit
 
             TestBase.AssertTrue(hasTaunt2,
                 "TAUNT should be in pool after equipping new weapon",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        #endregion
+
+        #region Duplicate Action Tests
+
+        /// <summary>
+        /// Tests that items with duplicate actions (same action listed multiple times) add all instances to the action pool
+        /// </summary>
+        private static void TestDuplicateActionsFromItem()
+        {
+            Console.WriteLine("\n--- Testing Duplicate Actions from Item ---");
+
+            var character = TestDataBuilders.Character().WithName("DuplicateActionsTest").Build();
+            var armor = TestDataBuilders.Armor()
+                .WithType(ItemType.Head)
+                .WithName("TestHelmet")
+                .Build();
+            
+            // Add the same action multiple times via ActionBonuses (simulating item with duplicate actions)
+            armor.ActionBonuses = new List<ActionBonus>
+            {
+                new ActionBonus { Name = "ARCANE ECHO" },
+                new ActionBonus { Name = "ARCANE ECHO" }
+            };
+
+            // Equip the armor
+            character.EquipItem(armor, "head");
+
+            // Verify both instances are in the pool
+            var actionPool = character.GetActionPool();
+            int arcaneEchoCount = actionPool.Count(a => a.Name == "ARCANE ECHO");
+
+            TestBase.AssertTrue(arcaneEchoCount >= 2,
+                $"Should have at least 2 instances of ARCANE ECHO in action pool, got {arcaneEchoCount}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Verify they have different ComboOrder values to distinguish them
+            var arcaneEchoActions = actionPool.Where(a => a.Name == "ARCANE ECHO").ToList();
+            var comboOrders = arcaneEchoActions.Select(a => a.ComboOrder).Distinct().ToList();
+            
+            TestBase.AssertTrue(comboOrders.Count >= 2,
+                $"Duplicate actions should have different ComboOrder values, got {comboOrders.Count} unique orders",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Tests that duplicate actions from items are all accessible in the action pool
+        /// </summary>
+        private static void TestDuplicateActionsInActionPool()
+        {
+            Console.WriteLine("\n--- Testing Duplicate Actions in Action Pool ---");
+
+            var character = TestDataBuilders.Character().WithName("DuplicateInPoolTest").Build();
+            var weapon = TestDataBuilders.Weapon()
+                .WithName("TestSword")
+                .WithWeaponType(WeaponType.Sword)
+                .Build();
+            
+            // Add same action via GearAction and ActionBonuses (creating duplicates)
+            weapon.GearAction = "JAB";
+            weapon.ActionBonuses = new List<ActionBonus>
+            {
+                new ActionBonus { Name = "JAB" }
+            };
+
+            // Equip the weapon
+            character.EquipItem(weapon, "weapon");
+
+            // Verify both instances are in the pool
+            var actionPool = character.GetActionPool();
+            int jabCount = actionPool.Count(a => a.Name == "JAB");
+
+            TestBase.AssertTrue(jabCount >= 2,
+                $"Should have at least 2 instances of JAB in action pool (GearAction + ActionBonus), got {jabCount}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Verify all instances are distinct Action objects
+            var jabActions = actionPool.Where(a => a.Name == "JAB").ToList();
+            var distinctActions = jabActions.Distinct().ToList();
+            
+            TestBase.AssertTrue(distinctActions.Count >= 2,
+                $"Duplicate actions should be distinct Action objects, got {distinctActions.Count} distinct actions",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Tests that all duplicate actions are removed when item is unequipped
+        /// </summary>
+        private static void TestDuplicateActionsRemovedOnUnequip()
+        {
+            Console.WriteLine("\n--- Testing Duplicate Actions Removed on Unequip ---");
+
+            var character = TestDataBuilders.Character().WithName("DuplicateRemovalTest").Build();
+            var armor = TestDataBuilders.Armor()
+                .WithType(ItemType.Feet)
+                .WithName("TestBoots")
+                .Build();
+            
+            // Add the same action multiple times
+            armor.ActionBonuses = new List<ActionBonus>
+            {
+                new ActionBonus { Name = "TAUNT" },
+                new ActionBonus { Name = "TAUNT" },
+                new ActionBonus { Name = "TAUNT" }
+            };
+
+            // Equip the armor
+            character.EquipItem(armor, "feet");
+
+            // Verify all instances are in pool
+            var actionPoolBefore = character.GetActionPool();
+            int tauntCountBefore = actionPoolBefore.Count(a => a.Name == "TAUNT");
+
+            TestBase.AssertTrue(tauntCountBefore >= 3,
+                $"Should have at least 3 instances of TAUNT before unequip, got {tauntCountBefore}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Unequip the armor
+            character.UnequipItem("feet");
+
+            // Verify all instances are removed
+            var actionPoolAfter = character.GetActionPool();
+            int tauntCountAfter = actionPoolAfter.Count(a => a.Name == "TAUNT");
+
+            TestBase.AssertEqual(0, tauntCountAfter,
+                $"All instances of TAUNT should be removed after unequip, got {tauntCountAfter}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

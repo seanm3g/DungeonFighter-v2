@@ -59,6 +59,9 @@ namespace RPGGame.UI.Avalonia.Managers
             createStatusEffectButton.Click += OnCreateStatusEffectClick;
             deleteStatusEffectButton.Click += OnDeleteStatusEffectClick;
             statusEffectsListBox.SelectionChanged += OnStatusEffectSelectionChanged;
+            
+            // Initialize button state
+            UpdateDeleteButtonState();
         }
 
         private void LoadStatusEffectsList()
@@ -86,6 +89,13 @@ namespace RPGGame.UI.Avalonia.Managers
                 selectedStatusEffectName = effectName;
                 isCreatingNewStatusEffect = false;
                 LoadStatusEffectForm(effectName, config);
+                UpdateDeleteButtonState();
+            }
+            else
+            {
+                selectedStatusEffectName = null;
+                isCreatingNewStatusEffect = false;
+                UpdateDeleteButtonState();
             }
         }
 
@@ -97,6 +107,7 @@ namespace RPGGame.UI.Avalonia.Managers
             
             var newConfig = new StatusEffectConfig();
             LoadStatusEffectForm("", newConfig);
+            UpdateDeleteButtonState();
         }
 
         private void OnDeleteStatusEffectClick(object? sender, RoutedEventArgs e)
@@ -107,16 +118,17 @@ namespace RPGGame.UI.Avalonia.Managers
                 return;
             }
             
-            if (statusEffectEditor.DeleteStatusEffect(selectedStatusEffectName))
+            if (statusEffectEditor.DeleteStatusEffect(selectedStatusEffectName, out string? errorMessage))
             {
                 showStatusMessage?.Invoke($"Status effect '{selectedStatusEffectName}' deleted successfully", true);
                 LoadStatusEffectsList();
                 statusEffectFormPanel?.Children.Clear();
                 selectedStatusEffectName = null;
+                UpdateDeleteButtonState();
             }
             else
             {
-                showStatusMessage?.Invoke($"Failed to delete status effect '{selectedStatusEffectName}'", false);
+                showStatusMessage?.Invoke(errorMessage ?? $"Failed to delete status effect '{selectedStatusEffectName}'", false);
             }
         }
 
@@ -132,6 +144,35 @@ namespace RPGGame.UI.Avalonia.Managers
             if (statusEffectsListBox != null) statusEffectsListBox.SelectedItem = null;
             selectedStatusEffectName = null;
             isCreatingNewStatusEffect = false;
+            UpdateDeleteButtonState();
+        }
+
+        /// <summary>
+        /// Update the delete button state based on current selection
+        /// </summary>
+        private void UpdateDeleteButtonState()
+        {
+            if (deleteStatusEffectButton == null || statusEffectEditor == null) return;
+            
+            bool canDelete = selectedStatusEffectName != null && 
+                           !isCreatingNewStatusEffect && 
+                           !statusEffectEditor.IsDefaultEffect(selectedStatusEffectName);
+            
+            deleteStatusEffectButton.IsEnabled = canDelete;
+            
+            // Update tooltip to explain why button might be disabled
+            if (selectedStatusEffectName != null && statusEffectEditor.IsDefaultEffect(selectedStatusEffectName))
+            {
+                ToolTip.SetTip(deleteStatusEffectButton, $"'{selectedStatusEffectName}' is a default status effect and cannot be deleted");
+            }
+            else if (selectedStatusEffectName == null || isCreatingNewStatusEffect)
+            {
+                ToolTip.SetTip(deleteStatusEffectButton, "Select a status effect to delete");
+            }
+            else
+            {
+                ToolTip.SetTip(deleteStatusEffectButton, $"Delete '{selectedStatusEffectName}'");
+            }
         }
 
         private void SaveStatusEffect(StatusEffectConfig effectConfig, bool isCreatingNew)
@@ -171,6 +212,7 @@ namespace RPGGame.UI.Avalonia.Managers
                     LoadStatusEffectsList();
                     // Reload the form in edit mode
                     LoadStatusEffectForm(effectName, effectConfig);
+                    UpdateDeleteButtonState();
                 }
                 else
                 {
@@ -186,6 +228,7 @@ namespace RPGGame.UI.Avalonia.Managers
                     showStatusMessage?.Invoke($"Status effect '{effectName}' updated successfully", true);
                     selectedStatusEffectName = effectName;
                     LoadStatusEffectsList();
+                    UpdateDeleteButtonState();
                 }
                 else
                 {
