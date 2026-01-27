@@ -53,7 +53,8 @@ namespace RPGGame.UI.Avalonia.Settings
 
             _keywordGroups = ColorConfigurationLoader.GetKeywordGroups()?.ToList() ?? new List<KeywordGroupData>();
 
-            keywordsComboBox.ItemsSource = _keywordGroups.OrderBy(g => g.Name).ToList();
+            var orderedGroups = _keywordGroups.OrderBy(g => g.Name).ToList();
+            keywordsComboBox.ItemsSource = orderedGroups;
             keywordsComboBox.SelectionChanged += (s, e) =>
             {
                 if (keywordsComboBox.SelectedItem is KeywordGroupData group)
@@ -61,6 +62,14 @@ namespace RPGGame.UI.Avalonia.Settings
                     SelectKeywordGroup(group);
                 }
             };
+
+            // Set default selection to "actions" if it exists
+            var defaultGroup = orderedGroups.FirstOrDefault(g => 
+                g.Name != null && g.Name.Equals("actions", StringComparison.OrdinalIgnoreCase));
+            if (defaultGroup != null)
+            {
+                keywordsComboBox.SelectedItem = defaultGroup;
+            }
         }
 
         private void SelectKeywordGroup(KeywordGroupData group)

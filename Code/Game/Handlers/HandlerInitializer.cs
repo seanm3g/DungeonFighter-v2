@@ -102,6 +102,8 @@ namespace RPGGame.Handlers
             if (handlers.CharacterMenuHandler != null)
             {
                 handlers.CharacterMenuHandler.ShowMainMenuEvent += () => showMainMenu();
+                handlers.CharacterMenuHandler.ShowDungeonSelectionEvent += async () => await (showDungeonSelection?.Invoke() ?? Task.CompletedTask);
+                handlers.CharacterMenuHandler.ShowGameLoopEvent += () => showGameLoop();
             }
             
             if (handlers.SettingsMenuHandler != null)

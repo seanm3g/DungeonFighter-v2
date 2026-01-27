@@ -10,6 +10,12 @@ namespace RPGGame.Tests
     public abstract class TestHarnessBase
     {
         /// <summary>
+        /// Static flag to skip user prompts (useful for UI mode)
+        /// When true, PromptContinue() and WaitForContinue() will skip Console.ReadKey() calls
+        /// </summary>
+        public static bool SkipUserPrompts { get; set; } = false;
+
+        /// <summary>
         /// Helper method to create template syntax strings without quadruple braces
         /// Uses string.Format to avoid escaping issues in string interpolation
         /// </summary>
@@ -39,6 +45,11 @@ namespace RPGGame.Tests
         /// </summary>
         public static bool PromptContinue(string message = "Press any key to continue or 'q' to quit...")
         {
+            if (SkipUserPrompts)
+            {
+                return true; // Auto-continue in UI mode
+            }
+            
             TextDisplayIntegration.DisplaySystem(message);
             var key = Console.ReadKey();
             if (key.KeyChar == 'q' || key.KeyChar == 'Q')
@@ -74,6 +85,11 @@ namespace RPGGame.Tests
         /// </summary>
         public static void WaitForContinue()
         {
+            if (SkipUserPrompts)
+            {
+                return; // Skip wait in UI mode
+            }
+            
             TextDisplayIntegration.DisplaySystem("\nPress any key to continue...");
             Console.ReadKey();
         }

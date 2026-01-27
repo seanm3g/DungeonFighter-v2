@@ -269,6 +269,8 @@ namespace RPGGame
             AvailableDungeons.Clear();
             CurrentDungeon = null;
             CurrentRoom = null;
+            // Clear all characters from the registry to ensure clean state
+            characterStateManager.ClearAllCharacters();
         }
 
         /// <summary>

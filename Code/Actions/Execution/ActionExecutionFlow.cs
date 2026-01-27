@@ -2,6 +2,8 @@ using RPGGame;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat.Events;
 using RPGGame.Utils;
+using RPGGame.Data;
+using System.Collections.Generic;
 
 namespace RPGGame.Actions.Execution
 {
@@ -30,6 +32,40 @@ namespace RPGGame.Actions.Execution
             {
             }
 
+            // Apply next attack stat bonus if one was set (for Follow Through and similar effects)
+            // This must happen BEFORE action selection so it affects speed calculation
+            if (source is Character nextAttackStatCharacter && !(nextAttackStatCharacter is Enemy))
+            {
+                var (nextBonus, nextStatType, nextDuration) = nextAttackStatCharacter.Effects.ConsumeNextAttackStatBonus();
+                if (nextBonus != 0 && !string.IsNullOrEmpty(nextStatType))
+                {
+                    // Get current bonus and add to it (stacking)
+                    int currentBonus = 0;
+                    string statType = nextStatType.ToUpper();
+                    switch (statType)
+                    {
+                        case "STR":
+                            currentBonus = nextAttackStatCharacter.Stats.TempStrengthBonus;
+                            break;
+                        case "AGI":
+                            currentBonus = nextAttackStatCharacter.Stats.TempAgilityBonus;
+                            break;
+                        case "TEC":
+                            currentBonus = nextAttackStatCharacter.Stats.TempTechniqueBonus;
+                            break;
+                        case "INT":
+                            currentBonus = nextAttackStatCharacter.Stats.TempIntelligenceBonus;
+                            break;
+                    }
+                    
+                    // Add the new bonus to the existing one
+                    int newBonus = currentBonus + nextBonus;
+                    int duration = nextDuration > 0 ? nextDuration : 999;
+                    
+                    nextAttackStatCharacter.ApplyStatBonus(newBonus, statType, duration);
+                }
+            }
+
             // Use forced action if provided (for combo system), otherwise select action based on Actor type
             result.SelectedAction = forcedAction ?? ActionSelector.SelectActionByEntityType(source);
             if (result.SelectedAction == null)
@@ -50,12 +86,58 @@ namespace RPGGame.Actions.Execution
                 result.SelectedAction = ActionUtilities.HandleUniqueActionChance(character, result.SelectedAction);
             }
 
+            // Apply ATTACK bonuses before roll (consumed on roll attempt, regardless of hit/miss)
+            int attackBonusAccumulator = 0;
+            int attackBonusHit = 0;
+            int attackBonusCombo = 0;
+            int attackBonusCrit = 0;
+            
+            if (source is Character attackBonusCharacter && !(attackBonusCharacter is Enemy))
+            {
+                var attackBonuses = attackBonusCharacter.Effects.GetAndConsumeAttackBonuses();
+                foreach (var bonus in attackBonuses)
+                {
+                    switch (bonus.Type.ToUpper())
+                    {
+                        case "ACCURACY":
+                            attackBonusAccumulator += (int)bonus.Value;
+                            break;
+                        case "HIT":
+                            attackBonusHit += (int)bonus.Value;
+                            break;
+                        case "COMBO":
+                            attackBonusCombo += (int)bonus.Value;
+                            break;
+                        case "CRIT":
+                            attackBonusCrit += (int)bonus.Value;
+                            break;
+                    }
+                }
+            }
+            
             // Apply roll modifications from action
             result.ModifiedBaseRoll = RollModificationManager.ApplyActionRollModifications(
                 result.BaseRoll, result.SelectedAction, source, target);
+            
+            // Add ATTACK ACCURACY bonus to the roll
+            result.ModifiedBaseRoll += attackBonusAccumulator;
 
             // Apply threshold overrides and adjustments
             RollModificationManager.ApplyThresholdOverrides(result.SelectedAction, source, target);
+            
+            // Apply ATTACK HIT, COMBO, CRIT bonuses via threshold adjustments
+            if (attackBonusHit != 0 && source is Character hitBonusCharacter && !(hitBonusCharacter is Enemy))
+            {
+                RollModificationManager.GetThresholdManager().AdjustHitThreshold(hitBonusCharacter, -attackBonusHit);
+            }
+            if (attackBonusCombo != 0 && source is Character comboBonusCharacter && !(comboBonusCharacter is Enemy))
+            {
+                RollModificationManager.GetThresholdManager().AdjustComboThreshold(comboBonusCharacter, -attackBonusCombo);
+            }
+            if (attackBonusCrit != 0 && source is Character critBonusCharacter && !(critBonusCharacter is Enemy))
+            {
+                RollModificationManager.GetThresholdManager().AdjustCriticalHitThreshold(critBonusCharacter, -attackBonusCrit);
+            }
 
             result.RollBonus = ActionUtilities.CalculateRollBonus(source, result.SelectedAction);
             result.AttackRoll = result.ModifiedBaseRoll + result.RollBonus;
@@ -94,6 +176,42 @@ namespace RPGGame.Actions.Execution
 
             if (result.Hit)
             {
+                // Apply ACTION bonuses (only consumed on successful action)
+                var actionBonuses = new List<ActionAttackBonusItem>();
+                if (source is Character actionBonusCharacter && !(actionBonusCharacter is Enemy))
+                {
+                    actionBonuses = actionBonusCharacter.Effects.GetAndConsumeActionBonuses(true);
+                    
+                    // Apply stat bonuses from ACTION bonuses
+                    foreach (var bonus in actionBonuses)
+                    {
+                        string bonusType = bonus.Type.ToUpper();
+                        if (bonusType == "STR" || bonusType == "AGI" || bonusType == "TECH" || bonusType == "INT")
+                        {
+                            int currentBonus = 0;
+                            switch (bonusType)
+                            {
+                                case "STR":
+                                    currentBonus = actionBonusCharacter.Stats.TempStrengthBonus;
+                                    break;
+                                case "AGI":
+                                    currentBonus = actionBonusCharacter.Stats.TempAgilityBonus;
+                                    break;
+                                case "TECH":
+                                    currentBonus = actionBonusCharacter.Stats.TempTechniqueBonus;
+                                    break;
+                                case "INT":
+                                    currentBonus = actionBonusCharacter.Stats.TempIntelligenceBonus;
+                                    break;
+                            }
+                            
+                            int newBonus = currentBonus + (int)bonus.Value;
+                            int duration = 999; // Default to dungeon duration for ACTION bonuses
+                            actionBonusCharacter.ApplyStatBonus(newBonus, bonusType, duration);
+                        }
+                    }
+                }
+                
                 // Publish hit event
                 var hitEvent = ActionEventPublisher.PublishActionHit(
                     source, target, result.SelectedAction, result.AttackRoll, result.IsCombo, result.IsCritical);
@@ -186,6 +304,13 @@ namespace RPGGame.Actions.Execution
                     ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction, 0, result.ModifiedBaseRoll + result.RollBonus, result.RollBonus, true, result.IsCombo, 0, 0, false, result.BaseRoll, battleNarrative);
                 }
 
+                // Apply ACTION/ATTACK bonuses from the action that was just executed
+                if (result.SelectedAction.ActionAttackBonuses != null && 
+                    source is Character bonusSourceCharacter && !(bonusSourceCharacter is Enemy))
+                {
+                    bonusSourceCharacter.Effects.AddActionAttackBonuses(result.SelectedAction.ActionAttackBonuses);
+                }
+                
                 // Apply status effects (with conditional support)
                 CombatEffectsSimplified.ApplyStatusEffects(result.SelectedAction, source, target, result.StatusEffectMessages, hitEvent);
 
@@ -206,39 +331,61 @@ namespace RPGGame.Actions.Execution
                         result.SelectedAction.Advanced.RollBonusDuration);
                 }
 
-                // Apply stat bonus to source if the action has one (only for characters, not enemies)
-                if (result.SelectedAction.Advanced.StatBonus > 0 && 
-                    !string.IsNullOrEmpty(result.SelectedAction.Advanced.StatBonusType) &&
-                    source is Character statBonusCharacter && !(statBonusCharacter is Enemy))
+                // Handle Follow Through: set next attack bonuses instead of applying to current attack
+                if (result.SelectedAction.Name == "FOLLOW THROUGH" && 
+                    source is Character followThroughCharacter && !(followThroughCharacter is Enemy))
                 {
-                    // Get current bonus and add to it (stacking)
-                    int currentBonus = 0;
-                    string statType = result.SelectedAction.Advanced.StatBonusType.ToUpper();
-                    switch (statType)
+                    // Set next attack damage multiplier to 3.0 (triple damage)
+                    followThroughCharacter.Effects.NextAttackDamageMultiplier = 3.0;
+                    
+                    // Set next attack stat bonus (slow: -1 AGI for 1 turn)
+                    if (result.SelectedAction.Advanced.StatBonus != 0 && 
+                        !string.IsNullOrEmpty(result.SelectedAction.Advanced.StatBonusType))
                     {
-                        case "STR":
-                            currentBonus = statBonusCharacter.Stats.TempStrengthBonus;
-                            break;
-                        case "AGI":
-                            currentBonus = statBonusCharacter.Stats.TempAgilityBonus;
-                            break;
-                        case "TEC":
-                            currentBonus = statBonusCharacter.Stats.TempTechniqueBonus;
-                            break;
-                        case "INT":
-                            currentBonus = statBonusCharacter.Stats.TempIntelligenceBonus;
-                            break;
+                        followThroughCharacter.Effects.NextAttackStatBonus = result.SelectedAction.Advanced.StatBonus;
+                        followThroughCharacter.Effects.NextAttackStatBonusType = result.SelectedAction.Advanced.StatBonusType;
+                        followThroughCharacter.Effects.NextAttackStatBonusDuration = result.SelectedAction.Advanced.StatBonusDuration > 0 
+                            ? result.SelectedAction.Advanced.StatBonusDuration 
+                            : 1;
                     }
-                    
-                    // Add the new bonus to the existing one
-                    int newBonus = currentBonus + result.SelectedAction.Advanced.StatBonus;
-                    int duration = result.SelectedAction.Advanced.StatBonusDuration > 0 
-                        ? result.SelectedAction.Advanced.StatBonusDuration 
-                        : 999; // Default to dungeon duration if not specified
-                    
-                    statBonusCharacter.ApplyStatBonus(newBonus, statType, duration);
-                    
-                    // Stat bonus message is now handled by ActionStatusEffectApplier.ApplyStatBonusColored
+                }
+                else
+                {
+                    // Apply stat bonus to source if the action has one (only for characters, not enemies)
+                    // Allow negative stat bonuses (e.g., other actions that slow)
+                    if (result.SelectedAction.Advanced.StatBonus != 0 && 
+                        !string.IsNullOrEmpty(result.SelectedAction.Advanced.StatBonusType) &&
+                        source is Character statBonusCharacter && !(statBonusCharacter is Enemy))
+                    {
+                        // Get current bonus and add to it (stacking)
+                        int currentBonus = 0;
+                        string statType = result.SelectedAction.Advanced.StatBonusType.ToUpper();
+                        switch (statType)
+                        {
+                            case "STR":
+                                currentBonus = statBonusCharacter.Stats.TempStrengthBonus;
+                                break;
+                            case "AGI":
+                                currentBonus = statBonusCharacter.Stats.TempAgilityBonus;
+                                break;
+                            case "TEC":
+                                currentBonus = statBonusCharacter.Stats.TempTechniqueBonus;
+                                break;
+                            case "INT":
+                                currentBonus = statBonusCharacter.Stats.TempIntelligenceBonus;
+                                break;
+                        }
+                        
+                        // Add the new bonus to the existing one
+                        int newBonus = currentBonus + result.SelectedAction.Advanced.StatBonus;
+                        int duration = result.SelectedAction.Advanced.StatBonusDuration > 0 
+                            ? result.SelectedAction.Advanced.StatBonusDuration 
+                            : 999; // Default to dungeon duration if not specified
+                        
+                        statBonusCharacter.ApplyStatBonus(newBonus, statType, duration);
+                        
+                        // Stat bonus message is now handled by ActionStatusEffectApplier.ApplyStatBonusColored
+                    }
                 }
 
                 // Check for enemy death and HP thresholds
@@ -321,6 +468,9 @@ namespace RPGGame.Actions.Execution
             }
             else
             {
+                // ACTION bonuses are NOT consumed on miss - they remain queued
+                // (ATTACK bonuses were already consumed before the roll)
+                
                 // Publish miss event
                 ActionEventPublisher.PublishActionMiss(source, target, result.SelectedAction, result.AttackRoll);
 

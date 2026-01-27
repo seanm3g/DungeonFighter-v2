@@ -45,25 +45,24 @@ namespace RPGGame
             Level++;
         }
 
+        /// <summary>
+        /// Gets the XP required to reach the next level
+        /// </summary>
+        public int GetXPRequiredForNextLevel()
+        {
+            return XPToNextLevel();
+        }
+
         private int XPToNextLevel()
         {
             var tuning = GameConfiguration.Instance;
             
-            // Adjusted progression: First dungeon always levels you up, then progression slows down
-            // Level 1->2: Level^2 * base (guaranteed by RewardManager)
-            // Level 2+: Level^2.2 * base (slower progression after first level)
+            // Consistent progression curve: All levels use Level^2 * base scaling
+            // This ensures smooth progression starting from level 1->2 requirement
             int averageXPPerDungeonAtLevel1 = tuning.Progression.EnemyXPBase + 25;
             
-            if (Level == 1)
-            {
-                // Level 1->2: standard quadratic scaling
-                return Level * Level * averageXPPerDungeonAtLevel1;
-            }
-            else
-            {
-                // Level 2+: slower progression using exponent 2.2 instead of 2.0
-                return (int)(Math.Pow(Level, 2.2) * averageXPPerDungeonAtLevel1);
-            }
+            // Use consistent quadratic scaling for all levels
+            return Level * Level * averageXPPerDungeonAtLevel1;
         }
 
         public void AwardClassPoint(WeaponType weaponType)

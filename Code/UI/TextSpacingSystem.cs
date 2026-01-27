@@ -256,6 +256,9 @@ namespace RPGGame
             }
             
             // For non-action blocks, or when entity info is not available, use standard rules
+            // Note: When entity extraction fails for action blocks, we can't detect actor changes,
+            // so we fall back to base spacing rules. The base rule for (CombatAction, CombatAction) is 0,
+            // which assumes same actor. This should be rare now that EntityNameExtractor handles CRITICAL MISS.
             // Check for specific transition rule
             if (SpacingRules.TryGetValue((lastBlockType, currentBlockType), out int spacing))
             {

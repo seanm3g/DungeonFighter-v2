@@ -43,8 +43,9 @@ namespace RPGGame.Tests.Unit
 
             // Add enough XP for multiple level-ups
             var tuning = GameConfiguration.Instance;
-            int xpForLevel2 = 1 * 1 * (tuning.Progression.EnemyXPBase + 25);
-            int xpForLevel3 = (int)(Math.Pow(2, 2.2) * (tuning.Progression.EnemyXPBase + 25));
+            int averageXPPerDungeonAtLevel1 = tuning.Progression.EnemyXPBase + 25;
+            int xpForLevel2 = 1 * 1 * averageXPPerDungeonAtLevel1;
+            int xpForLevel3 = 2 * 2 * averageXPPerDungeonAtLevel1;
             int totalXP = xpForLevel2 + xpForLevel3 + 10;
 
             character.AddXP(totalXP);

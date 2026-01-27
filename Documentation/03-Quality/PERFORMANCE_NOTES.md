@@ -18,6 +18,71 @@ Performance considerations, optimizations, and monitoring for the DungeonFighter
 - **Memory Usage**: <200MB peak usage
 - **Startup Time**: <5 seconds total
 
+## Build Performance
+
+### Current Build Performance (After Optimization)
+
+Build times have been optimized through configuration improvements:
+
+| Build Type | Time | Notes |
+|------------|------|-------|
+| **Clean Debug Build** | ~7.4 seconds | Full rebuild from scratch |
+| **Incremental Debug Build** | ~1.9 seconds | Only changed files recompiled |
+| **Release Build** | ~6.8 seconds | Includes optimizations and compiled bindings |
+
+### Build Optimizations Applied
+
+The following optimizations have been implemented in `Code/Code.csproj`:
+
+1. **Parallel Compilation**
+   - `BuildInParallel>true</BuildInParallel>` - Enables parallel compilation of project references
+   - `UseSharedCompilation>true</UseSharedCompilation>` - Uses shared compilation server on Windows for faster builds
+
+2. **Conditional Compiled Bindings**
+   - **Debug builds**: Compiled bindings disabled for faster iteration (faster compile time)
+   - **Release builds**: Compiled bindings enabled for optimal runtime performance
+   - This provides the best balance between development speed and production performance
+
+3. **Build Performance Benefits**
+   - **Debug builds**: Significantly faster compilation during development
+   - **Incremental builds**: Very fast when only small changes are made
+   - **Release builds**: Maintains runtime performance while still benefiting from parallel compilation
+
+### Build Performance Recommendations
+
+1. **During Development**
+   - Use incremental builds (default) - only changed files are recompiled
+   - Avoid clean builds unless necessary (switching branches, major refactoring)
+   - Debug builds are optimized for fast iteration
+
+2. **Before Release**
+   - Use Release builds for final testing and distribution
+   - Release builds include compiled bindings for optimal runtime performance
+   - Clean builds ensure no stale artifacts
+
+3. **Troubleshooting Build Issues**
+   - If build errors occur, try `dotnet clean` then rebuild
+   - Use `Scripts/fix-build-cache.ps1` for persistent build cache issues
+   - Check `Scripts/README_BUILD_COMMANDS.md` for build troubleshooting
+
+### Build Time Measurement
+
+Build times are measured using:
+```powershell
+$sw = [System.Diagnostics.Stopwatch]::StartNew()
+dotnet build --verbosity minimal
+$sw.Stop()
+Write-Host "Build Time: $($sw.Elapsed.TotalSeconds) seconds"
+```
+
+### Trade-offs
+
+1. **Compiled Bindings in Debug**: Disabled for faster compilation, but runtime binding performance is slightly slower during debugging (acceptable trade-off for development speed)
+
+2. **Shared Compilation**: May cause issues in some build scenarios, but provides significant speedup on Windows
+
+3. **Parallel Compilation**: Uses more CPU resources but significantly reduces build time on multi-core systems
+
 ## Performance Optimizations
 
 ### 1. Lazy Loading

@@ -145,6 +145,12 @@ namespace RPGGame
             if (player != null)
             {
                 player.RecordEnemyDefeat();
+                
+                // Award XP for enemy kill
+                if (enemy != null)
+                {
+                    Progression.XPRewardSystem.AwardEnemyKillXP(player, enemy);
+                }
             }
             
             // Enemy defeated - add victory message with proper spacing BEFORE final render

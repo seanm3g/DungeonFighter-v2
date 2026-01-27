@@ -3,6 +3,9 @@ using RPGGame;
 using System;
 using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Renderers;
+using RPGGame.UI.Avalonia.Managers;
+using RPGGame.UI.Avalonia.Effects;
+using Avalonia.Threading;
 
 namespace RPGGame.UI.Avalonia
 {
@@ -21,14 +24,23 @@ namespace RPGGame.UI.Avalonia
         private readonly CharacterPanelRenderer characterPanelRenderer;
         private readonly RightPanelRenderer rightPanelRenderer;
         
-        public PersistentLayoutManager(GameCanvasControl canvas)
+        public PersistentLayoutManager(
+            GameCanvasControl canvas,
+            ICanvasInteractionManager? interactionManager = null,
+            StatsPanelStateManager? statsPanelStateManager = null,
+            StatsHeaderGlowAnimator? glowAnimator = null)
         {
             this.canvas = canvas ?? throw new ArgumentNullException(nameof(canvas));
             this.textWriter = new ColoredTextWriter(canvas);
             
             // Initialize specialized components
             this.layoutCoordinator = new LayoutCoordinator(canvas);
-            this.characterPanelRenderer = new CharacterPanelRenderer(canvas, textWriter);
+            this.characterPanelRenderer = new CharacterPanelRenderer(
+                canvas, 
+                textWriter, 
+                statsPanelStateManager, 
+                glowAnimator,
+                interactionManager);
             this.rightPanelRenderer = new RightPanelRenderer(canvas);
         }
         

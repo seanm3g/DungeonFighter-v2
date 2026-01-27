@@ -54,6 +54,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             var testDungeonRewardsButton = panel.FindControl<Button>("TestDungeonRewardsButton");
             var testLevelUpSystemButton = panel.FindControl<Button>("TestLevelUpSystemButton");
             var testXPSystemButton = panel.FindControl<Button>("TestXPSystemButton");
+            var testMultiSourceXPButton = panel.FindControl<Button>("TestMultiSourceXPButton");
             var testSaveLoadSystemButton = panel.FindControl<Button>("TestSaveLoadSystemButton");
             var testGameStateManagementButton = panel.FindControl<Button>("TestGameStateManagementButton");
             var testErrorHandlingButton = panel.FindControl<Button>("TestErrorHandlingButton");
@@ -135,6 +136,14 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 testXPSystemButton.Click += async (s, e) =>
                 {
                     await textBoxTestRunner.RunXPSystemTestsAsync();
+                };
+            }
+
+            if (testMultiSourceXPButton != null)
+            {
+                testMultiSourceXPButton.Click += async (s, e) =>
+                {
+                    await textBoxTestRunner.RunMultiSourceXPRewardTestsAsync();
                 };
             }
 

@@ -20,15 +20,6 @@ namespace RPGGame
             // Actions are now only added via weapon GearAction property
         }
 
-        /// <summary>
-        /// Ensures basic attack is available in the action pool - REMOVED
-        /// BASIC ATTACK has been removed from the game
-        /// </summary>
-        [Obsolete("BASIC ATTACK has been removed from the game. This method does nothing.")]
-        public void EnsureBasicAttackAvailable(Actor entity)
-        {
-            // BASIC ATTACK removed - method does nothing
-        }
 
         /// <summary>
         /// Gets list of available unique actions for a weapon

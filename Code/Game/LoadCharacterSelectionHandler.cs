@@ -154,6 +154,11 @@ namespace RPGGame
                 
                 if (loadedCharacter == null)
                 {
+                    // Clear loading animation before showing error
+                    if (customUIManager is CanvasUICoordinator canvasUIClear)
+                    {
+                        canvasUIClear.ClearLoadingStatus();
+                    }
                     ShowMessageEvent?.Invoke($"Failed to load character: {characterName}");
                     return;
                 }
@@ -172,6 +177,8 @@ namespace RPGGame
                 // Update UI
                 if (customUIManager is CanvasUICoordinator canvasUIUpdate)
                 {
+                    // Clear loading animation before transitioning
+                    canvasUIUpdate.ClearLoadingStatus();
                     canvasUIUpdate.RestoreDisplayBufferRendering();
                     canvasUIUpdate.SetCharacter(loadedCharacter);
                     canvasUIUpdate.RefreshCharacterPanel();
@@ -185,6 +192,11 @@ namespace RPGGame
             }
             catch (Exception ex)
             {
+                // Clear loading animation on error
+                if (customUIManager is CanvasUICoordinator canvasUIError)
+                {
+                    canvasUIError.ClearLoadingStatus();
+                }
                 ShowMessageEvent?.Invoke($"Error loading character: {ex.Message}");
                 DebugLogger.Log("LoadCharacterSelectionHandler", $"Error in LoadCharacter: {ex}");
             }

@@ -1,4 +1,5 @@
 using Avalonia.Media;
+using RPGGame.Data;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.Avalonia.Managers;
@@ -114,6 +115,10 @@ namespace RPGGame.UI.Avalonia.Renderers
                     // This makes each animated element look different from others
                     int elementOffset = GetElementRandomOffset(y);
                     
+                    // Dungeon names should always animate (undulation effect)
+                    // This creates the shimmering/wave effect across the dungeon name text
+                    bool shouldUndulate = true;
+                    
                     // Apply animation effects to dungeon name character-by-character
                     int charPosition = $"[{i + 1}] ".Length;
                     foreach (var templateSegment in templateSegments)
@@ -129,13 +134,17 @@ namespace RPGGame.UI.Avalonia.Renderers
                             brightnessFactor = Math.Max(0.3, Math.Min(2.0, brightnessFactor));
                             
                             // Get position-based undulation brightness (creates sine wave across text)
-                            double undulationBrightness = animationState.GetUndulationBrightnessAt(adjustedPosition, y);
-                            brightnessFactor += undulationBrightness * 3.0;
-                            brightnessFactor = Math.Max(0.3, Math.Min(2.0, brightnessFactor));
+                            // Only apply if the template has undulation enabled
+                            if (shouldUndulate)
+                            {
+                                double undulationBrightness = animationState.GetUndulationBrightnessAt(adjustedPosition, y);
+                                brightnessFactor += undulationBrightness * 3.0;
+                                brightnessFactor = Math.Max(0.3, Math.Min(2.0, brightnessFactor));
+                            }
                             
                             // Apply brightness adjustments to color
                             Color adjustedColor = AdjustColorBrightness(templateSegment.Color, brightnessFactor);
-                            segments.Add(new ColoredText(c.ToString(), adjustedColor));
+                            segments.Add(new ColoredText(c.ToString(), adjustedColor, templateSegment.SourceTemplate));
                             
                             charPosition++;
                         }

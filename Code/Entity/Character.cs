@@ -345,6 +345,7 @@ namespace RPGGame
         public double GetModificationFreezeChance() => Facade.GetModificationFreezeChance();
         public double GetModificationStunChance() => Facade.GetModificationStunChance();
         public double GetModificationUniqueActionChance() => Facade.GetModificationUniqueActionChance();
+        public List<string> GetModificationStatusEffects() => Facade.GetModificationStatusEffects();
         public double GetArmorSpikeDamage() => Facade.GetArmorSpikeDamage();
         public List<ArmorStatus> GetEquippedArmorStatuses() => Facade.GetEquippedArmorStatuses();
         public bool HasAutoSuccess() => Facade.HasAutoSuccess();

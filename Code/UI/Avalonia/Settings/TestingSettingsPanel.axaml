@@ -53,6 +53,9 @@
                     <Button x:Name="TestXPSystemButton" Content="XP System" Width="140" Height="35"
                             Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
+                    <Button x:Name="TestMultiSourceXPButton" Content="Multi-Source XP" Width="140" Height="35"
+                            Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
+                            FontSize="14" FontWeight="SemiBold"/>
                     <Button x:Name="TestSaveLoadSystemButton" Content="Save/Load System" Width="140" Height="35"
                             Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>

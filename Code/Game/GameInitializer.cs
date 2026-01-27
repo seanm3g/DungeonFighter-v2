@@ -1,5 +1,10 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text.Json;
+using RPGGame.Data;
+using RPGGame.Utils;
 
 namespace RPGGame
 {
@@ -38,31 +43,138 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Loads starting gear data from TuningConfig.json
+        /// Loads starting gear data from StartingGear.json (primary) or TuningConfig.json (fallback)
         /// </summary>
         public StartingGearData LoadStartingGear()
         {
             try
             {
-                var config = GameConfiguration.Instance.StartingGear;
                 var startingGear = new StartingGearData();
+                
+                // Try to load from StartingGear.json first (preferred source)
+                var startingGearFile = JsonLoader.FindGameDataFile("StartingGear.json");
+                if (startingGearFile != null)
+                {
+                    try
+                    {
+                        var jsonContent = File.ReadAllText(startingGearFile);
+                        var gearData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonContent, new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        });
+                        
+                        if (gearData != null && gearData.ContainsKey("weapons"))
+                        {
+                            var weaponsArray = gearData["weapons"];
+                            int weaponIndex = 0;
+                            foreach (var weaponElement in weaponsArray.EnumerateArray())
+                            {
+                                var weaponName = weaponElement.TryGetProperty("name", out var nameProp) ? nameProp.GetString() ?? "" : "";
+                                var weaponDamage = weaponElement.TryGetProperty("damage", out var damageProp) ? damageProp.GetDouble() : 0.0;
+                                var weaponSpeed = weaponElement.TryGetProperty("attackSpeed", out var speedProp) ? speedProp.GetDouble() : 1.0;
+                                var weaponWeight = weaponElement.TryGetProperty("weight", out var weightProp) ? weightProp.GetDouble() : 0.0;
+                                
+                                // Skip weapons with empty names
+                                if (string.IsNullOrWhiteSpace(weaponName))
+                                {
+                                    weaponIndex++;
+                                    continue;
+                                }
+                                
+                                // Apply global damage multiplier from tuning config (balance adjustment only)
+                                // Only apply if multiplier is > 0, otherwise use original damage
+                                var weaponScaling = GameConfiguration.Instance.WeaponScaling;
+                                double originalDamage = weaponDamage;
+                                if (weaponScaling != null && weaponDamage > 0 && weaponScaling.GlobalDamageMultiplier > 0)
+                                {
+                                    weaponDamage = weaponDamage * weaponScaling.GlobalDamageMultiplier;
+                                }
+                                
+                                // Only add weapons with valid damage (after multiplier application)
+                                // CRITICAL: Use a minimum damage threshold to prevent filtering out valid weapons due to rounding
+                                // If damage is 0 or negative after multiplier, use original damage if it was > 0
+                                double finalDamage = weaponDamage;
+                                if (finalDamage <= 0 && originalDamage > 0)
+                                {
+                                    // If multiplier resulted in zero/negative damage but original was valid, use original
+                                    finalDamage = originalDamage;
+                                }
+                                
+                                // CRITICAL: Always add weapons with valid names and original damage > 0
+                                // This ensures all weapons from StartingGear.json are included, even if multiplier causes issues
+                                if (originalDamage > 0)
+                                {
+                                    var weapon = new StartingWeapon
+                                    {
+                                        name = weaponName,
+                                        damage = finalDamage > 0 ? finalDamage : originalDamage, // Use original if final is invalid
+                                        attackSpeed = weaponSpeed,
+                                        weight = weaponWeight
+                                    };
+                                    startingGear.weapons.Add(weapon);
+                                }
+                                weaponIndex++;
+                            }
+                            
+                            // Load armor from StartingGear.json if available
+                            if (gearData.ContainsKey("armor"))
+                            {
+                                var armorArray = gearData["armor"];
+                                foreach (var armorElement in armorArray.EnumerateArray())
+                                {
+                                    var armor = new StartingArmor
+                                    {
+                                        slot = armorElement.TryGetProperty("slot", out var slotProp) ? slotProp.GetString() ?? "" : "",
+                                        name = armorElement.TryGetProperty("name", out var nameProp) ? nameProp.GetString() ?? "" : "",
+                                        armor = armorElement.TryGetProperty("armor", out var armorProp) ? armorProp.GetInt32() : 0,
+                                        weight = armorElement.TryGetProperty("weight", out var weightProp) ? weightProp.GetDouble() : 0.0
+                                    };
+                                    
+                                    if (!string.IsNullOrWhiteSpace(armor.name))
+                                    {
+                                        startingGear.armor.Add(armor);
+                                    }
+                                }
+                            }
+                            
+                            // If we successfully loaded from StartingGear.json, return early
+                            if (startingGear.weapons.Count > 0)
+                            {
+                                return startingGear;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Warning: Could not load from StartingGear.json: {ex.Message}. Falling back to TuningConfig.json");
+                    }
+                }
+                
+                // Fallback to TuningConfig.json
+                var config = GameConfiguration.Instance.StartingGear;
                 
                 // Convert from config format to StartingGearData format
                 if (config?.Weapons != null)
                 {
                     foreach (var weaponConfig in config.Weapons)
                     {
+                        
+                        // Skip weapons with empty names or zero damage
+                        if (string.IsNullOrWhiteSpace(weaponConfig.Name) || weaponConfig.Damage <= 0)
+                            continue;
+                            
                         var weapon = new StartingWeapon
                         {
-                            name = weaponConfig.Name,
+                            name = weaponConfig.Name ?? "",
                             damage = weaponConfig.Damage,
                             attackSpeed = weaponConfig.AttackSpeed,
                             weight = weaponConfig.Weight
                         };
                         
                         // Apply global damage multiplier from tuning config (balance adjustment only)
+                        // Only apply if multiplier is > 0, otherwise use original damage
                         var weaponScaling = GameConfiguration.Instance.WeaponScaling;
-                        if (weaponScaling != null)
+                        if (weaponScaling != null && weaponScaling.GlobalDamageMultiplier > 0)
                         {
                             weapon.damage = weapon.damage * weaponScaling.GlobalDamageMultiplier;
                         }
@@ -208,8 +320,78 @@ namespace RPGGame
                 player.EquipItem(armorItem, slot);
             }
 
+            // Safety check: Ensure character has at least one action available
+            // If ActionPool is empty, add fallback actions based on weapon type
+            if (player.ActionPool.Count == 0)
+            {
+                DebugLogger.LogFormat("GameInitializer", 
+                    "WARNING: Character '{0}' has no actions after initialization. Adding fallback actions.", player.Name);
+                
+                // Try to add weapon-type actions as fallback
+                if (player.Equipment.Weapon is WeaponItem fallbackWeapon)
+                {
+                    var weaponTypeActions = GetWeaponTypeActionsForFallback(fallbackWeapon.WeaponType);
+                    foreach (var actionName in weaponTypeActions)
+                    {
+                        var action = ActionLoader.GetAction(actionName);
+                        if (action != null)
+                        {
+                            action.IsComboAction = true;
+                            player.AddAction(action, 1.0);
+                            DebugLogger.LogFormat("GameInitializer", 
+                                "Added fallback action '{0}' to character '{1}'", actionName, player.Name);
+                            
+                            // Only add one fallback action to ensure we have at least one
+                            if (player.ActionPool.Count > 0)
+                                break;
+                        }
+                    }
+                }
+                
+                // If still no actions, add a generic fallback action
+                if (player.ActionPool.Count == 0)
+                {
+                    // Try to find any available combo action
+                    var allActions = ActionLoader.GetAllActions();
+                    var fallbackAction = allActions.FirstOrDefault(a => a.IsComboAction);
+                    if (fallbackAction != null)
+                    {
+                        player.AddAction(fallbackAction, 1.0);
+                        DebugLogger.LogFormat("GameInitializer", 
+                            "Added generic fallback action '{0}' to character '{1}'", fallbackAction.Name, player.Name);
+                    }
+                }
+                
+                // Re-initialize combo sequence with the fallback actions
+                if (player.ActionPool.Count > 0)
+                {
+                    player.InitializeDefaultCombo();
+                }
+            }
+
             // Generate dungeons for the new game
             GenerateDungeons(player, availableDungeons);
+        }
+
+        /// <summary>
+        /// Gets weapon-type actions for fallback when no actions are available
+        /// </summary>
+        private List<string> GetWeaponTypeActionsForFallback(WeaponType weaponType)
+        {
+            var weaponTag = weaponType.ToString().ToLower();
+            var allActions = ActionLoader.GetAllActions();
+
+            // Get weapon-specific actions from JSON using tag matching
+            var weaponActions = allActions
+                .Where(action => action.Tags != null &&
+                                action.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
+                                action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)) &&
+                                !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)) &&
+                                !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)))
+                .Select(action => action.Name)
+                .ToList();
+
+            return weaponActions;
         }
 
         /// <summary>

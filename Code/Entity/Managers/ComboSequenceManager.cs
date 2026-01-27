@@ -113,14 +113,21 @@ namespace RPGGame
 
         /// <summary>
         /// Updates combo sequence after gear changes
+        /// Removes actions from combo sequence if the exact Action object is no longer in the action pool
+        /// This ensures that when an item is unequipped, its actions are removed from the combo sequence
+        /// even if another source (like class actions) provides an action with the same name
         /// </summary>
         public void UpdateComboSequenceAfterGearChange(Actor entity) {  
             // Remove actions that are no longer in the action pool
+            // Check by exact Action object reference, not just by name
+            // This ensures that if a weapon action is removed, it's removed from combo even if
+            // a class action with the same name exists
             var actionsToRemove = new List<Action>();
             foreach (var comboAction in ComboSequence)
             {
+                // Check if the exact Action object is still in the action pool
                 var stillInPool = entity.ActionPool.Any(item => 
-                    item.action.Name == comboAction.Name);
+                    ReferenceEquals(item.action, comboAction));
                 
                 if (!stillInPool)
                 {

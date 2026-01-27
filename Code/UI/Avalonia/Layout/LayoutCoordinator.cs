@@ -11,6 +11,18 @@ namespace RPGGame.UI.Avalonia.Layout
     /// <summary>
     /// Coordinates layout rendering operations.
     /// Handles layout state management and title rendering.
+    /// 
+    /// IMPORTANT: This is the SINGLE POINT for canvas clearing in layout operations.
+    /// All canvas clearing for layout-based rendering goes through this coordinator.
+    /// The canvas.Clear() call at line 52 is the ONLY direct canvas clearing allowed
+    /// outside of GameCanvasControl itself and specialized full-screen renderers
+    /// (MessageDisplayRenderer, HelpSystemRenderer) which use clearing actions.
+    /// 
+    /// Clearing Strategy:
+    /// - When clearCanvas=true: Clears canvas immediately before rendering to prevent flicker
+    /// - When clearCanvas=false: Preserves existing content, only updates what's needed
+    /// - ScreenTransitionProtocol should pass clearCanvas=false since it handles clearing
+    /// - Direct render calls should use clearCanvas=true for clean transitions
     /// </summary>
     public class LayoutCoordinator
     {
@@ -47,6 +59,7 @@ namespace RPGGame.UI.Avalonia.Layout
             
             if (clearCanvas)
             {
+                // SINGLE CLEARING POINT: This is the only place LayoutCoordinator clears the canvas
                 // Clear canvas right before rendering to prevent blank frame flicker
                 // This ensures we clear and immediately render, minimizing visible blank time
                 canvas.Clear();
@@ -66,16 +79,10 @@ namespace RPGGame.UI.Avalonia.Layout
                 // Render center panel border (only when clearing)
                 canvas.AddBorder(LayoutConstants.CENTER_PANEL_X, LayoutConstants.CENTER_PANEL_Y, LayoutConstants.CENTER_PANEL_WIDTH, LayoutConstants.CENTER_PANEL_HEIGHT, AsciiArtAssets.Colors.Cyan);
                 
-                
-                // Explicitly clear the center panel content area to ensure clean rendering
-                // This prevents old content from showing when transitioning between screens
-                int centerContentX = LayoutConstants.CENTER_PANEL_X + 1;
-                int centerContentY = LayoutConstants.CENTER_PANEL_Y + 1;
-                int centerContentWidth = LayoutConstants.CENTER_PANEL_WIDTH - 2;
-                int centerContentHeight = LayoutConstants.CENTER_PANEL_HEIGHT - 2;
-                // Clear with height + 1 to ensure we clear the full area (endY is exclusive)
-                canvas.ClearTextInArea(centerContentX, centerContentY, centerContentWidth, centerContentHeight + 1);
-                canvas.ClearProgressBarsInArea(centerContentX, centerContentY, centerContentWidth, centerContentHeight);
+                // NOTE: No need to call ClearTextInArea here because canvas.Clear() at line 52
+                // already removed ALL text elements. The additional ClearTextInArea was redundant
+                // and could potentially interfere with content that's about to be rendered.
+                // Content renderers are responsible for managing their own text elements.
             }
             else
             {

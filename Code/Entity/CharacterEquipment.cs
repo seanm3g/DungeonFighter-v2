@@ -97,6 +97,7 @@ namespace RPGGame
         public double GetModificationFreezeChance() => modificationCalculator.GetFreezeChance();
         public double GetModificationStunChance() => modificationCalculator.GetStunChance();
         public double GetModificationUniqueActionChance() => modificationCalculator.GetUniqueActionChance();
+        public List<string> GetModificationStatusEffects() => modificationCalculator.GetModificationStatusEffects();
 
         // ============================================================================
         // Armor Status Methods (Facade to ArmorStatusManager)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using RPGGame.UI;
@@ -71,7 +71,8 @@ namespace RPGGame
         /// <param name="criticalMissNarrative">Critical miss narrative</param>
         /// <param name="narratives">Additional narratives</param>
         /// <param name="character">The character this combat action belongs to (null = always display)</param>
-        public static void DisplayActionBlock(List<ColoredText> actionText, List<ColoredText> rollInfo, List<List<ColoredText>>? statusEffects = null, List<ColoredText>? criticalMissNarrative = null, List<List<ColoredText>>? narratives = null, Character? character = null)
+        /// <param name="blockType">The type of block (defaults to CombatAction for backward compatibility)</param>
+        public static void DisplayActionBlock(List<ColoredText> actionText, List<ColoredText> rollInfo, List<List<ColoredText>>? statusEffects = null, List<ColoredText>? criticalMissNarrative = null, List<List<ColoredText>>? narratives = null, Character? character = null, TextSpacingSystem.BlockType blockType = TextSpacingSystem.BlockType.CombatAction)
         {
             try
             {
@@ -91,7 +92,7 @@ namespace RPGGame
                 
                 // Apply context-aware spacing based on what came before and actor changes
                 // Note: Spacing system handles all spacing - no manual blank lines needed
-                TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.CombatAction, currentEntity);
+                TextSpacingSystem.ApplySpacingBefore(blockType, currentEntity);
                 
                 // Collect all messages for this combat action block
                 var messageGroups = BlockMessageCollector.CollectActionBlockMessages(actionText, rollInfo, statusEffects, criticalMissNarrative, narratives);
@@ -115,7 +116,7 @@ namespace RPGGame
                 }
                 
                 // Record that this block was displayed for spacing system (with entity tracking)
-                TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.CombatAction, currentEntity);
+                TextSpacingSystem.RecordBlockDisplayed(blockType, currentEntity);
                 
                 // Delay and spacing are now handled by the batch method for GUI
                 // For console, still apply delay and spacing
@@ -144,7 +145,8 @@ namespace RPGGame
         /// <param name="criticalMissNarrative">Critical miss narrative</param>
         /// <param name="narratives">Additional narratives</param>
         /// <param name="character">The character this combat action belongs to (null = always display)</param>
-        public static async Task DisplayActionBlockAsync(List<ColoredText> actionText, List<ColoredText> rollInfo, List<List<ColoredText>>? statusEffects = null, List<ColoredText>? criticalMissNarrative = null, List<List<ColoredText>>? narratives = null, Character? character = null)
+        /// <param name="blockType">The type of block (defaults to CombatAction for backward compatibility)</param>
+        public static async Task DisplayActionBlockAsync(List<ColoredText> actionText, List<ColoredText> rollInfo, List<List<ColoredText>>? statusEffects = null, List<ColoredText>? criticalMissNarrative = null, List<List<ColoredText>>? narratives = null, Character? character = null, TextSpacingSystem.BlockType blockType = TextSpacingSystem.BlockType.CombatAction)
         {
             try
             {
@@ -164,7 +166,7 @@ namespace RPGGame
                 
                 // Apply context-aware spacing based on what came before and actor changes
                 // Note: Spacing system handles all spacing - no manual blank lines needed
-                TextSpacingSystem.ApplySpacingBefore(TextSpacingSystem.BlockType.CombatAction, currentEntity);
+                TextSpacingSystem.ApplySpacingBefore(blockType, currentEntity);
                 
                 // Collect all messages for this combat action block
                 var messageGroups = BlockMessageCollector.CollectActionBlockMessages(actionText, rollInfo, statusEffects, criticalMissNarrative, narratives);
@@ -188,7 +190,7 @@ namespace RPGGame
                 }
                 
                 // Record that this block was displayed for spacing system (with entity tracking)
-                TextSpacingSystem.RecordBlockDisplayed(TextSpacingSystem.BlockType.CombatAction, currentEntity);
+                TextSpacingSystem.RecordBlockDisplayed(blockType, currentEntity);
                 
                 // Delay and spacing are now handled by the batch method for GUI
                 // For console, still apply delay and spacing

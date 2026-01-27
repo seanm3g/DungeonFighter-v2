@@ -273,7 +273,8 @@ namespace RPGGame.Combat.Formatting
             double damageMultiplier = 1.0, 
             int rollBonus = 0, 
             int roll = 0,
-            int multiHitCount = 1)
+            int multiHitCount = 1,
+            bool isCriticalMiss = false)
         {
             var builder = new ColoredTextBuilder();
             
@@ -312,14 +313,14 @@ namespace RPGGame.Combat.Formatting
                 AddWithAction(builder, actionName, actionColor);
             }
             
-            // Add multi-hit indicator if applicable
+            // Add multi-hit indicator if applicable - show before damage to indicate how damage is done
             if (multiHitCount > 1)
             {
                 builder.AddSpace();
                 builder.Add($"({multiHitCount} hits)", ColorPalette.Info);
             }
             
-            // Damage amount
+            // Damage amount (for multi-hit, this is the total damage across all hits)
             AddForAmountUnit(builder, actualDamage.ToString(), damageColor, "damage", Colors.White);
             
             var damageText = builder.Build();
@@ -340,7 +341,7 @@ namespace RPGGame.Combat.Formatting
             double actualSpeed = 0;
             if (action != null && action.Length > 0)
             {
-                actualSpeed = ActionSpeedCalculator.CalculateActualActionSpeed(attacker, action);
+                actualSpeed = ActionSpeedCalculator.CalculateActualActionSpeed(attacker, action, isCriticalMiss);
             }
             
             var rollInfo = RollInfoFormatter.FormatRollInfoColored(roll, rollBonus, actualRawDamage, targetDefense, actualSpeed, comboAmplifier, action);

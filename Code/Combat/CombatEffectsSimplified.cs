@@ -27,9 +27,11 @@ namespace RPGGame
         {
             bool effectsApplied = false;
             
-            // First, check for weapon modification status effect chances (for characters only)
+            // First, apply guaranteed status effects from modifications (for characters only, Attack actions only)
+            // Then, check for weapon modification status effect chances (for characters only)
             if (attacker is Character characterAttacker)
             {
+                effectsApplied |= ApplyModificationStatusEffects(characterAttacker, target, action, results);
                 effectsApplied |= ApplyWeaponModificationStatusEffects(characterAttacker, target, action, results);
             }
             
@@ -73,6 +75,76 @@ namespace RPGGame
             }
             
             return effectsApplied;
+        }
+
+        /// <summary>
+        /// Applies guaranteed status effects from modifications to Attack actions
+        /// </summary>
+        /// <param name="attacker">The attacking character</param>
+        /// <param name="target">The target Actor</param>
+        /// <param name="action">The action being performed</param>
+        /// <param name="results">List to add effect messages to</param>
+        /// <returns>True if any effects were applied</returns>
+        private static bool ApplyModificationStatusEffects(Character attacker, Actor target, Action action, List<string> results)
+        {
+            if (action.Type != ActionType.Attack) return false;
+            
+            bool effectsApplied = false;
+            var statusEffects = attacker.GetModificationStatusEffects();
+            
+            foreach (var effectName in statusEffects)
+            {
+                // Create temporary action with the status effect flag set
+                var tempAction = CreateActionWithStatusEffect(effectName);
+                if (tempAction != null && _effectRegistry.ApplyEffect(effectName.ToLower(), target, tempAction, results))
+                {
+                    effectsApplied = true;
+                }
+            }
+            
+            return effectsApplied;
+        }
+
+        /// <summary>
+        /// Creates an Action object with a specific status effect flag set
+        /// </summary>
+        /// <param name="effectName">The name of the status effect</param>
+        /// <returns>Action with the status effect flag set, or null if effect name is invalid</returns>
+        private static Action? CreateActionWithStatusEffect(string effectName)
+        {
+            var action = new Action();
+            var lower = effectName.ToLower();
+            
+            // Map status effect names to Action properties
+            switch (lower)
+            {
+                case "bleed": action.CausesBleed = true; break;
+                case "weaken": action.CausesWeaken = true; break;
+                case "slow": action.CausesSlow = true; break;
+                case "poison": action.CausesPoison = true; break;
+                case "burn": action.CausesBurn = true; break;
+                case "stun": action.CausesStun = true; break;
+                case "vulnerability": action.CausesVulnerability = true; break;
+                case "harden": action.CausesHarden = true; break;
+                case "fortify": action.CausesFortify = true; break;
+                case "focus": action.CausesFocus = true; break;
+                case "expose": action.CausesExpose = true; break;
+                case "hpregen": action.CausesHPRegen = true; break;
+                case "armorbreak": action.CausesArmorBreak = true; break;
+                case "pierce": action.CausesPierce = true; break;
+                case "reflect": action.CausesReflect = true; break;
+                case "silence": action.CausesSilence = true; break;
+                case "statdrain": action.CausesStatDrain = true; break;
+                case "absorb": action.CausesAbsorb = true; break;
+                case "temporaryhp": action.CausesTemporaryHP = true; break;
+                case "confusion": action.CausesConfusion = true; break;
+                case "cleanse": action.CausesCleanse = true; break;
+                case "mark": action.CausesMark = true; break;
+                case "disrupt": action.CausesDisrupt = true; break;
+                default: return null;
+            }
+            
+            return action;
         }
 
         /// <summary>

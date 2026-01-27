@@ -114,22 +114,21 @@ namespace RPGGame
 
         /// <summary>
         /// Gets bleed chance from modifications.
+        /// Only weapons can provide status effect chances.
         /// </summary>
         public double GetBleedChance()
         {
             double totalBleedChance = 0.0;
 
-            var equippedItems = slots.GetEquippedItems();
-            foreach (var item in equippedItems)
+            // Only check the weapon slot for status effect chances
+            var weapon = slots.Weapon;
+            if (weapon != null)
             {
-                if (item != null)
+                foreach (var modification in weapon.Modifications)
                 {
-                    foreach (var modification in item.Modifications)
+                    if (modification.Effect == "bleedChance")
                     {
-                        if (modification.Effect == "bleedChance")
-                        {
-                            totalBleedChance += modification.RolledValue;
-                        }
+                        totalBleedChance += modification.RolledValue;
                     }
                 }
             }
@@ -139,22 +138,21 @@ namespace RPGGame
 
         /// <summary>
         /// Gets poison chance from modifications.
+        /// Only weapons can provide status effect chances.
         /// </summary>
         public double GetPoisonChance()
         {
             double totalPoisonChance = 0.0;
 
-            var equippedItems = slots.GetEquippedItems();
-            foreach (var item in equippedItems)
+            // Only check the weapon slot for status effect chances
+            var weapon = slots.Weapon;
+            if (weapon != null)
             {
-                if (item != null)
+                foreach (var modification in weapon.Modifications)
                 {
-                    foreach (var modification in item.Modifications)
+                    if (modification.Effect == "poisonChance")
                     {
-                        if (modification.Effect == "poisonChance")
-                        {
-                            totalPoisonChance += modification.RolledValue;
-                        }
+                        totalPoisonChance += modification.RolledValue;
                     }
                 }
             }
@@ -164,22 +162,21 @@ namespace RPGGame
 
         /// <summary>
         /// Gets burn chance from modifications.
+        /// Only weapons can provide status effect chances.
         /// </summary>
         public double GetBurnChance()
         {
             double totalBurnChance = 0.0;
 
-            var equippedItems = slots.GetEquippedItems();
-            foreach (var item in equippedItems)
+            // Only check the weapon slot for status effect chances
+            var weapon = slots.Weapon;
+            if (weapon != null)
             {
-                if (item != null)
+                foreach (var modification in weapon.Modifications)
                 {
-                    foreach (var modification in item.Modifications)
+                    if (modification.Effect == "burnChance")
                     {
-                        if (modification.Effect == "burnChance")
-                        {
-                            totalBurnChance += modification.RolledValue;
-                        }
+                        totalBurnChance += modification.RolledValue;
                     }
                 }
             }
@@ -189,22 +186,21 @@ namespace RPGGame
 
         /// <summary>
         /// Gets freeze chance from modifications.
+        /// Only weapons can provide status effect chances.
         /// </summary>
         public double GetFreezeChance()
         {
             double totalFreezeChance = 0.0;
 
-            var equippedItems = slots.GetEquippedItems();
-            foreach (var item in equippedItems)
+            // Only check the weapon slot for status effect chances
+            var weapon = slots.Weapon;
+            if (weapon != null)
             {
-                if (item != null)
+                foreach (var modification in weapon.Modifications)
                 {
-                    foreach (var modification in item.Modifications)
+                    if (modification.Effect == "freezeChance")
                     {
-                        if (modification.Effect == "freezeChance")
-                        {
-                            totalFreezeChance += modification.RolledValue;
-                        }
+                        totalFreezeChance += modification.RolledValue;
                     }
                 }
             }
@@ -214,22 +210,21 @@ namespace RPGGame
 
         /// <summary>
         /// Gets stun chance from modifications.
+        /// Only weapons can provide status effect chances.
         /// </summary>
         public double GetStunChance()
         {
             double totalStunChance = 0.0;
 
-            var equippedItems = slots.GetEquippedItems();
-            foreach (var item in equippedItems)
+            // Only check the weapon slot for status effect chances
+            var weapon = slots.Weapon;
+            if (weapon != null)
             {
-                if (item != null)
+                foreach (var modification in weapon.Modifications)
                 {
-                    foreach (var modification in item.Modifications)
+                    if (modification.Effect == "stunChance")
                     {
-                        if (modification.Effect == "stunChance")
-                        {
-                            totalStunChance += modification.RolledValue;
-                        }
+                        totalStunChance += modification.RolledValue;
                     }
                 }
             }
@@ -280,6 +275,31 @@ namespace RPGGame
             }
 
             return allModifications;
+        }
+
+        /// <summary>
+        /// Gets all status effects from modifications that should be applied to Attack actions.
+        /// Only weapons can provide status effects.
+        /// </summary>
+        /// <returns>List of status effect names</returns>
+        public List<string> GetModificationStatusEffects()
+        {
+            var statusEffects = new List<string>();
+            
+            // Only check the weapon slot for status effects
+            var weapon = slots.Weapon;
+            if (weapon != null)
+            {
+                foreach (var modification in weapon.Modifications)
+                {
+                    if (modification.StatusEffects != null && modification.StatusEffects.Count > 0)
+                    {
+                        statusEffects.AddRange(modification.StatusEffects);
+                    }
+                }
+            }
+            
+            return statusEffects;
         }
 
         /// <summary>

@@ -124,15 +124,24 @@ namespace RPGGame.Entity.Services
 
         /// <summary>
         /// Loads a character from a JSON file (async version to prevent UI freezing)
+        /// Includes timeout protection to prevent indefinite hangs
         /// </summary>
         public async Task<Character?> LoadCharacterAsync(string? characterId = null, string? filename = null)
         {
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "H1,H2", location = "CharacterSaveService.cs:100", message = "LoadCharacterAsync ENTRY", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), characterId, filename, threadId = System.Threading.Thread.CurrentThread.ManagedThreadId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
             try
             {
                 filename = fileManager.ResolveFilename(characterId, filename);
+                DebugLogger.Log("CharacterSaveService", $"LoadCharacterAsync: Resolved filename: {filename}");
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "H1", location = "CharacterSaveService.cs:105", message = "Resolved filename", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), resolvedFilename = filename, threadId = System.Threading.Thread.CurrentThread.ManagedThreadId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+                // #endregion
                 
                 if (!fileManager.FileExists(filename))
                 {
+                    DebugLogger.Log("CharacterSaveService", $"LoadCharacterAsync: File does not exist: {filename}");
                     // Only show message in console mode (not in custom UI mode)
                     if (UIManager.GetCustomUIManager() == null)
                     {
@@ -141,11 +150,59 @@ namespace RPGGame.Entity.Services
                     return null;
                 }
 
-                string json = await fileManager.ReadAllTextAsync(filename).ConfigureAwait(false);
+                DebugLogger.Log("CharacterSaveService", $"LoadCharacterAsync: File exists, starting read with 3 second timeout: {filename}");
+                
+                // Add timeout wrapper to prevent indefinite hangs
+                // Use 3 seconds timeout for file read operations
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "H1,H2", location = "CharacterSaveService.cs:118", message = "BEFORE ReadAllTextAsync", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), filename, threadId = System.Threading.Thread.CurrentThread.ManagedThreadId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+                // #endregion
+                var readTask = fileManager.ReadAllTextAsync(filename);
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "H1,H2", location = "CharacterSaveService.cs:120", message = "AFTER ReadAllTextAsync call", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), readTaskStatus = readTask.Status.ToString(), threadId = System.Threading.Thread.CurrentThread.ManagedThreadId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+                // #endregion
+                var timeoutTask = Task.Delay(TimeSpan.FromSeconds(3));
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "H1,H2", location = "CharacterSaveService.cs:122", message = "BEFORE Task.WhenAny", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), readTaskStatus = readTask.Status.ToString(), timeoutTaskStatus = timeoutTask.Status.ToString(), threadId = System.Threading.Thread.CurrentThread.ManagedThreadId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+                // #endregion
+                var completedTask = await Task.WhenAny(readTask, timeoutTask).ConfigureAwait(false);
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "H1,H2", location = "CharacterSaveService.cs:124", message = "AFTER Task.WhenAny", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), completedTaskIsTimeout = (completedTask == timeoutTask), readTaskStatus = readTask.Status.ToString(), timeoutTaskStatus = timeoutTask.Status.ToString(), threadId = System.Threading.Thread.CurrentThread.ManagedThreadId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+                // #endregion
+
+                if (completedTask == timeoutTask)
+                {
+                    DebugLogger.Log("CharacterSaveService", $"LoadCharacterAsync: File read timed out after 3 seconds: {filename}");
+                    // Only show error in console mode (not in custom UI mode)
+                    if (UIManager.GetCustomUIManager() == null)
+                    {
+                        UIManager.WriteLine($"Error loading character: File read operation timed out");
+                    }
+                    return null;
+                }
+
+                string json = await readTask.ConfigureAwait(false);
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "H1", location = "CharacterSaveService.cs:129", message = "File read completed", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), jsonLength = json?.Length ?? 0, threadId = System.Threading.Thread.CurrentThread.ManagedThreadId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+                // #endregion
+                DebugLogger.Log("CharacterSaveService", $"LoadCharacterAsync: File read completed, size: {json?.Length ?? 0} bytes");
+                
+                if (string.IsNullOrEmpty(json))
+                {
+                    DebugLogger.Log("CharacterSaveService", "LoadCharacterAsync: JSON string is null or empty");
+                    // Only show message in console mode (not in custom UI mode)
+                    if (UIManager.GetCustomUIManager() == null)
+                    {
+                        UIManager.WriteLine("Failed to deserialize character data");
+                    }
+                    return null;
+                }
+                
                 var saveData = serializer.Deserialize(json);
 
                 if (saveData == null)
                 {
+                    DebugLogger.Log("CharacterSaveService", "LoadCharacterAsync: Deserialization returned null");
                     // Only show message in console mode (not in custom UI mode)
                     if (UIManager.GetCustomUIManager() == null)
                     {
@@ -154,7 +211,9 @@ namespace RPGGame.Entity.Services
                     return null;
                 }
 
+                DebugLogger.Log("CharacterSaveService", $"LoadCharacterAsync: Deserialization successful, creating character: {saveData.Name}");
                 var character = serializer.CreateCharacterFromSaveData(saveData);
+                DebugLogger.Log("CharacterSaveService", $"LoadCharacterAsync: Character created successfully: {character?.Name}");
 
                 // Only show load message in console mode (not in custom UI mode)
                 if (UIManager.GetCustomUIManager() == null)
@@ -165,6 +224,7 @@ namespace RPGGame.Entity.Services
             }
             catch (FileNotFoundException ex)
             {
+                DebugLogger.Log("CharacterSaveService", $"LoadCharacterAsync: FileNotFoundException: {ex.Message}");
                 // Only show error in console mode (not in custom UI mode)
                 if (UIManager.GetCustomUIManager() == null)
                 {
@@ -174,6 +234,7 @@ namespace RPGGame.Entity.Services
             }
             catch (IOException ex)
             {
+                DebugLogger.Log("CharacterSaveService", $"LoadCharacterAsync: IOException: {ex.Message}");
                 // Only show error in console mode (not in custom UI mode)
                 if (UIManager.GetCustomUIManager() == null)
                 {
@@ -183,6 +244,7 @@ namespace RPGGame.Entity.Services
             }
             catch (UnauthorizedAccessException ex)
             {
+                DebugLogger.Log("CharacterSaveService", $"LoadCharacterAsync: UnauthorizedAccessException: {ex.Message}");
                 // Only show error in console mode (not in custom UI mode)
                 if (UIManager.GetCustomUIManager() == null)
                 {
@@ -192,6 +254,7 @@ namespace RPGGame.Entity.Services
             }
             catch (System.Text.Json.JsonException ex)
             {
+                DebugLogger.Log("CharacterSaveService", $"LoadCharacterAsync: JsonException: {ex.Message}");
                 // Only show error in console mode (not in custom UI mode)
                 if (UIManager.GetCustomUIManager() == null)
                 {
@@ -199,9 +262,20 @@ namespace RPGGame.Entity.Services
                 }
                 return null;
             }
+            catch (TaskCanceledException ex)
+            {
+                DebugLogger.Log("CharacterSaveService", $"LoadCharacterAsync: TaskCanceledException (timeout): {ex.Message}");
+                // Only show error in console mode (not in custom UI mode)
+                if (UIManager.GetCustomUIManager() == null)
+                {
+                    UIManager.WriteLine($"Error loading character: File read operation timed out");
+                }
+                return null;
+            }
             catch (Exception ex)
             {
                 // Catch-all for any other unexpected errors
+                DebugLogger.Log("CharacterSaveService", $"LoadCharacterAsync: Unexpected exception: {ex.Message}\n{ex.StackTrace}");
                 // Only show error in console mode (not in custom UI mode)
                 if (UIManager.GetCustomUIManager() == null)
                 {
@@ -402,10 +476,11 @@ namespace RPGGame.Entity.Services
 
         /// <summary>
         /// Lists all saved characters in the GameData directory
+        /// Returns characters sorted by modification time (most recent first)
         /// </summary>
         public List<(string characterId, string characterName, int level)> ListAllSavedCharacters()
         {
-            var results = new List<(string, string, int)>();
+            var resultsWithFiles = new List<(string characterId, string characterName, int level, string filePath, DateTime lastWriteTime)>();
             var processedFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             
             try
@@ -423,6 +498,9 @@ namespace RPGGame.Entity.Services
                             continue;
                         }
                         processedFiles.Add(file);
+                        
+                        // Get file modification time for sorting
+                        DateTime lastWriteTime = File.Exists(file) ? File.GetLastWriteTime(file) : DateTime.MinValue;
                         
                         // Get character info
                         var (name, level) = GetSavedCharacterInfo(file);
@@ -462,7 +540,7 @@ namespace RPGGame.Entity.Services
                             characterId = $"{name}_{level}";
                         }
                         
-                        results.Add((characterId, name, level));
+                        resultsWithFiles.Add((characterId, name, level, file, lastWriteTime));
                     }
                     catch (Exception ex)
                     {
@@ -478,6 +556,12 @@ namespace RPGGame.Entity.Services
                 ScrollDebugLogger.LogAlways($"Error listing saved characters: {ex.Message}");
             }
             
+            // Sort by modification time (most recent first)
+            resultsWithFiles.Sort((a, b) => b.lastWriteTime.CompareTo(a.lastWriteTime));
+            
+            // Extract just the character info for return
+            var results = resultsWithFiles.Select(r => (r.characterId, r.characterName, r.level)).ToList();
+            
             return results;
         }
 
@@ -492,15 +576,42 @@ namespace RPGGame.Entity.Services
             try
             {
                 var saveFiles = fileManager.GetCharacterSaveFiles();
+                ScrollDebugLogger.LogAlways($"ClearAllSavedCharacters: Found {saveFiles.Length} save file(s) to process");
                 
                 foreach (var file in saveFiles)
                 {
                     try
                     {
-                        if (fileManager.FileExists(file))
+                        // Normalize the path to ensure consistent file operations
+                        string normalizedPath = Path.GetFullPath(file);
+                        
+                        // Check if file exists (try both normalized and original paths)
+                        bool fileExists = fileManager.FileExists(normalizedPath) || fileManager.FileExists(file);
+                        
+                        if (fileExists)
                         {
-                            fileManager.DeleteFile(file);
-                            deletedCount++;
+                            // Try deleting with normalized path first, then fallback to original
+                            bool deleted = false;
+                            if (fileManager.FileExists(normalizedPath))
+                            {
+                                fileManager.DeleteFile(normalizedPath);
+                                deleted = true;
+                            }
+                            else if (fileManager.FileExists(file))
+                            {
+                                fileManager.DeleteFile(file);
+                                deleted = true;
+                            }
+                            
+                            if (deleted)
+                            {
+                                deletedCount++;
+                                ScrollDebugLogger.LogAlways($"Deleted save file: {normalizedPath}");
+                            }
+                        }
+                        else
+                        {
+                            ScrollDebugLogger.LogAlways($"Save file not found (skipped): {file}");
                         }
                     }
                     catch (Exception ex)
@@ -509,6 +620,8 @@ namespace RPGGame.Entity.Services
                         ScrollDebugLogger.LogAlways($"Error deleting save file {file}: {ex.Message}");
                     }
                 }
+                
+                ScrollDebugLogger.LogAlways($"ClearAllSavedCharacters: Successfully deleted {deletedCount} save file(s)");
             }
             catch (Exception ex)
             {

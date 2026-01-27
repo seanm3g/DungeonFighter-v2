@@ -2,6 +2,7 @@ namespace RPGGame
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using RPGGame.UI.Avalonia;
 
     /// <summary>
@@ -83,9 +84,9 @@ namespace RPGGame
             try
             {
                 var startingGear = gameInitializer.LoadStartingGear();
-                return startingGear.weapons ?? new List<StartingWeapon>();
+                return startingGear?.weapons ?? new List<StartingWeapon>();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // Return default weapons if loading fails
                 return new List<StartingWeapon>

@@ -1,4 +1,6 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
+using RPGGame.Data;
 
 namespace RPGGame
 {
@@ -46,6 +48,10 @@ namespace RPGGame
         public bool GuaranteeNextSuccess { get; set; } = false; // For True Strike
         public int ExtraAttacks { get; set; } = 0; // For Flurry/Precision Strike
         public int ExtraDamage { get; set; } = 0; // For Opening Volley
+        public double NextAttackDamageMultiplier { get; set; } = 1.0; // For Follow Through - damage multiplier for next attack
+        public int NextAttackStatBonus { get; set; } = 0; // For Follow Through - stat bonus to apply on next attack
+        public string NextAttackStatBonusType { get; set; } = ""; // Stat type for next attack bonus
+        public int NextAttackStatBonusDuration { get; set; } = 0; // Duration for next attack stat bonus
         // DamageReduction is now handled by Actor base class
         public double LengthReduction { get; set; } = 0.0; // For Taunt
         public int LengthReductionTurns { get; set; } = 0;
@@ -56,6 +62,13 @@ namespace RPGGame
         public int RerollCharges { get; set; } = 0;
         public bool UsedRerollThisTurn { get; set; } = false;
         public int RerollChargesUsed { get; set; } = 0;
+        
+        // ACTION/ATTACK keyword bonuses tracking
+        // Queue of bonuses waiting for next action in sequence (ACTION keyword)
+        public List<ActionAttackBonusGroup> ActionBonuses { get; set; } = new List<ActionAttackBonusGroup>();
+        
+        // Queue of bonuses for next roll attempts (ATTACK keyword)
+        public List<ActionAttackBonusGroup> AttackBonuses { get; set; } = new List<ActionAttackBonusGroup>();
 
         // Stun, weaken, and roll penalty effects are now handled by Actor base class
 
@@ -153,6 +166,30 @@ namespace RPGGame
             return bonus;
         }
 
+        /// <summary>
+        /// Consumes the next attack damage multiplier (for Follow Through and similar effects)
+        /// Returns the multiplier and resets it to 1.0
+        /// </summary>
+        public double ConsumeNextAttackDamageMultiplier()
+        {
+            double multiplier = NextAttackDamageMultiplier;
+            NextAttackDamageMultiplier = 1.0; // Reset after use
+            return multiplier;
+        }
+
+        /// <summary>
+        /// Consumes the next attack stat bonus (for Follow Through and similar effects)
+        /// Returns the bonus values and resets them
+        /// </summary>
+        public (int bonus, string statType, int duration) ConsumeNextAttackStatBonus()
+        {
+            var result = (NextAttackStatBonus, NextAttackStatBonusType, NextAttackStatBonusDuration);
+            NextAttackStatBonus = 0;
+            NextAttackStatBonusType = "";
+            NextAttackStatBonusDuration = 0;
+            return result;
+        }
+
         public void ActivateComboMode()
         {
             ComboModeActive = true;
@@ -214,6 +251,10 @@ namespace RPGGame
             TempRollBonusTurns = 0;
             ExtraDamage = 0;
             ExtraAttacks = 0;
+            NextAttackDamageMultiplier = 1.0;
+            NextAttackStatBonus = 0;
+            NextAttackStatBonusType = "";
+            NextAttackStatBonusDuration = 0;
             
             // Clear advanced action mechanics
             LastAction = null;
@@ -236,6 +277,149 @@ namespace RPGGame
             RerollCharges = 0;
             UsedRerollThisTurn = false;
             RerollChargesUsed = 0;
+            
+            // Clear ACTION/ATTACK bonuses
+            ActionBonuses.Clear();
+            AttackBonuses.Clear();
+        }
+        
+        /// <summary>
+        /// Adds ACTION/ATTACK bonuses from an action
+        /// </summary>
+        public void AddActionAttackBonuses(ActionAttackBonuses? bonuses)
+        {
+            if (bonuses == null || bonuses.BonusGroups == null)
+                return;
+            
+            foreach (var group in bonuses.BonusGroups)
+            {
+                if (group.Keyword == "ACTION")
+                {
+                    ActionBonuses.Add(group);
+                }
+                else if (group.Keyword == "ATTACK")
+                {
+                    AttackBonuses.Add(group);
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Gets and consumes ACTION bonuses for the next action (only if action succeeds)
+        /// Returns all bonuses that should be applied
+        /// </summary>
+        public List<ActionAttackBonusItem> GetAndConsumeActionBonuses(bool actionSucceeded)
+        {
+            var result = new List<ActionAttackBonusItem>();
+            
+            if (!actionSucceeded)
+            {
+                // ACTION bonuses are NOT consumed on failure
+                return result;
+            }
+            
+            // Collect bonuses from all ACTION groups
+            var groupsToRemove = new List<ActionAttackBonusGroup>();
+            
+            foreach (var group in ActionBonuses)
+            {
+                if (group.Count > 0 && group.Bonuses != null)
+                {
+                    // Add all bonuses from this group
+                    result.AddRange(group.Bonuses);
+                    
+                    // Decrement count
+                    group.Count--;
+                    
+                    // Remove group if count reaches 0
+                    if (group.Count <= 0)
+                    {
+                        groupsToRemove.Add(group);
+                    }
+                }
+            }
+            
+            // Remove exhausted groups
+            foreach (var group in groupsToRemove)
+            {
+                ActionBonuses.Remove(group);
+            }
+            
+            return result;
+        }
+        
+        /// <summary>
+        /// Gets and consumes ATTACK bonuses for the next roll (consumed regardless of hit/miss)
+        /// Returns all bonuses that should be applied
+        /// </summary>
+        public List<ActionAttackBonusItem> GetAndConsumeAttackBonuses()
+        {
+            var result = new List<ActionAttackBonusItem>();
+            
+            // Collect bonuses from all ATTACK groups
+            var groupsToRemove = new List<ActionAttackBonusGroup>();
+            
+            foreach (var group in AttackBonuses)
+            {
+                if (group.Count > 0 && group.Bonuses != null)
+                {
+                    // Add all bonuses from this group
+                    result.AddRange(group.Bonuses);
+                    
+                    // Decrement count (ATTACK bonuses are always consumed)
+                    group.Count--;
+                    
+                    // Remove group if count reaches 0
+                    if (group.Count <= 0)
+                    {
+                        groupsToRemove.Add(group);
+                    }
+                }
+            }
+            
+            // Remove exhausted groups
+            foreach (var group in groupsToRemove)
+            {
+                AttackBonuses.Remove(group);
+            }
+            
+            return result;
+        }
+        
+        /// <summary>
+        /// Gets ACTION bonuses without consuming them (for preview/display)
+        /// </summary>
+        public List<ActionAttackBonusItem> PeekActionBonuses()
+        {
+            var result = new List<ActionAttackBonusItem>();
+            
+            foreach (var group in ActionBonuses)
+            {
+                if (group.Bonuses != null)
+                {
+                    result.AddRange(group.Bonuses);
+                }
+            }
+            
+            return result;
+        }
+        
+        /// <summary>
+        /// Gets ATTACK bonuses without consuming them (for preview/display)
+        /// </summary>
+        public List<ActionAttackBonusItem> PeekAttackBonuses()
+        {
+            var result = new List<ActionAttackBonusItem>();
+            
+            foreach (var group in AttackBonuses)
+            {
+                if (group.Bonuses != null)
+                {
+                    result.AddRange(group.Bonuses);
+                }
+            }
+            
+            return result;
         }
 
         public bool UseReroll()

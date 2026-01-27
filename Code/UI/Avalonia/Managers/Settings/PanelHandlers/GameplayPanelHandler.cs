@@ -17,6 +17,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
         private readonly GameSettings settings;
         private readonly SettingsManager? settingsManager;
         private readonly Action<string, bool>? showStatusMessage;
+        private GameStateManager? stateManager;
 
         public string PanelType => "Gameplay";
 
@@ -25,6 +26,14 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             this.settingsManager = settingsManager;
             this.showStatusMessage = showStatusMessage;
+        }
+
+        /// <summary>
+        /// Sets the game state manager for clearing in-memory player data
+        /// </summary>
+        public void SetStateManager(GameStateManager? stateManager)
+        {
+            this.stateManager = stateManager;
         }
 
         public void WireUp(UserControl panel)
@@ -137,6 +146,13 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 try
                 {
                     int deletedCount = CharacterSaveManager.ClearAllSavedCharacters();
+                    
+                    // Also clear the in-memory player if one exists
+                    // This ensures the main menu doesn't show a load game option for a cleared character
+                    if (stateManager != null && stateManager.CurrentPlayer != null)
+                    {
+                        stateManager.SetCurrentPlayer(null);
+                    }
                     
                     if (deletedCount > 0)
                     {

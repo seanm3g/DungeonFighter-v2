@@ -12,6 +12,7 @@ using RPGGame.UI.Avalonia.Display.Helpers;
 using RPGGame.UI.Avalonia.Display.Mode;
 using RPGGame.UI.Avalonia.Display.Render;
 using RPGGame.UI.Avalonia.Managers;
+using RPGGame.UI.Avalonia.Effects;
 using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.Services;
@@ -32,6 +33,10 @@ namespace RPGGame.UI.Avalonia.Display
         private readonly PersistentLayoutManager layoutManager;
         private GameStateManager? stateManager;
         private readonly MessageFilterService filterService = new MessageFilterService();
+        
+        // Stats panel components
+        private readonly StatsPanelStateManager statsPanelStateManager;
+        private readonly StatsHeaderGlowAnimator glowAnimator;
         
         // Core components
         private DisplayBuffer buffer;
@@ -54,13 +59,35 @@ namespace RPGGame.UI.Avalonia.Display
             ColoredTextWriter textWriter,
             ICanvasContextManager contextManager,
             int maxLines = DISPLAY_BUFFER_MAX_LINES,
-            GameStateManager? stateManager = null)
+            GameStateManager? stateManager = null,
+            ICanvasInteractionManager? interactionManager = null)
         {
             this.canvas = canvas;
             this.textWriter = textWriter;
             this.contextManager = contextManager;
             this.stateManager = stateManager;
-            this.layoutManager = new PersistentLayoutManager(canvas);
+            
+            // Create stats panel components
+            this.statsPanelStateManager = new StatsPanelStateManager();
+            this.glowAnimator = new StatsHeaderGlowAnimator();
+            
+            // Set up glow animation callback to refresh canvas (not full render to avoid flickering)
+            // Only refresh the canvas to redraw existing content with updated glow
+            // This avoids re-rendering the entire layout which causes center panel flickering
+            glowAnimator.SetUpdateCallback(new System.Action(() =>
+            {
+                // Just refresh the canvas to redraw with updated glow effect
+                // This doesn't trigger a full layout re-render, preventing center panel flickering
+                Dispatcher.UIThread.Post(() =>
+                {
+                    canvas.Refresh();
+                }, DispatcherPriority.Background);
+            }));
+            
+            // Start glow animation
+            glowAnimator.Start();
+            
+            this.layoutManager = new PersistentLayoutManager(canvas, interactionManager, statsPanelStateManager, glowAnimator);
             
             // Initialize with standard mode
             this.buffer = new DisplayBuffer(maxLines);
@@ -95,6 +122,16 @@ namespace RPGGame.UI.Avalonia.Display
         /// Gets the display buffer
         /// </summary>
         public DisplayBuffer Buffer => buffer;
+        
+        /// <summary>
+        /// Gets the stats panel state manager
+        /// </summary>
+        public StatsPanelStateManager StatsPanelStateManager => statsPanelStateManager;
+        
+        /// <summary>
+        /// Gets the glow animator
+        /// </summary>
+        public StatsHeaderGlowAnimator GlowAnimator => glowAnimator;
         
         /// <summary>
         /// Sets the game state manager (called after construction when state manager is available)

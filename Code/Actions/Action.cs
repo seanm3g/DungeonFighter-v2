@@ -79,6 +79,9 @@ namespace RPGGame
         public AdvancedMechanicsProperties Advanced { get; set; } = new AdvancedMechanicsProperties();
         public List<string> Tags { get; set; } = new List<string>();
         
+        // ACTION/ATTACK keyword bonuses
+        public Data.ActionAttackBonuses? ActionAttackBonuses { get; set; }
+        
         // Outcome handlers - list of outcome handler type names (e.g., "conditional", "xpGain")
         public List<string> OutcomeHandlers { get; set; } = new List<string>();
 

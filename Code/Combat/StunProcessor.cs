@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
 using static RPGGame.UI.Avalonia.AsciiArtAssets;
@@ -20,8 +21,8 @@ namespace RPGGame
         {
             if (!CombatManager.DisableCombatUIOutput)
             {
-                // Use the new block-based system for stun messages with ColoredText
-                // Spacing is handled by TextSpacingSystem in DisplayEffectBlock
+                // Use the unified action block system for stun messages with ColoredText
+                // This ensures consistent formatting with all other action blocks (environments, characters, status effects)
                 // Build properly colored stun message with actor name and stunned template
                 var builder = new ColoredTextBuilder();
                 
@@ -38,14 +39,24 @@ namespace RPGGame
                 builder.AddSpace();
                 builder.Add("and cannot act!", Colors.White);
                 
-                var effectText = builder.Build();
+                var actionText = builder.Build();
                 
-                // Build details text
-                var detailsBuilder = new ColoredTextBuilder();
-                detailsBuilder.Add($"{entity.StunTurnsRemaining} turns remaining", Colors.White);
-                var detailsText = detailsBuilder.Build();
+                // Build "turns remaining" as a status effect with parentheses included
+                // The 5-space indentation will be automatically added by BlockMessageCollector.ProcessStatusEffectIndentation
+                var statusEffectBuilder = new ColoredTextBuilder();
+                statusEffectBuilder.Add("(");
+                statusEffectBuilder.Add($"{entity.StunTurnsRemaining} turns remaining", Colors.White);
+                statusEffectBuilder.Add(")");
+                var turnsRemainingStatusEffect = statusEffectBuilder.Build();
                 
-                BlockDisplayManager.DisplayEffectBlock(effectText, detailsText);
+                // Create status effects list
+                var statusEffects = new List<List<ColoredText>> { turnsRemainingStatusEffect };
+                
+                // Pass character parameter: entity as Character for players, null for enemies
+                Character? character = entity as Character;
+                
+                // Use DisplayActionBlock to ensure consistent formatting with all other action blocks
+                BlockDisplayManager.DisplayActionBlock(actionText, null, statusEffects, null, null, character);
             }
             
             // Get the entity's action speed to calculate proper stun reduction

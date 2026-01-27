@@ -15,10 +15,14 @@ namespace RPGGame.UI.Avalonia.Transitions
     /// 3. Clear interactive elements
     /// 4. Clear context (enemy, dungeon, room) if needed
     /// 5. Set character (if provided)
-    /// 6. Explicitly clear canvas
-    /// 7. Render screen
+    /// 6. Explicitly clear canvas (via CanvasUICoordinator.Clear())
+    /// 7. Render screen (render methods should pass clearCanvas: false to avoid double-clearing)
     /// 8. Force refresh
     /// 9. DO NOT restore display buffer (handled by DisplayBufferManager)
+    /// 
+    /// IMPORTANT: Since this protocol clears the canvas at step 6, render methods called
+    /// through this protocol should pass clearCanvas: false to RenderWithLayout to avoid
+    /// double-clearing. The canvas is already cleared by this protocol.
     /// </summary>
     public static class ScreenTransitionProtocol
     {
@@ -51,6 +55,10 @@ namespace RPGGame.UI.Avalonia.Transitions
 
             // STEP 3: Clear interactive elements
             canvasUI.ClearClickableElements();
+
+            // STEP 3.5: Clear any loading animations/status
+            // Ensures clean menu display without lingering loading messages
+            canvasUI.ClearLoadingStatus();
 
             // STEP 4: Clear context (if needed)
             if (context.ClearEnemyContext)

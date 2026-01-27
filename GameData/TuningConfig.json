@@ -395,20 +395,20 @@
         "description": ""
       },
       "epic": {
-        "minLevel": 0,
+        "minLevel": 5,
         "earlyMultiplier": 0,
         "baseMultiplier": 0,
         "levelBonus": 0,
-        "description": ""
+        "description": "Epic items require player level 5 or higher"
       },
       "legendary": {
-        "minLevel": 0,
+        "minLevel": 10,
         "earlyThreshold": 0,
         "earlyMultiplier": 0,
         "midMultiplier": 0,
         "baseMultiplier": 0,
         "levelBonus": 0,
-        "description": ""
+        "description": "Legendary items require player level 10 or higher"
       }
     }
   },

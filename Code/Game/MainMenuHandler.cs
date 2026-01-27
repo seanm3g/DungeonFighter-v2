@@ -4,6 +4,8 @@ namespace RPGGame
     using System.Threading.Tasks;
     using RPGGame.UI.Avalonia;
     using RPGGame.Utils;
+    using RPGGame.Combat.Events;
+    using RPGGame.UI.ColorSystem;
 
     /// <summary>
     /// Handles main menu display and input processing.
@@ -20,7 +22,6 @@ namespace RPGGame
         private GameInitializationManager initializationManager;
         private IUIManager? customUIManager;
         private GameInitializer gameInitializer;
-        private LoadCharacterSelectionHandler? loadCharacterSelectionHandler;
         
         // Delegates for game actions
         public delegate void OnExitGame();
@@ -102,7 +103,6 @@ namespace RPGGame
             switch (trimmedInput)
             {
                 case "1":
-                    ShowMessageEvent?.Invoke("Starting new game...");
                     await StartNewGame();
                     break;
                 case "2":
@@ -133,7 +133,12 @@ namespace RPGGame
         {
             try
             {
-                ShowMessageEvent?.Invoke("Starting new game...");
+                // Reset all game state first to ensure clean start
+                // This prevents test state or previous game state from affecting the new game
+                stateManager.ResetGameState();
+                
+                // Reset static state that may have been modified by tests or previous sessions
+                ResetStaticState();
                 
                 // Clear any existing enemy from previous game session
                 if (customUIManager is CanvasUICoordinator canvasUIClear)
@@ -148,54 +153,43 @@ namespace RPGGame
                 var characterId = stateManager.AddCharacter(newCharacter);
                 stateManager.SetCurrentPlayer(newCharacter);
                 
+                // Get active character (should be the one we just created)
                 var activeCharacter = stateManager.GetActiveCharacter();
-                if (activeCharacter != null)
+                
+                // Ensure we have a character - if GetActiveCharacter returns null, use the one we just created
+                if (activeCharacter == null)
                 {
-                    // Suppress display buffer rendering FIRST before any operations that might trigger renders
-                    // This prevents auto-renders from interfering with menu rendering and causing screen flashing
-                    if (customUIManager is CanvasUICoordinator canvasUISuppress)
+                    activeCharacter = newCharacter;
+                    DebugLogger.Log("MainMenuHandler", "GetActiveCharacter returned null, using newly created character");
+                }
+                
+                // Apply health multiplier if configured (before showing weapon selection)
+                var settings = GameSettings.Instance;
+                if (settings.PlayerHealthMultiplier != 1.0)
+                {
+                    activeCharacter.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
+                }
+                
+                // Show weapon selection screen
+                // ScreenTransitionProtocol will handle state transition, display buffer suppression, canvas clearing, etc.
+                DebugLogger.Log("MainMenuHandler", "About to show weapon selection screen");
+                if (ShowWeaponSelectionEvent != null)
+                {
+                    try
                     {
-                        canvasUISuppress.SuppressDisplayBufferRendering();
-                        canvasUISuppress.ClearDisplayBufferWithoutRender();
+                        ShowWeaponSelectionEvent.Invoke();
+                        DebugLogger.Log("MainMenuHandler", "Weapon selection event invoked successfully");
                     }
-                    
-                    // Set character in UI manager for persistent display
-                    if (customUIManager is CanvasUICoordinator canvasUI)
+                    catch (Exception ex)
                     {
-                        canvasUI.SetCharacter(activeCharacter);
+                        DebugLogger.Log("MainMenuHandler", $"Error showing weapon selection: {ex}");
+                        ShowMessageEvent?.Invoke($"Error: {ex.Message}");
                     }
-                    
-                    // Apply health multiplier if configured
-                    var settings = GameSettings.Instance;
-                    if (settings.PlayerHealthMultiplier != 1.0)
-                    {
-                        activeCharacter.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
-                    }
-                    
-                    // Render weapon selection BEFORE transitioning state to prevent canvas clearing during transition
-                    // This ensures the screen is rendered before any state-change-triggered clears happen
-                    if (ShowWeaponSelectionEvent != null)
-                    {
-                        try
-                        {
-                            ShowWeaponSelectionEvent.Invoke();
-                            
-                            // Transition state AFTER rendering to prevent flashing
-                            // Only transition if not already in WeaponSelection state
-                            if (stateManager.CurrentState != GameState.WeaponSelection)
-                            {
-                                stateManager.TransitionToState(GameState.WeaponSelection);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            ShowMessageEvent?.Invoke($"Error: {ex.Message}");
-                        }
-                    }
-                    else
-                    {
-                        ShowMessageEvent?.Invoke("Error: Weapon selection event not initialized. Please restart the game.");
-                    }
+                }
+                else
+                {
+                    DebugLogger.Log("MainMenuHandler", "ShowWeaponSelectionEvent is null - weapon selection not available");
+                    ShowMessageEvent?.Invoke("Error: Weapon selection event not initialized. Please restart the game.");
                 }
             }
             catch (Exception ex)
@@ -210,32 +204,103 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Load a saved game - shows character selection menu
+        /// Load a saved game - automatically loads the last saved character
         /// </summary>
         private async Task LoadGame()
         {
-            // Show load character selection menu instead of directly loading
-            if (loadCharacterSelectionHandler == null)
+            try
             {
-                loadCharacterSelectionHandler = new LoadCharacterSelectionHandler(stateManager, customUIManager, gameInitializer);
-                // Wire up events
-                loadCharacterSelectionHandler.ShowGameLoopEvent += () => 
+                // Get list of all saved characters (sorted by modification time, most recent first)
+                var savedCharacters = CharacterSaveManager.ListAllSavedCharacters();
+                
+                // Check if we have any saved characters
+                if (savedCharacters == null || savedCharacters.Count == 0)
                 {
-                    if (ShowGameLoopEvent != null)
+                    ShowMessageEvent?.Invoke("No saved characters found.");
+                    return;
+                }
+                
+                // Get the most recently saved character (first in the sorted list)
+                var mostRecentCharacterInfo = savedCharacters[0];
+                
+                ShowMessageEvent?.Invoke($"Loading {mostRecentCharacterInfo.characterName}...");
+                
+                // Show loading animation
+                if (customUIManager is CanvasUICoordinator canvasUI)
+                {
+                    canvasUI.ShowLoadingAnimation("Loading character...");
+                }
+                
+                // Load character from disk
+                Character? loadedCharacter = null;
+                
+                // Check if characterId is a legacy save (ends with "_legacy")
+                if (mostRecentCharacterInfo.characterId.EndsWith("_legacy"))
+                {
+                    // Load legacy save file
+                    loadedCharacter = await Character.LoadCharacterAsync().ConfigureAwait(false);
+                }
+                else
+                {
+                    // Load character by ID
+                    loadedCharacter = await Character.LoadCharacterAsync(mostRecentCharacterInfo.characterId).ConfigureAwait(false);
+                }
+                
+                if (loadedCharacter == null)
+                {
+                    // Clear loading animation before showing error
+                    if (customUIManager is CanvasUICoordinator canvasUIClear)
                     {
-                        ShowGameLoopEvent.Invoke();
+                        canvasUIClear.ClearLoadingStatus();
                     }
-                    else
-                    {
-                        ShowMessageEvent?.Invoke("Error: Game loop event not initialized. Please restart the game.");
-                    }
-                };
-                loadCharacterSelectionHandler.ShowMainMenuEvent += () => ShowMainMenu();
-                loadCharacterSelectionHandler.ShowMessageEvent += (msg) => ShowMessageEvent?.Invoke(msg);
+                    ShowMessageEvent?.Invoke($"Failed to load character: {mostRecentCharacterInfo.characterName}");
+                    return;
+                }
+                
+                // Register character in state manager (multi-character support)
+                var registeredCharacterId = stateManager.AddCharacter(loadedCharacter);
+                stateManager.SetCurrentPlayer(loadedCharacter);
+                
+                // Apply health multiplier if configured
+                var settings = GameSettings.Instance;
+                if (settings.PlayerHealthMultiplier != 1.0)
+                {
+                    loadedCharacter.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
+                }
+                
+                // Update UI
+                if (customUIManager is CanvasUICoordinator canvasUIUpdate)
+                {
+                    // Clear loading animation before transitioning
+                    canvasUIUpdate.ClearLoadingStatus();
+                    canvasUIUpdate.RestoreDisplayBufferRendering();
+                    canvasUIUpdate.SetCharacter(loadedCharacter);
+                    canvasUIUpdate.RefreshCharacterPanel();
+                }
+                
+                ShowMessageEvent?.Invoke($"Loaded {loadedCharacter.Name} (Level {loadedCharacter.Level})");
+                
+                // Transition to game loop
+                stateManager.TransitionToState(GameState.GameLoop);
+                if (ShowGameLoopEvent != null)
+                {
+                    ShowGameLoopEvent.Invoke();
+                }
+                else
+                {
+                    ShowMessageEvent?.Invoke("Error: Game loop event not initialized. Please restart the game.");
+                }
             }
-            
-            loadCharacterSelectionHandler.ShowLoadCharacterSelection();
-            await Task.CompletedTask;
+            catch (Exception ex)
+            {
+                // Clear loading animation on error
+                if (customUIManager is CanvasUICoordinator canvasUIError)
+                {
+                    canvasUIError.ClearLoadingStatus();
+                }
+                ShowMessageEvent?.Invoke($"Error loading character: {ex.Message}");
+                DebugLogger.Log("MainMenuHandler", $"Error in LoadGame: {ex}");
+            }
         }
 
         /// <summary>
@@ -255,6 +320,57 @@ namespace RPGGame
         private void HandleQuitSelection()
         {
             ExitGameEvent?.Invoke();
+        }
+
+        /// <summary>
+        /// Resets static state that may have been modified by tests or previous game sessions.
+        /// This ensures a clean state when starting a new game.
+        /// Note: Does NOT reset the UI manager itself, only the state within it.
+        /// </summary>
+        private static void ResetStaticState()
+        {
+            try
+            {
+                // Reload UI configuration (but don't reset the UI manager itself)
+                UIManager.ReloadConfiguration();
+                
+                // Clear CombatEventBus subscribers (tests may add subscribers)
+                CombatEventBus.Instance.Clear();
+                
+                // Stop GameTicker if it's running (tests may start it)
+                if (GameTicker.Instance.IsRunning)
+                {
+                    GameTicker.Instance.Stop();
+                }
+                
+                // Reset GameTicker time
+                GameTicker.Instance.Reset();
+                
+                // Reset UIManager flags
+                UIManager.DisableAllUIOutput = false;
+                
+                // Clear character names from KeywordColorSystem (tests may register character names)
+                // This prevents test character names from affecting the game's character name coloring
+                KeywordColorSystem.ClearCharacterNames();
+                
+                // Reset GameConfiguration singleton to force reload from file
+                // Tests may have modified the instance in memory, so we need to reload it
+                GameConfiguration.ResetInstance();
+                
+                // Reset UI display state - clear any persistent display buffers
+                // But don't reset the UI manager itself - it's needed for rendering
+                var uiManager = UIManager.GetCustomUIManager();
+                if (uiManager is CanvasUICoordinator canvasUI)
+                {
+                    canvasUI.ClearCurrentEnemy();
+                    canvasUI.ClearDisplayBuffer();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log but don't fail - cleanup is best effort
+                DebugLogger.Log("MainMenuHandler", $"Warning: Error during static state reset: {ex.Message}");
+            }
         }
     }
 }

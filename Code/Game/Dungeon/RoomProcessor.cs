@@ -70,6 +70,13 @@ namespace RPGGame
                 }
             }
             
+            // Award XP for entering room
+            if (stateManager.CurrentDungeon != null && stateManager.CurrentPlayer != null)
+            {
+                int roomLevel = stateManager.CurrentDungeon.MinLevel;
+                Progression.XPRewardSystem.AwardRoomEntryXP(stateManager.CurrentPlayer, roomLevel);
+            }
+            
             // Clear temporary effects
             if (stateManager.CurrentPlayer != null)
             {
@@ -256,12 +263,8 @@ namespace RPGGame
                 var searchResult = explorationManager.SearchRoom(room, stateManager.CurrentPlayer, 
                     stateManager.CurrentDungeon.MinLevel, isLastRoom);
                 
-                // Display search result with colors
-                displayManager.AddCombatEvent("", stateManager.CurrentPlayer); // Blank line before search roll
-                var searchRollBuilder = new ColoredTextBuilder()
-                    .Add("Search Roll: ", ColorPalette.Info)
-                    .Add(searchResult.Roll.ToString(), ColorPalette.Success);
-                displayManager.AddCombatEvent(searchRollBuilder, stateManager.CurrentPlayer);
+                // Display search result with colors (roll number hidden, only flavor text shown)
+                displayManager.AddCombatEvent("", stateManager.CurrentPlayer); // Blank line before search message
                 
                 // Apply keyword coloring to search message
                 var searchMessageColored = KeywordColorSystem.Colorize(searchResult.Message);
@@ -274,6 +277,9 @@ namespace RPGGame
                 {
                     foundLoot = true;
                     stateManager.CurrentPlayer.AddToInventory(searchResult.LootItem);
+                    
+                    // Award XP for finding item during room search
+                    Progression.XPRewardSystem.AwardItemFoundXP(stateManager.CurrentPlayer, searchResult.LootItem);
                 }
                 
                 // Re-render and delay

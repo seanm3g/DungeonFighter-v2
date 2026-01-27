@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using RPGGame.Data;
 
 namespace RPGGame
 {
@@ -32,6 +34,28 @@ namespace RPGGame
         public bool CausesPoison { get; set; }
         [JsonPropertyName("causesBurn")]
         public bool CausesBurn { get; set; }
+        [JsonPropertyName("causesStun")]
+        public bool CausesStun { get; set; }
+        [JsonPropertyName("causesVulnerability")]
+        public bool CausesVulnerability { get; set; }
+        [JsonPropertyName("causesHarden")]
+        public bool CausesHarden { get; set; }
+        [JsonPropertyName("causesExpose")]
+        public bool CausesExpose { get; set; }
+        [JsonPropertyName("causesSilence")]
+        public bool CausesSilence { get; set; }
+        [JsonPropertyName("causesPierce")]
+        public bool CausesPierce { get; set; }
+        [JsonPropertyName("causesStatDrain")]
+        public bool CausesStatDrain { get; set; }
+        [JsonPropertyName("causesFortify")]
+        public bool CausesFortify { get; set; }
+        [JsonPropertyName("causesFocus")]
+        public bool CausesFocus { get; set; }
+        [JsonPropertyName("causesCleanse")]
+        public bool CausesCleanse { get; set; }
+        [JsonPropertyName("causesReflect")]
+        public bool CausesReflect { get; set; }
         [JsonPropertyName("comboBonusAmount")]
         public int ComboBonusAmount { get; set; }
         [JsonPropertyName("comboBonusDuration")]
@@ -100,6 +124,10 @@ namespace RPGGame
         // Starting action flag
         [JsonPropertyName("isStartingAction")]
         public bool IsStartingAction { get; set; }
+        
+        // ACTION/ATTACK keyword bonuses
+        [JsonPropertyName("actionAttackBonuses")]
+        public Data.ActionAttackBonuses? ActionAttackBonuses { get; set; }
     }
 
     public static class ActionLoader
@@ -249,6 +277,19 @@ namespace RPGGame
             // Set the new debuff properties
             action.CausesSlow = data.CausesSlow;
             action.CausesPoison = data.CausesPoison;
+            action.CausesStun = data.CausesStun;
+            
+            // Set advanced status effects
+            action.CausesVulnerability = data.CausesVulnerability;
+            action.CausesHarden = data.CausesHarden;
+            action.CausesExpose = data.CausesExpose;
+            action.CausesSilence = data.CausesSilence;
+            action.CausesPierce = data.CausesPierce;
+            action.CausesStatDrain = data.CausesStatDrain;
+            action.CausesFortify = data.CausesFortify;
+            action.CausesFocus = data.CausesFocus;
+            action.CausesCleanse = data.CausesCleanse;
+            action.CausesReflect = data.CausesReflect;
             
             // Set additional properties (using nested property structure)
             action.Advanced.RollBonus = data.RollBonus;
@@ -283,6 +324,9 @@ namespace RPGGame
             
             // Set flag for applying to both actors
             action.RollMods.ApplyThresholdAdjustmentsToBoth = data.ApplyThresholdAdjustmentsToBoth;
+            
+            // Set ACTION/ATTACK bonuses
+            action.ActionAttackBonuses = data.ActionAttackBonuses;
             
             return action;
         }

@@ -152,8 +152,16 @@ namespace RPGGame.Combat.Calculators
                 }
             }
             
+            // Apply next attack damage multiplier (for Follow Through and similar effects)
+            // Consume it so it only applies once
+            double nextAttackMultiplier = 1.0;
+            if (attacker is Character characterAttacker)
+            {
+                nextAttackMultiplier = characterAttacker.Effects.ConsumeNextAttackDamageMultiplier();
+            }
+            
             // Calculate total damage before armor
-            double totalDamage = (baseDamage * actionMultiplier * comboAmplifier * damageMultiplier);
+            double totalDamage = (baseDamage * actionMultiplier * comboAmplifier * damageMultiplier * nextAttackMultiplier);
             
             // Get combat configuration
             var combatConfig = GameConfiguration.Instance.Combat;
@@ -194,11 +202,23 @@ namespace RPGGame.Combat.Calculators
                     var rollMultipliers = combatBalance.RollDamageMultipliers;
                     if (roll >= rollSystem.ComboThreshold.Min)
                     {
-                        totalDamage *= rollMultipliers.ComboRollDamageMultiplier;
+                        // Safeguard: if multiplier is 0 or invalid, default to 1.0 to prevent zeroing damage
+                        double comboMultiplier = rollMultipliers.ComboRollDamageMultiplier;
+                        if (comboMultiplier <= 0)
+                        {
+                            comboMultiplier = 1.0;
+                        }
+                        totalDamage *= comboMultiplier;
                     }
                     else if (roll >= rollSystem.BasicAttackThreshold.Min) // Normal attack range (6-13)
                     {
-                        totalDamage *= rollMultipliers.BasicRollDamageMultiplier;
+                        // Safeguard: if multiplier is 0 or invalid, default to 1.0 to prevent zeroing damage
+                        double basicMultiplier = rollMultipliers.BasicRollDamageMultiplier;
+                        if (basicMultiplier <= 0)
+                        {
+                            basicMultiplier = 1.0;
+                        }
+                        totalDamage *= basicMultiplier;
                     }
                 }
             }

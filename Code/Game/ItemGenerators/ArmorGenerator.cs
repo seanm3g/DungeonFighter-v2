@@ -143,14 +143,14 @@ namespace RPGGame
 
         private static int GetBaseArmorForTierAndSlot(int tier, string slot)
         {
-            // Define base armor values by tier and slot (not amplifying existing values)
+            // Define base armor values by tier and slot (reduced by 75% from original values)
             var baseValues = new Dictionary<int, Dictionary<string, int>>
             {
-                [1] = new Dictionary<string, int> { ["head"] = 2, ["chest"] = 4, ["feet"] = 2 },
-                [2] = new Dictionary<string, int> { ["head"] = 4, ["chest"] = 8, ["feet"] = 4 },
-                [3] = new Dictionary<string, int> { ["head"] = 6, ["chest"] = 12, ["feet"] = 6 },
-                [4] = new Dictionary<string, int> { ["head"] = 8, ["chest"] = 16, ["feet"] = 8 },
-                [5] = new Dictionary<string, int> { ["head"] = 10, ["chest"] = 20, ["feet"] = 10 }
+                [1] = new Dictionary<string, int> { ["head"] = 1, ["chest"] = 1, ["feet"] = 1 },
+                [2] = new Dictionary<string, int> { ["head"] = 1, ["chest"] = 2, ["feet"] = 1 },
+                [3] = new Dictionary<string, int> { ["head"] = 2, ["chest"] = 3, ["feet"] = 2 },
+                [4] = new Dictionary<string, int> { ["head"] = 2, ["chest"] = 4, ["feet"] = 2 },
+                [5] = new Dictionary<string, int> { ["head"] = 3, ["chest"] = 5, ["feet"] = 3 }
             };
 
             if (baseValues.TryGetValue(tier, out var tierValues) && 

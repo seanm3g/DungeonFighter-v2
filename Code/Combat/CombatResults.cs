@@ -210,10 +210,10 @@ namespace RPGGame
         /// </summary>
         public static (List<ColoredText> damageText, List<ColoredText> rollInfo) FormatDamageDisplayColored(
             Actor attacker, Actor target, int rawDamage, int actualDamage, Action? action = null, 
-            double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, int multiHitCount = 1)
+            double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, int multiHitCount = 1, bool isCriticalMiss = false)
         {
             return CombatResultsColoredText.FormatDamageDisplayColored(attacker, target, rawDamage, actualDamage, 
-                action, comboAmplifier, damageMultiplier, rollBonus, roll, multiHitCount);
+                action, comboAmplifier, damageMultiplier, rollBonus, roll, multiHitCount, isCriticalMiss);
         }
         
         /// <summary>

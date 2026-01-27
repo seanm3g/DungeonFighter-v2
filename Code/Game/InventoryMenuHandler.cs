@@ -265,13 +265,25 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Gets the next rarity tier in progression
+        /// Gets the next rarity tier in progression (only one tier higher)
+        /// Returns null if already at maximum rarity
         /// </summary>
         private string? GetNextRarity(string currentRarity)
         {
             var rarityOrder = new[] { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Transcendent" };
             
-            int currentIndex = Array.IndexOf(rarityOrder, currentRarity);
+            // Use case-insensitive comparison to find the current rarity
+            int currentIndex = -1;
+            for (int i = 0; i < rarityOrder.Length; i++)
+            {
+                if (string.Equals(rarityOrder[i], currentRarity, StringComparison.OrdinalIgnoreCase))
+                {
+                    currentIndex = i;
+                    break;
+                }
+            }
+            
+            // Only return the next tier (one step up), or null if at max
             if (currentIndex < 0 || currentIndex >= rarityOrder.Length - 1)
             {
                 return null; // Not found or already at max

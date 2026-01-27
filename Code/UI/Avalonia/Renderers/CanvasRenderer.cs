@@ -9,8 +9,7 @@ using RPGGame.UI.Avalonia.Renderers.Validators;
 using RPGGame.UI.Avalonia.Renderers.Helpers;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
+using System.Linq;
 
 namespace RPGGame.UI.Avalonia.Renderers
 {
@@ -61,8 +60,11 @@ namespace RPGGame.UI.Avalonia.Renderers
             this.dungeonRenderer = new DungeonRenderer(canvas, new Renderers.ColoredTextWriter(canvas), interactionManager.ClickableElements);
             
             // Initialize new specialized renderers
-            this.messageRenderer = new MessageDisplayRenderer(canvas);
-            this.helpRenderer = new HelpSystemRenderer(canvas);
+            // MessageDisplayRenderer and HelpSystemRenderer need clearing actions - use canvas.Clear() directly
+            // This is acceptable as these renderers are used for full-screen operations that need immediate clearing
+            System.Action clearCanvasAction = () => canvas.Clear();
+            this.messageRenderer = new MessageDisplayRenderer(canvas, clearCanvasAction);
+            this.helpRenderer = new HelpSystemRenderer(canvas, clearCanvasAction);
             this.characterCreationRenderer = new CharacterCreationRenderer(canvas, textManager, interactionManager);
             this.dungeonExplorationRenderer = new DungeonExplorationRenderer(canvas, interactionManager);
         }
@@ -76,14 +78,13 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel)
         {
-            // Clear canvas first to ensure clean main menu display (especially when transitioning from death screen)
-            canvas.Clear();
-            
+            // Note: This method is called through ScreenTransitionProtocol which already clears the canvas
+            // Pass clearCanvas: false to avoid double-clearing
             // Use persistent layout with no character (null) to show blank panels
             RenderWithLayout(null, "MAIN MENU", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 menuRenderer.RenderMainMenuContent(contentX, contentY, contentWidth, contentHeight, hasSavedGame, characterName, characterLevel);
-            }, new CanvasContext(), null, null, null);
+            }, new CanvasContext(), null, null, null, clearCanvas: false);
             
             // Clear loading status message now that menu is fully rendered
             messageRenderer.ClearLoadingStatus();
@@ -167,12 +168,21 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderWeaponSelection(List<StartingWeapon> weapons, CanvasContext context)
         {
+            // Ensure weapons list is not null
+            if (weapons == null)
+            {
+                weapons = new List<StartingWeapon>();
+            }
+            
             // Use clearCanvas: true to ensure clean transition, but render immediately to prevent flashing
             // The canvas clear happens synchronously with the render in LayoutCoordinator
             RenderWithLayout(null, "WEAPON SELECTION", (contentX, contentY, contentWidth, contentHeight) =>
             {
-                menuRenderer.RenderWeaponSelectionContent(contentX, contentY, contentWidth, contentHeight, weapons);
+                menuRenderer.RenderWeaponSelectionContent(contentX, contentY, contentWidth, contentHeight, weapons ?? new List<StartingWeapon>());
             }, context, null, null, null, clearCanvas: true);
+            
+            // Clear loading status message now that weapon selection is fully rendered
+            messageRenderer.ClearLoadingStatus();
             
             // Force immediate refresh to minimize visible black frame
             canvas.Refresh();
@@ -464,7 +474,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         public void RenderDeathScreen(Character player, string defeatSummary, CanvasContext context)
         {
             // Switch to menu display mode (Death is a menu state) and disable external render callback
-            // This must happen BEFORE clearing to prevent any pending renders from interfering
+            // This must happen BEFORE rendering to prevent any pending renders from interfering
             if (textManager is CanvasTextManager canvasTextManager)
             {
                 // Cancel any pending renders FIRST to prevent them from clearing the canvas after we render
@@ -475,13 +485,13 @@ namespace RPGGame.UI.Avalonia.Renderers
                 canvasTextManager.DisplayManager.SetExternalRenderCallback(null);
             }
             
-            // Clear canvas after suppressing rendering to ensure clean death screen display
-            canvas.Clear();
+            // Note: This method is called through ScreenTransitionProtocol which already clears the canvas
+            // Pass clearCanvas: false to avoid double-clearing
             
             RenderWithLayout(player, "YOU DIED", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 dungeonRenderer.RenderDeathScreen(contentX, contentY, contentWidth, contentHeight, player, defeatSummary);
-            }, context, null, context.DungeonName, null);
+            }, context, null, context.DungeonName, null, clearCanvas: false);
             
             // Force immediate refresh to display the death screen
             canvas.Refresh();

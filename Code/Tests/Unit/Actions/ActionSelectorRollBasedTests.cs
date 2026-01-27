@@ -9,8 +9,10 @@ namespace RPGGame.Tests.Unit.Actions
     /// These tests use Dice.SetTestRoll() to control roll values and verify
     /// that action selection works correctly based on base roll values.
     /// 
-    /// These tests would have caught the bug where base roll 12 with bonuses
-    /// was incorrectly triggering combo actions.
+    /// Action selection rules:
+    /// - Roll 1-13: Normal action (non-combo)
+    /// - Roll 14-19: Combo action
+    /// - Roll 20: Combo action (natural 20)
     /// </summary>
     public static class ActionSelectorRollBasedTests
     {
@@ -115,7 +117,7 @@ namespace RPGGame.Tests.Unit.Actions
             var character = CreateTestCharacterWithBothActionTypes();
 
             // CRITICAL TEST: Base roll 12 with bonuses should still be normal attack
-            // This is the exact scenario that had the bug
+            // This is the exact scenario that had the bug - bonuses shouldn't affect action type
             Dice.SetTestRoll(12);
             ActionSelector.ClearStoredRolls();
             
@@ -204,7 +206,7 @@ namespace RPGGame.Tests.Unit.Actions
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
 
-            // Test roll 6 - should be normal (minimum normal attack range)
+            // Test roll 6 - should be normal (normal attack range)
             Dice.SetTestRoll(6);
             ActionSelector.ClearStoredRolls();
             var action6 = ActionSelector.SelectActionBasedOnRoll(character);

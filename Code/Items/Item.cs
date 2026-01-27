@@ -54,6 +54,7 @@ namespace RPGGame
         public double MinValue { get; set; } = 0;
         public double MaxValue { get; set; } = 0;
         public double RolledValue { get; set; } = 0; // The actual rolled value between MinValue and MaxValue
+        public List<string> StatusEffects { get; set; } = new List<string>(); // Status effects to apply to Attack actions
     }
 
     public class ArmorStatus
@@ -141,7 +142,7 @@ namespace RPGGame
     public class HeadItem : Item
     {
         public int Armor { get; set; }
-        public HeadItem(string? name = null, int tier = 1, int armor = 5)
+        public HeadItem(string? name = null, int tier = 1, int armor = 1)
             : base(ItemType.Head, name, tier)
         {
             Armor = armor;
@@ -177,7 +178,7 @@ namespace RPGGame
     public class FeetItem : Item
     {
         public int Armor { get; set; }
-        public FeetItem(string? name = null, int tier = 1, int armor = 3)
+        public FeetItem(string? name = null, int tier = 1, int armor = 1)
             : base(ItemType.Feet, name, tier)
         {
             Armor = armor;
@@ -213,7 +214,7 @@ namespace RPGGame
     public class ChestItem : Item
     {
         public int Armor { get; set; }
-        public ChestItem(string? name = null, int tier = 1, int armor = 8)
+        public ChestItem(string? name = null, int tier = 1, int armor = 2)
             : base(ItemType.Chest, name, tier)
         {
             Armor = armor;

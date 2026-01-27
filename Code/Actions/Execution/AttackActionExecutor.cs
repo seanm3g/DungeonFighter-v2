@@ -32,10 +32,9 @@ namespace RPGGame.Actions.Execution
             if (multiHitCount > 1)
             {
                 int totalDamage = 0;
-                var allDamageText = new List<ColoredText>();
-                var allRollInfo = new List<ColoredText>();
+                int actualHits = 0;
                 
-                // Process each hit
+                // Process each hit to calculate total damage
                 for (int hit = 0; hit < multiHitCount; hit++)
                 {
                     // Check if target is still alive
@@ -50,19 +49,19 @@ namespace RPGGame.Actions.Execution
                     // Apply damage
                     ActionUtilities.ApplyDamage(target, hitDamage);
                     totalDamage += hitDamage;
+                    actualHits++;
                     
                     if (!ActionExecutor.DisableCombatDebugOutput)
                     {
                         DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} dealt {hitDamage} damage (hit {hit + 1}/{multiHitCount}) to {target.Name} with {selectedAction.Name}");
                     }
-                    
-                    // Format damage display for this hit
-                    // Only show multi-hit count on the first hit
-                    int multiHitDisplay = (hit == 0) ? multiHitCount : 1;
-                    var (hitDamageText, hitRollInfo) = CombatResults.FormatDamageDisplayColored(source, target, hitDamage, hitDamage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll, multiHitDisplay);
-                    if (hitDamageText != null) allDamageText.AddRange(hitDamageText);
-                    if (hitRollInfo != null) allRollInfo.AddRange(hitRollInfo);
                 }
+                
+                // Format single consolidated damage display for multi-hit attack
+                // Show total damage with hit count indicator
+                // Check if this is a critical miss (natural roll <= 1 is typically critical miss)
+                bool isCriticalMiss = naturalRoll <= 1;
+                var (allDamageText, allRollInfo) = CombatResults.FormatDamageDisplayColored(source, target, totalDamage, totalDamage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll, actualHits, isCriticalMiss);
                 
                 // Track statistics for total damage
                 if (source is Character character)
@@ -178,7 +177,9 @@ namespace RPGGame.Actions.Execution
                 bool isCriticalHit = totalRoll >= RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
                 ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, damage, totalRoll, rollBonus, true, isCombo, 0, 0, isCriticalHit, naturalRoll, battleNarrative);
                 
-                var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, damage, damage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll);
+                // Check if this is a critical miss (natural roll <= 1 is typically critical miss)
+                bool isCriticalMiss = naturalRoll <= 1;
+                var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, damage, damage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll, 1, isCriticalMiss);
                 
                 // Handle enemy roll penalty
                 if (selectedAction.Advanced.EnemyRollPenalty > 0 && target is Enemy targetEnemy)

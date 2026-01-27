@@ -150,6 +150,10 @@ namespace RPGGame.UI.Avalonia.Canvas
             if (color == default) color = Colors.White;
             if (isHovered) color = Colors.Yellow;
             
+            // Ensure option is not null or empty
+            if (string.IsNullOrEmpty(option))
+                option = $"Weapon {number}";
+            
             AddText(x, y, $"[{number}]", color);
             AddText(x + $"[{number}]".Length + 1, y, option, isHovered ? Colors.Yellow : Colors.White);
         }

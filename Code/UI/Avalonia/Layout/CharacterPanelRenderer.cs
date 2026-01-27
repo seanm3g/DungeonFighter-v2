@@ -3,8 +3,11 @@ using RPGGame;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Renderers;
+using RPGGame.UI.Avalonia.Managers;
+using RPGGame.UI.Avalonia.Effects;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.ColorSystem.Applications;
+using Avalonia.Media;
 
 namespace RPGGame.UI.Avalonia.Layout
 {
@@ -16,11 +19,22 @@ namespace RPGGame.UI.Avalonia.Layout
     {
         private readonly GameCanvasControl canvas;
         private readonly ColoredTextWriter textWriter;
+        private readonly StatsPanelStateManager? stateManager;
+        private readonly StatsHeaderGlowAnimator? glowAnimator;
+        private readonly ICanvasInteractionManager? interactionManager;
         
-        public CharacterPanelRenderer(GameCanvasControl canvas, ColoredTextWriter textWriter)
+        public CharacterPanelRenderer(
+            GameCanvasControl canvas, 
+            ColoredTextWriter textWriter,
+            StatsPanelStateManager? stateManager = null,
+            StatsHeaderGlowAnimator? glowAnimator = null,
+            ICanvasInteractionManager? interactionManager = null)
         {
             this.canvas = canvas;
             this.textWriter = textWriter;
+            this.stateManager = stateManager;
+            this.glowAnimator = glowAnimator;
+            this.interactionManager = interactionManager;
         }
         
         /// <summary>
@@ -41,6 +55,11 @@ namespace RPGGame.UI.Avalonia.Layout
             canvas.AddText(x, y, character.Name, EntityColorHelper.GetActorColor(character));
             y++;
             canvas.AddText(x, y, $"Lvl {character.Level}", AsciiArtAssets.Colors.Yellow);
+            y++;
+            
+            // Display XP
+            int xpRequired = character.Progression.GetXPRequiredForNextLevel();
+            canvas.AddText(x, y, $"XP {character.XP}/{xpRequired}", AsciiArtAssets.Colors.Cyan);
             y++;
             
             // Display class points if character has any
@@ -75,8 +94,25 @@ namespace RPGGame.UI.Avalonia.Layout
             y += 3;
             
             // Stats section
-            canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Stats), AsciiArtAssets.Colors.Gold);
+            int statsHeaderY = y;
+            string statsHeaderText = AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Stats);
+            
+            // Render stats header with animated glow if animator is available
+            if (glowAnimator != null)
+            {
+                Color glowColor = glowAnimator.GetCurrentGlowColor();
+                double glowIntensity = glowAnimator.GetCurrentGlowIntensity();
+                int glowRadius = glowAnimator.GetGlowRadius();
+                canvas.AddText(x, y, statsHeaderText, AsciiArtAssets.Colors.Gold, glowColor, glowIntensity, glowRadius);
+            }
+            else
+            {
+                canvas.AddText(x, y, statsHeaderText, AsciiArtAssets.Colors.Gold);
+            }
             y += 2;
+            
+            // Track stats area start for click detection
+            int statsAreaStartY = y;
             
             // Calculate total damage
             int weaponDamage = (character.Weapon is WeaponItem w) ? w.GetTotalDamage() : 0;
@@ -106,7 +142,40 @@ namespace RPGGame.UI.Avalonia.Layout
             y++;
             canvas.AddCharacterStat(x, y, "INT", character.GetEffectiveIntelligence(), 0, 
                 primaryStat == "Intelligence" ? AsciiArtAssets.Colors.Purple : AsciiArtAssets.Colors.White);
+            y++;
+            
+            // Render expanded stats if panel is expanded
+            if (stateManager != null && stateManager.IsExpanded)
+            {
+                y++; // Blank line before expanded stats
+                RenderExpandedStats(character, x, ref y);
+            }
+            
             y += 2;
+            
+            // Track stats area end and register clickable element
+            int statsAreaEndY = y;
+            int statsAreaHeight = statsAreaEndY - statsAreaStartY;
+            int statsAreaWidth = LayoutConstants.LEFT_PANEL_WIDTH - 4; // Account for padding
+            
+            if (stateManager != null && interactionManager != null)
+            {
+                // Set bounds for click detection
+                stateManager.SetStatsAreaBounds(x, statsHeaderY, statsAreaWidth, statsAreaEndY - statsHeaderY);
+                
+                // Create clickable element for stats area
+                var statsClickableElement = new ClickableElement
+                {
+                    X = x,
+                    Y = statsHeaderY,
+                    Width = statsAreaWidth,
+                    Height = statsAreaEndY - statsHeaderY,
+                    Type = ElementType.Text,
+                    Value = "toggle_stats_expansion",
+                    DisplayText = "Stats"
+                };
+                interactionManager.AddClickableElement(statsClickableElement);
+            }
             
             // Equipment section
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Gear), AsciiArtAssets.Colors.Gold);
@@ -281,6 +350,84 @@ namespace RPGGame.UI.Avalonia.Layout
                 return "";
             
             return classes[0].stat;
+        }
+        
+        /// <summary>
+        /// Renders expanded stats that are normally hidden
+        /// </summary>
+        private void RenderExpandedStats(Character character, int x, ref int y)
+        {
+            // Attack Speed
+            double attackSpeed = character.GetTotalAttackSpeed();
+            canvas.AddCharacterStat(x, y, "ATK SPD", 0, 0, AsciiArtAssets.Colors.Cyan, AsciiArtAssets.Colors.Cyan);
+            canvas.AddText(x + 9, y, $"{attackSpeed:F2}s", AsciiArtAssets.Colors.Cyan);
+            y++;
+            
+            // Magic Find (only if > 0)
+            int magicFind = character.GetMagicFind();
+            if (magicFind > 0)
+            {
+                canvas.AddCharacterStat(x, y, "MAG FIND", 0, 0, AsciiArtAssets.Colors.Cyan, AsciiArtAssets.Colors.Cyan);
+                canvas.AddText(x + 9, y, $"+{magicFind}", AsciiArtAssets.Colors.Cyan);
+                y++;
+            }
+            
+            // Roll Bonus (with breakdown)
+            int intRollBonus = character.GetIntelligenceRollBonus();
+            int eqRollBonus = character.GetEquipmentRollBonus();
+            int modRollBonus = character.GetModificationRollBonus();
+            int totalRollBonus = intRollBonus + eqRollBonus + modRollBonus;
+            
+            if (totalRollBonus > 0)
+            {
+                canvas.AddCharacterStat(x, y, "ROLL", 0, 0, AsciiArtAssets.Colors.Cyan, AsciiArtAssets.Colors.Cyan);
+                string rollBreakdown = $"+{totalRollBonus}";
+                if (intRollBonus > 0 || eqRollBonus > 0 || modRollBonus > 0)
+                {
+                    rollBreakdown += $" (INT:+{intRollBonus}";
+                    if (eqRollBonus > 0) rollBreakdown += $" EQ:+{eqRollBonus}";
+                    if (modRollBonus > 0) rollBreakdown += $" MOD:+{modRollBonus}";
+                    rollBreakdown += ")";
+                }
+                canvas.AddText(x + 9, y, rollBreakdown, AsciiArtAssets.Colors.Cyan);
+                y++;
+            }
+            
+            // Health Regen (only if > 0)
+            int healthRegen = character.GetEquipmentHealthRegenBonus();
+            if (healthRegen > 0)
+            {
+                canvas.AddCharacterStat(x, y, "HP REGEN", 0, 0, AsciiArtAssets.Colors.Cyan, AsciiArtAssets.Colors.Cyan);
+                canvas.AddText(x + 9, y, $"+{healthRegen}/turn", AsciiArtAssets.Colors.Cyan);
+                y++;
+            }
+            
+            // Lifesteal (only if > 0)
+            double lifesteal = character.GetModificationLifesteal();
+            if (lifesteal > 0)
+            {
+                canvas.AddCharacterStat(x, y, "LIFESTEAL", 0, 0, AsciiArtAssets.Colors.Cyan, AsciiArtAssets.Colors.Cyan);
+                canvas.AddText(x + 9, y, $"{lifesteal:P0}", AsciiArtAssets.Colors.Cyan);
+                y++;
+            }
+            
+            // Bleed Chance (only if > 0)
+            double bleedChance = character.GetModificationBleedChance();
+            if (bleedChance > 0)
+            {
+                canvas.AddCharacterStat(x, y, "BLEED", 0, 0, AsciiArtAssets.Colors.Cyan, AsciiArtAssets.Colors.Cyan);
+                canvas.AddText(x + 9, y, $"{bleedChance:P0}", AsciiArtAssets.Colors.Cyan);
+                y++;
+            }
+            
+            // Burn Chance (only if > 0)
+            double burnChance = character.GetModificationBurnChance();
+            if (burnChance > 0)
+            {
+                canvas.AddCharacterStat(x, y, "BURN", 0, 0, AsciiArtAssets.Colors.Cyan, AsciiArtAssets.Colors.Cyan);
+                canvas.AddText(x + 9, y, $"{burnChance:P0}", AsciiArtAssets.Colors.Cyan);
+                y++;
+            }
         }
     }
 }

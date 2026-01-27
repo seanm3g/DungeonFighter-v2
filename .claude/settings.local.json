@@ -53,7 +53,9 @@
       "Bash(powershell -Command:*)",
       "Bash(cmd.exe /C \"taskkill /PID 32932 /F & taskkill /PID 50040 /F\")",
       "Bash(find:*)",
-      "Skill(test)"
+      "Skill(test)",
+      "Skill(tuner)",
+      "Skill(balance)"
     ]
   },
   "enableAllProjectMcpServers": true,

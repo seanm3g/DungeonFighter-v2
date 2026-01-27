@@ -6,6 +6,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using RPGGame.UI.Avalonia;
 using RPGGame.Utils;
+using RPGGame.Data;
 
 namespace RPGGame
 {
@@ -78,6 +79,19 @@ namespace RPGGame
                     BuildExecutionMetrics.RecordLaunchTime("TEST");
                     // Run test battle comparison
                     await RPGGame.Tests.TestBattleComparison.Main(args);
+                    return;
+                }
+
+                // Check if parse mode is requested (for spreadsheet parser)
+                if (args.Length > 0 && args[0].Equals("PARSE", StringComparison.OrdinalIgnoreCase))
+                {
+                    executionMode = "PARSE";
+                    BuildExecutionMetrics.RecordLaunchTime("PARSE");
+                    // Run spreadsheet parser
+                    // Default to Google Sheets URL, fallback to local file
+                    string csvPathOrUrl = args.Length > 1 ? args[1] : "https://docs.google.com/spreadsheets/d/e/2PACX-1vTD25Fiu9OIwSaBildDnGlE8aaouIyTjO6XlFqgY5XdSwgOh462ZcVueJKsbb4kSQ/pub?gid=2020359111&single=true&output=csv";
+                    string outputPath = args.Length > 2 ? args[2] : "GameData/Actions.json";
+                    await RPGGame.Data.SpreadsheetParserRunner.ParseAndGenerateAsync(csvPathOrUrl, outputPath);
                     return;
                 }
 

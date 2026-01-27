@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Media;
 using System.Collections.Generic;
+using System.Linq;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Effects;
 
@@ -21,6 +22,8 @@ namespace RPGGame.UI.Avalonia.Canvas
         
         /// <summary>
         /// Renders all canvas elements to the drawing context
+        /// IMPORTANT: Text is rendered AFTER boxes to ensure text appears on top of box borders
+        /// This prevents box border strokes from covering text that's positioned near the border
         /// </summary>
         public void Render(
             DrawingContext context,
@@ -34,6 +37,8 @@ namespace RPGGame.UI.Avalonia.Canvas
             context.FillRectangle(Brushes.Black, new Rect(0, 0, boundsWidth, boundsHeight));
             
             // Render all elements
+            // NOTE: Boxes render first (they have transparent backgrounds, only borders are drawn)
+            // Text renders last to ensure it appears on top of box borders
             RenderBoxes(context, boxElements);
             RenderProgressBars(context, progressBars);
             RenderText(context, textElements);

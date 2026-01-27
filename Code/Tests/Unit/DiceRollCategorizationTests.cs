@@ -59,7 +59,12 @@ namespace RPGGame.Tests.Unit
             int attackRoll = baseRoll + rollBonus;
             
             // Critical miss is based on base roll (from ActionExecutionFlow line 65)
+            // If baseRoll <= criticalMissThreshold, it's always a critical miss, regardless of bonuses
             bool isCriticalMiss = baseRoll <= criticalMissThreshold;
+            if (isCriticalMiss)
+            {
+                return RollCategory.CriticalMiss;
+            }
             
             // Natural 1 always misses (from ActionExecutionFlow line 86-89)
             bool isMiss;
@@ -76,7 +81,7 @@ namespace RPGGame.Tests.Unit
             // If it's a miss, return appropriate category
             if (isMiss)
             {
-                return isCriticalMiss ? RollCategory.CriticalMiss : RollCategory.Miss;
+                return RollCategory.Miss;
             }
             
             // Determine if it's a combo action (from ActionExecutionFlow line 77)

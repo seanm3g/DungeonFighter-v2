@@ -25,17 +25,25 @@ namespace RPGGame.UI.Avalonia.Managers
         private readonly ICanvasContextManager contextManager;
         private readonly int maxLines;
         private GameStateManager? stateManager;
+        private readonly ICanvasInteractionManager? interactionManager;
         
-        public CanvasTextManager(GameCanvasControl canvas, ColoredTextWriter textWriter, ICanvasContextManager contextManager, int maxLines = DISPLAY_BUFFER_MAX_LINES, GameStateManager? stateManager = null)
+        public CanvasTextManager(
+            GameCanvasControl canvas, 
+            ColoredTextWriter textWriter, 
+            ICanvasContextManager contextManager, 
+            int maxLines = DISPLAY_BUFFER_MAX_LINES, 
+            GameStateManager? stateManager = null,
+            ICanvasInteractionManager? interactionManager = null)
         {
             this.canvas = canvas;
             this.textWriter = textWriter;
             this.contextManager = contextManager;
             this.maxLines = maxLines;
             this.stateManager = stateManager;
+            this.interactionManager = interactionManager;
             
             // Create default display manager (for when no character is active)
-            this.currentDisplayManager = new CenterPanelDisplayManager(canvas, textWriter, contextManager, maxLines, stateManager);
+            this.currentDisplayManager = new CenterPanelDisplayManager(canvas, textWriter, contextManager, maxLines, stateManager, interactionManager);
         }
         
         /// <summary>
@@ -80,12 +88,17 @@ namespace RPGGame.UI.Avalonia.Managers
         {
             if (!characterDisplayManagers.TryGetValue(key, out var displayManager))
             {
-                displayManager = new CenterPanelDisplayManager(canvas, textWriter, contextManager, maxLines, stateManager);
+                displayManager = new CenterPanelDisplayManager(canvas, textWriter, contextManager, maxLines, stateManager, interactionManager);
                 characterDisplayManagers[key] = displayManager;
             }
             
             return displayManager;
         }
+        
+        /// <summary>
+        /// Gets the stats panel state manager from the current display manager
+        /// </summary>
+        public RPGGame.UI.Avalonia.Managers.StatsPanelStateManager? StatsPanelStateManager => DisplayManager?.StatsPanelStateManager;
         
         private const string DEFAULT_DISPLAY_MANAGER_KEY = "__default__";
         

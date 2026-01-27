@@ -318,6 +318,16 @@ namespace RPGGame.UI.Avalonia
                 testRunnerUI = new Managers.TestRunnerUI(canvasUI);
                 actionTestGenerator = new SettingsActionTestGenerator(canvasUI, ShowStatusMessage);
             }
+            
+            // Set state manager on GameplayPanelHandler so it can clear in-memory player when clearing saved characters
+            if (panelHandlerRegistry != null && stateManager != null)
+            {
+                var gameplayHandler = panelHandlerRegistry.GetHandler("Gameplay");
+                if (gameplayHandler is Managers.Settings.PanelHandlers.GameplayPanelHandler gameplayPanelHandler)
+                {
+                    gameplayPanelHandler.SetStateManager(stateManager);
+                }
+            }
         }
         
         private void SaveSettings()

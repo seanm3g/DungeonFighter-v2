@@ -145,10 +145,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         
         /// <summary>
         /// Renders the main menu with saved game info if available (legacy method)
+        /// NOTE: This method is legacy and may not be used. Canvas clearing should be handled by the caller.
         /// </summary>
         public int RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel)
         {
-            canvas.Clear();
+            // Note: Canvas clearing removed - should be handled by caller or LayoutCoordinator
             clickableElements.Clear();
             int currentLineCount = 0;
             

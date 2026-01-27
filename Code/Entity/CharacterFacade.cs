@@ -250,6 +250,7 @@ namespace RPGGame
         public double GetModificationFreezeChance() => _character.Equipment.GetModificationFreezeChance();
         public double GetModificationStunChance() => _character.Equipment.GetModificationStunChance();
         public double GetModificationUniqueActionChance() => _character.Equipment.GetModificationUniqueActionChance();
+        public List<string> GetModificationStatusEffects() => _character.Equipment.GetModificationStatusEffects();
         public double GetArmorSpikeDamage() => _character.Equipment.GetArmorSpikeDamage();
         public List<ArmorStatus> GetEquippedArmorStatuses() => _character.Equipment.GetEquippedArmorStatuses();
         public bool HasAutoSuccess() => _character.Equipment.HasAutoSuccess();

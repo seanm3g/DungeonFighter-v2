@@ -269,6 +269,7 @@ namespace RPGGame
             // Set level and tier
             item.Level = level;
             item.Tier = tier;
+            // Set rarity to the exact requested rarity (should be exactly one tier higher than traded items)
             item.Rarity = rarity;
             
             // Apply scaling
@@ -289,6 +290,13 @@ namespace RPGGame
             }
             
             bonusApplier.ApplyBonuses(item, rarityData, context);
+            
+            // Validate that the item has the correct rarity (defensive check)
+            if (!string.Equals(item.Rarity, rarity, StringComparison.OrdinalIgnoreCase))
+            {
+                // Ensure rarity is set correctly (should not happen, but defensive programming)
+                item.Rarity = rarity;
+            }
             
             return item;
         }
@@ -315,13 +323,25 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Gets the next rarity tier in progression
+        /// Gets the next rarity tier in progression (only one tier higher)
+        /// Returns null if already at maximum rarity
         /// </summary>
         private string? GetNextRarity(string currentRarity)
         {
             var rarityOrder = new[] { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Transcendent" };
             
-            int currentIndex = Array.IndexOf(rarityOrder, currentRarity);
+            // Use case-insensitive comparison to find the current rarity
+            int currentIndex = -1;
+            for (int i = 0; i < rarityOrder.Length; i++)
+            {
+                if (string.Equals(rarityOrder[i], currentRarity, StringComparison.OrdinalIgnoreCase))
+                {
+                    currentIndex = i;
+                    break;
+                }
+            }
+            
+            // Only return the next tier (one step up), or null if at max
             if (currentIndex < 0 || currentIndex >= rarityOrder.Length - 1)
             {
                 return null; // Not found or already at max

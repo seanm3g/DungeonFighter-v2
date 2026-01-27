@@ -7,6 +7,7 @@ using RPGGame.Tests.Unit;
 using RPGGame.Tests.Integration;
 using RPGGame.Tests.Settings;
 using RPGGame.Tests.Runners;
+using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.Tests.Runners
 {
@@ -104,6 +105,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             XPSystemTests.RunAllTests();
             Console.WriteLine();
+            MultiSourceXPRewardTests.RunAllTests();
+            Console.WriteLine();
 
             // Phase 7: Persistence and State
             string phase7 = "PHASE 7: PERSISTENCE AND STATE";
@@ -162,6 +165,7 @@ namespace RPGGame.Tests.Runners
         private static void DisplayOverallSummary()
         {
             var (total, passed, failed, successRate) = TestResultCollector.GetStatistics();
+            var allTestsByCategory = TestResultCollector.GetAllTestsByCategory();
             var failedTestsByCategory = TestResultCollector.GetFailedTestsByCategory();
 
             Console.WriteLine($"\n{GameConstants.StandardSeparator}");
@@ -179,25 +183,53 @@ namespace RPGGame.Tests.Runners
             else
             {
                 Console.WriteLine($"\n❌ {failed} test(s) failed");
+            }
 
-                // Display failed tests grouped by category
-                if (failedTestsByCategory.Count > 0)
+            // Display passed tests first (grouped by category)
+            var passedTestsByCategory = new Dictionary<string, List<TestResultCollector.TestResult>>();
+            foreach (var category in allTestsByCategory.Keys)
+            {
+                var passedTests = allTestsByCategory[category].Where(t => t.Passed).ToList();
+                if (passedTests.Count > 0)
                 {
-                    Console.WriteLine($"\n{GameConstants.StandardSeparator}");
-                    Console.WriteLine("  FAILED TESTS BY CATEGORY");
-                    Console.WriteLine(GameConstants.StandardSeparator);
+                    passedTestsByCategory[category] = passedTests;
+                }
+            }
 
-                    foreach (var category in failedTestsByCategory.Keys.OrderBy(k => k))
+            if (passedTestsByCategory.Count > 0)
+            {
+                Console.WriteLine($"\n{GameConstants.StandardSeparator}");
+                Console.WriteLine("  PASSED TESTS BY CATEGORY");
+                Console.WriteLine(GameConstants.StandardSeparator);
+
+                foreach (var category in passedTestsByCategory.Keys.OrderBy(k => k))
+                {
+                    var passedTests = passedTestsByCategory[category];
+                    Console.WriteLine($"\n{category}:");
+                    foreach (var test in passedTests)
                     {
-                        var failedTests = failedTestsByCategory[category];
-                        Console.WriteLine($"\n{category}:");
-                        foreach (var test in failedTests)
+                        Console.WriteLine($"  ✓ {test.TestName}");
+                    }
+                }
+            }
+
+            // Display failed tests at the bottom (grouped by category)
+            if (failedTestsByCategory.Count > 0)
+            {
+                Console.WriteLine($"\n{GameConstants.StandardSeparator}");
+                Console.WriteLine("  FAILED TESTS BY CATEGORY");
+                Console.WriteLine(GameConstants.StandardSeparator);
+
+                foreach (var category in failedTestsByCategory.Keys.OrderBy(k => k))
+                {
+                    var failedTests = failedTestsByCategory[category];
+                    Console.WriteLine($"\n{category}:");
+                    foreach (var test in failedTests)
+                    {
+                        Console.WriteLine($"  ✗ {test.TestName}");
+                        if (!string.IsNullOrEmpty(test.Message))
                         {
-                            Console.WriteLine($"  ✗ {test.TestName}");
-                            if (!string.IsNullOrEmpty(test.Message))
-                            {
-                                Console.WriteLine($"    {test.Message}");
-                            }
+                            Console.WriteLine($"    {test.Message}");
                         }
                     }
                 }

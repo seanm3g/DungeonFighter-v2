@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Input;
 using RPGGame;
 using RPGGame.UI.Avalonia;
+using RPGGame.UI.Avalonia.Managers;
 
 namespace RPGGame.UI.Avalonia.Handlers
 {
@@ -14,15 +15,18 @@ namespace RPGGame.UI.Avalonia.Handlers
         private readonly GameCanvasControl gameCanvas;
         private readonly CanvasUICoordinator? canvasUI;
         private readonly GameCoordinator? game;
+        private readonly StatsPanelStateManager? statsPanelStateManager;
 
         public MouseInteractionHandler(
             GameCanvasControl gameCanvas,
             CanvasUICoordinator? canvasUI,
-            GameCoordinator? game)
+            GameCoordinator? game,
+            StatsPanelStateManager? statsPanelStateManager = null)
         {
             this.gameCanvas = gameCanvas;
             this.canvasUI = canvasUI;
             this.game = game;
+            this.statsPanelStateManager = statsPanelStateManager;
         }
 
         /// <summary>
@@ -157,6 +161,18 @@ namespace RPGGame.UI.Avalonia.Handlers
 
             try
             {
+                // Handle stats expansion toggle
+                if (element.Value == "toggle_stats_expansion" && statsPanelStateManager != null)
+                {
+                    statsPanelStateManager.ToggleExpansion();
+                    // Trigger a re-render of the layout to show/hide expanded stats
+                    if (canvasUI != null)
+                    {
+                        canvasUI.ForceFullLayoutRender();
+                    }
+                    return;
+                }
+                
                 switch (element.Type)
                 {
                     case ElementType.MenuOption:
@@ -172,6 +188,10 @@ namespace RPGGame.UI.Avalonia.Handlers
                     case ElementType.Button:
                         // Handle button click
                         await game.HandleInput(element.Value);
+                        break;
+                    case ElementType.Text:
+                        // Text elements can have custom handlers via Value
+                        // Stats expansion is handled above
                         break;
                 }
             }

@@ -12,10 +12,12 @@ namespace RPGGame.UI.Avalonia.Renderers
     public class MessageDisplayRenderer
     {
         private readonly GameCanvasControl canvas;
+        private readonly System.Action clearCanvasAction;
         
-        public MessageDisplayRenderer(GameCanvasControl canvas)
+        public MessageDisplayRenderer(GameCanvasControl canvas, System.Action clearCanvasAction)
         {
-            this.canvas = canvas;
+            this.canvas = canvas ?? throw new ArgumentNullException(nameof(canvas));
+            this.clearCanvasAction = clearCanvasAction ?? throw new ArgumentNullException(nameof(clearCanvasAction));
         }
         
         /// <summary>
@@ -25,7 +27,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         {
             if (color == default) color = AsciiArtAssets.Colors.White;
             
-            canvas.Clear();
+            clearCanvasAction();
             canvas.AddCenteredText(20, message, color);
             canvas.Refresh();
         }
@@ -51,7 +53,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// </summary>
         public void ShowError(string error, string suggestion = "")
         {
-            canvas.Clear();
+            clearCanvasAction();
             
             // Error title
             canvas.AddCenteredText(15, "ERROR", AsciiArtAssets.Colors.Red);
@@ -76,7 +78,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// </summary>
         public async Task ShowLoadingAnimationAsync(string message = "Loading...")
         {
-            canvas.Clear();
+            clearCanvasAction();
             
             // Center the loading message
             canvas.AddCenteredText(18, message, AsciiArtAssets.Colors.White);
@@ -99,7 +101,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         {
             // Show immediate message without blocking animation
             // This prevents UI freeze while async operations happen in background
-            canvas.Clear();
+            clearCanvasAction();
             canvas.AddCenteredText(18, message, AsciiArtAssets.Colors.White);
             canvas.AddCenteredText(20, "....", AsciiArtAssets.Colors.Yellow);
             canvas.Refresh();
@@ -152,12 +154,18 @@ namespace RPGGame.UI.Avalonia.Renderers
         
         /// <summary>
         /// Clears the loading status message from the bottom left corner
+        /// Also clears the center area where ShowLoadingAnimation might have displayed a full-screen animation
         /// </summary>
         public void ClearLoadingStatus()
         {
             // Clear the bottom left area where loading status is displayed
             int statusY = CanvasLayoutManager.SCREEN_HEIGHT - 1;
             canvas.ClearTextInRange(statusY - 1, statusY + 1);
+            
+            // Also clear the center area where ShowLoadingAnimation displays full-screen loading messages
+            // This ensures that if ShowLoadingAnimation was used, it gets cleared too
+            canvas.ClearTextInRange(16, 22); // Clear lines 16-22 where loading animation is typically shown
+            
             canvas.Refresh();
         }
     }

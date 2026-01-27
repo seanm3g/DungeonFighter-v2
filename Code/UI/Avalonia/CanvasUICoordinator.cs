@@ -127,6 +127,18 @@ namespace RPGGame.UI.Avalonia
         {
             return this.animationManager;
         }
+        
+        /// <summary>
+        /// Gets the stats panel state manager
+        /// </summary>
+        public Managers.StatsPanelStateManager? GetStatsPanelStateManager()
+        {
+            if (textManager is Managers.CanvasTextManager canvasTextManager)
+            {
+                return canvasTextManager.StatsPanelStateManager;
+            }
+            return null;
+        }
 
         /// <summary>
         /// Focuses the canvas to ensure keyboard input is captured

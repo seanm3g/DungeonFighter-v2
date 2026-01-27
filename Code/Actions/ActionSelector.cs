@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
+using RPGGame.Utils;
 
 namespace RPGGame
 {
@@ -36,8 +37,7 @@ namespace RPGGame
         /// <summary>
         /// Selects an action based on dice roll logic:
         /// - Natural 20 or base roll 14+ = COMBO action
-        /// - Base roll 6-13 = Normal action (non-combo)
-        /// - Base roll < 6 = Normal action (non-combo)
+        /// - Base roll 1-13 = Normal action (non-combo)
         /// For heroes only
         /// Note: Action type is determined by base roll only, not total roll with bonuses
         /// </summary>
@@ -70,7 +70,7 @@ namespace RPGGame
             {
                 selectedAction = SelectComboAction(source);
             }
-            else // Base roll < 14 - use non-combo action (normal attack)
+            else // Base roll < 14 (1-13) - use non-combo action (normal attack)
             {
                 // Select a non-combo action for normal attacks
                 selectedAction = SelectNormalAction(source);
@@ -112,16 +112,18 @@ namespace RPGGame
                 return source.SelectAction();
             }
 
-            // 6-13 or <6: use non-combo action (normal attack)
+            // Base roll < 14 (1-13): use non-combo action (normal attack)
             return SelectNormalAction(source);
         }
 
         /// <summary>
         /// Selects a combo action for the given Actor
+        /// Only selects actions that are actually in the combo sequence
+        /// If no combo actions are in the sequence, falls back to a normal action
         /// </summary>
         /// <param name="source">The Actor to select combo action for</param>
-        /// <returns>Selected combo action or fallback to first available action</returns>
-        private static Action SelectComboAction(Actor source)
+        /// <returns>Selected combo action from sequence, or fallback to normal action if sequence is empty, or null if no actions available</returns>
+        private static Action? SelectComboAction(Actor source)
         {
             var comboActions = ActionUtilities.GetComboActions(source);
             if (comboActions.Count > 0)
@@ -131,34 +133,21 @@ namespace RPGGame
             }
             else
             {
-                // Try to find any combo action from the action pool
-                // Optimized: Single pass instead of LINQ chain
-                foreach (var actionEntry in source.ActionPool)
-                {
-                    if (actionEntry.action.IsComboAction)
-                    {
-                        return actionEntry.action;
-                    }
-                }
-                
-                // Last resort: use first available action
-                if (source.ActionPool.Count > 0)
-                {
-                    return source.ActionPool[0].action;
-                }
-                // This should never happen, but return null if no actions available
-                return null!; // Explicitly return null - this is an error state
+                // If combo sequence is empty, fall back to normal action instead of searching ActionPool
+                // This ensures that actions not in the combo sequence (like CHANNEL) won't be used
+                // unless they're explicitly added to the combo sequence
+                return SelectNormalAction(source);
             }
         }
 
         /// <summary>
         /// Selects a normal (non-combo) action for the given Actor
-        /// Used when base roll is less than 14 (normal attack range)
+        /// Used when base roll is less than 14 (normal attack range, below combo threshold)
         /// Returns a non-combo action if available, otherwise falls back to any available action
         /// </summary>
         /// <param name="source">The Actor to select normal action for</param>
-        /// <returns>Non-combo action for normal attacks, or first available action if no non-combo actions exist</returns>
-        private static Action SelectNormalAction(Actor source)
+        /// <returns>Non-combo action for normal attacks, or first available action if no non-combo actions exist, or null if no actions available</returns>
+        private static Action? SelectNormalAction(Actor source)
         {
             // First, try to find a non-combo action from the source's ActionPool
             foreach (var actionEntry in source.ActionPool)
@@ -175,8 +164,10 @@ namespace RPGGame
                 return source.ActionPool[0].action;
             }
             
-            // This should never happen if entities are properly initialized
-            return null!;
+            // No actions available - this should be caught earlier, but return null for safety
+            DebugLogger.LogFormat("ActionSelector", 
+                "WARNING: {0} has no actions in ActionPool when trying to select normal action", source.Name);
+            return null;
         }
 
         /// <summary>

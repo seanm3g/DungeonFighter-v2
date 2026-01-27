@@ -190,6 +190,17 @@ namespace RPGGame.UI.Avalonia.Managers
         }
 
         /// <summary>
+        /// Runs multi-source XP reward system tests
+        /// </summary>
+        public async Task RunMultiSourceXPRewardTestsAsync()
+        {
+            await orchestrator.RunTestAsync(
+                () => Tests.Unit.MultiSourceXPRewardTests.RunAllTests(),
+                "Running multi-source XP reward system tests...",
+                "Multi-source XP reward system tests complete");
+        }
+
+        /// <summary>
         /// Runs save/load system tests
         /// </summary>
         public async Task RunSaveLoadSystemTestsAsync()

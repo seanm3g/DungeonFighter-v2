@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Media;
+using RPGGame.Data;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.UI.ColorSystem;
@@ -310,7 +311,7 @@ namespace RPGGame.UI.Avalonia.Display
                         {
                             string namePart = segmentText.Substring(afterPrefix);
                             charPosition = prefix.Length;
-                            ApplyAnimationToText(namePart, segment.Color, result, charPosition, y);
+                            ApplyAnimationToText(namePart, segment.Color, result, charPosition, y, segment.SourceTemplate);
                             charPosition += namePart.Length;
                         }
                     }
@@ -324,7 +325,7 @@ namespace RPGGame.UI.Avalonia.Display
                 else
                 {
                     // We're past the prefix, animate the name
-                    ApplyAnimationToText(segment.Text, segment.Color, result, charPosition, y);
+                    ApplyAnimationToText(segment.Text, segment.Color, result, charPosition, y, segment.SourceTemplate);
                     charPosition += segment.Text.Length;
                 }
             }
@@ -336,8 +337,26 @@ namespace RPGGame.UI.Avalonia.Display
         /// Applies animation effects character-by-character to text
         /// Similar to DungeonSelectionRenderer's animation logic
         /// </summary>
-        private void ApplyAnimationToText(string text, Color baseColor, List<ColoredText> result, int startCharPosition, int lineOffset)
+        private void ApplyAnimationToText(string text, Color baseColor, List<ColoredText> result, int startCharPosition, int lineOffset, string? sourceTemplate = null)
         {
+            // Check if the template has undulation enabled
+            bool shouldUndulate = false;
+            if (!string.IsNullOrEmpty(sourceTemplate))
+            {
+                var templateData = ColorTemplateLoader.GetTemplate(sourceTemplate);
+                if (templateData != null)
+                {
+                    shouldUndulate = templateData.Undulate;
+                }
+            }
+            
+            // If no template source, apply undulation to all (backward compatibility)
+            // This maintains the current behavior for text without template sources
+            if (string.IsNullOrEmpty(sourceTemplate))
+            {
+                shouldUndulate = true;
+            }
+            
             // Generate a small random offset for this animated element based on line position
             // This makes each animated element look different from others
             // Use a hash of the line offset to get a consistent but varied offset per line
@@ -354,13 +373,17 @@ namespace RPGGame.UI.Avalonia.Display
                 brightnessFactor = Math.Max(0.3, Math.Min(2.0, brightnessFactor));
                 
                 // Get position-based undulation brightness (creates sine wave across text)
-                double undulationBrightness = animationState.GetUndulationBrightnessAt(adjustedPosition, lineOffset);
-                brightnessFactor += undulationBrightness * 3.0;
-                brightnessFactor = Math.Max(0.3, Math.Min(2.0, brightnessFactor));
+                // Only apply if the template has undulation enabled
+                if (shouldUndulate)
+                {
+                    double undulationBrightness = animationState.GetUndulationBrightnessAt(adjustedPosition, lineOffset);
+                    brightnessFactor += undulationBrightness * 3.0;
+                    brightnessFactor = Math.Max(0.3, Math.Min(2.0, brightnessFactor));
+                }
                 
                 // Apply brightness adjustments to color
                 Color adjustedColor = AdjustColorBrightness(baseColor, brightnessFactor);
-                result.Add(new ColoredText(c.ToString(), adjustedColor));
+                result.Add(new ColoredText(c.ToString(), adjustedColor, sourceTemplate));
                 
                 startCharPosition++;
             }

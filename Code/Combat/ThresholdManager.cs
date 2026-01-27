@@ -27,9 +27,17 @@ namespace RPGGame.Combat
                 // Initialize with defaults from GameConfiguration
                 var config = GameConfiguration.Instance;
                 CriticalMissThreshold = 1; // Natural 1 is always critical miss
-                CriticalHitThreshold = config.Combat.CriticalHitThreshold;
-                ComboThreshold = config.RollSystem.ComboThreshold.Min;
+                
+                // Use default 20 if config value is 0 or invalid
+                int criticalHitThreshold = config.Combat.CriticalHitThreshold;
+                CriticalHitThreshold = criticalHitThreshold > 0 ? criticalHitThreshold : 20;
+                
+                // Use default 14 if config value is 0 or invalid
+                int comboThreshold = config.RollSystem.ComboThreshold.Min;
+                ComboThreshold = comboThreshold > 0 ? comboThreshold : 14;
+                
                 // Hit threshold should be MissThreshold.Max (so that MissThreshold.Max + 1 is the minimum roll to hit)
+                // Use default 5 if config value is 0 or invalid
                 int missThresholdMax = config.RollSystem.MissThreshold.Max;
                 HitThreshold = missThresholdMax > 0 ? missThresholdMax : 5;
             }
@@ -58,7 +66,9 @@ namespace RPGGame.Combat
                 return modifiers.CriticalHitThreshold.Value;
             }
             
-            return GameConfiguration.Instance.Combat.CriticalHitThreshold;
+            // Use default 20 if config value is 0 or invalid
+            int threshold = GameConfiguration.Instance.Combat.CriticalHitThreshold;
+            return threshold > 0 ? threshold : 20;
         }
 
         /// <summary>
@@ -71,7 +81,9 @@ namespace RPGGame.Combat
                 return modifiers.ComboThreshold.Value;
             }
             
-            return GameConfiguration.Instance.RollSystem.ComboThreshold.Min;
+            // Use default 14 if config value is 0 or invalid
+            int threshold = GameConfiguration.Instance.RollSystem.ComboThreshold.Min;
+            return threshold > 0 ? threshold : 14;
         }
 
         /// <summary>
