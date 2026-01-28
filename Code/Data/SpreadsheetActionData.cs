@@ -154,9 +154,9 @@ namespace RPGGame.Data
             if (columns.Length > 1) data.Description = columns[1].Trim();
             if (columns.Length > 3) data.Rarity = columns[3].Trim();
             if (columns.Length > 4) data.Category = columns[4].Trim();
-            if (columns.Length > 5) data.DPS = columns[5].Trim();
-            if (columns.Length > 6) data.NumberOfHits = columns[6].Trim();
-            if (columns.Length > 7) data.Damage = columns[7].Trim();
+            if (columns.Length > 4) data.DPS = columns[4].Trim(); // DPS(%) at index 4
+            if (columns.Length > 5) data.NumberOfHits = columns[5].Trim(); // # OF HITS at index 5
+            if (columns.Length > 6) data.Damage = columns[6].Trim(); // DAMAGE(%) at index 6
             // CSV data alignment: [7]=Speed, [8]=Duration, [9]=Cadence, [10]=Opener, [11]=Finisher
             if (columns.Length > 7) data.Speed = columns[7].Trim(); // SPEED(x) at index 7
             if (columns.Length > 8) data.Duration = columns[8].Trim(); // DURATION at index 8

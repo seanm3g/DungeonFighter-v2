@@ -22,9 +22,9 @@ if ($LASTEXITCODE -ne 0)
     exit 1
 }
 
-# Run the parser with the Google Sheets URL
-Write-Host "Running parser..." -ForegroundColor Cyan
-dotnet run --project Code\Code.csproj -- PARSE $GoogleSheetsUrl $OutputPath
+# Run the update service (uses new spreadsheet-compatible format)
+Write-Host "Running update service..." -ForegroundColor Cyan
+dotnet run --project Code\Code.csproj -- UPDATE_ACTIONS $GoogleSheetsUrl $OutputPath
 
 if ($LASTEXITCODE -eq 0)
 {

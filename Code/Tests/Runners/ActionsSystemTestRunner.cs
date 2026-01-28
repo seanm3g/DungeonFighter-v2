@@ -31,6 +31,10 @@ namespace RPGGame.Tests.Runners
             RollModificationManagerTests.RunAllTests();
             Console.WriteLine();
             ActionTests.RunAllTests();
+            Console.WriteLine();
+            RPGGame.Tests.Unit.Data.SpreadsheetImportTests.RunAllTests();
+            Console.WriteLine();
+            RPGGame.Tests.Unit.Data.ActionMechanicsTests.RunAllTests();
         }
     }
 }

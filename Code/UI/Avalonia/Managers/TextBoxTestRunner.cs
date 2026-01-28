@@ -267,6 +267,28 @@ namespace RPGGame.UI.Avalonia.Managers
         }
 
         /// <summary>
+        /// Runs spreadsheet import tests
+        /// </summary>
+        public async Task RunSpreadsheetImportTestsAsync()
+        {
+            await orchestrator.RunTestAsync(
+                () => ComprehensiveTestRunner.RunSpreadsheetImportTests(),
+                "Running spreadsheet import tests...",
+                "Spreadsheet import tests complete");
+        }
+
+        /// <summary>
+        /// Runs action mechanics tests (all mechanics)
+        /// </summary>
+        public async Task RunActionMechanicsTestsAsync()
+        {
+            await orchestrator.RunTestAsync(
+                () => ComprehensiveTestRunner.RunActionMechanicsTests(),
+                "Running action mechanics tests (all)...",
+                "Action mechanics tests complete");
+        }
+
+        /// <summary>
         /// Clears the output TextBox
         /// </summary>
         public void ClearOutput()
@@ -284,6 +306,21 @@ namespace RPGGame.UI.Avalonia.Managers
                 if (progressBar != null)
                 {
                     progressBar.Value = 0;
+                }
+            });
+        }
+
+        /// <summary>
+        /// Appends text to the output TextBox
+        /// </summary>
+        public void AppendOutput(string text)
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (outputTextBox != null)
+                {
+                    outputTextBox.Text += text;
+                    outputTextBox.CaretIndex = outputTextBox.Text.Length;
                 }
             });
         }

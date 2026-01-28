@@ -142,18 +142,33 @@ namespace RPGGame
 
         /// <summary>
         /// Loads actions from JSON with optional validation
+        /// Supports both legacy ActionData format and new spreadsheet-compatible format
         /// </summary>
         /// <param name="validate">If true, validates loaded actions and logs any issues</param>
         public static void LoadActions(bool validate)
         {
             ErrorHandler.TryExecute(() =>
             {
-                // Use the new JsonLoader for consistent loading
-                var actionList = JsonLoader.LoadJsonFromPaths<List<ActionData>>(
-                    PossibleActionPaths, 
-                    useCache: true, 
-                    fallbackValue: new List<ActionData>()
-                );
+                // Find the first existing file
+                string? filePath = null;
+                foreach (var path in PossibleActionPaths)
+                {
+                    if (File.Exists(path))
+                    {
+                        filePath = path;
+                        break;
+                    }
+                }
+                
+                if (filePath == null)
+                {
+                    ErrorHandler.LogWarning($"No actions JSON file found. Searched paths: {string.Join(", ", PossibleActionPaths)}", "ActionLoader");
+                    _actions = new Dictionary<string, ActionData>();
+                    return;
+                }
+                
+                // Detect format and load accordingly
+                var actionList = LoadActionsFromFile(filePath);
                 
                 _actions = new Dictionary<string, ActionData>();
                 
@@ -175,13 +190,7 @@ namespace RPGGame
                 }
                 else
                 {
-                    ErrorHandler.LogWarning($"No actions loaded from JSON files. Searched paths: {string.Join(", ", PossibleActionPaths)}", "ActionLoader");
-                    // Log which paths were searched for debugging
-                    foreach (var path in PossibleActionPaths)
-                    {
-                        bool exists = File.Exists(path);
-                        DebugLogger.LogFormat("ActionLoader", "Path '{0}' exists: {1}", path, exists);
-                    }
+                    ErrorHandler.LogWarning($"No actions loaded from JSON file: {filePath}", "ActionLoader");
                 }
 
                 // Optional validation
@@ -194,6 +203,98 @@ namespace RPGGame
                 _actions = new Dictionary<string, ActionData>();
                 ErrorHandler.LogError(new Exception("Failed to load actions"), "ActionLoader.LoadActions", "Action loading failed, using empty dictionary");
             });
+        }
+        
+        /// <summary>
+        /// Detects JSON format and loads actions accordingly
+        /// </summary>
+        private static List<ActionData> LoadActionsFromFile(string filePath)
+        {
+            try
+            {
+                // Try to detect format by reading a sample
+                string jsonContent = File.ReadAllText(filePath);
+                
+                // Check if it's spreadsheet format (has "action" property) or legacy format (has "name" property)
+                // Spreadsheet format uses "action" while legacy uses "name"
+                bool isSpreadsheetFormat = DetectSpreadsheetFormat(jsonContent);
+                
+                if (isSpreadsheetFormat)
+                {
+                    // Load as spreadsheet format and convert
+                    DebugLogger.LogFormat("ActionLoader", "Detected spreadsheet-compatible JSON format");
+                    var spreadsheetList = JsonLoader.LoadJson<List<Data.SpreadsheetActionJson>>(
+                        filePath, 
+                        useCache: true, 
+                        fallbackValue: new List<Data.SpreadsheetActionJson>()
+                    );
+                    
+                    // Convert to ActionData
+                    return Data.SpreadsheetJsonToActionDataConverter.ConvertList(spreadsheetList);
+                }
+                else
+                {
+                    // Load as legacy ActionData format
+                    DebugLogger.LogFormat("ActionLoader", "Detected legacy ActionData JSON format");
+                    return JsonLoader.LoadJson<List<ActionData>>(
+                        filePath, 
+                        useCache: true, 
+                        fallbackValue: new List<ActionData>()
+                    );
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.LogError(ex, "ActionLoader.LoadActionsFromFile", $"Error loading actions from {filePath}");
+                return new List<ActionData>();
+            }
+        }
+        
+        /// <summary>
+        /// Detects if JSON is in spreadsheet format by checking for "action" property
+        /// </summary>
+        private static bool DetectSpreadsheetFormat(string jsonContent)
+        {
+            if (string.IsNullOrWhiteSpace(jsonContent))
+                return false;
+            
+            // Check if JSON contains "action" property (spreadsheet format) vs "name" property (legacy format)
+            // Spreadsheet format will have "action" as a top-level property in the first object
+            // We'll check if the first non-whitespace object has "action" instead of "name"
+            try
+            {
+                // Quick check: if JSON contains "action" property and doesn't have "name" in the first object,
+                // it's likely spreadsheet format
+                // More reliable: try to parse first object and check properties
+                using (var doc = JsonDocument.Parse(jsonContent))
+                {
+                    if (doc.RootElement.ValueKind == JsonValueKind.Array && doc.RootElement.GetArrayLength() > 0)
+                    {
+                        var firstElement = doc.RootElement[0];
+                        if (firstElement.ValueKind == JsonValueKind.Object)
+                        {
+                            // Check if it has "action" property (spreadsheet format)
+                            if (firstElement.TryGetProperty("action", out _))
+                            {
+                                return true;
+                            }
+                            // Check if it has "name" property (legacy format)
+                            if (firstElement.TryGetProperty("name", out _))
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // If parsing fails, default to legacy format
+                return false;
+            }
+            
+            // Default to legacy format if detection fails
+            return false;
         }
 
         /// <summary>

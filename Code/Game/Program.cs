@@ -95,6 +95,18 @@ namespace RPGGame
                     return;
                 }
 
+                // Check if update actions mode is requested (for updating from Google Sheets)
+                if (args.Length > 0 && args[0].Equals("UPDATE_ACTIONS", StringComparison.OrdinalIgnoreCase))
+                {
+                    executionMode = "UPDATE_ACTIONS";
+                    BuildExecutionMetrics.RecordLaunchTime("UPDATE_ACTIONS");
+                    // Update Actions.json from Google Sheets
+                    string? googleSheetsUrl = args.Length > 1 ? args[1] : null;
+                    string? outputPath = args.Length > 2 ? args[2] : null;
+                    await RPGGame.Data.ActionUpdateService.UpdateFromGoogleSheetsAsync(googleSheetsUrl, outputPath);
+                    return;
+                }
+
                 // Launch Avalonia GUI (execution time tracked until app closes)
                 // Launch time will be recorded when the window is ready
                 BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);

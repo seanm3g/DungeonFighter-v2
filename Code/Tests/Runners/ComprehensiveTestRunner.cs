@@ -265,6 +265,26 @@ namespace RPGGame.Tests.Runners
         }
 
         /// <summary>
+        /// Runs spreadsheet import tests
+        /// </summary>
+        public static void RunSpreadsheetImportTests()
+        {
+            Console.WriteLine("=== SPREADSHEET IMPORT TESTS ===\n");
+            
+            RPGGame.Tests.Unit.Data.SpreadsheetImportTests.RunAllTests();
+        }
+
+        /// <summary>
+        /// Runs action mechanics tests (all mechanics)
+        /// </summary>
+        public static void RunActionMechanicsTests()
+        {
+            Console.WriteLine("=== ACTION MECHANICS TESTS (ALL) ===\n");
+            
+            RPGGame.Tests.Unit.Data.ActionMechanicsTests.RunAllTests();
+        }
+
+        /// <summary>
         /// Runs dice mechanics tests
         /// </summary>
         public static void RunDiceMechanicsTests()

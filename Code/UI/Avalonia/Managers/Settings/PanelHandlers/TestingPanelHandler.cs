@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Controls;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Settings;
@@ -60,6 +61,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             var testErrorHandlingButton = panel.FindControl<Button>("TestErrorHandlingButton");
             var testMultiHitButton = panel.FindControl<Button>("TestMultiHitButton");
             var testStatusEffectsButton = panel.FindControl<Button>("TestStatusEffectsButton");
+            var testActionImportButton = panel.FindControl<Button>("TestActionImportButton");
+            var testActionMechanicsButton = panel.FindControl<Button>("TestActionMechanicsButton");
             var testCombatButton = panel.FindControl<Button>("TestCombatButton");
             var testDungeonButton = panel.FindControl<Button>("TestDungeonButton");
             var testGameplayFlowButton = panel.FindControl<Button>("TestGameplayFlowButton");
@@ -187,6 +190,22 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 };
             }
 
+            if (testActionImportButton != null)
+            {
+                testActionImportButton.Click += async (s, e) =>
+                {
+                    await textBoxTestRunner.RunSpreadsheetImportTestsAsync();
+                };
+            }
+
+            if (testActionMechanicsButton != null)
+            {
+                testActionMechanicsButton.Click += async (s, e) =>
+                {
+                    await textBoxTestRunner.RunActionMechanicsTestsAsync();
+                };
+            }
+
             if (testCombatButton != null)
             {
                 testCombatButton.Click += async (s, e) =>
@@ -225,6 +244,62 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 {
                     textBoxTestRunner.ClearOutput();
                 };
+            }
+
+            var resyncActionsButton = panel.FindControl<Button>("ResyncActionsButton");
+            if (resyncActionsButton != null)
+            {
+                resyncActionsButton.Click += async (s, e) =>
+                {
+                    await ResyncActionsFromGoogleSheets(panel);
+                };
+            }
+        }
+
+        private async System.Threading.Tasks.Task ResyncActionsFromGoogleSheets(TestingSettingsPanel panel)
+        {
+            if (textBoxTestRunner == null) return;
+
+            try
+            {
+                textBoxTestRunner.AppendOutput("=== Resyncing Actions from Google Sheets ===\n");
+                textBoxTestRunner.AppendOutput("Fetching latest actions from Google Sheets...\n");
+                
+                // Update status text if available
+                var statusTextBlock = panel.FindControl<TextBlock>("TestOutputProgressText");
+                if (statusTextBlock != null)
+                {
+                    statusTextBlock.Text = "Resyncing actions...";
+                }
+
+                // Call the update service
+                await RPGGame.Data.ActionUpdateService.UpdateFromGoogleSheetsAsync();
+
+                textBoxTestRunner.AppendOutput("✓ Successfully updated Actions.json from Google Sheets\n");
+                textBoxTestRunner.AppendOutput("Reloading actions...\n");
+
+                // Reload actions
+                RPGGame.ActionLoader.LoadActions();
+                var actionCount = RPGGame.ActionLoader.GetAllActions().Count;
+                
+                textBoxTestRunner.AppendOutput($"✓ Actions reloaded successfully ({actionCount} actions loaded)\n");
+                textBoxTestRunner.AppendOutput("=== Resync Complete ===\n\n");
+
+                if (statusTextBlock != null)
+                {
+                    statusTextBlock.Text = $"Resync complete - {actionCount} actions loaded";
+                }
+            }
+            catch (Exception ex)
+            {
+                textBoxTestRunner.AppendOutput($"✗ Error resyncing actions: {ex.Message}\n");
+                textBoxTestRunner.AppendOutput($"{ex.StackTrace}\n\n");
+                
+                var statusTextBlock = panel.FindControl<TextBlock>("TestOutputProgressText");
+                if (statusTextBlock != null)
+                {
+                    statusTextBlock.Text = $"Error: {ex.Message}";
+                }
             }
         }
     }

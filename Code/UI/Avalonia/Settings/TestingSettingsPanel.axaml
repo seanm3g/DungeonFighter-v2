@@ -73,6 +73,17 @@
                     <Button x:Name="TestStatusEffectsButton" Content="Status Effects" Width="140" Height="35"
                             Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
+                    <Button x:Name="TestActionImportButton" Content="Action Import (Spreadsheet)" Width="200" Height="35"
+                            Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
+                            FontSize="14" FontWeight="SemiBold"/>
+                    <Button x:Name="TestActionMechanicsButton" Content="Action Mechanics (All)" Width="200" Height="35"
+                            Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
+                            FontSize="14" FontWeight="SemiBold"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,5,0,0">
+                    <Button x:Name="ResyncActionsButton" Content="Resync Actions from Google Sheets" Width="280" Height="35"
+                            Background="#FF0078D4" Foreground="White" BorderThickness="0" CornerRadius="4"
+                            FontSize="14" FontWeight="SemiBold"/>
                 </StackPanel>
             </StackPanel>
             

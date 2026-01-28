@@ -71,7 +71,7 @@
     "criticalHitThreshold": 20,
     "criticalHitMultiplier": 2,
     "minimumDamage": 1,
-    "baseAttackTime": 8.0,
+    "baseAttackTime": 8,
     "agilitySpeedReduction": 0.01,
     "minimumAttackTime": 0.08,
     "agilityMin": 1,
@@ -130,50 +130,52 @@
     "stacksPerApplication": 0
   },
   "statusEffects": {
-    "bleed": {
-      "damagePerTick": 0,
-      "tickInterval": 0,
-      "maxStacks": 0,
-      "stacksPerApplication": 0,
-      "speedReduction": 0,
-      "duration": 0,
-      "skipTurns": 0
-    },
-    "burn": {
-      "damagePerTick": 0,
-      "tickInterval": 0,
-      "maxStacks": 0,
-      "stacksPerApplication": 0,
-      "speedReduction": 0,
-      "duration": 0,
-      "skipTurns": 0
-    },
-    "freeze": {
-      "damagePerTick": 0,
-      "tickInterval": 0,
-      "maxStacks": 0,
-      "stacksPerApplication": 0,
-      "speedReduction": 0,
-      "duration": 0,
-      "skipTurns": 0
-    },
-    "stun": {
-      "damagePerTick": 0,
-      "tickInterval": 0,
-      "maxStacks": 0,
-      "stacksPerApplication": 0,
-      "speedReduction": 0,
-      "duration": 0,
-      "skipTurns": 0
-    },
-    "poison": {
-      "damagePerTick": 0,
-      "tickInterval": 0,
-      "maxStacks": 0,
-      "stacksPerApplication": 0,
-      "speedReduction": 0,
-      "duration": 0,
-      "skipTurns": 0
+    "effects": {
+      "Bleed": {
+        "damagePerTick": 0,
+        "tickInterval": 0,
+        "maxStacks": 0,
+        "stacksPerApplication": 0,
+        "speedReduction": 0,
+        "duration": 0,
+        "skipTurns": 0
+      },
+      "Burn": {
+        "damagePerTick": 0,
+        "tickInterval": 0,
+        "maxStacks": 0,
+        "stacksPerApplication": 0,
+        "speedReduction": 0,
+        "duration": 0,
+        "skipTurns": 0
+      },
+      "Freeze": {
+        "damagePerTick": 0,
+        "tickInterval": 0,
+        "maxStacks": 0,
+        "stacksPerApplication": 0,
+        "speedReduction": 0,
+        "duration": 0,
+        "skipTurns": 0
+      },
+      "Stun": {
+        "damagePerTick": 0,
+        "tickInterval": 0,
+        "maxStacks": 0,
+        "stacksPerApplication": 0,
+        "speedReduction": 0,
+        "duration": 0,
+        "skipTurns": 0
+      },
+      "Poison": {
+        "damagePerTick": 0,
+        "tickInterval": 0,
+        "maxStacks": 0,
+        "stacksPerApplication": 0,
+        "speedReduction": 0,
+        "duration": 0,
+        "skipTurns": 0
+      }
     },
     "description": ""
   },
