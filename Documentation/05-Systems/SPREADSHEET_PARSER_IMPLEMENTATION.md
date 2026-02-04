@@ -9,11 +9,12 @@ A complete parser system has been implemented to convert Google Sheets action de
 All components have been created and integrated:
 
 ### ✅ Data Models
-- **`SpreadsheetActionData.cs`** - Models spreadsheet rows with column mapping
+- **`SpreadsheetActionData.cs`** - Models spreadsheet rows with column mapping (supports context+label mapping)
+- **`SpreadsheetHeader.cs`** - Row 1 (context/section) + row 2 (labels) for mechanics and ingestion
 - **`ActionAttackBonus.cs`** - Data structures for ACTION/ATTACK bonuses
 
 ### ✅ Parsing Components
-- **`SpreadsheetActionParser.cs`** - CSV parser for reading spreadsheet exports
+- **`SpreadsheetActionParser.cs`** - CSV parser; uses row 1 context and row 2 labels for column mapping
 - **`ActionAttackKeywordProcessor.cs`** - Processes CADENCE column and generates bonus structures
 - **`SpreadsheetToActionDataConverter.cs`** - Converts spreadsheet data to ActionData format
 
@@ -48,13 +49,29 @@ All components have been created and integrated:
 3. **ACTION Bonuses**: Applied after successful action execution, only consumed on success
 4. **Bonus Types**: Supports ACCURACY, HIT, COMBO, CRIT, and stat bonuses (STR, AGI, TECH, INT)
 
+## Row 1 (Context) and Row 2 (Labels)
+
+The parser uses **two header rows** when present:
+
+- **Row 1 (context row)**: Section/group labels (e.g. "STATUS EFFECT", "HERO DICE ROLL MODIFICATIONS", "ENEMY TARGET"). These give context for the column labels in row 2. Merged cells in row 1 are filled so that empty cells carry the last non-empty section.
+- **Row 2 (label row)**: Column labels (ACTION, DESCRIPTION, DPS(%), STUN, HEAL, etc.).
+
+**Why this matters:**
+- The same label can appear in multiple sections (e.g. "ACCURACY" under Hero vs Enemy, "HEAL" under Hero vs Enemy). Row 1 context disambiguates so mechanics are determined correctly.
+- Column order can change; mapping is by (context + label) or label-only, not by fixed indices.
+- Ingestion and conversion use this context when mapping spreadsheet cells to `SpreadsheetActionData` and then to game mechanics.
+
+If the first line of the CSV starts with "ACTION,", the parser treats the file as having no context row (legacy) and uses index-based mapping only.
+
 ## Usage
 
 ### Parsing Spreadsheet
 
 ```csharp
-// Parse CSV file
-var spreadsheetActions = SpreadsheetActionParser.ParseCsvFile("path/to/spreadsheet.csv");
+// Parse CSV file (returns result with Actions and Header)
+var parseResult = SpreadsheetActionParser.ParseCsvFile("path/to/spreadsheet.csv");
+var spreadsheetActions = parseResult.Actions;
+// parseResult.Header contains row 1 context + row 2 labels when present
 
 // Convert to ActionData
 var actionDataList = new List<ActionData>();
@@ -70,7 +87,18 @@ SpreadsheetActionJsonGenerator.ConvertAndGenerateJsonFile(spreadsheetActions, "G
 
 ### Spreadsheet Column Mapping
 
-Key columns:
+When row 1 context is present, columns are resolved by **(context, label)** or **label**:
+
+- No context: ACTION, DESCRIPTION, RARITY, CATEGORY, DPS(%), # OF HITS, DAMAGE(%), SPEED(x), DURATION, CADENCE, OPENER, FINISHER
+- **HERO DICE ROLL MODIFICATIONS**: ACCUARCY/ACCURACY, HIT, COMBO, CRIT → Hero bonuses
+- **ENEMY DICE MODIFICATIONS**: ACCUARCY/ACCURACY, HIT, COMBO, CRIT → Enemy bonuses
+- **HERO ATTRIBUTE MODIFICATION**: STR, AGI, TECH, INT
+- **ENEMY ATTRIBUTE MODIFICATIONS**: STR, AGI, TECH, INT
+- **ENEMY BASE STATS**: SPEED MOD, DAMAGE MOD, MULTIHIT MOD, AMP_MOD
+- **HERO HEAL**: HEAL, MAX HEALTH
+- **ENEMY TARGET** / **SELF TARGET**: STUN, POISON, BURN, BLEED, WEAKEN, EXPOSE, SLOW, VULNERABILITY, HARDEN, SILENCE, PIERCE, STAT DRAIN, FORTIFY, CONSUME, FOCUS, CLENSE, LIFESTEAL, REFLECT, SELF DAMAGE
+
+Key columns (by label when no context row):
 - **A**: ACTION (name)
 - **B**: DESCRIPTION
 - **J**: DURATION (count for keywords)
@@ -88,12 +116,12 @@ Actions with ACTION/ATTACK bonuses will include:
   "actionAttackBonuses": {
     "bonusGroups": [
       {
-        "keyword": "ATTACK",
+        "keyword": "ACTION",
         "count": 1,
         "bonuses": [
           { "type": "HIT", "value": 1 }
         ],
-        "durationType": "ATTACK"
+        "durationType": "ACTION"
       }
     ]
   }
@@ -120,6 +148,7 @@ The parser can be tested by:
 
 ### New Files
 - `Code/Data/SpreadsheetActionData.cs`
+- `Code/Data/SpreadsheetHeader.cs` - Row 1 context + row 2 labels; `SpreadsheetParseResult`
 - `Code/Data/ActionAttackBonus.cs`
 - `Code/Data/SpreadsheetActionParser.cs`
 - `Code/Data/ActionAttackKeywordProcessor.cs`

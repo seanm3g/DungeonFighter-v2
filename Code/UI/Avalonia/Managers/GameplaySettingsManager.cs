@@ -10,13 +10,19 @@ namespace RPGGame.UI.Avalonia.Managers
     /// </summary>
     public class GameplaySettingsManager
     {
-        private readonly GameSettings settings;
+        private GameSettings settings;
         private readonly Action<string, bool>? showStatusMessage;
         
         public GameplaySettingsManager(GameSettings settings, Action<string, bool>? showStatusMessage = null)
         {
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             this.showStatusMessage = showStatusMessage;
+        }
+
+        /// <summary>Updates the settings reference after ReloadFromFile.</summary>
+        public void RefreshSettings(GameSettings currentSettings)
+        {
+            this.settings = currentSettings ?? throw new ArgumentNullException(nameof(currentSettings));
         }
         
         /// <summary>
@@ -114,10 +120,14 @@ namespace RPGGame.UI.Avalonia.Managers
             CheckBox fastCombatCheckBox,
             CheckBox showDetailedStatsCheckBox)
         {
+            var fastChecked = fastCombatCheckBox.IsChecked ?? false;
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "S", location = "GameplaySettingsManager.SaveGameplaySettings", message = "Checkbox at save", data = new { fastCombatCheckBoxIsChecked = fastCombatCheckBox.IsChecked, fastChecked }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
             // Gameplay Settings
             settings.ShowIndividualActionMessages = showIndividualActionMessagesCheckBox.IsChecked ?? false;
             settings.EnableTextDisplayDelays = enableTextDisplayDelaysCheckBox.IsChecked ?? true;
-            settings.FastCombat = fastCombatCheckBox.IsChecked ?? false;
+            settings.FastCombat = fastChecked;
             settings.ShowDetailedStats = showDetailedStatsCheckBox.IsChecked ?? true;
         }
         

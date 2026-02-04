@@ -35,15 +35,10 @@ namespace RPGGame.Data.Validation
 
         private List<ActionData> GetActionDataList()
         {
-            // We need to get the raw ActionData, not the Action objects
-            // ActionLoader doesn't expose this directly, so we'll load it ourselves
-            var filePath = JsonLoader.FindGameDataFile(FileName);
-            if (filePath == null)
-            {
-                return new List<ActionData>();
-            }
-
-            return JsonLoader.LoadJsonList<ActionData>(filePath) ?? new List<ActionData>();
+            // Use ActionLoader so we validate the same data the game uses (handles both
+            // legacy ActionData JSON and spreadsheet format with "action" property).
+            ActionLoader.LoadActions();
+            return ActionLoader.GetAllActionData() ?? new List<ActionData>();
         }
 
         private void ValidateAction(ActionData action, ValidationResult result)
@@ -54,27 +49,6 @@ namespace RPGGame.Data.Validation
             if (string.IsNullOrEmpty(action.Name))
             {
                 result.AddError(FileName, entityName, "name", "Action name is required");
-            }
-
-            if (string.IsNullOrEmpty(action.Type))
-            {
-                result.AddError(FileName, entityName, "type", "Action type is required");
-            }
-
-            // Type validation
-            if (!string.IsNullOrEmpty(action.Type) && 
-                !ValidationRules.Actions.ValidTypes.Contains(action.Type))
-            {
-                result.AddError(FileName, entityName, "type", 
-                    $"Invalid action type '{action.Type}'. Valid types: {string.Join(", ", ValidationRules.Actions.ValidTypes)}");
-            }
-
-            // Target type validation
-            if (!string.IsNullOrEmpty(action.TargetType) && 
-                !ValidationRules.Actions.ValidTargetTypes.Contains(action.TargetType))
-            {
-                result.AddWarning(FileName, entityName, "targetType", 
-                    $"Unknown target type '{action.TargetType}'. Valid types: {string.Join(", ", ValidationRules.Actions.ValidTargetTypes)}");
             }
 
             // Range checks
@@ -109,6 +83,16 @@ namespace RPGGame.Data.Validation
             ValidateRange(result, entityName, "hitThresholdOverride", action.HitThresholdOverride, 
                 ValidationRules.Actions.MinThreshold, ValidationRules.Actions.MaxThreshold);
 
+            // Roll bonus threshold adjustments (Crit Miss, Hit, Combo, Crit)
+            ValidateRange(result, entityName, "criticalMissThresholdAdjustment", action.CriticalMissThresholdAdjustment,
+                ValidationRules.Actions.MinThresholdAdjustment, ValidationRules.Actions.MaxThresholdAdjustment);
+            ValidateRange(result, entityName, "hitThresholdAdjustment", action.HitThresholdAdjustment,
+                ValidationRules.Actions.MinThresholdAdjustment, ValidationRules.Actions.MaxThresholdAdjustment);
+            ValidateRange(result, entityName, "comboThresholdAdjustment", action.ComboThresholdAdjustment,
+                ValidationRules.Actions.MinThresholdAdjustment, ValidationRules.Actions.MaxThresholdAdjustment);
+            ValidateRange(result, entityName, "criticalHitThresholdAdjustment", action.CriticalHitThresholdAdjustment,
+                ValidationRules.Actions.MinThresholdAdjustment, ValidationRules.Actions.MaxThresholdAdjustment);
+
             // Multiple dice validation
             ValidateRange(result, entityName, "multipleDiceCount", action.MultipleDiceCount, 
                 ValidationRules.Actions.MinMultipleDiceCount, ValidationRules.Actions.MaxMultipleDiceCount);
@@ -120,7 +104,20 @@ namespace RPGGame.Data.Validation
                     $"Invalid multipleDiceMode '{action.MultipleDiceMode}'. Valid modes: {string.Join(", ", ValidationRules.Actions.ValidMultipleDiceModes)}");
             }
 
-            // Stat bonus type validation
+            // Stat bonus type validation (list and legacy single)
+            if (action.StatBonuses != null)
+            {
+                for (int i = 0; i < action.StatBonuses.Count; i++)
+                {
+                    var entry = action.StatBonuses[i];
+                    if (!string.IsNullOrEmpty(entry.Type) && 
+                        !ValidationRules.Actions.ValidStatBonusTypes.Contains(entry.Type))
+                    {
+                        result.AddWarning(FileName, entityName, "statBonuses", 
+                            $"Unknown stat bonus type '{entry.Type}' at index {i}. Valid types: {string.Join(", ", ValidationRules.Actions.ValidStatBonusTypes)}");
+                    }
+                }
+            }
             if (!string.IsNullOrEmpty(action.StatBonusType) && 
                 !ValidationRules.Actions.ValidStatBonusTypes.Contains(action.StatBonusType))
             {
@@ -147,11 +144,44 @@ namespace RPGGame.Data.Validation
                     "Actions with self-damage should typically have a positive damage multiplier");
             }
 
-            // Health threshold validation (0.0 to 1.0 for percentage)
-            if (action.HealthThreshold < 0.0 || action.HealthThreshold > 1.0)
+            // Threshold validation (qualifier, type, operator, value, valueKind # or %)
+            if (action.Thresholds != null)
             {
-                result.AddError(FileName, entityName, "healthThreshold", 
-                    $"healthThreshold must be between 0.0 and 1.0 (percentage), got {action.HealthThreshold}");
+                for (int i = 0; i < action.Thresholds.Count; i++)
+                {
+                    var entry = action.Thresholds[i];
+                    bool hasOperator = !string.IsNullOrEmpty(entry.Operator);
+                    bool isPercent = string.Equals(entry.ValueKind, "%", StringComparison.OrdinalIgnoreCase);
+                    if (isPercent && (entry.Value < 0.0 || entry.Value > 100.0))
+                        result.AddWarning(FileName, entityName, "thresholds", 
+                            $"thresholds[{i}].value should be 0-100 when valueKind is %, got {entry.Value}");
+                    else if (!hasOperator && !isPercent && (entry.Value < 0.0 || entry.Value > 1.0))
+                        result.AddError(FileName, entityName, "thresholds", 
+                            $"thresholds[{i}].value must be between 0.0 and 1.0 when no operator is set (legacy fraction), got {entry.Value}");
+                    if (!string.IsNullOrEmpty(entry.Type) && !ValidationRules.Actions.ValidThresholdStatTypes.Contains(entry.Type))
+                        result.AddWarning(FileName, entityName, "thresholds", 
+                            $"thresholds[{i}].type '{entry.Type}' is not a known attribute. Valid: Health, Strength, Agility, Technique, Intelligence.");
+                }
+            }
+            if (action.Thresholds == null || action.Thresholds.Count == 0)
+            {
+                if (action.HealthThreshold < 0.0 || action.HealthThreshold > 1.0)
+                    result.AddError(FileName, entityName, "healthThreshold", 
+                        $"healthThreshold must be between 0.0 and 1.0 (percentage), got {action.HealthThreshold}");
+            }
+
+            if (action.Accumulations != null)
+            {
+                for (int i = 0; i < action.Accumulations.Count; i++)
+                {
+                    var entry = action.Accumulations[i];
+                    if (!string.IsNullOrEmpty(entry.Type) && !ValidationRules.Actions.ValidAccumulationTypes.Contains(entry.Type))
+                        result.AddWarning(FileName, entityName, "accumulations",
+                            $"Unknown accumulation type '{entry.Type}' at index {i}. Valid: {string.Join(", ", ValidationRules.Actions.ValidAccumulationTypes)}");
+                    if (!string.IsNullOrEmpty(entry.ModifiesParam) && !ValidationRules.Actions.ValidAccumulationModifiesParam.Contains(entry.ModifiesParam))
+                        result.AddWarning(FileName, entityName, "accumulations",
+                            $"Unknown accumulation modifies param '{entry.ModifiesParam}' at index {i}. Valid: {string.Join(", ", ValidationRules.Actions.ValidAccumulationModifiesParam)}");
+                }
             }
 
             // Conditional damage multiplier validation

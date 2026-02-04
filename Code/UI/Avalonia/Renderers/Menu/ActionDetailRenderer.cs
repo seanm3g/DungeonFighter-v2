@@ -44,8 +44,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             canvas.AddText(menuStartX, menuStartY, "Basic Information:", AsciiArtAssets.Colors.Cyan);
             menuStartY += 1;
             
-            canvas.AddText(menuStartX, menuStartY, $"  Type: {action.Type}", AsciiArtAssets.Colors.White);
-            menuStartY++;
             canvas.AddText(menuStartX, menuStartY, $"  Target Type: {action.TargetType}", AsciiArtAssets.Colors.White);
             menuStartY++;
             canvas.AddText(menuStartX, menuStartY, $"  Description: {action.Description}", AsciiArtAssets.Colors.White);
@@ -59,7 +57,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             menuStartY++;
             canvas.AddText(menuStartX, menuStartY, $"  Cooldown: {action.Cooldown}", AsciiArtAssets.Colors.White);
             menuStartY++;
-            canvas.AddText(menuStartX, menuStartY, $"  Length: {action.Length}", AsciiArtAssets.Colors.White);
+            canvas.AddText(menuStartX, menuStartY, $"  Speed: {action.Length}", AsciiArtAssets.Colors.White);
             menuStartY += 2;
             
             // Status Effects
@@ -103,9 +101,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             {
                 canvas.AddText(menuStartX, menuStartY, "Combo Information:", AsciiArtAssets.Colors.Cyan);
                 menuStartY += 1;
-                
-                canvas.AddText(menuStartX, menuStartY, $"  Is Combo Action: {action.IsComboAction}", AsciiArtAssets.Colors.White);
-                menuStartY++;
                 if (action.ComboOrder > 0)
                 {
                     canvas.AddText(menuStartX, menuStartY, $"  Combo Order: {action.ComboOrder}", AsciiArtAssets.Colors.White);
@@ -124,34 +119,58 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 menuStartY += 1;
             }
             
-            // Stat Bonuses
-            if (action.StatBonus > 0 && !string.IsNullOrEmpty(action.StatBonusType))
+            // Roll Bonuses (Crit Miss, Hit, Combo, Crit — threshold adjustments)
+            bool hasRollBonusAdjustments = action.CriticalMissThresholdAdjustment != 0 || action.HitThresholdAdjustment != 0 ||
+                action.ComboThresholdAdjustment != 0 || action.CriticalHitThresholdAdjustment != 0;
+            if (hasRollBonusAdjustments)
+            {
+                canvas.AddText(menuStartX, menuStartY, "Roll Bonuses:", AsciiArtAssets.Colors.Cyan);
+                menuStartY += 1;
+                if (action.CriticalMissThresholdAdjustment != 0)
+                    canvas.AddText(menuStartX, menuStartY, $"  Crit Miss: {action.CriticalMissThresholdAdjustment:+0;-0;0}", AsciiArtAssets.Colors.White);
+                menuStartY += action.CriticalMissThresholdAdjustment != 0 ? 1 : 0;
+                if (action.HitThresholdAdjustment != 0)
+                    canvas.AddText(menuStartX, menuStartY, $"  Hit: {action.HitThresholdAdjustment:+0;-0;0}", AsciiArtAssets.Colors.White);
+                menuStartY += action.HitThresholdAdjustment != 0 ? 1 : 0;
+                if (action.ComboThresholdAdjustment != 0)
+                    canvas.AddText(menuStartX, menuStartY, $"  Combo: {action.ComboThresholdAdjustment:+0;-0;0}", AsciiArtAssets.Colors.White);
+                menuStartY += action.ComboThresholdAdjustment != 0 ? 1 : 0;
+                if (action.CriticalHitThresholdAdjustment != 0)
+                    canvas.AddText(menuStartX, menuStartY, $"  Crit: {action.CriticalHitThresholdAdjustment:+0;-0;0}", AsciiArtAssets.Colors.White);
+                menuStartY += action.CriticalHitThresholdAdjustment != 0 ? 1 : 0;
+                menuStartY += 1;
+            }
+
+            // Stat Bonuses (list or legacy single)
+            var statBonusEntries = GetStatBonusEntries(action);
+            if (statBonusEntries.Count > 0)
             {
                 canvas.AddText(menuStartX, menuStartY, "Stat Bonuses:", AsciiArtAssets.Colors.Cyan);
                 menuStartY += 1;
-                
-                canvas.AddText(menuStartX, menuStartY, $"  Stat Bonus Type: {action.StatBonusType}", AsciiArtAssets.Colors.White);
-                menuStartY++;
-                canvas.AddText(menuStartX, menuStartY, $"  Stat Bonus: {action.StatBonus}", AsciiArtAssets.Colors.White);
-                menuStartY++;
-                canvas.AddText(menuStartX, menuStartY, $"  Stat Bonus Duration: {action.StatBonusDuration}", AsciiArtAssets.Colors.White);
-                menuStartY += 2;
+                string durationText = string.IsNullOrWhiteSpace(action.Cadence) ? "1 turn" : action.Cadence;
+                foreach (var entry in statBonusEntries)
+                {
+                    if (entry.Value == 0 && string.IsNullOrEmpty(entry.Type)) continue;
+                    canvas.AddText(menuStartX, menuStartY, $"  +{entry.Value} {entry.Type} ({durationText})", AsciiArtAssets.Colors.White);
+                    menuStartY++;
+                }
+                menuStartY += 1;
             }
             
             // Special Properties
             List<string> specialProperties = new List<string>();
             if (action.RollBonus != 0)
-                specialProperties.Add($"Roll Bonus: {action.RollBonus}");
+                specialProperties.Add($"Accuracy: {action.RollBonus}");
             if (action.MultiHitCount > 1)
                 specialProperties.Add($"Multi-Hit Count: {action.MultiHitCount}");
-            if (action.SelfDamagePercent > 0)
-                specialProperties.Add($"Self Damage: {action.SelfDamagePercent}%");
             if (action.SkipNextTurn)
                 specialProperties.Add("Skips Next Turn");
             if (action.RepeatLastAction)
                 specialProperties.Add("Repeats Last Action");
-            if (action.EnemyRollPenalty != 0)
-                specialProperties.Add($"Enemy Roll Penalty: {action.EnemyRollPenalty}");
+            if (action.Thresholds != null && action.Thresholds.Count > 0)
+                specialProperties.Add($"Thresholds: {string.Join(", ", action.Thresholds.Select(t => string.Equals(t.ValueKind, "%", StringComparison.OrdinalIgnoreCase) ? $"{t.Type} {t.Value:F0}%" : $"{t.Type} {t.Value:F0}"))}");
+            else if (action.HealthThreshold > 0)
+                specialProperties.Add($"Health Threshold: {action.HealthThreshold:P0}");
             
             if (specialProperties.Any())
             {
@@ -198,6 +217,16 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             clickableElements.Add(backOption);
             canvas.AddText(menuStartX, menuStartY, backText, AsciiArtAssets.Colors.White);
             return currentLineCount;
+        }
+
+        private static List<StatBonusEntry> GetStatBonusEntries(ActionData action)
+        {
+            if (action == null) return new List<StatBonusEntry>();
+            if (action.StatBonuses != null && action.StatBonuses.Count > 0)
+                return action.StatBonuses;
+            if (action.StatBonus != 0 || !string.IsNullOrEmpty(action.StatBonusType))
+                return new List<StatBonusEntry> { new StatBonusEntry { Value = action.StatBonus, Type = action.StatBonusType ?? "" } };
+            return new List<StatBonusEntry>();
         }
     }
 }

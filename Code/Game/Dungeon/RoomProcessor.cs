@@ -93,8 +93,9 @@ namespace RPGGame
                 var explorationResult = explorationManager.ExploreRoom(room, stateManager.CurrentPlayer, isLastRoom);
                 
                 // Apply keyword coloring to exploration message
-                // Skip displaying the message for environmental hazards - it will be displayed with proper formatting below
-                if (explorationResult.Outcome != ExplorationOutcome.EnvironmentalHazard)
+                // Skip for environmental hazards (displayed with proper formatting below) and SpotEnemyEarly (advantage message shown later)
+                if (explorationResult.Outcome != ExplorationOutcome.EnvironmentalHazard
+                    && explorationResult.Outcome != ExplorationOutcome.SpotEnemyEarly)
                 {
                     var explorationMessageColored = KeywordColorSystem.Colorize(explorationResult.Message);
                     string explorationMessageMarkup = ColoredTextRenderer.RenderAsMarkup(explorationMessageColored);

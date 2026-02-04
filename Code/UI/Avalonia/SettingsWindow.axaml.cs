@@ -5,6 +5,7 @@ using Avalonia.Layout;
 using Avalonia.Threading;
 using RPGGame;
 using RPGGame.UI.Avalonia.Helpers;
+using RPGGame.UI.Avalonia.Managers;
 using RPGGame.Utils;
 using System;
 using System.ComponentModel;
@@ -73,6 +74,8 @@ namespace RPGGame.UI.Avalonia
             // We show it after the window is displayed to avoid the 3-second freeze
             this.Opened += async (s, e) =>
             {
+                // Reload settings from file so the UI always shows the latest saved state when opening settings
+                GameSettings.ReloadFromFile();
                 // Small delay to ensure window is fully rendered and interactive
                 await Task.Delay(50);
                 
@@ -109,19 +112,18 @@ namespace RPGGame.UI.Avalonia
                             gameCoordinator,
                             canvasUI,
                             gameStateManager);
+                        // Open-settings contract: refresh panel from file so UI shows last persisted state (same as MainWindow overlay)
+                        SettingsMenuPanel.RefreshSettingsFromFile();
                     }
                 }, DispatcherPriority.SystemIdle);
             };
         }
 
         /// <summary>
-        /// Handles window closing - doesn't affect main window state
+        /// Handles window closing. Post-save apply (e.g. action pool refresh) is done by SettingsApplyService when the user clicks Save; no duplicate refresh on close.
         /// </summary>
         private void OnWindowClosing(object? sender, CancelEventArgs e)
         {
-            // Don't change game state - main window should continue functioning normally
-            // The settings window is independent and doesn't affect the main window
-            // No need to restore rendering since we never suppressed it
         }
 
         /// <summary>

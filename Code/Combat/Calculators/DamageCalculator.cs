@@ -141,16 +141,14 @@ namespace RPGGame.Combat.Calculators
             
             // Apply action damage multiplier if action is provided
             double actionMultiplier = action?.DamageMultiplier ?? 1.0;
-            
-            // Check for conditional damage multiplier based on health threshold
-            if (action != null && action.Advanced.HealthThreshold > 0.0 && action.Advanced.ConditionalDamageMultiplier > 1.0)
-            {
-                // Check if attacker's health meets the threshold (works for both Character and Enemy since Enemy inherits from Character)
-                if (attacker is Character attackerCharacter && attackerCharacter.MeetsHealthThreshold(action.Advanced.HealthThreshold))
-                {
-                    actionMultiplier *= action.Advanced.ConditionalDamageMultiplier;
-                }
-            }
+
+            // Apply consumed DAMAGE_MOD from ACTION/ABILITY keyword (next action/ability only)
+            if (attacker is Character damageModCharacter && damageModCharacter.Effects.ConsumedDamageModPercent != 0)
+                actionMultiplier *= (1.0 + damageModCharacter.Effects.ConsumedDamageModPercent / 100.0);
+
+            // Apply consumed AMP_MOD from ACTION/ABILITY keyword (next action/ability only; % bonus, multiply)
+            if (attacker is Character ampModCharacter && ampModCharacter.Effects.ConsumedAmpModPercent != 0)
+                comboAmplifier *= (1.0 + ampModCharacter.Effects.ConsumedAmpModPercent / 100.0);
             
             // Apply next attack damage multiplier (for Follow Through and similar effects)
             // Consume it so it only applies once

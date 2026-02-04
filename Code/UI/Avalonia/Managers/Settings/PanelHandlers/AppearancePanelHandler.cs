@@ -277,6 +277,47 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 subsequentLineDarkeningTextBox.Text = uiConfig.SubsequentLineDarkening.ToString("F2");
             }
         }
+
+        public void SaveSettings(UserControl panel)
+        {
+            if (panel is not AppearanceSettingsPanel appearancePanel) return;
+            var panelBackgroundTextBox = appearancePanel.FindControl<TextBox>("PanelBackgroundTextBox");
+            var panelBorderTextBox = appearancePanel.FindControl<TextBox>("PanelBorderTextBox");
+            var panelTextTextBox = appearancePanel.FindControl<TextBox>("PanelTextTextBox");
+            var settingsBackgroundTextBox = appearancePanel.FindControl<TextBox>("SettingsBackgroundTextBox");
+            var settingsTitleTextBox = appearancePanel.FindControl<TextBox>("SettingsTitleTextBox");
+            var listBoxSelectedTextBox = appearancePanel.FindControl<TextBox>("ListBoxSelectedTextBox");
+            var listBoxSelectedBackgroundTextBox = appearancePanel.FindControl<TextBox>("ListBoxSelectedBackgroundTextBox");
+            var listBoxHoverBackgroundTextBox = appearancePanel.FindControl<TextBox>("ListBoxHoverBackgroundTextBox");
+            var buttonPrimaryTextBox = appearancePanel.FindControl<TextBox>("ButtonPrimaryTextBox");
+            var buttonSecondaryTextBox = appearancePanel.FindControl<TextBox>("ButtonSecondaryTextBox");
+            var buttonBackTextBox = appearancePanel.FindControl<TextBox>("ButtonBackTextBox");
+            var textBoxTextColorTextBox = appearancePanel.FindControl<TextBox>("TextBoxTextColorTextBox");
+            var textBoxBackgroundTextBox = appearancePanel.FindControl<TextBox>("TextBoxBackgroundTextBox");
+            var textBoxHoverBackgroundTextBox = appearancePanel.FindControl<TextBox>("TextBoxHoverBackgroundTextBox");
+            var textBoxBorderTextBox = appearancePanel.FindControl<TextBox>("TextBoxBorderTextBox");
+            var textBoxFocusBorderTextBox = appearancePanel.FindControl<TextBox>("TextBoxFocusBorderTextBox");
+            if (panelBackgroundTextBox != null && !string.IsNullOrEmpty(panelBackgroundTextBox.Text)) settings.PanelBackgroundColor = panelBackgroundTextBox.Text;
+            if (panelBorderTextBox != null && !string.IsNullOrEmpty(panelBorderTextBox.Text)) settings.PanelBorderColor = panelBorderTextBox.Text;
+            if (panelTextTextBox != null && !string.IsNullOrEmpty(panelTextTextBox.Text)) settings.PanelTextColor = panelTextTextBox.Text;
+            if (settingsBackgroundTextBox != null && !string.IsNullOrEmpty(settingsBackgroundTextBox.Text)) settings.SettingsBackgroundColor = settingsBackgroundTextBox.Text;
+            if (settingsTitleTextBox != null && !string.IsNullOrEmpty(settingsTitleTextBox.Text)) settings.SettingsTitleColor = settingsTitleTextBox.Text;
+            if (listBoxSelectedTextBox != null && !string.IsNullOrEmpty(listBoxSelectedTextBox.Text)) settings.ListBoxSelectedColor = listBoxSelectedTextBox.Text;
+            if (listBoxSelectedBackgroundTextBox != null && !string.IsNullOrEmpty(listBoxSelectedBackgroundTextBox.Text)) settings.ListBoxSelectedBackgroundColor = listBoxSelectedBackgroundTextBox.Text;
+            if (listBoxHoverBackgroundTextBox != null && !string.IsNullOrEmpty(listBoxHoverBackgroundTextBox.Text)) settings.ListBoxHoverBackgroundColor = listBoxHoverBackgroundTextBox.Text;
+            if (buttonPrimaryTextBox != null && !string.IsNullOrEmpty(buttonPrimaryTextBox.Text)) settings.ButtonPrimaryColor = buttonPrimaryTextBox.Text;
+            if (buttonSecondaryTextBox != null && !string.IsNullOrEmpty(buttonSecondaryTextBox.Text)) settings.ButtonSecondaryColor = buttonSecondaryTextBox.Text;
+            if (buttonBackTextBox != null && !string.IsNullOrEmpty(buttonBackTextBox.Text)) settings.ButtonBackColor = buttonBackTextBox.Text;
+            if (textBoxTextColorTextBox != null && !string.IsNullOrEmpty(textBoxTextColorTextBox.Text)) settings.TextBoxTextColor = textBoxTextColorTextBox.Text;
+            if (textBoxBackgroundTextBox != null && !string.IsNullOrEmpty(textBoxBackgroundTextBox.Text)) settings.TextBoxBackgroundColor = textBoxBackgroundTextBox.Text;
+            if (textBoxHoverBackgroundTextBox != null && !string.IsNullOrEmpty(textBoxHoverBackgroundTextBox.Text)) settings.TextBoxHoverBackgroundColor = textBoxHoverBackgroundTextBox.Text;
+            if (textBoxBorderTextBox != null && !string.IsNullOrEmpty(textBoxBorderTextBox.Text)) settings.TextBoxBorderColor = textBoxBorderTextBox.Text;
+            if (textBoxFocusBorderTextBox != null && !string.IsNullOrEmpty(textBoxFocusBorderTextBox.Text)) settings.TextBoxFocusBorderColor = textBoxFocusBorderTextBox.Text;
+            var subsequentLineDarkeningSlider = appearancePanel.FindControl<Slider>("SubsequentLineDarkeningSlider");
+            if (subsequentLineDarkeningSlider != null)
+                SaveSubsequentLineDarkening(subsequentLineDarkeningSlider.Value);
+            settings.SaveSettings();
+        }
         
         private void SaveSubsequentLineDarkening(double value)
         {

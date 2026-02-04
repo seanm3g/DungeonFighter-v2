@@ -59,18 +59,6 @@ namespace RPGGame.MCP
             }
             _gameWrapper.DisposeGame();
         }
-
-        /// <summary>
-        /// Stops the MCP server (synchronous version for backward compatibility)
-        /// NOTE: This method is deprecated. Use StopAsync instead for proper async handling.
-        /// </summary>
-        [Obsolete("Use StopAsync instead. This method blocks the calling thread.")]
-        public void Stop()
-        {
-            // For backward compatibility only - callers should migrate to async version
-            // Using ConfigureAwait(false) to avoid deadlocks, but this still blocks
-            StopAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-        }
     }
 }
 

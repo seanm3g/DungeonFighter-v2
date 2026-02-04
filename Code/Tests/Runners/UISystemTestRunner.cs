@@ -30,6 +30,10 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             SettingsManagerTests.RunAllTests();
             Console.WriteLine();
+            SettingsApplyServiceTests.RunAllTests();
+            Console.WriteLine();
+            ActionsTabManagerTests.RunAllTests();
+            Console.WriteLine();
             DungeonRendererTests.RunAllTests();
             Console.WriteLine();
             ItemModifiersTabManagerTests.RunAllTests();

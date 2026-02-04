@@ -18,43 +18,13 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         }
 
         /// <summary>
-        /// Loads main settings into UI controls using DTO
+        /// Loads main settings into UI controls using DTO. Delegates to SettingsManager.LoadSettings(controls).
         /// </summary>
         public void LoadMainSettings(MainSettingsControls controls)
         {
             if (settingsManager == null || controls == null) return;
-            
             if (AreMainSettingsControlsValid(controls))
-            {
-#pragma warning disable CS8604 // Nullable parameters are handled by SettingsManager
-                settingsManager.LoadSettings(
-                    controls.NarrativeBalanceSlider!,
-                    controls.NarrativeBalanceTextBox!,
-                    controls.EnableNarrativeEventsCheckBox!,
-                    controls.EnableInformationalSummariesCheckBox!,
-                    controls.CombatSpeedSlider!,
-                    controls.CombatSpeedTextBox!,
-                    controls.ShowIndividualActionMessagesCheckBox!,
-                    controls.EnableComboSystemCheckBox!, // Nullable - handled by SettingsManager
-                    controls.EnableTextDisplayDelaysCheckBox!,
-                    controls.FastCombatCheckBox!,
-                    controls.EnableAutoSaveCheckBox!, // Nullable - handled by SettingsManager
-                    controls.AutoSaveIntervalTextBox!, // Nullable - handled by SettingsManager
-                    controls.ShowDetailedStatsCheckBox!,
-                    controls.EnableSoundEffectsCheckBox!, // Nullable - handled by SettingsManager
-                    controls.EnemyHealthMultiplierSlider!,
-                    controls.EnemyHealthMultiplierTextBox!,
-                    controls.EnemyDamageMultiplierSlider!,
-                    controls.EnemyDamageMultiplierTextBox!,
-                    controls.PlayerHealthMultiplierSlider!,
-                    controls.PlayerHealthMultiplierTextBox!,
-                    controls.PlayerDamageMultiplierSlider!,
-                    controls.PlayerDamageMultiplierTextBox!,
-                    controls.ShowHealthBarsCheckBox!,
-                    controls.ShowDamageNumbersCheckBox!,
-                    controls.ShowComboProgressCheckBox!);
-#pragma warning restore CS8604
-            }
+                settingsManager.LoadSettings(controls);
         }
 
         /// <summary>
@@ -65,48 +35,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             if (settingsManager == null || controls == null) return;
             
             if (AreTextDelaySettingsControlsValid(controls))
-            {
-                settingsManager.LoadTextDelaySettings(
-                    controls.EnableGuiDelaysCheckBox!,
-                    controls.EnableConsoleDelaysCheckBox!,
-                    null, // ActionDelaySlider - Deprecated, removed from DTO
-                    null, // ActionDelayTextBox - Deprecated, removed from DTO
-                    null, // MessageDelaySlider - Deprecated, removed from DTO
-                    null, // MessageDelayTextBox - Deprecated, removed from DTO
-                    controls.CombatDelayTextBox!,
-                    controls.SystemDelayTextBox!,
-                    controls.MenuDelayTextBox!,
-                    controls.TitleDelayTextBox!,
-                    controls.MainTitleDelayTextBox!,
-                    controls.EnvironmentalDelayTextBox!,
-                    controls.EffectMessageDelayTextBox!,
-                    controls.DamageOverTimeDelayTextBox!,
-                    controls.EncounterDelayTextBox!,
-                    controls.RollInfoDelayTextBox!,
-                    controls.EnvironmentalLineDelayTextBox!,
-                    controls.BaseMenuDelayTextBox!,
-                    controls.ProgressiveReductionRateTextBox!,
-                    controls.ProgressiveThresholdTextBox!,
-                    controls.CombatPresetBaseDelayTextBox!,
-                    controls.CombatPresetMinDelayTextBox!,
-                    controls.CombatPresetMaxDelayTextBox!,
-                    controls.DungeonPresetBaseDelayTextBox!,
-                    controls.DungeonPresetMinDelayTextBox!,
-                    controls.DungeonPresetMaxDelayTextBox!,
-                    controls.RoomPresetBaseDelayTextBox!,
-                    controls.RoomPresetMinDelayTextBox!,
-                    controls.RoomPresetMaxDelayTextBox!,
-                    controls.NarrativePresetBaseDelayTextBox!,
-                    controls.NarrativePresetMinDelayTextBox!,
-                    controls.NarrativePresetMaxDelayTextBox!,
-                    controls.DefaultPresetBaseDelayTextBox!,
-                    controls.DefaultPresetMinDelayTextBox!,
-                    controls.DefaultPresetMaxDelayTextBox!);
-                
-                // Note: ActionDelay and MessageDelay sliders removed - combat timing is now controlled by
-                // MessageTypeDelays.Combat and ChunkedTextReveal.Combat presets
-                // Wire-up code removed as these controls no longer exist
-            }
+                settingsManager.LoadTextDelaySettings(controls, wireUpActionDelaySlider, wireUpMessageDelaySlider);
         }
 
         /// <summary>

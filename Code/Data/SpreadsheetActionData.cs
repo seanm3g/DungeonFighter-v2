@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RPGGame.Data
 {
@@ -129,6 +130,18 @@ namespace RPGGame.Data
         public string OnRoomsCleared { get; set; } = "";
         public string OnRollValue { get; set; } = "";
         
+        /// <summary>Comma-separated: ONHIT, ONMISS, ONCOMBO, ONCRITICAL. When set, action effects apply only on these outcomes.</summary>
+        public string TriggerConditions { get; set; } = "";
+
+        /// <summary>JSON-serialized list of StatBonusEntry for round-trip with Actions settings form.</summary>
+        public string StatBonusesJson { get; set; } = "";
+
+        /// <summary>JSON-serialized list of ThresholdEntry for round-trip with Actions settings form.</summary>
+        public string ThresholdsJson { get; set; } = "";
+
+        /// <summary>JSON-serialized list of AccumulationEntry for round-trip with Actions settings form.</summary>
+        public string AccumulationsJson { get; set; } = "";
+
         // Threshold columns
         public string Target { get; set; } = "";
         public string ThresholdCategory { get; set; } = "";
@@ -138,94 +151,87 @@ namespace RPGGame.Data
         public string Value { get; set; } = "";
         public string Attribute { get; set; } = "";
         public string Reset { get; set; } = "";
+        public string ResetBlockerBuffer { get; set; } = "";
         public string ModifyRoom { get; set; } = "";
         
         // Tags
         public string Tags { get; set; } = "";
+
+        /// <summary>Default/starting action for round-trip (Actions settings). "1" or truthy = true.</summary>
+        public string IsDefaultAction { get; set; } = "";
+
+        /// <summary>Comma-separated weapon types (e.g. "Sword, Dagger") for round-trip from Actions settings.</summary>
+        public string WeaponTypes { get; set; } = "";
         
         /// <summary>
-        /// Parses a CSV row into SpreadsheetActionData
+        /// Parses a CSV row into SpreadsheetActionData. Delegates to SpreadsheetActionDataCsvParser.
+        /// When header is provided, uses row 1 (context) and row 2 (labels) to resolve columns by section and label.
         /// </summary>
-        public static SpreadsheetActionData FromCsvRow(string[] columns)
+        public static SpreadsheetActionData FromCsvRow(string[] columns, SpreadsheetHeader? header = null)
         {
-            var data = new SpreadsheetActionData();
-            
-            if (columns.Length > 0) data.Action = columns[0].Trim();
-            if (columns.Length > 1) data.Description = columns[1].Trim();
-            if (columns.Length > 3) data.Rarity = columns[3].Trim();
-            if (columns.Length > 4) data.Category = columns[4].Trim();
-            if (columns.Length > 4) data.DPS = columns[4].Trim(); // DPS(%) at index 4
-            if (columns.Length > 5) data.NumberOfHits = columns[5].Trim(); // # OF HITS at index 5
-            if (columns.Length > 6) data.Damage = columns[6].Trim(); // DAMAGE(%) at index 6
-            // CSV data alignment: [7]=Speed, [8]=Duration, [9]=Cadence, [10]=Opener, [11]=Finisher
-            if (columns.Length > 7) data.Speed = columns[7].Trim(); // SPEED(x) at index 7
-            if (columns.Length > 8) data.Duration = columns[8].Trim(); // DURATION at index 8
-            if (columns.Length > 9) data.Cadence = columns[9].Trim(); // CADENCE at index 9
-            if (columns.Length > 10) data.Opener = columns[10].Trim(); // OPENER at index 10
-            if (columns.Length > 11) data.Finisher = columns[11].Trim(); // FINISHER at index 11
-            
-            // Hero bonuses (N-Q, indices 12-15 based on header: ACCUARCY, HIT, COMBO, CRIT)
-            // Actual CSV: [12]=ACCURACY, [13]=HIT, [14]=COMBO, [15]=CRIT
-            if (columns.Length > 12) data.HeroAccuracy = columns[12].Trim();
-            if (columns.Length > 13) data.HeroHit = columns[13].Trim();
-            if (columns.Length > 14) data.HeroCombo = columns[14].Trim();
-            if (columns.Length > 15) data.HeroCrit = columns[15].Trim();
-            
-            // Enemy bonuses (R-U, indices 16-19) - also check these as fallback for Hero bonuses
-            // Actual CSV: [16]=Enemy ACCURACY, [17]=Enemy HIT, [18]=Enemy COMBO, [19]=Enemy CRIT
-            if (columns.Length > 16) data.EnemyAccuracy = columns[16].Trim();
-            if (columns.Length > 17) data.EnemyHit = columns[17].Trim();
-            if (columns.Length > 18) data.EnemyCombo = columns[18].Trim();
-            if (columns.Length > 19) data.EnemyCrit = columns[19].Trim();
-            
-            // Hero stats (V-Y, indices 21-24)
-            if (columns.Length > 21) data.HeroSTR = columns[21].Trim();
-            if (columns.Length > 22) data.HeroAGI = columns[22].Trim();
-            if (columns.Length > 23) data.HeroTECH = columns[23].Trim();
-            if (columns.Length > 24) data.HeroINT = columns[24].Trim();
-            
-            // Modifiers (AD-AG, indices 29-32)
-            if (columns.Length > 29) data.SpeedMod = columns[29].Trim();
-            if (columns.Length > 30) data.DamageMod = columns[30].Trim();
-            if (columns.Length > 31) data.MultiHitMod = columns[31].Trim();
-            if (columns.Length > 32) data.AmpMod = columns[32].Trim();
-            
-            // Status effects (approximately indices 33-50)
-            if (columns.Length > 33) data.HeroHeal = columns[33].Trim();
-            if (columns.Length > 34) data.HeroHealMaxHealth = columns[34].Trim();
-            if (columns.Length > 35) data.Stun = columns[35].Trim();
-            if (columns.Length > 36) data.Poison = columns[36].Trim();
-            if (columns.Length > 37) data.Burn = columns[37].Trim();
-            if (columns.Length > 38) data.Bleed = columns[38].Trim();
-            if (columns.Length > 39) data.Weaken = columns[39].Trim();
-            if (columns.Length > 40) data.Expose = columns[40].Trim();
-            if (columns.Length > 41) data.Slow = columns[41].Trim();
-            if (columns.Length > 42) data.Vulnerability = columns[42].Trim();
-            if (columns.Length > 43) data.Harden = columns[43].Trim();
-            if (columns.Length > 44) data.Silence = columns[44].Trim();
-            if (columns.Length > 45) data.Pierce = columns[45].Trim();
-            if (columns.Length > 46) data.StatDrain = columns[46].Trim();
-            if (columns.Length > 47) data.Fortify = columns[47].Trim();
-            if (columns.Length > 48) data.Consume = columns[48].Trim();
-            if (columns.Length > 49) data.Focus = columns[49].Trim();
-            if (columns.Length > 50) data.Cleanse = columns[50].Trim();
-            if (columns.Length > 51) data.Lifesteal = columns[51].Trim();
-            if (columns.Length > 52) data.Reflect = columns[52].Trim();
-            if (columns.Length > 53) data.SelfDamage = columns[53].Trim();
-            
-            // Additional mechanics - these column indices are approximate and may need adjustment
-            // Based on spreadsheet structure, these appear later in the row
-            // We'll need to map these more carefully based on actual CSV structure
-            
-            return data;
+            return SpreadsheetActionDataCsvParser.FromCsvRow(columns, header);
         }
         
         /// <summary>
-        /// Checks if this row represents a valid action (has a name)
+        /// Known spreadsheet sub-header / context labels that should not be ingested as actions.
+        /// These appear as column-group headers (e.g. chain/sequence metadata) in the sheet.
+        /// </summary>
+        private static readonly HashSet<string> KnownContextLabels = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "RESET CHAIN", "ON FAIL NO RESET", "LOOP CHAIN", "SHUFFLE", "REPLACE ACTION",
+            "CHAIN LENGTH", "CHAIN POSITION", "MODIFY BASED ON CHAIN POISITION", "DISTANCE FROM X SLOT",
+            "ON HIT", "ON MISS", "ON CRIT", "ON KILL", "ON ROOMS CLEARED", "ON ROLL VALUE",
+            "MODIFY BASED ON TAGS", "ADD TAG", "REMOVE TAG", "TARGET", "THRESHOLD CATEGORY",
+            "THRESHOLD AMOUNT", "BONUS", "BONUS ATTRIBUTE", "CADENCE", "VALUE", "ATTRIBUTE",
+            "RESET", "MODIFY ROOM", "GRACE"
+        };
+
+        /// <summary>
+        /// Returns true if the action name looks like spreadsheet context/header rather than a real action.
+        /// Rows with parenthetical labels (e.g. "(RESET CHAIN)") or sub-header column names are skipped.
+        /// </summary>
+        public static bool IsHeaderOrContextRow(string? actionName)
+        {
+            if (string.IsNullOrWhiteSpace(actionName))
+                return false;
+
+            var trimmed = actionName.Trim();
+
+            // Parenthetical context labels: "(RESET CHAIN)", "(ON FAIL NO RESET)"
+            if (trimmed.StartsWith("(") && trimmed.Contains(")"))
+                return true;
+
+            // Comma-separated list that looks like column headers (e.g. "(ON FAIL NO RESET),LOOP CHAIN,SHUFFLE,...")
+            if (trimmed.Contains(","))
+            {
+                var tokens = trimmed.Split(',').Select(s => s.Trim()).Where(s => s.Length > 0).ToList();
+                int contextLike = 0;
+                foreach (var t in tokens)
+                {
+                    if (t.StartsWith("(") && t.Contains(")"))
+                        contextLike++;
+                    else if (KnownContextLabels.Contains(t))
+                        contextLike++;
+                }
+                if (contextLike >= 2 || (tokens.Count >= 2 && contextLike == tokens.Count))
+                    return true;
+            }
+
+            // Single token that is a known sub-header label
+            if (KnownContextLabels.Contains(trimmed))
+                return true;
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if this row represents a valid action (has a name and is not spreadsheet context/header).
         /// </summary>
         public bool IsValid()
         {
-            return !string.IsNullOrWhiteSpace(Action);
+            if (string.IsNullOrWhiteSpace(Action))
+                return false;
+            return !IsHeaderOrContextRow(Action);
         }
         
         /// <summary>

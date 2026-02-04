@@ -9,14 +9,16 @@
 
 ## 🔧 Current Issue: Bonus Detection
 
-The parser is successfully reading the spreadsheet and generating JSON, but ACTION/ATTACK bonuses are not being captured yet. 
+The parser is successfully reading the spreadsheet and generating JSON, but ABILITY/ACTION keyword bonuses may need verification. 
 
 ### Known Data Structure
 
+Keywords: **ABILITY** (bonuses consumed on successful ability use) and **ACTION** (bonuses consumed per attack roll). The parser accepts legacy cadence values and maps them: `ACTION`/`ACTIONS` → ABILITY, `ATTACK`/`ATTACKS` → ACTION.
+
 From the live Google Sheets data:
-- **AMPLIFY ACCURACY**: Has `ACCURACY='20'` at column index 12, `CADENCE='ACTION'`, `DURATION='1'`
-- **CONCENTRATE**: Has a bonus value at column index 16, `CADENCE='ATTACK'`, `DURATION='1'`
-- **GRUNT**: Has bonus values, `CADENCE='ATTACKS'`, `DURATION='2'`
+- **AMPLIFY ACCURACY**: Has `ACCURACY='20'` at column index 12, `CADENCE='ACTION'` or `'ABILITY'`, `DURATION='1'`
+- **CONCENTRATE**: Has a bonus value at column index 16, `CADENCE='ATTACK'` or `'ACTION'`, `DURATION='1'`
+- **GRUNT**: Has bonus values, `CADENCE='ATTACKS'` or `'ACTIONS'`, `DURATION='2'`
 
 ### Column Mapping
 

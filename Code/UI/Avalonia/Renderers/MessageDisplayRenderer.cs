@@ -153,18 +153,13 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
         
         /// <summary>
-        /// Clears the loading status message from the bottom left corner
-        /// Also clears the center area where ShowLoadingAnimation might have displayed a full-screen animation
+        /// Clears the loading status message from the bottom left corner.
         /// </summary>
         public void ClearLoadingStatus()
         {
             // Clear the bottom left area where loading status is displayed
             int statusY = CanvasLayoutManager.SCREEN_HEIGHT - 1;
             canvas.ClearTextInRange(statusY - 1, statusY + 1);
-            
-            // Also clear the center area where ShowLoadingAnimation displays full-screen loading messages
-            // This ensures that if ShowLoadingAnimation was used, it gets cleared too
-            canvas.ClearTextInRange(16, 22); // Clear lines 16-22 where loading animation is typically shown
             
             canvas.Refresh();
         }

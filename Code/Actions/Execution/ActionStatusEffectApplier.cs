@@ -36,56 +36,53 @@ namespace RPGGame.Actions.Execution
         }
         
         /// <summary>
-        /// Applies enemy roll penalty and creates ColoredText message
+        /// Enemy roll penalty removed; method kept for API compatibility (no-op).
         /// </summary>
         public static void ApplyEnemyRollPenaltyColored(Action selectedAction, Actor target, List<List<ColoredText>> coloredStatusEffects)
         {
-            if (selectedAction == null || target == null || coloredStatusEffects == null) return;
-            
-            if (selectedAction.Advanced.EnemyRollPenalty > 0 && target is Enemy targetEnemy)
-            {
-                targetEnemy.ApplyRollPenalty(selectedAction.Advanced.EnemyRollPenalty, 1);
-                
-                var penaltyBuilder = new ColoredTextBuilder();
-                penaltyBuilder.Add("    ", Colors.White);
-                penaltyBuilder.Add(target.Name, target is Character ? ColorPalette.Player : ColorPalette.Enemy);
-                penaltyBuilder.Add(" suffers a -", Colors.White);
-                penaltyBuilder.Add(selectedAction.Advanced.EnemyRollPenalty.ToString(), ColorPalette.Error);
-                penaltyBuilder.Add(" roll penalty!", Colors.White);
-                coloredStatusEffects.Add(penaltyBuilder.Build());
-            }
+            // No-op: EnemyRollPenalty feature removed
         }
         
         /// <summary>
-        /// Applies stat bonus and creates ColoredText message
+        /// Applies stat bonus messages (one per entry). Uses StatBonuses list if non-empty, else legacy single StatBonus/StatBonusType.
         /// </summary>
         public static void ApplyStatBonusColored(Action selectedAction, Actor source, List<List<ColoredText>> coloredStatusEffects)
         {
             if (selectedAction == null || source == null || coloredStatusEffects == null) return;
-            
-            // Only apply stat bonus to characters (not enemies)
-            if (selectedAction.Advanced.StatBonus > 0 && 
-                !string.IsNullOrEmpty(selectedAction.Advanced.StatBonusType) &&
-                source is Character statBonusCharacter && !(statBonusCharacter is Enemy))
+            if (!(source is Character statBonusCharacter) || source is Enemy) return;
+
+            var entries = GetStatBonusEntries(selectedAction);
+            foreach (var entry in entries)
             {
-                string statType = selectedAction.Advanced.StatBonusType.ToUpper();
+                if (entry.Value == 0 && string.IsNullOrEmpty(entry.Type)) continue;
+                string statType = (entry.Type ?? "").ToUpper();
+                if (string.IsNullOrEmpty(statType)) continue;
                 string statName = statType switch
                 {
-                    "STR" => "Strength",
-                    "AGI" => "Agility",
-                    "TEC" => "Technique",
-                    "INT" => "Intelligence",
+                    "STR" or "STRENGTH" => "Strength",
+                    "AGI" or "AGILITY" => "Agility",
+                    "TEC" or "TECH" or "TECHNIQUE" => "Technique",
+                    "INT" or "INTELLIGENCE" => "Intelligence",
                     _ => statType
                 };
-                
                 var statBonusBuilder = new ColoredTextBuilder();
                 statBonusBuilder.Add("     (", Colors.White);
                 statBonusBuilder.Add(statName, ColorPalette.Success);
                 statBonusBuilder.Add(" increased by ", Colors.White);
-                statBonusBuilder.Add(selectedAction.Advanced.StatBonus.ToString(), ColorPalette.Success);
+                statBonusBuilder.Add(entry.Value.ToString(), ColorPalette.Success);
                 statBonusBuilder.Add("!)", Colors.White);
                 coloredStatusEffects.Add(statBonusBuilder.Build());
             }
+        }
+
+        private static List<StatBonusEntry> GetStatBonusEntries(Action action)
+        {
+            if (action?.Advanced == null) return new List<StatBonusEntry>();
+            if (action.Advanced.StatBonuses != null && action.Advanced.StatBonuses.Count > 0)
+                return action.Advanced.StatBonuses;
+            if (action.Advanced.StatBonus != 0 || !string.IsNullOrEmpty(action.Advanced.StatBonusType))
+                return new List<StatBonusEntry> { new StatBonusEntry { Value = action.Advanced.StatBonus, Type = action.Advanced.StatBonusType ?? "" } };
+            return new List<StatBonusEntry>();
         }
     }
 }

@@ -36,10 +36,13 @@ namespace RPGGame.Data
                     return;
                 }
                 
-                var spreadsheetActions = isUrl 
+                var parseResult = isUrl
                     ? await SpreadsheetActionParser.ParseCsvAsync(csvPathOrUrl)
                     : SpreadsheetActionParser.ParseCsvFile(csvPathOrUrl);
+                var spreadsheetActions = parseResult.Actions;
                 Console.WriteLine($"Parsed {spreadsheetActions.Count} actions from spreadsheet");
+                if (parseResult.Header != null)
+                    Console.WriteLine($"Using row 1 (context) + row 2 (labels) for column mapping and mechanics");
                 
                 Console.WriteLine($"Converting to ActionData...");
                 var actionDataList = new List<ActionData>();
@@ -55,22 +58,6 @@ namespace RPGGame.Data
                         {
                             actionDataList.Add(actionData);
                             successCount++;
-                            
-                            // Log actions with ACTION/ATTACK bonuses
-                            if (actionData.ActionAttackBonuses != null && 
-                                actionData.ActionAttackBonuses.BonusGroups.Count > 0)
-                            {
-                                string keywordString = ActionAttackKeywordProcessor.GenerateKeywordString(
-                                    actionData.ActionAttackBonuses);
-                                Console.WriteLine($"  {actionData.Name}: {keywordString}");
-                            }
-                            else if (!string.IsNullOrWhiteSpace(spreadsheet.Cadence))
-                            {
-                                // Debug: show why bonuses weren't captured
-                                Console.WriteLine($"  {actionData.Name}: CADENCE='{spreadsheet.Cadence}', DURATION='{spreadsheet.Duration}'");
-                                Console.WriteLine($"    Hero: ACC='{spreadsheet.HeroAccuracy}', HIT='{spreadsheet.HeroHit}', COMBO='{spreadsheet.HeroCombo}', CRIT='{spreadsheet.HeroCrit}'");
-                                Console.WriteLine($"    Enemy: ACC='{spreadsheet.EnemyAccuracy}', HIT='{spreadsheet.EnemyHit}', COMBO='{spreadsheet.EnemyCombo}', CRIT='{spreadsheet.EnemyCrit}'");
-                            }
                         }
                     }
                     catch (Exception ex)

@@ -168,9 +168,6 @@ namespace RPGGame.UI.ColorSystem.Themes
                 WeaponType.Dagger => ColoredText.FromTemplate("dagger_weapon", weaponType.ToString()),
                 WeaponType.Mace => ColoredText.FromTemplate("mace_weapon", weaponType.ToString()),
                 WeaponType.Wand => ColoredText.FromTemplate("wand_weapon", weaponType.ToString()),
-                WeaponType.Staff => ColoredText.FromTemplate("arcane", weaponType.ToString()),
-                WeaponType.Axe => ColoredText.FromTemplate("fiery", weaponType.ToString()),
-                WeaponType.Bow => ColoredText.FromTemplate("natural", weaponType.ToString()),
                 _ => ColoredText.FromColor(weaponType.ToString(), Colors.White)
             };
         }

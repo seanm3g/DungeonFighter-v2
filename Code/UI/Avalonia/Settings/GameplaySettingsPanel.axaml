@@ -10,7 +10,7 @@
                  HorizontalScrollBarVisibility="Disabled">
         <StackPanel Spacing="20" Margin="20">
             <!-- Gameplay Settings -->
-            <Border Background="White" 
+            <Border Background="#FF252525" 
                     BorderBrush="#FF404040" 
                     BorderThickness="1" 
                     CornerRadius="6" 
@@ -19,48 +19,48 @@
                     <TextBlock Text="Gameplay Settings" 
                                FontSize="18" 
                                FontWeight="SemiBold" 
-                               Foreground="Black" 
+                               Foreground="#FFE8E8E8" 
                                Margin="0,0,0,8"/>
                     <CheckBox x:Name="ShowIndividualActionMessagesCheckBox" 
                               Content="Show Individual Action Messages" 
-                              Foreground="Black"
+                              Foreground="#FFE8E8E8"
                               FontSize="15"
                               IsChecked="False"/>
                     <CheckBox x:Name="FastCombatCheckBox" 
                               Content="Fast Combat (No Delays)" 
-                              Foreground="Black"
+                              Foreground="#FFE8E8E8"
                               FontSize="15"
                               IsChecked="False"/>
                     <CheckBox x:Name="EnableTextDisplayDelaysCheckBox" 
                               Content="Enable Text Display Delays" 
-                              Foreground="Black"
+                              Foreground="#FFE8E8E8"
                               FontSize="15"
                               IsChecked="True"/>
                     <CheckBox x:Name="ShowDetailedStatsCheckBox" 
                               Content="Show Detailed Stats" 
-                              Foreground="Black"
+                              Foreground="#FFE8E8E8"
                               FontSize="15"
                               IsChecked="False"/>
                     <CheckBox x:Name="ShowHealthBarsCheckBox" 
                               Content="Show Health Bars" 
-                              Foreground="Black"
+                              Foreground="#FFE8E8E8"
                               FontSize="15"
                               IsChecked="True"/>
                     <CheckBox x:Name="ShowDamageNumbersCheckBox" 
                               Content="Show Damage Numbers" 
-                              Foreground="Black"
+                              Foreground="#FFE8E8E8"
                               FontSize="15"
                               IsChecked="True"/>
                     <CheckBox x:Name="ShowComboProgressCheckBox" 
                               Content="Show Combo Progress" 
-                              Foreground="Black"
+                              Foreground="#FFE8E8E8"
                               FontSize="15"
                               IsChecked="True"/>
                 </StackPanel>
             </Border>
             
             <!-- Save Management -->
-            <Border Background="White" 
+            <Border Background="#FF252525" 
                     BorderBrush="#FF404040" 
                     BorderThickness="1" 
                     CornerRadius="6" 
@@ -69,10 +69,10 @@
                     <TextBlock Text="Save Management" 
                                FontSize="18" 
                                FontWeight="SemiBold" 
-                               Foreground="Black" 
+                               Foreground="#FFE8E8E8" 
                                Margin="0,0,0,8"/>
                     <TextBlock Text="Clear all saved characters. This action cannot be undone." 
-                               Foreground="Black"
+                               Foreground="#FFE8E8E8"
                                FontSize="14"
                                TextWrapping="Wrap"
                                Margin="0,0,0,10"/>

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using RPGGame;
 
 namespace RPGGame.Data
@@ -16,14 +15,15 @@ namespace RPGGame.Data
     {
         /// <summary>
         /// Generates JSON from a list of SpreadsheetActionJson objects (spreadsheet-compatible format)
+        /// Uses custom converter to omit empty string properties, significantly reducing file size
         /// </summary>
         public static string GenerateJson(List<SpreadsheetActionJson> actions)
         {
             var options = new JsonSerializerOptions
             {
                 WriteIndented = true,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                // Note: Custom converter (SpreadsheetActionJsonConverter) handles omitting empty strings
             };
             
             return JsonSerializer.Serialize(actions, options);
@@ -93,52 +93,6 @@ namespace RPGGame.Data
             // Generate JSON from SpreadsheetActionJson list
             string jsonContent = GenerateJson(jsonList);
             File.WriteAllText(outputPath, jsonContent);
-        }
-        
-        // Legacy methods for backward compatibility - these convert to ActionData format
-        // These are kept for compatibility but the new format is preferred
-        
-        /// <summary>
-        /// Generates JSON from a list of ActionData objects (legacy format)
-        /// </summary>
-        [Obsolete("Use GenerateJson(List<SpreadsheetActionJson>) for spreadsheet-compatible format")]
-        public static string GenerateJsonLegacy(List<ActionData> actions)
-        {
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };
-            
-            return JsonSerializer.Serialize(actions, options);
-        }
-        
-        /// <summary>
-        /// Converts spreadsheet actions to ActionData and generates JSON (legacy format)
-        /// </summary>
-        [Obsolete("Use ConvertAndGenerateJson for spreadsheet-compatible format")]
-        public static string ConvertAndGenerateJsonLegacy(List<SpreadsheetActionData> spreadsheetActions)
-        {
-            var actionDataList = new List<ActionData>();
-            
-            foreach (var spreadsheet in spreadsheetActions)
-            {
-                try
-                {
-                    var actionData = SpreadsheetToActionDataConverter.Convert(spreadsheet);
-                    if (!string.IsNullOrEmpty(actionData.Name))
-                    {
-                        actionDataList.Add(actionData);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error converting action {spreadsheet.Action}: {ex.Message}");
-                }
-            }
-            
-            return GenerateJsonLegacy(actionDataList);
         }
     }
 }

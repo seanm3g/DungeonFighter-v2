@@ -20,38 +20,13 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         }
 
         /// <summary>
-        /// Saves main settings from UI controls using DTO
+        /// Saves main settings from UI controls using DTO. Delegates to SettingsManager.SaveSettings(controls, saveGameVariables).
         /// </summary>
         public void SaveMainSettings(MainSettingsControls controls)
         {
             if (settingsManager == null || controls == null) return;
-            
             if (AreMainSettingsControlsValid(controls))
-            {
-#pragma warning disable CS8604 // Nullable parameters are handled by SettingsManager
-                settingsManager.SaveSettings(
-                    controls.NarrativeBalanceSlider!,
-                    controls.EnableNarrativeEventsCheckBox!,
-                    controls.EnableInformationalSummariesCheckBox!,
-                    controls.CombatSpeedSlider!,
-                    controls.ShowIndividualActionMessagesCheckBox!,
-                    controls.EnableComboSystemCheckBox!, // Nullable - handled by SettingsManager
-                    controls.EnableTextDisplayDelaysCheckBox!,
-                    controls.FastCombatCheckBox!,
-                    controls.EnableAutoSaveCheckBox!, // Nullable - handled by SettingsManager
-                    controls.AutoSaveIntervalTextBox!, // Nullable - handled by SettingsManager
-                    controls.ShowDetailedStatsCheckBox!,
-                    controls.EnableSoundEffectsCheckBox!, // Nullable - handled by SettingsManager
-                    controls.EnemyHealthMultiplierSlider!,
-                    controls.EnemyDamageMultiplierSlider!,
-                    controls.PlayerHealthMultiplierSlider!,
-                    controls.PlayerDamageMultiplierSlider!,
-                    controls.ShowHealthBarsCheckBox!,
-                    controls.ShowDamageNumbersCheckBox!,
-                    controls.ShowComboProgressCheckBox!,
-                    () => gameVariablesTabManager?.SaveGameVariables());
-#pragma warning restore CS8604
-            }
+                settingsManager.SaveSettings(controls, () => gameVariablesTabManager?.SaveGameVariables());
         }
 
         /// <summary>
@@ -62,42 +37,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             if (settingsManager == null || controls == null) return;
             
             if (AreTextDelaySettingsControlsValid(controls))
-            {
-                settingsManager.SaveTextDelaySettings(
-                    controls.EnableGuiDelaysCheckBox!,
-                    controls.EnableConsoleDelaysCheckBox!,
-                    null, // ActionDelaySlider - Deprecated, removed from DTO
-                    null, // MessageDelaySlider - Deprecated, removed from DTO
-                    controls.CombatDelayTextBox!,
-                    controls.SystemDelayTextBox!,
-                    controls.MenuDelayTextBox!,
-                    controls.TitleDelayTextBox!,
-                    controls.MainTitleDelayTextBox!,
-                    controls.EnvironmentalDelayTextBox!,
-                    controls.EffectMessageDelayTextBox!,
-                    controls.DamageOverTimeDelayTextBox!,
-                    controls.EncounterDelayTextBox!,
-                    controls.RollInfoDelayTextBox!,
-                    controls.EnvironmentalLineDelayTextBox!,
-                    controls.BaseMenuDelayTextBox!,
-                    controls.ProgressiveReductionRateTextBox!,
-                    controls.ProgressiveThresholdTextBox!,
-                    controls.CombatPresetBaseDelayTextBox!,
-                    controls.CombatPresetMinDelayTextBox!,
-                    controls.CombatPresetMaxDelayTextBox!,
-                    controls.DungeonPresetBaseDelayTextBox!,
-                    controls.DungeonPresetMinDelayTextBox!,
-                    controls.DungeonPresetMaxDelayTextBox!,
-                    controls.RoomPresetBaseDelayTextBox!,
-                    controls.RoomPresetMinDelayTextBox!,
-                    controls.RoomPresetMaxDelayTextBox!,
-                    controls.NarrativePresetBaseDelayTextBox!,
-                    controls.NarrativePresetMinDelayTextBox!,
-                    controls.NarrativePresetMaxDelayTextBox!,
-                    controls.DefaultPresetBaseDelayTextBox!,
-                    controls.DefaultPresetMinDelayTextBox!,
-                    controls.DefaultPresetMaxDelayTextBox!);
-            }
+                settingsManager.SaveTextDelaySettings(controls);
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -52,15 +52,36 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Reorders the combo sequence and updates combo order values
+        /// Reorders the combo sequence and updates combo order values.
+        /// Openers are forced to the first slot(s), finishers to the last slot(s); middle actions keep relative order by ComboOrder.
         /// </summary>
         private void ReorderComboSequence()
         {
             ComboSequence.Sort((a, b) => a.ComboOrder.CompareTo(b.ComboOrder));
-            for (int i = 0; i < ComboSequence.Count; i++)
+            var openers = new List<Action>();
+            var middle = new List<Action>();
+            var finishers = new List<Action>();
+            foreach (var a in ComboSequence)
             {
-                ComboSequence[i].ComboOrder = i + 1;
+                bool isOpener = a.ComboRouting?.IsOpener == true;
+                bool isFinisher = a.ComboRouting?.IsFinisher == true;
+                if (isOpener && !isFinisher)
+                    openers.Add(a);
+                else if (isFinisher)
+                    finishers.Add(a);
+                else
+                    middle.Add(a);
             }
+            var ordered = new List<Action>();
+            ordered.AddRange(openers);
+            ordered.AddRange(middle);
+            ordered.AddRange(finishers);
+            for (int i = 0; i < ordered.Count; i++)
+            {
+                ordered[i].ComboOrder = i + 1;
+            }
+            ComboSequence.Clear();
+            ComboSequence.AddRange(ordered);
         }
 
         /// <summary>

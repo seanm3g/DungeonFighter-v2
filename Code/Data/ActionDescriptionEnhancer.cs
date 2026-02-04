@@ -64,11 +64,17 @@ namespace RPGGame
                 modifiers.Add($"Self-damage: {data.SelfDamagePercent}%");
             }
             
-            // Add stat bonus information
-            if (data.StatBonus > 0 && !string.IsNullOrEmpty(data.StatBonusType))
+            // Add stat bonus information (list or legacy single)
+            var statEntries = GetStatBonusEntries(data);
+            if (statEntries.Count > 0)
             {
                 string durationText = data.StatBonusDuration == -1 ? "dungeon" : $"{data.StatBonusDuration} turns";
-                modifiers.Add($"+{data.StatBonus} {data.StatBonusType} ({durationText})");
+                foreach (var entry in statEntries)
+                {
+                    // Do not display stat bonus of 0 or with empty type
+                    if (entry.Value == 0 || string.IsNullOrEmpty(entry.Type)) continue;
+                    modifiers.Add($"+{entry.Value} {entry.Type} ({durationText})");
+                }
             }
             
             // Add special effects
@@ -90,6 +96,17 @@ namespace RPGGame
             }
             
             return result;
+        }
+
+        private static List<StatBonusEntry> GetStatBonusEntries(ActionData data)
+        {
+            if (data == null) return new List<StatBonusEntry>();
+            if (data.StatBonuses != null && data.StatBonuses.Count > 0)
+                return data.StatBonuses;
+            // Only add legacy single stat bonus when both value and type are meaningful (no 0, no empty type)
+            if (data.StatBonus != 0 && !string.IsNullOrEmpty(data.StatBonusType))
+                return new List<StatBonusEntry> { new StatBonusEntry { Value = data.StatBonus, Type = data.StatBonusType ?? "" } };
+            return new List<StatBonusEntry>();
         }
     }
 }

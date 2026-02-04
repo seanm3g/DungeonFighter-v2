@@ -194,7 +194,7 @@ Executing: 1
 - `D:\code projects\github projects\DungeonFighter-v2\TEST_RESULTS_SUMMARY.md`
 
 ### Test Code
-- `D:\code projects\github projects\DungeonFighter-v2\TestMCPGameplay.cs`
+- MCP and contextual loot tests are run via the test suite in `Code/Tests/` (e.g. DungeonRewardsTests.TestContextualLoot, MCPSystemTestRunner). Root-level standalone runners (TestMCPGameplay.cs, TestContextualLoot.cs) were removed; use the test suite instead.
 
 ## Issues & Recommendations
 

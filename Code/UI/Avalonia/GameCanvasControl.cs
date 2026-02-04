@@ -282,6 +282,15 @@ namespace RPGGame.UI.Avalonia
         }
 
         /// <summary>
+        /// Clears box elements (borders) within a specific rectangular area.
+        /// Used when re-rendering a panel without full canvas clear to prevent duplicate borders.
+        /// </summary>
+        public void ClearBoxesInArea(int startX, int startY, int width, int height)
+        {
+            elementManager.ClearBoxesInArea(startX, startY, width, height);
+        }
+
+        /// <summary>
         /// Gets the element builder for creating canvas elements with convenience methods
         /// </summary>
         public CanvasElementBuilder Builder => elementBuilder;

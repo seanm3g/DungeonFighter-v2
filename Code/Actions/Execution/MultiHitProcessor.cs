@@ -24,6 +24,8 @@ namespace RPGGame.Actions.Execution
             BattleNarrative? battleNarrative)
         {
             int multiHitCount = action.Advanced.MultiHitCount;
+            if (source is Character character && character.Effects.ConsumedMultiHitMod != 0)
+                multiHitCount = Math.Max(1, multiHitCount + (int)Math.Max(0, character.Effects.ConsumedMultiHitMod));
             int totalDamage = 0;
 
             // Process each hit

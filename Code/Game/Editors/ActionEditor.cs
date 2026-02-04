@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using RPGGame;
+using RPGGame.Data;
 using RPGGame.Utils;
 
 namespace RPGGame.Editors
@@ -27,26 +28,20 @@ namespace RPGGame.Editors
 
         /// <summary>
         /// Load actions from JSON file
+        /// Supports both legacy ActionData format and SpreadsheetActionJson format
+        /// Uses ActionLoader to handle format detection and conversion automatically
         /// </summary>
         private void LoadActions()
         {
             try
             {
-                if (File.Exists(actionsFilePath))
-                {
-                    string jsonContent = File.ReadAllText(actionsFilePath);
-                    actions = JsonSerializer.Deserialize<List<ActionData>>(jsonContent, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    }) ?? new List<ActionData>();
-                }
-                else
-                {
-                    actions = new List<ActionData>();
-                }
+                // Always use ActionLoader so we share the same path and format; editor saves to GetLoadedActionsFilePath().
+                ActionLoader.LoadActions();
+                actions = ActionLoader.GetAllActionData();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                ErrorHandler.LogError(ex, "ActionEditor.LoadActions", "Failed to load actions");
                 actions = new List<ActionData>();
             }
         }
@@ -153,16 +148,6 @@ namespace RPGGame.Editors
                 return "Action name cannot be empty.";
             }
 
-            if (string.IsNullOrWhiteSpace(action.Type))
-            {
-                return "Action type cannot be empty.";
-            }
-
-            if (string.IsNullOrWhiteSpace(action.TargetType))
-            {
-                return "Target type cannot be empty.";
-            }
-
             // Check name uniqueness (only for new actions or if name changed)
             if (originalName == null || !originalName.Equals(action.Name, StringComparison.OrdinalIgnoreCase))
             {
@@ -171,19 +156,6 @@ namespace RPGGame.Editors
                 {
                     return $"An action with the name '{action.Name}' already exists.";
                 }
-            }
-
-            // Validate type enum values
-            var validTypes = new[] { "Attack", "Heal", "Buff", "Debuff", "Spell", "Interact", "Move", "UseItem" };
-            if (!validTypes.Contains(action.Type, StringComparer.OrdinalIgnoreCase))
-            {
-                return $"Invalid action type '{action.Type}'. Must be one of: {string.Join(", ", validTypes)}";
-            }
-
-            var validTargetTypes = new[] { "Self", "SingleTarget", "AreaOfEffect", "Environment", "SelfAndTarget" };
-            if (!validTargetTypes.Contains(action.TargetType, StringComparer.OrdinalIgnoreCase))
-            {
-                return $"Invalid target type '{action.TargetType}'. Must be one of: {string.Join(", ", validTargetTypes)}";
             }
 
             // Validate numeric ranges
@@ -206,34 +178,79 @@ namespace RPGGame.Editors
         }
 
         /// <summary>
-        /// Save actions to JSON file
+        /// Persists the current in-memory actions to the Actions.json file (same path ActionLoader uses).
+        /// Call after flushing form edits into the editor's list so the global Settings Save can persist actions.
+        /// </summary>
+        public bool SaveActionsToFile()
+        {
+            return SaveActions();
+        }
+
+        /// <summary>
+        /// Save actions to JSON file.
+        /// Uses the same path ActionLoader loaded from so edits persist to the file the game uses.
+        /// When the file was loaded as spreadsheet format, saves as SpreadsheetActionJson to preserve all columns.
         /// </summary>
         private bool SaveActions()
         {
             try
             {
-                // Create backup
-                if (File.Exists(actionsFilePath))
+                foreach (var a in actions)
                 {
-                    string backupPath = actionsFilePath + ".backup";
-                    File.Copy(actionsFilePath, backupPath, overwrite: true);
+                    a.EnsureLegacyStatBonusFromList();
+                    a.EnsureLegacyHealthThresholdFromList();
                 }
 
-                // Save to file
-                var options = new JsonSerializerOptions
-                {
-                    WriteIndented = true,
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                };
-                string jsonContent = JsonSerializer.Serialize(actions, options);
-                File.WriteAllText(actionsFilePath, jsonContent);
+                string pathToSave = ActionLoader.GetLoadedActionsFilePath() ?? actionsFilePath;
+                try { pathToSave = Path.GetFullPath(pathToSave); } catch { }
+                bool isSpreadsheet = ActionLoader.IsSpreadsheetFormat();
+                DebugLogger.LogFormat("ActionEditor", "Saving Actions to: {0}", pathToSave);
+                string? dir = Path.GetDirectoryName(pathToSave);
+                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
 
+                // Create backup
+                if (File.Exists(pathToSave))
+                {
+                    string backupPath = pathToSave + ".backup";
+                    File.Copy(pathToSave, backupPath, overwrite: true);
+                }
+
+                if (isSpreadsheet)
+                {
+                    var originalRows = ActionLoader.GetOriginalSpreadsheetActions();
+                    var spreadsheetList = ActionDataToSpreadsheetJsonConverter.ConvertList(actions, originalRows);
+                    var options = new JsonSerializerOptions
+                    {
+                        WriteIndented = true,
+                        Converters = { new SpreadsheetActionJsonConverter() }
+                    };
+                    string jsonContent = JsonSerializer.Serialize(spreadsheetList, options);
+                    File.WriteAllText(pathToSave, jsonContent);
+                }
+                else
+                {
+                    var options = new JsonSerializerOptions
+                    {
+                        WriteIndented = true,
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    };
+                    string jsonContent = JsonSerializer.Serialize(actions, options);
+                    File.WriteAllText(pathToSave, jsonContent);
+                }
+
+                // Clear JSON cache so LoadActions() reads fresh content from disk (clear both path forms in case cache key differs)
+                JsonLoader.ClearCacheForFile(pathToSave);
+                try { JsonLoader.ClearCacheForFile(Path.GetFullPath(pathToSave)); } catch { }
                 // Reload actions to ensure consistency
                 ActionLoader.LoadActions();
+                // Sync editor list from loader so UI and disk stay in sync
+                actions = new List<ActionData>(ActionLoader.GetAllActionData());
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                ErrorHandler.LogError(ex, "ActionEditor.SaveActions", "Failed to save actions to file");
                 return false;
             }
         }

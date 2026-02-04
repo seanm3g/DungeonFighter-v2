@@ -10,13 +10,19 @@ namespace RPGGame.UI.Avalonia.Managers
     /// </summary>
     public class DifficultySettingsManager
     {
-        private readonly GameSettings settings;
+        private GameSettings settings;
         private readonly Action<string, bool>? showStatusMessage;
         
         public DifficultySettingsManager(GameSettings settings, Action<string, bool>? showStatusMessage = null)
         {
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             this.showStatusMessage = showStatusMessage;
+        }
+
+        /// <summary>Updates the settings reference after ReloadFromFile.</summary>
+        public void RefreshSettings(GameSettings currentSettings)
+        {
+            this.settings = currentSettings ?? throw new ArgumentNullException(nameof(currentSettings));
         }
         
         /// <summary>

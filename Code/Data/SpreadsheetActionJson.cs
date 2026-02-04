@@ -4,293 +4,14 @@ using System.Text.Json.Serialization;
 namespace RPGGame.Data
 {
     /// <summary>
-    /// JSON model that matches Google Sheets column structure exactly
-    /// All values are preserved as strings to match spreadsheet format
+    /// JSON model that matches Google Sheets column structure exactly.
+    /// All values are preserved as strings to match spreadsheet format.
+    /// Uses custom converter to omit empty string properties for efficiency.
+    /// Properties are split across partials by column group: Core, Stats, StatusEffects, Mechanics, Triggers, Thresholds.
     /// </summary>
-    public class SpreadsheetActionJson
+    [JsonConverter(typeof(SpreadsheetActionJsonConverter))]
+    public partial class SpreadsheetActionJson
     {
-        // Column A
-        [JsonPropertyName("action")]
-        public string Action { get; set; } = "";
-        
-        // Column B
-        [JsonPropertyName("description")]
-        public string Description { get; set; } = "";
-        
-        // Column C (empty in spreadsheet)
-        [JsonPropertyName("columnC")]
-        public string ColumnC { get; set; } = "";
-        
-        // Column D
-        [JsonPropertyName("rarity")]
-        public string Rarity { get; set; } = "";
-        
-        // Column E
-        [JsonPropertyName("category")]
-        public string Category { get; set; } = "";
-        
-        // Column F
-        [JsonPropertyName("dps")]
-        public string DPS { get; set; } = "";
-        
-        // Column G
-        [JsonPropertyName("numberOfHits")]
-        public string NumberOfHits { get; set; } = "";
-        
-        // Column H
-        [JsonPropertyName("damage")]
-        public string Damage { get; set; } = "";
-        
-        // Column I
-        [JsonPropertyName("speed")]
-        public string Speed { get; set; } = "";
-        
-        // Column J
-        [JsonPropertyName("duration")]
-        public string Duration { get; set; } = "";
-        
-        // Column K
-        [JsonPropertyName("cadence")]
-        public string Cadence { get; set; } = "";
-        
-        // Column L
-        [JsonPropertyName("opener")]
-        public string Opener { get; set; } = "";
-        
-        // Column M
-        [JsonPropertyName("finisher")]
-        public string Finisher { get; set; } = "";
-        
-        // Columns N-Q: Hero bonuses (ACCURACY, HIT, COMBO, CRIT)
-        [JsonPropertyName("heroAccuracy")]
-        public string HeroAccuracy { get; set; } = "";
-        
-        [JsonPropertyName("heroHit")]
-        public string HeroHit { get; set; } = "";
-        
-        [JsonPropertyName("heroCombo")]
-        public string HeroCombo { get; set; } = "";
-        
-        [JsonPropertyName("heroCrit")]
-        public string HeroCrit { get; set; } = "";
-        
-        // Columns R-U: Enemy bonuses
-        [JsonPropertyName("enemyAccuracy")]
-        public string EnemyAccuracy { get; set; } = "";
-        
-        [JsonPropertyName("enemyHit")]
-        public string EnemyHit { get; set; } = "";
-        
-        [JsonPropertyName("enemyCombo")]
-        public string EnemyCombo { get; set; } = "";
-        
-        [JsonPropertyName("enemyCrit")]
-        public string EnemyCrit { get; set; } = "";
-        
-        // Columns V-Y: Hero stats (STR, AGI, TECH, INT)
-        [JsonPropertyName("heroSTR")]
-        public string HeroSTR { get; set; } = "";
-        
-        [JsonPropertyName("heroAGI")]
-        public string HeroAGI { get; set; } = "";
-        
-        [JsonPropertyName("heroTECH")]
-        public string HeroTECH { get; set; } = "";
-        
-        [JsonPropertyName("heroINT")]
-        public string HeroINT { get; set; } = "";
-        
-        // Columns Z-AC: Enemy stats
-        [JsonPropertyName("enemySTR")]
-        public string EnemySTR { get; set; } = "";
-        
-        [JsonPropertyName("enemyAGI")]
-        public string EnemyAGI { get; set; } = "";
-        
-        [JsonPropertyName("enemyTECH")]
-        public string EnemyTECH { get; set; } = "";
-        
-        [JsonPropertyName("enemyINT")]
-        public string EnemyINT { get; set; } = "";
-        
-        // Columns AD-AG: Modifiers
-        [JsonPropertyName("speedMod")]
-        public string SpeedMod { get; set; } = "";
-        
-        [JsonPropertyName("damageMod")]
-        public string DamageMod { get; set; } = "";
-        
-        [JsonPropertyName("multiHitMod")]
-        public string MultiHitMod { get; set; } = "";
-        
-        [JsonPropertyName("ampMod")]
-        public string AmpMod { get; set; } = "";
-        
-        // Status effects columns
-        [JsonPropertyName("stun")]
-        public string Stun { get; set; } = "";
-        
-        [JsonPropertyName("poison")]
-        public string Poison { get; set; } = "";
-        
-        [JsonPropertyName("burn")]
-        public string Burn { get; set; } = "";
-        
-        [JsonPropertyName("bleed")]
-        public string Bleed { get; set; } = "";
-        
-        [JsonPropertyName("weaken")]
-        public string Weaken { get; set; } = "";
-        
-        [JsonPropertyName("expose")]
-        public string Expose { get; set; } = "";
-        
-        [JsonPropertyName("slow")]
-        public string Slow { get; set; } = "";
-        
-        [JsonPropertyName("vulnerability")]
-        public string Vulnerability { get; set; } = "";
-        
-        [JsonPropertyName("harden")]
-        public string Harden { get; set; } = "";
-        
-        [JsonPropertyName("silence")]
-        public string Silence { get; set; } = "";
-        
-        [JsonPropertyName("pierce")]
-        public string Pierce { get; set; } = "";
-        
-        [JsonPropertyName("statDrain")]
-        public string StatDrain { get; set; } = "";
-        
-        [JsonPropertyName("fortify")]
-        public string Fortify { get; set; } = "";
-        
-        [JsonPropertyName("consume")]
-        public string Consume { get; set; } = "";
-        
-        [JsonPropertyName("focus")]
-        public string Focus { get; set; } = "";
-        
-        [JsonPropertyName("cleanse")]
-        public string Cleanse { get; set; } = "";
-        
-        [JsonPropertyName("lifesteal")]
-        public string Lifesteal { get; set; } = "";
-        
-        [JsonPropertyName("reflect")]
-        public string Reflect { get; set; } = "";
-        
-        [JsonPropertyName("selfDamage")]
-        public string SelfDamage { get; set; } = "";
-        
-        // Heal columns
-        [JsonPropertyName("heroHeal")]
-        public string HeroHeal { get; set; } = "";
-        
-        [JsonPropertyName("heroHealMaxHealth")]
-        public string HeroHealMaxHealth { get; set; } = "";
-        
-        // Additional mechanics columns
-        [JsonPropertyName("replaceNextRoll")]
-        public string ReplaceNextRoll { get; set; } = "";
-        
-        [JsonPropertyName("highestLowestRoll")]
-        public string HighestLowestRoll { get; set; } = "";
-        
-        [JsonPropertyName("diceRolls")]
-        public string DiceRolls { get; set; } = "";
-        
-        [JsonPropertyName("explodingDiceThreshold")]
-        public string ExplodingDiceThreshold { get; set; } = "";
-        
-        [JsonPropertyName("curse")]
-        public string Curse { get; set; } = "";
-        
-        [JsonPropertyName("skip")]
-        public string Skip { get; set; } = "";
-        
-        [JsonPropertyName("jump")]
-        public string Jump { get; set; } = "";
-        
-        [JsonPropertyName("disrupt")]
-        public string Disrupt { get; set; } = "";
-        
-        [JsonPropertyName("grace")]
-        public string Grace { get; set; } = "";
-        
-        [JsonPropertyName("loopChain")]
-        public string LoopChain { get; set; } = "";
-        
-        [JsonPropertyName("shuffle")]
-        public string Shuffle { get; set; } = "";
-        
-        [JsonPropertyName("replaceAction")]
-        public string ReplaceAction { get; set; } = "";
-        
-        [JsonPropertyName("chainLength")]
-        public string ChainLength { get; set; } = "";
-        
-        [JsonPropertyName("chainPosition")]
-        public string ChainPosition { get; set; } = "";
-        
-        [JsonPropertyName("modifyBasedOnChainPosition")]
-        public string ModifyBasedOnChainPosition { get; set; } = "";
-        
-        [JsonPropertyName("distanceFromXSlot")]
-        public string DistanceFromXSlot { get; set; } = "";
-        
-        // Trigger columns
-        [JsonPropertyName("onHit")]
-        public string OnHit { get; set; } = "";
-        
-        [JsonPropertyName("onMiss")]
-        public string OnMiss { get; set; } = "";
-        
-        [JsonPropertyName("onCrit")]
-        public string OnCrit { get; set; } = "";
-        
-        [JsonPropertyName("onKill")]
-        public string OnKill { get; set; } = "";
-        
-        [JsonPropertyName("onRoomsCleared")]
-        public string OnRoomsCleared { get; set; } = "";
-        
-        [JsonPropertyName("onRollValue")]
-        public string OnRollValue { get; set; } = "";
-        
-        // Threshold columns
-        [JsonPropertyName("target")]
-        public string Target { get; set; } = "";
-        
-        [JsonPropertyName("thresholdCategory")]
-        public string ThresholdCategory { get; set; } = "";
-        
-        [JsonPropertyName("thresholdAmount")]
-        public string ThresholdAmount { get; set; } = "";
-        
-        [JsonPropertyName("bonus")]
-        public string Bonus { get; set; } = "";
-        
-        [JsonPropertyName("bonusAttribute")]
-        public string BonusAttribute { get; set; } = "";
-        
-        [JsonPropertyName("value")]
-        public string Value { get; set; } = "";
-        
-        [JsonPropertyName("attribute")]
-        public string Attribute { get; set; } = "";
-        
-        [JsonPropertyName("reset")]
-        public string Reset { get; set; } = "";
-        
-        [JsonPropertyName("modifyRoom")]
-        public string ModifyRoom { get; set; } = "";
-        
-        // Tags
-        [JsonPropertyName("tags")]
-        public string Tags { get; set; } = "";
-        
         /// <summary>
         /// Converts SpreadsheetActionData to SpreadsheetActionJson
         /// </summary>
@@ -374,6 +95,10 @@ namespace RPGGame.Data
                 OnKill = data.OnKill,
                 OnRoomsCleared = data.OnRoomsCleared,
                 OnRollValue = data.OnRollValue,
+                TriggerConditions = data.TriggerConditions ?? "",
+                StatBonusesJson = data.StatBonusesJson ?? "",
+                ThresholdsJson = data.ThresholdsJson ?? "",
+                AccumulationsJson = data.AccumulationsJson ?? "",
                 Target = data.Target,
                 ThresholdCategory = data.ThresholdCategory,
                 ThresholdAmount = data.ThresholdAmount,
@@ -382,11 +107,14 @@ namespace RPGGame.Data
                 Value = data.Value,
                 Attribute = data.Attribute,
                 Reset = data.Reset,
+                ResetBlockerBuffer = data.ResetBlockerBuffer,
                 ModifyRoom = data.ModifyRoom,
-                Tags = data.Tags
+                Tags = data.Tags,
+                IsDefaultAction = data.IsDefaultAction ?? "",
+                WeaponTypes = data.WeaponTypes ?? ""
             };
         }
-        
+
         /// <summary>
         /// Converts SpreadsheetActionJson to SpreadsheetActionData
         /// </summary>
@@ -470,6 +198,10 @@ namespace RPGGame.Data
                 OnKill = this.OnKill,
                 OnRoomsCleared = this.OnRoomsCleared,
                 OnRollValue = this.OnRollValue,
+                TriggerConditions = this.TriggerConditions ?? "",
+                StatBonusesJson = this.StatBonusesJson ?? "",
+                ThresholdsJson = this.ThresholdsJson ?? "",
+                AccumulationsJson = this.AccumulationsJson ?? "",
                 Target = this.Target,
                 ThresholdCategory = this.ThresholdCategory,
                 ThresholdAmount = this.ThresholdAmount,
@@ -478,8 +210,11 @@ namespace RPGGame.Data
                 Value = this.Value,
                 Attribute = this.Attribute,
                 Reset = this.Reset,
+                ResetBlockerBuffer = this.ResetBlockerBuffer,
                 ModifyRoom = this.ModifyRoom,
-                Tags = this.Tags
+                Tags = this.Tags,
+                IsDefaultAction = this.IsDefaultAction ?? "",
+                WeaponTypes = this.WeaponTypes ?? ""
             };
         }
     }

@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace RPGGame.Data
 {
     /// <summary>
-    /// Represents a single bonus within an ACTION/ATTACK keyword bonus group
+    /// Represents a single bonus within an ABILITY/ACTION keyword bonus group
     /// </summary>
     public class ActionAttackBonusItem
     {
@@ -16,12 +16,12 @@ namespace RPGGame.Data
     }
     
     /// <summary>
-    /// Represents a group of bonuses applied via ACTION or ATTACK keyword
+    /// Represents a group of bonuses applied via ABILITY or ACTION keyword
     /// </summary>
     public class ActionAttackBonusGroup
     {
         [JsonPropertyName("keyword")]
-        public string Keyword { get; set; } = ""; // "ACTION" or "ATTACK"
+        public string Keyword { get; set; } = ""; // "ABILITY" or "ACTION"
         
         [JsonPropertyName("count")]
         public int Count { get; set; } = 1; // Number of applications
@@ -30,11 +30,11 @@ namespace RPGGame.Data
         public List<ActionAttackBonusItem> Bonuses { get; set; } = new List<ActionAttackBonusItem>();
         
         [JsonPropertyName("durationType")]
-        public string DurationType { get; set; } = ""; // "ACTION", "ATTACK", "FIGHT", "DUNGEON", "CHAIN", "COMBO", or empty for default
+        public string DurationType { get; set; } = ""; // "ABILITY", "ACTION", "FIGHT", "DUNGEON", "CHAIN", "COMBO", or empty for default
     }
     
     /// <summary>
-    /// Container for all ACTION/ATTACK bonuses for an action
+    /// Container for all ABILITY/ACTION keyword bonuses for an action
     /// </summary>
     public class ActionAttackBonuses
     {

@@ -14,107 +14,80 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
-        <!-- Test Buttons - Fixed at top, always visible -->
+        <!-- Game mechanics & reliability - single section -->
         <StackPanel Grid.Row="0" Spacing="15" Margin="0,0,0,20" VerticalAlignment="Top">
-            <!-- Component Tests Section -->
             <StackPanel Spacing="8">
-                <TextBlock Text="COMPONENT TESTS" 
+                <TextBlock Text="GAME MECHANICS &amp; RELIABILITY" 
                           FontSize="16" 
                           FontWeight="Bold" 
                           Foreground="#FFD700" 
                           Margin="0,0,0,5"/>
                 <StackPanel Orientation="Horizontal" Spacing="10">
-                    <Button x:Name="TestActionBlocksButton" Content="Action Blocks" Width="140" Height="35"
+                    <Button x:Name="TestDiceRollsButton" Content="Dice &amp; rolls" Width="120" Height="35"
                             Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
-                    <Button x:Name="TestDiceRollButton" Content="Dice Rolls" Width="140" Height="35"
+                    <Button x:Name="TestCombatButton" Content="Combat" Width="100" Height="35"
                             Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
-                    <Button x:Name="TestDungeonEnemyButton" Content="Dungeon/Enemy" Width="140" Height="35"
+                    <Button x:Name="TestStatusEffectsButton" Content="Status effects" Width="130" Height="35"
                             Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
-                    <Button x:Name="TestActionExecutionButton" Content="Action Execution" Width="140" Height="35"
+                    <Button x:Name="TestMultiHitButton" Content="Multi-hit" Width="90" Height="35"
                             Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
-                    <Button x:Name="TestCharacterSystemButton" Content="Character System" Width="140" Height="35"
+                    <Button x:Name="TestComboButton" Content="Combo" Width="90" Height="35"
                             Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,5,0,0">
-                    <Button x:Name="TestEquipmentSystemButton" Content="Equipment System" Width="140" Height="35"
-                            Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
-                            FontSize="14" FontWeight="SemiBold"/>
-                    <Button x:Name="TestDungeonRewardsButton" Content="Dungeon Rewards" Width="140" Height="35"
-                            Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
-                            FontSize="14" FontWeight="SemiBold"/>
-                    <Button x:Name="TestLevelUpSystemButton" Content="Level Up System" Width="140" Height="35"
-                            Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
-                            FontSize="14" FontWeight="SemiBold"/>
-                    <Button x:Name="TestXPSystemButton" Content="XP System" Width="140" Height="35"
-                            Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
-                            FontSize="14" FontWeight="SemiBold"/>
-                    <Button x:Name="TestMultiSourceXPButton" Content="Multi-Source XP" Width="140" Height="35"
-                            Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
-                            FontSize="14" FontWeight="SemiBold"/>
-                    <Button x:Name="TestSaveLoadSystemButton" Content="Save/Load System" Width="140" Height="35"
+                    <Button x:Name="TestActionMechanicsButton" Content="Action mechanics" Width="150" Height="35"
                             Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,5,0,0">
-                    <Button x:Name="TestGameStateManagementButton" Content="Game State" Width="140" Height="35"
+                    <Button x:Name="TestProgressionButton" Content="Progression (XP / level)" Width="200" Height="35"
                             Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
-                    <Button x:Name="TestErrorHandlingButton" Content="Error Handling" Width="140" Height="35"
+                    <Button x:Name="TestDungeonRewardsButton" Content="Dungeon &amp; rewards" Width="180" Height="35"
                             Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
-                    <Button x:Name="TestMultiHitButton" Content="Multi-Hit" Width="140" Height="35"
+                    <Button x:Name="TestSaveLoadButton" Content="Save/Load" Width="110" Height="35"
                             Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
-                    <Button x:Name="TestStatusEffectsButton" Content="Status Effects" Width="140" Height="35"
+                    <Button x:Name="TestGameplayFlowButton" Content="Gameplay flow" Width="140" Height="35"
                             Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
-                    <Button x:Name="TestActionImportButton" Content="Action Import (Spreadsheet)" Width="200" Height="35"
-                            Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
-                            FontSize="14" FontWeight="SemiBold"/>
-                    <Button x:Name="TestActionMechanicsButton" Content="Action Mechanics (All)" Width="200" Height="35"
-                            Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
-                            FontSize="14" FontWeight="SemiBold"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,5,0,0">
-                    <Button x:Name="ResyncActionsButton" Content="Resync Actions from Google Sheets" Width="280" Height="35"
-                            Background="#FF0078D4" Foreground="White" BorderThickness="0" CornerRadius="4"
-                            FontSize="14" FontWeight="SemiBold"/>
-                </StackPanel>
-            </StackPanel>
-            
-            <!-- Integration Tests Section -->
-            <StackPanel Spacing="8">
-                <TextBlock Text="INTEGRATION TESTS" 
-                          FontSize="16" 
-                          FontWeight="Bold" 
-                          Foreground="#FFD700" 
-                          Margin="0,0,0,5"/>
-                <StackPanel Orientation="Horizontal" Spacing="10">
-                    <Button x:Name="TestCombatButton" Content="Combat" Width="120" Height="35"
-                            Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
-                            FontSize="14" FontWeight="SemiBold"/>
-                    <Button x:Name="TestDungeonButton" Content="Dungeon" Width="120" Height="35"
-                            Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
-                            FontSize="14" FontWeight="SemiBold"/>
-                    <Button x:Name="TestGameplayFlowButton" Content="Gameplay Flow" Width="140" Height="35"
-                            Background="#FF555555" Foreground="White" BorderThickness="0" CornerRadius="4"
-                            FontSize="14" FontWeight="SemiBold"/>
-                    <Button x:Name="TestAllButton" Content="Run All" Width="120" Height="35"
+                    <Button x:Name="TestAllMechanicsButton" Content="Run all mechanics" Width="160" Height="35"
                             Background="#FF0078D4" Foreground="White" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
                     <Button x:Name="TestClearOutputButton" Content="Clear" Width="80" Height="35"
                             Background="#FF404040" Foreground="White" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
                 </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,5,0,0">
+                    <Button x:Name="ResyncActionsButton" Content="Resync Actions from Google Sheets" Width="280" Height="35"
+                            Background="#FF0078D4" Foreground="White" BorderThickness="0" CornerRadius="4"
+                            FontSize="14" FontWeight="SemiBold"/>
+                    <Button x:Name="OptimizeActionsButton" Content="Optimize Actions.json" Width="200" Height="35"
+                            Background="#FF28A745" Foreground="White" BorderThickness="0" CornerRadius="4"
+                            FontSize="14" FontWeight="SemiBold"/>
+                </StackPanel>
+                <!-- Scripts subsection: buttons for each script in Scripts folder -->
+                <StackPanel Spacing="8" Margin="0,20,0,0">
+                    <TextBlock Text="SCRIPTS"
+                              FontSize="16"
+                              FontWeight="Bold"
+                              Foreground="#FFD700"
+                              Margin="0,0,0,5"/>
+                    <ScrollViewer MaxHeight="220"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <WrapPanel x:Name="ScriptsButtonsPanel"
+                                   Margin="0,0,0,5"/>
+                    </ScrollViewer>
+                </StackPanel>
             </StackPanel>
         </StackPanel>
         
-        <!-- Test Output - Scrollable text box, constrained to available space -->
+        <!-- Test Output -->
         <ScrollViewer Grid.Row="1"
                      VerticalScrollBarVisibility="Auto"
                      HorizontalScrollBarVisibility="Disabled"
@@ -136,7 +109,7 @@
                      MinHeight="200"/>
         </ScrollViewer>
         
-        <!-- Status - Fixed at bottom -->
+        <!-- Status -->
         <StackPanel Grid.Row="2" Spacing="10" Margin="0,10,0,0" VerticalAlignment="Bottom">
             <TextBlock x:Name="TestOutputProgressText"
                        Text="Ready"
@@ -145,4 +118,3 @@
         </StackPanel>
     </Grid>
 </UserControl>
-

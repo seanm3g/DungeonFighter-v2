@@ -105,35 +105,33 @@ The spreadsheet uses a columnar format where:
 
 ### Target Keyword Syntax
 
-Based on the ACTION/ATTACK keyword mechanics guide, actions should be described as:
-- `"For the Next ACTION: +X BONUSTYPE"`
-- `"For the Next N ACTIONS: +X BONUSTYPE"`
-- `"For the Next ATTACK: +X BONUSTYPE"`
-- `"For the Next N ATTACKS: +X BONUSTYPE"`
+Based on the ABILITY/ACTION keyword mechanics: **ABILITY** = bonuses consumed on successful ability use; **ACTION** = bonuses consumed per attack roll. Actions should be described as:
+- `"For the Next ABILITY: +X BONUSTYPE"` or `"For the Next N ABILITIES: +X BONUSTYPE"`
+- `"For the Next ACTION: +X BONUSTYPE"` or `"For the Next N ACTIONS: +X BONUSTYPE"`
 
 ### Conversion Examples
 
 #### Example 1: CONCENTRATE
-- **Spreadsheet**: CADENCE="ATTACK", DURATION=1, (appears to grant +1 to hit/accuracy)
-- **Keyword Syntax**: `"For the Next ATTACK: +1 HIT"` or `"For the Next ATTACK: +1 ACCURACY"`
+- **Spreadsheet**: CADENCE="ATTACK" or "ACTION", DURATION=1, (appears to grant +1 to hit/accuracy)
+- **Keyword Syntax**: `"For the Next ACTION: +1 HIT"` or `"For the Next ACTION: +1 ACCURACY"`
 
 #### Example 2: FLURRY
-- **Spreadsheet**: CADENCE="ACTION", DURATION=1, # OF HITS=5, DAMAGE=30%
-- **Keyword Syntax**: `"For the Next ACTION: +4 Extra Hits (30% damage each)"`
+- **Spreadsheet**: CADENCE="ACTION" or "ABILITY", DURATION=1, # OF HITS=5, DAMAGE=30%
+- **Keyword Syntax**: `"For the Next ABILITY: +4 Extra Hits (30% damage each)"`
 - **Note**: This is a special case - grants extra attacks, not a simple bonus
 
 #### Example 3: GRUNT
-- **Spreadsheet**: CADENCE="ATTACKS", DURATION=2, (appears to grant +1 HIT)
-- **Keyword Syntax**: `"For the Next 2 ATTACKS: +1 HIT"`
+- **Spreadsheet**: CADENCE="ATTACKS" or "ACTIONS", DURATION=2, (appears to grant +1 HIT)
+- **Keyword Syntax**: `"For the Next 2 ACTIONS: +1 HIT"`
 
 #### Example 4: MOMENTUM BASH
 - **Spreadsheet**: CADENCE="DUNGEON", DURATION=1, STR=1
-- **Keyword Syntax**: `"For the Next ACTION: +1 STR (DUNGEON duration)"`
+- **Keyword Syntax**: `"For the Next ABILITY: +1 STR (DUNGEON duration)"`
 - **Note**: DUNGEON duration means permanent for the dungeon
 
 #### Example 5: AMPLIFY ACCURACY
-- **Spreadsheet**: CADENCE="ACTION", DURATION=1, ACCURACY=20
-- **Keyword Syntax**: `"For the Next ACTION: +20 ACCURACY"`
+- **Spreadsheet**: CADENCE="ACTION" or "ABILITY", DURATION=1, ACCURACY=20
+- **Keyword Syntax**: `"For the Next ABILITY: +20 ACCURACY"`
 
 ## Complex Actions Analysis
 
@@ -187,13 +185,12 @@ Some actions have conditional triggers or thresholds:
 To convert spreadsheet data to action definitions, map:
 
 1. **Keyword Type**: Read from CADENCE column (K)
-   - "ACTION" → ACTION keyword
-   - "ATTACK" → ATTACK keyword (singular)
-   - "ATTACKS" → ATTACK keyword (plural, use DURATION for count)
-   - "ACTIONS" → ACTION keyword (plural, use DURATION for count)
+   - "ABILITY" / "ACTION" / "ACTIONS" → ABILITY keyword (bonuses consumed on successful ability use)
+   - "ACTION" (attack sense) / "ATTACK" / "ATTACKS" → ACTION keyword (bonuses consumed per attack roll)
+   - Legacy: spreadsheet "ACTION"/"ACTIONS" → ABILITY; "ATTACK"/"ATTACKS" → ACTION
 
 2. **Duration/Count**: Read from DURATION column (J)
-   - If CADENCE is "ATTACK" or "ACTION" (singular), default to 1
+   - If CADENCE is "ABILITY", "ABILITIES", "ACTION", "ACTIONS", "ATTACK", or "ATTACKS", default to 1 when duration missing
    - If CADENCE is "ATTACKS" or "ACTIONS" (plural), use DURATION value
 
 3. **Bonus Values**: Read from appropriate bonus columns

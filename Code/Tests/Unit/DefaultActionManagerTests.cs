@@ -108,7 +108,7 @@ namespace RPGGame.Tests.Unit
             var weapon = new WeaponItem
             {
                 Name = "TestWeapon",
-                WeaponType = WeaponType.Staff
+                WeaponType = WeaponType.Wand
             };
 
             var uniqueActions = manager.GetAvailableUniqueActions(weapon);

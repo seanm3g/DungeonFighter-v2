@@ -38,10 +38,12 @@ namespace RPGGame.UI.Avalonia.Canvas
         }
 
         /// <summary>
-        /// Adds text with glow effect to the canvas at the specified position
+        /// Adds text with glow effect to the canvas at the specified position.
+        /// Removes any existing text at (x, y) first so re-renders do not duplicate (e.g. STATS header).
         /// </summary>
         public void AddText(int x, int y, string text, Color color, Color glowColor, double glowIntensity = 0.5, int glowRadius = 3)
         {
+            elementManager.RemoveText(t => t.X == x && t.Y == y);
             var textElement = new CanvasText
             {
                 X = x,

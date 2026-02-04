@@ -26,6 +26,7 @@ namespace RPGGame.Tests.Unit
             TestAddToCombo();
             TestRemoveFromCombo();
             TestReorderComboSequence();
+            TestOpenerFinisherOrdering();
             TestInitializeDefaultCombo();
             TestUpdateComboSequenceAfterGearChange();
             TestClearCombo();
@@ -177,6 +178,49 @@ namespace RPGGame.Tests.Unit
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(2, comboActions[1].ComboOrder, 
                 "Second action should have ComboOrder 2", 
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestOpenerFinisherOrdering()
+        {
+            Console.WriteLine("\n--- Testing Opener/Finisher Ordering ---");
+
+            var manager = new ComboSequenceManager();
+            var character = TestDataBuilders.Character().WithName("OpenerFinisherTest").Build();
+
+            var openerAction = TestDataBuilders.CreateMockAction("OPENER");
+            openerAction.IsComboAction = true;
+            openerAction.ComboOrder = 3;
+            openerAction.ComboRouting ??= new ComboRoutingProperties();
+            openerAction.ComboRouting.IsOpener = true;
+            character.AddAction(openerAction, 1.0);
+
+            var middleAction = TestDataBuilders.CreateMockAction("MIDDLE");
+            middleAction.IsComboAction = true;
+            middleAction.ComboOrder = 1;
+            character.AddAction(middleAction, 1.0);
+
+            var finisherAction = TestDataBuilders.CreateMockAction("FINISHER");
+            finisherAction.IsComboAction = true;
+            finisherAction.ComboOrder = 2;
+            finisherAction.ComboRouting ??= new ComboRoutingProperties();
+            finisherAction.ComboRouting.IsFinisher = true;
+            character.AddAction(finisherAction, 1.0);
+
+            manager.AddToCombo(middleAction);
+            manager.AddToCombo(finisherAction);
+            manager.AddToCombo(openerAction);
+
+            var comboActions = manager.GetComboActions();
+
+            TestBase.AssertTrue(comboActions.Count == 3,
+                $"Combo should have 3 actions (got {comboActions.Count})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("OPENER", comboActions[0].Name,
+                "Opener should be in first slot",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("FINISHER", comboActions[2].Name,
+                "Finisher should be in last slot",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

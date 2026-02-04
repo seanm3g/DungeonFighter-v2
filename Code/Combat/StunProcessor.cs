@@ -56,7 +56,7 @@ namespace RPGGame
                 Character? character = entity as Character;
                 
                 // Use DisplayActionBlock to ensure consistent formatting with all other action blocks
-                BlockDisplayManager.DisplayActionBlock(actionText, null, statusEffects, null, null, character);
+                BlockDisplayManager.DisplayActionBlock(actionText, new List<ColoredText>(), statusEffects, null, null, character);
             }
             
             // Get the entity's action speed to calculate proper stun reduction

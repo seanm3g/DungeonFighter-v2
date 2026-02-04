@@ -5,30 +5,20 @@ using System.Linq;
 namespace RPGGame.Data
 {
     /// <summary>
-    /// Processes ACTION/ATTACK keywords from spreadsheet data and generates bonus structures
+    /// Processes ABILITY/ACTION keywords from spreadsheet data and generates bonus structures.
+    /// ABILITY = bonuses consumed on successful ability use; ACTION = bonuses consumed per attack roll.
     /// </summary>
     public static class ActionAttackKeywordProcessor
     {
         /// <summary>
-        /// Processes a SpreadsheetActionData and extracts ACTION/ATTACK bonuses
+        /// Processes a SpreadsheetActionData and extracts ABILITY/ACTION bonuses
         /// </summary>
         public static ActionAttackBonuses ProcessBonuses(SpreadsheetActionData spreadsheetData)
         {
             var bonuses = new ActionAttackBonuses();
             
-            // Get action name once for debugging
+            // Get action name once
             string actionName = spreadsheetData.Action?.Trim() ?? "";
-            
-            // Debug: log ALL actions with CADENCE to see what's being processed
-            if (!string.IsNullOrWhiteSpace(spreadsheetData.Cadence))
-            {
-                if (actionName.Contains("AMPLIFY") || actionName.Contains("CONCENTRATE") || actionName.Contains("GRUNT") || actionName.Contains("OPENING"))
-                {
-                    System.Console.WriteLine($"[ProcessBonuses] {actionName}: CADENCE='{spreadsheetData.Cadence}', DURATION='{spreadsheetData.Duration}'");
-                    System.Console.WriteLine($"  HeroACC='{spreadsheetData.HeroAccuracy}', HeroHIT='{spreadsheetData.HeroHit}', HeroCOMBO='{spreadsheetData.HeroCombo}', HeroCRIT='{spreadsheetData.HeroCrit}'");
-                    System.Console.WriteLine($"  EnemyACC='{spreadsheetData.EnemyAccuracy}', EnemyHIT='{spreadsheetData.EnemyHit}'");
-                }
-            }
             
             if (string.IsNullOrWhiteSpace(spreadsheetData.Cadence))
             {
@@ -37,20 +27,21 @@ namespace RPGGame.Data
             
             string cadence = spreadsheetData.Cadence.Trim().ToUpper();
             int duration = SpreadsheetActionData.ParseIntValue(spreadsheetData.Duration);
-            if (duration == 0 && (cadence == "ACTION" || cadence == "ATTACK"))
+            // Default duration for ABILITY or ACTION keyword
+            if (duration == 0 && (cadence == "ABILITY" || cadence == "ABILITIES" || cadence == "ACTION" || cadence == "ACTIONS" || cadence == "ATTACK" || cadence == "ATTACKS"))
             {
                 duration = 1; // Default to 1 if not specified
             }
             
-            // Determine keyword type
+            // Determine keyword type: legacy "ACTION"/"ACTIONS" -> ABILITY; "ATTACK"/"ATTACKS" -> ACTION
             string keyword = "";
-            if (cadence == "ACTION" || cadence == "ACTIONS")
+            if (cadence == "ABILITY" || cadence == "ABILITIES" || cadence == "ACTION" || cadence == "ACTIONS")
             {
-                keyword = "ACTION";
+                keyword = "ABILITY";
             }
             else if (cadence == "ATTACK" || cadence == "ATTACKS")
             {
-                keyword = "ATTACK";
+                keyword = "ACTION";
             }
             else
             {
@@ -100,15 +91,6 @@ namespace RPGGame.Data
             AddBonusIfPresent(bonusItems, "TECH", spreadsheetData.HeroTECH);
             AddBonusIfPresent(bonusItems, "INT", spreadsheetData.HeroINT);
             
-            // Debug output for specific actions
-            if (actionName.Contains("AMPLIFY ACCURACY") || actionName.Contains("CONCENTRATE") || actionName.Contains("GRUNT"))
-            {
-                System.Console.WriteLine($"DEBUG [{actionName}]: CADENCE='{spreadsheetData.Cadence}', DURATION='{spreadsheetData.Duration}'");
-                System.Console.WriteLine($"  HeroACC='{spreadsheetData.HeroAccuracy}', HeroHIT='{spreadsheetData.HeroHit}', HeroCOMBO='{spreadsheetData.HeroCombo}', HeroCRIT='{spreadsheetData.HeroCrit}'");
-                System.Console.WriteLine($"  EnemyACC='{spreadsheetData.EnemyAccuracy}', EnemyHIT='{spreadsheetData.EnemyHit}'");
-                System.Console.WriteLine($"  bonusItems.Count={bonusItems.Count}, keyword='{keyword}', duration={duration}");
-            }
-            
             if (bonusItems.Count > 0)
             {
                 var group = new ActionAttackBonusGroup
@@ -120,11 +102,6 @@ namespace RPGGame.Data
                 };
                 
                 bonuses.BonusGroups.Add(group);
-                
-                if (actionName == "AMPLIFY ACCURACY" || actionName == "CONCENTRATE" || actionName == "GRUNT")
-                {
-                    System.Console.WriteLine($"  ✓ Created bonus group with {bonusItems.Count} bonuses");
-                }
             }
             
             return bonuses;
@@ -157,7 +134,7 @@ namespace RPGGame.Data
                 
                 var group = new ActionAttackBonusGroup
                 {
-                    Keyword = "ACTION", // Default to ACTION for special durations
+                    Keyword = "ABILITY", // Default to ABILITY for special durations
                     Count = duration,
                     Bonuses = bonusItems,
                     DurationType = durationType
@@ -203,7 +180,7 @@ namespace RPGGame.Data
                 var keywordText = group.Keyword;
                 if (group.Count > 1)
                 {
-                    keywordText = group.Count + " " + (group.Keyword == "ACTION" ? "ACTIONS" : "ATTACKS");
+                    keywordText = group.Count + " " + (group.Keyword == "ABILITY" ? "ABILITIES" : "ACTIONS");
                 }
                 else
                 {

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text.Json;
 using RPGGame;
 using Avalonia;
@@ -72,7 +73,16 @@ namespace RPGGame
                     return;
                 }
 
-                // Check if test mode is requested
+                // Check if unit test suite is requested (run-tests.bat / run-tests.ps1)
+                if (args.Length > 0 && (args[0] == "--run-tests" || args.Any(a => a == "--run-tests")))
+                {
+                    executionMode = "TEST";
+                    BuildExecutionMetrics.RecordLaunchTime("TEST");
+                    RPGGame.Tests.Runners.ComprehensiveTestRunner.RunAllTests();
+                    return;
+                }
+
+                // Check if test mode is requested (battle comparison)
                 if (args.Length > 0 && args[0] == "TEST")
                 {
                     executionMode = "TEST";
@@ -180,17 +190,6 @@ namespace RPGGame
             }
         }
 
-        // Synchronous version for backward compatibility
-        // NOTE: This method is deprecated. Use CreateFallbackWeaponAsync instead for proper async handling.
-        // This synchronous wrapper blocks the calling thread and should not be used in UI contexts.
-        [Obsolete("Use CreateFallbackWeaponAsync instead. This method blocks the calling thread and may freeze the UI.")]
-        public static WeaponItem? CreateFallbackWeapon(int playerLevel)
-        {
-            // For backward compatibility only - callers should migrate to async version
-            // Using ConfigureAwait(false) to avoid deadlocks, but this still blocks
-            return CreateFallbackWeaponAsync(playerLevel).ConfigureAwait(false).GetAwaiter().GetResult();
-        }
-        
         public static string? FindGameDataFile(string fileName)
         {
             // Try current directory first

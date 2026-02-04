@@ -16,7 +16,7 @@ namespace RPGGame.UI.Avalonia.Managers
     /// </summary>
     public class SettingsManager
     {
-        private readonly GameSettings settings;
+        private GameSettings settings;
         private readonly Action<string, bool>? showStatusMessage;
         private readonly Action<string>? updateStatus;
         private readonly TextDelaySettingsManager textDelayManager;
@@ -50,101 +50,30 @@ namespace RPGGame.UI.Avalonia.Managers
             this.saver = new SettingsSaver(this, gameVariablesTabManager);
         }
 
-        public void LoadSettings(
-            Slider narrativeBalanceSlider,
-            TextBox narrativeBalanceTextBox,
-            CheckBox enableNarrativeEventsCheckBox,
-            CheckBox enableInformationalSummariesCheckBox,
-            Slider combatSpeedSlider,
-            TextBox combatSpeedTextBox,
-            CheckBox showIndividualActionMessagesCheckBox,
-            CheckBox? enableComboSystemCheckBox,
-            CheckBox enableTextDisplayDelaysCheckBox,
-            CheckBox fastCombatCheckBox,
-            CheckBox? enableAutoSaveCheckBox,
-            TextBox? autoSaveIntervalTextBox,
-            CheckBox showDetailedStatsCheckBox,
-            CheckBox? enableSoundEffectsCheckBox,
-            Slider enemyHealthMultiplierSlider,
-            TextBox enemyHealthMultiplierTextBox,
-            Slider enemyDamageMultiplierSlider,
-            TextBox enemyDamageMultiplierTextBox,
-            Slider playerHealthMultiplierSlider,
-            TextBox playerHealthMultiplierTextBox,
-            Slider playerDamageMultiplierSlider,
-            TextBox playerDamageMultiplierTextBox,
-            CheckBox showHealthBarsCheckBox,
-            CheckBox showDamageNumbersCheckBox,
-            CheckBox showComboProgressCheckBox)
+        /// <summary>Updates the settings reference after ReloadFromFile so load/save use the current instance.</summary>
+        public void RefreshSettings(GameSettings currentSettings)
         {
-            // Load gameplay settings (narrative, combat, auto-save)
-            gameplaySettingsManager.LoadSettings(
-                narrativeBalanceSlider,
-                narrativeBalanceTextBox,
-                enableNarrativeEventsCheckBox,
-                enableInformationalSummariesCheckBox,
-                combatSpeedSlider,
-                combatSpeedTextBox,
-                showIndividualActionMessagesCheckBox,
-                enableComboSystemCheckBox,
-                enableTextDisplayDelaysCheckBox,
-                fastCombatCheckBox,
-                enableAutoSaveCheckBox,
-                autoSaveIntervalTextBox,
-                showDetailedStatsCheckBox,
-                enableSoundEffectsCheckBox);
-            
-            // Load difficulty settings (multipliers)
-            difficultySettingsManager.LoadSettings(
-                enemyHealthMultiplierSlider,
-                enemyHealthMultiplierTextBox,
-                enemyDamageMultiplierSlider,
-                enemyDamageMultiplierTextBox,
-                playerHealthMultiplierSlider,
-                playerHealthMultiplierTextBox,
-                playerDamageMultiplierSlider,
-                playerDamageMultiplierTextBox);
-            
-            // UI Settings
-            showHealthBarsCheckBox.IsChecked = settings.ShowHealthBars;
-            showDamageNumbersCheckBox.IsChecked = settings.ShowDamageNumbers;
-            showComboProgressCheckBox.IsChecked = settings.ShowComboProgress;
+            this.settings = currentSettings ?? throw new ArgumentNullException(nameof(currentSettings));
+            this.gameplaySettingsManager.RefreshSettings(currentSettings);
+            this.difficultySettingsManager.RefreshSettings(currentSettings);
         }
 
-        public void SaveSettings(
-            Slider narrativeBalanceSlider,
-            CheckBox enableNarrativeEventsCheckBox,
-            CheckBox enableInformationalSummariesCheckBox,
-            Slider combatSpeedSlider,
-            CheckBox showIndividualActionMessagesCheckBox,
-            CheckBox? enableComboSystemCheckBox,
-            CheckBox enableTextDisplayDelaysCheckBox,
-            CheckBox fastCombatCheckBox,
-            CheckBox? enableAutoSaveCheckBox,
-            TextBox? autoSaveIntervalTextBox,
-            CheckBox showDetailedStatsCheckBox,
-            CheckBox? enableSoundEffectsCheckBox,
-            Slider enemyHealthMultiplierSlider,
-            Slider enemyDamageMultiplierSlider,
-            Slider playerHealthMultiplierSlider,
-            Slider playerDamageMultiplierSlider,
-            CheckBox showHealthBarsCheckBox,
-            CheckBox showDamageNumbersCheckBox,
-            CheckBox showComboProgressCheckBox,
-            ActionDelegate? saveGameVariables = null)
+        /// <summary>
+        /// Saves settings from UI controls using DTO.
+        /// </summary>
+        public void SaveSettings(MainSettingsControls controls, ActionDelegate? saveGameVariables = null)
         {
             try
             {
-                // Validate controls exist
-                if (narrativeBalanceSlider == null || combatSpeedSlider == null ||
-                    enemyHealthMultiplierSlider == null || enemyDamageMultiplierSlider == null ||
-                    playerHealthMultiplierSlider == null || playerDamageMultiplierSlider == null)
+                if (controls == null) return;
+                if (controls.NarrativeBalanceSlider == null || controls.CombatSpeedSlider == null ||
+                    controls.EnemyHealthMultiplierSlider == null || controls.EnemyDamageMultiplierSlider == null ||
+                    controls.PlayerHealthMultiplierSlider == null || controls.PlayerDamageMultiplierSlider == null)
                 {
                     showStatusMessage?.Invoke("Error: Some settings controls are missing", false);
                     return;
                 }
 
-                // Store original values for rollback
                 var originalSettings = new GameSettings
                 {
                     NarrativeBalance = settings.NarrativeBalance,
@@ -168,53 +97,50 @@ namespace RPGGame.UI.Avalonia.Managers
                     ShowComboProgress = settings.ShowComboProgress
                 };
 
-                // Save gameplay settings (narrative, combat, auto-save)
                 gameplaySettingsManager.SaveSettings(
-                    narrativeBalanceSlider,
-                    enableNarrativeEventsCheckBox,
-                    enableInformationalSummariesCheckBox,
-                    combatSpeedSlider,
-                    showIndividualActionMessagesCheckBox,
-                    enableComboSystemCheckBox,
-                    enableTextDisplayDelaysCheckBox,
-                    fastCombatCheckBox,
-                    enableAutoSaveCheckBox,
-                    autoSaveIntervalTextBox,
-                    showDetailedStatsCheckBox,
-                    enableSoundEffectsCheckBox);
-                
-                // Save difficulty settings (multipliers)
+                    controls.NarrativeBalanceSlider,
+                    controls.EnableNarrativeEventsCheckBox!,
+                    controls.EnableInformationalSummariesCheckBox!,
+                    controls.CombatSpeedSlider,
+                    controls.ShowIndividualActionMessagesCheckBox!,
+                    controls.EnableComboSystemCheckBox,
+                    controls.EnableTextDisplayDelaysCheckBox!,
+                    controls.FastCombatCheckBox!,
+                    controls.EnableAutoSaveCheckBox,
+                    controls.AutoSaveIntervalTextBox,
+                    controls.ShowDetailedStatsCheckBox!,
+                    controls.EnableSoundEffectsCheckBox);
+
                 difficultySettingsManager.SaveSettings(
-                    enemyHealthMultiplierSlider,
-                    enemyDamageMultiplierSlider,
-                    playerHealthMultiplierSlider,
-                    playerDamageMultiplierSlider);
-                
-                // UI Settings
-                settings.ShowHealthBars = showHealthBarsCheckBox.IsChecked ?? true;
-                settings.ShowDamageNumbers = showDamageNumbersCheckBox.IsChecked ?? true;
-                settings.ShowComboProgress = showComboProgressCheckBox.IsChecked ?? true;
-                
-                // Validate all settings before saving
+                    controls.EnemyHealthMultiplierSlider!,
+                    controls.EnemyDamageMultiplierSlider!,
+                    controls.PlayerHealthMultiplierSlider!,
+                    controls.PlayerDamageMultiplierSlider!);
+
+                settings.ShowHealthBars = controls.ShowHealthBarsCheckBox?.IsChecked ?? true;
+                settings.ShowDamageNumbers = controls.ShowDamageNumbersCheckBox?.IsChecked ?? true;
+                settings.ShowComboProgress = controls.ShowComboProgressCheckBox?.IsChecked ?? true;
+
                 settings.ValidateAndFix();
-                
-                // Save to file (with atomic write)
-                settings.SaveSettings();
-                
-                // Save Game Variables if any were modified
+                if (!settings.SaveSettings())
+                {
+                    showStatusMessage?.Invoke("Error: Failed to save settings to file.", false);
+                    updateStatus?.Invoke("Error: Failed to save settings to file.");
+                    return;
+                }
+
                 try
                 {
                     saveGameVariables?.Invoke();
                 }
                 catch (Exception ex)
                 {
-                    // Rollback settings if game variables save fails
                     RestoreSettings(originalSettings);
                     showStatusMessage?.Invoke($"Error saving game variables: {ex.Message}. Settings rolled back.", false);
                     updateStatus?.Invoke($"Error saving game variables: {ex.Message}");
                     return;
                 }
-                
+
                 showStatusMessage?.Invoke("Settings saved successfully!", true);
                 updateStatus?.Invoke("Settings saved successfully!");
             }
@@ -227,9 +153,10 @@ namespace RPGGame.UI.Avalonia.Managers
         }
         
         /// <summary>
-        /// Saves gameplay settings without sliders (for simplified gameplay panel)
+        /// Saves gameplay settings without sliders (for simplified gameplay panel).
         /// </summary>
-        public void SaveGameplaySettings(
+        /// <returns>True if save to file succeeded, false otherwise.</returns>
+        public bool SaveGameplaySettings(
             CheckBox showIndividualActionMessagesCheckBox,
             CheckBox enableTextDisplayDelaysCheckBox,
             CheckBox fastCombatCheckBox,
@@ -269,7 +196,12 @@ namespace RPGGame.UI.Avalonia.Managers
                 settings.ValidateAndFix();
                 
                 // Save to file (with atomic write)
-                settings.SaveSettings();
+                if (!settings.SaveSettings())
+                {
+                    showStatusMessage?.Invoke("Error: Failed to save settings to file.", false);
+                    updateStatus?.Invoke("Error: Failed to save settings to file.");
+                    return false;
+                }
                 
                 // Save Game Variables if any were modified
                 try
@@ -282,17 +214,19 @@ namespace RPGGame.UI.Avalonia.Managers
                     RestoreSettings(originalSettings);
                     showStatusMessage?.Invoke($"Error saving game variables: {ex.Message}. Settings rolled back.", false);
                     updateStatus?.Invoke($"Error saving game variables: {ex.Message}");
-                    return;
+                    return false;
                 }
                 
                 showStatusMessage?.Invoke("Settings saved successfully!", true);
                 updateStatus?.Invoke("Settings saved successfully!");
+                return true;
             }
             catch (Exception ex)
             {
                 showStatusMessage?.Invoke($"Error saving settings: {ex.Message}", false);
                 updateStatus?.Invoke($"Error saving settings: {ex.Message}");
                 RPGGame.Utils.ScrollDebugLogger.Log($"SettingsManager.SaveGameplaySettings error: {ex.Message}\n{ex.StackTrace}");
+                return false;
             }
         }
         
@@ -316,117 +250,6 @@ namespace RPGGame.UI.Avalonia.Managers
         public void ResetToDefaults()
         {
             settings.ResetToDefaults();
-        }
-
-        /// <summary>
-        /// Loads text delay settings from TextDelayConfiguration into UI controls
-        /// Delegates to TextDelaySettingsManager
-        /// </summary>
-        public void LoadTextDelaySettings(
-            CheckBox? enableGuiDelaysCheckBox,
-            CheckBox? enableConsoleDelaysCheckBox,
-            Slider? actionDelaySlider,
-            TextBox? actionDelayTextBox,
-            Slider? messageDelaySlider,
-            TextBox? messageDelayTextBox,
-            TextBox? combatDelayTextBox,
-            TextBox? systemDelayTextBox,
-            TextBox? menuDelayTextBox,
-            TextBox? titleDelayTextBox,
-            TextBox? mainTitleDelayTextBox,
-            TextBox? environmentalDelayTextBox,
-            TextBox? effectMessageDelayTextBox,
-            TextBox? damageOverTimeDelayTextBox,
-            TextBox? encounterDelayTextBox,
-            TextBox? rollInfoDelayTextBox,
-            TextBox? environmentalLineDelayTextBox,
-            TextBox? baseMenuDelayTextBox,
-            TextBox? progressiveReductionRateTextBox,
-            TextBox? progressiveThresholdTextBox,
-            TextBox? combatPresetBaseDelayTextBox,
-            TextBox? combatPresetMinDelayTextBox,
-            TextBox? combatPresetMaxDelayTextBox,
-            TextBox? dungeonPresetBaseDelayTextBox,
-            TextBox? dungeonPresetMinDelayTextBox,
-            TextBox? dungeonPresetMaxDelayTextBox,
-            TextBox? roomPresetBaseDelayTextBox,
-            TextBox? roomPresetMinDelayTextBox,
-            TextBox? roomPresetMaxDelayTextBox,
-            TextBox? narrativePresetBaseDelayTextBox,
-            TextBox? narrativePresetMinDelayTextBox,
-            TextBox? narrativePresetMaxDelayTextBox,
-            TextBox? defaultPresetBaseDelayTextBox,
-            TextBox? defaultPresetMinDelayTextBox,
-            TextBox? defaultPresetMaxDelayTextBox)
-        {
-            textDelayManager.LoadTextDelaySettings(
-                enableGuiDelaysCheckBox, enableConsoleDelaysCheckBox,
-                actionDelaySlider, actionDelayTextBox,
-                messageDelaySlider, messageDelayTextBox,
-                combatDelayTextBox, systemDelayTextBox, menuDelayTextBox,
-                titleDelayTextBox, mainTitleDelayTextBox, environmentalDelayTextBox,
-                effectMessageDelayTextBox, damageOverTimeDelayTextBox, encounterDelayTextBox,
-                rollInfoDelayTextBox, environmentalLineDelayTextBox, baseMenuDelayTextBox, progressiveReductionRateTextBox,
-                progressiveThresholdTextBox, combatPresetBaseDelayTextBox, combatPresetMinDelayTextBox,
-                combatPresetMaxDelayTextBox, dungeonPresetBaseDelayTextBox, dungeonPresetMinDelayTextBox,
-                dungeonPresetMaxDelayTextBox, roomPresetBaseDelayTextBox, roomPresetMinDelayTextBox,
-                roomPresetMaxDelayTextBox, narrativePresetBaseDelayTextBox, narrativePresetMinDelayTextBox,
-                narrativePresetMaxDelayTextBox, defaultPresetBaseDelayTextBox, defaultPresetMinDelayTextBox,
-                defaultPresetMaxDelayTextBox);
-        }
-
-        /// <summary>
-        /// Saves text delay settings from UI controls to TextDelayConfiguration
-        /// Delegates to TextDelaySettingsManager
-        /// </summary>
-        public void SaveTextDelaySettings(
-            CheckBox? enableGuiDelaysCheckBox,
-            CheckBox? enableConsoleDelaysCheckBox,
-            Slider? actionDelaySlider,
-            Slider? messageDelaySlider,
-            TextBox? combatDelayTextBox,
-            TextBox? systemDelayTextBox,
-            TextBox? menuDelayTextBox,
-            TextBox? titleDelayTextBox,
-            TextBox? mainTitleDelayTextBox,
-            TextBox? environmentalDelayTextBox,
-            TextBox? effectMessageDelayTextBox,
-            TextBox? damageOverTimeDelayTextBox,
-            TextBox? encounterDelayTextBox,
-            TextBox? rollInfoDelayTextBox,
-            TextBox? environmentalLineDelayTextBox,
-            TextBox? baseMenuDelayTextBox,
-            TextBox? progressiveReductionRateTextBox,
-            TextBox? progressiveThresholdTextBox,
-            TextBox? combatPresetBaseDelayTextBox,
-            TextBox? combatPresetMinDelayTextBox,
-            TextBox? combatPresetMaxDelayTextBox,
-            TextBox? dungeonPresetBaseDelayTextBox,
-            TextBox? dungeonPresetMinDelayTextBox,
-            TextBox? dungeonPresetMaxDelayTextBox,
-            TextBox? roomPresetBaseDelayTextBox,
-            TextBox? roomPresetMinDelayTextBox,
-            TextBox? roomPresetMaxDelayTextBox,
-            TextBox? narrativePresetBaseDelayTextBox,
-            TextBox? narrativePresetMinDelayTextBox,
-            TextBox? narrativePresetMaxDelayTextBox,
-            TextBox? defaultPresetBaseDelayTextBox,
-            TextBox? defaultPresetMinDelayTextBox,
-            TextBox? defaultPresetMaxDelayTextBox)
-        {
-            textDelayManager.SaveTextDelaySettings(
-                enableGuiDelaysCheckBox, enableConsoleDelaysCheckBox,
-                actionDelaySlider, messageDelaySlider,
-                combatDelayTextBox, systemDelayTextBox, menuDelayTextBox,
-                titleDelayTextBox, mainTitleDelayTextBox, environmentalDelayTextBox,
-                effectMessageDelayTextBox, damageOverTimeDelayTextBox, encounterDelayTextBox,
-                rollInfoDelayTextBox, environmentalLineDelayTextBox, baseMenuDelayTextBox, progressiveReductionRateTextBox,
-                progressiveThresholdTextBox, combatPresetBaseDelayTextBox, combatPresetMinDelayTextBox,
-                combatPresetMaxDelayTextBox, dungeonPresetBaseDelayTextBox, dungeonPresetMinDelayTextBox,
-                dungeonPresetMaxDelayTextBox, roomPresetBaseDelayTextBox, roomPresetMinDelayTextBox,
-                roomPresetMaxDelayTextBox, narrativePresetBaseDelayTextBox, narrativePresetMinDelayTextBox,
-                narrativePresetMaxDelayTextBox, defaultPresetBaseDelayTextBox, defaultPresetMinDelayTextBox,
-                defaultPresetMaxDelayTextBox);
         }
 
         /// <summary>
@@ -494,19 +317,53 @@ namespace RPGGame.UI.Avalonia.Managers
         #region DTO-based Methods (merged from SettingsPersistenceManager)
 
         /// <summary>
-        /// Loads current settings into the UI controls using DTO (backward compatibility)
+        /// Loads current settings into the UI controls using DTO.
         /// </summary>
         public void LoadSettings(MainSettingsControls controls)
         {
-            loader.LoadMainSettings(controls);
+            if (controls == null) return;
+            if (controls.NarrativeBalanceSlider == null || controls.CombatSpeedSlider == null ||
+                controls.EnemyHealthMultiplierSlider == null || controls.PlayerHealthMultiplierSlider == null ||
+                controls.PlayerDamageMultiplierSlider == null)
+                return;
+
+            gameplaySettingsManager.LoadSettings(
+                controls.NarrativeBalanceSlider,
+                controls.NarrativeBalanceTextBox!,
+                controls.EnableNarrativeEventsCheckBox!,
+                controls.EnableInformationalSummariesCheckBox!,
+                controls.CombatSpeedSlider,
+                controls.CombatSpeedTextBox!,
+                controls.ShowIndividualActionMessagesCheckBox!,
+                controls.EnableComboSystemCheckBox,
+                controls.EnableTextDisplayDelaysCheckBox!,
+                controls.FastCombatCheckBox!,
+                controls.EnableAutoSaveCheckBox,
+                controls.AutoSaveIntervalTextBox,
+                controls.ShowDetailedStatsCheckBox!,
+                controls.EnableSoundEffectsCheckBox);
+
+            difficultySettingsManager.LoadSettings(
+                controls.EnemyHealthMultiplierSlider!,
+                controls.EnemyHealthMultiplierTextBox!,
+                controls.EnemyDamageMultiplierSlider!,
+                controls.EnemyDamageMultiplierTextBox!,
+                controls.PlayerHealthMultiplierSlider!,
+                controls.PlayerHealthMultiplierTextBox!,
+                controls.PlayerDamageMultiplierSlider!,
+                controls.PlayerDamageMultiplierTextBox!);
+
+            if (controls.ShowHealthBarsCheckBox != null) controls.ShowHealthBarsCheckBox.IsChecked = settings.ShowHealthBars;
+            if (controls.ShowDamageNumbersCheckBox != null) controls.ShowDamageNumbersCheckBox.IsChecked = settings.ShowDamageNumbers;
+            if (controls.ShowComboProgressCheckBox != null) controls.ShowComboProgressCheckBox.IsChecked = settings.ShowComboProgress;
         }
 
         /// <summary>
-        /// Loads text delay settings into UI controls using DTO (backward compatibility)
+        /// Loads text delay settings into UI controls using DTO.
         /// </summary>
         public void LoadTextDelaySettings(TextDelaySettingsControls controls, Action<Slider, TextBox>? wireUpActionDelaySlider = null, Action<Slider, TextBox>? wireUpMessageDelaySlider = null)
         {
-            loader.LoadTextDelaySettings(controls, wireUpActionDelaySlider, wireUpMessageDelaySlider);
+            textDelayManager.LoadTextDelaySettings(controls);
         }
 
         /// <summary>
@@ -518,19 +375,19 @@ namespace RPGGame.UI.Avalonia.Managers
         }
 
         /// <summary>
-        /// Saves current UI values to settings using DTO (backward compatibility)
+        /// Saves current UI values to settings using DTO (backward compatibility). Uses null for saveGameVariables.
         /// </summary>
         public void SaveSettings(MainSettingsControls controls)
         {
-            saver.SaveMainSettings(controls);
+            SaveSettings(controls, null);
         }
 
         /// <summary>
-        /// Saves text delay settings from UI controls using DTO (backward compatibility)
+        /// Saves text delay settings from UI controls using DTO.
         /// </summary>
         public void SaveTextDelaySettings(TextDelaySettingsControls controls)
         {
-            saver.SaveTextDelaySettings(controls);
+            textDelayManager.SaveTextDelaySettings(controls);
         }
 
         /// <summary>

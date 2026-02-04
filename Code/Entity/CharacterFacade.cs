@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace RPGGame
@@ -287,8 +287,6 @@ namespace RPGGame
         // === SAVE/LOAD METHODS ===
         public void SaveCharacter(string? characterId = null, string? filename = null) => CharacterSaveManager.SaveCharacter(_character, characterId, filename);
         public static async Task<Character?> LoadCharacterAsync(string? characterId = null, string? filename = null) => await CharacterSaveManager.LoadCharacterAsync(characterId, filename).ConfigureAwait(false);
-        [Obsolete("Use LoadCharacterAsync instead. This method blocks the calling thread and may freeze the UI.")]
-        public static Character? LoadCharacter(string? characterId = null, string? filename = null) => LoadCharacterAsync(characterId, filename).ConfigureAwait(false).GetAwaiter().GetResult();
         public static void DeleteSaveFile(string? filename = null) => CharacterSaveManager.DeleteSaveFile(filename);
 
         // === DIRECT ACCESS TO UNDERLYING CHARACTER ===

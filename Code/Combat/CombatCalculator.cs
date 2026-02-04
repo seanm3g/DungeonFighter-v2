@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat.Calculators;
@@ -49,16 +49,11 @@ namespace RPGGame
         {
             int totalBonus = 0;
             
-            // Base action roll bonus
-            // Only apply immediate roll bonus if there's no duration (duration-based bonuses are handled separately)
+            // Base action roll bonus (applies to current roll only)
             if (action != null)
             {
-                // Only add roll bonus if it doesn't have a duration (duration-based bonuses are set for future rolls)
-                if (action.Advanced.RollBonusDuration == 0)
-                {
-                    totalBonus += action.Advanced.RollBonus;
-                }
-                
+                totalBonus += action.Advanced.RollBonus;
+
                 // Apply combo scaling bonuses
                 if (action.Tags.Contains("comboScaling"))
                 {
@@ -70,7 +65,7 @@ namespace RPGGame
                     // Scale with combo step position (HEROIC STRIKE)
                     totalBonus += (comboStep % comboActions.Count) + 1;
                 }
-                else                 if (action.Tags.Contains("comboAmplificationScaling"))
+                else if (action.Tags.Contains("comboAmplificationScaling"))
                 {
                     // Scale with combo amplification (BERSERKER RAGE)
                     if (attacker is Character characterAttacker)

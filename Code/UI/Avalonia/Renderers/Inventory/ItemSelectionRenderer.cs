@@ -83,7 +83,22 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     y++;
                     currentLineCount++;
                     
-                    // Render stats with colored text
+                    // Render actions tied to this item (same as main inventory)
+                    var itemActions = character.Equipment.GetGearActions(item);
+                    if (itemActions != null && itemActions.Count > 0)
+                    {
+                        string actionsText = "    Actions: " + string.Join(", ", itemActions);
+                        int maxActionWidth = width - 4;
+                        if (actionsText.Length > maxActionWidth)
+                        {
+                            actionsText = actionsText.Substring(0, maxActionWidth - 3) + "...";
+                        }
+                        canvas.AddText(x + 2, y, actionsText, AsciiArtAssets.Colors.Cyan);
+                        y++;
+                        currentLineCount++;
+                    }
+                    
+                    // Render stats with colored text (Damage, Speed, Armor, stat bonuses)
                     ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, itemStats, ref y, ref currentLineCount, useColoredText: true);
                 }
                 y++;

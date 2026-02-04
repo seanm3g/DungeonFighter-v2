@@ -98,7 +98,12 @@ namespace RPGGame
                 }
             }
 
-            // Add actions from new item
+            // Re-add class actions before adding gear actions so RemoveClassActions does not strip
+            // gear-added actions (JAB, TAUNT, etc. are in AllClassActions and would otherwise be removed).
+            var weaponType = (_character.Equipment.Weapon as WeaponItem)?.WeaponType;
+            _character.Actions.AddClassActions(_character, _character.Progression, weaponType);
+
+            // Add actions from new item (after class actions so gear actions are never removed by RemoveClassActions)
             if (newItem != null)
             {
                 if (newItem is WeaponItem weapon)
@@ -110,15 +115,6 @@ namespace RPGGame
                     _character.Actions.AddArmorActions(_character, newItem);
                 }
             }
-
-            // Removed: BASIC ATTACK is no longer used in the game
-
-            // Re-add class actions after any gear change
-            // Class actions are based on character progression, not equipment, so they should persist
-            // This ensures class actions (like TAUNT for Warriors) remain available after equipment changes
-            // We re-add them after every gear change to ensure they're always present
-            var weaponType = (_character.Equipment.Weapon as WeaponItem)?.WeaponType;
-            _character.Actions.AddClassActions(_character, _character.Progression, weaponType);
 
             // Update combo sequence after equipment change
             _character.Actions.UpdateComboSequenceAfterGearChange(_character);

@@ -289,6 +289,72 @@ namespace RPGGame.UI.Avalonia.Managers
         }
 
         /// <summary>
+        /// Runs Actions Settings integration tests (modifiers, refresh, rarity/category).
+        /// </summary>
+        public async Task RunActionsSettingsIntegrationTestsAsync()
+        {
+            await orchestrator.RunTestAsync(
+                () => ComprehensiveTestRunner.RunActionsSettingsIntegrationTests(),
+                "Running Actions Settings integration tests...",
+                "Actions Settings integration tests complete");
+        }
+
+        /// <summary>
+        /// Runs combat mechanics tests (damage, hit, speed, thresholds).
+        /// </summary>
+        public async Task RunCombatMechanicsTestsAsync()
+        {
+            await orchestrator.RunTestAsync(
+                () => ComprehensiveTestRunner.RunCombatMechanicsTests(),
+                "Running combat mechanics tests...",
+                "Combat mechanics tests complete");
+        }
+
+        /// <summary>
+        /// Runs progression tests (level-up, XP, multi-source XP).
+        /// </summary>
+        public async Task RunProgressionTestsAsync()
+        {
+            await orchestrator.RunTestAsync(
+                () => ComprehensiveTestRunner.RunProgressionTests(),
+                "Running progression tests...",
+                "Progression tests complete");
+        }
+
+        /// <summary>
+        /// Runs dungeon and rewards tests (enemy generation, loot, XP).
+        /// </summary>
+        public async Task RunDungeonAndRewardsTestsAsync()
+        {
+            await orchestrator.RunTestAsync(
+                () => ComprehensiveTestRunner.RunDungeonAndRewardsTests(),
+                "Running dungeon & rewards tests...",
+                "Dungeon & rewards tests complete");
+        }
+
+        /// <summary>
+        /// Runs combo system tests.
+        /// </summary>
+        public async Task RunComboSystemTestsAsync()
+        {
+            await orchestrator.RunTestAsync(
+                () => ComprehensiveTestRunner.RunComboSystemTests(),
+                "Running combo tests...",
+                "Combo tests complete");
+        }
+
+        /// <summary>
+        /// Runs only game mechanics and reliability tests (no loaders or UI tests).
+        /// </summary>
+        public async Task RunMechanicsAndReliabilityTestsAsync()
+        {
+            await orchestrator.RunTestAsync(
+                () => ComprehensiveTestRunner.RunMechanicsAndReliabilityTests(),
+                "Running all mechanics & reliability tests...",
+                "Mechanics & reliability tests complete");
+        }
+
+        /// <summary>
         /// Clears the output TextBox
         /// </summary>
         public void ClearOutput()

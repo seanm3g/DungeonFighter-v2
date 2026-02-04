@@ -15,6 +15,10 @@ namespace RPGGame.Combat.Formatting
             if (action == null || action.Length <= 0) return 0;
             
             double actionLength = action.Length;
+
+            // Apply consumed SPEED_MOD from ACTION/ABILITY keyword (positive = faster = shorter time)
+            if (actor is Character speedModChar && speedModChar.Effects.ConsumedSpeedModPercent != 0)
+                actionLength = actionLength / (1.0 + speedModChar.Effects.ConsumedSpeedModPercent / 100.0);
             
             // Apply critical miss penalty (doubles action length)
             if (isCriticalMiss || actor.HasCriticalMissPenalty)

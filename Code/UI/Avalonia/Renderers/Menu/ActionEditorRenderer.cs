@@ -120,7 +120,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             for (int i = startIndex; i < endIndex; i++)
             {
                 var action = actions[i];
-                string displayText = $"{i + 1}. {action.Name} ({action.Type})";
+                string displayText = $"{i + 1}. {action.Name}";
                 if (displayText.Length > width - 10)
                 {
                     displayText = displayText.Substring(0, width - 10) + "...";

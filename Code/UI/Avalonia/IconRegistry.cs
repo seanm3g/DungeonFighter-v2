@@ -81,9 +81,7 @@ namespace RPGGame.UI.Avalonia
             return weaponType.ToLower() switch
             {
                 "sword" => Sword,
-                "bow" => Bow,
                 "wand" => Wand,
-                "staff" => Staff,
                 "mace" => Mace,
                 "dagger" => Dagger,
                 _ => Sword

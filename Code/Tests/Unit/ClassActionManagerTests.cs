@@ -142,22 +142,22 @@ namespace RPGGame.Tests.Unit
             var manager = new ClassActionManager();
             var character = TestDataBuilders.Character().WithName("WizardTest").Build();
             
-            // Test with Staff weapon type
+            // Test with Wand weapon type
             var progression = new CharacterProgression
             {
                 WizardPoints = 1
             };
 
-            manager.AddClassActions(character, progression, WeaponType.Staff);
+            manager.AddClassActions(character, progression, WeaponType.Wand);
 
-            // Check if CHANNEL was added (requires 1+ points and Staff)
+            // Check if CHANNEL was added (requires 1+ points and Wand)
             var hasChannel = character.ActionPool.Any(a => a.action.Name == "CHANNEL");
-            TestBase.AssertTrue(hasChannel, "CHANNEL should be added with 1+ Wizard points and Staff", 
+            TestBase.AssertTrue(hasChannel, "CHANNEL should be added with 1+ Wizard points and Wand", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Test with 3+ points - should add FIREBALL and FOCUS
             progression.WizardPoints = 3;
-            manager.AddClassActions(character, progression, WeaponType.Staff);
+            manager.AddClassActions(character, progression, WeaponType.Wand);
 
             var hasFireball = character.ActionPool.Any(a => a.action.Name == "FIREBALL");
             var hasFocus = character.ActionPool.Any(a => a.action.Name == "FOCUS");
@@ -167,7 +167,7 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(hasFocus, "FOCUS should be added with 3+ Wizard points", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Test with non-Staff weapon but Wizard points
+            // Test with non-Wand weapon but Wizard points
             var character2 = TestDataBuilders.Character().WithName("WizardTest2").Build();
             progression.WizardPoints = 1;
             manager.AddClassActions(character2, progression, WeaponType.Sword);
@@ -227,16 +227,16 @@ namespace RPGGame.Tests.Unit
             var manager = new ClassActionManager();
             var character = TestDataBuilders.Character().WithName("WizardClassTest").Build();
 
-            // Test with Staff weapon
+            // Test with Wand weapon
             var progression1 = new CharacterProgression { WizardPoints = 0 };
-            manager.AddClassActions(character, progression1, WeaponType.Staff);
+            manager.AddClassActions(character, progression1, WeaponType.Wand);
             
-            // Should still get wizard actions because of Staff
+            // Should still get wizard actions because of Wand
             var hasChannel = character.ActionPool.Any(a => a.action.Name == "CHANNEL");
             // Note: This test may fail if CHANNEL requires WizardPoints > 0
             // The actual behavior depends on the implementation
 
-            // Test with WizardPoints > 0 but no Staff
+            // Test with WizardPoints > 0 but no Wand
             var character2 = TestDataBuilders.Character().WithName("WizardClassTest2").Build();
             var progression2 = new CharacterProgression { WizardPoints = 1 };
             manager.AddClassActions(character2, progression2, WeaponType.Sword);
@@ -308,7 +308,7 @@ namespace RPGGame.Tests.Unit
                 WizardPoints = 3
             };
 
-            manager.AddClassActions(character, progression, WeaponType.Staff);
+            manager.AddClassActions(character, progression, WeaponType.Wand);
 
             // Should have actions from multiple classes
             var classActionNames = character.ActionPool

@@ -119,12 +119,12 @@ namespace RPGGame.Tests.Unit
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
 
-            // Test specific action with known properties
-            var crushAction = ActionLoader.GetAction("CRUSHING BLOW");
-            if (crushAction != null)
+            // Test specific action with known properties (use action that exists in spreadsheet format)
+            var punchHardAction = ActionLoader.GetAction("PUNCH HARD");
+            if (punchHardAction != null)
             {
-                TestBase.AssertEqual(1.5, crushAction.DamageMultiplier, 
-                    "CRUSHING BLOW should have 1.5x damage multiplier", 
+                TestBase.AssertEqual(1.0, punchHardAction.DamageMultiplier,
+                    "PUNCH HARD should have 1.0x damage multiplier",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }
@@ -258,8 +258,8 @@ namespace RPGGame.Tests.Unit
                 "Empty action name should return false", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Test GetActions with mixed valid/invalid names
-            var mixedActions = ActionLoader.GetActions("JAB", "INVALID", "CRUSH");
+            // Test GetActions with mixed valid/invalid names (JAB and TAUNT exist in Actions.json; CRUSH does not)
+            var mixedActions = ActionLoader.GetActions("JAB", "INVALID", "TAUNT");
             TestBase.AssertTrue(mixedActions.Count >= 2, 
                 $"GetActions should return valid actions only, got {mixedActions.Count}", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);

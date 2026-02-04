@@ -285,6 +285,44 @@ namespace RPGGame.Tests.Runners
         }
 
         /// <summary>
+        /// Runs tests that validate Actions Settings menu integration with the game:
+        /// modifier queue/consume, action data load/save, rarity/category in loot.
+        /// </summary>
+        public static void RunActionsSettingsIntegrationTests()
+        {
+            TestResultCollector.Clear();
+            Console.WriteLine(GameConstants.StandardSeparator);
+            Console.WriteLine("  ACTIONS SETTINGS INTEGRATION TESTS");
+            Console.WriteLine($"{GameConstants.StandardSeparator}\n");
+
+            TestResultCollector.SetCurrentCategory("Actions Settings Integration");
+            Console.WriteLine("=== Action data load & mechanics ===\n");
+            RPGGame.Tests.Unit.Data.SpreadsheetImportTests.RunAllTests();
+            Console.WriteLine();
+            RPGGame.Tests.Unit.Data.ActionMechanicsTests.RunAllTests();
+            Console.WriteLine();
+
+            Console.WriteLine("=== Action execution (modifiers) ===\n");
+            ActionExecutionFlowTests.RunAllTests();
+            Console.WriteLine();
+
+            Console.WriteLine("=== Data & loot (rarity, category) ===\n");
+            DataSystemTestRunner.RunAllTests();
+            Console.WriteLine();
+
+            Console.WriteLine("=== Actions apply to game (Settings save / refresh pool) ===\n");
+            RPGGame.Tests.Unit.UI.SettingsApplyServiceTests.RunAllTests();
+            Console.WriteLine();
+            RPGGame.Tests.Unit.UI.ActionsTabManagerTests.RunAllTests();
+            Console.WriteLine();
+
+            DisplayOverallSummary();
+            Console.WriteLine($"\n{GameConstants.StandardSeparator}");
+            Console.WriteLine("  ACTIONS SETTINGS INTEGRATION TESTS COMPLETE");
+            Console.WriteLine($"{GameConstants.StandardSeparator}\n");
+        }
+
+        /// <summary>
         /// Runs dice mechanics tests
         /// </summary>
         public static void RunDiceMechanicsTests()
@@ -434,6 +472,106 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine("=== MULTI-HIT TESTS ===\n");
             
             MultiHitTests.RunAllTests();
+        }
+
+        /// <summary>
+        /// Runs combat mechanics tests (damage, hit, speed, thresholds, etc.).
+        /// Used by the Settings Testing menu; runs CombatSystemTestRunner, not shallow integration only.
+        /// </summary>
+        public static void RunCombatMechanicsTests()
+        {
+            Console.WriteLine("=== COMBAT MECHANICS TESTS ===\n");
+            CombatSystemTestRunner.RunAllTests();
+        }
+
+        /// <summary>
+        /// Runs progression tests: level-up, XP, and multi-source XP rewards.
+        /// </summary>
+        public static void RunProgressionTests()
+        {
+            Console.WriteLine("=== PROGRESSION TESTS (XP / Level) ===\n");
+            LevelUpSystemTests.RunAllTests();
+            Console.WriteLine();
+            XPSystemTests.RunAllTests();
+            Console.WriteLine();
+            MultiSourceXPRewardTests.RunAllTests();
+        }
+
+        /// <summary>
+        /// Runs dungeon and rewards tests: enemy generation and loot/XP rewards.
+        /// </summary>
+        public static void RunDungeonAndRewardsTests()
+        {
+            Console.WriteLine("=== DUNGEON & REWARDS TESTS ===\n");
+            DungeonEnemyGenerationTests.RunAllTests();
+            Console.WriteLine();
+            DungeonRewardsTests.RunAllTests();
+        }
+
+        /// <summary>
+        /// Runs only game mechanics and reliability tests (no loaders, UI, or data-import tests).
+        /// Used by the Settings Testing menu "Run all mechanics" button.
+        /// </summary>
+        public static void RunMechanicsAndReliabilityTests()
+        {
+            TestResultCollector.Clear();
+            Console.WriteLine(GameConstants.StandardSeparator);
+            Console.WriteLine("  GAME MECHANICS & RELIABILITY");
+            Console.WriteLine($"{GameConstants.StandardSeparator}\n");
+
+            TestResultCollector.SetCurrentCategory("Dice & rolls");
+            Console.WriteLine("--- Dice & rolls ---\n");
+            RunDiceRollMechanicsTests();
+            Console.WriteLine();
+
+            TestResultCollector.SetCurrentCategory("Combat mechanics");
+            Console.WriteLine("--- Combat (calculators & thresholds) ---\n");
+            RunCombatMechanicsTests();
+            Console.WriteLine();
+
+            TestResultCollector.SetCurrentCategory("Status effects");
+            Console.WriteLine("--- Status effects ---\n");
+            RunStatusEffectsTests();
+            Console.WriteLine();
+
+            TestResultCollector.SetCurrentCategory("Multi-hit");
+            Console.WriteLine("--- Multi-hit ---\n");
+            RunMultiHitTests();
+            Console.WriteLine();
+
+            TestResultCollector.SetCurrentCategory("Combo");
+            Console.WriteLine("--- Combo ---\n");
+            RunComboSystemTests();
+            Console.WriteLine();
+
+            TestResultCollector.SetCurrentCategory("Action mechanics");
+            Console.WriteLine("--- Action mechanics ---\n");
+            RunActionMechanicsTests();
+            Console.WriteLine();
+
+            TestResultCollector.SetCurrentCategory("Progression");
+            Console.WriteLine("--- Progression (XP / level) ---\n");
+            RunProgressionTests();
+            Console.WriteLine();
+
+            TestResultCollector.SetCurrentCategory("Dungeon & rewards");
+            Console.WriteLine("--- Dungeon & rewards ---\n");
+            RunDungeonAndRewardsTests();
+            Console.WriteLine();
+
+            TestResultCollector.SetCurrentCategory("Save/Load");
+            Console.WriteLine("--- Save/Load ---\n");
+            SaveLoadSystemTests.RunAllTests();
+            Console.WriteLine();
+
+            TestResultCollector.SetCurrentCategory("Gameplay flow");
+            Console.WriteLine("--- Gameplay flow ---\n");
+            GameplayFlowTests.RunAllTests();
+
+            DisplayOverallSummary();
+            Console.WriteLine($"\n{GameConstants.StandardSeparator}");
+            Console.WriteLine("  MECHANICS & RELIABILITY TESTS COMPLETE");
+            Console.WriteLine($"{GameConstants.StandardSeparator}\n");
         }
     }
 }

@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using RPGGame;
 using RPGGame.Actions.RollModification;
-using RPGGame.Combat.Effects.AdvancedStatusEffects;
 
 namespace RPGGame.Tests.Unit
 {
     /// <summary>
-    /// Phase 2: Advanced Status Effects Tests
+    /// Phase 2: Advanced Status Effects Tests.
+    /// Uses EffectHandlerRegistry (modern system); effects are resolved by key (e.g. "vulnerability", "cleanse").
     /// </summary>
     public static class AdvancedMechanicsTest_Phase2
     {
@@ -17,7 +17,7 @@ namespace RPGGame.Tests.Unit
         
         public static void RunAllTests()
         {
-            Console.WriteLine("=== Phase 2: Advanced Status Effects ===\n");
+            Console.WriteLine("=== Phase 2: Advanced Status Effects (registry) ===\n");
             
             _testsRun = 0;
             _testsPassed = 0;
@@ -42,10 +42,10 @@ namespace RPGGame.Tests.Unit
         
         private static void TestVulnerabilityEffect()
         {
-            Console.WriteLine("Testing VulnerabilityEffectHandler...");
+            Console.WriteLine("Testing vulnerability effect...");
             try
             {
-                var handler = new VulnerabilityEffectHandler();
+                var handler = new EffectHandlerRegistry().GetHandler("vulnerability")!;
                 var target = new Character("Test", 1);
                 var action = new Action { Name = "Test Action" };
                 var results = new System.Collections.Generic.List<string>();
@@ -82,10 +82,10 @@ namespace RPGGame.Tests.Unit
 
         private static void TestHardenEffect()
         {
-            Console.WriteLine("Testing HardenEffectHandler...");
+            Console.WriteLine("Testing harden effect...");
             try
             {
-                var handler = new HardenEffectHandler();
+                var handler = new EffectHandlerRegistry().GetHandler("harden")!;
                 var target = new Character("Test", 1);
                 var action = new Action { Name = "Test Action" };
                 var results = new System.Collections.Generic.List<string>();
@@ -121,10 +121,10 @@ namespace RPGGame.Tests.Unit
 
         private static void TestFortifyEffect()
         {
-            Console.WriteLine("Testing FortifyEffectHandler...");
+            Console.WriteLine("Testing fortify effect...");
             try
             {
-                var handler = new FortifyEffectHandler();
+                var handler = new EffectHandlerRegistry().GetHandler("fortify")!;
                 var target = new Character("Test", 1);
                 var action = new Action { Name = "Test Action" };
                 var results = new System.Collections.Generic.List<string>();
@@ -174,10 +174,10 @@ namespace RPGGame.Tests.Unit
 
         private static void TestFocusEffect()
         {
-            Console.WriteLine("Testing FocusEffectHandler...");
+            Console.WriteLine("Testing focus effect...");
             try
             {
-                var handler = new FocusEffectHandler();
+                var handler = new EffectHandlerRegistry().GetHandler("focus")!;
                 var target = new Character("Test", 1);
                 var action = new Action { Name = "Test Action" };
                 var results = new System.Collections.Generic.List<string>();
@@ -194,10 +194,10 @@ namespace RPGGame.Tests.Unit
 
         private static void TestExposeEffect()
         {
-            Console.WriteLine("Testing ExposeEffectHandler...");
+            Console.WriteLine("Testing expose effect...");
             try
             {
-                var handler = new ExposeEffectHandler();
+                var handler = new EffectHandlerRegistry().GetHandler("expose")!;
                 var target = new Character("Test", 1);
                 var action = new Action { Name = "Test Action" };
                 var results = new System.Collections.Generic.List<string>();
@@ -214,10 +214,10 @@ namespace RPGGame.Tests.Unit
 
         private static void TestHPRegenEffect()
         {
-            Console.WriteLine("Testing HPRegenEffectHandler...");
+            Console.WriteLine("Testing HP regen effect...");
             try
             {
-                var handler = new HPRegenEffectHandler();
+                var handler = new EffectHandlerRegistry().GetHandler("hpregen")!;
                 var target = new Character("Test", 1);
                 var action = new Action { Name = "Test Action" };
                 var results = new System.Collections.Generic.List<string>();
@@ -259,10 +259,10 @@ namespace RPGGame.Tests.Unit
 
         private static void TestArmorBreakEffect()
         {
-            Console.WriteLine("Testing ArmorBreakEffectHandler...");
+            Console.WriteLine("Testing armor break effect...");
             try
             {
-                var handler = new ArmorBreakEffectHandler();
+                var handler = new EffectHandlerRegistry().GetHandler("armorbreak")!;
                 var target = new Character("Test", 1);
                 var action = new Action { Name = "Test Action" };
                 var results = new System.Collections.Generic.List<string>();
@@ -314,10 +314,10 @@ namespace RPGGame.Tests.Unit
 
         private static void TestPierceEffect()
         {
-            Console.WriteLine("Testing PierceEffectHandler...");
+            Console.WriteLine("Testing pierce effect...");
             try
             {
-                var handler = new PierceEffectHandler();
+                var handler = new EffectHandlerRegistry().GetHandler("pierce")!;
                 var target = new Character("Test", 1);
                 var action = new Action { Name = "Test Action" };
                 var results = new System.Collections.Generic.List<string>();
@@ -334,10 +334,10 @@ namespace RPGGame.Tests.Unit
 
         private static void TestReflectEffect()
         {
-            Console.WriteLine("Testing ReflectEffectHandler...");
+            Console.WriteLine("Testing reflect effect...");
             try
             {
-                var handler = new ReflectEffectHandler();
+                var handler = new EffectHandlerRegistry().GetHandler("reflect")!;
                 var target = new Character("Test", 1);
                 var action = new Action { Name = "Test Action" };
                 var results = new System.Collections.Generic.List<string>();
@@ -354,10 +354,10 @@ namespace RPGGame.Tests.Unit
 
         private static void TestSilenceEffect()
         {
-            Console.WriteLine("Testing SilenceEffectHandler...");
+            Console.WriteLine("Testing silence effect...");
             try
             {
-                var handler = new SilenceEffectHandler();
+                var handler = new EffectHandlerRegistry().GetHandler("silence")!;
                 var target = new Character("Test", 1);
                 var action = new Action { Name = "Test Action" };
                 var results = new System.Collections.Generic.List<string>();
@@ -374,10 +374,10 @@ namespace RPGGame.Tests.Unit
 
         private static void TestMarkEffect()
         {
-            Console.WriteLine("Testing MarkEffectHandler...");
+            Console.WriteLine("Testing mark effect...");
             try
             {
-                var handler = new MarkEffectHandler();
+                var handler = new EffectHandlerRegistry().GetHandler("mark")!;
                 var target = new Character("Test", 1);
                 var action = new Action { Name = "Test Action" };
                 var results = new System.Collections.Generic.List<string>();
@@ -394,10 +394,10 @@ namespace RPGGame.Tests.Unit
 
         private static void TestDisruptEffect()
         {
-            Console.WriteLine("Testing DisruptEffectHandler...");
+            Console.WriteLine("Testing disrupt effect...");
             try
             {
-                var handler = new DisruptEffectHandler();
+                var handler = new EffectHandlerRegistry().GetHandler("disrupt")!;
                 var target = new Character("Test", 1);
                 var action = new Action { Name = "Test Action" };
                 var results = new System.Collections.Generic.List<string>();
@@ -438,10 +438,10 @@ namespace RPGGame.Tests.Unit
 
         private static void TestCleanseEffect()
         {
-            Console.WriteLine("Testing CleanseEffectHandler...");
+            Console.WriteLine("Testing cleanse effect...");
             try
             {
-                var handler = new CleanseEffectHandler();
+                var handler = new EffectHandlerRegistry().GetHandler("cleanse")!;
                 var target = new Character("Test", 1);
                 var action = new Action { Name = "Test Action" };
                 var results = new System.Collections.Generic.List<string>();
@@ -517,7 +517,7 @@ namespace RPGGame.Tests.Unit
         
         private static void PrintSummary()
         {
-            Console.WriteLine("\n=== Phase 2 Test Summary ===");
+            Console.WriteLine("\n=== Phase 2 Test Summary (registry) ===");
             Console.WriteLine($"Total Tests: {_testsRun}");
             Console.WriteLine($"Passed: {_testsPassed}");
             Console.WriteLine($"Failed: {_testsFailed}");

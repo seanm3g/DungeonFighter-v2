@@ -227,7 +227,7 @@ namespace RPGGame.Tests.Unit.Game
         {
             var result = new BattleStatisticsRunner.ComprehensiveWeaponEnemyTestResult
             {
-                WeaponTypes = new List<WeaponType> { WeaponType.Sword, WeaponType.Axe },
+                WeaponTypes = new List<WeaponType> { WeaponType.Sword, WeaponType.Mace },
                 EnemyTypes = new List<string> { "Goblin", "Orc" },
                 CombinationResults = new List<WeaponEnemyCombinationResult>
                 {
@@ -251,7 +251,7 @@ namespace RPGGame.Tests.Unit.Game
                     },
                     new WeaponEnemyCombinationResult
                     {
-                        WeaponType = WeaponType.Axe,
+                        WeaponType = WeaponType.Mace,
                         EnemyType = "Goblin",
                         TotalBattles = 100,
                         PlayerWins = 92,
@@ -260,7 +260,7 @@ namespace RPGGame.Tests.Unit.Game
                     },
                     new WeaponEnemyCombinationResult
                     {
-                        WeaponType = WeaponType.Axe,
+                        WeaponType = WeaponType.Mace,
                         EnemyType = "Orc",
                         TotalBattles = 100,
                         PlayerWins = 87,
@@ -271,7 +271,7 @@ namespace RPGGame.Tests.Unit.Game
                 WeaponStatistics = new Dictionary<WeaponType, WeaponOverallStats>
                 {
                     { WeaponType.Sword, new WeaponOverallStats { WinRate = 89.0 } },
-                    { WeaponType.Axe, new WeaponOverallStats { WinRate = 89.5 } }
+                    { WeaponType.Mace, new WeaponOverallStats { WinRate = 89.5 } }
                 },
                 EnemyStatistics = new Dictionary<string, EnemyOverallStats>
                 {

@@ -13,10 +13,7 @@ namespace RPGGame
         Sword,
         Dagger,
         Mace,
-        Wand,
-        Staff,
-        Axe,
-        Bow
+        Wand
     }
     
     public enum ItemRarity

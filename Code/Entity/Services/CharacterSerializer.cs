@@ -109,9 +109,9 @@ namespace RPGGame.Entity.Services
 
             // Rebuild action pool with proper structure
             character.ActionPool.Clear();
-            // Removed: AddDefaultActions (BASIC ATTACK removed)
-            // Removed: AddClassActions (no longer adding all class actions)
-            // Actions are now only added via weapon GearAction property
+            
+            // Add default actions (actions marked with IsDefaultAction = true)
+            character.Actions.AddDefaultActions(character);
             
             // Re-add gear actions for equipped items (with probability for non-starter items)
             if (character.Equipment.Head != null)

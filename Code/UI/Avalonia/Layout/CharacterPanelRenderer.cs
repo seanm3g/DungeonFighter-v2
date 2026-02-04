@@ -42,6 +42,15 @@ namespace RPGGame.UI.Avalonia.Layout
         /// </summary>
         public void RenderCharacterPanel(Character character)
         {
+            // Clear the left panel area before drawing so re-renders with clearCanvas: false (e.g. after level-up) do not leave duplicate content
+            int leftX = LayoutConstants.LEFT_PANEL_X;
+            int leftY = LayoutConstants.LEFT_PANEL_Y;
+            int leftW = LayoutConstants.LEFT_PANEL_WIDTH;
+            int leftH = LayoutConstants.LEFT_PANEL_HEIGHT + 1;
+            canvas.ClearTextInArea(leftX, leftY, leftW, leftH);
+            canvas.ClearProgressBarsInArea(leftX, leftY, leftW, leftH);
+            canvas.ClearBoxesInArea(leftX, leftY, leftW, leftH);
+
             // Main border for character panel - starts at X=0 with no padding
             canvas.AddBorder(LayoutConstants.LEFT_PANEL_X, LayoutConstants.LEFT_PANEL_Y, LayoutConstants.LEFT_PANEL_WIDTH, LayoutConstants.LEFT_PANEL_HEIGHT, AsciiArtAssets.Colors.Blue);
             

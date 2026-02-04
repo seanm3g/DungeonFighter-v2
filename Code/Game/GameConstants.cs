@@ -39,6 +39,9 @@ namespace RPGGame
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", GameDataDirectory),
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", GameDataDirectory),
             
+            // Project root GameData (preferred: Code\bin\Debug\net8.0 -> project root)
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", GameDataDirectory),
+            Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "..", GameDataDirectory),
             // Common project structure variations
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", GameDataDirectory),
             Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", GameDataDirectory),
@@ -46,15 +49,7 @@ namespace RPGGame
             // Legacy paths for backward compatibility
             GameDataDirectory,
             Path.Combine("..", GameDataDirectory),
-            Path.Combine("..", "..", GameDataDirectory),
-            Path.Combine("DF4 - CONSOLE", GameDataDirectory),
-            Path.Combine("..", "DF4 - CONSOLE", GameDataDirectory),
-            
-            // Case variations for different systems
-            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "code", GameDataDirectory),
-            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "code", GameDataDirectory),
-            Path.Combine(Directory.GetCurrentDirectory(), "code", GameDataDirectory),
-            Path.Combine(Directory.GetCurrentDirectory(), "..", "code", GameDataDirectory)
+            Path.Combine("..", "..", GameDataDirectory)
         };
         
         // UI Constants - Now configurable via TuningConfig.UICustomization

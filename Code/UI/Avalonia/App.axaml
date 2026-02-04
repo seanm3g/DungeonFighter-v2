@@ -18,5 +18,41 @@
             <Setter Property="SelectionBrush" Value="#FF0078D4"/>
             <Setter Property="SelectionForegroundBrush" Value="#FFFFFFFF"/>
         </Style>
+        <!-- CheckBox: override theme resources so default state has white tick box (border + fill) -->
+        <Style Selector="CheckBox">
+            <Style.Resources>
+                <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeUnchecked" Color="White"/>
+                <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillUnchecked" Color="White"/>
+            </Style.Resources>
+        </Style>
+        <!-- CheckBox: make the actual tick box (NormalRectangle) white border and fill -->
+        <Style Selector="CheckBox /template/ Border#NormalRectangle">
+            <Setter Property="BorderBrush" Value="White"/>
+            <Setter Property="Background" Value="White"/>
+        </Style>
+        <Style Selector="CheckBox:pointerover /template/ Border#NormalRectangle">
+            <Setter Property="BorderBrush" Value="White"/>
+            <Setter Property="Background" Value="White"/>
+        </Style>
+        <Style Selector="CheckBox:pressed /template/ Border#NormalRectangle">
+            <Setter Property="BorderBrush" Value="White"/>
+            <Setter Property="Background" Value="White"/>
+        </Style>
+        <Style Selector="CheckBox:checked /template/ Border#NormalRectangle">
+            <Setter Property="BorderBrush" Value="White"/>
+            <Setter Property="Background" Value="White"/>
+        </Style>
+        <Style Selector="CheckBox:checked /template/ Path#CheckGlyph">
+            <Setter Property="Fill" Value="#FF333333"/>
+        </Style>
+        <Style Selector="CheckBox:disabled /template/ Border#NormalRectangle">
+            <Setter Property="BorderBrush" Value="#FFCCCCCC"/>
+            <Setter Property="Background" Value="#FFCCCCCC"/>
+        </Style>
     </Application.Styles>
+    <!-- Override Fluent CheckBox default-state resources (after Styles so they take precedence) -->
+    <Application.Resources>
+        <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeUnchecked" Color="White"/>
+        <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillUnchecked" Color="White"/>
+    </Application.Resources>
 </Application>

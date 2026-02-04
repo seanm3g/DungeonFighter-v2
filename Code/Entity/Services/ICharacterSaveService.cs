@@ -26,16 +26,6 @@ namespace RPGGame.Entity.Services
         Task<Character?> LoadCharacterAsync(string? characterId = null, string? filename = null);
 
         /// <summary>
-        /// Loads a character from a JSON file (synchronous version for backward compatibility)
-        /// NOTE: This method is deprecated. Use LoadCharacterAsync instead.
-        /// </summary>
-        /// <param name="characterId">Optional character ID for multi-character support. If provided, loads from per-character filename.</param>
-        /// <param name="filename">The filename to load from. If provided, overrides characterId-based naming.</param>
-        /// <returns>The loaded character, or null if loading failed</returns>
-        [System.Obsolete("Use LoadCharacterAsync instead. This method blocks the calling thread and may freeze the UI.")]
-        Character? LoadCharacter(string? characterId = null, string? filename = null);
-
-        /// <summary>
         /// Deletes a character save file
         /// </summary>
         /// <param name="filename">The filename to delete</param>

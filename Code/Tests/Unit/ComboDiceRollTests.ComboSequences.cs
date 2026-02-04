@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using RPGGame;
+using RPGGame.Actions.Execution;
+using RPGGame.Actions.RollModification;
 using RPGGame.Tests; // For TestBase
 
 namespace RPGGame.Tests.Unit
@@ -30,6 +32,8 @@ namespace RPGGame.Tests.Unit
             TestFullComboSequenceExecution();
             TestDiceRollToActionSelectionFlow();
             TestComboSequenceInformationCorrectness();
+            TestComboStepDoesNotAdvanceOnNormalActionHit();
+            TestComboStepAdvancesOnComboActionHit();
             
             TestBase.PrintSummary("Combo Sequence Information and Integration", _testsRun, _testsPassed, _testsFailed);
         }
@@ -226,6 +230,76 @@ namespace RPGGame.Tests.Unit
             
             TestBase.AssertTrue(newStep != initialStep || newStep == 0, 
                 $"Combo step should advance or reset, was: {initialStep}, now: {newStep}", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// When a normal (non-combo) action hits with roll >= 14, ComboStep must not advance,
+        /// so the next combo roll still uses the same slot (e.g. Slant / Follow Through).
+        /// </summary>
+        private static void TestComboStepDoesNotAdvanceOnNormalActionHit()
+        {
+            Console.WriteLine("\n--- Testing Combo Step Does Not Advance on Normal Action Hit ---");
+            var lastUsedActions = new Dictionary<Actor, Action>();
+            var lastCriticalMissStatus = new Dictionary<Actor, bool>();
+            int outcomesChecked = 0;
+            for (int i = 0; i < 80; i++)
+            {
+                var character = CreateTestCharacter();
+                int comboThreshold = RollModificationManager.GetThresholdManager().GetComboThreshold(character);
+                var comboAction = new Action { Name = "SLOT ZERO", IsComboAction = true };
+                character.AddAction(comboAction, 1.0);
+                character.Actions.AddToCombo(comboAction);
+                character.ComboStep = 0;
+                var normalAction = new Action { Name = "NORMAL STRIKE", IsComboAction = false, Type = ActionType.Attack };
+                character.AddAction(normalAction, 1.0);
+                var enemy = new Enemy("TestEnemy", 1, 100, 5, 5, 5, 5);
+                var result = ActionExecutionFlow.Execute(
+                    character, enemy, null, null, normalAction, null,
+                    lastUsedActions, lastCriticalMissStatus);
+                if (result.Hit && result.AttackRoll >= comboThreshold)
+                {
+                    outcomesChecked++;
+                    TestBase.AssertEqual(0, character.ComboStep,
+                        $"ComboStep must not advance when normal action hits with roll {result.AttackRoll} (threshold {comboThreshold})",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+                }
+            }
+            TestBase.AssertTrue(outcomesChecked >= 0, $"Checked {outcomesChecked} normal-action hit(s) with roll >= threshold", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// When a combo action hits with roll >= 14, ComboStep must advance so the next combo roll uses the next slot.
+        /// </summary>
+        private static void TestComboStepAdvancesOnComboActionHit()
+        {
+            Console.WriteLine("\n--- Testing Combo Step Advances on Combo Action Hit ---");
+            var lastUsedActions = new Dictionary<Actor, Action>();
+            var lastCriticalMissStatus = new Dictionary<Actor, bool>();
+            int outcomesChecked = 0;
+            for (int i = 0; i < 80; i++)
+            {
+                var character = CreateTestCharacter();
+                int comboThreshold = RollModificationManager.GetThresholdManager().GetComboThreshold(character);
+                var combo1 = new Action { Name = "SLOT ZERO", IsComboAction = true };
+                var combo2 = new Action { Name = "SLOT ONE", IsComboAction = true };
+                character.AddAction(combo1, 1.0);
+                character.AddAction(combo2, 1.0);
+                character.Actions.AddToCombo(combo1);
+                character.Actions.AddToCombo(combo2);
+                character.ComboStep = 0;
+                var enemy = new Enemy("TestEnemy", 1, 100, 5, 5, 5, 5);
+                var result = ActionExecutionFlow.Execute(
+                    character, enemy, null, null, combo1, null,
+                    lastUsedActions, lastCriticalMissStatus);
+                if (result.Hit && result.AttackRoll >= comboThreshold)
+                {
+                    outcomesChecked++;
+                    TestBase.AssertTrue(character.ComboStep != 0,
+                        $"ComboStep must advance when combo action hits with roll {result.AttackRoll} (threshold {comboThreshold}), got: {character.ComboStep}",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+                }
+            }
+            TestBase.AssertTrue(outcomesChecked >= 0, $"Checked {outcomesChecked} combo-action hit(s) with roll >= threshold", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static Character CreateTestCharacter()

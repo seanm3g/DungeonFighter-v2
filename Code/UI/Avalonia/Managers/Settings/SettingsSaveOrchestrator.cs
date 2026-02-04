@@ -1,223 +1,188 @@
 using Avalonia.Controls;
-using Avalonia.Threading;
 using RPGGame;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Settings;
 using RPGGame.Utils;
 using System;
-using System.Collections.Generic;
 
 namespace RPGGame.UI.Avalonia.Managers.Settings
 {
     /// <summary>
-    /// Orchestrates saving settings across all loaded panels
+    /// Resolves the panel instance for a category (displayed or cached). Used so the orchestrator does not duplicate panel-resolution logic.
+    /// </summary>
+    public delegate UserControl? GetPanelForCategoryResolver(string categoryTag, UserControl? currentlyDisplayed);
+
+    /// <summary>
+    /// Orchestrates saving settings across all loaded panels. Delegates to panel handlers where available.
+    /// Uses a single panel resolver for consistent "displayed or cached" resolution per category.
     /// </summary>
     public class SettingsSaveOrchestrator
     {
         private readonly SettingsManager? settingsManager;
+        private readonly PanelHandlerRegistry? panelHandlerRegistry;
         private readonly GameVariablesTabManager? gameVariablesTabManager;
+        private readonly ActionsTabManager? actionsTabManager;
         private readonly ItemModifiersTabManager? itemModifiersTabManager;
         private readonly ItemsTabManager? itemsTabManager;
-        private readonly GameSettings settings;
+        private GameSettings settings;
         private readonly Action<string, bool>? showStatusMessage;
-        private readonly Dictionary<string, UserControl> loadedPanels;
-        private readonly Action<string> loadCategoryPanel;
+        private readonly GetPanelForCategoryResolver getPanelForCategory;
+
+        /// <summary>Category tags that use ISettingsPanelHandler for save. Add new handler-based panels here so the orchestrator saves them without code change.</summary>
+        private static readonly string[] HandlerSaveCategoryTags = { "TextDelays", "Appearance", "Testing" };
 
         public SettingsSaveOrchestrator(
             SettingsManager? settingsManager,
+            PanelHandlerRegistry? panelHandlerRegistry,
             GameVariablesTabManager? gameVariablesTabManager,
+            ActionsTabManager? actionsTabManager,
             ItemModifiersTabManager? itemModifiersTabManager,
             ItemsTabManager? itemsTabManager,
             GameSettings settings,
             Action<string, bool>? showStatusMessage,
-            Dictionary<string, UserControl> loadedPanels,
-            Action<string> loadCategoryPanel)
+            GetPanelForCategoryResolver getPanelForCategory)
         {
             this.settingsManager = settingsManager;
+            this.panelHandlerRegistry = panelHandlerRegistry;
             this.gameVariablesTabManager = gameVariablesTabManager;
+            this.actionsTabManager = actionsTabManager;
             this.itemModifiersTabManager = itemModifiersTabManager;
             this.itemsTabManager = itemsTabManager;
             this.settings = settings;
             this.showStatusMessage = showStatusMessage;
-            this.loadedPanels = loadedPanels;
-            this.loadCategoryPanel = loadCategoryPanel;
+            this.getPanelForCategory = getPanelForCategory ?? ((_, __) => null);
         }
 
-        public void SaveSettings()
+        /// <summary>Updates the settings reference after ReloadFromFile so save/load use the current instance.</summary>
+        public void RefreshSettings(GameSettings currentSettings)
         {
-            if (settingsManager == null) return;
+            this.settings = currentSettings ?? throw new ArgumentNullException(nameof(currentSettings));
+        }
+
+        /// <summary>Save settings. Persists all loaded panels; when not on a given tab, values are read from the cached panel for that type. Pass the panel currently visible so we read from what the user sees when it applies. Returns a result so the caller can run post-save apply (e.g. SettingsApplyService.ApplyAfterSave).</summary>
+        public SettingsSaveResult SaveSettings(UserControl? currentlyDisplayedPanel = null)
+        {
+            if (settingsManager == null) return new SettingsSaveResult(false);
 
             try
             {
-                // Ensure required panels are loaded before saving
-                if (!loadedPanels.ContainsKey("Gameplay"))
+                bool savedSuccessfully = false;
+                bool actionsSaved = false;
+                bool textDelaysSaved = false;
+
+                // Always save Game Variables first (they can be edited from any panel)
+                try
                 {
-                    loadCategoryPanel("Gameplay");
+                    gameVariablesTabManager?.SaveGameVariables();
+                }
+                catch (Exception ex)
+                {
+                    ScrollDebugLogger.Log($"SettingsPanel: Error saving game variables: {ex.Message}");
                 }
 
-                // Wait a moment for panels to initialize
-                Dispatcher.UIThread.Post(() =>
+                // Gameplay: use handler if panel is loaded, otherwise persist in-memory settings only
+                var gameplayPanel = getPanelForCategory("Gameplay", currentlyDisplayedPanel) as GameplaySettingsPanel;
+                var gameplayHandler = panelHandlerRegistry?.GetHandler("Gameplay");
+                if (gameplayPanel != null && gameplayHandler != null)
                 {
                     try
                     {
-                        bool savedSuccessfully = false;
-
-                        // Collect controls from loaded panels
-                        CheckBox? showIndividualActionMessagesCheckBox = null;
-                        CheckBox? enableTextDisplayDelaysCheckBox = null;
-                        CheckBox? fastCombatCheckBox = null;
-                        CheckBox? showDetailedStatsCheckBox = null;
-                        CheckBox? showHealthBarsCheckBox = null;
-                        CheckBox? showDamageNumbersCheckBox = null;
-                        CheckBox? showComboProgressCheckBox = null;
-
-                        // Get all controls from Gameplay panel
-                        if (loadedPanels.TryGetValue("Gameplay", out var gameplayPanel) && gameplayPanel is GameplaySettingsPanel gameplay)
-                        {
-                            showIndividualActionMessagesCheckBox = gameplay.ShowIndividualActionMessagesCheckBox;
-                            fastCombatCheckBox = gameplay.FastCombatCheckBox;
-                            enableTextDisplayDelaysCheckBox = gameplay.EnableTextDisplayDelaysCheckBox;
-                            showDetailedStatsCheckBox = gameplay.ShowDetailedStatsCheckBox;
-                            showHealthBarsCheckBox = gameplay.ShowHealthBarsCheckBox;
-                            showDamageNumbersCheckBox = gameplay.ShowDamageNumbersCheckBox;
-                            showComboProgressCheckBox = gameplay.ShowComboProgressCheckBox;
-                        }
-
-                        // Always save Game Variables first (they can be edited from any panel)
-                        try
-                        {
-                            gameVariablesTabManager?.SaveGameVariables();
-                        }
-                        catch (Exception ex)
-                        {
-                            ScrollDebugLogger.Log($"SettingsPanel: Error saving game variables: {ex.Message}");
-                        }
-
-                        // Save gameplay settings if panel is loaded
-                        if (showIndividualActionMessagesCheckBox != null)
-                        {
-                            // This will save gameplay settings AND appearance settings
-                            // (settingsManager.SaveSettings calls settings.SaveSettings internally)
-                            settingsManager.SaveGameplaySettings(
-                                showIndividualActionMessagesCheckBox,
-                                enableTextDisplayDelaysCheckBox!,
-                                fastCombatCheckBox!,
-                                showDetailedStatsCheckBox!,
-                                showHealthBarsCheckBox!,
-                                showDamageNumbersCheckBox!,
-                                showComboProgressCheckBox!,
-                                null); // Game Variables already saved above
-
-                            savedSuccessfully = true;
-                        }
-                        else
-                        {
-                            // If gameplay panel isn't loaded, just save appearance settings
-                            // Appearance settings are updated in real-time via WireUpColorTextBox
-                            // and are already in the GameSettings object
-                            try
-                            {
-                                settings.SaveSettings();
-                                savedSuccessfully = true;
-                            }
-                            catch (Exception ex)
-                            {
-                                ScrollDebugLogger.Log($"SettingsPanel: Error saving appearance settings: {ex.Message}");
-                            }
-                        }
-
-                        // Save text delay settings if panel is loaded
-                        if (loadedPanels.TryGetValue("TextDelays", out var textDelaysPanel) && textDelaysPanel is TextDelaysSettingsPanel textDelays)
-                        {
-                            try
-                            {
-                                settingsManager.SaveTextDelaySettings(
-                                    textDelays.EnableGuiDelaysCheckBox,
-                                    textDelays.EnableConsoleDelaysCheckBox,
-                                    null, // ActionDelaySlider (removed - redundant)
-                                    null, // MessageDelaySlider (removed - redundant)
-                                    textDelays.CombatDelayTextBox,
-                                    textDelays.SystemDelayTextBox,
-                                    textDelays.MenuDelayTextBox,
-                                    textDelays.TitleDelayTextBox,
-                                    textDelays.MainTitleDelayTextBox,
-                                    textDelays.EnvironmentalDelayTextBox,
-                                    textDelays.EffectMessageDelayTextBox,
-                                    textDelays.DamageOverTimeDelayTextBox,
-                                    textDelays.EncounterDelayTextBox,
-                                    textDelays.RollInfoDelayTextBox,
-                                    textDelays.EnvironmentalLineDelayTextBox,
-                                    textDelays.BaseMenuDelayTextBox,
-                                    textDelays.ProgressiveReductionRateTextBox,
-                                    textDelays.ProgressiveThresholdTextBox,
-                                    textDelays.CombatPresetBaseDelayTextBox,
-                                    textDelays.CombatPresetMinDelayTextBox,
-                                    textDelays.CombatPresetMaxDelayTextBox,
-                                    textDelays.DungeonPresetBaseDelayTextBox,
-                                    textDelays.DungeonPresetMinDelayTextBox,
-                                    textDelays.DungeonPresetMaxDelayTextBox,
-                                    textDelays.RoomPresetBaseDelayTextBox,
-                                    textDelays.RoomPresetMinDelayTextBox,
-                                    textDelays.RoomPresetMaxDelayTextBox,
-                                    textDelays.NarrativePresetBaseDelayTextBox,
-                                    textDelays.NarrativePresetMinDelayTextBox,
-                                    textDelays.NarrativePresetMaxDelayTextBox,
-                                    textDelays.DefaultPresetBaseDelayTextBox,
-                                    textDelays.DefaultPresetMinDelayTextBox,
-                                    textDelays.DefaultPresetMaxDelayTextBox);
-                            }
-                            catch (Exception ex)
-                            {
-                                ScrollDebugLogger.Log($"SettingsPanel: Error saving text delay settings: {ex.Message}");
-                            }
-                        }
-
-                        // Save item modifier rarities if panel is loaded
-                        if (itemModifiersTabManager != null)
-                        {
-                            try
-                            {
-                                itemModifiersTabManager.SaveModifierRarities();
-                            }
-                            catch (Exception ex)
-                            {
-                                ScrollDebugLogger.Log($"SettingsPanel: Error saving item modifier rarities: {ex.Message}");
-                            }
-                        }
-
-                        // Save items if panel is loaded
-                        if (itemsTabManager != null)
-                        {
-                            try
-                            {
-                                itemsTabManager.SaveItems();
-                            }
-                            catch (Exception ex)
-                            {
-                                ScrollDebugLogger.Log($"SettingsPanel: Error saving items: {ex.Message}");
-                            }
-                        }
-
-                        if (savedSuccessfully)
-                        {
-                            showStatusMessage?.Invoke("Settings saved successfully", true);
-                        }
-                        else
-                        {
-                            showStatusMessage?.Invoke("Error: Some settings panels failed to load", false);
-                        }
+                        gameplayHandler.SaveSettings(gameplayPanel);
+                        savedSuccessfully = true;
                     }
                     catch (Exception ex)
                     {
-                        ScrollDebugLogger.Log($"SettingsPanel: Error saving settings: {ex.Message}");
-                        showStatusMessage?.Invoke($"Error saving settings: {ex.Message}", false);
+                        ScrollDebugLogger.Log($"SettingsPanel: Error saving gameplay settings: {ex.Message}");
+                        showStatusMessage?.Invoke("Error: Failed to save gameplay settings.", false);
+                        return new SettingsSaveResult(false);
                     }
-                }, DispatcherPriority.Normal);
+                }
+                else
+                {
+                    // Gameplay panel not loaded: persist current in-memory GameSettings only
+                    if (settings.SaveSettings())
+                        savedSuccessfully = true;
+                    else
+                    {
+                        showStatusMessage?.Invoke("Error: Failed to save settings to file.", false);
+                        return new SettingsSaveResult(false);
+                    }
+                }
+
+                // Handler-based panels: delegate to handlers when panel is loaded (single resolution; list is table-driven)
+                foreach (var tag in HandlerSaveCategoryTags)
+                {
+                    var panel = getPanelForCategory(tag, currentlyDisplayedPanel);
+                    if (panel == null) continue;
+                    var handler = panelHandlerRegistry?.GetHandler(tag);
+                    if (handler == null) continue;
+                    try
+                    {
+                        handler.SaveSettings(panel);
+                        if (tag == "TextDelays") textDelaysSaved = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        ScrollDebugLogger.Log($"SettingsPanel: Error saving {tag} settings: {ex.Message}");
+                    }
+                }
+
+                // Save item modifier rarities if panel is loaded
+                if (itemModifiersTabManager != null)
+                {
+                    try
+                    {
+                        itemModifiersTabManager.SaveModifierRarities();
+                    }
+                    catch (Exception ex)
+                    {
+                        ScrollDebugLogger.Log($"SettingsPanel: Error saving item modifier rarities: {ex.Message}");
+                    }
+                }
+
+                // Save items if panel is loaded
+                if (itemsTabManager != null)
+                {
+                    try
+                    {
+                        itemsTabManager.SaveItems();
+                    }
+                    catch (Exception ex)
+                    {
+                        ScrollDebugLogger.Log($"SettingsPanel: Error saving items: {ex.Message}");
+                    }
+                }
+
+                // Save actions when the Actions panel exists; pass that panel so Default/Starting is read from it (single resolution)
+                var actionsPanelForFlush = getPanelForCategory("Actions", currentlyDisplayedPanel) as ActionsSettingsPanel;
+                if (actionsTabManager != null && actionsPanelForFlush != null)
+                {
+                    try
+                    {
+                        actionsTabManager.FlushCurrentActionAndSaveToFile(actionsPanelForFlush);
+                        actionsSaved = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        ScrollDebugLogger.Log($"SettingsPanel: Error saving actions: {ex.Message}");
+                    }
+                }
+
+                if (savedSuccessfully)
+                {
+                    showStatusMessage?.Invoke("Settings saved successfully", true);
+                }
+                else
+                {
+                    showStatusMessage?.Invoke("Error: Some settings panels failed to load", false);
+                }
+                return new SettingsSaveResult(savedSuccessfully, actionsSaved, textDelaysSaved);
             }
             catch (Exception ex)
             {
                 ScrollDebugLogger.Log($"SettingsPanel: Error in SaveSettings: {ex.Message}");
                 showStatusMessage?.Invoke($"Error saving settings: {ex.Message}", false);
+                return new SettingsSaveResult(false);
             }
         }
     }

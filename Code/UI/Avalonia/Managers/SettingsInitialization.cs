@@ -101,8 +101,12 @@ namespace RPGGame.UI.Avalonia.Managers
             var actionFormPanel = panel.FindControl<Panel>("ActionFormPanel");
             var createActionButton = panel.FindControl<Button>("CreateActionButton");
             var deleteActionButton = panel.FindControl<Button>("DeleteActionButton");
+            var rarityFilterComboBox = panel.FindControl<ComboBox>("RarityFilterComboBox");
+            var categoryFilterComboBox = panel.FindControl<ComboBox>("CategoryFilterComboBox");
+            var cadenceFilterComboBox = panel.FindControl<ComboBox>("CadenceFilterComboBox");
+            var tagFilterComboBox = panel.FindControl<ComboBox>("TagFilterComboBox");
             
-            tabInitializer.InitializeActionsTab(actionsListBox, actionFormPanel, createActionButton, deleteActionButton);
+            tabInitializer.InitializeActionsTab(actionsListBox, actionFormPanel, createActionButton, deleteActionButton, rarityFilterComboBox, categoryFilterComboBox, cadenceFilterComboBox, tagFilterComboBox);
         }
     }
 }

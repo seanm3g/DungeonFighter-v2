@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using RPGGame;
 
 namespace RPGGame.Data
 {
@@ -18,7 +19,8 @@ namespace RPGGame.Data
         /// </summary>
         public static SheetsConfig Load(string? configPath = null)
         {
-            configPath ??= Path.Combine("GameData", "SheetsConfig.json");
+            // Use GameConstants to properly resolve the GameData path
+            configPath ??= GameConstants.GetGameDataFilePath("SheetsConfig.json");
             
             try
             {
@@ -32,10 +34,14 @@ namespace RPGGame.Data
                     
                     return config ?? new SheetsConfig();
                 }
+                else
+                {
+                    Console.WriteLine($"SheetsConfig.json not found at: {configPath}");
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading SheetsConfig: {ex.Message}");
+                Console.WriteLine($"Error loading SheetsConfig from {configPath}: {ex.Message}");
             }
             
             return new SheetsConfig();
@@ -46,7 +52,8 @@ namespace RPGGame.Data
         /// </summary>
         public void Save(string? configPath = null)
         {
-            configPath ??= Path.Combine("GameData", "SheetsConfig.json");
+            // Use GameConstants to properly resolve the GameData path
+            configPath ??= GameConstants.GetGameDataFilePath("SheetsConfig.json");
             
             try
             {

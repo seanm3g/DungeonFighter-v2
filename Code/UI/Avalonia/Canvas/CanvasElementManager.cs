@@ -83,7 +83,21 @@ namespace RPGGame.UI.Avalonia.Canvas
                 bar.X >= startX && bar.X < endX && 
                 bar.Y >= startY && bar.Y < endY);
         }
-        
+
+        /// <summary>
+        /// Clears box elements (borders) within a specific rectangular area.
+        /// Removes boxes whose top-left corner falls inside the given rectangle.
+        /// Used to clear panel borders when re-rendering without full canvas clear.
+        /// </summary>
+        public void ClearBoxesInArea(int startX, int startY, int width, int height)
+        {
+            int endX = startX + width;
+            int endY = startY + height;
+            boxElements.RemoveAll(box =>
+                box.X >= startX && box.X < endX &&
+                box.Y >= startY && box.Y < endY);
+        }
+
         /// <summary>
         /// Adds a text element
         /// </summary>

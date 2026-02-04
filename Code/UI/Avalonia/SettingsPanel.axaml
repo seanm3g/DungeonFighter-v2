@@ -45,21 +45,42 @@
         <Style Selector="TextBox:pointerover:focus /template/ Border#PART_BorderElement">
             <Setter Property="Background" Value="#FF2A2A2A"/>
         </Style>
-        <!-- ListBox item styles -->
-        <Style Selector="ListBoxItem">
+        <!-- ListBox item styles: each row has its own background so text is legible -->
+        <Style Selector="ListBox#CategoryListBox ListBoxItem">
+            <Setter Property="Background" Value="#FF484848"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Padding" Value="15,12"/>
-            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="Margin" Value="0,3"/>
+            <Setter Property="CornerRadius" Value="4"/>
         </Style>
-        <Style Selector="ListBoxItem:selected">
-            <Setter Property="Foreground" Value="#FFD700"/>
-            <Setter Property="Background" Value="#FF2A2A2A"/>
+        <Style Selector="ListBox#CategoryListBox ListBoxItem ContentPresenter">
+            <Setter Property="Foreground" Value="White"/>
         </Style>
-        <Style Selector="ListBoxItem:pointerover">
-            <Setter Property="Foreground" Value="#FFFFFF"/>
-            <Setter Property="Background" Value="#FF353535"/>
+        <Style Selector="ListBox#CategoryListBox ListBoxItem:selected">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#FF2F65B2"/>
+        </Style>
+        <Style Selector="ListBox#CategoryListBox ListBoxItem:selected ContentPresenter">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="ListBox#CategoryListBox ListBoxItem:pointerover">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#FF5A5A5A"/>
+        </Style>
+        <Style Selector="ListBox#CategoryListBox ListBoxItem:pointerover ContentPresenter">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <!-- Force white text for string content (TextBlock) inside list items so theme does not override -->
+        <Style Selector="ListBox#CategoryListBox ListBoxItem TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="ListBox#CategoryListBox ListBoxItem:selected TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="ListBox#CategoryListBox ListBoxItem:pointerover TextBlock">
+            <Setter Property="Foreground" Value="White"/>
         </Style>
     </UserControl.Styles>
     <Grid Margin="20"
@@ -85,12 +106,18 @@
                    HorizontalAlignment="Center" 
                    Margin="0,0,0,20"/>
         
-        <!-- Category Navigation Sidebar -->
-        <ListBox x:Name="CategoryListBox"
-                 Grid.Column="0" Grid.Row="1"
-                 Background="Transparent"
-                 BorderThickness="0"
-                 SelectionMode="Single">
+        <!-- Category Navigation Sidebar - panel and each row have visible background -->
+        <Border Grid.Column="0" Grid.Row="1"
+                Background="#FF404040"
+                CornerRadius="6"
+                Padding="10,14"
+                BorderBrush="#FF606060"
+                BorderThickness="1">
+            <ListBox x:Name="CategoryListBox"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     Foreground="White"
+                     SelectionMode="Single">
             <ListBoxItem Content="Gameplay" Tag="Gameplay"/>
             <ListBoxItem Content="Game Variables" Tag="GameVariables"/>
             <ListBoxItem Content="Actions" Tag="Actions"/>
@@ -102,7 +129,8 @@
             <ListBoxItem Content="Import" Tag="BalanceTuning"/>
             <ListBoxItem Content="Testing" Tag="Testing"/>
             <ListBoxItem Content="About" Tag="About"/>
-        </ListBox>
+            </ListBox>
+        </Border>
         
         <!-- Content Area with ScrollViewer for regular panels -->
         <ScrollViewer x:Name="ContentScrollViewer"
@@ -115,6 +143,15 @@
                 <!-- Selected category panel will be displayed here -->
             </ContentControl>
         </ScrollViewer>
+        
+        <!-- Actions panel without parent ScrollViewer (list and form scroll independently) -->
+        <ContentControl x:Name="ActionsContentArea"
+                       Grid.Column="2" Grid.Row="1"
+                       HorizontalAlignment="Stretch"
+                       VerticalAlignment="Stretch"
+                       IsVisible="False">
+            <!-- Actions panel will be displayed here -->
+        </ContentControl>
         
         <!-- Content Area without ScrollViewer for Testing panel (handles its own scrolling) -->
         <ContentControl x:Name="TestingContentArea"

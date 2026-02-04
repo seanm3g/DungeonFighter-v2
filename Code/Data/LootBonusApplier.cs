@@ -175,9 +175,22 @@ namespace RPGGame
                     }
                 }
 
-                // Fallback: use random selection
-                var randomAction = _dataCache.ActionBonuses[_random.Next(_dataCache.ActionBonuses.Count)];
-                item.ActionBonuses.Add(randomAction);
+                // Fallback: use Rarity-weighted random selection (higher Rarity weight = more likely)
+                var actionBonuses = _dataCache.ActionBonuses;
+                if (actionBonuses.Count == 0) continue;
+                int totalWeight = actionBonuses.Sum(a => Math.Max(1, a.Weight));
+                int roll = _random.Next(totalWeight);
+                int accumulated = 0;
+                ActionBonus? chosen = null;
+                foreach (var ab in actionBonuses)
+                {
+                    accumulated += Math.Max(1, ab.Weight);
+                    if (roll < accumulated) { chosen = ab; break; }
+                }
+                if (chosen != null)
+                    item.ActionBonuses.Add(chosen);
+                else
+                    item.ActionBonuses.Add(actionBonuses[actionBonuses.Count - 1]);
             }
         }
 

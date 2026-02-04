@@ -47,19 +47,6 @@ namespace RPGGame.UI.TitleScreen
         }
 
         /// <summary>
-        /// Plays the complete title screen animation sequence (synchronous version)
-        /// NOTE: This method is deprecated. Use PlayAnimationAsync instead for proper async handling.
-        /// This synchronous wrapper blocks the calling thread and should not be used in UI contexts.
-        /// </summary>
-        [Obsolete("Use PlayAnimationAsync instead. This method blocks the calling thread and may freeze the UI.")]
-        public void PlayAnimation()
-        {
-            // For backward compatibility only - callers should migrate to async version
-            // Using ConfigureAwait(false) to avoid deadlocks, but this still blocks
-            PlayAnimationAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-        }
-
-        /// <summary>
         /// Shows the complete animated title screen with press key message
         /// This is the main entry point for displaying the title screen
         /// </summary>
@@ -70,19 +57,6 @@ namespace RPGGame.UI.TitleScreen
 
             // Show press key message
             _renderer.ShowPressKeyMessage();
-        }
-
-        /// <summary>
-        /// Shows the complete animated title screen with press key message (synchronous version)
-        /// NOTE: This method is deprecated. Use ShowAnimatedTitleScreenAsync instead for proper async handling.
-        /// This synchronous wrapper blocks the calling thread and should not be used in UI contexts.
-        /// </summary>
-        [Obsolete("Use ShowAnimatedTitleScreenAsync instead. This method blocks the calling thread and may freeze the UI.")]
-        public void ShowAnimatedTitleScreen()
-        {
-            // For backward compatibility only - callers should migrate to async version
-            // Using ConfigureAwait(false) to avoid deadlocks, but this still blocks
-            ShowAnimatedTitleScreenAsync().ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -145,19 +119,6 @@ namespace RPGGame.UI.TitleScreen
         }
 
         /// <summary>
-        /// Shows the animated title screen using the appropriate renderer (synchronous version)
-        /// NOTE: This method is deprecated. Use ShowAnimatedTitleScreenAsync instead for proper async handling.
-        /// This synchronous wrapper blocks the calling thread and should not be used in UI contexts.
-        /// </summary>
-        [Obsolete("Use ShowAnimatedTitleScreenAsync instead. This method blocks the calling thread and may freeze the UI.")]
-        public static void ShowAnimatedTitleScreen()
-        {
-            // For backward compatibility only - callers should migrate to async version
-            // Using ConfigureAwait(false) to avoid deadlocks, but this still blocks
-            ShowAnimatedTitleScreenAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-        }
-
-        /// <summary>
         /// Animates just the title screen without the press key message
         /// </summary>
         public static async System.Threading.Tasks.Task AnimateTitleScreenAsync()
@@ -170,18 +131,6 @@ namespace RPGGame.UI.TitleScreen
                 var controller = new TitleScreenController(config, renderer);
                 await controller.PlayAnimationAsync();
             }
-        }
-
-        /// <summary>
-        /// Animates just the title screen without the press key message (synchronous version)
-        /// NOTE: This method is deprecated. Use AnimateTitleScreenAsync instead for proper async handling.
-        /// </summary>
-        [Obsolete("Use AnimateTitleScreenAsync instead. This method blocks the calling thread and may freeze the UI.")]
-        public static void AnimateTitleScreen()
-        {
-            // For backward compatibility only - callers should migrate to async version
-            // Using ConfigureAwait(false) to avoid deadlocks, but this still blocks
-            AnimateTitleScreenAsync().ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         /// <summary>

@@ -14,7 +14,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
     /// </summary>
     public class GameplayPanelHandler : ISettingsPanelHandler
     {
-        private readonly GameSettings settings;
+        private GameSettings settings;
         private readonly SettingsManager? settingsManager;
         private readonly Action<string, bool>? showStatusMessage;
         private GameStateManager? stateManager;
@@ -26,6 +26,12 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             this.settingsManager = settingsManager;
             this.showStatusMessage = showStatusMessage;
+        }
+
+        /// <summary>Updates the settings reference after ReloadFromFile so LoadSettings uses the current instance.</summary>
+        public void RefreshSettings(GameSettings currentSettings)
+        {
+            this.settings = currentSettings ?? throw new ArgumentNullException(nameof(currentSettings));
         }
 
         /// <summary>
@@ -40,88 +46,44 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
         {
             if (panel is not GameplaySettingsPanel gameplayPanel || settingsManager == null) return;
 
-            // Wire up checkboxes
-            if (gameplayPanel.ShowIndividualActionMessagesCheckBox != null)
-            {
-                gameplayPanel.ShowIndividualActionMessagesCheckBox.IsCheckedChanged += (s, e) =>
-                {
-                    if (gameplayPanel.ShowIndividualActionMessagesCheckBox.IsChecked.HasValue)
-                        settings.ShowIndividualActionMessages = gameplayPanel.ShowIndividualActionMessagesCheckBox.IsChecked.Value;
-                };
-            }
+            // Resolve controls (property first, then FindControl fallback so wiring works when named controls are null)
+            var showIndividualCb = gameplayPanel.ShowIndividualActionMessagesCheckBox ?? gameplayPanel.FindControl<CheckBox>("ShowIndividualActionMessagesCheckBox");
+            var fastCombatCb = gameplayPanel.FastCombatCheckBox ?? gameplayPanel.FindControl<CheckBox>("FastCombatCheckBox");
+            var enableTextDelaysCb = gameplayPanel.EnableTextDisplayDelaysCheckBox ?? gameplayPanel.FindControl<CheckBox>("EnableTextDisplayDelaysCheckBox");
+            var showDetailedStatsCb = gameplayPanel.ShowDetailedStatsCheckBox ?? gameplayPanel.FindControl<CheckBox>("ShowDetailedStatsCheckBox");
+            var showHealthBarsCb = gameplayPanel.ShowHealthBarsCheckBox ?? gameplayPanel.FindControl<CheckBox>("ShowHealthBarsCheckBox");
+            var showDamageNumbersCb = gameplayPanel.ShowDamageNumbersCheckBox ?? gameplayPanel.FindControl<CheckBox>("ShowDamageNumbersCheckBox");
+            var showComboProgressCb = gameplayPanel.ShowComboProgressCheckBox ?? gameplayPanel.FindControl<CheckBox>("ShowComboProgressCheckBox");
 
-            if (gameplayPanel.FastCombatCheckBox != null)
-            {
-                gameplayPanel.FastCombatCheckBox.IsCheckedChanged += (s, e) =>
-                {
-                    if (gameplayPanel.FastCombatCheckBox.IsChecked.HasValue)
-                        settings.FastCombat = gameplayPanel.FastCombatCheckBox.IsChecked.Value;
-                };
-            }
-
-            if (gameplayPanel.EnableTextDisplayDelaysCheckBox != null)
-            {
-                gameplayPanel.EnableTextDisplayDelaysCheckBox.IsCheckedChanged += (s, e) =>
-                {
-                    if (gameplayPanel.EnableTextDisplayDelaysCheckBox.IsChecked.HasValue)
-                        settings.EnableTextDisplayDelays = gameplayPanel.EnableTextDisplayDelaysCheckBox.IsChecked.Value;
-                };
-            }
-
-            if (gameplayPanel.ShowDetailedStatsCheckBox != null)
-            {
-                gameplayPanel.ShowDetailedStatsCheckBox.IsCheckedChanged += (s, e) =>
-                {
-                    if (gameplayPanel.ShowDetailedStatsCheckBox.IsChecked.HasValue)
-                        settings.ShowDetailedStats = gameplayPanel.ShowDetailedStatsCheckBox.IsChecked.Value;
-                };
-            }
-
-            // Wire up visual indicator checkboxes
-            if (gameplayPanel.ShowHealthBarsCheckBox != null)
-            {
-                gameplayPanel.ShowHealthBarsCheckBox.IsCheckedChanged += (s, e) =>
-                {
-                    if (gameplayPanel.ShowHealthBarsCheckBox.IsChecked.HasValue)
-                        settings.ShowHealthBars = gameplayPanel.ShowHealthBarsCheckBox.IsChecked.Value;
-                };
-            }
-
-            if (gameplayPanel.ShowDamageNumbersCheckBox != null)
-            {
-                gameplayPanel.ShowDamageNumbersCheckBox.IsCheckedChanged += (s, e) =>
-                {
-                    if (gameplayPanel.ShowDamageNumbersCheckBox.IsChecked.HasValue)
-                        settings.ShowDamageNumbers = gameplayPanel.ShowDamageNumbersCheckBox.IsChecked.Value;
-                };
-            }
-
-            if (gameplayPanel.ShowComboProgressCheckBox != null)
-            {
-                gameplayPanel.ShowComboProgressCheckBox.IsCheckedChanged += (s, e) =>
-                {
-                    if (gameplayPanel.ShowComboProgressCheckBox.IsChecked.HasValue)
-                        settings.ShowComboProgress = gameplayPanel.ShowComboProgressCheckBox.IsChecked.Value;
-                };
-            }
+            if (showIndividualCb != null)
+                showIndividualCb.IsCheckedChanged += (s, e) => { if (showIndividualCb.IsChecked.HasValue) settings.ShowIndividualActionMessages = showIndividualCb.IsChecked.Value; };
+            if (fastCombatCb != null)
+                fastCombatCb.IsCheckedChanged += (s, e) => { if (fastCombatCb.IsChecked.HasValue) settings.FastCombat = fastCombatCb.IsChecked.Value; };
+            if (enableTextDelaysCb != null)
+                enableTextDelaysCb.IsCheckedChanged += (s, e) => { if (enableTextDelaysCb.IsChecked.HasValue) settings.EnableTextDisplayDelays = enableTextDelaysCb.IsChecked.Value; };
+            if (showDetailedStatsCb != null)
+                showDetailedStatsCb.IsCheckedChanged += (s, e) => { if (showDetailedStatsCb.IsChecked.HasValue) settings.ShowDetailedStats = showDetailedStatsCb.IsChecked.Value; };
+            if (showHealthBarsCb != null)
+                showHealthBarsCb.IsCheckedChanged += (s, e) => { if (showHealthBarsCb.IsChecked.HasValue) settings.ShowHealthBars = showHealthBarsCb.IsChecked.Value; };
+            if (showDamageNumbersCb != null)
+                showDamageNumbersCb.IsCheckedChanged += (s, e) => { if (showDamageNumbersCb.IsChecked.HasValue) settings.ShowDamageNumbers = showDamageNumbersCb.IsChecked.Value; };
+            if (showComboProgressCb != null)
+                showComboProgressCb.IsCheckedChanged += (s, e) => { if (showComboProgressCb.IsChecked.HasValue) settings.ShowComboProgress = showComboProgressCb.IsChecked.Value; };
 
             // Wire up clear saved characters button
-            if (gameplayPanel.ClearSavedCharactersButton != null)
+            var clearButton = gameplayPanel.ClearSavedCharactersButton ?? gameplayPanel.FindControl<Button>("ClearSavedCharactersButton");
+            if (clearButton != null)
             {
-                gameplayPanel.ClearSavedCharactersButton.Click += async (s, e) =>
+                clearButton.Click += async (s, e) =>
                 {
                     await HandleClearSavedCharactersAsync();
                 };
             }
 
-            // Load current settings after panel is fully loaded
-            gameplayPanel.Loaded += (s, e) =>
-            {
-                Dispatcher.UIThread.Post(() =>
-                {
-                    LoadSettings(gameplayPanel);
-                }, DispatcherPriority.Loaded);
-            };
+            // Apply current settings once when panel is wired. Do not subscribe to Loaded: Loaded can fire
+            // again on layout/focus (e.g. when user clicks Save), and a deferred LoadSettings would overwrite
+            // the user's checkbox changes with file values before we read them at save.
+            LoadSettings(gameplayPanel);
         }
 
         private async Task HandleClearSavedCharactersAsync()
@@ -173,44 +135,35 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
         public void LoadSettings(UserControl panel)
         {
             if (panel is not GameplaySettingsPanel gameplayPanel || settingsManager == null) return;
+            // Use property first, then FindControl fallback (Avalonia named controls can be null until visual tree is realized)
+            var showIndividual = gameplayPanel.ShowIndividualActionMessagesCheckBox ?? gameplayPanel.FindControl<CheckBox>("ShowIndividualActionMessagesCheckBox");
+            var fastCombat = gameplayPanel.FastCombatCheckBox ?? gameplayPanel.FindControl<CheckBox>("FastCombatCheckBox");
+            var enableTextDelays = gameplayPanel.EnableTextDisplayDelaysCheckBox ?? gameplayPanel.FindControl<CheckBox>("EnableTextDisplayDelaysCheckBox");
+            var showDetailedStats = gameplayPanel.ShowDetailedStatsCheckBox ?? gameplayPanel.FindControl<CheckBox>("ShowDetailedStatsCheckBox");
+            var showHealthBars = gameplayPanel.ShowHealthBarsCheckBox ?? gameplayPanel.FindControl<CheckBox>("ShowHealthBarsCheckBox");
+            var showDamageNumbers = gameplayPanel.ShowDamageNumbersCheckBox ?? gameplayPanel.FindControl<CheckBox>("ShowDamageNumbersCheckBox");
+            var showComboProgress = gameplayPanel.ShowComboProgressCheckBox ?? gameplayPanel.FindControl<CheckBox>("ShowComboProgressCheckBox");
+            if (showIndividual != null) showIndividual.IsChecked = settings.ShowIndividualActionMessages;
+            if (fastCombat != null) fastCombat.IsChecked = settings.FastCombat;
+            if (enableTextDelays != null) enableTextDelays.IsChecked = settings.EnableTextDisplayDelays;
+            if (showDetailedStats != null) showDetailedStats.IsChecked = settings.ShowDetailedStats;
+            if (showHealthBars != null) showHealthBars.IsChecked = settings.ShowHealthBars;
+            if (showDamageNumbers != null) showDamageNumbers.IsChecked = settings.ShowDamageNumbers;
+            if (showComboProgress != null) showComboProgress.IsChecked = settings.ShowComboProgress;
+        }
 
-            // Load settings into panel controls with null checks
-            // Use FindControl as fallback to ensure controls are found
-
-            if (gameplayPanel.ShowIndividualActionMessagesCheckBox != null)
-            {
-                gameplayPanel.ShowIndividualActionMessagesCheckBox.IsChecked = settings.ShowIndividualActionMessages;
-            }
-
-            if (gameplayPanel.FastCombatCheckBox != null)
-            {
-                gameplayPanel.FastCombatCheckBox.IsChecked = settings.FastCombat;
-            }
-
-            if (gameplayPanel.EnableTextDisplayDelaysCheckBox != null)
-            {
-                gameplayPanel.EnableTextDisplayDelaysCheckBox.IsChecked = settings.EnableTextDisplayDelays;
-            }
-
-            if (gameplayPanel.ShowDetailedStatsCheckBox != null)
-            {
-                gameplayPanel.ShowDetailedStatsCheckBox.IsChecked = settings.ShowDetailedStats;
-            }
-
-            if (gameplayPanel.ShowHealthBarsCheckBox != null)
-            {
-                gameplayPanel.ShowHealthBarsCheckBox.IsChecked = settings.ShowHealthBars;
-            }
-
-            if (gameplayPanel.ShowDamageNumbersCheckBox != null)
-            {
-                gameplayPanel.ShowDamageNumbersCheckBox.IsChecked = settings.ShowDamageNumbers;
-            }
-
-            if (gameplayPanel.ShowComboProgressCheckBox != null)
-            {
-                gameplayPanel.ShowComboProgressCheckBox.IsChecked = settings.ShowComboProgress;
-            }
+        public void SaveSettings(UserControl panel)
+        {
+            if (panel is not GameplaySettingsPanel gameplayPanel || settingsManager == null) return;
+            var showIndividual = gameplayPanel.ShowIndividualActionMessagesCheckBox ?? gameplayPanel.FindControl<CheckBox>("ShowIndividualActionMessagesCheckBox");
+            var enableTextDelays = gameplayPanel.EnableTextDisplayDelaysCheckBox ?? gameplayPanel.FindControl<CheckBox>("EnableTextDisplayDelaysCheckBox");
+            var fastCombat = gameplayPanel.FastCombatCheckBox ?? gameplayPanel.FindControl<CheckBox>("FastCombatCheckBox");
+            var showDetailedStats = gameplayPanel.ShowDetailedStatsCheckBox ?? gameplayPanel.FindControl<CheckBox>("ShowDetailedStatsCheckBox");
+            var showHealthBars = gameplayPanel.ShowHealthBarsCheckBox ?? gameplayPanel.FindControl<CheckBox>("ShowHealthBarsCheckBox");
+            var showDamageNumbers = gameplayPanel.ShowDamageNumbersCheckBox ?? gameplayPanel.FindControl<CheckBox>("ShowDamageNumbersCheckBox");
+            var showComboProgress = gameplayPanel.ShowComboProgressCheckBox ?? gameplayPanel.FindControl<CheckBox>("ShowComboProgressCheckBox");
+            if (showIndividual != null)
+                settingsManager.SaveGameplaySettings(showIndividual, enableTextDelays!, fastCombat!, showDetailedStats!, showHealthBars!, showDamageNumbers!, showComboProgress!, null);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using RPGGame.Combat.Formatting;
 using RPGGame.UI.ColorSystem;
@@ -36,7 +36,7 @@ namespace RPGGame
             }
             
             // Then apply status effects from the action itself
-            var effectTypes = GetEffectTypesFromAction(action);
+            var effectTypes = StatusEffectActionResolver.GetEffectTypesFromAction(action);
             
             // Check if status effects should be conditionally applied
             bool shouldApplyEffects = true;
@@ -94,8 +94,7 @@ namespace RPGGame
             
             foreach (var effectName in statusEffects)
             {
-                // Create temporary action with the status effect flag set
-                var tempAction = CreateActionWithStatusEffect(effectName);
+                var tempAction = StatusEffectActionResolver.CreateActionWithStatusEffect(effectName);
                 if (tempAction != null && _effectRegistry.ApplyEffect(effectName.ToLower(), target, tempAction, results))
                 {
                     effectsApplied = true;
@@ -103,48 +102,6 @@ namespace RPGGame
             }
             
             return effectsApplied;
-        }
-
-        /// <summary>
-        /// Creates an Action object with a specific status effect flag set
-        /// </summary>
-        /// <param name="effectName">The name of the status effect</param>
-        /// <returns>Action with the status effect flag set, or null if effect name is invalid</returns>
-        private static Action? CreateActionWithStatusEffect(string effectName)
-        {
-            var action = new Action();
-            var lower = effectName.ToLower();
-            
-            // Map status effect names to Action properties
-            switch (lower)
-            {
-                case "bleed": action.CausesBleed = true; break;
-                case "weaken": action.CausesWeaken = true; break;
-                case "slow": action.CausesSlow = true; break;
-                case "poison": action.CausesPoison = true; break;
-                case "burn": action.CausesBurn = true; break;
-                case "stun": action.CausesStun = true; break;
-                case "vulnerability": action.CausesVulnerability = true; break;
-                case "harden": action.CausesHarden = true; break;
-                case "fortify": action.CausesFortify = true; break;
-                case "focus": action.CausesFocus = true; break;
-                case "expose": action.CausesExpose = true; break;
-                case "hpregen": action.CausesHPRegen = true; break;
-                case "armorbreak": action.CausesArmorBreak = true; break;
-                case "pierce": action.CausesPierce = true; break;
-                case "reflect": action.CausesReflect = true; break;
-                case "silence": action.CausesSilence = true; break;
-                case "statdrain": action.CausesStatDrain = true; break;
-                case "absorb": action.CausesAbsorb = true; break;
-                case "temporaryhp": action.CausesTemporaryHP = true; break;
-                case "confusion": action.CausesConfusion = true; break;
-                case "cleanse": action.CausesCleanse = true; break;
-                case "mark": action.CausesMark = true; break;
-                case "disrupt": action.CausesDisrupt = true; break;
-                default: return null;
-            }
-            
-            return action;
         }
 
         /// <summary>
@@ -262,146 +219,67 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets all effect types that an action can cause
-        /// </summary>
-        private static List<string> GetEffectTypesFromAction(Action action)
-        {
-            var effects = new List<string>();
-            
-            // Basic status effects
-            if (action.CausesBleed) effects.Add("bleed");
-            if (action.CausesWeaken) effects.Add("weaken");
-            if (action.CausesSlow) effects.Add("slow");
-            if (action.CausesPoison) effects.Add("poison");
-            if (action.CausesStun) effects.Add("stun");
-            if (action.CausesBurn) effects.Add("burn");
-            
-            // Advanced status effects (Phase 2)
-            if (action.CausesVulnerability) effects.Add("vulnerability");
-            if (action.CausesHarden) effects.Add("harden");
-            if (action.CausesFortify) effects.Add("fortify");
-            if (action.CausesFocus) effects.Add("focus");
-            if (action.CausesExpose) effects.Add("expose");
-            if (action.CausesHPRegen) effects.Add("hpregen");
-            if (action.CausesArmorBreak) effects.Add("armorbreak");
-            if (action.CausesPierce) effects.Add("pierce");
-            if (action.CausesReflect) effects.Add("reflect");
-            if (action.CausesSilence) effects.Add("silence");
-            if (action.CausesStatDrain) effects.Add("statdrain");
-            if (action.CausesAbsorb) effects.Add("absorb");
-            if (action.CausesTemporaryHP) effects.Add("temporaryhp");
-            if (action.CausesConfusion) effects.Add("confusion");
-            if (action.CausesCleanse) effects.Add("cleanse");
-            if (action.CausesMark) effects.Add("mark");
-            if (action.CausesDisrupt) effects.Add("disrupt");
-            
-            return effects;
-        }
-
-        /// <summary>
         /// Processes all active status effects for an Actor at the start of their turn
         /// </summary>
-        /// <param name="Actor">The Actor to process effects for</param>
-        /// <param name="results">List to add effect messages to</param>
-        /// <returns>Total damage dealt by effects</returns>
-        public static int ProcessStatusEffects(Actor Actor, List<string> results)
+        public static int ProcessStatusEffects(Actor actor, List<string> results)
         {
-            int totalEffectDamage = 0;
             double currentTime = GameTicker.Instance.GetCurrentGameTime();
-            
-            // Process poison damage
-            if (Actor.PoisonStacks > 0)
+            int total = ProcessPoisonOrBleedDamage(actor, currentTime, results);
+            total += ProcessBurnDamage(actor, currentTime, results);
+            return total;
+        }
+
+        private static int ProcessPoisonOrBleedDamage(Actor actor, double currentTime, List<string> results)
+        {
+            if (actor.PoisonStacks <= 0) return 0;
+            int damage = actor.ProcessPoison(currentTime);
+            string damageType = actor.GetDamageTypeText();
+            ColorPalette effectColor = damageType == "bleed" ? ColorPalette.Error : ColorPalette.Green;
+            if (damage > 0)
             {
-                int poisonDamage = Actor.ProcessPoison(currentTime);
-                if (poisonDamage > 0)
-                {
-                    totalEffectDamage += poisonDamage;
-                    string damageType = Actor.GetDamageTypeText();
-                    
-                    // Use ColoredTextBuilder for proper spacing
-                    var builder = new ColoredTextBuilder();
-                    var actorColor = EntityColorHelper.GetActorColor(Actor);
-                    DamageFormatter.AddActorTakesDamage(builder, Actor.Name, actorColor, poisonDamage, damageType);
-                    var coloredText = builder.Build();
-                    
-                    // Convert to markup string for results list
-                    results.Add(ColoredTextRenderer.RenderAsMarkup(coloredText));
-                }
-                
-                // Check if effect ended (regardless of whether damage was dealt)
-                if (Actor.PoisonStacks > 0)
-                {
-                    string damageType = Actor.GetDamageTypeText();
-                    
-                    // Use ColoredTextBuilder for proper spacing
-                    var builder = new ColoredTextBuilder();
-                    ColorPalette effectColor = damageType == "bleed" ? ColorPalette.Error : ColorPalette.Green;
-                    DamageFormatter.AddEffectStacksRemain(builder, damageType, effectColor, Actor.PoisonStacks);
-                    var coloredText = builder.Build();
-                    
-                    // Convert to markup string for results list
-                    results.Add(ColoredTextRenderer.RenderAsMarkup(coloredText));
-                }
-                else
-                {
-                    string damageType = Actor.GetDamageTypeText();
-                    string effectEndMessage = damageType == "bleed" ? "bleeding" : "poisoned";
-                    
-                    // Use ColoredTextBuilder for proper spacing
-                    var builder = new ColoredTextBuilder();
-                    var actorColor = EntityColorHelper.GetActorColor(Actor);
-                    ColorPalette effectColor = damageType == "bleed" ? ColorPalette.Error : ColorPalette.Green;
-                    DamageFormatter.AddActorNoLongerAffected(builder, Actor.Name, actorColor, effectEndMessage, effectColor);
-                    var coloredText = builder.Build();
-                    
-                    // Convert to markup string for results list
-                    results.Add(ColoredTextRenderer.RenderAsMarkup(coloredText));
-                }
+                var builder = new ColoredTextBuilder();
+                DamageFormatter.AddActorTakesDamage(builder, actor.Name, EntityColorHelper.GetActorColor(actor), damage, damageType);
+                results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
             }
-            
-            // Process burn damage
-            if (Actor.BurnStacks > 0)
+            if (actor.PoisonStacks > 0)
             {
-                int burnDamage = Actor.ProcessBurn(currentTime);
-                if (burnDamage > 0)
-                {
-                    totalEffectDamage += burnDamage;
-                    
-                    // Use ColoredTextBuilder for proper spacing
-                    var builder = new ColoredTextBuilder();
-                    var actorColor = EntityColorHelper.GetActorColor(Actor);
-                    DamageFormatter.AddActorTakesDamage(builder, Actor.Name, actorColor, burnDamage, "burn");
-                    var coloredText = builder.Build();
-                    
-                    // Convert to markup string for results list
-                    results.Add(ColoredTextRenderer.RenderAsMarkup(coloredText));
-                }
-                
-                // Check if effect ended (regardless of whether damage was dealt)
-                if (Actor.BurnStacks > 0)
-                {
-                    // Use ColoredTextBuilder for proper spacing
-                    var builder = new ColoredTextBuilder();
-                    DamageFormatter.AddEffectStacksRemain(builder, "burn", ColorPalette.Orange, Actor.BurnStacks);
-                    var coloredText = builder.Build();
-                    
-                    // Convert to markup string for results list
-                    results.Add(ColoredTextRenderer.RenderAsMarkup(coloredText));
-                }
-                else
-                {
-                    // Use ColoredTextBuilder for proper spacing
-                    var builder = new ColoredTextBuilder();
-                    var actorColor = EntityColorHelper.GetActorColor(Actor);
-                    DamageFormatter.AddActorNoLongerAffected(builder, Actor.Name, actorColor, "burning", ColorPalette.Orange);
-                    var coloredText = builder.Build();
-                    
-                    // Convert to markup string for results list
-                    results.Add(ColoredTextRenderer.RenderAsMarkup(coloredText));
-                }
+                var builder = new ColoredTextBuilder();
+                DamageFormatter.AddEffectStacksRemain(builder, damageType, effectColor, actor.PoisonStacks);
+                results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
             }
-            
-            return totalEffectDamage;
+            else
+            {
+                string effectEndMessage = damageType == "bleed" ? "bleeding" : "poisoned";
+                var builder = new ColoredTextBuilder();
+                DamageFormatter.AddActorNoLongerAffected(builder, actor.Name, EntityColorHelper.GetActorColor(actor), effectEndMessage, effectColor);
+                results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
+            }
+            return damage > 0 ? damage : 0;
+        }
+
+        private static int ProcessBurnDamage(Actor actor, double currentTime, List<string> results)
+        {
+            if (actor.BurnStacks <= 0) return 0;
+            int damage = actor.ProcessBurn(currentTime);
+            if (damage > 0)
+            {
+                var builder = new ColoredTextBuilder();
+                DamageFormatter.AddActorTakesDamage(builder, actor.Name, EntityColorHelper.GetActorColor(actor), damage, "burn");
+                results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
+            }
+            if (actor.BurnStacks > 0)
+            {
+                var builder = new ColoredTextBuilder();
+                DamageFormatter.AddEffectStacksRemain(builder, "burn", ColorPalette.Orange, actor.BurnStacks);
+                results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
+            }
+            else
+            {
+                var builder = new ColoredTextBuilder();
+                DamageFormatter.AddActorNoLongerAffected(builder, actor.Name, EntityColorHelper.GetActorColor(actor), "burning", ColorPalette.Orange);
+                results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
+            }
+            return damage > 0 ? damage : 0;
         }
 
         /// <summary>

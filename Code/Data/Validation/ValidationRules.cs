@@ -25,6 +25,8 @@ namespace RPGGame.Data.Validation
             public const int MaxSelfDamagePercent = 100;
             public const int MinThreshold = 0;
             public const int MaxThreshold = 20;
+            public const int MinThresholdAdjustment = -20;
+            public const int MaxThresholdAdjustment = 20;
             public const int MinMultipleDiceCount = 1;
             public const int MaxMultipleDiceCount = 10;
 
@@ -45,7 +47,28 @@ namespace RPGGame.Data.Validation
 
             public static readonly HashSet<string> ValidStatBonusTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
-                "STR", "AGI", "TEC", "INT", "Strength", "Agility", "Technique", "Intelligence"
+                "STR", "AGI", "TEC", "INT", "Strength", "Agility", "Technique", "Intelligence",
+                "HealthRegen", "Health Regen", "MaxHealth", "Max Health", "Heal"
+            };
+
+            /// <summary>Valid attribute types for thresholds (Health, Strength, Agility, Technique, Intelligence).</summary>
+            public static readonly HashSet<string> ValidThresholdStatTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "Health", "Strength", "Agility", "Technique", "Intelligence"
+            };
+
+            /// <summary>Valid accumulation source types (cadences, damage done, hits landed, etc.).</summary>
+            public static readonly HashSet<string> ValidAccumulationTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "CadenceAction", "CadenceAbility", "CadenceChain", "CadenceFight", "CadenceDungeon",
+                "SelfDamage", "HealthRestored",
+                "HitsLanded", "Blocks", "Dodges", "Kills", "DamageTaken", "TurnsTaken", "CombosUsed"
+            };
+
+            /// <summary>Valid parameters that accumulations can modify (e.g. Damage, Max Health).</summary>
+            public static readonly HashSet<string> ValidAccumulationModifiesParam = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "Damage", "Max Health", "Heal", "Health Regen", "Strength", "Agility", "Technique", "Intelligence"
             };
         }
 
@@ -73,7 +96,7 @@ namespace RPGGame.Data.Validation
 
             public static readonly HashSet<string> ValidTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
-                "Dagger", "Mace", "Sword", "Axe", "Bow", "Staff", "Wand", "Spear", "Hammer"
+                "Dagger", "Mace", "Sword", "Wand"
             };
         }
 

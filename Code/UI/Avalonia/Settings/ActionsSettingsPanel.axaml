@@ -5,46 +5,133 @@
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
              x:Class="RPGGame.UI.Avalonia.Settings.ActionsSettingsPanel"
              Background="Transparent">
-    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                 HorizontalScrollBarVisibility="Disabled">
-        <Grid Margin="20">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="250"/>
-                <ColumnDefinition Width="10"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            
-            <!-- Actions List -->
-            <ListBox x:Name="ActionsListBox"
-                     Grid.Column="0"
-                     Background="Transparent"
-                     BorderThickness="0"/>
-            
-            <!-- Action Form Panel -->
-            <StackPanel x:Name="ActionFormPanel"
-                        Grid.Column="2"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch"/>
-            
-            <!-- Action Buttons -->
-            <StackPanel Grid.Column="2"
+    <UserControl.Styles>
+        <!-- Keep form inputs white when focused/selected so they match unselected state (override SettingsPanel dark theme) -->
+        <Style Selector="TextBox">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="Black"/>
+        </Style>
+        <Style Selector="TextBox:focus">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="BorderBrush" Value="#FF0078D4"/>
+        </Style>
+        <Style Selector="TextBox:pointerover">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="Black"/>
+        </Style>
+        <Style Selector="TextBox:pointerover:focus">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="BorderBrush" Value="#FF0078D4"/>
+        </Style>
+        <Style Selector="TextBox /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="White"/>
+        </Style>
+        <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="White"/>
+        </Style>
+        <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="White"/>
+        </Style>
+        <Style Selector="TextBox:pointerover:focus /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="White"/>
+        </Style>
+        <!-- Filter ComboBoxes: white text on dark background (override theme so placeholder/selection text is visible) -->
+        <Style Selector="ComboBox">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="PlaceholderForeground" Value="White"/>
+        </Style>
+        <Style Selector="ComboBox /template/ ContentPresenter">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="ComboBox /template/ TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+    </UserControl.Styles>
+    <Grid Margin="20" VerticalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Middle: Filter and Actions List with its own scroll -->
+        <Grid Grid.Column="0" VerticalAlignment="Stretch" RowDefinitions="Auto,*">
+            <StackPanel Grid.Row="0" Spacing="8" Margin="0,0,0,8">
+                <TextBlock Text="Filter by type" FontWeight="SemiBold" Foreground="White" Margin="0,0,0,4"/>
+                <ComboBox x:Name="RarityFilterComboBox"
+                          PlaceholderText="Rarity (all)"
+                          Background="#FF2A2A2A"
+                          Foreground="White"
+                          PlaceholderForeground="White"
+                          BorderBrush="#FF555555"/>
+                <ComboBox x:Name="CategoryFilterComboBox"
+                          PlaceholderText="Category (all)"
+                          Background="#FF2A2A2A"
+                          Foreground="White"
+                          PlaceholderForeground="White"
+                          BorderBrush="#FF555555"/>
+                <ComboBox x:Name="CadenceFilterComboBox"
+                          PlaceholderText="Cadence (all)"
+                          Background="#FF2A2A2A"
+                          Foreground="White"
+                          PlaceholderForeground="White"
+                          BorderBrush="#FF555555"/>
+                <ComboBox x:Name="TagFilterComboBox"
+                          PlaceholderText="Tag (all)"
+                          Background="#FF2A2A2A"
+                          Foreground="White"
+                          PlaceholderForeground="White"
+                          BorderBrush="#FF555555"/>
+            </StackPanel>
+            <ListBox Grid.Row="1"
+                     x:Name="ActionsListBox"
+                     Background="#FF2A2A2A"
+                     BorderThickness="1"
+                     BorderBrush="#FF555555"
+                     Foreground="White"
+                     VerticalAlignment="Stretch"
+                     MinHeight="0"/>
+        </Grid>
+
+        <!-- Right: Action form with its own scroll -->
+        <Grid Grid.Column="2" RowDefinitions="Auto,*" VerticalAlignment="Stretch">
+            <StackPanel Grid.Row="0"
                         Orientation="Horizontal"
                         HorizontalAlignment="Right"
-                        VerticalAlignment="Bottom"
                         Spacing="10"
-                        Margin="0,10,0,0">
+                        Margin="0,0,0,12">
                 <Button x:Name="CreateActionButton"
                         Content="Create"
                         Width="100"
-                        Height="35"
-                        FontSize="14"/>
+                        Height="40"
+                        FontSize="16"
+                        FontWeight="SemiBold"
+                        Background="#FF0078D4"
+                        Foreground="White"
+                        BorderThickness="0"
+                        CornerRadius="4"/>
                 <Button x:Name="DeleteActionButton"
                         Content="Delete"
                         Width="100"
-                        Height="35"
-                        FontSize="14"/>
+                        Height="40"
+                        FontSize="16"
+                        FontWeight="SemiBold"
+                        Background="#FFD32F2F"
+                        Foreground="White"
+                        BorderThickness="0"
+                        CornerRadius="4"/>
             </StackPanel>
+            <ScrollViewer Grid.Row="1"
+                         VerticalScrollBarVisibility="Auto"
+                         HorizontalScrollBarVisibility="Disabled"
+                         VerticalAlignment="Stretch">
+                <StackPanel x:Name="ActionFormPanel"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Top"/>
+            </ScrollViewer>
         </Grid>
-    </ScrollViewer>
+    </Grid>
 </UserControl>
 

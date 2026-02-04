@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using RPGGame.UI.ColorSystem;
 
@@ -169,37 +169,11 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Calculates the actual action speed by multiplying Actor base speed by action length
+        /// Calculates the actual action speed by multiplying Actor base speed by action length (uses ActionSpeedCalculator for ConsumedSpeedMod etc.)
         /// </summary>
-        /// <param name="Actor">The Actor performing the action</param>
-        /// <param name="action">The action being performed</param>
-        /// <returns>The calculated action speed in seconds</returns>
         private static double CalculateActualActionSpeed(Actor Actor, Action action)
         {
-            // Get the Actor's base attack speed
-            double baseSpeed = 0;
-            if (Actor is Character character)
-            {
-                baseSpeed = character.GetTotalAttackSpeed();
-            }
-            else if (Actor is Enemy enemy)
-            {
-                baseSpeed = enemy.GetTotalAttackSpeed();
-            }
-            else if (Actor is Environment environment)
-            {
-                // For environments, use a default base speed
-                baseSpeed = 15.0; // Same as used in CombatManager
-            }
-            
-            // Apply critical miss penalty (doubles action speed)
-            if (Actor.HasCriticalMissPenalty)
-            {
-                baseSpeed *= 2.0;
-            }
-            
-            // Calculate actual action speed: base speed * action length
-            return baseSpeed * action.Length;
+            return Combat.Formatting.ActionSpeedCalculator.CalculateActualActionSpeed(Actor, action, Actor.HasCriticalMissPenalty);
         }
         
         // ===== NEW COLORED TEXT SYSTEM (PRIMARY API) =====

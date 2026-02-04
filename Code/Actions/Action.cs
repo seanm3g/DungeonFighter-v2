@@ -71,6 +71,8 @@ namespace RPGGame
         public bool IsComboAction { get; set; }
         public int ComboBonusAmount { get; set; }
         public int ComboBonusDuration { get; set; }
+        /// <summary>Cadence (Action, Ability, Chain, Fight, Dungeon) used for stat bonus duration and timing.</summary>
+        public string Cadence { get; set; } = "";
 
         // Grouped advanced mechanics properties
         public RollModificationProperties RollMods { get; set; } = new RollModificationProperties();
@@ -81,6 +83,15 @@ namespace RPGGame
         
         // ACTION/ATTACK keyword bonuses
         public Data.ActionAttackBonuses? ActionAttackBonuses { get; set; }
+
+        /// <summary>Speed modifier for next action/ability (%). Positive = faster. Applied only to next based on cadence.</summary>
+        public string SpeedMod { get; set; } = "";
+        /// <summary>Damage modifier for next action/ability (%). Applied only to next based on cadence.</summary>
+        public string DamageMod { get; set; } = "";
+        /// <summary>Multi-hit modifier for next action/ability (raw value). Applied only to next based on cadence.</summary>
+        public string MultiHitMod { get; set; } = "";
+        /// <summary>Amp modifier for next action/ability (%). Multiply. Applied only to next based on cadence.</summary>
+        public string AmpMod { get; set; } = "";
         
         // Outcome handlers - list of outcome handler type names (e.g., "conditional", "xpGain")
         public List<string> OutcomeHandlers { get; set; } = new List<string>();
@@ -206,7 +217,7 @@ namespace RPGGame
             CausesBleed = false;
             CausesWeaken = false;
             CausesStun = false;
-            IsComboAction = false;
+            IsComboAction = true;
             ComboBonusAmount = 0;
             ComboBonusDuration = 0;
             
@@ -221,7 +232,7 @@ namespace RPGGame
         public Action(string? name = null, ActionType type = ActionType.Attack, TargetType targetType = TargetType.SingleTarget,
                      int cooldown = 0, string? description = "",
                      int comboOrder = -1, double damageMultiplier = 1.0, double length = 1.0,
-                     bool causesBleed = false, bool causesWeaken = false, bool causesPoison = false, bool causesStun = false, bool isComboAction = false,
+                     bool causesBleed = false, bool causesWeaken = false, bool causesPoison = false, bool causesStun = false, bool isComboAction = true,
                      int comboBonusAmount = 0, int comboBonusDuration = 0)
         {
             Name = name ?? GetDefaultName(type);

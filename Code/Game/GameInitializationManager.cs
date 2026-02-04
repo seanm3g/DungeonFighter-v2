@@ -76,29 +76,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Loads a saved character from disk synchronously.
-        /// NOTE: This method is deprecated. Use LoadSavedCharacterAsync instead for proper async handling.
-        /// This synchronous wrapper blocks the calling thread and should not be used in UI contexts.
-        /// </summary>
-        /// <returns>The loaded character, or null if no save exists or load fails.</returns>
-        [Obsolete("Use LoadSavedCharacterAsync instead. This method blocks the calling thread and may freeze the UI.")]
-        public Character? LoadSavedCharacter()
-        {
-            try
-            {
-                // For backward compatibility only - callers should migrate to async version
-                // Using ConfigureAwait(false) to avoid deadlocks, but this still blocks
-                var savedCharacter = Character.LoadCharacterAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-                return savedCharacter;
-            }
-            catch (Exception ex)
-            {
-                UIManager.WriteSystemLine($"Error loading character: {ex.Message}");
-                return null;
-            }
-        }
-
-        /// <summary>
         /// Initializes game data for an existing character.
         /// Generates dungeons, sets up inventory, applies configurations.
         /// </summary>
