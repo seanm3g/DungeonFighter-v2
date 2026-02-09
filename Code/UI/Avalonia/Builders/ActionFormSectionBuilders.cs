@@ -146,7 +146,8 @@ namespace RPGGame.UI.Avalonia.Builders
             _ctx.Factory.AddFormField(stack, "Roll bonus: Hit", action.HitThresholdAdjustment.ToString(), (value) => { if (int.TryParse(value, out int v)) action.HitThresholdAdjustment = v; }, description: "e.g. 0 (integer)");
             _ctx.Factory.AddFormField(stack, "Roll bonus: Combo", action.ComboThresholdAdjustment.ToString(), (value) => { if (int.TryParse(value, out int v)) action.ComboThresholdAdjustment = v; }, description: "e.g. 0 (integer)");
             _ctx.Factory.AddFormField(stack, "Roll bonus: Crit", action.CriticalHitThresholdAdjustment.ToString(), (value) => { if (int.TryParse(value, out int v)) action.CriticalHitThresholdAdjustment = v; }, description: "e.g. 2 (integer)");
-            _ctx.Factory.AddFormField(stack, "Accuracy", action.RollBonus.ToString(), (value) => { if (int.TryParse(value, out int v)) action.RollBonus = v; }, description: "e.g. 0 (integer)");
+            void SetRollBonus(string value) { action.RollBonus = string.IsNullOrWhiteSpace(value) ? 0 : (int.TryParse(value, out int v) ? v : action.RollBonus); }
+            _ctx.Factory.AddFormField(stack, "Accuracy", action.RollBonus.ToString(), SetRollBonus, description: "e.g. 0 (integer)", onTextChanged: SetRollBonus);
         }
 
         private static bool HasTrigger(ActionData action, string condition)

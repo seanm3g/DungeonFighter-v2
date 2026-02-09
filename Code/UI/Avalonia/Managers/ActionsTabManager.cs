@@ -59,7 +59,6 @@ namespace RPGGame.UI.Avalonia.Managers
             this.showStatusMessage = showStatusMessage;
             
             formBuilder = new ActionFormBuilder(actionFormControls, showStatusMessage);
-            formBuilder.SaveActionRequested += SaveAction;
             formBuilder.CancelActionRequested += OnCancelAction;
             
             // Defer loading actions list until after UI is ready to avoid blocking
@@ -274,7 +273,7 @@ namespace RPGGame.UI.Avalonia.Managers
             if ((v = GetText("Roll bonus: Hit")) != null && int.TryParse(v, out int i6)) action.HitThresholdAdjustment = i6;
             if ((v = GetText("Roll bonus: Combo")) != null && int.TryParse(v, out int i7)) action.ComboThresholdAdjustment = i7;
             if ((v = GetText("Roll bonus: Crit")) != null && int.TryParse(v, out int i8)) action.CriticalHitThresholdAdjustment = i8;
-            if ((v = GetText("Accuracy")) != null && int.TryParse(v, out int i9)) action.RollBonus = i9;
+            // Accuracy is not read from form here: it is kept in sync via TextChanged on the Accuracy field, so we don't overwrite with a reverted value when the user saves via the global Save button (focus has already moved and the TextBox may have reverted).
             action.TriggerConditions ??= new List<string>();
             if (GetBool("On Hit") == true && !action.TriggerConditions.Any(c => string.Equals(c, "ONHIT", StringComparison.OrdinalIgnoreCase))) action.TriggerConditions.Add("ONHIT");
             if (GetBool("On Hit") == false) action.TriggerConditions.RemoveAll(c => string.Equals(c, "ONHIT", StringComparison.OrdinalIgnoreCase));
@@ -332,100 +331,13 @@ namespace RPGGame.UI.Avalonia.Managers
             }
         }
 
-        private void SaveAction(ActionData action, bool isCreatingNew)
-        {
-            if (actionEditor == null || action == null) return;
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "A", location = "ActionsTabManager.cs:SaveAction", message = "SaveAction ENTRY", data = new { actionName = action?.Name, isCreatingNew, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
-
-            // Capture Default/Starting checkbox BEFORE moving focus; in Avalonia the checkbox can revert when it loses focus
-            bool defaultStarting = false;
-            if (actionFormControls.TryGetValue("Default/Starting", out var defaultControl) && defaultControl is CheckBox defaultCheckBox)
-                defaultStarting = defaultCheckBox.IsChecked == true;
-
-            // Move focus away from the current control so LostFocus fires and the last-edited value is committed
-            var focusTarget = createActionButton ?? (Control?)actionFormPanel;
-            if (focusTarget != null)
-                focusTarget.Focus();
-
-            // Defer validation and save so the UI thread can process the focus change and fire LostFocus first (action already null-checked above)
-            Dispatcher.UIThread.Post(() => SaveActionDeferred(action!, isCreatingNew, defaultStarting), DispatcherPriority.Background);
-        }
-
-        private void SaveActionDeferred(ActionData action, bool isCreatingNew, bool defaultStartingCaptured)
-        {
-            if (actionEditor == null || action == null) return;
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "A", location = "ActionsTabManager.cs:SaveActionDeferred", message = "SaveActionDeferred ENTRY", data = new { actionName = action?.Name, isCreatingNew, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
-
-            // Flush all form control values into the action so the last-edited field is saved (LostFocus may not have fired)
-            FlushFormToAction(action!);
-
-            // Use the Default/Starting value captured in SaveAction (before focus move); the checkbox can revert when it loses focus
-            action!.IsDefaultAction = defaultStartingCaptured;
-            action!.IsStartingAction = defaultStartingCaptured;
-
-            string? errorMessage = actionEditor!.ValidateAction(action!, isCreatingNew ? null : action!.Name);
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "B", location = "ActionsTabManager.cs:SaveActionDeferred", message = "after validation", data = new { validationPassed = errorMessage == null, errorMessage = errorMessage ?? "(none)", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
-            if (errorMessage != null)
-            {
-                showStatusMessage?.Invoke(errorMessage, false);
-                return;
-            }
-            
-            bool success;
-            if (isCreatingNew)
-            {
-                success = actionEditor!.CreateAction(action!);
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "A,D", location = "ActionsTabManager.cs:SaveActionDeferred", message = "CreateAction result", data = new { success, actionName = action?.Name, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-                // #endregion
-                if (success)
-                {
-                    ActionsSavedThisSession = true;
-                    showStatusMessage?.Invoke($"Action '{action!.Name}' created successfully", true);
-                    isCreatingNewAction = false;
-                    LoadActionsList();
-                }
-                else
-                {
-                    showStatusMessage?.Invoke($"Failed to create action '{action!.Name}'", false);
-                    return;
-                }
-            }
-            else
-            {
-                success = actionEditor!.UpdateAction(action!.Name, action!);
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "A,D", location = "ActionsTabManager.cs:SaveActionDeferred", message = "UpdateAction result", data = new { success, actionName = action?.Name, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-                // #endregion
-                if (success)
-                {
-                    ActionsSavedThisSession = true;
-                    showStatusMessage?.Invoke($"Action '{action!.Name}' updated successfully", true);
-                    // Refresh list and dictionary from editor so form shows saved data when reselecting
-                    LoadActionsList();
-                }
-                else
-                {
-                    showStatusMessage?.Invoke($"Failed to update action '{action!.Name}'", false);
-                    return;
-                }
-            }
-        }
-
         /// <summary>
         /// Flushes the current action form into the selected action (if any) and persists all actions to file.
-        /// When fromPanel is provided, reads Default/Starting from that panel so we save what's on screen (same fix as Gameplay).
+        /// Handles both new actions (create on global Save) and edits. When fromPanel is provided, reads Default/Starting from that panel.
         /// </summary>
         public void FlushCurrentActionAndSaveToFile(ActionsSettingsPanel? fromPanel = null)
         {
             if (actionEditor == null) return;
-            // Resolve the action from the editor's current list so we flush into the instance that gets serialized (avoids stale reference after previous save).
             var action = selectedAction;
             var target = action != null
                 ? actionEditor.GetActions().FirstOrDefault(a => string.Equals(a.Name, action.Name, StringComparison.OrdinalIgnoreCase)) ?? action
@@ -438,7 +350,6 @@ namespace RPGGame.UI.Avalonia.Managers
                 {
                     var cb = fromPanel.FindControl<CheckBox>("DefaultStartingCheckBox");
                     defaultStarting = cb?.IsChecked == true;
-                    // FindControl can return null when panel is not in visual tree (e.g. user switched to Gameplay); fall back to stored form controls
                     if (!defaultStarting && actionFormControls.TryGetValue("Default/Starting", out var fallback) && fallback is CheckBox fc)
                         defaultStarting = fc.IsChecked == true;
                 }
@@ -447,11 +358,40 @@ namespace RPGGame.UI.Avalonia.Managers
                 target.IsDefaultAction = defaultStarting;
                 target.IsStartingAction = defaultStarting;
             }
+
+            // New action: add to editor and save (global Save is the only save; no per-action button).
+            if (isCreatingNewAction && target != null)
+            {
+                string? errorMessage = actionEditor!.ValidateAction(target, null);
+                if (errorMessage != null)
+                {
+                    showStatusMessage?.Invoke(errorMessage, false);
+                    return;
+                }
+                if (actionEditor!.CreateAction(target))
+                {
+                    ActionsSavedThisSession = true;
+                    isCreatingNewAction = false;
+                    showStatusMessage?.Invoke($"Action '{target.Name}' created. Settings saved.", true);
+                    var selectedName = target.Name;
+                    LoadActionsList();
+                    if (!string.IsNullOrEmpty(selectedName) && actionsListBox?.ItemsSource is System.Collections.IEnumerable names)
+                    {
+                        foreach (var n in names)
+                            if (n is string s && string.Equals(s, selectedName, StringComparison.OrdinalIgnoreCase))
+                            { actionsListBox.SelectedItem = n; break; }
+                    }
+                }
+                else
+                    showStatusMessage?.Invoke($"Failed to create action '{target.Name}' (e.g. duplicate name).", false);
+                return;
+            }
+
+            // Existing action or no selection: save all actions to file (global Save applies to all settings including Actions).
             if (actionEditor!.SaveActionsToFile())
             {
                 ActionsSavedThisSession = true;
                 var selectedName = action?.Name;
-                // Refresh list and dictionary so actionNameToAction and list box use reloaded data (no stale references).
                 LoadActionsList();
                 if (!string.IsNullOrEmpty(selectedName) && actionsListBox?.ItemsSource is System.Collections.IEnumerable names)
                 {

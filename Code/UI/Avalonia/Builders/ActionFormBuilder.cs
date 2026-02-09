@@ -33,7 +33,7 @@ namespace RPGGame.UI.Avalonia.Builders
 
             var title = new TextBlock
             {
-                Text = isCreatingNewAction ? "Create New Action" : $"Edit Action: {action.Name}",
+                Text = isCreatingNewAction ? "New Action (save with global Save)" : $"Edit Action: {action.Name}",
                 FontSize = 18,
                 FontWeight = FontWeight.Bold,
                 Foreground = new SolidColorBrush(Color.FromRgb(255, 215, 0)),
@@ -56,10 +56,10 @@ namespace RPGGame.UI.Avalonia.Builders
             sections.BuildAdvancedSection(actionFormPanel, action);
             sections.BuildThresholdsSection(actionFormPanel, action);
             sections.BuildAccumulationsSection(actionFormPanel, action);
-            BuildButtons(actionFormPanel, action, isCreatingNewAction);
+            BuildButtons(actionFormPanel);
         }
 
-        private void BuildButtons(Panel parent, ActionData action, bool isCreatingNewAction)
+        private void BuildButtons(Panel parent)
         {
             var buttonStack = new StackPanel
             {
@@ -83,33 +83,11 @@ namespace RPGGame.UI.Avalonia.Builders
             cancelButton.Click += (s, e) => OnCancelAction();
             buttonStack.Children.Add(cancelButton);
 
-            if (isCreatingNewAction)
-            {
-                var createButton = new Button
-                {
-                    Content = "Create Action",
-                    Width = 150,
-                    Height = 35,
-                    Background = new SolidColorBrush(Color.FromRgb(76, 175, 80)),
-                    Foreground = new SolidColorBrush(Colors.White),
-                    BorderThickness = new Thickness(0),
-                    CornerRadius = new CornerRadius(3),
-                    Cursor = new Cursor(StandardCursorType.Hand)
-                };
-                createButton.Click += (s, e) => OnSaveAction(action, isCreatingNewAction);
-                buttonStack.Children.Add(createButton);
-            }
-
+            // No per-action Save/Create button: only the global Settings Save persists changes (applies to Actions and all other settings panels).
             parent.Children.Add(buttonStack);
         }
 
-        public event System.Action<ActionData, bool>? SaveActionRequested;
         public event System.Action? CancelActionRequested;
-
-        private void OnSaveAction(ActionData action, bool isCreatingNewAction)
-        {
-            SaveActionRequested?.Invoke(action, isCreatingNewAction);
-        }
 
         private void OnCancelAction()
         {

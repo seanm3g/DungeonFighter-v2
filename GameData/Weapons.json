@@ -421,10 +421,7 @@
     "baseDamage": 1,
     "attackSpeed": 1.2,
     "tier": 5,
-    "attributeRequirements": {
-      "Strength": 15,
-      "Agility": 10
-    }
+    "attributeRequirements": null
   },
   {
     "type": "Wand",
@@ -440,9 +437,7 @@
     "baseDamage": 1,
     "attackSpeed": 1.2,
     "tier": 5,
-    "attributeRequirements": {
-      "Strength": 20
-    }
+    "attributeRequirements": null
   },
   {
     "type": "Mace",
@@ -474,9 +469,7 @@
     "baseDamage": 1,
     "attackSpeed": 1.1,
     "tier": 5,
-    "attributeRequirements": {
-      "Intelligence": 20
-    }
+    "attributeRequirements": null
   },
   {
     "type": "Mace",

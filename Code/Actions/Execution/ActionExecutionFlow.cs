@@ -119,12 +119,27 @@ namespace RPGGame.Actions.Execution
             if (source is Character character && !(character is Enemy) && forcedAction == null)
                 result.SelectedAction = ActionUtilities.HandleUniqueActionChance(character, result.SelectedAction);
 
+            // Roll and threshold bonuses apply to this roll based on cadence:
+            // ACTION cadence: consumed now (next roll = this roll).
+            // ABILITY cadence: applied now to this roll (next ability), consumed only when this ability succeeds (on hit).
             int actionBonusAccumulator = 0, actionBonusHit = 0, actionBonusCombo = 0, actionBonusCrit = 0;
             if (source is Character actionBonusCharacter && !(actionBonusCharacter is Enemy))
             {
                 var actionBonuses = actionBonusCharacter.Effects.GetAndConsumeActionBonuses();
                 actionBonusCharacter.Effects.AccumulateConsumedModifierBonuses(actionBonuses);
                 foreach (var bonus in actionBonuses)
+                {
+                    switch (bonus.Type.ToUpper())
+                    {
+                        case "ACCURACY": actionBonusAccumulator += (int)bonus.Value; break;
+                        case "HIT": actionBonusHit += (int)bonus.Value; break;
+                        case "COMBO": actionBonusCombo += (int)bonus.Value; break;
+                        case "CRIT": actionBonusCrit += (int)bonus.Value; break;
+                    }
+                }
+                // Apply ability-queued roll/threshold bonuses to this roll (consumed on hit in ApplyHitOutcome).
+                var abilityBonusesPeek = actionBonusCharacter.Effects.PeekAbilityBonuses();
+                foreach (var bonus in abilityBonusesPeek)
                 {
                     switch (bonus.Type.ToUpper())
                     {
@@ -148,18 +163,21 @@ namespace RPGGame.Actions.Execution
 
             result.RollBonus = ActionUtilities.CalculateRollBonus(source, result.SelectedAction);
             result.AttackRoll = result.ModifiedBaseRoll + result.RollBonus;
-            int criticalMissThreshold = RollModificationManager.GetThresholdManager().GetCriticalMissThreshold(source);
-            result.IsCriticalMiss = result.BaseRoll <= criticalMissThreshold;
+            var tm = RollModificationManager.GetThresholdManager();
+            int hitThreshold = tm.GetHitThreshold(source);
+            int criticalMissThreshold = tm.GetCriticalMissThreshold(source);
+            // Critical miss only when roll is both <= crit-miss threshold and would be a miss (roll <= hit threshold). So +5 to HIT (threshold 0) makes 1+ a hit and crit miss impossible (would need 0).
+            result.IsCriticalMiss = result.BaseRoll <= criticalMissThreshold && result.BaseRoll <= hitThreshold;
             if (result.IsCriticalMiss)
             {
                 source.HasCriticalMissPenalty = true;
                 source.CriticalMissPenaltyTurns = 1;
             }
             lastCriticalMissStatus[source] = result.IsCriticalMiss;
-            result.IsCombo = result.AttackRoll >= RollModificationManager.GetThresholdManager().GetComboThreshold(source);
-            result.IsCritical = result.AttackRoll >= RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
+            result.IsCombo = result.AttackRoll >= tm.GetComboThreshold(source);
+            result.IsCritical = result.AttackRoll >= tm.GetCriticalHitThreshold(source);
             ActionEventPublisher.PublishActionExecuted(source, target, result.SelectedAction, result.AttackRoll, result.IsCombo, result.IsCritical);
-            result.Hit = result.BaseRoll != 1 && CombatCalculator.CalculateHit(source, target, result.RollBonus, result.AttackRoll);
+            result.Hit = CombatCalculator.CalculateHit(source, target, result.RollBonus, result.AttackRoll);
         }
 
         private static void ApplyHitOutcome(Actor source, Actor target, ActionExecutionResult result, BattleNarrative? battleNarrative)

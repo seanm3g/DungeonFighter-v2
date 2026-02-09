@@ -271,6 +271,7 @@ namespace RPGGame
                 var searchMessageColored = KeywordColorSystem.Colorize(searchResult.Message);
                 string searchMessageMarkup = ColoredTextRenderer.RenderAsMarkup(searchMessageColored);
                 displayManager.AddCombatEvent(searchMessageMarkup, stateManager.CurrentPlayer);
+                displayManager.AddCombatEvent("", stateManager.CurrentPlayer); // Blank line after search message
                 
                 // If loot found, add it to inventory
                 // Note: The search message already contains the loot information, so we don't need to display it again

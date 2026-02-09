@@ -14,7 +14,8 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "isDefaultAction": "1"
   },
   {
     "action": "PUNCH HARDER",
@@ -367,7 +368,7 @@
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "ATTACK",
+    "cadence": "Action",
     "enemyAccuracy": "20",
     "target": "ENEMY"
   },
@@ -391,7 +392,7 @@
     "speed": "0.75",
     "duration": "4",
     "cadence": "ATTACK",
-    "opener": "1",
+    "opener": "true",
     "target": "ENEMY"
   },
   {
@@ -492,7 +493,7 @@
     "speed": "3.00",
     "duration": "1",
     "cadence": "FIGHT",
-    "finisher": "1",
+    "finisher": "true",
     "target": "ENEMY"
   },
   {
@@ -526,7 +527,7 @@
     "speed": "1.00",
     "duration": "1",
     "cadence": "ACTION",
-    "opener": "1",
+    "opener": "true",
     "heroHit": "2",
     "target": "ENEMY"
   },
@@ -584,7 +585,7 @@
     "numberOfHits": "1",
     "damage": "30%",
     "speed": "1.50",
-    "finisher": "1",
+    "finisher": "true",
     "target": "ENEMY"
   },
   {
@@ -744,7 +745,7 @@
     "speed": "3.00",
     "duration": "1",
     "cadence": "ACTION",
-    "finisher": "1",
+    "finisher": "true",
     "heroAccuracy": "3",
     "target": "ENEMY"
   },
@@ -819,7 +820,7 @@
     "numberOfHits": "1",
     "damage": "500%",
     "speed": "2.50",
-    "finisher": "1",
+    "finisher": "true",
     "consume": "1",
     "target": "ENEMY"
   },
@@ -919,7 +920,7 @@
     "speed": "1.00",
     "duration": "3",
     "cadence": "ACTION",
-    "finisher": "1",
+    "finisher": "true",
     "heroCombo": "14",
     "target": "ENEMY"
   },
@@ -974,33 +975,39 @@
     "category": "WEAPON",
     "dps": "100%",
     "numberOfHits": "1",
-    "damage": "75%",
-    "speed": "0.75",
+    "damage": "10%",
+    "speed": "3.00",
+    "duration": "3",
+    "cadence": "Ability",
+    "heroAccuracy": "20",
+    "heroHit": "5",
     "target": "ENEMY",
     "tags": "weapon",
     "weaponTypes": "Wand"
   },
   {
     "action": "RAGE",
-    "category": "BARBARIAN",
     "dps": "0%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "0.50",
     "duration": "1",
-    "cadence": "ATTACK",
+    "cadence": "Action",
     "target": "ENEMY",
-    "tags": "barbarian"
+    "tags": "barbarian",
+    "isDefaultAction": "1",
+    "weaponTypes": "Mace"
   },
   {
     "action": "MOMENTUM",
-    "category": "BARBARIAN",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "barbarian"
+    "tags": "barbarian",
+    "isDefaultAction": "1",
+    "weaponTypes": "Mace"
   },
   {
     "action": "SQUAT",

@@ -47,7 +47,7 @@ namespace RPGGame.UI.Avalonia.Builders
             return (section, contentStack);
         }
 
-        public void AddFormField(StackPanel parent, string label, string value, Action<string> setter, string[]? options = null, bool isMultiline = false, string? watermark = null, string? description = null)
+        public void AddFormField(StackPanel parent, string label, string value, Action<string> setter, string[]? options = null, bool isMultiline = false, string? watermark = null, string? description = null, Action<string>? onTextChanged = null)
         {
             var grid = new Grid();
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(200) });
@@ -95,6 +95,8 @@ namespace RPGGame.UI.Avalonia.Builders
                     BorderBrush = new SolidColorBrush(Color.FromRgb(85, 85, 85))
                 };
                 textBox.LostFocus += (s, e) => setter(textBox.Text ?? "");
+                if (onTextChanged != null)
+                    textBox.TextChanged += (s, e) => onTextChanged(textBox.Text ?? "");
                 inputControl = textBox;
             }
             else
@@ -110,6 +112,8 @@ namespace RPGGame.UI.Avalonia.Builders
                 if (!string.IsNullOrEmpty(watermark))
                     textBox.Watermark = watermark;
                 textBox.LostFocus += (s, e) => setter(textBox.Text ?? "");
+                if (onTextChanged != null)
+                    textBox.TextChanged += (s, e) => onTextChanged(textBox.Text ?? "");
                 inputControl = textBox;
             }
 

@@ -117,6 +117,7 @@ namespace RPGGame.Data
             actionData.Rarity = spreadsheet.Rarity ?? "";
             actionData.Category = spreadsheet.Category ?? "";
             actionData.Cadence = spreadsheet.Cadence ?? "";
+            actionData.ComboBonusDuration = SpreadsheetActionData.ParseIntValue(spreadsheet.Duration);
             actionData.SpeedMod = spreadsheet.SpeedMod ?? "";
             actionData.DamageMod = spreadsheet.DamageMod ?? "";
             actionData.MultiHitMod = spreadsheet.MultiHitMod ?? "";

@@ -14,11 +14,12 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "isDefaultAction": "1"
   },
   {
     "action": "PUNCH HARDER",
-    "description": "+Crit",
+    "description": "\u002BCrit",
     "dps": "130%",
     "numberOfHits": "1",
     "damage": "130%",
@@ -38,7 +39,7 @@
   },
   {
     "action": "TAUNT",
-    "description": "FOR FIGHT (ENEMY): -1 STR, +1 AGI",
+    "description": "FOR FIGHT (ENEMY): -1 STR, \u002B1 AGI",
     "dps": "20%",
     "numberOfHits": "1",
     "damage": "10%",
@@ -51,7 +52,7 @@
   },
   {
     "action": "CONCENTRATE",
-    "description": "FOR NEXT 3 ATTACKS: +1 ACCURACY",
+    "description": "FOR NEXT 3 ATTACKS: \u002B1 ACCURACY",
     "dps": "20%",
     "numberOfHits": "1",
     "damage": "10%",
@@ -73,7 +74,7 @@
   },
   {
     "action": "CRITICAL ATTACK",
-    "description": "+10 CRIT",
+    "description": "\u002B10 CRIT",
     "dps": "150%",
     "numberOfHits": "1",
     "damage": "300%",
@@ -83,7 +84,7 @@
   },
   {
     "action": "FLURRY",
-    "description": "for next ACTION: +3 multi-hit",
+    "description": "for next ACTION: \u002B3 multi-hit",
     "dps": "75%",
     "numberOfHits": "5",
     "damage": "30%",
@@ -132,7 +133,7 @@
   },
   {
     "action": "BERZERK",
-    "description": "IF HEALTH IS <25%: +5 STR, +5 AGI",
+    "description": "IF HEALTH IS \u003C25%: \u002B5 STR, \u002B5 AGI",
     "category": "BARBARIAN",
     "dps": "100%",
     "numberOfHits": "1",
@@ -143,7 +144,7 @@
   },
   {
     "action": "GRUNT",
-    "description": "FOR 2 ATTACKS: +1 ACCURACY, +1 STR",
+    "description": "FOR 2 ATTACKS: \u002B1 ACCURACY, \u002B1 STR",
     "dps": "20%",
     "numberOfHits": "1",
     "damage": "10%",
@@ -196,7 +197,7 @@
   },
   {
     "action": "ANIME POWERUP",
-    "description": "+1 HIT, +2 COMBO, +3 CRIT",
+    "description": "\u002B1 HIT, \u002B2 COMBO, \u002B3 CRIT",
     "rarity": "rare",
     "dps": "50%",
     "numberOfHits": "1",
@@ -212,7 +213,7 @@
   },
   {
     "action": "ANIME CHARGE-UP",
-    "description": "FOR FIGHT: +1 ACCURACY PER CHAIN POSITION",
+    "description": "FOR FIGHT: \u002B1 ACCURACY PER CHAIN POSITION",
     "dps": "50%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -224,7 +225,7 @@
   },
   {
     "action": "OVERKILL",
-    "description": "+50% DAMAGE ON NEXT ATTACK",
+    "description": "\u002B50% DAMAGE ON NEXT ATTACK",
     "dps": "50%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -254,7 +255,7 @@
   },
   {
     "action": "BULK DAY",
-    "description": "For Next Action: +150% damage, +.2x SPEED",
+    "description": "For Next Action: \u002B150% damage, \u002B.2x SPEED",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -265,7 +266,7 @@
   },
   {
     "action": "GYM PUMP",
-    "description": "for next ACTION: +50% DAMAGE",
+    "description": "for next ACTION: \u002B50% DAMAGE",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -276,7 +277,7 @@
   },
   {
     "action": "CHUG ENERGY DRINK",
-    "description": "FOR NEXT 3 ATTACKS: +25% Speed",
+    "description": "FOR NEXT 3 ATTACKS: \u002B25% Speed",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -287,7 +288,7 @@
   },
   {
     "action": "TRUE STRIKE",
-    "description": "+10 to ACCURACY, 2x damage",
+    "description": "\u002B10 to ACCURACY, 2x damage",
     "dps": "0%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -330,7 +331,7 @@
   },
   {
     "action": "POWER OVERWHELMING",
-    "description": "STR ≥ 10: deal double damage",
+    "description": "STR \u2265 10: deal double damage",
     "dps": "50%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -350,7 +351,7 @@
   },
   {
     "action": "I AM INVINCIBLE",
-    "description": "FOR DUNGEON: +5 Weapon Damage each time a finisher is played.",
+    "description": "FOR DUNGEON: \u002B5 Weapon Damage each time a finisher is played.",
     "dps": "125%",
     "numberOfHits": "1",
     "damage": "250%",
@@ -361,19 +362,19 @@
   },
   {
     "action": "AVENGE",
-    "description": "+20 to next ATTACK",
+    "description": "\u002B20 to next ATTACK",
     "dps": "0%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
-    "cadence": "ATTACK",
+    "cadence": "Action",
     "enemyAccuracy": "20",
     "target": "ENEMY"
   },
   {
     "action": "FOLLOW THROUGH",
-    "description": "+25% damage to next ACTION",
+    "description": "\u002B25% damage to next ACTION",
     "dps": "0%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -384,19 +385,19 @@
   },
   {
     "action": "OPENING VOLLEY",
-    "description": "for the next 4 ATTACKS: +20 DAMAGE to WEAPON. Weapon Damage decreases by 5 each Attack",
+    "description": "for the next 4 ATTACKS: \u002B20 DAMAGE to WEAPON. Weapon Damage decreases by 5 each Attack",
     "dps": "133%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "0.75",
     "duration": "4",
     "cadence": "ATTACK",
-    "opener": "1",
+    "opener": "true",
     "target": "ENEMY"
   },
   {
     "action": "WEINING LIGHT",
-    "description": "for fight: +20 DAMAGE to WEAPON. Weapon Damage decreases by 1 each ATTACK",
+    "description": "for fight: \u002B20 DAMAGE to WEAPON. Weapon Damage decreases by 1 each ATTACK",
     "dps": "133%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -407,7 +408,7 @@
   },
   {
     "action": "MIRROR FLEXING",
-    "description": "+25% damage for the CHAIN POSITION",
+    "description": "\u002B25% damage for the CHAIN POSITION",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -425,7 +426,7 @@
   },
   {
     "action": "POISON TIP",
-    "description": "for FIGHT: +1 poison to poison weapons",
+    "description": "for FIGHT: \u002B1 poison to poison weapons",
     "dps": "120%",
     "numberOfHits": "1",
     "damage": "120%",
@@ -437,7 +438,7 @@
   },
   {
     "action": "LUCKY PUNCH",
-    "description": "FOR NEXT ACTION: -14 ACCURACY, +500% Damage",
+    "description": "FOR NEXT ACTION: -14 ACCURACY, \u002B500% Damage",
     "dps": "0%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -449,7 +450,7 @@
   },
   {
     "action": "PUNCH RABID",
-    "description": "FOR NEXT 4 ACTIONS: +3 HIT, -2 COMBO",
+    "description": "FOR NEXT 4 ACTIONS: \u002B3 HIT, -2 COMBO",
     "dps": "360%",
     "numberOfHits": "3",
     "damage": "120%",
@@ -475,7 +476,7 @@
   },
   {
     "action": "HOLY HEALY",
-    "description": "HEAL +25",
+    "description": "HEAL \u002B25",
     "dps": "0%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -485,19 +486,19 @@
   },
   {
     "action": "BLOODY SUNDAY",
-    "description": "+X DAMAGE TO NEXT ATTACK. X IS TOTAL DAMAGE DONE TO SELF",
+    "description": "\u002BX DAMAGE TO NEXT ATTACK. X IS TOTAL DAMAGE DONE TO SELF",
     "dps": "33%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "3.00",
     "duration": "1",
     "cadence": "FIGHT",
-    "finisher": "1",
+    "finisher": "true",
     "target": "ENEMY"
   },
   {
     "action": "24/7/365",
-    "description": "+10% attack speed for each turn this fight.",
+    "description": "\u002B10% attack speed for each turn this fight.",
     "dps": "33%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -506,7 +507,7 @@
   },
   {
     "action": "PRETTY BOY SWAG",
-    "description": "FOR DUNGEON: +5 CRIT, +3 STR",
+    "description": "FOR DUNGEON: \u002B5 CRIT, \u002B3 STR",
     "dps": "17%",
     "numberOfHits": "1",
     "damage": "50%",
@@ -519,20 +520,20 @@
   },
   {
     "action": "OPENING CUT",
-    "description": "+25% damage, +2 HIT",
+    "description": "\u002B25% damage, \u002B2 HIT",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
     "duration": "1",
     "cadence": "ACTION",
-    "opener": "1",
+    "opener": "true",
     "heroHit": "2",
     "target": "ENEMY"
   },
   {
     "action": "RAZOR MARGIN",
-    "description": "+2 HIT, +2 CRIT, -2 HIT",
+    "description": "\u002B2 HIT, \u002B2 CRIT, -2 HIT",
     "dps": "114%",
     "numberOfHits": "1",
     "damage": "125%",
@@ -543,7 +544,7 @@
   },
   {
     "action": "FOCUSED BREATHING",
-    "description": "for fight: +1 ACCURACY",
+    "description": "for fight: \u002B1 ACCURACY",
     "dps": "36%",
     "numberOfHits": "1",
     "damage": "25%",
@@ -555,7 +556,7 @@
   },
   {
     "action": "ADRENAL SURGE",
-    "description": "for fight: +25% damage. CRIT or MISS damages SELF",
+    "description": "for fight: \u002B25% damage. CRIT or MISS damages SELF",
     "dps": "167%",
     "numberOfHits": "1",
     "damage": "150%",
@@ -567,7 +568,7 @@
   },
   {
     "action": "TENSION HOLD",
-    "description": "for fight: +1 COMBO",
+    "description": "for fight: \u002B1 COMBO",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -579,17 +580,17 @@
   },
   {
     "action": "LATE BLOOM",
-    "description": "IF CHAIN POSITION IS >3: 10x damage",
+    "description": "IF CHAIN POSITION IS \u003E3: 10x damage",
     "dps": "20%",
     "numberOfHits": "1",
     "damage": "30%",
     "speed": "1.50",
-    "finisher": "1",
+    "finisher": "true",
     "target": "ENEMY"
   },
   {
     "action": "MEASURED PATIENCE",
-    "description": "FOR NEXT ACTION: +2 HIT, -1 CRIT",
+    "description": "FOR NEXT ACTION: \u002B2 HIT, -1 CRIT",
     "dps": "0%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -601,7 +602,7 @@
   },
   {
     "action": "MEASURED ADVANCE",
-    "description": "for next action: +1 COMBO",
+    "description": "for next action: \u002B1 COMBO",
     "dps": "94%",
     "numberOfHits": "1",
     "damage": "75%",
@@ -613,7 +614,7 @@
   },
   {
     "action": "GLASS STRIKE",
-    "description": "CRIT or MISS deals self damage. for FIGHT: +1 WEAPON DAMAGE",
+    "description": "CRIT or MISS deals self damage. for FIGHT: \u002B1 WEAPON DAMAGE",
     "dps": "188%",
     "numberOfHits": "1",
     "damage": "300%",
@@ -624,7 +625,7 @@
   },
   {
     "action": "STATIC ODDS",
-    "description": "For next ACTION: ON HIT: Combo, +10 accuracy",
+    "description": "For next ACTION: ON HIT: Combo, \u002B10 accuracy",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -635,7 +636,7 @@
   },
   {
     "action": "LUCKY CHARM",
-    "description": "+14 ACCURACY",
+    "description": "\u002B14 ACCURACY",
     "dps": "0%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -647,7 +648,7 @@
   },
   {
     "action": "SWIFT",
-    "description": "FOR NEXT CHAIN POSITION: +50% attack speed",
+    "description": "FOR NEXT CHAIN POSITION: \u002B50% attack speed",
     "dps": "0%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -669,7 +670,7 @@
   },
   {
     "action": "WINDED STATE",
-    "description": "FOR THE FIGHT: +10% SPEED FOR EACH ACTION IN CHAIN",
+    "description": "FOR THE FIGHT: \u002B10% SPEED FOR EACH ACTION IN CHAIN",
     "dps": "55%",
     "numberOfHits": "1",
     "damage": "71%",
@@ -680,7 +681,7 @@
   },
   {
     "action": "OVERHAND SMASH",
-    "description": "-2 HIT, +2 CRIT. On CRIT: STUN enemy",
+    "description": "-2 HIT, \u002B2 CRIT. On CRIT: STUN enemy",
     "dps": "147%",
     "numberOfHits": "1",
     "damage": "250%",
@@ -703,7 +704,7 @@
   },
   {
     "action": "BACKSTEP SLASH",
-    "description": "NEXT ACTION: CHAIN POSITION -1, +2 HIT",
+    "description": "NEXT ACTION: CHAIN POSITION -1, \u002B2 HIT",
     "dps": "71%",
     "numberOfHits": "1",
     "damage": "50%",
@@ -715,7 +716,7 @@
   },
   {
     "action": "CRUSHING FOLLOW-THROUGH",
-    "description": "NEXT ACTION: CHAIN POSITION -1. FOR EACH CHAIN POSITION: +.25x SPEED, +.50x DAMAGE",
+    "description": "NEXT ACTION: CHAIN POSITION -1. FOR EACH CHAIN POSITION: \u002B.25x SPEED, \u002B.50x DAMAGE",
     "dps": "135%",
     "numberOfHits": "1",
     "damage": "175%",
@@ -726,7 +727,7 @@
   },
   {
     "action": "ALL IN",
-    "description": "-10 HIT, +10 CRIT",
+    "description": "-10 HIT, \u002B10 CRIT",
     "dps": "200%",
     "numberOfHits": "1",
     "damage": "400%",
@@ -737,20 +738,20 @@
   },
   {
     "action": "FINAL REP",
-    "description": "for next ACTION: +3 ACCURACY",
+    "description": "for next ACTION: \u002B3 ACCURACY",
     "dps": "133%",
     "numberOfHits": "1",
     "damage": "400%",
     "speed": "3.00",
     "duration": "1",
     "cadence": "ACTION",
-    "finisher": "1",
+    "finisher": "true",
     "heroAccuracy": "3",
     "target": "ENEMY"
   },
   {
     "action": "HOLLOW ADVANCE",
-    "description": "+1 CHAIN POSITION",
+    "description": "\u002B1 CHAIN POSITION",
     "dps": "0%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -769,7 +770,7 @@
   },
   {
     "action": "PERFECT LINE",
-    "description": "next ACTION: +4 CHAIN POSITION",
+    "description": "next ACTION: \u002B4 CHAIN POSITION",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -781,7 +782,7 @@
   },
   {
     "action": "SOFT MISS",
-    "description": "+5 HIT, -5 COMBO",
+    "description": "\u002B5 HIT, -5 COMBO",
     "dps": "50%",
     "numberOfHits": "1",
     "damage": "50%",
@@ -792,7 +793,7 @@
   },
   {
     "action": "CONTROLLED BURST",
-    "description": "cannot CRIT. for next action: +1 HIT",
+    "description": "cannot CRIT. for next action: \u002B1 HIT",
     "dps": "109%",
     "numberOfHits": "2",
     "damage": "60%",
@@ -804,7 +805,7 @@
   },
   {
     "action": "PHANTOM FOLLOW-UP",
-    "description": "CHAIN LENGTH +1",
+    "description": "CHAIN LENGTH \u002B1",
     "dps": "0%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -819,13 +820,13 @@
     "numberOfHits": "1",
     "damage": "500%",
     "speed": "2.50",
-    "finisher": "1",
+    "finisher": "true",
     "consume": "1",
     "target": "ENEMY"
   },
   {
     "action": "RISING PRESSURE",
-    "description": "FOR CHAIN: +15% damage per CHAIN POSITION",
+    "description": "FOR CHAIN: \u002B15% damage per CHAIN POSITION",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -847,7 +848,7 @@
   },
   {
     "action": "BRUTAL FLOOR",
-    "description": "+5 HIT",
+    "description": "\u002B5 HIT",
     "dps": "150%",
     "numberOfHits": "1",
     "damage": "150%",
@@ -869,7 +870,7 @@
   },
   {
     "action": "CALM BEFORE STORM",
-    "description": "for next ACTION: +50% DAMAGE, +.2x SPEED",
+    "description": "for next ACTION: \u002B50% DAMAGE, \u002B.2x SPEED",
     "dps": "0%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -919,7 +920,7 @@
     "speed": "1.00",
     "duration": "3",
     "cadence": "ACTION",
-    "finisher": "1",
+    "finisher": "true",
     "heroCombo": "14",
     "target": "ENEMY"
   },
@@ -974,33 +975,39 @@
     "category": "WEAPON",
     "dps": "100%",
     "numberOfHits": "1",
-    "damage": "75%",
-    "speed": "0.75",
+    "damage": "10%",
+    "speed": "3.00",
+    "duration": "3",
+    "cadence": "Ability",
+    "heroAccuracy": "20",
+    "heroHit": "5",
     "target": "ENEMY",
     "tags": "weapon",
     "weaponTypes": "Wand"
   },
   {
     "action": "RAGE",
-    "category": "BARBARIAN",
     "dps": "0%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "0.50",
     "duration": "1",
-    "cadence": "ATTACK",
+    "cadence": "Action",
     "target": "ENEMY",
-    "tags": "barbarian"
+    "tags": "barbarian",
+    "isDefaultAction": "1",
+    "weaponTypes": "Mace"
   },
   {
     "action": "MOMENTUM",
-    "category": "BARBARIAN",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
     "target": "ENEMY",
-    "tags": "barbarian"
+    "tags": "barbarian",
+    "isDefaultAction": "1",
+    "weaponTypes": "Mace"
   },
   {
     "action": "SQUAT",

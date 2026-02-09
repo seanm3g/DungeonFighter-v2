@@ -256,10 +256,7 @@
     "name": "Dragon Scale Armor",
     "armor": 5,
     "tier": 5,
-    "attributeRequirements": {
-      "Strength": 15,
-      "Agility": 12
-    }
+    "attributeRequirements": null
   },
   {
     "slot": "feet",
@@ -280,9 +277,7 @@
     "name": "Full Plate Armor",
     "armor": 5,
     "tier": 5,
-    "attributeRequirements": {
-      "Strength": 18
-    }
+    "attributeRequirements": null
   },
   {
     "slot": "feet",

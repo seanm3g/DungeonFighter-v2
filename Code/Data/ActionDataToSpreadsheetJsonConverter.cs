@@ -24,6 +24,7 @@ namespace RPGGame.Data
             row.Rarity = data.Rarity ?? "";
             row.Category = data.Category ?? "";
             row.Cadence = data.Cadence ?? "";
+            row.Duration = data.ComboBonusDuration > 0 ? data.ComboBonusDuration.ToString() : (baseRow?.Duration ?? "");
             row.SpeedMod = data.SpeedMod ?? baseRow?.SpeedMod ?? "";
             row.DamageMod = data.DamageMod ?? baseRow?.DamageMod ?? "";
             row.MultiHitMod = data.MultiHitMod ?? baseRow?.MultiHitMod ?? "";

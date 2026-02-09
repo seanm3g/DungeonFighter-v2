@@ -12,10 +12,11 @@ Game mechanics keywords were renamed for clarity:
 - **ACTION** (old) → **ABILITY** (new): Bonuses that apply "for the next ability" and are **consumed only when the ability succeeds** (e.g. hit).
 - **ATTACK** (old) → **ACTION** (new): Bonuses that apply "for the next action/attack roll" and are **consumed per roll attempt** (regardless of hit or miss).
 
-## Mechanics (unchanged behavior)
+## Mechanics
 
-- **ABILITY keyword**: Bonuses are queued when an action with an ABILITY cadence is used. They are consumed and applied only when the character’s next ability use **succeeds** (e.g. a hit). Used for things like "For the Next Ability: +1 STR".
-- **ACTION keyword**: Bonuses are queued when an action with an ACTION cadence is used. They are consumed and applied on the **next attack roll** (before hit/miss is resolved). Used for things like "For the Next Action: +1 HIT".
+- **ABILITY keyword**: Bonuses are queued when an action with an ABILITY cadence is used. Roll/threshold bonuses (ACCURACY, HIT, COMBO, CRIT) apply to the next ability's roll and are consumed only when that ability succeeds (on hit). Stat bonuses (STR, AGI, TECH, INT) are applied when consumed on hit. Used for things like "For the Next Ability: +1 STR" or "+1 ACCURACY".
+- **ACTION keyword**: Bonuses are queued when an action with an ACTION cadence is used. They are consumed and applied on the **next attack roll** (before hit/miss is resolved). Roll and threshold bonuses (ACCURACY, HIT, COMBO, CRIT) therefore apply to that next action's roll. Used for things like "For the Next Action: +1 HIT".
+- **Cadence** defines when bonuses apply: ACTION = next roll (consumed immediately); ABILITY = next ability's roll (applied to roll, consumed on success).
 
 ## Data and code
 
