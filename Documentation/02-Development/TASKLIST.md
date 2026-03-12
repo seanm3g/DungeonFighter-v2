@@ -1,10 +1,71 @@
 # DungeonFighter v2 - Development Task List
 
 ## Current Status
-**Last Updated:** November 19, 2025
-**Current Version:** v6.7 (Combat Text Reveal - Progressive Display)
+**Last Updated:** February 10, 2026
+**Current Version:** v6.10 (Action Strip Per-Action Panels)
 
 ## Recent Completions ✅
+
+### 📋 Per-Action Panels in Action Strip with Selection Highlight (February 10, 2026)
+
+**Status:** ✅ Complete  
+**Feature:** Action strip refactored to one panel per combo action, laid out left-to-right. Current combo step panel border is highlighted (Gold); others use Cyan. No outer strip border.
+
+#### Implementation Summary
+- [x] CombatActionStripBuilder: added ActionPanelInfo struct and BuildPanelData(Character) returning per-action name, acc, causes
+- [x] DungeonRenderer.RenderActionInfoStrip: loop over panel data, panel rects left-to-right (panelWidth = stripW/count, last panel gets remainder), one border per panel (Gold when i == ComboStep % count, else Cyan), draw name/Acc/causes inside each panel with truncation
+- [x] Unit tests: BuildPanelData(null) and no-actions return empty; selected index logic
+- [x] Docs: PERSISTENT_LAYOUT_SYSTEM.md, TASKLIST.md updated
+
+#### Key Files
+- `Code/UI/CombatActionStripBuilder.cs` - ActionPanelInfo, BuildPanelData
+- `Code/UI/Avalonia/Renderers/DungeonRenderer.RoomAndCombat.cs` - RenderActionInfoStrip per-panel layout and highlight
+
+---
+
+### 📋 Action Strip Double Height and Abilities with Dynamic Info (February 10, 2026)
+
+**Status:** ✅ Complete  
+**Feature:** Action-info strip height doubled (5 to 10 rows). Strip now shows each ability with dynamic info: effective accuracy, current thresholds (H/C/Cr), and status effects each action causes. Content recomputed every combat render so it updates as status effects or modifications change.
+
+#### Implementation Summary
+- [x] LayoutConstants: BASE_ACTION_INFO_STRIP_HEIGHT = 10
+- [x] CombatActionStripBuilder.BuildLines(Character, maxWidth, maxLines): header with thresholds, one line per combo action (name, Acc +/-N, causes)
+- [x] DungeonRenderer.RenderActionInfoStrip(Character? player): when player != null uses builder; else empty strip
+- [x] CanvasRenderer combat callback calls RenderActionInfoStrip(player)
+- [x] TextDisplayIntegration: removed UpdateCombatActionInfoState calls and method (strip is dynamic abilities only)
+- [x] Unit tests (CombatActionStripBuilderTests), docs (PERSISTENT_LAYOUT_SYSTEM.md, TASKLIST.md) updated
+
+#### Key Files
+- `Code/UI/Avalonia/Layout/LayoutConstants.cs` - strip height 10
+- `Code/UI/CombatActionStripBuilder.cs` - BuildLines using GetComboActions, CalculateRollBonus, ThresholdManager, Action Causes*
+- `Code/UI/Avalonia/Renderers/DungeonRenderer.RoomAndCombat.cs` - RenderActionInfoStrip(player)
+- `Code/UI/Avalonia/Renderers/CanvasRenderer.CombatAndDungeon.cs` - RenderActionInfoStrip(player)
+- `Code/UI/TextDisplayIntegration.cs` - no longer sets CombatActionInfoState for combat
+
+---
+
+### 📋 Center Panel Action Info Strip (February 10, 2026)
+
+**Status:** ✅ Complete  
+**Feature:** Space below the center panel (center column only) for action status effects and bonuses during combat. Left and right panels remain full height.
+
+#### Implementation Summary
+- [x] Reduced center panel height by ACTION_INFO_STRIP_HEIGHT (5 rows) in LayoutConstants; left/right panels unchanged
+- [x] Added action-info strip constants (ACTION_INFO_X/Y/WIDTH/HEIGHT, CONTENT_*)
+- [x] Added CombatActionInfoState (set/get/clear) for last action summary
+- [x] TextDisplayIntegration updates state when displaying combat actions; state cleared on combat result/death
+- [x] DungeonRenderer.RenderActionInfoStrip() draws strip in combat; called from combat callback in CanvasRenderer
+- [x] Documentation (PERSISTENT_LAYOUT_SYSTEM.md) and unit tests (CombatActionInfoStateTests) added
+
+#### Key Files
+- `Code/UI/Avalonia/Layout/LayoutConstants.cs` - strip constants, reduced CENTER_PANEL_HEIGHT
+- `Code/UI/CombatActionInfoState.cs` - state for strip content
+- `Code/UI/TextDisplayIntegration.cs` - UpdateCombatActionInfoState on display
+- `Code/UI/Avalonia/Renderers/DungeonRenderer.RoomAndCombat.cs` - RenderActionInfoStrip
+- `Code/UI/Avalonia/Renderers/CanvasRenderer.CombatAndDungeon.cs` - invoke strip render, clear state on exit
+
+---
 
 ### 🎭 Combat Text Reveal System - Line-by-Line Display (November 19, 2025)
 

@@ -70,7 +70,7 @@ namespace RPGGame.UI.Avalonia
         private void InitializeManagers()
         {
             settingsManager = new SettingsManager(settings, ShowStatusMessage, updateStatus);
-            colorManager = new Managers.SettingsColorManager(this, settings);
+            colorManager = new Managers.SettingsColorManager(this);
             gameVariablesTabManager = new GameVariablesTabManager();
             actionsTabManager = new ActionsTabManager();
             itemModifiersTabManager = new Managers.ItemModifiersTabManager(ShowStatusMessage);
@@ -108,7 +108,6 @@ namespace RPGGame.UI.Avalonia
                 actionsTabManager,
                 itemModifiersTabManager,
                 itemsTabManager,
-                settings,
                 ShowStatusMessage,
                 GetPanelForCategory);
             
@@ -169,19 +168,21 @@ namespace RPGGame.UI.Avalonia
             };
         }
 
-        /// <summary>Refreshes all settings references from GameSettings.Instance. Call after ReloadFromFile() when opening settings.</summary>
+        /// <summary>Refreshes panel reference from GameSettings.Instance and pushes file state to all loaded panels. Call after ReloadFromFile() when opening settings.</summary>
         public void RefreshSettingsFromFile()
         {
             settings = GameSettings.Instance;
-            saveOrchestrator?.RefreshSettings(settings);
-            settingsManager?.RefreshSettings(settings);
-            (panelHandlerRegistry?.GetHandler("Gameplay") as Managers.Settings.PanelHandlers.GameplayPanelHandler)?.RefreshSettings(settings);
             // Ensure the selected category's panel is loaded (e.g. first open or SelectedIndex was set before items existed)
             if (CategoryListBox.SelectedItem is ListBoxItem selectedItem && selectedItem.Tag is string categoryTag
                 && !loadedPanels.ContainsKey(categoryTag))
                 LoadCategoryPanel(categoryTag);
-            // Refresh the currently visible panel now so it shows file values before the overlay is visible (do not defer or we overwrite user changes later)
-            RefreshCurrentPanelFromSettings();
+            // Refresh every loaded panel from Instance (file state) so any tab the user switches to shows file-backed values; tab switch no longer overwrites UI.
+            foreach (var kv in loadedPanels)
+            {
+                var handler = panelHandlerRegistry?.GetHandler(kv.Key);
+                if (handler != null)
+                    handler.LoadSettings(kv.Value);
+            }
         }
 
         private void RefreshCurrentPanelFromSettings()
@@ -285,15 +286,12 @@ namespace RPGGame.UI.Avalonia
             ActionsContentArea.IsVisible = false;
             ContentScrollViewer.IsVisible = true;
             
-            // Check if panel is already loaded (e.g. user switched away and back, or reopened settings window)
+            // Check if panel is already loaded (e.g. user switched away and back)
             if (loadedPanels.ContainsKey(categoryTag))
             {
                 var cachedPanel = loadedPanels[categoryTag];
                 ContentArea.Content = cachedPanel;
-                // Refresh UI from current settings so reopened window or re-selected tab shows saved values
-                var handler = panelHandlerRegistry?.GetHandler(categoryTag);
-                if (handler != null)
-                    handler.LoadSettings(cachedPanel);
+                // Do not call LoadSettings here: leave UI as-is so we never overwrite user edits or post-save state when switching tabs.
                 return;
             }
             
@@ -406,13 +404,16 @@ namespace RPGGame.UI.Avalonia
         
         private void SaveSettings()
         {
-            // Pass the panel currently visible so we read from what's on screen (avoids wrong-panel / cache issues)
+            // Defer save by one UI tick so focus leaves the current control first (LostFocus fires) and form values are committed before we flush/save (fixes Actions tab revert when editing then clicking Save).
             UserControl? displayed = ContentScrollViewer.IsVisible ? ContentArea.Content as UserControl
                 : TestingContentArea.IsVisible ? TestingContentArea.Content as UserControl
                 : ActionsContentArea.Content as UserControl;
-            var result = saveOrchestrator?.SaveSettings(displayed) ?? default;
-            if (result.Success)
-                SettingsApplyService.ApplyAfterSave(result, gameStateManager);
+            Dispatcher.UIThread.Post(() =>
+            {
+                var result = saveOrchestrator?.SaveSettings(displayed) ?? default;
+                if (result.Success)
+                    SettingsApplyService.ApplyAfterSave(result, gameStateManager);
+            }, DispatcherPriority.Loaded);
         }
         
         private void ResetSettings()

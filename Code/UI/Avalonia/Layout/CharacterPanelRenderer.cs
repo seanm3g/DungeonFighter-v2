@@ -196,58 +196,62 @@ namespace RPGGame.UI.Avalonia.Layout
             RenderEquipmentSlot(x, ref y, "Body", character.Body, 1);
             RenderEquipmentSlot(x, ref y, "Feet", character.Feet, 1);
             
-            // Combo sequence section
+            // Combo sequence section - use all remaining vertical space in the panel
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Combo), AsciiArtAssets.Colors.Gold);
             y += 2;
             
             var comboActions = character.GetComboActions();
             if (comboActions.Count > 0)
             {
-                // Display combo sequence with arrow indicator
-                // Limit display to prevent overflow (max 3 actions shown to account for descriptions)
-                int maxActionsToShow = System.Math.Min(comboActions.Count, 3);
-                for (int i = 0; i < maxActionsToShow; i++)
+                const int maxActionNameLength = 27; // Panel width (32) - left padding (2) - right border (1) - arrow (2) = 27
+                const int maxDescriptionWidth = 27;
+                int panelBottom = LayoutConstants.LEFT_PANEL_Y + LayoutConstants.LEFT_PANEL_HEIGHT - 2;
+                int remainingLines = panelBottom - y;
+                int linesUsed = 0;
+                int actionsShown = 0;
+
+                for (int i = 0; i < comboActions.Count; i++)
                 {
                     var action = comboActions[i];
+                    int linesForAction = 1;
+                    if (!string.IsNullOrEmpty(action.Description))
+                    {
+                        var wrappedLines = textWriter.WrapText(action.Description, maxDescriptionWidth);
+                        linesForAction += wrappedLines.Count;
+                    }
+                    // Reserve 1 line for "... +N more" if we might truncate
+                    int lineBudget = (actionsShown + 1 < comboActions.Count) ? remainingLines - 1 : remainingLines;
+                    if (linesUsed + linesForAction > lineBudget)
+                        break;
+
                     bool isNext = (character.ComboStep % comboActions.Count == i);
                     string indicator = isNext ? "→" : " ";
                     string actionName = action.Name;
-                    
-                    // Truncate long action names to fit in the panel (accounts for padding: panel width - left padding - right border - arrow space)
-                    // Panel width is 32, left padding is 2, right border is 1, arrow "→ " is 2, so available width is 27
-                    const int maxActionNameLength = 27; // Panel width (32) - left padding (2) - right border (1) - arrow (2) = 27
                     if (actionName.Length > maxActionNameLength)
-                    {
                         actionName = actionName.Substring(0, maxActionNameLength - 3) + "...";
-                    }
-                    
-                    // Use yellow for the next action, white for others
+
                     var color = isNext ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.White;
                     canvas.AddText(x, y, $"{indicator} {actionName}", color);
                     y++;
-                    
-                    // Display action description below the action name with text wrapping
+                    linesUsed++;
+
                     if (!string.IsNullOrEmpty(action.Description))
                     {
-                        string description = action.Description;
-                        // Wrap long descriptions to fit in the panel
-                        // Available width is 27 (panel width 32 - left padding 2 - right border 1 - indent 2)
-                        const int maxDescriptionWidth = 27;
-                        var wrappedLines = textWriter.WrapText(description, maxDescriptionWidth);
-                        
-                        // Render each wrapped line with 2-space indent to align under the action name
+                        var wrappedLines = textWriter.WrapText(action.Description, maxDescriptionWidth);
                         foreach (var line in wrappedLines)
                         {
                             canvas.AddText(x + 2, y, line, AsciiArtAssets.Colors.Gray);
                             y++;
+                            linesUsed++;
                         }
                     }
+                    actionsShown++;
+                    remainingLines = panelBottom - y;
                 }
-                
-                // If there are more actions, show a count
-                if (comboActions.Count > maxActionsToShow)
+
+                if (comboActions.Count > actionsShown)
                 {
-                    canvas.AddText(x, y, $"  ... +{comboActions.Count - maxActionsToShow} more", AsciiArtAssets.Colors.Gray);
+                    canvas.AddText(x, y, $"  ... +{comboActions.Count - actionsShown} more", AsciiArtAssets.Colors.Gray);
                     y++;
                 }
             }

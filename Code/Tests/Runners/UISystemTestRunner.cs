@@ -22,6 +22,10 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             BlockDisplayManagerTests.RunAllTests();
             Console.WriteLine();
+            CombatActionInfoStateTests.RunAllTests();
+            Console.WriteLine();
+            CombatActionStripBuilderTests.RunAllTests();
+            Console.WriteLine();
             ItemDisplayFormatterTests.RunAllTests();
             Console.WriteLine();
             CanvasUICoordinatorTests.RunAllTests();
@@ -31,6 +35,8 @@ namespace RPGGame.Tests.Runners
             SettingsManagerTests.RunAllTests();
             Console.WriteLine();
             SettingsApplyServiceTests.RunAllTests();
+            Console.WriteLine();
+            SettingsSaveRevampTests.RunAllTests();
             Console.WriteLine();
             ActionsTabManagerTests.RunAllTests();
             Console.WriteLine();

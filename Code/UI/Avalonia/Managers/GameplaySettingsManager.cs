@@ -10,23 +10,15 @@ namespace RPGGame.UI.Avalonia.Managers
     /// </summary>
     public class GameplaySettingsManager
     {
-        private GameSettings settings;
         private readonly Action<string, bool>? showStatusMessage;
         
-        public GameplaySettingsManager(GameSettings settings, Action<string, bool>? showStatusMessage = null)
+        public GameplaySettingsManager(Action<string, bool>? showStatusMessage = null)
         {
-            this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             this.showStatusMessage = showStatusMessage;
-        }
-
-        /// <summary>Updates the settings reference after ReloadFromFile.</summary>
-        public void RefreshSettings(GameSettings currentSettings)
-        {
-            this.settings = currentSettings ?? throw new ArgumentNullException(nameof(currentSettings));
         }
         
         /// <summary>
-        /// Loads narrative and combat settings into UI controls
+        /// Loads narrative and combat settings into UI controls (uses GameSettings.Instance at use time).
         /// </summary>
         public void LoadSettings(
             Slider narrativeBalanceSlider,
@@ -45,28 +37,28 @@ namespace RPGGame.UI.Avalonia.Managers
             CheckBox? enableSoundEffectsCheckBox)
         {
             // Narrative Settings
-            narrativeBalanceSlider.Value = settings.NarrativeBalance;
-            narrativeBalanceTextBox.Text = settings.NarrativeBalance.ToString("F2");
-            enableNarrativeEventsCheckBox.IsChecked = settings.EnableNarrativeEvents;
-            enableInformationalSummariesCheckBox.IsChecked = settings.EnableInformationalSummaries;
+            narrativeBalanceSlider.Value = GameSettings.Instance.NarrativeBalance;
+            narrativeBalanceTextBox.Text = GameSettings.Instance.NarrativeBalance.ToString("F2");
+            enableNarrativeEventsCheckBox.IsChecked = GameSettings.Instance.EnableNarrativeEvents;
+            enableInformationalSummariesCheckBox.IsChecked = GameSettings.Instance.EnableInformationalSummaries;
             
             // Combat Settings
-            combatSpeedSlider.Value = settings.CombatSpeed;
-            combatSpeedTextBox.Text = settings.CombatSpeed.ToString("F2");
-            showIndividualActionMessagesCheckBox.IsChecked = settings.ShowIndividualActionMessages;
+            combatSpeedSlider.Value = GameSettings.Instance.CombatSpeed;
+            combatSpeedTextBox.Text = GameSettings.Instance.CombatSpeed.ToString("F2");
+            showIndividualActionMessagesCheckBox.IsChecked = GameSettings.Instance.ShowIndividualActionMessages;
             if (enableComboSystemCheckBox != null)
-                enableComboSystemCheckBox.IsChecked = settings.EnableComboSystem;
-            enableTextDisplayDelaysCheckBox.IsChecked = settings.EnableTextDisplayDelays;
-            fastCombatCheckBox.IsChecked = settings.FastCombat;
+                enableComboSystemCheckBox.IsChecked = GameSettings.Instance.EnableComboSystem;
+            enableTextDisplayDelaysCheckBox.IsChecked = GameSettings.Instance.EnableTextDisplayDelays;
+            fastCombatCheckBox.IsChecked = GameSettings.Instance.FastCombat;
             
             // Gameplay Settings
             if (enableAutoSaveCheckBox != null)
-                enableAutoSaveCheckBox.IsChecked = settings.EnableAutoSave;
+                enableAutoSaveCheckBox.IsChecked = GameSettings.Instance.EnableAutoSave;
             if (autoSaveIntervalTextBox != null)
-                autoSaveIntervalTextBox.Text = settings.AutoSaveInterval.ToString();
-            showDetailedStatsCheckBox.IsChecked = settings.ShowDetailedStats;
+                autoSaveIntervalTextBox.Text = GameSettings.Instance.AutoSaveInterval.ToString();
+            showDetailedStatsCheckBox.IsChecked = GameSettings.Instance.ShowDetailedStats;
             if (enableSoundEffectsCheckBox != null)
-                enableSoundEffectsCheckBox.IsChecked = settings.EnableSoundEffects;
+                enableSoundEffectsCheckBox.IsChecked = GameSettings.Instance.EnableSoundEffects;
         }
         
         /// <summary>
@@ -87,28 +79,28 @@ namespace RPGGame.UI.Avalonia.Managers
             CheckBox? enableSoundEffectsCheckBox)
         {
             // Narrative Settings
-            settings.NarrativeBalance = narrativeBalanceSlider.Value;
-            settings.EnableNarrativeEvents = enableNarrativeEventsCheckBox.IsChecked ?? true;
-            settings.EnableInformationalSummaries = enableInformationalSummariesCheckBox.IsChecked ?? true;
+            GameSettings.Instance.NarrativeBalance = narrativeBalanceSlider.Value;
+            GameSettings.Instance.EnableNarrativeEvents = enableNarrativeEventsCheckBox.IsChecked ?? true;
+            GameSettings.Instance.EnableInformationalSummaries = enableInformationalSummariesCheckBox.IsChecked ?? true;
             
             // Combat Settings
-            settings.CombatSpeed = combatSpeedSlider.Value;
-            settings.ShowIndividualActionMessages = showIndividualActionMessagesCheckBox.IsChecked ?? false;
+            GameSettings.Instance.CombatSpeed = combatSpeedSlider.Value;
+            GameSettings.Instance.ShowIndividualActionMessages = showIndividualActionMessagesCheckBox.IsChecked ?? false;
             if (enableComboSystemCheckBox != null)
-                settings.EnableComboSystem = enableComboSystemCheckBox.IsChecked ?? true;
-            settings.EnableTextDisplayDelays = enableTextDisplayDelaysCheckBox.IsChecked ?? true;
-            settings.FastCombat = fastCombatCheckBox.IsChecked ?? false;
+                GameSettings.Instance.EnableComboSystem = enableComboSystemCheckBox.IsChecked ?? true;
+            GameSettings.Instance.EnableTextDisplayDelays = enableTextDisplayDelaysCheckBox.IsChecked ?? true;
+            GameSettings.Instance.FastCombat = fastCombatCheckBox.IsChecked ?? false;
             
             // Gameplay Settings
             if (enableAutoSaveCheckBox != null)
-                settings.EnableAutoSave = enableAutoSaveCheckBox.IsChecked ?? true;
+                GameSettings.Instance.EnableAutoSave = enableAutoSaveCheckBox.IsChecked ?? true;
             if (autoSaveIntervalTextBox != null && int.TryParse(autoSaveIntervalTextBox.Text, out int autoSaveInterval))
             {
-                settings.AutoSaveInterval = Math.Max(1, autoSaveInterval);
+                GameSettings.Instance.AutoSaveInterval = Math.Max(1, autoSaveInterval);
             }
-            settings.ShowDetailedStats = showDetailedStatsCheckBox.IsChecked ?? true;
+            GameSettings.Instance.ShowDetailedStats = showDetailedStatsCheckBox.IsChecked ?? true;
             if (enableSoundEffectsCheckBox != null)
-                settings.EnableSoundEffects = enableSoundEffectsCheckBox.IsChecked ?? false;
+                GameSettings.Instance.EnableSoundEffects = enableSoundEffectsCheckBox.IsChecked ?? false;
         }
         
         /// <summary>
@@ -125,10 +117,10 @@ namespace RPGGame.UI.Avalonia.Managers
             try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "S", location = "GameplaySettingsManager.SaveGameplaySettings", message = "Checkbox at save", data = new { fastCombatCheckBoxIsChecked = fastCombatCheckBox.IsChecked, fastChecked }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
             // #endregion
             // Gameplay Settings
-            settings.ShowIndividualActionMessages = showIndividualActionMessagesCheckBox.IsChecked ?? false;
-            settings.EnableTextDisplayDelays = enableTextDisplayDelaysCheckBox.IsChecked ?? true;
-            settings.FastCombat = fastChecked;
-            settings.ShowDetailedStats = showDetailedStatsCheckBox.IsChecked ?? true;
+            GameSettings.Instance.ShowIndividualActionMessages = showIndividualActionMessagesCheckBox.IsChecked ?? false;
+            GameSettings.Instance.EnableTextDisplayDelays = enableTextDisplayDelaysCheckBox.IsChecked ?? true;
+            GameSettings.Instance.FastCombat = fastChecked;
+            GameSettings.Instance.ShowDetailedStats = showDetailedStatsCheckBox.IsChecked ?? true;
         }
         
         /// <summary>
@@ -136,18 +128,18 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public void RestoreSettings(GameSettings backup)
         {
-            settings.NarrativeBalance = backup.NarrativeBalance;
-            settings.EnableNarrativeEvents = backup.EnableNarrativeEvents;
-            settings.EnableInformationalSummaries = backup.EnableInformationalSummaries;
-            settings.CombatSpeed = backup.CombatSpeed;
-            settings.ShowIndividualActionMessages = backup.ShowIndividualActionMessages;
-            settings.EnableComboSystem = backup.EnableComboSystem;
-            settings.EnableTextDisplayDelays = backup.EnableTextDisplayDelays;
-            settings.FastCombat = backup.FastCombat;
-            settings.EnableAutoSave = backup.EnableAutoSave;
-            settings.AutoSaveInterval = backup.AutoSaveInterval;
-            settings.ShowDetailedStats = backup.ShowDetailedStats;
-            settings.EnableSoundEffects = backup.EnableSoundEffects;
+            GameSettings.Instance.NarrativeBalance = backup.NarrativeBalance;
+            GameSettings.Instance.EnableNarrativeEvents = backup.EnableNarrativeEvents;
+            GameSettings.Instance.EnableInformationalSummaries = backup.EnableInformationalSummaries;
+            GameSettings.Instance.CombatSpeed = backup.CombatSpeed;
+            GameSettings.Instance.ShowIndividualActionMessages = backup.ShowIndividualActionMessages;
+            GameSettings.Instance.EnableComboSystem = backup.EnableComboSystem;
+            GameSettings.Instance.EnableTextDisplayDelays = backup.EnableTextDisplayDelays;
+            GameSettings.Instance.FastCombat = backup.FastCombat;
+            GameSettings.Instance.EnableAutoSave = backup.EnableAutoSave;
+            GameSettings.Instance.AutoSaveInterval = backup.AutoSaveInterval;
+            GameSettings.Instance.ShowDetailedStats = backup.ShowDetailedStats;
+            GameSettings.Instance.EnableSoundEffects = backup.EnableSoundEffects;
         }
     }
 }

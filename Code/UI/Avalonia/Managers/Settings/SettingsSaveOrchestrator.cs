@@ -1,5 +1,7 @@
 using Avalonia.Controls;
 using RPGGame;
+using RPGGame.Config;
+using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Settings;
 using RPGGame.Utils;
@@ -24,7 +26,6 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         private readonly ActionsTabManager? actionsTabManager;
         private readonly ItemModifiersTabManager? itemModifiersTabManager;
         private readonly ItemsTabManager? itemsTabManager;
-        private GameSettings settings;
         private readonly Action<string, bool>? showStatusMessage;
         private readonly GetPanelForCategoryResolver getPanelForCategory;
 
@@ -38,7 +39,6 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             ActionsTabManager? actionsTabManager,
             ItemModifiersTabManager? itemModifiersTabManager,
             ItemsTabManager? itemsTabManager,
-            GameSettings settings,
             Action<string, bool>? showStatusMessage,
             GetPanelForCategoryResolver getPanelForCategory)
         {
@@ -48,15 +48,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             this.actionsTabManager = actionsTabManager;
             this.itemModifiersTabManager = itemModifiersTabManager;
             this.itemsTabManager = itemsTabManager;
-            this.settings = settings;
             this.showStatusMessage = showStatusMessage;
             this.getPanelForCategory = getPanelForCategory ?? ((_, __) => null);
-        }
-
-        /// <summary>Updates the settings reference after ReloadFromFile so save/load use the current instance.</summary>
-        public void RefreshSettings(GameSettings currentSettings)
-        {
-            this.settings = currentSettings ?? throw new ArgumentNullException(nameof(currentSettings));
         }
 
         /// <summary>Save settings. Persists all loaded panels; when not on a given tab, values are read from the cached panel for that type. Pass the panel currently visible so we read from what the user sees when it applies. Returns a result so the caller can run post-save apply (e.g. SettingsApplyService.ApplyAfterSave).</summary>
@@ -70,10 +63,11 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 bool actionsSaved = false;
                 bool textDelaysSaved = false;
 
-                // Always save Game Variables first (they can be edited from any panel)
+                // Always save Game Variables first (they can be edited from any panel). Pass displayed panel when it is GameVariables so the tab manager can use it for flush/validation if needed.
                 try
                 {
-                    gameVariablesTabManager?.SaveGameVariables();
+                    var gameVariablesPanel = getPanelForCategory("GameVariables", currentlyDisplayedPanel);
+                    gameVariablesTabManager?.SaveGameVariables(gameVariablesPanel);
                 }
                 catch (Exception ex)
                 {
@@ -83,6 +77,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 // Gameplay: use handler if panel is loaded, otherwise persist in-memory settings only
                 var gameplayPanel = getPanelForCategory("Gameplay", currentlyDisplayedPanel) as GameplaySettingsPanel;
                 var gameplayHandler = panelHandlerRegistry?.GetHandler("Gameplay");
+                if (SettingsPanel.GetCategoryTagForPanel(currentlyDisplayedPanel) == "Gameplay" && gameplayPanel == null)
+                    ScrollDebugLogger.Log("SettingsPanel: SaveSettings warning - displayed panel is Gameplay but getPanelForCategory returned null; in-memory settings will be persisted.");
                 if (gameplayPanel != null && gameplayHandler != null)
                 {
                     try
@@ -99,14 +95,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                 }
                 else
                 {
-                    // Gameplay panel not loaded: persist current in-memory GameSettings only
-                    if (settings.SaveSettings())
-                        savedSuccessfully = true;
-                    else
-                    {
-                        showStatusMessage?.Invoke("Error: Failed to save settings to file.", false);
-                        return new SettingsSaveResult(false);
-                    }
+                    // Gameplay panel not loaded: in-memory settings used; single persist at end of save
+                    savedSuccessfully = true;
                 }
 
                 // Handler-based panels: delegate to handlers when panel is loaded (single resolution; list is table-driven)
@@ -155,6 +145,9 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
 
                 // Save actions when the Actions panel exists; pass that panel so Default/Starting is read from it (single resolution)
                 var actionsPanelForFlush = getPanelForCategory("Actions", currentlyDisplayedPanel) as ActionsSettingsPanel;
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { hypothesisId = "H6,H7", location = "SettingsSaveOrchestrator.SaveSettings:actions", message = "Actions save resolution", data = new { actionsPanelForFlushNull = actionsPanelForFlush == null, displayedType = currentlyDisplayedPanel?.GetType().Name ?? "(null)" }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+                // #endregion
                 if (actionsTabManager != null && actionsPanelForFlush != null)
                 {
                     try
@@ -167,6 +160,16 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
                         ScrollDebugLogger.Log($"SettingsPanel: Error saving actions: {ex.Message}");
                     }
                 }
+
+                // Single persist of GameSettings after all handlers have updated in-memory state
+                var settings = GameSettings.Instance;
+                settings.ValidateAndFix();
+                if (!settings.SaveSettings())
+                {
+                    showStatusMessage?.Invoke("Error: Failed to save settings to file.", false);
+                    return new SettingsSaveResult(false);
+                }
+                savedSuccessfully = true;
 
                 if (savedSuccessfully)
                 {

@@ -4,6 +4,8 @@
 
 Fixed missing event handlers for multiple controls in the settings menu to ensure all sliders, checkboxes, and textboxes properly update settings in real-time.
 
+**Save path audit**: All visible editable controls in Gameplay, TextDelays, Appearance, GameVariables, Actions, ItemModifiers, and Items panels are included in the save path used when the user clicks the main Settings Save button. See SETTINGS_SYSTEM_ARCHITECTURE.md "Control inventory (save path audit)" for the full checklist. When adding new controls, ensure they are saved by the panel's handler or tab manager.
+
 ## Fixed Issues
 
 ### Gameplay Settings Panel

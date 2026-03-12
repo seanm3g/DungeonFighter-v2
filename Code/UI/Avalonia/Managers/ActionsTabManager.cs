@@ -84,12 +84,12 @@ namespace RPGGame.UI.Avalonia.Managers
         private void LoadActionsList()
         {
             if (actionEditor == null || actionsListBox == null) return;
-            // #region agent log
-            try { var path = ActionLoader.GetLoadedActionsFilePath(); System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "C,E", location = "ActionsTabManager.cs:LoadActionsList", message = "LoadActionsList ENTRY", data = new { loadPath = path ?? "(null)", timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
             try
             {
                 var actions = actionEditor.GetActions();
+                // #region agent log
+                try { var path = ActionLoader.GetLoadedActionsFilePath(); System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { hypothesisId = "H2,H5", location = "ActionsTabManager.LoadActionsList", message = "list source", data = new { loadPath = path ?? "(null)", editorActionCount = actions?.Count ?? -1 }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+                // #endregion
                 if (actions == null || actions.Count == 0)
                 {
                     showStatusMessage?.Invoke("No actions found. Check Actions.json file.", false);
@@ -243,8 +243,7 @@ namespace RPGGame.UI.Avalonia.Managers
                 return cb.IsChecked == true;
             }
             string? v;
-            if ((v = GetText("Name")) != null) action.Name = v;
-            if ((v = GetText("Description")) != null) action.Description = v;
+            // Name and Description are synced to the action via TextChanged (like Accuracy), so we don't read from form here and overwrite with a reverted value when the user saves via the global Save button (focus may move before LostFocus fires).
             if ((v = GetText("Rarity")) != null) action.Rarity = (v == "(None)" || string.IsNullOrWhiteSpace(v)) ? "" : v;
             if ((v = GetText("Category")) != null) action.Category = (v == ActionFormOptions.GeneralOption || string.IsNullOrWhiteSpace(v)) ? "" : v;
             if ((v = GetText("Tags")) != null) action.Tags = string.IsNullOrWhiteSpace(v) ? new List<string>() : v.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim()).Where(t => !string.IsNullOrWhiteSpace(t)).ToList();
@@ -342,6 +341,9 @@ namespace RPGGame.UI.Avalonia.Managers
             var target = action != null
                 ? actionEditor.GetActions().FirstOrDefault(a => string.Equals(a.Name, action.Name, StringComparison.OrdinalIgnoreCase)) ?? action
                 : null;
+            // #region agent log
+            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { hypothesisId = "H7", location = "ActionsTabManager.FlushCurrentActionAndSaveToFile", message = "flush target", data = new { selectedName = selectedAction?.Name ?? "(null)", targetNotNull = target != null, fromPanelNotNull = fromPanel != null }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+            // #endregion
             if (target != null)
             {
                 FlushFormToAction(target);

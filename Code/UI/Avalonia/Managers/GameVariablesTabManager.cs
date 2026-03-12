@@ -205,7 +205,8 @@ namespace RPGGame.UI.Avalonia.Managers
             }
         }
 
-        public void SaveGameVariables()
+        /// <summary>Save game variables to file. Optionally pass the currently displayed panel (when category is GameVariables) so the orchestrator can pass the visible panel for future flush/validation.</summary>
+        public void SaveGameVariables(UserControl? displayedPanel = null)
         {
             if (variableEditor == null) return;
             

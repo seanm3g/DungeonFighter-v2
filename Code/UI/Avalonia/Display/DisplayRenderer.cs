@@ -64,19 +64,15 @@ namespace RPGGame.UI.Avalonia.Display
             // Calculate scroll offset
             int scrollOffset = CalculateScrollOffset(buffer, totalHeight, contentHeight);
             
-            // Clear the content area BEFORE calculating render positions
-            // Always clear to ensure old text doesn't show through when scrolling
-            // Clear a bit more area to ensure we catch any text that might be above due to scroll offset
-            // This prevents old text from showing when content is rendered at a different Y position
+            // Clear the content area BEFORE calculating render positions.
+            // Only clear up to the bottom of the content area so we do not clear the action strip below.
             if (clearContent)
             {
-                // Clear the full content area plus a buffer above and below to catch any overflow
-                // Use contentHeight + 1 to ensure we clear the full area (endY is exclusive)
-                // Clear from slightly above contentY to slightly below to catch any text that might shift
-                int clearStartY = Math.Max(0, contentY - 2); // Clear 2 lines above to catch any overflow
-                int clearEndY = contentY + contentHeight + 2; // Clear 2 lines below as well
-                int clearHeight = clearEndY - clearStartY + 1;
-                ClearContentArea(contentX, clearStartY, contentWidth, clearHeight);
+                int clearStartY = Math.Max(0, contentY - 2); // Clear 2 lines above to catch scroll overflow
+                int clearEndY = contentY + contentHeight;    // Do not clear below content (would wipe action strip names)
+                int clearHeight = clearEndY - clearStartY;
+                if (clearHeight > 0)
+                    ClearContentArea(contentX, clearStartY, contentWidth, clearHeight);
             }
             
             // Render lines, starting from the scroll offset position

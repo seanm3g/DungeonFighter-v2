@@ -48,6 +48,7 @@ SettingsPanel (UI)
 - **Registry**: `PanelHandlerRegistry` — register and resolve handler by category tag
 - **Handlers**: GameplayPanelHandler, TextDelaysPanelHandler, AppearancePanelHandler, TestingPanelHandler (no-op save)
 - **Use**: Orchestrator calls `handler.SaveSettings(panel)` when a panel is loaded; SettingsPanel uses handlers for load and wire-up
+- **Panel load contract**: Load from settings once when the panel is wired (e.g. call `LoadSettings` once from `WireUp`, with a single deferred post if needed for FindControl). Do **not** subscribe to `Loaded` to re-run `LoadSettings`, because `Loaded` can fire again on layout/focus (e.g. when the user clicks Save), which would overwrite user edits or post-save state with stale values. All handlers follow this load-once behavior.
 
 #### 4. SettingsSaveOrchestrator (Persistence coordination)
 - **File**: `Code/UI/Avalonia/Managers/Settings/SettingsSaveOrchestrator.cs`
@@ -73,14 +74,15 @@ SettingsPanel (UI)
 #### 7. GameSettings (Data model)
 - **File**: `Code/Game/GameSettings.cs`
 - **Responsibility**: Singleton settings data and file persistence (e.g. gamesettings.json)
-- **Reload**: When the settings UI is opened, the host calls `GameSettings.ReloadFromFile()` and then `RefreshSettingsFromFile()` so the UI shows the last persisted state
+- **Single source of truth**: The settings UI does **not** store a copy of `GameSettings`. Every component (panel handlers, SettingsManager, GameplaySettingsManager, DifficultySettingsManager, SettingsSaveOrchestrator, SettingsColorManager, and color sub-managers) resolves the current instance via `GameSettings.Instance` at use time. This avoids stale references when the panel is created at load time but settings are reloaded when the user opens the settings window.
+- **Reload**: When the settings UI is opened, the host calls `GameSettings.ReloadFromFile()` and then `RefreshSettingsFromFile()` so the UI shows the last persisted state.
 
 ### Data Flow
 
 #### Opening settings (open-settings contract)
 - **Contract**: When opening the settings UI (overlay or window), the host **must** call `GameSettings.ReloadFromFile()` then `settingsPanel.RefreshSettingsFromFile()`. This ensures the UI always shows the last persisted state.
 - **Entry points**: (1) **MainWindow overlay** — `ShowSettingsPanel()` in MainWindow.axaml.cs calls both. (2) **SettingsWindow** — `Opened` calls `ReloadFromFile()`; after creating the panel and calling `InitializeHandlers`, it must call `RefreshSettingsFromFile()` on the panel.
-- `RefreshSettingsFromFile()` updates the settings reference, refreshes the save orchestrator and handlers, loads the current category panel if needed, and refreshes the visible panel from settings so the UI shows file-backed values.
+- `RefreshSettingsFromFile()` updates the panel’s local reference to `GameSettings.Instance` and ensures the selected category’s panel is loaded. No per-component refresh is needed because all consumers read from `GameSettings.Instance` at use time.
 
 #### Saving settings
 ```
@@ -132,6 +134,23 @@ User clicks Save
 1. **Add new panels**: Register panel type in `SettingsPanelCatalog` (if main content area); add handler and register in `PanelHandlerRegistry` if it has load/save.
 2. **Post-save side effects**: Implement in `SettingsApplyService.ApplyAfterSave` so there is a single place for “apply to game.”
 3. **Open-settings contract**: Ensure host calls `ReloadFromFile()` and `RefreshSettingsFromFile()` when opening the settings UI.
+4. **New controls**: Add each new editable control to the control inventory and to the handler/tab manager save path (see "Control inventory" below).
+
+### Control inventory (save path audit)
+
+Each editable control in a settings panel must be included in that panel's save path so the main Save button persists it.
+
+| Panel | Handler / manager | Persistence | Verified |
+|-------|-------------------|-------------|----------|
+| Gameplay | GameplayPanelHandler: 7 checkboxes | GameSettings | handler.SaveSettings |
+| TextDelays | TextDelaysPanelHandler: checkboxes, all delay TextBoxes, presets | TextDelayConfiguration | BuildControls + SaveTextDelaySettings |
+| Appearance | AppearancePanelHandler: all color TextBoxes, SubsequentLineDarkening | GameSettings + UIConfiguration.json | SaveSettings + SaveSubsequentLineDarkening |
+| GameVariables | GameVariablesTabManager (VariableEditor) | GameConfiguration | SaveGameVariables |
+| Actions | ActionsTabManager | Actions.json | FlushCurrentActionAndSaveToFile(panel) |
+| ItemModifiers | ItemModifiersTabManager | Modifications.json | SaveModifierRarities |
+| Items | ItemsTabManager | Items data files | SaveItems |
+
+When adding a new control, ensure the handler or tab manager's save path includes it.
 
 ## Recent improvements (simplification pass)
 

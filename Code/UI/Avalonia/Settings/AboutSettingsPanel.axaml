@@ -89,6 +89,16 @@
                                    FontSize="15" 
                                    Foreground="Black"/>
                     </StackPanel>
+                    <Separator Background="#FF555555" Margin="0,10,0,10"/>
+                    <TextBlock Text="Settings file (load/save):" 
+                               FontSize="14" 
+                               FontWeight="SemiBold" 
+                               Foreground="Black"/>
+                    <TextBlock x:Name="SettingsFilePathTextBlock"
+                               FontSize="12" 
+                               Foreground="#FF555555" 
+                               TextWrapping="Wrap"
+                               Text=""/>
                 </StackPanel>
             </Border>
         </StackPanel>

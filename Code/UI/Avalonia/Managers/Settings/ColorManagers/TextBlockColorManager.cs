@@ -1,23 +1,23 @@
+using System;
 using Avalonia.Controls;
 using Avalonia.LogicalTree;
 using Avalonia.Media;
 using RPGGame;
+using RPGGame.Config;
 using System.Linq;
 
 namespace RPGGame.UI.Avalonia.Managers.Settings.ColorManagers
 {
     /// <summary>
-    /// Manages TextBlock foreground colors (title, text)
+    /// Manages TextBlock foreground colors (title, text). Uses GameSettings.Instance at apply time.
     /// </summary>
     public class TextBlockColorManager
     {
         private readonly SettingsPanel? settingsPanel;
-        private readonly GameSettings settings;
 
-        public TextBlockColorManager(SettingsPanel? settingsPanel, GameSettings settings)
+        public TextBlockColorManager(SettingsPanel? settingsPanel)
         {
             this.settingsPanel = settingsPanel;
-            this.settings = settings;
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.ColorManagers
                 }
                 if (titleBlock != null)
                 {
-                    titleBlock.Foreground = new SolidColorBrush(SettingsColorManager.ParseColor(settings.SettingsTitleColor));
+                    titleBlock.Foreground = new SolidColorBrush(SettingsColorManager.ParseColor(GameSettings.Instance.SettingsTitleColor));
                 }
             }
             catch (System.Exception ex)

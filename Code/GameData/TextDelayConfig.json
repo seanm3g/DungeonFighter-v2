@@ -1,6 +1,6 @@
 {
   "MessageTypeDelays": {
-    "Combat": 1200,
+    "Combat": 500,
     "System": 100,
     "Menu": 25,
     "Title": 400,
@@ -44,7 +44,7 @@
     }
   },
   "CombatDelays": {
-    "ActionDelayMs": 3000,
+    "ActionDelayMs": 2000,
     "MessageDelayMs": 200
   },
   "EnvironmentalLineDelay": 500,
@@ -54,5 +54,5 @@
     "ProgressiveThreshold": 20
   },
   "EnableGuiDelays": true,
-  "EnableConsoleDelays": false
+  "EnableConsoleDelays": true
 }

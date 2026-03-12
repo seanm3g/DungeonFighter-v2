@@ -27,8 +27,8 @@ namespace RPGGame.UI.Avalonia.Builders
         {
             var (section, stack) = _ctx.Factory.CreateFormSection("Basic Properties");
             parent.Children.Add(section);
-            _ctx.Factory.AddFormField(stack, "Name", action.Name, (value) => action.Name = value, description: "e.g. Basic Attack or action id");
-            _ctx.Factory.AddFormField(stack, "Description", action.Description, (value) => action.Description = value, isMultiline: true, description: "Flavor text shown in combat.");
+            _ctx.Factory.AddFormField(stack, "Name", action.Name, (value) => action.Name = value, description: "e.g. Basic Attack or action id", onTextChanged: (value) => action.Name = value);
+            _ctx.Factory.AddFormField(stack, "Description", action.Description, (value) => action.Description = value, isMultiline: true, description: "Flavor text shown in combat.", onTextChanged: (value) => action.Description = value);
 
             var rarityOptions = new List<string> { ActionFormOptions.NoneOption };
             rarityOptions.AddRange(ActionFormOptions.RarityDropdownOptions.Skip(1));

@@ -88,8 +88,11 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(player, "COMBAT", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 if (currentEnemy != null)
+                {
                     dungeonRenderer.RenderCombatScreen(contentX, contentY, contentWidth, contentHeight,
                         null, null, currentEnemy, textManager, player, filteredDungeonContext);
+                    dungeonRenderer.RenderActionInfoStrip(player);
+                }
             }, context, currentEnemy, context.DungeonName, context.RoomName, clearCanvas: shouldClear);
             if (shouldClear)
                 contextManager.MarkCombatRenderComplete();
@@ -106,6 +109,7 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderCombatResult(bool playerSurvived, Character player, Enemy enemy, BattleNarrative? battleNarrative, string? dungeonName, string? roomName, CanvasContext context)
         {
+            CombatActionInfoState.Clear();
             if (textManager is CanvasTextManager canvasTextManager)
             {
                 canvasTextManager.DisplayManager.SetMode(new StandardDisplayMode());
@@ -135,6 +139,7 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderDeathScreen(Character player, string defeatSummary, CanvasContext context)
         {
+            CombatActionInfoState.Clear();
             if (textManager is CanvasTextManager canvasTextManager)
             {
                 canvasTextManager.DisplayManager.CancelPendingRenders();

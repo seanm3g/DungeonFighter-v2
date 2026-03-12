@@ -187,9 +187,12 @@ namespace RPGGame.UI.Avalonia
             {
                 if (SettingsPanelOverlay != null && SettingsMenuPanel != null)
                 {
-                    // Reload settings from file and refresh all panel/orchestrator references so the UI shows the latest saved state
-                    GameSettings.ReloadFromFile();
-                    SettingsMenuPanel.RefreshSettingsFromFile();
+                    // Only reload from file when actually opening (overlay was hidden). Avoids overwriting in-memory edits if ShowSettingsPanel runs again while already visible.
+                    if (!SettingsPanelOverlay.IsVisible)
+                    {
+                        GameSettings.ReloadFromFile();
+                        SettingsMenuPanel.RefreshSettingsFromFile();
+                    }
                     // Suppress canvas rendering to hide ASCII menu
                     if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI) {
                         // Clear the entire canvas to remove the main menu

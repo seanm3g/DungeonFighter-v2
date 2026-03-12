@@ -86,19 +86,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             // Wire up preset delay textboxes
             WireUpPresetDelayTextBoxes(textDelaysPanel);
 
-            // Load current settings after panel is fully loaded. Also load when IsLoaded is already true
-            // (handler runs after Loaded due to deferred InitializePanelHandlers), so we don't miss the first show.
-            textDelaysPanel.Loaded += (s, e) =>
-            {
-                Dispatcher.UIThread.Post(() =>
-                {
-                    LoadSettings(textDelaysPanel);
-                }, DispatcherPriority.Loaded);
-            };
-            if (panel is Control control && control.IsLoaded)
-            {
-                Dispatcher.UIThread.Post(() => LoadSettings(panel), DispatcherPriority.Loaded);
-            }
+            // Load settings once when panel is wired. Do not subscribe to Loaded: Loaded can fire again on
+            // layout/focus (e.g. when user clicks Save), which would overwrite user edits with stale values.
+            // Single deferred post so FindControl works when the panel is in the visual tree.
+            Dispatcher.UIThread.Post(() => LoadSettings(panel), DispatcherPriority.Loaded);
         }
 
         public void LoadSettings(UserControl panel)

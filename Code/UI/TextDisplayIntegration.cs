@@ -84,7 +84,7 @@ namespace RPGGame
             // All narratives are included in the turn block to ensure each character's turn is displayed as a single unit
             BlockDisplayManager.DisplayActionBlock(actionText, rollInfo, statusEffects, criticalMissNarrative, remainingNarratives, character);
         }
-        
+
         /// <summary>
         /// Displays a combat action using ColoredText (async version)
         /// This version waits for the display delay to complete, allowing the combat loop to wait for each action
@@ -139,7 +139,6 @@ namespace RPGGame
                     }
                 }
             }
-            
             // Display the action block with ColoredText, including critical miss narrative and all other narratives
             // All narratives are included in the turn block to ensure each character's turn is displayed as a single unit
             await BlockDisplayManager.DisplayActionBlockAsync(actionText, rollInfo, statusEffects, criticalMissNarrative, remainingNarratives, character);

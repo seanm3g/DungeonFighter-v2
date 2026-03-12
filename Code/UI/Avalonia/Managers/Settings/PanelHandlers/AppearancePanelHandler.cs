@@ -15,14 +15,12 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
     /// </summary>
     public class AppearancePanelHandler : ISettingsPanelHandler
     {
-        private readonly GameSettings settings;
         private readonly SettingsColorManager? colorManager;
 
         public string PanelType => "Appearance";
 
         public AppearancePanelHandler(GameSettings settings, SettingsColorManager? colorManager)
         {
-            this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             this.colorManager = colorManager;
         }
 
@@ -64,23 +62,23 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             var textBoxFocusBorderTextBox = appearancePanel.FindControl<TextBox>("TextBoxFocusBorderTextBox");
             var textBoxFocusBorderPreview = appearancePanel.FindControl<Border>("TextBoxFocusBorderPreview");
 
-            // Wire up all color text boxes with real-time updates
+            // Wire up all color text boxes with real-time updates (use Instance so lambdas always see current)
             if (panelBackgroundTextBox != null && panelBackgroundPreview != null)
                 WireUpColorTextBox(panelBackgroundTextBox, panelBackgroundPreview,
-                    () => settings.PanelBackgroundColor,
-                    (color) => { settings.PanelBackgroundColor = color; colorManager.ApplyColors(); },
+                    () => GameSettings.Instance.PanelBackgroundColor,
+                    (color) => { GameSettings.Instance.PanelBackgroundColor = color; colorManager.ApplyColors(); },
                     (preview, color) => preview.Background = new SolidColorBrush(SettingsColorManager.ParseColor(color)));
 
             if (panelBorderTextBox != null && panelBorderPreview != null)
                 WireUpColorTextBox(panelBorderTextBox, panelBorderPreview,
-                    () => settings.PanelBorderColor,
-                    (color) => { settings.PanelBorderColor = color; colorManager.ApplyColors(); },
+                    () => GameSettings.Instance.PanelBorderColor,
+                    (color) => { GameSettings.Instance.PanelBorderColor = color; colorManager.ApplyColors(); },
                     (preview, color) => preview.BorderBrush = new SolidColorBrush(SettingsColorManager.ParseColor(color)));
 
             if (panelTextTextBox != null && panelTextPreview != null)
                 WireUpColorTextBox(panelTextTextBox, panelTextPreview,
-                    () => settings.PanelTextColor,
-                    (color) => { settings.PanelTextColor = color; colorManager.ApplyColors(); },
+                    () => GameSettings.Instance.PanelTextColor,
+                    (color) => { GameSettings.Instance.PanelTextColor = color; colorManager.ApplyColors(); },
                     (preview, color) =>
                     {
                         var textBlock = preview.Child as TextBlock;
@@ -90,14 +88,14 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 
             if (settingsBackgroundTextBox != null && settingsBackgroundPreview != null)
                 WireUpColorTextBox(settingsBackgroundTextBox, settingsBackgroundPreview,
-                    () => settings.SettingsBackgroundColor,
-                    (color) => { settings.SettingsBackgroundColor = color; colorManager.ApplyColors(); },
+                    () => GameSettings.Instance.SettingsBackgroundColor,
+                    (color) => { GameSettings.Instance.SettingsBackgroundColor = color; colorManager.ApplyColors(); },
                     (preview, color) => preview.Background = new SolidColorBrush(SettingsColorManager.ParseColor(color)));
 
             if (settingsTitleTextBox != null && settingsTitlePreview != null)
                 WireUpColorTextBox(settingsTitleTextBox, settingsTitlePreview,
-                    () => settings.SettingsTitleColor,
-                    (color) => { settings.SettingsTitleColor = color; colorManager.ApplyColors(); },
+                    () => GameSettings.Instance.SettingsTitleColor,
+                    (color) => { GameSettings.Instance.SettingsTitleColor = color; colorManager.ApplyColors(); },
                     (preview, color) =>
                     {
                         var textBlock = preview.Child as TextBlock;
@@ -107,8 +105,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 
             if (listBoxSelectedTextBox != null && listBoxSelectedPreview != null)
                 WireUpColorTextBox(listBoxSelectedTextBox, listBoxSelectedPreview,
-                    () => settings.ListBoxSelectedColor,
-                    (color) => { settings.ListBoxSelectedColor = color; colorManager.ApplyColors(); },
+                    () => GameSettings.Instance.ListBoxSelectedColor,
+                    (color) => { GameSettings.Instance.ListBoxSelectedColor = color; colorManager.ApplyColors(); },
                     (preview, color) =>
                     {
                         var textBlock = preview.Child as TextBlock;
@@ -118,38 +116,38 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 
             if (listBoxSelectedBackgroundTextBox != null && listBoxSelectedBackgroundPreview != null)
                 WireUpColorTextBox(listBoxSelectedBackgroundTextBox, listBoxSelectedBackgroundPreview,
-                    () => settings.ListBoxSelectedBackgroundColor,
-                    (color) => { settings.ListBoxSelectedBackgroundColor = color; colorManager.ApplyColors(); },
+                    () => GameSettings.Instance.ListBoxSelectedBackgroundColor,
+                    (color) => { GameSettings.Instance.ListBoxSelectedBackgroundColor = color; colorManager.ApplyColors(); },
                     (preview, color) => preview.Background = new SolidColorBrush(SettingsColorManager.ParseColor(color)));
 
             if (listBoxHoverBackgroundTextBox != null && listBoxHoverBackgroundPreview != null)
                 WireUpColorTextBox(listBoxHoverBackgroundTextBox, listBoxHoverBackgroundPreview,
-                    () => settings.ListBoxHoverBackgroundColor,
-                    (color) => { settings.ListBoxHoverBackgroundColor = color; colorManager.ApplyColors(); },
+                    () => GameSettings.Instance.ListBoxHoverBackgroundColor,
+                    (color) => { GameSettings.Instance.ListBoxHoverBackgroundColor = color; colorManager.ApplyColors(); },
                     (preview, color) => preview.Background = new SolidColorBrush(SettingsColorManager.ParseColor(color)));
 
             if (buttonPrimaryTextBox != null && buttonPrimaryPreview != null)
                 WireUpColorTextBox(buttonPrimaryTextBox, buttonPrimaryPreview,
-                    () => settings.ButtonPrimaryColor,
-                    (color) => { settings.ButtonPrimaryColor = color; colorManager.ApplyColors(); },
+                    () => GameSettings.Instance.ButtonPrimaryColor,
+                    (color) => { GameSettings.Instance.ButtonPrimaryColor = color; colorManager.ApplyColors(); },
                     (preview, color) => preview.Background = new SolidColorBrush(SettingsColorManager.ParseColor(color)));
 
             if (buttonSecondaryTextBox != null && buttonSecondaryPreview != null)
                 WireUpColorTextBox(buttonSecondaryTextBox, buttonSecondaryPreview,
-                    () => settings.ButtonSecondaryColor,
-                    (color) => { settings.ButtonSecondaryColor = color; colorManager.ApplyColors(); },
+                    () => GameSettings.Instance.ButtonSecondaryColor,
+                    (color) => { GameSettings.Instance.ButtonSecondaryColor = color; colorManager.ApplyColors(); },
                     (preview, color) => preview.Background = new SolidColorBrush(SettingsColorManager.ParseColor(color)));
 
             if (buttonBackTextBox != null && buttonBackPreview != null)
                 WireUpColorTextBox(buttonBackTextBox, buttonBackPreview,
-                    () => settings.ButtonBackColor,
-                    (color) => { settings.ButtonBackColor = color; colorManager.ApplyColors(); },
+                    () => GameSettings.Instance.ButtonBackColor,
+                    (color) => { GameSettings.Instance.ButtonBackColor = color; colorManager.ApplyColors(); },
                     (preview, color) => preview.Background = new SolidColorBrush(SettingsColorManager.ParseColor(color)));
 
             if (textBoxTextColorTextBox != null && textBoxTextColorPreview != null)
                 WireUpColorTextBox(textBoxTextColorTextBox, textBoxTextColorPreview,
-                    () => settings.TextBoxTextColor,
-                    (color) => { settings.TextBoxTextColor = color; colorManager.ApplyColors(); },
+                    () => GameSettings.Instance.TextBoxTextColor,
+                    (color) => { GameSettings.Instance.TextBoxTextColor = color; colorManager.ApplyColors(); },
                     (preview, color) =>
                     {
                         var textBlock = preview.Child as TextBlock;
@@ -159,26 +157,26 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 
             if (textBoxBackgroundTextBox != null && textBoxBackgroundPreview != null)
                 WireUpColorTextBox(textBoxBackgroundTextBox, textBoxBackgroundPreview,
-                    () => settings.TextBoxBackgroundColor,
-                    (color) => { settings.TextBoxBackgroundColor = color; colorManager.ApplyColors(); },
+                    () => GameSettings.Instance.TextBoxBackgroundColor,
+                    (color) => { GameSettings.Instance.TextBoxBackgroundColor = color; colorManager.ApplyColors(); },
                     (preview, color) => preview.Background = new SolidColorBrush(SettingsColorManager.ParseColor(color)));
 
             if (textBoxHoverBackgroundTextBox != null && textBoxHoverBackgroundPreview != null)
                 WireUpColorTextBox(textBoxHoverBackgroundTextBox, textBoxHoverBackgroundPreview,
-                    () => settings.TextBoxHoverBackgroundColor,
-                    (color) => { settings.TextBoxHoverBackgroundColor = color; colorManager.ApplyColors(); },
+                    () => GameSettings.Instance.TextBoxHoverBackgroundColor,
+                    (color) => { GameSettings.Instance.TextBoxHoverBackgroundColor = color; colorManager.ApplyColors(); },
                     (preview, color) => preview.Background = new SolidColorBrush(SettingsColorManager.ParseColor(color)));
 
             if (textBoxBorderTextBox != null && textBoxBorderPreview != null)
                 WireUpColorTextBox(textBoxBorderTextBox, textBoxBorderPreview,
-                    () => settings.TextBoxBorderColor,
-                    (color) => { settings.TextBoxBorderColor = color; colorManager.ApplyColors(); },
+                    () => GameSettings.Instance.TextBoxBorderColor,
+                    (color) => { GameSettings.Instance.TextBoxBorderColor = color; colorManager.ApplyColors(); },
                     (preview, color) => preview.BorderBrush = new SolidColorBrush(SettingsColorManager.ParseColor(color)));
 
             if (textBoxFocusBorderTextBox != null && textBoxFocusBorderPreview != null)
                 WireUpColorTextBox(textBoxFocusBorderTextBox, textBoxFocusBorderPreview,
-                    () => settings.TextBoxFocusBorderColor,
-                    (color) => { settings.TextBoxFocusBorderColor = color; colorManager.ApplyColors(); },
+                    () => GameSettings.Instance.TextBoxFocusBorderColor,
+                    (color) => { GameSettings.Instance.TextBoxFocusBorderColor = color; colorManager.ApplyColors(); },
                     (preview, color) => preview.BorderBrush = new SolidColorBrush(SettingsColorManager.ParseColor(color)));
 
             // Wire up subsequent line darkening controls
@@ -217,15 +215,14 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 };
             }
 
-            // Load current settings
-            appearancePanel.Loaded += (s, e) =>
+            // Load settings once when panel is wired. Do not subscribe to Loaded: Loaded can fire again on
+            // layout/focus (e.g. when user clicks Save), which would overwrite user edits with stale values.
+            // Single deferred post so FindControl works when the panel is in the visual tree.
+            Dispatcher.UIThread.Post(() =>
             {
-                Dispatcher.UIThread.Post(() =>
-                {
-                    LoadSettings(appearancePanel);
-                    colorManager?.ApplyColors();
-                }, DispatcherPriority.Loaded);
-            };
+                LoadSettings(appearancePanel);
+                colorManager?.ApplyColors();
+            }, DispatcherPriority.Loaded);
         }
 
         public void LoadSettings(UserControl panel)
@@ -249,22 +246,22 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             var textBoxBorderTextBox = appearancePanel.FindControl<TextBox>("TextBoxBorderTextBox");
             var textBoxFocusBorderTextBox = appearancePanel.FindControl<TextBox>("TextBoxFocusBorderTextBox");
 
-            if (panelBackgroundTextBox != null) panelBackgroundTextBox.Text = settings.PanelBackgroundColor;
-            if (panelBorderTextBox != null) panelBorderTextBox.Text = settings.PanelBorderColor;
-            if (panelTextTextBox != null) panelTextTextBox.Text = settings.PanelTextColor;
-            if (settingsBackgroundTextBox != null) settingsBackgroundTextBox.Text = settings.SettingsBackgroundColor;
-            if (settingsTitleTextBox != null) settingsTitleTextBox.Text = settings.SettingsTitleColor;
-            if (listBoxSelectedTextBox != null) listBoxSelectedTextBox.Text = settings.ListBoxSelectedColor;
-            if (listBoxSelectedBackgroundTextBox != null) listBoxSelectedBackgroundTextBox.Text = settings.ListBoxSelectedBackgroundColor;
-            if (listBoxHoverBackgroundTextBox != null) listBoxHoverBackgroundTextBox.Text = settings.ListBoxHoverBackgroundColor;
-            if (buttonPrimaryTextBox != null) buttonPrimaryTextBox.Text = settings.ButtonPrimaryColor;
-            if (buttonSecondaryTextBox != null) buttonSecondaryTextBox.Text = settings.ButtonSecondaryColor;
-            if (buttonBackTextBox != null) buttonBackTextBox.Text = settings.ButtonBackColor;
-            if (textBoxTextColorTextBox != null) textBoxTextColorTextBox.Text = settings.TextBoxTextColor;
-            if (textBoxBackgroundTextBox != null) textBoxBackgroundTextBox.Text = settings.TextBoxBackgroundColor;
-            if (textBoxHoverBackgroundTextBox != null) textBoxHoverBackgroundTextBox.Text = settings.TextBoxHoverBackgroundColor;
-            if (textBoxBorderTextBox != null) textBoxBorderTextBox.Text = settings.TextBoxBorderColor;
-            if (textBoxFocusBorderTextBox != null) textBoxFocusBorderTextBox.Text = settings.TextBoxFocusBorderColor;
+            if (panelBackgroundTextBox != null) panelBackgroundTextBox.Text = GameSettings.Instance.PanelBackgroundColor;
+            if (panelBorderTextBox != null) panelBorderTextBox.Text = GameSettings.Instance.PanelBorderColor;
+            if (panelTextTextBox != null) panelTextTextBox.Text = GameSettings.Instance.PanelTextColor;
+            if (settingsBackgroundTextBox != null) settingsBackgroundTextBox.Text = GameSettings.Instance.SettingsBackgroundColor;
+            if (settingsTitleTextBox != null) settingsTitleTextBox.Text = GameSettings.Instance.SettingsTitleColor;
+            if (listBoxSelectedTextBox != null) listBoxSelectedTextBox.Text = GameSettings.Instance.ListBoxSelectedColor;
+            if (listBoxSelectedBackgroundTextBox != null) listBoxSelectedBackgroundTextBox.Text = GameSettings.Instance.ListBoxSelectedBackgroundColor;
+            if (listBoxHoverBackgroundTextBox != null) listBoxHoverBackgroundTextBox.Text = GameSettings.Instance.ListBoxHoverBackgroundColor;
+            if (buttonPrimaryTextBox != null) buttonPrimaryTextBox.Text = GameSettings.Instance.ButtonPrimaryColor;
+            if (buttonSecondaryTextBox != null) buttonSecondaryTextBox.Text = GameSettings.Instance.ButtonSecondaryColor;
+            if (buttonBackTextBox != null) buttonBackTextBox.Text = GameSettings.Instance.ButtonBackColor;
+            if (textBoxTextColorTextBox != null) textBoxTextColorTextBox.Text = GameSettings.Instance.TextBoxTextColor;
+            if (textBoxBackgroundTextBox != null) textBoxBackgroundTextBox.Text = GameSettings.Instance.TextBoxBackgroundColor;
+            if (textBoxHoverBackgroundTextBox != null) textBoxHoverBackgroundTextBox.Text = GameSettings.Instance.TextBoxHoverBackgroundColor;
+            if (textBoxBorderTextBox != null) textBoxBorderTextBox.Text = GameSettings.Instance.TextBoxBorderColor;
+            if (textBoxFocusBorderTextBox != null) textBoxFocusBorderTextBox.Text = GameSettings.Instance.TextBoxFocusBorderColor;
             
             // Load subsequent line darkening setting
             var subsequentLineDarkeningSlider = appearancePanel.FindControl<Slider>("SubsequentLineDarkeningSlider");
@@ -297,26 +294,26 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             var textBoxHoverBackgroundTextBox = appearancePanel.FindControl<TextBox>("TextBoxHoverBackgroundTextBox");
             var textBoxBorderTextBox = appearancePanel.FindControl<TextBox>("TextBoxBorderTextBox");
             var textBoxFocusBorderTextBox = appearancePanel.FindControl<TextBox>("TextBoxFocusBorderTextBox");
-            if (panelBackgroundTextBox != null && !string.IsNullOrEmpty(panelBackgroundTextBox.Text)) settings.PanelBackgroundColor = panelBackgroundTextBox.Text;
-            if (panelBorderTextBox != null && !string.IsNullOrEmpty(panelBorderTextBox.Text)) settings.PanelBorderColor = panelBorderTextBox.Text;
-            if (panelTextTextBox != null && !string.IsNullOrEmpty(panelTextTextBox.Text)) settings.PanelTextColor = panelTextTextBox.Text;
-            if (settingsBackgroundTextBox != null && !string.IsNullOrEmpty(settingsBackgroundTextBox.Text)) settings.SettingsBackgroundColor = settingsBackgroundTextBox.Text;
-            if (settingsTitleTextBox != null && !string.IsNullOrEmpty(settingsTitleTextBox.Text)) settings.SettingsTitleColor = settingsTitleTextBox.Text;
-            if (listBoxSelectedTextBox != null && !string.IsNullOrEmpty(listBoxSelectedTextBox.Text)) settings.ListBoxSelectedColor = listBoxSelectedTextBox.Text;
-            if (listBoxSelectedBackgroundTextBox != null && !string.IsNullOrEmpty(listBoxSelectedBackgroundTextBox.Text)) settings.ListBoxSelectedBackgroundColor = listBoxSelectedBackgroundTextBox.Text;
-            if (listBoxHoverBackgroundTextBox != null && !string.IsNullOrEmpty(listBoxHoverBackgroundTextBox.Text)) settings.ListBoxHoverBackgroundColor = listBoxHoverBackgroundTextBox.Text;
-            if (buttonPrimaryTextBox != null && !string.IsNullOrEmpty(buttonPrimaryTextBox.Text)) settings.ButtonPrimaryColor = buttonPrimaryTextBox.Text;
-            if (buttonSecondaryTextBox != null && !string.IsNullOrEmpty(buttonSecondaryTextBox.Text)) settings.ButtonSecondaryColor = buttonSecondaryTextBox.Text;
-            if (buttonBackTextBox != null && !string.IsNullOrEmpty(buttonBackTextBox.Text)) settings.ButtonBackColor = buttonBackTextBox.Text;
-            if (textBoxTextColorTextBox != null && !string.IsNullOrEmpty(textBoxTextColorTextBox.Text)) settings.TextBoxTextColor = textBoxTextColorTextBox.Text;
-            if (textBoxBackgroundTextBox != null && !string.IsNullOrEmpty(textBoxBackgroundTextBox.Text)) settings.TextBoxBackgroundColor = textBoxBackgroundTextBox.Text;
-            if (textBoxHoverBackgroundTextBox != null && !string.IsNullOrEmpty(textBoxHoverBackgroundTextBox.Text)) settings.TextBoxHoverBackgroundColor = textBoxHoverBackgroundTextBox.Text;
-            if (textBoxBorderTextBox != null && !string.IsNullOrEmpty(textBoxBorderTextBox.Text)) settings.TextBoxBorderColor = textBoxBorderTextBox.Text;
-            if (textBoxFocusBorderTextBox != null && !string.IsNullOrEmpty(textBoxFocusBorderTextBox.Text)) settings.TextBoxFocusBorderColor = textBoxFocusBorderTextBox.Text;
+            if (panelBackgroundTextBox != null && !string.IsNullOrEmpty(panelBackgroundTextBox.Text)) GameSettings.Instance.PanelBackgroundColor = panelBackgroundTextBox.Text;
+            if (panelBorderTextBox != null && !string.IsNullOrEmpty(panelBorderTextBox.Text)) GameSettings.Instance.PanelBorderColor = panelBorderTextBox.Text;
+            if (panelTextTextBox != null && !string.IsNullOrEmpty(panelTextTextBox.Text)) GameSettings.Instance.PanelTextColor = panelTextTextBox.Text;
+            if (settingsBackgroundTextBox != null && !string.IsNullOrEmpty(settingsBackgroundTextBox.Text)) GameSettings.Instance.SettingsBackgroundColor = settingsBackgroundTextBox.Text;
+            if (settingsTitleTextBox != null && !string.IsNullOrEmpty(settingsTitleTextBox.Text)) GameSettings.Instance.SettingsTitleColor = settingsTitleTextBox.Text;
+            if (listBoxSelectedTextBox != null && !string.IsNullOrEmpty(listBoxSelectedTextBox.Text)) GameSettings.Instance.ListBoxSelectedColor = listBoxSelectedTextBox.Text;
+            if (listBoxSelectedBackgroundTextBox != null && !string.IsNullOrEmpty(listBoxSelectedBackgroundTextBox.Text)) GameSettings.Instance.ListBoxSelectedBackgroundColor = listBoxSelectedBackgroundTextBox.Text;
+            if (listBoxHoverBackgroundTextBox != null && !string.IsNullOrEmpty(listBoxHoverBackgroundTextBox.Text)) GameSettings.Instance.ListBoxHoverBackgroundColor = listBoxHoverBackgroundTextBox.Text;
+            if (buttonPrimaryTextBox != null && !string.IsNullOrEmpty(buttonPrimaryTextBox.Text)) GameSettings.Instance.ButtonPrimaryColor = buttonPrimaryTextBox.Text;
+            if (buttonSecondaryTextBox != null && !string.IsNullOrEmpty(buttonSecondaryTextBox.Text)) GameSettings.Instance.ButtonSecondaryColor = buttonSecondaryTextBox.Text;
+            if (buttonBackTextBox != null && !string.IsNullOrEmpty(buttonBackTextBox.Text)) GameSettings.Instance.ButtonBackColor = buttonBackTextBox.Text;
+            if (textBoxTextColorTextBox != null && !string.IsNullOrEmpty(textBoxTextColorTextBox.Text)) GameSettings.Instance.TextBoxTextColor = textBoxTextColorTextBox.Text;
+            if (textBoxBackgroundTextBox != null && !string.IsNullOrEmpty(textBoxBackgroundTextBox.Text)) GameSettings.Instance.TextBoxBackgroundColor = textBoxBackgroundTextBox.Text;
+            if (textBoxHoverBackgroundTextBox != null && !string.IsNullOrEmpty(textBoxHoverBackgroundTextBox.Text)) GameSettings.Instance.TextBoxHoverBackgroundColor = textBoxHoverBackgroundTextBox.Text;
+            if (textBoxBorderTextBox != null && !string.IsNullOrEmpty(textBoxBorderTextBox.Text)) GameSettings.Instance.TextBoxBorderColor = textBoxBorderTextBox.Text;
+            if (textBoxFocusBorderTextBox != null && !string.IsNullOrEmpty(textBoxFocusBorderTextBox.Text)) GameSettings.Instance.TextBoxFocusBorderColor = textBoxFocusBorderTextBox.Text;
             var subsequentLineDarkeningSlider = appearancePanel.FindControl<Slider>("SubsequentLineDarkeningSlider");
             if (subsequentLineDarkeningSlider != null)
                 SaveSubsequentLineDarkening(subsequentLineDarkeningSlider.Value);
-            settings.SaveSettings();
+            // Orchestrator persists GameSettings once at end of save; do not call GameSettings.Instance.SaveSettings() here.
         }
         
         private void SaveSubsequentLineDarkening(double value)

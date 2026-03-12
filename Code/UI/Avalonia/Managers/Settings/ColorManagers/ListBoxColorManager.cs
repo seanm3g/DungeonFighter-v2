@@ -1,3 +1,4 @@
+using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -6,22 +7,21 @@ using Avalonia.Media;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using RPGGame;
+using RPGGame.Config;
 using System.Linq;
 
 namespace RPGGame.UI.Avalonia.Managers.Settings.ColorManagers
 {
     /// <summary>
-    /// Manages ListBox item colors and styles (selected, hover states)
+    /// Manages ListBox item colors and styles (selected, hover states). Uses GameSettings.Instance at apply time.
     /// </summary>
     public class ListBoxColorManager
     {
         private readonly SettingsPanel? settingsPanel;
-        private readonly GameSettings settings;
 
-        public ListBoxColorManager(SettingsPanel? settingsPanel, GameSettings settings)
+        public ListBoxColorManager(SettingsPanel? settingsPanel)
         {
             this.settingsPanel = settingsPanel;
-            this.settings = settings;
         }
 
         /// <summary>
@@ -33,11 +33,12 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.ColorManagers
 
             try
             {
+                var s = GameSettings.Instance;
                 var categoryListBox = settingsPanel.FindControl<ListBox>("CategoryListBox");
                 if (categoryListBox != null)
                 {
                     // Update ListBox background to use settings background
-                    categoryListBox.Background = new SolidColorBrush(SettingsColorManager.ParseColor(settings.SettingsBackgroundColor));
+                    categoryListBox.Background = new SolidColorBrush(SettingsColorManager.ParseColor(s.SettingsBackgroundColor));
                     
                     // Update styles programmatically for hover and selected states
                     UpdateListBoxStyles(categoryListBox);
@@ -65,9 +66,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.ColorManagers
 
             try
             {
-                var selectedColor = SettingsColorManager.ParseColor(settings.ListBoxSelectedColor);
-                var selectedBackgroundColor = SettingsColorManager.ParseColor(settings.ListBoxSelectedBackgroundColor);
-                var hoverBackgroundColor = SettingsColorManager.ParseColor(settings.ListBoxHoverBackgroundColor);
+                var s = GameSettings.Instance;
+                var selectedColor = SettingsColorManager.ParseColor(s.ListBoxSelectedColor);
+                var selectedBackgroundColor = SettingsColorManager.ParseColor(s.ListBoxSelectedBackgroundColor);
+                var hoverBackgroundColor = SettingsColorManager.ParseColor(s.ListBoxHoverBackgroundColor);
                 // Use white for unselected items (works well on dark background)
                 var unselectedColor = Colors.White;
 
@@ -119,8 +121,9 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.ColorManagers
 
             try
             {
-                var selectedColor = SettingsColorManager.ParseColor(settings.ListBoxSelectedColor);
-                var selectedBackgroundColor = SettingsColorManager.ParseColor(settings.ListBoxSelectedBackgroundColor);
+                var s = GameSettings.Instance;
+                var selectedColor = SettingsColorManager.ParseColor(s.ListBoxSelectedColor);
+                var selectedBackgroundColor = SettingsColorManager.ParseColor(s.ListBoxSelectedBackgroundColor);
                 // Use white for unselected items (works well on dark background)
                 // Could be made configurable in the future
                 var unselectedColor = Colors.White;

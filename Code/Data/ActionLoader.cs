@@ -10,7 +10,6 @@ namespace RPGGame
     public static class ActionLoader
     {
         private static Dictionary<string, ActionData>? _actions;
-        private static readonly string[] PossibleActionPaths = GameConstants.GetPossibleGameDataFilePaths(GameConstants.ActionsJson);
         private static bool _wasSpreadsheetFormat;
         private static List<Data.SpreadsheetActionJson>? _originalSpreadsheetActions;
         /// <summary>Path of the Actions.json file that was actually loaded. Used so editors save to the same file.</summary>
@@ -32,49 +31,27 @@ namespace RPGGame
             {
                 // Prefer the path we already loaded from (so save then reload uses the same file)
                 string? filePath = null;
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { hypothesisId = "H3,H4", location = "ActionLoader.LoadActions:entry", message = "initial path state", data = new { _loadedActionsFilePath = _loadedActionsFilePath ?? "(null)" }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+                // #endregion
                 if (!string.IsNullOrEmpty(_loadedActionsFilePath) && File.Exists(_loadedActionsFilePath))
                 {
                     filePath = _loadedActionsFilePath;
                 }
                 if (filePath == null)
                 {
-                    string? codeGameDataPath = null;
-                    foreach (var path in PossibleActionPaths)
-                    {
-                        if (!File.Exists(path)) continue;
-                        try
-                        {
-                            string full = Path.GetFullPath(path);
-                            string codeSeg = Path.DirectorySeparatorChar + "Code" + Path.DirectorySeparatorChar + "GameData" + Path.DirectorySeparatorChar;
-                            if (full.IndexOf(codeSeg, StringComparison.OrdinalIgnoreCase) >= 0)
-                                codeGameDataPath = full; // remember but do not use; prefer project root
-                            else
-                            { filePath = path; break; }
-                        }
-                        catch { filePath = path; break; }
-                    }
-                    // Never use Code\GameData; if only that existed, try project root GameData instead
-                    if (filePath == null && codeGameDataPath != null)
-                    {
-                        string sep = Path.DirectorySeparatorChar.ToString();
-                        string codeSeg = sep + "Code" + sep + "GameData" + sep;
-                        int idx = codeGameDataPath.IndexOf(codeSeg, StringComparison.OrdinalIgnoreCase);
-                        string projectRoot = idx >= 0
-                            ? codeGameDataPath.Remove(idx, codeSeg.Length).Insert(idx, sep + "GameData" + sep)
-                            : codeGameDataPath;
-                        if (projectRoot != codeGameDataPath && File.Exists(projectRoot))
-                            filePath = projectRoot;
-                        // else leave filePath null so we report no file (do not use Code\GameData)
-                    }
+                    // Use single canonical path (same as GameSettings) so load and save always use the same file
+                    filePath = GameConstants.GetGameDataFilePath(GameConstants.ActionsJson);
                 }
-                
-                if (filePath == null)
+
+                if (filePath == null || !File.Exists(filePath))
                 {
-                    ErrorHandler.LogWarning($"No actions JSON file found. Searched paths: {string.Join(", ", PossibleActionPaths)}", "ActionLoader");
+                    ErrorHandler.LogWarning($"No actions JSON file found at canonical path. Path used: {filePath ?? "(null)"}", "ActionLoader");
                     _actions = new Dictionary<string, ActionData>();
                     _wasSpreadsheetFormat = false;
                     _originalSpreadsheetActions = null;
-                    _loadedActionsFilePath = null;
+                    // Keep canonical path so first save creates the file there
+                    try { _loadedActionsFilePath = filePath != null ? Path.GetFullPath(filePath) : null; } catch { _loadedActionsFilePath = filePath; }
                     return;
                 }
 
@@ -83,7 +60,9 @@ namespace RPGGame
                 
                 // Detect format and load accordingly (use normalized path so cache key matches save path)
                 var actionList = LoadActionsFromFile(_loadedActionsFilePath);
-                
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { hypothesisId = "H2,H4", location = "ActionLoader.LoadActions:afterLoadFromFile", message = "file read result", data = new { path = _loadedActionsFilePath, actionListCount = actionList?.Count ?? -1 }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+                // #endregion
                 _actions = new Dictionary<string, ActionData>();
                 
                 if (actionList.Count > 0)
@@ -118,6 +97,9 @@ namespace RPGGame
                 }
             }, "ActionLoader.LoadActions", () => 
             {
+                // #region agent log
+                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { hypothesisId = "H1,H4", location = "ActionLoader.LoadActions:fallback", message = "TryExecute fallback ran", data = new { }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
+                // #endregion
                 _actions = new Dictionary<string, ActionData>();
                 _wasSpreadsheetFormat = false;
                 _originalSpreadsheetActions = null;

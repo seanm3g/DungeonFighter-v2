@@ -44,54 +44,11 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets the GameData file path using JsonLoader's existing logic
+        /// Gets the GameData file path. Uses GameConstants so all game data points to the same root GameData folder.
         /// </summary>
         public static string GetGameDataFilePath(string fileName)
         {
-            // Use JsonLoader's existing file finding logic
-            string? filePath = JsonLoader.FindGameDataFile(fileName);
-            if (filePath != null)
-            {
-                return filePath;
-            }
-
-            // Fallback: try to find GameData directory and create file path
-            string? gameDataDir = FindGameDataDirectory();
-            if (gameDataDir != null)
-            {
-                return Path.Combine(gameDataDir, fileName);
-            }
-
-            // Last resort: use current directory
-            return Path.Combine("GameData", fileName);
-        }
-
-        /// <summary>
-        /// Simplified GameData directory finder
-        /// </summary>
-        private static string? FindGameDataDirectory()
-        {
-            string currentDir = Directory.GetCurrentDirectory();
-            string executableDir = AppDomain.CurrentDomain.BaseDirectory;
-            
-            // Check common locations in order of preference
-            string[] possibleDirs = {
-                Path.Combine(currentDir, "GameData"),           // Current directory
-                Path.Combine(currentDir, "..", "GameData"),     // Parent directory
-                Path.Combine(executableDir, "GameData"),        // Executable directory
-                Path.Combine(executableDir, "..", "GameData"),  // Executable parent
-                "GameData"                                      // Relative path
-            };
-
-            foreach (string dir in possibleDirs)
-            {
-                if (Directory.Exists(dir))
-                {
-                    return dir;
-                }
-            }
-
-            return null;
+            return GameConstants.GetGameDataFilePath(fileName);
         }
 
         /// <summary>

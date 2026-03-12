@@ -56,21 +56,48 @@ namespace RPGGame
         private static GameSettings? _instance;
 
         /// <summary>
-        /// Resolves the settings file path using the same strategy as other game data (GameConstants).
-        /// Normalizes to a full path so save and load always use the same canonical file.
+        /// Cached settings file path so load and save always use the same file (avoids path non-determinism from GetGameDataFilePath across app lifecycle).
+        /// </summary>
+        private static string? _settingsFilePathCached;
+        private static readonly object _settingsFilePathLock = new object();
+
+        /// <summary>
+        /// Resolves the settings file path once and caches it. Uses GameConstants and normalizes to full path so save and load always use the same canonical file.
         /// </summary>
         private static string GetSettingsFilePath()
         {
-            string path = GameConstants.GetGameDataFilePath(GameConstants.GameSettingsJson);
-            try
+            if (_settingsFilePathCached != null)
+                return _settingsFilePathCached;
+            lock (_settingsFilePathLock)
             {
-                return Path.GetFullPath(path);
-            }
-            catch
-            {
-                return path;
+                if (_settingsFilePathCached != null)
+                    return _settingsFilePathCached;
+                string path;
+                string? settingsDir = GameConstants.GetSettingsDirectory();
+                if (settingsDir != null)
+                    path = Path.Combine(settingsDir, GameConstants.GameSettingsJson);
+                else
+                    path = GameConstants.GetGameDataFilePath(GameConstants.GameSettingsJson);
+                try
+                {
+                    _settingsFilePathCached = Path.GetFullPath(path);
+                }
+                catch
+                {
+                    _settingsFilePathCached = path;
+                }
+                try
+                {
+                    string logPath = GameConstants.GetGameDataFilePath("settings_persistence.log");
+                    File.AppendAllText(logPath, $"{DateTime.UtcNow:o} GetSettingsFilePath first resolution cached path={_settingsFilePathCached}\n");
+                }
+                catch { }
+                return _settingsFilePathCached;
             }
         }
+
+        /// <summary>Returns the path used for loading and saving settings (for display in UI). Resolves and caches on first use.</summary>
+        public static string GetSettingsFilePathForDisplay() => GetSettingsFilePath();
         
         public static GameSettings Instance
         {

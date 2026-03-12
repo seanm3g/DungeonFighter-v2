@@ -16,7 +16,6 @@ namespace RPGGame.UI.Avalonia.Managers
     /// </summary>
     public class SettingsManager
     {
-        private GameSettings settings;
         private readonly Action<string, bool>? showStatusMessage;
         private readonly Action<string>? updateStatus;
         private readonly TextDelaySettingsManager textDelayManager;
@@ -29,13 +28,12 @@ namespace RPGGame.UI.Avalonia.Managers
 
         public SettingsManager(GameSettings settings, Action<string, bool>? showStatusMessage, Action<string>? updateStatus)
         {
-            this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             this.showStatusMessage = showStatusMessage;
             this.updateStatus = updateStatus;
             this.textDelayManager = new TextDelaySettingsManager(showStatusMessage);
             this.animationSettingsManager = new Managers.Settings.AnimationSettingsManager(showStatusMessage);
-            this.gameplaySettingsManager = new GameplaySettingsManager(settings, showStatusMessage);
-            this.difficultySettingsManager = new DifficultySettingsManager(settings, showStatusMessage);
+            this.gameplaySettingsManager = new GameplaySettingsManager(showStatusMessage);
+            this.difficultySettingsManager = new DifficultySettingsManager(showStatusMessage);
             this.loader = new SettingsLoader(this);
             this.saver = new SettingsSaver(this, null); // Will be set via SetGameVariablesTabManager
         }
@@ -50,16 +48,8 @@ namespace RPGGame.UI.Avalonia.Managers
             this.saver = new SettingsSaver(this, gameVariablesTabManager);
         }
 
-        /// <summary>Updates the settings reference after ReloadFromFile so load/save use the current instance.</summary>
-        public void RefreshSettings(GameSettings currentSettings)
-        {
-            this.settings = currentSettings ?? throw new ArgumentNullException(nameof(currentSettings));
-            this.gameplaySettingsManager.RefreshSettings(currentSettings);
-            this.difficultySettingsManager.RefreshSettings(currentSettings);
-        }
-
         /// <summary>
-        /// Saves settings from UI controls using DTO.
+        /// Saves settings from UI controls using DTO. Uses GameSettings.Instance at use time.
         /// </summary>
         public void SaveSettings(MainSettingsControls controls, ActionDelegate? saveGameVariables = null)
         {
@@ -74,27 +64,28 @@ namespace RPGGame.UI.Avalonia.Managers
                     return;
                 }
 
+                var s = GameSettings.Instance;
                 var originalSettings = new GameSettings
                 {
-                    NarrativeBalance = settings.NarrativeBalance,
-                    EnableNarrativeEvents = settings.EnableNarrativeEvents,
-                    EnableInformationalSummaries = settings.EnableInformationalSummaries,
-                    CombatSpeed = settings.CombatSpeed,
-                    ShowIndividualActionMessages = settings.ShowIndividualActionMessages,
-                    EnableComboSystem = settings.EnableComboSystem,
-                    EnableTextDisplayDelays = settings.EnableTextDisplayDelays,
-                    FastCombat = settings.FastCombat,
-                    EnableAutoSave = settings.EnableAutoSave,
-                    AutoSaveInterval = settings.AutoSaveInterval,
-                    ShowDetailedStats = settings.ShowDetailedStats,
-                    EnableSoundEffects = settings.EnableSoundEffects,
-                    EnemyHealthMultiplier = settings.EnemyHealthMultiplier,
-                    EnemyDamageMultiplier = settings.EnemyDamageMultiplier,
-                    PlayerHealthMultiplier = settings.PlayerHealthMultiplier,
-                    PlayerDamageMultiplier = settings.PlayerDamageMultiplier,
-                    ShowHealthBars = settings.ShowHealthBars,
-                    ShowDamageNumbers = settings.ShowDamageNumbers,
-                    ShowComboProgress = settings.ShowComboProgress
+                    NarrativeBalance = s.NarrativeBalance,
+                    EnableNarrativeEvents = s.EnableNarrativeEvents,
+                    EnableInformationalSummaries = s.EnableInformationalSummaries,
+                    CombatSpeed = s.CombatSpeed,
+                    ShowIndividualActionMessages = s.ShowIndividualActionMessages,
+                    EnableComboSystem = s.EnableComboSystem,
+                    EnableTextDisplayDelays = s.EnableTextDisplayDelays,
+                    FastCombat = s.FastCombat,
+                    EnableAutoSave = s.EnableAutoSave,
+                    AutoSaveInterval = s.AutoSaveInterval,
+                    ShowDetailedStats = s.ShowDetailedStats,
+                    EnableSoundEffects = s.EnableSoundEffects,
+                    EnemyHealthMultiplier = s.EnemyHealthMultiplier,
+                    EnemyDamageMultiplier = s.EnemyDamageMultiplier,
+                    PlayerHealthMultiplier = s.PlayerHealthMultiplier,
+                    PlayerDamageMultiplier = s.PlayerDamageMultiplier,
+                    ShowHealthBars = s.ShowHealthBars,
+                    ShowDamageNumbers = s.ShowDamageNumbers,
+                    ShowComboProgress = s.ShowComboProgress
                 };
 
                 gameplaySettingsManager.SaveSettings(
@@ -117,12 +108,12 @@ namespace RPGGame.UI.Avalonia.Managers
                     controls.PlayerHealthMultiplierSlider!,
                     controls.PlayerDamageMultiplierSlider!);
 
-                settings.ShowHealthBars = controls.ShowHealthBarsCheckBox?.IsChecked ?? true;
-                settings.ShowDamageNumbers = controls.ShowDamageNumbersCheckBox?.IsChecked ?? true;
-                settings.ShowComboProgress = controls.ShowComboProgressCheckBox?.IsChecked ?? true;
+                s.ShowHealthBars = controls.ShowHealthBarsCheckBox?.IsChecked ?? true;
+                s.ShowDamageNumbers = controls.ShowDamageNumbersCheckBox?.IsChecked ?? true;
+                s.ShowComboProgress = controls.ShowComboProgressCheckBox?.IsChecked ?? true;
 
-                settings.ValidateAndFix();
-                if (!settings.SaveSettings())
+                s.ValidateAndFix();
+                if (!s.SaveSettings())
                 {
                     showStatusMessage?.Invoke("Error: Failed to save settings to file.", false);
                     updateStatus?.Invoke("Error: Failed to save settings to file.");
@@ -168,16 +159,17 @@ namespace RPGGame.UI.Avalonia.Managers
         {
             try
             {
+                var s = GameSettings.Instance;
                 // Store original values for rollback
                 var originalSettings = new GameSettings
                 {
-                    ShowIndividualActionMessages = settings.ShowIndividualActionMessages,
-                    EnableTextDisplayDelays = settings.EnableTextDisplayDelays,
-                    FastCombat = settings.FastCombat,
-                    ShowDetailedStats = settings.ShowDetailedStats,
-                    ShowHealthBars = settings.ShowHealthBars,
-                    ShowDamageNumbers = settings.ShowDamageNumbers,
-                    ShowComboProgress = settings.ShowComboProgress
+                    ShowIndividualActionMessages = s.ShowIndividualActionMessages,
+                    EnableTextDisplayDelays = s.EnableTextDisplayDelays,
+                    FastCombat = s.FastCombat,
+                    ShowDetailedStats = s.ShowDetailedStats,
+                    ShowHealthBars = s.ShowHealthBars,
+                    ShowDamageNumbers = s.ShowDamageNumbers,
+                    ShowComboProgress = s.ShowComboProgress
                 };
 
                 // Save gameplay settings
@@ -187,38 +179,26 @@ namespace RPGGame.UI.Avalonia.Managers
                     fastCombatCheckBox,
                     showDetailedStatsCheckBox);
                 
-                // UI Settings
-                settings.ShowHealthBars = showHealthBarsCheckBox.IsChecked ?? true;
-                settings.ShowDamageNumbers = showDamageNumbersCheckBox.IsChecked ?? true;
-                settings.ShowComboProgress = showComboProgressCheckBox.IsChecked ?? true;
+                // UI Settings (in-memory only; orchestrator persists GameSettings once at end of save)
+                s.ShowHealthBars = showHealthBarsCheckBox.IsChecked ?? true;
+                s.ShowDamageNumbers = showDamageNumbersCheckBox.IsChecked ?? true;
+                s.ShowComboProgress = showComboProgressCheckBox.IsChecked ?? true;
                 
-                // Validate all settings before saving
-                settings.ValidateAndFix();
+                s.ValidateAndFix();
                 
-                // Save to file (with atomic write)
-                if (!settings.SaveSettings())
-                {
-                    showStatusMessage?.Invoke("Error: Failed to save settings to file.", false);
-                    updateStatus?.Invoke("Error: Failed to save settings to file.");
-                    return false;
-                }
-                
-                // Save Game Variables if any were modified
+                // Save Game Variables if any were modified (orchestrator already called this; null when used from handler)
                 try
                 {
                     saveGameVariables?.Invoke();
                 }
                 catch (Exception ex)
                 {
-                    // Rollback settings if game variables save fails
                     RestoreSettings(originalSettings);
                     showStatusMessage?.Invoke($"Error saving game variables: {ex.Message}. Settings rolled back.", false);
                     updateStatus?.Invoke($"Error saving game variables: {ex.Message}");
                     return false;
                 }
                 
-                showStatusMessage?.Invoke("Settings saved successfully!", true);
-                updateStatus?.Invoke("Settings saved successfully!");
                 return true;
             }
             catch (Exception ex)
@@ -242,14 +222,15 @@ namespace RPGGame.UI.Avalonia.Managers
             difficultySettingsManager.RestoreSettings(backup);
             
             // Restore UI settings
-            settings.ShowHealthBars = backup.ShowHealthBars;
-            settings.ShowDamageNumbers = backup.ShowDamageNumbers;
-            settings.ShowComboProgress = backup.ShowComboProgress;
+            var s = GameSettings.Instance;
+            s.ShowHealthBars = backup.ShowHealthBars;
+            s.ShowDamageNumbers = backup.ShowDamageNumbers;
+            s.ShowComboProgress = backup.ShowComboProgress;
         }
 
         public void ResetToDefaults()
         {
-            settings.ResetToDefaults();
+            GameSettings.Instance.ResetToDefaults();
         }
 
         /// <summary>
@@ -353,9 +334,10 @@ namespace RPGGame.UI.Avalonia.Managers
                 controls.PlayerDamageMultiplierSlider!,
                 controls.PlayerDamageMultiplierTextBox!);
 
-            if (controls.ShowHealthBarsCheckBox != null) controls.ShowHealthBarsCheckBox.IsChecked = settings.ShowHealthBars;
-            if (controls.ShowDamageNumbersCheckBox != null) controls.ShowDamageNumbersCheckBox.IsChecked = settings.ShowDamageNumbers;
-            if (controls.ShowComboProgressCheckBox != null) controls.ShowComboProgressCheckBox.IsChecked = settings.ShowComboProgress;
+            var s = GameSettings.Instance;
+            if (controls.ShowHealthBarsCheckBox != null) controls.ShowHealthBarsCheckBox.IsChecked = s.ShowHealthBars;
+            if (controls.ShowDamageNumbersCheckBox != null) controls.ShowDamageNumbersCheckBox.IsChecked = s.ShowDamageNumbers;
+            if (controls.ShowComboProgressCheckBox != null) controls.ShowComboProgressCheckBox.IsChecked = s.ShowComboProgress;
         }
 
         /// <summary>

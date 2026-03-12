@@ -978,9 +978,10 @@
     "damage": "10%",
     "speed": "3.00",
     "duration": "3",
-    "cadence": "Ability",
+    "cadence": "Fight",
     "heroAccuracy": "20",
     "heroHit": "5",
+    "heroCombo": "5",
     "target": "ENEMY",
     "tags": "weapon",
     "weaponTypes": "Wand"

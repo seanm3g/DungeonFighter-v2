@@ -56,10 +56,13 @@ namespace RPGGame.UI.Avalonia.Layout
         }
         
         /// <summary>
-        /// Renders combo sequence and action pool for inventory page
+        /// Renders combo sequence and action pool for inventory page.
+        /// Uses all available vertical space in the panel for both sections.
         /// </summary>
         private void RenderInventoryRightPanel(int x, int y, Character character)
         {
+            int panelBottom = LayoutConstants.RIGHT_PANEL_Y + LayoutConstants.RIGHT_PANEL_HEIGHT - 2;
+
             // Combo Sequence section
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader("COMBO SEQUENCE"), AsciiArtAssets.Colors.Gold);
             y += 2;
@@ -71,8 +74,11 @@ namespace RPGGame.UI.Avalonia.Layout
                 canvas.AddText(x, y, $"Step: {currentStepInSequence}/{comboActions.Count}", AsciiArtAssets.Colors.White);
                 y += 2;
                 
-                // Show combo sequence (limit to fit in panel)
-                int maxDisplay = Math.Min(comboActions.Count, 8); // Limit to 8 to fit in panel
+                const int actionPoolReserve = 6; // spacing (1) + ACTION POOL header (2) + Total line (2) + at least one list line (1)
+                int comboLinesAvailable = panelBottom - y - actionPoolReserve;
+                int maxDisplay = Math.Max(0, Math.Min(comboActions.Count, comboLinesAvailable - 1)); // -1 for "... +N more" when truncated
+                if (maxDisplay == 0 && comboActions.Count > 0)
+                    maxDisplay = Math.Min(comboActions.Count, comboLinesAvailable);
                 for (int i = 0; i < maxDisplay; i++)
                 {
                     var action = comboActions[i];
@@ -98,7 +104,7 @@ namespace RPGGame.UI.Avalonia.Layout
             
             y += 1; // Spacing
             
-            // Action Pool section
+            // Action Pool section - use remaining space
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader("ACTION POOL"), AsciiArtAssets.Colors.Gold);
             y += 2;
             
@@ -108,12 +114,15 @@ namespace RPGGame.UI.Avalonia.Layout
                 canvas.AddText(x, y, $"Total: {actionPool.Count}", AsciiArtAssets.Colors.White);
                 y += 2;
                 
-                // Group actions by name and show unique actions
-                var uniqueActions = actionPool.GroupBy(a => a.Name)
+                int actionPoolLinesAvailable = panelBottom - y;
+                var uniqueOrdered = actionPool.GroupBy(a => a.Name)
                     .Select(g => new { Name = g.Key, Count = g.Count() })
                     .OrderBy(a => a.Name)
-                    .Take(6) // Limit to 6 to fit in panel
                     .ToList();
+                int maxUniqueToShow = Math.Max(0, Math.Min(uniqueOrdered.Count, actionPoolLinesAvailable - 1)); // -1 for "... +N more" when truncated
+                if (maxUniqueToShow == 0 && uniqueOrdered.Count > 0)
+                    maxUniqueToShow = Math.Min(uniqueOrdered.Count, actionPoolLinesAvailable);
+                var uniqueActions = uniqueOrdered.Take(maxUniqueToShow).ToList();
                 
                 foreach (var actionGroup in uniqueActions)
                 {
@@ -125,9 +134,10 @@ namespace RPGGame.UI.Avalonia.Layout
                     y++;
                 }
                 
-                if (actionPool.Count > uniqueActions.Sum(a => a.Count))
+                int shownCount = uniqueActions.Sum(a => a.Count);
+                if (actionPool.Count > shownCount)
                 {
-                    int remaining = actionPool.Count - uniqueActions.Sum(a => a.Count);
+                    int remaining = actionPool.Count - shownCount;
                     canvas.AddText(x, y, $"... +{remaining} more", AsciiArtAssets.Colors.Gray);
                 }
             }

@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -5,22 +6,21 @@ using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.Threading;
 using RPGGame;
+using RPGGame.Config;
 using System.Linq;
 
 namespace RPGGame.UI.Avalonia.Managers.Settings.ColorManagers
 {
     /// <summary>
-    /// Manages TextBox colors and focus states (text, background, border, focus)
+    /// Manages TextBox colors and focus states (text, background, border, focus). Uses GameSettings.Instance at apply time.
     /// </summary>
     public class TextBoxColorManager
     {
         private readonly SettingsPanel? settingsPanel;
-        private readonly GameSettings settings;
 
-        public TextBoxColorManager(SettingsPanel? settingsPanel, GameSettings settings)
+        public TextBoxColorManager(SettingsPanel? settingsPanel)
         {
             this.settingsPanel = settingsPanel;
-            this.settings = settings;
         }
 
         /// <summary>
@@ -35,11 +35,12 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.ColorManagers
             {
                 try
                 {
-                    var textColor = SettingsColorManager.ParseColor(settings.TextBoxTextColor);
-                    var darkBackground = new SolidColorBrush(SettingsColorManager.ParseColor(settings.TextBoxBackgroundColor));
-                    var hoverBackground = new SolidColorBrush(SettingsColorManager.ParseColor(settings.TextBoxHoverBackgroundColor));
-                    var blueBorder = new SolidColorBrush(SettingsColorManager.ParseColor(settings.TextBoxFocusBorderColor));
-                    var defaultBorder = new SolidColorBrush(SettingsColorManager.ParseColor(settings.TextBoxBorderColor));
+                    var s = GameSettings.Instance;
+                    var textColor = SettingsColorManager.ParseColor(s.TextBoxTextColor);
+                    var darkBackground = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxBackgroundColor));
+                    var hoverBackground = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxHoverBackgroundColor));
+                    var blueBorder = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxFocusBorderColor));
+                    var defaultBorder = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxBorderColor));
 
                     // Find all TextBoxes in settings panels
                     var textBoxes = settingsPanel.GetLogicalDescendants().OfType<TextBox>()
@@ -65,7 +66,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.ColorManagers
                     {
                         // Check if this is a settings TextBox (has dark background or is in a settings panel)
                         var bg = textBox.Background as SolidColorBrush;
-                        var expectedBgColor = SettingsColorManager.ParseColor(settings.TextBoxBackgroundColor);
+                        var expectedBgColor = SettingsColorManager.ParseColor(s.TextBoxBackgroundColor);
                         bool isSettingsTextBox = bg != null && (bg.Color.R == expectedBgColor.R && bg.Color.G == expectedBgColor.G && bg.Color.B == expectedBgColor.B);
                         
                         // Also check if background is white (which means it needs fixing)
@@ -109,9 +110,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.ColorManagers
         {
             if (sender is TextBox textBox)
             {
-                var darkBackground = new SolidColorBrush(SettingsColorManager.ParseColor(settings.TextBoxBackgroundColor));
-                var textColor = SettingsColorManager.ParseColor(settings.TextBoxTextColor);
-                var blueBorder = new SolidColorBrush(SettingsColorManager.ParseColor(settings.TextBoxFocusBorderColor));
+                var s = GameSettings.Instance;
+                var darkBackground = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxBackgroundColor));
+                var textColor = SettingsColorManager.ParseColor(s.TextBoxTextColor);
+                var blueBorder = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxFocusBorderColor));
                 
                 textBox.Background = darkBackground;
                 textBox.Foreground = new SolidColorBrush(textColor);
@@ -125,10 +127,11 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.ColorManagers
         {
             if (sender is TextBox textBox)
             {
-                var darkBackground = new SolidColorBrush(SettingsColorManager.ParseColor(settings.TextBoxBackgroundColor));
-                var textColor = SettingsColorManager.ParseColor(settings.TextBoxTextColor);
-                var defaultBorder = new SolidColorBrush(SettingsColorManager.ParseColor(settings.TextBoxBorderColor));
-                var blueBorder = new SolidColorBrush(SettingsColorManager.ParseColor(settings.TextBoxFocusBorderColor));
+                var s = GameSettings.Instance;
+                var darkBackground = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxBackgroundColor));
+                var textColor = SettingsColorManager.ParseColor(s.TextBoxTextColor);
+                var defaultBorder = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxBorderColor));
+                var blueBorder = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxFocusBorderColor));
                 
                 textBox.Background = darkBackground;
                 textBox.Foreground = new SolidColorBrush(textColor);
@@ -142,11 +145,12 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.ColorManagers
         {
             if (sender is TextBox textBox)
             {
+                var s = GameSettings.Instance;
                 // On hover, use slightly lighter background but still dark
-                var hoverBackground = new SolidColorBrush(SettingsColorManager.ParseColor(settings.TextBoxHoverBackgroundColor));
-                var textColor = SettingsColorManager.ParseColor(settings.TextBoxTextColor);
-                var defaultBorder = new SolidColorBrush(SettingsColorManager.ParseColor(settings.TextBoxBorderColor));
-                var blueBorder = new SolidColorBrush(SettingsColorManager.ParseColor(settings.TextBoxFocusBorderColor));
+                var hoverBackground = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxHoverBackgroundColor));
+                var textColor = SettingsColorManager.ParseColor(s.TextBoxTextColor);
+                var defaultBorder = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxBorderColor));
+                var blueBorder = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxFocusBorderColor));
                 
                 // Only change if not focused (if focused, keep the focus styling)
                 if (!textBox.IsFocused)
@@ -158,7 +162,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.ColorManagers
                 else
                 {
                     // If focused, maintain focus styling
-                    var darkBackground = new SolidColorBrush(SettingsColorManager.ParseColor(settings.TextBoxBackgroundColor));
+                    var darkBackground = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxBackgroundColor));
                     textBox.Background = darkBackground;
                     textBox.Foreground = new SolidColorBrush(textColor);
                     textBox.BorderBrush = blueBorder;
@@ -172,10 +176,11 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.ColorManagers
         {
             if (sender is TextBox textBox)
             {
-                var darkBackground = new SolidColorBrush(SettingsColorManager.ParseColor(settings.TextBoxBackgroundColor));
-                var textColor = SettingsColorManager.ParseColor(settings.TextBoxTextColor);
-                var defaultBorder = new SolidColorBrush(SettingsColorManager.ParseColor(settings.TextBoxBorderColor));
-                var blueBorder = new SolidColorBrush(SettingsColorManager.ParseColor(settings.TextBoxFocusBorderColor));
+                var s = GameSettings.Instance;
+                var darkBackground = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxBackgroundColor));
+                var textColor = SettingsColorManager.ParseColor(s.TextBoxTextColor);
+                var defaultBorder = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxBorderColor));
+                var blueBorder = new SolidColorBrush(SettingsColorManager.ParseColor(s.TextBoxFocusBorderColor));
                 
                 // If focused, keep focus styling, otherwise use default
                 if (textBox.IsFocused)
