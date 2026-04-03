@@ -16,15 +16,20 @@ namespace RPGGame.Data
     }
     
     /// <summary>
-    /// Represents a group of bonuses applied via ABILITY or ACTION keyword
+    /// Represents a group of bonuses applied via ABILITY, ACTION, or ATTACK keyword.
+    /// CadenceType: "ACTION" = slot-based (next action in combo); "ATTACK" = roll-based (next roll); "ABILITY" = consumed on hit.
     /// </summary>
     public class ActionAttackBonusGroup
     {
         [JsonPropertyName("keyword")]
-        public string Keyword { get; set; } = ""; // "ABILITY" or "ACTION"
+        public string Keyword { get; set; } = ""; // "ABILITY", "ACTION", or "ATTACK"
+        
+        /// <summary>Authoritative cadence from spreadsheet. "ACTION" = slot-based; "ATTACK" = roll-based; "ABILITY" = on hit.</summary>
+        [JsonPropertyName("cadenceType")]
+        public string CadenceType { get; set; } = "";
         
         [JsonPropertyName("count")]
-        public int Count { get; set; } = 1; // Number of applications
+        public int Count { get; set; } = 1; // X in "for next X ACTIONs/ATTACKs"
         
         [JsonPropertyName("bonuses")]
         public List<ActionAttackBonusItem> Bonuses { get; set; } = new List<ActionAttackBonusItem>();

@@ -61,7 +61,7 @@ Use these steps to verify each element works as intended. Open **Settings** → 
 Verify the form includes (and persist when saved) at least:
 
 - **Basic**: Name, Description, Rarity, Category, Tags, Target Type.
-- **Combat**: MultiHitCount, DamageMultiplier, Speed (Length), Cooldown, Cadence, Duration (ComboBonusDuration).
+- **Combat**: MultiHitCount, DamageMultiplier, Speed (Length), Cadence, Duration (ComboBonusDuration).
 - **Modifiers**: SpeedMod, DamageMod, MultiHitMod, Amp Mod, Chain Position, Chain Position Number, Chain Position MOD, Skip Next Turn, Repeat, Jump, Size (Chain Length), Reset.
 - **Roll**: Crit Miss, Hit, Combo, Crit thresholds; Accuracy (RollBonus).
 - **Triggers**: On Hit, On Miss, On Combo, On Crit.

@@ -33,6 +33,7 @@ namespace RPGGame.Tests.Unit
             TestDiceRollToActionSelectionFlow();
             TestComboSequenceInformationCorrectness();
             TestComboStepDoesNotAdvanceOnNormalActionHit();
+            TestComboStepResetsOnNormalAttackHit();
             TestComboStepAdvancesOnComboActionHit();
             
             TestBase.PrintSummary("Combo Sequence Information and Integration", _testsRun, _testsPassed, _testsFailed);
@@ -265,6 +266,41 @@ namespace RPGGame.Tests.Unit
                 }
             }
             TestBase.AssertTrue(outcomesChecked >= 0, $"Checked {outcomesChecked} normal-action hit(s) with roll >= threshold", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// When a normal (non-combo) attack completes successfully, ComboStep resets so the next combo roll starts from slot 0.
+        /// </summary>
+        private static void TestComboStepResetsOnNormalAttackHit()
+        {
+            Console.WriteLine("\n--- Testing Combo Step Resets on Normal Attack Hit ---");
+            var lastUsedActions = new Dictionary<Actor, Action>();
+            var lastCriticalMissStatus = new Dictionary<Actor, bool>();
+            int outcomesChecked = 0;
+            for (int i = 0; i < 120; i++)
+            {
+                var character = CreateTestCharacter();
+                var comboAction = new Action { Name = "COMBO SLOT", IsComboAction = true };
+                character.AddAction(comboAction, 1.0);
+                character.Actions.AddToCombo(comboAction);
+                character.ComboStep = 2;
+                var normalAction = new Action { Name = "NORMAL STRIKE", IsComboAction = false, Type = ActionType.Attack };
+                character.AddAction(normalAction, 1.0);
+                var enemy = new Enemy("TestEnemy", 1, 100, 5, 5, 5, 5);
+                var result = ActionExecutionFlow.Execute(
+                    character, enemy, null, null, normalAction, null,
+                    lastUsedActions, lastCriticalMissStatus);
+                if (result.Hit)
+                {
+                    outcomesChecked++;
+                    TestBase.AssertEqual(0, character.ComboStep,
+                        $"ComboStep must reset to 0 when normal action hits (was 2), got: {character.ComboStep}",
+                        ref _testsRun, ref _testsPassed, ref _testsFailed);
+                }
+            }
+            TestBase.AssertTrue(outcomesChecked > 0,
+                $"Expected at least one normal-action hit to verify reset; got {outcomesChecked} hits",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         /// <summary>

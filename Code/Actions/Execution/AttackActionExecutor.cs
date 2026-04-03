@@ -80,18 +80,10 @@ namespace RPGGame.Actions.Execution
                 bool isCriticalHit = totalRoll >= RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
                 ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, totalDamage, totalRoll, rollBonus, true, true, 0, 0, isCriticalHit, naturalRoll, battleNarrative);
                 
-                // Reset combo if non-combo action hits with roll 6-13
-                if (source is Character resetCharacter && !(resetCharacter is Enemy))
-                {
-                    // Check if this is a non-combo action
-                    bool isNormalAttack = !selectedAction.IsComboAction;
-                    
-                    // If non-combo action with roll 6-13, reset the combo
-                    if (isNormalAttack && baseRoll >= 6 && baseRoll <= 13)
-                    {
-                        resetCharacter.ResetCombo();
-                    }
-                }
+                // Reset combo when a non-combo (normal) attack completes successfully
+                if (source is Character resetCharacter && !(resetCharacter is Enemy) && !selectedAction.IsComboAction
+                    && (selectedAction.Type == ActionType.Attack || selectedAction.Type == ActionType.Spell))
+                    resetCharacter.ResetCombo();
                 
                 // Handle combo advancement based on roll value; only advance when executed action was a combo action
                 if (source is Character comboCharacter && !(comboCharacter is Enemy) && selectedAction.IsComboAction)
@@ -152,18 +144,10 @@ namespace RPGGame.Actions.Execution
                 bool isCriticalMiss = naturalRoll <= 1;
                 var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, damage, damage, selectedAction, damageMultiplier, 1.0, rollBonus, baseRoll, 1, isCriticalMiss);
                 
-                // Reset combo if non-combo action hits with roll 6-13
-                if (source is Character resetCharacter && !(resetCharacter is Enemy))
-                {
-                    // Check if this is a non-combo action
-                    bool isNormalAttack = !selectedAction.IsComboAction;
-                    
-                    // If non-combo action with roll 6-13, reset the combo
-                    if (isNormalAttack && baseRoll >= 6 && baseRoll <= 13)
-                    {
-                        resetCharacter.ResetCombo();
-                    }
-                }
+                // Reset combo when a non-combo (normal) attack completes successfully
+                if (source is Character resetCharacter && !(resetCharacter is Enemy) && !selectedAction.IsComboAction
+                    && (selectedAction.Type == ActionType.Attack || selectedAction.Type == ActionType.Spell))
+                    resetCharacter.ResetCombo();
                 
                 // Handle combo advancement; only advance when executed action was a combo action
                 if (source is Character comboCharacter && !(comboCharacter is Enemy) && selectedAction.IsComboAction)

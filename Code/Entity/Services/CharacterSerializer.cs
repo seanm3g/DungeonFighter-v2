@@ -107,32 +107,7 @@ namespace RPGGame.Entity.Services
             character.Equipment.Weapon = ItemTypeConverter.ConvertItemToProperType(saveData.Weapon) as WeaponItem;
             character.Equipment.Feet = ItemTypeConverter.ConvertItemToProperType(saveData.Feet);
 
-            // Rebuild action pool with proper structure
-            character.ActionPool.Clear();
-            
-            // Add default actions (actions marked with IsDefaultAction = true)
-            character.Actions.AddDefaultActions(character);
-            
-            // Re-add gear actions for equipped items (with probability for non-starter items)
-            if (character.Equipment.Head != null)
-                character.Actions.AddArmorActions(character, character.Equipment.Head);
-            if (character.Equipment.Body != null)
-                character.Actions.AddArmorActions(character, character.Equipment.Body);
-            if (character.Equipment.Weapon is WeaponItem weapon)
-                character.Actions.AddWeaponActions(character, weapon);
-            if (character.Equipment.Feet != null)
-                character.Actions.AddArmorActions(character, character.Equipment.Feet);
-
-            // Re-add class actions based on character progression
-            // Class actions should persist regardless of equipment changes
-            var weaponType = (character.Equipment.Weapon as WeaponItem)?.WeaponType;
-            character.Actions.AddClassActions(character, character.Progression, weaponType);
-
-            // Initialize combo sequence after all actions are loaded
-            character.InitializeDefaultCombo();
-            
-            // Reset combo step to first action when loading (InitializeDefaultCombo may have already done this via AddToCombo, but ensure it's reset)
-            character.ComboStep = 0;
+            RebuildCharacterActions(character);
 
             // Safety check: Ensure character has at least one action available
             // If ActionPool is empty, add fallback actions based on weapon type
@@ -184,6 +159,42 @@ namespace RPGGame.Entity.Services
             }
 
             return character;
+        }
+
+        /// <summary>
+        /// Rebuilds the character's action pool and combo sequence from equipment and class progression.
+        /// Uses the current ActionLoader data, so call ActionLoader.ReloadActions() first if actions may have changed.
+        /// Preserves the user's custom combo sequence when rebuilding (e.g. when starting a dungeon).
+        /// </summary>
+        public static void RebuildCharacterActions(Character character)
+        {
+            // Capture current combo action names before clearing
+            var savedComboNames = character.GetComboActions()
+                .Select(a => a.Name)
+                .ToList();
+
+            character.ActionPool.Clear();
+            
+            character.Actions.AddDefaultActions(character);
+            
+            if (character.Equipment.Head != null)
+                character.Actions.AddArmorActions(character, character.Equipment.Head);
+            if (character.Equipment.Body != null)
+                character.Actions.AddArmorActions(character, character.Equipment.Body);
+            if (character.Equipment.Weapon is WeaponItem weapon)
+                character.Actions.AddWeaponActions(character, weapon);
+            if (character.Equipment.Feet != null)
+                character.Actions.AddArmorActions(character, character.Equipment.Feet);
+
+            var weaponType = (character.Equipment.Weapon as WeaponItem)?.WeaponType;
+            character.Actions.AddClassActions(character, character.Progression, weaponType);
+
+            // Restore user's combo sequence if possible; otherwise use default
+            if (!character.RestoreComboFromActionNames(savedComboNames))
+            {
+                character.InitializeDefaultCombo();
+            }
+            character.ComboStep = 0;
         }
 
         /// <summary>

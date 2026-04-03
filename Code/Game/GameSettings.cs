@@ -103,10 +103,6 @@ namespace RPGGame
         {
             get
             {
-                bool fromCache = _instance != null;
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "H4", location = "GameSettings.Instance:get", message = "Instance access", data = new { fromCache }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-                // #endregion
                 if (_instance == null)
                 {
                     _instance = LoadSettings();

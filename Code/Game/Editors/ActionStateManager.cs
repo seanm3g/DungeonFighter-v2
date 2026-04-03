@@ -28,7 +28,6 @@ namespace RPGGame.GameCore.Editors
             "Description",
             "DamageMultiplier (number, default 1.0)",
             "Speed (number, default 1.0)",
-            "Cooldown (number, default 0)",
             "CausesBleed (true/false, default false)",
             "CausesWeaken (true/false, default false)",
             "CausesSlow (true/false, default false)",

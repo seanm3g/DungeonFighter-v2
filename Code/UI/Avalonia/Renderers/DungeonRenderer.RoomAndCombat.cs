@@ -81,7 +81,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
 
         /// <summary>
-        /// Renders the action-info strip below the center panel (combat only).
+        /// Renders the action-info strip below the center panel (combat, inventory, etc.).
         /// One panel per combo action, left to right; selected (current combo step) panel border is highlighted.
         /// When player is null or has no actions, strip is cleared.
         /// </summary>
@@ -100,17 +100,14 @@ namespace RPGGame.UI.Avalonia.Renderers
             int selectedIndex = player != null && panelData.Count > 0
                 ? player.ComboStep % panelData.Count
                 : 0;
-            int panelWidth = stripW / panelData.Count;
-            int remainder = stripW % panelData.Count;
+            int count = panelData.Count;
 
             for (int i = 0; i < panelData.Count; i++)
             {
-                int pw = panelWidth + (i == panelData.Count - 1 ? remainder : 0);
-                int px = stripX + i * panelWidth;
-                int py = stripY;
+                ActionInfoStripLayout.GetPanelRect(i, count, out int px, out int py, out int pw, out int panelH);
                 bool isSelected = i == selectedIndex;
                 var borderColor = isSelected ? AsciiArtAssets.Colors.Gold : AsciiArtAssets.Colors.Cyan;
-                canvas.AddBorder(px, py, pw, stripH, borderColor);
+                canvas.AddBorder(px, py, pw, panelH, borderColor);
 
                 int contentX = px + 1;
                 int contentY = py + 1;
@@ -119,20 +116,51 @@ namespace RPGGame.UI.Avalonia.Renderers
                 string name = string.IsNullOrEmpty(info.Name) ? "?" : (info.Name.Length > contentW ? info.Name.Substring(0, contentW - 3) + "..." : info.Name);
                 canvas.AddText(contentX, contentY, name, AsciiArtAssets.Colors.White);
                 contentY++;
-                string accLine = $"Acc {info.Acc:+0;-0;0}";
-                if (info.BonusFromPrev != 0)
-                    accLine += $" Prev:{info.BonusFromPrev:+0;-0;0}";
-                if (accLine.Length > contentW) accLine = accLine.Substring(0, contentW - 3) + "...";
-                if (contentY < py + stripH)
+
+                // Damage: green if modified up, red if modified down, white when base
+                int damageDisplay = info.DamageModified != info.DamageBase ? info.DamageModified : info.DamageBase;
+                var damageColor = info.DamageModified != info.DamageBase
+                    ? (info.DamageModified > info.DamageBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
+                    : AsciiArtAssets.Colors.White;
+                string damageLine = $"Dmg {damageDisplay}";
+                if (damageLine.Length > contentW) damageLine = damageLine.Substring(0, contentW - 3) + "...";
+                if (contentY < py + panelH)
                 {
-                    canvas.AddText(contentX, contentY, accLine, AsciiArtAssets.Colors.White);
+                    canvas.AddText(contentX, contentY, damageLine, damageColor);
                     contentY++;
                 }
-                if (contentY < py + stripH && !string.IsNullOrEmpty(info.Causes))
+
+                // Attack speed: green if faster (lower time), red if slower (higher time), white when base
+                double speedDisplay = info.SpeedModified != info.SpeedBase ? info.SpeedModified : info.SpeedBase;
+                var speedColor = info.SpeedModified != info.SpeedBase
+                    ? (info.SpeedModified < info.SpeedBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
+                    : AsciiArtAssets.Colors.White;
+                string speedLine = $"Spd {speedDisplay:F1}s";
+                if (speedLine.Length > contentW) speedLine = speedLine.Substring(0, contentW - 3) + "...";
+                if (contentY < py + panelH)
                 {
-                    string causes = info.Causes.Length > contentW ? info.Causes.Substring(0, contentW - 3) + "..." : info.Causes;
-                    canvas.AddText(contentX, contentY, causes, AsciiArtAssets.Colors.Gray);
+                    canvas.AddText(contentX, contentY, speedLine, speedColor);
+                    contentY++;
                 }
+
+                // Thresholds: only when action has non-zero adjustments
+                if (contentY < py + panelH && !string.IsNullOrEmpty(info.ThresholdText))
+                {
+                    string thresholdLine = info.ThresholdText.Length > contentW ? info.ThresholdText.Substring(0, contentW - 3) + "..." : info.ThresholdText;
+                    canvas.AddText(contentX, contentY, thresholdLine, AsciiArtAssets.Colors.Cyan);
+                }
+            }
+
+            // Active modifiers section (bottom 2 lines of strip)
+            var modifierLines = player != null ? CombatActionStripBuilder.BuildActiveModifierLines(player) : new List<string>();
+            int modY = stripY + stripH - 2;
+            int modX = stripX + 1;
+            int modW = Math.Max(0, stripW - 2);
+            for (int m = 0; m < modifierLines.Count && m < 2; m++)
+            {
+                string line = modifierLines[m];
+                if (line.Length > modW) line = line.Substring(0, modW - 3) + "...";
+                canvas.AddText(modX, modY + m, line, AsciiArtAssets.Colors.Gold);
             }
         }
     }

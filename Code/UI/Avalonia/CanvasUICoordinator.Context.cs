@@ -37,6 +37,15 @@ namespace RPGGame.UI.Avalonia
             contextCoordinator.ClearCurrentEnemy();
         }
 
+        /// <summary>
+        /// Current enemy in UI context (dungeon combat / encounter), or null when not in an encounter or in menus.
+        /// </summary>
+        public Enemy? GetCurrentEnemy()
+        {
+            return contextManager.GetCurrentEnemy();
+        }
+
         #endregion
     }
 }
+

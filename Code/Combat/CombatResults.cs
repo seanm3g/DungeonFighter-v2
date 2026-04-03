@@ -25,23 +25,23 @@ namespace RPGGame
         /// <returns>Tuple of (damageText, rollInfo)</returns>
         public static (string damageText, string rollInfo) FormatDamageDisplaySeparated(Actor attacker, Actor target, int rawDamage, int actualDamage, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0)
         {
+            bool hasDisplayableAction = !string.IsNullOrEmpty(action?.Name);
             string actionName = action?.Name ?? "attack";
-            
+
             // Check if this is a critical hit (total roll of 20 or higher)
             int totalRoll = roll + rollBonus;
             bool isCritical = totalRoll >= 20;
-            
-            // Add CRITICAL prefix to action name if it's a critical hit
-            if (isCritical)
+
+            // Add CRITICAL prefix to action name if it's a critical hit and action has a name
+            if (isCritical && hasDisplayableAction)
             {
                 actionName = $"CRITICAL {actionName}";
             }
-            
-            // Determine if this is a combo action (all actions in the game are combo actions)
-            bool isComboAction = action != null && action.IsComboAction;
-            
-            // First line: Format for combo actions
-            // Using template-based coloring {{damage|number}} for proper spacing
+
+            // Show action name only when action has a displayable name (normal attack has none)
+            bool isComboAction = hasDisplayableAction && (action != null && action.IsComboAction);
+
+            // First line: Format for combo actions (with name) vs normal attack (no name)
             string damageText;
             if (isComboAction)
             {

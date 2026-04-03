@@ -79,6 +79,23 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Re-renders inventory or combo management after left-panel chrome changes (e.g. collapsing STATS).
+        /// <see cref="RenderCoordinator.PerformRender"/> suppresses display-buffer rendering in <see cref="GameState.Inventory"/>,
+        /// so <c>ForceFullLayoutRender</c> does not redraw CanvasRenderer content or the action-info strip.
+        /// </summary>
+        public void RefreshInventoryScreen()
+        {
+            if (stateManager.CurrentPlayer == null || customUIManager is not CanvasUICoordinator canvasUI)
+                return;
+            if (stateManager.CurrentState != GameState.Inventory)
+                return;
+            if (stateTracker.InComboManagement)
+                canvasUI.RenderComboManagement(stateManager.CurrentPlayer);
+            else
+                canvasUI.RenderInventory(stateManager.CurrentPlayer, stateManager.CurrentInventory);
+        }
+
+        /// <summary>
         /// Handle inventory menu input
         /// </summary>
         public void HandleMenuInput(string input)

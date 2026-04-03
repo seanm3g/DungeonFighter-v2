@@ -210,26 +210,25 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 1 => actionData.Description,
                 2 => actionData.DamageMultiplier.ToString(),
                 3 => actionData.Length.ToString(),
-                4 => actionData.Cooldown.ToString(),
-                5 => actionData.CausesBleed.ToString(),
-                6 => actionData.CausesWeaken.ToString(),
-                7 => actionData.CausesSlow.ToString(),
-                8 => actionData.CausesPoison.ToString(),
-                9 => actionData.CausesBurn.ToString(),
-                10 => "false", // CausesStun - not in ActionData
-                11 => actionData.IsComboAction.ToString(),
-                12 => actionData.ComboOrder.ToString(),
-                13 => actionData.ComboBonusDuration.ToString(),
-                14 => actionData.SkipNextTurn.ToString(),
-                15 => actionData.CriticalMissThresholdAdjustment.ToString(),
-                16 => actionData.HitThresholdAdjustment.ToString(),
-                17 => actionData.ComboThresholdAdjustment.ToString(),
-                18 => actionData.CriticalHitThresholdAdjustment.ToString(),
-                19 => actionData.StatBonus.ToString(),
-                20 => actionData.StatBonusType,
-                21 => actionData.MultiHitCount.ToString(),
-                22 => actionData.RepeatLastAction.ToString(),
-                23 => (actionData.Thresholds != null && actionData.Thresholds.Count > 0)
+                4 => actionData.CausesBleed.ToString(),
+                5 => actionData.CausesWeaken.ToString(),
+                6 => actionData.CausesSlow.ToString(),
+                7 => actionData.CausesPoison.ToString(),
+                8 => actionData.CausesBurn.ToString(),
+                9 => "false", // CausesStun - not in ActionData
+                10 => actionData.IsComboAction.ToString(),
+                11 => actionData.ComboOrder.ToString(),
+                12 => actionData.ComboBonusDuration.ToString(),
+                13 => actionData.SkipNextTurn.ToString(),
+                14 => actionData.CriticalMissThresholdAdjustment.ToString(),
+                15 => actionData.HitThresholdAdjustment.ToString(),
+                16 => actionData.ComboThresholdAdjustment.ToString(),
+                17 => actionData.CriticalHitThresholdAdjustment.ToString(),
+                18 => actionData.StatBonus.ToString(),
+                19 => actionData.StatBonusType,
+                20 => actionData.MultiHitCount.ToString(),
+                21 => actionData.RepeatLastAction.ToString(),
+                22 => (actionData.Thresholds != null && actionData.Thresholds.Count > 0)
                     ? string.Join(", ", actionData.Thresholds.Select(t =>
                     {
                         string q = string.IsNullOrEmpty(t.Qualifier) ? "" : t.Qualifier + " ";
@@ -238,7 +237,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                         return $"{q}{t.Type}{op}{val}";
                     }))
                     : actionData.HealthThreshold.ToString("F2"),
-                24 => actionData.Tags != null ? string.Join(", ", actionData.Tags) : "",
+                23 => actionData.Tags != null ? string.Join(", ", actionData.Tags) : "",
                 _ => ""
             };
         }

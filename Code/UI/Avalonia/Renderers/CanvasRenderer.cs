@@ -23,7 +23,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         private readonly ICanvasTextManager textManager;
         private readonly ICanvasInteractionManager interactionManager;
         private readonly ICanvasContextManager contextManager;
-        private readonly LayoutCoordinator layoutCoordinator;
+        private readonly PersistentLayoutRenderCoordinator layoutCoordinator;
         
         // Validators and helpers
         private readonly CombatRenderingValidator combatValidator;
@@ -47,7 +47,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             this.textManager = textManager;
             this.interactionManager = interactionManager;
             this.contextManager = contextManager;
-            this.layoutCoordinator = new LayoutCoordinator(canvas, interactionManager);
+            this.layoutCoordinator = new PersistentLayoutRenderCoordinator(canvas, interactionManager, textManager);
             
             // Initialize validators and helpers
             this.combatValidator = new CombatRenderingValidator(contextManager);
@@ -113,9 +113,9 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         #region Private Helper Methods
 
-        private void RenderWithLayout(Character? character, string title, Action<int, int, int, int> renderContent, CanvasContext context, Enemy? enemy, string? dungeonName, string? roomName, bool clearCanvas = true)
+        private void RenderWithLayout(Character? character, string title, Action<int, int, int, int> renderContent, CanvasContext context, Enemy? enemy, string? dungeonName, string? roomName, bool clearCanvas = true, bool usePersistentChrome = true)
         {
-            layoutCoordinator.RenderWithLayout(character, title, renderContent, context, enemy, dungeonName, roomName, clearCanvas);
+            layoutCoordinator.RenderWithLayout(character, title, renderContent, context, enemy, dungeonName, roomName, clearCanvas, usePersistentChrome);
         }
 
         #endregion

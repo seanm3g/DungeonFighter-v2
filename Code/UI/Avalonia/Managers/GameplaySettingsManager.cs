@@ -113,9 +113,6 @@ namespace RPGGame.UI.Avalonia.Managers
             CheckBox showDetailedStatsCheckBox)
         {
             var fastChecked = fastCombatCheckBox.IsChecked ?? false;
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "S", location = "GameplaySettingsManager.SaveGameplaySettings", message = "Checkbox at save", data = new { fastCombatCheckBoxIsChecked = fastCombatCheckBox.IsChecked, fastChecked }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
             // Gameplay Settings
             GameSettings.Instance.ShowIndividualActionMessages = showIndividualActionMessagesCheckBox.IsChecked ?? false;
             GameSettings.Instance.EnableTextDisplayDelays = enableTextDisplayDelaysCheckBox.IsChecked ?? true;

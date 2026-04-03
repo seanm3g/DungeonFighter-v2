@@ -199,6 +199,38 @@ namespace RPGGame
         {
             ComboSequence.Clear();
         }
+
+        /// <summary>
+        /// Restores the combo sequence from a list of action names.
+        /// Matches actions by name from the entity's ActionPool and adds them in order.
+        /// Skips names that are not in the pool or not combo actions.
+        /// </summary>
+        /// <param name="entity">The actor whose ActionPool to use</param>
+        /// <param name="actionNames">Ordered list of action names to restore</param>
+        /// <returns>True if at least one action was restored; false if combo is empty</returns>
+        public bool RestoreComboFromActionNames(Actor entity, IReadOnlyList<string> actionNames)
+        {
+            if (actionNames == null || actionNames.Count == 0)
+                return false;
+
+            ClearCombo();
+
+            foreach (var actionName in actionNames)
+            {
+                if (string.IsNullOrWhiteSpace(actionName))
+                    continue;
+
+                var actionEntry = entity.ActionPool.FirstOrDefault(item =>
+                    string.Equals(item.action.Name, actionName, StringComparison.OrdinalIgnoreCase));
+
+                if (actionEntry.action != null && actionEntry.action.IsComboAction)
+                {
+                    AddToCombo(actionEntry.action);
+                }
+            }
+
+            return ComboSequence.Count > 0;
+        }
     }
 }
 

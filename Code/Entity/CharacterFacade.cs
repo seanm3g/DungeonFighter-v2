@@ -121,6 +121,7 @@ namespace RPGGame
             _character.ComboStep = 0;
         }
         public void InitializeDefaultCombo() => _character.Actions.InitializeDefaultCombo(_character, _character.Equipment.Weapon as WeaponItem);
+        public bool RestoreComboFromActionNames(IReadOnlyList<string> actionNames) => _character.Actions.RestoreComboFromActionNames(_character, actionNames);
         public double CalculateTurnsFromActionLength(double actionLength) => _character.Actions.CalculateTurnsFromActionLength(actionLength);
         public void RemoveItemActions() => _character.Actions.RemoveItemActions(_character);
         public void ApplyRollBonusesFromGear(Item gear) => _character.Actions.ApplyRollBonusesFromGear(_character, gear);

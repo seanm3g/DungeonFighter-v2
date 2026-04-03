@@ -16,6 +16,16 @@ namespace RPGGame
         private static readonly ConcurrentDictionary<Actor, int> _lastActionSelectionRolls = new ConcurrentDictionary<Actor, int>();
 
         /// <summary>
+        /// Unnamed normal attack for roll 6-13. 100% damage, 1.0 speed, no modifiers.
+        /// Empty name ensures combat message shows "X hits Y for Z damage" (no action name).
+        /// </summary>
+        private static readonly Action NormalAttackAction = new Action(
+            name: "",
+            damageMultiplier: 1.0,
+            length: 1.0,
+            isComboAction: false);
+
+        /// <summary>
         /// Selects an action based on Actor type - heroes use roll-based logic, enemies use random selection
         /// </summary>
         /// <param name="source">The Actor selecting the action</param>
@@ -141,33 +151,35 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Selects a normal (non-combo) action for the given Actor
-        /// Used when base roll is less than 14 (normal attack range, below combo threshold)
-        /// Returns a non-combo action if available, otherwise falls back to any available action
+        /// Selects a normal (non-combo) action for the given Actor.
+        /// Used when base roll is 6-13 (normal attack range, below combo threshold).
+        /// For characters: returns unnamed normal attack (displays "X hits Y for Z damage").
+        /// For enemies: first non-combo action, or first available action.
         /// </summary>
         /// <param name="source">The Actor to select normal action for</param>
-        /// <returns>Non-combo action for normal attacks, or first available action if no non-combo actions exist, or null if no actions available</returns>
+        /// <returns>Unnamed normal attack for characters, or non-combo/first action for enemies, or null if no actions available</returns>
         private static Action? SelectNormalAction(Actor source)
         {
-            // First, try to find a non-combo action from the source's ActionPool
+            if (source.ActionPool.Count == 0)
+            {
+                DebugLogger.LogFormat("ActionSelector",
+                    "WARNING: {0} has no actions in ActionPool when trying to select normal action", source.Name);
+                return null;
+            }
+
+            // For characters, use unnamed normal attack (displays "X hits Y for Z damage")
+            if (source is Character character && !(character is Enemy))
+            {
+                return NormalAttackAction;
+            }
+
+            // Enemies: first non-combo action, or first available action
             foreach (var actionEntry in source.ActionPool)
             {
                 if (!actionEntry.action.IsComboAction)
-                {
                     return actionEntry.action;
-                }
             }
-            
-            // If no non-combo action found, use first available action
-            if (source.ActionPool.Count > 0)
-            {
-                return source.ActionPool[0].action;
-            }
-            
-            // No actions available - this should be caught earlier, but return null for safety
-            DebugLogger.LogFormat("ActionSelector", 
-                "WARNING: {0} has no actions in ActionPool when trying to select normal action", source.Name);
-            return null;
+            return source.ActionPool[0].action;
         }
 
         /// <summary>

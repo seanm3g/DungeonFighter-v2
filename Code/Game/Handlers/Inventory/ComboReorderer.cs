@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace RPGGame.Handlers.Inventory
 {
@@ -66,6 +67,44 @@ namespace RPGGame.Handlers.Inventory
             {
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Reorders combo by moving one slot to another (same semantics as <see cref="ApplyReorder"/> with a permutation string).
+        /// </summary>
+        public static bool ApplyReorderMove(Character character, IReadOnlyList<RPGGame.Action> snapshotOrder, int fromIndex, int toIndex)
+        {
+            if (character == null || snapshotOrder == null || snapshotOrder.Count == 0)
+                return false;
+            if (fromIndex < 0 || fromIndex >= snapshotOrder.Count || toIndex < 0 || toIndex >= snapshotOrder.Count)
+                return false;
+            if (fromIndex == toIndex)
+                return false;
+
+            var list = snapshotOrder.ToList();
+            var item = list[fromIndex];
+            list.RemoveAt(fromIndex);
+            list.Insert(toIndex, item);
+
+            var sb = new StringBuilder(list.Count);
+            foreach (var a in list)
+            {
+                int orig = -1;
+                for (int j = 0; j < snapshotOrder.Count; j++)
+                {
+                    if (ReferenceEquals(a, snapshotOrder[j]))
+                    {
+                        orig = j;
+                        break;
+                    }
+                }
+
+                if (orig < 0)
+                    return false;
+                sb.Append(orig + 1);
+            }
+
+            return ApplyReorder(character, sb.ToString(), snapshotOrder.ToList());
         }
     }
 }

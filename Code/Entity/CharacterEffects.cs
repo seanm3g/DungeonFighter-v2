@@ -48,7 +48,8 @@ namespace RPGGame
 
         // Action bonuses
         public List<ActionAttackBonusGroup> AbilityBonuses => _state.AbilityBonuses;
-        public List<ActionAttackBonusGroup> ActionBonuses => _state.ActionBonuses;
+        public List<ActionAttackBonusGroup> AttackBonuses => _state.AttackBonuses;
+        public List<ActionAttackBonusGroup> ActionBonuses => _state.AttackBonuses; // Backward compat
         public double ConsumedDamageModPercent { get => _state.ConsumedDamageModPercent; set => _state.ConsumedDamageModPercent = value; }
         public double ConsumedSpeedModPercent { get => _state.ConsumedSpeedModPercent; set => _state.ConsumedSpeedModPercent = value; }
         public double ConsumedMultiHitMod { get => _state.ConsumedMultiHitMod; set => _state.ConsumedMultiHitMod = value; }
@@ -100,11 +101,20 @@ namespace RPGGame
         public void AddActionAttackBonuses(ActionAttackBonuses? bonuses) => _state.AddActionAttackBonuses(bonuses);
         public void ClearConsumedModifierBonuses() => _state.ClearConsumedModifierBonuses();
         public void AccumulateConsumedModifierBonuses(List<ActionAttackBonusItem> bonuses) => _state.AccumulateConsumedModifierBonuses(bonuses);
-        public void AddModifierBonusesFromAction(Action? action) => _state.AddModifierBonusesFromAction(action);
+        public void AddModifierBonusesFromAction(Action? action, int? nextSlotForAbilityCadence = null) => _state.AddModifierBonusesFromAction(action, nextSlotForAbilityCadence);
         public List<ActionAttackBonusItem> GetAndConsumeAbilityBonuses(bool actionSucceeded) => _state.GetAndConsumeAbilityBonuses(actionSucceeded);
         public List<ActionAttackBonusItem> GetAndConsumeActionBonuses() => _state.GetAndConsumeActionBonuses();
+        public List<ActionAttackBonusItem> GetAndConsumeAttackBonuses() => _state.GetAndConsumeAttackBonuses();
         public List<ActionAttackBonusItem> PeekAbilityBonuses() => _state.PeekAbilityBonuses();
         public List<ActionAttackBonusItem> PeekActionBonuses() => _state.PeekActionBonuses();
+        public List<ActionAttackBonusItem> PeekAttackBonuses() => _state.PeekAttackBonuses();
+        public void AddPendingActionBonuses(int slot, List<ActionAttackBonusItem> bonuses) => _state.AddPendingActionBonuses(slot, bonuses);
+        public List<ActionAttackBonusItem> ConsumePendingActionBonusesForSlot(int slot) => _state.ConsumePendingActionBonusesForSlot(slot);
+        public List<ActionAttackBonusItem> GetPendingActionBonusesForSlot(int slot) => _state.GetPendingActionBonusesForSlot(slot);
+        public IEnumerable<int> GetPendingActionBonusSlots() => _state.GetPendingActionBonusSlots();
+        public void ClearPendingActionBonuses() => _state.ClearPendingActionBonuses();
+        public void SetConsumedAttackBonusesThisRoll(List<ActionAttackBonusItem> bonuses) => _state.SetConsumedAttackBonusesThisRoll(bonuses);
+        public List<ActionAttackBonusItem> GetAndClearConsumedAttackBonusesThisRoll() => _state.GetAndClearConsumedAttackBonusesThisRoll();
         public bool UseReroll() => _state.UseReroll();
         public void ResetRerollUsage() => _state.ResetRerollUsage();
         public void ResetRerollCharges() => _state.ResetRerollCharges();

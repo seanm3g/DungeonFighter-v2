@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
 using Avalonia.Threading;
 using RPGGame;
 using RPGGame.UI.Avalonia;
@@ -21,6 +18,7 @@ namespace RPGGame.UI.Avalonia.Display.Render
     {
         private readonly GameCanvasControl canvas;
         private readonly DisplayRenderer renderer;
+        private readonly DungeonRenderer dungeonRenderer;
         private readonly PersistentLayoutManager layoutManager;
         private readonly RenderStateManager renderStateManager;
         private readonly ICanvasContextManager contextManager;
@@ -38,6 +36,7 @@ namespace RPGGame.UI.Avalonia.Display.Render
         public RenderCoordinator(
             GameCanvasControl canvas,
             DisplayRenderer renderer,
+            DungeonRenderer dungeonRenderer,
             PersistentLayoutManager layoutManager,
             RenderStateManager renderStateManager,
             ICanvasContextManager contextManager,
@@ -47,6 +46,7 @@ namespace RPGGame.UI.Avalonia.Display.Render
         {
             this.canvas = canvas ?? throw new ArgumentNullException(nameof(canvas));
             this.renderer = renderer ?? throw new ArgumentNullException(nameof(renderer));
+            this.dungeonRenderer = dungeonRenderer ?? throw new ArgumentNullException(nameof(dungeonRenderer));
             this.layoutManager = layoutManager ?? throw new ArgumentNullException(nameof(layoutManager));
             this.renderStateManager = renderStateManager ?? throw new ArgumentNullException(nameof(renderStateManager));
             this.contextManager = contextManager ?? throw new ArgumentNullException(nameof(contextManager));
@@ -185,60 +185,45 @@ namespace RPGGame.UI.Avalonia.Display.Render
             {
                 try
                 {
-                    // Get center content area dimensions from layout manager
-                    var (contentX, contentY, contentWidth, contentHeight) = layoutManager.GetCenterContentArea();
-                    
                     // Determine if we should clear canvas
                     bool shouldClearCanvas = renderStateManager.ShouldClearCanvas(state, currentMode);
                     
-                    if (shouldClearCanvas || state.NeedsFullLayout)
+                    // Always run persistent layout (left + center + right + strip callback). Previously, the "partial"
+                    // path only drew the center buffer, so stats/header toggles that only bumped buffer scroll could leave
+                    // side chrome and the action strip stale until a full-layout run.
+                    // FINAL CHECK: Ensure enemy is null if character is not active
+                    // This is a last-ditch check to prevent background combat enemies from rendering
+                    Enemy? enemyToRender = state.CurrentEnemy;
+                    if (enemyToRender != null && stateManager != null && state.CurrentCharacter != null)
                     {
-                        // FINAL CHECK: Ensure enemy is null if character is not active
-                        // This is a last-ditch check to prevent background combat enemies from rendering
-                        Enemy? enemyToRender = state.CurrentEnemy;
-                        if (enemyToRender != null && stateManager != null && state.CurrentCharacter != null)
+                        var currentActiveCharacter = stateManager.GetActiveCharacter();
+                        if (state.CurrentCharacter != currentActiveCharacter)
                         {
-                            var currentActiveCharacter = stateManager.GetActiveCharacter();
-                            if (state.CurrentCharacter != currentActiveCharacter)
-                            {
-                                // Character is not active - don't render enemy
-                                // Also clear it from context manager to prevent it from being used in future renders
-                                contextManager.ClearCurrentEnemy();
-                                enemyToRender = null;
-                            }
-                            else if (externalRenderCallback == null)
-                            {
-                                // No external callback means no active combat - clear enemy even if character matches
-                                // This handles the case where combat ended but enemy context wasn't cleared
-                                contextManager.ClearCurrentEnemy();
-                                enemyToRender = null;
-                            }
-                        }
-                        else if (enemyToRender != null && externalRenderCallback == null)
-                        {
-                            // No callback and no character check possible - clear enemy to be safe
+                            // Character is not active - don't render enemy
+                            // Also clear it from context manager to prevent it from being used in future renders
                             contextManager.ClearCurrentEnemy();
                             enemyToRender = null;
                         }
-                        
-                        // Full layout render
-                        string title = TitleResolver.DetermineTitle(state.CurrentCharacter, enemyToRender);
-                        layoutManager.RenderLayout(
-                            state.CurrentCharacter,
-                            (x, y, w, h) => renderer.Render(buffer, x, y, w, h),
-                            title,
-                            enemyToRender,  // Use the checked enemy (may be null)
-                            state.DungeonName,
-                            state.RoomName,
-                            clearCanvas: shouldClearCanvas
-                        );
+                        // Do not clear enemy when externalRenderCallback is null: PerformRender is also used for
+                        // scroll/force renders without syncing the callback from DisplayManager, while combat still
+                        // runs the external combat renderer. Clearing here mutated context and blanked the ENEMY panel.
                     }
-                    else
-                    {
-                        // Just update center content
-                        renderer.Render(buffer, contentX, contentY, contentWidth, contentHeight);
-                        canvas.Refresh();
-                    }
+                    
+                    string title = TitleResolver.DetermineTitle(state.CurrentCharacter, enemyToRender);
+                    layoutManager.RenderLayout(
+                        state.CurrentCharacter,
+                        (x, y, w, h) =>
+                        {
+                            renderer.Render(buffer, x, y, w, h);
+                            if (state.CurrentCharacter != null)
+                                dungeonRenderer.RenderActionInfoStrip(state.CurrentCharacter);
+                        },
+                        title,
+                        enemyToRender,
+                        state.DungeonName,
+                        state.RoomName,
+                        clearCanvas: shouldClearCanvas
+                    );
                     
                     // Record that render was performed
                     renderStateManager.RecordRender(buffer, contextManager);

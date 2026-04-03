@@ -1,3 +1,5 @@
+using System;
+
 namespace RPGGame.UI.Avalonia.Layout
 {
     /// <summary>
@@ -82,7 +84,7 @@ namespace RPGGame.UI.Avalonia.Layout
         // Calculate width using effective visible width to ensure right panel stays within visible area
         // Total effective width = LEFT_PANEL_WIDTH + gap(1) + CENTER_PANEL_WIDTH + gap(1) + RIGHT_PANEL_WIDTH
         public static int CENTER_PANEL_WIDTH => EffectiveVisibleWidth - LEFT_PANEL_WIDTH - RIGHT_PANEL_WIDTH-3; // Accounts for gaps between panels
-        private const int BASE_ACTION_INFO_STRIP_HEIGHT = 10;
+        private const int BASE_ACTION_INFO_STRIP_HEIGHT = 11;
         public static int ACTION_INFO_STRIP_HEIGHT => BASE_ACTION_INFO_STRIP_HEIGHT;
         public static int CENTER_PANEL_HEIGHT => _gridHeight + 1 - ACTION_INFO_STRIP_HEIGHT; // Leaves room for action-info strip below (left/right panels stay full height)
 
@@ -91,6 +93,10 @@ namespace RPGGame.UI.Avalonia.Layout
         public static int ACTION_INFO_Y => CENTER_PANEL_Y + CENTER_PANEL_HEIGHT; // First row below center panel
         public static int ACTION_INFO_WIDTH => CENTER_PANEL_WIDTH;
         public static int ACTION_INFO_HEIGHT => ACTION_INFO_STRIP_HEIGHT;
+        /// <summary>Horizontal gap in character columns between per-action panels in the action-info strip.</summary>
+        public const int ACTION_INFO_PANEL_GAP = 1;
+        /// <summary>Empty rows at the top of the action-info strip before action card borders (below center panel edge).</summary>
+        public const int ACTION_INFO_PANEL_TOP_GAP = 1;
         /// <summary>Content area for action info (inside border).</summary>
         public static int ACTION_INFO_CONTENT_X => ACTION_INFO_X + 1;
         public static int ACTION_INFO_CONTENT_Y => ACTION_INFO_Y + 1;
@@ -105,6 +111,18 @@ namespace RPGGame.UI.Avalonia.Layout
         
         // Top bar for title
         public static int TITLE_Y => ScaleHeight(BASE_TITLE_Y);
+
+        /// <summary>
+        /// Full usable content area when the three-panel chrome (left / center frame / right) is hidden.
+        /// Spans full grid height including the row band normally reserved for the action-info strip.
+        /// </summary>
+        public static (int x, int y, int width, int height) GetChromelessContentRect()
+        {
+            const int marginX = 1;
+            int w = Math.Max(1, EffectiveVisibleWidth - marginX * 2);
+            int h = _gridHeight + 1;
+            return (marginX, 0, w, h);
+        }
     }
 }
 

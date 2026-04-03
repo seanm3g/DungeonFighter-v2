@@ -103,19 +103,26 @@ namespace RPGGame
 
         #region Action bonus
         public List<ActionAttackBonusGroup> AbilityBonuses { get; set; } = new List<ActionAttackBonusGroup>();
-        public List<ActionAttackBonusGroup> ActionBonuses { get; set; } = new List<ActionAttackBonusGroup>();
+        /// <summary>ATTACK cadence: consumed per roll, apply only on hit.</summary>
+        public List<ActionAttackBonusGroup> AttackBonuses { get; set; } = new List<ActionAttackBonusGroup>();
+        /// <summary>ACTION cadence: slot-based. Key = combo slot index; value = bonuses to apply when that slot executes.</summary>
+        public Dictionary<int, List<ActionAttackBonusItem>> PendingActionBonusesBySlot { get; set; } = new Dictionary<int, List<ActionAttackBonusItem>>();
         public double ConsumedDamageModPercent { get; set; }
         public double ConsumedSpeedModPercent { get; set; }
         public double ConsumedMultiHitMod { get; set; }
         public double ConsumedAmpModPercent { get; set; }
+        /// <summary>ATTACK bonuses consumed this roll; apply stat bonuses on hit, then clear.</summary>
+        public List<ActionAttackBonusItem> ConsumedAttackBonusesThisRoll { get; set; } = new List<ActionAttackBonusItem>();
 
         public void AddActionAttackBonuses(ActionAttackBonuses? bonuses)
         {
             if (bonuses?.BonusGroups == null) return;
             foreach (var group in bonuses.BonusGroups)
             {
-                if (group.Keyword == "ABILITY") AbilityBonuses.Add(group);
-                else if (group.Keyword == "ACTION") ActionBonuses.Add(group);
+                var ct = string.IsNullOrEmpty(group.CadenceType) ? group.Keyword : group.CadenceType;
+                if (ct == "ABILITY") AbilityBonuses.Add(group);
+                else if (ct == "ATTACK") AttackBonuses.Add(group);
+                // ACTION cadence: added to PendingActionBonusesBySlot in ActionExecutionFlow when action succeeds
             }
         }
         public void ClearConsumedModifierBonuses() { ConsumedDamageModPercent = 0; ConsumedSpeedModPercent = 0; ConsumedMultiHitMod = 0; ConsumedAmpModPercent = 0; }
@@ -133,7 +140,11 @@ namespace RPGGame
                 }
             }
         }
-        public void AddModifierBonusesFromAction(Action? action)
+        /// <summary>
+        /// Adds modifier bonuses (SpeedMod, DamageMod, etc.) from an action.
+        /// When nextSlotForAbilityCadence is provided (Ability cadence in combo), adds to that slot instead of AbilityBonuses.
+        /// </summary>
+        public void AddModifierBonusesFromAction(Action? action, int? nextSlotForAbilityCadence = null)
         {
             if (action == null) return;
             bool hasSpeed = !string.IsNullOrWhiteSpace(action.SpeedMod);
@@ -141,17 +152,24 @@ namespace RPGGame
             bool hasMultiHit = !string.IsNullOrWhiteSpace(action.MultiHitMod);
             bool hasAmp = !string.IsNullOrWhiteSpace(action.AmpMod);
             if (!hasSpeed && !hasDamage && !hasMultiHit && !hasAmp) return;
-            string keyword = string.Equals((action.Cadence ?? "").Trim(), "Ability", StringComparison.OrdinalIgnoreCase) ? "ABILITY" : "ACTION";
-            int count = action.Advanced?.StatBonusDuration > 0 ? action.Advanced.StatBonusDuration : (action.Advanced?.RollBonusDuration > 0 ? action.Advanced.RollBonusDuration : 1);
-            if (count <= 0) count = 1;
             var bonuses = new List<ActionAttackBonusItem>();
             if (hasSpeed && ModifierParser.ParsePercent(action.SpeedMod) is { } sv) bonuses.Add(new ActionAttackBonusItem { Type = "SPEED_MOD", Value = sv * 100.0 });
             if (hasDamage && ModifierParser.ParsePercent(action.DamageMod) is { } dv) bonuses.Add(new ActionAttackBonusItem { Type = "DAMAGE_MOD", Value = dv * 100.0 });
             if (hasMultiHit && ModifierParser.ParseValue(action.MultiHitMod) is { } mv) bonuses.Add(new ActionAttackBonusItem { Type = "MULTIHIT_MOD", Value = mv });
             if (hasAmp && ModifierParser.ParsePercent(action.AmpMod) is { } av) bonuses.Add(new ActionAttackBonusItem { Type = "AMP_MOD", Value = av * 100.0 });
             if (bonuses.Count == 0) return;
-            var group = new ActionAttackBonusGroup { Keyword = keyword, Count = count, Bonuses = bonuses };
-            if (keyword == "ABILITY") AbilityBonuses.Add(group); else ActionBonuses.Add(group);
+
+            if (nextSlotForAbilityCadence.HasValue)
+            {
+                AddPendingActionBonuses(nextSlotForAbilityCadence.Value, bonuses);
+                return;
+            }
+
+            string keyword = string.Equals((action.Cadence ?? "").Trim(), "Ability", StringComparison.OrdinalIgnoreCase) ? "ABILITY" : "ATTACK";
+            int count = action.Advanced?.StatBonusDuration > 0 ? action.Advanced.StatBonusDuration : (action.Advanced?.RollBonusDuration > 0 ? action.Advanced.RollBonusDuration : 1);
+            if (count <= 0) count = 1;
+            var group = new ActionAttackBonusGroup { Keyword = keyword, CadenceType = keyword, Count = count, Bonuses = bonuses };
+            if (keyword == "ABILITY") AbilityBonuses.Add(group); else AttackBonuses.Add(group);
         }
         public List<ActionAttackBonusItem> GetAndConsumeAbilityBonuses(bool actionSucceeded)
         {
@@ -165,20 +183,43 @@ namespace RPGGame
             foreach (var g in toRemove) AbilityBonuses.Remove(g);
             return result;
         }
-        public List<ActionAttackBonusItem> GetAndConsumeActionBonuses()
+        public List<ActionAttackBonusItem> GetAndConsumeActionBonuses() => GetAndConsumeAttackBonuses();
+        public List<ActionAttackBonusItem> GetAndConsumeAttackBonuses()
         {
             var result = new List<ActionAttackBonusItem>();
             var toRemove = new List<ActionAttackBonusGroup>();
-            foreach (var group in ActionBonuses)
+            foreach (var group in AttackBonuses)
             {
                 if (group.Count > 0 && group.Bonuses != null) { result.AddRange(group.Bonuses); group.Count--; if (group.Count <= 0) toRemove.Add(group); }
             }
-            foreach (var g in toRemove) ActionBonuses.Remove(g);
+            foreach (var g in toRemove) AttackBonuses.Remove(g);
             return result;
         }
         public List<ActionAttackBonusItem> PeekAbilityBonuses() { var r = new List<ActionAttackBonusItem>(); foreach (var g in AbilityBonuses) { if (g.Bonuses != null) r.AddRange(g.Bonuses); } return r; }
-        public List<ActionAttackBonusItem> PeekActionBonuses() { var r = new List<ActionAttackBonusItem>(); foreach (var g in ActionBonuses) { if (g.Bonuses != null) r.AddRange(g.Bonuses); } return r; }
-        public void ClearActionBonus() { AbilityBonuses.Clear(); ActionBonuses.Clear(); ConsumedDamageModPercent = 0; ConsumedSpeedModPercent = 0; ConsumedMultiHitMod = 0; ConsumedAmpModPercent = 0; }
+        public List<ActionAttackBonusItem> PeekActionBonuses() => PeekAttackBonuses();
+        public List<ActionAttackBonusItem> PeekAttackBonuses() { var r = new List<ActionAttackBonusItem>(); foreach (var g in AttackBonuses) { if (g.Bonuses != null) r.AddRange(g.Bonuses); } return r; }
+        public void ClearActionBonus() { AbilityBonuses.Clear(); AttackBonuses.Clear(); PendingActionBonusesBySlot.Clear(); ConsumedDamageModPercent = 0; ConsumedSpeedModPercent = 0; ConsumedMultiHitMod = 0; ConsumedAmpModPercent = 0; }
+        public void AddPendingActionBonuses(int slot, List<ActionAttackBonusItem> bonuses)
+        {
+            if (bonuses == null || bonuses.Count == 0) return;
+            if (!PendingActionBonusesBySlot.ContainsKey(slot)) PendingActionBonusesBySlot[slot] = new List<ActionAttackBonusItem>();
+            PendingActionBonusesBySlot[slot].AddRange(bonuses);
+        }
+        public List<ActionAttackBonusItem> ConsumePendingActionBonusesForSlot(int slot)
+        {
+            if (!PendingActionBonusesBySlot.TryGetValue(slot, out var list) || list == null) return new List<ActionAttackBonusItem>();
+            var result = new List<ActionAttackBonusItem>(list);
+            PendingActionBonusesBySlot.Remove(slot);
+            return result;
+        }
+        public List<ActionAttackBonusItem> GetPendingActionBonusesForSlot(int slot)
+        {
+            return PendingActionBonusesBySlot.TryGetValue(slot, out var list) ? new List<ActionAttackBonusItem>(list) : new List<ActionAttackBonusItem>();
+        }
+        public IEnumerable<int> GetPendingActionBonusSlots() => PendingActionBonusesBySlot.Keys;
+        public void ClearPendingActionBonuses() => PendingActionBonusesBySlot.Clear();
+        public void SetConsumedAttackBonusesThisRoll(List<ActionAttackBonusItem> bonuses) { ConsumedAttackBonusesThisRoll = bonuses ?? new List<ActionAttackBonusItem>(); }
+        public List<ActionAttackBonusItem> GetAndClearConsumedAttackBonusesThisRoll() { var r = ConsumedAttackBonusesThisRoll; ConsumedAttackBonusesThisRoll = new List<ActionAttackBonusItem>(); return r; }
         #endregion
     }
 }

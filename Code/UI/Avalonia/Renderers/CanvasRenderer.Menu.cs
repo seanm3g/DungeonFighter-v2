@@ -14,7 +14,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(null, "MAIN MENU", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 menuRenderer.RenderMainMenuContent(contentX, contentY, contentWidth, contentHeight, hasSavedGame, characterName, characterLevel);
-            }, new CanvasContext(), null, null, null, clearCanvas: false);
+            }, new CanvasContext(), null, null, null, clearCanvas: false, usePersistentChrome: false);
             messageRenderer.ClearLoadingStatus();
             canvas.Refresh();
         }
@@ -26,7 +26,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(null, "WEAPON SELECTION", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 menuRenderer.RenderWeaponSelectionContent(contentX, contentY, contentWidth, contentHeight, weapons ?? new List<StartingWeapon>());
-            }, context, null, null, null, clearCanvas: true);
+            }, context, null, null, null, clearCanvas: true, usePersistentChrome: false);
             messageRenderer.ClearLoadingStatus();
             canvas.Refresh();
         }

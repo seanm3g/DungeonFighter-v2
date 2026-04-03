@@ -2,9 +2,7 @@ namespace RPGGame
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
-    using System.Text.Json;
     using RPGGame.UI.ColorSystem;
 
     /// <summary>
@@ -41,6 +39,9 @@ namespace RPGGame
         private List<Dungeon> availableDungeons = new();
         private Dungeon? currentDungeon;
         private Environment? currentRoom;
+
+        /// <summary>Ref-count for active dungeon enemy encounters (intro, combat, victory delays). Blocks combo strip reorder regardless of <see cref="GameState"/>.</summary>
+        private int comboStripEncounterLockCount;
         
         // Multi-character support - delegated to CharacterStateManager
         private readonly CharacterStateManager characterStateManager;
@@ -170,6 +171,24 @@ namespace RPGGame
         /// Convenience property to check if a room is active.
         /// </summary>
         public bool HasCurrentRoom => CurrentRoom != null;
+
+        /// <summary>
+        /// True while <see cref="EnemyEncounterHandler.ProcessEnemyEncounter"/> is running (including pre-fight UI and post-fight messaging).
+        /// </summary>
+        public bool IsComboStripEncounterLocked => comboStripEncounterLockCount > 0;
+
+        /// <summary>Called when starting an enemy encounter.</summary>
+        public void PushComboStripEncounterLock()
+        {
+            comboStripEncounterLockCount++;
+        }
+
+        /// <summary>Called when an enemy encounter completes (pair with <see cref="PushComboStripEncounterLock"/>).</summary>
+        public void PopComboStripEncounterLock()
+        {
+            if (comboStripEncounterLockCount > 0)
+                comboStripEncounterLockCount--;
+        }
 
         /// <summary>
         /// Transitions the game to a new state.

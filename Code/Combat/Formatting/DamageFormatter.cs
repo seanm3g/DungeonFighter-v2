@@ -279,36 +279,37 @@ namespace RPGGame.Combat.Formatting
             var builder = new ColoredTextBuilder();
             
             string actionName = action?.Name ?? "attack";
-            
+            bool hasDisplayableAction = !string.IsNullOrEmpty(action?.Name);
+
             // Create combat outcome to centralize color decisions
             int totalRoll = roll + rollBonus;
             bool isComboAction = CombatColorStrategy.IsComboAction(actionName);
-            
+
             // Create outcome before modifying actionName for critical
             var outcome = CombatOutcome.CreateHit(action, totalRoll, roll, isComboAction);
-            
-            if (outcome.IsCritical)
+
+            if (outcome.IsCritical && hasDisplayableAction)
             {
                 actionName = $"CRITICAL {actionName}";
             }
-            
+
             // Update combo action status after potential critical prefix
-            isComboAction = CombatColorStrategy.IsComboAction(actionName);
+            isComboAction = hasDisplayableAction && CombatColorStrategy.IsComboAction(actionName);
             outcome.IsComboAction = isComboAction;
-            
+
             // Use centralized color strategy
             ColorPalette hitsColor = CombatColorStrategy.GetHitsColor(outcome);
             ColorPalette actionColor = CombatColorStrategy.GetActionColor(outcome);
             ColorPalette damageColor = CombatColorStrategy.GetDamageColor(outcome);
-            
+
             // Attacker name with enemy-specific colors
             builder.Add(attacker.Name, EntityColorHelper.GetActorColor(attacker));
-            
+
             // Target name with "hits" verb with appropriate color based on outcome
             AddHitsTarget(builder, target.Name, EntityColorHelper.GetActorColor(target), hitsColor);
-            
-            // Action name for combo actions
-            if (isComboAction)
+
+            // Action name only when action has a displayable name (normal attack has none)
+            if (hasDisplayableAction && isComboAction)
             {
                 AddWithAction(builder, actionName, actionColor);
             }

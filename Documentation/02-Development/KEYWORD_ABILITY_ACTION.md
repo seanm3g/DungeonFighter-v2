@@ -21,8 +21,9 @@ Game mechanics keywords were renamed for clarity:
 ## Data and code
 
 - **Actions.json** `cadence` values: `"ACTION"` → `"ABILITY"`, `"ATTACK"` → `"ACTION"`, `"ACTIONS"` → `"ABILITIES"`, `"ATTACKS"` → `"ACTIONS"`.
-- **Spreadsheet/CSV**: Parser still accepts legacy cadence values and maps them: `ACTION`/`ACTIONS` → keyword ABILITY; `ATTACK`/`ATTACKS` → keyword ACTION.
-- **CharacterEffects**: `ActionBonuses` (old, for "ACTION" keyword) → `AbilityBonuses` (for "ABILITY"); `AttackBonuses` (old, for "ATTACK") → `ActionBonuses` (for "ACTION"). Methods: `GetAndConsumeAbilityBonuses(bool)`, `GetAndConsumeActionBonuses()`.
+- **Spreadsheet/CSV**: Parser accepts cadence values and maps them: `ACTION`/`ACTIONS` → slot-based (next action in combo); `ATTACK`/`ATTACKS` → roll-based (next roll); `ABILITY`/`ABILITIES` → consumed on hit.
+- **CharacterEffects**: `AbilityBonuses` (ABILITY cadence); `AttackBonuses` (ATTACK cadence); `PendingActionBonusesBySlot` (ACTION cadence, slot-based). Methods: `GetAndConsumeAbilityBonuses(bool)`, `GetAndConsumeAttackBonuses()`, `AddPendingActionBonuses`, `ConsumePendingActionBonusesForSlot`.
+- **Full system**: See [ACTION_BONUS_SYSTEM.md](../05-Systems/ACTION_BONUS_SYSTEM.md).
 
 ## Display text
 

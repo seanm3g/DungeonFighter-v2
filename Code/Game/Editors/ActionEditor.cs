@@ -201,9 +201,6 @@ namespace RPGGame.Editors
 
                 string pathToSave = ActionLoader.GetLoadedActionsFilePath() ?? actionsFilePath;
                 try { pathToSave = Path.GetFullPath(pathToSave); } catch { }
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { hypothesisId = "H3,H5", location = "ActionEditor.SaveActions:beforeSave", message = "pathToSave and editor count", data = new { pathToSave, editorCount = actions.Count }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-                // #endregion
                 bool isSpreadsheet = ActionLoader.IsSpreadsheetFormat();
                 DebugLogger.LogFormat("ActionEditor", "Saving Actions to: {0}", pathToSave);
                 string? dir = Path.GetDirectoryName(pathToSave);
@@ -250,9 +247,6 @@ namespace RPGGame.Editors
                 var didSync = loadedPath != null;
                 if (didSync)
                     actions = new List<ActionData>(ActionLoader.GetAllActionData());
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { hypothesisId = "H1,H2,H4,H5", location = "ActionEditor.SaveActions:afterLoad", message = "reload result and sync decision", data = new { loadedPath = loadedPath ?? "(null)", loaderCount, didSync, editorCountAfter = actions.Count }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-                // #endregion
                 return true;
             }
             catch (Exception ex)

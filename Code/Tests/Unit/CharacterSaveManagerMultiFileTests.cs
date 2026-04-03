@@ -15,6 +15,7 @@ namespace RPGGame.Tests.Unit
             TestCharacterIdFilenameGeneration();
             TestMultiFileSaveLoad();
             TestListAllSavedCharacters();
+            TestExtractedCharacterIdRoundTripsLoad();
             TestBackwardCompatibility();
             Console.WriteLine("All CharacterSaveManager multi-file tests passed!");
         }
@@ -115,6 +116,45 @@ namespace RPGGame.Tests.Unit
                 if (File.Exists(filename3)) File.Delete(filename3);
             }
             catch { }
+        }
+
+        /// <summary>
+        /// ListAllSavedCharacters must extract the same characterId that SaveCharacter uses so LoadCharacterAsync(id) finds the file.
+        /// </summary>
+        private static void TestExtractedCharacterIdRoundTripsLoad()
+        {
+            var character = new Character("RoundTripName", 2);
+            character.Stats.Strength = 33;
+            var id = "round_trip_id_99";
+            CharacterSaveManager.SaveCharacter(character, id);
+
+            try
+            {
+                var expectedPath = CharacterSaveManager.GetCharacterSaveFilename(id);
+                Assert(File.Exists(expectedPath), $"Save file should exist: {expectedPath}");
+
+                var savedCharacters = CharacterSaveManager.ListAllSavedCharacters();
+                var entry = savedCharacters.Find(c => c.characterId == id);
+                Assert(entry.characterName != null, "Listed entry should exist for saved id");
+                Assert(entry.characterId == id, $"Listed characterId should match save id; got '{entry.characterId}'");
+
+                var loaded = CharacterSaveManager.LoadCharacterAsync(entry.characterId).GetAwaiter().GetResult();
+                Assert(loaded != null, "Load using listed characterId should succeed");
+                if (loaded != null)
+                {
+                    Assert(loaded.Name == character.Name, "Loaded name should match");
+                    Assert(loaded.Stats.Strength == 33, "Loaded stats should match");
+                }
+            }
+            finally
+            {
+                try
+                {
+                    var fn = CharacterSaveManager.GetCharacterSaveFilename(id);
+                    if (File.Exists(fn)) File.Delete(fn);
+                }
+                catch { }
+            }
         }
 
         private static void TestBackwardCompatibility()

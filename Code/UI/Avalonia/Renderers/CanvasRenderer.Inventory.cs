@@ -12,6 +12,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderInventory(contentX, contentY, contentWidth, contentHeight, character, inventory);
+                dungeonRenderer.RenderActionInfoStrip(character);
             }, context, null, null, null, clearCanvas: true);
         }
 
@@ -20,6 +21,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderItemSelectionPrompt(contentX, contentY, contentWidth, contentHeight, character, inventory, promptMessage, actionType);
+                dungeonRenderer.RenderActionInfoStrip(character);
             }, context, null, null, null);
         }
 
@@ -28,6 +30,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderSlotSelectionPrompt(contentX, contentY, contentWidth, contentHeight, character);
+                dungeonRenderer.RenderActionInfoStrip(character);
             }, context, null, null, null);
         }
 
@@ -36,6 +39,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderRaritySelectionPrompt(contentX, contentY, contentWidth, contentHeight, character, rarityGroups);
+                dungeonRenderer.RenderActionInfoStrip(character);
             }, context, null, null, null);
         }
 
@@ -44,6 +48,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderTradeUpPreview(contentX, contentY, contentWidth, contentHeight, character, itemsToTrade, resultingItem, currentRarity, nextRarity);
+                dungeonRenderer.RenderActionInfoStrip(character);
             }, context, null, null, null);
         }
 
@@ -52,6 +57,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderItemComparison(contentX, contentY, contentWidth, contentHeight, character, newItem, currentItem, slot);
+                dungeonRenderer.RenderActionInfoStrip(character);
             }, context, null, null, null);
         }
 
@@ -60,6 +66,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, "COMBO MANAGEMENT", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderComboManagement(contentX, contentY, contentWidth, contentHeight, character);
+                dungeonRenderer.RenderActionInfoStrip(character);
             }, context, null, null, null);
         }
 
@@ -68,6 +75,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, "COMBO MANAGEMENT", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderComboActionSelection(contentX, contentY, contentWidth, contentHeight, character, actionType);
+                dungeonRenderer.RenderActionInfoStrip(character);
             }, context, null, null, null);
         }
 
@@ -76,6 +84,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, "COMBO MANAGEMENT", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderComboReorderPrompt(contentX, contentY, contentWidth, contentHeight, character, currentSequence);
+                dungeonRenderer.RenderActionInfoStrip(character);
             }, context, null, null, null);
         }
     }

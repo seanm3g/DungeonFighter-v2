@@ -9,13 +9,14 @@ namespace RPGGame.UI.Avalonia.Canvas
 {
 
     /// <summary>
-    /// Handles rendering operations for canvas elements (boxes, progress bars, text).
+    /// Low-level drawing of canvas primitives (boxes, progress bars, text) to a <see cref="DrawingContext"/>.
+    /// Distinct from <see cref="RPGGame.UI.Avalonia.Renderers.CanvasRenderer"/>, which orchestrates full-screen game UI.
     /// </summary>
-    public class CanvasRenderer
+    public class CanvasPrimitivesRenderer
     {
         private readonly CanvasCoordinateConverter coordinateConverter;
         
-        public CanvasRenderer(CanvasCoordinateConverter coordinateConverter)
+        public CanvasPrimitivesRenderer(CanvasCoordinateConverter coordinateConverter)
         {
             this.coordinateConverter = coordinateConverter ?? throw new ArgumentNullException(nameof(coordinateConverter));
         }

@@ -32,6 +32,7 @@ namespace RPGGame.Tests.Unit
             TestCriticalHitRecording();
             TestCriticalMissRecording();
             TestThresholdOverrides();
+            TestThresholdCascading();
             TestThresholdAdjustments();
             TestDynamicThresholds();
 
@@ -218,6 +219,28 @@ namespace RPGGame.Tests.Unit
             thresholdManager.ResetThresholds(attacker);
         }
 
+        private static void TestThresholdCascading()
+        {
+            Console.WriteLine("\n--- Testing Threshold Cascading ---");
+
+            var attacker = TestDataBuilders.Character().WithName("TestHero").Build();
+            var tm = RollModificationManager.GetThresholdManager();
+
+            // CRIT 19→12 cascades COMBO to 12 (when higher threshold goes lower, lower moves with it)
+            tm.ResetThresholds(attacker);
+            tm.SetCriticalHitThreshold(attacker, 12);
+            TestBase.AssertEqual(12, tm.GetCriticalHitThreshold(attacker), "CRIT should be 12", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(12, tm.GetComboThreshold(attacker), "COMBO should cascade to 12 when CRIT goes to 12", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // COMBO 14→4 cascades HIT to 3
+            tm.ResetThresholds(attacker);
+            tm.SetComboThreshold(attacker, 4);
+            TestBase.AssertEqual(4, tm.GetComboThreshold(attacker), "COMBO should be 4", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(3, tm.GetHitThreshold(attacker), "HIT should cascade to 3 when COMBO goes to 4", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            tm.ResetThresholds(attacker);
+        }
+
         private static void TestThresholdAdjustments()
         {
             Console.WriteLine("\n--- Testing Threshold Adjustments ---");
@@ -227,11 +250,11 @@ namespace RPGGame.Tests.Unit
 
             int originalThreshold = thresholdManager.GetCriticalHitThreshold(attacker);
             
-            // Test adjustment
+            // Test adjustment: +3 CRIT reduces threshold (easier to crit). Base 20 -> 17.
             thresholdManager.AdjustCriticalHitThreshold(attacker, 3);
             int adjustedThreshold = thresholdManager.GetCriticalHitThreshold(attacker);
-            TestBase.AssertEqual(originalThreshold + 3, adjustedThreshold, 
-                "Threshold adjustment should add to current threshold", 
+            TestBase.AssertEqual(originalThreshold - 3, adjustedThreshold, 
+                "Positive crit adjustment should reduce threshold (easier to crit)", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Reset

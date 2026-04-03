@@ -1,4 +1,4 @@
-﻿<Window xmlns="https://github.com/avaloniaui"
+<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -13,14 +13,19 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        <!-- Main Game Canvas -->
+        <!-- Transparent Border: GameCanvasControl inherits Control (no Background), so without this wrapper pointer events miss the canvas entirely. -->
+        <Border Grid.Row="0"
+                x:Name="GameCanvasHitSurface"
+                Background="Transparent"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch">
         <local:GameCanvasControl x:Name="GameCanvas" 
-                                Grid.Row="0" 
                                 Margin="0"
                                 HorizontalAlignment="Stretch"
                                 VerticalAlignment="Stretch"
                                 Focusable="True"
                                 FocusAdorner="{x:Null}"/>
+        </Border>
         
         <!-- TextBox for text input in action creation form -->
         <!-- Positioned where the input prompt appears on the canvas -->

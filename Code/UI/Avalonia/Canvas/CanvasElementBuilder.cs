@@ -194,6 +194,10 @@ namespace RPGGame.UI.Avalonia.Canvas
             {
                 spacesNeeded = 1; // TECH: # (1 space)
             }
+            else if (statName == "Armor")
+            {
+                spacesNeeded = 3; // Align value column with Damage / Speed primary lines
+            }
             else
             {
                 spacesNeeded = 2; // STR:   #, AGI:   #, INT:   # (3 spaces)

@@ -39,9 +39,6 @@ namespace RPGGame
             System.Action onGameLoop,
             System.Action onShowMainMenu)
         {
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "H4", location = "GameLoader.cs:36", message = "LoadGame ENTRY", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), threadId = System.Threading.Thread.CurrentThread.ManagedThreadId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
             DebugLogger.Log("GameLoader", "LoadGame() called");
             // Don't call onMessage("Loading game...") here - it triggers ShowLoadingStatus in the callback
             // which can appear after the main menu is rendered, causing the loading message to persist
@@ -49,15 +46,9 @@ namespace RPGGame
             
             try
             {
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "H4", location = "GameLoader.cs:47", message = "Checking CurrentPlayer", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), currentPlayerIsNull = (stateManager.CurrentPlayer == null), threadId = System.Threading.Thread.CurrentThread.ManagedThreadId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-                // #endregion
                 if (stateManager.CurrentPlayer != null)
                 {
                     DebugLogger.Log("GameLoader", "Character already loaded in state manager, transitioning to game loop");
-                    // #region agent log
-                    try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "H4", location = "GameLoader.cs:50", message = "CurrentPlayer exists, returning early", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), threadId = System.Threading.Thread.CurrentThread.ManagedThreadId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-                    // #endregion
                     // Character already loaded, go to game loop
                     stateManager.TransitionToState(GameState.GameLoop);
                     try
@@ -74,13 +65,7 @@ namespace RPGGame
                 
                 // Check if save file exists first
                 DebugLogger.Log("GameLoader", "Checking if save file exists...");
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "H4", location = "GameLoader.cs:66", message = "BEFORE SaveFileExists", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), threadId = System.Threading.Thread.CurrentThread.ManagedThreadId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-                // #endregion
                 bool saveExists = CharacterSaveManager.SaveFileExists();
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "H4", location = "GameLoader.cs:68", message = "AFTER SaveFileExists", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), saveExists, threadId = System.Threading.Thread.CurrentThread.ManagedThreadId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-                // #endregion
                 DebugLogger.Log("GameLoader", $"Save file exists: {saveExists}");
                 
                 if (!saveExists)
@@ -95,9 +80,6 @@ namespace RPGGame
                 // ShowLoadingAnimation shows a full-screen animation that can persist even after canvas.Clear()
                 // ShowLoadingStatus only shows a bottom status message that's easier to clear
                 // Must call on UI thread since we may be on a background thread
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "H4", location = "GameLoader.cs:81", message = "BEFORE ShowLoadingStatus in LoadGame", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), threadId = System.Threading.Thread.CurrentThread.ManagedThreadId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-                // #endregion
                 if (customUIManager is CanvasUICoordinator canvasUI)
                 {
                     // Use Post to ensure UI thread execution - don't block the background thread
@@ -106,9 +88,6 @@ namespace RPGGame
                         canvasUI.ShowLoadingStatus("Loading character...");
                     });
                 }
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "H4", location = "GameLoader.cs:85", message = "AFTER ShowLoadingStatus in LoadGame (posted to UI thread)", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), threadId = System.Threading.Thread.CurrentThread.ManagedThreadId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-                // #endregion
                 
                 DebugLogger.Log("GameLoader", "Save file exists, starting load...");
                 
@@ -116,14 +95,8 @@ namespace RPGGame
                 try
                 {
                     DebugLogger.Log("GameLoader", "Attempting to load default save file...");
-                    // #region agent log
-                    try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "H1,H2", location = "GameLoader.cs:91", message = "BEFORE LoadCharacterAsync", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), threadId = System.Threading.Thread.CurrentThread.ManagedThreadId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-                    // #endregion
                     // Try to load the default save file first
                     loadedCharacter = await Character.LoadCharacterAsync().ConfigureAwait(false);
-                    // #region agent log
-                    try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "H1,H2", location = "GameLoader.cs:94", message = "AFTER LoadCharacterAsync", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), loadedCharacterName = loadedCharacter?.Name, loadedCharacterIsNull = (loadedCharacter == null), threadId = System.Threading.Thread.CurrentThread.ManagedThreadId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-                    // #endregion
                     DebugLogger.Log("GameLoader", loadedCharacter != null 
                         ? $"Successfully loaded default character: {loadedCharacter.Name}" 
                         : "Default save file not found or empty");
@@ -234,15 +207,9 @@ namespace RPGGame
                 // Transition to game loop
                 stateManager.TransitionToState(GameState.GameLoop);
                 DebugLogger.Log("GameLoader", $"Firing onGameLoop callback for character: {loadedCharacter.Name}");
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "H4", location = "GameLoader.cs:189", message = "BEFORE onGameLoop() call", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), characterName = loadedCharacter.Name, threadId = System.Threading.Thread.CurrentThread.ManagedThreadId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-                // #endregion
                 try
                 {
                     onGameLoop();
-                    // #region agent log
-                    try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "H4", location = "GameLoader.cs:194", message = "AFTER onGameLoop() call", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), threadId = System.Threading.Thread.CurrentThread.ManagedThreadId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-                    // #endregion
                 }
                 catch (Exception ex)
                 {
@@ -261,17 +228,11 @@ namespace RPGGame
                 }
                 
                 DebugLogger.Log("GameLoader", "LoadGame completed successfully");
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "H4", location = "GameLoader.cs:227", message = "LoadGame EXIT (success)", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), threadId = System.Threading.Thread.CurrentThread.ManagedThreadId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-                // #endregion
                 return true;
             }
             catch (Exception ex)
             {
                 DebugLogger.Log("GameLoader", $"Unexpected error in LoadGame: {ex.Message}\n{ex.StackTrace}");
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { sessionId = "debug-session", runId = "run1", hypothesisId = "H4", location = "GameLoader.cs:232", message = "LoadGame EXCEPTION", data = new { timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), exception = ex.Message, stackTrace = ex.StackTrace, threadId = System.Threading.Thread.CurrentThread.ManagedThreadId }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-                // #endregion
                 // Ensure loading status is cleared even in outer catch block - must call on UI thread
                 if (customUIManager is CanvasUICoordinator canvasUIOuterError)
                 {
@@ -289,4 +250,3 @@ namespace RPGGame
         }
     }
 }
-

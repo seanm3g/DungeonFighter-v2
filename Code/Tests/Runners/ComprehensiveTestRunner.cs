@@ -282,6 +282,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine("=== ACTION MECHANICS TESTS (ALL) ===\n");
             
             RPGGame.Tests.Unit.Data.ActionMechanicsTests.RunAllTests();
+            Console.WriteLine();
+            RPGGame.Tests.Unit.Data.ActionBonusMechanicsTests.RunAllTests();
         }
 
         /// <summary>

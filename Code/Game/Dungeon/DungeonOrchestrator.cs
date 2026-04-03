@@ -7,6 +7,7 @@ namespace RPGGame
     using System.Text.Json;
     using RPGGame.UI.Avalonia;
     using RPGGame.GameCore.Helpers;
+    using RPGGame.Entity.Services;
 
     /// <summary>
     /// Orchestrates the main dungeon flow and room iteration
@@ -81,10 +82,11 @@ namespace RPGGame
             // Set game state to Dungeon
             stateManager.TransitionToState(GameState.Dungeon);
             
-            // Reset combo step to 0 to start at the first action in the sequence
+            // Reload actions from disk and rebuild character's action pool so updated Actions.json is used
             if (stateManager.CurrentPlayer != null)
             {
-                stateManager.CurrentPlayer.ComboStep = 0;
+                ActionLoader.ReloadActions();
+                CharacterSerializer.RebuildCharacterActions(stateManager.CurrentPlayer);
             }
             
             // Capture starting inventory to track items found during the run

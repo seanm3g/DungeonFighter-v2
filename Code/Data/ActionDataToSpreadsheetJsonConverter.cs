@@ -61,6 +61,26 @@ namespace RPGGame.Data
             row.HeroCombo = data.ComboThresholdAdjustment != 0 ? data.ComboThresholdAdjustment.ToString() : (baseRow?.HeroCombo ?? "");
             row.HeroCrit = data.CriticalHitThresholdAdjustment != 0 ? data.CriticalHitThresholdAdjustment.ToString() : (baseRow?.HeroCrit ?? "");
 
+            // Stat bonuses from ActionAttackBonuses (HeroSTR, HeroAGI, HeroTECH, HeroINT round-trip)
+            if (data.ActionAttackBonuses?.BonusGroups != null)
+            {
+                foreach (var group in data.ActionAttackBonuses.BonusGroups)
+                {
+                    if (group.Bonuses == null) continue;
+                    foreach (var b in group.Bonuses)
+                    {
+                        var t = (b.Type ?? "").ToUpper();
+                        var v = b.Value;
+                        if (v == 0) continue;
+                        string s = v % 1 == 0 ? ((int)v).ToString() : v.ToString("F2");
+                        if (t == "STR") row.HeroSTR = s;
+                        else if (t == "AGI") row.HeroAGI = s;
+                        else if (t == "TECH") row.HeroTECH = s;
+                        else if (t == "INT") row.HeroINT = s;
+                    }
+                }
+            }
+
             // StatBonuses, Thresholds, Accumulations (JSON round-trip for Actions settings form)
             var jsonOptions = new JsonSerializerOptions { WriteIndented = false };
             if (data.StatBonuses != null && data.StatBonuses.Count > 0)

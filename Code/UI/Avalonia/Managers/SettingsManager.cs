@@ -28,6 +28,7 @@ namespace RPGGame.UI.Avalonia.Managers
 
         public SettingsManager(GameSettings settings, Action<string, bool>? showStatusMessage, Action<string>? updateStatus)
         {
+            ArgumentNullException.ThrowIfNull(settings);
             this.showStatusMessage = showStatusMessage;
             this.updateStatus = updateStatus;
             this.textDelayManager = new TextDelaySettingsManager(showStatusMessage);

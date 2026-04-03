@@ -176,7 +176,7 @@
     "damage": "300%",
     "speed": "0.25",
     "duration": "3",
-    "cadence": "ATTACK",
+    "cadence": "Action",
     "target": "ENEMY",
     "tags": "common"
   },
@@ -562,9 +562,12 @@
     "damage": "150%",
     "speed": "0.90",
     "duration": "1",
-    "cadence": "FIGHT",
+    "cadence": "Fight",
+    "speedMod": "20",
     "selfDamage": "ON CRIT, ON MISS",
-    "target": "ENEMY"
+    "target": "ENEMY",
+    "isDefaultAction": "1",
+    "weaponTypes": "Sword"
   },
   {
     "action": "TENSION HOLD",

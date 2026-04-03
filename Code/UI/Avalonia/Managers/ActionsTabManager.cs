@@ -87,9 +87,6 @@ namespace RPGGame.UI.Avalonia.Managers
             try
             {
                 var actions = actionEditor.GetActions();
-                // #region agent log
-                try { var path = ActionLoader.GetLoadedActionsFilePath(); System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { hypothesisId = "H2,H5", location = "ActionsTabManager.LoadActionsList", message = "list source", data = new { loadPath = path ?? "(null)", editorActionCount = actions?.Count ?? -1 }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-                // #endregion
                 if (actions == null || actions.Count == 0)
                 {
                     showStatusMessage?.Invoke("No actions found. Check Actions.json file.", false);
@@ -251,7 +248,6 @@ namespace RPGGame.UI.Avalonia.Managers
             if ((v = GetText("MultiHitCount")) != null && int.TryParse(v, out int i1) && i1 >= 1) action.MultiHitCount = i1;
             if ((v = GetText("DamageMultiplier")) != null && double.TryParse(v, out double d1)) action.DamageMultiplier = d1;
             if ((v = GetText("Speed")) != null && double.TryParse(v, out double d2)) action.Length = d2;
-            if ((v = GetText("Cooldown")) != null && int.TryParse(v, out int i2) && i2 >= 0) action.Cooldown = i2;
             if ((v = GetText("Cadence")) != null) action.Cadence = (v == "(None)" || string.IsNullOrWhiteSpace(v)) ? "" : v;
             if ((v = GetText("Duration")) != null && int.TryParse(v, out int i3) && i3 >= 0) action.ComboBonusDuration = i3;
             if ((v = GetText("SpeedMod (%)")) != null) action.SpeedMod = v ?? "";
@@ -341,9 +337,6 @@ namespace RPGGame.UI.Avalonia.Managers
             var target = action != null
                 ? actionEditor.GetActions().FirstOrDefault(a => string.Equals(a.Name, action.Name, StringComparison.OrdinalIgnoreCase)) ?? action
                 : null;
-            // #region agent log
-            try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { hypothesisId = "H7", location = "ActionsTabManager.FlushCurrentActionAndSaveToFile", message = "flush target", data = new { selectedName = selectedAction?.Name ?? "(null)", targetNotNull = target != null, fromPanelNotNull = fromPanel != null }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-            // #endregion
             if (target != null)
             {
                 FlushFormToAction(target);

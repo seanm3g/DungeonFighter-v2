@@ -1,5 +1,6 @@
 using System;
 using RPGGame;
+using RPGGame.Tests.Unit.Handlers.Inventory;
 using RPGGame.Tests.Unit.UI;
 
 namespace RPGGame.Tests.Runners
@@ -25,6 +26,14 @@ namespace RPGGame.Tests.Runners
             CombatActionInfoStateTests.RunAllTests();
             Console.WriteLine();
             CombatActionStripBuilderTests.RunAllTests();
+            Console.WriteLine();
+            ActionInfoStripLayoutTests.RunAllTests();
+            Console.WriteLine();
+            StatsPanelStateManagerTests.RunAllTests();
+            Console.WriteLine();
+            ComboReordererMoveTests.RunAllTests();
+            Console.WriteLine();
+            ActionStripReorderPolicyTests.RunAllTests();
             Console.WriteLine();
             ItemDisplayFormatterTests.RunAllTests();
             Console.WriteLine();

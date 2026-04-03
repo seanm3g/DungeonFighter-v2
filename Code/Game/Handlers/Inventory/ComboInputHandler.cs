@@ -112,6 +112,16 @@ namespace RPGGame.Handlers.Inventory
             if (!stateTracker.WaitingForComboReorderInput)
                 return false;
 
+            if (stateManager.HasCurrentDungeon)
+            {
+                stateTracker.WaitingForComboReorderInput = false;
+                stateTracker.ReorderInputSequence = "";
+                showMessage("Cannot reorder combo during an active dungeon run.");
+                stateTracker.InComboManagement = true;
+                renderComboManagement();
+                return true;
+            }
+
             var comboActions = character.GetComboActions();
 
             // Check if user wants to confirm with 0

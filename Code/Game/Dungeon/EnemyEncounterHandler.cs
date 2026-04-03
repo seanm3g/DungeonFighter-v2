@@ -42,7 +42,19 @@ namespace RPGGame
         public async Task<bool> ProcessEnemyEncounter(Enemy enemy, bool playerGetsFirstAttack = false, bool enemyGetsFirstAttack = false)
         {
             if (stateManager.CurrentPlayer == null || combatManager == null) return false;
-            
+
+            stateManager.PushComboStripEncounterLock();
+            try
+            {
+                return await RunEncounterAsync();
+            }
+            finally
+            {
+                stateManager.PopComboStripEncounterLock();
+            }
+
+            async Task<bool> RunEncounterAsync()
+            {
             var player = stateManager.CurrentPlayer;
             var room = stateManager.CurrentRoom;
             
@@ -113,6 +125,14 @@ namespace RPGGame
                 displayManager.CombatEventAdded += debouncer.TriggerRefresh;
             }
             
+            // While fighting, use GameState.Combat so UI policy can lock combo reorder (state often stayed Dungeon with CombatDisplayMode out of sync).
+            bool transitionedToCombatForReorder = false;
+            if (isCharacterActive && stateManager.CurrentState == GameState.Dungeon)
+            {
+                stateManager.TransitionToState(GameState.Combat);
+                transitionedToCombatForReorder = true;
+            }
+
             bool playerWon = false;
             try
             {
@@ -221,7 +241,14 @@ namespace RPGGame
             {
                 await Task.Delay(1000);
             }
+
+            // Restore exploration state only after combat UI / victory messaging is finished — early restore made
+            // GameState.Dungeon while the screen still looked like combat, allowing combo reorder in that window.
+            if (transitionedToCombatForReorder && stateManager.CurrentState == GameState.Combat)
+                stateManager.TransitionToState(GameState.Dungeon);
+
             return true; // Player survived this encounter
+            }
         }
         
         /// <summary>

@@ -118,7 +118,8 @@ namespace RPGGame
 
             // Update combo sequence after equipment change
             _character.Actions.UpdateComboSequenceAfterGearChange(_character);
-            
+            _character.Effects.ClearPendingActionBonuses(); // Slot indices may be invalid after combo change
+
             // If combo is now empty after gear change (regardless of slot), reinitialize default combo
             // This ensures that changing any gear that removes actions doesn't leave the player without a default action
             if (_character.Actions.ComboSequence.Count == 0)

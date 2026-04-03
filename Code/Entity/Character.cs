@@ -275,6 +275,7 @@ namespace RPGGame
         public void AddToCombo(Action action) => Facade.AddToCombo(action);
         public void RemoveFromCombo(Action action) => Facade.RemoveFromCombo(action);
         public void InitializeDefaultCombo() => Facade.InitializeDefaultCombo();
+        public bool RestoreComboFromActionNames(IReadOnlyList<string> actionNames) => Facade.RestoreComboFromActionNames(actionNames);
         public int GetEffectiveStrength() => Facade.GetEffectiveStrength();
         public int GetEffectiveAgility() => Facade.GetEffectiveAgility();
         public int GetEffectiveTechnique() => Facade.GetEffectiveTechnique();

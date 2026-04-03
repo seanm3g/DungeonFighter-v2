@@ -145,9 +145,6 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
 
                 // Save actions when the Actions panel exists; pass that panel so Default/Starting is read from it (single resolution)
                 var actionsPanelForFlush = getPanelForCategory("Actions", currentlyDisplayedPanel) as ActionsSettingsPanel;
-                // #region agent log
-                try { System.IO.File.AppendAllText(@"d:\Code Projects\github projects\DungeonFighter-v2\.cursor\debug.log", System.Text.Json.JsonSerializer.Serialize(new { hypothesisId = "H6,H7", location = "SettingsSaveOrchestrator.SaveSettings:actions", message = "Actions save resolution", data = new { actionsPanelForFlushNull = actionsPanelForFlush == null, displayedType = currentlyDisplayedPanel?.GetType().Name ?? "(null)" }, timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }) + "\n"); } catch { }
-                // #endregion
                 if (actionsTabManager != null && actionsPanelForFlush != null)
                 {
                     try

@@ -26,6 +26,7 @@ namespace RPGGame.Tests.Unit
             TestStatePersistence();
             TestErrorRecovery();
             TestStateValidation();
+            TestComboStripEncounterLock();
 
             TestBase.PrintSummary("Game State Management Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -140,6 +141,24 @@ namespace RPGGame.Tests.Unit
             stateManager.TransitionToState(GameState.GameLoop);
             TestBase.AssertTrue(Enum.IsDefined(typeof(GameState), stateManager.CurrentState),
                 $"State after transition should be valid: {stateManager.CurrentState}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestComboStripEncounterLock()
+        {
+            Console.WriteLine("\n--- Testing Combo Strip Encounter Lock ---");
+
+            var stateManager = new GameStateManager();
+            TestBase.AssertTrue(!stateManager.IsComboStripEncounterLocked,
+                "Encounter lock starts false",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            stateManager.PushComboStripEncounterLock();
+            TestBase.AssertTrue(stateManager.IsComboStripEncounterLocked,
+                "Push sets encounter lock",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            stateManager.PopComboStripEncounterLock();
+            TestBase.AssertTrue(!stateManager.IsComboStripEncounterLocked,
+                "Pop clears encounter lock",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

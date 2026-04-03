@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
-using Avalonia.Threading;
 using RPGGame;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Display.Helpers;
@@ -70,34 +69,21 @@ namespace RPGGame.UI.Avalonia.Display
             // Create stats panel components
             this.statsPanelStateManager = new StatsPanelStateManager();
             this.glowAnimator = new StatsHeaderGlowAnimator();
+            // STATS header uses static gold (see CharacterPanelRenderer); do not run glow timer or it shifts hue and refreshes the canvas ~24fps.
             
-            // Set up glow animation callback to refresh canvas (not full render to avoid flickering)
-            // Only refresh the canvas to redraw existing content with updated glow
-            // This avoids re-rendering the entire layout which causes center panel flickering
-            glowAnimator.SetUpdateCallback(new System.Action(() =>
-            {
-                // Just refresh the canvas to redraw with updated glow effect
-                // This doesn't trigger a full layout re-render, preventing center panel flickering
-                Dispatcher.UIThread.Post(() =>
-                {
-                    canvas.Refresh();
-                }, DispatcherPriority.Background);
-            }));
-            
-            // Start glow animation
-            glowAnimator.Start();
-            
-            this.layoutManager = new PersistentLayoutManager(canvas, interactionManager, statsPanelStateManager, glowAnimator);
+            this.layoutManager = new PersistentLayoutManager(canvas, interactionManager, statsPanelStateManager);
             
             // Initialize with standard mode
             this.buffer = new DisplayBuffer(maxLines);
             this.renderer = new DisplayRenderer(textWriter);
             this.renderStateManager = new RenderStateManager();
+            var dungeonRendererForActionStrip = new DungeonRenderer(canvas, textWriter, new List<ClickableElement>());
             
             this.modeManager = new DisplayModeManager(new StandardDisplayMode());
             this.renderCoordinator = new RenderCoordinator(
                 canvas,
                 renderer,
+                dungeonRendererForActionStrip,
                 layoutManager,
                 renderStateManager,
                 contextManager,
@@ -149,6 +135,12 @@ namespace RPGGame.UI.Avalonia.Display
         {
             modeManager.SetMode(mode, () => modeManager.Timing.CancelPending());
         }
+
+        /// <summary>
+        /// True while the center panel uses <see cref="CombatDisplayMode"/> (active combat log / fight UI).
+        /// Used to lock action-strip reorder; not cleared when enemy context is temporarily cleared during renders.
+        /// </summary>
+        public bool IsCombatDisplayMode => modeManager.CurrentMode is CombatDisplayMode;
         
         /// <summary>
         /// Sets an external render callback for cases where external renderer handles rendering

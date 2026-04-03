@@ -17,7 +17,7 @@ The panel is organized under a single section: **Game mechanics & reliability**.
 | **Status effects** | Status effect application and state (basic + advanced). |
 | **Multi-hit** | Multi-hit action damage, early termination, counts. |
 | **Combo** | Combo execution, amplifier scaling, interruption. |
-| **Action mechanics** | Action mechanics discovery and tests (status effects, roll mods, triggers, combo routing, etc.). |
+| **Action mechanics** | Action mechanics discovery and tests (status effects, roll mods, triggers, combo routing, action bonus cadence). Includes action bonus mechanics (ACTION/ATTACK/ABILITY cadence, state, sequence flows). |
 | **Progression (XP / level)** | Level-up, XP system, multi-source XP rewards. |
 | **Dungeon & rewards** | Dungeon/enemy generation and loot/XP rewards. |
 | **Save/Load** | Save/load persistence and round-trip state. |

@@ -7,6 +7,8 @@ namespace RPGGame.UI.Avalonia.Layout
     using RPGGame.Actions.RollModification;
     using RPGGame.Combat;
     using RPGGame.UI;
+    using RPGGame.UI.Avalonia;
+    using RPGGame.UI.Avalonia.Managers;
     using RPGGame.UI.ColorSystem;
 
     /// <summary>
@@ -14,11 +16,20 @@ namespace RPGGame.UI.Avalonia.Layout
     /// </summary>
     public class RightPanelRenderer
     {
+        private const string ToggleSectionThresholds = "toggle_section_thresholds";
+
         private readonly GameCanvasControl canvas;
-        
-        public RightPanelRenderer(GameCanvasControl canvas)
+        private readonly ICanvasInteractionManager? interactionManager;
+        private readonly StatsPanelStateManager? stateManager;
+
+        public RightPanelRenderer(
+            GameCanvasControl canvas,
+            ICanvasInteractionManager? interactionManager = null,
+            StatsPanelStateManager? stateManager = null)
         {
             this.canvas = canvas;
+            this.interactionManager = interactionManager;
+            this.stateManager = stateManager;
         }
         
         /// <summary>
@@ -152,11 +163,13 @@ namespace RPGGame.UI.Avalonia.Layout
         /// </summary>
         private void RenderLocationEnemyPanel(int x, int y, Enemy? enemy, string? dungeonName, string? roomName, Character? character)
         {
+            int headerClickWidth = LayoutConstants.RIGHT_PANEL_WIDTH - 4;
+
             // Location section - always shown
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Location), AsciiArtAssets.Colors.Gold);
             y += 2;
             
-            // Dungeon - always shown
+            // Dungeon — value line omitted when empty
             canvas.AddText(x, y, "Dungeon:", AsciiArtAssets.Colors.Gray);
             y++;
             if (!string.IsNullOrEmpty(dungeonName))
@@ -165,14 +178,10 @@ namespace RPGGame.UI.Avalonia.Layout
                 if (displayDungeon.Length > 20)
                     displayDungeon = displayDungeon.Substring(0, 17) + "...";
                 canvas.AddText(x, y, displayDungeon, AsciiArtAssets.Colors.Cyan);
+                y++;
             }
-            else
-            {
-                canvas.AddText(x, y, "None", AsciiArtAssets.Colors.DarkGray);
-            }
-            y += 2;
             
-            // Room - always shown
+            // Room — value line omitted when empty
             canvas.AddText(x, y, "Room:", AsciiArtAssets.Colors.Gray);
             y++;
             if (!string.IsNullOrEmpty(roomName))
@@ -181,12 +190,10 @@ namespace RPGGame.UI.Avalonia.Layout
                 if (displayRoom.Length > 20)
                     displayRoom = displayRoom.Substring(0, 17) + "...";
                 canvas.AddText(x, y, displayRoom, AsciiArtAssets.Colors.Yellow);
+                y++;
             }
-            else
-            {
-                canvas.AddText(x, y, "None", AsciiArtAssets.Colors.DarkGray);
-            }
-            y += 2;
+            
+            y += 1;
             
             // Enemy section - always shown
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Enemy), AsciiArtAssets.Colors.Gold);
@@ -232,51 +239,68 @@ namespace RPGGame.UI.Avalonia.Layout
                 canvas.AddCharacterStat(x, y, "TECH", enemy.Technique, 0, AsciiArtAssets.Colors.White);
                 y++;
                 canvas.AddCharacterStat(x, y, "INT", enemy.Intelligence, 0, AsciiArtAssets.Colors.White);
+                y++;
             }
             else
             {
-                // Show empty enemy state
-                canvas.AddText(x, y, "None", AsciiArtAssets.Colors.DarkGray);
-                y += 2;
-                canvas.AddText(x, y, "No active", AsciiArtAssets.Colors.DarkGray);
+                canvas.AddText(x, y, "No active combat", AsciiArtAssets.Colors.DarkGray);
                 y++;
-                canvas.AddText(x, y, "combat", AsciiArtAssets.Colors.DarkGray);
             }
-            y += 2;
+            y += 1;
 
             // Dice thresholds section (player only when character is present)
+            int thresholdsHeaderY = y;
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Thresholds), AsciiArtAssets.Colors.Gold);
             y += 2;
-            if (character != null)
+            if (interactionManager != null && stateManager != null)
             {
-                var tm = RollModificationManager.GetThresholdManager();
-                var config = GameConfiguration.Instance;
-                int hit = tm.GetHitThreshold(character);
-                int combo = tm.GetComboThreshold(character);
-                int crit = tm.GetCriticalHitThreshold(character);
-                int critMiss = tm.GetCriticalMissThreshold(character);
-                int defaultHit = config.RollSystem.MissThreshold.Max > 0 ? config.RollSystem.MissThreshold.Max : 5;
-                int defaultCombo = config.RollSystem.ComboThreshold.Min > 0 ? config.RollSystem.ComboThreshold.Min : 14;
-                int defaultCrit = config.Combat.CriticalHitThreshold > 0 ? config.Combat.CriticalHitThreshold : 20;
-                const int defaultCritMiss = 1;
-                // Display modifier as "bonus": positive when requirement is lower (default - current). E.g. +5 to HIT = 5 lower requirement to hit. Not used for accuracy.
-                string mod(int current, int def) => current != def ? (def - current) > 0 ? $" (+{def - current})" : $" ({def - current})" : "";
-                const int thresholdLabelWidth = 11; // "Crit Miss:" + 1 space so numbers align
-                canvas.AddText(x, y, $"{"Crit:".PadRight(thresholdLabelWidth)}{crit}{mod(crit, defaultCrit)}", AsciiArtAssets.Colors.Cyan);
-                y++;
-                canvas.AddText(x, y, $"{"Combo:".PadRight(thresholdLabelWidth)}{combo}{mod(combo, defaultCombo)}", AsciiArtAssets.Colors.Cyan);
-                y++;
-                canvas.AddText(x, y, $"{"Hit:".PadRight(thresholdLabelWidth)}{hit + 1}{mod(hit, defaultHit)}", AsciiArtAssets.Colors.Cyan);
-                y++;
-                canvas.AddText(x, y, $"{"Crit Miss:".PadRight(thresholdLabelWidth)}{critMiss}{mod(critMiss, defaultCritMiss)}", AsciiArtAssets.Colors.Cyan);
-                y++;
+                interactionManager.AddClickableElement(new ClickableElement
+                {
+                    X = x,
+                    Y = thresholdsHeaderY,
+                    Width = headerClickWidth,
+                    Height = 1,
+                    Type = ElementType.Text,
+                    Value = ToggleSectionThresholds,
+                    DisplayText = "Thresholds"
+                });
             }
-            else
+
+            bool thresholdsOpen = stateManager == null || !stateManager.ThresholdsCollapsed;
+            if (thresholdsOpen)
             {
-                canvas.AddText(x, y, "(No character)", AsciiArtAssets.Colors.DarkGray);
-                y++;
+                if (character != null)
+                {
+                    var tm = RollModificationManager.GetThresholdManager();
+                    var config = GameConfiguration.Instance;
+                    int hit = tm.GetHitThreshold(character);
+                    int combo = tm.GetComboThreshold(character);
+                    int crit = tm.GetCriticalHitThreshold(character);
+                    int critMiss = tm.GetCriticalMissThreshold(character);
+                    int defaultHit = config.RollSystem.MissThreshold.Max > 0 ? config.RollSystem.MissThreshold.Max : 5;
+                    int defaultCombo = config.RollSystem.ComboThreshold.Min > 0 ? config.RollSystem.ComboThreshold.Min : 14;
+                    int defaultCrit = config.Combat.CriticalHitThreshold > 0 ? config.Combat.CriticalHitThreshold : 20;
+                    const int defaultCritMiss = 1;
+                    string mod(int current, int def) => current != def ? (def - current) > 0 ? $" (+{def - current})" : $" ({def - current})" : "";
+                    const int thresholdLabelWidth = 11;
+                    canvas.AddText(x, y, $"{"Crit:".PadRight(thresholdLabelWidth)}{crit}{mod(crit, defaultCrit)}", AsciiArtAssets.Colors.Cyan);
+                    y++;
+                    canvas.AddText(x, y, $"{"Combo:".PadRight(thresholdLabelWidth)}{combo}{mod(combo, defaultCombo)}", AsciiArtAssets.Colors.Cyan);
+                    y++;
+                    canvas.AddText(x, y, $"{"Hit:".PadRight(thresholdLabelWidth)}{hit + 1}{mod(hit, defaultHit)}", AsciiArtAssets.Colors.Cyan);
+                    y++;
+                    canvas.AddText(x, y, $"{"Crit Miss:".PadRight(thresholdLabelWidth)}{critMiss}{mod(critMiss, defaultCritMiss)}", AsciiArtAssets.Colors.Cyan);
+                    y++;
+                }
+                else
+                {
+                    canvas.AddText(x, y, "(No character)", AsciiArtAssets.Colors.DarkGray);
+                    y++;
+                }
             }
-            y += 2;
+            // When collapsed, y is already one line below the header row; do not add another gap before STATUS.
+            if (thresholdsOpen)
+                y += 1;
 
             // Status effects section
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.StatusEffects), AsciiArtAssets.Colors.Gold);
@@ -286,12 +310,7 @@ namespace RPGGame.UI.Avalonia.Layout
             if (character != null)
             {
                 var playerEffects = GetActiveStatusEffectLines(character, character);
-                if (playerEffects.Count == 0)
-                {
-                    canvas.AddText(x, y, "(None)", AsciiArtAssets.Colors.DarkGray);
-                    y++;
-                }
-                else
+                if (playerEffects.Count > 0)
                 {
                     for (int i = 0; i < Math.Min(playerEffects.Count, maxEffectLines); i++)
                     {
@@ -314,12 +333,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 y++;
                 const int maxEnemyEffectLines = 3;
                 var enemyEffects = GetActiveStatusEffectLines(enemy, null);
-                if (enemyEffects.Count == 0)
-                {
-                    canvas.AddText(x, y, "  (None)", AsciiArtAssets.Colors.DarkGray);
-                    y++;
-                }
-                else
+                if (enemyEffects.Count > 0)
                 {
                     int toShow = Math.Min(enemyEffects.Count, maxEnemyEffectLines);
                     for (int i = 0; i < toShow; i++)
@@ -336,10 +350,6 @@ namespace RPGGame.UI.Avalonia.Layout
                         y++;
                     }
                 }
-            }
-            if (character == null && enemy == null)
-            {
-                canvas.AddText(x, y, "(None)", AsciiArtAssets.Colors.DarkGray);
             }
         }
 

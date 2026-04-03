@@ -22,20 +22,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
         
         /// <summary>
-        /// Renders the dungeon exploration screen
+        /// Renders the dungeon exploration center content (used inside <see cref="CanvasRenderer"/> layout).
         /// </summary>
-        public void RenderDungeonExploration(Character player, string currentLocation, List<string> availableActions, List<string> recentEvents, CanvasContext context)
-        {
-            RenderWithLayout(player, "DUNGEON EXPLORATION", (contentX, contentY, contentWidth, contentHeight) =>
-            {
-                RenderDungeonContent(contentX, contentY, contentWidth, contentHeight, currentLocation, availableActions, recentEvents);
-            }, context);
-        }
-        
-        /// <summary>
-        /// Renders the dungeon exploration content with location, events, and actions
-        /// </summary>
-        private void RenderDungeonContent(int x, int y, int width, int height, string currentLocation, List<string> availableActions, List<string> recentEvents)
+        public void RenderExplorationContent(int x, int y, int width, int height, string currentLocation, List<string> availableActions, List<string> recentEvents)
         {
             int startY = y; // Store initial Y position for bottom calculations
             
@@ -91,18 +80,6 @@ namespace RPGGame.UI.Avalonia.Renderers
             interactionManager.AddClickableElement(inventoryButton);
             
             canvas.AddText(x + 2, y, "[I] Inventory", AsciiArtAssets.Colors.White);
-        }
-        
-        /// <summary>
-        /// Helper method to render with layout context
-        /// </summary>
-        private void RenderWithLayout(Character character, string title, Action<int, int, int, int> renderContent, CanvasContext context)
-        {
-            interactionManager.ClearClickableElements();
-            
-            // Use the persistent layout manager for proper three-panel layout
-            var layoutManager = new PersistentLayoutManager(canvas);
-            layoutManager.RenderLayout(character, renderContent, title, null, null, null);
         }
     }
 }

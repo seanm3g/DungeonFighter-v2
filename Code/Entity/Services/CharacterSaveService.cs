@@ -324,8 +324,9 @@ namespace RPGGame.Entity.Services
                 return $"{name}_{level}_legacy";
             if (fileName.StartsWith("character_") && fileName.EndsWith("_save.json"))
             {
+                // "character_" = 10 chars, "_save.json" = 10 chars → middle segment length = Length - 20; id starts at index 10
                 int idLength = fileName.Length - 20;
-                return idLength > 0 ? fileName.Substring(9, idLength) : $"{name}_{level}";
+                return idLength > 0 ? fileName.Substring(10, idLength) : $"{name}_{level}";
             }
             return $"{name}_{level}";
         }

@@ -53,7 +53,6 @@ namespace RPGGame.UI.Avalonia.Builders
             _ctx.Factory.AddFormField(stack, "MultiHitCount", action.MultiHitCount.ToString(), (value) => { if (int.TryParse(value, out int v) && v >= 1) action.MultiHitCount = v; }, description: "e.g. 1 (number of hits)");
             _ctx.Factory.AddFormField(stack, "DamageMultiplier", action.DamageMultiplier.ToString(), (value) => { if (double.TryParse(value, out double v)) action.DamageMultiplier = v; }, description: "e.g. 1.0");
             _ctx.Factory.AddFormField(stack, "Speed", action.Length.ToString(), (value) => { if (double.TryParse(value, out double v)) action.Length = v; }, description: "e.g. 1.0 (action length)");
-            _ctx.Factory.AddFormField(stack, "Cooldown", action.Cooldown.ToString(), (value) => { if (int.TryParse(value, out int v) && v >= 0) action.Cooldown = v; }, description: "e.g. 0 (turns before reuse)");
 
             AddActionAssignmentToStack(stack, action);
         }

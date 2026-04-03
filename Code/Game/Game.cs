@@ -4,6 +4,7 @@ namespace RPGGame
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using RPGGame.UI.Avalonia;
+    using RPGGame.UI.Avalonia.Display;
     using RPGGame.Utils;
     using RPGGame.GameCore.Input;
     using DungeonFighter.Game.Menu.Routing;
@@ -247,6 +248,65 @@ namespace RPGGame
             // Delegate to centralized screen coordinator to keep
             // all Inventory screen logic in one place.
             screenCoordinator.ShowInventory();
+        }
+
+        /// <summary>
+        /// Re-draws the active screen after left-panel section toggles. <see cref="RenderCoordinator.PerformRender"/> is suppressed in menu states,
+        /// so <c>ForceFullLayoutRender</c> does nothing there; this re-invokes the appropriate <see cref="CanvasUICoordinator"/> renderer.
+        /// </summary>
+        public void RefreshPersistentChromeAfterStatsToggle()
+        {
+            if (customUIManager is not CanvasUICoordinator canvasUI || stateManager == null)
+                return;
+            if (!DisplayStateCoordinator.ShouldSuppressRendering(stateManager.CurrentState, stateManager))
+            {
+                canvasUI.ForceFullLayoutRender();
+                return;
+            }
+            var player = stateManager.CurrentPlayer ?? stateManager.GetActiveCharacter();
+            var inv = stateManager.CurrentInventory ?? new List<Item>();
+            switch (stateManager.CurrentState)
+            {
+                case GameState.Inventory:
+                    inventoryMenuHandler?.RefreshInventoryScreen();
+                    break;
+                case GameState.GameLoop:
+                    if (player != null)
+                        canvasUI.RenderGameMenu(player, inv);
+                    break;
+                case GameState.DungeonSelection:
+                    if (player != null && stateManager.AvailableDungeons != null)
+                        canvasUI.RenderDungeonSelection(player, stateManager.AvailableDungeons);
+                    break;
+                case GameState.CharacterInfo:
+                    if (player != null)
+                        canvasUI.RenderCharacterInfoScreen(player);
+                    break;
+                case GameState.Settings:
+                    canvasUI.RenderSettings();
+                    break;
+                case GameState.Death:
+                    if (player != null)
+                        canvasUI.RenderDeathScreen(player, player.GetDefeatSummary());
+                    break;
+                case GameState.DeveloperMenu:
+                    canvasUI.RenderDeveloperMenu();
+                    break;
+                case GameState.TuningParameters:
+                    canvasUI.RenderTuningParametersMenu();
+                    break;
+                case GameState.VariableEditor:
+                    canvasUI.RenderVariableEditor();
+                    break;
+                case GameState.ActionEditor:
+                    canvasUI.RenderActionEditor();
+                    break;
+                case GameState.BattleStatistics:
+                    canvasUI.RenderBattleStatisticsMenu(null, false);
+                    break;
+                default:
+                    break;
+            }
         }
 
         public void ShowGameLoop()

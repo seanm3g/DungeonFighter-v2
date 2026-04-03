@@ -103,6 +103,27 @@ namespace RPGGame.UI.Avalonia
         }
 
         /// <summary>
+        /// Forces an immediate render without resetting layout state. Prefer after small data updates (e.g. combo reorder).
+        /// </summary>
+        public void ForceRender()
+        {
+            if (textManager is CanvasTextManager canvasTextManager)
+            {
+                canvasTextManager.DisplayManager.ForceRender();
+            }
+        }
+
+        /// <summary>
+        /// True when the center panel is in combat log mode (combat UI active). Independent of canvas enemy context, which can be cleared during renders.
+        /// </summary>
+        public bool IsCombatDisplayActive()
+        {
+            if (textManager is CanvasTextManager canvasTextManager)
+                return canvasTextManager.DisplayManager.IsCombatDisplayMode;
+            return false;
+        }
+
+        /// <summary>
         /// Clears text elements within a specific rectangular area.
         /// </summary>
         public void ClearTextInArea(int startX, int startY, int width, int height)
@@ -475,6 +496,11 @@ namespace RPGGame.UI.Avalonia
         public void RenderGameMenu(Character player, List<Item> inventory)
         {
             renderer.RenderGameMenu(player, inventory, GetContext());
+        }
+
+        public void RenderCharacterInfoScreen(Character player)
+        {
+            renderer.RenderCharacterInfoScreen(player, GetContext());
         }
 
         public void RenderDungeonStart(Dungeon dungeon, Character player)

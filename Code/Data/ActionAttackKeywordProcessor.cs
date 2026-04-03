@@ -33,15 +33,23 @@ namespace RPGGame.Data
                 duration = 1; // Default to 1 if not specified
             }
             
-            // Determine keyword type: legacy "ACTION"/"ACTIONS" -> ABILITY; "ATTACK"/"ATTACKS" -> ACTION
+            // CadenceType: ACTION = slot-based (next action in combo); ATTACK = roll-based (next roll); ABILITY = consumed on hit
             string keyword = "";
-            if (cadence == "ABILITY" || cadence == "ABILITIES" || cadence == "ACTION" || cadence == "ACTIONS")
+            string cadenceType = "";
+            if (cadence == "ABILITY" || cadence == "ABILITIES")
             {
                 keyword = "ABILITY";
+                cadenceType = "ABILITY";
+            }
+            else if (cadence == "ACTION" || cadence == "ACTIONS")
+            {
+                keyword = "ACTION";
+                cadenceType = "ACTION";
             }
             else if (cadence == "ATTACK" || cadence == "ATTACKS")
             {
-                keyword = "ACTION";
+                keyword = "ATTACK";
+                cadenceType = "ATTACK";
             }
             else
             {
@@ -91,11 +99,18 @@ namespace RPGGame.Data
             AddBonusIfPresent(bonusItems, "TECH", spreadsheetData.HeroTECH);
             AddBonusIfPresent(bonusItems, "INT", spreadsheetData.HeroINT);
             
+            // Modifier bonuses (SpeedMod, DamageMod, MultiHitMod, AmpMod - from spreadsheet columns AD-AG)
+            if (ModifierParser.ParsePercent(spreadsheetData.SpeedMod) is { } sv) bonusItems.Add(new ActionAttackBonusItem { Type = "SPEED_MOD", Value = sv * 100.0 });
+            if (ModifierParser.ParsePercent(spreadsheetData.DamageMod) is { } dv) bonusItems.Add(new ActionAttackBonusItem { Type = "DAMAGE_MOD", Value = dv * 100.0 });
+            if (ModifierParser.ParseValue(spreadsheetData.MultiHitMod) is { } mv) bonusItems.Add(new ActionAttackBonusItem { Type = "MULTIHIT_MOD", Value = mv });
+            if (ModifierParser.ParsePercent(spreadsheetData.AmpMod) is { } av) bonusItems.Add(new ActionAttackBonusItem { Type = "AMP_MOD", Value = av * 100.0 });
+            
             if (bonusItems.Count > 0)
             {
                 var group = new ActionAttackBonusGroup
                 {
                     Keyword = keyword,
+                    CadenceType = cadenceType,
                     Count = duration,
                     Bonuses = bonusItems,
                     DurationType = cadence
@@ -134,7 +149,8 @@ namespace RPGGame.Data
                 
                 var group = new ActionAttackBonusGroup
                 {
-                    Keyword = "ABILITY", // Default to ABILITY for special durations
+                    Keyword = "ABILITY",
+                    CadenceType = "ABILITY", // Default for special durations (FIGHT, DUNGEON, etc.)
                     Count = duration,
                     Bonuses = bonusItems,
                     DurationType = durationType
@@ -177,15 +193,10 @@ namespace RPGGame.Data
             
             foreach (var group in bonuses.BonusGroups)
             {
-                var keywordText = group.Keyword;
-                if (group.Count > 1)
-                {
-                    keywordText = group.Count + " " + (group.Keyword == "ABILITY" ? "ABILITIES" : "ACTIONS");
-                }
-                else
-                {
-                    keywordText = "the Next " + group.Keyword;
-                }
+                var cadence = string.IsNullOrEmpty(group.CadenceType) ? group.Keyword : group.CadenceType;
+                var keywordText = group.Count > 1
+                    ? group.Count + " " + (cadence == "ABILITY" ? "ABILITIES" : cadence == "ATTACK" ? "ATTACKS" : "ACTIONS")
+                    : "the Next " + cadence;
                 
                 var bonusStrings = group.Bonuses.Select(b => 
                 {
