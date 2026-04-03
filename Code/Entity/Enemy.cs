@@ -53,7 +53,19 @@
             
             // Scale rewards based on level and tuning config
             GoldReward = tuning.Progression.EnemyGoldBase + (level * tuning.Progression.EnemyGoldPerLevel);
-            XPReward = tuning.Progression.EnemyXPBase + (level * tuning.Progression.EnemyXPPerLevel);
+            
+            // Calculate XP reward with fallback to ensure it's never 0 and scales with level
+            int baseXP = tuning.Progression.EnemyXPBase;
+            if (baseXP <= 0)
+            {
+                baseXP = 25; // Fallback minimum if config is 0 or negative
+            }
+            int xpPerLevel = tuning.Progression.EnemyXPPerLevel;
+            if (xpPerLevel <= 0)
+            {
+                xpPerLevel = 5; // Fallback to ensure higher level enemies give more XP
+            }
+            XPReward = baseXP + (level * xpPerLevel);
 
             // Initialize combat manager
             _combatManager = new EnemyCombatManager(this);
@@ -89,7 +101,19 @@
             
             // Scale rewards based on level and tuning config
             GoldReward = tuning.Progression.EnemyGoldBase + (level * tuning.Progression.EnemyGoldPerLevel);
-            XPReward = tuning.Progression.EnemyXPBase + (level * tuning.Progression.EnemyXPPerLevel);
+            
+            // Calculate XP reward with fallback to ensure it's never 0 and scales with level
+            int baseXP = tuning.Progression.EnemyXPBase;
+            if (baseXP <= 0)
+            {
+                baseXP = 25; // Fallback minimum if config is 0 or negative
+            }
+            int xpPerLevel = tuning.Progression.EnemyXPPerLevel;
+            if (xpPerLevel <= 0)
+            {
+                xpPerLevel = 5; // Fallback to ensure higher level enemies give more XP
+            }
+            XPReward = baseXP + (level * xpPerLevel);
 
             // Initialize combat manager
             _combatManager = new EnemyCombatManager(this);

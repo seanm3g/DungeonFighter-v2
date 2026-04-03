@@ -1,24 +1,24 @@
+using System;
 using Avalonia.Controls;
 using Avalonia.LogicalTree;
 using Avalonia.Media;
 using RPGGame;
+using RPGGame.Config;
 using System.Linq;
 using TextBlock = Avalonia.Controls.TextBlock;
 
 namespace RPGGame.UI.Avalonia.Managers.Settings.ColorManagers
 {
     /// <summary>
-    /// Manages border colors for panels
+    /// Manages border colors for panels. Uses GameSettings.Instance at apply time.
     /// </summary>
     public class BorderColorManager
     {
         private readonly SettingsPanel? settingsPanel;
-        private readonly GameSettings settings;
 
-        public BorderColorManager(SettingsPanel? settingsPanel, GameSettings settings)
+        public BorderColorManager(SettingsPanel? settingsPanel)
         {
             this.settingsPanel = settingsPanel;
-            this.settings = settings;
         }
 
         /// <summary>
@@ -30,9 +30,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.ColorManagers
 
             try
             {
-                var panelColor = SettingsColorManager.ParseColor(settings.PanelBackgroundColor);
-                var borderColor = SettingsColorManager.ParseColor(settings.PanelBorderColor);
-                var textColor = SettingsColorManager.ParseColor(settings.PanelTextColor);
+                var s = GameSettings.Instance;
+                var panelColor = SettingsColorManager.ParseColor(s.PanelBackgroundColor);
+                var borderColor = SettingsColorManager.ParseColor(s.PanelBorderColor);
+                var textColor = SettingsColorManager.ParseColor(s.PanelTextColor);
 
                 // Find all borders in settings panels
                 var borders = settingsPanel.GetLogicalDescendants().OfType<Border>()

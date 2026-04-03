@@ -79,13 +79,20 @@ LEFT_PANEL_Y = 2
 LEFT_PANEL_WIDTH = 27
 LEFT_PANEL_HEIGHT = 56
 
-// Center panel (Dynamic Content) - 74% of width
+// Center panel (Dynamic Content) - 74% width; height reduced to leave room for action-info strip below
 CENTER_PANEL_X = 28
 CENTER_PANEL_Y = 2
 CENTER_PANEL_WIDTH = 154
-CENTER_PANEL_HEIGHT = 56
+CENTER_PANEL_HEIGHT = (grid height) - ACTION_INFO_STRIP_HEIGHT  // Left/right panels stay full height
 
-// Right panel (Location/Enemy Info) - 13% of width
+// Action info strip - below center panel only (center column); 10 rows; one panel per action left-to-right; selected (combo step) panel border highlighted
+ACTION_INFO_STRIP_HEIGHT = 10
+ACTION_INFO_X = CENTER_PANEL_X
+ACTION_INFO_Y = CENTER_PANEL_Y + CENTER_PANEL_HEIGHT
+ACTION_INFO_WIDTH = CENTER_PANEL_WIDTH
+ACTION_INFO_HEIGHT = ACTION_INFO_STRIP_HEIGHT
+
+// Right panel (Location/Enemy Info) - 13% of width, full height
 RIGHT_PANEL_X = 183
 RIGHT_PANEL_Y = 2
 RIGHT_PANEL_WIDTH = 27

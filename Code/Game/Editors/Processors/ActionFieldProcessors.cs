@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RPGGame;
+using RPGGame.Data.Validation;
 
 namespace RPGGame.GameCore.Editors.Processors
 {
@@ -18,38 +19,6 @@ namespace RPGGame.GameCore.Editors.Processors
             }
             showMessage("Name cannot be empty. Please enter a name.");
             return false;
-        }
-
-        public static bool ProcessType(ActionData actionData, string input, Action<string> showMessage)
-        {
-            string typeLower = input.Trim().ToLower();
-            if (typeLower == "attack" || typeLower == "heal" || typeLower == "buff" || 
-                typeLower == "debuff" || typeLower == "spell" || typeLower == "interact" || 
-                typeLower == "move" || typeLower == "useitem")
-            {
-                actionData.Type = char.ToUpper(typeLower[0]) + typeLower.Substring(1);
-                return true;
-            }
-            showMessage("Invalid type. Use: Attack, Heal, Buff, Debuff, Spell, Interact, Move, or UseItem");
-            return false;
-        }
-
-        public static bool ProcessTargetType(ActionData actionData, string input, Action<string> showMessage)
-        {
-            string targetLower = input.Trim().ToLower();
-            string normalizedTargetType = targetLower == "singletarget" ? "SingleTarget" :
-                                          targetLower == "areaofeffect" ? "AreaOfEffect" :
-                                          targetLower == "selfandtarget" ? "SelfAndTarget" :
-                                          char.ToUpper(targetLower[0]) + targetLower.Substring(1);
-            
-            if (!IsValidTargetTypeForActionType(actionData.Type, normalizedTargetType))
-            {
-                showMessage($"Invalid target type '{normalizedTargetType}' for action type '{actionData.Type}'. " + GetValidTargetTypesMessage(actionData.Type));
-                return false;
-            }
-            
-            actionData.TargetType = normalizedTargetType;
-            return true;
         }
 
         public static bool ProcessDescription(ActionData actionData, string input, Action<string> showMessage)
@@ -114,14 +83,26 @@ namespace RPGGame.GameCore.Editors.Processors
                 actionData.StatBonusType = "";
                 return true;
             }
+            if (ValidationRules.Actions.ValidStatBonusTypes.Contains(statType))
+            {
+                actionData.StatBonusType = statType;
+                return true;
+            }
             string statTypeLower = statType.ToLower();
-            if (statTypeLower == "strength" || statTypeLower == "agility" || 
+            if (statTypeLower == "strength" || statTypeLower == "agility" ||
                 statTypeLower == "technique" || statTypeLower == "intelligence")
             {
                 actionData.StatBonusType = char.ToUpper(statTypeLower[0]) + statTypeLower.Substring(1);
                 return true;
             }
-            showMessage("Invalid stat type. Use: Strength, Agility, Technique, Intelligence, or empty string.");
+            if (statTypeLower == "health regen") { actionData.StatBonusType = "Health Regen"; return true; }
+            if (statTypeLower == "max health") { actionData.StatBonusType = "Max Health"; return true; }
+            if (statTypeLower == "heal") { actionData.StatBonusType = "Heal"; return true; }
+            if (statTypeLower == "str") { actionData.StatBonusType = "Strength"; return true; }
+            if (statTypeLower == "agi") { actionData.StatBonusType = "Agility"; return true; }
+            if (statTypeLower == "tech" || statTypeLower == "tec") { actionData.StatBonusType = "Technique"; return true; }
+            if (statTypeLower == "int") { actionData.StatBonusType = "Intelligence"; return true; }
+            showMessage("Invalid stat type. Use: Health Regen, Max Health, Heal, Strength, Agility, Technique, Intelligence, or empty.");
             return false;
         }
 
@@ -158,7 +139,8 @@ namespace RPGGame.GameCore.Editors.Processors
                     tags.Add(trimmedTag);
                 }
             }
-            actionData.Tags = tags;
+            // No duplicate tags: deduplicate (case-insensitive) so the same tag cannot appear twice
+            actionData.Tags = tags.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
             return true;
         }
 
@@ -179,37 +161,6 @@ namespace RPGGame.GameCore.Editors.Processors
             return false;
         }
 
-        private static bool IsValidTargetTypeForActionType(string actionType, string targetType)
-        {
-            return actionType switch
-            {
-                "Attack" => targetType == "SingleTarget" || targetType == "SelfAndTarget",
-                "Spell" => targetType == "SingleTarget" || targetType == "SelfAndTarget",
-                "Heal" => targetType == "Self" || targetType == "SingleTarget",
-                "Buff" => targetType == "Self",
-                "Debuff" => targetType == "SingleTarget",
-                "Interact" => targetType == "Environment",
-                "Move" => targetType == "Self",
-                "UseItem" => targetType == "Self" || targetType == "SingleTarget",
-                _ => targetType == "SingleTarget"
-            };
-        }
-
-        private static string GetValidTargetTypesMessage(string actionType)
-        {
-            return actionType switch
-            {
-                "Attack" => "Use: SingleTarget or SelfAndTarget",
-                "Spell" => "Use: SingleTarget or SelfAndTarget",
-                "Heal" => "Use: Self or SingleTarget",
-                "Buff" => "Use: Self",
-                "Debuff" => "Use: SingleTarget",
-                "Interact" => "Use: Environment",
-                "Move" => "Use: Self",
-                "UseItem" => "Use: Self or SingleTarget",
-                _ => "Use: SingleTarget"
-            };
-        }
     }
 }
 

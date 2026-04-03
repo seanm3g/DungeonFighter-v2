@@ -160,5 +160,167 @@
     ],
     "isLiving": false,
     "description": "A spectral being with powerful magic - fast magical caster"
+  },
+  {
+    "name": "Bear",
+    "archetype": "Berserker",
+    "overrides": {
+      "health": 1.25,
+      "strength": 1.2,
+      "agility": 0.8,
+      "armor": 0.9,
+      "technique": 0.9,
+      "intelligence": 0.7
+    },
+    "actions": [
+      "SLAM",
+      "GRUNT"
+    ],
+    "isLiving": true,
+    "description": "A powerful forest predator - heavy hitter with high health"
+  },
+  {
+    "name": "Treant",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.35,
+      "strength": 1.15,
+      "armor": 1.2,
+      "agility": 0.5,
+      "technique": 0.8,
+      "intelligence": 0.8
+    },
+    "actions": [
+      "SLAM",
+      "PUNCH HARD"
+    ],
+    "isLiving": false,
+    "description": "An ancient tree spirit - slow but heavily armored"
+  },
+  {
+    "name": "Boar",
+    "archetype": "Berserker",
+    "overrides": {
+      "health": 1.1,
+      "strength": 1.15,
+      "agility": 1.0,
+      "armor": 0.8,
+      "technique": 0.9,
+      "intelligence": 0.6
+    },
+    "actions": [
+      "JAB",
+      "PUNCH HARD"
+    ],
+    "isLiving": true,
+    "description": "A fierce woodland beast that charges and gores"
+  },
+  {
+    "name": "Salamander",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.7,
+      "agility": 1.4,
+      "technique": 1.2,
+      "armor": 0.5,
+      "intelligence": 1.1,
+      "strength": 0.9
+    },
+    "actions": [
+      "CHEAP SHOT",
+      "JAB"
+    ],
+    "isLiving": true,
+    "description": "A fire-dwelling lizard that strikes from the heat haze"
+  },
+  {
+    "name": "Ember Spirit",
+    "archetype": "Mage",
+    "overrides": {
+      "health": 0.6,
+      "intelligence": 1.45,
+      "agility": 1.25,
+      "armor": 0.35,
+      "technique": 1.2,
+      "strength": 0.65
+    },
+    "actions": [
+      "CRITICAL ATTACK",
+      "FLURRY"
+    ],
+    "isLiving": false,
+    "description": "A wisp of living flame - bursts of magical damage"
+  },
+  {
+    "name": "Magma Beast",
+    "archetype": "Brute",
+    "overrides": {
+      "health": 1.3,
+      "strength": 1.25,
+      "armor": 1.15,
+      "agility": 0.55,
+      "technique": 0.85,
+      "intelligence": 0.75
+    },
+    "actions": [
+      "SLAM",
+      "PUNCH HARDEST"
+    ],
+    "isLiving": false,
+    "description": "A creature of molten rock - devastating heavy attacks"
+  },
+  {
+    "name": "Ghoul",
+    "archetype": "Assassin",
+    "overrides": {
+      "health": 0.8,
+      "agility": 1.35,
+      "technique": 1.15,
+      "armor": 0.55,
+      "intelligence": 0.7,
+      "strength": 1.0
+    },
+    "actions": [
+      "CHEAP SHOT",
+      "JAB"
+    ],
+    "isLiving": false,
+    "description": "A ravenous undead that lunges from the shadows"
+  },
+  {
+    "name": "Lich",
+    "archetype": "Mage",
+    "overrides": {
+      "health": 0.9,
+      "intelligence": 1.55,
+      "technique": 1.25,
+      "armor": 0.6,
+      "agility": 0.9,
+      "strength": 0.75
+    },
+    "actions": [
+      "CRITICAL ATTACK",
+      "STUN"
+    ],
+    "isLiving": false,
+    "description": "An undead spellcaster with potent magical strikes"
+  },
+  {
+    "name": "Wight",
+    "archetype": "Guardian",
+    "overrides": {
+      "health": 1.0,
+      "armor": 1.25,
+      "strength": 0.95,
+      "technique": 1.0,
+      "agility": 0.7,
+      "intelligence": 0.9
+    },
+    "actions": [
+      "SLAM",
+      "TAUNT"
+    ],
+    "isLiving": false,
+    "description": "A spectral guardian of the crypt - tough and controlling"
   }
 ]

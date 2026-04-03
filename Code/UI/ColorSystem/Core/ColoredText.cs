@@ -15,6 +15,12 @@ namespace RPGGame.UI.ColorSystem
         public string Text { get; set; } = "";
         public Color Color { get; set; } = Colors.White;
         
+        /// <summary>
+        /// The name of the template that created this ColoredText (if any)
+        /// Used to check if the template has undulation enabled
+        /// </summary>
+        public string? SourceTemplate { get; set; }
+        
         // Undulation properties for color pattern animation (color sequence offsetting)
         // Note: This is different from brightness undulation used in Avalonia renderers
         private double _undulationPhase = 0;
@@ -39,17 +45,18 @@ namespace RPGGame.UI.ColorSystem
         /// Creates a new ColoredText with the specified text and color.
         /// The color will be validated to ensure visibility on black background.
         /// </summary>
-        public ColoredText(string text, Color color)
+        public ColoredText(string text, Color color, string? sourceTemplate = null)
         {
             Text = text;
             // Ensure color is visible on black background
             Color = ColorValidator.EnsureVisible(color);
+            SourceTemplate = sourceTemplate;
         }
         
         /// <summary>
         /// Creates a new ColoredText with the specified text and white color.
         /// </summary>
-        public ColoredText(string text) : this(text, Colors.White) { }
+        public ColoredText(string text) : this(text, Colors.White, null) { }
         
         /// <summary>
         /// Returns the text content (without color information).

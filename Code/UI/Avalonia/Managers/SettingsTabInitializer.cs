@@ -44,7 +44,11 @@ namespace RPGGame.UI.Avalonia.Managers
             ListBox? actionsListBox,
             Panel? actionFormPanel,
             Button? createActionButton,
-            Button? deleteActionButton)
+            Button? deleteActionButton,
+            ComboBox? rarityFilterComboBox = null,
+            ComboBox? categoryFilterComboBox = null,
+            ComboBox? cadenceFilterComboBox = null,
+            ComboBox? tagFilterComboBox = null)
         {
             if (actionsTabManager != null && actionsListBox != null && actionFormPanel != null &&
                 createActionButton != null && deleteActionButton != null)
@@ -54,7 +58,11 @@ namespace RPGGame.UI.Avalonia.Managers
                     actionFormPanel,
                     createActionButton,
                     deleteActionButton,
-                    showStatusMessage);
+                    showStatusMessage,
+                    rarityFilterComboBox,
+                    categoryFilterComboBox,
+                    cadenceFilterComboBox,
+                    tagFilterComboBox);
             }
         }
     }

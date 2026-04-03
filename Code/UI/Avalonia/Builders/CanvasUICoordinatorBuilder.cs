@@ -30,7 +30,7 @@ namespace RPGGame.UI.Avalonia.Builders
             var layoutManager = new CanvasLayoutManager();
             var interactionManager = new CanvasInteractionManager();
             var textWriter = new Renderers.ColoredTextWriter(canvas);
-            var textManager = new CanvasTextManager(canvas, textWriter, contextManager, stateManager: null);
+            var textManager = new CanvasTextManager(canvas, textWriter, contextManager, stateManager: null, interactionManager: interactionManager);
             var renderer = new CanvasRenderer(canvas, textManager, interactionManager, contextManager);
 
             // Initialize specialized coordinators

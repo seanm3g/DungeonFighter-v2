@@ -114,9 +114,9 @@ namespace RPGGame.Tests.Unit
                 $"Character should level up with exact XP threshold: Level {levelBefore} -> {levelAfter}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Test level 2+ threshold (Level^2.2)
+            // Test level 2+ threshold (Level^2 - consistent curve)
             character.Level = 2;
-            int xpNeededForLevel3 = (int)(Math.Pow(2, 2.2) * averageXPPerDungeonAtLevel1);
+            int xpNeededForLevel3 = 2 * 2 * averageXPPerDungeonAtLevel1;
 
             levelBefore = character.Level;
             character.AddXP(xpNeededForLevel3);
@@ -137,8 +137,8 @@ namespace RPGGame.Tests.Unit
 
             // Add enough XP for multiple level-ups
             int xpForLevel2 = 1 * 1 * averageXPPerDungeonAtLevel1;
-            int xpForLevel3 = (int)(Math.Pow(2, 2.2) * averageXPPerDungeonAtLevel1);
-            int xpForLevel4 = (int)(Math.Pow(3, 2.2) * averageXPPerDungeonAtLevel1);
+            int xpForLevel3 = 2 * 2 * averageXPPerDungeonAtLevel1;
+            int xpForLevel4 = 3 * 3 * averageXPPerDungeonAtLevel1;
             int totalXP = xpForLevel2 + xpForLevel3 + xpForLevel4 + 10;
 
             int levelBefore = character.Level;

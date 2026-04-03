@@ -16,7 +16,7 @@ namespace RPGGame.UI.ColorSystem
         /// Creates multi-color text by alternating colors for each character
         /// Merges consecutive characters with the same color to reduce segments and prevent spacing issues
         /// </summary>
-        private static List<ColoredText> CreateMultiColorText(string text, Color[] colors)
+        private static List<ColoredText> CreateMultiColorText(string text, Color[] colors, string? sourceTemplate = null)
         {
             if (string.IsNullOrEmpty(text))
                 return new List<ColoredText>();
@@ -47,13 +47,13 @@ namespace RPGGame.UI.ColorSystem
                 {
                     // Use the determined whitespace color (white if template has white, otherwise first color)
                     // IMPORTANT: Whitespace should NOT increment colorIndex to preserve color sequence for non-whitespace chars
-                    segments.Add(new ColoredText(c.ToString(), whitespaceColor));
+                    segments.Add(new ColoredText(c.ToString(), whitespaceColor, sourceTemplate));
                 }
                 else
                 {
                     // Use next color in sequence
                     var color = colors[colorIndex % colors.Length];
-                    segments.Add(new ColoredText(c.ToString(), color));
+                    segments.Add(new ColoredText(c.ToString(), color, sourceTemplate));
                     colorIndex++;
                 }
             }
@@ -80,19 +80,19 @@ namespace RPGGame.UI.ColorSystem
                 if (currentSegment == null)
                 {
                     // First segment - always add it
-                    currentSegment = new ColoredText(segment.Text, segment.Color);
+                    currentSegment = new ColoredText(segment.Text, segment.Color, segment.SourceTemplate);
                 }
                 else if (ColorValidator.AreColorsEqual(currentSegment.Color, segment.Color) && 
                          isWhitespace == currentIsWhitespace)
                 {
                     // Same color AND same type (both whitespace or both non-whitespace) - merge
-                    currentSegment = new ColoredText(currentSegment.Text + segment.Text, currentSegment.Color);
+                    currentSegment = new ColoredText(currentSegment.Text + segment.Text, currentSegment.Color, currentSegment.SourceTemplate);
                 }
                 else
                 {
                     // Different color or different type - add current segment and start new one
                     merged.Add(currentSegment);
-                    currentSegment = new ColoredText(segment.Text, segment.Color);
+                    currentSegment = new ColoredText(segment.Text, segment.Color, segment.SourceTemplate);
                 }
             }
             
@@ -112,9 +112,9 @@ namespace RPGGame.UI.ColorSystem
         /// <summary>
         /// Creates a template with a single color
         /// </summary>
-        public static List<ColoredText> SingleColor(string text, Color color)
+        public static List<ColoredText> SingleColor(string text, Color color, string? sourceTemplate = null)
         {
-            return new List<ColoredText> { new ColoredText(text, color) };
+            return new List<ColoredText> { new ColoredText(text, color, sourceTemplate) };
         }
         
         /// <summary>
@@ -247,27 +247,27 @@ namespace RPGGame.UI.ColorSystem
         public static List<ColoredText> GetTemplate(string templateName, string text)
         {
             if (string.IsNullOrEmpty(templateName))
-                return SingleColor(text, Colors.White);
+                return SingleColor(text, Colors.White, null);
             
             // Try to load template from JSON
             var templateData = ColorTemplateLoader.GetTemplate(templateName);
             if (templateData != null)
             {
-                return ApplyTemplate(templateData, text);
+                return ApplyTemplate(templateData, text, templateName);
             }
             
             // Fallback to default white if template not found
-            return SingleColor(text, Colors.White);
+            return SingleColor(text, Colors.White, null);
         }
         
         /// <summary>
         /// Applies a template data structure to text
         /// </summary>
-        private static List<ColoredText> ApplyTemplate(ColorTemplateData templateData, string text)
+        private static List<ColoredText> ApplyTemplate(ColorTemplateData templateData, string text, string? templateName = null)
         {
             if (templateData.Colors == null || templateData.Colors.Count == 0)
             {
-                return SingleColor(text, Colors.White);
+                return SingleColor(text, Colors.White, templateName);
             }
             
             // Convert color codes to Color objects
@@ -280,16 +280,16 @@ namespace RPGGame.UI.ColorSystem
                     // Use first color for solid
                     if (colors.Length > 0)
                     {
-                        return SingleColor(text, colors[0]);
+                        return SingleColor(text, colors[0], templateName);
                     }
-                    return SingleColor(text, Colors.White);
+                    return SingleColor(text, Colors.White, templateName);
                     
                 case "sequence":
                 case "alternation":
                 default:
                     // Both sequence and alternation use the same multi-color logic
                     // (alternation could be enhanced later if needed)
-                    return CreateMultiColorText(text, colors);
+                    return CreateMultiColorText(text, colors, templateName);
             }
         }
     }

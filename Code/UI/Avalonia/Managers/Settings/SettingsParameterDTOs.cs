@@ -45,8 +45,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
     {
         public CheckBox? EnableGuiDelaysCheckBox { get; set; }
         public CheckBox? EnableConsoleDelaysCheckBox { get; set; }
-        // ActionDelay and MessageDelay sliders removed - combat timing is now controlled by
-        // MessageTypeDelays.Combat and ChunkedTextReveal.Combat presets
+        public TextBox? ActionDelayMsTextBox { get; set; }
+        public TextBox? MessageDelayMsTextBox { get; set; }
         public TextBox? CombatDelayTextBox { get; set; }
         public TextBox? SystemDelayTextBox { get; set; }
         public TextBox? MenuDelayTextBox { get; set; }

@@ -273,53 +273,55 @@ namespace RPGGame.Combat.Formatting
             double damageMultiplier = 1.0, 
             int rollBonus = 0, 
             int roll = 0,
-            int multiHitCount = 1)
+            int multiHitCount = 1,
+            bool isCriticalMiss = false)
         {
             var builder = new ColoredTextBuilder();
             
             string actionName = action?.Name ?? "attack";
-            
+            bool hasDisplayableAction = !string.IsNullOrEmpty(action?.Name);
+
             // Create combat outcome to centralize color decisions
             int totalRoll = roll + rollBonus;
             bool isComboAction = CombatColorStrategy.IsComboAction(actionName);
-            
+
             // Create outcome before modifying actionName for critical
             var outcome = CombatOutcome.CreateHit(action, totalRoll, roll, isComboAction);
-            
-            if (outcome.IsCritical)
+
+            if (outcome.IsCritical && hasDisplayableAction)
             {
                 actionName = $"CRITICAL {actionName}";
             }
-            
+
             // Update combo action status after potential critical prefix
-            isComboAction = CombatColorStrategy.IsComboAction(actionName);
+            isComboAction = hasDisplayableAction && CombatColorStrategy.IsComboAction(actionName);
             outcome.IsComboAction = isComboAction;
-            
+
             // Use centralized color strategy
             ColorPalette hitsColor = CombatColorStrategy.GetHitsColor(outcome);
             ColorPalette actionColor = CombatColorStrategy.GetActionColor(outcome);
             ColorPalette damageColor = CombatColorStrategy.GetDamageColor(outcome);
-            
+
             // Attacker name with enemy-specific colors
             builder.Add(attacker.Name, EntityColorHelper.GetActorColor(attacker));
-            
+
             // Target name with "hits" verb with appropriate color based on outcome
             AddHitsTarget(builder, target.Name, EntityColorHelper.GetActorColor(target), hitsColor);
-            
-            // Action name for combo actions
-            if (isComboAction)
+
+            // Action name only when action has a displayable name (normal attack has none)
+            if (hasDisplayableAction && isComboAction)
             {
                 AddWithAction(builder, actionName, actionColor);
             }
             
-            // Add multi-hit indicator if applicable
+            // Add multi-hit indicator if applicable - show before damage to indicate how damage is done
             if (multiHitCount > 1)
             {
                 builder.AddSpace();
                 builder.Add($"({multiHitCount} hits)", ColorPalette.Info);
             }
             
-            // Damage amount
+            // Damage amount (for multi-hit, this is the total damage across all hits)
             AddForAmountUnit(builder, actualDamage.ToString(), damageColor, "damage", Colors.White);
             
             var damageText = builder.Build();
@@ -340,7 +342,7 @@ namespace RPGGame.Combat.Formatting
             double actualSpeed = 0;
             if (action != null && action.Length > 0)
             {
-                actualSpeed = ActionSpeedCalculator.CalculateActualActionSpeed(attacker, action);
+                actualSpeed = ActionSpeedCalculator.CalculateActualActionSpeed(attacker, action, isCriticalMiss);
             }
             
             var rollInfo = RollInfoFormatter.FormatRollInfoColored(roll, rollBonus, actualRawDamage, targetDefense, actualSpeed, comboAmplifier, action);

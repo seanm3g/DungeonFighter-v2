@@ -39,6 +39,9 @@ namespace RPGGame
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", GameDataDirectory),
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", GameDataDirectory),
             
+            // Project root GameData (preferred: Code\bin\Debug\net8.0 -> project root)
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", GameDataDirectory),
+            Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "..", GameDataDirectory),
             // Common project structure variations
             Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", GameDataDirectory),
             Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", GameDataDirectory),
@@ -46,15 +49,7 @@ namespace RPGGame
             // Legacy paths for backward compatibility
             GameDataDirectory,
             Path.Combine("..", GameDataDirectory),
-            Path.Combine("..", "..", GameDataDirectory),
-            Path.Combine("DF4 - CONSOLE", GameDataDirectory),
-            Path.Combine("..", "DF4 - CONSOLE", GameDataDirectory),
-            
-            // Case variations for different systems
-            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "code", GameDataDirectory),
-            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "code", GameDataDirectory),
-            Path.Combine(Directory.GetCurrentDirectory(), "code", GameDataDirectory),
-            Path.Combine(Directory.GetCurrentDirectory(), "..", "code", GameDataDirectory)
+            Path.Combine("..", "..", GameDataDirectory)
         };
         
         // UI Constants - Now configurable via TuningConfig.UICustomization
@@ -161,6 +156,26 @@ namespace RPGGame
         
         // Utility Methods
         /// <summary>
+        /// Gets the project-root GameData directory when running from the repo (e.g. Code\bin\Debug\net8.0).
+        /// Used for settings so load and save always use the same physical folder regardless of launch (VS vs batch).
+        /// </summary>
+        /// <returns>Full path to project root GameData if it exists; otherwise null.</returns>
+        public static string? GetSettingsDirectory()
+        {
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            // From Code\bin\Debug\net8.0, four levels up then GameData = project root GameData
+            string projectRootGameData = Path.Combine(baseDir, "..", "..", "..", "..", GameDataDirectory);
+            try
+            {
+                string fullPath = Path.GetFullPath(projectRootGameData);
+                if (Directory.Exists(fullPath))
+                    return fullPath;
+            }
+            catch { }
+            return null;
+        }
+
+        /// <summary>
         /// Gets a file path for a JSON file in the GameData directory
         /// Uses robust path resolution to find the correct GameData directory
         /// </summary>
@@ -168,7 +183,11 @@ namespace RPGGame
         /// <returns>The full path to the file</returns>
         public static string GetGameDataFilePath(string fileName)
         {
-            // First try to find an existing GameData directory
+            // Prefer project-root GameData first (same folder for dotnet run / terminal)
+            string? projectRoot = GetSettingsDirectory();
+            if (projectRoot != null)
+                return Path.Combine(projectRoot, fileName);
+            // Then try to find an existing GameData directory
             string? existingGameDataDir = FindGameDataDirectory();
             if (existingGameDataDir != null)
             {
@@ -218,6 +237,10 @@ namespace RPGGame
         /// <returns>The path to an existing GameData directory, or null if none found</returns>
         private static string? FindGameDataDirectory()
         {
+            // Prefer project-root GameData so all consumers use the same folder
+            string? projectRoot = GetSettingsDirectory();
+            if (projectRoot != null)
+                return projectRoot;
             string executableDir = AppDomain.CurrentDomain.BaseDirectory;
             string currentDir = Directory.GetCurrentDirectory();
             
@@ -290,12 +313,20 @@ namespace RPGGame
         /// <returns>Array of possible file paths</returns>
         public static string[] GetPossibleGameDataFilePaths(string fileName)
         {
-            var paths = new string[PossibleGameDataPaths.Length];
-            for (int i = 0; i < PossibleGameDataPaths.Length; i++)
+            // Prefer project-root GameData first so JsonLoader and others use the same folder
+            string? projectRoot = GetSettingsDirectory();
+            if (projectRoot != null)
             {
-                paths[i] = Path.Combine(PossibleGameDataPaths[i], fileName);
+                var paths = new string[PossibleGameDataPaths.Length + 1];
+                paths[0] = Path.Combine(projectRoot, fileName);
+                for (int i = 0; i < PossibleGameDataPaths.Length; i++)
+                    paths[i + 1] = Path.Combine(PossibleGameDataPaths[i], fileName);
+                return paths;
             }
-            return paths;
+            var pathsOnly = new string[PossibleGameDataPaths.Length];
+            for (int i = 0; i < PossibleGameDataPaths.Length; i++)
+                pathsOnly[i] = Path.Combine(PossibleGameDataPaths[i], fileName);
+            return pathsOnly;
         }
     }
 }

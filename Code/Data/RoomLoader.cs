@@ -34,9 +34,7 @@ namespace RPGGame
         private static readonly string[] PossibleRoomPaths = {
             Path.Combine("GameData", "Rooms.json"),
             Path.Combine("..", "GameData", "Rooms.json"),
-            Path.Combine("..", "..", "GameData", "Rooms.json"),
-            Path.Combine("DF4 - CONSOLE", "GameData", "Rooms.json"),
-            Path.Combine("..", "DF4 - CONSOLE", "GameData", "Rooms.json")
+            Path.Combine("..", "..", "GameData", "Rooms.json")
         };
 
         public static void LoadRooms()

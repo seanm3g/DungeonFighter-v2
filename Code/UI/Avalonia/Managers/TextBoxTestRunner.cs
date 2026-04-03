@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
-using Avalonia;
 using RPGGame.Tests.Runners;
 
 namespace RPGGame.UI.Avalonia.Managers
@@ -30,102 +29,10 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public async Task RunAllTestsAsync()
         {
-            // Run tests and write summary through console (while capture is active)
             await orchestrator.RunTestAsync(
-                () => ComprehensiveTestRunner.RunAllTests(displaySummary: false),
+                () => ComprehensiveTestRunner.RunAllTests(),
                 "Running all tests...",
-                "All tests complete",
-                getSummaryAfter: () => ComprehensiveTestRunner.GetOverallSummary());
-        }
-
-        /// <summary>
-        /// Appends the test summary directly to the TextBox after all tests complete
-        /// </summary>
-        private async Task AppendSummaryDirectly()
-        {
-            try
-            {
-                // Get the summary on a background thread
-                var summary = await Task.Run(() =>
-                {
-                    try
-                    {
-                        var result = ComprehensiveTestRunner.GetOverallSummary();
-                        // Add a clear separator before the summary to make it visible
-                        if (!string.IsNullOrEmpty(result))
-                        {
-                            // Ensure summary starts with newlines for separation
-                            if (!result.StartsWith("\n"))
-                            {
-                                result = "\n\n" + result;
-                            }
-                        }
-                        return result;
-                    }
-                    catch (Exception ex)
-                    {
-                        // Return error message if summary generation fails
-                        return $"\n\n{new string('=', 60)}\n⚠️ Error generating summary: {ex.Message}\n{ex.StackTrace}\n{new string('=', 60)}";
-                    }
-                });
-                
-                if (string.IsNullOrEmpty(summary))
-                {
-                    // If summary is empty, append a message indicating this
-                    summary = $"\n\n{new string('=', 60)}\n⚠️ Summary could not be generated (no test results collected)\nThis may indicate tests did not record results properly.\n{new string('=', 60)}";
-                }
-                
-                // Append directly to TextBox on UI thread
-                await Dispatcher.UIThread.InvokeAsync(() =>
-                {
-                    try
-                    {
-                        if (outputTextBox != null)
-                        {
-                            var currentText = outputTextBox.Text ?? string.Empty;
-                            
-                            // Get current length for debugging
-                            var lengthBefore = currentText.Length;
-                            
-                            // Ensure we append to the end
-                            // Don't trim - just append the summary as-is
-                            outputTextBox.Text = currentText + summary;
-                            
-                            // Auto-scroll to bottom to show the summary
-                            outputTextBox.CaretIndex = outputTextBox.Text.Length;
-                            
-                            // Verify the summary was actually appended
-                            var lengthAfter = outputTextBox.Text.Length;
-                            if (lengthAfter <= lengthBefore)
-                            {
-                                // Summary wasn't appended - try again with force
-                                System.Diagnostics.Debug.WriteLine($"Warning: Summary may not have been appended. Before: {lengthBefore}, After: {lengthAfter}");
-                                outputTextBox.Text = currentText + "\n\n[SUMMARY APPENDED]" + summary;
-                                outputTextBox.CaretIndex = outputTextBox.Text.Length;
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        // Log error but don't crash
-                        System.Diagnostics.Debug.WriteLine($"Error appending summary to TextBox: {ex.Message}\n{ex.StackTrace}");
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                // Final fallback - try to append error message
-                await Dispatcher.UIThread.InvokeAsync(() =>
-                {
-                    if (outputTextBox != null)
-                    {
-                        var currentText = outputTextBox.Text ?? string.Empty;
-                        var errorMsg = $"\n\n{new string('=', 60)}\n⚠️ Error appending summary: {ex.Message}\n{ex.StackTrace}\n{new string('=', 60)}";
-                        outputTextBox.Text = currentText + errorMsg;
-                        outputTextBox.CaretIndex = outputTextBox.Text.Length;
-                    }
-                });
-            }
+                "All tests complete");
         }
 
         /// <summary>
@@ -283,6 +190,17 @@ namespace RPGGame.UI.Avalonia.Managers
         }
 
         /// <summary>
+        /// Runs multi-source XP reward system tests
+        /// </summary>
+        public async Task RunMultiSourceXPRewardTestsAsync()
+        {
+            await orchestrator.RunTestAsync(
+                () => Tests.Unit.MultiSourceXPRewardTests.RunAllTests(),
+                "Running multi-source XP reward system tests...",
+                "Multi-source XP reward system tests complete");
+        }
+
+        /// <summary>
         /// Runs save/load system tests
         /// </summary>
         public async Task RunSaveLoadSystemTestsAsync()
@@ -349,77 +267,91 @@ namespace RPGGame.UI.Avalonia.Managers
         }
 
         /// <summary>
-        /// Runs combo system tests (including action sequence tests)
+        /// Runs spreadsheet import tests
+        /// </summary>
+        public async Task RunSpreadsheetImportTestsAsync()
+        {
+            await orchestrator.RunTestAsync(
+                () => ComprehensiveTestRunner.RunSpreadsheetImportTests(),
+                "Running spreadsheet import tests...",
+                "Spreadsheet import tests complete");
+        }
+
+        /// <summary>
+        /// Runs action mechanics tests (all mechanics)
+        /// </summary>
+        public async Task RunActionMechanicsTestsAsync()
+        {
+            await orchestrator.RunTestAsync(
+                () => ComprehensiveTestRunner.RunActionMechanicsTests(),
+                "Running action mechanics tests (all)...",
+                "Action mechanics tests complete");
+        }
+
+        /// <summary>
+        /// Runs Actions Settings integration tests (modifiers, refresh, rarity/category).
+        /// </summary>
+        public async Task RunActionsSettingsIntegrationTestsAsync()
+        {
+            await orchestrator.RunTestAsync(
+                () => ComprehensiveTestRunner.RunActionsSettingsIntegrationTests(),
+                "Running Actions Settings integration tests...",
+                "Actions Settings integration tests complete");
+        }
+
+        /// <summary>
+        /// Runs combat mechanics tests (damage, hit, speed, thresholds).
+        /// </summary>
+        public async Task RunCombatMechanicsTestsAsync()
+        {
+            await orchestrator.RunTestAsync(
+                () => ComprehensiveTestRunner.RunCombatMechanicsTests(),
+                "Running combat mechanics tests...",
+                "Combat mechanics tests complete");
+        }
+
+        /// <summary>
+        /// Runs progression tests (level-up, XP, multi-source XP).
+        /// </summary>
+        public async Task RunProgressionTestsAsync()
+        {
+            await orchestrator.RunTestAsync(
+                () => ComprehensiveTestRunner.RunProgressionTests(),
+                "Running progression tests...",
+                "Progression tests complete");
+        }
+
+        /// <summary>
+        /// Runs dungeon and rewards tests (enemy generation, loot, XP).
+        /// </summary>
+        public async Task RunDungeonAndRewardsTestsAsync()
+        {
+            await orchestrator.RunTestAsync(
+                () => ComprehensiveTestRunner.RunDungeonAndRewardsTests(),
+                "Running dungeon & rewards tests...",
+                "Dungeon & rewards tests complete");
+        }
+
+        /// <summary>
+        /// Runs combo system tests.
         /// </summary>
         public async Task RunComboSystemTestsAsync()
         {
             await orchestrator.RunTestAsync(
                 () => ComprehensiveTestRunner.RunComboSystemTests(),
-                "Running combo system tests...",
-                "Combo system tests complete");
+                "Running combo tests...",
+                "Combo tests complete");
         }
 
         /// <summary>
-        /// Copies the output TextBox content to the clipboard
+        /// Runs only game mechanics and reliability tests (no loaders or UI tests).
         /// </summary>
-        public async Task CopyOutputAsync()
+        public async Task RunMechanicsAndReliabilityTestsAsync()
         {
-            await Dispatcher.UIThread.InvokeAsync(async () =>
-            {
-                try
-                {
-                    if (outputTextBox != null && !string.IsNullOrEmpty(outputTextBox.Text))
-                    {
-                        // Get the clipboard from the top-level window
-                        var topLevel = TopLevel.GetTopLevel(outputTextBox);
-                        if (topLevel?.Clipboard != null)
-                        {
-                            await topLevel.Clipboard.SetTextAsync(outputTextBox.Text);
-                            // Update status to show copy was successful
-                            if (statusTextBlock != null)
-                            {
-                                var originalText = statusTextBlock.Text;
-                                statusTextBlock.Text = "Copied to clipboard!";
-                                // Reset status after 2 seconds
-                                _ = Task.Run(async () =>
-                                {
-                                    await Task.Delay(2000);
-                                    await Dispatcher.UIThread.InvokeAsync(() =>
-                                    {
-                                        if (statusTextBlock != null)
-                                        {
-                                            statusTextBlock.Text = originalText;
-                                        }
-                                    });
-                                });
-                            }
-                        }
-                        else
-                        {
-                            if (statusTextBlock != null)
-                            {
-                                statusTextBlock.Text = "Clipboard not available";
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (statusTextBlock != null)
-                        {
-                            statusTextBlock.Text = "No text to copy";
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // Log error but don't crash
-                    System.Diagnostics.Debug.WriteLine($"Error copying to clipboard: {ex.Message}");
-                    if (statusTextBlock != null)
-                    {
-                        statusTextBlock.Text = $"Error: {ex.Message}";
-                    }
-                }
-            });
+            await orchestrator.RunTestAsync(
+                () => ComprehensiveTestRunner.RunMechanicsAndReliabilityTests(),
+                "Running all mechanics & reliability tests...",
+                "Mechanics & reliability tests complete");
         }
 
         /// <summary>
@@ -440,6 +372,21 @@ namespace RPGGame.UI.Avalonia.Managers
                 if (progressBar != null)
                 {
                     progressBar.Value = 0;
+                }
+            });
+        }
+
+        /// <summary>
+        /// Appends text to the output TextBox
+        /// </summary>
+        public void AppendOutput(string text)
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (outputTextBox != null)
+                {
+                    outputTextBox.Text += text;
+                    outputTextBox.CaretIndex = outputTextBox.Text.Length;
                 }
             });
         }

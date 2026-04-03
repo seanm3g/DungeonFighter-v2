@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using RPGGame.Tests;
+using RPGGame.Entity;
 
 namespace RPGGame.Tests.Settings
 {
@@ -131,25 +132,54 @@ namespace RPGGame.Tests.Settings
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Test with empty list - invalid choice should show message
+            // First check if the list is actually empty
+            var savedCharacters = CharacterSaveManager.ListAllSavedCharacters();
+            bool isListEmpty = savedCharacters == null || savedCharacters.Count == 0;
+            
             messageReceived = null;
             Task.Run(async () =>
             {
                 await handler.HandleLoadCharacterSelectionInput("1");
             }).GetAwaiter().GetResult();
 
-            TestBase.AssertNotNull(messageReceived,
-                "Should receive message for invalid choice with empty list",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (isListEmpty)
+            {
+                // If list is empty, should receive error message
+                TestBase.AssertNotNull(messageReceived,
+                    "Should receive message for invalid choice with empty list",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // The message could be "Invalid choice. Press 0 to return." or a load failure message
-            // Accept either as valid error handling
-            TestBase.AssertTrue(
-                (messageReceived?.Contains("Invalid choice") == true || 
-                 messageReceived?.Contains("Press 0") == true ||
-                 messageReceived?.Contains("Failed to load") == true ||
-                 messageReceived?.Contains("Error") == true),
-                $"Message should indicate invalid choice or error: {messageReceived}",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
+                // The message could be "Invalid choice. Press 0 to return." or a load failure message
+                // Accept either as valid error handling
+                TestBase.AssertTrue(
+                    (messageReceived?.Contains("Invalid choice") == true || 
+                     messageReceived?.Contains("Press 0") == true ||
+                     messageReceived?.Contains("Failed to load") == true ||
+                     messageReceived?.Contains("Error") == true),
+                    $"Message should indicate invalid choice or error: {messageReceived}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            else
+            {
+                // If list has characters, test with out-of-range choice instead
+                messageReceived = null;
+                Task.Run(async () =>
+                {
+                    await handler.HandleLoadCharacterSelectionInput("999");
+                }).GetAwaiter().GetResult();
+
+                TestBase.AssertNotNull(messageReceived,
+                    "Should receive message for out-of-range choice",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                // Should show invalid choice message
+                TestBase.AssertTrue(
+                    (messageReceived?.Contains("Invalid choice") == true ||
+                     messageReceived?.Contains("Failed to load") == true ||
+                     messageReceived?.Contains("Error") == true),
+                    $"Message should indicate invalid choice or error: {messageReceived}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
         }
 
         /// <summary>

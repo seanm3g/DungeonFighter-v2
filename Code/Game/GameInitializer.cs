@@ -1,5 +1,8 @@
 using System;
-using System.Text.Json;
+using System.Collections.Generic;
+using System.Linq;
+using RPGGame.Data;
+using RPGGame.Utils;
 
 namespace RPGGame
 {
@@ -38,61 +41,12 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Loads starting gear data from TuningConfig.json
+        /// Loads starting gear data from StartingGear.json (primary) or TuningConfig.json (fallback).
+        /// Delegates to StartingGearLoader.
         /// </summary>
         public StartingGearData LoadStartingGear()
         {
-            try
-            {
-                var config = GameConfiguration.Instance.StartingGear;
-                var startingGear = new StartingGearData();
-                
-                // Convert from config format to StartingGearData format
-                if (config?.Weapons != null)
-                {
-                    foreach (var weaponConfig in config.Weapons)
-                    {
-                        var weapon = new StartingWeapon
-                        {
-                            name = weaponConfig.Name,
-                            damage = weaponConfig.Damage,
-                            attackSpeed = weaponConfig.AttackSpeed,
-                            weight = weaponConfig.Weight
-                        };
-                        
-                        // Apply global damage multiplier from tuning config (balance adjustment only)
-                        var weaponScaling = GameConfiguration.Instance.WeaponScaling;
-                        if (weaponScaling != null)
-                        {
-                            weapon.damage = weapon.damage * weaponScaling.GlobalDamageMultiplier;
-                        }
-                        
-                        startingGear.weapons.Add(weapon);
-                    }
-                }
-                
-                if (config?.Armor != null)
-                {
-                    foreach (var armorConfig in config.Armor)
-                    {
-                        var armor = new StartingArmor
-                        {
-                            slot = armorConfig.Slot,
-                            name = armorConfig.Name,
-                            armor = armorConfig.Armor,
-                            weight = armorConfig.Weight
-                        };
-                        startingGear.armor.Add(armor);
-                    }
-                }
-                
-                return startingGear;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error loading starting gear: {ex.Message}");
-                return new StartingGearData();
-            }
+            return StartingGearLoader.Load();
         }
 
         /// <summary>
@@ -181,9 +135,8 @@ namespace RPGGame
             
             player.EquipItem(starterWeapon, "weapon");
             
-            // Add class actions based on character progression and weapon type
-            // This ensures characters have actions even if weapon doesn't have actions assigned
-            player.Actions.AddClassActions(player, player.Progression, weaponType);
+            // Add default actions (actions marked with IsDefaultAction = true)
+            player.Actions.AddDefaultActions(player);
             
             // Initialize combo sequence with weapon actions now that weapon is equipped
             player.InitializeDefaultCombo();
@@ -212,20 +165,78 @@ namespace RPGGame
                 player.EquipItem(armorItem, slot);
             }
 
-            // Validate that character has actions after initialization
+            // Safety check: Ensure character has at least one action available
+            // If ActionPool is empty, add fallback actions based on weapon type
             if (player.ActionPool.Count == 0)
             {
-                ErrorHandler.LogWarning(
-                    $"Character '{player.Name}' has no actions after initialization. " +
-                    $"Weapon: {player.Equipment.Weapon?.Name ?? "None"}, " +
-                    $"WeaponType: {weaponType}, " +
-                    $"Class: {player.Progression.GetCurrentClass()}, " +
-                    $"Actions loaded from JSON: {ActionLoader.GetAllActionNames().Count}",
-                    "GameInitializer");
+                DebugLogger.LogFormat("GameInitializer", 
+                    "WARNING: Character '{0}' has no actions after initialization. Adding fallback actions.", player.Name);
+                
+                // Try to add weapon-type actions as fallback
+                if (player.Equipment.Weapon is WeaponItem fallbackWeapon)
+                {
+                    var weaponTypeActions = GetWeaponTypeActionsForFallback(fallbackWeapon.WeaponType);
+                    foreach (var actionName in weaponTypeActions)
+                    {
+                        var action = ActionLoader.GetAction(actionName);
+                        if (action != null)
+                        {
+                            action.IsComboAction = true;
+                            player.AddAction(action, 1.0);
+                            DebugLogger.LogFormat("GameInitializer", 
+                                "Added fallback action '{0}' to character '{1}'", actionName, player.Name);
+                            
+                            // Only add one fallback action to ensure we have at least one
+                            if (player.ActionPool.Count > 0)
+                                break;
+                        }
+                    }
+                }
+                
+                // If still no actions, add a generic fallback action
+                if (player.ActionPool.Count == 0)
+                {
+                    // Try to find any available combo action
+                    var allActions = ActionLoader.GetAllActions();
+                    var fallbackAction = allActions.FirstOrDefault(a => a.IsComboAction);
+                    if (fallbackAction != null)
+                    {
+                        player.AddAction(fallbackAction, 1.0);
+                        DebugLogger.LogFormat("GameInitializer", 
+                            "Added generic fallback action '{0}' to character '{1}'", fallbackAction.Name, player.Name);
+                    }
+                }
+                
+                // Re-initialize combo sequence with the fallback actions
+                if (player.ActionPool.Count > 0)
+                {
+                    player.InitializeDefaultCombo();
+                }
             }
 
             // Generate dungeons for the new game
             GenerateDungeons(player, availableDungeons);
+        }
+
+        /// <summary>
+        /// Gets weapon-type actions for fallback when no actions are available
+        /// </summary>
+        private List<string> GetWeaponTypeActionsForFallback(WeaponType weaponType)
+        {
+            var weaponTag = weaponType.ToString().ToLower();
+            var allActions = ActionLoader.GetAllActions();
+
+            // Get weapon-specific actions from JSON using tag matching
+            var weaponActions = allActions
+                .Where(action => action.Tags != null &&
+                                action.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
+                                action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)) &&
+                                !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)) &&
+                                !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)))
+                .Select(action => action.Name)
+                .ToList();
+
+            return weaponActions;
         }
 
         /// <summary>

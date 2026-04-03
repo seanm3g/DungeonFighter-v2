@@ -21,7 +21,7 @@ namespace RPGGame.UI.Avalonia
         // Specialized canvas components using composition pattern
         private readonly CanvasElementManager elementManager;
         private readonly CanvasCoordinateConverter coordinateConverter;
-        private readonly CanvasRenderer renderer;
+        private readonly CanvasPrimitivesRenderer renderer;
         private readonly HealthTracker healthTracker;
         private readonly CanvasElementBuilder elementBuilder;
         private DispatcherTimer? damageDeltaAnimationTimer;
@@ -69,11 +69,10 @@ namespace RPGGame.UI.Avalonia
         public GameCanvasControl()
         {
             Focusable = true;
-            // Background and other properties are set in XAML to Transparent so control can receive input events
-            // Controls without background are invisible to hit testing in Avalonia
+            // Control has no Background in Avalonia; hit-testing is handled by a transparent Border wrapper in MainWindow.axaml.
             this.coordinateConverter = new CanvasCoordinateConverter();
             this.elementManager = new CanvasElementManager();
-            this.renderer = new CanvasRenderer(coordinateConverter);
+            this.renderer = new CanvasPrimitivesRenderer(coordinateConverter);
             this.healthTracker = new HealthTracker();
             this.elementBuilder = new CanvasElementBuilder(elementManager, healthTracker, CenterX);
             InitializeDamageDeltaTimer();
@@ -279,6 +278,15 @@ namespace RPGGame.UI.Avalonia
         public void ClearProgressBarsInArea(int startX, int startY, int width, int height)
         {
             elementManager.ClearProgressBarsInArea(startX, startY, width, height);
+        }
+
+        /// <summary>
+        /// Clears box elements (borders) within a specific rectangular area.
+        /// Used when re-rendering a panel without full canvas clear to prevent duplicate borders.
+        /// </summary>
+        public void ClearBoxesInArea(int startX, int startY, int width, int height)
+        {
+            elementManager.ClearBoxesInArea(startX, startY, width, height);
         }
 
         /// <summary>

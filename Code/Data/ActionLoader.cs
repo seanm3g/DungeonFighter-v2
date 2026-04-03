@@ -1,111 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+using RPGGame.Data;
 
 namespace RPGGame
 {
-    public class ActionData
-    {
-        [JsonPropertyName("name")]
-        public string Name { get; set; } = "";
-        [JsonPropertyName("type")]
-        public string Type { get; set; } = "";
-        [JsonPropertyName("targetType")]
-        public string TargetType { get; set; } = "";
-        [JsonPropertyName("cooldown")]
-        public int Cooldown { get; set; }
-        [JsonPropertyName("description")]
-        public string Description { get; set; } = "";
-        [JsonPropertyName("damageMultiplier")]
-        public double DamageMultiplier { get; set; }
-        [JsonPropertyName("length")]
-        public double Length { get; set; }
-        [JsonPropertyName("causesBleed")]
-        public bool CausesBleed { get; set; }
-        [JsonPropertyName("causesWeaken")]
-        public bool CausesWeaken { get; set; }
-        [JsonPropertyName("causesSlow")]
-        public bool CausesSlow { get; set; }
-        [JsonPropertyName("causesPoison")]
-        public bool CausesPoison { get; set; }
-        [JsonPropertyName("causesBurn")]
-        public bool CausesBurn { get; set; }
-        [JsonPropertyName("comboBonusAmount")]
-        public int ComboBonusAmount { get; set; }
-        [JsonPropertyName("comboBonusDuration")]
-        public int ComboBonusDuration { get; set; }
-        [JsonPropertyName("comboOrder")]
-        public int ComboOrder { get; set; }
-        [JsonPropertyName("isComboAction")]
-        public bool IsComboAction { get; set; }
-        [JsonPropertyName("rollBonus")]
-        public int RollBonus { get; set; }
-        [JsonPropertyName("rollBonusDuration")]
-        public int RollBonusDuration { get; set; }
-        [JsonPropertyName("statBonus")]
-        public int StatBonus { get; set; }
-        [JsonPropertyName("statBonusType")]
-        public string StatBonusType { get; set; } = "";
-        [JsonPropertyName("statBonusDuration")]
-        public int StatBonusDuration { get; set; }
-        [JsonPropertyName("multiHitCount")]
-        public int MultiHitCount { get; set; }
-        [JsonPropertyName("selfDamagePercent")]
-        public int SelfDamagePercent { get; set; }
-        [JsonPropertyName("skipNextTurn")]
-        public bool SkipNextTurn { get; set; }
-        [JsonPropertyName("repeatLastAction")]
-        public bool RepeatLastAction { get; set; }
-        [JsonPropertyName("tags")]
-        public List<string> Tags { get; set; } = new List<string>();
-        [JsonPropertyName("enemyRollPenalty")]
-        public int EnemyRollPenalty { get; set; }
-        [JsonPropertyName("healthThreshold")]
-        public double HealthThreshold { get; set; }
-        [JsonPropertyName("conditionalDamageMultiplier")]
-        public double ConditionalDamageMultiplier { get; set; } = 1.0;
-        
-        // Threshold overrides (absolute values)
-        [JsonPropertyName("criticalMissThresholdOverride")]
-        public int CriticalMissThresholdOverride { get; set; }
-        [JsonPropertyName("criticalHitThresholdOverride")]
-        public int CriticalHitThresholdOverride { get; set; }
-        [JsonPropertyName("comboThresholdOverride")]
-        public int ComboThresholdOverride { get; set; }
-        [JsonPropertyName("hitThresholdOverride")]
-        public int HitThresholdOverride { get; set; }
-        
-        // Threshold adjustments (adds to current/default)
-        [JsonPropertyName("criticalMissThresholdAdjustment")]
-        public int CriticalMissThresholdAdjustment { get; set; }
-        [JsonPropertyName("criticalHitThresholdAdjustment")]
-        public int CriticalHitThresholdAdjustment { get; set; }
-        [JsonPropertyName("comboThresholdAdjustment")]
-        public int ComboThresholdAdjustment { get; set; }
-        [JsonPropertyName("hitThresholdAdjustment")]
-        public int HitThresholdAdjustment { get; set; }
-        
-        // Whether to apply threshold adjustments to both source and target
-        [JsonPropertyName("applyThresholdAdjustmentsToBoth")]
-        public bool ApplyThresholdAdjustmentsToBoth { get; set; }
-        
-        // Roll modification properties
-        [JsonPropertyName("multipleDiceCount")]
-        public int MultipleDiceCount { get; set; } = 1;
-        [JsonPropertyName("multipleDiceMode")]
-        public string MultipleDiceMode { get; set; } = "Sum";
-        
-        // Starting action flag
-        [JsonPropertyName("isStartingAction")]
-        public bool IsStartingAction { get; set; }
-    }
-
     public static class ActionLoader
     {
         private static Dictionary<string, ActionData>? _actions;
-        private static readonly string[] PossibleActionPaths = GameConstants.GetPossibleGameDataFilePaths(GameConstants.ActionsJson);
+        private static bool _wasSpreadsheetFormat;
+        private static List<Data.SpreadsheetActionJson>? _originalSpreadsheetActions;
+        /// <summary>Path of the Actions.json file that was actually loaded. Used so editors save to the same file.</summary>
+        private static string? _loadedActionsFilePath;
 
         public static void LoadActions()
         {
@@ -113,26 +21,68 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Reloads actions from disk, clearing caches so updated Actions.json is used.
+        /// Call when actions may have been modified (e.g., between dungeon runs).
+        /// </summary>
+        public static void ReloadActions()
+        {
+            var pathToClear = _loadedActionsFilePath ?? GameConstants.GetGameDataFilePath(GameConstants.ActionsJson);
+            if (!string.IsNullOrEmpty(pathToClear))
+            {
+                JsonLoader.ClearCacheForFile(pathToClear);
+                try { JsonLoader.ClearCacheForFile(Path.GetFullPath(pathToClear)); } catch { }
+            }
+            _actions = null;
+            LoadActions();
+        }
+
+        /// <summary>
         /// Loads actions from JSON with optional validation
+        /// Supports both legacy ActionData format and new spreadsheet-compatible format
         /// </summary>
         /// <param name="validate">If true, validates loaded actions and logs any issues</param>
         public static void LoadActions(bool validate)
         {
             ErrorHandler.TryExecute(() =>
             {
-                // Use the new JsonLoader for consistent loading
-                var actionList = JsonLoader.LoadJsonFromPaths<List<ActionData>>(
-                    PossibleActionPaths, 
-                    useCache: true, 
-                    fallbackValue: new List<ActionData>()
-                );
+                // Prefer the path we already loaded from (so save then reload uses the same file)
+                string? filePath = null;
+                if (!string.IsNullOrEmpty(_loadedActionsFilePath) && File.Exists(_loadedActionsFilePath))
+                {
+                    filePath = _loadedActionsFilePath;
+                }
+                if (filePath == null)
+                {
+                    // Use single canonical path (same as GameSettings) so load and save always use the same file
+                    filePath = GameConstants.GetGameDataFilePath(GameConstants.ActionsJson);
+                }
+
+                if (filePath == null || !File.Exists(filePath))
+                {
+                    ErrorHandler.LogWarning($"No actions JSON file found at canonical path. Path used: {filePath ?? "(null)"}", "ActionLoader");
+                    _actions = new Dictionary<string, ActionData>();
+                    _wasSpreadsheetFormat = false;
+                    _originalSpreadsheetActions = null;
+                    // Keep canonical path so first save creates the file there
+                    try { _loadedActionsFilePath = filePath != null ? Path.GetFullPath(filePath) : null; } catch { _loadedActionsFilePath = filePath; }
+                    return;
+                }
+
+                // Store normalized path so save/cache use the same canonical path
+                try { _loadedActionsFilePath = Path.GetFullPath(filePath); } catch { _loadedActionsFilePath = filePath; }
                 
+                // Detect format and load accordingly (use normalized path so cache key matches save path)
+                var actionList = LoadActionsFromFile(_loadedActionsFilePath);
                 _actions = new Dictionary<string, ActionData>();
                 
                 if (actionList.Count > 0)
                 {
                     foreach (var action in actionList)
                     {
+                        action.NormalizeStatBonuses();
+                        action.NormalizeThresholds();
+                        action.NormalizeAccumulations();
+                        action.NormalizeTags();
                         if (!string.IsNullOrEmpty(action.Name))
                         {
                             _actions[action.Name] = action;
@@ -147,13 +97,7 @@ namespace RPGGame
                 }
                 else
                 {
-                    ErrorHandler.LogWarning($"No actions loaded from JSON files. Searched paths: {string.Join(", ", PossibleActionPaths)}", "ActionLoader");
-                    // Log which paths were searched for debugging
-                    foreach (var path in PossibleActionPaths)
-                    {
-                        bool exists = File.Exists(path);
-                        DebugLogger.LogFormat("ActionLoader", "Path '{0}' exists: {1}", path, exists);
-                    }
+                    ErrorHandler.LogWarning($"No actions loaded from JSON file: {filePath}", "ActionLoader");
                 }
 
                 // Optional validation
@@ -164,8 +108,105 @@ namespace RPGGame
             }, "ActionLoader.LoadActions", () => 
             {
                 _actions = new Dictionary<string, ActionData>();
+                _wasSpreadsheetFormat = false;
+                _originalSpreadsheetActions = null;
+                _loadedActionsFilePath = null;
                 ErrorHandler.LogError(new Exception("Failed to load actions"), "ActionLoader.LoadActions", "Action loading failed, using empty dictionary");
             });
+        }
+        
+        /// <summary>
+        /// Detects JSON format and loads actions accordingly
+        /// </summary>
+        private static List<ActionData> LoadActionsFromFile(string filePath)
+        {
+            try
+            {
+                // Try to detect format by reading a sample
+                string jsonContent = File.ReadAllText(filePath);
+                
+                // Check if it's spreadsheet format (has "action" property) or legacy format (has "name" property)
+                // Spreadsheet format uses "action" while legacy uses "name"
+                bool isSpreadsheetFormat = DetectSpreadsheetFormat(jsonContent);
+                
+                if (isSpreadsheetFormat)
+                {
+                    // Load as spreadsheet format and convert
+                    DebugLogger.LogFormat("ActionLoader", "Detected spreadsheet-compatible JSON format");
+                    var spreadsheetList = JsonLoader.LoadJson<List<Data.SpreadsheetActionJson>>(
+                        filePath, 
+                        useCache: true, 
+                        fallbackValue: new List<Data.SpreadsheetActionJson>()
+                    );
+                    _wasSpreadsheetFormat = true;
+                    _originalSpreadsheetActions = spreadsheetList;
+                    return Data.SpreadsheetToActionDataConverter.ConvertList(spreadsheetList);
+                }
+                else
+                {
+                    // Load as legacy ActionData format
+                    DebugLogger.LogFormat("ActionLoader", "Detected legacy ActionData JSON format");
+                    _wasSpreadsheetFormat = false;
+                    _originalSpreadsheetActions = null;
+                    return JsonLoader.LoadJson<List<ActionData>>(
+                        filePath, 
+                        useCache: true, 
+                        fallbackValue: new List<ActionData>()
+                    );
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.LogError(ex, "ActionLoader.LoadActionsFromFile", $"Error loading actions from {filePath}");
+                return new List<ActionData>();
+            }
+        }
+        
+        /// <summary>
+        /// Detects if JSON is in spreadsheet format by checking for "action" property
+        /// </summary>
+        private static bool DetectSpreadsheetFormat(string jsonContent)
+        {
+            if (string.IsNullOrWhiteSpace(jsonContent))
+                return false;
+            
+            // Check if JSON contains "action" property (spreadsheet format) vs "name" property (legacy format)
+            // Spreadsheet format will have "action" as a top-level property in the first object
+            // We'll check if the first non-whitespace object has "action" instead of "name"
+            try
+            {
+                // Quick check: if JSON contains "action" property and doesn't have "name" in the first object,
+                // it's likely spreadsheet format
+                // More reliable: try to parse first object and check properties
+                using (var doc = JsonDocument.Parse(jsonContent))
+                {
+                    if (doc.RootElement.ValueKind == JsonValueKind.Array && doc.RootElement.GetArrayLength() > 0)
+                    {
+                        var firstElement = doc.RootElement[0];
+                        if (firstElement.ValueKind == JsonValueKind.Object)
+                        {
+                            // Check if it has "action" property (spreadsheet format)
+                            if (firstElement.TryGetProperty("action", out _))
+                            {
+                                return true;
+                            }
+                            // Check if it has "name" property (legacy format)
+                            if (firstElement.TryGetProperty("name", out _))
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // If parsing fails, default to legacy format
+                return false;
+            }
+            
+            // Default to legacy format if detection fails
+            return false;
         }
 
         /// <summary>
@@ -202,7 +243,7 @@ namespace RPGGame
 
             if (_actions != null && _actions.TryGetValue(actionName, out var actionData))
             {
-                return CreateActionFromData(actionData);
+                return ActionDataToActionMapper.CreateAction(actionData);
             }
 
             return null;
@@ -220,101 +261,6 @@ namespace RPGGame
                 }
             }
             return actions;
-        }
-
-        private static Action CreateActionFromData(ActionData data)
-        {
-            var actionType = ParseActionType(data.Type);
-            var targetType = ParseTargetType(data.TargetType);
-
-            // Enhance description with modifiers
-            string enhancedDescription = ActionDescriptionEnhancer.EnhanceActionDescription(data);
-
-            var action = new Action(
-                name: data.Name,
-                type: actionType,
-                targetType: targetType,
-                cooldown: data.Cooldown,
-                description: enhancedDescription,
-                comboOrder: data.ComboOrder,
-                damageMultiplier: data.DamageMultiplier,
-                length: data.Length,
-                causesBleed: data.CausesBleed,
-                causesWeaken: data.CausesWeaken,
-                isComboAction: data.IsComboAction,
-                comboBonusAmount: data.ComboBonusAmount,
-                comboBonusDuration: data.ComboBonusDuration
-            );
-            
-            // Set the new debuff properties
-            action.CausesSlow = data.CausesSlow;
-            action.CausesPoison = data.CausesPoison;
-            
-            // Set additional properties (using nested property structure)
-            action.Advanced.RollBonus = data.RollBonus;
-            action.Advanced.RollBonusDuration = data.RollBonusDuration;
-            action.Advanced.StatBonus = data.StatBonus;
-            action.Advanced.StatBonusType = data.StatBonusType;
-            action.Advanced.StatBonusDuration = data.StatBonusDuration;
-            action.Advanced.MultiHitCount = data.MultiHitCount;
-            action.Advanced.SelfDamagePercent = data.SelfDamagePercent;
-            action.Advanced.SkipNextTurn = data.SkipNextTurn;
-            action.Advanced.RepeatLastAction = data.RepeatLastAction;
-            action.Tags = data.Tags ?? new List<string>();
-            action.Advanced.EnemyRollPenalty = data.EnemyRollPenalty;
-            action.Advanced.HealthThreshold = data.HealthThreshold;
-            action.Advanced.ConditionalDamageMultiplier = data.ConditionalDamageMultiplier;
-            
-            // Set roll modification properties
-            action.RollMods.MultipleDiceCount = data.MultipleDiceCount;
-            action.RollMods.MultipleDiceMode = data.MultipleDiceMode;
-            
-            // Set threshold overrides
-            action.RollMods.CriticalMissThresholdOverride = data.CriticalMissThresholdOverride;
-            action.RollMods.CriticalHitThresholdOverride = data.CriticalHitThresholdOverride;
-            action.RollMods.ComboThresholdOverride = data.ComboThresholdOverride;
-            action.RollMods.HitThresholdOverride = data.HitThresholdOverride;
-            
-            // Set threshold adjustments
-            action.RollMods.CriticalMissThresholdAdjustment = data.CriticalMissThresholdAdjustment;
-            action.RollMods.CriticalHitThresholdAdjustment = data.CriticalHitThresholdAdjustment;
-            action.RollMods.ComboThresholdAdjustment = data.ComboThresholdAdjustment;
-            action.RollMods.HitThresholdAdjustment = data.HitThresholdAdjustment;
-            
-            // Set flag for applying to both actors
-            action.RollMods.ApplyThresholdAdjustmentsToBoth = data.ApplyThresholdAdjustmentsToBoth;
-            
-            return action;
-        }
-
-
-        private static ActionType ParseActionType(string type)
-        {
-            return type.ToLower() switch
-            {
-                "attack" => ActionType.Attack,
-                "heal" => ActionType.Heal,
-                "buff" => ActionType.Buff,
-                "debuff" => ActionType.Debuff,
-                "interact" => ActionType.Interact,
-                "move" => ActionType.Move,
-                "useitem" => ActionType.UseItem,
-                "spell" => ActionType.Spell,
-                _ => ActionType.Attack
-            };
-        }
-
-        private static TargetType ParseTargetType(string targetType)
-        {
-            return targetType.ToLower() switch
-            {
-                "self" => TargetType.Self,
-                "singletarget" => TargetType.SingleTarget,
-                "areaofeffect" => TargetType.AreaOfEffect,
-                "environment" => TargetType.Environment,
-                "selfandtarget" => TargetType.SelfAndTarget,
-                _ => TargetType.SingleTarget
-            };
         }
 
         public static bool HasAction(string actionName)
@@ -348,13 +294,57 @@ namespace RPGGame
             {
                 foreach (var actionData in _actions.Values)
                 {
-                    actions.Add(CreateActionFromData(actionData));
+                    actions.Add(ActionDataToActionMapper.CreateAction(actionData));
                 }
             }
-            else
-            {
-            }
             return actions;
+        }
+
+        /// <summary>
+        /// Gets all ActionData objects (for editing purposes)
+        /// </summary>
+        public static List<ActionData> GetAllActionData()
+        {
+            if (_actions == null)
+            {
+                LoadActions();
+            }
+            return _actions?.Values.ToList() ?? new List<ActionData>();
+        }
+
+        /// <summary>
+        /// True if the last load detected spreadsheet-compatible JSON format (action/rarity/category/cadence).
+        /// When true, save should write back as SpreadsheetActionJson to preserve columns.
+        /// </summary>
+        public static bool IsSpreadsheetFormat()
+        {
+            if (_actions == null)
+            {
+                LoadActions();
+            }
+            return _wasSpreadsheetFormat;
+        }
+
+        /// <summary>
+        /// Path of the Actions.json file that was last successfully loaded.
+        /// Use this path when saving so edits persist to the same file the game loads from.
+        /// </summary>
+        public static string? GetLoadedActionsFilePath()
+        {
+            return _loadedActionsFilePath;
+        }
+
+        /// <summary>
+        /// Original spreadsheet JSON rows from the last load, or null if legacy format was used.
+        /// Used when saving to merge edited ActionData back into spreadsheet format.
+        /// </summary>
+        public static List<Data.SpreadsheetActionJson>? GetOriginalSpreadsheetActions()
+        {
+            if (_actions == null)
+            {
+                LoadActions();
+            }
+            return _originalSpreadsheetActions;
         }
 
         public static string GetRandomActionNameByType(ActionType type)

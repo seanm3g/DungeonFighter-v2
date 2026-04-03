@@ -4,6 +4,7 @@ namespace RPGGame
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Avalonia.Threading;
     using RPGGame.UI.Avalonia;
     using RPGGame.Utils;
 
@@ -177,6 +178,10 @@ namespace RPGGame
                 
                 if (loadedCharacter == null)
                 {
+                    if (customUIManager is CanvasUICoordinator canvasUIClear)
+                    {
+                        Dispatcher.UIThread.Post(() => canvasUIClear.ClearLoadingStatus());
+                    }
                     ShowMessageEvent?.Invoke($"Failed to load character: {characterName}");
                     return;
                 }
@@ -192,22 +197,27 @@ namespace RPGGame
                     loadedCharacter.ApplyHealthMultiplier(settings.PlayerHealthMultiplier);
                 }
                 
-                // Update UI
-                if (customUIManager is CanvasUICoordinator canvasUIUpdate)
+                var ch = loadedCharacter;
+                Dispatcher.UIThread.Post(() =>
                 {
-                    canvasUIUpdate.RestoreDisplayBufferRendering();
-                    canvasUIUpdate.SetCharacter(loadedCharacter);
-                    canvasUIUpdate.RefreshCharacterPanel();
-                }
-                
-                ShowMessageEvent?.Invoke($"Loaded {loadedCharacter.Name} (Level {loadedCharacter.Level})");
-                
-                // Transition to game loop
-                stateManager.TransitionToState(GameState.GameLoop);
-                ShowGameLoopEvent?.Invoke();
+                    if (customUIManager is CanvasUICoordinator canvasUIUpdate)
+                    {
+                        canvasUIUpdate.ClearLoadingStatus();
+                        canvasUIUpdate.RestoreDisplayBufferRendering();
+                        canvasUIUpdate.SetCharacter(ch);
+                        canvasUIUpdate.RefreshCharacterPanel();
+                    }
+                    ShowMessageEvent?.Invoke($"Loaded {ch.Name} (Level {ch.Level})");
+                    stateManager.TransitionToState(GameState.GameLoop);
+                    ShowGameLoopEvent?.Invoke();
+                });
             }
             catch (Exception ex)
             {
+                if (customUIManager is CanvasUICoordinator canvasUIError)
+                {
+                    Dispatcher.UIThread.Post(() => canvasUIError.ClearLoadingStatus());
+                }
                 ShowMessageEvent?.Invoke($"Error loading character: {ex.Message}");
                 DebugLogger.Log("LoadCharacterSelectionHandler", $"Error in LoadCharacter: {ex}");
             }

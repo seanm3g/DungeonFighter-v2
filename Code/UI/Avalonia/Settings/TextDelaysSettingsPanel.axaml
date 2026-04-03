@@ -59,6 +59,40 @@
                 </StackPanel>
             </Border>
             
+            <!-- Combat timing (action block delay, delay between lines) -->
+            <Border Background="White" 
+                    BorderBrush="#FF404040" 
+                    BorderThickness="1" 
+                    CornerRadius="6" 
+                    Padding="18">
+                <StackPanel Spacing="15">
+                    <TextBlock Text="Combat Timing (ms)" 
+                               FontSize="18" 
+                               FontWeight="SemiBold" 
+                               Foreground="Black" 
+                               Margin="0,0,0,8"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="250"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="100"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Action delay (after full block):" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBox x:Name="ActionDelayMsTextBox" Grid.Row="0" Grid.Column="2" Width="90" Height="28" 
+                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
+                                 BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Message delay (between lines):" Foreground="Black" FontSize="15" VerticalAlignment="Center"/>
+                        <TextBox x:Name="MessageDelayMsTextBox" Grid.Row="1" Grid.Column="2" Width="90" Height="28" 
+                                 Background="#FF2A2A2A" Foreground="White" BorderBrush="#FF555555" 
+                                 BorderThickness="1" Padding="6,4" FontSize="14" VerticalAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+            
             <!-- Message Type Delays -->
             <Border Background="White" 
                     BorderBrush="#FF404040" 

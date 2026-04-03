@@ -2,13 +2,13 @@ namespace RPGGame.UI.BlockDisplay
 {
     /// <summary>
     /// Extracts Actor name from messages
-    /// Supports formats: "[EntityName] ...", "EntityName hits ...", "EntityName takes ...", "EntityName is affected ..."
+    /// Supports formats: "[EntityName] ...", "EntityName hits ...", "EntityName misses ...", "EntityName CRITICAL MISS ...", "EntityName uses ...", "EntityName takes ...", "EntityName is affected ..."
     /// </summary>
     public static class EntityNameExtractor
     {
         /// <summary>
         /// Extracts Actor name from a message
-        /// Supports formats: "[EntityName] ...", "EntityName hits ...", "EntityName takes ...", "EntityName is affected ..."
+        /// Supports formats: "[EntityName] ...", "EntityName hits ...", "EntityName misses ...", "EntityName CRITICAL MISS ...", "EntityName uses ...", "EntityName takes ...", "EntityName is affected ..."
         /// </summary>
         /// <param name="message">Message to extract Actor name from</param>
         /// <returns>Actor name if found, null otherwise</returns>
@@ -42,6 +42,13 @@ namespace RPGGame.UI.BlockDisplay
             if (missesIndex > 0)
             {
                 return message.Substring(0, missesIndex).Trim();
+            }
+            
+            // Try format: "EntityName CRITICAL MISS ..."
+            int criticalMissIndex = message.IndexOf(" CRITICAL MISS ");
+            if (criticalMissIndex > 0)
+            {
+                return message.Substring(0, criticalMissIndex).Trim();
             }
             
             // Try format: "EntityName uses ..."

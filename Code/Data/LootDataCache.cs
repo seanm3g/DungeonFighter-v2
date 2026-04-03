@@ -137,22 +137,41 @@ namespace RPGGame
 
         private void LoadActionBonuses()
         {
-            string? filePath = JsonLoader.FindGameDataFile("Actions.json");
-            if (filePath != null)
+            // Use ActionLoader so format is handled in one place (legacy ActionData and spreadsheet format).
+            ActionLoader.LoadActions();
+            var actionDataList = ActionLoader.GetAllActionData();
+            if (actionDataList != null && actionDataList.Count > 0)
             {
-                var options = new JsonSerializerOptions
+                ActionBonuses = actionDataList.Select(a => new ActionBonus
                 {
-                    PropertyNameCaseInsensitive = true,
-                    Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
-                };
-                var actions = JsonLoader.LoadJsonList<ActionData>(filePath, true);
-                ActionBonuses = actions?.Select(a => new ActionBonus { Name = a.Name, Description = a.Description, Weight = 1 }).ToList() ?? new List<ActionBonus>();
+                    Name = a.Name,
+                    Description = a.Description,
+                    Weight = RarityToWeight(a.Rarity)
+                }).ToList();
             }
             else
             {
-                UIManager.WriteLine("Error loading action bonuses: Actions.json not found", UIMessageType.System);
+                UIManager.WriteLine("Error loading action bonuses: No actions loaded from Actions.json", UIMessageType.System);
                 ActionBonuses = new List<ActionBonus>();
             }
+        }
+
+        /// <summary>
+        /// Maps action Rarity to selection weight (higher = more likely when choosing actions for items).
+        /// </summary>
+        private static int RarityToWeight(string? rarity)
+        {
+            if (string.IsNullOrWhiteSpace(rarity)) return 1;
+            return (rarity.Trim().ToLowerInvariant()) switch
+            {
+                "common" => 1,
+                "uncommon" => 2,
+                "rare" => 3,
+                "epic" => 4,
+                "legendary" => 5,
+                "transcendent" => 6,
+                _ => 1
+            };
         }
 
         private void LoadModifications()

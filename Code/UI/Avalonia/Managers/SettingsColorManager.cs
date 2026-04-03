@@ -13,9 +13,8 @@ namespace RPGGame.UI.Avalonia.Managers
     public class SettingsColorManager
     {
         private readonly SettingsPanel? settingsPanel;
-        private readonly GameSettings settings;
         
-        // Specialized color managers
+        // Specialized color managers (each uses GameSettings.Instance at apply time)
         private readonly WindowColorManager windowColorManager;
         private readonly TextBlockColorManager textBlockColorManager;
         private readonly ListBoxColorManager listBoxColorManager;
@@ -23,22 +22,20 @@ namespace RPGGame.UI.Avalonia.Managers
         private readonly BorderColorManager borderColorManager;
         private readonly TextBoxColorManager textBoxColorManager;
 
-        public SettingsColorManager(SettingsPanel panel, GameSettings gameSettings)
+        public SettingsColorManager(SettingsPanel panel)
         {
             settingsPanel = panel;
-            settings = gameSettings;
             
-            // Initialize specialized managers
-            windowColorManager = new WindowColorManager(settingsPanel, settings);
-            textBlockColorManager = new TextBlockColorManager(settingsPanel, settings);
-            listBoxColorManager = new ListBoxColorManager(settingsPanel, settings);
-            buttonColorManager = new ButtonColorManager(settingsPanel, settings);
-            borderColorManager = new BorderColorManager(settingsPanel, settings);
-            textBoxColorManager = new TextBoxColorManager(settingsPanel, settings);
+            windowColorManager = new WindowColorManager(settingsPanel);
+            textBlockColorManager = new TextBlockColorManager(settingsPanel);
+            listBoxColorManager = new ListBoxColorManager(settingsPanel);
+            buttonColorManager = new ButtonColorManager(settingsPanel);
+            borderColorManager = new BorderColorManager(settingsPanel);
+            textBoxColorManager = new TextBoxColorManager(settingsPanel);
         }
 
         /// <summary>
-        /// Applies all color settings to the settings panel UI by delegating to specialized managers
+        /// Applies all color settings to the settings panel UI by delegating to specialized managers (uses GameSettings.Instance at use time).
         /// </summary>
         public void ApplyColors()
         {

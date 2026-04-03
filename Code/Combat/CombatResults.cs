@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using RPGGame.UI.ColorSystem;
 
@@ -25,23 +25,23 @@ namespace RPGGame
         /// <returns>Tuple of (damageText, rollInfo)</returns>
         public static (string damageText, string rollInfo) FormatDamageDisplaySeparated(Actor attacker, Actor target, int rawDamage, int actualDamage, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0)
         {
+            bool hasDisplayableAction = !string.IsNullOrEmpty(action?.Name);
             string actionName = action?.Name ?? "attack";
-            
+
             // Check if this is a critical hit (total roll of 20 or higher)
             int totalRoll = roll + rollBonus;
             bool isCritical = totalRoll >= 20;
-            
-            // Add CRITICAL prefix to action name if it's a critical hit
-            if (isCritical)
+
+            // Add CRITICAL prefix to action name if it's a critical hit and action has a name
+            if (isCritical && hasDisplayableAction)
             {
                 actionName = $"CRITICAL {actionName}";
             }
-            
-            // Determine if this is a combo action (all actions in the game are combo actions)
-            bool isComboAction = action != null && action.IsComboAction;
-            
-            // First line: Format for combo actions
-            // Using template-based coloring {{damage|number}} for proper spacing
+
+            // Show action name only when action has a displayable name (normal attack has none)
+            bool isComboAction = hasDisplayableAction && (action != null && action.IsComboAction);
+
+            // First line: Format for combo actions (with name) vs normal attack (no name)
             string damageText;
             if (isComboAction)
             {
@@ -169,37 +169,11 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Calculates the actual action speed by multiplying Actor base speed by action length
+        /// Calculates the actual action speed by multiplying Actor base speed by action length (uses ActionSpeedCalculator for ConsumedSpeedMod etc.)
         /// </summary>
-        /// <param name="Actor">The Actor performing the action</param>
-        /// <param name="action">The action being performed</param>
-        /// <returns>The calculated action speed in seconds</returns>
         private static double CalculateActualActionSpeed(Actor Actor, Action action)
         {
-            // Get the Actor's base attack speed
-            double baseSpeed = 0;
-            if (Actor is Character character)
-            {
-                baseSpeed = character.GetTotalAttackSpeed();
-            }
-            else if (Actor is Enemy enemy)
-            {
-                baseSpeed = enemy.GetTotalAttackSpeed();
-            }
-            else if (Actor is Environment environment)
-            {
-                // For environments, use a default base speed
-                baseSpeed = 15.0; // Same as used in CombatManager
-            }
-            
-            // Apply critical miss penalty (doubles action speed)
-            if (Actor.HasCriticalMissPenalty)
-            {
-                baseSpeed *= 2.0;
-            }
-            
-            // Calculate actual action speed: base speed * action length
-            return baseSpeed * action.Length;
+            return Combat.Formatting.ActionSpeedCalculator.CalculateActualActionSpeed(Actor, action, Actor.HasCriticalMissPenalty);
         }
         
         // ===== NEW COLORED TEXT SYSTEM (PRIMARY API) =====
@@ -210,10 +184,10 @@ namespace RPGGame
         /// </summary>
         public static (List<ColoredText> damageText, List<ColoredText> rollInfo) FormatDamageDisplayColored(
             Actor attacker, Actor target, int rawDamage, int actualDamage, Action? action = null, 
-            double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, int multiHitCount = 1)
+            double comboAmplifier = 1.0, double damageMultiplier = 1.0, int rollBonus = 0, int roll = 0, int multiHitCount = 1, bool isCriticalMiss = false)
         {
             return CombatResultsColoredText.FormatDamageDisplayColored(attacker, target, rawDamage, actualDamage, 
-                action, comboAmplifier, damageMultiplier, rollBonus, roll, multiHitCount);
+                action, comboAmplifier, damageMultiplier, rollBonus, roll, multiHitCount, isCriticalMiss);
         }
         
         /// <summary>

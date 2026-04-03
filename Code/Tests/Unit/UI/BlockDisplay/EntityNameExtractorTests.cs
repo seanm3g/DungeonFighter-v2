@@ -27,6 +27,8 @@ namespace RPGGame.Tests.Unit.UI.BlockDisplay
 
             TestExtractEntityNameFromMessage_BracketFormat();
             TestExtractEntityNameFromMessage_HitsFormat();
+            TestExtractEntityNameFromMessage_MissesFormat();
+            TestExtractEntityNameFromMessage_CriticalMissFormat();
             TestExtractEntityNameFromMessage_TakesFormat();
             TestExtractEntityNameFromMessage_IsAffectedFormat();
             TestExtractEntityNameFromMessage_EmptyMessage();
@@ -58,6 +60,38 @@ namespace RPGGame.Tests.Unit.UI.BlockDisplay
             
             TestBase.AssertEqual("Hero", entityName,
                 "Should extract entity name from hits format",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestExtractEntityNameFromMessage_MissesFormat()
+        {
+            Console.WriteLine("\n--- Testing ExtractEntityNameFromMessage - Misses Format ---");
+
+            string message = "Hero misses Enemy";
+            string? entityName = EntityNameExtractor.ExtractEntityNameFromMessage(message);
+            
+            TestBase.AssertEqual("Hero", entityName,
+                "Should extract entity name from misses format",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestExtractEntityNameFromMessage_CriticalMissFormat()
+        {
+            Console.WriteLine("\n--- Testing ExtractEntityNameFromMessage - CRITICAL MISS Format ---");
+
+            string message = "Haldir Rockheart CRITICAL MISS Goblin";
+            string? entityName = EntityNameExtractor.ExtractEntityNameFromMessage(message);
+            
+            TestBase.AssertEqual("Haldir Rockheart", entityName,
+                "Should extract entity name from CRITICAL MISS format",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            
+            // Test with different entity names
+            string message2 = "Goblin CRITICAL MISS Haldir Rockheart";
+            string? entityName2 = EntityNameExtractor.ExtractEntityNameFromMessage(message2);
+            
+            TestBase.AssertEqual("Goblin", entityName2,
+                "Should extract entity name from CRITICAL MISS format (different entity)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

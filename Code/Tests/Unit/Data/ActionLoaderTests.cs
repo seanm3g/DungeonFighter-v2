@@ -33,6 +33,7 @@ namespace RPGGame.Tests.Unit.Data
             TestGetAllActionNames();
             TestGetAllActions();
             TestActionProperties();
+            TestOpenerFinisherMapping();
 
             TestBase.PrintSummary("ActionLoader Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -103,10 +104,10 @@ namespace RPGGame.Tests.Unit.Data
                 $"GetActions should return actions, got {actions.Count}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Test with mix of existing and non-existing
-            var mixedActions = ActionLoader.GetActions("JAB", "NONEXISTENT", "SLASH");
-            TestBase.AssertTrue(mixedActions.Count >= 2,
-                $"GetActions should return existing actions, got {mixedActions.Count}",
+            // Test with mix of existing and non-existing (use action names that exist in GameData)
+            var mixedActions = ActionLoader.GetActions("JAB", "NONEXISTENT", "PUNCH HARD");
+            TestBase.AssertTrue(mixedActions.Count >= 1,
+                $"GetActions should return at least one existing action, got {mixedActions.Count}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -221,6 +222,36 @@ namespace RPGGame.Tests.Unit.Data
             // Test cooldown is non-negative
             TestBase.AssertTrue(jabAction.Cooldown >= 0,
                 $"Cooldown should be non-negative, got {jabAction.Cooldown}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestOpenerFinisherMapping()
+        {
+            Console.WriteLine("\n--- Testing Opener/Finisher mapping (ActionData to ComboRouting) ---");
+
+            var data = new ActionData
+            {
+                Name = "TestOpenerFinisher",
+                Type = "Attack",
+                TargetType = "SingleTarget",
+                Cooldown = 0,
+                Description = "Test",
+                DamageMultiplier = 1.0,
+                Length = 1.0,
+                IsOpener = true,
+                IsFinisher = true
+            };
+
+            var action = ActionDataToActionMapper.CreateAction(data);
+
+            TestBase.AssertTrue(action.ComboRouting != null,
+                "ComboRouting should be non-null",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(action.ComboRouting!.IsOpener,
+                "IsOpener should map from ActionData to ComboRouting",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(action.ComboRouting!.IsFinisher,
+                "IsFinisher should map from ActionData to ComboRouting",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

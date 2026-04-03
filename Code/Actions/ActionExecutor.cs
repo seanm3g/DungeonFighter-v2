@@ -8,6 +8,7 @@ using RPGGame.Combat.Events;
 using RPGGame.Combat.Outcomes;
 using RPGGame.Actions.Conditional;
 using RPGGame.UI.ColorSystem;
+using RPGGame.Combat.Formatting;
 
 namespace RPGGame
 {
@@ -75,7 +76,9 @@ namespace RPGGame
                 if (result.SelectedAction.Type == ActionType.Attack || result.SelectedAction.Type == ActionType.Spell)
                 {
                     double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, result.SelectedAction);
-                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll);
+                    // Get multi-hit count for display formatting
+                    int multiHitCount = result.SelectedAction.Advanced.MultiHitCount;
+                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll, multiHitCount, result.IsCriticalMiss);
                     return (damageText, rollInfo);
                 }
                 else if (result.SelectedAction.Type == ActionType.Heal)
@@ -108,15 +111,7 @@ namespace RPGGame
                     
                     if (result.SelectedAction.Length > 0)
                     {
-                        double actualSpeed = 0;
-                        if (source is Character charSource)
-                        {
-                            actualSpeed = charSource.GetTotalAttackSpeed() * result.SelectedAction.Length;
-                        }
-                        else if (source is Enemy enemySource)
-                        {
-                            actualSpeed = enemySource.GetTotalAttackSpeed() * result.SelectedAction.Length;
-                        }
+                        double actualSpeed = ActionSpeedCalculator.CalculateActualActionSpeed(source, result.SelectedAction, result.IsCriticalMiss);
                         
                         if (actualSpeed > 0)
                         {
@@ -161,7 +156,9 @@ namespace RPGGame
                 if (result.SelectedAction.Type == ActionType.Attack || result.SelectedAction.Type == ActionType.Spell)
                 {
                     double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, result.SelectedAction);
-                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll);
+                    // Get multi-hit count for display formatting
+                    int multiHitCount = result.SelectedAction.Advanced.MultiHitCount;
+                    var (damageText, rollInfo) = CombatResults.FormatDamageDisplayColored(source, target, result.Damage, result.Damage, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, result.ModifiedBaseRoll, multiHitCount);
                     string damageString = ColoredTextRenderer.RenderAsMarkup(damageText) + "\n" + ColoredTextRenderer.RenderAsMarkup(rollInfo);
                     results.Add(damageString);
                 }

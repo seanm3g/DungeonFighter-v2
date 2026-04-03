@@ -207,6 +207,15 @@
     "MaxValue": 0.25
   },
   {
+    "DiceResult": 36,
+    "ItemRank": "Epic",
+    "Name": "Venomous Blade",
+    "Description": "All attacks cause poison",
+    "Effect": "damage",
+    "MinValue": 5,
+    "MaxValue": 8
+  },
+  {
     "DiceResult": 17,
     "ItemRank": "Legendary",
     "Name": "Masterwork",

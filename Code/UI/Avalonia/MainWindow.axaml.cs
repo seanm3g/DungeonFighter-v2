@@ -24,8 +24,11 @@ namespace RPGGame.UI.Avalonia
             this.KeyDown += OnKeyDown;
             this.KeyUp += OnKeyUp;
             
-            // Add mouse event handling
-            GameCanvas.PointerPressed += OnCanvasPointerPressed;
+            // Pointer events on the transparent Border wrapper — GameCanvasControl (Control) has no Background, so hits would otherwise pass through.
+            GameCanvasHitSurface.PointerPressed += OnCanvasPointerPressed;
+            GameCanvasHitSurface.PointerMoved += OnCanvasPointerMoved;
+            GameCanvasHitSurface.PointerReleased += OnCanvasPointerReleased;
+            // After Pointer.Capture(GameCanvas), released/moved are routed to the captured element, not the parent Border — subscribe on the canvas too or combo drag never completes.
             GameCanvas.PointerMoved += OnCanvasPointerMoved;
             GameCanvas.PointerReleased += OnCanvasPointerReleased;
             
@@ -187,6 +190,12 @@ namespace RPGGame.UI.Avalonia
             {
                 if (SettingsPanelOverlay != null && SettingsMenuPanel != null)
                 {
+                    // Only reload from file when actually opening (overlay was hidden). Avoids overwriting in-memory edits if ShowSettingsPanel runs again while already visible.
+                    if (!SettingsPanelOverlay.IsVisible)
+                    {
+                        GameSettings.ReloadFromFile();
+                        SettingsMenuPanel.RefreshSettingsFromFile();
+                    }
                     // Suppress canvas rendering to hide ASCII menu
                     if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI) {
                         // Clear the entire canvas to remove the main menu

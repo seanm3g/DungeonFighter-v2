@@ -103,6 +103,7 @@ namespace RPGGame.Handlers
             {
                 handlers.CharacterMenuHandler.ShowMainMenuEvent += () => showMainMenu();
                 handlers.CharacterMenuHandler.ShowDungeonSelectionEvent += async () => await (showDungeonSelection?.Invoke() ?? Task.CompletedTask);
+                handlers.CharacterMenuHandler.ShowGameLoopEvent += () => showGameLoop();
             }
             
             if (handlers.SettingsMenuHandler != null)
@@ -112,6 +113,7 @@ namespace RPGGame.Handlers
             
             if (handlers.WeaponSelectionHandler != null)
             {
+                handlers.WeaponSelectionHandler.ShowCharacterCreationEvent += () => handlers.CharacterCreationHandler?.ShowCharacterCreation();
                 handlers.WeaponSelectionHandler.ShowMessageEvent += (msg) => showMessage(msg);
             }
             

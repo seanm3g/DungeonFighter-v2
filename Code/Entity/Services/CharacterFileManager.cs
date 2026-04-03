@@ -73,9 +73,23 @@ namespace RPGGame.Entity.Services
         /// <param name="filename">The filename to delete</param>
         public void DeleteFile(string filename)
         {
-            if (File.Exists(filename))
+            if (string.IsNullOrEmpty(filename))
+                return;
+            
+            try
             {
-                File.Delete(filename);
+                // Normalize the path to ensure consistent file operations
+                string normalizedPath = Path.GetFullPath(filename);
+                
+                if (File.Exists(normalizedPath))
+                {
+                    File.Delete(normalizedPath);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Re-throw with context for better error handling
+                throw new IOException($"Failed to delete file '{filename}': {ex.Message}", ex);
             }
         }
 
@@ -132,16 +146,23 @@ namespace RPGGame.Entity.Services
             if (!string.IsNullOrEmpty(directory))
             {
                 directory = Path.GetFullPath(directory);
+                
+                // Verify the directory exists
+                if (Directory.Exists(directory))
+                {
+                    return directory;
+                }
             }
             
-            if (string.IsNullOrEmpty(directory) || !Directory.Exists(directory))
+            // Fallback: try to find GameData directory using empty string
+            var gameDataPath = GameConstants.GetGameDataFilePath("");
+            directory = Path.GetDirectoryName(gameDataPath);
+            if (!string.IsNullOrEmpty(directory))
             {
-                // Fallback: try to find GameData directory using empty string
-                var gameDataPath = GameConstants.GetGameDataFilePath("");
-                directory = Path.GetDirectoryName(gameDataPath);
-                if (!string.IsNullOrEmpty(directory))
+                directory = Path.GetFullPath(directory);
+                if (Directory.Exists(directory))
                 {
-                    directory = Path.GetFullPath(directory);
+                    return directory;
                 }
             }
             

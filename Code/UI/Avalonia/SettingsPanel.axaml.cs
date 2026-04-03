@@ -43,6 +43,10 @@ namespace RPGGame.UI.Avalonia
         private PanelHandlerRegistry? panelHandlerRegistry;
         private SettingsSaveOrchestrator? saveOrchestrator;
         
+        // Table-driven initializers for categories that don't use the handler pattern (replaces long switch)
+        private Dictionary<string, Action<UserControl, PanelInitializerContext>>? panelInitializers;
+        private PanelInitializerContext? initializerContext;
+        
         // Lazy-loaded panels
         private Dictionary<string, UserControl> loadedPanels = new Dictionary<string, UserControl>();
         
@@ -66,7 +70,7 @@ namespace RPGGame.UI.Avalonia
         private void InitializeManagers()
         {
             settingsManager = new SettingsManager(settings, ShowStatusMessage, updateStatus);
-            colorManager = new Managers.SettingsColorManager(this, settings);
+            colorManager = new Managers.SettingsColorManager(this);
             gameVariablesTabManager = new GameVariablesTabManager();
             actionsTabManager = new ActionsTabManager();
             itemModifiersTabManager = new Managers.ItemModifiersTabManager(ShowStatusMessage);
@@ -96,16 +100,105 @@ namespace RPGGame.UI.Avalonia
             panelHandlerRegistry.Register(new AppearancePanelHandler(settings, colorManager));
             // Testing handler will be registered when canvasUI is available
             
-            // Initialize save orchestrator
+            // Initialize save orchestrator (single panel resolution via GetPanelForCategory)
             saveOrchestrator = new SettingsSaveOrchestrator(
                 settingsManager,
+                panelHandlerRegistry,
                 gameVariablesTabManager,
+                actionsTabManager,
                 itemModifiersTabManager,
                 itemsTabManager,
-                settings,
                 ShowStatusMessage,
-                loadedPanels,
-                LoadCategoryPanel);
+                GetPanelForCategory);
+            
+            // Table-driven initializers: add a new tab by adding one entry here (and to SettingsPanelCatalog if main content)
+            initializerContext = new PanelInitializerContext
+            {
+                Initialization = initialization,
+                StatusEffectsTabManager = statusEffectsTabManager,
+                ItemModifiersTabManager = itemModifiersTabManager,
+                ItemsTabManager = itemsTabManager,
+                PanelHandlerRegistry = panelHandlerRegistry,
+                ShowStatusMessage = ShowStatusMessage
+            };
+            panelInitializers = new Dictionary<string, Action<UserControl, PanelInitializerContext>>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["GameVariables"] = (panel, ctx) =>
+                {
+                    if (panel is GameVariablesSettingsPanel gameVarsPanel && ctx.Initialization != null)
+                        Dispatcher.UIThread.Post(() => ctx.Initialization.InitializeGameVariablesTab(gameVarsPanel), DispatcherPriority.Loaded);
+                },
+                ["Actions"] = (panel, ctx) =>
+                {
+                    if (panel is ActionsSettingsPanel actionsPanel && ctx.Initialization != null)
+                        Dispatcher.UIThread.Post(() => ctx.Initialization.InitializeActionsTab(actionsPanel), DispatcherPriority.Loaded);
+                },
+                ["StatusEffects"] = (panel, ctx) =>
+                {
+                    if (panel is StatusEffectsSettingsPanel statusPanel && ctx.StatusEffectsTabManager != null && ctx.ShowStatusMessage != null)
+                        Dispatcher.UIThread.Post(() =>
+                        {
+                            var listBox = statusPanel.FindControl<ListBox>("StatusEffectsListBox");
+                            var formPanel = statusPanel.FindControl<StackPanel>("StatusEffectFormPanel");
+                            var createButton = statusPanel.FindControl<Button>("CreateStatusEffectButton");
+                            var deleteButton = statusPanel.FindControl<Button>("DeleteStatusEffectButton");
+                            if (listBox != null && formPanel != null && createButton != null && deleteButton != null)
+                                ctx.StatusEffectsTabManager.Initialize(listBox, formPanel, createButton, deleteButton, ctx.ShowStatusMessage);
+                        }, DispatcherPriority.Loaded);
+                },
+                ["BalanceTuning"] = (panel, ctx) =>
+                {
+                    if (panel is BalanceTuningSettingsPanel balancePanel && ctx.ShowStatusMessage != null)
+                        balancePanel.SetStatusCallback(ctx.ShowStatusMessage);
+                },
+                ["ItemModifiers"] = (panel, ctx) =>
+                {
+                    if (panel is ItemModifiersSettingsPanel modPanel && ctx.ItemModifiersTabManager != null)
+                        Dispatcher.UIThread.Post(() => ctx.ItemModifiersTabManager.Initialize(modPanel), DispatcherPriority.Loaded);
+                },
+                ["Items"] = (panel, ctx) =>
+                {
+                    if (panel is ItemsSettingsPanel itemsPanel && ctx.ItemsTabManager != null)
+                        Dispatcher.UIThread.Post(() => ctx.ItemsTabManager.Initialize(itemsPanel), DispatcherPriority.Loaded);
+                },
+                ["Testing"] = (panel, ctx) =>
+                {
+                    ctx.RegisterTestingHandlerAndWireUp?.Invoke(panel);
+                }
+            };
+        }
+
+        /// <summary>Refreshes panel reference from GameSettings.Instance and pushes file state to all loaded panels. Call after ReloadFromFile() when opening settings.</summary>
+        public void RefreshSettingsFromFile()
+        {
+            settings = GameSettings.Instance;
+            // Ensure the selected category's panel is loaded (e.g. first open or SelectedIndex was set before items existed)
+            if (CategoryListBox.SelectedItem is ListBoxItem selectedItem && selectedItem.Tag is string categoryTag
+                && !loadedPanels.ContainsKey(categoryTag))
+                LoadCategoryPanel(categoryTag);
+            // Refresh every loaded panel from Instance (file state) so any tab the user switches to shows file-backed values; tab switch no longer overwrites UI.
+            foreach (var kv in loadedPanels)
+            {
+                var handler = panelHandlerRegistry?.GetHandler(kv.Key);
+                if (handler != null)
+                    handler.LoadSettings(kv.Value);
+            }
+        }
+
+        private void RefreshCurrentPanelFromSettings()
+        {
+            if (CategoryListBox.SelectedItem is not ListBoxItem selectedItem || selectedItem.Tag is not string categoryTag)
+                return;
+            var handler = panelHandlerRegistry?.GetHandler(categoryTag);
+            if (handler == null) return;
+            // Apply to the panel actually visible so file values show on what the user sees
+            UserControl? target = ContentScrollViewer.IsVisible ? ContentArea.Content as UserControl
+                : TestingContentArea.IsVisible ? TestingContentArea.Content as UserControl
+                : ActionsContentArea.Content as UserControl;
+            if (target == null && loadedPanels.TryGetValue(categoryTag, out var cached))
+                target = cached;
+            if (target != null)
+                handler.LoadSettings(target);
         }
         
         private void SetupNavigation()
@@ -142,6 +235,7 @@ namespace RPGGame.UI.Avalonia
                     TestingContentArea.Content = loadedPanels[categoryTag];
                     TestingContentArea.IsVisible = true;
                     ContentScrollViewer.IsVisible = false;
+                    ActionsContentArea.IsVisible = false;
                     return;
                 }
                 
@@ -151,6 +245,7 @@ namespace RPGGame.UI.Avalonia
                 TestingContentArea.Content = testingPanel;
                 TestingContentArea.IsVisible = true;
                 ContentScrollViewer.IsVisible = false;
+                ActionsContentArea.IsVisible = false;
                 
                 // Initialize panel-specific handlers after a short delay
                 Dispatcher.UIThread.Post(() =>
@@ -160,49 +255,59 @@ namespace RPGGame.UI.Avalonia
                 return;
             }
             
-            // For all other panels, use the regular content area with ScrollViewer
-            TestingContentArea.IsVisible = false;
-            ContentScrollViewer.IsVisible = true;
-            
-            // Check if panel is already loaded
-            if (loadedPanels.ContainsKey(categoryTag))
+            // Actions panel - use separate content area so list and form scroll independently
+            if (categoryTag == "Actions")
             {
-                ContentArea.Content = loadedPanels[categoryTag];
+                if (loadedPanels.ContainsKey(categoryTag))
+                {
+                    ActionsContentArea.Content = loadedPanels[categoryTag];
+                    ActionsContentArea.IsVisible = true;
+                    ContentScrollViewer.IsVisible = false;
+                    TestingContentArea.IsVisible = false;
+                    return;
+                }
+                
+                var actionsPanel = new ActionsSettingsPanel();
+                loadedPanels[categoryTag] = actionsPanel;
+                ActionsContentArea.Content = actionsPanel;
+                ActionsContentArea.IsVisible = true;
+                ContentScrollViewer.IsVisible = false;
+                TestingContentArea.IsVisible = false;
+                
+                Dispatcher.UIThread.Post(() =>
+                {
+                    InitializePanelHandlers(categoryTag, actionsPanel);
+                }, DispatcherPriority.Background);
                 return;
             }
             
-            // Create panel on-demand (lazy loading)
-            UserControl? panel = categoryTag switch
-            {
-                "Gameplay" => new GameplaySettingsPanel(),
-                "GameVariables" => new GameVariablesSettingsPanel(),
-                "Actions" => new ActionsSettingsPanel(),
-                "StatusEffects" => new StatusEffectsSettingsPanel(),
-                "TextDelays" => new TextDelaysSettingsPanel(),
-                "Appearance" => new AppearanceSettingsPanel(),
-                "ItemModifiers" => new ItemModifiersSettingsPanel(),
-                "Items" => new ItemsSettingsPanel(),
-                "BalanceTuning" => new BalanceTuningSettingsPanel(),
-                "About" => new AboutSettingsPanel(),
-                _ => null
-            };
+            // For all other panels, use the regular content area with ScrollViewer
+            TestingContentArea.IsVisible = false;
+            ActionsContentArea.IsVisible = false;
+            ContentScrollViewer.IsVisible = true;
             
+            // Check if panel is already loaded (e.g. user switched away and back)
+            if (loadedPanels.ContainsKey(categoryTag))
+            {
+                var cachedPanel = loadedPanels[categoryTag];
+                ContentArea.Content = cachedPanel;
+                // Do not call LoadSettings here: leave UI as-is so we never overwrite user edits or post-save state when switching tabs.
+                return;
+            }
+            
+            // Create panel on-demand (lazy loading) from catalog
+            UserControl? panel = SettingsPanelCatalog.CreatePanel(categoryTag);
             if (panel != null)
             {
                 loadedPanels[categoryTag] = panel;
+                InitializePanelHandlers(categoryTag, panel);
                 ContentArea.Content = panel;
-                
-                // Initialize panel-specific handlers after a short delay
-                Dispatcher.UIThread.Post(() =>
-                {
-                    InitializePanelHandlers(categoryTag, panel);
-                }, DispatcherPriority.Background);
             }
         }
         
         private void InitializePanelHandlers(string categoryTag, UserControl panel)
         {
-            // Use registry to get handler for standard panels
+            // Use registry to get handler for standard panels (Gameplay, TextDelays, Appearance)
             var handler = panelHandlerRegistry?.GetHandler(categoryTag);
             if (handler != null)
             {
@@ -210,87 +315,39 @@ namespace RPGGame.UI.Avalonia
                 return;
             }
             
-            // Handle special cases that don't use the handler pattern
-            switch (categoryTag)
+            // Table-driven initializers for categories that don't use the handler pattern
+            if (panelInitializers != null && initializerContext != null && panelInitializers.TryGetValue(categoryTag, out var initializer))
             {
-                case "GameVariables":
-                    if (panel is GameVariablesSettingsPanel gameVarsPanel && initialization != null)
-                    {
-                        // Initialize the GameVariables tab with its controls
-                        Dispatcher.UIThread.Post(() =>
-                        {
-                            initialization.InitializeGameVariablesTab(gameVarsPanel);
-                        }, DispatcherPriority.Loaded);
-                    }
-                    break;
-                case "Actions":
-                    if (panel is ActionsSettingsPanel actionsPanel && initialization != null)
-                    {
-                        // Initialize the Actions tab with its controls
-                        Dispatcher.UIThread.Post(() =>
-                        {
-                            initialization.InitializeActionsTab(actionsPanel);
-                        }, DispatcherPriority.Loaded);
-                    }
-                    break;
-                case "StatusEffects":
-                    if (panel is StatusEffectsSettingsPanel statusEffectsPanel && this.statusEffectsTabManager != null)
-                    {
-                        // Initialize the Status Effects tab with its controls
-                        Dispatcher.UIThread.Post(() =>
-                        {
-                            var listBox = statusEffectsPanel.FindControl<ListBox>("StatusEffectsListBox");
-                            var formPanel = statusEffectsPanel.FindControl<StackPanel>("StatusEffectFormPanel");
-                            var createButton = statusEffectsPanel.FindControl<Button>("CreateStatusEffectButton");
-                            var deleteButton = statusEffectsPanel.FindControl<Button>("DeleteStatusEffectButton");
-                            
-                            if (listBox != null && formPanel != null && createButton != null && deleteButton != null)
-                            {
-                                this.statusEffectsTabManager.Initialize(listBox, formPanel, createButton, deleteButton, ShowStatusMessage);
-                            }
-                        }, DispatcherPriority.Loaded);
-                    }
-                    break;
-                case "BalanceTuning":
-                    if (panel is BalanceTuningSettingsPanel balanceTuningPanel)
-                    {
-                        balanceTuningPanel.SetStatusCallback(ShowStatusMessage);
-                    }
-                    break;
-                case "ItemModifiers":
-                    if (panel is ItemModifiersSettingsPanel itemModifiersPanel && itemModifiersTabManager != null)
-                    {
-                        Dispatcher.UIThread.Post(() =>
-                        {
-                            itemModifiersTabManager.Initialize(itemModifiersPanel);
-                        }, DispatcherPriority.Loaded);
-                    }
-                    break;
-                case "Items":
-                    if (panel is ItemsSettingsPanel itemsPanel && itemsTabManager != null)
-                    {
-                        Dispatcher.UIThread.Post(() =>
-                        {
-                            itemsTabManager.Initialize(itemsPanel);
-                        }, DispatcherPriority.Loaded);
-                    }
-                    break;
-                case "Testing":
-                    if (panel is TestingSettingsPanel testingPanel && canvasUI != null)
-                    {
-                        testRunnerUI = new Managers.TestRunnerUI(canvasUI);
-                        // Register testing handler if not already registered
-                        if (panelHandlerRegistry != null && !panelHandlerRegistry.HasHandler("Testing"))
-                        {
-                            var testingHandler = new TestingPanelHandler(canvasUI);
-                            panelHandlerRegistry.Register(testingHandler);
-                            testingHandler.WireUp(panel);
-                        }
-                    }
-                    break;
+                initializer(panel, initializerContext);
             }
         }
         
+        /// <summary>Resolves the panel instance for a category: the currently displayed panel if it matches the tag, otherwise the cached panel from loadedPanels. Used by the save orchestrator for consistent panel resolution.</summary>
+        public UserControl? GetPanelForCategory(string categoryTag, UserControl? currentlyDisplayed)
+        {
+            if (currentlyDisplayed != null && GetCategoryTagForPanel(currentlyDisplayed) == categoryTag)
+                return currentlyDisplayed;
+            return loadedPanels.TryGetValue(categoryTag, out var panel) ? panel : null;
+        }
+
+        /// <summary>Returns the category tag for a panel type (e.g. GameplaySettingsPanel -> "Gameplay"). Used by GetPanelForCategory.</summary>
+        internal static string? GetCategoryTagForPanel(UserControl? panel)
+        {
+            if (panel == null) return null;
+            if (panel is GameplaySettingsPanel) return "Gameplay";
+            if (panel is GameVariablesSettingsPanel) return "GameVariables";
+            if (panel is TextDelaysSettingsPanel) return "TextDelays";
+            if (panel is AppearanceSettingsPanel) return "Appearance";
+            if (panel is TestingSettingsPanel) return "Testing";
+            if (panel is ActionsSettingsPanel) return "Actions";
+            if (panel is StatusEffectsSettingsPanel) return "StatusEffects";
+            if (panel is ItemModifiersSettingsPanel) return "ItemModifiers";
+            if (panel is ItemsSettingsPanel) return "Items";
+            if (panel is BalanceTuningSettingsPanel) return "BalanceTuning";
+            if (panel is AboutSettingsPanel) return "About";
+            return null;
+        }
+
         public void SetBackCallback(System.Action callback)
         {
             onBack = callback;
@@ -317,12 +374,46 @@ namespace RPGGame.UI.Avalonia
             {
                 testRunnerUI = new Managers.TestRunnerUI(canvasUI);
                 actionTestGenerator = new SettingsActionTestGenerator(canvasUI, ShowStatusMessage);
+                // Wire Testing panel initializer to register handler and WireUp when Testing tab is first loaded
+                if (initializerContext != null)
+                {
+                    var uiForTesting = canvasUI;
+                    initializerContext.RegisterTestingHandlerAndWireUp = (testingPanel) =>
+                    {
+                        if (testingPanel is not TestingSettingsPanel) return;
+                        if (panelHandlerRegistry != null && !panelHandlerRegistry.HasHandler("Testing"))
+                        {
+                            var testingHandler = new TestingPanelHandler(uiForTesting);
+                            panelHandlerRegistry.Register(testingHandler);
+                            testingHandler.WireUp(testingPanel);
+                        }
+                    };
+                }
+            }
+            
+            // Set state manager on GameplayPanelHandler so it can clear in-memory player when clearing saved characters
+            if (panelHandlerRegistry != null && stateManager != null)
+            {
+                var gameplayHandler = panelHandlerRegistry.GetHandler("Gameplay");
+                if (gameplayHandler is Managers.Settings.PanelHandlers.GameplayPanelHandler gameplayPanelHandler)
+                {
+                    gameplayPanelHandler.SetStateManager(stateManager);
+                }
             }
         }
         
         private void SaveSettings()
         {
-            saveOrchestrator?.SaveSettings();
+            // Defer save by one UI tick so focus leaves the current control first (LostFocus fires) and form values are committed before we flush/save (fixes Actions tab revert when editing then clicking Save).
+            UserControl? displayed = ContentScrollViewer.IsVisible ? ContentArea.Content as UserControl
+                : TestingContentArea.IsVisible ? TestingContentArea.Content as UserControl
+                : ActionsContentArea.Content as UserControl;
+            Dispatcher.UIThread.Post(() =>
+            {
+                var result = saveOrchestrator?.SaveSettings(displayed) ?? default;
+                if (result.Success)
+                    SettingsApplyService.ApplyAfterSave(result, gameStateManager);
+            }, DispatcherPriority.Loaded);
         }
         
         private void ResetSettings()

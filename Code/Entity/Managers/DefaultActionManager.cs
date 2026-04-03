@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,23 +12,37 @@ namespace RPGGame
     {
         /// <summary>
         /// Adds default actions to actor
-        /// BASIC ATTACK has been removed from the game - this method now does nothing
+        /// Default actions are actions marked with IsDefaultAction = true in Actions.json
+        /// These actions are always available regardless of weapon type
         /// </summary>
         public void AddDefaultActions(Actor entity)
         {
-            // BASIC ATTACK removed - no default actions to add
-            // Actions are now only added via weapon GearAction property
+            var allActionData = ActionLoader.GetAllActionData();
+            
+            foreach (var actionData in allActionData)
+            {
+                if (actionData.IsDefaultAction)
+                {
+                    var action = ActionLoader.GetAction(actionData.Name);
+                    if (action != null && (entity.ActionPool == null || !entity.ActionPool.Any(entry => entry.action.Name == action.Name)))
+                    {
+                        // Mark as combo action so it appears in GetActionPool() and the player's action menu
+                        if (!action.IsComboAction)
+                        {
+                            action.IsComboAction = true;
+                            if (entity.ActionPool != null)
+                            {
+                                var comboActions = entity.ActionPool.Where(a => a.action.IsComboAction).ToList();
+                                int maxOrder = comboActions.Count > 0 ? comboActions.Max(a => a.action.ComboOrder) : 0;
+                                action.ComboOrder = maxOrder + 1;
+                            }
+                        }
+                        entity.AddAction(action, 1.0);
+                    }
+                }
+            }
         }
 
-        /// <summary>
-        /// Ensures basic attack is available in the action pool - REMOVED
-        /// BASIC ATTACK has been removed from the game
-        /// </summary>
-        [Obsolete("BASIC ATTACK has been removed from the game. This method does nothing.")]
-        public void EnsureBasicAttackAvailable(Actor entity)
-        {
-            // BASIC ATTACK removed - method does nothing
-        }
 
         /// <summary>
         /// Gets list of available unique actions for a weapon

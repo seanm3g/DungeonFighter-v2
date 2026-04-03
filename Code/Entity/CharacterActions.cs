@@ -52,6 +52,15 @@ namespace RPGGame
             _comboManager.InitializeDefaultCombo(actor, weapon);
         }
 
+        /// <summary>
+        /// Restores the combo sequence from action names (e.g. after RebuildCharacterActions).
+        /// Returns true if at least one action was restored.
+        /// </summary>
+        public bool RestoreComboFromActionNames(Actor actor, IReadOnlyList<string> actionNames)
+        {
+            return _comboManager.RestoreComboFromActionNames(actor, actionNames);
+        }
+
         public void UpdateComboSequenceAfterGearChange(Actor actor)
         {
             _comboManager.UpdateComboSequenceAfterGearChange(actor);

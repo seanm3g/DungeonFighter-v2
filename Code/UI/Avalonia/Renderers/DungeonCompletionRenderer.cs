@@ -12,222 +12,374 @@ namespace RPGGame.UI.Avalonia.Renderers
     /// </summary>
     public class DungeonCompletionRenderer
     {
+        private const int TwoColumnMinWidth = 80;
+        private const int ColumnGap = 2;
+        /// <summary>Prompt + gap + 3 menu rows (anchored to bottom of content rect).</summary>
+        private const int FooterReservedRows = 5;
+
         private readonly GameCanvasControl canvas;
         private readonly ColoredTextWriter textWriter;
         private readonly List<ClickableElement> clickableElements;
-        
+
         public DungeonCompletionRenderer(GameCanvasControl canvas, ColoredTextWriter textWriter, List<ClickableElement> clickableElements)
         {
             this.canvas = canvas;
             this.textWriter = textWriter;
             this.clickableElements = clickableElements;
         }
-        
+
         /// <summary>
         /// Renders the dungeon completion screen with detailed statistics and menu choices
         /// </summary>
         public int RenderDungeonCompletion(int x, int y, int width, int height, Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos, List<Item> itemsFoundDuringRun, List<string>? dungeonContext = null)
         {
             int currentLineCount = 0;
-            int startY = y + 2;
+            int bodyMaxY = y + height - FooterReservedRows - 1;
+            int startY = y + 1;
             int currentY = startY;
-            
-            // Don't display dungeon context on victory screen - keep it clean and focused
-            // The victory screen should only show completion message, stats, and rewards
-            
-            // Victory message
-            canvas.AddText(x + (width / 2) - 15, currentY, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Victory), AsciiArtAssets.Colors.Gold);
-            currentY += 3;
-            currentLineCount += 3;
-            
-            canvas.AddText(x + 4, currentY, "Congratulations! You have successfully completed the dungeon!", AsciiArtAssets.Colors.White);
+
+            string victoryHeader = AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Victory);
+            int headerX = x + Math.Max(0, (width - victoryHeader.Length) / 2);
+            canvas.AddText(headerX, currentY, victoryHeader, AsciiArtAssets.Colors.Gold);
             currentY += 2;
             currentLineCount += 2;
-            
-            // Health restoration message
-            int maxHealth = player.GetEffectiveMaxHealth();
-            if (player.CurrentHealth == maxHealth)
-            {
-                canvas.AddText(x + 4, currentY, "Health Fully Restored", AsciiArtAssets.Colors.Green);
-                currentY += 2;
-                currentLineCount += 2;
-            }
-            
-            // Use theme color for dungeon name - render as segments to ensure proper vertical alignment
+
+            const string congrats = "Congratulations! You have successfully completed the dungeon!";
+            int fullWidth = Math.Max(8, width - 4);
+            int lines = textWriter.WriteLineColoredWrapped(congrats, x + 2, currentY, fullWidth);
+            currentY += lines;
+            currentLineCount += lines;
+
             var themeColor = DungeonThemeColors.GetThemeColor(dungeon.Theme);
-            var segments = new List<ColoredText>
+            var dungeonNameSegments = new List<ColoredText>
             {
                 new ColoredText("Dungeon: ", AsciiArtAssets.Colors.White),
                 new ColoredText(dungeon.Name, themeColor)
             };
-            textWriter.RenderSegments(segments, x + 4, currentY);
-            currentY += 2;
-            currentLineCount += 2;
-            
-            // Dungeon Statistics Section
-            canvas.AddText(x + 4, currentY, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.DungeonStatistics), AsciiArtAssets.Colors.Green);
-            currentY += 2;
-            currentLineCount += 2;
-            
-            canvas.AddText(x + 6, currentY, $"Rooms Cleared: {dungeon.Rooms.Count}", AsciiArtAssets.Colors.White);
-            currentY++;
-            currentLineCount++;
-            
-            // Get session statistics for this dungeon
-            var sessionStats = player.SessionStats;
-            canvas.AddText(x + 6, currentY, $"Enemies Defeated: {sessionStats.EnemiesDefeated}", AsciiArtAssets.Colors.White);
-            currentY++;
-            currentLineCount++;
-            
-            canvas.AddText(x + 6, currentY, $"Total Damage Dealt: {sessionStats.TotalDamageDealt:N0}", AsciiArtAssets.Colors.White);
-            currentY++;
-            currentLineCount++;
-            
-            canvas.AddText(x + 6, currentY, $"Total Damage Received: {sessionStats.TotalDamageReceived:N0}", AsciiArtAssets.Colors.White);
-            currentY++;
-            currentLineCount++;
-            
-            // Rewards Section
-            canvas.AddText(x + 4, currentY, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.RewardsEarned), AsciiArtAssets.Colors.Yellow);
-            currentY += 2;
-            currentLineCount += 2;
-            
-            canvas.AddText(x + 6, currentY, $"Experience Gained: {xpGained:N0} XP", AsciiArtAssets.Colors.White);
-            currentY += 2;
-            currentLineCount += 2;
-            
-            // Level Up Section (if any level-ups occurred)
-            if (levelUpInfos != null && levelUpInfos.Count > 0)
+
+            List<Item> allLoot = new List<Item>();
+            if (itemsFoundDuringRun != null)
+                allLoot.AddRange(itemsFoundDuringRun);
+            if (lootReceived != null)
+                allLoot.Add(lootReceived);
+
+            bool useTwoColumns = width >= TwoColumnMinWidth;
+            if (useTwoColumns)
             {
-                canvas.AddText(x + 4, currentY, AsciiArtAssets.UIText.CreateHeader("LEVEL UP"), AsciiArtAssets.Colors.Gold);
-                currentY += 2;
-                currentLineCount += 2;
-                
-                foreach (var levelUpInfo in levelUpInfos)
+                int innerPad = 2;
+                int usable = width - innerPad * 2 - ColumnGap;
+                int leftColW = Math.Max(12, usable / 2);
+                int rightColW = Math.Max(12, usable - leftColW);
+                int leftX = x + innerPad;
+                int rightX = leftX + leftColW + ColumnGap;
+
+                int splitY = currentY;
+                int leftY = splitY;
+                int rightY = splitY;
+
+                RenderLeftColumnStats(leftX, leftY, leftColW, bodyMaxY, dungeon, player, xpGained, dungeonNameSegments, ref currentLineCount);
+                RenderRightColumnLevelUpAndLoot(rightX, rightY, rightColW, bodyMaxY, levelUpInfos, allLoot, ref currentLineCount);
+            }
+            else
+            {
+                int maxHealth = player.GetEffectiveMaxHealth();
+                if (player.CurrentHealth == maxHealth)
                 {
-                    if (!levelUpInfo.IsValid) continue;
-                    
-                    var messages = levelUpInfo.GetDisplayMessages();
-                    foreach (var message in messages)
+                    if (currentY <= bodyMaxY)
                     {
-                        // Use gold color for level-up messages to make them stand out
-                        var color = message.Contains("LEVEL UP") || message.Contains("level") 
-                            ? AsciiArtAssets.Colors.Gold 
-                            : AsciiArtAssets.Colors.White;
-                        canvas.AddText(x + 6, currentY, message, color);
+                        canvas.AddText(x + 2, currentY, "Health Fully Restored", AsciiArtAssets.Colors.Green);
                         currentY++;
                         currentLineCount++;
                     }
-                    currentY++; // Extra spacing between multiple level-ups
+                }
+
+                if (currentY <= bodyMaxY)
+                {
+                    int n = textWriter.WriteLineColoredWrapped(dungeonNameSegments, x + 2, currentY, fullWidth);
+                    currentY += n;
+                    currentLineCount += n;
+                }
+
+                if (currentY <= bodyMaxY)
+                {
+                    canvas.AddText(x + 2, currentY, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.DungeonStatistics), AsciiArtAssets.Colors.Green);
+                    currentY++;
                     currentLineCount++;
                 }
-            }
-            
-            // Display all loot found during the dungeon run
-            // Combine items found during run with the final completion reward
-            List<Item> allLoot = new List<Item>();
-            if (itemsFoundDuringRun != null)
-            {
-                allLoot.AddRange(itemsFoundDuringRun);
-            }
-            // Add final completion reward if it exists (it's excluded from itemsFoundDuringRun)
-            if (lootReceived != null)
-            {
-                allLoot.Add(lootReceived);
-            }
-            
-            if (allLoot.Count > 0)
-            {
-                canvas.AddText(x + 6, currentY, "Loot Received:", AsciiArtAssets.Colors.White);
-                currentY++;
-                currentLineCount++;
-                
-                // Display all items found during the run (including final completion reward)
-                foreach (var item in allLoot)
+
+                var sessionStats = player.SessionStats;
+                if (currentY <= bodyMaxY)
                 {
-                    // Format item name with colored elements: [Rarity] ItemName (each element colored)
-                    var lootSegments = ItemDisplayColoredText.FormatLootForCompletion(item);
-                    textWriter.RenderSegments(lootSegments, x + 6, currentY);
+                    canvas.AddText(x + 4, currentY, $"Rooms Cleared: {dungeon.Rooms.Count}", AsciiArtAssets.Colors.White);
+                    currentY++;
+                    currentLineCount++;
+                }
+                if (currentY <= bodyMaxY)
+                {
+                    canvas.AddText(x + 4, currentY, $"Enemies Defeated: {sessionStats.EnemiesDefeated}", AsciiArtAssets.Colors.White);
+                    currentY++;
+                    currentLineCount++;
+                }
+                if (currentY <= bodyMaxY)
+                {
+                    canvas.AddText(x + 4, currentY, $"Total Damage Dealt: {sessionStats.TotalDamageDealt:N0}", AsciiArtAssets.Colors.White);
+                    currentY++;
+                    currentLineCount++;
+                }
+                if (currentY <= bodyMaxY)
+                {
+                    canvas.AddText(x + 4, currentY, $"Total Damage Received: {sessionStats.TotalDamageReceived:N0}", AsciiArtAssets.Colors.White);
+                    currentY++;
+                    currentLineCount++;
+                }
+
+                if (currentY <= bodyMaxY)
+                {
+                    canvas.AddText(x + 2, currentY, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.RewardsEarned), AsciiArtAssets.Colors.Yellow);
+                    currentY++;
+                    currentLineCount++;
+                }
+                if (currentY <= bodyMaxY)
+                {
+                    canvas.AddText(x + 4, currentY, $"Experience Gained: {xpGained:N0} XP", AsciiArtAssets.Colors.White);
+                    currentY++;
+                    currentLineCount++;
+                }
+
+                if (levelUpInfos != null && levelUpInfos.Count > 0)
+                {
+                    if (currentY <= bodyMaxY)
+                    {
+                        canvas.AddText(x + 2, currentY, AsciiArtAssets.UIText.CreateHeader("LEVEL UP"), AsciiArtAssets.Colors.Gold);
+                        currentY++;
+                        currentLineCount++;
+                    }
+                    foreach (var levelUpInfo in levelUpInfos)
+                    {
+                        if (!levelUpInfo.IsValid) continue;
+                        var messages = levelUpInfo.GetDisplayMessages();
+                        foreach (var message in messages)
+                        {
+                            if (currentY > bodyMaxY) break;
+                            int m = WriteLevelUpMessageWrapped(message, x + 4, currentY, fullWidth - 2);
+                            currentY += m;
+                            currentLineCount += m;
+                        }
+                        if (currentY <= bodyMaxY) { currentY++; currentLineCount++; }
+                    }
+                }
+
+                if (allLoot.Count > 0)
+                {
+                    if (currentY <= bodyMaxY)
+                    {
+                        canvas.AddText(x + 4, currentY, "Loot Received:", AsciiArtAssets.Colors.White);
+                        currentY++;
+                        currentLineCount++;
+                    }
+                    foreach (var item in allLoot)
+                    {
+                        if (currentY > bodyMaxY) break;
+                        var lootSegments = ItemDisplayColoredText.FormatLootForCompletion(item);
+                        int ln = textWriter.WriteLineColoredWrapped(lootSegments, x + 4, currentY, fullWidth - 2);
+                        currentY += ln;
+                        currentLineCount += ln;
+                    }
+                }
+                else if (currentY <= bodyMaxY)
+                {
+                    canvas.AddText(x + 4, currentY, "Loot Received: None", AsciiArtAssets.Colors.Gray);
                     currentY++;
                     currentLineCount++;
                 }
             }
-            else
-            {
-                canvas.AddText(x + 6, currentY, "Loot Received: None", AsciiArtAssets.Colors.Gray);
-                currentY++;
-                currentLineCount++;
-            }
-            
-            currentY += 2;
-            currentLineCount += 2;
-            
-            // Menu choices
-            canvas.AddText(x + 4, currentY, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.WhatWouldYouLikeToDo), AsciiArtAssets.Colors.Gold);
-            currentY += 3;
-            currentLineCount += 3;
-            
-            // Menu options
-            int menuX = x + (width / 2) - 10;
-            
+
+            int footerPromptY = y + height - FooterReservedRows;
+            int menuStartY = footerPromptY + 2;
+
+            canvas.AddText(x + 2, footerPromptY, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.WhatWouldYouLikeToDo), AsciiArtAssets.Colors.Gold);
+            currentLineCount += 1;
+
+            int menuX = x + Math.Max(2, (width / 2) - 10);
+
             var option1 = new ClickableElement
             {
                 X = menuX,
-                Y = currentY,
+                Y = menuStartY,
                 Width = 20,
                 Height = 1,
                 Type = ElementType.MenuOption,
                 Value = "1",
                 DisplayText = MenuOptionFormatter.Format(1, UIConstants.MenuOptions.GoToDungeon)
             };
-            
+
             var option2 = new ClickableElement
             {
                 X = menuX,
-                Y = currentY + 1,
+                Y = menuStartY + 1,
                 Width = 20,
                 Height = 1,
                 Type = ElementType.MenuOption,
                 Value = "2",
                 DisplayText = MenuOptionFormatter.Format(2, UIConstants.MenuOptions.ShowInventory)
             };
-            
+
             var option3 = new ClickableElement
             {
                 X = menuX,
-                Y = currentY + 2,
+                Y = menuStartY + 2,
                 Width = 20,
                 Height = 1,
                 Type = ElementType.MenuOption,
                 Value = "0",
                 DisplayText = MenuOptionFormatter.Format(0, UIConstants.MenuOptions.SaveAndExit)
             };
-            
+
             clickableElements.AddRange(new[] { option1, option2, option3 });
-            
-            canvas.AddMenuOption(menuX, currentY, 1, UIConstants.MenuOptions.GoToDungeon, AsciiArtAssets.Colors.White, option1.IsHovered);
-            currentLineCount++;
-            canvas.AddMenuOption(menuX, currentY + 1, 2, UIConstants.MenuOptions.ShowInventory, AsciiArtAssets.Colors.White, option2.IsHovered);
-            currentLineCount++;
-            canvas.AddMenuOption(menuX, currentY + 2, 0, UIConstants.MenuOptions.SaveAndExit, AsciiArtAssets.Colors.White, option3.IsHovered);
-            currentLineCount++;
-            
+
+            canvas.AddMenuOption(menuX, menuStartY, 1, UIConstants.MenuOptions.GoToDungeon, AsciiArtAssets.Colors.White, option1.IsHovered);
+            canvas.AddMenuOption(menuX, menuStartY + 1, 2, UIConstants.MenuOptions.ShowInventory, AsciiArtAssets.Colors.White, option2.IsHovered);
+            canvas.AddMenuOption(menuX, menuStartY + 2, 0, UIConstants.MenuOptions.SaveAndExit, AsciiArtAssets.Colors.White, option3.IsHovered);
+            currentLineCount += 5;
+
             return currentLineCount;
         }
-        
-        /// <summary>
-        /// Gets the color for item rarity display
-        /// </summary>
-        private Color GetRarityColor(string rarity)
+
+        private int RenderLeftColumnStats(int leftX, int leftY, int leftColW, int bodyMaxY, Dungeon dungeon, Character player, int xpGained, List<ColoredText> dungeonNameSegments, ref int currentLineCount)
         {
-            return rarity switch
+            int y = leftY;
+
+            int maxHealth = player.GetEffectiveMaxHealth();
+            if (player.CurrentHealth == maxHealth && y <= bodyMaxY)
             {
-                "Common" => AsciiArtAssets.Colors.White,
-                "Rare" => AsciiArtAssets.Colors.Blue,
-                "Epic" => AsciiArtAssets.Colors.Purple,
-                "Legendary" => AsciiArtAssets.Colors.Gold,
-                _ => AsciiArtAssets.Colors.White
-            };
+                canvas.AddText(leftX, y, "Health Fully Restored", AsciiArtAssets.Colors.Green);
+                y++;
+                currentLineCount++;
+            }
+
+            if (y <= bodyMaxY)
+            {
+                int n = textWriter.WriteLineColoredWrapped(dungeonNameSegments, leftX, y, leftColW);
+                y += n;
+                currentLineCount += n;
+            }
+
+            if (y <= bodyMaxY)
+            {
+                canvas.AddText(leftX, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.DungeonStatistics), AsciiArtAssets.Colors.Green);
+                y++;
+                currentLineCount++;
+            }
+
+            var sessionStats = player.SessionStats;
+            if (y <= bodyMaxY)
+            {
+                canvas.AddText(leftX, y, $"Rooms Cleared: {dungeon.Rooms.Count}", AsciiArtAssets.Colors.White);
+                y++;
+                currentLineCount++;
+            }
+            if (y <= bodyMaxY)
+            {
+                canvas.AddText(leftX, y, $"Enemies Defeated: {sessionStats.EnemiesDefeated}", AsciiArtAssets.Colors.White);
+                y++;
+                currentLineCount++;
+            }
+            if (y <= bodyMaxY)
+            {
+                canvas.AddText(leftX, y, $"Total Damage Dealt: {sessionStats.TotalDamageDealt:N0}", AsciiArtAssets.Colors.White);
+                y++;
+                currentLineCount++;
+            }
+            if (y <= bodyMaxY)
+            {
+                canvas.AddText(leftX, y, $"Total Damage Received: {sessionStats.TotalDamageReceived:N0}", AsciiArtAssets.Colors.White);
+                y++;
+                currentLineCount++;
+            }
+
+            if (y <= bodyMaxY)
+            {
+                canvas.AddText(leftX, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.RewardsEarned), AsciiArtAssets.Colors.Yellow);
+                y++;
+                currentLineCount++;
+            }
+            if (y <= bodyMaxY)
+            {
+                canvas.AddText(leftX, y, $"Experience Gained: {xpGained:N0} XP", AsciiArtAssets.Colors.White);
+                y++;
+                currentLineCount++;
+            }
+
+            return y;
+        }
+
+        private int RenderRightColumnLevelUpAndLoot(int rightX, int rightY, int rightColW, int bodyMaxY, List<LevelUpInfo>? levelUpInfos, List<Item> allLoot, ref int currentLineCount)
+        {
+            int y = rightY;
+
+            if (levelUpInfos != null && levelUpInfos.Count > 0)
+            {
+                if (y <= bodyMaxY)
+                {
+                    canvas.AddText(rightX, y, AsciiArtAssets.UIText.CreateHeader("LEVEL UP"), AsciiArtAssets.Colors.Gold);
+                    y++;
+                    currentLineCount++;
+                }
+
+                foreach (var levelUpInfo in levelUpInfos)
+                {
+                    if (!levelUpInfo.IsValid) continue;
+                    var messages = levelUpInfo.GetDisplayMessages();
+                    foreach (var message in messages)
+                    {
+                        if (y > bodyMaxY) break;
+                        int m = WriteLevelUpMessageWrapped(message, rightX, y, rightColW);
+                        y += m;
+                        currentLineCount += m;
+                    }
+                    if (y <= bodyMaxY)
+                    {
+                        y++;
+                        currentLineCount++;
+                    }
+                }
+            }
+
+            if (allLoot.Count > 0)
+            {
+                if (y <= bodyMaxY)
+                {
+                    canvas.AddText(rightX, y, "Loot Received:", AsciiArtAssets.Colors.White);
+                    y++;
+                    currentLineCount++;
+                }
+                foreach (var item in allLoot)
+                {
+                    if (y > bodyMaxY) break;
+                    var lootSegments = ItemDisplayColoredText.FormatLootForCompletion(item);
+                    int ln = textWriter.WriteLineColoredWrapped(lootSegments, rightX, y, rightColW);
+                    y += ln;
+                    currentLineCount += ln;
+                }
+            }
+            else if (y <= bodyMaxY)
+            {
+                canvas.AddText(rightX, y, "Loot Received: None", AsciiArtAssets.Colors.Gray);
+                y++;
+                currentLineCount++;
+            }
+
+            return y;
+        }
+
+        /// <summary>Gold for emphasis lines (matches prior dungeon completion behavior).</summary>
+        private int WriteLevelUpMessageWrapped(string message, int atX, int atY, int maxWidth)
+        {
+            Color lineColor = message.Contains("LEVEL UP") || message.Contains("level")
+                ? AsciiArtAssets.Colors.Gold
+                : AsciiArtAssets.Colors.White;
+            var seg = new List<ColoredText> { new ColoredText(message, lineColor) };
+            return textWriter.WriteLineColoredWrapped(seg, atX, atY, maxWidth);
         }
     }
 }

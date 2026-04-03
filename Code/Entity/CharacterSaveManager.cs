@@ -49,21 +49,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Loads a character from a JSON file (synchronous version for backward compatibility)
-        /// NOTE: This method is deprecated. Use LoadCharacterAsync instead for proper async handling.
-        /// This synchronous wrapper blocks the calling thread and should not be used in UI contexts.
-        /// Delegates to the service instance for implementation.
-        /// </summary>
-        /// <param name="characterId">Optional character ID for multi-character support. If provided, loads from per-character filename.</param>
-        /// <param name="filename">The filename to load from. If provided, overrides characterId-based naming.</param>
-        /// <returns>The loaded character, or null if loading failed</returns>
-        [Obsolete("Use LoadCharacterAsync instead. This method blocks the calling thread and may freeze the UI.")]
-        public static Character? LoadCharacter(string? characterId = null, string? filename = null)
-        {
-            return Service.LoadCharacter(characterId, filename);
-        }
-
-        /// <summary>
         /// Deletes a character save file
         /// Delegates to the service instance for implementation.
         /// </summary>

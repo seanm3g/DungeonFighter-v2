@@ -49,8 +49,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             menuStartY += 1;
             canvas.AddText(menuStartX, menuStartY, $"  Name: {action.Name}", AsciiArtAssets.Colors.White);
             menuStartY++;
-            canvas.AddText(menuStartX, menuStartY, $"  Type: {action.Type}", AsciiArtAssets.Colors.White);
-            menuStartY++;
             canvas.AddText(menuStartX, menuStartY, $"  Description: {action.Description}", AsciiArtAssets.Colors.White);
             menuStartY += 3;
             

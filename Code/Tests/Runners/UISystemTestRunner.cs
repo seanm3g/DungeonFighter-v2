@@ -1,5 +1,6 @@
 using System;
 using RPGGame;
+using RPGGame.Tests.Unit.Handlers.Inventory;
 using RPGGame.Tests.Unit.UI;
 using RPGGame.Tests.Unit.UI.Spacing;
 using RPGGame.Tests.Unit.UI.Chunking;
@@ -26,6 +27,18 @@ namespace RPGGame.Tests.Runners
             UIManagerTests.RunAllTests();
             Console.WriteLine();
             BlockDisplayManagerTests.RunAllTests();
+            Console.WriteLine();
+            CombatActionInfoStateTests.RunAllTests();
+            Console.WriteLine();
+            CombatActionStripBuilderTests.RunAllTests();
+            Console.WriteLine();
+            ActionInfoStripLayoutTests.RunAllTests();
+            Console.WriteLine();
+            StatsPanelStateManagerTests.RunAllTests();
+            Console.WriteLine();
+            ComboReordererMoveTests.RunAllTests();
+            Console.WriteLine();
+            ActionStripReorderPolicyTests.RunAllTests();
             Console.WriteLine();
             ItemDisplayFormatterTests.RunAllTests();
             Console.WriteLine();
@@ -62,6 +75,12 @@ namespace RPGGame.Tests.Runners
             CanvasRendererTests.RunAllTests();
             Console.WriteLine();
             SettingsManagerTests.RunAllTests();
+            Console.WriteLine();
+            SettingsApplyServiceTests.RunAllTests();
+            Console.WriteLine();
+            SettingsSaveRevampTests.RunAllTests();
+            Console.WriteLine();
+            ActionsTabManagerTests.RunAllTests();
             Console.WriteLine();
             DungeonRendererTests.RunAllTests();
             Console.WriteLine();

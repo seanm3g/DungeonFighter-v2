@@ -1,9 +1,14 @@
 namespace RPGGame.UI.Avalonia.Layout
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using RPGGame;
+    using RPGGame.Actions.RollModification;
+    using RPGGame.Combat;
     using RPGGame.UI;
+    using RPGGame.UI.Avalonia;
+    using RPGGame.UI.Avalonia.Managers;
     using RPGGame.UI.ColorSystem;
 
     /// <summary>
@@ -11,11 +16,20 @@ namespace RPGGame.UI.Avalonia.Layout
     /// </summary>
     public class RightPanelRenderer
     {
+        private const string ToggleSectionThresholds = "toggle_section_thresholds";
+
         private readonly GameCanvasControl canvas;
-        
-        public RightPanelRenderer(GameCanvasControl canvas)
+        private readonly ICanvasInteractionManager? interactionManager;
+        private readonly StatsPanelStateManager? stateManager;
+
+        public RightPanelRenderer(
+            GameCanvasControl canvas,
+            ICanvasInteractionManager? interactionManager = null,
+            StatsPanelStateManager? stateManager = null)
         {
             this.canvas = canvas;
+            this.interactionManager = interactionManager;
+            this.stateManager = stateManager;
         }
         
         /// <summary>
@@ -48,15 +62,18 @@ namespace RPGGame.UI.Avalonia.Layout
             else
             {
                 // Render location and enemy info for other pages
-                RenderLocationEnemyPanel(x, y, enemy, dungeonName, roomName);
+                RenderLocationEnemyPanel(x, y, enemy, dungeonName, roomName, character);
             }
         }
         
         /// <summary>
-        /// Renders combo sequence and action pool for inventory page
+        /// Renders combo sequence and action pool for inventory page.
+        /// Uses all available vertical space in the panel for both sections.
         /// </summary>
         private void RenderInventoryRightPanel(int x, int y, Character character)
         {
+            int panelBottom = LayoutConstants.RIGHT_PANEL_Y + LayoutConstants.RIGHT_PANEL_HEIGHT - 2;
+
             // Combo Sequence section
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader("COMBO SEQUENCE"), AsciiArtAssets.Colors.Gold);
             y += 2;
@@ -68,8 +85,11 @@ namespace RPGGame.UI.Avalonia.Layout
                 canvas.AddText(x, y, $"Step: {currentStepInSequence}/{comboActions.Count}", AsciiArtAssets.Colors.White);
                 y += 2;
                 
-                // Show combo sequence (limit to fit in panel)
-                int maxDisplay = Math.Min(comboActions.Count, 8); // Limit to 8 to fit in panel
+                const int actionPoolReserve = 6; // spacing (1) + ACTION POOL header (2) + Total line (2) + at least one list line (1)
+                int comboLinesAvailable = panelBottom - y - actionPoolReserve;
+                int maxDisplay = Math.Max(0, Math.Min(comboActions.Count, comboLinesAvailable - 1)); // -1 for "... +N more" when truncated
+                if (maxDisplay == 0 && comboActions.Count > 0)
+                    maxDisplay = Math.Min(comboActions.Count, comboLinesAvailable);
                 for (int i = 0; i < maxDisplay; i++)
                 {
                     var action = comboActions[i];
@@ -95,7 +115,7 @@ namespace RPGGame.UI.Avalonia.Layout
             
             y += 1; // Spacing
             
-            // Action Pool section
+            // Action Pool section - use remaining space
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader("ACTION POOL"), AsciiArtAssets.Colors.Gold);
             y += 2;
             
@@ -105,12 +125,15 @@ namespace RPGGame.UI.Avalonia.Layout
                 canvas.AddText(x, y, $"Total: {actionPool.Count}", AsciiArtAssets.Colors.White);
                 y += 2;
                 
-                // Group actions by name and show unique actions
-                var uniqueActions = actionPool.GroupBy(a => a.Name)
+                int actionPoolLinesAvailable = panelBottom - y;
+                var uniqueOrdered = actionPool.GroupBy(a => a.Name)
                     .Select(g => new { Name = g.Key, Count = g.Count() })
                     .OrderBy(a => a.Name)
-                    .Take(6) // Limit to 6 to fit in panel
                     .ToList();
+                int maxUniqueToShow = Math.Max(0, Math.Min(uniqueOrdered.Count, actionPoolLinesAvailable - 1)); // -1 for "... +N more" when truncated
+                if (maxUniqueToShow == 0 && uniqueOrdered.Count > 0)
+                    maxUniqueToShow = Math.Min(uniqueOrdered.Count, actionPoolLinesAvailable);
+                var uniqueActions = uniqueOrdered.Take(maxUniqueToShow).ToList();
                 
                 foreach (var actionGroup in uniqueActions)
                 {
@@ -122,9 +145,10 @@ namespace RPGGame.UI.Avalonia.Layout
                     y++;
                 }
                 
-                if (actionPool.Count > uniqueActions.Sum(a => a.Count))
+                int shownCount = uniqueActions.Sum(a => a.Count);
+                if (actionPool.Count > shownCount)
                 {
-                    int remaining = actionPool.Count - uniqueActions.Sum(a => a.Count);
+                    int remaining = actionPool.Count - shownCount;
                     canvas.AddText(x, y, $"... +{remaining} more", AsciiArtAssets.Colors.Gray);
                 }
             }
@@ -137,13 +161,15 @@ namespace RPGGame.UI.Avalonia.Layout
         /// <summary>
         /// Renders location and enemy information panel
         /// </summary>
-        private void RenderLocationEnemyPanel(int x, int y, Enemy? enemy, string? dungeonName, string? roomName)
+        private void RenderLocationEnemyPanel(int x, int y, Enemy? enemy, string? dungeonName, string? roomName, Character? character)
         {
+            int headerClickWidth = LayoutConstants.RIGHT_PANEL_WIDTH - 4;
+
             // Location section - always shown
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Location), AsciiArtAssets.Colors.Gold);
             y += 2;
             
-            // Dungeon - always shown
+            // Dungeon — value line omitted when empty
             canvas.AddText(x, y, "Dungeon:", AsciiArtAssets.Colors.Gray);
             y++;
             if (!string.IsNullOrEmpty(dungeonName))
@@ -152,14 +178,10 @@ namespace RPGGame.UI.Avalonia.Layout
                 if (displayDungeon.Length > 20)
                     displayDungeon = displayDungeon.Substring(0, 17) + "...";
                 canvas.AddText(x, y, displayDungeon, AsciiArtAssets.Colors.Cyan);
+                y++;
             }
-            else
-            {
-                canvas.AddText(x, y, "None", AsciiArtAssets.Colors.DarkGray);
-            }
-            y += 2;
             
-            // Room - always shown
+            // Room — value line omitted when empty
             canvas.AddText(x, y, "Room:", AsciiArtAssets.Colors.Gray);
             y++;
             if (!string.IsNullOrEmpty(roomName))
@@ -168,12 +190,10 @@ namespace RPGGame.UI.Avalonia.Layout
                 if (displayRoom.Length > 20)
                     displayRoom = displayRoom.Substring(0, 17) + "...";
                 canvas.AddText(x, y, displayRoom, AsciiArtAssets.Colors.Yellow);
+                y++;
             }
-            else
-            {
-                canvas.AddText(x, y, "None", AsciiArtAssets.Colors.DarkGray);
-            }
-            y += 2;
+            
+            y += 1;
             
             // Enemy section - always shown
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Enemy), AsciiArtAssets.Colors.Gold);
@@ -219,16 +239,190 @@ namespace RPGGame.UI.Avalonia.Layout
                 canvas.AddCharacterStat(x, y, "TECH", enemy.Technique, 0, AsciiArtAssets.Colors.White);
                 y++;
                 canvas.AddCharacterStat(x, y, "INT", enemy.Intelligence, 0, AsciiArtAssets.Colors.White);
+                y++;
             }
             else
             {
-                // Show empty enemy state
-                canvas.AddText(x, y, "None", AsciiArtAssets.Colors.DarkGray);
-                y += 2;
-                canvas.AddText(x, y, "No active", AsciiArtAssets.Colors.DarkGray);
+                canvas.AddText(x, y, "No active combat", AsciiArtAssets.Colors.DarkGray);
                 y++;
-                canvas.AddText(x, y, "combat", AsciiArtAssets.Colors.DarkGray);
             }
+            y += 1;
+
+            // Dice thresholds section (player only when character is present)
+            int thresholdsHeaderY = y;
+            canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Thresholds), AsciiArtAssets.Colors.Gold);
+            y += 2;
+            if (interactionManager != null && stateManager != null)
+            {
+                interactionManager.AddClickableElement(new ClickableElement
+                {
+                    X = x,
+                    Y = thresholdsHeaderY,
+                    Width = headerClickWidth,
+                    Height = 1,
+                    Type = ElementType.Text,
+                    Value = ToggleSectionThresholds,
+                    DisplayText = "Thresholds"
+                });
+            }
+
+            bool thresholdsOpen = stateManager == null || !stateManager.ThresholdsCollapsed;
+            if (thresholdsOpen)
+            {
+                if (character != null)
+                {
+                    var tm = RollModificationManager.GetThresholdManager();
+                    var config = GameConfiguration.Instance;
+                    int hit = tm.GetHitThreshold(character);
+                    int combo = tm.GetComboThreshold(character);
+                    int crit = tm.GetCriticalHitThreshold(character);
+                    int critMiss = tm.GetCriticalMissThreshold(character);
+                    int defaultHit = config.RollSystem.MissThreshold.Max > 0 ? config.RollSystem.MissThreshold.Max : 5;
+                    int defaultCombo = config.RollSystem.ComboThreshold.Min > 0 ? config.RollSystem.ComboThreshold.Min : 14;
+                    int defaultCrit = config.Combat.CriticalHitThreshold > 0 ? config.Combat.CriticalHitThreshold : 20;
+                    const int defaultCritMiss = 1;
+                    string mod(int current, int def) => current != def ? (def - current) > 0 ? $" (+{def - current})" : $" ({def - current})" : "";
+                    const int thresholdLabelWidth = 11;
+                    canvas.AddText(x, y, $"{"Crit:".PadRight(thresholdLabelWidth)}{crit}{mod(crit, defaultCrit)}", AsciiArtAssets.Colors.Cyan);
+                    y++;
+                    canvas.AddText(x, y, $"{"Combo:".PadRight(thresholdLabelWidth)}{combo}{mod(combo, defaultCombo)}", AsciiArtAssets.Colors.Cyan);
+                    y++;
+                    canvas.AddText(x, y, $"{"Hit:".PadRight(thresholdLabelWidth)}{hit + 1}{mod(hit, defaultHit)}", AsciiArtAssets.Colors.Cyan);
+                    y++;
+                    canvas.AddText(x, y, $"{"Crit Miss:".PadRight(thresholdLabelWidth)}{critMiss}{mod(critMiss, defaultCritMiss)}", AsciiArtAssets.Colors.Cyan);
+                    y++;
+                }
+                else
+                {
+                    canvas.AddText(x, y, "(No character)", AsciiArtAssets.Colors.DarkGray);
+                    y++;
+                }
+            }
+            // When collapsed, y is already one line below the header row; do not add another gap before STATUS.
+            if (thresholdsOpen)
+                y += 1;
+
+            // Status effects section
+            canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.StatusEffects), AsciiArtAssets.Colors.Gold);
+            y += 2;
+            const int maxEffectLines = 5;
+            const int maxLineLen = 26;
+            if (character != null)
+            {
+                var playerEffects = GetActiveStatusEffectLines(character, character);
+                if (playerEffects.Count > 0)
+                {
+                    for (int i = 0; i < Math.Min(playerEffects.Count, maxEffectLines); i++)
+                    {
+                        string line = playerEffects[i];
+                        if (line.Length > maxLineLen)
+                            line = line.Substring(0, maxLineLen - 3) + "...";
+                        canvas.AddText(x, y, line, AsciiArtAssets.Colors.White);
+                        y++;
+                    }
+                    if (playerEffects.Count > maxEffectLines)
+                    {
+                        canvas.AddText(x, y, $"+{playerEffects.Count - maxEffectLines} more", AsciiArtAssets.Colors.Gray);
+                        y++;
+                    }
+                }
+            }
+            if (enemy != null)
+            {
+                canvas.AddText(x, y, "Enemy:", AsciiArtAssets.Colors.Gray);
+                y++;
+                const int maxEnemyEffectLines = 3;
+                var enemyEffects = GetActiveStatusEffectLines(enemy, null);
+                if (enemyEffects.Count > 0)
+                {
+                    int toShow = Math.Min(enemyEffects.Count, maxEnemyEffectLines);
+                    for (int i = 0; i < toShow; i++)
+                    {
+                        string line = "  " + enemyEffects[i];
+                        if (line.Length > maxLineLen)
+                            line = line.Substring(0, maxLineLen - 3) + "...";
+                        canvas.AddText(x, y, line, AsciiArtAssets.Colors.White);
+                        y++;
+                    }
+                    if (enemyEffects.Count > toShow)
+                    {
+                        canvas.AddText(x, y, $"  +{enemyEffects.Count - toShow} more", AsciiArtAssets.Colors.Gray);
+                        y++;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Builds a list of active status effect display strings for an actor (and Character.Effects when actor is a Character).
+        /// </summary>
+        private static List<string> GetActiveStatusEffectLines(Actor actor, Character? asCharacter)
+        {
+            var lines = new List<string>();
+            if (actor.IsWeakened && actor.WeakenTurns > 0)
+                lines.Add($"Weakened ({actor.WeakenTurns} turn{(actor.WeakenTurns != 1 ? "s" : "")})");
+            if (actor.IsStunned && actor.StunTurnsRemaining > 0)
+                lines.Add($"Stunned ({actor.StunTurnsRemaining} turn{(actor.StunTurnsRemaining != 1 ? "s" : "")})");
+            if (actor.RollPenalty != 0 && actor.RollPenaltyTurns > 0)
+                lines.Add($"Roll -{actor.RollPenalty} ({actor.RollPenaltyTurns} turn{(actor.RollPenaltyTurns != 1 ? "s" : "")})");
+            if (actor.PoisonStacks > 0)
+                lines.Add(actor.IsBleeding ? $"Bleed x{actor.PoisonStacks}" : $"Poison x{actor.PoisonStacks}");
+            if (actor.BurnStacks > 0)
+                lines.Add($"Burn x{actor.BurnStacks}");
+            if (actor.HasCriticalMissPenalty && actor.CriticalMissPenaltyTurns > 0)
+                lines.Add($"Crit miss ({actor.CriticalMissPenaltyTurns} turn{(actor.CriticalMissPenaltyTurns != 1 ? "s" : "")})");
+            if (actor.VulnerabilityStacks > 0 && actor.VulnerabilityTurns > 0)
+                lines.Add($"Vuln x{actor.VulnerabilityStacks} ({actor.VulnerabilityTurns}t)");
+            if (actor.HardenStacks > 0 && actor.HardenTurns > 0)
+                lines.Add($"Harden x{actor.HardenStacks} ({actor.HardenTurns}t)");
+            if (actor.FortifyStacks > 0 && actor.FortifyTurns > 0)
+                lines.Add($"Fortify x{actor.FortifyStacks} ({actor.FortifyTurns}t)");
+            if (actor.FocusStacks > 0 && actor.FocusTurns > 0)
+                lines.Add($"Focus x{actor.FocusStacks} ({actor.FocusTurns}t)");
+            if (actor.ExposeStacks > 0 && actor.ExposeTurns > 0)
+                lines.Add($"Expose x{actor.ExposeStacks} ({actor.ExposeTurns}t)");
+            if (actor.HPRegenStacks > 0 && actor.HPRegenTurns > 0)
+                lines.Add($"HP Regen x{actor.HPRegenStacks} ({actor.HPRegenTurns}t)");
+            if (actor.ArmorBreakStacks > 0 && actor.ArmorBreakTurns > 0)
+                lines.Add($"Armor brk x{actor.ArmorBreakStacks} ({actor.ArmorBreakTurns}t)");
+            if (actor.HasPierce && actor.PierceTurns > 0)
+                lines.Add($"Pierce ({actor.PierceTurns} turn{(actor.PierceTurns != 1 ? "s" : "")})");
+            if (actor.ReflectStacks > 0 && actor.ReflectTurns > 0)
+                lines.Add($"Reflect x{actor.ReflectStacks} ({actor.ReflectTurns}t)");
+            if (actor.IsSilenced && actor.SilenceTurns > 0)
+                lines.Add($"Silence ({actor.SilenceTurns} turn{(actor.SilenceTurns != 1 ? "s" : "")})");
+            if (actor.HasAbsorb && actor.AbsorbTurns > 0)
+                lines.Add($"Absorb ({actor.AbsorbTurns} turn{(actor.AbsorbTurns != 1 ? "s" : "")})");
+            if (actor.TemporaryHP > 0 && actor.TemporaryHPTurns > 0)
+                lines.Add($"Temp HP ({actor.TemporaryHPTurns} turn{(actor.TemporaryHPTurns != 1 ? "s" : "")})");
+            if (actor.IsConfused && actor.ConfusionTurns > 0)
+                lines.Add($"Confused ({actor.ConfusionTurns} turn{(actor.ConfusionTurns != 1 ? "s" : "")})");
+            if (actor.IsMarked && actor.MarkTurns > 0)
+                lines.Add($"Marked ({actor.MarkTurns} turn{(actor.MarkTurns != 1 ? "s" : "")})");
+            if (asCharacter != null)
+            {
+                int rollBonus = asCharacter.Effects.GetTempRollBonus();
+                if (rollBonus != 0 && asCharacter.Effects.TempRollBonusTurns > 0)
+                {
+                    int t = asCharacter.Effects.TempRollBonusTurns;
+                    lines.Add($"Accuracy +{rollBonus} ({t} turn{(t != 1 ? "s" : "")})");
+                }
+                if (asCharacter.Effects.SlowTurns > 0)
+                    lines.Add($"Slow ({asCharacter.Effects.SlowTurns} turn{(asCharacter.Effects.SlowTurns != 1 ? "s" : "")})");
+                if (asCharacter.Effects.HasShield)
+                    lines.Add("Shield");
+                if (asCharacter.Effects.SkipNextTurn)
+                    lines.Add("Skip turn");
+                if (asCharacter.Effects.GuaranteeNextSuccess)
+                    lines.Add("Guarantee hit");
+                if (asCharacter.Effects.ExtraAttacks > 0)
+                    lines.Add($"Extra atk x{asCharacter.Effects.ExtraAttacks}");
+                if (asCharacter.Effects.ComboModeActive)
+                    lines.Add("Combo mode");
+                if (asCharacter.Effects.RerollCharges > 0)
+                    lines.Add($"Reroll x{asCharacter.Effects.RerollCharges}");
+            }
+            return lines;
         }
     }
 }

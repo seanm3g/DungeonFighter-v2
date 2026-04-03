@@ -275,6 +275,7 @@ namespace RPGGame
         public void AddToCombo(Action action) => Facade.AddToCombo(action);
         public void RemoveFromCombo(Action action) => Facade.RemoveFromCombo(action);
         public void InitializeDefaultCombo() => Facade.InitializeDefaultCombo();
+        public bool RestoreComboFromActionNames(IReadOnlyList<string> actionNames) => Facade.RestoreComboFromActionNames(actionNames);
         public int GetEffectiveStrength() => Facade.GetEffectiveStrength();
         public int GetEffectiveAgility() => Facade.GetEffectiveAgility();
         public int GetEffectiveTechnique() => Facade.GetEffectiveTechnique();
@@ -345,6 +346,7 @@ namespace RPGGame
         public double GetModificationFreezeChance() => Facade.GetModificationFreezeChance();
         public double GetModificationStunChance() => Facade.GetModificationStunChance();
         public double GetModificationUniqueActionChance() => Facade.GetModificationUniqueActionChance();
+        public List<string> GetModificationStatusEffects() => Facade.GetModificationStatusEffects();
         public double GetArmorSpikeDamage() => Facade.GetArmorSpikeDamage();
         public List<ArmorStatus> GetEquippedArmorStatuses() => Facade.GetEquippedArmorStatuses();
         public bool HasAutoSuccess() => Facade.HasAutoSuccess();
@@ -370,8 +372,6 @@ namespace RPGGame
         public void DisplayCharacterInfo() => Facade.DisplayCharacterInfo();
         public void SaveCharacter(string? characterId = null, string? filename = null) => Facade.SaveCharacter(characterId, filename);
         public static async Task<Character?> LoadCharacterAsync(string? characterId = null, string? filename = null) => await CharacterFacade.LoadCharacterAsync(characterId, filename).ConfigureAwait(false);
-        [Obsolete("Use LoadCharacterAsync instead. This method blocks the calling thread and may freeze the UI.")]
-        public static Character? LoadCharacter(string? characterId = null, string? filename = null) => LoadCharacterAsync(characterId, filename).ConfigureAwait(false).GetAwaiter().GetResult();
         public static void DeleteSaveFile(string? filename = null) => CharacterFacade.DeleteSaveFile(filename);
         
         // Session statistics methods

@@ -83,7 +83,22 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     y++;
                     currentLineCount++;
                     
-                    // Render stats with colored text
+                    // Render actions tied to this item (same as main inventory)
+                    var itemActions = character.Equipment.GetGearActions(item);
+                    if (itemActions != null && itemActions.Count > 0)
+                    {
+                        string actionsText = "    Actions: " + string.Join(", ", itemActions);
+                        int maxActionWidth = width - 4;
+                        if (actionsText.Length > maxActionWidth)
+                        {
+                            actionsText = actionsText.Substring(0, maxActionWidth - 3) + "...";
+                        }
+                        canvas.AddText(x + 2, y, actionsText, AsciiArtAssets.Colors.Cyan);
+                        y++;
+                        currentLineCount++;
+                    }
+                    
+                    // Render stats with colored text (Damage, Speed, Armor, stat bonuses)
                     ItemRendererHelper.RenderItemStats(textWriter, canvas, x + 2, y, itemStats, ref y, ref currentLineCount, useColoredText: true);
                 }
                 y++;
@@ -260,13 +275,25 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         }
         
         /// <summary>
-        /// Gets the next rarity tier in progression
+        /// Gets the next rarity tier in progression (only one tier higher)
+        /// Returns "MAX" if already at maximum rarity
         /// </summary>
         private string GetNextRarity(string currentRarity)
         {
             var rarityOrder = new[] { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Transcendent" };
             
-            int currentIndex = Array.IndexOf(rarityOrder, currentRarity);
+            // Use case-insensitive comparison to find the current rarity
+            int currentIndex = -1;
+            for (int i = 0; i < rarityOrder.Length; i++)
+            {
+                if (string.Equals(rarityOrder[i], currentRarity, StringComparison.OrdinalIgnoreCase))
+                {
+                    currentIndex = i;
+                    break;
+                }
+            }
+            
+            // Only return the next tier (one step up), or "MAX" if at max
             if (currentIndex < 0 || currentIndex >= rarityOrder.Length - 1)
             {
                 return "MAX"; // Not found or already at max

@@ -16,9 +16,11 @@ namespace RPGGame
         // Delegates
         public delegate void OnShowMainMenu();
         public delegate Task OnShowDungeonSelection();
+        public delegate void OnShowGameLoop();
         
         public event OnShowMainMenu? ShowMainMenuEvent;
         public event OnShowDungeonSelection? ShowDungeonSelectionEvent;
+        public event OnShowGameLoop? ShowGameLoopEvent;
 
         public CharacterMenuHandler(GameStateManager stateManager, IUIManager? customUIManager)
         {
@@ -37,19 +39,26 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Handle character info input - transition to dungeon selection for new characters
+        /// Handle character info input - transition to game loop for new characters
+        /// After starting a new game, character info should lead to game loop, not dungeon selection
         /// </summary>
         public async Task HandleMenuInput(string input)
         {
-            // For new characters, go directly to dungeon selection
-            // Any input transitions to dungeon selection
-            if (ShowDungeonSelectionEvent != null)
+            // For new characters (after weapon selection), go to game loop
+            // Any input transitions to game loop where player can choose to go to dungeon selection
+            if (ShowGameLoopEvent != null)
             {
+                stateManager.TransitionToState(GameState.GameLoop);
+                ShowGameLoopEvent.Invoke();
+            }
+            else if (ShowDungeonSelectionEvent != null)
+            {
+                // Fallback to dungeon selection if game loop event is not wired
                 await ShowDungeonSelectionEvent.Invoke();
             }
             else
             {
-                // Fallback to main menu if dungeon selection event is not wired
+                // Final fallback to main menu if neither event is wired
                 stateManager.TransitionToState(GameState.MainMenu);
                 ShowMainMenuEvent?.Invoke();
             }

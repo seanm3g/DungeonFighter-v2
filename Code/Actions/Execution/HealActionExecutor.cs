@@ -68,15 +68,9 @@ namespace RPGGame.Actions.Execution
             
             if (selectedAction != null && selectedAction.Length > 0)
             {
-                double actualSpeed = 0;
-                if (source is Character charSource)
-                {
-                    actualSpeed = charSource.GetTotalAttackSpeed() * selectedAction.Length;
-                }
-                else if (source is Enemy enemySource)
-                {
-                    actualSpeed = enemySource.GetTotalAttackSpeed() * selectedAction.Length;
-                }
+                // Check if this is a critical miss (natural roll <= 1 is typically critical miss)
+                bool isCriticalMiss = naturalRoll <= 1;
+                double actualSpeed = Combat.Formatting.ActionSpeedCalculator.CalculateActualActionSpeed(source, selectedAction, isCriticalMiss);
                 
                 if (actualSpeed > 0)
                 {

@@ -171,6 +171,14 @@ namespace RPGGame.Handlers.Inventory
         private void PromptReorderComboActions()
         {
             if (stateManager.CurrentPlayer == null) return;
+
+            if (stateManager.HasCurrentDungeon)
+            {
+                ShowMessageEvent?.Invoke("Cannot reorder combo during an active dungeon run.");
+                stateTracker.InComboManagement = true;
+                RenderComboManagementScreen();
+                return;
+            }
             
             var comboActions = stateManager.CurrentPlayer.GetComboActions();
             if (comboActions.Count < 2)

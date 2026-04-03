@@ -2,6 +2,10 @@ using RPGGame;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat.Events;
 using RPGGame.Utils;
+using RPGGame.Data;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace RPGGame.Actions.Execution
 {
@@ -11,10 +15,47 @@ namespace RPGGame.Actions.Execution
     /// </summary>
     internal static class ActionExecutionFlow
     {
-        /// <summary>
-        /// Event fired when a one-shot kill occurs (enemy killed from full health in a single action)
-        /// </summary>
-        public static event System.Action? OneShotKillOccurred;
+        /// <summary>Returns stat bonus entries from the action (list if non-empty, else legacy single as one entry).</summary>
+        private static List<StatBonusEntry> GetStatBonusEntries(Action action)
+        {
+            if (action?.Advanced == null) return new List<StatBonusEntry>();
+            if (action.Advanced.StatBonuses != null && action.Advanced.StatBonuses.Count > 0)
+                return action.Advanced.StatBonuses;
+            if (action.Advanced.StatBonus != 0 || !string.IsNullOrEmpty(action.Advanced.StatBonusType))
+                return new List<StatBonusEntry> { new StatBonusEntry { Value = action.Advanced.StatBonus, Type = action.Advanced.StatBonusType ?? "" } };
+            return new List<StatBonusEntry>();
+        }
+
+        /// <summary>Returns Health-type threshold values from the action (for HP band publishing), ascending.</summary>
+        private static List<double> GetHealthThresholds(Action action)
+        {
+            if (action?.Advanced == null) return new List<double> { 0.1, 0.25, 0.5 };
+            if (action.Advanced.Thresholds != null && action.Advanced.Thresholds.Count > 0)
+            {
+                var healthValues = action.Advanced.Thresholds
+                    .Where(t => string.Equals(t.Type, "Health", System.StringComparison.OrdinalIgnoreCase))
+                    .Select(t => t.Value)
+                    .OrderBy(v => v)
+                    .ToList();
+                if (healthValues.Count > 0) return healthValues;
+            }
+            if (action.Advanced.HealthThreshold > 0.0)
+                return new List<double> { action.Advanced.HealthThreshold };
+            return new List<double> { 0.1, 0.25, 0.5 };
+        }
+
+        /// <summary>Maps cadence (Action, Ability, Chain, Fight, Dungeon) to stat bonus duration in turns.</summary>
+        private static int CadenceToStatBonusDuration(string? cadence)
+        {
+            if (string.IsNullOrWhiteSpace(cadence)) return 1;
+            var c = cadence.Trim();
+            if (string.Equals(c, "Fight", System.StringComparison.OrdinalIgnoreCase)) return 999;
+            if (string.Equals(c, "Dungeon", System.StringComparison.OrdinalIgnoreCase)) return 999;
+            if (string.Equals(c, "Action", System.StringComparison.OrdinalIgnoreCase)) return 1;
+            if (string.Equals(c, "Ability", System.StringComparison.OrdinalIgnoreCase)) return 1;
+            if (string.Equals(c, "Chain", System.StringComparison.OrdinalIgnoreCase)) return 1;
+            return 1;
+        }
         /// <summary>
         /// Executes the core action execution sequence
         /// </summary>
@@ -25,343 +66,359 @@ namespace RPGGame.Actions.Execution
             Action? lastPlayerAction,
             Action? forcedAction,
             BattleNarrative? battleNarrative,
-            System.Collections.Generic.Dictionary<Actor, Action> lastUsedActions,
-            System.Collections.Generic.Dictionary<Actor, bool> lastCriticalMissStatus)
+            Dictionary<Actor, Action> lastUsedActions,
+            Dictionary<Actor, bool> lastCriticalMissStatus)
         {
             var result = new ActionExecutionResult();
-
-            if (!ActionExecutor.DisableCombatDebugOutput)
-            {
-            }
-
-            // Use forced action if provided (for combo system), otherwise select action based on Actor type
-            result.SelectedAction = forcedAction ?? ActionSelector.SelectActionByEntityType(source);
+            ApplyPreRollBonuses(source);
+            SelectActionAndResolveRoll(source, target, result, lastUsedActions, lastCriticalMissStatus, forcedAction);
             if (result.SelectedAction == null)
-            {
                 return result;
-            }
+            if (result.Hit)
+                ApplyHitOutcome(source, target, result, battleNarrative);
+            else
+                ApplyMissOutcome(source, target, result, battleNarrative);
+            return result;
+        }
 
-            // Store the action that will be used
-            lastUsedActions[source] = result.SelectedAction;
-
-            // Use the same roll that was used for action selection
-            result.BaseRoll = ActionSelector.GetActionRoll(source);
-
-            // Handle unique action chance for characters (not enemies)
-            // BASIC ATTACK removed - all actions are now combo actions
-            if (source is Character character && !(character is Enemy) && forcedAction == null)
+        private static void ApplyPreRollBonuses(Actor source)
+        {
+            if (source is Character clearModCharacter && !(clearModCharacter is Enemy))
+                clearModCharacter.Effects.ClearConsumedModifierBonuses();
+            if (source is Character nextAttackStatCharacter && !(nextAttackStatCharacter is Enemy))
             {
-                result.SelectedAction = ActionUtilities.HandleUniqueActionChance(character, result.SelectedAction);
+                var (nextBonus, nextStatType, nextDuration) = nextAttackStatCharacter.Effects.ConsumeNextAttackStatBonus();
+                if (nextBonus == 0 || string.IsNullOrEmpty(nextStatType)) return;
+                string statType = nextStatType!.ToUpper();
+                int currentBonus = statType switch
+                {
+                    "STR" => nextAttackStatCharacter.Stats.TempStrengthBonus,
+                    "AGI" => nextAttackStatCharacter.Stats.TempAgilityBonus,
+                    "TEC" => nextAttackStatCharacter.Stats.TempTechniqueBonus,
+                    "INT" => nextAttackStatCharacter.Stats.TempIntelligenceBonus,
+                    _ => 0
+                };
+                int newBonus = currentBonus + nextBonus;
+                int duration = nextDuration > 0 ? nextDuration : 999;
+                nextAttackStatCharacter.ApplyStatBonus(newBonus, statType, duration);
             }
+        }
 
-            // Apply roll modifications from action
+        private static void SelectActionAndResolveRoll(
+            Actor source,
+            Actor target,
+            ActionExecutionResult result,
+            Dictionary<Actor, Action> lastUsedActions,
+            Dictionary<Actor, bool> lastCriticalMissStatus,
+            Action? forcedAction)
+        {
+            result.SelectedAction = forcedAction ?? ActionSelector.SelectActionByEntityType(source);
+            if (result.SelectedAction == null) return;
+            lastUsedActions[source] = result.SelectedAction;
+            result.BaseRoll = ActionSelector.GetActionRoll(source);
+            if (source is Character character && !(character is Enemy) && forcedAction == null)
+                result.SelectedAction = ActionUtilities.HandleUniqueActionChance(character, result.SelectedAction);
+
+            // Roll and threshold bonuses: ATTACK (consumed per roll), per-slot ACTION (consumed when slot executes), ABILITY (consumed on hit)
+            int actionBonusAccumulator = 0, actionBonusHit = 0, actionBonusCombo = 0, actionBonusCrit = 0;
+            if (source is Character actionBonusCharacter && !(actionBonusCharacter is Enemy))
+            {
+                // 1. Consume per-slot ACTION bonuses for current slot (slot-based; consumed when this slot executes)
+                var comboActions = ActionUtilities.GetComboActions(actionBonusCharacter);
+                int comboLength = comboActions.Count;
+                if (comboLength > 0)
+                {
+                    int currentSlot = actionBonusCharacter.ComboStep % comboLength;
+                    var slotBonuses = actionBonusCharacter.Effects.ConsumePendingActionBonusesForSlot(currentSlot);
+                    actionBonusCharacter.Effects.AccumulateConsumedModifierBonuses(slotBonuses);
+                    foreach (var bonus in slotBonuses)
+                    {
+                        switch ((bonus.Type ?? "").ToUpper())
+                        {
+                            case "ACCURACY": actionBonusAccumulator += (int)bonus.Value; break;
+                            case "HIT": actionBonusHit += (int)bonus.Value; break;
+                            case "COMBO": actionBonusCombo += (int)bonus.Value; break;
+                            case "CRIT": actionBonusCrit += (int)bonus.Value; break;
+                        }
+                    }
+                }
+                // 2. Consume ATTACK bonuses (roll-based; consumed per roll, apply only on hit for stat bonuses)
+                var actionBonuses = actionBonusCharacter.Effects.GetAndConsumeAttackBonuses();
+                actionBonusCharacter.Effects.AccumulateConsumedModifierBonuses(actionBonuses);
+                actionBonusCharacter.Effects.SetConsumedAttackBonusesThisRoll(actionBonuses);
+                foreach (var bonus in actionBonuses)
+                {
+                    switch (bonus.Type.ToUpper())
+                    {
+                        case "ACCURACY": actionBonusAccumulator += (int)bonus.Value; break;
+                        case "HIT": actionBonusHit += (int)bonus.Value; break;
+                        case "COMBO": actionBonusCombo += (int)bonus.Value; break;
+                        case "CRIT": actionBonusCrit += (int)bonus.Value; break;
+                    }
+                }
+                // Apply ability-queued roll/threshold bonuses to this roll (consumed on hit in ApplyHitOutcome).
+                var abilityBonusesPeek = actionBonusCharacter.Effects.PeekAbilityBonuses();
+                foreach (var bonus in abilityBonusesPeek)
+                {
+                    switch (bonus.Type.ToUpper())
+                    {
+                        case "ACCURACY": actionBonusAccumulator += (int)bonus.Value; break;
+                        case "HIT": actionBonusHit += (int)bonus.Value; break;
+                        case "COMBO": actionBonusCombo += (int)bonus.Value; break;
+                        case "CRIT": actionBonusCrit += (int)bonus.Value; break;
+                    }
+                }
+            }
             result.ModifiedBaseRoll = RollModificationManager.ApplyActionRollModifications(
                 result.BaseRoll, result.SelectedAction, source, target);
-
-            // Apply threshold overrides and adjustments
+            result.ModifiedBaseRoll += actionBonusAccumulator;
             RollModificationManager.ApplyThresholdOverrides(result.SelectedAction, source, target);
+            // Positive bonus = easier (lower threshold). ThresholdManager subtracts adjustment for Hit/Combo/Crit.
+            if (actionBonusHit != 0 && source is Character hitBonusCharacter && !(hitBonusCharacter is Enemy))
+                RollModificationManager.GetThresholdManager().AdjustHitThreshold(hitBonusCharacter, actionBonusHit);
+            if (actionBonusCombo != 0 && source is Character comboBonusCharacter && !(comboBonusCharacter is Enemy))
+                RollModificationManager.GetThresholdManager().AdjustComboThreshold(comboBonusCharacter, actionBonusCombo);
+            if (actionBonusCrit != 0 && source is Character critBonusCharacter && !(critBonusCharacter is Enemy))
+                RollModificationManager.GetThresholdManager().AdjustCriticalHitThreshold(critBonusCharacter, actionBonusCrit);
 
             result.RollBonus = ActionUtilities.CalculateRollBonus(source, result.SelectedAction);
             result.AttackRoll = result.ModifiedBaseRoll + result.RollBonus;
-
-            // Check for critical miss using threshold manager
-            int criticalMissThreshold = RollModificationManager.GetThresholdManager().GetCriticalMissThreshold(source);
-            result.IsCriticalMiss = result.BaseRoll <= criticalMissThreshold;
+            var tm = RollModificationManager.GetThresholdManager();
+            int hitThreshold = tm.GetHitThreshold(source);
+            int criticalMissThreshold = tm.GetCriticalMissThreshold(source);
+            // Critical miss only when roll is both <= crit-miss threshold and would be a miss (roll <= hit threshold). So +5 to HIT (threshold 0) makes 1+ a hit and crit miss impossible (would need 0).
+            result.IsCriticalMiss = result.BaseRoll <= criticalMissThreshold && result.BaseRoll <= hitThreshold;
             if (result.IsCriticalMiss)
             {
                 source.HasCriticalMissPenalty = true;
                 source.CriticalMissPenaltyTurns = 1;
             }
-
-            // Store critical miss status for this action
             lastCriticalMissStatus[source] = result.IsCriticalMiss;
+            result.IsCombo = result.AttackRoll >= tm.GetComboThreshold(source);
+            result.IsCritical = result.AttackRoll >= tm.GetCriticalHitThreshold(source);
+            ActionEventPublisher.PublishActionExecuted(source, target, result.SelectedAction, result.AttackRoll, result.IsCombo, result.IsCritical);
+            result.Hit = CombatCalculator.CalculateHit(source, target, result.RollBonus, result.AttackRoll);
+        }
 
-            // Determine if this is a combo or critical
-            // IsCombo should be based on whether the roll was >= combo threshold (14), not the action name
-            result.IsCombo = result.AttackRoll >= RollModificationManager.GetThresholdManager().GetComboThreshold(source);
-            result.IsCritical = result.AttackRoll >= RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
-
-            // Publish action executed event for conditional triggers
-            var actionEvent = ActionEventPublisher.PublishActionExecuted(
-                source, target, result.SelectedAction, result.AttackRoll, result.IsCombo, result.IsCritical);
-
-            // Check for hit
-            // Natural 1 always misses, regardless of bonuses
-            if (result.BaseRoll == 1)
+        private static void ApplyHitOutcome(Actor source, Actor target, ActionExecutionResult result, BattleNarrative? battleNarrative)
+        {
+            if (source is Character abilityBonusCharacter && !(abilityBonusCharacter is Enemy))
             {
-                result.Hit = false;
-            }
-            else
-            {
-                result.Hit = CombatCalculator.CalculateHit(source, target, result.RollBonus, result.AttackRoll);
-            }
-
-            if (result.Hit)
-            {
-                // Publish hit event
-                var hitEvent = ActionEventPublisher.PublishActionHit(
-                    source, target, result.SelectedAction, result.AttackRoll, result.IsCombo, result.IsCritical);
-
-                // Apply damage for Attack-type and Spell-type actions
-                if (result.SelectedAction.Type == ActionType.Attack || result.SelectedAction.Type == ActionType.Spell)
+                // Apply ABILITY bonuses (consumed on hit)
+                var abilityBonuses = abilityBonusCharacter.Effects.GetAndConsumeAbilityBonuses(true);
+                abilityBonusCharacter.Effects.AccumulateConsumedModifierBonuses(abilityBonuses);
+                foreach (var bonus in abilityBonuses)
                 {
-                    double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, result.SelectedAction);
-                    int totalRoll = result.ModifiedBaseRoll + result.RollBonus;
-
-                    // Check for multi-hit attacks
-                    int multiHitCount = result.SelectedAction.Advanced.MultiHitCount;
-
-                    // If multi-hit, process multiple hits; otherwise single hit
-                    if (multiHitCount > 1)
+                    string bonusType = bonus.Type.ToUpper();
+                    if (bonusType != "STR" && bonusType != "AGI" && bonusType != "TECH" && bonusType != "INT") continue;
+                    int currentBonus = bonusType switch
                     {
-                        result.Damage = MultiHitProcessor.ProcessMultiHit(
-                            source, target, result.SelectedAction, damageMultiplier, totalRoll,
-                            result.ModifiedBaseRoll, result.RollBonus, result.BaseRoll, battleNarrative);
-                    }
-                    else
-                    {
-                        // Single hit (original behavior)
-                        result.Damage = CombatCalculator.CalculateDamage(source, target, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, totalRoll);
-                        
-                        // Track enemy health before damage to detect one-shot kills
-                        int enemyHealthBeforeDamage = 0;
-                        bool wasEnemyAtFullHealth = false;
-                        if (target is Enemy enemyBeforeDamage)
-                        {
-                            enemyHealthBeforeDamage = enemyBeforeDamage.CurrentHealth;
-                            wasEnemyAtFullHealth = enemyBeforeDamage.CurrentHealth >= enemyBeforeDamage.MaxHealth;
-                        }
-                        
-                        // Handle SelfAndTarget - apply damage to both self and enemy
-                        if (result.SelectedAction.Target == TargetType.SelfAndTarget)
-                        {
-                            // Apply damage to the enemy target
-                            ActionUtilities.ApplyDamage(target, result.Damage);
-                            
-                            // Apply damage to self (source)
-                            ActionUtilities.ApplyDamage(source, result.Damage);
-                            
-                            if (!ActionExecutor.DisableCombatDebugOutput)
-                            {
-                                DebugLogger.WriteCombatDebug("ActionExecutor", $"{source.Name} dealt {result.Damage} damage to both {target.Name} and themselves with {result.SelectedAction.Name}");
-                            }
-                        }
-                        else
-                        {
-                            // Normal single target behavior
-                            ActionUtilities.ApplyDamage(target, result.Damage);
-                        }
-                        
-                        // Check for one-shot kill: enemy was at full health and died from this single action
-                        if (target is Enemy killedEnemy && killedEnemy.CurrentHealth <= 0 && wasEnemyAtFullHealth && source is Character)
-                        {
-                            result.WasOneShotKill = true;
-                            // Fire event to notify combat system
-                            OneShotKillOccurred?.Invoke();
-                        }
-
-                        if (!ActionExecutor.DisableCombatDebugOutput)
-                        {
-                        }
-
-                        // Track statistics
-                        if (source is Character sourceCharacter)
-                        {
-                            ActionStatisticsTracker.RecordAttackAction(sourceCharacter, totalRoll, result.BaseRoll, result.RollBonus, result.Damage, result.SelectedAction, target as Enemy);
-                        }
-                        if (target is Character targetCharacter)
-                        {
-                            ActionStatisticsTracker.RecordDamageReceived(targetCharacter, result.Damage);
-                        }
-                        
-                        // Track self damage if SelfAndTarget
-                        if (result.SelectedAction.Target == TargetType.SelfAndTarget && source is Character selfCharacter)
-                        {
-                            ActionStatisticsTracker.RecordDamageReceived(selfCharacter, result.Damage);
-                        }
-
-                        // Use the already-calculated IsCritical from threshold manager instead of hardcoded check
-                        ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction, result.Damage, totalRoll, result.RollBonus, true, result.IsCombo, 0, 0, result.IsCritical, result.BaseRoll, battleNarrative);
-                    }
+                        "STR" => abilityBonusCharacter.Stats.TempStrengthBonus,
+                        "AGI" => abilityBonusCharacter.Stats.TempAgilityBonus,
+                        "TECH" => abilityBonusCharacter.Stats.TempTechniqueBonus,
+                        _ => abilityBonusCharacter.Stats.TempIntelligenceBonus
+                    };
+                    abilityBonusCharacter.ApplyStatBonus(currentBonus + (int)bonus.Value, bonusType, 999);
                 }
-                else if (result.SelectedAction.Type == ActionType.Heal)
+                // Apply consumed ATTACK bonuses (stat bonuses only on hit)
+                var consumedAttack = abilityBonusCharacter.Effects.GetAndClearConsumedAttackBonusesThisRoll();
+                foreach (var bonus in consumedAttack)
                 {
-                    result.HealAmount = ActionUtilities.CalculateHealAmount(source, result.SelectedAction);
-                    ActionUtilities.ApplyHealing(target, result.HealAmount);
-
-                    if (!ActionExecutor.DisableCombatDebugOutput)
+                    string bonusType = (bonus.Type ?? "").ToUpper();
+                    if (bonusType != "STR" && bonusType != "AGI" && bonusType != "TECH" && bonusType != "INT") continue;
+                    int currentBonus = bonusType switch
                     {
-                    }
+                        "STR" => abilityBonusCharacter.Stats.TempStrengthBonus,
+                        "AGI" => abilityBonusCharacter.Stats.TempAgilityBonus,
+                        "TECH" => abilityBonusCharacter.Stats.TempTechniqueBonus,
+                        _ => abilityBonusCharacter.Stats.TempIntelligenceBonus
+                    };
+                    abilityBonusCharacter.ApplyStatBonus(currentBonus + (int)bonus.Value, bonusType, 999);
+                }
+            }
+            var hitEvent = ActionEventPublisher.PublishActionHit(
+                source, target, result.SelectedAction!, result.AttackRoll, result.IsCombo, result.IsCritical);
 
-                    if (target is Character targetCharacterHeal)
-                    {
-                        ActionStatisticsTracker.RecordHealingReceived(targetCharacterHeal, result.HealAmount);
-                    }
-
-                    int totalRoll = result.BaseRoll + result.RollBonus;
-                    ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction, 0, totalRoll, result.RollBonus, true, result.IsCombo, 0, result.HealAmount, false, result.BaseRoll, battleNarrative);
+            if (result.SelectedAction!.Type == ActionType.Attack || result.SelectedAction.Type == ActionType.Spell)
+            {
+                double damageMultiplier = ActionUtilities.CalculateDamageMultiplier(source, result.SelectedAction);
+                int totalRoll = result.ModifiedBaseRoll + result.RollBonus;
+                int multiHitCount = result.SelectedAction.Advanced.MultiHitCount;
+                if (source is Character multiHitCharacter && multiHitCharacter.Effects.ConsumedMultiHitMod != 0)
+                    multiHitCount = Math.Max(1, multiHitCount + (int)Math.Max(0, multiHitCharacter.Effects.ConsumedMultiHitMod));
+                if (multiHitCount > 1)
+                {
+                    result.Damage = MultiHitProcessor.ProcessMultiHit(
+                        source, target, result.SelectedAction, damageMultiplier, totalRoll,
+                        result.ModifiedBaseRoll, result.RollBonus, result.BaseRoll, battleNarrative);
                 }
                 else
                 {
-                    // For non-damage actions
-                    ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction, 0, result.ModifiedBaseRoll + result.RollBonus, result.RollBonus, true, result.IsCombo, 0, 0, false, result.BaseRoll, battleNarrative);
-                }
-
-                // Apply status effects (with conditional support)
-                CombatEffectsSimplified.ApplyStatusEffects(result.SelectedAction, source, target, result.StatusEffectMessages, hitEvent);
-
-                // Apply enemy roll penalty if the action has one
-                if (result.SelectedAction.Advanced.EnemyRollPenalty > 0 && target is Enemy targetEnemy)
-                {
-                    targetEnemy.ApplyRollPenalty(result.SelectedAction.Advanced.EnemyRollPenalty, 1);
-                    result.StatusEffectMessages.Add($"    {target.Name} suffers a -{result.SelectedAction.Advanced.EnemyRollPenalty} roll penalty!");
-                }
-
-                // Apply roll bonus with duration to source if the action has one (only for characters, not enemies)
-                if (result.SelectedAction.Advanced.RollBonusDuration > 0 &&
-                    source is Character rollBonusCharacter && !(rollBonusCharacter is Enemy))
-                {
-                    // Set temporary roll bonus that will apply to the next N rolls
-                    rollBonusCharacter.Effects.SetTempRollBonus(
-                        result.SelectedAction.Advanced.RollBonus,
-                        result.SelectedAction.Advanced.RollBonusDuration);
-                }
-
-                // Apply stat bonus to source if the action has one (only for characters, not enemies)
-                if (result.SelectedAction.Advanced.StatBonus > 0 && 
-                    !string.IsNullOrEmpty(result.SelectedAction.Advanced.StatBonusType) &&
-                    source is Character statBonusCharacter && !(statBonusCharacter is Enemy))
-                {
-                    // Get current bonus and add to it (stacking)
-                    int currentBonus = 0;
-                    string statType = result.SelectedAction.Advanced.StatBonusType.ToUpper();
-                    switch (statType)
+                    result.Damage = CombatCalculator.CalculateDamage(source, target, result.SelectedAction, damageMultiplier, 1.0, result.RollBonus, totalRoll);
+                    if (result.SelectedAction.Target == TargetType.SelfAndTarget)
                     {
-                        case "STR":
-                            currentBonus = statBonusCharacter.Stats.TempStrengthBonus;
-                            break;
-                        case "AGI":
-                            currentBonus = statBonusCharacter.Stats.TempAgilityBonus;
-                            break;
-                        case "TEC":
-                            currentBonus = statBonusCharacter.Stats.TempTechniqueBonus;
-                            break;
-                        case "INT":
-                            currentBonus = statBonusCharacter.Stats.TempIntelligenceBonus;
-                            break;
-                    }
-                    
-                    // Add the new bonus to the existing one
-                    int newBonus = currentBonus + result.SelectedAction.Advanced.StatBonus;
-                    int duration = result.SelectedAction.Advanced.StatBonusDuration > 0 
-                        ? result.SelectedAction.Advanced.StatBonusDuration 
-                        : 999; // Default to dungeon duration if not specified
-                    
-                    statBonusCharacter.ApplyStatBonus(newBonus, statType, duration);
-                    
-                    // Stat bonus message is now handled by ActionStatusEffectApplier.ApplyStatBonusColored
-                }
-
-                // Check for enemy death and HP thresholds
-                if (target is Enemy enemyTarget)
-                {
-                    // Check for death
-                    if (enemyTarget.CurrentHealth <= 0)
-                    {
-                        ActionEventPublisher.PublishEnemyDeath(source, target, result.SelectedAction, result.Damage);
+                        ActionUtilities.ApplyDamage(target, result.Damage);
+                        ActionUtilities.ApplyDamage(source, result.Damage);
                     }
                     else
+                        ActionUtilities.ApplyDamage(target, result.Damage);
+                    if (source is Character sourceCharacter)
+                        ActionStatisticsTracker.RecordAttackAction(sourceCharacter, totalRoll, result.BaseRoll, result.RollBonus, result.Damage, result.SelectedAction, target as Enemy);
+                    if (target is Character targetCharacter)
+                        ActionStatisticsTracker.RecordDamageReceived(targetCharacter, result.Damage);
+                    if (result.SelectedAction.Target == TargetType.SelfAndTarget && source is Character selfCharacter)
+                        ActionStatisticsTracker.RecordDamageReceived(selfCharacter, result.Damage);
+                    ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction, result.Damage, totalRoll, result.RollBonus, true, result.IsCombo, 0, 0, result.IsCritical, result.BaseRoll, battleNarrative);
+                }
+            }
+            else if (result.SelectedAction.Type == ActionType.Heal)
+            {
+                result.HealAmount = ActionUtilities.CalculateHealAmount(source, result.SelectedAction);
+                ActionUtilities.ApplyHealing(target, result.HealAmount);
+                if (target is Character targetCharacterHeal)
+                    ActionStatisticsTracker.RecordHealingReceived(targetCharacterHeal, result.HealAmount);
+                ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction, 0, result.BaseRoll + result.RollBonus, result.RollBonus, true, result.IsCombo, 0, result.HealAmount, false, result.BaseRoll, battleNarrative);
+            }
+            else
+            {
+                ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction, 0, result.ModifiedBaseRoll + result.RollBonus, result.RollBonus, true, result.IsCombo, 0, 0, false, result.BaseRoll, battleNarrative);
+            }
+
+            if (result.SelectedAction.ActionAttackBonuses != null && source is Character bonusSourceCharacter && !(bonusSourceCharacter is Enemy))
+            {
+                bonusSourceCharacter.Effects.AddActionAttackBonuses(result.SelectedAction.ActionAttackBonuses);
+                // Add ACTION cadence bonuses to next slot (slot-based; stacking when we miss and retry)
+                if (result.IsCombo && result.SelectedAction.IsComboAction)
+                {
+                    var comboActions = ActionUtilities.GetComboActions(bonusSourceCharacter);
+                    int comboLength = comboActions.Count;
+                    if (comboLength > 0)
                     {
-                        // Check for HP thresholds (50%, 25%, 10%)
-                        double healthPercentage = (double)enemyTarget.CurrentHealth / enemyTarget.MaxHealth;
-                        if (healthPercentage <= 0.5 && healthPercentage > 0.25)
+                        int nextSlot = (bonusSourceCharacter.ComboStep + 1) % comboLength;
+                        foreach (var group in result.SelectedAction.ActionAttackBonuses.BonusGroups)
                         {
-                            ActionEventPublisher.PublishHealthThreshold(source, target, result.SelectedAction, 0.5);
-                        }
-                        else if (healthPercentage <= 0.25 && healthPercentage > 0.1)
-                        {
-                            ActionEventPublisher.PublishHealthThreshold(source, target, result.SelectedAction, 0.25);
-                        }
-                        else if (healthPercentage <= 0.1)
-                        {
-                            ActionEventPublisher.PublishHealthThreshold(source, target, result.SelectedAction, 0.1);
+                            var ct = string.IsNullOrEmpty(group.CadenceType) ? group.Keyword : group.CadenceType;
+                            if (ct != "ACTION" || group.Bonuses == null) continue;
+                            for (int i = 0; i < group.Count; i++)
+                                bonusSourceCharacter.Effects.AddPendingActionBonuses(nextSlot, group.Bonuses);
                         }
                     }
                 }
-
-                // Handle combo advancement for characters based on roll value
-                // Start at step 0 (initial state, first action, no bonus)
-                // Step 0: Roll 14+ → go to step 1 (bonus applies at step 1)
-                // Step 1: Roll 14+ → go to step 2 (bonus continues, more bonus at step 2)
-                // Step 1: Roll < 14 → reset to step 0 (bonus resets, stay in combo mode)
-                // Step 2+: Roll 14+ → continue to next step (bonus continues)
-                // Step 2+: Roll < 14 → reset to step 0 (bonus resets, stay in combo mode)
-                if (source is Character comboCharacter && !(comboCharacter is Enemy))
+            }
+            if (source is Character modSourceCharacter && !(modSourceCharacter is Enemy))
+            {
+                int? nextSlotForAbilityMod = null;
+                if (result.IsCombo && result.SelectedAction.IsComboAction
+                    && string.Equals(result.SelectedAction.Cadence?.Trim(), "Ability", StringComparison.OrdinalIgnoreCase))
                 {
-                    int comboThreshold = GameConfiguration.Instance.RollSystem.ComboThreshold.Min; // 14
-                    
-                    if (comboCharacter.ComboStep == 0)
-                    {
-                        // At step 0 (first action), need 14+ to advance to step 1
-                        if (result.AttackRoll >= comboThreshold)
-                        {
-                            // Advance to step 1 with routing support
-                            comboCharacter.IncrementComboStep(result.SelectedAction);
-                        }
-                        // If < 14, stay at step 0 (no bonus, but still in combo mode)
-                    }
-                    else if (comboCharacter.ComboStep == 1)
-                    {
-                        // At step 1 (second action, bonus applies), need 14+ to advance to step 2 (more bonus)
-                        if (result.AttackRoll >= comboThreshold)
-                        {
-                            // Advance to step 2 with routing support
-                            comboCharacter.IncrementComboStep(result.SelectedAction);
-                        }
-                        else
-                        {
-                            // Didn't get 14+, reset to step 0 (bonus resets, but stay in combo mode)
-                            comboCharacter.ComboStep = 0;
-                        }
-                    }
-                    else if (comboCharacter.ComboStep >= 2)
-                    {
-                        // At step 2 or higher, need 14+ to continue combo
-                        if (result.AttackRoll >= comboThreshold)
-                        {
-                            // Combo continues - increment with routing support
-                            comboCharacter.IncrementComboStep(result.SelectedAction);
-                        }
-                        else
-                        {
-                            // Didn't get 14+, reset to step 0 (bonus resets, but stay in combo mode)
-                            comboCharacter.ComboStep = 0;
-                        }
-                    }
+                    var comboActions = ActionUtilities.GetComboActions(modSourceCharacter);
+                    if (comboActions.Count > 0)
+                        nextSlotForAbilityMod = (modSourceCharacter.ComboStep + 1) % comboActions.Count;
+                }
+                modSourceCharacter.Effects.AddModifierBonusesFromAction(result.SelectedAction, nextSlotForAbilityMod);
+            }
+            CombatEffectsSimplified.ApplyStatusEffects(result.SelectedAction, source, target, result.StatusEffectMessages, hitEvent);
+
+            if (result.SelectedAction.Name == "FOLLOW THROUGH" && source is Character followThroughCharacter && !(followThroughCharacter is Enemy))
+            {
+                followThroughCharacter.Effects.NextAttackDamageMultiplier = 3.0;
+                var followStatEntries = GetStatBonusEntries(result.SelectedAction);
+                var firstFollow = followStatEntries.Count > 0 ? followStatEntries[0] : null;
+                if (firstFollow != null && (firstFollow.Value != 0 || !string.IsNullOrEmpty(firstFollow.Type)))
+                {
+                    followThroughCharacter.Effects.NextAttackStatBonus = firstFollow.Value;
+                    followThroughCharacter.Effects.NextAttackStatBonusType = firstFollow.Type;
+                    followThroughCharacter.Effects.NextAttackStatBonusDuration = CadenceToStatBonusDuration(result.SelectedAction.Cadence);
                 }
             }
             else
             {
-                // Publish miss event
-                ActionEventPublisher.PublishActionMiss(source, target, result.SelectedAction, result.AttackRoll);
-
-                // Track miss statistics for player
-                if (source is Character characterMiss)
+                var statEntries = GetStatBonusEntries(result.SelectedAction);
+                if (statEntries.Count > 0 && source is Character statBonusCharacter && !(statBonusCharacter is Enemy))
                 {
-                    ActionStatisticsTracker.RecordMissAction(characterMiss, result.BaseRoll, result.RollBonus);
+                    int duration = CadenceToStatBonusDuration(result.SelectedAction.Cadence);
+                    foreach (var entry in statEntries)
+                    {
+                        if (entry.Value == 0 && string.IsNullOrEmpty(entry.Type)) continue;
+                        string statType = (entry.Type ?? "").ToUpper();
+                        if (string.IsNullOrEmpty(statType)) continue;
+                        int currentBonus = statType switch
+                        {
+                            "STR" or "STRENGTH" => statBonusCharacter.Stats.TempStrengthBonus,
+                            "AGI" or "AGILITY" => statBonusCharacter.Stats.TempAgilityBonus,
+                            "TEC" or "TECH" or "TECHNIQUE" => statBonusCharacter.Stats.TempTechniqueBonus,
+                            "INT" or "INTELLIGENCE" => statBonusCharacter.Stats.TempIntelligenceBonus,
+                            _ => -1
+                        };
+                        if (currentBonus < 0) continue;
+                        statBonusCharacter.ApplyStatBonus(currentBonus + entry.Value, statType, duration);
+                    }
                 }
-                
-                // Reset combo step to step 0 on miss (for characters, not enemies)
-                // Step 0 is the initial combo state (first action, no bonus, but ready for combo)
-                if (source is Character comboCharacterMiss && !(comboCharacterMiss is Enemy))
-                {
-                    comboCharacterMiss.ComboStep = 0;
-                }
-
-                ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction, 0, result.ModifiedBaseRoll + result.RollBonus, result.RollBonus, false, false, 0, 0, false, result.BaseRoll, battleNarrative);
             }
 
-            return result;
+            if (target is Enemy enemyTarget)
+            {
+                if (enemyTarget.CurrentHealth <= 0)
+                    ActionEventPublisher.PublishEnemyDeath(source, target, result.SelectedAction, result.Damage);
+                else
+                {
+                    double healthPercentage = (double)enemyTarget.CurrentHealth / enemyTarget.MaxHealth;
+                    var thresholds = GetHealthThresholds(result.SelectedAction);
+                    var candidates = thresholds.Where(t => t >= healthPercentage).OrderBy(t => t).ToList();
+                    if (candidates.Count > 0)
+                        ActionEventPublisher.PublishHealthThreshold(source, target, result.SelectedAction, candidates[0]);
+                }
+            }
+
+            if (source is Character comboCharacter && !(comboCharacter is Enemy))
+            {
+                int comboThreshold = GameConfiguration.Instance.RollSystem.ComboThreshold.Min;
+                // Only advance combo step when the executed action was a combo action (prevents skipping slots on normal attacks)
+                if (result.SelectedAction.IsComboAction)
+                {
+                    if (comboCharacter.ComboStep == 0)
+                    {
+                        if (result.AttackRoll >= comboThreshold)
+                            comboCharacter.IncrementComboStep(result.SelectedAction);
+                    }
+                    else if (comboCharacter.ComboStep == 1)
+                    {
+                        if (result.AttackRoll >= comboThreshold)
+                            comboCharacter.IncrementComboStep(result.SelectedAction);
+                        else
+                            comboCharacter.ComboStep = 0;
+                    }
+                    else if (comboCharacter.ComboStep >= 2)
+                    {
+                        if (result.AttackRoll >= comboThreshold)
+                            comboCharacter.IncrementComboStep(result.SelectedAction);
+                        else
+                            comboCharacter.ComboStep = 0;
+                    }
+                }
+                else if (result.SelectedAction.Type == ActionType.Attack || result.SelectedAction.Type == ActionType.Spell)
+                {
+                    // A completed normal (non-combo) attack breaks the chain — start the combo sequence over
+                    comboCharacter.ResetCombo();
+                }
+            }
+        }
+
+        private static void ApplyMissOutcome(Actor source, Actor target, ActionExecutionResult result, BattleNarrative? battleNarrative)
+        {
+            if (source is Character modMissCharacter && !(modMissCharacter is Enemy))
+            {
+                // Ability cadence: modifier bonuses apply only when the next ability succeeds; skip on miss
+                if (!string.Equals(result.SelectedAction!.Cadence?.Trim(), "Ability", StringComparison.OrdinalIgnoreCase))
+                    modMissCharacter.Effects.AddModifierBonusesFromAction(result.SelectedAction);
+                modMissCharacter.Effects.GetAndClearConsumedAttackBonusesThisRoll(); // Discard; ATTACK bonuses consumed on roll but not applied on miss
+            }
+            ActionEventPublisher.PublishActionMiss(source, target, result.SelectedAction!, result.AttackRoll);
+            if (source is Character characterMiss)
+                ActionStatisticsTracker.RecordMissAction(characterMiss, result.BaseRoll, result.RollBonus);
+            if (source is Character comboCharacterMiss && !(comboCharacterMiss is Enemy))
+                comboCharacterMiss.ComboStep = 0;
+            ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction!, 0, result.ModifiedBaseRoll + result.RollBonus, result.RollBonus, false, false, 0, 0, false, result.BaseRoll, battleNarrative);
         }
     }
 }

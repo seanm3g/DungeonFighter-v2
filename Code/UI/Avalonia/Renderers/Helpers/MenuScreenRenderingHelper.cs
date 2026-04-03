@@ -12,9 +12,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
     public class MenuScreenRenderingHelper
     {
         private readonly GameCanvasControl canvas;
-        private readonly LayoutCoordinator layoutCoordinator;
+        private readonly PersistentLayoutRenderCoordinator layoutCoordinator;
 
-        public MenuScreenRenderingHelper(GameCanvasControl canvas, LayoutCoordinator layoutCoordinator)
+        public MenuScreenRenderingHelper(GameCanvasControl canvas, PersistentLayoutRenderCoordinator layoutCoordinator)
         {
             this.canvas = canvas ?? throw new ArgumentNullException(nameof(canvas));
             this.layoutCoordinator = layoutCoordinator ?? throw new ArgumentNullException(nameof(layoutCoordinator));

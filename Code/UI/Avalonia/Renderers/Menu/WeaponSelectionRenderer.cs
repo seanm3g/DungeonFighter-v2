@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Avalonia.Media;
 using RPGGame;
 using RPGGame.UI;
@@ -31,24 +32,55 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         /// </summary>
         public int RenderWeaponSelectionContent(int x, int y, int width, int height, List<StartingWeapon> weapons)
         {
+            
             // Calculate content box dimensions
             int boxPadding = 4;
             int boxWidth = Math.Min(60, width - boxPadding * 2);
-            int contentHeight = 3 + (weapons.Count * 4) + 3; // Title + weapons + instructions
-            int boxHeight = contentHeight + 2; // Add padding
+            // Calculate height to include title (3 lines) + spacing (2) + all weapons (4 lines each) + separator (1) + instructions (2)
+            // Each weapon takes: 1 line for name/number + 1 line for stats + 2 lines spacing = 4 lines total
+            int titleHeight = 3; // top line + title + bottom line
+            int titleSpacing = 2; // spacing after title
+            int weaponsHeight = weapons != null ? weapons.Count * 4 : 0; // 4 lines per weapon
+            int separatorHeight = 1; // separator line
+            int instructionsHeight = 2; // instructions + spacing
+            int contentHeight = titleHeight + titleSpacing + weaponsHeight + separatorHeight + instructionsHeight;
+            int boxHeight = contentHeight + 4; // Add padding: 2 lines top + 2 lines bottom to avoid border overlap
             
-            // Center the box
+            // Center the box, but ensure it doesn't go above the viewport
             int boxX = MenuLayoutCalculator.CalculateCenteredTextX(x, width, boxWidth);
             int boxY = y + (height / 2) - (boxHeight / 2);
             
-            // Draw decorative border box
-            canvas.AddBox(boxX, boxY, boxWidth, boxHeight, AsciiArtAssets.Colors.Gold);
+            // Ensure minimum top margin to prevent text from being clipped or covered
+            // The center panel border is at Y=0, and content area starts at Y=1
+            // We need significant clearance to ensure the box border doesn't overlap with center panel border
+            // and to ensure text inside the box has proper clearance from both borders
+            int minTopMargin = 4; // Increased from 2 to provide more clearance
+            if (boxY < y + minTopMargin)
+            {
+                boxY = y + minTopMargin;
+            }
             
-            // Calculate content area inside box
+            // Ensure box doesn't extend below the available height
+            if (boxY + boxHeight > y + height)
+            {
+                boxY = (y + height) - boxHeight;
+                // If box is still too tall, ensure it starts at minimum margin
+                if (boxY < y + minTopMargin)
+                {
+                    boxY = y + minTopMargin;
+                }
+            }
+            
+            // Calculate content area inside box (calculate before drawing box)
+            // Start content 2 lines inside box to ensure text doesn't get covered by border
             int contentX = boxX + 2;
-            int contentY = boxY + 1;
+            int contentY = boxY + 2; // 2 lines padding from top border
             int contentWidth = boxWidth - 4;
             int currentY = contentY;
+            
+            
+            // Draw decorative border box AFTER calculating positions to ensure proper spacing
+            canvas.AddBox(boxX, boxY, boxWidth, boxHeight, AsciiArtAssets.Colors.Gold);
             
             // Title with decorative styling
             string title = "Choose your starting weapon";
@@ -66,15 +98,22 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             
             // Decorative line below title
             canvas.AddText(topLineX, currentY, topLine, AsciiArtAssets.Colors.Gold);
-            currentY += 2;
+            currentY++;
+            
+            // Add spacing after title (as calculated in box height)
+            currentY += titleSpacing;
             
             // Find max weapon display text length for centering
             int maxLength = 0;
-            foreach (var weapon in weapons)
+            if (weapons != null)
             {
-                string displayText = MenuOptionFormatter.Format(weapons.IndexOf(weapon) + 1, weapon.name);
-                if (displayText.Length > maxLength)
-                    maxLength = displayText.Length;
+                foreach (var weapon in weapons)
+                {
+                    string weaponName = string.IsNullOrWhiteSpace(weapon.name) ? $"Weapon {weapons.IndexOf(weapon) + 1}" : weapon.name;
+                    string displayText = MenuOptionFormatter.Format(weapons.IndexOf(weapon) + 1, weaponName);
+                    if (displayText.Length > maxLength)
+                        maxLength = displayText.Length;
+                }
             }
             
             // Weapon color scheme - different colors for visual variety
@@ -86,12 +125,23 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 AsciiArtAssets.Colors.Purple   // Wand
             };
             
-            // Render weapon options with fancy styling
+            // Verify we have weapons to render
+            if (weapons == null || weapons.Count == 0)
+            {
+                canvas.AddText(contentX, currentY, "No weapons available", AsciiArtAssets.Colors.Red);
+                return currentY - y + 2;
+            }
+            
+            // Render all weapons
             for (int i = 0; i < weapons.Count; i++)
             {
                 var weapon = weapons[i];
-                int weaponNum = i + 1;
-                string displayText = MenuOptionFormatter.Format(weaponNum, weapon.name);
+                int weaponNum = i + 1; // First weapon (index 0) should be numbered [1]
+                
+                // Ensure weapon name is not null or empty - use fallback if needed
+                string weaponName = string.IsNullOrWhiteSpace(weapon.name) ? $"Weapon {weaponNum}" : weapon.name;
+                
+                string displayText = MenuOptionFormatter.Format(weaponNum, weaponName);
                 
                 // Center each weapon option
                 int optionX = MenuLayoutCalculator.CalculateCenteredTextX(contentX, contentWidth, maxLength);
@@ -116,7 +166,12 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 
                 // Display weapon option with color
                 Color weaponColor = option.IsHovered ? AsciiArtAssets.Colors.White : weaponColors[i % weaponColors.Length];
-                canvas.AddMenuOption(optionX, currentY, weaponNum, weapon.name, weaponColor, option.IsHovered);
+                
+                // Render menu option - render number first, then name
+                string numberText = $"[{weaponNum}]";
+                canvas.AddText(optionX, currentY, numberText, weaponColor);
+                int nameX = optionX + numberText.Length + 1;
+                canvas.AddText(nameX, currentY, weaponName ?? "", option.IsHovered ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.White);
                 currentY++;
                 
                 // Weapon stats with better formatting
@@ -136,6 +191,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
                 canvas.AddText(speedStart, currentY, speedText, AsciiArtAssets.Colors.Blue);
                 currentY += 2;
             }
+            
             
             // Decorative separator before instructions
             currentY++;

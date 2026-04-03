@@ -55,7 +55,8 @@ namespace RPGGame.UI.BlockDisplay
             }
             
             // Add critical miss narrative
-            // Critical miss narratives get keyword coloring and blank lines before/after (same as regular narratives)
+            // Critical miss narratives get keyword coloring and blank line before (same as regular narratives)
+            // Note: Blank line after removed - TextSpacingSystem handles spacing between action blocks
             if (criticalMissNarrative != null && criticalMissNarrative.Count > 0)
             {
                 // Add blank line before narrative
@@ -72,15 +73,14 @@ namespace RPGGame.UI.BlockDisplay
                 // Add the keyword-colored narrative
                 messageGroups.Add((darkenedNarrative, UIMessageType.System));
                 
-                // Add blank line after narrative
-                messageGroups.Add((new List<ColoredText>(), UIMessageType.System));
+                // Note: Blank line after narrative removed - TextSpacingSystem handles spacing between action blocks
             }
             
             // Add status effects
             // Multiple status effects from one action should be grouped together:
             // - No blank lines between them
             // - All effects use 5-space indentation to match roll info
-            // - Blank line after the last status effect
+            // Note: Blank line after status effects removed - TextSpacingSystem handles spacing between action blocks
             if (statusEffects != null && statusEffects.Count > 0)
             {
                 var combinedStatusEffects = new List<ColoredText>();
@@ -109,21 +109,19 @@ namespace RPGGame.UI.BlockDisplay
                 {
                     var darkenedStatusEffects = DarkenColors(combinedStatusEffects);
                     messageGroups.Add((darkenedStatusEffects, UIMessageType.EffectMessage));
-                    // Note: Blank line after status effects will be added after narratives (if present)
-                    // or at the end if no narratives, to ensure it appears before the next character's action
+                    // Note: Blank line after status effects removed - TextSpacingSystem handles spacing between action blocks
                 }
             }
             
             // Add all narratives (all part of the same turn block)
-            // Narratives get keyword coloring and blank lines before/after
-            bool hasNarratives = false;
+            // Narratives get keyword coloring and blank line before
+            // Note: Blank line after removed - TextSpacingSystem handles spacing between action blocks
             if (narratives != null)
             {
                 foreach (var narrative in narratives)
                 {
                     if (narrative != null && narrative.Count > 0)
                     {
-                        hasNarratives = true;
                         // Add blank line before narrative
                         messageGroups.Add((new List<ColoredText>(), UIMessageType.System));
                         
@@ -138,18 +136,12 @@ namespace RPGGame.UI.BlockDisplay
                         // Add the keyword-colored narrative
                         messageGroups.Add((darkenedNarrative, UIMessageType.System));
                         
-                        // Add blank line after narrative
-                        messageGroups.Add((new List<ColoredText>(), UIMessageType.System));
+                        // Note: Blank line after narrative removed - TextSpacingSystem handles spacing between action blocks
                     }
                 }
             }
             
-            // Add blank line after status effects (if present) to separate from next character's action
-            // Only add if no narratives are present, since narratives already add a blank line at the end
-            if (statusEffects != null && statusEffects.Count > 0 && !hasNarratives)
-            {
-                messageGroups.Add((new List<ColoredText>(), UIMessageType.System));
-            }
+            // Note: Blank line after status effects removed - TextSpacingSystem handles spacing between action blocks
             
             return messageGroups;
         }

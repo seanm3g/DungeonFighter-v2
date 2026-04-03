@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text.Json;
 using RPGGame;
 using Avalonia;
@@ -6,6 +7,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using RPGGame.UI.Avalonia;
 using RPGGame.Utils;
+using RPGGame.Data;
 
 namespace RPGGame
 {
@@ -71,13 +73,47 @@ namespace RPGGame
                     return;
                 }
 
-                // Check if test mode is requested
+                // Check if unit test suite is requested (run-tests.bat / run-tests.ps1)
+                if (args.Length > 0 && (args[0] == "--run-tests" || args.Any(a => a == "--run-tests")))
+                {
+                    executionMode = "TEST";
+                    BuildExecutionMetrics.RecordLaunchTime("TEST");
+                    RPGGame.Tests.Runners.ComprehensiveTestRunner.RunAllTests();
+                    return;
+                }
+
+                // Check if test mode is requested (battle comparison)
                 if (args.Length > 0 && args[0] == "TEST")
                 {
                     executionMode = "TEST";
                     BuildExecutionMetrics.RecordLaunchTime("TEST");
                     // Run test battle comparison
                     await RPGGame.Tests.TestBattleComparison.Main(args);
+                    return;
+                }
+
+                // Check if parse mode is requested (for spreadsheet parser)
+                if (args.Length > 0 && args[0].Equals("PARSE", StringComparison.OrdinalIgnoreCase))
+                {
+                    executionMode = "PARSE";
+                    BuildExecutionMetrics.RecordLaunchTime("PARSE");
+                    // Run spreadsheet parser
+                    // Default to Google Sheets URL, fallback to local file
+                    string csvPathOrUrl = args.Length > 1 ? args[1] : "https://docs.google.com/spreadsheets/d/e/2PACX-1vTD25Fiu9OIwSaBildDnGlE8aaouIyTjO6XlFqgY5XdSwgOh462ZcVueJKsbb4kSQ/pub?gid=2020359111&single=true&output=csv";
+                    string outputPath = args.Length > 2 ? args[2] : "GameData/Actions.json";
+                    await RPGGame.Data.SpreadsheetParserRunner.ParseAndGenerateAsync(csvPathOrUrl, outputPath);
+                    return;
+                }
+
+                // Check if update actions mode is requested (for updating from Google Sheets)
+                if (args.Length > 0 && args[0].Equals("UPDATE_ACTIONS", StringComparison.OrdinalIgnoreCase))
+                {
+                    executionMode = "UPDATE_ACTIONS";
+                    BuildExecutionMetrics.RecordLaunchTime("UPDATE_ACTIONS");
+                    // Update Actions.json from Google Sheets
+                    string? googleSheetsUrl = args.Length > 1 ? args[1] : null;
+                    string? outputPath = args.Length > 2 ? args[2] : null;
+                    await RPGGame.Data.ActionUpdateService.UpdateFromGoogleSheetsAsync(googleSheetsUrl, outputPath);
                     return;
                 }
 
@@ -154,17 +190,6 @@ namespace RPGGame
             }
         }
 
-        // Synchronous version for backward compatibility
-        // NOTE: This method is deprecated. Use CreateFallbackWeaponAsync instead for proper async handling.
-        // This synchronous wrapper blocks the calling thread and should not be used in UI contexts.
-        [Obsolete("Use CreateFallbackWeaponAsync instead. This method blocks the calling thread and may freeze the UI.")]
-        public static WeaponItem? CreateFallbackWeapon(int playerLevel)
-        {
-            // For backward compatibility only - callers should migrate to async version
-            // Using ConfigureAwait(false) to avoid deadlocks, but this still blocks
-            return CreateFallbackWeaponAsync(playerLevel).ConfigureAwait(false).GetAwaiter().GetResult();
-        }
-        
         public static string? FindGameDataFile(string fileName)
         {
             // Try current directory first

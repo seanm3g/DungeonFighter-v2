@@ -47,9 +47,7 @@ namespace RPGGame
         private static readonly string[] PossibleEnemyPaths = {
             Path.Combine("GameData", "Enemies.json"),
             Path.Combine("..", "GameData", "Enemies.json"),
-            Path.Combine("..", "..", "GameData", "Enemies.json"),
-            Path.Combine("DF4 - CONSOLE", "GameData", "Enemies.json"),
-            Path.Combine("..", "DF4 - CONSOLE", "GameData", "Enemies.json")
+            Path.Combine("..", "..", "GameData", "Enemies.json")
         };
 
         public static void LoadEnemies()

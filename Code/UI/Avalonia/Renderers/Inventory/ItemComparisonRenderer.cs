@@ -115,6 +115,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 RenderItemBonuses(newItem, rightColumnX, rightY, columnWidth, ref rightY, ref currentLineCount);
             }
             
+            // Render action changes comparison
+            RenderActionChanges(character, newItem, currentItem, leftColumnX, rightColumnX, ref leftY, ref rightY, ref currentLineCount);
+            
             // Options at bottom
             y = startY + height - 6;
             canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader("CHOOSE:"), AsciiArtAssets.Colors.Gold);
@@ -191,6 +194,53 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 modsBuilder.Add(string.Join(", ", modTexts), Colors.White);
                 textWriter.RenderSegments(modsBuilder.Build(), x, currentY);
                 currentY++;
+                lineCount++;
+            }
+        }
+        
+        /// <summary>
+        /// Renders action changes when equipping new item (added in green, removed in red)
+        /// </summary>
+        private void RenderActionChanges(Character character, Item newItem, Item? currentItem, int leftColumnX, int rightColumnX, ref int leftY, ref int rightY, ref int lineCount)
+        {
+            // Get actions from both items
+            var currentItemActions = currentItem != null 
+                ? character.Equipment.GetGearActions(currentItem).Distinct().ToList() 
+                : new List<string>();
+            var newItemActions = character.Equipment.GetGearActions(newItem).Distinct().ToList();
+            
+            // Find added and removed actions
+            var addedActions = newItemActions.Except(currentItemActions).ToList();
+            var removedActions = currentItemActions.Except(newItemActions).ToList();
+            
+            // Only render if there are changes
+            if (addedActions.Count == 0 && removedActions.Count == 0)
+                return;
+            
+            // Add spacing
+            leftY++;
+            rightY++;
+            lineCount++;
+            
+            // Render removed actions in red (left column - current item)
+            if (removedActions.Count > 0)
+            {
+                var removedBuilder = new ColoredTextBuilder();
+                removedBuilder.Add("Actions: ", ColorPalette.Cyan);
+                removedBuilder.Add(string.Join(", ", removedActions), ColorPalette.Error);
+                textWriter.RenderSegments(removedBuilder.Build(), leftColumnX, leftY);
+                leftY++;
+                lineCount++;
+            }
+            
+            // Render added actions in green (right column - new item)
+            if (addedActions.Count > 0)
+            {
+                var addedBuilder = new ColoredTextBuilder();
+                addedBuilder.Add("Actions: ", ColorPalette.Cyan);
+                addedBuilder.Add(string.Join(", ", addedActions), ColorPalette.Success);
+                textWriter.RenderSegments(addedBuilder.Build(), rightColumnX, rightY);
+                rightY++;
                 lineCount++;
             }
         }

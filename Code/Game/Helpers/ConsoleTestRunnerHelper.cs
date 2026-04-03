@@ -4,6 +4,7 @@ namespace RPGGame
     using System.IO;
     using System.Threading.Tasks;
     using RPGGame.UI.Avalonia;
+    using RPGGame.Tests;
 
     /// <summary>
     /// Helper class for running tests that output to console and capturing their output for UI display.
@@ -47,11 +48,17 @@ namespace RPGGame
 
                     try
                     {
+                        // Set flag to skip user prompts in UI mode
+                        TestHarnessBase.SkipUserPrompts = true;
+                        
                         // Run the test in a background task
                         await Task.Run(() =>
                         {
                             testAction();
                         });
+                        
+                        // Reset flag after test completes
+                        TestHarnessBase.SkipUserPrompts = false;
 
                         string output = stringWriter.ToString();
 

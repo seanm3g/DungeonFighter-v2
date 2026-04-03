@@ -1,20 +1,20 @@
 {
   "character": {
-    "playerBaseHealth": 0,
-    "healthPerLevel": 0,
+    "playerBaseHealth": 60,
+    "healthPerLevel": 3,
     "enemyHealthPerLevel": 0
   },
   "attributes": {
     "playerBaseAttributes": {
-      "strength": 0,
-      "agility": 0,
-      "technique": 0,
-      "intelligence": 0
+      "strength": 3,
+      "agility": 3,
+      "technique": 3,
+      "intelligence": 3
     },
-    "playerAttributesPerLevel": 0,
-    "enemyAttributesPerLevel": 0,
-    "enemyPrimaryAttributeBonus": 0,
-    "intelligenceRollBonusPer": 0
+    "playerAttributesPerLevel": 2,
+    "enemyAttributesPerLevel": 2,
+    "enemyPrimaryAttributeBonus": 1,
+    "intelligenceRollBonusPer": 5
   },
   "progression": {
     "baseXPToLevel2": 0,
@@ -69,24 +69,24 @@
   },
   "combat": {
     "criticalHitThreshold": 20,
-    "criticalHitMultiplier": 1.35,
+    "criticalHitMultiplier": 2,
     "minimumDamage": 1,
-    "baseAttackTime": 10.0,
-    "agilitySpeedReduction": 0.1,
-    "minimumAttackTime": 0.5,
+    "baseAttackTime": 8,
+    "agilitySpeedReduction": 0.01,
+    "minimumAttackTime": 0.08,
     "agilityMin": 1,
     "agilityMax": 100,
-    "agilityMinSpeedMultiplier": 0.95,
-    "agilityMaxSpeedMultiplier": 0.7
+    "agilityMinSpeedMultiplier": 0.99,
+    "agilityMaxSpeedMultiplier": 0.01
   },
   "combatBalance": {
     "criticalHitChance": 0.05,
-    "criticalHitDamageMultiplier": 1.5,
+    "criticalHitDamageMultiplier": 2,
     "rollDamageMultipliers": {
-      "comboRollDamageMultiplier": 1.1,
-      "basicRollDamageMultiplier": 1.0,
-      "comboAmplificationScalingMultiplier": 1.5,
-      "tierScalingFallbackMultiplier": 1.0
+      "comboRollDamageMultiplier": 1.2,
+      "basicRollDamageMultiplier": 1,
+      "comboAmplificationScalingMultiplier": 1,
+      "tierScalingFallbackMultiplier": 1
     },
     "statusEffectScaling": {
       "bleedDuration": 0,
@@ -106,23 +106,23 @@
   },
   "rollSystem": {
     "missThreshold": {
-      "min": 0,
-      "max": 0
+      "min": 1,
+      "max": 5
     },
     "basicAttackThreshold": {
-      "min": 0,
-      "max": 0
+      "min": 6,
+      "max": 13
     },
     "comboThreshold": {
-      "min": 0,
-      "max": 0
+      "min": 14,
+      "max": 19
     },
-    "criticalThreshold": 0
+    "criticalThreshold": 20
   },
   "comboSystem": {
-    "comboAmplifierAtTech5": 0,
-    "comboAmplifierMax": 0,
-    "comboAmplifierMaxTech": 0
+    "comboAmplifierAtTech5": 1.1,
+    "comboAmplifierMax": 1.3,
+    "comboAmplifierMaxTech": 20
   },
   "poison": {
     "tickInterval": 0,
@@ -295,7 +295,7 @@
       "description": ""
     },
     "scalingPerLevel": {
-      "health": 5,
+      "health": 0,
       "attributes": 0,
       "armor": 0
     },
@@ -307,7 +307,7 @@
     "startingWeaponDamage": {},
     "startingWeaponSpeed": {},
     "tierDamageRanges": {},
-    "globalDamageMultiplier": 1.0,
+    "globalDamageMultiplier": 0,
     "weaponDamagePerTier": 0,
     "armorValuePerTier": 0,
     "speedBonusPerTier": 0,
@@ -343,7 +343,7 @@
         "max": 0
       }
     },
-    "globalDamageMultiplier": 1.0,
+    "globalDamageMultiplier": 0,
     "description": ""
   },
   "rarityScaling": {
@@ -397,20 +397,20 @@
         "description": ""
       },
       "epic": {
-        "minLevel": 0,
+        "minLevel": 5,
         "earlyMultiplier": 0,
         "baseMultiplier": 0,
         "levelBonus": 0,
-        "description": ""
+        "description": "Epic items require player level 5 or higher"
       },
       "legendary": {
-        "minLevel": 0,
+        "minLevel": 10,
         "earlyThreshold": 0,
         "earlyMultiplier": 0,
         "midMultiplier": 0,
         "baseMultiplier": 0,
         "levelBonus": 0,
-        "description": ""
+        "description": "Legendary items require player level 10 or higher"
       }
     }
   },

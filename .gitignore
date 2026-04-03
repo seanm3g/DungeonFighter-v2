@@ -383,6 +383,8 @@ out/
 # DungeonFighter specific
 dist/
 DebugAnalysis/
+# Local scratch/backup data (not used by production code)
+Code/GameData123/
 *.log
 GameData/character_save.json
 GameData/gamesettings.json

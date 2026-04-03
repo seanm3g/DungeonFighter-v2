@@ -53,8 +53,51 @@ namespace RPGGame
         public string TextBoxBorderColor { get; set; } = "#555555"; // Gray
         public string TextBoxFocusBorderColor { get; set; } = "#0078D4"; // Blue
         
-        private static readonly string SettingsFilePath = "gamesettings.json";
         private static GameSettings? _instance;
+
+        /// <summary>
+        /// Cached settings file path so load and save always use the same file (avoids path non-determinism from GetGameDataFilePath across app lifecycle).
+        /// </summary>
+        private static string? _settingsFilePathCached;
+        private static readonly object _settingsFilePathLock = new object();
+
+        /// <summary>
+        /// Resolves the settings file path once and caches it. Uses GameConstants and normalizes to full path so save and load always use the same canonical file.
+        /// </summary>
+        private static string GetSettingsFilePath()
+        {
+            if (_settingsFilePathCached != null)
+                return _settingsFilePathCached;
+            lock (_settingsFilePathLock)
+            {
+                if (_settingsFilePathCached != null)
+                    return _settingsFilePathCached;
+                string path;
+                string? settingsDir = GameConstants.GetSettingsDirectory();
+                if (settingsDir != null)
+                    path = Path.Combine(settingsDir, GameConstants.GameSettingsJson);
+                else
+                    path = GameConstants.GetGameDataFilePath(GameConstants.GameSettingsJson);
+                try
+                {
+                    _settingsFilePathCached = Path.GetFullPath(path);
+                }
+                catch
+                {
+                    _settingsFilePathCached = path;
+                }
+                try
+                {
+                    string logPath = GameConstants.GetGameDataFilePath("settings_persistence.log");
+                    File.AppendAllText(logPath, $"{DateTime.UtcNow:o} GetSettingsFilePath first resolution cached path={_settingsFilePathCached}\n");
+                }
+                catch { }
+                return _settingsFilePathCached;
+            }
+        }
+
+        /// <summary>Returns the path used for loading and saving settings (for display in UI). Resolves and caches on first use.</summary>
+        public static string GetSettingsFilePathForDisplay() => GetSettingsFilePath();
         
         public static GameSettings Instance
         {
@@ -70,13 +113,38 @@ namespace RPGGame
         
         public GameSettings() { }
         
-        public static GameSettings LoadSettings()
+        /// <summary>
+        /// Reloads settings from file and replaces the singleton. Call when opening the settings window
+        /// so the UI always shows the latest saved state from disk.
+        /// </summary>
+        public static void ReloadFromFile()
         {
+            _instance = LoadSettings();
             try
             {
-                if (File.Exists(SettingsFilePath))
+                string logPath = GameConstants.GetGameDataFilePath("settings_persistence.log");
+                string line = $"{DateTime.UtcNow:o} ReloadFromFile done FastCombat={_instance?.FastCombat} instanceHash={_instance?.GetHashCode()}\n";
+                File.AppendAllText(logPath, line);
+            }
+            catch { }
+        }
+        
+        public static GameSettings LoadSettings()
+        {
+            string settingsFilePath = GetSettingsFilePath();
+            try
+            {
+                string logPath = GameConstants.GetGameDataFilePath("settings_persistence.log");
+                bool exists = File.Exists(settingsFilePath);
+                string line = $"{DateTime.UtcNow:o} LoadSettings path={settingsFilePath} fileExists={exists}\n";
+                File.AppendAllText(logPath, line);
+            }
+            catch { }
+            try
+            {
+                if (File.Exists(settingsFilePath))
                 {
-                    string json = File.ReadAllText(SettingsFilePath);
+                    string json = File.ReadAllText(settingsFilePath);
                     if (string.IsNullOrEmpty(json))
                     {
                         return new GameSettings();
@@ -86,6 +154,12 @@ namespace RPGGame
                     {
                         // Validate loaded settings and fix any invalid values
                         settings.ValidateAndFix();
+                        try
+                        {
+                            string logPath = GameConstants.GetGameDataFilePath("settings_persistence.log");
+                            File.AppendAllText(logPath, $"{DateTime.UtcNow:o} LoadSettings deserialized FastCombat={settings.FastCombat}\n");
+                        }
+                        catch { }
                         return settings;
                     }
                 }
@@ -96,11 +170,11 @@ namespace RPGGame
                 ErrorHandler.LogError(ex, "GameSettings.LoadSettings", "Settings file is corrupted");
                 try
                 {
-                    string backupPath = SettingsFilePath + ".corrupted." + DateTime.Now.ToString("yyyyMMddHHmmss");
-                    if (File.Exists(SettingsFilePath))
+                    string backupPath = settingsFilePath + ".corrupted." + DateTime.Now.ToString("yyyyMMddHHmmss");
+                    if (File.Exists(settingsFilePath))
                     {
-                        File.Copy(SettingsFilePath, backupPath, true);
-                        File.Delete(SettingsFilePath);
+                        File.Copy(settingsFilePath, backupPath, true);
+                        File.Delete(settingsFilePath);
                     }
                 }
                 catch { /* Ignore backup errors */ }
@@ -135,28 +209,46 @@ namespace RPGGame
             AutoSaveInterval = Math.Max(1, AutoSaveInterval);
         }
         
-        public void SaveSettings()
+        /// <summary>
+        /// Saves settings to file. Uses resolved path (same as other game data).
+        /// </summary>
+        /// <returns>True if save succeeded, false otherwise.</returns>
+        public bool SaveSettings()
         {
             // Validate settings before saving
             ValidateAndFix();
-            
-            ErrorHandler.TrySaveJson(() =>
+
+            string settingsFilePath = GetSettingsFilePath();
+            try
+            {
+                string logPath = GameConstants.GetGameDataFilePath("settings_persistence.log");
+                File.AppendAllText(logPath, $"{DateTime.UtcNow:o} SaveSettings path={settingsFilePath} FastCombat={FastCombat} instanceHash={GetHashCode()}\n");
+            }
+            catch { }
+            bool result = ErrorHandler.TrySaveJson(() =>
             {
                 // Write to temporary file first, then replace (atomic operation)
-                string tempPath = SettingsFilePath + ".tmp";
+                string tempPath = settingsFilePath + ".tmp";
                 string json = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(tempPath, json);
-                
+
                 // Replace original file atomically
-                if (File.Exists(SettingsFilePath))
+                if (File.Exists(settingsFilePath))
                 {
-                    File.Replace(tempPath, SettingsFilePath, SettingsFilePath + ".bak");
+                    File.Replace(tempPath, settingsFilePath, settingsFilePath + ".bak");
                 }
                 else
                 {
-                    File.Move(tempPath, SettingsFilePath);
+                    File.Move(tempPath, settingsFilePath);
                 }
             }, "GameSettings.json");
+            try
+            {
+                string logPath = GameConstants.GetGameDataFilePath("settings_persistence.log");
+                File.AppendAllText(logPath, $"{DateTime.UtcNow:o} SaveSettings result={result}\n");
+            }
+            catch { }
+            return result;
         }
         
         public void ResetToDefaults()

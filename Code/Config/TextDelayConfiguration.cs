@@ -244,6 +244,16 @@ namespace RPGGame.Config
         }
 
         /// <summary>
+        /// Persists the current in-memory configuration to the config file.
+        /// Call after updating multiple settings from the UI so all changes are saved in one write.
+        /// </summary>
+        public static void SaveCurrentConfigToFile()
+        {
+            var configData = GetConfigData();
+            TextDelayLoader.SaveConfig(configData);
+        }
+
+        /// <summary>
         /// Forces a reload of the configuration from file
         /// </summary>
         public static void ReloadConfig()

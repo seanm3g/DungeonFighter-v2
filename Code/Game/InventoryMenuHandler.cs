@@ -79,6 +79,23 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Re-renders inventory or combo management after left-panel chrome changes (e.g. collapsing STATS).
+        /// <see cref="RenderCoordinator.PerformRender"/> suppresses display-buffer rendering in <see cref="GameState.Inventory"/>,
+        /// so <c>ForceFullLayoutRender</c> does not redraw CanvasRenderer content or the action-info strip.
+        /// </summary>
+        public void RefreshInventoryScreen()
+        {
+            if (stateManager.CurrentPlayer == null || customUIManager is not CanvasUICoordinator canvasUI)
+                return;
+            if (stateManager.CurrentState != GameState.Inventory)
+                return;
+            if (stateTracker.InComboManagement)
+                canvasUI.RenderComboManagement(stateManager.CurrentPlayer);
+            else
+                canvasUI.RenderInventory(stateManager.CurrentPlayer, stateManager.CurrentInventory);
+        }
+
+        /// <summary>
         /// Handle inventory menu input
         /// </summary>
         public void HandleMenuInput(string input)
@@ -265,13 +282,25 @@ namespace RPGGame
         }
         
         /// <summary>
-        /// Gets the next rarity tier in progression
+        /// Gets the next rarity tier in progression (only one tier higher)
+        /// Returns null if already at maximum rarity
         /// </summary>
         private string? GetNextRarity(string currentRarity)
         {
             var rarityOrder = new[] { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Transcendent" };
             
-            int currentIndex = Array.IndexOf(rarityOrder, currentRarity);
+            // Use case-insensitive comparison to find the current rarity
+            int currentIndex = -1;
+            for (int i = 0; i < rarityOrder.Length; i++)
+            {
+                if (string.Equals(rarityOrder[i], currentRarity, StringComparison.OrdinalIgnoreCase))
+                {
+                    currentIndex = i;
+                    break;
+                }
+            }
+            
+            // Only return the next tier (one step up), or null if at max
             if (currentIndex < 0 || currentIndex >= rarityOrder.Length - 1)
             {
                 return null; // Not found or already at max

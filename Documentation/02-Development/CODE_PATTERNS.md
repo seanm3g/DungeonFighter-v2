@@ -515,6 +515,30 @@ public static class TextDisplayIntegration
 
 **Usage**: `TextDisplayIntegration`, `MenuConfiguration`
 
+## Game handlers and menu flow
+
+**Purpose**: Keep the Game layer understandable and avoid unnecessary handler proliferation.
+
+**When to add a new handler**:
+- A **new screen or menu** (e.g. a new settings tab, a new game mode screen) that has its own UI and lifecycle.
+- A **distinct user flow** that is not just a variation of an existing one (e.g. character creation vs load character).
+- The new logic does not fit naturally into an existing handler (e.g. dungeon selection is separate from main menu).
+
+**When to extend an existing handler**:
+- The new behavior is a **variant or option** of an existing screen (e.g. another button on the same menu).
+- The code would be a **thin wrapper** that only forwards to one other type; consider inlining or extending the existing handler instead.
+- The responsibility is clearly the same (e.g. "main menu choices" stays in MainMenuHandler).
+
+**Conventions**:
+- **Handler suffix**: Use for classes that own one screen or one coherent user flow (e.g. `MainMenuHandler`, `SettingsMenuHandler`, `CharacterCreationHandler`).
+- **Keep handlers under ~400 lines**: If a handler grows large, extract sub-flows into helper classes or a dedicated manager, or split by screen state.
+- **Menu handlers**: Prefer implementing `IMenuHandler` and extending `MenuHandlerBase` when the flow is a menu with commands; use standalone handlers when the flow is not command-driven (e.g. dungeon runner, combat UI).
+
+**Where handlers live**:
+- `Code/Game/` – top-level handlers (MainMenuHandler, DungeonSelectionHandler, etc.).
+- `Code/Game/Handlers/` – nested or shared flows (e.g. inventory sub-handlers).
+- `Code/Game/Menu/` – menu framework (IMenuHandler, MenuCommand, routing).
+
 ## Data Access Patterns
 
 ### 1. JSON Loading Pattern

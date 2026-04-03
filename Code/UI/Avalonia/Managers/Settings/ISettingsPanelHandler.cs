@@ -21,6 +21,11 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         /// Loads current settings into the panel controls
         /// </summary>
         void LoadSettings(UserControl panel);
+
+        /// <summary>
+        /// Saves panel control values into settings/config. Called by the save orchestrator when the panel is loaded.
+        /// </summary>
+        void SaveSettings(UserControl panel);
     }
 }
 

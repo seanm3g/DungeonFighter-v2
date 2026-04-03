@@ -13,6 +13,9 @@ namespace RPGGame
     /// </summary>
     public class LootActionSelector
     {
+        /// <summary>Chance to bypass Category filter when selecting actions for items (any category possible).</summary>
+        private const double CategoryBypassChance = 0.05;
+
         private readonly Random _random;
         private readonly ActionTables _tables;
 
@@ -180,25 +183,62 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets weapon actions from Actions.json using tag-based matching
-        /// Used as fallback when ActionTables.json doesn't have the weapon type
+        /// Gets weapon actions from Actions.json using new WeaponTypes property or tag-based matching.
+        /// Category filter: only include actions whose Category is appropriate for weapons (or empty); small % chance to bypass.
         /// </summary>
         private List<string> GetTagBasedWeaponActions(string weaponType)
         {
             var weaponTag = weaponType.ToLower();
-            var allActions = ActionLoader.GetAllActions();
+            var weaponTypeName = weaponType; // Keep original case for WeaponTypes property
+            var allActionData = ActionLoader.GetAllActionData();
 
-            // Get weapon-specific actions from JSON using tag matching
-            // Actions must have both "weapon" tag and the weapon type tag (e.g., "wand", "mace")
-            // Exclude "class" tagged actions (class-only actions cannot appear on weapons)
-            var weaponActions = allActions
-                .Where(action => action.Tags != null &&
-                                action.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
-                                action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)) &&
-                                !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)) &&
-                                !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)))
-                .Select(action => action.Name)
-                .ToList();
+            var weaponActions = new List<string>();
+
+            // First, check for actions assigned via WeaponTypes property
+            foreach (var actionData in allActionData)
+            {
+                // Check if action is assigned to this weapon type via WeaponTypes property
+                if (actionData.WeaponTypes != null && 
+                    actionData.WeaponTypes.Any(wt => wt.Equals(weaponTypeName, StringComparison.OrdinalIgnoreCase)))
+                {
+                    weaponActions.Add(actionData.Name);
+                }
+            }
+
+            // If no actions found via WeaponTypes, fall back to tag-based matching
+            if (weaponActions.Count == 0)
+            {
+                var allActions = ActionLoader.GetAllActions();
+                // Get weapon-specific actions from JSON using tag matching
+                // Actions must have both "weapon" tag and the weapon type tag (e.g., "wand", "mace")
+                // Exclude "class" tagged actions (class-only actions cannot appear on weapons)
+                weaponActions = allActions
+                    .Where(action => action.Tags != null &&
+                                    action.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
+                                    action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)) &&
+                                    !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)) &&
+                                    !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)))
+                    .Select(action => action.Name)
+                    .ToList();
+            }
+
+            // Category filter: exclude actions whose Category is not appropriate for this item type (e.g. class-only on weapons)
+            // Small % chance to bypass so any category can appear
+            if (weaponActions.Count > 0 && _random.NextDouble() >= CategoryBypassChance)
+            {
+                var nameToData = allActionData.Where(a => !string.IsNullOrEmpty(a.Name)).ToDictionary(a => a.Name, a => a, StringComparer.OrdinalIgnoreCase);
+                var filtered = weaponActions.Where(name =>
+                {
+                    if (!nameToData.TryGetValue(name, out var data)) return true;
+                    var cat = (data.Category ?? "").Trim();
+                    if (string.IsNullOrEmpty(cat)) return true;
+                    return cat.Equals("Weapon", StringComparison.OrdinalIgnoreCase) ||
+                           cat.Equals(weaponTypeName, StringComparison.OrdinalIgnoreCase) ||
+                           cat.Equals(weaponTag, StringComparison.OrdinalIgnoreCase);
+                }).ToList();
+                if (filtered.Count > 0)
+                    weaponActions = filtered;
+            }
 
             return weaponActions;
         }

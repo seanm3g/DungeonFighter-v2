@@ -161,19 +161,25 @@ namespace RPGGame.Combat.Calculators
             
             // Apply action damage multiplier if action is provided
             double actionMultiplier = action?.DamageMultiplier ?? 1.0;
+
+            // Apply consumed DAMAGE_MOD from ACTION/ABILITY keyword (next action/ability only)
+            if (attacker is Character damageModCharacter && damageModCharacter.Effects.ConsumedDamageModPercent != 0)
+                actionMultiplier *= (1.0 + damageModCharacter.Effects.ConsumedDamageModPercent / 100.0);
+
+            // Apply consumed AMP_MOD from ACTION/ABILITY keyword (next action/ability only; % bonus, multiply)
+            if (attacker is Character ampModCharacter && ampModCharacter.Effects.ConsumedAmpModPercent != 0)
+                comboAmplifier *= (1.0 + ampModCharacter.Effects.ConsumedAmpModPercent / 100.0);
             
-            // Check for conditional damage multiplier based on health threshold
-            if (action != null && action.Advanced.HealthThreshold > 0.0 && action.Advanced.ConditionalDamageMultiplier > 1.0)
+            // Apply next attack damage multiplier (for Follow Through and similar effects)
+            // Consume it so it only applies once
+            double nextAttackMultiplier = 1.0;
+            if (attacker is Character characterAttacker)
             {
-                // Check if attacker's health meets the threshold (works for both Character and Enemy since Enemy inherits from Character)
-                if (attacker is Character attackerCharacter && attackerCharacter.MeetsHealthThreshold(action.Advanced.HealthThreshold))
-                {
-                    actionMultiplier *= action.Advanced.ConditionalDamageMultiplier;
-                }
+                nextAttackMultiplier = characterAttacker.Effects.ConsumeNextAttackDamageMultiplier();
             }
             
             // Calculate total damage before armor
-            double totalDamage = (baseDamage * actionMultiplier * comboAmplifier * damageMultiplier);
+            double totalDamage = (baseDamage * actionMultiplier * comboAmplifier * damageMultiplier * nextAttackMultiplier);
             
             // Get combat configuration
             var combatConfig = GameConfiguration.Instance.Combat;
@@ -214,11 +220,23 @@ namespace RPGGame.Combat.Calculators
                     var rollMultipliers = combatBalance.RollDamageMultipliers;
                     if (roll >= rollSystem.ComboThreshold.Min)
                     {
-                        totalDamage *= rollMultipliers.ComboRollDamageMultiplier;
+                        // Safeguard: if multiplier is 0 or invalid, default to 1.0 to prevent zeroing damage
+                        double comboMultiplier = rollMultipliers.ComboRollDamageMultiplier;
+                        if (comboMultiplier <= 0)
+                        {
+                            comboMultiplier = 1.0;
+                        }
+                        totalDamage *= comboMultiplier;
                     }
                     else if (roll >= rollSystem.BasicAttackThreshold.Min) // Normal attack range (6-13)
                     {
-                        totalDamage *= rollMultipliers.BasicRollDamageMultiplier;
+                        // Safeguard: if multiplier is 0 or invalid, default to 1.0 to prevent zeroing damage
+                        double basicMultiplier = rollMultipliers.BasicRollDamageMultiplier;
+                        if (basicMultiplier <= 0)
+                        {
+                            basicMultiplier = 1.0;
+                        }
+                        totalDamage *= basicMultiplier;
                     }
                 }
             }

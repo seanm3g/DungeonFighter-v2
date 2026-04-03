@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RPGGame;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Managers;
@@ -75,15 +76,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             // Basic Properties
             canvas.AddText(menuStartX, menuStartY, $"  Name: {actionData.Name}", AsciiArtAssets.Colors.White);
             menuStartY++;
-            canvas.AddText(menuStartX, menuStartY, $"  Type: {actionData.Type}", AsciiArtAssets.Colors.White);
-            menuStartY++;
-            canvas.AddText(menuStartX, menuStartY, $"  Target: {actionData.TargetType}", AsciiArtAssets.Colors.White);
-            menuStartY++;
             canvas.AddText(menuStartX, menuStartY, $"  MultiHitCount: {actionData.MultiHitCount}", AsciiArtAssets.Colors.White);
             menuStartY++;
             canvas.AddText(menuStartX, menuStartY, $"  Damage Multiplier: {actionData.DamageMultiplier}", AsciiArtAssets.Colors.White);
             menuStartY++;
-            canvas.AddText(menuStartX, menuStartY, $"  Length: {actionData.Length}", AsciiArtAssets.Colors.White);
+            canvas.AddText(menuStartX, menuStartY, $"  Speed: {actionData.Length}", AsciiArtAssets.Colors.White);
             menuStartY++;
             
             // Status Effects (only show if any are true)
@@ -106,34 +103,80 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             {
                 menuStartY++;
                 canvas.AddText(menuStartX, menuStartY, "  Combo: Order=" + actionData.ComboOrder + 
-                    (actionData.ComboBonusAmount > 0 ? $", Bonus=+{actionData.ComboBonusAmount} for {actionData.ComboBonusDuration} turns" : ""), 
+                    (actionData.ComboBonusDuration > 0 ? $", Duration={actionData.ComboBonusDuration}" : ""), 
                     AsciiArtAssets.Colors.Cyan);
                 menuStartY++;
             }
             
             // Advanced Mechanics (only show if any are set)
-            bool hasAdvanced = actionData.RollBonus != 0 || actionData.StatBonus != 0 || actionData.MultiHitCount > 1 ||
-                              actionData.SelfDamagePercent > 0 || actionData.SkipNextTurn || actionData.RepeatLastAction ||
-                              actionData.EnemyRollPenalty != 0 || actionData.HealthThreshold > 0 || 
-                              actionData.ConditionalDamageMultiplier != 1.0;
+            bool hasStatBonuses = (actionData.StatBonuses != null && actionData.StatBonuses.Count > 0) ||
+                (actionData.StatBonus != 0 && !string.IsNullOrEmpty(actionData.StatBonusType));
+            bool hasRollBonusAdjustments = actionData.CriticalMissThresholdAdjustment != 0 || actionData.HitThresholdAdjustment != 0 ||
+                actionData.ComboThresholdAdjustment != 0 || actionData.CriticalHitThresholdAdjustment != 0;
+            bool hasThresholds = (actionData.Thresholds != null && actionData.Thresholds.Count > 0) || actionData.HealthThreshold > 0;
+            bool hasAccumulations = actionData.Accumulations != null && actionData.Accumulations.Count > 0;
+            bool hasAdvanced = hasRollBonusAdjustments || actionData.RollBonus != 0 || hasStatBonuses || actionData.MultiHitCount > 1 ||
+                              actionData.SkipNextTurn || actionData.RepeatLastAction || hasThresholds || hasAccumulations;
             if (hasAdvanced)
             {
                 menuStartY++;
                 canvas.AddText(menuStartX, menuStartY, "  Advanced:", AsciiArtAssets.Colors.Cyan);
                 menuStartY++;
-                if (actionData.RollBonus != 0) { canvas.AddText(menuStartX, menuStartY, $"    - Roll Bonus: {actionData.RollBonus:+0;-0;0}", AsciiArtAssets.Colors.White); menuStartY++; }
-                if (actionData.StatBonus != 0 && !string.IsNullOrEmpty(actionData.StatBonusType)) 
-                { 
-                    canvas.AddText(menuStartX, menuStartY, $"    - Stat Bonus: +{actionData.StatBonus} {actionData.StatBonusType} ({actionData.StatBonusDuration} turns)", AsciiArtAssets.Colors.White); 
-                    menuStartY++; 
+                if (hasRollBonusAdjustments)
+                {
+                    if (actionData.CriticalMissThresholdAdjustment != 0) { canvas.AddText(menuStartX, menuStartY, $"    - Roll bonus Crit Miss: {actionData.CriticalMissThresholdAdjustment:+0;-0;0}", AsciiArtAssets.Colors.White); menuStartY++; }
+                    if (actionData.HitThresholdAdjustment != 0) { canvas.AddText(menuStartX, menuStartY, $"    - Roll bonus Hit: {actionData.HitThresholdAdjustment:+0;-0;0}", AsciiArtAssets.Colors.White); menuStartY++; }
+                    if (actionData.ComboThresholdAdjustment != 0) { canvas.AddText(menuStartX, menuStartY, $"    - Roll bonus Combo: {actionData.ComboThresholdAdjustment:+0;-0;0}", AsciiArtAssets.Colors.White); menuStartY++; }
+                    if (actionData.CriticalHitThresholdAdjustment != 0) { canvas.AddText(menuStartX, menuStartY, $"    - Roll bonus Crit: {actionData.CriticalHitThresholdAdjustment:+0;-0;0}", AsciiArtAssets.Colors.White); menuStartY++; }
+                }
+                if (actionData.RollBonus != 0) { canvas.AddText(menuStartX, menuStartY, $"    - Accuracy: {actionData.RollBonus:+0;-0;0}", AsciiArtAssets.Colors.White); menuStartY++; }
+                var statEntries = GetStatBonusEntries(actionData);
+                if (statEntries.Count > 0)
+                {
+                    string durationText = string.IsNullOrWhiteSpace(actionData.Cadence) ? "1 turn" : actionData.Cadence;
+                    foreach (var entry in statEntries)
+                    {
+                        if (entry.Value == 0 && string.IsNullOrEmpty(entry.Type)) continue;
+                        canvas.AddText(menuStartX, menuStartY, $"    - Stat Bonus: +{entry.Value} {entry.Type} ({durationText})", AsciiArtAssets.Colors.White);
+                        menuStartY++;
+                    }
                 }
                 if (actionData.MultiHitCount > 1) { canvas.AddText(menuStartX, menuStartY, $"    - Multi-Hit: {actionData.MultiHitCount} hits", AsciiArtAssets.Colors.White); menuStartY++; }
-                if (actionData.SelfDamagePercent > 0) { canvas.AddText(menuStartX, menuStartY, $"    - Self Damage: {actionData.SelfDamagePercent}%", AsciiArtAssets.Colors.White); menuStartY++; }
                 if (actionData.SkipNextTurn) { canvas.AddText(menuStartX, menuStartY, "    - Skips Next Turn", AsciiArtAssets.Colors.White); menuStartY++; }
                 if (actionData.RepeatLastAction) { canvas.AddText(menuStartX, menuStartY, "    - Repeats Last Action", AsciiArtAssets.Colors.White); menuStartY++; }
-                if (actionData.EnemyRollPenalty != 0) { canvas.AddText(menuStartX, menuStartY, $"    - Enemy Roll Penalty: {actionData.EnemyRollPenalty}", AsciiArtAssets.Colors.White); menuStartY++; }
-                if (actionData.HealthThreshold > 0) { canvas.AddText(menuStartX, menuStartY, $"    - Health Threshold: {actionData.HealthThreshold:P0}", AsciiArtAssets.Colors.White); menuStartY++; }
-                if (actionData.ConditionalDamageMultiplier != 1.0) { canvas.AddText(menuStartX, menuStartY, $"    - Conditional Damage: {actionData.ConditionalDamageMultiplier}x", AsciiArtAssets.Colors.White); menuStartY++; }
+                if (actionData.Thresholds != null && actionData.Thresholds.Count > 0)
+                {
+                    var thresholdParts = actionData.Thresholds.Select(t =>
+                    {
+                        string q = string.IsNullOrEmpty(t.Qualifier) ? "" : t.Qualifier + " ";
+                        string op = string.IsNullOrEmpty(t.Operator) ? "" : " " + t.Operator + " ";
+                        string val = string.Equals(t.ValueKind, "%", StringComparison.OrdinalIgnoreCase) ? $"{t.Value:F2}%" : $"{t.Value:F2}";
+                        return $"{q}{t.Type}{op}{val}";
+                    });
+                    canvas.AddText(menuStartX, menuStartY, $"    - Thresholds: {string.Join(", ", thresholdParts)}", AsciiArtAssets.Colors.White);
+                    menuStartY++;
+                }
+                else if (actionData.HealthThreshold > 0)
+                    { canvas.AddText(menuStartX, menuStartY, $"    - Health Threshold: {actionData.HealthThreshold:P0}", AsciiArtAssets.Colors.White); menuStartY++; }
+                if (hasAccumulations && actionData.Accumulations != null)
+                {
+                    var accParts = actionData.Accumulations
+                        .Where(a => !string.IsNullOrEmpty(a.Type))
+                        .Select(a =>
+                        {
+                            var param = string.IsNullOrEmpty(a.ModifiesParam) ? "Damage" : a.ModifiesParam;
+                            var kind = string.IsNullOrEmpty(a.ValueKind) ? "#" : a.ValueKind;
+                            var val = kind == "%" ? $"{a.Value}%" : a.Value.ToString("F0");
+                            var sign = a.Value >= 0 ? "+" : "";
+                            return $"{sign}{val} {param} per {a.Type}";
+                        })
+                        .ToList();
+                    if (accParts.Count > 0)
+                    {
+                        canvas.AddText(menuStartX, menuStartY, $"    - Accumulations: {string.Join("; ", accParts)}", AsciiArtAssets.Colors.White);
+                        menuStartY++;
+                    }
+                }
             }
             
             // Tags (only show if tags exist)
@@ -164,36 +207,49 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             return step switch
             {
                 0 => actionData.Name,
-                1 => actionData.Type,
-                2 => actionData.TargetType,
-                3 => actionData.Description,
-                4 => actionData.DamageMultiplier.ToString(),
-                5 => actionData.Length.ToString(),
-                6 => actionData.Cooldown.ToString(),
-                7 => actionData.CausesBleed.ToString(),
-                8 => actionData.CausesWeaken.ToString(),
-                9 => actionData.CausesSlow.ToString(),
-                10 => actionData.CausesPoison.ToString(),
-                11 => actionData.CausesBurn.ToString(),
-                12 => "false", // CausesStun - not in ActionData
-                13 => actionData.IsComboAction.ToString(),
-                14 => actionData.ComboOrder.ToString(),
-                15 => actionData.ComboBonusAmount.ToString(),
-                16 => actionData.ComboBonusDuration.ToString(),
-                17 => actionData.RollBonus.ToString(),
+                1 => actionData.Description,
+                2 => actionData.DamageMultiplier.ToString(),
+                3 => actionData.Length.ToString(),
+                4 => actionData.CausesBleed.ToString(),
+                5 => actionData.CausesWeaken.ToString(),
+                6 => actionData.CausesSlow.ToString(),
+                7 => actionData.CausesPoison.ToString(),
+                8 => actionData.CausesBurn.ToString(),
+                9 => "false", // CausesStun - not in ActionData
+                10 => actionData.IsComboAction.ToString(),
+                11 => actionData.ComboOrder.ToString(),
+                12 => actionData.ComboBonusDuration.ToString(),
+                13 => actionData.SkipNextTurn.ToString(),
+                14 => actionData.CriticalMissThresholdAdjustment.ToString(),
+                15 => actionData.HitThresholdAdjustment.ToString(),
+                16 => actionData.ComboThresholdAdjustment.ToString(),
+                17 => actionData.CriticalHitThresholdAdjustment.ToString(),
                 18 => actionData.StatBonus.ToString(),
                 19 => actionData.StatBonusType,
-                20 => actionData.StatBonusDuration.ToString(),
-                21 => actionData.MultiHitCount.ToString(),
-                22 => actionData.SelfDamagePercent.ToString(),
-                23 => actionData.SkipNextTurn.ToString(),
-                24 => actionData.RepeatLastAction.ToString(),
-                25 => actionData.EnemyRollPenalty.ToString(),
-                26 => actionData.HealthThreshold.ToString("F2"),
-                27 => actionData.ConditionalDamageMultiplier.ToString("F2"),
-                28 => actionData.Tags != null ? string.Join(", ", actionData.Tags) : "",
+                20 => actionData.MultiHitCount.ToString(),
+                21 => actionData.RepeatLastAction.ToString(),
+                22 => (actionData.Thresholds != null && actionData.Thresholds.Count > 0)
+                    ? string.Join(", ", actionData.Thresholds.Select(t =>
+                    {
+                        string q = string.IsNullOrEmpty(t.Qualifier) ? "" : t.Qualifier + " ";
+                        string op = string.IsNullOrEmpty(t.Operator) ? "" : " " + t.Operator + " ";
+                        string val = string.Equals(t.ValueKind, "%", StringComparison.OrdinalIgnoreCase) ? $"{t.Value:F2}%" : $"{t.Value:F2}";
+                        return $"{q}{t.Type}{op}{val}";
+                    }))
+                    : actionData.HealthThreshold.ToString("F2"),
+                23 => actionData.Tags != null ? string.Join(", ", actionData.Tags) : "",
                 _ => ""
             };
+        }
+
+        private static List<StatBonusEntry> GetStatBonusEntries(ActionData actionData)
+        {
+            if (actionData == null) return new List<StatBonusEntry>();
+            if (actionData.StatBonuses != null && actionData.StatBonuses.Count > 0)
+                return actionData.StatBonuses;
+            if (actionData.StatBonus != 0 || !string.IsNullOrEmpty(actionData.StatBonusType))
+                return new List<StatBonusEntry> { new StatBonusEntry { Value = actionData.StatBonus, Type = actionData.StatBonusType ?? "" } };
+            return new List<StatBonusEntry>();
         }
     }
 }

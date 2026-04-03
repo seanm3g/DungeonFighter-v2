@@ -156,5 +156,14 @@ namespace RPGGame
         {
             characterRegistry.SetActiveCharacterId(characterId);
         }
+        
+        /// <summary>
+        /// Clears all characters from the registry.
+        /// Used when resetting game state or cleaning up after tests.
+        /// </summary>
+        public void ClearAllCharacters()
+        {
+            characterRegistry.ClearAllCharacters();
+        }
     }
 }

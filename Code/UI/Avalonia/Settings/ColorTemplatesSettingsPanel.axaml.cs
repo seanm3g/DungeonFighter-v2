@@ -54,7 +54,8 @@ namespace RPGGame.UI.Avalonia.Settings
             var config = ColorConfigurationLoader.LoadColorConfiguration();
             _colorTemplates = config.ColorTemplates?.ToList() ?? new List<ColorTemplateData>();
 
-            templatesComboBox.ItemsSource = _colorTemplates.OrderBy(t => t.Name).ToList();
+            var orderedTemplates = _colorTemplates.OrderBy(t => t.Name).ToList();
+            templatesComboBox.ItemsSource = orderedTemplates;
             templatesComboBox.SelectionChanged += (s, e) =>
             {
                 if (templatesComboBox.SelectedItem is ColorTemplateData template)
@@ -62,6 +63,14 @@ namespace RPGGame.UI.Avalonia.Settings
                     SelectTemplate(template);
                 }
             };
+
+            // Set default selection to "accuracy" if it exists
+            var defaultTemplate = orderedTemplates.FirstOrDefault(t => 
+                t.Name != null && t.Name.Equals("accuracy", StringComparison.OrdinalIgnoreCase));
+            if (defaultTemplate != null)
+            {
+                templatesComboBox.SelectedItem = defaultTemplate;
+            }
         }
 
         private void SelectTemplate(ColorTemplateData template)
@@ -124,10 +133,21 @@ namespace RPGGame.UI.Avalonia.Settings
                 Text = template.Description ?? "",
                 AcceptsReturn = true,
                 TextWrapping = TextWrapping.Wrap,
-                MinHeight = 60
+                MinHeight = 60,
+                Margin = new Thickness(0, 0, 0, 10)
             };
             descBox.TextChanged += (s, e) => template.Description = descBox.Text ?? "";
             _templateEditorPanel.Children.Add(descBox);
+
+            // Enable Undulation checkbox
+            var undulateCheckBox = new CheckBox
+            {
+                Content = "Enable Undulation (Undulating Brightness Effect)",
+                IsChecked = template.Undulate,
+                Margin = new Thickness(0, 0, 0, 10)
+            };
+            undulateCheckBox.IsCheckedChanged += (s, e) => template.Undulate = undulateCheckBox.IsChecked ?? false;
+            _templateEditorPanel.Children.Add(undulateCheckBox);
 
             // Delete button
             var deleteBtn = new Button

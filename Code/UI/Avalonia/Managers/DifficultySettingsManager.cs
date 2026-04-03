@@ -10,17 +10,15 @@ namespace RPGGame.UI.Avalonia.Managers
     /// </summary>
     public class DifficultySettingsManager
     {
-        private readonly GameSettings settings;
         private readonly Action<string, bool>? showStatusMessage;
         
-        public DifficultySettingsManager(GameSettings settings, Action<string, bool>? showStatusMessage = null)
+        public DifficultySettingsManager(Action<string, bool>? showStatusMessage = null)
         {
-            this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
             this.showStatusMessage = showStatusMessage;
         }
         
         /// <summary>
-        /// Loads difficulty settings into UI controls
+        /// Loads difficulty settings into UI controls (uses GameSettings.Instance at use time).
         /// </summary>
         public void LoadSettings(
             Slider enemyHealthMultiplierSlider,
@@ -33,14 +31,14 @@ namespace RPGGame.UI.Avalonia.Managers
             TextBox playerDamageMultiplierTextBox)
         {
             // Difficulty Settings
-            enemyHealthMultiplierSlider.Value = settings.EnemyHealthMultiplier;
-            enemyHealthMultiplierTextBox.Text = settings.EnemyHealthMultiplier.ToString("F2");
-            enemyDamageMultiplierSlider.Value = settings.EnemyDamageMultiplier;
-            enemyDamageMultiplierTextBox.Text = settings.EnemyDamageMultiplier.ToString("F2");
-            playerHealthMultiplierSlider.Value = settings.PlayerHealthMultiplier;
-            playerHealthMultiplierTextBox.Text = settings.PlayerHealthMultiplier.ToString("F2");
-            playerDamageMultiplierSlider.Value = settings.PlayerDamageMultiplier;
-            playerDamageMultiplierTextBox.Text = settings.PlayerDamageMultiplier.ToString("F2");
+            enemyHealthMultiplierSlider.Value = GameSettings.Instance.EnemyHealthMultiplier;
+            enemyHealthMultiplierTextBox.Text = GameSettings.Instance.EnemyHealthMultiplier.ToString("F2");
+            enemyDamageMultiplierSlider.Value = GameSettings.Instance.EnemyDamageMultiplier;
+            enemyDamageMultiplierTextBox.Text = GameSettings.Instance.EnemyDamageMultiplier.ToString("F2");
+            playerHealthMultiplierSlider.Value = GameSettings.Instance.PlayerHealthMultiplier;
+            playerHealthMultiplierTextBox.Text = GameSettings.Instance.PlayerHealthMultiplier.ToString("F2");
+            playerDamageMultiplierSlider.Value = GameSettings.Instance.PlayerDamageMultiplier;
+            playerDamageMultiplierTextBox.Text = GameSettings.Instance.PlayerDamageMultiplier.ToString("F2");
         }
         
         /// <summary>
@@ -53,10 +51,10 @@ namespace RPGGame.UI.Avalonia.Managers
             Slider playerDamageMultiplierSlider)
         {
             // Difficulty Settings
-            settings.EnemyHealthMultiplier = enemyHealthMultiplierSlider.Value;
-            settings.EnemyDamageMultiplier = enemyDamageMultiplierSlider.Value;
-            settings.PlayerHealthMultiplier = playerHealthMultiplierSlider.Value;
-            settings.PlayerDamageMultiplier = playerDamageMultiplierSlider.Value;
+            GameSettings.Instance.EnemyHealthMultiplier = enemyHealthMultiplierSlider.Value;
+            GameSettings.Instance.EnemyDamageMultiplier = enemyDamageMultiplierSlider.Value;
+            GameSettings.Instance.PlayerHealthMultiplier = playerHealthMultiplierSlider.Value;
+            GameSettings.Instance.PlayerDamageMultiplier = playerDamageMultiplierSlider.Value;
         }
         
         /// <summary>
@@ -64,10 +62,10 @@ namespace RPGGame.UI.Avalonia.Managers
         /// </summary>
         public void RestoreSettings(GameSettings backup)
         {
-            settings.EnemyHealthMultiplier = backup.EnemyHealthMultiplier;
-            settings.EnemyDamageMultiplier = backup.EnemyDamageMultiplier;
-            settings.PlayerHealthMultiplier = backup.PlayerHealthMultiplier;
-            settings.PlayerDamageMultiplier = backup.PlayerDamageMultiplier;
+            GameSettings.Instance.EnemyHealthMultiplier = backup.EnemyHealthMultiplier;
+            GameSettings.Instance.EnemyDamageMultiplier = backup.EnemyDamageMultiplier;
+            GameSettings.Instance.PlayerHealthMultiplier = backup.PlayerHealthMultiplier;
+            GameSettings.Instance.PlayerDamageMultiplier = backup.PlayerDamageMultiplier;
         }
     }
 }

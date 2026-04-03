@@ -11,7 +11,7 @@
 - **Major Features**: ✅ All Core Systems Complete
 - **Code Quality**: ✅ Well-Organized with Design Patterns
 - **Documentation**: ✅ Comprehensive (90+ documents)
-- **Testing**: ✅ 27+ Test Categories
+- **Testing**: ✅ 27+ Test Categories; Settings Testing tab is mechanics & reliability only (see [SETTINGS_TESTING_MENU.md](05-Systems/SETTINGS_TESTING_MENU.md)); full suite via `Scripts\run-tests.bat` / `--run-tests`
 - **Production Ready**: ✅ Yes
 
 ---
@@ -89,7 +89,21 @@
 - [ ] Add export/import features
 - [ ] Document tuning workflow
 
-### 5. Screen Flow Coordination ✅
+### 5. Large-Class Refactor (Plan) ✅
+**Status**: Completed  
+**Description**: Refactored nine largest files per plan (split DTOs, partials, control-bundle overloads, extracted phases/helpers).  
+**Completed**:
+- [x] ActionLoader: split ActionData into ActionData.cs  
+- [x] CharacterSaveService: centralize error reporting, trim debug, extract helpers  
+- [x] ActionExecutionFlow: extract phases from Execute into private static methods  
+- [x] CombatEffectsSimplified: extract ProcessPoisonDamage/ProcessBurnDamage  
+- [x] CharacterEffects: split into ComboState, RollAndShield, Reroll, ActionBonus, NextAttack  
+- [x] CanvasRenderer: partial class split by menu/inventory/combat-dungeon  
+- [x] CanvasUICoordinator: partial class split (IUIManager, Context, Rendering)  
+- [x] SettingsManager: prefer control-bundle overloads, move logic into bundle path  
+- [x] SpreadsheetActionJson: partial split by column groups (Core, Stats, StatusEffects, Mechanics, Triggers, Thresholds)  
+
+### 6. Screen Flow Coordination ✅
 **Status**: Completed (Phase 1)  
 **Description**: Centralize high-level screen transitions through a dedicated coordinator to simplify UI flow and debugging  
 **Tasks**:
@@ -98,6 +112,26 @@
 - [x] Simplify `InventoryMenuHandler.ShowInventory()` to delegate through the coordinator  
 - [x] Document the new screen coordination pattern in `UI_RENDERER_ARCHITECTURE.md`  
 - [ ] Gradually migrate remaining display entry points (e.g., dungeon selection, death screen) to use `GameScreenCoordinator` (Future)  
+
+### 6. Actions Settings Game Integration ✅
+**Status**: Completed  
+**Description**: Plug Actions settings menu data into the game (modifiers, refresh on close, Rarity/Category, docs/UI).  
+**Tasks**:
+- [x] Modifiers (SpeedMod, DamageMod, MultiHitMod, AmpMod) apply only to next action/ability (cadence + duration); ACTION = consume on next roll, ABILITY = consume on success; AmpMod % multiply, SpeedMod positive = faster
+- [x] Apply consumed modifiers in DamageCalculator, ActionSpeedCalculator, multi-hit, combo amp
+- [x] Refresh current player action pool when closing Settings after saving an action
+- [x] Rarity = selection weight when choosing actions for items; Category = pool filter with 5% bypass
+- [x] Update ACTIONS_SETTINGS_MENU_PLAN.md, KEYWORD_ABILITY_ACTION.md (end-user terminology), ActionFormBuilder Modifiers section copy
+
+### 6b. Actions Settings Verification (Checklist + Tests) ✅
+**Status**: Completed  
+**Description**: Systematic verification of Actions menu: UI checklist, apply-to-game tests, Testing menu flow.  
+**Tasks**:
+- [x] Component 1: Add ACTIONS_SETTINGS_UI_CHECKLIST.md (filters, list, Create/Delete, form, Default/Starting)
+- [x] Component 2: Add SettingsApplyServiceTests and ActionsTabManagerTests (ApplyAfterSave, RefreshCurrentPlayerActionPool); register in UISystemTestRunner and RunActionsSettingsIntegrationTests
+- [x] Component 3: Document Testing menu steps in checklist (Actions Settings Integration, Action Mechanics, Combat, Run All)
+- [x] Verification: Run Settings → Testing → "Actions Settings Integration" (and optionally "Run All") after changing actions to confirm mechanics
+**Files**: `Documentation/02-Development/ACTIONS_SETTINGS_UI_CHECKLIST.md`, `Code/Tests/Unit/UI/SettingsApplyServiceTests.cs`, `Code/Tests/Unit/UI/ActionsTabManagerTests.cs`
 
 ---
 

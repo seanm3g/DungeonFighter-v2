@@ -36,7 +36,6 @@ namespace RPGGame.Editors
                 new EditableVariable("Combat.CriticalHitMultiplier", () => config.Combat.CriticalHitMultiplier, v => config.Combat.CriticalHitMultiplier = Convert.ToDouble(v), "Critical hit damage multiplier"),
                 new EditableVariable("Combat.MinimumDamage", () => config.Combat.MinimumDamage, v => config.Combat.MinimumDamage = Convert.ToInt32(v), "Minimum damage dealt"),
                 new EditableVariable("Combat.BaseAttackTime", () => config.Combat.BaseAttackTime, v => config.Combat.BaseAttackTime = Convert.ToDouble(v), "Base attack time in seconds"),
-                new EditableVariable("Combat.AgilitySpeedReduction", () => config.Combat.AgilitySpeedReduction, v => config.Combat.AgilitySpeedReduction = Convert.ToDouble(v), "Agility speed reduction per point (legacy, not used)"),
                 new EditableVariable("Combat.MinimumAttackTime", () => config.Combat.MinimumAttackTime, v => config.Combat.MinimumAttackTime = Convert.ToDouble(v), "Minimum attack time"),
                 new EditableVariable("Combat.AgilityMin", () => config.Combat.AgilityMin, v => config.Combat.AgilityMin = Convert.ToInt32(v), "Minimum agility value for speed calculation"),
                 new EditableVariable("Combat.AgilityMax", () => config.Combat.AgilityMax, v => config.Combat.AgilityMax = Convert.ToInt32(v), "Maximum agility value for speed calculation"),

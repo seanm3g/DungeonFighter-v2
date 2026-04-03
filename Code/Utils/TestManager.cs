@@ -508,19 +508,23 @@ namespace RPGGame
         /// Runs all available tests in sequence
         /// This is the main test runner that ensures all tests are completed
         /// </summary>
-        public static void RunAllTests()
+        /// <param name="skipUserPrompts">If true, skips interactive prompts (useful for UI mode)</param>
+        public static void RunAllTests(bool skipUserPrompts = false)
         {
             TextDisplayIntegration.DisplaySystem(GameConstants.StandardSeparator);
             TextDisplayIntegration.DisplaySystem("    DUNGEON FIGHTER v2 - TEST SUITE");
             TextDisplayIntegration.DisplaySystem(GameConstants.StandardSeparator);
             TextDisplayIntegration.DisplaySystem("This will run all available tests to verify system functionality.");
-            TextDisplayIntegration.DisplaySystem("Press any key to continue or 'q' to quit...");
             
-            var key = Console.ReadKey();
-            if (key.KeyChar == 'q' || key.KeyChar == 'Q')
+            if (!skipUserPrompts)
             {
-                TextDisplayIntegration.DisplaySystem("Test suite cancelled.");
-                return;
+                TextDisplayIntegration.DisplaySystem("Press any key to continue or 'q' to quit...");
+                var key = Console.ReadKey();
+                if (key.KeyChar == 'q' || key.KeyChar == 'Q')
+                {
+                    TextDisplayIntegration.DisplaySystem("Test suite cancelled.");
+                    return;
+                }
             }
             
             Console.WriteLine();
@@ -682,8 +686,12 @@ namespace RPGGame
             TextDisplayIntegration.DisplaySystem($"\n{GameConstants.StandardSeparator}");
             TextDisplayIntegration.DisplaySystem("    TEST SUITE COMPLETED");
             TextDisplayIntegration.DisplaySystem(GameConstants.StandardSeparator);
-            TextDisplayIntegration.DisplaySystem("Press any key to continue...");
-            Console.ReadKey();
+            
+            if (!skipUserPrompts)
+            {
+                TextDisplayIntegration.DisplaySystem("Press any key to continue...");
+                Console.ReadKey();
+            }
         }
         
         /// <summary>

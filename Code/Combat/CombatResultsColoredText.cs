@@ -34,9 +34,10 @@ namespace RPGGame
             double damageMultiplier = 1.0, 
             int rollBonus = 0, 
             int roll = 0,
-            int multiHitCount = 1)
+            int multiHitCount = 1,
+            bool isCriticalMiss = false)
         {
-            return DamageFormatter.FormatDamageDisplayColored(attacker, target, rawDamage, actualDamage, action, comboAmplifier, damageMultiplier, rollBonus, roll, multiHitCount);
+            return DamageFormatter.FormatDamageDisplayColored(attacker, target, rawDamage, actualDamage, action, comboAmplifier, damageMultiplier, rollBonus, roll, multiHitCount, isCriticalMiss);
         }
         
         /// <summary>
@@ -150,7 +151,7 @@ namespace RPGGame
             double actualSpeed = 0;
             if (action != null && action.Length > 0)
             {
-                actualSpeed = ActionSpeedCalculator.CalculateActualActionSpeed(attacker, action);
+                actualSpeed = ActionSpeedCalculator.CalculateActualActionSpeed(attacker, action, outcome.IsCriticalMiss);
             }
             
             var rollInfo = RollInfoFormatter.FormatRollInfoColored(roll, rollBonus, 0, 0, actualSpeed, null, action);
@@ -188,6 +189,7 @@ namespace RPGGame
             double actualSpeed = 0;
             if (action != null && action.Length > 0)
             {
+                // Check for critical miss penalty on the actor
                 actualSpeed = ActionSpeedCalculator.CalculateActualActionSpeed(source, action);
             }
             

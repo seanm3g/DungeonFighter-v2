@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Media;
+using RPGGame.Data;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.UI.ColorSystem;
@@ -63,19 +64,15 @@ namespace RPGGame.UI.Avalonia.Display
             // Calculate scroll offset
             int scrollOffset = CalculateScrollOffset(buffer, totalHeight, contentHeight);
             
-            // Clear the content area BEFORE calculating render positions
-            // Always clear to ensure old text doesn't show through when scrolling
-            // Clear a bit more area to ensure we catch any text that might be above due to scroll offset
-            // This prevents old text from showing when content is rendered at a different Y position
+            // Clear the content area BEFORE calculating render positions.
+            // Only clear up to the bottom of the content area so we do not clear the action strip below.
             if (clearContent)
             {
-                // Clear the full content area plus a buffer above and below to catch any overflow
-                // Use contentHeight + 1 to ensure we clear the full area (endY is exclusive)
-                // Clear from slightly above contentY to slightly below to catch any text that might shift
-                int clearStartY = Math.Max(0, contentY - 2); // Clear 2 lines above to catch any overflow
-                int clearEndY = contentY + contentHeight + 2; // Clear 2 lines below as well
-                int clearHeight = clearEndY - clearStartY + 1;
-                ClearContentArea(contentX, clearStartY, contentWidth, clearHeight);
+                int clearStartY = Math.Max(0, contentY - 2); // Clear 2 lines above to catch scroll overflow
+                int clearEndY = contentY + contentHeight;    // Do not clear below content (would wipe action strip names)
+                int clearHeight = clearEndY - clearStartY;
+                if (clearHeight > 0)
+                    ClearContentArea(contentX, clearStartY, contentWidth, clearHeight);
             }
             
             // Render lines, starting from the scroll offset position
@@ -310,7 +307,7 @@ namespace RPGGame.UI.Avalonia.Display
                         {
                             string namePart = segmentText.Substring(afterPrefix);
                             charPosition = prefix.Length;
-                            ApplyAnimationToText(namePart, segment.Color, result, charPosition, y);
+                            ApplyAnimationToText(namePart, segment.Color, result, charPosition, y, segment.SourceTemplate);
                             charPosition += namePart.Length;
                         }
                     }
@@ -324,7 +321,7 @@ namespace RPGGame.UI.Avalonia.Display
                 else
                 {
                     // We're past the prefix, animate the name
-                    ApplyAnimationToText(segment.Text, segment.Color, result, charPosition, y);
+                    ApplyAnimationToText(segment.Text, segment.Color, result, charPosition, y, segment.SourceTemplate);
                     charPosition += segment.Text.Length;
                 }
             }
@@ -336,8 +333,26 @@ namespace RPGGame.UI.Avalonia.Display
         /// Applies animation effects character-by-character to text
         /// Similar to DungeonSelectionRenderer's animation logic
         /// </summary>
-        private void ApplyAnimationToText(string text, Color baseColor, List<ColoredText> result, int startCharPosition, int lineOffset)
+        private void ApplyAnimationToText(string text, Color baseColor, List<ColoredText> result, int startCharPosition, int lineOffset, string? sourceTemplate = null)
         {
+            // Check if the template has undulation enabled
+            bool shouldUndulate = false;
+            if (!string.IsNullOrEmpty(sourceTemplate))
+            {
+                var templateData = ColorTemplateLoader.GetTemplate(sourceTemplate);
+                if (templateData != null)
+                {
+                    shouldUndulate = templateData.Undulate;
+                }
+            }
+            
+            // If no template source, apply undulation to all (backward compatibility)
+            // This maintains the current behavior for text without template sources
+            if (string.IsNullOrEmpty(sourceTemplate))
+            {
+                shouldUndulate = true;
+            }
+            
             // Generate a small random offset for this animated element based on line position
             // This makes each animated element look different from others
             // Use a hash of the line offset to get a consistent but varied offset per line
@@ -354,13 +369,17 @@ namespace RPGGame.UI.Avalonia.Display
                 brightnessFactor = Math.Max(0.3, Math.Min(2.0, brightnessFactor));
                 
                 // Get position-based undulation brightness (creates sine wave across text)
-                double undulationBrightness = animationState.GetUndulationBrightnessAt(adjustedPosition, lineOffset);
-                brightnessFactor += undulationBrightness * 3.0;
-                brightnessFactor = Math.Max(0.3, Math.Min(2.0, brightnessFactor));
+                // Only apply if the template has undulation enabled
+                if (shouldUndulate)
+                {
+                    double undulationBrightness = animationState.GetUndulationBrightnessAt(adjustedPosition, lineOffset);
+                    brightnessFactor += undulationBrightness * 3.0;
+                    brightnessFactor = Math.Max(0.3, Math.Min(2.0, brightnessFactor));
+                }
                 
                 // Apply brightness adjustments to color
                 Color adjustedColor = AdjustColorBrightness(baseColor, brightnessFactor);
-                result.Add(new ColoredText(c.ToString(), adjustedColor));
+                result.Add(new ColoredText(c.ToString(), adjustedColor, sourceTemplate));
                 
                 startCharPosition++;
             }

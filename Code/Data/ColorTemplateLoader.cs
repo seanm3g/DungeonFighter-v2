@@ -23,6 +23,9 @@ namespace RPGGame.Data
         [JsonPropertyName("description")]
         public string? Description { get; set; }
         
+        [JsonPropertyName("undulate")]
+        public bool Undulate { get; set; } = false; // Enable undulation brightness effects for this template
+        
         public override string ToString() => Name ?? "Unnamed";
     }
     
@@ -79,7 +82,8 @@ namespace RPGGame.Data
                         Name = t.Name,
                         ShaderType = t.ShaderType,
                         Colors = t.Colors,
-                        Description = t.Description
+                        Description = t.Description,
+                        Undulate = t.Undulate
                     }).ToList()
                 };
                 

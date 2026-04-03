@@ -252,7 +252,7 @@ namespace RPGGame
         /// </summary>
         private bool IsWizardClass(CharacterProgression progression, WeaponType? weaponType)
         {
-            if (weaponType == WeaponType.Staff)
+            if (weaponType == WeaponType.Wand)
                 return true;
 
             if (progression != null && progression.WizardPoints > 0)

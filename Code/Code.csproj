@@ -6,11 +6,18 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>DF</AssemblyName>
-    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
     <DefaultItemExcludes>$(DefaultItemExcludes);StandaloneColorDemo/**;ColorSystemTest/**</DefaultItemExcludes>
     <StartupObject>RPGGame.Program</StartupObject>
+    
+    <!-- Build Performance Optimizations -->
+    <BuildInParallel>true</BuildInParallel>
+    <UseSharedCompilation Condition="'$(OS)' == 'Windows_NT'">true</UseSharedCompilation>
+    
+    <!-- Conditional Compiled Bindings (faster Debug builds, optimized Release builds) -->
+    <AvaloniaUseCompiledBindingsByDefault Condition="'$(Configuration)' == 'Release'">true</AvaloniaUseCompiledBindingsByDefault>
+    <AvaloniaUseCompiledBindingsByDefault Condition="'$(Configuration)' == 'Debug'">false</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
 
   <ItemGroup>

@@ -29,15 +29,32 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         }
         
         /// <summary>
-        /// Renders the main menu content within the center panel (top-left justified)
+        /// Renders the main menu content within the center panel (centered horizontally and vertically)
         /// </summary>
         public int RenderMainMenuContent(int x, int y, int width, int height, bool hasSavedGame, string? characterName, int characterLevel)
         {
             clickableElements.Clear();
             int currentLineCount = 0;
             
-            // Position menu at top-left of center panel
-            var (menuStartX, menuStartY) = MenuLayoutCalculator.CalculateTopLeftMenu(x, y);
+            string loadGameTextForWidth = hasSavedGame && characterName != null
+                ? string.Format(UIConstants.Formats.LoadGameWithCharacter, characterName, characterLevel)
+                : UIConstants.MenuOptions.LoadGame;
+            
+            int maxOptionLength = Math.Max(
+                MenuOptionFormatter.Format(1, UIConstants.MenuOptions.NewGame).Length,
+                Math.Max(
+                    MenuOptionFormatter.Format(2, loadGameTextForWidth).Length,
+                    Math.Max(
+                        MenuOptionFormatter.Format(3, UIConstants.MenuOptions.Settings).Length,
+                        MenuOptionFormatter.Format(0, UIConstants.MenuOptions.Quit).Length
+                    )
+                )
+            );
+            
+            const int menuLineCount = 4;
+            const int footerReserve = 4;
+            int layoutHeight = Math.Max(height - footerReserve, menuLineCount + 2);
+            var (menuStartX, menuStartY) = MenuLayoutCalculator.CalculateCenteredMenu(x, y, width, layoutHeight, menuLineCount, maxOptionLength);
             
             // Color palette for menu items
             var cyanColor = ColorPalette.Cyan.GetColor();
@@ -53,7 +70,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             {
                 X = menuStartX,
                 Y = currentY,
-                Width = newGameText.Length,
+                Width = maxOptionLength,
                 Height = 1,
                 Type = ElementType.MenuOption,
                 Value = "1",
@@ -65,22 +82,14 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             currentY++;
             
             // Render [2] Load Game - with special coloring for character name
-            string loadGameText;
-            if (hasSavedGame && characterName != null)
-            {
-                loadGameText = string.Format(UIConstants.Formats.LoadGameWithCharacter, characterName, characterLevel);
-            }
-            else
-            {
-                loadGameText = UIConstants.MenuOptions.LoadGame;
-            }
+            string loadGameText = loadGameTextForWidth;
             
             string loadGameDisplayText = MenuOptionFormatter.Format(2, loadGameText);
             var loadGameOption = new ClickableElement
             {
                 X = menuStartX,
                 Y = currentY,
-                Width = loadGameDisplayText.Length,
+                Width = maxOptionLength,
                 Height = 1,
                 Type = ElementType.MenuOption,
                 Value = "2",
@@ -107,7 +116,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             {
                 X = menuStartX,
                 Y = currentY,
-                Width = settingsText.Length,
+                Width = maxOptionLength,
                 Height = 1,
                 Type = ElementType.MenuOption,
                 Value = "3",
@@ -126,7 +135,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             {
                 X = menuStartX,
                 Y = currentY,
-                Width = quitText.Length,
+                Width = maxOptionLength,
                 Height = 1,
                 Type = ElementType.MenuOption,
                 Value = "0",
@@ -136,19 +145,22 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             menuOptionRenderer.RenderColoredMenuOption(menuStartX, currentY, 0, UIConstants.MenuOptions.Quit, coolWhiteColor, quitOption.IsHovered);
             currentLineCount++;
             
-            // Add instruction text at bottom of center panel
+            // Add instruction text at bottom of center panel (horizontally centered)
             int instructionY = y + height - 3;
-            canvas.AddText(x + 2, instructionY, UIConstants.Messages.ClickOrPressNumber, AsciiArtAssets.Colors.Gray);
+            string instructionText = UIConstants.Messages.ClickOrPressNumber;
+            int instructionX = MenuLayoutCalculator.CalculateCenteredTextX(x, width, instructionText.Length);
+            canvas.AddText(instructionX, instructionY, instructionText, AsciiArtAssets.Colors.Gray);
             
             return currentLineCount;
         }
         
         /// <summary>
         /// Renders the main menu with saved game info if available (legacy method)
+        /// NOTE: This method is legacy and may not be used. Canvas clearing should be handled by the caller.
         /// </summary>
         public int RenderMainMenu(bool hasSavedGame, string? characterName, int characterLevel)
         {
-            canvas.Clear();
+            // Note: Canvas clearing removed - should be handled by caller or CanvasTitleLayoutCoordinator / PersistentLayoutRenderCoordinator
             clickableElements.Clear();
             int currentLineCount = 0;
             

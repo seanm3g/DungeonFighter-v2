@@ -10,11 +10,13 @@ namespace RPGGame.UI.Avalonia.Renderers
     public class HelpSystemRenderer
     {
         private readonly GameCanvasControl canvas;
+        private readonly System.Action clearCanvasAction;
         private bool showHelp = false;
         
-        public HelpSystemRenderer(GameCanvasControl canvas)
+        public HelpSystemRenderer(GameCanvasControl canvas, System.Action clearCanvasAction)
         {
-            this.canvas = canvas;
+            this.canvas = canvas ?? throw new ArgumentNullException(nameof(canvas));
+            this.clearCanvasAction = clearCanvasAction ?? throw new ArgumentNullException(nameof(clearCanvasAction));
         }
         
         /// <summary>
@@ -36,7 +38,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// </summary>
         public void RenderHelp()
         {
-            canvas.Clear();
+            clearCanvasAction();
             
             // Title
             canvas.AddTitle(2, "HELP - DUNGEON FIGHTERS", AsciiArtAssets.Colors.White);

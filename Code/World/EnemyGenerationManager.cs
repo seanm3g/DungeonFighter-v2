@@ -113,9 +113,7 @@ namespace RPGGame
                 string[] possiblePaths = {
                     Path.Combine("GameData", "Enemies.json"),
                     Path.Combine("..", "GameData", "Enemies.json"),
-                    Path.Combine("..", "..", "GameData", "Enemies.json"),
-                    Path.Combine("DF4 - CONSOLE", "GameData", "Enemies.json"),
-                    Path.Combine("..", "DF4 - CONSOLE", "GameData", "Enemies.json")
+                    Path.Combine("..", "..", "GameData", "Enemies.json")
                 };
 
                 string? foundPath = null;

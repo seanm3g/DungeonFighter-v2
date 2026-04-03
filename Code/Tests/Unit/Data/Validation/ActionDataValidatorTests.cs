@@ -27,6 +27,7 @@ namespace RPGGame.Tests.Unit.Data.Validation
             TestValidatorCreation();
             TestValidationExecution();
             TestRangeValidation();
+            TestValidStatBonusTypesAndThresholdAdjustments();
 
             TestBase.PrintSummary("ActionDataValidator Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -94,6 +95,39 @@ namespace RPGGame.Tests.Unit.Data.Validation
             {
                 TestBase.AssertTrue(false,
                     $"Range validation test failed: {ex.Message}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+        }
+
+        private static void TestValidStatBonusTypesAndThresholdAdjustments()
+        {
+            Console.WriteLine("\n--- Testing ValidStatBonusTypes and Threshold Adjustments ---");
+
+            try
+            {
+                TestBase.AssertTrue(ValidationRules.Actions.ValidStatBonusTypes.Contains("HealthRegen"),
+                    "ValidStatBonusTypes should include HealthRegen",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(ValidationRules.Actions.ValidStatBonusTypes.Contains("MaxHealth"),
+                    "ValidStatBonusTypes should include MaxHealth",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(ValidationRules.Actions.ValidStatBonusTypes.Contains("Heal"),
+                    "ValidStatBonusTypes should include Heal",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(ValidationRules.Actions.ValidStatBonusTypes.Contains("Health Regen"),
+                    "ValidStatBonusTypes should include Health Regen",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(ValidationRules.Actions.MinThresholdAdjustment == -20,
+                    "MinThresholdAdjustment should be -20",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(ValidationRules.Actions.MaxThresholdAdjustment == 20,
+                    "MaxThresholdAdjustment should be 20",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            catch (Exception ex)
+            {
+                TestBase.AssertTrue(false,
+                    $"ValidStatBonusTypes/ThresholdAdjustments test failed: {ex.Message}",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }

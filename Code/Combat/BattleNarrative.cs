@@ -156,7 +156,8 @@ namespace RPGGame
 
             // Convert to list to access last element (ConcurrentBag doesn't support indexing)
             var eventsList = events.ToList();
-            var lastEvent = eventsList[eventsList.Count - 1];
+            var lastEventIndex = eventsList.Count - 1;
+            var lastEvent = eventsList[lastEventIndex];
             
             // Return cached narratives if this is the same event we've already analyzed
             var cachedNarratives = narrativeCache.GetCachedNarratives(lastEvent);
@@ -174,6 +175,7 @@ namespace RPGGame
         /// <summary>
         /// Gets only the significant narratives that should be displayed for the last event
         /// Filters out narratives that shouldn't be shown (like every critical hit)
+        /// Only returns narratives for events that haven't been displayed yet
         /// </summary>
         /// <returns>List of significant narrative messages that should be displayed</returns>
         public List<string> GetTriggeredNarrativesIfSignificant()
@@ -185,7 +187,8 @@ namespace RPGGame
 
             // Convert to list to access last element (ConcurrentBag doesn't support indexing)
             var eventsList = events.ToList();
-            var lastEvent = eventsList[eventsList.Count - 1];
+            var lastEventIndex = eventsList.Count - 1;
+            var lastEvent = eventsList[lastEventIndex];
             
             // Check if this event is significant enough to warrant narrative display
             if (!ShouldDisplayNarrativesForEvent(lastEvent))
@@ -206,7 +209,8 @@ namespace RPGGame
             narrativeCache.CacheNarratives(lastEvent, triggeredNarratives);
             
             // Filter to only significant narratives
-            return FilterSignificantNarratives(triggeredNarratives, lastEvent);
+            var filteredNarratives = FilterSignificantNarratives(triggeredNarratives, lastEvent);
+            return filteredNarratives;
         }
 
         /// <summary>

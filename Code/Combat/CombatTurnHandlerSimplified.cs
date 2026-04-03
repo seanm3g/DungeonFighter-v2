@@ -26,7 +26,7 @@ namespace RPGGame
             // Check if player is stunned
             if (player.StunTurnsRemaining > 0)
             {
-                StunProcessor.ProcessStunnedEntity(player, stateManager);
+                await StunProcessor.ProcessStunnedEntityAsync(player, stateManager);
             }
             else
             {
@@ -49,7 +49,7 @@ namespace RPGGame
             // Check if enemy is stunned
             if (currentEnemy.StunTurnsRemaining > 0)
             {
-                StunProcessor.ProcessStunnedEntity(currentEnemy, stateManager);
+                await StunProcessor.ProcessStunnedEntityAsync(currentEnemy, stateManager);
             }
             else
             {

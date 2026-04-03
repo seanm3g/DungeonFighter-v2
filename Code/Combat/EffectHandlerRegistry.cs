@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using RPGGame.Combat.Effects;
 using RPGGame.UI.ColorSystem.Applications;
 
 namespace RPGGame
@@ -23,33 +24,29 @@ namespace RPGGame
 
         public EffectHandlerRegistry()
         {
-            _handlers = new Dictionary<string, IEffectHandler>
+            _handlers = new Dictionary<string, IEffectHandler>(StringComparer.OrdinalIgnoreCase)
             {
                 { "bleed", new BleedEffectHandler() },
                 { "weaken", new WeakenEffectHandler() },
                 { "slow", new SlowEffectHandler() },
                 { "poison", new PoisonEffectHandler() },
                 { "stun", new StunEffectHandler() },
-                { "burn", new BurnEffectHandler() },
-                // Advanced status effects (Phase 2)
-                { "vulnerability", new Combat.Effects.AdvancedStatusEffects.VulnerabilityEffectHandler() },
-                { "harden", new Combat.Effects.AdvancedStatusEffects.HardenEffectHandler() },
-                { "fortify", new Combat.Effects.AdvancedStatusEffects.FortifyEffectHandler() },
-                { "focus", new Combat.Effects.AdvancedStatusEffects.FocusEffectHandler() },
-                { "expose", new Combat.Effects.AdvancedStatusEffects.ExposeEffectHandler() },
-                { "hpregen", new Combat.Effects.AdvancedStatusEffects.HPRegenEffectHandler() },
-                { "armorbreak", new Combat.Effects.AdvancedStatusEffects.ArmorBreakEffectHandler() },
-                { "pierce", new Combat.Effects.AdvancedStatusEffects.PierceEffectHandler() },
-                { "reflect", new Combat.Effects.AdvancedStatusEffects.ReflectEffectHandler() },
-                { "silence", new Combat.Effects.AdvancedStatusEffects.SilenceEffectHandler() },
-                { "statdrain", new Combat.Effects.AdvancedStatusEffects.StatDrainEffectHandler() },
-                { "absorb", new Combat.Effects.AdvancedStatusEffects.AbsorbEffectHandler() },
-                { "temporaryhp", new Combat.Effects.AdvancedStatusEffects.TemporaryHPEffectHandler() },
-                { "confusion", new Combat.Effects.AdvancedStatusEffects.ConfusionEffectHandler() },
-                { "cleanse", new Combat.Effects.AdvancedStatusEffects.CleanseEffectHandler() },
-                { "mark", new Combat.Effects.AdvancedStatusEffects.MarkEffectHandler() },
-                { "disrupt", new Combat.Effects.AdvancedStatusEffects.DisruptEffectHandler() }
+                { "burn", new BurnEffectHandler() }
             };
+            foreach (var kv in StackTurnEffectHandler.CreateRegistryEntries())
+                _handlers[kv.Key] = kv.Value;
+            _handlers["absorb"] = new Combat.Effects.AdvancedStatusEffects.AbsorbEffectHandler();
+            _handlers["confusion"] = new Combat.Effects.AdvancedStatusEffects.ConfusionEffectHandler();
+            _handlers["cleanse"] = new Combat.Effects.AdvancedStatusEffects.CleanseEffectHandler();
+            _handlers["disrupt"] = new Combat.Effects.AdvancedStatusEffects.DisruptEffectHandler();
+        }
+
+        /// <summary>
+        /// Gets the handler for an effect type (for tests or inspection).
+        /// </summary>
+        public IEffectHandler? GetHandler(string effectType)
+        {
+            return _handlers.TryGetValue(effectType?.ToLower() ?? "", out var h) ? h : null;
         }
 
         /// <summary>
@@ -92,6 +89,23 @@ namespace RPGGame
                 "poisoning" => action.CausesPoison,
                 "stunning" => action.CausesStun,
                 "burning" => action.CausesBurn,
+                "vulnerability" => action.CausesVulnerability,
+                "harden" => action.CausesHarden,
+                "fortify" => action.CausesFortify,
+                "focus" => action.CausesFocus,
+                "expose" => action.CausesExpose,
+                "hpregen" => action.CausesHPRegen,
+                "armorbreak" => action.CausesArmorBreak,
+                "pierce" => action.CausesPierce,
+                "reflect" => action.CausesReflect,
+                "silence" => action.CausesSilence,
+                "statdrain" => action.CausesStatDrain,
+                "absorb" => action.CausesAbsorb,
+                "temporaryhp" => action.CausesTemporaryHP,
+                "confusion" => action.CausesConfusion,
+                "cleanse" => action.CausesCleanse,
+                "mark" => action.CausesMark,
+                "disrupt" => action.CausesDisrupt,
                 _ => false
             };
         }

@@ -39,6 +39,19 @@ namespace RPGGame
             }
         }
 
+        /// <summary>Chain position label (e.g. First, Last). From Actions settings form; used by combo/position logic.</summary>
+        public string ChainPosition { get; set; } = "";
+        /// <summary>Chain length (e.g. 3). From Actions settings form.</summary>
+        public string ChainLength { get; set; } = "";
+        /// <summary>Reset flag (e.g. "true"). From Actions settings form.</summary>
+        public string Reset { get; set; } = "";
+        /// <summary>Modify based on chain position (e.g. "true"). From Actions settings form.</summary>
+        public string ModifyBasedOnChainPosition { get; set; } = "";
+        /// <summary>When true, this action is constrained to the first slot of the combo sequence.</summary>
+        public bool IsOpener { get; set; }
+        /// <summary>When true, this action is constrained to the last slot of the combo sequence.</summary>
+        public bool IsFinisher { get; set; }
+
         /// <summary>
         /// Validates routing properties for consistency
         /// </summary>

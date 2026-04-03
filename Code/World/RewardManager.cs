@@ -33,7 +33,7 @@ namespace RPGGame
             HealPlayer(player);
             
             // Award XP (scaled by dungeon level using tuning config)
-            AwardXP(player, isFirstDungeon);
+            Progression.XPRewardSystem.AwardDungeonCompletionXP(player, dungeonLevel, isFirstDungeon);
 
             // Award guaranteed loot for dungeon completion
             await AwardLootAsync(player, inventory, dungeonLevel, dungeonTheme);
@@ -59,7 +59,7 @@ namespace RPGGame
             HealPlayer(player);
             
             // Award XP and get the amount and level-up info
-            var (xpGained, levelUpInfos) = AwardXPWithReturnAndLevelUpInfo(player, isFirstDungeon);
+            var (xpGained, levelUpInfos) = AwardXPWithReturnAndLevelUpInfo(player, dungeonLevel, isFirstDungeon);
 
             // Award guaranteed loot for dungeon completion and get the item
             Item? lootReceived = await AwardLootWithReturnAsync(player, inventory, dungeonLevel, dungeonTheme);
@@ -82,86 +82,35 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Awards XP to the player
-        /// </summary>
-        private void AwardXP(Character player, bool isFirstDungeon = false)
-        {
-            var tuning = GameConfiguration.Instance;
-            int xpReward = random.Next(tuning.Progression.EnemyXPBase, tuning.Progression.EnemyXPBase + 50) * player.Level;
-            
-            // Guarantee level-up after first dungeon (when level 1 and first dungeon completed)
-            if (player.Level == 1 && isFirstDungeon)
-            {
-                // Calculate XP needed to level from 1->2
-                int averageXPPerDungeonAtLevel1 = tuning.Progression.EnemyXPBase + 25;
-                int xpNeededForLevel2 = 1 * 1 * averageXPPerDungeonAtLevel1; // Level^2 * base
-                
-                // Ensure we award at least enough XP to level up, with a small buffer
-                if (xpReward < xpNeededForLevel2)
-                {
-                    xpReward = xpNeededForLevel2 + 5; // Add small buffer to ensure level up
-                }
-            }
-            
-            player.AddXP(xpReward);
-            BlockDisplayManager.DisplaySystemBlock(ColoredTextParser.Parse($"Gained {xpReward} XP!"));
-            UIManager.WriteBlankLine(); // Blank line between XP and loot
-
-            if (player.Level > 1)
-            {
-                UIManager.WriteLine($"Level up! You are now level {player.Level}");
-                UIManager.WriteBlankLine(); // Add line break after level up message
-            }
-        }
-        
-        /// <summary>
-        /// Awards XP to the player and returns the amount
-        /// </summary>
-        private int AwardXPWithReturn(Character player, bool isFirstDungeon = false)
-        {
-            var tuning = GameConfiguration.Instance;
-            int xpReward = random.Next(tuning.Progression.EnemyXPBase, tuning.Progression.EnemyXPBase + 50) * player.Level;
-            
-            // Guarantee level-up after first dungeon (when level 1 and first dungeon completed)
-            if (player.Level == 1 && isFirstDungeon)
-            {
-                // Calculate XP needed to level from 1->2
-                int averageXPPerDungeonAtLevel1 = tuning.Progression.EnemyXPBase + 25;
-                int xpNeededForLevel2 = 1 * 1 * averageXPPerDungeonAtLevel1; // Level^2 * base
-                
-                // Ensure we award at least enough XP to level up, with a small buffer
-                if (xpReward < xpNeededForLevel2)
-                {
-                    xpReward = xpNeededForLevel2 + 5; // Add small buffer to ensure level up
-                }
-            }
-            
-            player.AddXP(xpReward);
-            return xpReward;
-        }
-        
-        /// <summary>
         /// Awards XP to the player and returns the amount and level-up information
         /// </summary>
-        private (int xpGained, List<LevelUpInfo> levelUpInfos) AwardXPWithReturnAndLevelUpInfo(Character player, bool isFirstDungeon = false)
+        private (int xpGained, List<LevelUpInfo> levelUpInfos) AwardXPWithReturnAndLevelUpInfo(Character player, int dungeonLevel, bool isFirstDungeon = false)
         {
             var tuning = GameConfiguration.Instance;
-            int xpReward = random.Next(tuning.Progression.EnemyXPBase, tuning.Progression.EnemyXPBase + 50) * player.Level;
-            
+            int baseXP = tuning.Progression.EnemyXPBase;
+            if (baseXP <= 0)
+            {
+                baseXP = 25; // Fallback minimum if config is 0 or negative
+            }
+
+            // Calculate XP based on dungeon level (not player level)
+            int dungeonLevelXP = baseXP + (dungeonLevel * tuning.Progression.EnemyXPPerLevel);
+            int xpReward = dungeonLevelXP * 10; // 10x multiplier for dungeon completion
+
             // Guarantee level-up after first dungeon (when level 1 and first dungeon completed)
             if (player.Level == 1 && isFirstDungeon)
             {
                 // Calculate XP needed to level from 1->2
-                int averageXPPerDungeonAtLevel1 = tuning.Progression.EnemyXPBase + 25;
+                int averageXPPerDungeonAtLevel1 = baseXP + 25;
                 int xpNeededForLevel2 = 1 * 1 * averageXPPerDungeonAtLevel1; // Level^2 * base
-                
+
                 // Ensure we award at least enough XP to level up, with a small buffer
                 if (xpReward < xpNeededForLevel2)
                 {
                     xpReward = xpNeededForLevel2 + 5; // Add small buffer to ensure level up
                 }
             }
-            
+
             var levelUpInfos = player.AddXPWithLevelUpInfo(xpReward);
             return (xpReward, levelUpInfos);
         }
@@ -185,6 +134,9 @@ namespace RPGGame
                 // Add to inventory (player.AddToInventory already adds to player.Inventory, 
                 // and inventory parameter is a reference to the same list)
                 player.AddToInventory(reward);
+                
+                // Award XP for finding item
+                Progression.XPRewardSystem.AwardItemFoundXP(player, reward);
                 
                 // Track item collection statistics
                 player.RecordItemCollected(reward);

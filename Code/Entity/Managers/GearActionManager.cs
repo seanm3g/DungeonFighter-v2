@@ -214,19 +214,37 @@ namespace RPGGame
         private List<string> GetWeaponTypeActions(WeaponType weaponType)
         {
             var weaponTag = weaponType.ToString().ToLower();
-            var allActions = ActionLoader.GetAllActions();
+            var weaponTypeName = weaponType.ToString();
+            var allActionData = ActionLoader.GetAllActionData();
+            var weaponActions = new List<string>();
 
-            // Get weapon-specific actions from JSON using tag matching
-            // Actions must have both "weapon" tag and the weapon type tag (e.g., "wand", "mace")
-            // Exclude "class" tagged actions (class-only actions cannot appear on weapons)
-            var weaponActions = allActions
-                .Where(action => action.Tags != null &&
-                                action.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
-                                action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)) &&
-                                !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)) &&
-                                !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)))
-                .Select(action => action.Name)
-                .ToList();
+            // First, check for actions assigned via WeaponTypes property
+            foreach (var actionData in allActionData)
+            {
+                // Check if action is assigned to this weapon type via WeaponTypes property
+                if (actionData.WeaponTypes != null && 
+                    actionData.WeaponTypes.Any(wt => wt.Equals(weaponTypeName, StringComparison.OrdinalIgnoreCase)))
+                {
+                    weaponActions.Add(actionData.Name);
+                }
+            }
+
+            // If no actions found via WeaponTypes, fall back to tag-based matching
+            if (weaponActions.Count == 0)
+            {
+                var allActions = ActionLoader.GetAllActions();
+                // Get weapon-specific actions from JSON using tag matching
+                // Actions must have both "weapon" tag and the weapon type tag (e.g., "wand", "mace")
+                // Exclude "class" tagged actions (class-only actions cannot appear on weapons)
+                weaponActions = allActions
+                    .Where(action => action.Tags != null &&
+                                    action.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
+                                    action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)) &&
+                                    !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)) &&
+                                    !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)))
+                    .Select(action => action.Name)
+                    .ToList();
+            }
 
             // No fallback - return empty list if no actions found
             // This ensures we don't add BASIC ATTACK

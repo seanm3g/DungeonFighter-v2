@@ -31,6 +31,8 @@ namespace RPGGame.Tests.Unit
             TestProgressionPersistence();
             TestInventoryPersistence();
 
+            CharacterSaveManagerMultiFileTests.RunAllTests();
+
             TestBase.PrintSummary("Save/Load System Tests", _testsRun, _testsPassed, _testsFailed);
         }
 

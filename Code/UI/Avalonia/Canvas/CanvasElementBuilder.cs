@@ -38,10 +38,12 @@ namespace RPGGame.UI.Avalonia.Canvas
         }
 
         /// <summary>
-        /// Adds text with glow effect to the canvas at the specified position
+        /// Adds text with glow effect to the canvas at the specified position.
+        /// Removes any existing text at (x, y) first so re-renders do not duplicate (e.g. STATS header).
         /// </summary>
         public void AddText(int x, int y, string text, Color color, Color glowColor, double glowIntensity = 0.5, int glowRadius = 3)
         {
+            elementManager.RemoveText(t => t.X == x && t.Y == y);
             var textElement = new CanvasText
             {
                 X = x,
@@ -150,6 +152,10 @@ namespace RPGGame.UI.Avalonia.Canvas
             if (color == default) color = Colors.White;
             if (isHovered) color = Colors.Yellow;
             
+            // Ensure option is not null or empty
+            if (string.IsNullOrEmpty(option))
+                option = $"Weapon {number}";
+            
             AddText(x, y, $"[{number}]", color);
             AddText(x + $"[{number}]".Length + 1, y, option, isHovered ? Colors.Yellow : Colors.White);
         }
@@ -187,6 +193,10 @@ namespace RPGGame.UI.Avalonia.Canvas
             if (statName == "TECH")
             {
                 spacesNeeded = 1; // TECH: # (1 space)
+            }
+            else if (statName == "Armor")
+            {
+                spacesNeeded = 3; // Align value column with Damage / Speed primary lines
             }
             else
             {

@@ -21,6 +21,8 @@ namespace RPGGame.Tests.Runners
 
             ActionLoaderTests.RunAllTests();
             Console.WriteLine();
+            ActionDataToSpreadsheetJsonConverterTests.RunAllTests();
+            Console.WriteLine();
             JsonLoaderTests.RunAllTests();
             Console.WriteLine();
             LootGeneratorTests.RunAllTests();

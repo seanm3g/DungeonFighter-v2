@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
 using static RPGGame.UI.Avalonia.AsciiArtAssets;
@@ -11,50 +13,76 @@ namespace RPGGame
     public static class StunProcessor
     {
         /// <summary>
-        /// Processes a stunned entity (player or enemy) with generic logic
+        /// Processes a stunned entity (player or enemy) with generic logic.
+        /// Uses synchronous display; combat loop does not wait for the full action delay.
+        /// Prefer <see cref="ProcessStunnedEntityAsync"/> when the caller can await so stun blocks get the same pacing as normal actions.
         /// </summary>
         /// <typeparam name="T">Type of entity (Character or Enemy)</typeparam>
         /// <param name="entity">The stunned entity</param>
         /// <param name="stateManager">Combat state manager for turn tracking</param>
         public static void ProcessStunnedEntity<T>(T entity, CombatStateManager stateManager) where T : Actor
         {
-            if (!CombatManager.DisableCombatUIOutput)
-            {
-                // Use the new block-based system for stun messages with ColoredText
-                // Spacing is handled by TextSpacingSystem in DisplayEffectBlock
-                // Build properly colored stun message with actor name and stunned template
-                var builder = new ColoredTextBuilder();
-                
-                // Add actor name with appropriate color (no brackets)
-                builder.Add(entity.Name, EntityColorHelper.GetActorColor(entity));
-                // Add "is" with space
-                builder.AddSpace();
-                builder.Add("is", Colors.White);
-                // Add "stunned" using the stunned template
-                builder.AddSpace();
-                var stunnedSegments = ColorTemplateLibrary.GetTemplate("stunned", "stunned");
-                builder.AddRange(stunnedSegments);
-                // Add "and cannot act!"
-                builder.AddSpace();
-                builder.Add("and cannot act!", Colors.White);
-                
-                var effectText = builder.Build();
-                
-                // Build details text
-                var detailsBuilder = new ColoredTextBuilder();
-                detailsBuilder.Add($"{entity.StunTurnsRemaining} turns remaining", Colors.White);
-                var detailsText = detailsBuilder.Build();
-                
-                BlockDisplayManager.DisplayEffectBlock(effectText, detailsText);
-            }
-            
-            // Get the entity's action speed to calculate proper stun reduction
+            DisplayStunBlock(entity);
+            ApplyStunTurnUpdates(entity, stateManager);
+        }
+
+        /// <summary>
+        /// Processes a stunned entity (player or enemy) and waits for the stun block display delay.
+        /// Use this from the combat turn handler so stun blocks get the same ActionDelayMs pacing as normal combat actions.
+        /// </summary>
+        /// <typeparam name="T">Type of entity (Character or Enemy)</typeparam>
+        /// <param name="entity">The stunned entity</param>
+        /// <param name="stateManager">Combat state manager for turn tracking</param>
+        public static async Task ProcessStunnedEntityAsync<T>(T entity, CombatStateManager stateManager) where T : Actor
+        {
+            await DisplayStunBlockAsync(entity);
+            ApplyStunTurnUpdates(entity, stateManager);
+        }
+
+        private static void DisplayStunBlock<T>(T entity) where T : Actor
+        {
+            if (CombatManager.DisableCombatUIOutput) return;
+
+            var (actionText, statusEffects, character) = BuildStunBlockContent(entity);
+            BlockDisplayManager.DisplayActionBlock(actionText, new List<ColoredText>(), statusEffects, null, null, character);
+        }
+
+        private static async Task DisplayStunBlockAsync<T>(T entity) where T : Actor
+        {
+            if (CombatManager.DisableCombatUIOutput) return;
+
+            var (actionText, statusEffects, character) = BuildStunBlockContent(entity);
+            await BlockDisplayManager.DisplayActionBlockAsync(actionText, new List<ColoredText>(), statusEffects, null, null, character);
+        }
+
+        private static (List<ColoredText> actionText, List<List<ColoredText>> statusEffects, Character? character) BuildStunBlockContent<T>(T entity) where T : Actor
+        {
+            var builder = new ColoredTextBuilder();
+            builder.Add(entity.Name, EntityColorHelper.GetActorColor(entity));
+            builder.AddSpace();
+            builder.Add("is", Colors.White);
+            builder.AddSpace();
+            var stunnedSegments = ColorTemplateLibrary.GetTemplate("stunned", "stunned");
+            builder.AddRange(stunnedSegments);
+            builder.AddSpace();
+            builder.Add("and cannot act!", Colors.White);
+            var actionText = builder.Build();
+
+            var statusEffectBuilder = new ColoredTextBuilder();
+            statusEffectBuilder.Add("(");
+            statusEffectBuilder.Add($"{entity.StunTurnsRemaining} turns remaining", Colors.White);
+            statusEffectBuilder.Add(")");
+            var turnsRemainingStatusEffect = statusEffectBuilder.Build();
+            var statusEffects = new List<List<ColoredText>> { turnsRemainingStatusEffect };
+
+            Character? character = entity as Character;
+            return (actionText, statusEffects, character);
+        }
+
+        private static void ApplyStunTurnUpdates<T>(T entity, CombatStateManager stateManager) where T : Actor
+        {
             double entityActionSpeed = GetEntityActionSpeed(entity);
-            
-            // Update temp effects with action speed-based turn reduction
-            entity.UpdateTempEffects(entityActionSpeed / 10.0); // Normalize to turn-based system
-            
-            // Advance the entity's turn in the action speed system based on their action speed
+            entity.UpdateTempEffects(entityActionSpeed / 10.0);
             var currentSpeedSystem = stateManager.GetCurrentActionSpeedSystem();
             if (currentSpeedSystem != null)
             {

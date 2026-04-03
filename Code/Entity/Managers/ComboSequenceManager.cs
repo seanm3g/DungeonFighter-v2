@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -57,15 +57,36 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Reorders the combo sequence and updates combo order values
+        /// Reorders the combo sequence and updates combo order values.
+        /// Openers are forced to the first slot(s), finishers to the last slot(s); middle actions keep relative order by ComboOrder.
         /// </summary>
         private void ReorderComboSequence()
         {
             ComboSequence.Sort((a, b) => a.ComboOrder.CompareTo(b.ComboOrder));
-            for (int i = 0; i < ComboSequence.Count; i++)
+            var openers = new List<Action>();
+            var middle = new List<Action>();
+            var finishers = new List<Action>();
+            foreach (var a in ComboSequence)
             {
-                ComboSequence[i].ComboOrder = i + 1;
+                bool isOpener = a.ComboRouting?.IsOpener == true;
+                bool isFinisher = a.ComboRouting?.IsFinisher == true;
+                if (isOpener && !isFinisher)
+                    openers.Add(a);
+                else if (isFinisher)
+                    finishers.Add(a);
+                else
+                    middle.Add(a);
             }
+            var ordered = new List<Action>();
+            ordered.AddRange(openers);
+            ordered.AddRange(middle);
+            ordered.AddRange(finishers);
+            for (int i = 0; i < ordered.Count; i++)
+            {
+                ordered[i].ComboOrder = i + 1;
+            }
+            ComboSequence.Clear();
+            ComboSequence.AddRange(ordered);
         }
 
         /// <summary>
@@ -118,14 +139,21 @@ namespace RPGGame
 
         /// <summary>
         /// Updates combo sequence after gear changes
+        /// Removes actions from combo sequence if the exact Action object is no longer in the action pool
+        /// This ensures that when an item is unequipped, its actions are removed from the combo sequence
+        /// even if another source (like class actions) provides an action with the same name
         /// </summary>
         public void UpdateComboSequenceAfterGearChange(Actor entity) {  
             // Remove actions that are no longer in the action pool
+            // Check by exact Action object reference, not just by name
+            // This ensures that if a weapon action is removed, it's removed from combo even if
+            // a class action with the same name exists
             var actionsToRemove = new List<Action>();
             foreach (var comboAction in ComboSequence)
             {
+                // Check if the exact Action object is still in the action pool
                 var stillInPool = entity.ActionPool.Any(item => 
-                    item.action.Name == comboAction.Name);
+                    ReferenceEquals(item.action, comboAction));
                 
                 if (!stillInPool)
                 {
@@ -175,6 +203,38 @@ namespace RPGGame
         public void ClearCombo()
         {
             ComboSequence.Clear();
+        }
+
+        /// <summary>
+        /// Restores the combo sequence from a list of action names.
+        /// Matches actions by name from the entity's ActionPool and adds them in order.
+        /// Skips names that are not in the pool or not combo actions.
+        /// </summary>
+        /// <param name="entity">The actor whose ActionPool to use</param>
+        /// <param name="actionNames">Ordered list of action names to restore</param>
+        /// <returns>True if at least one action was restored; false if combo is empty</returns>
+        public bool RestoreComboFromActionNames(Actor entity, IReadOnlyList<string> actionNames)
+        {
+            if (actionNames == null || actionNames.Count == 0)
+                return false;
+
+            ClearCombo();
+
+            foreach (var actionName in actionNames)
+            {
+                if (string.IsNullOrWhiteSpace(actionName))
+                    continue;
+
+                var actionEntry = entity.ActionPool.FirstOrDefault(item =>
+                    string.Equals(item.action.Name, actionName, StringComparison.OrdinalIgnoreCase));
+
+                if (actionEntry.action != null && actionEntry.action.IsComboAction)
+                {
+                    AddToCombo(actionEntry.action);
+                }
+            }
+
+            return ComboSequence.Count > 0;
         }
     }
 }

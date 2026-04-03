@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace RPGGame
 {
     /// <summary>
@@ -5,17 +7,25 @@ namespace RPGGame
     /// </summary>
     public class AdvancedMechanicsProperties
     {
+        /// <summary>Accumulation rules: bonus damage/effect per self damage, cadences passed, etc.</summary>
+        public List<AccumulationEntry> Accumulations { get; set; } = new List<AccumulationEntry>();
         public int MultiHitCount { get; set; } = 1;
         public int SelfDamagePercent { get; set; } = 0;
         public int RollBonus { get; set; } = 0;
         public int RollBonusDuration { get; set; } = 0;
+        /// <summary>Multiple stat bonuses. When non-empty, use this; otherwise legacy single properties apply.</summary>
+        public List<StatBonusEntry> StatBonuses { get; set; } = new List<StatBonusEntry>();
+        /// <summary>Legacy: first stat bonus value. Use StatBonuses when non-empty.</summary>
         public int StatBonus { get; set; } = 0;
+        /// <summary>Legacy: first stat bonus type. Use StatBonuses when non-empty.</summary>
         public string StatBonusType { get; set; } = "";
         public int StatBonusDuration { get; set; } = 0;
         public bool SkipNextTurn { get; set; } = false;
         public bool GuaranteeNextSuccess { get; set; } = false;
         public int HealAmount { get; set; } = 0;
         public double HealthThreshold { get; set; } = 0.0;
+        /// <summary>Thresholds per attribute (value 0.0-1.0, type: Health, Strength, Agility, Technique, Intelligence). When non-empty, use this; otherwise legacy HealthThreshold applies.</summary>
+        public List<ThresholdEntry> Thresholds { get; set; } = new List<ThresholdEntry>();
         public double StatThreshold { get; set; } = 0.0;
         public string StatThresholdType { get; set; } = "";
         public double ConditionalDamageMultiplier { get; set; } = 1.0;
