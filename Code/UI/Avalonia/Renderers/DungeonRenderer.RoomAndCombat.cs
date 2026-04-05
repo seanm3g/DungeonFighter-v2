@@ -4,6 +4,7 @@ using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Managers;
+using System;
 using System.Collections.Generic;
 
 namespace RPGGame.UI.Avalonia.Renderers
@@ -81,11 +82,12 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
 
         /// <summary>
-        /// Renders the action-info strip below the center panel (combat, inventory, etc.).
+        /// Renders the action-info strip at the top of the center column (combat, inventory, etc.), above the combat log.
         /// One panel per combo action, left to right; selected (current combo step) panel border is highlighted.
         /// When player is null or has no actions, strip is cleared.
         /// </summary>
-        public void RenderActionInfoStrip(Character? player)
+        /// <param name="drawHoverDetailOverlay">When false, skips the large center tooltip (e.g. character creation narrative occupies the same cells; clearing would erase it).</param>
+        public void RenderActionInfoStrip(Character? player, bool drawHoverDetailOverlay = true)
         {
             int stripX = LayoutConstants.ACTION_INFO_X;
             int stripY = LayoutConstants.ACTION_INFO_Y;
@@ -117,12 +119,14 @@ namespace RPGGame.UI.Avalonia.Renderers
                 canvas.AddText(contentX, contentY, name, AsciiArtAssets.Colors.White);
                 contentY++;
 
-                // Damage: green if modified up, red if modified down, white when base
-                int damageDisplay = info.DamageModified != info.DamageBase ? info.DamageModified : info.DamageBase;
-                var damageColor = info.DamageModified != info.DamageBase
+                // Damage % of character base (action multiplier); green/red when DAMAGE_MOD changes it
+                const double damageCmpEps = 0.0001;
+                bool damageDiffers = Math.Abs(info.DamageModified - info.DamageBase) > damageCmpEps;
+                double damageDisplay = damageDiffers ? info.DamageModified : info.DamageBase;
+                var damageColor = damageDiffers
                     ? (info.DamageModified > info.DamageBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
                     : AsciiArtAssets.Colors.White;
-                string damageLine = $"Dmg {damageDisplay}";
+                string damageLine = $"Dmg {damageDisplay:F0}%";
                 if (damageLine.Length > contentW) damageLine = damageLine.Substring(0, contentW - 3) + "...";
                 if (contentY < py + panelH)
                 {
@@ -130,12 +134,12 @@ namespace RPGGame.UI.Avalonia.Renderers
                     contentY++;
                 }
 
-                // Attack speed: green if faster (lower time), red if slower (higher time), white when base
+                // Speed % (action details): green if faster (higher %), red if slower (lower %), white when base
                 double speedDisplay = info.SpeedModified != info.SpeedBase ? info.SpeedModified : info.SpeedBase;
                 var speedColor = info.SpeedModified != info.SpeedBase
-                    ? (info.SpeedModified < info.SpeedBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
+                    ? (info.SpeedModified > info.SpeedBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
                     : AsciiArtAssets.Colors.White;
-                string speedLine = $"Spd {speedDisplay:F1}s";
+                string speedLine = $"Spd {speedDisplay:F0}%";
                 if (speedLine.Length > contentW) speedLine = speedLine.Substring(0, contentW - 3) + "...";
                 if (contentY < py + panelH)
                 {
@@ -161,6 +165,61 @@ namespace RPGGame.UI.Avalonia.Renderers
                 string line = modifierLines[m];
                 if (line.Length > modW) line = line.Substring(0, modW - 3) + "...";
                 canvas.AddText(modX, modY + m, line, AsciiArtAssets.Colors.Gold);
+            }
+
+            if (drawHoverDetailOverlay)
+                RenderActionStripTooltipOverlay(player, panelData.Count);
+        }
+
+        /// <summary>
+        /// Draws a text box in the top of the framed center panel when the pointer hovers an action strip card.
+        /// Clears a band of the combat log area first so text remains readable.
+        /// </summary>
+        private void RenderActionStripTooltipOverlay(Character? player, int panelCount)
+        {
+            if (player == null || panelCount <= 0)
+                return;
+
+            int hi = ActionStripHoverState.HoveredPanelIndex;
+            if (hi < 0 || hi >= panelCount)
+                return;
+
+            int innerLeft = LayoutConstants.CENTER_PANEL_X + 1;
+            int innerTop = LayoutConstants.CENTER_PANEL_Y + 1;
+            int innerRight = LayoutConstants.CENTER_PANEL_X + LayoutConstants.CENTER_PANEL_WIDTH - 2;
+            int innerW = Math.Max(8, innerRight - innerLeft + 1);
+
+            ActionInfoStripLayout.GetPanelRect(hi, panelCount, out int px, out _, out int pw, out _);
+            int boxW = Math.Min(52, innerW);
+            int idealX = px + pw / 2 - boxW / 2;
+            int boxX = Math.Max(innerLeft, Math.Min(idealX, innerRight - boxW + 1));
+
+            const int maxTooltipLines = 14;
+            int innerTextW = Math.Max(4, boxW - 2);
+            var tipLines = CombatActionStripBuilder.BuildActionTooltipLines(player, hi, innerTextW, maxTooltipLines + 2);
+            if (tipLines == null || tipLines.Count == 0)
+                return;
+
+            if (tipLines.Count > maxTooltipLines)
+                tipLines = tipLines.GetRange(0, maxTooltipLines);
+
+            int boxH = tipLines.Count + 2;
+            int maxBoxBottom = LayoutConstants.CENTER_PANEL_Y + LayoutConstants.CENTER_PANEL_HEIGHT - 2;
+            int boxY = innerTop;
+            if (boxY + boxH - 1 > maxBoxBottom)
+                boxY = Math.Max(innerTop, maxBoxBottom - boxH + 1);
+
+            canvas.ClearTextInArea(boxX, boxY, boxW, boxH);
+            canvas.ClearBoxesInArea(boxX, boxY, boxW, boxH);
+            canvas.AddBorder(boxX, boxY, boxW, boxH, AsciiArtAssets.Colors.Yellow);
+
+            int tx = boxX + 1;
+            int ty = boxY + 1;
+            foreach (var line in tipLines)
+            {
+                string draw = line.Length > innerTextW ? line.Substring(0, innerTextW - 3) + "..." : line;
+                canvas.AddText(tx, ty, draw, AsciiArtAssets.Colors.White);
+                ty++;
             }
         }
     }

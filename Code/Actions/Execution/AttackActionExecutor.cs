@@ -78,7 +78,8 @@ namespace RPGGame.Actions.Execution
                 
                 // Use threshold manager to determine critical hit (consistent with ActionExecutionFlow)
                 bool isCriticalHit = totalRoll >= RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
-                ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, totalDamage, totalRoll, rollBonus, true, true, 0, 0, isCriticalHit, naturalRoll, battleNarrative);
+                bool isComboEvent = selectedAction.IsComboAction && totalRoll >= RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetComboThreshold(source);
+                ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, totalDamage, totalRoll, rollBonus, true, isComboEvent, 0, 0, isCriticalHit, naturalRoll, battleNarrative);
                 
                 // Reset combo when a non-combo (normal) attack completes successfully
                 if (source is Character resetCharacter && !(resetCharacter is Enemy) && !selectedAction.IsComboAction
@@ -135,7 +136,7 @@ namespace RPGGame.Actions.Execution
                     ActionStatisticsTracker.RecordDamageReceived(targetCharacter, damage);
                 }
                 
-                bool isCombo = selectedAction.IsComboAction;
+                bool isCombo = selectedAction.IsComboAction && totalRoll >= RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetComboThreshold(source);
                 // Use threshold manager to determine critical hit (consistent with ActionExecutionFlow)
                 bool isCriticalHit = totalRoll >= RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
                 ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, damage, totalRoll, rollBonus, true, isCombo, 0, 0, isCriticalHit, naturalRoll, battleNarrative);

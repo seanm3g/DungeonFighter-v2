@@ -26,6 +26,8 @@ namespace RPGGame.Tests.Unit.Data
             TestConvertListPreservesOrderAndMerges();
             TestMergeEmptyTagsOverridesBaseRow();
             TestMergeOpenerFinisherRoundTrip();
+            TestMergeHeroRollZeroClearsBaseRow();
+            TestMergeCritMissRoundTrip();
 
             TestBase.PrintSummary("ActionDataToSpreadsheetJsonConverter Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -112,7 +114,7 @@ namespace RPGGame.Tests.Unit.Data
             var row = ActionDataToSpreadsheetJsonConverter.Merge(data, baseRow);
             TestBase.AssertEqual("UPDATED", row.Action, "Action name overwritten", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual("WEAPON", row.Rarity, "Rarity overwritten", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual("5", row.HeroAccuracy, "HeroAccuracy preserved from base", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("", row.HeroAccuracy, "HeroAccuracy from ActionData when RollBonus is 0 (not base row)", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual("1", row.EnemyCrit, "EnemyCrit preserved from base", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -157,6 +159,65 @@ namespace RPGGame.Tests.Unit.Data
             row = ActionDataToSpreadsheetJsonConverter.Merge(data, null);
             TestBase.AssertEqual("", row.Opener, "Opener false should write empty", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual("true", row.Finisher, "Finisher true should write as true", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Zero roll bonuses must clear spreadsheet cells, not fall back to baseRow (fixes Settings Save revert).
+        /// </summary>
+        private static void TestMergeHeroRollZeroClearsBaseRow()
+        {
+            System.Console.WriteLine("--- Merge hero roll zero clears base row ---");
+            var baseRow = new SpreadsheetActionJson
+            {
+                Action = "JAB",
+                HeroHit = "5",
+                HeroCombo = "5",
+                HeroAccuracy = "20",
+                HeroCrit = "3"
+            };
+            var data = new ActionData
+            {
+                Name = "JAB",
+                Type = "Attack",
+                TargetType = "SingleTarget",
+                DamageMultiplier = 1.0,
+                Length = 1.0,
+                MultiHitCount = 1,
+                RollBonus = 0,
+                HitThresholdAdjustment = 0,
+                ComboThresholdAdjustment = 0,
+                CriticalHitThresholdAdjustment = 0
+            };
+            var row = ActionDataToSpreadsheetJsonConverter.Merge(data, baseRow);
+            TestBase.AssertEqual("", row.HeroHit, "Hit 0 must not keep base 5", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("", row.HeroCombo, "Combo 0 must not keep base 5", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("", row.HeroAccuracy, "Accuracy 0 must not keep base 20", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("", row.HeroCrit, "Crit 0 must not keep base 3", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestMergeCritMissRoundTrip()
+        {
+            System.Console.WriteLine("--- Merge crit miss round-trip ---");
+            var data = new ActionData
+            {
+                Name = "TEST",
+                Type = "Attack",
+                TargetType = "SingleTarget",
+                DamageMultiplier = 1.0,
+                Length = 1.0,
+                MultiHitCount = 1,
+                CriticalMissThresholdAdjustment = -2
+            };
+            var row = ActionDataToSpreadsheetJsonConverter.Merge(data, null);
+            TestBase.AssertEqual("-2", row.HeroCritMiss, "Crit miss written to row", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var sheet = row.ToSpreadsheetActionData();
+            var actionData = SpreadsheetToActionDataConverter.Convert(sheet);
+            TestBase.AssertEqual(-2, actionData.CriticalMissThresholdAdjustment, "Crit miss loads back from sheet", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            data.CriticalMissThresholdAdjustment = 0;
+            row = ActionDataToSpreadsheetJsonConverter.Merge(data, new SpreadsheetActionJson { Action = "TEST", HeroCritMiss = "-2" });
+            TestBase.AssertEqual("", row.HeroCritMiss, "Crit miss 0 clears value", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }
 }

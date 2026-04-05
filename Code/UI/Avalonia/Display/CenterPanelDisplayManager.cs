@@ -151,6 +151,9 @@ namespace RPGGame.UI.Avalonia.Display
         public void SetExternalRenderCallback(System.Action? renderCallback)
         {
             externalRenderCallback = renderCallback;
+            // Keep coordinator in sync so clearing the callback takes effect before the next TriggerRender
+            // (otherwise a pending scheduled render can still invoke a stale combat delegate).
+            renderCoordinator.SetExternalRenderCallback(renderCallback);
         }
         
         /// <summary>

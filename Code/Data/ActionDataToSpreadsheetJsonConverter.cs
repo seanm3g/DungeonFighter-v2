@@ -55,11 +55,12 @@ namespace RPGGame.Data
             // Always use edited TriggerConditions so clearing them persists (no baseRow fallback when empty)
             row.TriggerConditions = data.TriggerConditions != null && data.TriggerConditions.Count > 0 ? string.Join(", ", data.TriggerConditions) : "";
 
-            // Roll bonuses (form fields → spreadsheet columns for round-trip)
-            row.HeroAccuracy = data.RollBonus != 0 ? data.RollBonus.ToString() : (baseRow?.HeroAccuracy ?? "");
-            row.HeroHit = data.HitThresholdAdjustment != 0 ? data.HitThresholdAdjustment.ToString() : (baseRow?.HeroHit ?? "");
-            row.HeroCombo = data.ComboThresholdAdjustment != 0 ? data.ComboThresholdAdjustment.ToString() : (baseRow?.HeroCombo ?? "");
-            row.HeroCrit = data.CriticalHitThresholdAdjustment != 0 ? data.CriticalHitThresholdAdjustment.ToString() : (baseRow?.HeroCrit ?? "");
+            // Roll bonuses: ActionData is source of truth (zero → "" so save does not resurrect baseRow values)
+            row.HeroAccuracy = data.RollBonus != 0 ? data.RollBonus.ToString() : "";
+            row.HeroHit = data.HitThresholdAdjustment != 0 ? data.HitThresholdAdjustment.ToString() : "";
+            row.HeroCombo = data.ComboThresholdAdjustment != 0 ? data.ComboThresholdAdjustment.ToString() : "";
+            row.HeroCrit = data.CriticalHitThresholdAdjustment != 0 ? data.CriticalHitThresholdAdjustment.ToString() : "";
+            row.HeroCritMiss = data.CriticalMissThresholdAdjustment != 0 ? data.CriticalMissThresholdAdjustment.ToString() : "";
 
             // Stat bonuses from ActionAttackBonuses (HeroSTR, HeroAGI, HeroTECH, HeroINT round-trip)
             if (data.ActionAttackBonuses?.BonusGroups != null)

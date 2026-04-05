@@ -18,7 +18,6 @@ namespace RPGGame.UI.Avalonia.Layout
         private const string ToggleSectionHero = "toggle_section_hero";
         private const string ToggleSectionStats = "toggle_section_stats";
         private const string ToggleSectionGear = "toggle_section_gear";
-        private const string ToggleSectionActions = "toggle_section_actions";
         private const string ToggleStatsExpansion = "toggle_stats_expansion";
 
         /// <summary>ASCII section line matching STATS: <c>====  LABEL  ====</c> (double spaces around label).</summary>
@@ -62,7 +61,7 @@ namespace RPGGame.UI.Avalonia.Layout
             int x = LayoutConstants.LEFT_PANEL_X + 2; // Reduced from +4 since border now starts at 0
             int headerClickWidth = LayoutConstants.LEFT_PANEL_WIDTH - 4;
             
-            // --- HERO --- (left-aligned like STATS/GEAR/ACTIONS; body order: name, HP bar, Lvl+class, XP)
+            // --- HERO --- (left-aligned like STATS/GEAR; body order: name, HP bar, Lvl+class, XP)
             int heroHeaderY = y;
             string heroHeaderText = FormatLeftPanelSectionHeader(UIConstants.Headers.Hero);
             canvas.AddText(x, y, heroHeaderText, AsciiArtAssets.Colors.Gold);
@@ -226,66 +225,6 @@ namespace RPGGame.UI.Avalonia.Layout
                 RenderEquipmentSlot(x, ref y, "Head", character.Head, 1);
                 RenderEquipmentSlot(x, ref y, "Body", character.Body, 1);
                 RenderEquipmentSlot(x, ref y, "Feet", character.Feet, 1);
-            }
-
-            // --- ACTIONS ---
-            int actionsHeaderY = y;
-            canvas.AddText(x, y, FormatLeftPanelSectionHeader(UIConstants.Headers.Combo), AsciiArtAssets.Colors.Gold);
-            y += 2;
-            if (interactionManager != null && stateManager != null)
-            {
-                interactionManager.AddClickableElement(new ClickableElement
-                {
-                    X = x,
-                    Y = actionsHeaderY,
-                    Width = headerClickWidth,
-                    Height = 1,
-                    Type = ElementType.Text,
-                    Value = ToggleSectionActions,
-                    DisplayText = "Actions"
-                });
-            }
-
-            if (stateManager == null || !stateManager.ActionsCollapsed)
-            {
-                var comboActions = character.GetComboActions();
-                if (comboActions.Count > 0)
-                {
-                    const int maxActionNameLength = 27;
-                    const int maxDescriptionWidth = 27;
-                    int panelBottom = LayoutConstants.LEFT_PANEL_Y + LayoutConstants.LEFT_PANEL_HEIGHT - 2;
-
-                    for (int i = 0; i < comboActions.Count; i++)
-                    {
-                        var action = comboActions[i];
-                        bool isNext = (character.ComboStep % comboActions.Count == i);
-                        string indicator = isNext ? "→" : " ";
-                        string actionName = action.Name ?? "";
-                        if (actionName.Length > maxActionNameLength)
-                            actionName = actionName.Substring(0, maxActionNameLength - 3) + "...";
-
-                        var color = isNext ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.White;
-                        canvas.AddText(x, y, $"{indicator} {actionName}", color);
-                        y++;
-
-                        if (isNext && !string.IsNullOrEmpty(action.Description))
-                        {
-                            var wrappedLines = textWriter.WrapText(action.Description, maxDescriptionWidth);
-                            foreach (var line in wrappedLines)
-                            {
-                                if (y > panelBottom)
-                                    break;
-                                canvas.AddText(x + 2, y, line, AsciiArtAssets.Colors.Gray);
-                                y++;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    canvas.AddText(x, y, "None", AsciiArtAssets.Colors.Gray);
-                    y++;
-                }
             }
         }
         

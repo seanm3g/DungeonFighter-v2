@@ -27,6 +27,7 @@ namespace RPGGame.Actions.Execution
             if (enemyTarget != null && !enemyTarget.IsAlive && damage >= enemyTarget.GetEffectiveMaxHealth())
             {
                 character.RecordOneShotKill();
+                ActionExecutionFlow.NotifyOneShotKillOccurred();
             }
         }
         

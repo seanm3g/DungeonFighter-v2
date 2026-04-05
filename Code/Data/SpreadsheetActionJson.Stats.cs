@@ -19,6 +19,10 @@ namespace RPGGame.Data
         [JsonPropertyName("heroCrit")]
         public string HeroCrit { get; set; } = "";
 
+        /// <summary>Crit miss threshold adjustment (Roll bonus: Crit Miss); not in legacy sheet columns N–Q.</summary>
+        [JsonPropertyName("heroCritMiss")]
+        public string HeroCritMiss { get; set; } = "";
+
         [JsonPropertyName("enemyAccuracy")]
         public string EnemyAccuracy { get; set; } = "";
 

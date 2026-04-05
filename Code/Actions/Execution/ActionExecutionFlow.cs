@@ -15,6 +15,10 @@ namespace RPGGame.Actions.Execution
     /// </summary>
     internal static class ActionExecutionFlow
     {
+        internal static event System.Action? OneShotKillOccurred;
+
+        internal static void NotifyOneShotKillOccurred() => OneShotKillOccurred?.Invoke();
+
         /// <summary>Returns stat bonus entries from the action (list if non-empty, else legacy single as one entry).</summary>
         private static List<StatBonusEntry> GetStatBonusEntries(Action action)
         {
@@ -194,7 +198,8 @@ namespace RPGGame.Actions.Execution
                 source.CriticalMissPenaltyTurns = 1;
             }
             lastCriticalMissStatus[source] = result.IsCriticalMiss;
-            result.IsCombo = result.AttackRoll >= tm.GetComboThreshold(source);
+            // Combo flag: combo-slot action and attack total meets combo threshold (avoids "combo" on unnamed normal hits that hit 14+ total)
+            result.IsCombo = result.SelectedAction.IsComboAction && result.AttackRoll >= tm.GetComboThreshold(source);
             result.IsCritical = result.AttackRoll >= tm.GetCriticalHitThreshold(source);
             ActionEventPublisher.PublishActionExecuted(source, target, result.SelectedAction, result.AttackRoll, result.IsCombo, result.IsCritical);
             result.Hit = CombatCalculator.CalculateHit(source, target, result.RollBonus, result.AttackRoll);

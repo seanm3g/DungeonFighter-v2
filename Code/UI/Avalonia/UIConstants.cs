@@ -52,7 +52,6 @@ namespace RPGGame.UI.Avalonia
             public const string Health = "HEALTH";
             public const string Stats = "STATS";
             public const string Gear = "GEAR";
-            public const string Combo = "ACTIONS";
             public const string Location = "LOCATION";
             public const string Enemy = "ENEMY";
             public const string Thresholds = "THRESHOLDS";

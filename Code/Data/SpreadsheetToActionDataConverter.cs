@@ -201,6 +201,7 @@ namespace RPGGame.Data
             actionData.HitThresholdAdjustment = SpreadsheetActionData.ParseIntValue(spreadsheet.HeroHit);
             actionData.ComboThresholdAdjustment = SpreadsheetActionData.ParseIntValue(spreadsheet.HeroCombo);
             actionData.CriticalHitThresholdAdjustment = SpreadsheetActionData.ParseIntValue(spreadsheet.HeroCrit);
+            actionData.CriticalMissThresholdAdjustment = SpreadsheetActionData.ParseIntValue(spreadsheet.HeroCritMiss);
 
             // StatBonuses, Thresholds, Accumulations (JSON round-trip from spreadsheet)
             actionData.StatBonuses = DeserializeStatBonuses(spreadsheet.StatBonusesJson);

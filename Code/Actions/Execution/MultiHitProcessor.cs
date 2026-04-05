@@ -86,8 +86,8 @@ namespace RPGGame.Actions.Execution
 
             // Use threshold manager to determine critical hit (consistent with ActionExecutionFlow)
             bool isCriticalHit = totalRoll >= RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
-            // BASIC ATTACK removed - all actions are now combo actions
-            ActionUtilities.CreateAndAddBattleEvent(source, target, action, totalDamage, totalRoll, rollBonus, true, true, 0, 0, isCriticalHit, naturalRoll, battleNarrative);
+            bool isComboEvent = action.IsComboAction && totalRoll >= RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetComboThreshold(source);
+            ActionUtilities.CreateAndAddBattleEvent(source, target, action, totalDamage, totalRoll, rollBonus, true, isComboEvent, 0, 0, isCriticalHit, naturalRoll, battleNarrative);
 
             return totalDamage;
         }

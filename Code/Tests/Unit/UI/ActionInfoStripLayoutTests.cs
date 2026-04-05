@@ -18,6 +18,7 @@ namespace RPGGame.Tests.Unit.UI
             TestOutsideStripMisses(ref run, ref passed, ref failed);
             TestZeroPanels(ref run, ref passed, ref failed);
             TestGetPanelRectConsistency(ref run, ref passed, ref failed);
+            TestGapBetweenPanelsMisses(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("ActionInfoStripLayout Tests", run, passed, failed);
         }
@@ -85,6 +86,30 @@ namespace RPGGame.Tests.Unit.UI
                     totalW += gap;
             }
             TestBase.AssertEqual(stripW, totalW, "Sum of panel widths + gaps equals strip width", ref run, ref passed, ref failed);
+        }
+
+        private static void TestGapBetweenPanelsMisses(ref int run, ref int passed, ref int failed)
+        {
+            const int count = 4;
+            ActionInfoStripLayout.GetStripLayout(count, out _, out _, out _, out _,
+                out int gap, out _, out _, out _, out int panelRowY, out int panelH);
+            int cy = panelRowY + panelH / 2;
+            for (int i = 0; i < count - 1; i++)
+            {
+                ActionInfoStripLayout.GetPanelRect(i, count, out int px, out _, out int pw, out _);
+                int gapX = px + pw;
+                TestBase.AssertTrue(
+                    !ActionInfoStripLayout.TryGetPanelIndex(gapX, cy, count, out _),
+                    $"Column at start of gap after panel {i} should not hit any panel",
+                    ref run, ref passed, ref failed);
+                if (gap > 1)
+                {
+                    TestBase.AssertTrue(
+                        !ActionInfoStripLayout.TryGetPanelIndex(gapX + gap / 2, cy, count, out _),
+                        $"Interior of gap after panel {i} should not hit any panel",
+                        ref run, ref passed, ref failed);
+                }
+            }
         }
     }
 }

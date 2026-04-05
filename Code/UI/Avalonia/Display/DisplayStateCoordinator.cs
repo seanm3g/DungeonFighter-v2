@@ -81,6 +81,10 @@ namespace RPGGame.UI.Avalonia.Display
             // Title screen (stateManager is null) should suppress rendering
             if (stateManager == null)
                 return true;
+
+            // Defensive: avoid running display-buffer layout before CurrentState is observable
+            if (state == null)
+                return true;
             
             // Menu states should suppress rendering
             if (IsMenuState(state))

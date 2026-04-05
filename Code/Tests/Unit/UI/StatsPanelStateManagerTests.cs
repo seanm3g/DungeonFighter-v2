@@ -18,7 +18,6 @@ namespace RPGGame.Tests.Unit.UI
             TestToggleHeroCollapsed(ref run, ref passed, ref failed);
             TestToggleStatsCollapsed(ref run, ref passed, ref failed);
             TestToggleGearCollapsed(ref run, ref passed, ref failed);
-            TestToggleActionsCollapsed(ref run, ref passed, ref failed);
             TestToggleThresholdsCollapsed(ref run, ref passed, ref failed);
             TestToggleExpansionIndependent(ref run, ref passed, ref failed);
 
@@ -29,7 +28,7 @@ namespace RPGGame.Tests.Unit.UI
         {
             var m = new StatsPanelStateManager();
             TestBase.AssertTrue(
-                !m.HeroCollapsed && !m.StatsCollapsed && !m.GearCollapsed && !m.ActionsCollapsed && !m.ThresholdsCollapsed,
+                !m.HeroCollapsed && !m.StatsCollapsed && !m.GearCollapsed && !m.ThresholdsCollapsed,
                 "New manager: all section collapse flags false (open)",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(!m.IsExpanded, "New manager: secondary stats expansion off", ref run, ref passed, ref failed);
@@ -56,13 +55,6 @@ namespace RPGGame.Tests.Unit.UI
             var m = new StatsPanelStateManager();
             m.ToggleGearCollapsed();
             TestBase.AssertTrue(m.GearCollapsed, "ToggleGearCollapsed", ref run, ref passed, ref failed);
-        }
-
-        private static void TestToggleActionsCollapsed(ref int run, ref int passed, ref int failed)
-        {
-            var m = new StatsPanelStateManager();
-            m.ToggleActionsCollapsed();
-            TestBase.AssertTrue(m.ActionsCollapsed, "ToggleActionsCollapsed", ref run, ref passed, ref failed);
         }
 
         private static void TestToggleThresholdsCollapsed(ref int run, ref int passed, ref int failed)

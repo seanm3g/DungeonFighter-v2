@@ -77,26 +77,28 @@ namespace RPGGame.UI.Avalonia.Layout
         // This ensures panels fit within the actual visible area, not just the grid width
         private static int EffectiveVisibleWidth => _effectiveVisibleWidth;
         
-        // Center panel (Dynamic Content) - dynamic width fills remaining space; height leaves room for action-info strip below
-        // Positioned right after left panel with 1 char gap (matching original design)
+        // Center column: action-info strip at top, combat log (framed center panel) below. Positioned right after left panel with 1 char gap.
         public static int CENTER_PANEL_X => LEFT_PANEL_X + LEFT_PANEL_WIDTH + 1; // +1 to match original gap
-        public static int CENTER_PANEL_Y => 0; // Always start at row 0 (top of grid)
         // Calculate width using effective visible width to ensure right panel stays within visible area
         // Total effective width = LEFT_PANEL_WIDTH + gap(1) + CENTER_PANEL_WIDTH + gap(1) + RIGHT_PANEL_WIDTH
         public static int CENTER_PANEL_WIDTH => EffectiveVisibleWidth - LEFT_PANEL_WIDTH - RIGHT_PANEL_WIDTH-3; // Accounts for gaps between panels
         private const int BASE_ACTION_INFO_STRIP_HEIGHT = 11;
         public static int ACTION_INFO_STRIP_HEIGHT => BASE_ACTION_INFO_STRIP_HEIGHT;
-        public static int CENTER_PANEL_HEIGHT => _gridHeight + 1 - ACTION_INFO_STRIP_HEIGHT; // Leaves room for action-info strip below (left/right panels stay full height)
+        /// <summary>First row of the action-info strip (top of center column, aligned with side panels).</summary>
+        public static int ACTION_INFO_Y => 0;
+        /// <summary>Combat log and main center content start below the action-info strip.</summary>
+        public static int CENTER_PANEL_Y => ACTION_INFO_STRIP_HEIGHT;
+        /// <summary>Height of the framed center panel (combat log); leaves room for the action-info strip above.</summary>
+        public static int CENTER_PANEL_HEIGHT => _gridHeight + 1 - ACTION_INFO_STRIP_HEIGHT;
 
-        // Action info strip - reserved space below center panel only (center column) for action status effects and bonuses during combat
+        // Action info strip - center column band for combo action cards and modifiers during combat (and related UI)
         public static int ACTION_INFO_X => CENTER_PANEL_X;
-        public static int ACTION_INFO_Y => CENTER_PANEL_Y + CENTER_PANEL_HEIGHT; // First row below center panel
         public static int ACTION_INFO_WIDTH => CENTER_PANEL_WIDTH;
         public static int ACTION_INFO_HEIGHT => ACTION_INFO_STRIP_HEIGHT;
         /// <summary>Horizontal gap in character columns between per-action panels in the action-info strip.</summary>
         public const int ACTION_INFO_PANEL_GAP = 1;
-        /// <summary>Empty rows at the top of the action-info strip before action card borders (below center panel edge).</summary>
-        public const int ACTION_INFO_PANEL_TOP_GAP = 1;
+        /// <summary>Extra rows between the action-info strip top and the per-action card borders. Use 0 to align card tops with <see cref="ACTION_INFO_Y"/> and the side panels.</summary>
+        public const int ACTION_INFO_PANEL_TOP_GAP = 0;
         /// <summary>Content area for action info (inside border).</summary>
         public static int ACTION_INFO_CONTENT_X => ACTION_INFO_X + 1;
         public static int ACTION_INFO_CONTENT_Y => ACTION_INFO_Y + 1;

@@ -113,7 +113,6 @@ namespace RPGGame.Handlers
             
             if (handlers.WeaponSelectionHandler != null)
             {
-                handlers.WeaponSelectionHandler.ShowCharacterCreationEvent += () => handlers.CharacterCreationHandler?.ShowCharacterCreation();
                 handlers.WeaponSelectionHandler.ShowMessageEvent += (msg) => showMessage(msg);
             }
             
@@ -152,8 +151,7 @@ namespace RPGGame.Handlers
                     }
                 };
                 handlers.CharacterManagementHandler.ShowMessageEvent += (msg) => showMessage(msg);
-                // Character creation will be handled by CharacterManagementHandler itself
-                // The ShowCharacterCreationEvent is optional and can be null
+                // Character creation is handled by CharacterManagementHandler / CharacterCreationHandler as applicable
             }
             
             if (handlers.LoadCharacterSelectionHandler != null)

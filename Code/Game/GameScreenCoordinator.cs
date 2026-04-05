@@ -272,7 +272,7 @@ namespace RPGGame
                 (ui) => 
                 {
                     // Use the renderer to render character info with persistent layout
-                    ui.RenderCharacterInfo(player);
+                    ui.RenderCharacterInfoScreen(player);
                 },
                 character: player,
                 clearEnemyContext: true,

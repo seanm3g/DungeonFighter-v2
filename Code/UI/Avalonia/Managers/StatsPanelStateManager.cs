@@ -3,7 +3,7 @@ using System;
 namespace RPGGame.UI.Avalonia.Managers
 {
     /// <summary>
-    /// Manages HUD section collapse state (left and right panels), expanded secondary stats under STATS,
+    /// Manages HUD section collapse state (left HERO/STATS/GEAR and right panel sections), expanded secondary stats under STATS,
     /// and stats area bounds for click/glow.
     /// </summary>
     public class StatsPanelStateManager
@@ -12,7 +12,6 @@ namespace RPGGame.UI.Avalonia.Managers
         private bool heroCollapsed;
         private bool statsCollapsed;
         private bool gearCollapsed;
-        private bool actionsCollapsed;
         private bool thresholdsCollapsed;
         private int statsAreaX = -1;
         private int statsAreaY = -1;
@@ -49,13 +48,6 @@ namespace RPGGame.UI.Avalonia.Managers
             set => gearCollapsed = value;
         }
 
-        /// <summary>ACTIONS section body hidden when true.</summary>
-        public bool ActionsCollapsed
-        {
-            get => actionsCollapsed;
-            set => actionsCollapsed = value;
-        }
-
         /// <summary>THRESHOLDS section body (right panel) hidden when true.</summary>
         public bool ThresholdsCollapsed
         {
@@ -66,7 +58,6 @@ namespace RPGGame.UI.Avalonia.Managers
         public void ToggleHeroCollapsed() => heroCollapsed = !heroCollapsed;
         public void ToggleStatsCollapsed() => statsCollapsed = !statsCollapsed;
         public void ToggleGearCollapsed() => gearCollapsed = !gearCollapsed;
-        public void ToggleActionsCollapsed() => actionsCollapsed = !actionsCollapsed;
         public void ToggleThresholdsCollapsed() => thresholdsCollapsed = !thresholdsCollapsed;
         
         /// <summary>

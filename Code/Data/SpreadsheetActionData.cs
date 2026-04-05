@@ -54,6 +54,9 @@ namespace RPGGame.Data
         public string HeroHit { get; set; } = "";
         public string HeroCombo { get; set; } = "";
         public string HeroCrit { get; set; } = "";
+
+        /// <summary>Crit miss threshold adjustment; JSON key heroCritMiss.</summary>
+        public string HeroCritMiss { get; set; } = "";
         
         // Columns R-U: Enemy bonuses (appear unused)
         public string EnemyAccuracy { get; set; } = "";

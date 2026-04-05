@@ -219,6 +219,27 @@ namespace RPGGame.UI.Avalonia.Managers
         {
             DisplayManager.ClearWithoutRender();
         }
+
+        /// <summary>
+        /// Cancels pending renders, clears external combat render callbacks, and resets display mode on
+        /// every center-panel manager (current + per-character). Prevents a non-active manager from
+        /// scheduling a stale combat repaint over menu screens (e.g. character creation after weapon select).
+        /// </summary>
+        public void SuppressExternalRenderPathOnAllDisplayManagers()
+        {
+            SuppressExternalRenderPathOnManager(currentDisplayManager);
+            foreach (var dm in characterDisplayManagers.Values)
+                SuppressExternalRenderPathOnManager(dm);
+        }
+
+        private static void SuppressExternalRenderPathOnManager(CenterPanelDisplayManager? dm)
+        {
+            if (dm == null)
+                return;
+            dm.CancelPendingRenders();
+            dm.SetExternalRenderCallback(null);
+            dm.SetMode(new StandardDisplayMode());
+        }
         
         /// <summary>
         /// Renders the display buffer to the specified area (legacy method)

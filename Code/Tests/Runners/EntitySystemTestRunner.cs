@@ -1,5 +1,6 @@
 using System;
 using RPGGame;
+using RPGGame.Tests.Unit;
 using RPGGame.Tests.Unit.Entity;
 
 namespace RPGGame.Tests.Runners
@@ -19,6 +20,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine($"{GameConstants.StandardSeparator}\n");
 
             CharacterTests.RunAllTests();
+            Console.WriteLine();
+            ComboSequenceManagerTests.RunAllTests();
             Console.WriteLine();
             EnemyTests.RunAllTests();
             Console.WriteLine();

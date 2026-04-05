@@ -9,10 +9,10 @@ namespace RPGGame.Tests.Unit.Actions
     /// These tests use Dice.SetTestRoll() to control roll values and verify
     /// that action selection works correctly based on base roll values.
     /// 
-    /// Action selection rules:
-    /// - Roll 1-13: Normal action (non-combo)
-    /// - Roll 14-19: Combo action
-    /// - Roll 20: Combo action (natural 20)
+    /// Action selection rules (preview attack total vs combo threshold):
+    /// - Natural 20: Combo-slot action when available
+    /// - Otherwise: combo when preview total (modified d20 + accuracy peek + roll bonuses) &gt;= effective combo threshold
+    /// - With no INT/bonus (tests use INT 0): raw d20 1-13 normal, 14+ combo
     /// </summary>
     public static class ActionSelectorRollBasedTests
     {
@@ -36,6 +36,7 @@ namespace RPGGame.Tests.Unit.Actions
 
             TestBaseRollThresholds();
             TestBaseRollVsTotalRoll();
+            TestRoll13WithIntBonusSelectsCombo();
             TestNatural20();
             TestEdgeCases();
             TestRollBoundaries();
@@ -49,13 +50,13 @@ namespace RPGGame.Tests.Unit.Actions
         #region Base Roll Threshold Tests
 
         /// <summary>
-        /// Tests that base roll thresholds correctly determine action type
+        /// Tests that raw d20 thresholds determine action type when preview bonuses are zero (INT 0).
         /// </summary>
         private static void TestBaseRollThresholds()
         {
             Console.WriteLine("--- Testing Base Roll Thresholds ---");
 
-            var character = CreateTestCharacterWithBothActionTypes();
+            var character = CreateTestCharacterWithBothActionTypes(intelligence: 0);
 
             // Test roll 12 - should be normal attack (below combo threshold of 14)
             Dice.SetTestRoll(12);
@@ -107,53 +108,65 @@ namespace RPGGame.Tests.Unit.Actions
         #region Base Roll vs Total Roll Tests
 
         /// <summary>
-        /// Tests that action type is determined by BASE ROLL only, not total roll with bonuses.
-        /// This is the critical test that would have caught the bug.
+        /// Preview attack total (including INT roll bonus) gates combo vs normal — not raw d20 alone.
         /// </summary>
         private static void TestBaseRollVsTotalRoll()
         {
-            Console.WriteLine("\n--- Testing Base Roll vs Total Roll (Critical Bug Test) ---");
+            Console.WriteLine("\n--- Testing Preview Total vs Combo Threshold ---");
 
-            var character = CreateTestCharacterWithBothActionTypes();
+            var tuning = GameConfiguration.Instance.Attributes.IntelligenceRollBonusPer;
+            if (tuning <= 0)
+            {
+                Console.WriteLine("  (skipped: IntelligenceRollBonusPer not positive)");
+                return;
+            }
 
-            // CRITICAL TEST: Base roll 12 with bonuses should still be normal attack
-            // This is the exact scenario that had the bug - bonuses shouldn't affect action type
+            // INT == Per => +1 roll bonus. 12+1=13 &lt; 14.
+            var char12 = CreateTestCharacterWithBothActionTypes(intelligence: tuning);
             Dice.SetTestRoll(12);
             ActionSelector.ClearStoredRolls();
-            
-            // Add roll bonuses that would push total to 14+
-            character.Stats.Intelligence = 20; // This adds roll bonus
-            // Note: The exact bonus calculation depends on the system, but we're testing
-            // that bonuses don't affect action type selection
-            
-            var action12WithBonus = ActionSelector.SelectActionBasedOnRoll(character);
-            TestBase.AssertTrue(action12WithBonus != null, 
-                "Roll 12 with bonuses should return an action", 
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(!action12WithBonus!.IsComboAction, 
-                "Base roll 12 with bonuses should STILL select normal action (base roll determines type, not total), got IsComboAction=" + action12WithBonus.IsComboAction, 
+            var a12 = ActionSelector.SelectActionBasedOnRoll(char12);
+            TestBase.AssertTrue(a12 != null && !a12.IsComboAction,
+                "d20 12 + INT bonus below 14 should be normal",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Test roll 13 with bonus - should still be normal
+            // d20 13 + 1 = 14 => combo action
+            var char13 = CreateTestCharacterWithBothActionTypes(intelligence: tuning);
             Dice.SetTestRoll(13);
             ActionSelector.ClearStoredRolls();
-            var action13WithBonus = ActionSelector.SelectActionBasedOnRoll(character);
-            TestBase.AssertTrue(action13WithBonus != null, 
-                "Roll 13 with bonuses should return an action", 
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(!action13WithBonus!.IsComboAction, 
-                "Base roll 13 with bonuses should STILL select normal action, got IsComboAction=" + action13WithBonus.IsComboAction, 
+            var a13 = ActionSelector.SelectActionBasedOnRoll(char13);
+            TestBase.AssertTrue(a13 != null && a13.IsComboAction,
+                "d20 13 with +1 total bonus should select combo (preview total >= 14)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Test roll 14 with bonus - should be combo (base roll is already at threshold)
             Dice.SetTestRoll(14);
             ActionSelector.ClearStoredRolls();
-            var action14WithBonus = ActionSelector.SelectActionBasedOnRoll(character);
-            TestBase.AssertTrue(action14WithBonus != null, 
-                "Roll 14 with bonuses should return an action", 
+            var a14 = ActionSelector.SelectActionBasedOnRoll(char13);
+            TestBase.AssertTrue(a14 != null && a14.IsComboAction,
+                "d20 14 with bonuses should select combo",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(action14WithBonus!.IsComboAction, 
-                "Base roll 14 with bonuses should select combo action, got IsComboAction=" + action14WithBonus.IsComboAction, 
+        }
+
+        /// <summary>
+        /// Regression: log line "13 + 1 = 14" should correspond to a combo-slot action, not unnamed normal hit.
+        /// </summary>
+        private static void TestRoll13WithIntBonusSelectsCombo()
+        {
+            Console.WriteLine("\n--- Testing Roll 13 + INT Bonus => Combo ---");
+
+            var per = GameConfiguration.Instance.Attributes.IntelligenceRollBonusPer;
+            if (per <= 0)
+            {
+                Console.WriteLine("  (skipped: IntelligenceRollBonusPer not positive)");
+                return;
+            }
+
+            var character = CreateTestCharacterWithBothActionTypes(intelligence: per);
+            Dice.SetTestRoll(13);
+            ActionSelector.ClearStoredRolls();
+            var action = ActionSelector.SelectActionBasedOnRoll(character);
+            TestBase.AssertTrue(action != null && action.IsComboAction,
+                "d20 13 with +1 from INT (per config) should select combo action",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -168,7 +181,7 @@ namespace RPGGame.Tests.Unit.Actions
         {
             Console.WriteLine("\n--- Testing Natural 20 ---");
 
-            var character = CreateTestCharacterWithBothActionTypes();
+            var character = CreateTestCharacterWithBothActionTypes(intelligence: 0);
 
             Dice.SetTestRoll(20);
             ActionSelector.ClearStoredRolls();
@@ -193,7 +206,7 @@ namespace RPGGame.Tests.Unit.Actions
         {
             Console.WriteLine("\n--- Testing Edge Cases ---");
 
-            var character = CreateTestCharacterWithBothActionTypes();
+            var character = CreateTestCharacterWithBothActionTypes(intelligence: 0);
 
             // Test roll 1 - should be normal (or null if it's a fail)
             Dice.SetTestRoll(1);
@@ -240,9 +253,9 @@ namespace RPGGame.Tests.Unit.Actions
         {
             Console.WriteLine("\n--- Testing Roll Boundaries (13 vs 14) ---");
 
-            var character = CreateTestCharacterWithBothActionTypes();
+            var character = CreateTestCharacterWithBothActionTypes(intelligence: 0);
 
-            // Test roll 13 - last value before combo threshold
+            // Test roll 13 - last value before combo threshold (no roll bonus)
             Dice.SetTestRoll(13);
             ActionSelector.ClearStoredRolls();
             var action13 = ActionSelector.SelectActionBasedOnRoll(character);
@@ -272,11 +285,12 @@ namespace RPGGame.Tests.Unit.Actions
         /// <summary>
         /// Creates a test character with both combo and normal actions available
         /// </summary>
-        private static Character CreateTestCharacterWithBothActionTypes()
+        private static Character CreateTestCharacterWithBothActionTypes(int intelligence = 0)
         {
             var character = TestDataBuilders.Character()
                 .WithName("TestHero")
                 .WithLevel(1)
+                .WithStats(10, 10, 10, intelligence)
                 .Build();
 
             // Add a normal (non-combo) action

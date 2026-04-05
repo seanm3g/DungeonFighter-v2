@@ -12,6 +12,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         public void RenderCharacterCreation(Character character, CanvasContext context)
         {
             characterCreationRenderer.RenderCharacterCreation(character, context);
+            // No center hover tooltip: it ClearTextInArea's the narrative region; cards in the strip still show Dmg/Spd.
+            dungeonRenderer.RenderActionInfoStrip(character, drawHoverDetailOverlay: false);
+            canvas.Refresh();
         }
 
         public void RenderDungeonSelection(Character player, List<Dungeon> dungeons, CanvasContext context)
@@ -129,6 +132,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         public void RenderCombatResult(bool playerSurvived, Character player, Enemy enemy, BattleNarrative? battleNarrative, string? dungeonName, string? roomName, CanvasContext context)
         {
             CombatActionInfoState.Clear();
+            ActionStripHoverState.Clear();
             if (textManager is CanvasTextManager canvasTextManager)
             {
                 canvasTextManager.DisplayManager.SetMode(new StandardDisplayMode());
@@ -138,6 +142,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 combatRenderer.RenderCombatResult(contentX, contentY, contentWidth, contentHeight, playerSurvived, enemy, battleNarrative);
             }, context, enemy, dungeonName, roomName);
+            dungeonRenderer.RenderActionInfoStrip(player);
+            canvas.Refresh();
         }
 
         public void RenderRoomCompletion(Environment room, Character player, string? dungeonName, CanvasContext context)
@@ -146,6 +152,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 dungeonRenderer.RenderRoomCompletion(contentX, contentY, contentWidth, contentHeight, room, player);
             }, context, null, dungeonName, null);
+            dungeonRenderer.RenderActionInfoStrip(player);
+            canvas.Refresh();
         }
 
         public void RenderDungeonCompletion(Dungeon dungeon, Character player, int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos, List<Item> itemsFoundDuringRun, CanvasContext context)
@@ -154,11 +162,14 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 dungeonRenderer.RenderDungeonCompletion(contentX, contentY, contentWidth, contentHeight, dungeon, player, xpGained, lootReceived, levelUpInfos ?? new List<LevelUpInfo>(), itemsFoundDuringRun ?? new List<Item>(), context.DungeonContext);
             }, context, null, context.DungeonName, null);
+            dungeonRenderer.RenderActionInfoStrip(player);
+            canvas.Refresh();
         }
 
         public void RenderDeathScreen(Character player, string defeatSummary, CanvasContext context)
         {
             CombatActionInfoState.Clear();
+            ActionStripHoverState.Clear();
             if (textManager is CanvasTextManager canvasTextManager)
             {
                 canvasTextManager.DisplayManager.CancelPendingRenders();
@@ -169,6 +180,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 dungeonRenderer.RenderDeathScreen(contentX, contentY, contentWidth, contentHeight, player, defeatSummary);
             }, context, null, context.DungeonName, null, clearCanvas: false);
+            dungeonRenderer.RenderActionInfoStrip(player);
             canvas.Refresh();
         }
 

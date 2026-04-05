@@ -178,8 +178,24 @@ namespace RPGGame.UI.Avalonia.Handlers
             // Convert screen coordinates to character grid coordinates
             var gridPos = ScreenToGrid(position);
 
-            // Update hover state
+            // Update hover state for menu / clickable elements
             canvasUI.SetHoverPosition(gridPos.X, gridPos.Y);
+
+            int newStripHover = -1;
+            var player = game?.CurrentPlayer;
+            var combo = player?.GetComboActions();
+            int n = combo?.Count ?? 0;
+            if (n > 0 && ActionInfoStripLayout.TryGetPanelIndex(gridPos.X, gridPos.Y, n, out int stripIdx))
+                newStripHover = stripIdx;
+
+            if (!ActionStripHoverState.SetHoveredPanelIndex(newStripHover))
+                return;
+
+            // PerformRender is suppressed in many menu states; re-invoke the active screen renderer like stats toggles.
+            if (game != null)
+                game.RefreshPersistentChromeAfterStatsToggle();
+            else
+                canvasUI.ForceRender();
         }
 
         /// <summary>
@@ -272,10 +288,6 @@ namespace RPGGame.UI.Avalonia.Handlers
                             return;
                         case "toggle_section_gear":
                             statsPanelStateManager.ToggleGearCollapsed();
-                            RefreshChromeAfterStatsToggle();
-                            return;
-                        case "toggle_section_actions":
-                            statsPanelStateManager.ToggleActionsCollapsed();
                             RefreshChromeAfterStatsToggle();
                             return;
                         case "toggle_section_thresholds":

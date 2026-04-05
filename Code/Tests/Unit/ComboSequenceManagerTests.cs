@@ -36,6 +36,7 @@ namespace RPGGame.Tests.Unit
             TestDuplicateActionsRemoval();
             TestNonComboActionRejection();
             TestComboOrdering();
+            TestRestoreComboFromActionNamesPreservesSavedNameOrder();
 
             TestBase.PrintSummary("ComboSequenceManager Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -495,6 +496,43 @@ namespace RPGGame.Tests.Unit
             
             TestBase.AssertEqual(beforeCount, afterCount, 
                 "Non-combo actions should not be added to combo", 
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// After RebuildCharacterActions, new Action instances keep JSON ComboOrder; restore must set slots from saved name order.
+        /// </summary>
+        private static void TestRestoreComboFromActionNamesPreservesSavedNameOrder()
+        {
+            Console.WriteLine("\n--- Testing RestoreComboFromActionNames preserves saved name order ---");
+
+            var character = TestDataBuilders.Character().WithName("RestoreOrderTest").Build();
+
+            var a1 = TestDataBuilders.CreateMockAction("ORDER_A");
+            var a2 = TestDataBuilders.CreateMockAction("ORDER_B");
+            var a3 = TestDataBuilders.CreateMockAction("ORDER_C");
+            foreach (var a in new[] { a1, a2, a3 })
+            {
+                a.IsComboAction = true;
+            }
+
+            // Stale values like ActionLoader defaults — order must come from restore list, not these numbers
+            a1.ComboOrder = 99;
+            a2.ComboOrder = 1;
+            a3.ComboOrder = 50;
+
+            character.AddAction(a1, 1.0);
+            character.AddAction(a2, 1.0);
+            character.AddAction(a3, 1.0);
+
+            var savedOrder = new List<string> { "ORDER_C", "ORDER_A", "ORDER_B" };
+            TestBase.AssertTrue(character.RestoreComboFromActionNames(savedOrder),
+                "RestoreComboFromActionNames should succeed",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var names = character.GetComboActions().Select(a => a.Name).ToList();
+            TestBase.AssertTrue(names.Count == 3 && names.SequenceEqual(savedOrder),
+                $"Combo order should match saved names ORDER_C, ORDER_A, ORDER_B; got [{string.Join(", ", names)}]",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

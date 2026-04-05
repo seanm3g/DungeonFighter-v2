@@ -54,13 +54,15 @@ namespace RPGGame.UI.Avalonia
 
         /// <summary>
         /// Suppresses display buffer rendering (e.g. when showing a menu).
-        /// Cancels any pending display buffer renders.
+        /// Cancels any pending display buffer renders, clears the combat external render callback, and resets display mode
+        /// so display <c>TriggerRender</c> routes through <c>PerformRender</c> (menu suppression) instead of
+        /// replaying a stale combat layout over menu screens (e.g. character creation after weapon select).
         /// </summary>
         public void SuppressDisplayBufferRendering()
         {
             if (textManager is CanvasTextManager canvasTextManager)
             {
-                canvasTextManager.DisplayManager.CancelPendingRenders();
+                canvasTextManager.SuppressExternalRenderPathOnAllDisplayManagers();
             }
         }
 

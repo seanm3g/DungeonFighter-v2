@@ -1,7 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.Linq;
+using RPGGame.Actions.RollModification;
 using RPGGame.Utils;
 
 namespace RPGGame
@@ -46,10 +45,11 @@ namespace RPGGame
 
         /// <summary>
         /// Selects an action based on dice roll logic:
-        /// - Natural 20 or base roll 14+ = COMBO action
-        /// - Base roll 1-13 = Normal action (non-combo)
-        /// For heroes only
-        /// Note: Action type is determined by base roll only, not total roll with bonuses
+        /// - Natural 20 always selects a combo-slot action (when available).
+        /// - Otherwise compares preview attack total (same components as <see cref="RPGGame.Actions.Execution.ActionExecutionFlow"/>:
+        ///   modified d20 + peeked ACCURACY bonuses + roll bonuses) to the effective combo threshold
+        ///   (threshold manager + COMBO effect bonuses + combo action roll-mod threshold fields).
+        /// For heroes only.
         /// </summary>
         /// <param name="source">The Actor selecting the action</param>
         /// <returns>The selected action or null if no action available</returns>
@@ -67,26 +67,94 @@ namespace RPGGame
 
             // Store the base roll for use in the main execution
             _lastActionSelectionRolls.AddOrUpdate(source, baseRoll, (_, _) => baseRoll);
-            
-            // Determine action type based on base roll only (not total roll with bonuses)
-            // Natural 20 always triggers combo, otherwise use base roll for threshold
-            Action? selectedAction = null;
-            
-            if (baseRoll == 20) // Natural 20 - always combo + critical hit
+
+            if (baseRoll == 20)
+                return SelectComboAction(source);
+
+            PeekRollAccuracyAndComboBonuses(source as Character, out int acc, out int effectComboBonus);
+            var comboActions = ActionUtilities.GetComboActions(source);
+            if (comboActions.Count == 0)
+                return SelectComboAction(source);
+
+            int actionIdx = ActionUtilities.GetComboStep(source) % comboActions.Count;
+            Action comboAction = comboActions[actionIdx];
+            int totalCombo = PreviewAttackTotal(source, comboAction, baseRoll, acc);
+            int comboThreshold = GetEffectiveComboThresholdForSelection(source, comboAction, effectComboBonus);
+
+            if (totalCombo >= comboThreshold)
+                return SelectComboAction(source);
+            return SelectNormalAction(source);
+        }
+
+        /// <summary>
+        /// Peeks ACCURACY (added to modified base) and COMBO (adjusts combo threshold) bonuses
+        /// that <see cref="RPGGame.Actions.Execution.ActionExecutionFlow"/> would consume on this roll, without consuming.
+        /// </summary>
+        private static void PeekRollAccuracyAndComboBonuses(Character? c, out int accuracyAccumulator, out int effectComboBonus)
+        {
+            accuracyAccumulator = 0;
+            effectComboBonus = 0;
+            if (c == null || c is Enemy)
+                return;
+
+            var comboActions = ActionUtilities.GetComboActions(c);
+            int comboLength = comboActions.Count;
+            if (comboLength > 0)
             {
-                selectedAction = SelectComboAction(source);
+                int currentSlot = c.ComboStep % comboLength;
+                foreach (var bonus in c.Effects.GetPendingActionBonusesForSlot(currentSlot))
+                {
+                    switch ((bonus.Type ?? "").ToUpper())
+                    {
+                        case "ACCURACY": accuracyAccumulator += (int)bonus.Value; break;
+                        case "COMBO": effectComboBonus += (int)bonus.Value; break;
+                    }
+                }
             }
-            else if (baseRoll >= 14) // Combo threshold (14+) - use base roll only
+            foreach (var bonus in c.Effects.PeekAttackBonuses())
             {
-                selectedAction = SelectComboAction(source);
+                switch (bonus.Type.ToUpper())
+                {
+                    case "ACCURACY": accuracyAccumulator += (int)bonus.Value; break;
+                    case "COMBO": effectComboBonus += (int)bonus.Value; break;
+                }
             }
-            else // Base roll < 14 (1-13) - use non-combo action (normal attack)
+            foreach (var bonus in c.Effects.PeekAbilityBonuses())
             {
-                // Select a non-combo action for normal attacks
-                selectedAction = SelectNormalAction(source);
+                switch (bonus.Type.ToUpper())
+                {
+                    case "ACCURACY": accuracyAccumulator += (int)bonus.Value; break;
+                    case "COMBO": effectComboBonus += (int)bonus.Value; break;
+                }
             }
-            
-            return selectedAction;
+        }
+
+        /// <summary>
+        /// Approximates effective combo threshold for the combo-slot action before ApplyThresholdOverrides mutates the manager in execution.
+        /// </summary>
+        private static int GetEffectiveComboThresholdForSelection(Actor source, Action comboAction, int effectComboBonus)
+        {
+            var tm = RollModificationManager.GetThresholdManager();
+            int t = tm.GetComboThreshold(source);
+            if (comboAction.RollMods.ComboThresholdOverride > 0)
+                t = comboAction.RollMods.ComboThresholdOverride;
+            if (effectComboBonus != 0)
+                t -= effectComboBonus;
+            if (comboAction.RollMods.ComboThresholdAdjustment != 0)
+                t -= comboAction.RollMods.ComboThresholdAdjustment;
+            return Math.Max(1, t);
+        }
+
+        /// <summary>
+        /// Preview attack total for an action path: modified base + peeked accuracy + roll bonus (no temp consume).
+        /// Matches the core of <see cref="RPGGame.Actions.Execution.ActionExecutionFlow"/> roll resolution before hit.
+        /// </summary>
+        private static int PreviewAttackTotal(Actor source, Action action, int baseRoll, int accuracyAccumulator)
+        {
+            int modified = RollModificationManager.ApplyActionRollModifications(baseRoll, action, source, null);
+            modified += accuracyAccumulator;
+            int rollBonus = ActionUtilities.CalculateRollBonus(source, action, consumeTempBonus: false);
+            return modified + rollBonus;
         }
 
         /// <summary>
@@ -108,21 +176,33 @@ namespace RPGGame
             // Store the base roll for use in hit calculation (same as heroes)
             _lastActionSelectionRolls.AddOrUpdate(source, baseRoll, (_, _) => baseRoll);
 
-            // Natural 20 or base roll >= 14: use combo actions
-            // Action type determined by base roll only (not total roll with bonuses)
-            if (baseRoll == 20 || baseRoll >= 14)
+            if (baseRoll == 20)
             {
-                var comboActions = ActionUtilities.GetComboActions(source);
-                if (comboActions.Count > 0)
+                var comboActions20 = ActionUtilities.GetComboActions(source);
+                if (comboActions20.Count > 0)
                 {
-                    int idx = comboActions.Count > 1 ? Dice.Roll(1, comboActions.Count) - 1 : 0;
-                    return comboActions[idx];
+                    int idx20 = comboActions20.Count > 1 ? Dice.Roll(1, comboActions20.Count) - 1 : 0;
+                    return comboActions20[idx20];
                 }
-                // If no combo actions available, fall back to weighted selection
                 return source.SelectAction();
             }
 
-            // Base roll < 14 (1-13): use non-combo action (normal attack)
+            PeekRollAccuracyAndComboBonuses(source as Character, out int acc, out int effectComboBonus);
+            var comboActions = ActionUtilities.GetComboActions(source);
+            if (comboActions.Count == 0)
+                return source.SelectAction();
+
+            // Use first combo action for threshold preview; actual pick stays random when multiple (same as prior roll usage pattern).
+            Action comboPreview = comboActions[0];
+            int totalCombo = PreviewAttackTotal(source, comboPreview, baseRoll, acc);
+            int comboThreshold = GetEffectiveComboThresholdForSelection(source, comboPreview, effectComboBonus);
+
+            if (totalCombo >= comboThreshold)
+            {
+                int idx = comboActions.Count > 1 ? Dice.Roll(1, comboActions.Count) - 1 : 0;
+                return comboActions[idx];
+            }
+
             return SelectNormalAction(source);
         }
 
@@ -152,7 +232,7 @@ namespace RPGGame
 
         /// <summary>
         /// Selects a normal (non-combo) action for the given Actor.
-        /// Used when base roll is 6-13 (normal attack range, below combo threshold).
+        /// Used when preview attack total is below the effective combo threshold (and not natural 20).
         /// For characters: returns unnamed normal attack (displays "X hits Y for Z damage").
         /// For enemies: first non-combo action, or first available action.
         /// </summary>

@@ -160,7 +160,7 @@ namespace RPGGame
             var lastEvent = eventsList[lastEventIndex];
             
             // Return cached narratives if this is the same event we've already analyzed
-            var cachedNarratives = narrativeCache.GetCachedNarratives(lastEvent);
+            var cachedNarratives = narrativeCache.GetCachedNarratives(lastEvent, lastEventIndex);
             if (cachedNarratives != null)
             {
                 return cachedNarratives;
@@ -168,7 +168,7 @@ namespace RPGGame
             
             // If not cached or different event, analyze and cache it
             var triggeredNarratives = AnalyzeEventForNarratives(lastEvent);
-            narrativeCache.CacheNarratives(lastEvent, triggeredNarratives);
+            narrativeCache.CacheNarratives(lastEvent, triggeredNarratives, lastEventIndex);
             return triggeredNarratives;
         }
 
@@ -197,7 +197,7 @@ namespace RPGGame
             }
             
             // Return cached narratives if this is the same event we've already analyzed
-            var cachedNarratives = narrativeCache.GetCachedNarratives(lastEvent);
+            var cachedNarratives = narrativeCache.GetCachedNarratives(lastEvent, lastEventIndex);
             if (cachedNarratives != null)
             {
                 // Filter to only significant narratives
@@ -206,7 +206,7 @@ namespace RPGGame
             
             // If not cached or different event, analyze and cache it
             var triggeredNarratives = AnalyzeEventForNarratives(lastEvent);
-            narrativeCache.CacheNarratives(lastEvent, triggeredNarratives);
+            narrativeCache.CacheNarratives(lastEvent, triggeredNarratives, lastEventIndex);
             
             // Filter to only significant narratives
             var filteredNarratives = FilterSignificantNarratives(triggeredNarratives, lastEvent);

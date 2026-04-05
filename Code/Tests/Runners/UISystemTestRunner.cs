@@ -30,6 +30,8 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             CombatActionInfoStateTests.RunAllTests();
             Console.WriteLine();
+            ActionStripHoverStateTests.RunAllTests();
+            Console.WriteLine();
             CombatActionStripBuilderTests.RunAllTests();
             Console.WriteLine();
             ActionInfoStripLayoutTests.RunAllTests();

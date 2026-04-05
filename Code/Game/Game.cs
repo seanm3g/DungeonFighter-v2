@@ -282,6 +282,10 @@ namespace RPGGame
                     if (player != null)
                         canvasUI.RenderCharacterInfoScreen(player);
                     break;
+                case GameState.CharacterCreation:
+                    if (player != null)
+                        canvasUI.RenderCharacterCreation(player);
+                    break;
                 case GameState.Settings:
                     canvasUI.RenderSettings();
                     break;

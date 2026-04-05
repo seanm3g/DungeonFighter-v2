@@ -49,6 +49,7 @@ namespace RPGGame.Data
             data.HeroHit = header.GetValue(columns, "HERO DICE ROLL MODIFICATIONS", "HIT");
             data.HeroCombo = header.GetValue(columns, "HERO DICE ROLL MODIFICATIONS", "COMBO");
             data.HeroCrit = header.GetValue(columns, "HERO DICE ROLL MODIFICATIONS", "CRIT");
+            data.HeroCritMiss = header.GetValue(columns, "HERO DICE ROLL MODIFICATIONS", "CRIT MISS");
 
             data.EnemyAccuracy = header.GetValue(columns, "ENEMY DICE MODIFICATIONS", "ACCUARCY");
             if (string.IsNullOrEmpty(data.EnemyAccuracy)) data.EnemyAccuracy = header.GetValue(columns, "ENEMY DICE MODIFICATIONS", "ACCURACY");

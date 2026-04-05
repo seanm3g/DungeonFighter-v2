@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using RPGGame.Actions.RollModification;
 using RPGGame.Data;
+using RPGGame.Items.Helpers;
 
 namespace RPGGame
 {
@@ -12,13 +13,17 @@ namespace RPGGame
     public readonly struct ActionPanelInfo
     {
         public string Name { get; }
-        public int DamageBase { get; }
-        public int DamageModified { get; }
+        /// <summary>Damage as % of character base damage (DamageMultiplier × 100), before slot DAMAGE_MOD.</summary>
+        public double DamageBase { get; }
+        /// <summary>Effective damage % after pending slot DAMAGE_MOD (same basis as DamageBase).</summary>
+        public double DamageModified { get; }
+        /// <summary>Intrinsic action speed % (same as action details: 100 / Length), before slot SPEED_MOD.</summary>
         public double SpeedBase { get; }
+        /// <summary>Effective speed % after pending slot SPEED_MOD (higher = faster).</summary>
         public double SpeedModified { get; }
         public string ThresholdText { get; }
 
-        public ActionPanelInfo(string name, int damageBase, int damageModified, double speedBase, double speedModified, string thresholdText)
+        public ActionPanelInfo(string name, double damageBase, double damageModified, double speedBase, double speedModified, string thresholdText)
         {
             Name = name ?? "";
             DamageBase = damageBase;
@@ -56,8 +61,8 @@ namespace RPGGame
                 var action = actions[i];
                 string name = action.Name ?? "";
 
-                // Base damage: character total damage * action multiplier
-                int baseDamage = (int)(character.Combat.GetTotalDamage() * action.DamageMultiplier);
+                // Damage line: multiplier as % of character base (matches Spd line style), not raw HP output.
+                double baseDamagePct = action.DamageMultiplier * 100.0;
 
                 // Pending bonuses for this slot (peek, do not consume)
                 var slotBonuses = character.Effects.GetPendingActionBonusesForSlot(i);
@@ -72,19 +77,21 @@ namespace RPGGame
                     }
                 }
 
-                int modifiedDamage = damageModPercent != 0
-                    ? (int)(baseDamage * (1.0 + damageModPercent / 100.0))
-                    : baseDamage;
+                double modifiedDamagePct = damageModPercent != 0
+                    ? baseDamagePct * (1.0 + damageModPercent / 100.0)
+                    : baseDamagePct;
 
-                // Base speed: attack time * action length (seconds)
-                double baseSpeed = character.GetTotalAttackSpeed() * action.Length;
-                double modifiedSpeed = speedModPercent != 0
-                    ? baseSpeed / (1.0 + speedModPercent / 100.0)
-                    : baseSpeed;
+                // Speed % matches action details (ActionDisplayFormatter), not wall-clock seconds.
+                double baseSpeedPct = action.Length > 0
+                    ? ActionDisplayFormatter.CalculateActionSpeedPercentage(action)
+                    : 0;
+                double modifiedSpeedPct = speedModPercent != 0
+                    ? baseSpeedPct * (1.0 + speedModPercent / 100.0)
+                    : baseSpeedPct;
 
                 string thresholdText = GetThresholdText(action);
 
-                list.Add(new ActionPanelInfo(name, baseDamage, modifiedDamage, baseSpeed, modifiedSpeed, thresholdText));
+                list.Add(new ActionPanelInfo(name, baseDamagePct, modifiedDamagePct, baseSpeedPct, modifiedSpeedPct, thresholdText));
             }
             return list;
         }
@@ -237,6 +244,100 @@ namespace RPGGame
                 "AMP_MOD" => $"{sign}{b.Value:0}% AMP",
                 _ => $"{sign}{b.Value:0} {b.Type}"
             };
+        }
+
+        /// <summary>
+        /// Builds wrapped lines for the action strip hover tooltip (full description, stats, accuracy, panel summary).
+        /// </summary>
+        /// <param name="character">Player whose combo is shown.</param>
+        /// <param name="panelIndex">0-based combo slot.</param>
+        /// <param name="maxWidth">Maximum characters per line (inner width).</param>
+        /// <param name="maxLines">Cap on total lines (excluding hard truncation).</param>
+        public static List<string> BuildActionTooltipLines(Character? character, int panelIndex, int maxWidth, int maxLines = 18)
+        {
+            var result = new List<string>();
+            if (character == null || panelIndex < 0 || maxWidth < 4)
+                return result;
+
+            var actions = character.GetComboActions();
+            if (actions == null || panelIndex >= actions.Count)
+                return result;
+
+            var action = actions[panelIndex];
+            void AddWrapped(string? paragraph)
+            {
+                if (result.Count >= maxLines || string.IsNullOrWhiteSpace(paragraph))
+                    return;
+                foreach (var line in WrapTextToLines(paragraph.Trim(), maxWidth))
+                {
+                    if (result.Count >= maxLines) break;
+                    result.Add(line);
+                }
+            }
+
+            result.Add(string.IsNullOrEmpty(action.Name) ? "?" : action.Name);
+            if (result.Count >= maxLines) return result;
+
+            AddWrapped(action.Description);
+            AddWrapped(ActionDisplayFormatter.GetActionStats(action).Trim());
+
+            int acc = ActionUtilities.CalculateRollBonus(character, action, consumeTempBonus: false);
+            AddWrapped($"Accuracy (roll bonus): {acc:+0;-0;0}");
+
+            string causes = GetCausesShort(action);
+            if (!string.IsNullOrEmpty(causes))
+                AddWrapped($"Status: {causes}");
+
+            var panelRow = BuildPanelData(character);
+            if (panelIndex < panelRow.Count)
+            {
+                var info = panelRow[panelIndex];
+                AddWrapped($"Effective: Dmg {info.DamageModified:F0}% of base | Spd {info.SpeedModified:F0}%");
+                if (!string.IsNullOrEmpty(info.ThresholdText))
+                    AddWrapped($"Roll thresholds: {info.ThresholdText}");
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Word-wraps a single paragraph to fixed-width lines.
+        /// </summary>
+        internal static List<string> WrapTextToLines(string text, int maxWidth)
+        {
+            var lines = new List<string>();
+            if (string.IsNullOrEmpty(text) || maxWidth < 1)
+                return lines;
+
+            var words = text.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+            var current = new System.Text.StringBuilder();
+            foreach (var word in words)
+            {
+                if (word.Length > maxWidth)
+                {
+                    if (current.Length > 0)
+                    {
+                        lines.Add(current.ToString());
+                        current.Clear();
+                    }
+                    for (int o = 0; o < word.Length; o += maxWidth)
+                        lines.Add(word.Substring(o, Math.Min(maxWidth, word.Length - o)));
+                    continue;
+                }
+
+                int extra = current.Length == 0 ? word.Length : word.Length + 1;
+                if (current.Length + extra > maxWidth)
+                {
+                    lines.Add(current.ToString());
+                    current.Clear();
+                }
+                if (current.Length > 0)
+                    current.Append(' ');
+                current.Append(word);
+            }
+            if (current.Length > 0)
+                lines.Add(current.ToString());
+            return lines;
         }
 
         private static string GetCausesShort(Action action)

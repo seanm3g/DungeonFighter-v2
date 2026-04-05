@@ -220,6 +220,7 @@ namespace RPGGame
 
             ClearCombo();
 
+            int nextSlot = 1;
             foreach (var actionName in actionNames)
             {
                 if (string.IsNullOrWhiteSpace(actionName))
@@ -230,6 +231,9 @@ namespace RPGGame
 
                 if (actionEntry.action != null && actionEntry.action.IsComboAction)
                 {
+                    // Fresh Action instances from ActionLoader keep JSON ComboOrder; ReorderComboSequence sorts by it.
+                    // Match saved name order so the combo matches the player's sequence after RebuildCharacterActions.
+                    actionEntry.action.ComboOrder = nextSlot++;
                     AddToCombo(actionEntry.action);
                 }
             }

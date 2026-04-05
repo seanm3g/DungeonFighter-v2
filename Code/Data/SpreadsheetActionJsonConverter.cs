@@ -38,6 +38,7 @@ namespace RPGGame.Data
             action.HeroHit = GetStringValue(root, "heroHit");
             action.HeroCombo = GetStringValue(root, "heroCombo");
             action.HeroCrit = GetStringValue(root, "heroCrit");
+            action.HeroCritMiss = GetStringValue(root, "heroCritMiss");
             action.EnemyAccuracy = GetStringValue(root, "enemyAccuracy");
             action.EnemyHit = GetStringValue(root, "enemyHit");
             action.EnemyCombo = GetStringValue(root, "enemyCombo");
@@ -148,6 +149,7 @@ namespace RPGGame.Data
             WriteIfNotEmpty(writer, "heroHit", value.HeroHit);
             WriteIfNotEmpty(writer, "heroCombo", value.HeroCombo);
             WriteIfNotEmpty(writer, "heroCrit", value.HeroCrit);
+            WriteIfNotEmpty(writer, "heroCritMiss", value.HeroCritMiss);
             WriteIfNotEmpty(writer, "enemyAccuracy", value.EnemyAccuracy);
             WriteIfNotEmpty(writer, "enemyHit", value.EnemyHit);
             WriteIfNotEmpty(writer, "enemyCombo", value.EnemyCombo);

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using RPGGame;
 using RPGGame.Data;
@@ -61,7 +62,17 @@ namespace RPGGame.Tests.Unit.UI
                 TestBase.AssertTrue(info.DamageBase >= 0 && info.SpeedBase >= 0,
                     "BuildPanelData: DamageBase and SpeedBase are non-negative",
                     ref run, ref passed, ref failed);
+                TestBase.AssertTrue(Math.Abs(info.DamageBase - 100.0) < 0.001,
+                    "BuildPanelData: DamageBase is action multiplier as % (1.0 mult -> 100%)",
+                    ref run, ref passed, ref failed);
             }
+
+            // Low damage multiplier (e.g. Rage-style) shows as small % of character base, not raw HP
+            var charLowDmg = CreateCharacterWithComboAction(damageMultiplier: 0.1);
+            var lowPanel = CombatActionStripBuilder.BuildPanelData(charLowDmg);
+            TestBase.AssertTrue(lowPanel != null && lowPanel.Count >= 1 && Math.Abs(lowPanel[0].DamageBase - 10.0) < 0.001,
+                "BuildPanelData: 0.1 DamageMultiplier -> DamageBase 10%",
+                ref run, ref passed, ref failed);
 
             // BuildPanelData: no modifiers -> DamageModified == DamageBase, SpeedModified == SpeedBase
             TestBase.AssertTrue(panelData != null && panelData.Count >= 1 && panelData[0].DamageModified == panelData[0].DamageBase && panelData[0].SpeedModified == panelData[0].SpeedBase,
@@ -75,20 +86,20 @@ namespace RPGGame.Tests.Unit.UI
                 "BuildPanelData: +50% DAMAGE_MOD on slot yields DamageModified > DamageBase (green)",
                 ref run, ref passed, ref failed);
 
-            // BuildPanelData: negative SPEED_MOD on slot -> SpeedModified > SpeedBase (red, slower)
+            // BuildPanelData: negative SPEED_MOD on slot -> lower effective speed % (red, slower)
             charWithCombo.Effects.ClearAllTempEffects();
             charWithCombo.Effects.AddPendingActionBonuses(0, new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "SPEED_MOD", Value = -20 } });
             panelData = CombatActionStripBuilder.BuildPanelData(charWithCombo);
-            TestBase.AssertTrue(panelData != null && panelData.Count >= 1 && panelData[0].SpeedModified > panelData[0].SpeedBase,
-                "BuildPanelData: -20% SPEED_MOD yields SpeedModified > SpeedBase (red, slower)",
+            TestBase.AssertTrue(panelData != null && panelData.Count >= 1 && panelData[0].SpeedModified < panelData[0].SpeedBase,
+                "BuildPanelData: -20% SPEED_MOD yields SpeedModified < SpeedBase (red, slower)",
                 ref run, ref passed, ref failed);
 
-            // BuildPanelData: +20% SPEED_MOD on slot 2 (Adrenal Surge pattern) -> slot 2 shows faster speed
+            // BuildPanelData: +20% SPEED_MOD on slot 2 (Adrenal Surge pattern) -> slot 2 shows higher speed %
             var charWithTwoActions = CreateCharacterWithTwoComboActions();
             charWithTwoActions.Effects.AddPendingActionBonuses(1, new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "SPEED_MOD", Value = 20 } });
             panelData = CombatActionStripBuilder.BuildPanelData(charWithTwoActions);
-            TestBase.AssertTrue(panelData != null && panelData.Count >= 2 && panelData[1].SpeedModified < panelData[1].SpeedBase,
-                "BuildPanelData: +20% SPEED_MOD on slot 2 yields SpeedModified < SpeedBase (green, faster)",
+            TestBase.AssertTrue(panelData != null && panelData.Count >= 2 && panelData[1].SpeedModified > panelData[1].SpeedBase,
+                "BuildPanelData: +20% SPEED_MOD on slot 2 yields SpeedModified > SpeedBase (green, faster)",
                 ref run, ref passed, ref failed);
 
             // BuildPanelData: action with threshold adjustments -> ThresholdText non-empty
@@ -116,16 +127,37 @@ namespace RPGGame.Tests.Unit.UI
                 "BuildActiveModifierLines shows pending ACTION bonus for slot 2",
                 ref run, ref passed, ref failed);
 
+            // BuildActionTooltipLines + word wrap (hover tooltip content)
+            var tipNull = CombatActionStripBuilder.BuildActionTooltipLines(null, 0, 40);
+            TestBase.AssertTrue(tipNull != null && tipNull.Count == 0,
+                "BuildActionTooltipLines(null, ...) returns empty",
+                ref run, ref passed, ref failed);
+
+            var tipBad = CombatActionStripBuilder.BuildActionTooltipLines(charWithCombo, 50, 40);
+            TestBase.AssertTrue(tipBad != null && tipBad.Count == 0,
+                "BuildActionTooltipLines with out-of-range index returns empty",
+                ref run, ref passed, ref failed);
+
+            var tipOk = CombatActionStripBuilder.BuildActionTooltipLines(charWithCombo, 0, 40);
+            TestBase.AssertTrue(tipOk != null && tipOk.Count >= 1 && tipOk[0].IndexOf("Strike", StringComparison.Ordinal) >= 0,
+                "BuildActionTooltipLines includes action name",
+                ref run, ref passed, ref failed);
+
+            var wrap = CombatActionStripBuilder.WrapTextToLines("hello world wide", 5);
+            TestBase.AssertTrue(wrap != null && wrap.Count >= 2 && wrap.TrueForAll(l => l.Length <= 5),
+                "WrapTextToLines respects max width",
+                ref run, ref passed, ref failed);
+
             TestBase.PrintSummary("CombatActionStripBuilder Tests", run, passed, failed);
         }
 
-        private static Character CreateCharacterWithComboAction()
+        private static Character CreateCharacterWithComboAction(double damageMultiplier = 1.0)
         {
             var character = TestDataBuilders.Character().WithName("Test").WithStats(10, 10, 10, 10).Build();
             var weapon = TestDataBuilders.Weapon().WithBaseDamage(5).Build();
             character.EquipItem(weapon, "weapon");
             var action = TestDataBuilders.CreateMockAction("Strike", ActionType.Attack);
-            action.DamageMultiplier = 1.0;
+            action.DamageMultiplier = damageMultiplier;
             action.Length = 1.0;
             action.IsComboAction = true;
             character.AddAction(action, 1.0);

@@ -27,7 +27,7 @@ namespace RPGGame
         /// Updates the action info strip with the given lines (e.g. action line, roll summary, status effects).
         /// Call from combat display when an action block is shown.
         /// </summary>
-        public static void SetSummary(IReadOnlyList<string> lines)
+        public static void SetSummary(IReadOnlyList<string>? lines)
         {
             lock (_lock)
             {

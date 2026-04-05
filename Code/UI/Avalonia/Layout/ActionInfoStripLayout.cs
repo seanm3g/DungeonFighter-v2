@@ -1,7 +1,7 @@
 namespace RPGGame.UI.Avalonia.Layout
 {
     /// <summary>
-    /// Shared layout math for the action-info strip (per-action panels below the center panel).
+    /// Shared layout math for the action-info strip (per-action panels at the top of the center column, above the combat log).
     /// Must stay in sync with <see cref="Renderers.DungeonRenderer.RoomAndCombat.RenderActionInfoStrip"/>.
     /// </summary>
     public static class ActionInfoStripLayout
