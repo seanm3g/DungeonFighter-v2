@@ -12,8 +12,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderInventory(contentX, contentY, contentWidth, contentHeight, character, inventory);
-                dungeonRenderer.RenderActionInfoStrip(character);
-            }, context, null, null, null, clearCanvas: true);
+            }, context, null, null, null, clearCanvas: true, inventoryComboRightPanel: true);
+            dungeonRenderer.RenderActionInfoStrip(character);
+            canvas.Refresh();
         }
 
         public void RenderItemSelectionPrompt(Character character, List<Item> inventory, string promptMessage, string actionType, CanvasContext context)
@@ -21,8 +22,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderItemSelectionPrompt(contentX, contentY, contentWidth, contentHeight, character, inventory, promptMessage, actionType);
-                dungeonRenderer.RenderActionInfoStrip(character);
-            }, context, null, null, null);
+            }, context, null, null, null, inventoryComboRightPanel: true);
+            dungeonRenderer.RenderActionInfoStrip(character);
+            canvas.Refresh();
         }
 
         public void RenderSlotSelectionPrompt(Character character, CanvasContext context)
@@ -30,8 +32,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderSlotSelectionPrompt(contentX, contentY, contentWidth, contentHeight, character);
-                dungeonRenderer.RenderActionInfoStrip(character);
-            }, context, null, null, null);
+            }, context, null, null, null, inventoryComboRightPanel: true);
+            dungeonRenderer.RenderActionInfoStrip(character);
+            canvas.Refresh();
         }
 
         public void RenderRaritySelectionPrompt(Character character, List<IGrouping<string, Item>> rarityGroups, CanvasContext context)
@@ -39,8 +42,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderRaritySelectionPrompt(contentX, contentY, contentWidth, contentHeight, character, rarityGroups);
-                dungeonRenderer.RenderActionInfoStrip(character);
-            }, context, null, null, null);
+            }, context, null, null, null, inventoryComboRightPanel: true);
+            dungeonRenderer.RenderActionInfoStrip(character);
+            canvas.Refresh();
         }
 
         public void RenderTradeUpPreview(Character character, List<Item> itemsToTrade, Item resultingItem, string currentRarity, string nextRarity, CanvasContext context)
@@ -48,8 +52,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderTradeUpPreview(contentX, contentY, contentWidth, contentHeight, character, itemsToTrade, resultingItem, currentRarity, nextRarity);
-                dungeonRenderer.RenderActionInfoStrip(character);
-            }, context, null, null, null);
+            }, context, null, null, null, inventoryComboRightPanel: true);
+            dungeonRenderer.RenderActionInfoStrip(character);
+            canvas.Refresh();
         }
 
         public void RenderItemComparison(Character character, Item newItem, Item? currentItem, string slot, CanvasContext context)
@@ -57,35 +62,39 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(character, "INVENTORY", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderItemComparison(contentX, contentY, contentWidth, contentHeight, character, newItem, currentItem, slot);
-                dungeonRenderer.RenderActionInfoStrip(character);
-            }, context, null, null, null);
+            }, context, null, null, null, inventoryComboRightPanel: true);
+            dungeonRenderer.RenderActionInfoStrip(character);
+            canvas.Refresh();
         }
 
         public void RenderComboManagement(Character character, CanvasContext context)
         {
-            RenderWithLayout(character, "COMBO MANAGEMENT", (contentX, contentY, contentWidth, contentHeight) =>
+            RenderWithLayout(character, "ACTIONS", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderComboManagement(contentX, contentY, contentWidth, contentHeight, character);
-                dungeonRenderer.RenderActionInfoStrip(character);
-            }, context, null, null, null);
+            }, context, null, null, null, inventoryComboRightPanel: true);
+            dungeonRenderer.RenderActionInfoStrip(character);
+            canvas.Refresh();
         }
 
         public void RenderComboActionSelection(Character character, string actionType, CanvasContext context)
         {
-            RenderWithLayout(character, "COMBO MANAGEMENT", (contentX, contentY, contentWidth, contentHeight) =>
+            RenderWithLayout(character, "ACTIONS", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderComboActionSelection(contentX, contentY, contentWidth, contentHeight, character, actionType);
-                dungeonRenderer.RenderActionInfoStrip(character);
-            }, context, null, null, null);
+            }, context, null, null, null, inventoryComboRightPanel: true);
+            dungeonRenderer.RenderActionInfoStrip(character);
+            canvas.Refresh();
         }
 
         public void RenderComboReorderPrompt(Character character, string currentSequence, CanvasContext context)
         {
-            RenderWithLayout(character, "COMBO MANAGEMENT", (contentX, contentY, contentWidth, contentHeight) =>
+            RenderWithLayout(character, "ACTIONS", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 inventoryRenderer.RenderComboReorderPrompt(contentX, contentY, contentWidth, contentHeight, character, currentSequence);
-                dungeonRenderer.RenderActionInfoStrip(character);
-            }, context, null, null, null);
+            }, context, null, null, null, inventoryComboRightPanel: true);
+            dungeonRenderer.RenderActionInfoStrip(character);
+            canvas.Refresh();
         }
     }
 }

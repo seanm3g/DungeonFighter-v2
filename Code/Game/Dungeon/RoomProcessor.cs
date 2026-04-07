@@ -5,6 +5,7 @@ namespace RPGGame
     using System.IO;
     using System.Text.Json;
     using Avalonia.Media;
+    using RPGGame.Actions.RollModification;
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.ColorSystem;
 
@@ -81,6 +82,7 @@ namespace RPGGame
             if (stateManager.CurrentPlayer != null)
             {
                 stateManager.CurrentPlayer.ClearAllTempEffects();
+                RollModificationManager.GetThresholdManager().ResetThresholds(stateManager.CurrentPlayer);
             }
             
             // Pre-combat exploration

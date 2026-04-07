@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Media;
 using RPGGame.Data;
+using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.UI.ColorSystem;
@@ -65,11 +66,15 @@ namespace RPGGame.UI.Avalonia.Display
             int scrollOffset = CalculateScrollOffset(buffer, totalHeight, contentHeight);
             
             // Clear the content area BEFORE calculating render positions.
-            // Only clear up to the bottom of the content area so we do not clear the action strip below.
+            // Do not extend the clear band into the action-info strip (rows above framed center content).
             if (clearContent)
             {
-                int clearStartY = Math.Max(0, contentY - 2); // Clear 2 lines above to catch scroll overflow
-                int clearEndY = contentY + contentHeight;    // Do not clear below content (would wipe action strip names)
+                int scrollOverflowPad = Math.Max(0, contentY - 2);
+                int firstRowBelowActionStrip = LayoutConstants.ACTION_INFO_Y + LayoutConstants.ACTION_INFO_HEIGHT;
+                int clearStartY = contentY >= firstRowBelowActionStrip
+                    ? Math.Max(scrollOverflowPad, firstRowBelowActionStrip)
+                    : scrollOverflowPad;
+                int clearEndY = contentY + contentHeight;
                 int clearHeight = clearEndY - clearStartY;
                 if (clearHeight > 0)
                     ClearContentArea(contentX, clearStartY, contentWidth, clearHeight);

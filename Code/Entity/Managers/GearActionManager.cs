@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using RPGGame.Entity.Managers;
 
 namespace RPGGame
@@ -150,148 +149,23 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets list of action names that should be added for given gear
-        /// Returns the GearAction if it exists, plus all ActionBonuses
-        /// For weapons: If no actions are found, falls back to weapon-type actions to ensure weapons always have at least one action
+        /// Gets list of action names that should be added for given gear (shared rules with inventory UI).
         /// </summary>
         public List<string> GetGearActions(Item gear)
         {
-            var actions = new List<string>();
-            
-            if (gear == null) return actions;
-
-            // Add the specific GearAction assigned to this item
-            if (!string.IsNullOrEmpty(gear.GearAction))
+            var actions = GearActionNames.Resolve(gear);
+            if (gear != null && actions.Count > 0)
             {
-                actions.Add(gear.GearAction);
-                DebugLogger.LogFormat("GearActionManager", 
-                    "Found GearAction '{0}' on item '{1}'", gear.GearAction, gear.Name);
+                DebugLogger.LogFormat("GearActionManager",
+                    "GetGearActions for '{0}': {1}", gear.Name, string.Join(", ", actions));
             }
-
-            // Add action bonuses from gear (these are shown in item descriptions and should be available)
-            if (gear.ActionBonuses != null)
+            else if (gear is WeaponItem w && actions.Count == 0)
             {
-                foreach (var actionBonus in gear.ActionBonuses)
-                {
-                    if (!string.IsNullOrEmpty(actionBonus.Name))
-                    {
-                        actions.Add(actionBonus.Name);
-                        DebugLogger.LogFormat("GearActionManager", 
-                            "Found ActionBonus '{0}' on item '{1}'", actionBonus.Name, gear.Name);
-                    }
-                }
-            }
-
-            // For weapons: If no actions found, fall back to ALL weapon-type actions
-            // This ensures weapons ALWAYS have at least one action when equipped
-            // This matches what's shown in inventory (all weapon-type actions)
-            if (gear is WeaponItem weapon && actions.Count == 0)
-            {
-                var weaponTypeActions = GetWeaponTypeActions(weapon.WeaponType);
-                if (weaponTypeActions.Count > 0)
-                {
-                    // Add ALL weapon-type actions as fallback (matches inventory display)
-                    actions.AddRange(weaponTypeActions);
-                    DebugLogger.LogFormat("GearActionManager", 
-                        "No GearAction or ActionBonuses found for weapon '{0}', using fallback weapon-type actions: {1}", 
-                        weapon.Name, string.Join(", ", weaponTypeActions));
-                }
-                else
-                {
-                    DebugLogger.LogFormat("GearActionManager", 
-                        "WARNING: Weapon '{0}' has no actions (no GearAction, no ActionBonuses, and no weapon-type actions found)", 
-                        weapon.Name);
-                }
+                DebugLogger.LogFormat("GearActionManager",
+                    "WARNING: Weapon '{0}' has no resolved gear actions", w.Name);
             }
 
             return actions;
-        }
-
-        /// <summary>
-        /// Gets base actions for a weapon type using tag-based matching from JSON.
-        /// This ensures all actions with matching tags are included, not just hardcoded ones.
-        /// </summary>
-        private List<string> GetWeaponTypeActions(WeaponType weaponType)
-        {
-            var weaponTag = weaponType.ToString().ToLower();
-            var weaponTypeName = weaponType.ToString();
-            var allActionData = ActionLoader.GetAllActionData();
-            var weaponActions = new List<string>();
-
-            // First, check for actions assigned via WeaponTypes property
-            foreach (var actionData in allActionData)
-            {
-                // Check if action is assigned to this weapon type via WeaponTypes property
-                if (actionData.WeaponTypes != null && 
-                    actionData.WeaponTypes.Any(wt => wt.Equals(weaponTypeName, StringComparison.OrdinalIgnoreCase)))
-                {
-                    weaponActions.Add(actionData.Name);
-                }
-            }
-
-            // If no actions found via WeaponTypes, fall back to tag-based matching
-            if (weaponActions.Count == 0)
-            {
-                var allActions = ActionLoader.GetAllActions();
-                // Get weapon-specific actions from JSON using tag matching
-                // Actions must have both "weapon" tag and the weapon type tag (e.g., "wand", "mace")
-                // Exclude "class" tagged actions (class-only actions cannot appear on weapons)
-                weaponActions = allActions
-                    .Where(action => action.Tags != null &&
-                                    action.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
-                                    action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)) &&
-                                    !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)) &&
-                                    !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)))
-                    .Select(action => action.Name)
-                    .ToList();
-            }
-
-            // No fallback - return empty list if no actions found
-            // This ensures we don't add BASIC ATTACK
-            return weaponActions;
-        }
-
-        /// <summary>
-        /// Checks if gear has special armor actions
-        /// </summary>
-        private bool HasSpecialArmorActions(Item armor)
-        {
-            if (armor == null) return false;
-            
-            if (armor.Modifications != null && armor.Modifications.Count > 0) return true;
-            if (armor.StatBonuses != null && armor.StatBonuses.Count > 0) return true;
-            // Check if rarity is above Uncommon (Rare, Epic, Legendary)
-            if (armor.Rarity == "Rare" || armor.Rarity == "Epic" || armor.Rarity == "Legendary") return true;
-
-            return false;
-        }
-
-        /// <summary>
-        /// Gets a random armor action name
-        /// </summary>
-        private string? GetRandomArmorActionName()
-        {
-            try
-            {
-                var allActions = ActionLoader.GetAllActions();
-                var availableActions = allActions
-                    .Where(action => action.IsComboAction)
-                    .Select(action => action.Name)
-                    .ToList();
-
-                if (availableActions.Count > 0)
-                {
-                    int randomIndex = Random.Shared.Next(availableActions.Count);
-                    return availableActions[randomIndex];
-                }
-            }
-            catch (Exception ex)
-            {
-                DebugLogger.LogFormat("GearActionManager", 
-                    "Error getting random armor action: {0}", ex.Message);
-            }
-
-            return null;
         }
 
         /// <summary>

@@ -83,8 +83,9 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         /// <summary>
         /// Renders the action-info strip at the top of the center column (combat, inventory, etc.), above the combat log.
-        /// One panel per combo action, left to right; selected (current combo step) panel border is highlighted.
-        /// When player is null or has no actions, strip is cleared.
+        /// Shows at least <see cref="LayoutConstants.ACTION_INFO_STRIP_FIXED_SLOT_COUNT"/> panels (empty placeholders when the combo is shorter or empty);
+        /// selected (current combo step) panel border is highlighted when the sequence is non-empty.
+        /// When player is null, strip is cleared.
         /// </summary>
         /// <param name="drawHoverDetailOverlay">When false, skips the large center tooltip (e.g. character creation narrative occupies the same cells; clearing would erase it).</param>
         public void RenderActionInfoStrip(Character? player, bool drawHoverDetailOverlay = true)
@@ -94,22 +95,28 @@ namespace RPGGame.UI.Avalonia.Renderers
             int stripW = LayoutConstants.ACTION_INFO_WIDTH;
             int stripH = LayoutConstants.ACTION_INFO_HEIGHT;
             canvas.ClearTextInArea(stripX, stripY, stripW, stripH);
+            canvas.ClearBoxesInArea(stripX, stripY, stripW, stripH);
 
-            var panelData = player != null ? CombatActionStripBuilder.BuildPanelData(player) : new List<ActionPanelInfo>();
-            if (panelData.Count == 0)
+            if (player == null)
                 return;
 
-            int selectedIndex = player != null && panelData.Count > 0
-                ? player.ComboStep % panelData.Count
-                : 0;
-            int count = panelData.Count;
+            var panelData = CombatActionStripBuilder.BuildPanelData(player);
+            int filled = panelData.Count;
+            int displayCount = ActionInfoStripLayout.GetDisplayPanelCount(filled);
+            int selectedIndex = filled > 0 ? player.ComboStep % filled : -1;
 
-            for (int i = 0; i < panelData.Count; i++)
+            for (int i = 0; i < displayCount; i++)
             {
-                ActionInfoStripLayout.GetPanelRect(i, count, out int px, out int py, out int pw, out int panelH);
-                bool isSelected = i == selectedIndex;
-                var borderColor = isSelected ? AsciiArtAssets.Colors.Gold : AsciiArtAssets.Colors.Cyan;
+                ActionInfoStripLayout.GetPanelRect(i, displayCount, out int px, out int py, out int pw, out int panelH);
+                bool isEmptySlot = i >= filled;
+                bool isSelected = !isEmptySlot && i == selectedIndex;
+                var borderColor = isSelected
+                    ? AsciiArtAssets.Colors.Gold
+                    : (isEmptySlot ? AsciiArtAssets.Colors.DarkGray : AsciiArtAssets.Colors.Cyan);
                 canvas.AddBorder(px, py, pw, panelH, borderColor);
+
+                if (isEmptySlot)
+                    continue;
 
                 int contentX = px + 1;
                 int contentY = py + 1;
@@ -155,53 +162,77 @@ namespace RPGGame.UI.Avalonia.Renderers
                 }
             }
 
-            // Active modifiers section (bottom 2 lines of strip)
-            var modifierLines = player != null ? CombatActionStripBuilder.BuildActiveModifierLines(player) : new List<string>();
-            int modY = stripY + stripH - 2;
-            int modX = stripX + 1;
-            int modW = Math.Max(0, stripW - 2);
-            for (int m = 0; m < modifierLines.Count && m < 2; m++)
-            {
-                string line = modifierLines[m];
-                if (line.Length > modW) line = line.Substring(0, modW - 3) + "...";
-                canvas.AddText(modX, modY + m, line, AsciiArtAssets.Colors.Gold);
-            }
-
             if (drawHoverDetailOverlay)
-                RenderActionStripTooltipOverlay(player, panelData.Count);
+                RenderActionStripTooltipOverlay(player, filled, displayCount);
         }
 
         /// <summary>
         /// Draws a text box in the top of the framed center panel when the pointer hovers an action strip card.
         /// Clears a band of the combat log area first so text remains readable.
         /// </summary>
-        private void RenderActionStripTooltipOverlay(Character? player, int panelCount)
+        private void RenderActionStripTooltipOverlay(Character? player, int filledPanelCount, int displaySlotCount)
         {
-            if (player == null || panelCount <= 0)
+            if (player == null)
                 return;
 
-            int hi = ActionStripHoverState.HoveredPanelIndex;
-            if (hi < 0 || hi >= panelCount)
+            // Action-pool hover tooltip is drawn in RightPanelRenderer after pool rows (correct z-order).
+            if (RightPanelActionHoverState.HoveredPoolIndex >= 0)
                 return;
 
             int innerLeft = LayoutConstants.CENTER_PANEL_X + 1;
             int innerTop = LayoutConstants.CENTER_PANEL_Y + 1;
             int innerRight = LayoutConstants.CENTER_PANEL_X + LayoutConstants.CENTER_PANEL_WIDTH - 2;
             int innerW = Math.Max(8, innerRight - innerLeft + 1);
-
-            ActionInfoStripLayout.GetPanelRect(hi, panelCount, out int px, out _, out int pw, out _);
-            int boxW = Math.Min(52, innerW);
-            int idealX = px + pw / 2 - boxW / 2;
-            int boxX = Math.Max(innerLeft, Math.Min(idealX, innerRight - boxW + 1));
-
             const int maxTooltipLines = 14;
+            int boxW = Math.Min(52, innerW);
             int innerTextW = Math.Max(4, boxW - 2);
-            var tipLines = CombatActionStripBuilder.BuildActionTooltipLines(player, hi, innerTextW, maxTooltipLines + 2);
+
+            int rpSeq = RightPanelActionHoverState.HoveredSequenceIndex;
+
+            List<string>? tipLines = null;
+            int? anchorCenterX = null;
+
+            if (LeftPanelHoverState.IsActive)
+                tipLines = LeftPanelTooltipBuilder.BuildLines(player, LeftPanelHoverState.Value, innerTextW, maxTooltipLines + 2);
+
+            if (tipLines == null || tipLines.Count == 0)
+            {
+                // Action-strip hover must win over right-panel sequence hover so panels 2+ use the correct
+                // anchor and tooltip (overlay fill/text) for the card under the pointer.
+                int hiStrip = ActionStripHoverState.HoveredPanelIndex;
+                if (filledPanelCount > 0 && displaySlotCount > 0 && hiStrip >= 0 && hiStrip < filledPanelCount)
+                {
+                    ActionInfoStripLayout.GetPanelRect(hiStrip, displaySlotCount, out int px, out _, out int pw, out _);
+                    anchorCenterX = px + pw / 2;
+                    tipLines = CombatActionStripBuilder.BuildActionTooltipLines(player, hiStrip, innerTextW, maxTooltipLines + 2);
+                }
+                else if (rpSeq >= 0)
+                {
+                    var combo = player.GetComboActions();
+                    if (rpSeq < combo.Count)
+                    {
+                        tipLines = CombatActionStripBuilder.BuildActionTooltipLines(player, rpSeq, innerTextW, maxTooltipLines + 2);
+                        if (filledPanelCount > 0 && displaySlotCount > 0 && rpSeq < filledPanelCount)
+                        {
+                            ActionInfoStripLayout.GetPanelRect(rpSeq, displaySlotCount, out int px, out _, out int pw, out _);
+                            anchorCenterX = px + pw / 2;
+                        }
+                    }
+                }
+            }
+
             if (tipLines == null || tipLines.Count == 0)
                 return;
 
             if (tipLines.Count > maxTooltipLines)
                 tipLines = tipLines.GetRange(0, maxTooltipLines);
+
+            int boxWFinal = Math.Min(52, innerW);
+            int idealX = anchorCenterX.HasValue
+                ? anchorCenterX.Value - boxWFinal / 2
+                : innerLeft + Math.Max(0, (innerW - boxWFinal) / 2);
+            int boxX = Math.Max(innerLeft, Math.Min(idealX, innerRight - boxWFinal + 1));
+            int innerTextWDraw = Math.Max(4, boxWFinal - 2);
 
             int boxH = tipLines.Count + 2;
             int maxBoxBottom = LayoutConstants.CENTER_PANEL_Y + LayoutConstants.CENTER_PANEL_HEIGHT - 2;
@@ -209,16 +240,15 @@ namespace RPGGame.UI.Avalonia.Renderers
             if (boxY + boxH - 1 > maxBoxBottom)
                 boxY = Math.Max(innerTop, maxBoxBottom - boxH + 1);
 
-            canvas.ClearTextInArea(boxX, boxY, boxW, boxH);
-            canvas.ClearBoxesInArea(boxX, boxY, boxW, boxH);
-            canvas.AddBorder(boxX, boxY, boxW, boxH, AsciiArtAssets.Colors.Yellow);
+            int innerRightInclusive = LayoutConstants.CENTER_PANEL_X + LayoutConstants.CENTER_PANEL_WIDTH - 2;
+            HoverTooltipDrawing.DrawFramedPanel(canvas, boxX, boxY, boxWFinal, boxH, innerLeft, innerTop, innerRightInclusive, maxBoxBottom);
 
             int tx = boxX + 1;
             int ty = boxY + 1;
             foreach (var line in tipLines)
             {
-                string draw = line.Length > innerTextW ? line.Substring(0, innerTextW - 3) + "..." : line;
-                canvas.AddText(tx, ty, draw, AsciiArtAssets.Colors.White);
+                string draw = line.Length > innerTextWDraw ? line.Substring(0, innerTextWDraw - 3) + "..." : line;
+                canvas.AddOverlayText(tx, ty, draw, AsciiArtAssets.Colors.White);
                 ty++;
             }
         }

@@ -49,10 +49,11 @@ namespace RPGGame
         {
             int totalBonus = 0;
             
-            // Base action roll bonus (applies to current roll only)
+            // Base action roll bonus on this roll (ACTION cadence defers RollBonus to next action — see Action.IsActionCadenceRollDeferral)
             if (action != null)
             {
-                totalBonus += action.Advanced.RollBonus;
+                if (!Action.IsActionCadenceRollDeferral(action))
+                    totalBonus += action.Advanced.RollBonus;
 
                 // Apply combo scaling bonuses
                 if (action.Tags.Contains("comboScaling"))

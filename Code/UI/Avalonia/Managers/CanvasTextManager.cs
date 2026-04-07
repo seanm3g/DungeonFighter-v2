@@ -42,8 +42,10 @@ namespace RPGGame.UI.Avalonia.Managers
             this.stateManager = stateManager;
             this.interactionManager = interactionManager;
             
-            // Create default display manager (for when no character is active)
+            // Create default display manager (when no character is active) and register it so
+            // GetOrCreateDisplayManager(__default__) returns the same instance — avoids two unrelated "default" buffers.
             this.currentDisplayManager = new CenterPanelDisplayManager(canvas, textWriter, contextManager, maxLines, stateManager, interactionManager);
+            characterDisplayManagers[DEFAULT_DISPLAY_MANAGER_KEY] = this.currentDisplayManager;
         }
         
         /// <summary>
@@ -154,22 +156,16 @@ namespace RPGGame.UI.Avalonia.Managers
         {
             get
             {
-                // Ensure we have a current display manager
-                if (currentDisplayManager == null)
-                {
-                    // Try to get display manager for active character
-                    var activeCharacter = stateManager?.GetActiveCharacter();
-                    if (activeCharacter != null)
-                    {
-                        SwitchToCharacterDisplayManager(activeCharacter);
-                    }
-                    else
-                    {
-                        currentDisplayManager = GetOrCreateDefaultDisplayManager();
-                    }
-                }
-                
-                // Fallback to default if somehow still null (should never happen, but satisfies compiler)
+                // Always align "current" with the registered active player. MessageRouter and dungeon routing
+                // use GetDisplayManagerForCharacter(player) keyed by id; if currentDisplayManager stayed on an
+                // old instance (e.g. default buffer after menu), RenderRoomEntry/ICanvasTextManager would read a
+                // different buffer than the one receiving dungeon lines — strip and log disagree or look "wiped".
+                var activeCharacter = stateManager?.GetActiveCharacter();
+                if (activeCharacter != null)
+                    SwitchToCharacterDisplayManager(activeCharacter);
+                else if (currentDisplayManager == null)
+                    currentDisplayManager = GetOrCreateDefaultDisplayManager();
+
                 return currentDisplayManager ?? GetOrCreateDefaultDisplayManager();
             }
         }
@@ -242,13 +238,31 @@ namespace RPGGame.UI.Avalonia.Managers
         }
         
         /// <summary>
+        /// Forces a layout render on the display manager that owns the active player's buffer
+        /// (matches <see cref="MessageRouter"/> / <see cref="GetDisplayManagerForCharacter"/> routing).
+        /// Prefer this over <see cref="DisplayManager"/>.<c>ForceRender()</c> after per-character buffers were introduced.
+        /// </summary>
+        public void ForceRenderForActiveCharacter()
+        {
+            GetDisplayManagerForCharacter(stateManager?.GetActiveCharacter()).ForceRender();
+        }
+
+        /// <summary>
+        /// Resets render state and forces a full layout on the active character's display manager.
+        /// </summary>
+        public void ForceFullLayoutRenderForActiveCharacter()
+        {
+            GetDisplayManagerForCharacter(stateManager?.GetActiveCharacter()).ForceFullLayoutRender();
+        }
+
+        /// <summary>
         /// Renders the display buffer to the specified area (legacy method)
         /// </summary>
         public void RenderDisplayBuffer(int x, int y, int width, int height)
         {
             // This is handled by the display manager automatically
             // Force a render to ensure it's displayed
-            DisplayManager.ForceRender();
+            ForceRenderForActiveCharacter();
         }
         
         /// <summary>

@@ -50,9 +50,9 @@ namespace RPGGame.UI.Avalonia.Layout
         {
             if (charWidth > 0)
             {
-                // Calculate how many characters actually fit in the visible area
-                int calculatedVisibleWidth = (int)(canvasPixelWidth / charWidth);
-                _effectiveVisibleWidth = calculatedVisibleWidth;
+                // Floor with epsilon so float noise just under gridWidth*charWidth does not drop a column.
+                int calculatedVisibleWidth = (int)System.Math.Floor(canvasPixelWidth / charWidth + 1e-6);
+                _effectiveVisibleWidth = System.Math.Clamp(calculatedVisibleWidth, 1, _gridWidth);
             }
         }
         
@@ -81,7 +81,8 @@ namespace RPGGame.UI.Avalonia.Layout
         public static int CENTER_PANEL_X => LEFT_PANEL_X + LEFT_PANEL_WIDTH + 1; // +1 to match original gap
         // Calculate width using effective visible width to ensure right panel stays within visible area
         // Total effective width = LEFT_PANEL_WIDTH + gap(1) + CENTER_PANEL_WIDTH + gap(1) + RIGHT_PANEL_WIDTH
-        public static int CENTER_PANEL_WIDTH => EffectiveVisibleWidth - LEFT_PANEL_WIDTH - RIGHT_PANEL_WIDTH-3; // Accounts for gaps between panels
+        // Clamp: before first Arrange or very narrow windows, raw width can go negative and breaks strip hit-tests / clears.
+        public static int CENTER_PANEL_WIDTH => Math.Max(1, EffectiveVisibleWidth - LEFT_PANEL_WIDTH - RIGHT_PANEL_WIDTH - 3); // Accounts for gaps between panels
         private const int BASE_ACTION_INFO_STRIP_HEIGHT = 11;
         public static int ACTION_INFO_STRIP_HEIGHT => BASE_ACTION_INFO_STRIP_HEIGHT;
         /// <summary>First row of the action-info strip (top of center column, aligned with side panels).</summary>
@@ -97,8 +98,15 @@ namespace RPGGame.UI.Avalonia.Layout
         public static int ACTION_INFO_HEIGHT => ACTION_INFO_STRIP_HEIGHT;
         /// <summary>Horizontal gap in character columns between per-action panels in the action-info strip.</summary>
         public const int ACTION_INFO_PANEL_GAP = 1;
+        /// <summary>
+        /// Inset from the strip’s left and right edges for card panels (character columns), and row count left empty below the cards before the center frame.
+        /// Matches the horizontal padding implied by <see cref="ACTION_INFO_CONTENT_X"/> / <see cref="ACTION_INFO_CONTENT_WIDTH"/> (1 column each side when this is 1).
+        /// </summary>
+        public const int ACTION_INFO_PANEL_EDGE_MARGIN = 1;
         /// <summary>Extra rows between the action-info strip top and the per-action card borders. Use 0 to align card tops with <see cref="ACTION_INFO_Y"/> and the side panels.</summary>
         public const int ACTION_INFO_PANEL_TOP_GAP = 0;
+        /// <summary>Minimum number of action strip panels shown when a character is present (empty slots render as placeholders).</summary>
+        public const int ACTION_INFO_STRIP_FIXED_SLOT_COUNT = 5;
         /// <summary>Content area for action info (inside border).</summary>
         public static int ACTION_INFO_CONTENT_X => ACTION_INFO_X + 1;
         public static int ACTION_INFO_CONTENT_Y => ACTION_INFO_Y + 1;

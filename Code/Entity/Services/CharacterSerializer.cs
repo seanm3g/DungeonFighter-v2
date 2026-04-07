@@ -109,55 +109,6 @@ namespace RPGGame.Entity.Services
 
             RebuildCharacterActions(character);
 
-            // Safety check: Ensure character has at least one action available
-            // If ActionPool is empty, add fallback actions based on weapon type
-            if (character.ActionPool.Count == 0)
-            {
-                DebugLogger.LogFormat("CharacterSerializer", 
-                    "WARNING: Character '{0}' has no actions after loading. Adding fallback actions.", character.Name);
-                
-                // Try to add weapon-type actions as fallback
-                if (character.Equipment.Weapon is WeaponItem fallbackWeapon)
-                {
-                    var weaponTypeActions = GetWeaponTypeActionsForFallback(fallbackWeapon.WeaponType);
-                    foreach (var actionName in weaponTypeActions)
-                    {
-                        var action = ActionLoader.GetAction(actionName);
-                        if (action != null)
-                        {
-                            action.IsComboAction = true;
-                            character.AddAction(action, 1.0);
-                            DebugLogger.LogFormat("CharacterSerializer", 
-                                "Added fallback action '{0}' to character '{1}'", actionName, character.Name);
-                            
-                            // Only add one fallback action to ensure we have at least one
-                            if (character.ActionPool.Count > 0)
-                                break;
-                        }
-                    }
-                }
-                
-                // If still no actions, add a generic fallback action
-                if (character.ActionPool.Count == 0)
-                {
-                    // Try to find any available combo action
-                    var allActions = ActionLoader.GetAllActions();
-                    var fallbackAction = allActions.FirstOrDefault(a => a.IsComboAction);
-                    if (fallbackAction != null)
-                    {
-                        character.AddAction(fallbackAction, 1.0);
-                        DebugLogger.LogFormat("CharacterSerializer", 
-                            "Added generic fallback action '{0}' to character '{1}'", fallbackAction.Name, character.Name);
-                    }
-                }
-                
-                // Re-initialize combo sequence with the fallback actions
-                if (character.ActionPool.Count > 0)
-                {
-                    character.InitializeDefaultCombo();
-                }
-            }
-
             return character;
         }
 
@@ -190,32 +141,73 @@ namespace RPGGame.Entity.Services
             character.Actions.AddClassActions(character, character.Progression, weaponType);
 
             // Restore user's combo sequence if possible; otherwise use default
-            if (!character.RestoreComboFromActionNames(savedComboNames))
+            bool restored = character.RestoreComboFromActionNames(savedComboNames);
+            if (!restored)
             {
                 character.InitializeDefaultCombo();
             }
             character.ComboStep = 0;
+
+            EnsureActionPoolNotEmptyAfterRebuild(character);
+            if (character.GetComboActions().Count == 0 && character.ActionPool.Count > 0)
+                character.InitializeDefaultCombo();
         }
 
         /// <summary>
-        /// Gets weapon-type actions for fallback when no actions are available
+        /// If the pool is still empty after a full rebuild (e.g. dungeon entry reloads Actions.json),
+        /// add the same fallbacks as load/save so combat and the action strip never stay empty.
         /// </summary>
-        private List<string> GetWeaponTypeActionsForFallback(WeaponType weaponType)
+        private static void EnsureActionPoolNotEmptyAfterRebuild(Character character)
+        {
+            if (character.ActionPool.Count > 0)
+                return;
+
+            DebugLogger.LogFormat("CharacterSerializer",
+                "WARNING: Character '{0}' has no actions after rebuild. Adding fallback actions.", character.Name);
+
+            if (character.Equipment.Weapon is WeaponItem fallbackWeapon)
+            {
+                foreach (var actionName in GetWeaponTypeActionsForFallbackStatic(fallbackWeapon.WeaponType))
+                {
+                    var action = ActionLoader.GetAction(actionName);
+                    if (action != null)
+                    {
+                        action.IsComboAction = true;
+                        character.AddAction(action, 1.0);
+                        DebugLogger.LogFormat("CharacterSerializer",
+                            "Added fallback action '{0}' to character '{1}'", actionName, character.Name);
+                        if (character.ActionPool.Count > 0)
+                            break;
+                    }
+                }
+            }
+
+            if (character.ActionPool.Count == 0)
+            {
+                var allActions = ActionLoader.GetAllActions();
+                var fallbackAction = allActions.FirstOrDefault(a => a.IsComboAction);
+                if (fallbackAction != null)
+                {
+                    character.AddAction(fallbackAction, 1.0);
+                    DebugLogger.LogFormat("CharacterSerializer",
+                        "Added generic fallback action '{0}' to character '{1}'", fallbackAction.Name, character.Name);
+                }
+            }
+        }
+
+        private static List<string> GetWeaponTypeActionsForFallbackStatic(WeaponType weaponType)
         {
             var weaponTag = weaponType.ToString().ToLower();
             var allActions = ActionLoader.GetAllActions();
 
-            // Get weapon-specific actions from JSON using tag matching
-            var weaponActions = allActions
+            return allActions
                 .Where(action => action.Tags != null &&
-                                action.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
-                                action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)) &&
-                                !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)) &&
-                                !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)))
+                                 action.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
+                                 action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)) &&
+                                 !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)) &&
+                                 !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)))
                 .Select(action => action.Name)
                 .ToList();
-
-            return weaponActions;
         }
     }
 }

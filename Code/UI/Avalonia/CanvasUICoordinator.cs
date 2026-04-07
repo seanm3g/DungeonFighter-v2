@@ -209,7 +209,7 @@ namespace RPGGame.UI.Avalonia
                 {
                     System.Action critLineReRenderCallback = () =>
                     {
-                        textMgr.DisplayManager.ForceRender();
+                        textMgr.ForceRenderForActiveCharacter();
                     };
                     canvasAnimationManager.SetCritLineReRenderCallback(critLineReRenderCallback);
                 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Avalonia.Threading;
 using RPGGame;
+using RPGGame.UI;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Display;
 
@@ -29,6 +30,7 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderDungeonStart(Dungeon dungeon, Character player, CanvasContext context)
         {
+            EnsureDisplayManagerForPlayer(player);
             if (textManager is CanvasTextManager ctm)
             {
                 ctm.DisplayManager.SetMode(new StandardDisplayMode());
@@ -37,12 +39,14 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(player, "DUNGEON FIGHTERS", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 dungeonRenderer.RenderDungeonStart(contentX, contentY, contentWidth, contentHeight, dungeon, textManager, context.DungeonContext);
-                dungeonRenderer.RenderActionInfoStrip(player);
             }, context, null, context.DungeonName, null);
+            dungeonRenderer.RenderActionInfoStrip(player);
+            canvas.Refresh();
         }
 
         public void RenderRoomEntry(Environment room, Character player, string? dungeonName, CanvasContext context, int? startFromBufferIndex = null)
         {
+            EnsureDisplayManagerForPlayer(player);
             if (textManager is CanvasTextManager ctm)
             {
                 ctm.DisplayManager.SetMode(new StandardDisplayMode());
@@ -62,7 +66,6 @@ namespace RPGGame.UI.Avalonia.Renderers
                         var renderer = new DisplayRenderer(new ColoredTextWriter(canvas));
                         renderer.Render(buffer, contentX, contentY, contentWidth, contentHeight, clearContent: true);
                     }
-                    dungeonRenderer.RenderActionInfoStrip(player);
                 },
                 context,
                 null,
@@ -70,12 +73,15 @@ namespace RPGGame.UI.Avalonia.Renderers
                 displayRoomName,
                 clearCanvas: false
             );
+            dungeonRenderer.RenderActionInfoStrip(player);
+            canvas.Refresh();
         }
 
         public void RenderCombat(Character player, Enemy enemy, List<string> combatLog, CanvasContext context)
         {
             if (!combatValidator.ValidateCharacterActive(player))
                 return;
+            EnsureDisplayManagerForPlayer(player);
             if (textManager is CanvasTextManager canvasTextManager)
             {
                 canvasTextManager.DisplayManager.SetMode(new CombatDisplayMode());
@@ -108,8 +114,9 @@ namespace RPGGame.UI.Avalonia.Renderers
                     dungeonRenderer.RenderCombatScreen(contentX, contentY, contentWidth, contentHeight,
                         null, null, currentEnemy, textManager, player, filteredDungeonContext);
                 }
-                dungeonRenderer.RenderActionInfoStrip(player);
             }, context, currentEnemy, context.DungeonName, context.RoomName, clearCanvas: shouldClear);
+            dungeonRenderer.RenderActionInfoStrip(player);
+            canvas.Refresh();
             if (shouldClear)
                 contextManager.MarkCombatRenderComplete();
         }
@@ -117,6 +124,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         public void RenderEnemyEncounter(Enemy enemy, Character player, List<string> dungeonLog, string? dungeonName, string? roomName, CanvasContext context)
         {
             if (!combatValidator.ValidateCharacterActive(player)) return;
+            EnsureDisplayManagerForPlayer(player);
             if (textManager is CanvasTextManager ctm)
             {
                 ctm.DisplayManager.SetMode(new StandardDisplayMode());
@@ -125,14 +133,16 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(player, "COMBAT", (contentX, contentY, contentWidth, contentHeight) =>
             {
                 dungeonRenderer.RenderEnemyEncounter(contentX, contentY, contentWidth, contentHeight, enemy, textManager, context.DungeonContext);
-                dungeonRenderer.RenderActionInfoStrip(player);
             }, context, enemy, dungeonName, roomName, clearCanvas: false);
+            dungeonRenderer.RenderActionInfoStrip(player);
+            canvas.Refresh();
         }
 
         public void RenderCombatResult(bool playerSurvived, Character player, Enemy enemy, BattleNarrative? battleNarrative, string? dungeonName, string? roomName, CanvasContext context)
         {
             CombatActionInfoState.Clear();
             ActionStripHoverState.Clear();
+            LeftPanelHoverState.Clear();
             if (textManager is CanvasTextManager canvasTextManager)
             {
                 canvasTextManager.DisplayManager.SetMode(new StandardDisplayMode());
@@ -170,6 +180,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         {
             CombatActionInfoState.Clear();
             ActionStripHoverState.Clear();
+            LeftPanelHoverState.Clear();
             if (textManager is CanvasTextManager canvasTextManager)
             {
                 canvasTextManager.DisplayManager.CancelPendingRenders();
@@ -186,6 +197,7 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderDungeonExploration(Character player, string currentLocation, List<string> availableActions, List<string> recentEvents, CanvasContext context)
         {
+            EnsureDisplayManagerForPlayer(player);
             if (textManager is CanvasTextManager ctm)
             {
                 ctm.DisplayManager.SetMode(new StandardDisplayMode());
@@ -218,6 +230,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
             }, context, null, null, null, clearCanvas: true);
             dungeonRenderer.RenderActionInfoStrip(player);
+            canvas.Refresh();
         }
 
         public void RenderGameMenu(Character player, List<Item> inventory, CanvasContext context)

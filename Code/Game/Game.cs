@@ -265,47 +265,71 @@ namespace RPGGame
             }
             var player = stateManager.CurrentPlayer ?? stateManager.GetActiveCharacter();
             var inv = stateManager.CurrentInventory ?? new List<Item>();
+            // Screen renderers invoked here often use clearCanvas:false (they assume ScreenTransitionProtocol cleared first).
+            // Without a fresh Clear(), a second pass after resize/hover stacks duplicate primitives (fullscreen ghosting).
             switch (stateManager.CurrentState)
             {
                 case GameState.Inventory:
+                    canvasUI.Clear();
                     inventoryMenuHandler?.RefreshInventoryScreen();
                     break;
                 case GameState.GameLoop:
                     if (player != null)
+                    {
+                        canvasUI.Clear();
                         canvasUI.RenderGameMenu(player, inv);
+                    }
                     break;
                 case GameState.DungeonSelection:
                     if (player != null && stateManager.AvailableDungeons != null)
+                    {
+                        canvasUI.Clear();
                         canvasUI.RenderDungeonSelection(player, stateManager.AvailableDungeons);
+                    }
                     break;
                 case GameState.CharacterInfo:
                     if (player != null)
+                    {
+                        canvasUI.Clear();
                         canvasUI.RenderCharacterInfoScreen(player);
+                    }
                     break;
                 case GameState.CharacterCreation:
                     if (player != null)
+                    {
+                        canvasUI.Clear();
                         canvasUI.RenderCharacterCreation(player);
+                    }
                     break;
                 case GameState.Settings:
+                    canvasUI.Clear();
                     canvasUI.RenderSettings();
                     break;
                 case GameState.Death:
                     if (player != null)
+                    {
+                        canvasUI.Clear();
                         canvasUI.RenderDeathScreen(player, player.GetDefeatSummary());
+                    }
                     break;
                 case GameState.DeveloperMenu:
+                    canvasUI.Clear();
                     canvasUI.RenderDeveloperMenu();
                     break;
                 case GameState.TuningParameters:
+                    canvasUI.Clear();
                     canvasUI.RenderTuningParametersMenu();
                     break;
                 case GameState.VariableEditor:
+                    canvasUI.Clear();
                     canvasUI.RenderVariableEditor();
                     break;
                 case GameState.ActionEditor:
+                    canvasUI.Clear();
                     canvasUI.RenderActionEditor();
                     break;
                 case GameState.BattleStatistics:
+                    canvasUI.Clear();
                     canvasUI.RenderBattleStatisticsMenu(null, false);
                     break;
                 default:

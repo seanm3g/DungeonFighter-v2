@@ -68,6 +68,94 @@ namespace RPGGame.Handlers.Inventory
         }
         
         /// <summary>
+        /// Handles mouse-driven combo actions (values from <see cref="RPGGame.UI.Avalonia.Renderers.Inventory.ComboManagementRenderer"/>).
+        /// </summary>
+        public void HandleComboPointerInput(string input)
+        {
+            if (stateManager.CurrentPlayer == null) return;
+
+            if (!ComboPointerInput.TryParse(input, out var kind, out int index))
+            {
+                ShowMessageEvent?.Invoke("Invalid action.");
+                return;
+            }
+
+            var player = stateManager.CurrentPlayer;
+
+            switch (kind)
+            {
+                case ComboPointerInput.Kind.Back:
+                    if (!stateTracker.InComboManagement)
+                        return;
+                    stateTracker.InComboManagement = false;
+                    ShowInventoryEvent?.Invoke();
+                    return;
+
+                case ComboPointerInput.Kind.AddAll:
+                    if (!stateTracker.InComboManagement)
+                        ShowComboManagement();
+                    AddAllAvailableActionsToCombo();
+                    return;
+
+                case ComboPointerInput.Kind.Reorder:
+                    if (!stateTracker.InComboManagement)
+                        ShowComboManagement();
+                    PromptReorderComboActions();
+                    return;
+
+                case ComboPointerInput.Kind.PoolAdd:
+                {
+                    var pool = player.GetActionPool();
+                    if (index < 0 || index >= pool.Count)
+                    {
+                        ShowMessageEvent?.Invoke("Invalid pool selection.");
+                        if (stateTracker.InComboManagement)
+                            RenderComboManagementScreen();
+                        else
+                            ShowInventoryEvent?.Invoke();
+                        return;
+                    }
+
+                    var action = pool[index];
+                    player.AddToCombo(action);
+                    ShowMessageEvent?.Invoke($"Added {action.Name} to sequence.");
+                    if (stateTracker.InComboManagement)
+                        RenderComboManagementScreen();
+                    else
+                        ShowInventoryEvent?.Invoke();
+                    return;
+                }
+
+                case ComboPointerInput.Kind.SequenceRemove:
+                {
+                    var combo = player.GetComboActions();
+                    if (index < 0 || index >= combo.Count)
+                    {
+                        ShowMessageEvent?.Invoke("Invalid sequence slot.");
+                        if (stateTracker.InComboManagement)
+                            RenderComboManagementScreen();
+                        else
+                            ShowInventoryEvent?.Invoke();
+                        return;
+                    }
+
+                    var action = combo[index];
+                    player.RemoveFromCombo(action);
+                    ShowMessageEvent?.Invoke($"Removed {action.Name} from sequence.");
+                    if (stateTracker.InComboManagement)
+                        RenderComboManagementScreen();
+                    else
+                        ShowInventoryEvent?.Invoke();
+                    return;
+                }
+
+                default:
+                    ShowMessageEvent?.Invoke("Invalid action.");
+                    return;
+            }
+        }
+
+        /// <summary>
         /// Handle input for combo management menu
         /// </summary>
         public void HandleComboManagementInput(string input)
@@ -94,7 +182,7 @@ namespace RPGGame.Handlers.Inventory
                 return;
             }
             
-            // Normal combo management menu actions
+            // Main actions screen: 1/2 = keyboard pickers; 8/9 = reorder / add-all; 0/5 = back
             switch (input)
             {
                 case "1":
@@ -103,18 +191,19 @@ namespace RPGGame.Handlers.Inventory
                 case "2":
                     PromptRemoveActionFromCombo();
                     break;
-                case "3":
+                case "8":
                     PromptReorderComboActions();
                     break;
-                case "4":
+                case "9":
                     AddAllAvailableActionsToCombo();
                     break;
+                case "0":
                 case "5":
                     stateTracker.InComboManagement = false;
                     ShowInventoryEvent?.Invoke();
                     break;
                 default:
-                    ShowMessageEvent?.Invoke("Invalid choice. Press 1-5.");
+                    ShowMessageEvent?.Invoke("Invalid choice. 1=add list, 2=remove list, 8=reorder, 9=add all, 0/5=back. Or use the mouse.");
                     break;
             }
         }

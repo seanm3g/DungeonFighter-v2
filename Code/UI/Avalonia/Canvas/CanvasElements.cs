@@ -12,6 +12,11 @@ namespace RPGGame.UI.Avalonia.Canvas
         public int Y { get; set; }
         public string Content { get; set; } = "";
         public Color Color { get; set; } = Colors.White;
+
+        /// <summary>
+        /// When true, drawn after normal text so opaque panels (e.g. hover tooltips) stay under this text only, not under body copy.
+        /// </summary>
+        public bool IsOverlay { get; set; }
         
         // Glow effect properties
         public bool HasGlow { get; set; } = false;
@@ -28,6 +33,16 @@ namespace RPGGame.UI.Avalonia.Canvas
         public int Height { get; set; }
         public Color BorderColor { get; set; } = Colors.White;
         public Color BackgroundColor { get; set; } = Colors.Transparent;
+
+        /// <summary>
+        /// Expands an opaque <see cref="BackgroundColor"/> fill by this many device pixels on each side (subpixel fringes).
+        /// </summary>
+        public int OpaqueBackgroundBleedDevicePixels { get; set; }
+
+        /// <summary>
+        /// When true, drawn after normal text and non-overlay boxes so the fill is not covered by center-panel narrative.
+        /// </summary>
+        public bool IsOverlay { get; set; }
     }
 
     public class CanvasProgressBar

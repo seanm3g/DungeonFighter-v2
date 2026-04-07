@@ -168,33 +168,11 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Helper method to get weapon actions for combo initialization
-        /// Uses the weapon's actual actions (GearAction and ActionBonuses) instead of hardcoded values
+        /// Weapon action names for combo initialization — same rules as <see cref="GearActionNames.Resolve"/> / action pool.
         /// </summary>
-        private List<string> GetWeaponActionsForCombo(WeaponItem weapon)
+        private static List<string> GetWeaponActionsForCombo(WeaponItem weapon)
         {
-            var actions = new List<string>();
-            
-            // Use the weapon's actual GearAction if it exists
-            if (!string.IsNullOrEmpty(weapon.GearAction))
-            {
-                actions.Add(weapon.GearAction);
-            }
-            
-            // Add all ActionBonuses from the weapon
-            if (weapon.ActionBonuses != null)
-            {
-                foreach (var actionBonus in weapon.ActionBonuses)
-                {
-                    if (!string.IsNullOrEmpty(actionBonus.Name))
-                    {
-                        actions.Add(actionBonus.Name);
-                    }
-                }
-            }
-            
-            // If no actions found on weapon, return empty list (fallback handled in InitializeDefaultCombo)
-            return actions;
+            return GearActionNames.ResolveWeapon(weapon);
         }
 
         /// <summary>

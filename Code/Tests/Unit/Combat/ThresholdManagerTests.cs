@@ -1,4 +1,5 @@
 using System;
+using RPGGame.Actions.RollModification;
 using RPGGame.Combat;
 using RPGGame.Tests;
 
@@ -35,6 +36,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestSetHitThreshold();
             TestClearThresholds();
             TestDefaultThresholds();
+            TestCombatEndResetPattern();
 
             TestBase.PrintSummary("ThresholdManager Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -225,6 +227,29 @@ namespace RPGGame.Tests.Unit.Combat
 
             TestBase.AssertTrue(combo >= hit,
                 "Combo threshold should be >= hit threshold",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Same reset sequence as CombatManager.RunCombat end / room entry: global ThresholdManager must return to baseline.
+        /// </summary>
+        private static void TestCombatEndResetPattern()
+        {
+            Console.WriteLine("\n--- Testing CombatEndResetPattern ---");
+
+            var tm = RollModificationManager.GetThresholdManager();
+            var actor = TestDataBuilders.Character().WithName("ResetActor").Build();
+            tm.ResetThresholds(actor);
+
+            int baselineHit = tm.GetHitThreshold(actor);
+            tm.AdjustHitThreshold(actor, 4);
+            TestBase.AssertTrue(tm.GetHitThreshold(actor) != baselineHit,
+                "AdjustHitThreshold should change hit threshold",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            tm.ResetThresholds(actor);
+            TestBase.AssertEqual(baselineHit, tm.GetHitThreshold(actor),
+                "ResetThresholds after combat should restore hit threshold baseline",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

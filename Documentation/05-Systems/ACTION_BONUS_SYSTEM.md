@@ -18,6 +18,7 @@ The action bonus system applies temporary modifiers to future actions or attacks
 - If the next action misses, the bonus stays and can stack (e.g., Action 1 succeeds twice → Action 2 gets 4x damage).
 - Stored in `PendingActionBonusesBySlot` (key = combo slot index).
 - Cleared on combo change (e.g., weapon swap) or combat end.
+- **`rollBonus` / Hero accuracy column**: For ACTION cadence, `Advanced.RollBonus` is **not** added to the granting action’s attack roll. The same value is delivered via ACTION keyword bonuses (ACCURACY on the next slot) or, if the data has `rollBonus` without an ACTION bonus group, via `SetTempRollBonus` for the next roll execution. This avoids double-applying hero accuracy on both the buffing action and the next action.
 
 ### ATTACK Cadence (Roll-Based)
 

@@ -3,12 +3,11 @@ using System;
 namespace RPGGame.UI.Avalonia.Managers
 {
     /// <summary>
-    /// Manages HUD section collapse state (left HERO/STATS/GEAR and right panel sections), expanded secondary stats under STATS,
+    /// Manages HUD section collapse state (left HERO/STATS/GEAR and right panel sections)
     /// and stats area bounds for click/glow.
     /// </summary>
     public class StatsPanelStateManager
     {
-        private bool isExpanded = false;
         private bool heroCollapsed;
         private bool statsCollapsed;
         private bool gearCollapsed;
@@ -18,15 +17,6 @@ namespace RPGGame.UI.Avalonia.Managers
         private int statsAreaWidth = -1;
         private int statsAreaHeight = -1;
         
-        /// <summary>
-        /// When true, secondary stat lines (ATK SPD, etc.) are shown under STATS.
-        /// </summary>
-        public bool IsExpanded
-        {
-            get => isExpanded;
-            set => isExpanded = value;
-        }
-
         /// <summary>HERO section body hidden when true.</summary>
         public bool HeroCollapsed
         {
@@ -48,7 +38,7 @@ namespace RPGGame.UI.Avalonia.Managers
             set => gearCollapsed = value;
         }
 
-        /// <summary>THRESHOLDS section body (right panel) hidden when true.</summary>
+        /// <summary>THRESHOLDS section body (left character panel) hidden when true.</summary>
         public bool ThresholdsCollapsed
         {
             get => thresholdsCollapsed;
@@ -59,14 +49,6 @@ namespace RPGGame.UI.Avalonia.Managers
         public void ToggleStatsCollapsed() => statsCollapsed = !statsCollapsed;
         public void ToggleGearCollapsed() => gearCollapsed = !gearCollapsed;
         public void ToggleThresholdsCollapsed() => thresholdsCollapsed = !thresholdsCollapsed;
-        
-        /// <summary>
-        /// Toggles secondary stats expansion (STATS body only).
-        /// </summary>
-        public void ToggleExpansion()
-        {
-            isExpanded = !isExpanded;
-        }
         
         /// <summary>
         /// Sets the stats area bounds for click detection

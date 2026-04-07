@@ -77,8 +77,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                 int leftY = splitY;
                 int rightY = splitY;
 
-                RenderLeftColumnStats(leftX, leftY, leftColW, bodyMaxY, dungeon, player, xpGained, dungeonNameSegments, ref currentLineCount);
-                RenderRightColumnLevelUpAndLoot(rightX, rightY, rightColW, bodyMaxY, levelUpInfos, allLoot, ref currentLineCount);
+                RenderLeftColumnStats(leftX, leftY, leftColW, bodyMaxY, dungeon, player, xpGained, dungeonNameSegments, allLoot, ref currentLineCount);
+                RenderRightColumnLevelUp(rightX, rightY, rightColW, bodyMaxY, levelUpInfos, ref currentLineCount);
             }
             else
             {
@@ -245,7 +245,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             return currentLineCount;
         }
 
-        private int RenderLeftColumnStats(int leftX, int leftY, int leftColW, int bodyMaxY, Dungeon dungeon, Character player, int xpGained, List<ColoredText> dungeonNameSegments, ref int currentLineCount)
+        private int RenderLeftColumnStats(int leftX, int leftY, int leftColW, int bodyMaxY, Dungeon dungeon, Character player, int xpGained, List<ColoredText> dungeonNameSegments, List<Item> allLoot, ref int currentLineCount)
         {
             int y = leftY;
 
@@ -310,10 +310,34 @@ namespace RPGGame.UI.Avalonia.Renderers
                 currentLineCount++;
             }
 
+            if (allLoot.Count > 0)
+            {
+                if (y <= bodyMaxY)
+                {
+                    canvas.AddText(leftX, y, "Loot Received:", AsciiArtAssets.Colors.White);
+                    y++;
+                    currentLineCount++;
+                }
+                foreach (var item in allLoot)
+                {
+                    if (y > bodyMaxY) break;
+                    var lootSegments = ItemDisplayColoredText.FormatLootForCompletion(item);
+                    int ln = textWriter.WriteLineColoredWrapped(lootSegments, leftX, y, leftColW);
+                    y += ln;
+                    currentLineCount += ln;
+                }
+            }
+            else if (y <= bodyMaxY)
+            {
+                canvas.AddText(leftX, y, "Loot Received: None", AsciiArtAssets.Colors.Gray);
+                y++;
+                currentLineCount++;
+            }
+
             return y;
         }
 
-        private int RenderRightColumnLevelUpAndLoot(int rightX, int rightY, int rightColW, int bodyMaxY, List<LevelUpInfo>? levelUpInfos, List<Item> allLoot, ref int currentLineCount)
+        private int RenderRightColumnLevelUp(int rightX, int rightY, int rightColW, int bodyMaxY, List<LevelUpInfo>? levelUpInfos, ref int currentLineCount)
         {
             int y = rightY;
 
@@ -343,30 +367,6 @@ namespace RPGGame.UI.Avalonia.Renderers
                         currentLineCount++;
                     }
                 }
-            }
-
-            if (allLoot.Count > 0)
-            {
-                if (y <= bodyMaxY)
-                {
-                    canvas.AddText(rightX, y, "Loot Received:", AsciiArtAssets.Colors.White);
-                    y++;
-                    currentLineCount++;
-                }
-                foreach (var item in allLoot)
-                {
-                    if (y > bodyMaxY) break;
-                    var lootSegments = ItemDisplayColoredText.FormatLootForCompletion(item);
-                    int ln = textWriter.WriteLineColoredWrapped(lootSegments, rightX, y, rightColW);
-                    y += ln;
-                    currentLineCount += ln;
-                }
-            }
-            else if (y <= bodyMaxY)
-            {
-                canvas.AddText(rightX, y, "Loot Received: None", AsciiArtAssets.Colors.Gray);
-                y++;
-                currentLineCount++;
             }
 
             return y;

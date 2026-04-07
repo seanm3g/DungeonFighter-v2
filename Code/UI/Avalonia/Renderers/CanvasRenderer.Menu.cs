@@ -37,6 +37,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 menuRenderer.RenderCharacterSelectionContent(contentX, contentY, contentWidth, contentHeight, characters, activeCharacterName, characterStatuses);
             }, context, null, null, null);
+            canvas.Refresh();
         }
 
         public void RenderLoadCharacterSelection(List<(string characterId, string characterName, int level)> savedCharacters, CanvasContext context)
@@ -45,6 +46,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 menuRenderer.RenderLoadCharacterSelectionContent(contentX, contentY, contentWidth, contentHeight, savedCharacters);
             }, context, null, null, null);
+            canvas.Refresh();
         }
 
         public void RenderSettings()
@@ -90,6 +92,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             RenderWithLayout(null, title,
                 (x, y, w, h) => menuRenderer.RenderCreateActionFormContent(x, y, w, h, actionData, currentStep, formSteps, currentInput, isEditMode),
                 new CanvasContext(), null, null, null, shouldClearCanvas);
+            canvas.Refresh();
         }
 
         public void RenderActionDetails(ActionData action) => menuScreenHelper.RenderMenuScreen("ACTION DETAILS",

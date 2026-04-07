@@ -73,8 +73,18 @@ namespace RPGGame.UI.Avalonia
         {
             if (textManager is CanvasTextManager canvasTextManager)
             {
-                canvasTextManager.DisplayManager.ForceRender();
+                canvasTextManager.ForceRenderForActiveCharacter();
             }
+        }
+
+        /// <summary>
+        /// Selects the per-character center display buffer for <paramref name="character"/> before clear/render.
+        /// Required when narrative uses <see cref="CanvasTextManager.GetDisplayManagerForCharacter"/> but UI thread still holds another manager as current.
+        /// </summary>
+        public void SwitchDisplayBufferToCharacter(Character? character)
+        {
+            if (textManager is CanvasTextManager ctm)
+                ctm.SwitchToCharacterDisplayManager(character);
         }
 
         /// <summary>
@@ -100,7 +110,7 @@ namespace RPGGame.UI.Avalonia
         {
             if (textManager is CanvasTextManager canvasTextManager)
             {
-                canvasTextManager.DisplayManager.ForceFullLayoutRender();
+                canvasTextManager.ForceFullLayoutRenderForActiveCharacter();
             }
         }
 
@@ -111,7 +121,7 @@ namespace RPGGame.UI.Avalonia
         {
             if (textManager is CanvasTextManager canvasTextManager)
             {
-                canvasTextManager.DisplayManager.ForceRender();
+                canvasTextManager.ForceRenderForActiveCharacter();
             }
         }
 
@@ -185,7 +195,7 @@ namespace RPGGame.UI.Avalonia
         public void ForceRenderDisplayBuffer()
         {
             if (textManager is CanvasTextManager ctm)
-                ctm.DisplayManager.ForceRender();
+                ctm.ForceRenderForActiveCharacter();
         }
 
         /// <summary>
@@ -315,6 +325,11 @@ namespace RPGGame.UI.Avalonia
         {
             return interactionManager.SetHoverPosition(x, y);
         }
+
+        /// <summary>
+        /// Live clickable elements for the current frame (inventory right panel, menus, etc.).
+        /// </summary>
+        public IReadOnlyList<ClickableElement> GetClickableElements() => interactionManager.ClickableElements;
 
         /// <summary>
         /// Resets the delete confirmation state.
@@ -498,6 +513,12 @@ namespace RPGGame.UI.Avalonia
         public void RenderGameMenu(Character player, List<Item> inventory)
         {
             renderer.RenderGameMenu(player, inventory, GetContext());
+        }
+
+        /// <inheritdoc cref="CanvasRenderer.RefreshActionInfoStripOnly(Character?, bool)"/>
+        public void RefreshActionInfoStripOnly(Character player, bool drawHoverDetailOverlay = true)
+        {
+            renderer.RefreshActionInfoStripOnly(player, drawHoverDetailOverlay);
         }
 
         public void RenderCharacterInfoScreen(Character player)

@@ -24,6 +24,8 @@ namespace RPGGame.UI.Avalonia
         public int Height { get; set; }
         public ElementType Type { get; set; }
         public string Value { get; set; } = "";
+        /// <summary>When set, <see cref="UI.LeftPanelHoverState"/> uses this for tooltip id instead of <see cref="Value"/> (e.g. numeric <c>Value</c> for input, <c>lphover:…</c> here).</summary>
+        public string? TooltipHoverValue { get; set; }
         public string DisplayText { get; set; } = "";
         public bool IsHovered { get; set; } = false;
         

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame.Data;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit
@@ -25,6 +26,7 @@ namespace RPGGame.Tests.Unit
             TestCalculateDamage();
             TestCalculateHit();
             TestCalculateRollBonus();
+            TestCalculateRollBonusActionCadenceDeferral();
             TestIsCriticalHit();
             TestApplyDamageReduction();
             TestCalculateStatusEffectChance();
@@ -136,6 +138,72 @@ namespace RPGGame.Tests.Unit
             var rollBonus = CombatCalculator.CalculateRollBonus(attacker, action, comboActions, comboStep);
 
             TestBase.AssertTrue(rollBonus >= 0, $"Roll bonus should be non-negative, got: {rollBonus}", 
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestCalculateRollBonusActionCadenceDeferral()
+        {
+            Console.WriteLine("\n--- Testing CalculateRollBonus ACTION cadence defers Advanced.RollBonus ---");
+
+            var attacker = TestDataBuilders.Character().WithName("ActionCadenceDefer").Build();
+            var comboActions = new List<Action>();
+            var comboStep = 0;
+
+            var baseline = new Action
+            {
+                Cadence = "ATTACK",
+                Advanced = new AdvancedMechanicsProperties { RollBonus = 0, RollBonusDuration = 0 }
+            };
+            var actionCadence = new Action
+            {
+                Cadence = "Action",
+                Advanced = new AdvancedMechanicsProperties { RollBonus = 15, RollBonusDuration = 1 }
+            };
+            var actionsPlural = new Action
+            {
+                Cadence = "ACTIONS",
+                Advanced = new AdvancedMechanicsProperties { RollBonus = 7, RollBonusDuration = 0 }
+            };
+            var attackCadence = new Action
+            {
+                Cadence = "ATTACK",
+                Advanced = new AdvancedMechanicsProperties { RollBonus = 15, RollBonusDuration = 0 }
+            };
+
+            int b = CombatCalculator.CalculateRollBonus(attacker, baseline, comboActions, comboStep);
+            int deferAction = CombatCalculator.CalculateRollBonus(attacker, actionCadence, comboActions, comboStep);
+            int deferActions = CombatCalculator.CalculateRollBonus(attacker, actionsPlural, comboActions, comboStep);
+            int attack = CombatCalculator.CalculateRollBonus(attacker, attackCadence, comboActions, comboStep);
+
+            TestBase.AssertTrue(deferAction == b,
+                $"Cadence Action should omit Advanced.RollBonus on this roll (expected {b}, got {deferAction})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(deferActions == b,
+                $"Cadence ACTIONS should omit Advanced.RollBonus (expected {b}, got {deferActions})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(attack == b + 15,
+                $"Cadence ATTACK should include Advanced.RollBonus (expected {b + 15}, got {attack})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            TestBase.AssertTrue(Action.IsActionCadenceRollDeferral(actionCadence),
+                "IsActionCadenceRollDeferral true for Action cadence",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!Action.HasActionCadenceBonusGroup(actionCadence),
+                "HasActionCadenceBonusGroup false when no bonus groups",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var withActionGroup = new Action
+            {
+                ActionAttackBonuses = new ActionAttackBonuses
+                {
+                    BonusGroups = new List<ActionAttackBonusGroup>
+                    {
+                        new ActionAttackBonusGroup { CadenceType = "ACTION", Bonuses = new List<ActionAttackBonusItem>() }
+                    }
+                }
+            };
+            TestBase.AssertTrue(Action.HasActionCadenceBonusGroup(withActionGroup),
+                "HasActionCadenceBonusGroup true when ACTION group present",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

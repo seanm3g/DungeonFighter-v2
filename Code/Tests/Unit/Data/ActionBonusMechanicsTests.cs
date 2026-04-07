@@ -6,6 +6,7 @@ using RPGGame.Actions.Execution;
 using RPGGame.Data;
 using RPGGame.Tests;
 using RPGGame.UI;
+using RPGGame.Utils;
 
 namespace RPGGame.Tests.Unit.Data
 {
@@ -31,6 +32,7 @@ namespace RPGGame.Tests.Unit.Data
             _testsFailed = 0;
 
             TestActionBonusAddLogic_Deterministic();
+            TestActionCadenceComboThresholdDoesNotPersistAcrossRolls();
             TestFullFlow_ActionBuffsNextAction();
             TestForNextAction_OnSuccess();
             TestForNextAction_OnFailure();
@@ -143,6 +145,64 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(successCount >= 1,
                 $"Full flow verified in {successCount} successful run(s)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// ACTION cadence +COMBO to threshold applies to one roll only; the next attack must not keep an easier combo threshold.
+        /// Uses attack total = comboMin - 1: with default threshold it is not a combo; with a one-shot -3 it is; third swing must revert.
+        /// </summary>
+        private static void TestActionCadenceComboThresholdDoesNotPersistAcrossRolls()
+        {
+            Console.WriteLine("--- Regression: ACTION COMBO threshold does not persist across rolls ---\n");
+
+            var lastUsed = new Dictionary<Actor, Action>();
+            var lastCritMiss = new Dictionary<Actor, bool>();
+            var character = CreateComboWithBuffingAction();
+            character.Intelligence = 0;
+            var comboActions = character.GetComboActions();
+            var setup = comboActions[0];
+            var finisher = comboActions[1];
+            var enemy = new Enemy("TestEnemy", 1, 100, 5, 5, 5, 5);
+            int comboMin = GameConfiguration.Instance.RollSystem.ComboThreshold.Min;
+            if (comboMin <= 0)
+                comboMin = 14;
+            int edgeTotal = comboMin - 1;
+
+            try
+            {
+                ActionSelector.ClearStoredRolls();
+
+                Dice.SetTestRoll(Math.Max(comboMin + 1, 15));
+                var r1 = ActionExecutionFlow.Execute(character, enemy, null, null, setup, null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(r1.Hit && r1.IsCombo,
+                    "Setup: hit + combo so ACTION bonus is queued for next slot",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                Dice.SetTestRoll(edgeTotal);
+                character.ComboStep = 1;
+                var r2 = ActionExecutionFlow.Execute(character, enemy, null, null, finisher, null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(r2.Hit,
+                    "Finisher with edge attack total still hits",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(r2.IsCombo,
+                    "Finisher: +3 COMBO threshold bonus makes edge total count as combo",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                Dice.SetTestRoll(edgeTotal);
+                character.ComboStep = 0;
+                var r3 = ActionExecutionFlow.Execute(character, enemy, null, null, setup, null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(r3.Hit,
+                    "Setup again with same edge total still hits",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(!r3.IsCombo,
+                    "Third swing: no stale combo threshold — edge total must not count as combo",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                Dice.ClearTestRoll();
+                ActionSelector.ClearStoredRolls();
+            }
         }
 
         #endregion

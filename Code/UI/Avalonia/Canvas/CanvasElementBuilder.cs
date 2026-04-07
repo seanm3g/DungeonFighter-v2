@@ -97,14 +97,40 @@ namespace RPGGame.UI.Avalonia.Canvas
         /// <summary>
         /// Adds a box to the canvas
         /// </summary>
-        public void AddBox(int x, int y, int width, int height, Color borderColor, Color backgroundColor = default)
+        public void AddBox(int x, int y, int width, int height, Color borderColor, Color backgroundColor = default, int opaqueBackgroundBleedDevicePixels = 0)
         {
             if (backgroundColor == default) backgroundColor = Colors.Transparent;
             elementManager.AddBox(new CanvasBox 
             { 
                 X = x, Y = y, Width = width, Height = height, 
-                BorderColor = borderColor, BackgroundColor = backgroundColor 
+                BorderColor = borderColor, BackgroundColor = backgroundColor,
+                OpaqueBackgroundBleedDevicePixels = opaqueBackgroundBleedDevicePixels
             });
+        }
+
+        /// <summary>
+        /// Hover tooltip panels: drawn after body text so opaque fills are not covered by narrative (see <see cref="CanvasBox.IsOverlay"/>).
+        /// </summary>
+        public void AddOverlayBox(int x, int y, int width, int height, Color borderColor, Color backgroundColor, int opaqueBackgroundBleedDevicePixels = 0)
+        {
+            if (backgroundColor == default) backgroundColor = Colors.Transparent;
+            elementManager.AddBox(new CanvasBox
+            {
+                X = x,
+                Y = y,
+                Width = width,
+                Height = height,
+                BorderColor = borderColor,
+                BackgroundColor = backgroundColor,
+                OpaqueBackgroundBleedDevicePixels = opaqueBackgroundBleedDevicePixels,
+                IsOverlay = true
+            });
+        }
+
+        /// <inheritdoc cref="CanvasElementManager.AddOverlayText"/>
+        public void AddOverlayText(int x, int y, string text, Color color)
+        {
+            elementManager.AddOverlayText(x, y, text, color);
         }
 
         /// <summary>

@@ -2,6 +2,7 @@ using System.Linq;
 using System;
 using System.IO;
 using System.Text.Json;
+using RPGGame.Actions.RollModification;
 
 namespace RPGGame
 {
@@ -332,6 +333,12 @@ namespace RPGGame
             
             // End the battle narrative with final health values
             EndBattleNarrative(player, currentEnemy);
+
+            // Clear roll threshold modifiers so UI and the next fight start from config defaults
+            // (per-roll logic resets at attack time; this clears any state left after the last roll).
+            var thresholdManager = RollModificationManager.GetThresholdManager();
+            thresholdManager.ResetThresholds(player);
+            thresholdManager.ResetThresholds(currentEnemy);
             
             // Reset combo step to first action at the end of combat
             player.ComboStep = 0;

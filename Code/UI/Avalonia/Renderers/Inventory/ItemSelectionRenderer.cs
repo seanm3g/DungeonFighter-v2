@@ -6,6 +6,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.Avalonia.Renderers.Helpers;
     using RPGGame.Items.Helpers;
+    using static RPGGame.UI.LeftPanelHoverState;
 
     /// <summary>
     /// Renders item selection prompts for equip/discard actions and slot selection
@@ -44,6 +45,16 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 _ => "Item"
             };
         }
+
+        private static int CountItemDisplayLines(Item item, Character character, List<string> itemStats)
+        {
+            var itemActions = character.Equipment.GetGearActions(item);
+            int n = 1;
+            if (itemActions != null && itemActions.Count > 0)
+                n++;
+            n += itemStats.Count;
+            return n;
+        }
         
         /// <summary>
         /// Renders item selection prompt for equip/discard actions
@@ -72,11 +83,19 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 {
                     var item = inventory[i];
                     var itemStats = ItemStatFormatter.GetItemStats(item, character);
+                    int rowLines = CountItemDisplayLines(item, character, itemStats);
                     
                     // Create clickable button for each item
                     string slotName = GetSlotName(item);
                     string rarity = item.Rarity?.Trim() ?? "Common";
-                    clickableElements.Add(InventoryButtonFactory.CreateButton(x + 2, y, width - 4, (i + 1).ToString(), $"[{i + 1}] [{rarity}] [{slotName}] {item.Name}"));
+                    clickableElements.Add(InventoryButtonFactory.CreateButton(
+                        x + 2,
+                        y,
+                        width - 4,
+                        rowLines,
+                        (i + 1).ToString(),
+                        $"[{i + 1}] [{rarity}] [{slotName}] {item.Name}",
+                        Prefix + "inv:" + i));
                     
                     // Render item name with colored text
                     ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, i, item, useColoredText: true);

@@ -33,12 +33,8 @@ namespace RPGGame.UI.Avalonia.Display
             // This prevents background combat enemies from being included in render state
             if (currentEnemy != null && stateManager != null && currentCharacter != null)
             {
-                var activeCharacter = stateManager.GetActiveCharacter();
-                if (currentCharacter != activeCharacter)
-                {
-                    // Character is not active - this enemy is from background combat, don't include it
+                if (!DisplayStateCoordinator.IsCharacterActive(currentCharacter, stateManager))
                     currentEnemy = null;
-                }
             }
             
             // Check if we need to re-render the full layout

@@ -19,8 +19,46 @@ namespace RPGGame.Tests.Unit.UI
             TestZeroPanels(ref run, ref passed, ref failed);
             TestGetPanelRectConsistency(ref run, ref passed, ref failed);
             TestGapBetweenPanelsMisses(ref run, ref passed, ref failed);
+            TestGetDisplayPanelCount(ref run, ref passed, ref failed);
+            TestFiveDisplaySlotsAllHitWhenFilledZero(ref run, ref passed, ref failed);
+            TestPanelWidthsEqualWithinOnePixel(ref run, ref passed, ref failed);
+            TestStripHitTestUsesDisplaySlotCountNotComboLength(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("ActionInfoStripLayout Tests", run, passed, failed);
+        }
+
+        private static void TestGetDisplayPanelCount(ref int run, ref int passed, ref int failed)
+        {
+            TestBase.AssertEqual(
+                LayoutConstants.ACTION_INFO_STRIP_FIXED_SLOT_COUNT,
+                ActionInfoStripLayout.GetDisplayPanelCount(0),
+                "GetDisplayPanelCount(0) equals fixed slot count",
+                ref run, ref passed, ref failed);
+            TestBase.AssertEqual(
+                LayoutConstants.ACTION_INFO_STRIP_FIXED_SLOT_COUNT,
+                ActionInfoStripLayout.GetDisplayPanelCount(4),
+                "GetDisplayPanelCount(4) pads to fixed slot count",
+                ref run, ref passed, ref failed);
+            TestBase.AssertEqual(
+                7,
+                ActionInfoStripLayout.GetDisplayPanelCount(7),
+                "GetDisplayPanelCount(7) keeps longer combo",
+                ref run, ref passed, ref failed);
+        }
+
+        private static void TestFiveDisplaySlotsAllHitWhenFilledZero(ref int run, ref int passed, ref int failed)
+        {
+            const int displayCount = 5;
+            for (int i = 0; i < displayCount; i++)
+            {
+                ActionInfoStripLayout.GetPanelRect(i, displayCount, out int px, out int py, out int pw, out int ph);
+                int cx = px + pw / 2;
+                int cy = py + ph / 2;
+                TestBase.AssertTrue(
+                    ActionInfoStripLayout.TryGetPanelIndex(cx, cy, displayCount, out int idx) && idx == i,
+                    $"Empty-strip layout: center of panel {i} hits index {i}",
+                    ref run, ref passed, ref failed);
+            }
         }
 
         private static void TestCenterOfEachPanelHitsCorrectIndex(ref int run, ref int passed, ref int failed)
@@ -71,6 +109,7 @@ namespace RPGGame.Tests.Unit.UI
         private static void TestGetPanelRectConsistency(ref int run, ref int passed, ref int failed)
         {
             const int count = 3;
+            int edge = LayoutConstants.ACTION_INFO_PANEL_EDGE_MARGIN;
             ActionInfoStripLayout.GetStripLayout(count, out int stripX, out _, out int stripW, out _,
                 out int gap, out _, out _, out _, out int panelRowY, out int panelH);
             int totalW = 0;
@@ -80,12 +119,66 @@ namespace RPGGame.Tests.Unit.UI
                 TestBase.AssertEqual(panelRowY, py, "Panel Y matches strip row", ref run, ref passed, ref failed);
                 TestBase.AssertEqual(panelH, ph, "Panel height matches layout", ref run, ref passed, ref failed);
                 if (i == 0)
-                    TestBase.AssertEqual(stripX, px, "First panel X matches strip", ref run, ref passed, ref failed);
+                    TestBase.AssertEqual(stripX + edge, px, "First panel X matches strip + edge margin", ref run, ref passed, ref failed);
                 totalW += pw;
                 if (i < count - 1)
                     totalW += gap;
             }
-            TestBase.AssertEqual(stripW, totalW, "Sum of panel widths + gaps equals strip width", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(stripW - edge * 2, totalW, "Sum of panel widths + gaps equals strip width minus side margins", ref run, ref passed, ref failed);
+        }
+
+        /// <summary>
+        /// Remainder from integer division must not pile onto a single panel; widths may differ by at most 1 cell.
+        /// </summary>
+        private static void TestPanelWidthsEqualWithinOnePixel(ref int run, ref int passed, ref int failed)
+        {
+            for (int count = 1; count <= 8; count++)
+            {
+                ActionInfoStripLayout.GetStripLayout(count, out _, out _, out _, out _,
+                    out _, out _, out int panelWidth, out int remainder, out _, out _);
+                int minW = int.MaxValue, maxW = 0;
+                for (int i = 0; i < count; i++)
+                {
+                    ActionInfoStripLayout.GetPanelRect(i, count, out _, out _, out int pw, out _);
+                    if (pw < minW) minW = pw;
+                    if (pw > maxW) maxW = pw;
+                }
+                TestBase.AssertTrue(maxW - minW <= 1,
+                    $"Panel widths for count={count} differ by at most 1 (min={minW}, max={maxW})",
+                    ref run, ref passed, ref failed);
+                int expectedSpread = remainder > 0 ? 1 : 0;
+                TestBase.AssertEqual(expectedSpread, maxW - minW,
+                    $"Width spread is 1 iff remainder>0 for count={count}",
+                    ref run, ref passed, ref failed);
+            }
+        }
+
+        /// <summary>
+        /// Drag begin/end must use <see cref="ActionInfoStripLayout.GetDisplayPanelCount"/> (same as rendering).
+        /// Using <c>combo.Count</c> for hit-test mis-maps panel indices when the strip is padded with empty slots,
+        /// which breaks reorder to a lower index (release maps correctly; press did not).
+        /// </summary>
+        private static void TestStripHitTestUsesDisplaySlotCountNotComboLength(ref int run, ref int passed, ref int failed)
+        {
+            const int filled = 3;
+            int displayCount = ActionInfoStripLayout.GetDisplayPanelCount(filled);
+            TestBase.AssertTrue(displayCount > filled,
+                "Regression setup: short combo should pad to fixed strip slot count",
+                ref run, ref passed, ref failed);
+
+            ActionInfoStripLayout.GetPanelRect(1, displayCount, out int px, out int py, out int pw, out int ph);
+            int cx = px + pw / 2;
+            int cy = py + ph / 2;
+
+            TestBase.AssertTrue(
+                ActionInfoStripLayout.TryGetPanelIndex(cx, cy, displayCount, out int displayIdx) && displayIdx == 1,
+                "Center of visual panel 1 resolves to index 1 when using GetDisplayPanelCount(filled)",
+                ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(
+                ActionInfoStripLayout.TryGetPanelIndex(cx, cy, filled, out int wrongIdx) && wrongIdx != 1,
+                "Same cell must not resolve to panel 1 when panelCount is only combo length (misaligned strip math)",
+                ref run, ref passed, ref failed);
         }
 
         private static void TestGapBetweenPanelsMisses(ref int run, ref int passed, ref int failed)

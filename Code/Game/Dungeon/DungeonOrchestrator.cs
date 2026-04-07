@@ -3,8 +3,6 @@ namespace RPGGame
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using System.IO;
-    using System.Text.Json;
     using RPGGame.UI.Avalonia;
     using RPGGame.GameCore.Helpers;
     using RPGGame.Entity.Services;
@@ -99,6 +97,8 @@ namespace RPGGame
             // This ensures dungeon exploration and combat screens work correctly
             if (customUIManager is CanvasUICoordinator canvasUIRestore)
             {
+                if (stateManager.CurrentPlayer != null)
+                    canvasUIRestore.SwitchDisplayBufferToCharacter(stateManager.CurrentPlayer);
                 canvasUIRestore.RestoreDisplayBufferRendering();
             }
             

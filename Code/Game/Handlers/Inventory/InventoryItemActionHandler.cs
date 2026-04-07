@@ -1,6 +1,8 @@
 namespace RPGGame.Handlers.Inventory
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using RPGGame.UI.Avalonia;
 
     /// <summary>
@@ -113,19 +115,22 @@ namespace RPGGame.Handlers.Inventory
             
             if (equipNew)
             {
+                var player = stateManager.CurrentPlayer;
+                var comboBefore = player.GetComboActions().ToList();
                 // Equip the new item
-                var previousItem = stateManager.CurrentPlayer.EquipItem(newItem, slot);
+                var previousItem = player.EquipItem(newItem, slot);
                 stateManager.CurrentInventory.RemoveAt(itemIndex);
-                
+                string pruneNote = FormatSequencePruneNote(comboBefore, player.GetComboActions());
+
                 if (previousItem != null)
                 {
                     // Add the previous item back to inventory instead of discarding it
                     stateManager.CurrentInventory.Add(previousItem);
-                    ShowMessageEvent?.Invoke($"Unequipped {previousItem.Name}. Equipped {newItem.Name}.");
+                    ShowMessageEvent?.Invoke($"Unequipped {previousItem.Name}. Equipped {newItem.Name}.{pruneNote}");
                 }
                 else
                 {
-                    ShowMessageEvent?.Invoke($"Equipped {newItem.Name}.");
+                    ShowMessageEvent?.Invoke($"Equipped {newItem.Name}.{pruneNote}");
                 }
             }
             else
@@ -160,11 +165,14 @@ namespace RPGGame.Handlers.Inventory
                 return;
             }
             
-            var unequippedItem = stateManager.CurrentPlayer.UnequipItem(slot);
+            var player = stateManager.CurrentPlayer;
+            var comboBefore = player.GetComboActions().ToList();
+            var unequippedItem = player.UnequipItem(slot);
             if (unequippedItem != null)
             {
                 stateManager.CurrentInventory.Add(unequippedItem);
-                ShowMessageEvent?.Invoke($"Unequipped {unequippedItem.Name}.");
+                string pruneNote = FormatSequencePruneNote(comboBefore, player.GetComboActions());
+                ShowMessageEvent?.Invoke($"Unequipped {unequippedItem.Name}.{pruneNote}");
             }
             else
             {
@@ -186,6 +194,15 @@ namespace RPGGame.Handlers.Inventory
             ShowMessageEvent?.Invoke($"Discarded {item.Name}.");
             
             ShowInventoryEvent?.Invoke();
+        }
+
+        private static string FormatSequencePruneNote(List<RPGGame.Action> before, List<RPGGame.Action> after)
+        {
+            if (before.Count == 0) return "";
+            var afterSet = new HashSet<RPGGame.Action>(after);
+            var removedNames = before.Where(a => !afterSet.Contains(a)).Select(a => a.Name).Distinct().ToList();
+            if (removedNames.Count == 0) return "";
+            return $" Removed from sequence (no longer in pool): {string.Join(", ", removedNames)}.";
         }
     }
 }

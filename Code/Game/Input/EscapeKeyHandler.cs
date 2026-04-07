@@ -49,11 +49,10 @@ namespace RPGGame.GameCore.Input
                     // Prevent ESC during trade-up flow - must complete trade-up once started
                     if (handlers.InventoryMenuHandler != null && handlers.InventoryMenuHandler.IsInTradeUpFlow())
                     {
-                        // Do nothing - cannot escape from trade-up menu
                         return Task.CompletedTask;
                     }
-                    stateManager.TransitionToState(GameState.MainMenu);
-                    showMainMenu();
+                    stateManager.TransitionToState(GameState.GameLoop);
+                    showGameLoop();
                     break;
                 case GameState.CharacterInfo:
                 case GameState.Settings:

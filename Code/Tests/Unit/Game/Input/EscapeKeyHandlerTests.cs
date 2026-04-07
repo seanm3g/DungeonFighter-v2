@@ -77,8 +77,8 @@ namespace RPGGame.Tests.Unit.Game.Input
             
             Task.Run(async () => await handler.HandleEscapeKey()).Wait();
             
-            TestBase.AssertEqualEnum(GameState.MainMenu, stateManager.CurrentState,
-                "State should transition to MainMenu from Inventory",
+            TestBase.AssertEqualEnum(GameState.GameLoop, stateManager.CurrentState,
+                "State should transition to GameLoop from Inventory",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

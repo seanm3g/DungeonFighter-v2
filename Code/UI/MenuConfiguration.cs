@@ -63,10 +63,8 @@ namespace RPGGame
                 "1. Equip Item",
                 "2. Unequip Item",
                 "3. Discard Item",
-                "4. Manage Combo Actions",
-                "5. Trade Up Items (5 of same rarity → 1 higher rarity)",
-                "6. Continue to Dungeon",
-                "0. Return to Main Menu"
+                "4. Trade Up Items (5 of same rarity → 1 higher rarity)",
+                "0. Return to game menu"
             };
         }
 

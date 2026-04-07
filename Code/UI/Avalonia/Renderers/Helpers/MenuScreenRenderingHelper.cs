@@ -28,6 +28,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
         public void RenderMenuScreen(string title, Action<int, int, int, int> renderContent)
         {
             RenderWithLayout(null, title, renderContent, new CanvasContext());
+            canvas.Refresh();
         }
 
         /// <summary>

@@ -99,11 +99,54 @@ namespace RPGGame.UI.Avalonia.Canvas
         }
 
         /// <summary>
+        /// Removes overlay tooltip text in the rectangle (same grid rules as <see cref="ClearTextInArea"/>).
+        /// Used to erase a prior hover panel without touching body copy (non-overlay text).
+        /// </summary>
+        public void ClearOverlayTextInArea(int startX, int startY, int width, int height)
+        {
+            int endX = startX + width;
+            int endY = startY + height;
+            textElements.RemoveAll(text =>
+                text.IsOverlay &&
+                text.X >= startX && text.X < endX &&
+                text.Y >= startY && text.Y < endY);
+        }
+
+        /// <summary>
+        /// Removes overlay boxes in the rectangle (same grid rules as <see cref="ClearBoxesInArea"/>).
+        /// </summary>
+        public void ClearOverlayBoxesInArea(int startX, int startY, int width, int height)
+        {
+            int endX = startX + width;
+            int endY = startY + height;
+            boxElements.RemoveAll(box =>
+                box.IsOverlay &&
+                box.X >= startX && box.X < endX &&
+                box.Y >= startY && box.Y < endY);
+        }
+
+        /// <summary>
         /// Adds a text element
         /// </summary>
         public void AddText(CanvasText text)
         {
             textElements.Add(text);
+        }
+
+        /// <summary>
+        /// Replaces any overlay text at the same cell, then adds tooltip/detail line text (see <see cref="CanvasText.IsOverlay"/>).
+        /// </summary>
+        public void AddOverlayText(int x, int y, string text, Color color)
+        {
+            textElements.RemoveAll(t => t.X == x && t.Y == y && t.IsOverlay);
+            textElements.Add(new CanvasText
+            {
+                X = x,
+                Y = y,
+                Content = text,
+                Color = color,
+                IsOverlay = true
+            });
         }
         
         /// <summary>

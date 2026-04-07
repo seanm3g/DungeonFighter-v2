@@ -5,6 +5,7 @@ namespace RPGGame
     using System.Linq;
     using RPGGame.UI.Avalonia;
     using RPGGame.Handlers.Inventory;
+    using static RPGGame.Handlers.Inventory.ComboPointerInput;
 
     /// <summary>
     /// Handles inventory menu display and item management.
@@ -32,12 +33,10 @@ namespace RPGGame
         public delegate void OnShowMessage(string message);
         public delegate void OnShowInventory();
         public delegate void OnShowGameLoop();
-        public delegate void OnShowMainMenu();
         
         public event OnShowMessage? ShowMessageEvent;
         public event OnShowInventory? ShowInventoryEvent;
         public event OnShowGameLoop? ShowGameLoopEvent;
-        public event OnShowMainMenu? ShowMainMenuEvent;
 
         public InventoryMenuHandler(GameStateManager stateManager, IUIManager? customUIManager)
         {
@@ -85,14 +84,18 @@ namespace RPGGame
         /// </summary>
         public void RefreshInventoryScreen()
         {
-            if (stateManager.CurrentPlayer == null || customUIManager is not CanvasUICoordinator canvasUI)
+            var player = stateManager.CurrentPlayer ?? stateManager.GetActiveCharacter();
+            if (player == null || customUIManager is not CanvasUICoordinator canvasUI)
                 return;
             if (stateManager.CurrentState != GameState.Inventory)
                 return;
             if (stateTracker.InComboManagement)
-                canvasUI.RenderComboManagement(stateManager.CurrentPlayer);
+                canvasUI.RenderComboManagement(player);
             else
-                canvasUI.RenderInventory(stateManager.CurrentPlayer, stateManager.CurrentInventory);
+            {
+                var inv = stateManager.CurrentInventory ?? player.Inventory ?? new List<Item>();
+                canvasUI.RenderInventory(player, inv);
+            }
         }
 
         /// <summary>
@@ -102,9 +105,14 @@ namespace RPGGame
         {
             if (stateManager.CurrentPlayer == null) return;
             
-            // Handle combo management input first
+            // Combo management screen: mouse tokens before keyboard handler
             if (stateTracker.InComboManagement)
             {
+                if (!string.IsNullOrEmpty(input) && input.StartsWith(Prefix, StringComparison.Ordinal))
+                {
+                    comboManager.HandleComboPointerInput(input);
+                    return;
+                }
                 comboManager.HandleComboManagementInput(input);
                 return;
             }
@@ -214,6 +222,15 @@ namespace RPGGame
                 }
                 return;
             }
+
+            // Mouse: right-panel sequence/pool (cpi:…) — ignore during equip/compare/trade flows
+            if (!string.IsNullOrEmpty(input) && input.StartsWith(Prefix, StringComparison.Ordinal))
+            {
+                if (stateTracker.IsAnySelectionActive())
+                    return;
+                comboManager.HandleComboPointerInput(input);
+                return;
+            }
             
             // If waiting for item/slot selection or comparison choice but input is not numeric, ignore it
             // This prevents non-numeric keys from triggering normal menu actions
@@ -243,22 +260,14 @@ namespace RPGGame
                     itemActionHandler.PromptDiscardItem();
                     break;
                 case "4":
-                    comboManager.ShowComboManagement();
-                    break;
-                case "5":
                     tradeUpHandler.PromptTradeUp();
                     break;
-                case "6":
+                case "0":
                     stateManager.TransitionToState(GameState.GameLoop);
                     ShowGameLoopEvent?.Invoke();
                     break;
-                case "0":
-                    // Return to main menu
-                    stateManager.TransitionToState(GameState.MainMenu);
-                    ShowMainMenuEvent?.Invoke();
-                    break;
                 default:
-                    ShowMessageEvent?.Invoke("Invalid choice. Press 1-6, 0 (Return to Main Menu), or ESC to go back.");
+                    ShowMessageEvent?.Invoke("Invalid choice. Press 1-4, 0 (Return to game menu), or ESC to go back.");
                     break;
             }
         }

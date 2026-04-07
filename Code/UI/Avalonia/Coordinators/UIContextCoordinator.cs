@@ -1,6 +1,7 @@
 using RPGGame;
 using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.Avalonia.Managers;
+using System;
 using System.Collections.Generic;
 
 namespace RPGGame.UI.Avalonia.Coordinators
@@ -56,23 +57,33 @@ namespace RPGGame.UI.Avalonia.Coordinators
         }
 
         /// <summary>
+        /// Updates UI context character only (no display buffer clear/render).
+        /// Use when buffer content was already written for this player (e.g. dungeon room entry batch before SetUIContext).
+        /// </summary>
+        public void SetCharacterContextOnly(Character? character)
+        {
+            if (character == null || DisplayStateCoordinator.IsCharacterActive(character, stateManager))
+                contextManager.SetCurrentCharacter(character);
+        }
+
+        /// <summary>
         /// Sets the current character, with logic to handle display buffer clearing.
         /// </summary>
         public void SetCharacter(Character? character)
         {
-            // Only set character if it matches the active character
+            // Only set character if it matches the active character (reference or registry id)
             // This prevents background combat from changing the character context
-            var activeCharacter = stateManager?.GetActiveCharacter();
-
-            if (character == null || character == activeCharacter)
+            if (character == null || DisplayStateCoordinator.IsCharacterActive(character, stateManager))
             {
                 var previousCharacter = contextManager.GetCurrentCharacter();
                 contextManager.SetCurrentCharacter(character);
 
-                // CRITICAL: If the character changed, clear the display buffer
-                // However, if we're in a menu state, don't trigger a render as it will interfere
-                // with menu rendering and cause flashing. Use ClearWithoutRender instead.
-                if (previousCharacter != character && textManager is CanvasTextManager canvasTextManager)
+                // CRITICAL: If the character changed, clear the display buffer — unless we're only
+                // syncing context to the canonical active player while the UI held a stale reference
+                // (wrong instance, unregistered duplicate), in which case clearing would wipe content
+                // just added to the buffer (e.g. ShowRoomEntry → SetUIContext → SetCharacter).
+                if (ShouldClearDisplayBufferForCharacterChange(previousCharacter, character) &&
+                    textManager is CanvasTextManager canvasTextManager)
                 {
                     // Check if we're in a menu state where display buffer rendering should be suppressed
                     var currentState = stateManager?.CurrentState;
@@ -97,6 +108,37 @@ namespace RPGGame.UI.Avalonia.Coordinators
         }
 
         /// <summary>
+        /// True when switching context should reset the center-panel buffer (different player or clearing).
+        /// False when only the reference drifted for the same logical active character.
+        /// </summary>
+        private bool ShouldClearDisplayBufferForCharacterChange(Character? previous, Character? next)
+        {
+            if (previous == next)
+                return false;
+            // Clearing character context: always clear buffer ownership
+            if (next == null)
+                return previous != null;
+            // First time setting a character from null: clear old content
+            if (previous == null)
+                return true;
+            if (stateManager == null)
+                return true;
+
+            string? prevId = stateManager.GetCharacterId(previous);
+            string? nextId = stateManager.GetCharacterId(next);
+            if (!string.IsNullOrEmpty(prevId) && !string.IsNullOrEmpty(nextId) &&
+                string.Equals(prevId, nextId, StringComparison.Ordinal))
+                return false;
+
+            // Stale UI reference not present in registry (duplicate instance) while syncing to canonical active player
+            if (string.IsNullOrEmpty(prevId) &&
+                ReferenceEquals(next, stateManager.GetActiveCharacter()))
+                return false;
+
+            return true;
+        }
+
+        /// <summary>
         /// Sets the current enemy, with validation to prevent setting enemy in menu states or for inactive characters.
         /// </summary>
         public void SetCurrentEnemy(Enemy enemy)
@@ -106,9 +148,8 @@ namespace RPGGame.UI.Avalonia.Coordinators
             // 2. We're NOT in a menu state (menus don't allow combat enemy display)
             // This prevents background combat from setting enemy context for inactive characters or when in menus
             var currentCharacter = contextManager.GetCurrentCharacter();
-            var activeCharacter = stateManager?.GetActiveCharacter();
             var currentState = stateManager?.CurrentState;
-            bool characterMatches = currentCharacter != null && currentCharacter == activeCharacter;
+            bool characterMatches = DisplayStateCoordinator.IsCharacterActive(currentCharacter, stateManager);
 
             // Menu states where combat shouldn't set enemy context
             bool isMenuState = DisplayStateCoordinator.IsMenuState(currentState);

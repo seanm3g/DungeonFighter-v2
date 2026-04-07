@@ -13,7 +13,7 @@ namespace RPGGame
     /// - Display available weapon options
     /// - Handle weapon selection input
     /// - Initialize character with selected weapon
-    /// - Transition to character creation or game loop
+    /// - Transition to character creation (welcome / confirm), then game loop
     /// </summary>
     public class WeaponSelectionHandler
     {
@@ -121,10 +121,8 @@ namespace RPGGame
                 
                 ShowMessageEvent?.Invoke($"You selected weapon {weaponChoice}.");
                 
-                // Skip character creation screen - go directly to character info screen
-                // ShowCharacterInfo handles null checks internally, so we can always call it
                 var screenCoordinator = new GameScreenCoordinator(stateManager);
-                screenCoordinator.ShowCharacterInfo();
+                screenCoordinator.ShowCharacterCreation(stateManager.CurrentPlayer);
             }
             else
             {

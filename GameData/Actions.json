@@ -846,8 +846,6 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "heroCombo": "swap with crit",
-    "heroCrit": "swap with combo",
     "target": "ENEMY"
   },
   {
@@ -984,8 +982,6 @@
     "duration": "1",
     "cadence": "Action",
     "heroAccuracy": "20",
-    "heroHit": "5",
-    "heroCombo": "5",
     "target": "ENEMY",
     "tags": "weapon",
     "weaponTypes": "Wand"
@@ -998,6 +994,7 @@
     "speed": "0.10",
     "duration": "1",
     "cadence": "Action",
+    "heroCrit": "5",
     "damageMod": "50",
     "target": "ENEMY",
     "tags": "barbarian, weapon",

@@ -130,6 +130,7 @@ namespace RPGGame
             // Clear display buffer to prevent duplicate messages from previous runs
             if (canvasUI != null)
             {
+                canvasUI.SwitchDisplayBufferToCharacter(player);
                 canvasUI.ClearDisplayBuffer();
             }
 

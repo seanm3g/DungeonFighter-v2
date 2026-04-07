@@ -44,7 +44,7 @@
     }
   },
   "CombatDelays": {
-    "ActionDelayMs": 2000,
+    "ActionDelayMs": 3000,
     "MessageDelayMs": 200
   },
   "EnvironmentalLineDelay": 500,

@@ -6,7 +6,6 @@ using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.Avalonia.Display.Helpers;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers;
-using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.UI.Avalonia.Display.Render
 {
@@ -26,8 +25,10 @@ namespace RPGGame.UI.Avalonia.Display.Render
         private readonly DisplayMode currentMode;
         private GameStateManager? stateManager;
         
-        // Render guard to prevent concurrent renders
+        // Render guard to prevent concurrent renders; coalesce extra PerformRender calls while a paint is in flight
         private bool isRendering = false;
+        private bool renderPending = false;
+        private bool pendingForce = false;
         private readonly object renderLock = new object();
         
         // Callback to trigger combat screen re-render when new messages are added
@@ -95,148 +96,153 @@ namespace RPGGame.UI.Avalonia.Display.Render
         /// <param name="force">If true, bypasses the NeedsRender check and always renders (used for animation updates)</param>
         public void PerformRender(bool force = false)
         {
-            // Prevent concurrent renders
             lock (renderLock)
             {
                 if (isRendering)
                 {
-                    // Already rendering, skip this call
+                    renderPending = true;
+                    if (force)
+                        pendingForce = true;
                     return;
                 }
                 isRendering = true;
             }
-            
-            var state = renderStateManager.GetRenderState(buffer, contextManager, stateManager);
-            var activeCharacter = stateManager?.GetActiveCharacter();
-            var currentCharacter = contextManager.GetCurrentCharacter();
-            
-            // CRITICAL: Clear enemy if character doesn't match active character OR if there's no external callback
-            // This prevents background combat enemies from being displayed even if callback hasn't been cleared yet
-            if (state.CurrentEnemy != null && stateManager != null && state.CurrentCharacter != null)
-            {
-                var currentActiveCharacter = stateManager.GetActiveCharacter();
-                bool characterMatches = state.CurrentCharacter == currentActiveCharacter;
-                
-                // CRITICAL: Only clear enemy if character doesn't match
-                // Don't clear based on callback - callback may not be set yet when combat first starts
-                // The callback is set up in RenderCombat, which happens after StartEnemyEncounter sets the enemy
-                if (!characterMatches)
-                {
-                    // Character doesn't match = enemy is from background combat
-                    // Clear it to prevent rendering
-                    state.CurrentEnemy = null;
-                    // Also clear from context manager to prevent it from being used in future renders
-                    contextManager.ClearCurrentEnemy();
-                }
-                // Note: We don't clear enemy if character matches but no callback - this handles the case
-                // where combat is starting and the callback hasn't been set up yet
-            }
-            // Note: We don't clear enemy if we can't check character and there's no callback
-            // This prevents clearing the enemy when combat is starting and the callback hasn't been set up yet
-            // The character-based checks above are sufficient to prevent background combat enemies
-            
+
             // If we're in combat mode but external callback is null, that means combat rendering was blocked
             // (character is inactive). Don't render the buffer to prevent showing background combat.
             if (currentMode is CombatDisplayMode && externalRenderCallback == null)
             {
-                // Combat mode but no external callback = character is inactive, don't render
-                lock (renderLock)
-                {
-                    isRendering = false;
-                }
+                ReleaseRenderingAndProcessPending();
                 return;
             }
-            
+
             // CRITICAL: Skip rendering if we're in a menu state OR if stateManager is null (title screen)
-            // Menu screens and title screen handle their own rendering and don't use the display buffer
-            // This prevents the center panel from being cleared when menus/title screen are displayed
-            // EXCEPTION: Allow forced rendering in Settings state for test output display
             var currentState = stateManager?.CurrentState;
             if (DisplayStateCoordinator.ShouldSuppressRendering(currentState, stateManager))
             {
-                // Allow forced rendering in Settings state (for test output from Settings panel)
-                if (force && currentState == GameState.Settings)
+                if (!(force && currentState == GameState.Settings))
                 {
-                    // Continue with rendering - test output should be visible even in Settings
-                }
-                else
-                {
-                    // StateManager is null (title screen) or menu state - don't render display buffer
-                    lock (renderLock)
-                    {
-                        isRendering = false;
-                    }
+                    ReleaseRenderingAndProcessPending();
                     return;
                 }
             }
-            
-            // Only check NeedsRender if not forcing (force is used for animation updates)
+
+            var state = renderStateManager.GetRenderState(buffer, contextManager, stateManager);
             if (!force && !state.NeedsRender)
             {
-                // Nothing to render, release lock
-                lock (renderLock)
-                {
-                    isRendering = false;
-                }
+                ReleaseRenderingAndProcessPending();
                 return;
             }
-            
+
             Dispatcher.UIThread.Post(() =>
             {
+                bool runFollowUp = false;
+                bool followUpForce = false;
                 try
                 {
-                    // Determine if we should clear canvas
-                    bool shouldClearCanvas = renderStateManager.ShouldClearCanvas(state, currentMode);
-                    
-                    // Always run persistent layout (left + center + right + strip callback). Previously, the "partial"
-                    // path only drew the center buffer, so stats/header toggles that only bumped buffer scroll could leave
-                    // side chrome and the action strip stale until a full-layout run.
-                    // FINAL CHECK: Ensure enemy is null if character is not active
-                    // This is a last-ditch check to prevent background combat enemies from rendering
-                    Enemy? enemyToRender = state.CurrentEnemy;
-                    if (enemyToRender != null && stateManager != null && state.CurrentCharacter != null)
+                    // Resolve layout inputs on the UI thread so action strip uses the same character/context as the live buffer
+                    if (currentMode is CombatDisplayMode && externalRenderCallback == null)
+                        return;
+
+                    var paintState = stateManager?.CurrentState;
+                    if (DisplayStateCoordinator.ShouldSuppressRendering(paintState, stateManager))
                     {
-                        var currentActiveCharacter = stateManager.GetActiveCharacter();
-                        if (state.CurrentCharacter != currentActiveCharacter)
-                        {
-                            // Character is not active - don't render enemy
-                            // Also clear it from context manager to prevent it from being used in future renders
-                            contextManager.ClearCurrentEnemy();
-                            enemyToRender = null;
-                        }
-                        // Do not clear enemy when externalRenderCallback is null: PerformRender is also used for
-                        // scroll/force renders without syncing the callback from DisplayManager, while combat still
-                        // runs the external combat renderer. Clearing here mutated context and blanked the ENEMY panel.
+                        if (!(force && paintState == GameState.Settings))
+                            return;
                     }
-                    
-                    string title = TitleResolver.DetermineTitle(state.CurrentCharacter, enemyToRender);
+
+                    ClearEnemyFromContextIfBackgroundCombat();
+
+                    var state = renderStateManager.GetRenderState(buffer, contextManager, stateManager);
+
+                    if (!force && !state.NeedsRender)
+                        return;
+
+                    bool shouldClearCanvas = renderStateManager.ShouldClearCanvas(state, currentMode);
+
+                    Enemy? enemyToRender = state.CurrentEnemy;
+
+                    Character? layoutCharacter = ResolveLayoutCharacter(state, stateManager);
+
+                    string title = TitleResolver.DetermineTitle(layoutCharacter, enemyToRender);
                     layoutManager.RenderLayout(
-                        state.CurrentCharacter,
-                        (x, y, w, h) =>
-                        {
-                            renderer.Render(buffer, x, y, w, h);
-                            if (state.CurrentCharacter != null)
-                                dungeonRenderer.RenderActionInfoStrip(state.CurrentCharacter);
-                        },
+                        layoutCharacter,
+                        (x, y, w, h) => { renderer.Render(buffer, x, y, w, h); },
                         title,
                         enemyToRender,
                         state.DungeonName,
                         state.RoomName,
                         clearCanvas: shouldClearCanvas
                     );
-                    
-                    // Record that render was performed
+
+                    // Draw strip after left/center/right chrome so the right panel cannot paint over it when columns overlap.
+                    if (layoutCharacter != null)
+                    {
+                        dungeonRenderer.RenderActionInfoStrip(layoutCharacter);
+                        canvas.Refresh();
+                    }
+
                     renderStateManager.RecordRender(buffer, contextManager);
                 }
                 finally
                 {
-                    // Release render lock when done (on UI thread)
                     lock (renderLock)
                     {
                         isRendering = false;
+                        if (renderPending)
+                        {
+                            renderPending = false;
+                            runFollowUp = true;
+                            followUpForce = pendingForce;
+                            pendingForce = false;
+                        }
                     }
+                    if (runFollowUp)
+                        PerformRender(force: followUpForce);
                 }
             }, DispatcherPriority.Background);
+        }
+
+        /// <summary>
+        /// Removes enemy from context when it belongs to background combat (non-active character).
+        /// Must run before <see cref="RenderStateManager.GetRenderState"/> so layout and strip match context.
+        /// </summary>
+        private void ClearEnemyFromContextIfBackgroundCombat()
+        {
+            var currentEnemy = contextManager.GetCurrentEnemy();
+            var currentCharacter = contextManager.GetCurrentCharacter();
+            if (currentEnemy == null || stateManager == null || currentCharacter == null)
+                return;
+            if (!DisplayStateCoordinator.IsCharacterActive(currentCharacter, stateManager))
+                contextManager.ClearCurrentEnemy();
+        }
+
+        /// <summary>
+        /// Resolves which <see cref="Character"/> to use for title and action-info strip.
+        /// Prefer the registered active character so a stale <see cref="ICanvasContextManager"/> reference
+        /// cannot override the gameplay instance (wrong or empty combo on the strip).
+        /// </summary>
+        internal static Character? ResolveLayoutCharacter(RenderState state, GameStateManager? stateManager)
+        {
+            return stateManager?.GetActiveCharacter() ?? state.CurrentCharacter;
+        }
+
+        private void ReleaseRenderingAndProcessPending()
+        {
+            bool followUp;
+            bool followUpForce;
+            lock (renderLock)
+            {
+                isRendering = false;
+                followUp = renderPending;
+                followUpForce = pendingForce;
+                renderPending = false;
+                pendingForce = false;
+            }
+            if (followUpForce)
+                PerformRender(force: true);
+            else if (followUp)
+                PerformRender(force: false);
         }
         
         /// <summary>

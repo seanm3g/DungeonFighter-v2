@@ -29,14 +29,27 @@
 8. ✅ **Data System** - JSON-driven content management
 
 ### GUI & Visual Features ✅
-1. ✅ **Title Screen Animation** - 30 FPS color transitions
-2. ✅ **Item Color System** - Rarity-based coloring with 7 tiers
-3. ✅ **Color Configuration System** - 166+ templates, 200+ keywords
-4. ✅ **Inventory Management** - All 7 actions functional
-5. ✅ **Chunked Text Reveal** - Progressive text display
-6. ✅ **Dungeon Shimmer Effects** - Continuous animations
-7. ✅ **Persistent Layout** - Character panel always visible
-8. ✅ **Combat Display** - Renders with proper color parsing
+1. ✅ **Action-info strip (fixed slots)** — Top center strip always shows at least 5 panels when a character is present (`LayoutConstants.ACTION_INFO_STRIP_FIXED_SLOT_COUNT`, `ActionInfoStripLayout.GetDisplayPanelCount`); empty slots use a dim border; tooltips and strip drag use the same display count (drop on empty slot ignored). See `DungeonRenderer.RenderActionInfoStrip`, `MouseInteractionHandler`.
+1b. ✅ **Left-panel STATS/GEAR hover tooltips** — Per-line `lphover:*` targets, formulas via `LeftPanelTooltipBuilder`, center overlay in `RenderActionStripTooltipOverlay` (priority over strip when active). Secondary stats (magic find, roll bonus, etc.) always shown under STATS when the section is open.
+2. ✅ **Actions workspace (inventory)** — Pool-centric center panel with `cpi:` pointer tokens; sequence vs pool labels on right panel; equip/unequip sequence prune messaging (see `ComboManagementRenderer`, `ComboPointerInput`, `InventoryComboManager`).
+3. ✅ **Action pool hover tooltip** — Tooltip for POOL rows draws after the pool list, anchored just below the hovered line, horizontally straddling the center/right boundary (`InventoryRightPanelLayout`, `RightPanelRenderer.DrawPoolHoverTooltipIfNeeded`); strip overlay skips pool hover (`DungeonRenderer.RenderActionStripTooltipOverlay`).
+4. ✅ **Title Screen Animation** - 30 FPS color transitions
+5. ✅ **Item Color System** - Rarity-based coloring with 7 tiers
+6. ✅ **Color Configuration System** - 166+ templates, 200+ keywords
+7. ✅ **Inventory Management** - Equip, unequip, discard, trade-up, return to game menu (combo editing via actions workspace / pointer)
+8. ✅ **Chunked Text Reveal** - Progressive text display
+9. ✅ **Dungeon Shimmer Effects** - Continuous animations
+10. ✅ **Persistent Layout** - Character panel always visible
+11. ✅ **Combat Display** - Renders with proper color parsing
+12. ✅ **Right panel border stability** — Purple frame no longer stacks duplicate `CanvasBox` entries on incremental renders (`RightPanelRenderer.ClearBoxesInArea`); 1px border strokes are inset in `CanvasPrimitivesRenderer` to avoid edge clipping/flicker; effective visible width uses floor+epsilon and clamps to grid width (`LayoutConstants.UpdateEffectiveVisibleWidth`).
+13. ✅ **Dungeon entry action strip** — `RenderCoordinator.PerformRender` re-reads context on the UI thread before layout, coalesces overlapping render requests, and `DisplayRenderer` no longer clears rows inside the action-info strip band (`DisplayRendererClearBandRegressionTests`).
+14. ✅ **Dungeon strip vs CurrentPlayer** — `DisplayStateCoordinator.IsCharacterActive` matches by registry id; `UIContextCoordinator.SetCharacter` / `SetCurrentEnemy` / `RenderStateManager` / `RenderCoordinator` use the same rules; `PerformRender` falls back to `CurrentPlayer` for layout+strip; `RebuildCharacterActionsComboTests` guards combo after double rebuild.
+15. ✅ **Per-character display buffer sync** — `CanvasTextManager.DisplayManager` stayed on a stale manager while `MessageRouter` wrote to `GetDisplayManagerForCharacter(player)`, so reactive `PerformRender` cleared/redrew the wrong buffer and wiped the strip. `SwitchDisplayBufferToCharacter` + `EnsureDisplayManagerForPlayer` align current manager with the dungeon player before clear/restore/render (`DungeonOrchestrator`, `DungeonDisplayManager.StartDungeon`, `CanvasRenderer` dungeon/combat paths).
+16. ✅ **Strip layout character vs stale context reference** — `PerformRender` previously preferred `RenderState.CurrentCharacter` (UI context) over `GetActiveCharacter()`, so a non-null but stale `Character` instance could win and the action strip showed the wrong/empty combo. Resolution now prefers the registered active character (`RenderCoordinator.ResolveLayoutCharacter`, `LayoutCharacterResolutionTests`).
+17. ✅ **Dungeon SetUIContext vs display buffer** — `SetCharacter` cleared the center buffer whenever the context reference changed; after `ShowRoomEntry` filled the buffer, `SetUIContext` → `SetCharacter` could wipe that content and queue `PerformRender` (full canvas clear + strip race). Dungeon sync now uses `SetCharacterContextOnly`; `SetCharacter` skips buffer clear when syncing from a stale/unregistered reference to the canonical active player (`UIContextCoordinator.ShouldClearDisplayBufferForCharacterChange`).
+18. ✅ **Action strip paint order** — The strip was drawn inside the center callback *before* `RightPanelRenderer`, so the right panel could paint over the center column when layout overlap occurred (tight effective width / first frame). Strip is now drawn after full persistent chrome (`RenderCoordinator`, `CanvasRenderer` dungeon/combat/inventory paths); `CENTER_PANEL_WIDTH` clamped with `Math.Max(1, …)` to avoid negative widths when effective visible width is tiny.
+19. ✅ **Crit-line / ForceRender vs per-character buffer** — Dungeon narrative uses `GetDisplayManagerForCharacter(player)` while crit-line animation and `RestoreDisplayBufferRendering` called `DisplayManager.ForceRender()` (whatever `currentDisplayManager` was), repainting the wrong buffer ~24fps and wiping correct chrome. Use `CanvasTextManager.ForceRenderForActiveCharacter` / `ForceFullLayoutRenderForActiveCharacter` so reactive renders target the same manager as `MessageRouter`.
+20. ✅ **DisplayManager getter vs per-character keys** — The initial `CenterPanelDisplayManager` was not registered under `__default__`, and `DisplayManager` only synced to the active player when `currentDisplayManager` was null — so after menus/pre-dungeon it could stay on the default buffer while `MessageRouter` wrote to the id-keyed manager. `DisplayManager` now always `SwitchToCharacterDisplayManager(GetActiveCharacter())` when a player is active; constructor registers the first manager in the dictionary.
 
 ### Code Quality ✅
 1. ✅ **Refactoring Complete** - ~1500+ lines eliminated through design patterns
@@ -58,9 +71,15 @@
 ### 2. Real-Time Combat Display ✅
 **Status**: Completed  
 **Description**: Added real-time UI rendering during combat  
-**Solution**: Added `Dispatcher.UIThread.InvokeAsync()` calls after each action to yield to UI thread
-**Files Modified**: `Code/Combat/CombatManager.cs`
+**Solution**: Added `Dispatcher.UIThread.InvokeAsync()` calls after each action to yield to UI thread  
+**Files Modified**: `Code/Combat/CombatManager.cs`  
 **Result**: Combat actions now display in real-time as they happen
+
+### 2b. Left-panel stat & gear hover tooltips ✅
+**Status**: Completed  
+**Description**: Hover on left-panel STATS shows formula/breakdown tooltips; GEAR slots show item detail (stats, gear action, mods). Uses same center-panel tooltip box as action strip.  
+**Implementation**: `LeftPanelHoverState`, `LeftPanelTooltipBuilder`, `lphover:*` hit targets in `CharacterPanelRenderer`, `GetElementAt` last-wins; secondary stat lines always visible when STATS is expanded.  
+**Tests**: `LeftPanelHoverStateTests`, `LeftPanelTooltipBuilderTests`, `CanvasInteractionManagerHitTestTests` in UI suite.
 
 ### 3. Narrative System Validation 🔄
 **Status**: In Progress  

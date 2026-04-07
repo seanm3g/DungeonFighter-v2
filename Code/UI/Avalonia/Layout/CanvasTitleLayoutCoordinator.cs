@@ -1,5 +1,4 @@
 using System;
-using Avalonia.Threading;
 using RPGGame;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia;
@@ -46,6 +45,7 @@ namespace RPGGame.UI.Avalonia.Layout
             string? roomName,
             bool clearCanvas,
             bool usePersistentChrome,
+            bool inventoryComboRightPanel,
             Character? characterForRightPanel,
             CharacterPanelRenderer characterPanelRenderer,
             RightPanelRenderer rightPanelRenderer)
@@ -122,18 +122,12 @@ namespace RPGGame.UI.Avalonia.Layout
             
             if (usePersistentChrome)
             {
-                rightPanelRenderer.RenderRightPanel(enemy, dungeonName, roomName, title, characterForRightPanel);
+                rightPanelRenderer.RenderRightPanel(enemy, dungeonName, roomName, title, characterForRightPanel, inventoryComboRightPanel);
             }
             
-            // Ensure refresh happens on UI thread and after all rendering is complete
-            if (Dispatcher.UIThread.CheckAccess())
-            {
-                canvas.Refresh();
-            }
-            else
-            {
-                Dispatcher.UIThread.Post(() => canvas.Refresh());
-            }
+            // Do not call canvas.Refresh() here: callers draw the action-info strip (and other overlays)
+            // after CoordinateLayout returns. Refreshing early painted a frame without the strip and looked
+            // like the strip vanished on dungeon entry / PerformRender.
         }
     }
 }

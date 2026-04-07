@@ -301,6 +301,50 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Tooltip lines for an action that may or may not be in the current combo (e.g. pool row on the inventory right panel).
+        /// When the action is already in the sequence, delegates to <see cref="BuildActionTooltipLines"/> for full panel metrics.
+        /// </summary>
+        public static List<string> BuildActionTooltipLinesForAction(Character? character, Action? action, int maxWidth, int maxLines = 18)
+        {
+            var result = new List<string>();
+            if (character == null || action == null || maxWidth < 4)
+                return result;
+
+            var combo = character.GetComboActions();
+            for (int i = 0; i < combo.Count; i++)
+            {
+                if (ReferenceEquals(combo[i], action))
+                    return BuildActionTooltipLines(character, i, maxWidth, maxLines);
+            }
+
+            void AddWrapped(string? paragraph)
+            {
+                if (result.Count >= maxLines || string.IsNullOrWhiteSpace(paragraph))
+                    return;
+                foreach (var line in WrapTextToLines(paragraph.Trim(), maxWidth))
+                {
+                    if (result.Count >= maxLines) break;
+                    result.Add(line);
+                }
+            }
+
+            result.Add(string.IsNullOrEmpty(action.Name) ? "?" : action.Name);
+            if (result.Count >= maxLines) return result;
+
+            AddWrapped(action.Description);
+            AddWrapped(ActionDisplayFormatter.GetActionStats(action).Trim());
+
+            int acc = ActionUtilities.CalculateRollBonus(character, action, consumeTempBonus: false);
+            AddWrapped($"Accuracy (roll bonus): {acc:+0;-0;0}");
+
+            string causes = GetCausesShort(action);
+            if (!string.IsNullOrEmpty(causes))
+                AddWrapped($"Status: {causes}");
+
+            return result;
+        }
+
+        /// <summary>
         /// Word-wraps a single paragraph to fixed-width lines.
         /// </summary>
         internal static List<string> WrapTextToLines(string text, int maxWidth)

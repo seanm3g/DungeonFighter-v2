@@ -126,7 +126,6 @@ namespace RPGGame.Handlers
             {
                 handlers.InventoryMenuHandler.ShowInventoryEvent += () => showInventory();
                 handlers.InventoryMenuHandler.ShowGameLoopEvent += () => showGameLoop();
-                handlers.InventoryMenuHandler.ShowMainMenuEvent += () => showMainMenu();
                 handlers.InventoryMenuHandler.ShowMessageEvent += (msg) => showMessage(msg);
             }
             

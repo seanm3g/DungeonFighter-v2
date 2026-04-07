@@ -2,13 +2,12 @@ namespace RPGGame.UI.Avalonia.Layout
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using RPGGame;
-    using RPGGame.Actions.RollModification;
-    using RPGGame.Combat;
+    using RPGGame.Handlers.Inventory;
     using RPGGame.UI;
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.Avalonia.Managers;
+    using RPGGame.UI.Avalonia.Renderers.Inventory;
     using RPGGame.UI.ColorSystem;
 
     /// <summary>
@@ -16,27 +15,23 @@ namespace RPGGame.UI.Avalonia.Layout
     /// </summary>
     public class RightPanelRenderer
     {
-        private const string ToggleSectionThresholds = "toggle_section_thresholds";
-
         private readonly GameCanvasControl canvas;
         private readonly ICanvasInteractionManager? interactionManager;
-        private readonly StatsPanelStateManager? stateManager;
 
         public RightPanelRenderer(
             GameCanvasControl canvas,
-            ICanvasInteractionManager? interactionManager = null,
-            StatsPanelStateManager? stateManager = null)
+            ICanvasInteractionManager? interactionManager = null)
         {
             this.canvas = canvas;
             this.interactionManager = interactionManager;
-            this.stateManager = stateManager;
         }
         
         /// <summary>
         /// Renders the dungeon and enemy information panel (right side)
         /// Shows combo sequence and action pool when on inventory page or combo management, otherwise shows location/enemy info
         /// </summary>
-        public void RenderRightPanel(Enemy? enemy, string? dungeonName, string? roomName, string title, Character? character)
+        /// <param name="inventoryComboRightPanel">When true, always show sequence/pool (caller is inventory/combo UI). Avoids relying on title strings alone.</param>
+        public void RenderRightPanel(Enemy? enemy, string? dungeonName, string? roomName, string title, Character? character, bool inventoryComboRightPanel = false)
         {
             // Clear the right panel content area before rendering to prevent text overlap
             int contentX = LayoutConstants.RIGHT_PANEL_X + 2;
@@ -46,23 +41,32 @@ namespace RPGGame.UI.Avalonia.Layout
             
             canvas.ClearTextInArea(contentX, contentY, contentWidth, contentHeight);
             canvas.ClearProgressBarsInArea(contentX, contentY, contentWidth, contentHeight);
+            int rpX = LayoutConstants.RIGHT_PANEL_X;
+            int rpY = LayoutConstants.RIGHT_PANEL_Y;
+            int rpW = LayoutConstants.RIGHT_PANEL_WIDTH;
+            int rpH = LayoutConstants.RIGHT_PANEL_HEIGHT;
+            canvas.ClearBoxesInArea(rpX, rpY, rpW, rpH);
             
             // Main border for right panel - extends to right edge with no padding
-            canvas.AddBorder(LayoutConstants.RIGHT_PANEL_X, LayoutConstants.RIGHT_PANEL_Y, LayoutConstants.RIGHT_PANEL_WIDTH, LayoutConstants.RIGHT_PANEL_HEIGHT, AsciiArtAssets.Colors.Purple);
+            canvas.AddBorder(rpX, rpY, rpW, rpH, AsciiArtAssets.Colors.Purple);
             
             int y = LayoutConstants.RIGHT_PANEL_Y + 1;
             int x = LayoutConstants.RIGHT_PANEL_X + 2;
             
-            // Check if we're on the inventory page or combo management page
-            if ((title == "INVENTORY" || title == "COMBO MANAGEMENT") && character != null)
+            // Inventory / combo management: sequence + pool. Prefer explicit flag from CanvasRenderer; keep title fallback for compatibility.
+            bool useInventoryPanel = character != null && (inventoryComboRightPanel
+                || title == "INVENTORY"
+                || title == "COMBO MANAGEMENT"
+                || title == "ACTIONS");
+            if (useInventoryPanel)
             {
                 // Render combo sequence and action pool for inventory page and combo management
-                RenderInventoryRightPanel(x, y, character);
+                RenderInventoryRightPanel(x, y, character!);
             }
             else
             {
                 // Render location and enemy info for other pages
-                RenderLocationEnemyPanel(x, y, enemy, dungeonName, roomName, character);
+                RenderLocationEnemyPanel(x, y, enemy, dungeonName, roomName);
             }
         }
         
@@ -73,9 +77,13 @@ namespace RPGGame.UI.Avalonia.Layout
         private void RenderInventoryRightPanel(int x, int y, Character character)
         {
             int panelBottom = LayoutConstants.RIGHT_PANEL_Y + LayoutConstants.RIGHT_PANEL_HEIGHT - 2;
+            int rowWidth = Math.Max(8, LayoutConstants.RIGHT_PANEL_WIDTH - 4);
+            bool interactive = interactionManager != null;
 
-            // Combo Sequence section
-            canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader("COMBO SEQUENCE"), AsciiArtAssets.Colors.Gold);
+            // Sequence summary (order matches strip above)
+            canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader("SEQUENCE"), AsciiArtAssets.Colors.Gold);
+            y++;
+            canvas.AddText(x, y, "(order = strip)", AsciiArtAssets.Colors.DarkGray);
             y += 2;
             
             var comboActions = character.GetComboActions();
@@ -85,7 +93,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 canvas.AddText(x, y, $"Step: {currentStepInSequence}/{comboActions.Count}", AsciiArtAssets.Colors.White);
                 y += 2;
                 
-                const int actionPoolReserve = 6; // spacing (1) + ACTION POOL header (2) + Total line (2) + at least one list line (1)
+                const int actionPoolReserve = 9; // spacing + POOL header + subtitle + Total + list line(s)
                 int comboLinesAvailable = panelBottom - y - actionPoolReserve;
                 int maxDisplay = Math.Max(0, Math.Min(comboActions.Count, comboLinesAvailable - 1)); // -1 for "... +N more" when truncated
                 if (maxDisplay == 0 && comboActions.Count > 0)
@@ -97,7 +105,17 @@ namespace RPGGame.UI.Avalonia.Layout
                     string actionName = action.Name;
                     if (actionName.Length > 20)
                         actionName = actionName.Substring(0, 17) + "...";
-                    canvas.AddText(x, y, $"{i + 1}. {actionName}{currentStep}", AsciiArtAssets.Colors.White);
+                    string line = $"{actionName}{currentStep}";
+                    if (interactive)
+                    {
+                        string value = $"{ComboPointerInput.Prefix}rm:{i}";
+                        var btn = InventoryButtonFactory.CreateButton(x, y, rowWidth, value, line);
+                        interactionManager!.AddClickableElement(btn);
+                        var c = btn.IsHovered ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.White;
+                        canvas.AddText(x, y, line, c);
+                    }
+                    else
+                        canvas.AddText(x, y, line, AsciiArtAssets.Colors.White);
                     y++;
                 }
                 
@@ -109,14 +127,18 @@ namespace RPGGame.UI.Avalonia.Layout
             }
             else
             {
-                canvas.AddText(x, y, "(No combo set)", AsciiArtAssets.Colors.DarkGray);
+                canvas.AddText(x, y, "(empty)", AsciiArtAssets.Colors.DarkGray);
                 y += 2;
             }
             
             y += 1; // Spacing
-            
-            // Action Pool section - use remaining space
-            canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader("ACTION POOL"), AsciiArtAssets.Colors.Gold);
+
+            var comboRefSet = new HashSet<RPGGame.Action>(comboActions);
+
+            // Pool from gear / class — use remaining space (one row per pool entry; index matches AddToCombo)
+            canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader("POOL"), AsciiArtAssets.Colors.Gold);
+            y++;
+            canvas.AddText(x, y, "(from gear)", AsciiArtAssets.Colors.DarkGray);
             y += 2;
             
             var actionPool = character.GetActionPool();
@@ -125,46 +147,104 @@ namespace RPGGame.UI.Avalonia.Layout
                 canvas.AddText(x, y, $"Total: {actionPool.Count}", AsciiArtAssets.Colors.White);
                 y += 2;
                 
-                int actionPoolLinesAvailable = panelBottom - y;
-                var uniqueOrdered = actionPool.GroupBy(a => a.Name)
-                    .Select(g => new { Name = g.Key, Count = g.Count() })
-                    .OrderBy(a => a.Name)
-                    .ToList();
-                int maxUniqueToShow = Math.Max(0, Math.Min(uniqueOrdered.Count, actionPoolLinesAvailable - 1)); // -1 for "... +N more" when truncated
-                if (maxUniqueToShow == 0 && uniqueOrdered.Count > 0)
-                    maxUniqueToShow = Math.Min(uniqueOrdered.Count, actionPoolLinesAvailable);
-                var uniqueActions = uniqueOrdered.Take(maxUniqueToShow).ToList();
-                
-                foreach (var actionGroup in uniqueActions)
+                int poolIdx = 0;
+                while (poolIdx < actionPool.Count && y <= panelBottom - 1)
                 {
-                    string actionName = actionGroup.Name;
+                    var poolAction = actionPool[poolIdx];
+                    bool inSeq = comboRefSet.Contains(poolAction);
+                    string actionName = poolAction.Name;
                     if (actionName.Length > 20)
                         actionName = actionName.Substring(0, 17) + "...";
-                    string countText = actionGroup.Count > 1 ? $" x{actionGroup.Count}" : "";
-                    canvas.AddText(x, y, $"{actionName}{countText}", AsciiArtAssets.Colors.Cyan);
+                    string tag = inSeq ? "*" : "";
+                    string line = $"{tag}{actionName}";
+                    var baseColor = inSeq ? AsciiArtAssets.Colors.DarkGray : AsciiArtAssets.Colors.Cyan;
+                    if (interactive)
+                    {
+                        string value = $"{ComboPointerInput.Prefix}pool:{poolIdx}";
+                        var btn = InventoryButtonFactory.CreateButton(x, y, rowWidth, value, line);
+                        interactionManager!.AddClickableElement(btn);
+                        var c = btn.IsHovered ? AsciiArtAssets.Colors.Yellow : baseColor;
+                        canvas.AddText(x, y, line, c);
+                    }
+                    else
+                        canvas.AddText(x, y, line, baseColor);
                     y++;
+                    poolIdx++;
                 }
                 
-                int shownCount = uniqueActions.Sum(a => a.Count);
-                if (actionPool.Count > shownCount)
+                if (poolIdx < actionPool.Count)
                 {
-                    int remaining = actionPool.Count - shownCount;
-                    canvas.AddText(x, y, $"... +{remaining} more", AsciiArtAssets.Colors.Gray);
+                    canvas.AddText(x, y, $"... +{actionPool.Count - poolIdx} more", AsciiArtAssets.Colors.Gray);
                 }
             }
             else
             {
                 canvas.AddText(x, y, "(No actions)", AsciiArtAssets.Colors.DarkGray);
             }
+
+            DrawPoolHoverTooltipIfNeeded(character);
+        }
+
+        /// <summary>
+        /// Pool tooltips draw after pool rows so they paint on top of lower list entries (see layout coordinator order).
+        /// </summary>
+        private void DrawPoolHoverTooltipIfNeeded(Character character)
+        {
+            if (interactionManager == null)
+                return;
+
+            int rpPool = RightPanelActionHoverState.HoveredPoolIndex;
+            if (rpPool < 0)
+                return;
+
+            if (!InventoryRightPanelLayout.TryGetActionPoolRowY(character, rpPool, out int rowY))
+                return;
+
+            var pool = character.GetActionPool();
+            if (rpPool >= pool.Count)
+                return;
+
+            int innerTop = LayoutConstants.CENTER_PANEL_Y + 1;
+            int innerLeft = LayoutConstants.CENTER_PANEL_X + 1;
+            int innerRight = LayoutConstants.CENTER_PANEL_X + LayoutConstants.CENTER_PANEL_WIDTH - 2;
+            int innerW = Math.Max(8, innerRight - innerLeft + 1);
+            const int maxTooltipLines = 14;
+            int boxWFinal = Math.Min(52, innerW);
+            int innerTextW = Math.Max(4, boxWFinal - 2);
+            var tipLines = CombatActionStripBuilder.BuildActionTooltipLinesForAction(character, pool[rpPool], innerTextW, maxTooltipLines + 2);
+            if (tipLines == null || tipLines.Count == 0)
+                return;
+            if (tipLines.Count > maxTooltipLines)
+                tipLines = tipLines.GetRange(0, maxTooltipLines);
+
+            int idealX = InventoryRightPanelLayout.GetPoolTooltipIdealBoxLeft(boxWFinal);
+            int boxX = InventoryRightPanelLayout.ClampPoolTooltipBoxLeft(idealX, boxWFinal);
+            int innerTextWDraw = Math.Max(4, boxWFinal - 2);
+
+            int boxH = tipLines.Count + 2;
+            int maxBoxBottom = LayoutConstants.CENTER_PANEL_Y + LayoutConstants.CENTER_PANEL_HEIGHT - 2;
+            int boxY = rowY + 1;
+            if (boxY + boxH - 1 > maxBoxBottom)
+                boxY = Math.Max(innerTop, maxBoxBottom - boxH + 1);
+
+            int innerRightInclusive = LayoutConstants.CENTER_PANEL_X + LayoutConstants.CENTER_PANEL_WIDTH - 2;
+            HoverTooltipDrawing.DrawFramedPanel(canvas, boxX, boxY, boxWFinal, boxH, innerLeft, innerTop, innerRightInclusive, maxBoxBottom);
+
+            int tx = boxX + 1;
+            int ty = boxY + 1;
+            foreach (var line in tipLines)
+            {
+                string draw = line.Length > innerTextWDraw ? line.Substring(0, innerTextWDraw - 3) + "..." : line;
+                canvas.AddOverlayText(tx, ty, draw, AsciiArtAssets.Colors.White);
+                ty++;
+            }
         }
         
         /// <summary>
         /// Renders location and enemy information panel
         /// </summary>
-        private void RenderLocationEnemyPanel(int x, int y, Enemy? enemy, string? dungeonName, string? roomName, Character? character)
+        private void RenderLocationEnemyPanel(int x, int y, Enemy? enemy, string? dungeonName, string? roomName)
         {
-            int headerClickWidth = LayoutConstants.RIGHT_PANEL_WIDTH - 4;
-
             // Location section - always shown
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Location), AsciiArtAssets.Colors.Gold);
             y += 2;
@@ -248,91 +328,16 @@ namespace RPGGame.UI.Avalonia.Layout
             }
             y += 1;
 
-            // Dice thresholds section (player only when character is present)
-            int thresholdsHeaderY = y;
-            canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Thresholds), AsciiArtAssets.Colors.Gold);
-            y += 2;
-            if (interactionManager != null && stateManager != null)
-            {
-                interactionManager.AddClickableElement(new ClickableElement
-                {
-                    X = x,
-                    Y = thresholdsHeaderY,
-                    Width = headerClickWidth,
-                    Height = 1,
-                    Type = ElementType.Text,
-                    Value = ToggleSectionThresholds,
-                    DisplayText = "Thresholds"
-                });
-            }
-
-            bool thresholdsOpen = stateManager == null || !stateManager.ThresholdsCollapsed;
-            if (thresholdsOpen)
-            {
-                if (character != null)
-                {
-                    var tm = RollModificationManager.GetThresholdManager();
-                    var config = GameConfiguration.Instance;
-                    int hit = tm.GetHitThreshold(character);
-                    int combo = tm.GetComboThreshold(character);
-                    int crit = tm.GetCriticalHitThreshold(character);
-                    int critMiss = tm.GetCriticalMissThreshold(character);
-                    int defaultHit = config.RollSystem.MissThreshold.Max > 0 ? config.RollSystem.MissThreshold.Max : 5;
-                    int defaultCombo = config.RollSystem.ComboThreshold.Min > 0 ? config.RollSystem.ComboThreshold.Min : 14;
-                    int defaultCrit = config.Combat.CriticalHitThreshold > 0 ? config.Combat.CriticalHitThreshold : 20;
-                    const int defaultCritMiss = 1;
-                    string mod(int current, int def) => current != def ? (def - current) > 0 ? $" (+{def - current})" : $" ({def - current})" : "";
-                    const int thresholdLabelWidth = 11;
-                    canvas.AddText(x, y, $"{"Crit:".PadRight(thresholdLabelWidth)}{crit}{mod(crit, defaultCrit)}", AsciiArtAssets.Colors.Cyan);
-                    y++;
-                    canvas.AddText(x, y, $"{"Combo:".PadRight(thresholdLabelWidth)}{combo}{mod(combo, defaultCombo)}", AsciiArtAssets.Colors.Cyan);
-                    y++;
-                    canvas.AddText(x, y, $"{"Hit:".PadRight(thresholdLabelWidth)}{hit + 1}{mod(hit, defaultHit)}", AsciiArtAssets.Colors.Cyan);
-                    y++;
-                    canvas.AddText(x, y, $"{"Crit Miss:".PadRight(thresholdLabelWidth)}{critMiss}{mod(critMiss, defaultCritMiss)}", AsciiArtAssets.Colors.Cyan);
-                    y++;
-                }
-                else
-                {
-                    canvas.AddText(x, y, "(No character)", AsciiArtAssets.Colors.DarkGray);
-                    y++;
-                }
-            }
-            // When collapsed, y is already one line below the header row; do not add another gap before STATUS.
-            if (thresholdsOpen)
-                y += 1;
-
-            // Status effects section
+            // Status effects section (enemy only; hero effects and dice thresholds are on the left character panel)
             canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.StatusEffects), AsciiArtAssets.Colors.Gold);
             y += 2;
-            const int maxEffectLines = 5;
             const int maxLineLen = 26;
-            if (character != null)
-            {
-                var playerEffects = GetActiveStatusEffectLines(character, character);
-                if (playerEffects.Count > 0)
-                {
-                    for (int i = 0; i < Math.Min(playerEffects.Count, maxEffectLines); i++)
-                    {
-                        string line = playerEffects[i];
-                        if (line.Length > maxLineLen)
-                            line = line.Substring(0, maxLineLen - 3) + "...";
-                        canvas.AddText(x, y, line, AsciiArtAssets.Colors.White);
-                        y++;
-                    }
-                    if (playerEffects.Count > maxEffectLines)
-                    {
-                        canvas.AddText(x, y, $"+{playerEffects.Count - maxEffectLines} more", AsciiArtAssets.Colors.Gray);
-                        y++;
-                    }
-                }
-            }
             if (enemy != null)
             {
                 canvas.AddText(x, y, "Enemy:", AsciiArtAssets.Colors.Gray);
                 y++;
                 const int maxEnemyEffectLines = 3;
-                var enemyEffects = GetActiveStatusEffectLines(enemy, null);
+                var enemyEffects = StatusEffectDisplayLines.Build(enemy, null);
                 if (enemyEffects.Count > 0)
                 {
                     int toShow = Math.Min(enemyEffects.Count, maxEnemyEffectLines);
@@ -351,78 +356,6 @@ namespace RPGGame.UI.Avalonia.Layout
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Builds a list of active status effect display strings for an actor (and Character.Effects when actor is a Character).
-        /// </summary>
-        private static List<string> GetActiveStatusEffectLines(Actor actor, Character? asCharacter)
-        {
-            var lines = new List<string>();
-            if (actor.IsWeakened && actor.WeakenTurns > 0)
-                lines.Add($"Weakened ({actor.WeakenTurns} turn{(actor.WeakenTurns != 1 ? "s" : "")})");
-            if (actor.IsStunned && actor.StunTurnsRemaining > 0)
-                lines.Add($"Stunned ({actor.StunTurnsRemaining} turn{(actor.StunTurnsRemaining != 1 ? "s" : "")})");
-            if (actor.RollPenalty != 0 && actor.RollPenaltyTurns > 0)
-                lines.Add($"Roll -{actor.RollPenalty} ({actor.RollPenaltyTurns} turn{(actor.RollPenaltyTurns != 1 ? "s" : "")})");
-            if (actor.PoisonStacks > 0)
-                lines.Add(actor.IsBleeding ? $"Bleed x{actor.PoisonStacks}" : $"Poison x{actor.PoisonStacks}");
-            if (actor.BurnStacks > 0)
-                lines.Add($"Burn x{actor.BurnStacks}");
-            if (actor.HasCriticalMissPenalty && actor.CriticalMissPenaltyTurns > 0)
-                lines.Add($"Crit miss ({actor.CriticalMissPenaltyTurns} turn{(actor.CriticalMissPenaltyTurns != 1 ? "s" : "")})");
-            if (actor.VulnerabilityStacks > 0 && actor.VulnerabilityTurns > 0)
-                lines.Add($"Vuln x{actor.VulnerabilityStacks} ({actor.VulnerabilityTurns}t)");
-            if (actor.HardenStacks > 0 && actor.HardenTurns > 0)
-                lines.Add($"Harden x{actor.HardenStacks} ({actor.HardenTurns}t)");
-            if (actor.FortifyStacks > 0 && actor.FortifyTurns > 0)
-                lines.Add($"Fortify x{actor.FortifyStacks} ({actor.FortifyTurns}t)");
-            if (actor.FocusStacks > 0 && actor.FocusTurns > 0)
-                lines.Add($"Focus x{actor.FocusStacks} ({actor.FocusTurns}t)");
-            if (actor.ExposeStacks > 0 && actor.ExposeTurns > 0)
-                lines.Add($"Expose x{actor.ExposeStacks} ({actor.ExposeTurns}t)");
-            if (actor.HPRegenStacks > 0 && actor.HPRegenTurns > 0)
-                lines.Add($"HP Regen x{actor.HPRegenStacks} ({actor.HPRegenTurns}t)");
-            if (actor.ArmorBreakStacks > 0 && actor.ArmorBreakTurns > 0)
-                lines.Add($"Armor brk x{actor.ArmorBreakStacks} ({actor.ArmorBreakTurns}t)");
-            if (actor.HasPierce && actor.PierceTurns > 0)
-                lines.Add($"Pierce ({actor.PierceTurns} turn{(actor.PierceTurns != 1 ? "s" : "")})");
-            if (actor.ReflectStacks > 0 && actor.ReflectTurns > 0)
-                lines.Add($"Reflect x{actor.ReflectStacks} ({actor.ReflectTurns}t)");
-            if (actor.IsSilenced && actor.SilenceTurns > 0)
-                lines.Add($"Silence ({actor.SilenceTurns} turn{(actor.SilenceTurns != 1 ? "s" : "")})");
-            if (actor.HasAbsorb && actor.AbsorbTurns > 0)
-                lines.Add($"Absorb ({actor.AbsorbTurns} turn{(actor.AbsorbTurns != 1 ? "s" : "")})");
-            if (actor.TemporaryHP > 0 && actor.TemporaryHPTurns > 0)
-                lines.Add($"Temp HP ({actor.TemporaryHPTurns} turn{(actor.TemporaryHPTurns != 1 ? "s" : "")})");
-            if (actor.IsConfused && actor.ConfusionTurns > 0)
-                lines.Add($"Confused ({actor.ConfusionTurns} turn{(actor.ConfusionTurns != 1 ? "s" : "")})");
-            if (actor.IsMarked && actor.MarkTurns > 0)
-                lines.Add($"Marked ({actor.MarkTurns} turn{(actor.MarkTurns != 1 ? "s" : "")})");
-            if (asCharacter != null)
-            {
-                int rollBonus = asCharacter.Effects.GetTempRollBonus();
-                if (rollBonus != 0 && asCharacter.Effects.TempRollBonusTurns > 0)
-                {
-                    int t = asCharacter.Effects.TempRollBonusTurns;
-                    lines.Add($"Accuracy +{rollBonus} ({t} turn{(t != 1 ? "s" : "")})");
-                }
-                if (asCharacter.Effects.SlowTurns > 0)
-                    lines.Add($"Slow ({asCharacter.Effects.SlowTurns} turn{(asCharacter.Effects.SlowTurns != 1 ? "s" : "")})");
-                if (asCharacter.Effects.HasShield)
-                    lines.Add("Shield");
-                if (asCharacter.Effects.SkipNextTurn)
-                    lines.Add("Skip turn");
-                if (asCharacter.Effects.GuaranteeNextSuccess)
-                    lines.Add("Guarantee hit");
-                if (asCharacter.Effects.ExtraAttacks > 0)
-                    lines.Add($"Extra atk x{asCharacter.Effects.ExtraAttacks}");
-                if (asCharacter.Effects.ComboModeActive)
-                    lines.Add("Combo mode");
-                if (asCharacter.Effects.RerollCharges > 0)
-                    lines.Add($"Reroll x{asCharacter.Effects.RerollCharges}");
-            }
-            return lines;
         }
     }
 }

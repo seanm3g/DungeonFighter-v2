@@ -106,6 +106,16 @@ namespace RPGGame.UI.Avalonia.Renderers
             helpRenderer.RenderHelp();
         }
 
+        /// <summary>
+        /// Redraws only the action-info strip (and optional tooltip overlay). Strip clears its own text/box region first.
+        /// Used for GameLoop hover when the pointer moves between strip panels; hover-out (-1) uses full chrome refresh to erase the tooltip.
+        /// </summary>
+        public void RefreshActionInfoStripOnly(Character? player, bool drawHoverDetailOverlay = true)
+        {
+            dungeonRenderer.RenderActionInfoStrip(player, drawHoverDetailOverlay);
+            canvas.Refresh();
+        }
+
         public void Refresh()
         {
             canvas.Refresh();
@@ -113,9 +123,20 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         #region Private Helper Methods
 
-        private void RenderWithLayout(Character? character, string title, Action<int, int, int, int> renderContent, CanvasContext context, Enemy? enemy, string? dungeonName, string? roomName, bool clearCanvas = true, bool usePersistentChrome = true)
+        /// <summary>
+        /// Points the active center-panel display buffer at <paramref name="player"/> so reads/writes match
+        /// <see cref="CanvasTextManager.GetDisplayManagerForCharacter"/> (dungeon narrative routing).
+        /// </summary>
+        private void EnsureDisplayManagerForPlayer(Character? player)
         {
-            layoutCoordinator.RenderWithLayout(character, title, renderContent, context, enemy, dungeonName, roomName, clearCanvas, usePersistentChrome);
+            if (player == null || textManager is not CanvasTextManager ctm)
+                return;
+            ctm.SwitchToCharacterDisplayManager(player);
+        }
+
+        private void RenderWithLayout(Character? character, string title, Action<int, int, int, int> renderContent, CanvasContext context, Enemy? enemy, string? dungeonName, string? roomName, bool clearCanvas = true, bool usePersistentChrome = true, bool inventoryComboRightPanel = false)
+        {
+            layoutCoordinator.RenderWithLayout(character, title, renderContent, context, enemy, dungeonName, roomName, clearCanvas, usePersistentChrome, inventoryComboRightPanel);
         }
 
         #endregion

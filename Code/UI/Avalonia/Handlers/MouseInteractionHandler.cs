@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Input;
 using RPGGame;
 using RPGGame.Handlers.Inventory;
+using RPGGame.UI;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Managers;
@@ -95,7 +96,10 @@ namespace RPGGame.UI.Avalonia.Handlers
 
             var releasePoint = e.GetCurrentPoint(gameCanvas);
             var grid = ScreenToGrid(releasePoint.Position);
-            if (!ActionInfoStripLayout.TryGetPanelIndex(grid.X, grid.Y, snapshot.Count, out int toIdx) || toIdx == fromIdx)
+            int displayCount = ActionInfoStripLayout.GetDisplayPanelCount(snapshot.Count);
+            if (!ActionInfoStripLayout.TryGetPanelIndex(grid.X, grid.Y, displayCount, out int toIdx) || toIdx == fromIdx)
+                return;
+            if (toIdx >= snapshot.Count)
                 return;
 
             var player = game.CurrentPlayer;
@@ -184,16 +188,46 @@ namespace RPGGame.UI.Avalonia.Handlers
             int newStripHover = -1;
             var player = game?.CurrentPlayer;
             var combo = player?.GetComboActions();
-            int n = combo?.Count ?? 0;
-            if (n > 0 && ActionInfoStripLayout.TryGetPanelIndex(gridPos.X, gridPos.Y, n, out int stripIdx))
+            int filled = combo?.Count ?? 0;
+            int displayCount = player != null ? ActionInfoStripLayout.GetDisplayPanelCount(filled) : 0;
+            if (player != null && displayCount > 0 && ActionInfoStripLayout.TryGetPanelIndex(gridPos.X, gridPos.Y, displayCount, out int stripIdx))
                 newStripHover = stripIdx;
 
-            if (!ActionStripHoverState.SetHoveredPanelIndex(newStripHover))
+            bool stripHoverChanged = ActionStripHoverState.SetHoveredPanelIndex(newStripHover);
+
+            bool inventoryActive = game?.StateManager?.CurrentState == GameState.Inventory;
+            bool rpHoverChanged = RightPanelActionHoverState.UpdateFromClickables(canvasUI.GetClickableElements(), inventoryActive);
+            bool lpHoverChanged = LeftPanelHoverState.UpdateFromClickables(canvasUI.GetClickableElements());
+
+            if (!stripHoverChanged && !rpHoverChanged && !lpHoverChanged)
                 return;
 
             // PerformRender is suppressed in many menu states; re-invoke the active screen renderer like stats toggles.
+            // GameLoop / inventory: strip-only redraw when a tooltip is visible. Hover-out needs full refresh to restore the center panel.
+            bool tooltipStripOrPanel = newStripHover >= 0
+                || RightPanelActionHoverState.HoveredSequenceIndex >= 0
+                || RightPanelActionHoverState.HoveredPoolIndex >= 0
+                || LeftPanelHoverState.IsActive;
+
+            bool inv = game?.StateManager?.CurrentState == GameState.Inventory;
+            bool rpHovering = RightPanelActionHoverState.HoveredSequenceIndex >= 0
+                || RightPanelActionHoverState.HoveredPoolIndex >= 0;
+
             if (game != null)
-                game.RefreshPersistentChromeAfterStatsToggle();
+            {
+                if (game.StateManager?.CurrentState == GameState.GameLoop && player != null && tooltipStripOrPanel)
+                    canvasUI.RefreshActionInfoStripOnly(player);
+                else if (inv && player != null && tooltipStripOrPanel)
+                {
+                    // Right-panel rows use menu-option hover; full chrome redraw updates them. Strip-only is enough for strip tooltips.
+                    if (rpHovering)
+                        game.RefreshPersistentChromeAfterStatsToggle();
+                    else
+                        canvasUI.RefreshActionInfoStripOnly(player);
+                }
+                else
+                    game.RefreshPersistentChromeAfterStatsToggle();
+            }
             else
                 canvasUI.ForceRender();
         }
@@ -253,7 +287,11 @@ namespace RPGGame.UI.Avalonia.Handlers
             if (combo == null || combo.Count == 0) return false;
 
             var grid = ScreenToGrid(position);
-            if (!ActionInfoStripLayout.TryGetPanelIndex(grid.X, grid.Y, combo.Count, out int idx))
+            int displayCount = ActionInfoStripLayout.GetDisplayPanelCount(combo.Count);
+            if (!ActionInfoStripLayout.TryGetPanelIndex(grid.X, grid.Y, displayCount, out int idx))
+                return false;
+            // Must match strip rendering / release hit-test; ignore empty padded slots.
+            if (idx < 0 || idx >= combo.Count)
                 return false;
 
             _comboStripDragging = true;
@@ -295,14 +333,6 @@ namespace RPGGame.UI.Avalonia.Handlers
                             RefreshChromeAfterStatsToggle();
                             return;
                     }
-                }
-
-                // Secondary stats under STATS (click body, not header)
-                if (element.Value == "toggle_stats_expansion" && statsPanelStateManager != null)
-                {
-                    statsPanelStateManager.ToggleExpansion();
-                    RefreshChromeAfterStatsToggle();
-                    return;
                 }
                 
                 switch (element.Type)

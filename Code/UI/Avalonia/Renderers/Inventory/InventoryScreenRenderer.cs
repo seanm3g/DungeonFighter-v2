@@ -6,6 +6,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.Avalonia.Renderers.Helpers;
     using RPGGame.Items.Helpers;
+    using static RPGGame.UI.LeftPanelHoverState;
 
     /// <summary>
     /// Renders the main inventory screen with items and actions
@@ -45,6 +46,16 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             };
         }
         
+        private static int CountItemDisplayLines(Item item, Character character, List<string> itemStats)
+        {
+            var itemActions = character.Equipment.GetGearActions(item);
+            int n = 1;
+            if (itemActions != null && itemActions.Count > 0)
+                n++;
+            n += itemStats.Count;
+            return n;
+        }
+
         /// <summary>
         /// Renders the inventory screen with items and actions
         /// </summary>
@@ -68,9 +79,20 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             }
             
             // Inventory items section
+            int itemsHeaderY = y;
             canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.InventoryItems), AsciiArtAssets.Colors.Gold);
             y += 2;
             currentLineCount += 2;
+            clickableElements.Add(new ClickableElement
+            {
+                X = x + 2,
+                Y = itemsHeaderY,
+                Width = Math.Max(1, width - 4),
+                Height = 1,
+                Type = ElementType.Text,
+                Value = Prefix + "center:itemsHeader",
+                DisplayText = "Inventory items"
+            });
             
             if (inventory.Count == 0)
             {
@@ -88,10 +110,17 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     // Get actions for this item
                     var itemActions = character.Equipment.GetGearActions(item);
                     
-                    // Add clickable item
+                    int rowLines = CountItemDisplayLines(item, character, itemStats);
                     string slotName = GetSlotName(item);
                     string rarity = item.Rarity?.Trim() ?? "Common";
-                    clickableElements.Add(InventoryButtonFactory.CreateButton(x + 2, y, width - 4, i.ToString(), $"[{i + 1}] [{rarity}] [{slotName}] {item.Name}"));
+                    clickableElements.Add(InventoryButtonFactory.CreateButton(
+                        x + 2,
+                        y,
+                        width - 4,
+                        rowLines,
+                        i.ToString(),
+                        $"[{i + 1}] [{rarity}] [{slotName}] {item.Name}",
+                        Prefix + "inv:" + i));
                     
                     // Render item name
                     ItemRendererHelper.RenderItemName(textWriter, canvas, x + 2, y, i, item, useColoredText: true);
@@ -120,32 +149,37 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             
             // Actions section at bottom
             y = startY + height - 10;
+            int actionsHeaderY = y;
             canvas.AddText(x + 2, y, AsciiArtAssets.UIText.CreateHeader(UIConstants.Headers.Actions), AsciiArtAssets.Colors.Gold);
             y += 2;
             currentLineCount += 2;
+            clickableElements.Add(new ClickableElement
+            {
+                X = x + 2,
+                Y = actionsHeaderY,
+                Width = Math.Max(1, width - 4),
+                Height = 1,
+                Type = ElementType.Text,
+                Value = Prefix + "center:actionsHeader",
+                DisplayText = "Actions"
+            });
             
             // Create inventory action buttons
-            var equipButton = InventoryButtonFactory.CreateButton(x + 2, y, 28, "1", MenuOptionFormatter.Format(1, UIConstants.MenuOptions.EquipItem));
-            var unequipButton = InventoryButtonFactory.CreateButton(x + 32, y, 28, "2", MenuOptionFormatter.Format(2, UIConstants.MenuOptions.UnequipItem));
-            var discardButton = InventoryButtonFactory.CreateButton(x + 2, y + 1, 28, "3", MenuOptionFormatter.Format(3, UIConstants.MenuOptions.DiscardItem));
-            var comboButton = InventoryButtonFactory.CreateButton(x + 32, y + 1, 28, "4", MenuOptionFormatter.Format(4, UIConstants.MenuOptions.ManageComboActions));
-            var tradeUpButton = InventoryButtonFactory.CreateButton(x + 2, y + 2, 28, "5", MenuOptionFormatter.Format(5, UIConstants.MenuOptions.TradeUpItems));
-            var dungeonButton = InventoryButtonFactory.CreateButton(x + 32, y + 2, 28, "6", MenuOptionFormatter.Format(6, UIConstants.MenuOptions.ContinueToDungeon));
-            var exitButton = InventoryButtonFactory.CreateButton(x + 32, y + 3, 28, "0", MenuOptionFormatter.Format(0, UIConstants.MenuOptions.ReturnToMainMenu));
+            var equipButton = InventoryButtonFactory.CreateButton(x + 2, y, 28, 1, "1", MenuOptionFormatter.Format(1, UIConstants.MenuOptions.EquipItem), Prefix + "menu:equip");
+            var unequipButton = InventoryButtonFactory.CreateButton(x + 32, y, 28, 1, "2", MenuOptionFormatter.Format(2, UIConstants.MenuOptions.UnequipItem), Prefix + "menu:unequip");
+            var discardButton = InventoryButtonFactory.CreateButton(x + 2, y + 1, 28, 1, "3", MenuOptionFormatter.Format(3, UIConstants.MenuOptions.DiscardItem), Prefix + "menu:discard");
+            var tradeUpButton = InventoryButtonFactory.CreateButton(x + 32, y + 1, 28, 1, "4", MenuOptionFormatter.Format(4, UIConstants.MenuOptions.TradeUpItems), Prefix + "menu:tradeup");
+            var exitButton = InventoryButtonFactory.CreateButton(x + 2, y + 2, 28, 1, "0", MenuOptionFormatter.Format(0, UIConstants.MenuOptions.ReturnToGameMenu), Prefix + "menu:exit");
             
-            clickableElements.AddRange(new[] { equipButton, unequipButton, discardButton, comboButton, tradeUpButton, dungeonButton, exitButton });
+            clickableElements.AddRange(new[] { equipButton, unequipButton, discardButton, tradeUpButton, exitButton });
             
-            // Render buttons in two columns
             canvas.AddMenuOption(x + 2, y, 1, UIConstants.MenuOptions.EquipItem, AsciiArtAssets.Colors.White, equipButton.IsHovered);
             canvas.AddMenuOption(x + 32, y, 2, UIConstants.MenuOptions.UnequipItem, AsciiArtAssets.Colors.White, unequipButton.IsHovered);
             currentLineCount++;
             canvas.AddMenuOption(x + 2, y + 1, 3, UIConstants.MenuOptions.DiscardItem, AsciiArtAssets.Colors.White, discardButton.IsHovered);
-            canvas.AddMenuOption(x + 32, y + 1, 4, UIConstants.MenuOptions.ManageComboActions, AsciiArtAssets.Colors.White, comboButton.IsHovered);
+            canvas.AddMenuOption(x + 32, y + 1, 4, UIConstants.MenuOptions.TradeUpItems, AsciiArtAssets.Colors.White, tradeUpButton.IsHovered);
             currentLineCount++;
-            canvas.AddMenuOption(x + 2, y + 2, 5, UIConstants.MenuOptions.TradeUpItems, AsciiArtAssets.Colors.White, tradeUpButton.IsHovered);
-            canvas.AddMenuOption(x + 32, y + 2, 6, UIConstants.MenuOptions.ContinueToDungeon, AsciiArtAssets.Colors.White, dungeonButton.IsHovered);
-            currentLineCount++;
-            canvas.AddMenuOption(x + 32, y + 3, 0, UIConstants.MenuOptions.ReturnToMainMenu, AsciiArtAssets.Colors.White, exitButton.IsHovered);
+            canvas.AddMenuOption(x + 2, y + 2, 0, UIConstants.MenuOptions.ReturnToGameMenu, AsciiArtAssets.Colors.White, exitButton.IsHovered);
             currentLineCount++;
             
             return currentLineCount;

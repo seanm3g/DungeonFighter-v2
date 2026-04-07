@@ -40,11 +40,15 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             CombatOutcomeTests.RunAllTests();
             Console.WriteLine();
+            RPGGame.Tests.Unit.Data.ActionBonusMechanicsTests.RunAllTests();
+            Console.WriteLine();
             EnemyRollTests.RunAllTests();
             Console.WriteLine();
             DiceRollCategorizationTests.RunAllTests();
             Console.WriteLine();
             RollBonusTests.RunAllTests();
+            Console.WriteLine();
+            ManagerAndCalculatorTestRunner.RunCalculatorTests();
             Console.WriteLine();
             CharacterAttributesTests.RunAllTests();
             Console.WriteLine();
@@ -91,6 +95,8 @@ namespace RPGGame.Tests.Runners
             TestResultCollector.SetCurrentCategory(phase5);
             Console.WriteLine($"\n=== {phase5} ===\n");
             EquipmentSystemTests.RunAllTests();
+            Console.WriteLine();
+            GearActionNamesTests.RunAllTests();
             Console.WriteLine();
             ItemActionPoolTests.RunAllTests();
             Console.WriteLine();

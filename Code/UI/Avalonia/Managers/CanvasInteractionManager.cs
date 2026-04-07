@@ -132,7 +132,14 @@ namespace RPGGame.UI.Avalonia.Managers
         /// <returns>The clickable element at the coordinates, or null if none found</returns>
         public ClickableElement? GetElementAt(int x, int y)
         {
-            return clickableElements.FirstOrDefault(element => element.Contains(x, y));
+            // Last registered wins so smaller/on-top regions (e.g. lphover:* stat rows) beat earlier broad targets.
+            for (int i = clickableElements.Count - 1; i >= 0; i--)
+            {
+                var element = clickableElements[i];
+                if (element.Contains(x, y))
+                    return element;
+            }
+            return null;
         }
         
         /// <summary>

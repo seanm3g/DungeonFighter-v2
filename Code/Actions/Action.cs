@@ -206,5 +206,33 @@ namespace RPGGame
         {
             return HashCode.Combine(Name, ComboOrder);
         }
+
+        /// <summary>
+        /// Cadence ACTION/ACTIONS: <see cref="AdvancedMechanicsProperties.RollBonus"/> is deferred to the next action
+        /// (pending slot or temp roll bonus), not applied to the current action roll.
+        /// </summary>
+        public static bool IsActionCadenceRollDeferral(Action? action)
+        {
+            if (action == null) return false;
+            var c = (action.Cadence ?? "").Trim();
+            if (c.Length == 0) return false;
+            return c.Equals("ACTION", StringComparison.OrdinalIgnoreCase)
+                || c.Equals("ACTIONS", StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// True if <see cref="ActionAttackBonuses"/> contains an ACTION cadence group (deferred ACCURACY/HIT/etc. from data).
+        /// </summary>
+        public static bool HasActionCadenceBonusGroup(Action? action)
+        {
+            if (action?.ActionAttackBonuses?.BonusGroups == null) return false;
+            foreach (var group in action.ActionAttackBonuses.BonusGroups)
+            {
+                var ct = string.IsNullOrEmpty(group.CadenceType) ? group.Keyword : group.CadenceType;
+                if (string.Equals(ct, "ACTION", StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+            return false;
+        }
     }
 } 

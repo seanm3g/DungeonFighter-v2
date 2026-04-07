@@ -61,7 +61,7 @@ namespace RPGGame.UI.Avalonia.Builders
             // Set up crit line re-render callback to trigger display buffer re-renders
             if (animationManager is CanvasAnimationManager canvasAnimationManager && canvasTextManager != null)
             {
-                System.Action critLineReRenderCallback = () => canvasTextManager.DisplayManager.ForceRender();
+                System.Action critLineReRenderCallback = () => canvasTextManager.ForceRenderForActiveCharacter();
                 canvasAnimationManager.SetCritLineReRenderCallback(critLineReRenderCallback);
             }
 

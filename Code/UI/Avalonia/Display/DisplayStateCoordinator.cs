@@ -45,14 +45,21 @@ namespace RPGGame.UI.Avalonia.Display
         /// <summary>
         /// Determines if a character is currently the active character.
         /// Used to prevent background combat from affecting the display.
+        /// Matches by reference first, then by registry character id when both ids are known (avoids stale canvas context when instances differ).
         /// </summary>
         public static bool IsCharacterActive(Character? character, GameStateManager? stateManager)
         {
             if (character == null || stateManager == null)
                 return false;
-            
+
             var activeCharacter = stateManager.GetActiveCharacter();
-            return character == activeCharacter;
+            if (ReferenceEquals(character, activeCharacter))
+                return true;
+
+            string? charId = stateManager.GetCharacterId(character);
+            string? activeId = stateManager.GetActiveCharacterId();
+            return !string.IsNullOrEmpty(charId) && !string.IsNullOrEmpty(activeId) &&
+                   string.Equals(charId, activeId, System.StringComparison.Ordinal);
         }
         
         /// <summary>

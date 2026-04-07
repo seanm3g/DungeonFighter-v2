@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using RPGGame;
 using RPGGame.UI;
@@ -6,6 +7,7 @@ using RPGGame.UI.Avalonia.Renderers;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.ColorSystem.Applications;
+using RPGGame.Actions.RollModification;
 
 namespace RPGGame.UI.Avalonia.Layout
 {
@@ -18,7 +20,7 @@ namespace RPGGame.UI.Avalonia.Layout
         private const string ToggleSectionHero = "toggle_section_hero";
         private const string ToggleSectionStats = "toggle_section_stats";
         private const string ToggleSectionGear = "toggle_section_gear";
-        private const string ToggleStatsExpansion = "toggle_stats_expansion";
+        private const string ToggleSectionThresholds = "toggle_section_thresholds";
 
         /// <summary>ASCII section line matching STATS: <c>====  LABEL  ====</c> (double spaces around label).</summary>
         private static string FormatLeftPanelSectionHeader(string label) => $"====  {label}  ====";
@@ -83,6 +85,7 @@ namespace RPGGame.UI.Avalonia.Layout
             bool heroOpen = stateManager == null || !stateManager.HeroCollapsed;
             if (heroOpen)
             {
+                int nameY = y;
                 canvas.AddText(x, y, character.Name, AsciiArtAssets.Colors.White);
                 y++;
 
@@ -96,18 +99,32 @@ namespace RPGGame.UI.Avalonia.Layout
                 y = healthBarY + 3;
 
                 string currentClass = character.GetCurrentClass();
+                int levelY = y;
                 canvas.AddText(x, y, $"Lvl {character.Level} {currentClass}", AsciiArtAssets.Colors.Gold);
                 y++;
 
                 int xpRequired = character.Progression.GetXPRequiredForNextLevel();
+                int xpY = y;
                 canvas.AddText(x, y, $"XP {character.XP}/{xpRequired}", AsciiArtAssets.Colors.Cyan);
                 y++;
 
                 string classPointsText = GetClassPointsDisplay(character);
+                int? classPointsY = null;
                 if (!string.IsNullOrEmpty(classPointsText))
                 {
+                    classPointsY = y;
                     canvas.AddText(x, y, classPointsText, AsciiArtAssets.Colors.Gray);
                     y++;
+                }
+
+                if (interactionManager != null && stateManager != null)
+                {
+                    RegisterLeftPanelHoverRow(x, nameY, headerClickWidth, 1, "hero:name");
+                    RegisterLeftPanelHoverRow(x, healthBarY, headerClickWidth, 2, "hero:hp");
+                    RegisterLeftPanelHoverRow(x, levelY, headerClickWidth, 1, "hero:level");
+                    RegisterLeftPanelHoverRow(x, xpY, headerClickWidth, 1, "hero:xp");
+                    if (classPointsY.HasValue)
+                        RegisterLeftPanelHoverRow(x, classPointsY.Value, headerClickWidth, 1, "hero:classpts");
                 }
 
                 y += 2;
@@ -141,38 +158,42 @@ namespace RPGGame.UI.Avalonia.Layout
                 int totalDamage = character.GetEffectiveStrength() + weaponDamage + equipmentDamageBonus + modificationDamageBonus;
                 double attackSpeed = character.GetTotalAttackSpeed();
 
+                int damageRowY = y;
                 canvas.AddCharacterStat(x, y, "Damage", totalDamage, 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.White);
                 y++;
+                int speedRowY = y;
                 canvas.AddText(x, y, $"Speed:   {attackSpeed:F2}s", AsciiArtAssets.Colors.White);
                 y++;
+                int armorRowY = y;
                 canvas.AddCharacterStat(x, y, "Armor", character.GetTotalArmor(), 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.White);
                 y++;
                 y++;
 
-                // Expansion toggle only for attribute + expanded block (not Damage/Speed/Armor) — avoids stray line toggle when clicking primary stats
-                int statsExpansionClickStartY = y;
-
                 string primaryStat = GetPrimaryStatForCharacter(character);
 
+                int strRowY = y;
                 canvas.AddCharacterStat(x, y, "STR", character.GetEffectiveStrength(), 0,
                     primaryStat == "Strength" ? AsciiArtAssets.Colors.Purple : AsciiArtAssets.Colors.White);
                 y++;
+                int agiRowY = y;
                 canvas.AddCharacterStat(x, y, "AGI", character.GetEffectiveAgility(), 0,
                     primaryStat == "Agility" ? AsciiArtAssets.Colors.Purple : AsciiArtAssets.Colors.White);
                 y++;
+                int tecRowY = y;
                 canvas.AddCharacterStat(x, y, "TECH", character.GetEffectiveTechnique(), 0,
                     primaryStat == "Technique" ? AsciiArtAssets.Colors.Purple : AsciiArtAssets.Colors.White);
                 y++;
+                int intRowY = y;
                 canvas.AddCharacterStat(x, y, "INT", character.GetEffectiveIntelligence(), 0,
                     primaryStat == "Intelligence" ? AsciiArtAssets.Colors.Purple : AsciiArtAssets.Colors.White);
                 y++;
 
-                if (stateManager != null && stateManager.IsExpanded)
-                {
-                    // Do not advance y before RenderExpandedStats: when no secondary lines qualify,
-                    // an extra y++ would leave a lone blank row between INT and GEAR when toggling.
-                    RenderExpandedStats(character, x, ref y);
-                }
+                List<(int rowY, string idSuffix)>? expandedHoverTargets = interactionManager != null && stateManager != null
+                    ? new List<(int rowY, string idSuffix)>()
+                    : null;
+
+                // Secondary stat lines (magic find, roll bonus, etc.) always shown when STATS is open; lphover:* rows registered below.
+                RenderExpandedStats(character, x, ref y, expandedHoverTargets);
 
                 y += 2;
                 int statsAreaEndY = y;
@@ -180,19 +201,17 @@ namespace RPGGame.UI.Avalonia.Layout
                 if (stateManager != null && interactionManager != null)
                 {
                     stateManager.SetStatsAreaBounds(x, statsHeaderY, headerClickWidth, statsAreaEndY - statsHeaderY);
-                    int expansionClickHeight = statsAreaEndY - statsExpansionClickStartY;
-                    if (expansionClickHeight > 0)
+                    RegisterLeftPanelHoverRow(x, damageRowY, headerClickWidth, 1, "stat:damage");
+                    RegisterLeftPanelHoverRow(x, speedRowY, headerClickWidth, 1, "stat:speed");
+                    RegisterLeftPanelHoverRow(x, armorRowY, headerClickWidth, 1, "stat:armor");
+                    RegisterLeftPanelHoverRow(x, strRowY, headerClickWidth, 1, "stat:str");
+                    RegisterLeftPanelHoverRow(x, agiRowY, headerClickWidth, 1, "stat:agi");
+                    RegisterLeftPanelHoverRow(x, tecRowY, headerClickWidth, 1, "stat:tec");
+                    RegisterLeftPanelHoverRow(x, intRowY, headerClickWidth, 1, "stat:int");
+                    if (expandedHoverTargets != null)
                     {
-                        interactionManager.AddClickableElement(new ClickableElement
-                        {
-                            X = x,
-                            Y = statsExpansionClickStartY,
-                            Width = headerClickWidth,
-                            Height = expansionClickHeight,
-                            Type = ElementType.Text,
-                            Value = ToggleStatsExpansion,
-                            DisplayText = "Stats detail"
-                        });
+                        foreach (var (rowY, id) in expandedHoverTargets)
+                            RegisterLeftPanelHoverRow(x, rowY, headerClickWidth, 1, id);
                     }
                 }
             }
@@ -221,19 +240,132 @@ namespace RPGGame.UI.Avalonia.Layout
 
             if (stateManager == null || !stateManager.GearCollapsed)
             {
-                RenderEquipmentSlot(x, ref y, "Weapon", character.Weapon, 1);
-                RenderEquipmentSlot(x, ref y, "Head", character.Head, 1);
-                RenderEquipmentSlot(x, ref y, "Body", character.Body, 1);
-                RenderEquipmentSlot(x, ref y, "Feet", character.Feet, 1);
+                RenderEquipmentSlot(x, ref y, headerClickWidth, "Weapon", character.Weapon, "gear:weapon", 1);
+                RenderEquipmentSlot(x, ref y, headerClickWidth, "Head", character.Head, "gear:head", 1);
+                RenderEquipmentSlot(x, ref y, headerClickWidth, "Body", character.Body, "gear:body", 1);
+                RenderEquipmentSlot(x, ref y, headerClickWidth, "Feet", character.Feet, "gear:feet", 1);
             }
+
+            // --- THRESHOLDS --- (dice roll thresholds; collapsible)
+            int thresholdsHeaderY = y;
+            canvas.AddText(x, y, FormatLeftPanelSectionHeader(UIConstants.Headers.Thresholds), AsciiArtAssets.Colors.Gold);
+            y += 2;
+            if (interactionManager != null && stateManager != null)
+            {
+                interactionManager.AddClickableElement(new ClickableElement
+                {
+                    X = x,
+                    Y = thresholdsHeaderY,
+                    Width = headerClickWidth,
+                    Height = 1,
+                    Type = ElementType.Text,
+                    Value = ToggleSectionThresholds,
+                    DisplayText = "Thresholds"
+                });
+            }
+
+            bool thresholdsOpen = stateManager == null || !stateManager.ThresholdsCollapsed;
+            if (thresholdsOpen)
+            {
+                var tm = RollModificationManager.GetThresholdManager();
+                var config = GameConfiguration.Instance;
+                int hit = tm.GetHitThreshold(character);
+                int combo = tm.GetComboThreshold(character);
+                int crit = tm.GetCriticalHitThreshold(character);
+                int critMiss = tm.GetCriticalMissThreshold(character);
+                int defaultHit = config.RollSystem.MissThreshold.Max > 0 ? config.RollSystem.MissThreshold.Max : 5;
+                int defaultCombo = config.RollSystem.ComboThreshold.Min > 0 ? config.RollSystem.ComboThreshold.Min : 14;
+                int defaultCrit = config.Combat.CriticalHitThreshold > 0 ? config.Combat.CriticalHitThreshold : 20;
+                const int defaultCritMiss = 1;
+                const int thresholdLabelWidth = 11;
+                void RenderThresholdRow(int rowY, string labelName, int current, int def, string displayedValue)
+                {
+                    string labelPart = $"{labelName}:".PadRight(thresholdLabelWidth);
+                    var valueColor = ThresholdDisplayFormatting.GetValueColor(current, def);
+                    string modStr = ThresholdDisplayFormatting.FormatDeltaSuffix(current, def);
+                    canvas.AddText(x, rowY, labelPart, AsciiArtAssets.Colors.Cyan);
+                    canvas.AddText(x + thresholdLabelWidth, rowY, displayedValue, valueColor);
+                    if (modStr.Length > 0)
+                        canvas.AddText(x + thresholdLabelWidth + displayedValue.Length, rowY, modStr, valueColor);
+                }
+
+                int critY = y;
+                RenderThresholdRow(y, "Crit", crit, defaultCrit, crit.ToString());
+                y++;
+                int comboY = y;
+                RenderThresholdRow(y, "Combo", combo, defaultCombo, combo.ToString());
+                y++;
+                int hitY = y;
+                RenderThresholdRow(y, "Hit", hit, defaultHit, (hit + 1).ToString());
+                y++;
+                int critMissY = y;
+                RenderThresholdRow(y, "Crit Miss", critMiss, defaultCritMiss, critMiss.ToString());
+                y++;
+
+                if (interactionManager != null && stateManager != null)
+                {
+                    RegisterLeftPanelHoverRow(x, critY, headerClickWidth, 1, "thresh:crit");
+                    RegisterLeftPanelHoverRow(x, comboY, headerClickWidth, 1, "thresh:combo");
+                    RegisterLeftPanelHoverRow(x, hitY, headerClickWidth, 1, "thresh:hit");
+                    RegisterLeftPanelHoverRow(x, critMissY, headerClickWidth, 1, "thresh:critmiss");
+                }
+            }
+            if (thresholdsOpen)
+                y += 1;
+
+            // --- STATUS EFFECTS --- (hero; enemy effects are on the right panel)
+            canvas.AddText(x, y, FormatLeftPanelSectionHeader(UIConstants.Headers.StatusEffects), AsciiArtAssets.Colors.Gold);
+            y += 2;
+            const int maxHeroEffectLines = 5;
+            const int maxHeroLineLen = 29;
+            var heroEffects = StatusEffectDisplayLines.Build(character, character);
+            if (heroEffects.Count > 0)
+            {
+                for (int i = 0; i < Math.Min(heroEffects.Count, maxHeroEffectLines); i++)
+                {
+                    int effectRowY = y;
+                    string line = heroEffects[i];
+                    if (line.Length > maxHeroLineLen)
+                        line = line.Substring(0, maxHeroLineLen - 3) + "...";
+                    canvas.AddText(x, y, line, AsciiArtAssets.Colors.White);
+                    if (interactionManager != null && stateManager != null)
+                        RegisterLeftPanelHoverRow(x, effectRowY, headerClickWidth, 1, "status:" + i);
+                    y++;
+                }
+                if (heroEffects.Count > maxHeroEffectLines)
+                {
+                    int overflowY = y;
+                    canvas.AddText(x, y, $"+{heroEffects.Count - maxHeroEffectLines} more", AsciiArtAssets.Colors.Gray);
+                    if (interactionManager != null && stateManager != null)
+                        RegisterLeftPanelHoverRow(x, overflowY, headerClickWidth, 1, "status:overflow");
+                    y++;
+                }
+            }
+        }
+
+        private void RegisterLeftPanelHoverRow(int x, int rowY, int width, int height, string idSuffix)
+        {
+            if (interactionManager == null || stateManager == null || height < 1 || width < 1)
+                return;
+            interactionManager.AddClickableElement(new ClickableElement
+            {
+                X = x,
+                Y = rowY,
+                Width = width,
+                Height = height,
+                Type = ElementType.Text,
+                Value = LeftPanelHoverState.Prefix + idSuffix,
+                DisplayText = "Left panel tooltip"
+            });
         }
         
         /// <summary>
         /// Helper method to render a single equipment slot with consistent formatting and text wrapping
         /// Uses colored text system to show item colors based on type and modifiers
         /// </summary>
-        private void RenderEquipmentSlot(int x, ref int y, string slotName, Item? item, int spacingAfter = 1)
+        private void RenderEquipmentSlot(int x, ref int y, int hoverWidth, string slotName, Item? item, string hoverGearId, int spacingAfter = 1)
         {
+            int blockStartY = y;
             canvas.AddText(x, y, $"{slotName}:", AsciiArtAssets.Colors.Gray);
             y++;
             
@@ -263,8 +395,16 @@ namespace RPGGame.UI.Avalonia.Layout
                 canvas.AddText(x, y, "None", AsciiArtAssets.Colors.Gray);
                 y++;
             }
-            
+
+            int contentEndY = y;
             y += spacingAfter;
+
+            if (interactionManager != null && stateManager != null)
+            {
+                int h = contentEndY - blockStartY;
+                if (h > 0)
+                    RegisterLeftPanelHoverRow(x, blockStartY, hoverWidth, h, hoverGearId);
+            }
         }
         
         /// <summary>
@@ -338,17 +478,20 @@ namespace RPGGame.UI.Avalonia.Layout
         }
         
         /// <summary>
-        /// Renders expanded stats that are normally hidden
+        /// Renders secondary stats (magic find, roll bonus, etc.). When <paramref name="expandedHoverTargets"/> is non-null,
+        /// appends (row Y, hover id) for each row; the caller registers <c>lphover:*</c> clickables for tooltips.
         /// </summary>
-        private void RenderExpandedStats(Character character, int x, ref int y)
+        private void RenderExpandedStats(Character character, int x, ref int y, List<(int rowY, string idSuffix)>? expandedHoverTargets)
         {
             // Magic Find (only if > 0)
             int magicFind = character.GetMagicFind();
             if (magicFind > 0)
             {
+                int rowY = y;
                 canvas.AddCharacterStat(x, y, "MAG FIND", 0, 0, AsciiArtAssets.Colors.Cyan, AsciiArtAssets.Colors.Cyan);
                 canvas.AddText(x + 9, y, $"+{magicFind}", AsciiArtAssets.Colors.Cyan);
                 y++;
+                expandedHoverTargets?.Add((rowY, "stat:magfind"));
             }
             
             // Roll Bonus (with breakdown)
@@ -359,6 +502,7 @@ namespace RPGGame.UI.Avalonia.Layout
             
             if (totalRollBonus > 0)
             {
+                int rowY = y;
                 canvas.AddCharacterStat(x, y, "ROLL", 0, 0, AsciiArtAssets.Colors.Cyan, AsciiArtAssets.Colors.Cyan);
                 string rollBreakdown = $"+{totalRollBonus}";
                 if (intRollBonus > 0 || eqRollBonus > 0 || modRollBonus > 0)
@@ -370,42 +514,51 @@ namespace RPGGame.UI.Avalonia.Layout
                 }
                 canvas.AddText(x + 9, y, rollBreakdown, AsciiArtAssets.Colors.Cyan);
                 y++;
+                expandedHoverTargets?.Add((rowY, "stat:roll"));
             }
             
             // Health Regen (only if > 0)
             int healthRegen = character.GetEquipmentHealthRegenBonus();
             if (healthRegen > 0)
             {
+                int rowY = y;
                 canvas.AddCharacterStat(x, y, "HP REGEN", 0, 0, AsciiArtAssets.Colors.Cyan, AsciiArtAssets.Colors.Cyan);
                 canvas.AddText(x + 9, y, $"+{healthRegen}/turn", AsciiArtAssets.Colors.Cyan);
                 y++;
+                expandedHoverTargets?.Add((rowY, "stat:hpregen"));
             }
             
             // Lifesteal (only if > 0)
             double lifesteal = character.GetModificationLifesteal();
             if (lifesteal > 0)
             {
+                int rowY = y;
                 canvas.AddCharacterStat(x, y, "LIFESTEAL", 0, 0, AsciiArtAssets.Colors.Cyan, AsciiArtAssets.Colors.Cyan);
                 canvas.AddText(x + 9, y, $"{lifesteal:P0}", AsciiArtAssets.Colors.Cyan);
                 y++;
+                expandedHoverTargets?.Add((rowY, "stat:lifesteal"));
             }
             
             // Bleed Chance (only if > 0)
             double bleedChance = character.GetModificationBleedChance();
             if (bleedChance > 0)
             {
+                int rowY = y;
                 canvas.AddCharacterStat(x, y, "BLEED", 0, 0, AsciiArtAssets.Colors.Cyan, AsciiArtAssets.Colors.Cyan);
                 canvas.AddText(x + 9, y, $"{bleedChance:P0}", AsciiArtAssets.Colors.Cyan);
                 y++;
+                expandedHoverTargets?.Add((rowY, "stat:bleed"));
             }
             
             // Burn Chance (only if > 0)
             double burnChance = character.GetModificationBurnChance();
             if (burnChance > 0)
             {
+                int rowY = y;
                 canvas.AddCharacterStat(x, y, "BURN", 0, 0, AsciiArtAssets.Colors.Cyan, AsciiArtAssets.Colors.Cyan);
                 canvas.AddText(x + 9, y, $"{burnChance:P0}", AsciiArtAssets.Colors.Cyan);
                 y++;
+                expandedHoverTargets?.Add((rowY, "stat:burn"));
             }
         }
     }

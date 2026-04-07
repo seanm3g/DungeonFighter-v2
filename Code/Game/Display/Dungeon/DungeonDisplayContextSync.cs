@@ -63,8 +63,8 @@ namespace RPGGame.Display.Dungeon
                 return;
             }
 
-            // Set all context information
-            canvasUI.SetCharacter(currentPlayer);
+            // Set all context information (buffer already populated by ShowRoomEntry batch — do not clear buffer)
+            canvasUI.SetCharacterContextOnly(currentPlayer);
             canvasUI.SetDungeonName(dungeonName);
             canvasUI.SetRoomName(roomName);
 

@@ -68,7 +68,7 @@ namespace RPGGame.UI.Avalonia.Managers
                 {
                     System.Action critLineReRenderCallback = () =>
                     {
-                        textMgr.DisplayManager.ForceRender();
+                        textMgr.ForceRenderForActiveCharacter();
                     };
                     canvasAnimationManager.SetCritLineReRenderCallback(critLineReRenderCallback);
                 }

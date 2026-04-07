@@ -34,7 +34,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Layout
             string? dungeonName = null,
             string? roomName = null,
             bool clearCanvas = true,
-            bool usePersistentChrome = true)
+            bool usePersistentChrome = true,
+            bool inventoryComboRightPanel = false)
         {
             interactionManager.ClearClickableElements();
 
@@ -45,7 +46,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Layout
             }
 
             var layoutManager = new PersistentLayoutManager(canvas, interactionManager, stats);
-            layoutManager.RenderLayout(character, renderContent, title, enemy, dungeonName, roomName, clearCanvas, usePersistentChrome);
+            layoutManager.RenderLayout(character, renderContent, title, enemy, dungeonName, roomName, clearCanvas, usePersistentChrome, inventoryComboRightPanel);
         }
     }
 }

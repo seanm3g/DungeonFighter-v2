@@ -122,15 +122,20 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         private void UpdateEffectiveVisibleWidth()
         {
-            if (Bounds.Width > 0 && coordinateConverter != null)
-            {
-                coordinateConverter.EnsureCharWidthMeasured();
-                double charWidth = coordinateConverter.GetCharWidth();
-                if (charWidth > 0)
-                {
-                    LayoutConstants.UpdateEffectiveVisibleWidth(Bounds.Width, charWidth);
-                }
-            }
+            if (coordinateConverter == null)
+                return;
+            coordinateConverter.EnsureCharWidthMeasured();
+            double charWidth = coordinateConverter.GetCharWidth();
+            if (charWidth <= 0)
+                return;
+            // Cap pixel width to the logical grid so panel columns stay aligned with the fixed 210-cell layout.
+            // When height limits scale, Bounds can be wider than GridWidth*charWidth (letterboxing); using raw Bounds
+            // inflated _effectiveVisibleWidth and shifted chrome on the next full re-render.
+            double logicalPixelWidth = GridWidth * charWidth;
+            double widthForLayout = Bounds.Width > 0
+                ? System.Math.Min(Bounds.Width, logicalPixelWidth)
+                : logicalPixelWidth;
+            LayoutConstants.UpdateEffectiveVisibleWidth(widthForLayout, charWidth);
         }
 
         /// <summary>
@@ -289,6 +294,18 @@ namespace RPGGame.UI.Avalonia
             elementManager.ClearBoxesInArea(startX, startY, width, height);
         }
 
+        /// <summary>See <see cref="CanvasElementManager.ClearOverlayTextInArea"/>.</summary>
+        public void ClearOverlayTextInArea(int startX, int startY, int width, int height)
+        {
+            elementManager.ClearOverlayTextInArea(startX, startY, width, height);
+        }
+
+        /// <summary>See <see cref="CanvasElementManager.ClearOverlayBoxesInArea"/>.</summary>
+        public void ClearOverlayBoxesInArea(int startX, int startY, int width, int height)
+        {
+            elementManager.ClearOverlayBoxesInArea(startX, startY, width, height);
+        }
+
         /// <summary>
         /// Gets the element builder for creating canvas elements with convenience methods
         /// </summary>
@@ -340,9 +357,21 @@ namespace RPGGame.UI.Avalonia
         /// <summary>
         /// Adds a box to the canvas
         /// </summary>
-        public void AddBox(int x, int y, int width, int height, Color borderColor, Color backgroundColor = default)
+        public void AddBox(int x, int y, int width, int height, Color borderColor, Color backgroundColor = default, int opaqueBackgroundBleedDevicePixels = 0)
         {
-            elementBuilder.AddBox(x, y, width, height, borderColor, backgroundColor);
+            elementBuilder.AddBox(x, y, width, height, borderColor, backgroundColor, opaqueBackgroundBleedDevicePixels);
+        }
+
+        /// <summary>See <see cref="CanvasElementBuilder.AddOverlayBox"/>.</summary>
+        public void AddOverlayBox(int x, int y, int width, int height, Color borderColor, Color backgroundColor, int opaqueBackgroundBleedDevicePixels = 0)
+        {
+            elementBuilder.AddOverlayBox(x, y, width, height, borderColor, backgroundColor, opaqueBackgroundBleedDevicePixels);
+        }
+
+        /// <summary>See <see cref="CanvasElementBuilder.AddOverlayText"/>.</summary>
+        public void AddOverlayText(int x, int y, string text, Color color)
+        {
+            elementBuilder.AddOverlayText(x, y, text, color);
         }
 
         /// <summary>
