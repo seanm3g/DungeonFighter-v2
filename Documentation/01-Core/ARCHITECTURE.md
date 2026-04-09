@@ -45,7 +45,7 @@ DungeonFighter/
 - **`Code/Combat/BattleHealthTracker.cs`** - Health tracking for battle narrative system
 
 ### **Character System (Refactored Architecture)**
-- **`Code/Entity/Character.cs`** - Main player character coordinator class (refactored from 539 to 250 lines)
+- **`Code/Entity/Character.cs`** - Main player character coordinator class (historical monolith ~539 lines split into managers/facades; the coordinator type is ~400 lines as of recent metrics—use `Scripts/count-cs-lines-no-tests.ps1` for current counts)
 - **`Code/Entity/CharacterFacade.cs`** - Simplified facade interface for character operations
 - **`Code/Entity/EquipmentManager.cs`** - Equipment management and stat bonuses
 - **`Code/Entity/LevelUpManager.cs`** - Level up and progression logic
@@ -451,7 +451,7 @@ Code/Combat/CombatManager.cs
 
 ### **6. Character System Architecture (Fully Refactored)**
 ```
-Code/Entity/Character.cs (Coordinator - 250 lines)
+Code/Entity/Character.cs (Coordinator — ~400 lines; delegates to specialized managers)
 ├── Code/Entity/CharacterFacade.cs (simplified interface)
 ├── Code/Entity/EquipmentManager.cs (equipment management)
 ├── Code/Entity/LevelUpManager.cs (level up and progression)
@@ -473,7 +473,19 @@ Code/Entity/Character.cs (Coordinator - 250 lines)
 - **Composition**: Character delegates to specialized managers instead of doing everything
 - **Facade Pattern**: `CharacterFacade` provides simplified interface to complex subsystems
 - **Builder Pattern**: `CharacterBuilder` handles complex initialization logic
-- **Reduced Complexity**: Main Character class reduced from 539 to 250 lines (54% reduction)
+- **Reduced Complexity**: Original monolithic `Character` responsibilities were split into managers; the coordinator class remains the single entry point for composition (line count is not the primary metric—cohesion and delegation matter more)
+
+## 📏 Large-file refactoring priorities
+
+The `Scripts/count-cs-lines-no-tests.ps1` script flags `.cs` files over **400 lines** as a **heuristic** only. Do not refactor every flagged file by default.
+
+**Recommended focus (1–2 areas at a time, when actively changing that subsystem):**
+
+1. **Higher priority** — Core combat paths: `Code/Actions/Execution/ActionExecutionFlow.cs`, `Code/Combat/CombatEffectsSimplified.cs`. Split only along clear phases (pre-roll, resolution, post-hit) after tests cover behavior (`ActionExecutionFlowTests`, `ActionBonusMechanicsTests`, combo tests, `CombatEffectsSimplifiedTests`).
+2. **Medium priority** — Orchestrators: `Code/Game/Game.cs`, `Code/Game/GameStateManager.cs`, `Code/Entity/Character.cs` when new features repeatedly land in the same file.
+3. **Lower priority (often acceptable)** — Avalonia renderers, panel code-behind, and input handlers: large line counts often reflect UI cases and layout, not missing abstractions. Refactor when a specific panel or interaction keeps growing.
+
+**Defer** splitting when the file is already a deliberate partial type (for example `CanvasUICoordinator`) or when the code is stable and well covered by tests.
 
 ## 🎨 Key Design Patterns
 
@@ -618,7 +630,7 @@ JSON Files → Loaders → Data Classes → Managers → Game Logic → UI Displ
 - Large classes refactored into manageable, focused components
 - **Major Refactoring Achievements:**
   - **GameDataGenerator**: 684 → 68 lines (90% reduction)
-  - **Character**: 539 → 250 lines (54% reduction)
+  - **Character**: Original monolith split into managers; coordinator `Character.cs` remains (~400 lines per line-count script—prioritize cohesion over chasing a line target)
   - **Enemy**: 493 → 321 lines (35% reduction)
   - **GameConfiguration**: 1000+ → 205 lines (80% reduction)
   - **BlockDisplayManager**: 629 → 258 lines (59% reduction) - Extracted renderers, message collector, entity name extractor, delay manager

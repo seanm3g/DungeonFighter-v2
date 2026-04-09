@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit
@@ -30,6 +31,7 @@ namespace RPGGame.Tests.Unit
             TestComboContinuationAfterCritical();
             TestComboWithDifferentActionTypes();
             TestComboWithStatusEffects();
+            TestComboAmplificationSlotRoles();
 
             TestBase.PrintSummary("Combo Execution Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -49,6 +51,52 @@ namespace RPGGame.Tests.Unit
             double amplifier = character.GetComboAmplifier();
             TestBase.AssertTrue(amplifier >= 1.0, 
                 $"Combo amplifier should be at least 1.0, got {amplifier}", 
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+    /// Opener / middle / finisher use amplification tiers 0 then 1 then 2 (per-slot), not raw strip index after reorder.
+    /// Uses synthetic actions so the test does not depend on ActionLoader working directory.
+        /// </summary>
+        private static void TestComboAmplificationSlotRoles()
+        {
+            Console.WriteLine("\n--- Testing combo amplification slot roles (opener / middle / finisher) ---");
+
+            var dance = new Action { Name = "DANCE", IsComboAction = true };
+            dance.ComboRouting.IsOpener = true;
+            var rage = new Action { Name = "RAGE", IsComboAction = true };
+            var momentum = new Action { Name = "MOMENTUM", IsComboAction = true };
+            momentum.ComboRouting.IsFinisher = true;
+
+            var character = TestDataBuilders.Character().WithName("SlotRoleHero").Build();
+            character.AddToCombo(dance);
+            character.AddToCombo(rage);
+            character.AddToCombo(momentum);
+            var combo = character.GetComboActions();
+            TestBase.AssertTrue(combo.Count == 3,
+                $"ComboAmplificationSlotRoles: expected 3 combo actions, got {combo.Count}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            int eDance = ActionUtilities.GetComboAmplificationExponent(character, dance, combo);
+            int eRage = ActionUtilities.GetComboAmplificationExponent(character, rage, combo);
+            int eMom = ActionUtilities.GetComboAmplificationExponent(character, momentum, combo);
+
+            TestBase.AssertEqual(0, eDance,
+                $"DANCE should be amp tier 0 (got {eDance})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, eRage,
+                $"RAGE should be amp tier 1 (got {eRage})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(2, eMom,
+                $"MOMENTUM should be amp tier 2 (got {eMom})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            double baseAmp = character.GetComboAmplifier();
+            double mDance = ActionUtilities.CalculateDamageMultiplier(character, dance);
+            double mRage = ActionUtilities.CalculateDamageMultiplier(character, rage);
+            double mMom = ActionUtilities.CalculateDamageMultiplier(character, momentum);
+            TestBase.AssertTrue(mRage > mDance && mMom > mRage,
+                $"Amp multipliers should increase DANCE then RAGE then MOMENTUM (got {mDance:F4}, {mRage:F4}, {mMom:F4}; base {baseAmp:F4})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

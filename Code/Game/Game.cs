@@ -3,8 +3,11 @@ namespace RPGGame
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using RPGGame.ActionInteractionLab;
+    using RPGGame.UI;
     using RPGGame.UI.Avalonia;
     using RPGGame.UI.Avalonia.Display;
+    using RPGGame.UI.Avalonia.Settings;
     using RPGGame.Utils;
     using RPGGame.GameCore.Input;
     using DungeonFighter.Game.Menu.Routing;
@@ -192,6 +195,8 @@ namespace RPGGame
 
         // Public properties
         public GameState CurrentState => stateManager.CurrentState;
+        /// <summary>Combat manager used by dungeon runs and the action interaction lab.</summary>
+        public CombatManager? Combat => combatManager;
         public Character? CurrentPlayer => stateManager.CurrentPlayer;
         public List<Item> CurrentInventory => stateManager.CurrentInventory;
         public List<Dungeon> AvailableDungeons => stateManager.AvailableDungeons;
@@ -342,6 +347,53 @@ namespace RPGGame
             // Delegate to centralized screen coordinator to keep
             // all GameLoop screen logic in one place.
             screenCoordinator.ShowGameLoop();
+        }
+
+        /// <summary>
+        /// Opens the stepped combat sandbox (Settings → Testing). Prompts for a starter weapon and builds a throwaway lab character (no save or existing hero required).
+        /// </summary>
+        public async Task StartActionInteractionLabAsync(CanvasUICoordinator canvasUI)
+        {
+            if (combatManager == null) return;
+
+            int? weaponChoice = await ActionLabWeaponPickerDialog.ShowAsync(canvasUI.GetMainWindow()).ConfigureAwait(true);
+            if (weaponChoice == null) return;
+
+            var player = new Character("Action Lab", 1);
+            if (!initializationManager.InitializeNewCharacter(player, weaponChoice.Value))
+            {
+                UIManager.WriteLine("Could not create Action Lab character from weapon choice.", UIMessageType.System);
+                return;
+            }
+
+            initializationManager.ApplyGameSettings(player);
+
+            canvasUI.ResetForNewBattle();
+            stateManager.TransitionToState(GameState.ActionInteractionLab);
+            ActionInteractionLabSession.Begin(player, combatManager, () =>
+            {
+                var s = ActionInteractionLabSession.Current;
+                if (s == null) return;
+                canvasUI.RenderCombat(s.LabPlayer, s.LabEnemy, new List<string>());
+            }, canvasUI.CanvasContext,
+                prepareLabHistoryReplay: () =>
+                {
+                    var s = ActionInteractionLabSession.Current;
+                    if (s == null) return;
+                    canvasUI.SwitchDisplayBufferToCharacter(s.LabPlayer);
+                    canvasUI.ClearDisplayBufferWithoutRender();
+                    UIManager.WriteLine("Action Interaction Lab — select d20 and action, then Step.", UIMessageType.System);
+                });
+            // Ensure at least one line is in the combat buffer so the center panel is visibly live (buffer was cleared with settings).
+            UIManager.WriteLine("Action Interaction Lab — select d20 and action, then Step.", UIMessageType.System);
+            try
+            {
+                canvasUI.GetMainWindow()?.Activate();
+            }
+            catch
+            {
+                // ignore focus failures
+            }
         }
 
         public void ShowSettings()

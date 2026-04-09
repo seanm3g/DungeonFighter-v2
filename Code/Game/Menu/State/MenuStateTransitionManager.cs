@@ -161,6 +161,10 @@ namespace DungeonFighter.Game.Menu.State
                 GameState.GameLoop, GameState.Settings, "Settings"));
             RegisterTransition(new StateTransitionRule(
                 GameState.GameLoop, GameState.MainMenu, "Return to Menu"));
+            RegisterTransition(new StateTransitionRule(
+                GameState.GameLoop, GameState.ActionInteractionLab, "Action interaction lab"));
+            RegisterTransition(new StateTransitionRule(
+                GameState.ActionInteractionLab, GameState.GameLoop, "Exit action lab"));
 
             // Inventory transitions
             RegisterTransition(new StateTransitionRule(

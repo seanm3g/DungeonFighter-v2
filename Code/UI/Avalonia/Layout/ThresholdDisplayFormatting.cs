@@ -23,5 +23,18 @@ namespace RPGGame.UI.Avalonia.Layout
                 return "";
             return (defaultValue - current) > 0 ? $" (+{defaultValue - current})" : $" ({defaultValue - current})";
         }
+
+        /// <summary>
+        /// Shows the effective threshold after applying roll accuracy (positive bonus lowers the number needed)
+        /// and the change from base in parentheses, e.g. <c>19 (-1)</c> for base 20 with +1 bonus, <c>8 (+2)</c> for a penalty.
+        /// </summary>
+        public static string FormatThresholdValueWithAccuracy(int baseThreshold, int accuracy)
+        {
+            if (accuracy == 0)
+                return baseThreshold.ToString();
+            int effective = baseThreshold - accuracy;
+            int delta = -accuracy;
+            return $"{effective} ({delta:+0;-0;0})";
+        }
     }
 }

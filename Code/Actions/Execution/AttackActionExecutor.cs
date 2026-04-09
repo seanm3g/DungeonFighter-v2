@@ -1,3 +1,4 @@
+using RPGGame.Actions.RollModification;
 using RPGGame.Combat;
 using RPGGame.UI.ColorSystem;
 using RPGGame.Utils;
@@ -77,8 +78,8 @@ namespace RPGGame.Actions.Execution
                 }
                 
                 // Use threshold manager to determine critical hit (consistent with ActionExecutionFlow)
-                bool isCriticalHit = totalRoll >= RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
-                bool isComboEvent = selectedAction.IsComboAction && totalRoll >= RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetComboThreshold(source);
+                bool isCriticalHit = totalRoll >= RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
+                bool isComboEvent = selectedAction.IsComboAction && totalRoll >= RollModificationManager.GetThresholdManager().GetComboThreshold(source);
                 ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, totalDamage, totalRoll, rollBonus, true, isComboEvent, 0, 0, isCriticalHit, naturalRoll, battleNarrative);
                 
                 // Reset combo when a non-combo (normal) attack completes successfully
@@ -89,7 +90,7 @@ namespace RPGGame.Actions.Execution
                 // Handle combo advancement based on roll value; only advance when executed action was a combo action
                 if (source is Character comboCharacter && !(comboCharacter is Enemy) && selectedAction.IsComboAction)
                 {
-                    int comboThreshold = GameConfiguration.Instance.RollSystem.ComboThreshold.Min; // 14
+                    int comboThreshold = RollModificationManager.GetThresholdManager().GetComboThreshold(comboCharacter);
                     
                     if (comboCharacter.ComboStep == 0)
                     {
@@ -136,9 +137,9 @@ namespace RPGGame.Actions.Execution
                     ActionStatisticsTracker.RecordDamageReceived(targetCharacter, damage);
                 }
                 
-                bool isCombo = selectedAction.IsComboAction && totalRoll >= RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetComboThreshold(source);
+                bool isCombo = selectedAction.IsComboAction && totalRoll >= RollModificationManager.GetThresholdManager().GetComboThreshold(source);
                 // Use threshold manager to determine critical hit (consistent with ActionExecutionFlow)
-                bool isCriticalHit = totalRoll >= RPGGame.Actions.RollModification.RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
+                bool isCriticalHit = totalRoll >= RollModificationManager.GetThresholdManager().GetCriticalHitThreshold(source);
                 ActionUtilities.CreateAndAddBattleEvent(source, target, selectedAction, damage, totalRoll, rollBonus, true, isCombo, 0, 0, isCriticalHit, naturalRoll, battleNarrative);
                 
                 // Check if this is a critical miss (natural roll <= 1 is typically critical miss)
@@ -153,7 +154,7 @@ namespace RPGGame.Actions.Execution
                 // Handle combo advancement; only advance when executed action was a combo action
                 if (source is Character comboCharacter && !(comboCharacter is Enemy) && selectedAction.IsComboAction)
                 {
-                    int comboThreshold = GameConfiguration.Instance.RollSystem.ComboThreshold.Min; // 14
+                    int comboThreshold = RollModificationManager.GetThresholdManager().GetComboThreshold(comboCharacter);
                     
                     if (comboCharacter.ComboStep == 0)
                     {

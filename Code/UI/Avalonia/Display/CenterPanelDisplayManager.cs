@@ -88,7 +88,7 @@ namespace RPGGame.UI.Avalonia.Display
                 renderStateManager,
                 contextManager,
                 buffer,
-                modeManager.CurrentMode,
+                modeManager,
                 stateManager);
             
             // Initialize extracted helpers

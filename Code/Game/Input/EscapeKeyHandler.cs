@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using RPGGame;
+using RPGGame.ActionInteractionLab;
 using DungeonFighter.Game.Menu.Core;
 using Action = System.Action;
 
@@ -60,6 +61,11 @@ namespace RPGGame.GameCore.Input
                     showMainMenu();
                     break;
                 case GameState.DungeonSelection:
+                    stateManager.TransitionToState(GameState.GameLoop);
+                    showGameLoop();
+                    break;
+                case GameState.ActionInteractionLab:
+                    ActionInteractionLabSession.EndSession();
                     stateManager.TransitionToState(GameState.GameLoop);
                     showGameLoop();
                     break;

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame;
 using RPGGame.Data;
 using RPGGame.Tests;
 
@@ -37,6 +38,7 @@ namespace RPGGame.Tests.Unit
             TestRollBonusWithIntelligence();
             TestRollBonusWithModifications();
             TestRollPenalty();
+            TestCritThresholdEvaluationRoll();
 
             TestBase.PrintSummary("CombatCalculator Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -339,6 +341,23 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(rollBonus < 10, 
                 $"Roll penalty should reduce bonus, got: {rollBonus}", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestCritThresholdEvaluationRoll()
+        {
+            Console.WriteLine("\n--- Testing CritThresholdEvaluationRoll / PersistentStatRollBonus ---");
+
+            var noPersistent = TestDataBuilders.Character().WithName("CritEval").WithStats(10, 10, 10, 0).Build();
+            TestBase.AssertEqual(0, CombatCalculator.GetPersistentStatRollBonus(noPersistent),
+                "INT 0 character has no persistent stat roll bonus", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(18, CombatCalculator.GetCritThresholdEvaluationRoll(18, noPersistent),
+                "crit-eval equals attack total when persistent bonus is 0", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var highInt = TestDataBuilders.Character().WithName("CritEval2").WithStats(10, 10, 10, 40).Build();
+            int persistent = CombatCalculator.GetPersistentStatRollBonus(highInt);
+            TestBase.AssertTrue(persistent > 0, "high INT should add persistent stat roll bonus", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(18 - persistent, CombatCalculator.GetCritThresholdEvaluationRoll(18, highInt),
+                "crit-eval subtracts persistent stat roll bonus from attack total", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

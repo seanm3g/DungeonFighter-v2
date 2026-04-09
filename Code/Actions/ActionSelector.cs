@@ -87,6 +87,32 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Returns whether a natural <paramref name="baseRoll"/> would select a combo-slot action
+        /// (same rules as <see cref="SelectActionBasedOnRoll"/>). Used by Action Interaction Lab so a
+        /// catalog pick is only forced when the test roll would actually be a combo; otherwise the normal
+        /// unnamed attack is used.
+        /// </summary>
+        public static bool WouldNaturalRollSelectComboAction(Actor source, int baseRoll)
+        {
+            if (source.ActionPool.Count == 0 || source.IsStunned)
+                return false;
+
+            var comboActions = ActionUtilities.GetComboActions(source);
+            if (comboActions.Count == 0)
+                return false;
+
+            if (baseRoll == 20)
+                return true;
+
+            PeekRollAccuracyAndComboBonuses(source as Character, out int acc, out int effectComboBonus);
+            int actionIdx = ActionUtilities.GetComboStep(source) % comboActions.Count;
+            Action comboAction = comboActions[actionIdx];
+            int totalCombo = PreviewAttackTotal(source, comboAction, baseRoll, acc);
+            int comboThreshold = GetEffectiveComboThresholdForSelection(source, comboAction, effectComboBonus);
+            return totalCombo >= comboThreshold;
+        }
+
+        /// <summary>
         /// Peeks ACCURACY (added to modified base) and COMBO (adjusts combo threshold) bonuses
         /// that <see cref="RPGGame.Actions.Execution.ActionExecutionFlow"/> would consume on this roll, without consuming.
         /// </summary>
@@ -181,7 +207,7 @@ namespace RPGGame
                 var comboActions20 = ActionUtilities.GetComboActions(source);
                 if (comboActions20.Count > 0)
                 {
-                    int idx20 = comboActions20.Count > 1 ? Dice.Roll(1, comboActions20.Count) - 1 : 0;
+                    int idx20 = ActionUtilities.GetComboStep(source) % comboActions20.Count;
                     return comboActions20[idx20];
                 }
                 return source.SelectAction();
@@ -199,7 +225,7 @@ namespace RPGGame
 
             if (totalCombo >= comboThreshold)
             {
-                int idx = comboActions.Count > 1 ? Dice.Roll(1, comboActions.Count) - 1 : 0;
+                int idx = ActionUtilities.GetComboStep(source) % comboActions.Count;
                 return comboActions[idx];
             }
 
@@ -287,6 +313,15 @@ namespace RPGGame
         public static void ClearStoredRolls()
         {
             _lastActionSelectionRolls.Clear();
+        }
+
+        /// <summary>
+        /// Sets the stored d20 used by <see cref="GetActionRoll"/> when action selection is bypassed (e.g. forced action in dev lab).
+        /// Pair with <see cref="Dice.SetTestRoll"/> if other random rolls in the same turn should match.
+        /// </summary>
+        public static void SetStoredActionRoll(Actor source, int roll)
+        {
+            _lastActionSelectionRolls.AddOrUpdate(source, roll, (_, _) => roll);
         }
     }
 }

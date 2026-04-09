@@ -16,6 +16,7 @@ namespace RPGGame.Tests.Unit.UI
             ValueColorRedWhenHigherThanDefault(ref run, ref passed, ref failed);
             DeltaSuffixFormatsBenefitAndPenalty(ref run, ref passed, ref failed);
             DeltaSuffixEmptyWhenDefault(ref run, ref passed, ref failed);
+            AccuracyAppendedPositiveNegativeZero(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("ThresholdDisplayFormattingTests", run, passed, failed);
         }
@@ -59,6 +60,16 @@ namespace RPGGame.Tests.Unit.UI
         {
             TestBase.AssertEqual("", ThresholdDisplayFormatting.FormatDeltaSuffix(14, 14),
                 "no suffix when equal to default", ref run, ref passed, ref failed);
+        }
+
+        private static void AccuracyAppendedPositiveNegativeZero(ref int run, ref int passed, ref int failed)
+        {
+            TestBase.AssertEqual("20", ThresholdDisplayFormatting.FormatThresholdValueWithAccuracy(20, 0),
+                "accuracy zero omits suffix", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("17 (-3)", ThresholdDisplayFormatting.FormatThresholdValueWithAccuracy(20, 3),
+                "bonus lowers effective threshold; delta in parens", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("8 (+2)", ThresholdDisplayFormatting.FormatThresholdValueWithAccuracy(6, -2),
+                "penalty raises effective threshold; delta in parens", ref run, ref passed, ref failed);
         }
     }
 }

@@ -105,6 +105,27 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Roll bonuses from intelligence, modifications, and equipment — not applied when comparing
+        /// crit / crit-miss thresholds (those use the effective roll after temporary action bonuses only).
+        /// </summary>
+        public static int GetPersistentStatRollBonus(Actor attacker)
+        {
+            if (attacker is Enemy enemy)
+                return enemy.GetIntelligenceRollBonus();
+            if (attacker is Character character)
+                return character.GetIntelligenceRollBonus() + character.GetModificationRollBonus() + character.GetEquipmentRollBonus();
+            return 0;
+        }
+
+        /// <summary>
+        /// Attack total minus <see cref="GetPersistentStatRollBonus"/>; used for critical hit and critical miss checks.
+        /// </summary>
+        public static int GetCritThresholdEvaluationRoll(int attackRoll, Actor attacker)
+        {
+            return attackRoll - GetPersistentStatRollBonus(attacker);
+        }
+
+        /// <summary>
         /// Calculates critical hit chance and damage
         /// </summary>
         /// <param name="attacker">The attacking Actor</param>

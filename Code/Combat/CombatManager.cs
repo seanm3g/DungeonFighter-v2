@@ -6,6 +6,18 @@ using RPGGame.Actions.RollModification;
 
 namespace RPGGame
 {
+    /// <summary>Result of executing at most one actor turn (used by normal combat loop and action interaction lab).</summary>
+    public enum CombatSingleTurnResult
+    {
+        Advanced,
+        PlayerDefeated,
+        EnemyDefeated,
+        LoopLimitExceeded,
+        StuckNullEntities,
+        NoSpeedSystem,
+        UnknownEntity
+    }
+
     /// <summary>
     /// Manages combat loop logic including turn-based combat, effect processing, and combat state
     /// Refactored from 687 lines to a clean orchestrator using specialized managers
@@ -174,6 +186,142 @@ namespace RPGGame
         /// <param name="playerGetsFirstAttack">If true, player attacks first (from exploration)</param>
         /// <param name="enemyGetsFirstAttack">If true, enemy attacks first (surprise from exploration)</param>
         /// <returns>True if combat completed successfully, false if player died</returns>
+        /// <summary>
+        /// Runs one combat iteration: resolves time until an actor acts, then processes that actor's turn.
+        /// </summary>
+        /// <param name="forcedAction">When non-null, used only when the resolved turn is the <paramref name="player"/>'s (Action Interaction Lab catalog pick). Enemy turns always select from the enemy's own action pool.</param>
+        public async Task<CombatSingleTurnResult> AdvanceSingleTurnAsync(Character player, Enemy currentEnemy, Environment room, Action? forcedAction = null)
+        {
+            int maxTurns = 1000;
+            int turnCount = 0;
+            int nullEntityCount = 0;
+            const int MAX_NULL_ENTITIES = 100;
+
+            while (player.IsAlive && currentEnemy.IsAlive)
+            {
+                turnCount++;
+                if (turnCount > maxTurns)
+                {
+                    var errorText = CombatFlowColoredText.FormatSystemErrorColored($"Combat loop exceeded {maxTurns} turns. Breaking to prevent infinite loop.");
+                    BlockDisplayManager.DisplaySystemBlock(errorText);
+                    DebugLogger.WriteCombatDebug("CombatManager", $"Combat loop exceeded max turns: {turnCount}");
+                    return CombatSingleTurnResult.LoopLimitExceeded;
+                }
+
+                Actor? nextEntity = GetNextEntityToAct();
+
+                if (nextEntity == null)
+                {
+                    nullEntityCount++;
+                    if (nullEntityCount > MAX_NULL_ENTITIES)
+                    {
+                        var errorText = CombatFlowColoredText.FormatSystemErrorColored($"Combat loop stuck: {nullEntityCount} consecutive null entities. Breaking to prevent infinite loop.");
+                        BlockDisplayManager.DisplaySystemBlock(errorText);
+                        DebugLogger.WriteCombatDebug("CombatManager", $"Combat loop stuck with {nullEntityCount} consecutive null entities");
+                        return CombatSingleTurnResult.StuckNullEntities;
+                    }
+
+                    var currentSpeedSystem = GetCurrentActionSpeedSystem();
+                    if (currentSpeedSystem != null)
+                    {
+                        var nextReadyTime = currentSpeedSystem.GetNextReadyTime();
+                        if (nextReadyTime > 0)
+                        {
+                            double timeToAdvance = nextReadyTime - currentSpeedSystem.GetCurrentTime();
+                            if (timeToAdvance > 0)
+                                currentSpeedSystem.AdvanceTime(timeToAdvance);
+                            else
+                                currentSpeedSystem.AdvanceTime(0.1);
+                        }
+                        else if (nextReadyTime == -1.0)
+                        {
+                            var errorText = CombatFlowColoredText.FormatSystemErrorColored("No entities in action speed system. Breaking combat loop.");
+                            BlockDisplayManager.DisplaySystemBlock(errorText);
+                            DebugLogger.WriteCombatDebug("CombatManager", "No entities in action speed system");
+                            return CombatSingleTurnResult.NoSpeedSystem;
+                        }
+                        else
+                        {
+                            var errorText = CombatFlowColoredText.FormatSystemErrorColored("No entities ready and no next ready time. Breaking combat loop.");
+                            BlockDisplayManager.DisplaySystemBlock(errorText);
+                            DebugLogger.WriteCombatDebug("CombatManager", "No entities ready and no next ready time");
+                            return CombatSingleTurnResult.NoSpeedSystem;
+                        }
+                    }
+                    else
+                    {
+                        DebugLogger.WriteCombatDebug("CombatManager", "ActionSpeedSystem is null");
+                        return CombatSingleTurnResult.NoSpeedSystem;
+                    }
+                    continue;
+                }
+
+                nullEntityCount = 0;
+                stateManager.HandleEntityChange(nextEntity);
+
+                if (nextEntity == player && player.IsAlive)
+                {
+                    bool combatContinues = await turnHandler.ProcessPlayerTurnAsync(player, currentEnemy, room, forcedAction);
+                    await CombatDelayManager.DelayAfterActionAsync();
+                    if (!player.IsAlive)
+                        return CombatSingleTurnResult.PlayerDefeated;
+                    if (!currentEnemy.IsAlive)
+                        return CombatSingleTurnResult.EnemyDefeated;
+                    if (!combatContinues)
+                        return CombatSingleTurnResult.EnemyDefeated;
+                    return CombatSingleTurnResult.Advanced;
+                }
+
+                if (nextEntity == currentEnemy && currentEnemy.IsAlive)
+                {
+                    bool combatContinues = await turnHandler.ProcessEnemyTurnAsync(player, currentEnemy, room, forcedAction: null);
+                    await CombatDelayManager.DelayAfterActionAsync();
+                    if (!player.IsAlive)
+                        return CombatSingleTurnResult.PlayerDefeated;
+                    if (!currentEnemy.IsAlive)
+                        return CombatSingleTurnResult.EnemyDefeated;
+                    if (!combatContinues)
+                        return CombatSingleTurnResult.PlayerDefeated;
+                    return CombatSingleTurnResult.Advanced;
+                }
+
+                if (nextEntity == room && room.IsHostile && room.ActionPool.Count > 0)
+                {
+                    if (!turnHandler.ProcessEnvironmentTurn(player, currentEnemy, room))
+                    {
+                        if (!player.IsAlive)
+                            return CombatSingleTurnResult.PlayerDefeated;
+                        return CombatSingleTurnResult.EnemyDefeated;
+                    }
+                    await CombatDelayManager.DelayAfterActionAsync();
+                    if (!player.IsAlive)
+                        return CombatSingleTurnResult.PlayerDefeated;
+                    if (!currentEnemy.IsAlive)
+                        return CombatSingleTurnResult.EnemyDefeated;
+                    return CombatSingleTurnResult.Advanced;
+                }
+
+                DebugLogger.WriteCombatDebug("CombatManager", $"Unknown entity type in combat loop: {nextEntity?.GetType().Name ?? "null"}");
+                var speedSys = GetCurrentActionSpeedSystem();
+                if (speedSys != null && nextEntity != null)
+                {
+                    speedSys.AdvanceEntityTurn(nextEntity, 1.0);
+                }
+                else
+                {
+                    var errorText = CombatFlowColoredText.FormatSystemErrorColored("Unknown entity in combat loop. Breaking to prevent infinite loop.");
+                    BlockDisplayManager.DisplaySystemBlock(errorText);
+                    return CombatSingleTurnResult.UnknownEntity;
+                }
+            }
+
+            if (!player.IsAlive)
+                return CombatSingleTurnResult.PlayerDefeated;
+            if (!currentEnemy.IsAlive)
+                return CombatSingleTurnResult.EnemyDefeated;
+            return CombatSingleTurnResult.Advanced;
+        }
+
         public async Task<bool> RunCombat(Character player, Enemy currentEnemy, Environment room, bool playerGetsFirstAttack = false, bool enemyGetsFirstAttack = false)
         {
             // Reset game time FIRST to ensure clean timing state
@@ -191,144 +339,12 @@ namespace RPGGame
             // Reset environment action count for new fight
             room.ResetForNewFight();
 
-            // Combat Loop with action speed system
-            int maxTurns = 1000; // Safety limit to prevent infinite loops
-            int turnCount = 0;
-            int nullEntityCount = 0; // Track consecutive null entities
-            const int MAX_NULL_ENTITIES = 100; // Max consecutive null entities before breaking
-            
             while (player.IsAlive && currentEnemy.IsAlive)
             {
-                // Safety check: prevent infinite loops
-                turnCount++;
-                if (turnCount > maxTurns)
-                {
-                    var errorText = CombatFlowColoredText.FormatSystemErrorColored($"Combat loop exceeded {maxTurns} turns. Breaking to prevent infinite loop.");
-                    BlockDisplayManager.DisplaySystemBlock(errorText);
-                    DebugLogger.WriteCombatDebug("CombatManager", $"Combat loop exceeded max turns: {turnCount}");
-                    break;
-                }
-                
-                // Get the next entity that should act based on action speed
-                Actor? nextEntity = GetNextEntityToAct();
-                
-                if (nextEntity == null)
-                {
-                    nullEntityCount++;
-                    
-                    // Safety check: if we've had too many consecutive null entities, break
-                    if (nullEntityCount > MAX_NULL_ENTITIES)
-                    {
-                        var errorText = CombatFlowColoredText.FormatSystemErrorColored($"Combat loop stuck: {nullEntityCount} consecutive null entities. Breaking to prevent infinite loop.");
-                        BlockDisplayManager.DisplaySystemBlock(errorText);
-                        DebugLogger.WriteCombatDebug("CombatManager", $"Combat loop stuck with {nullEntityCount} consecutive null entities");
-                        break;
-                    }
-                    
-                    // No entities ready, advance time to the next entity's action time
-                    var currentSpeedSystem = GetCurrentActionSpeedSystem();
-                    if (currentSpeedSystem != null)
-                    {
-                        // Find the next entity that will be ready and advance time to that point
-                        var nextReadyTime = currentSpeedSystem.GetNextReadyTime();
-                        if (nextReadyTime > 0)
-                        {
-                            double timeToAdvance = nextReadyTime - currentSpeedSystem.GetCurrentTime();
-                            if (timeToAdvance > 0)
-                            {
-                                currentSpeedSystem.AdvanceTime(timeToAdvance);
-                            }
-                            else
-                            {
-                                // Fallback: advance time slightly
-                                currentSpeedSystem.AdvanceTime(0.1);
-                            }
-                        }
-                        else if (nextReadyTime == -1.0)
-                        {
-                            // No entities exist in the action speed system - this shouldn't happen
-                            var errorText = CombatFlowColoredText.FormatSystemErrorColored("No entities in action speed system. Breaking combat loop.");
-                            BlockDisplayManager.DisplaySystemBlock(errorText);
-                            DebugLogger.WriteCombatDebug("CombatManager", "No entities in action speed system");
-                            break;
-                        }
-                        else
-                        {
-                            // No entities ready and no next ready time - this shouldn't happen
-                            var errorText = CombatFlowColoredText.FormatSystemErrorColored("No entities ready and no next ready time. Breaking combat loop.");
-                            BlockDisplayManager.DisplaySystemBlock(errorText);
-                            DebugLogger.WriteCombatDebug("CombatManager", "No entities ready and no next ready time");
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        // ActionSpeedSystem is null - this shouldn't happen
-                        DebugLogger.WriteCombatDebug("CombatManager", "ActionSpeedSystem is null");
-                        break;
-                    }
+                var step = await AdvanceSingleTurnAsync(player, currentEnemy, room, forcedAction: null);
+                if (step == CombatSingleTurnResult.Advanced)
                     continue;
-                }
-                
-                // Reset null entity counter when we get a valid entity
-                nullEntityCount = 0;
-
-                // Handle entity change detection and add blank lines when needed
-                stateManager.HandleEntityChange(nextEntity);
-
-                // Player acts
-                if (nextEntity == player && player.IsAlive)
-                {
-                    bool combatContinues = await turnHandler.ProcessPlayerTurnAsync(player, currentEnemy, room);
-                    if (!combatContinues)
-                    {
-                        break; // Combat ended
-                    }
-                    
-                    // Add delay after player action
-                    await CombatDelayManager.DelayAfterActionAsync();
-                }
-                // Enemy acts
-                else if (nextEntity == currentEnemy && currentEnemy.IsAlive)
-                {
-                    bool combatContinues = await turnHandler.ProcessEnemyTurnAsync(player, currentEnemy, room);
-                    if (!combatContinues)
-                    {
-                        break; // Combat ended
-                    }
-                    
-                    // Add delay after enemy action
-                    await CombatDelayManager.DelayAfterActionAsync();
-                }
-                // Environment acts
-                else if (nextEntity == room && room.IsHostile && room.ActionPool.Count > 0)
-                {
-                    if (!turnHandler.ProcessEnvironmentTurn(player, currentEnemy, room))
-                    {
-                        break; // Combat ended
-                    }
-                    
-                    // Add delay after environmental action
-                    await CombatDelayManager.DelayAfterActionAsync();
-                }
-                else
-                {
-                    // Unknown entity type - this shouldn't happen, but handle it gracefully
-                    DebugLogger.WriteCombatDebug("CombatManager", $"Unknown entity type in combat loop: {nextEntity?.GetType().Name ?? "null"}");
-                    // Advance time slightly to prevent infinite loop
-                    var currentSpeedSystem = GetCurrentActionSpeedSystem();
-                    if (currentSpeedSystem != null && nextEntity != null)
-                    {
-                        currentSpeedSystem.AdvanceEntityTurn(nextEntity, 1.0);
-                    }
-                    else
-                    {
-                        // If we can't advance, break to prevent infinite loop
-                        var errorText = CombatFlowColoredText.FormatSystemErrorColored($"Unknown entity in combat loop. Breaking to prevent infinite loop.");
-                        BlockDisplayManager.DisplaySystemBlock(errorText);
-                        break;
-                    }
-                }
+                break;
             }
             
             // End the battle narrative with final health values

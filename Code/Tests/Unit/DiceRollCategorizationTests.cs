@@ -10,18 +10,21 @@ namespace RPGGame.Tests.Unit
     /// <summary>
     /// Comprehensive tests for dice roll categorization
     /// Tests the actual categorization of dice rolls into:
-    /// - Critical Miss (base roll <= 1)
-    /// - Miss (base roll 1-5, natural 1 always misses)
+    /// - Critical Miss (crit-eval roll <= crit-miss threshold and in miss band)
+    /// - Miss (failed hit check)
     /// - Hit (attack roll 6-13)
     /// - Combo Action (attack roll >= 14)
-    /// - Critical Hit (attack roll >= 20)
-    /// - Critical Hit + Combo (attack roll >= 20 AND >= 14)
+    /// - Critical Hit (crit-eval roll >= crit threshold)
+    /// - Critical Hit + Combo (crit-eval roll >= crit threshold AND attack roll >= combo)
     /// </summary>
     public static class DiceRollCategorizationTests
     {
         private static int _testsRun = 0;
         private static int _testsPassed = 0;
         private static int _testsFailed = 0;
+
+        private static Character CreateCategorizationAttacker() =>
+            TestDataBuilders.Character().WithName("TestHero").WithStats(10, 10, 10, 0).Build();
 
         public static void RunAllTests()
         {
@@ -55,28 +58,18 @@ namespace RPGGame.Tests.Unit
             int criticalMissThreshold = thresholdManager.GetCriticalMissThreshold(source);
             int comboThreshold = thresholdManager.GetComboThreshold(source);
             int criticalHitThreshold = thresholdManager.GetCriticalHitThreshold(source);
+            int hitThreshold = thresholdManager.GetHitThreshold(source);
             
             int attackRoll = baseRoll + rollBonus;
+            int critThresholdRoll = CombatCalculator.GetCritThresholdEvaluationRoll(attackRoll, source);
             
-            // Critical miss is based on base roll (from ActionExecutionFlow line 65)
-            // If baseRoll <= criticalMissThreshold, it's always a critical miss, regardless of bonuses
-            bool isCriticalMiss = baseRoll <= criticalMissThreshold;
+            bool isCriticalMiss = critThresholdRoll <= criticalMissThreshold && critThresholdRoll <= hitThreshold;
             if (isCriticalMiss)
             {
                 return RollCategory.CriticalMiss;
             }
             
-            // Natural 1 always misses (from ActionExecutionFlow line 86-89)
-            bool isMiss;
-            if (baseRoll == 1)
-            {
-                isMiss = true;
-            }
-            else
-            {
-                // Use actual HitCalculator to determine hit/miss
-                isMiss = !HitCalculator.CalculateHit(source, target, rollBonus, attackRoll);
-            }
+            bool isMiss = !HitCalculator.CalculateHit(source, target, rollBonus, attackRoll);
             
             // If it's a miss, return appropriate category
             if (isMiss)
@@ -87,8 +80,8 @@ namespace RPGGame.Tests.Unit
             // Determine if it's a combo action (from ActionExecutionFlow line 77)
             bool isCombo = attackRoll >= comboThreshold;
             
-            // Determine if it's a critical hit (from ActionExecutionFlow line 78)
-            bool isCritical = attackRoll >= criticalHitThreshold;
+            // Determine if it's a critical hit (crit-eval roll, matches ActionExecutionFlow)
+            bool isCritical = critThresholdRoll >= criticalHitThreshold;
             
             // Categorize based on combinations
             if (isCritical && isCombo)
@@ -113,7 +106,7 @@ namespace RPGGame.Tests.Unit
         {
             Console.WriteLine("--- Testing Critical Miss Categorization ---");
 
-            var attacker = TestDataBuilders.Character().WithName("TestHero").Build();
+            var attacker = CreateCategorizationAttacker();
             var target = TestDataBuilders.Enemy().WithName("TestEnemy").Build();
             var thresholdManager = RollModificationManager.GetThresholdManager();
             thresholdManager.ResetThresholds(attacker); // Ensure default thresholds
@@ -124,10 +117,10 @@ namespace RPGGame.Tests.Unit
                 "Base roll 1 should be critical miss",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Test base roll 1 with bonus (still critical miss based on base roll)
+            // Large non-persistent bonus can move crit-eval above crit-miss band (INT 0 in test attacker)
             var category1Bonus = CategorizeRoll(attacker, target, 1, 10);
-            TestBase.AssertEqualEnum(RollCategory.CriticalMiss, category1Bonus,
-                "Base roll 1 with bonus should still be critical miss",
+            TestBase.AssertEqualEnum(RollCategory.Hit, category1Bonus,
+                "Base roll 1 with +10 bonus (attack 11) should hit, not crit miss, when no persistent stat bonus",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Test with custom critical miss threshold
@@ -145,7 +138,7 @@ namespace RPGGame.Tests.Unit
         {
             Console.WriteLine("\n--- Testing Miss Categorization ---");
 
-            var attacker = TestDataBuilders.Character().WithName("TestHero").Build();
+            var attacker = CreateCategorizationAttacker();
             var target = TestDataBuilders.Enemy().WithName("TestEnemy").Build();
             var thresholdManager = RollModificationManager.GetThresholdManager();
             thresholdManager.ResetThresholds(attacker);
@@ -159,10 +152,10 @@ namespace RPGGame.Tests.Unit
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
 
-            // Test that natural 1 always misses (even with bonus)
+            // Natural 1 with huge bonus: not crit miss; hits and can crit+combo on crit-eval
             var category1 = CategorizeRoll(attacker, target, 1, 100);
-            TestBase.AssertEqualEnum(RollCategory.CriticalMiss, category1,
-                "Natural 1 with large bonus should still be critical miss",
+            TestBase.AssertEqualEnum(RollCategory.CriticalHitCombo, category1,
+                "Natural 1 with +100 bonus should hit and count as crit+combo when crit-eval clears thresholds",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -170,7 +163,7 @@ namespace RPGGame.Tests.Unit
         {
             Console.WriteLine("\n--- Testing Hit Categorization ---");
 
-            var attacker = TestDataBuilders.Character().WithName("TestHero").Build();
+            var attacker = CreateCategorizationAttacker();
             var target = TestDataBuilders.Enemy().WithName("TestEnemy").Build();
             var thresholdManager = RollModificationManager.GetThresholdManager();
             thresholdManager.ResetThresholds(attacker);
@@ -201,7 +194,7 @@ namespace RPGGame.Tests.Unit
         {
             Console.WriteLine("\n--- Testing Combo Action Categorization ---");
 
-            var attacker = TestDataBuilders.Character().WithName("TestHero").Build();
+            var attacker = CreateCategorizationAttacker();
             var target = TestDataBuilders.Enemy().WithName("TestEnemy").Build();
             var thresholdManager = RollModificationManager.GetThresholdManager();
             thresholdManager.ResetThresholds(attacker);
@@ -232,7 +225,7 @@ namespace RPGGame.Tests.Unit
         {
             Console.WriteLine("\n--- Testing Critical Hit Categorization ---");
 
-            var attacker = TestDataBuilders.Character().WithName("TestHero").Build();
+            var attacker = CreateCategorizationAttacker();
             var target = TestDataBuilders.Enemy().WithName("TestEnemy").Build();
             var thresholdManager = RollModificationManager.GetThresholdManager();
             thresholdManager.ResetThresholds(attacker);
@@ -266,7 +259,7 @@ namespace RPGGame.Tests.Unit
         {
             Console.WriteLine("\n--- Testing Critical Hit + Combo Categorization ---");
 
-            var attacker = TestDataBuilders.Character().WithName("TestHero").Build();
+            var attacker = CreateCategorizationAttacker();
             var target = TestDataBuilders.Enemy().WithName("TestEnemy").Build();
             var thresholdManager = RollModificationManager.GetThresholdManager();
             thresholdManager.ResetThresholds(attacker);
@@ -294,7 +287,7 @@ namespace RPGGame.Tests.Unit
         {
             Console.WriteLine("\n--- Testing Edge Cases ---");
 
-            var attacker = TestDataBuilders.Character().WithName("TestHero").Build();
+            var attacker = CreateCategorizationAttacker();
             var target = TestDataBuilders.Enemy().WithName("TestEnemy").Build();
             var thresholdManager = RollModificationManager.GetThresholdManager();
             thresholdManager.ResetThresholds(attacker);
@@ -337,7 +330,7 @@ namespace RPGGame.Tests.Unit
         {
             Console.WriteLine("\n--- Testing With Roll Bonuses ---");
 
-            var attacker = TestDataBuilders.Character().WithName("TestHero").Build();
+            var attacker = CreateCategorizationAttacker();
             var target = TestDataBuilders.Enemy().WithName("TestEnemy").Build();
             var thresholdManager = RollModificationManager.GetThresholdManager();
             thresholdManager.ResetThresholds(attacker);
@@ -361,10 +354,10 @@ namespace RPGGame.Tests.Unit
                 "Base roll 4 with +2 bonus (attack roll 6) should be hit",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Base roll 1 (critical miss) with any bonus = still critical miss
+            // Base roll 1 with large non-persistent bonus: escapes crit miss band (matches crit-eval rules)
             var category1Plus20 = CategorizeRoll(attacker, target, 1, 20);
-            TestBase.AssertEqualEnum(RollCategory.CriticalMiss, category1Plus20,
-                "Base roll 1 with +20 bonus should still be critical miss",
+            TestBase.AssertEqualEnum(RollCategory.CriticalHitCombo, category1Plus20,
+                "Base roll 1 with +20 bonus (attack 21) should crit+combo when persistent stat bonus is 0",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -372,7 +365,7 @@ namespace RPGGame.Tests.Unit
         {
             Console.WriteLine("\n--- Testing Threshold Boundaries ---");
 
-            var attacker = TestDataBuilders.Character().WithName("TestHero").Build();
+            var attacker = CreateCategorizationAttacker();
             var target = TestDataBuilders.Enemy().WithName("TestEnemy").Build();
             var thresholdManager = RollModificationManager.GetThresholdManager();
             thresholdManager.ResetThresholds(attacker);
@@ -432,12 +425,12 @@ namespace RPGGame.Tests.Unit
     /// </summary>
     public enum RollCategory
     {
-        CriticalMiss,      // Base roll <= critical miss threshold (default: 1)
-        Miss,              // Base roll 1-5 (but natural 1 is critical miss)
+        CriticalMiss,      // Crit-eval roll <= crit-miss threshold and in miss band
+        Miss,              // Failed hit check
         Hit,               // Attack roll 6-13 (normal attack range)
         ComboAction,       // Attack roll >= 14 (combo threshold)
-        CriticalHit,       // Attack roll >= 20 (critical hit threshold) - should not occur without combo
-        CriticalHitCombo   // Attack roll >= 20 AND >= 14 (both critical and combo)
+        CriticalHit,       // Crit-eval roll >= crit threshold - should not occur without combo in default tuning
+        CriticalHitCombo   // Crit-eval >= crit AND attack roll >= combo
     }
 }
 

@@ -222,7 +222,10 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
 
             if (tipLines == null || tipLines.Count == 0)
+            {
+                HoverTooltipDrawing.ClearInnerCenterPanelTooltipOverlay(canvas);
                 return;
+            }
 
             if (tipLines.Count > maxTooltipLines)
                 tipLines = tipLines.GetRange(0, maxTooltipLines);

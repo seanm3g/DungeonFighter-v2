@@ -103,6 +103,7 @@ namespace RPGGame
 
                     case GameState.Dungeon:
                     case GameState.Combat:
+                    case GameState.ActionInteractionLab:
                         // During dungeon/combat, allow scrolling with arrow keys
                         // Other input is handled automatically
                         if (input == "up" || input == "down" || input == "pageup" || input == "pagedown")

@@ -4,6 +4,7 @@ using RPGGame;
 using RPGGame.Actions.Execution;
 using RPGGame.Actions.RollModification;
 using RPGGame.Tests; // For TestBase
+using RPGGame.Utils;
 
 namespace RPGGame.Tests.Unit
 {
@@ -35,6 +36,7 @@ namespace RPGGame.Tests.Unit
             TestComboStepDoesNotAdvanceOnNormalActionHit();
             TestComboStepResetsOnNormalAttackHit();
             TestComboStepAdvancesOnComboActionHit();
+            TestComboStepAdvancesWhenEffectiveComboThresholdLowerThanConfigMin();
             
             TestBase.PrintSummary("Combo Sequence Information and Integration", _testsRun, _testsPassed, _testsFailed);
         }
@@ -336,6 +338,54 @@ namespace RPGGame.Tests.Unit
                 }
             }
             TestBase.AssertTrue(outcomesChecked >= 0, $"Checked {outcomesChecked} combo-action hit(s) with roll >= threshold", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Combo step advancement must use the same effective combo threshold as <see cref="ActionExecutionFlow"/> (IsCombo),
+        /// not only RollSystem.ComboThreshold.Min. Otherwise a roll can count as a combo hit but never advance the sequence.
+        /// </summary>
+        private static void TestComboStepAdvancesWhenEffectiveComboThresholdLowerThanConfigMin()
+        {
+            Console.WriteLine("\n--- Testing Combo Step Advances Using Effective Combo Threshold ---");
+            var lastUsedActions = new Dictionary<Actor, Action>();
+            var lastCriticalMissStatus = new Dictionary<Actor, bool>();
+            var character = CreateTestCharacter();
+            var combo1 = new Action
+            {
+                Name = "EFFECTIVE THRESH",
+                IsComboAction = true,
+                Type = ActionType.Attack,
+                DamageMultiplier = 1.0,
+                Length = 1.0
+            };
+            combo1.RollMods.ComboThresholdAdjustment = 3; // easier combo for this action (e.g. +3 from sheet)
+            var combo2 = new Action { Name = "NEXT SLOT", IsComboAction = true, Type = ActionType.Attack, DamageMultiplier = 1.0, Length = 1.0 };
+            character.AddAction(combo1, 1.0);
+            character.AddAction(combo2, 1.0);
+            character.Actions.AddToCombo(combo1);
+            character.Actions.AddToCombo(combo2);
+            character.ComboStep = 0;
+            var enemy = new Enemy("TestEnemy", 1, 100, 5, 5, 5, 5);
+            try
+            {
+                Dice.SetTestRoll(13);
+                ActionSelector.SetStoredActionRoll(character, 13);
+                var result = ActionExecutionFlow.Execute(
+                    character, enemy, null, null, combo1, null,
+                    lastUsedActions, lastCriticalMissStatus);
+                // Forced roll 13 with ComboThresholdAdjustment +3: effective combo threshold is below config min,
+                // so IsCombo can be true while the old advancement check (raw config min only) would not advance.
+                TestBase.AssertTrue(result.Hit, "Regression test expects a hit", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(result.IsCombo, $"Expected IsCombo with lowered effective threshold; AttackRoll={result.AttackRoll}", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(character.ComboStep != 0,
+                    $"ComboStep should advance on combo hit; AttackRoll={result.AttackRoll}, ComboStep={character.ComboStep}",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                Dice.ClearTestRoll();
+                ActionSelector.ClearStoredRolls();
+            }
         }
 
         private static Character CreateTestCharacter()

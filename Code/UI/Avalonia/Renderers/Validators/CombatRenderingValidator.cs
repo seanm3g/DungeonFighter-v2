@@ -1,4 +1,5 @@
 using RPGGame;
+using RPGGame.ActionInteractionLab;
 using RPGGame.UI.Avalonia.Managers;
 using System;
 
@@ -26,6 +27,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Validators
         {
             if (character == null)
                 return false;
+
+            var lab = ActionInteractionLabSession.Current;
+            if (lab != null && ReferenceEquals(character, lab.LabPlayer))
+                return true;
 
             Character? activePlayer = contextManager.GetCurrentCharacter();
             return activePlayer == character;

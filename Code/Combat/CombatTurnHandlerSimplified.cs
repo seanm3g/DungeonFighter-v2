@@ -21,7 +21,7 @@ namespace RPGGame
         /// <summary>
         /// Processes a single player turn using the new ActionSelector system
         /// </summary>
-        public async System.Threading.Tasks.Task<bool> ProcessPlayerTurnAsync(Character player, Enemy currentEnemy, Environment room)
+        public async System.Threading.Tasks.Task<bool> ProcessPlayerTurnAsync(Character player, Enemy currentEnemy, Environment room, Action? forcedAction = null)
         {
             // Check if player is stunned
             if (player.StunTurnsRemaining > 0)
@@ -31,7 +31,7 @@ namespace RPGGame
             else
             {
                 // Use the new ActionSelector system for action selection and execution
-                await ProcessPlayerActionAsync(player, currentEnemy, room);
+                await ProcessPlayerActionAsync(player, currentEnemy, room, forcedAction);
             }
             
             // Process health regeneration for player after they act
@@ -44,7 +44,7 @@ namespace RPGGame
         /// <summary>
         /// Processes a single enemy turn using the new ActionSelector system
         /// </summary>
-        public async System.Threading.Tasks.Task<bool> ProcessEnemyTurnAsync(Character player, Enemy currentEnemy, Environment room)
+        public async System.Threading.Tasks.Task<bool> ProcessEnemyTurnAsync(Character player, Enemy currentEnemy, Environment room, Action? forcedAction = null)
         {
             // Check if enemy is stunned
             if (currentEnemy.StunTurnsRemaining > 0)
@@ -55,7 +55,7 @@ namespace RPGGame
             {
                 // Use the new ActionExecutor system for consistent action handling with ColoredText
                 var ((actionText, rollInfo), statusEffects) = CombatResults.ExecuteActionWithUIAndStatusEffectsColored(
-                    currentEnemy, player, null, room, 
+                    currentEnemy, player, forcedAction, room, 
                     stateManager.GetLastPlayerAction(), 
                     stateManager.GetCurrentBattleNarrative());
                 
@@ -211,11 +211,11 @@ namespace RPGGame
         /// <summary>
         /// Processes a player action using the new ActionSelector system
         /// </summary>
-        private async System.Threading.Tasks.Task ProcessPlayerActionAsync(Character player, Enemy currentEnemy, Environment room)
+        private async System.Threading.Tasks.Task ProcessPlayerActionAsync(Character player, Enemy currentEnemy, Environment room, Action? forcedAction = null)
         {
             // Use the new ColoredText system to execute the action
             var ((actionText, rollInfo), statusEffects) = CombatResults.ExecuteActionWithUIAndStatusEffectsColored(
-                player, currentEnemy, null, room, 
+                player, currentEnemy, forcedAction, room, 
                 stateManager.GetLastPlayerAction(), 
                 stateManager.GetCurrentBattleNarrative());
             

@@ -229,13 +229,13 @@ namespace RPGGame
         /// </summary>
         public void CloseSettingsWindow()
         {
-            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+            void DoClose()
             {
                 try
                 {
                     // Capture the window reference to avoid race conditions
                     var windowToClose = currentSettingsWindow;
-                    
+
                     // First, try to close the tracked window
                     if (windowToClose != null)
                     {
@@ -265,7 +265,7 @@ namespace RPGGame
                             }
                         }
                     }
-                    
+
                     // Also find and close any SettingsWindow instances that might exist
                     // This is a fallback in case the reference wasn't tracked properly
                     if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
@@ -293,7 +293,12 @@ namespace RPGGame
                 {
                     ScrollDebugLogger.Log($"SettingsMenuHandler.CloseSettingsWindow: Unexpected error: {ex.Message}");
                 }
-            });
+            }
+
+            if (Avalonia.Threading.Dispatcher.UIThread.CheckAccess())
+                DoClose();
+            else
+                Avalonia.Threading.Dispatcher.UIThread.Post(DoClose);
         }
 
         /// <summary>

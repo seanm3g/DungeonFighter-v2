@@ -76,12 +76,12 @@ namespace RPGGame.Combat.Calculators
                 double weaponSpeed = 1.0;
                 if (charEntity.Weapon is WeaponItem w)
                 {
-                    // Weapon speed values from JSON: higher = faster (e.g., 1.4 = fast dagger, 0.8 = slow mace)
+                    // Weapon speed values from JSON: higher = faster (e.g., 1.2 = fast dagger, 0.8 = slow mace)
                     // We divide time by speed to make higher speeds reduce time
                     weaponSpeed = w.BaseAttackSpeed;
                     
-                    // Ensure weapon speed is reasonable (clamp to prevent division by zero or extreme values)
-                    weaponSpeed = Math.Max(0.1, Math.Min(2.0, weaponSpeed));
+                    // Default weapon band is 0.8x–1.2x; clamp keeps data and mods in a sane range
+                    weaponSpeed = Math.Max(0.8, Math.Min(1.2, weaponSpeed));
                     
                     // Debug logging for weapon speed calculation
                     if (GameConfiguration.IsDebugEnabled)
@@ -128,11 +128,11 @@ namespace RPGGame.Combat.Calculators
                 double weaponSpeed = 1.0;
                 if (enemyEntity.Weapon is WeaponItem w)
                 {
-                    // Weapon speed values from JSON: higher = faster (e.g., 1.4 = fast dagger, 0.8 = slow mace)
+                    // Weapon speed values from JSON: higher = faster (e.g., 1.2 = fast dagger, 0.8 = slow mace)
                     // We divide time by speed to make higher speeds reduce time
                     weaponSpeed = w.BaseAttackSpeed;
-                    // Ensure weapon speed is reasonable (clamp to prevent division by zero or extreme values)
-                    weaponSpeed = Math.Max(0.1, Math.Min(2.0, weaponSpeed));
+                    // Default weapon band is 0.8x–1.2x; clamp keeps data and mods in a sane range
+                    weaponSpeed = Math.Max(0.8, Math.Min(1.2, weaponSpeed));
                 }
                 double weaponAdjustedTime = agilityAdjustedTime / weaponSpeed;
                 

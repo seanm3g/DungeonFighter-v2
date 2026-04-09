@@ -10,6 +10,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Threading;
+using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Settings;
 
@@ -71,6 +72,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             var testDungeonRewardsButton = panel.FindControl<Button>("TestDungeonRewardsButton");
             var testSaveLoadButton = panel.FindControl<Button>("TestSaveLoadButton");
             var testGameplayFlowButton = panel.FindControl<Button>("TestGameplayFlowButton");
+            var actionInteractionLabButton = panel.FindControl<Button>("ActionInteractionLabButton");
             var testAllMechanicsButton = panel.FindControl<Button>("TestAllMechanicsButton");
             var testClearOutputButton = panel.FindControl<Button>("TestClearOutputButton");
 
@@ -94,6 +96,14 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 testSaveLoadButton.Click += async (s, e) => await textBoxTestRunner.RunSaveLoadSystemTestsAsync();
             if (testGameplayFlowButton != null)
                 testGameplayFlowButton.Click += async (s, e) => await textBoxTestRunner.RunGameplayFlowTestsAsync();
+            if (actionInteractionLabButton != null)
+                actionInteractionLabButton.Click += async (s, e) =>
+                {
+                    var game = canvasUI?.GetGame();
+                    if (game == null || canvasUI == null) return;
+                    canvasUI.GetMainWindow()?.Activate();
+                    await game.StartActionInteractionLabAsync(canvasUI).ConfigureAwait(true);
+                };
             if (testAllMechanicsButton != null)
                 testAllMechanicsButton.Click += async (s, e) => await textBoxTestRunner.RunMechanicsAndReliabilityTestsAsync();
             if (testClearOutputButton != null)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RPGGame;
+using RPGGame.ActionInteractionLab;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.Avalonia.Renderers;
@@ -78,9 +79,28 @@ namespace RPGGame.UI.Avalonia.Managers
             {
                 return DEFAULT_DISPLAY_MANAGER_KEY;
             }
-            
+
             string? characterId = stateManager?.GetCharacterId(character);
-            return string.IsNullOrEmpty(characterId) ? DEFAULT_DISPLAY_MANAGER_KEY : characterId;
+            if (!string.IsNullOrEmpty(characterId))
+                return characterId;
+
+            // Action Interaction Lab uses an in-memory clone; it is not in the registry so GetCharacterId is null.
+            // Route the clone to the active player's display key so combat writes and RenderCombat read one buffer.
+            // Use the live session's LabPlayer — do not require ICanvasContextManager to reference the clone; if context
+            // still held the registry hero, the old ctxChar check left the clone on __default__ and the center stayed empty.
+            if (stateManager?.CurrentState == GameState.ActionInteractionLab)
+            {
+                var lab = ActionInteractionLabSession.Current;
+                if (lab != null && ReferenceEquals(character, lab.LabPlayer))
+                {
+                    var active = stateManager.GetActiveCharacter();
+                    string? activeId = active != null ? stateManager.GetCharacterId(active) : null;
+                    if (!string.IsNullOrEmpty(activeId))
+                        return activeId;
+                }
+            }
+
+            return DEFAULT_DISPLAY_MANAGER_KEY;
         }
         
         /// <summary>
@@ -131,7 +151,10 @@ namespace RPGGame.UI.Avalonia.Managers
         {
             if (character == null)
             {
-                return DisplayManager; // Return active character's display manager
+                // Combat blocks pass null; route explicitly to the lab clone's buffer (same key as RenderCombat).
+                if (stateManager?.CurrentState == GameState.ActionInteractionLab && ActionInteractionLabSession.Current is { } labNull)
+                    return GetDisplayManagerForCharacter(labNull.LabPlayer);
+                return DisplayManager;
             }
             
             string key = ResolveDisplayManagerKey(character);
@@ -156,12 +179,10 @@ namespace RPGGame.UI.Avalonia.Managers
         {
             get
             {
-                // Always align "current" with the registered active player. MessageRouter and dungeon routing
-                // use GetDisplayManagerForCharacter(player) keyed by id; if currentDisplayManager stayed on an
-                // old instance (e.g. default buffer after menu), RenderRoomEntry/ICanvasTextManager would read a
-                // different buffer than the one receiving dungeon lines — strip and log disagree or look "wiped".
-                var activeCharacter = stateManager?.GetActiveCharacter();
-                if (activeCharacter != null)
+                // Lab: session owns the clone reference; use it so we never rely on context being updated first.
+                if (stateManager?.CurrentState == GameState.ActionInteractionLab && ActionInteractionLabSession.Current is { } labSession)
+                    SwitchToCharacterDisplayManager(labSession.LabPlayer);
+                else if (stateManager?.GetActiveCharacter() is { } activeCharacter)
                     SwitchToCharacterDisplayManager(activeCharacter);
                 else if (currentDisplayManager == null)
                     currentDisplayManager = GetOrCreateDefaultDisplayManager();

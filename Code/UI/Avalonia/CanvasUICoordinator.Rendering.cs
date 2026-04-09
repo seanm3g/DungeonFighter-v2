@@ -327,6 +327,14 @@ namespace RPGGame.UI.Avalonia
         }
 
         /// <summary>
+        /// Clears all clickable hover highlights (e.g. before repointing after leaving strip/side panels).
+        /// </summary>
+        public void ClearHoverStates()
+        {
+            interactionManager.ClearHoverStates();
+        }
+
+        /// <summary>
         /// Live clickable elements for the current frame (inventory right panel, menus, etc.).
         /// </summary>
         public IReadOnlyList<ClickableElement> GetClickableElements() => interactionManager.ClickableElements;

@@ -162,7 +162,13 @@ namespace RPGGame.UI.Avalonia.Layout
                 canvas.AddCharacterStat(x, y, "Damage", totalDamage, 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.White);
                 y++;
                 int speedRowY = y;
-                canvas.AddText(x, y, $"Speed:   {attackSpeed:F2}s", AsciiArtAssets.Colors.White);
+                canvas.AddText(x, y, $"Speed:   {attackSpeed:F1}s", AsciiArtAssets.Colors.White);
+                y++;
+                int ampRowY = y;
+                double ampBasePerStep = character.GetComboAmplifier();
+                const int statsValueColumnIndex = 9; // first character index of value in AddCharacterStat lines (Damage/Speed/Armor)
+                string ampPrefix = "AMP:";
+                canvas.AddText(x, y, ampPrefix + new string(' ', statsValueColumnIndex - ampPrefix.Length) + $"{ampBasePerStep:F2}x", AsciiArtAssets.Colors.White);
                 y++;
                 int armorRowY = y;
                 canvas.AddCharacterStat(x, y, "Armor", character.GetTotalArmor(), 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.White);
@@ -203,6 +209,7 @@ namespace RPGGame.UI.Avalonia.Layout
                     stateManager.SetStatsAreaBounds(x, statsHeaderY, headerClickWidth, statsAreaEndY - statsHeaderY);
                     RegisterLeftPanelHoverRow(x, damageRowY, headerClickWidth, 1, "stat:damage");
                     RegisterLeftPanelHoverRow(x, speedRowY, headerClickWidth, 1, "stat:speed");
+                    RegisterLeftPanelHoverRow(x, ampRowY, headerClickWidth, 1, "stat:amp");
                     RegisterLeftPanelHoverRow(x, armorRowY, headerClickWidth, 1, "stat:armor");
                     RegisterLeftPanelHoverRow(x, strRowY, headerClickWidth, 1, "stat:str");
                     RegisterLeftPanelHoverRow(x, agiRowY, headerClickWidth, 1, "stat:agi");
@@ -278,6 +285,8 @@ namespace RPGGame.UI.Avalonia.Layout
                 int defaultCrit = config.Combat.CriticalHitThreshold > 0 ? config.Combat.CriticalHitThreshold : 20;
                 const int defaultCritMiss = 1;
                 const int thresholdLabelWidth = 11;
+                int accuracy = ActionUtilities.CalculateRollBonus(character, null, consumeTempBonus: false);
+                int critThresholdAccuracy = accuracy - CombatCalculator.GetPersistentStatRollBonus(character);
                 void RenderThresholdRow(int rowY, string labelName, int current, int def, string displayedValue)
                 {
                     string labelPart = $"{labelName}:".PadRight(thresholdLabelWidth);
@@ -290,16 +299,16 @@ namespace RPGGame.UI.Avalonia.Layout
                 }
 
                 int critY = y;
-                RenderThresholdRow(y, "Crit", crit, defaultCrit, crit.ToString());
+                RenderThresholdRow(y, "Crit", crit, defaultCrit, ThresholdDisplayFormatting.FormatThresholdValueWithAccuracy(crit, critThresholdAccuracy));
                 y++;
                 int comboY = y;
-                RenderThresholdRow(y, "Combo", combo, defaultCombo, combo.ToString());
+                RenderThresholdRow(y, "Combo", combo, defaultCombo, ThresholdDisplayFormatting.FormatThresholdValueWithAccuracy(combo, accuracy));
                 y++;
                 int hitY = y;
-                RenderThresholdRow(y, "Hit", hit, defaultHit, (hit + 1).ToString());
+                RenderThresholdRow(y, "Hit", hit, defaultHit, ThresholdDisplayFormatting.FormatThresholdValueWithAccuracy(hit + 1, accuracy));
                 y++;
                 int critMissY = y;
-                RenderThresholdRow(y, "Crit Miss", critMiss, defaultCritMiss, critMiss.ToString());
+                RenderThresholdRow(y, "Crit Miss", critMiss, defaultCritMiss, ThresholdDisplayFormatting.FormatThresholdValueWithAccuracy(critMiss, critThresholdAccuracy));
                 y++;
 
                 if (interactionManager != null && stateManager != null)
@@ -478,7 +487,7 @@ namespace RPGGame.UI.Avalonia.Layout
         }
         
         /// <summary>
-        /// Renders secondary stats (magic find, roll bonus, etc.). When <paramref name="expandedHoverTargets"/> is non-null,
+        /// Renders secondary stats (magic find, HP regen, etc.). When <paramref name="expandedHoverTargets"/> is non-null,
         /// appends (row Y, hover id) for each row; the caller registers <c>lphover:*</c> clickables for tooltips.
         /// </summary>
         private void RenderExpandedStats(Character character, int x, ref int y, List<(int rowY, string idSuffix)>? expandedHoverTargets)
@@ -492,29 +501,6 @@ namespace RPGGame.UI.Avalonia.Layout
                 canvas.AddText(x + 9, y, $"+{magicFind}", AsciiArtAssets.Colors.Cyan);
                 y++;
                 expandedHoverTargets?.Add((rowY, "stat:magfind"));
-            }
-            
-            // Roll Bonus (with breakdown)
-            int intRollBonus = character.GetIntelligenceRollBonus();
-            int eqRollBonus = character.GetEquipmentRollBonus();
-            int modRollBonus = character.GetModificationRollBonus();
-            int totalRollBonus = intRollBonus + eqRollBonus + modRollBonus;
-            
-            if (totalRollBonus > 0)
-            {
-                int rowY = y;
-                canvas.AddCharacterStat(x, y, "ROLL", 0, 0, AsciiArtAssets.Colors.Cyan, AsciiArtAssets.Colors.Cyan);
-                string rollBreakdown = $"+{totalRollBonus}";
-                if (intRollBonus > 0 || eqRollBonus > 0 || modRollBonus > 0)
-                {
-                    rollBreakdown += $" (INT:+{intRollBonus}";
-                    if (eqRollBonus > 0) rollBreakdown += $" EQ:+{eqRollBonus}";
-                    if (modRollBonus > 0) rollBreakdown += $" MOD:+{modRollBonus}";
-                    rollBreakdown += ")";
-                }
-                canvas.AddText(x + 9, y, rollBreakdown, AsciiArtAssets.Colors.Cyan);
-                y++;
-                expandedHoverTargets?.Add((rowY, "stat:roll"));
             }
             
             // Health Regen (only if > 0)

@@ -3,7 +3,7 @@
     "type": "Dagger",
     "name": "Iron Blade",
     "baseDamage": 1,
-    "attackSpeed": 1.4,
+    "attackSpeed": 1.2,
     "tier": 1,
     "attributeRequirements": null
   },
@@ -11,7 +11,7 @@
     "type": "Dagger",
     "name": "Iron Blade",
     "baseDamage": 1,
-    "attackSpeed": 1.4,
+    "attackSpeed": 1.2,
     "tier": 1,
     "attributeRequirements": null
   },
@@ -27,7 +27,7 @@
     "type": "Dagger",
     "name": "Iron Dagger",
     "baseDamage": 1,
-    "attackSpeed": 1.4,
+    "attackSpeed": 1.2,
     "tier": 1,
     "attributeRequirements": null
   },
@@ -43,7 +43,7 @@
     "type": "Dagger",
     "name": "Iron Knife",
     "baseDamage": 1,
-    "attackSpeed": 1.4,
+    "attackSpeed": 1.2,
     "tier": 1,
     "attributeRequirements": null
   },
@@ -99,7 +99,7 @@
     "type": "Dagger",
     "name": "Steel Blade",
     "baseDamage": 1,
-    "attackSpeed": 1.4,
+    "attackSpeed": 1.2,
     "tier": 2,
     "attributeRequirements": null
   },
@@ -107,7 +107,7 @@
     "type": "Dagger",
     "name": "Steel Blade",
     "baseDamage": 1,
-    "attackSpeed": 1.4,
+    "attackSpeed": 1.2,
     "tier": 2,
     "attributeRequirements": null
   },
@@ -123,7 +123,7 @@
     "type": "Dagger",
     "name": "Steel Dagger",
     "baseDamage": 1,
-    "attackSpeed": 1.4,
+    "attackSpeed": 1.2,
     "tier": 2,
     "attributeRequirements": null
   },
@@ -139,7 +139,7 @@
     "type": "Dagger",
     "name": "Steel Knife",
     "baseDamage": 1,
-    "attackSpeed": 1.4,
+    "attackSpeed": 1.2,
     "tier": 2,
     "attributeRequirements": null
   },
@@ -195,7 +195,7 @@
     "type": "Dagger",
     "name": "Silver Blade",
     "baseDamage": 1,
-    "attackSpeed": 1.4,
+    "attackSpeed": 1.2,
     "tier": 3,
     "attributeRequirements": null
   },
@@ -203,7 +203,7 @@
     "type": "Dagger",
     "name": "Silver Blade",
     "baseDamage": 1,
-    "attackSpeed": 1.4,
+    "attackSpeed": 1.2,
     "tier": 3,
     "attributeRequirements": null
   },
@@ -219,7 +219,7 @@
     "type": "Dagger",
     "name": "Silver Dagger",
     "baseDamage": 1,
-    "attackSpeed": 1.4,
+    "attackSpeed": 1.2,
     "tier": 3,
     "attributeRequirements": null
   },
@@ -235,7 +235,7 @@
     "type": "Dagger",
     "name": "Silver Knife",
     "baseDamage": 1,
-    "attackSpeed": 1.4,
+    "attackSpeed": 1.2,
     "tier": 3,
     "attributeRequirements": null
   },
@@ -291,7 +291,7 @@
     "type": "Dagger",
     "name": "Mithril Blade",
     "baseDamage": 1,
-    "attackSpeed": 1.4,
+    "attackSpeed": 1.2,
     "tier": 4,
     "attributeRequirements": null
   },
@@ -299,7 +299,7 @@
     "type": "Dagger",
     "name": "Mithril Blade",
     "baseDamage": 1,
-    "attackSpeed": 1.4,
+    "attackSpeed": 1.2,
     "tier": 4,
     "attributeRequirements": null
   },
@@ -315,7 +315,7 @@
     "type": "Dagger",
     "name": "Mithril Dagger",
     "baseDamage": 1,
-    "attackSpeed": 1.4,
+    "attackSpeed": 1.2,
     "tier": 4,
     "attributeRequirements": null
   },
@@ -331,7 +331,7 @@
     "type": "Dagger",
     "name": "Mithril Knife",
     "baseDamage": 1,
-    "attackSpeed": 1.4,
+    "attackSpeed": 1.2,
     "tier": 4,
     "attributeRequirements": null
   },
@@ -387,7 +387,7 @@
     "type": "Dagger",
     "name": "Assassin\u0027s Blade",
     "baseDamage": 1,
-    "attackSpeed": 1.4,
+    "attackSpeed": 1.2,
     "tier": 5,
     "attributeRequirements": null
   },
@@ -403,7 +403,7 @@
     "type": "Dagger",
     "name": "Dragon Dagger",
     "baseDamage": 1,
-    "attackSpeed": 1.4,
+    "attackSpeed": 1.2,
     "tier": 5,
     "attributeRequirements": null
   },
@@ -459,7 +459,7 @@
     "type": "Dagger",
     "name": "Shadow Blade",
     "baseDamage": 1,
-    "attackSpeed": 1.4,
+    "attackSpeed": 1.2,
     "tier": 5,
     "attributeRequirements": null
   },

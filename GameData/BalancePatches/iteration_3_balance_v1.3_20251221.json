@@ -504,7 +504,7 @@
         {
           "name": "Dagger",
           "damage": 3.75,
-          "attackSpeed": 1.4,
+          "attackSpeed": 1.2,
           "weight": 0
         },
         {

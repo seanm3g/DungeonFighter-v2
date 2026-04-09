@@ -1,3 +1,4 @@
+using RPGGame.ActionInteractionLab;
 using RPGGame.UI;
 using RPGGame.Utils;
 
@@ -27,6 +28,11 @@ namespace RPGGame.UI.BlockDisplay
         /// </summary>
         public static int CalculateActionBlockDelay()
         {
+            // Action interaction lab: stepped play and undo replay should not wait on display timers.
+            var lab = ActionInteractionLabSession.Current;
+            if (lab != null && lab.ZeroDisplayDelays)
+                return 0;
+
             // Skip delays if combat UI output is disabled (e.g., during statistics runs)
             if (CombatManager.DisableCombatUIOutput) return 0;
             

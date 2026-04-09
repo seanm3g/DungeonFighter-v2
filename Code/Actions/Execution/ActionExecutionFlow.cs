@@ -1,4 +1,5 @@
 using RPGGame;
+using RPGGame.ActionInteractionLab;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat.Events;
 using RPGGame.Utils;
@@ -196,8 +197,10 @@ namespace RPGGame.Actions.Execution
             var tm = RollModificationManager.GetThresholdManager();
             int hitThreshold = tm.GetHitThreshold(source);
             int criticalMissThreshold = tm.GetCriticalMissThreshold(source);
-            // Critical miss only when roll is both <= crit-miss threshold and would be a miss (roll <= hit threshold). So +5 to HIT (threshold 0) makes 1+ a hit and crit miss impossible (would need 0).
-            result.IsCriticalMiss = result.BaseRoll <= criticalMissThreshold && result.BaseRoll <= hitThreshold;
+            // Crit / crit-miss use attack total minus INT, gear, and mod roll bonuses; temp and action-driven bonuses still count.
+            int critThresholdRoll = CombatCalculator.GetCritThresholdEvaluationRoll(result.AttackRoll, source);
+            // Critical miss only when crit-eval roll is both <= crit-miss threshold and in miss band (<= hit threshold).
+            result.IsCriticalMiss = critThresholdRoll <= criticalMissThreshold && critThresholdRoll <= hitThreshold;
             if (result.IsCriticalMiss)
             {
                 source.HasCriticalMissPenalty = true;
@@ -206,7 +209,7 @@ namespace RPGGame.Actions.Execution
             lastCriticalMissStatus[source] = result.IsCriticalMiss;
             // Combo flag: combo-slot action and attack total meets combo threshold (avoids "combo" on unnamed normal hits that hit 14+ total)
             result.IsCombo = result.SelectedAction.IsComboAction && result.AttackRoll >= tm.GetComboThreshold(source);
-            result.IsCritical = result.AttackRoll >= tm.GetCriticalHitThreshold(source);
+            result.IsCritical = critThresholdRoll >= tm.GetCriticalHitThreshold(source);
             ActionEventPublisher.PublishActionExecuted(source, target, result.SelectedAction, result.AttackRoll, result.IsCombo, result.IsCritical);
             result.Hit = CombatCalculator.CalculateHit(source, target, result.RollBonus, result.AttackRoll);
         }
@@ -398,9 +401,12 @@ namespace RPGGame.Actions.Execution
                 }
             }
 
-            if (source is Character comboCharacter && !(comboCharacter is Enemy))
+            // Heroes and enemies (Enemy : Character) share combo-step advancement on successful combo-threshold rolls.
+            if (source is Character comboCharacter)
             {
-                int comboThreshold = GameConfiguration.Instance.RollSystem.ComboThreshold.Min;
+                int comboStepBeforeAdvance = comboCharacter.ComboStep;
+                // Must match the effective combo threshold used for IsCombo / UI (per-roll COMBO bonuses, action roll mods, cascades).
+                int comboThreshold = RollModificationManager.GetThresholdManager().GetComboThreshold(comboCharacter);
                 // Only advance combo step when the executed action was a combo action (prevents skipping slots on normal attacks)
                 if (selected.IsComboAction)
                 {
@@ -423,6 +429,17 @@ namespace RPGGame.Actions.Execution
                         else
                             comboCharacter.ComboStep = 0;
                     }
+
+                    // Action Interaction Lab: on a successful combo hit, advance the strip if threshold logic did not
+                    // (sandbox UX — avoids catalog stuck on slot 1 when attack total is below combo threshold).
+                    if (ActionInteractionLabSession.Current is { } labForStrip
+                        && !(comboCharacter is Enemy)
+                        && result.Hit
+                        && comboCharacter.ComboStep == comboStepBeforeAdvance
+                        && string.Equals(comboCharacter.Name, labForStrip.LabPlayer.Name, StringComparison.Ordinal))
+                    {
+                        comboCharacter.IncrementComboStep(selected);
+                    }
                 }
                 else if (selected.Type == ActionType.Attack || selected.Type == ActionType.Spell)
                 {
@@ -444,7 +461,7 @@ namespace RPGGame.Actions.Execution
             ActionEventPublisher.PublishActionMiss(source, target, result.SelectedAction!, result.AttackRoll);
             if (source is Character characterMiss)
                 ActionStatisticsTracker.RecordMissAction(characterMiss, result.BaseRoll, result.RollBonus);
-            if (source is Character comboCharacterMiss && !(comboCharacterMiss is Enemy))
+            if (source is Character comboCharacterMiss)
                 comboCharacterMiss.ComboStep = 0;
             ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction!, 0, result.ModifiedBaseRoll + result.RollBonus, result.RollBonus, false, false, 0, 0, false, result.BaseRoll, battleNarrative);
         }

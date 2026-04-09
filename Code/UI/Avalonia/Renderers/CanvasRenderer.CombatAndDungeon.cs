@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Avalonia.Threading;
 using RPGGame;
+using RPGGame.ActionInteractionLab;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Display;
@@ -10,6 +11,16 @@ namespace RPGGame.UI.Avalonia.Renderers
 {
     public partial class CanvasRenderer
     {
+        /// <summary>
+        /// Lab clone is never reference-equal to <see cref="ICanvasContextManager.GetCurrentCharacter()"/> when context
+        /// was not updated; <see cref="CombatRenderingValidator"/> would block all combat repaints and the center stays blank.
+        /// </summary>
+        private bool ShouldBypassCombatValidationForLab(Character player)
+        {
+            var lab = ActionInteractionLabSession.Current;
+            return lab != null && ReferenceEquals(player, lab.LabPlayer);
+        }
+
         public void RenderCharacterCreation(Character character, CanvasContext context)
         {
             characterCreationRenderer.RenderCharacterCreation(character, context);
@@ -79,21 +90,24 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         public void RenderCombat(Character player, Enemy enemy, List<string> combatLog, CanvasContext context)
         {
-            if (!combatValidator.ValidateCharacterActive(player))
+            if (!ShouldBypassCombatValidationForLab(player) && !combatValidator.ValidateCharacterActive(player))
                 return;
             EnsureDisplayManagerForPlayer(player);
             if (textManager is CanvasTextManager canvasTextManager)
             {
-                canvasTextManager.DisplayManager.SetMode(new CombatDisplayMode());
+                // Use the same display manager as RenderCombatScreen / GetDisplayManagerForCharacter(player),
+                // not DisplayManager getter alone (lab clone vs active player routing must stay aligned).
+                var dm = canvasTextManager.GetDisplayManagerForCharacter(player);
+                dm.SetMode(new CombatDisplayMode());
                 System.Action renderCallback = () =>
                 {
-                    if (!combatValidator.ValidateCharacterActive(player)) return;
+                    if (!ShouldBypassCombatValidationForLab(player) && !combatValidator.ValidateCharacterActive(player)) return;
                     if (Dispatcher.UIThread.CheckAccess())
                         RenderCombatScreenOnly(player, enemy, context);
                     else
                         Dispatcher.UIThread.Post(() => RenderCombatScreenOnly(player, enemy, context));
                 };
-                canvasTextManager.DisplayManager.SetExternalRenderCallback(renderCallback);
+                dm.SetExternalRenderCallback(renderCallback);
             }
             RenderCombatScreenOnly(player, enemy, context);
         }
@@ -101,7 +115,9 @@ namespace RPGGame.UI.Avalonia.Renderers
         private void RenderCombatScreenOnly(Character player, Enemy enemy, CanvasContext context)
         {
             Enemy? currentEnemy = enemy ?? context.Enemy;
-            if (!combatValidator.ValidateCharacterActive(player))
+            if (currentEnemy == null && ActionInteractionLabSession.Current is { } labForEnemy)
+                currentEnemy = labForEnemy.LabEnemy;
+            if (!ShouldBypassCombatValidationForLab(player) && !combatValidator.ValidateCharacterActive(player))
                 return;
             List<string>? filteredDungeonContext = context.DungeonContext;
             if (currentEnemy == null && filteredDungeonContext != null && filteredDungeonContext.Count > 0)

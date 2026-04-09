@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Input;
 using RPGGame;
+using RPGGame.ActionInteractionLab;
 using RPGGame.Handlers.Inventory;
 using RPGGame.UI;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Layout;
 using RPGGame.UI.Avalonia.Managers;
+using RPGGame.UI.Avalonia.Settings;
+using Avalonia.Threading;
 
 namespace RPGGame.UI.Avalonia.Handlers
 {
@@ -48,6 +51,25 @@ namespace RPGGame.UI.Avalonia.Handlers
             if (game == null) return;
 
             var point = e.GetCurrentPoint(gameCanvas);
+            if (point.Properties.IsRightButtonPressed)
+            {
+                if (TryHandleActionStripRightClickRemove(point.Position))
+                {
+                    e.Handled = true;
+                    return;
+                }
+                if (TryScheduleActionLabWeaponEdit(point.Position))
+                {
+                    e.Handled = true;
+                    return;
+                }
+                if (TryApplyActionLabLeftPanelStatAt(point.Position, -1))
+                {
+                    e.Handled = true;
+                    return;
+                }
+            }
+
             if (point.Properties.IsLeftButtonPressed)
             {
                 if (TryBeginComboStripDrag(e, point.Position))
@@ -102,13 +124,21 @@ namespace RPGGame.UI.Avalonia.Handlers
             if (toIdx >= snapshot.Count)
                 return;
 
-            var player = game.CurrentPlayer;
+            var player = GetCharacterForActionStrip();
             if (player != null && ComboReorderer.ApplyReorderMove(player, snapshot, fromIdx, toIdx))
             {
-                // ForceRender() only refreshes the center display buffer; it does not redraw RenderWithLayout chrome
-                // (including the action-info strip). Use the same path as stats-panel toggles.
-                game.RefreshPersistentChromeAfterStatsToggle();
-                canvasUI.Refresh();
+                if (game.StateManager?.CurrentState == GameState.ActionInteractionLab
+                    && ActionInteractionLabSession.Current is { } labSession)
+                {
+                    canvasUI.RenderCombat(labSession.LabPlayer, labSession.LabEnemy, new List<string>());
+                }
+                else
+                {
+                    // ForceRender() only refreshes the center display buffer; it does not redraw RenderWithLayout chrome
+                    // (including the action-info strip). Use the same path as stats-panel toggles.
+                    game.RefreshPersistentChromeAfterStatsToggle();
+                    canvasUI.Refresh();
+                }
             }
         }
 
@@ -182,11 +212,16 @@ namespace RPGGame.UI.Avalonia.Handlers
             // Convert screen coordinates to character grid coordinates
             var gridPos = ScreenToGrid(position);
 
+            // Combat log / framed center: clear menu and strip-adjacent hover highlights so nothing sticks
+            // when reading the log (and ensure tooltip overlay can fully clear on the next draw).
+            if (LayoutConstants.ContainsCenterPanelContent(gridPos.X, gridPos.Y))
+                canvasUI.ClearHoverStates();
+
             // Update hover state for menu / clickable elements
             canvasUI.SetHoverPosition(gridPos.X, gridPos.Y);
 
             int newStripHover = -1;
-            var player = game?.CurrentPlayer;
+            var player = GetCharacterForActionStrip();
             var combo = player?.GetComboActions();
             int filled = combo?.Count ?? 0;
             int displayCount = player != null ? ActionInfoStripLayout.GetDisplayPanelCount(filled) : 0;
@@ -216,6 +251,8 @@ namespace RPGGame.UI.Avalonia.Handlers
             if (game != null)
             {
                 if (game.StateManager?.CurrentState == GameState.GameLoop && player != null && tooltipStripOrPanel)
+                    canvasUI.RefreshActionInfoStripOnly(player);
+                else if (game.StateManager?.CurrentState == GameState.ActionInteractionLab && player != null && tooltipStripOrPanel)
                     canvasUI.RefreshActionInfoStripOnly(player);
                 else if (inv && player != null && tooltipStripOrPanel)
                 {
@@ -270,9 +307,117 @@ namespace RPGGame.UI.Avalonia.Handlers
                 return false;
             if (state == GameState.Inventory)
                 return true;
+            // Action Lab: reorder the cloned character's combo (same as hub), not blocked like real combat.
+            if (state == GameState.ActionInteractionLab)
+                return true;
             if (state == GameState.Combat || sm.IsComboStripEncounterLocked)
                 return false;
             return ActionStripReorderPolicy.AllowsReorder(state, null);
+        }
+
+        /// <summary>
+        /// Strip rendering uses the lab clone in Action Lab; drag/hover must use that instance, not <see cref="GameCoordinator.CurrentPlayer"/>.
+        /// </summary>
+        private Character? GetCharacterForActionStrip()
+        {
+            if (game?.StateManager?.CurrentState == GameState.ActionInteractionLab)
+            {
+                var lab = ActionInteractionLabSession.Current;
+                if (lab != null)
+                    return lab.LabPlayer;
+            }
+            return game?.CurrentPlayer;
+        }
+
+        /// <summary>
+        /// Action Lab: left-click increases STATS row values and level (HERO line); right-click decreases (see <see cref="ActionLabLeftPanelStatAdjustment"/>).
+        /// </summary>
+        private bool TryApplyActionLabLeftPanelStatFromElement(ClickableElement element, int delta)
+        {
+            if (canvasUI == null || game?.StateManager?.CurrentState != GameState.ActionInteractionLab)
+                return false;
+            var session = ActionInteractionLabSession.Current;
+            if (session == null)
+                return false;
+            if (!ActionLabLeftPanelStatAdjustment.TryApply(session.LabPlayer, element.Value, delta))
+                return false;
+            canvasUI.RenderCombat(session.LabPlayer, session.LabEnemy, new List<string>());
+            return true;
+        }
+
+        /// <summary>
+        /// Hit-test grid cell for a STATS <c>lphover:stat:*</c> row and apply delta (used for right-click).
+        /// </summary>
+        private bool TryApplyActionLabLeftPanelStatAt(Point position, int delta)
+        {
+            if (canvasUI == null)
+                return false;
+            var grid = ScreenToGrid(position);
+            var el = canvasUI.GetElementAt(grid.X, grid.Y);
+            if (el == null)
+                return false;
+            return TryApplyActionLabLeftPanelStatFromElement(el, delta);
+        }
+
+        /// <summary>
+        /// Action Lab: right-click the GEAR weapon row to open the weapon editor (swap base item, prefix, suffix).
+        /// </summary>
+        private bool TryScheduleActionLabWeaponEdit(Point position)
+        {
+            if (game?.StateManager?.CurrentState != GameState.ActionInteractionLab)
+                return false;
+            if (canvasUI == null)
+                return false;
+            var lab = ActionInteractionLabSession.Current;
+            if (lab == null)
+                return false;
+
+            var grid = ScreenToGrid(position);
+            var el = canvasUI.GetElementAt(grid.X, grid.Y);
+            if (el == null || el.Value != "lphover:gear:weapon")
+                return false;
+
+            var owner = canvasUI.GetMainWindow();
+            var player = lab.LabPlayer;
+            _ = Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                var weapon = await ActionLabWeaponEditDialog.ShowAsync(owner, player).ConfigureAwait(true);
+                if (weapon != null)
+                    lab.ApplyLabWeapon(weapon);
+            });
+            return true;
+        }
+
+        /// <summary>
+        /// Action Interaction Lab: right-click a filled strip panel to remove that action from the combo sequence.
+        /// </summary>
+        private bool TryHandleActionStripRightClickRemove(Point position)
+        {
+            if (game?.StateManager?.CurrentState != GameState.ActionInteractionLab)
+                return false;
+            if (canvasUI == null)
+                return false;
+            var lab = ActionInteractionLabSession.Current;
+            if (lab == null)
+                return false;
+
+            var player = GetCharacterForActionStrip();
+            if (player == null)
+                return false;
+            var combo = player.GetComboActions();
+            if (combo == null || combo.Count == 0)
+                return false;
+
+            var grid = ScreenToGrid(position);
+            int displayCount = ActionInfoStripLayout.GetDisplayPanelCount(combo.Count);
+            if (!ActionInfoStripLayout.TryGetPanelIndex(grid.X, grid.Y, displayCount, out int idx))
+                return false;
+            if (idx < 0 || idx >= combo.Count)
+                return false;
+
+            player.RemoveFromCombo(combo[idx]);
+            canvasUI.RenderCombat(lab.LabPlayer, lab.LabEnemy, new List<string>());
+            return true;
         }
 
         /// <summary>
@@ -281,7 +426,7 @@ namespace RPGGame.UI.Avalonia.Handlers
         private bool TryBeginComboStripDrag(PointerPressedEventArgs e, Point position)
         {
             if (!CanReorderComboOnStrip()) return false;
-            var player = game!.CurrentPlayer;
+            var player = GetCharacterForActionStrip();
             if (player == null) return false;
             var combo = player.GetComboActions();
             if (combo == null || combo.Count == 0) return false;
@@ -311,6 +456,15 @@ namespace RPGGame.UI.Avalonia.Handlers
 
             try
             {
+                if (element.Value.StartsWith("lab_", StringComparison.Ordinal))
+                {
+                    await HandleActionLabClickAsync(element.Value).ConfigureAwait(true);
+                    return;
+                }
+
+                if (TryApplyActionLabLeftPanelStatFromElement(element, +1))
+                    return;
+
                 var statsPanelStateManager = GetActiveStatsPanelState();
                 if (statsPanelStateManager != null)
                 {
@@ -365,6 +519,140 @@ namespace RPGGame.UI.Avalonia.Handlers
                 {
                     canvasUI.UpdateStatus($"Error: {ex.Message}");
                 }
+            }
+        }
+
+        private async System.Threading.Tasks.Task HandleActionLabClickAsync(string value)
+        {
+            if (canvasUI == null || game == null) return;
+            var session = ActionInteractionLabSession.Current;
+            if (session == null) return;
+
+            void RefreshLabCombat()
+            {
+                canvasUI.RenderCombat(session.LabPlayer, session.LabEnemy, new List<string>());
+            }
+
+            if (value == "lab_exit")
+            {
+                ActionInteractionLabSession.EndSession();
+                game.StateManager.TransitionToState(GameState.GameLoop);
+                game.ShowGameLoop();
+                try { canvasUI.GetMainWindow()?.Activate(); } catch { /* ignore */ }
+                return;
+            }
+
+            if (value == "lab_d20_random")
+            {
+                session.UseRandomD20PerStep = true;
+                RefreshLabCombat();
+                return;
+            }
+
+            if (value.StartsWith("lab_d20:", StringComparison.Ordinal))
+            {
+                if (int.TryParse(value.AsSpan("lab_d20:".Length), out int d) && d >= 1 && d <= 20)
+                {
+                    session.UseRandomD20PerStep = false;
+                    session.SelectedD20 = d;
+                }
+                RefreshLabCombat();
+                return;
+            }
+
+            if (value.StartsWith("lab_act:", StringComparison.Ordinal))
+            {
+                if (int.TryParse(value.AsSpan("lab_act:".Length), out int idx))
+                {
+                    var names = ActionLoader.GetAllActionNames();
+                    names.Sort(StringComparer.OrdinalIgnoreCase);
+                    if (idx >= 0 && idx < names.Count)
+                    {
+                        session.SelectedCatalogActionName = names[idx];
+                        // One click: pick catalog row and append to combo strip.
+                        session.AddSelectedCatalogActionToComboStrip();
+                    }
+                }
+                return;
+            }
+
+            if (value == "lab_combo_prev")
+            {
+                session.NudgeLabPlayerComboStep(-1);
+                return;
+            }
+
+            if (value == "lab_combo_next")
+            {
+                session.NudgeLabPlayerComboStep(1);
+                return;
+            }
+
+            if (value == "lab_scrl:up")
+            {
+                session.CatalogScrollOffset = Math.Max(0, session.CatalogScrollOffset - 1);
+                RefreshLabCombat();
+                return;
+            }
+
+            if (value == "lab_scrl:down")
+            {
+                var names = ActionLoader.GetAllActionNames();
+                names.Sort(StringComparer.OrdinalIgnoreCase);
+                int visible = session.LastCatalogVisibleRowCount > 0
+                    ? session.LastCatalogVisibleRowCount
+                    : ActionInteractionLabSession.LabCatalogVisibleNameRows;
+                int maxScroll = Math.Max(0, names.Count - visible);
+                session.CatalogScrollOffset = Math.Min(maxScroll, session.CatalogScrollOffset + 1);
+                RefreshLabCombat();
+                return;
+            }
+
+            if (value == "lab_enemy_up")
+            {
+                session.EnemyCatalogScrollOffset = Math.Max(0, session.EnemyCatalogScrollOffset - 1);
+                RefreshLabCombat();
+                return;
+            }
+
+            if (value == "lab_enemy_down")
+            {
+                var enemyTypes = EnemyLoader.GetAllEnemyTypes();
+                enemyTypes.Sort(StringComparer.OrdinalIgnoreCase);
+                const int enemyVisible = 2;
+                int maxScroll = Math.Max(0, enemyTypes.Count - enemyVisible);
+                session.EnemyCatalogScrollOffset = Math.Min(maxScroll, session.EnemyCatalogScrollOffset + 1);
+                RefreshLabCombat();
+                return;
+            }
+
+            if (value.StartsWith("lab_enemy:", StringComparison.Ordinal))
+            {
+                if (int.TryParse(value.AsSpan("lab_enemy:".Length), out int idx))
+                {
+                    var enemyTypes = EnemyLoader.GetAllEnemyTypes();
+                    enemyTypes.Sort(StringComparer.OrdinalIgnoreCase);
+                    if (idx >= 0 && idx < enemyTypes.Count)
+                        session.SetLabEnemyFromLoader(enemyTypes[idx], 1);
+                }
+                return;
+            }
+
+            if (value == "lab_reset_combo")
+            {
+                session.ResetLabCombo();
+                return;
+            }
+
+            if (value == "lab_step")
+            {
+                await session.StepAsync(session.ResolveD20ForNextStep(), session.SelectedCatalogActionName).ConfigureAwait(true);
+                return;
+            }
+
+            if (value == "lab_undo")
+            {
+                await session.UndoLastStepAsync().ConfigureAwait(true);
             }
         }
     }

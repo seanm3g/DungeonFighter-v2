@@ -263,6 +263,19 @@ namespace RPGGame.UI.Avalonia.Display
                 return segments ?? new List<ColoredText>();
             
             string fullText = string.Join("", segments.Select(s => s.Text));
+
+            // Level-up banner: gold "LEVEL UP!" with dungeon-selection-style shimmer (exact phrase from LevelUpDisplayColoredText)
+            if (fullText.Contains("LEVEL UP!", StringComparison.Ordinal))
+            {
+                var animated = new List<ColoredText>();
+                int charPos = 0;
+                foreach (var segment in segments)
+                {
+                    ApplyAnimationToText(segment.Text, segment.Color, animated, charPos, y, null);
+                    charPos += segment.Text.Length;
+                }
+                return animated;
+            }
             
             // Check if this is an "ENTERING DUNGEON" or "ENTERING ROOM" header line
             bool isEnteringHeader = fullText.Contains("ENTERING DUNGEON", StringComparison.OrdinalIgnoreCase) ||

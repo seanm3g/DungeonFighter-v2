@@ -173,6 +173,9 @@ namespace RPGGame.UI.Avalonia
         {
             return windowManager.GetGame();
         }
+
+        /// <summary>Canvas routing context (character, enemy, location). Used by combat/lab display sync.</summary>
+        public ICanvasContextManager CanvasContext => contextManager;
         
         /// <summary>
         /// Sets the game state manager for the animation system.

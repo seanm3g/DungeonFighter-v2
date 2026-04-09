@@ -1,0 +1,171 @@
+{
+  "name": "Pax Tidecaller",
+  "level": 4,
+  "xp": 39,
+  "currentHealth": 66,
+  "maxHealth": 66,
+  "strength": 9,
+  "agility": 5,
+  "technique": 5,
+  "intelligence": 5,
+  "barbarianPoints": 2,
+  "warriorPoints": 0,
+  "roguePoints": 0,
+  "wizardPoints": 0,
+  "comboStep": 0,
+  "comboBonus": 0,
+  "tempComboBonus": 0,
+  "tempComboBonusTurns": 0,
+  "damageReduction": 0,
+  "inventory": [
+    {
+      "name": "Iron Boots of Invulnerability",
+      "type": 1,
+      "tier": 1,
+      "level": 1,
+      "comboBonus": 0,
+      "rarity": "Common",
+      "statBonuses": [
+        {
+          "name": "of Invulnerability",
+          "description": "\u002B3 armor value",
+          "value": 3,
+          "weight": 2,
+          "statType": "Armor"
+        }
+      ],
+      "actionBonuses": [],
+      "modifications": [],
+      "armorStatuses": [],
+      "bonusDamage": 0,
+      "bonusAttackSpeed": 0,
+      "tags": [],
+      "attributeRequirements": {},
+      "gearAction": "QUICK REFLEXES",
+      "isStarterItem": false
+    },
+    {
+      "name": "Precise Iron Dagger of Destruction of Immortality",
+      "type": 3,
+      "tier": 1,
+      "level": 1,
+      "comboBonus": 0,
+      "rarity": "Uncommon",
+      "statBonuses": [
+        {
+          "name": "of Destruction",
+          "description": "\u002B10 base damage",
+          "value": 10,
+          "weight": 4,
+          "statType": "Damage"
+        },
+        {
+          "name": "of Immortality",
+          "description": "\u002B50 maximum health",
+          "value": 50,
+          "weight": 2,
+          "statType": "Health"
+        }
+      ],
+      "actionBonuses": [
+        {
+          "name": "STAB",
+          "description": "",
+          "weight": 1
+        }
+      ],
+      "modifications": [
+        {
+          "diceResult": 7,
+          "itemRank": "Uncommon",
+          "name": "Precise",
+          "description": "\u002B2 to attack rolls",
+          "effect": "rollBonus",
+          "minValue": 2,
+          "maxValue": 2,
+          "rolledValue": 2,
+          "statusEffects": []
+        }
+      ],
+      "armorStatuses": [],
+      "bonusDamage": 0,
+      "bonusAttackSpeed": 0,
+      "tags": [],
+      "attributeRequirements": {},
+      "gearAction": null,
+      "isStarterItem": false
+    }
+  ],
+  "head": {
+    "name": "Leather Helmet",
+    "type": 0,
+    "tier": 1,
+    "level": 1,
+    "comboBonus": 0,
+    "rarity": "Common",
+    "statBonuses": [],
+    "actionBonuses": [],
+    "modifications": [],
+    "armorStatuses": [],
+    "bonusDamage": 0,
+    "bonusAttackSpeed": 0,
+    "tags": [],
+    "attributeRequirements": {},
+    "gearAction": null,
+    "isStarterItem": false
+  },
+  "body": {
+    "name": "Leather Armor",
+    "type": 2,
+    "tier": 1,
+    "level": 1,
+    "comboBonus": 0,
+    "rarity": "Common",
+    "statBonuses": [],
+    "actionBonuses": [],
+    "modifications": [],
+    "armorStatuses": [],
+    "bonusDamage": 0,
+    "bonusAttackSpeed": 0,
+    "tags": [],
+    "attributeRequirements": {},
+    "gearAction": null,
+    "isStarterItem": false
+  },
+  "weapon": {
+    "name": "Mace",
+    "type": 3,
+    "tier": 1,
+    "level": 1,
+    "comboBonus": 0,
+    "rarity": "Common",
+    "statBonuses": [],
+    "actionBonuses": [],
+    "modifications": [],
+    "armorStatuses": [],
+    "bonusDamage": 0,
+    "bonusAttackSpeed": 0,
+    "tags": [],
+    "attributeRequirements": {},
+    "gearAction": "MOMENTUM",
+    "isStarterItem": false
+  },
+  "feet": {
+    "name": "Leather Boots",
+    "type": 1,
+    "tier": 1,
+    "level": 1,
+    "comboBonus": 0,
+    "rarity": "Common",
+    "statBonuses": [],
+    "actionBonuses": [],
+    "modifications": [],
+    "armorStatuses": [],
+    "bonusDamage": 0,
+    "bonusAttackSpeed": 0,
+    "tags": [],
+    "attributeRequirements": {},
+    "gearAction": null,
+    "isStarterItem": false
+  }
+}

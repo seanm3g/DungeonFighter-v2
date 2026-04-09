@@ -91,7 +91,7 @@ namespace RPGGame
                 {
                     new StartingWeapon { name = "Mace", damage = 7.5, attackSpeed = 0.8 },
                     new StartingWeapon { name = "Sword", damage = 6.0, attackSpeed = 1.0 },
-                    new StartingWeapon { name = "Dagger", damage = 4.3, attackSpeed = 1.4 },
+                    new StartingWeapon { name = "Dagger", damage = 4.3, attackSpeed = 1.2 },
                     new StartingWeapon { name = "Wand", damage = 5.5, attackSpeed = 1.1 }
                 };
             }

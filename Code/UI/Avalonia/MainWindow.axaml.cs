@@ -239,18 +239,22 @@ namespace RPGGame.UI.Avalonia
         /// </summary>
         public void HideSettingsPanel()
         {
-            Dispatcher.UIThread.Post(() =>
+            void DoHide()
             {
                 if (SettingsPanelOverlay != null)
                 {
                     SettingsPanelOverlay.IsVisible = false;
-                    
+
                     // Restore canvas rendering when hiding settings
-                    if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI) {
+                    if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
                         canvasUI.RestoreDisplayBufferRendering();
-                    }
                 }
-            });
+            }
+
+            if (Dispatcher.UIThread.CheckAccess())
+                DoHide();
+            else
+                Dispatcher.UIThread.Post(DoHide);
         }
     }
 }

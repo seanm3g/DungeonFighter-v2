@@ -36,6 +36,9 @@ namespace RPGGame
         // Session statistics tracking
         public SessionStatistics SessionStats { get; private set; }
 
+        /// <summary>Action Interaction Lab only: added to <see cref="GetTotalArmor"/> for sandbox tuning (default 0).</summary>
+        public int ActionLabArmorBonus { get; set; }
+
         // Health properties (delegated to Health manager)
         public int CurrentHealth 
         { 
@@ -331,7 +334,7 @@ namespace RPGGame
         public int GetMagicFind() => Facade.GetMagicFind();
         public double GetEquipmentAttackSpeedBonus() => Facade.GetEquipmentAttackSpeedBonus();
         public int GetEquipmentHealthRegenBonus() => Facade.GetEquipmentHealthRegenBonus();
-        public int GetTotalArmor() => Facade.GetTotalArmor();
+        public int GetTotalArmor() => Facade.GetTotalArmor() + ActionLabArmorBonus;
         public int GetTotalRerollCharges() => Facade.GetTotalRerollCharges();
         public int GetModificationMagicFind() => Facade.GetModificationMagicFind();
         public int GetModificationRollBonus() => Facade.GetModificationRollBonus();

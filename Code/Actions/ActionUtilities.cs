@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Media;
+using RPGGame.ActionInteractionLab;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
@@ -69,10 +70,44 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// True if the combo uses opener/finisher (or similar) roles so amplification tiers are per-slot, not raw sequence index.
+        /// </summary>
+        private static bool ComboSequenceDefinesSlotRoles(List<Action> comboActions)
+        {
+            foreach (var a in comboActions)
+            {
+                if (a.ComboRouting.IsOpener || a.ComboRouting.IsFinisher)
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Exponent for combo amplification: <c>Math.Pow(GetComboAmplifier(), exponent)</c>.
+        /// When the sequence defines opener/finisher roles: opener = 0 (1.0×), middle = 1, finisher = 2.
+        /// Otherwise uses legacy positional scaling from <see cref="Actor.ComboStep"/>.
+        /// </summary>
+        public static int GetComboAmplificationExponent(Actor source, Action action, List<Action> comboActions)
+        {
+            if (comboActions.Count == 0 || !action.IsComboAction)
+                return 0;
+
+            // Enemy derives from Character; use Character for ComboStep on both heroes and enemies.
+            int stepMod = source is Character ch ? ch.ComboStep % comboActions.Count : 0;
+
+            if (!ComboSequenceDefinesSlotRoles(comboActions))
+                return stepMod;
+
+            if (action.ComboRouting.IsFinisher)
+                return 2;
+            if (action.ComboRouting.IsOpener && !action.ComboRouting.IsFinisher)
+                return 0;
+            return 1;
+        }
+
+        /// <summary>
         /// Calculates damage multiplier based on entity type and action
-        /// Uses amplification based on the step the action is executing at
-        /// ComboStep represents which action in the sequence we're executing (0-indexed)
-        /// Step 0 = 1st action (1.0x), Step 1 = 2nd action (baseAmp^1), Step 2 = 3rd action (baseAmp^2), etc.
+        /// Uses amplification based on combo slot roles when opener/finisher are set; otherwise by sequence step.
         /// </summary>
         /// <param name="source">The entity performing the action</param>
         /// <param name="action">The action being performed</param>
@@ -85,13 +120,20 @@ namespace RPGGame
                 if (action.IsComboAction)
                 {
                     var comboActions = character.GetComboActions();
+                    // Action lab: the strip is configured on the lab clone; lab enemies often have no combo sequence.
+                    // Use the player's sequence so forced catalog actions still get step-based amplification.
+                    if (comboActions.Count == 0
+                        && character is Enemy
+                        && ActionInteractionLabSession.Current is { } labSession
+                        && ReferenceEquals(character, labSession.LabEnemy))
+                    {
+                        comboActions = labSession.LabPlayer.GetComboActions();
+                    }
                     if (comboActions.Count > 0)
                     {
-                        int currentStep = character.ComboStep % comboActions.Count;
                         double baseAmp = character.GetComboAmplifier();
-                        // Step 0 adds no bonus (1.0x), bonus starts at Step 1+
-                        // This ensures each sequential action gets progressively higher amplification
-                        return Math.Pow(baseAmp, currentStep);
+                        int exponent = GetComboAmplificationExponent(source, action, comboActions);
+                        return Math.Pow(baseAmp, exponent);
                     }
                 }
             }
@@ -103,10 +145,9 @@ namespace RPGGame
                     var comboActions = enemy.GetComboActions();
                     if (comboActions.Count > 0)
                     {
-                        int currentStep = enemy.ComboStep % comboActions.Count;
                         double baseAmp = enemy.GetComboAmplifier();
-                        // Step 0 adds no bonus (1.0x), bonus starts at Step 1+
-                        return Math.Pow(baseAmp, currentStep);
+                        int exponent = GetComboAmplificationExponent(source, action, comboActions);
+                        return Math.Pow(baseAmp, exponent);
                     }
                 }
             }

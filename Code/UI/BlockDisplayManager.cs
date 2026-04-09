@@ -81,6 +81,9 @@ namespace RPGGame
                 {
                     return;
                 }
+
+                if (CombatManager.DisableCombatUIOutput)
+                    return;
                 
                 // Extract entity name from ColoredText for tracking
                 string? currentEntity = null;
@@ -155,6 +158,9 @@ namespace RPGGame
                 {
                     return;
                 }
+
+                if (CombatManager.DisableCombatUIOutput)
+                    return;
                 
                 // Extract entity name from ColoredText for tracking
                 string? currentEntity = null;

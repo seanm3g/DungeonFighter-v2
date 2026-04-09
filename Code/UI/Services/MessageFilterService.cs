@@ -63,6 +63,11 @@ namespace RPGGame.UI.Services
             var currentState = stateManager.CurrentState;
             bool isMenuState = MenuStates.Contains(currentState);
 
+            // Action Interaction Lab: center buffer uses the same filter with sourceCharacter=null (context-only).
+            // Allow all combat output here; the clone is never the registry active character, so finer checks hid the log.
+            if (currentState == GameState.ActionInteractionLab)
+                return true;
+
             // Special case: Allow System messages in Testing and Settings states (for test output display)
             // Settings state is used when running tests from the Settings panel
             if ((currentState == GameState.Testing || currentState == GameState.Settings) && messageType == UIMessageType.System)

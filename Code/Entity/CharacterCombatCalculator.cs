@@ -24,24 +24,7 @@ namespace RPGGame
         public double GetComboAmplifier()
         {
             var tuning = GameConfiguration.Instance;
-
-            // Clamp Technique to valid range
-            int clampedTech = Math.Max(1, Math.Min(tuning.ComboSystem.ComboAmplifierMaxTech, character.Technique));
-
-            // Linear scaling from 1.01 at Technique 1 to ComboAmplifierAtTech5 at Technique 5
-            if (clampedTech <= 5)
-            {
-                double lowTechProgress = (clampedTech - 1) / 4.0; // Scale from 1 to 5 (4 point range)
-                double baseAmplifier = 1.01; // Start at 1.01x for Technique 1
-                double lowAmpRange = tuning.ComboSystem.ComboAmplifierAtTech5 - baseAmplifier;
-                return baseAmplifier + (lowAmpRange * lowTechProgress);
-            }
-
-            // Linear interpolation between ComboAmplifierAtTech5 and ComboAmplifierMax for Technique > 5
-            double techRange = tuning.ComboSystem.ComboAmplifierMaxTech - 5;
-            double highAmpRange = tuning.ComboSystem.ComboAmplifierMax - tuning.ComboSystem.ComboAmplifierAtTech5;
-            double highTechProgress = (clampedTech - 5) / techRange;
-            return tuning.ComboSystem.ComboAmplifierAtTech5 + (highAmpRange * highTechProgress);
+            return ComboAmplifierFromTechnique.Compute(character.Technique, tuning.ComboSystem);
         }
 
         /// <summary>
@@ -56,8 +39,8 @@ namespace RPGGame
 
             int currentStep = character.ComboStep % comboActions.Count;
             double baseAmp = GetComboAmplifier();
-            // Step 0 adds no bonus, bonus starts at Step 1+
-            int amplificationStep = currentStep;
+            var currentAction = comboActions[currentStep];
+            int amplificationStep = ActionUtilities.GetComboAmplificationExponent(character, currentAction, comboActions);
             return Math.Pow(baseAmp, amplificationStep);
         }
 
@@ -74,10 +57,9 @@ namespace RPGGame
 
             int currentStep = character.ComboStep % comboActions.Count;
             double baseAmp = GetComboAmplifier();
-            // Show what amplification will be applied when the combo executes
-            // Step 0 adds no bonus, bonus starts at Step 1+
             int nextStep = (currentStep + 1) % comboActions.Count;
-            int amplificationStep = nextStep;
+            var nextAction = comboActions[nextStep];
+            int amplificationStep = ActionUtilities.GetComboAmplificationExponent(character, nextAction, comboActions);
             return Math.Pow(baseAmp, amplificationStep);
         }
 
@@ -92,8 +74,9 @@ namespace RPGGame
 
             int currentStep = character.ComboStep % comboActions.Count;
             double baseAmp = GetComboAmplifier();
-            // Step 0 adds no bonus, bonus starts at Step 1+
-            double currentAmp = Math.Pow(baseAmp, currentStep);
+            var currentAction = comboActions[currentStep];
+            int ampStep = ActionUtilities.GetComboAmplificationExponent(character, currentAction, comboActions);
+            double currentAmp = Math.Pow(baseAmp, ampStep);
 
             return $"Amplification: {currentAmp:F2}x";
         }
@@ -218,10 +201,10 @@ namespace RPGGame
             double attackSpeed = GetTotalAttackSpeed();
             int armor = GetTotalArmor();
             int totalRollBonus = GetTotalRollBonus();
-            double nextAmplification = GetNextComboAmplification();
+            double ampBasePerStep = GetComboAmplifier();
             int magicFind = GetMagicFind();
 
-            string stats = $"Damage: {damage} (STR: {character.GetEffectiveStrength()} + Weapon: {weaponDamage} + Equipment: {equipmentDamageBonus} + Mods: {modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  Amplification: {nextAmplification:F2}x  Roll Bonus: +{totalRollBonus}  Armor: {armor}";
+            string stats = $"Damage: {damage} (STR: {character.GetEffectiveStrength()} + Weapon: {weaponDamage} + Equipment: {equipmentDamageBonus} + Mods: {modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  AMP (per step): {ampBasePerStep:F2}x  Roll Bonus: +{totalRollBonus}  Armor: {armor}";
             
             if (magicFind > 0)
             {

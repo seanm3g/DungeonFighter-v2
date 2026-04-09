@@ -63,27 +63,19 @@ namespace RPGGame
                 canvasUI.ShowLoadingStatus("Loading data...");
             }
             
-            // Check if we have a saved game - prefer in-memory player, but also check disk
+            // Load Game line must match what LoadGame() can actually load: only show name/level
+            // when at least one save exists on disk (ignore in-memory CurrentPlayer — e.g. new unsaved character).
             bool hasSavedGame = false;
             string? characterName = null;
             int characterLevel = 0;
-            
-            // First check if player is already loaded in memory
-            if (stateManager.CurrentPlayer != null)
+
+            var savedCharacters = CharacterSaveManager.ListAllSavedCharacters();
+            if (savedCharacters != null && savedCharacters.Count > 0 &&
+                !string.IsNullOrWhiteSpace(savedCharacters[0].characterName))
             {
                 hasSavedGame = true;
-                characterName = stateManager.CurrentPlayer.Name;
-                characterLevel = stateManager.CurrentPlayer.Level;
-            }
-            else
-            {
-                // Check if save file exists on disk
-                hasSavedGame = CharacterSaveManager.SaveFileExists();
-                if (hasSavedGame)
-                {
-                    // Get character info from save file without loading the full character
-                    (characterName, characterLevel) = CharacterSaveManager.GetSavedCharacterInfo();
-                }
+                characterName = savedCharacters[0].characterName;
+                characterLevel = savedCharacters[0].level;
             }
             
             // Use GameScreenCoordinator for standardized screen transition

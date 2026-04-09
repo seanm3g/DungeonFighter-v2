@@ -47,6 +47,9 @@ namespace RPGGame
                 case "stat:speed":
                     AppendSpeed(character, AddWrapped);
                     break;
+                case "stat:amp":
+                    AppendAmp(character, AddWrapped);
+                    break;
                 case "stat:armor":
                     AppendArmor(character, result, AddWrapped, maxLines);
                     break;
@@ -64,9 +67,6 @@ namespace RPGGame
                     break;
                 case "stat:magfind":
                     AppendMagFind(character, result, AddWrapped, maxLines);
-                    break;
-                case "stat:roll":
-                    AppendRoll(character, result, AddWrapped, maxLines);
                     break;
                 case "stat:hpregen":
                     AppendSimpleStat(character, "HP REGEN", $"+{character.GetEquipmentHealthRegenBonus()}/turn from equipment.", result, AddWrapped, maxLines);
@@ -209,9 +209,9 @@ namespace RPGGame
             var cfg = GameConfiguration.Instance;
             int cur = tm.GetCriticalHitThreshold(c);
             int def = cfg.Combat.CriticalHitThreshold > 0 ? cfg.Combat.CriticalHitThreshold : 20;
-            addWrapped("Critical hit threshold (d20 roll)");
+            addWrapped("Critical hit threshold (attack total)");
             addWrapped($"Current: {cur} (default {def}).");
-            addWrapped("On a natural attack roll, at or above this value on the die is treated as a critical hit (before other modifiers).");
+            addWrapped("Compared to your attack total minus INT, gear, and modification roll bonuses; temporary action bonuses still count.");
         }
 
         private static void AppendThresholdCombo(Character c, Action<string> addWrapped)
@@ -241,7 +241,7 @@ namespace RPGGame
             var tm = RollModificationManager.GetThresholdManager();
             int cur = tm.GetCriticalMissThreshold(c);
             addWrapped("Critical miss threshold");
-            addWrapped($"Current: {cur}. On a natural roll at or below this value, the attack can critically miss.");
+            addWrapped($"Current: {cur}. Uses the same attack total as crit (excluding INT, gear, and mod roll bonuses) when checking this band.");
         }
 
         private static void AppendStatusLine(Character c, string key, Action<string> addWrapped)
@@ -318,6 +318,16 @@ namespace RPGGame
             addWrapped($"Sanity check: reported final {final:F2}s.");
         }
 
+        private static void AppendAmp(Character c, Action<string> addWrapped)
+        {
+            double baseAmp = c.GetComboAmplifier();
+            addWrapped("AMP (combo growth)");
+            addWrapped($"Base multiplier per combo step: {baseAmp:F2}x (from TECH; matches panel).");
+            addWrapped("Damage on a given hit uses Pow(this base, that slot's combo exponent), so the total varies by position.");
+            if (c.GetComboActions().Count == 0)
+                addWrapped("No combo actions on the strip yet.");
+        }
+
         private static void AppendArmor(Character c, List<string> result, Action<string> addWrapped, int maxLines)
         {
             int total = c.GetTotalArmor();
@@ -372,24 +382,6 @@ namespace RPGGame
             addWrapped("Magic find");
             addWrapped($"Total: +{v}");
             addWrapped("Sum of MagicFind stat bonuses on equipment plus modification magicFind effects.");
-        }
-
-        private static void AppendRoll(Character c, List<string> result, Action<string> addWrapped, int maxLines)
-        {
-            var tuning = GameConfiguration.Instance;
-            int per = tuning.Attributes.IntelligenceRollBonusPer;
-            int intBonus = c.GetIntelligenceRollBonus();
-            int eq = c.GetEquipmentRollBonus();
-            int mod = c.GetModificationRollBonus();
-            int total = intBonus + eq + mod;
-
-            addWrapped("Roll bonus");
-            addWrapped($"Total: +{total}");
-            if (per > 0)
-                addWrapped($"INT contribution: {c.Intelligence} / {per} (IntelligenceRollBonusPer) = +{intBonus}.");
-            else
-                addWrapped("INT contribution: 0 (IntelligenceRollBonusPer not configured or zero).");
-            addWrapped($"Equipment roll bonus: +{eq}. Modification roll bonus: +{mod}.");
         }
 
         private static void AppendSimpleStat(Character c, string title, string detail, List<string> result, Action<string> addWrapped, int maxLines)

@@ -1,4 +1,5 @@
 using RPGGame;
+using RPGGame.ActionInteractionLab;
 
 namespace RPGGame.UI.Avalonia.Display
 {
@@ -52,6 +53,13 @@ namespace RPGGame.UI.Avalonia.Display
             if (character == null || stateManager == null)
                 return false;
 
+            if (stateManager.CurrentState == GameState.ActionInteractionLab)
+            {
+                var lab = ActionInteractionLabSession.Current;
+                if (lab != null && ReferenceEquals(character, lab.LabPlayer))
+                    return true;
+            }
+
             var activeCharacter = stateManager.GetActiveCharacter();
             if (ReferenceEquals(character, activeCharacter))
                 return true;
@@ -70,7 +78,7 @@ namespace RPGGame.UI.Avalonia.Display
             if (state == null)
                 return new StandardDisplayMode();
             
-            if (state == GameState.Combat)
+            if (state == GameState.Combat || state == GameState.ActionInteractionLab)
                 return new CombatDisplayMode();
             
             if (IsMenuState(state))

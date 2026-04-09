@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using RPGGame.Tests;
 using RPGGame.Actions.Execution;
@@ -6,8 +7,9 @@ using RPGGame.Actions.Execution;
 namespace RPGGame.Tests.Unit
 {
     /// <summary>
-    /// Tests for action execution flow
-    /// Tests action selection, execution flow, cooldown management, and roll generation
+    /// Tests for action execution flow (selection, rolls, modifiers).
+    /// Deep integration coverage for <see cref="ActionExecutionFlow.Execute"/> also lives in
+    /// <c>ActionBonusMechanicsTests</c>, combo dice tests, and combo execution tests.
     /// </summary>
     public static class ActionExecutionFlowTests
     {
@@ -30,6 +32,7 @@ namespace RPGGame.Tests.Unit
             TestForcedActionExecution();
             TestActionRollGeneration();
             TestActionRollModifications();
+            TestExecute_ReturnsResultWithoutThrowing();
 
             TestBase.PrintSummary("Action Execution Flow Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -182,6 +185,28 @@ namespace RPGGame.Tests.Unit
             
             TestBase.AssertTrue(modifiedRoll >= 1, 
                 $"Modified roll should be valid, got {modifiedRoll}", 
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Smoke test: full execute pipeline runs with default test entities (requires GameConfiguration).
+        /// </summary>
+        private static void TestExecute_ReturnsResultWithoutThrowing()
+        {
+            Console.WriteLine("\n--- ActionExecutionFlow.Execute smoke ---");
+
+            _ = GameConfiguration.Instance;
+
+            var character = TestDataBuilders.Character().WithName("FlowHero").Build();
+            var enemy = TestDataBuilders.Enemy().WithName("FlowEnemy").Build();
+            var lastUsed = new Dictionary<Actor, Action>();
+            var lastCritMiss = new Dictionary<Actor, bool>();
+
+            ActionExecutionResult result = ActionExecutionFlow.Execute(
+                character, enemy, null, null, null, null, lastUsed, lastCritMiss);
+
+            TestBase.AssertNotNull(result,
+                "Execute should return ActionExecutionResult",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

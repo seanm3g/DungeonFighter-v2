@@ -123,6 +123,19 @@ namespace RPGGame.UI.Avalonia.Layout
         public static int TITLE_Y => ScaleHeight(BASE_TITLE_Y);
 
         /// <summary>
+        /// True when <paramref name="gridX"/>, <paramref name="gridY"/> lies inside the framed combat-log
+        /// center panel (below the action-info strip, cyan border). Used to drop peripheral hover chrome.
+        /// </summary>
+        public static bool ContainsCenterPanelContent(int gridX, int gridY)
+        {
+            int x = CENTER_PANEL_X;
+            int y = CENTER_PANEL_Y;
+            int w = CENTER_PANEL_WIDTH;
+            int h = CENTER_PANEL_HEIGHT;
+            return gridX >= x && gridX < x + w && gridY >= y && gridY < y + h;
+        }
+
+        /// <summary>
         /// Full usable content area when the three-panel chrome (left / center frame / right) is hidden.
         /// Spans full grid height including the row band normally reserved for the action-info strip.
         /// </summary>

@@ -203,9 +203,10 @@ namespace RPGGame.Editors
             // Combo System
             var comboVars = new List<EditableVariable>
             {
-                new EditableVariable("ComboSystem.ComboAmplifierAtTech5", () => config.ComboSystem.ComboAmplifierAtTech5, v => config.ComboSystem.ComboAmplifierAtTech5 = Convert.ToDouble(v), "Combo amplifier at technique 5"),
+                new EditableVariable("ComboSystem.ComboAmplifierAtTech5", () => config.ComboSystem.ComboAmplifierAtTech5, v => config.ComboSystem.ComboAmplifierAtTech5 = Convert.ToDouble(v), "Legacy; curve uses flat 1.0 amp below technique 5"),
                 new EditableVariable("ComboSystem.ComboAmplifierMax", () => config.ComboSystem.ComboAmplifierMax, v => config.ComboSystem.ComboAmplifierMax = Convert.ToDouble(v), "Maximum combo amplifier"),
                 new EditableVariable("ComboSystem.ComboAmplifierMaxTech", () => config.ComboSystem.ComboAmplifierMaxTech, v => config.ComboSystem.ComboAmplifierMaxTech = Convert.ToInt32(v), "Technique for max combo amplifier"),
+                new EditableVariable("ComboSystem.ComboAmplifierCurveExponent", () => config.ComboSystem.ComboAmplifierCurveExponent, v => config.ComboSystem.ComboAmplifierCurveExponent = Convert.ToDouble(v), "Technique→amp curve exponent (>1 = low amp until high TECH); 0 uses default 2.5"),
             };
             variablesByCategory["Combo"] = comboVars;
 

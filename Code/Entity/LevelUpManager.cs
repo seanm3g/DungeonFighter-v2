@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RPGGame.Combat.Calculators;
+using RPGGame.UI.ColorSystem.Applications;
 
 namespace RPGGame
 {
@@ -243,11 +244,11 @@ namespace RPGGame
         private void DisplayLevelUpInfo(LevelUpInfo levelUpInfo)
         {
             if (!levelUpInfo.IsValid) return;
-            
-            var messages = levelUpInfo.GetDisplayMessages();
-            foreach (var message in messages)
+
+            UIManager.WriteBlankLine();
+            foreach (var line in LevelUpDisplayColoredText.BuildDisplayLines(levelUpInfo))
             {
-                UIManager.WriteLine(message);
+                UIManager.WriteLineColoredSegments(line);
             }
             UIManager.WriteBlankLine();
         }

@@ -1,4 +1,3 @@
-using Avalonia.Media;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.ColorSystem.Applications;
@@ -150,18 +149,16 @@ namespace RPGGame.UI.Avalonia.Renderers
                 {
                     if (currentY <= bodyMaxY)
                     {
-                        canvas.AddText(x + 2, currentY, AsciiArtAssets.UIText.CreateHeader("LEVEL UP"), AsciiArtAssets.Colors.Gold);
                         currentY++;
                         currentLineCount++;
                     }
                     foreach (var levelUpInfo in levelUpInfos)
                     {
                         if (!levelUpInfo.IsValid) continue;
-                        var messages = levelUpInfo.GetDisplayMessages();
-                        foreach (var message in messages)
+                        foreach (var line in LevelUpDisplayColoredText.BuildDisplayLines(levelUpInfo))
                         {
                             if (currentY > bodyMaxY) break;
-                            int m = WriteLevelUpMessageWrapped(message, x + 4, currentY, fullWidth - 2);
+                            int m = textWriter.WriteLineColoredWrapped(line, x + 4, currentY, fullWidth - 2);
                             currentY += m;
                             currentLineCount += m;
                         }
@@ -345,7 +342,6 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 if (y <= bodyMaxY)
                 {
-                    canvas.AddText(rightX, y, AsciiArtAssets.UIText.CreateHeader("LEVEL UP"), AsciiArtAssets.Colors.Gold);
                     y++;
                     currentLineCount++;
                 }
@@ -353,11 +349,10 @@ namespace RPGGame.UI.Avalonia.Renderers
                 foreach (var levelUpInfo in levelUpInfos)
                 {
                     if (!levelUpInfo.IsValid) continue;
-                    var messages = levelUpInfo.GetDisplayMessages();
-                    foreach (var message in messages)
+                    foreach (var line in LevelUpDisplayColoredText.BuildDisplayLines(levelUpInfo))
                     {
                         if (y > bodyMaxY) break;
-                        int m = WriteLevelUpMessageWrapped(message, rightX, y, rightColW);
+                        int m = textWriter.WriteLineColoredWrapped(line, rightX, y, rightColW);
                         y += m;
                         currentLineCount += m;
                     }
@@ -370,16 +365,6 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
 
             return y;
-        }
-
-        /// <summary>Gold for emphasis lines (matches prior dungeon completion behavior).</summary>
-        private int WriteLevelUpMessageWrapped(string message, int atX, int atY, int maxWidth)
-        {
-            Color lineColor = message.Contains("LEVEL UP") || message.Contains("level")
-                ? AsciiArtAssets.Colors.Gold
-                : AsciiArtAssets.Colors.White;
-            var seg = new List<ColoredText> { new ColoredText(message, lineColor) };
-            return textWriter.WriteLineColoredWrapped(seg, atX, atY, maxWidth);
         }
     }
 }

@@ -2,7 +2,7 @@
   "weapons": [
     { "name": "Mace", "damage": 7.5, "attackSpeed": 0.8 },
     { "name": "Sword", "damage": 6.25, "attackSpeed": 1.0 },
-    { "name": "Dagger", "damage": 3.75, "attackSpeed": 1.4 },
+    { "name": "Dagger", "damage": 3.75, "attackSpeed": 1.2 },
     { "name": "Wand", "damage": 5.0, "attackSpeed": 1.1 }
   ],
   "armor": [

@@ -33,6 +33,11 @@ namespace RPGGame.Tests.Unit.UI
                 "STR tooltip shows effective",
                 ref run, ref passed, ref failed);
 
+            var ampLines = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "stat:amp", 50, 12);
+            TestBase.AssertTrue(ampLines.Any(l => l.Contains("per combo step", StringComparison.OrdinalIgnoreCase)),
+                "AMP tooltip describes per-step base multiplier",
+                ref run, ref passed, ref failed);
+
             var gearEmpty = LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "gear:weapon", 40, 8);
             TestBase.AssertTrue(gearEmpty.Any(l => l.Contains("No item", StringComparison.OrdinalIgnoreCase)),
                 "empty weapon slot",

@@ -160,7 +160,7 @@ namespace RPGGame
             {
                 "sword" => 1.0,    // Balanced speed
                 "mace" => 0.8,     // Slower, heavier weapon
-                "dagger" => 1.4,   // Fast, light weapon
+                "dagger" => 1.2,   // Fast, light weapon (max default speed band)
                 "wand" => 1.1,     // Slightly faster than sword
                 _ => 1.0           // Default fallback
             };

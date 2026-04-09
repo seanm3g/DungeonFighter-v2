@@ -71,5 +71,23 @@ namespace RPGGame.UI.Avalonia.Layout
             int gh = gy2 - gy + 1;
             return (gx, gy, gw, gh);
         }
+
+        /// <summary>
+        /// Clears hover overlay text/boxes in the framed center panel inner band (same region as
+        /// <see cref="DrawFramedPanel"/>). Call when no tooltip should be shown so prior hover art does not persist.
+        /// </summary>
+        public static void ClearInnerCenterPanelTooltipOverlay(GameCanvasControl canvas)
+        {
+            int innerLeft = LayoutConstants.CENTER_PANEL_X + 1;
+            int innerTop = LayoutConstants.CENTER_PANEL_Y + 1;
+            int innerRightInclusive = LayoutConstants.CENTER_PANEL_X + LayoutConstants.CENTER_PANEL_WIDTH - 2;
+            int maxBottomInclusive = LayoutConstants.CENTER_PANEL_Y + LayoutConstants.CENTER_PANEL_HEIGHT - 2;
+            int innerFullW = innerRightInclusive - innerLeft + 1;
+            int innerFullH = maxBottomInclusive - innerTop + 1;
+            if (innerFullW <= 0 || innerFullH <= 0)
+                return;
+            canvas.ClearOverlayTextInArea(innerLeft, innerTop, innerFullW, innerFullH);
+            canvas.ClearOverlayBoxesInArea(innerLeft, innerTop, innerFullW, innerFullH);
+        }
     }
 }

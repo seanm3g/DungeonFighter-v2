@@ -12,6 +12,7 @@ namespace RPGGame.UI.Avalonia.Managers
         
         ClickableElement? GetElementAt(int x, int y);
         bool SetHoverPosition(int x, int y);
+        void ClearHoverStates();
         void ClearClickableElements();
         void AddClickableElement(ClickableElement element);
         ClickableElement CreateMenuOption(int x, int y, int width, string value, string displayText);

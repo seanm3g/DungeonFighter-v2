@@ -111,10 +111,9 @@ namespace RPGGame
             UIManager.WriteMenuLine($"Health: {player.CurrentHealth}/{player.GetEffectiveMaxHealth()}  Strength: {player.GetEffectiveStrength()}  Agility: {player.GetEffectiveAgility()}  Technique: {player.GetEffectiveTechnique()}  Intelligence: {player.GetEffectiveIntelligence()}");
             int totalRollBonus = player.GetIntelligenceRollBonus() + player.GetModificationRollBonus() + player.GetEquipmentRollBonus();
             double secondsPerAttack = attackSpeed;
-            // Get next amplification (what will be applied when combo executes)
-            double nextAmplification = player.GetNextComboAmplification();
+            double ampBasePerStep = player.GetComboAmplifier();
             int magicFind = player.GetMagicFind();
-            UIManager.WriteMenuLine($"Damage: {damage} (Strength: {player.GetEffectiveStrength()} + Weapon: {weaponDamage} + Equipment: {equipmentDamageBonus} + Mods: {modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  Amplification: {nextAmplification:F2}x  Roll Bonus: +{totalRollBonus}  Armor: {armor}");
+            UIManager.WriteMenuLine($"Damage: {damage} (Strength: {player.GetEffectiveStrength()} + Weapon: {weaponDamage} + Equipment: {equipmentDamageBonus} + Mods: {modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  AMP (per step): {ampBasePerStep:F2}x  Roll Bonus: +{totalRollBonus}  Armor: {armor}");
             if (magicFind > 0)
             {
                 UIManager.WriteMenuLine($"Magic Find: +{magicFind} (improves rare item drop chances)");

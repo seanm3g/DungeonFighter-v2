@@ -20,7 +20,7 @@ namespace RPGGame.UI.Avalonia.Handlers
         /// <param name="currentEnemy">Unused; pass null.</param>
         public static bool AllowsReorder(GameState state, Enemy? currentEnemy)
         {
-            if (state == GameState.Combat)
+            if (state == GameState.Combat || state == GameState.ActionInteractionLab)
                 return false;
             // Persistent chrome with combo strip: hub, character view, inventory, dungeon exploration, post-run summary.
             if (state == GameState.GameLoop

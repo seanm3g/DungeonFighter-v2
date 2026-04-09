@@ -1,9 +1,11 @@
 using System;
 using Avalonia.Threading;
 using RPGGame;
+using RPGGame.ActionInteractionLab;
 using RPGGame.UI.Avalonia;
 using RPGGame.UI.Avalonia.Display;
 using RPGGame.UI.Avalonia.Display.Helpers;
+using RPGGame.UI.Avalonia.Display.Mode;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Renderers;
 
@@ -22,7 +24,7 @@ namespace RPGGame.UI.Avalonia.Display.Render
         private readonly RenderStateManager renderStateManager;
         private readonly ICanvasContextManager contextManager;
         private readonly DisplayBuffer buffer;
-        private readonly DisplayMode currentMode;
+        private readonly DisplayModeManager modeManager;
         private GameStateManager? stateManager;
         
         // Render guard to prevent concurrent renders; coalesce extra PerformRender calls while a paint is in flight
@@ -42,7 +44,7 @@ namespace RPGGame.UI.Avalonia.Display.Render
             RenderStateManager renderStateManager,
             ICanvasContextManager contextManager,
             DisplayBuffer buffer,
-            DisplayMode currentMode,
+            DisplayModeManager modeManager,
             GameStateManager? stateManager = null)
         {
             this.canvas = canvas ?? throw new ArgumentNullException(nameof(canvas));
@@ -52,7 +54,7 @@ namespace RPGGame.UI.Avalonia.Display.Render
             this.renderStateManager = renderStateManager ?? throw new ArgumentNullException(nameof(renderStateManager));
             this.contextManager = contextManager ?? throw new ArgumentNullException(nameof(contextManager));
             this.buffer = buffer ?? throw new ArgumentNullException(nameof(buffer));
-            this.currentMode = currentMode ?? throw new ArgumentNullException(nameof(currentMode));
+            this.modeManager = modeManager ?? throw new ArgumentNullException(nameof(modeManager));
             this.stateManager = stateManager;
         }
         
@@ -110,7 +112,8 @@ namespace RPGGame.UI.Avalonia.Display.Render
 
             // If we're in combat mode but external callback is null, that means combat rendering was blocked
             // (character is inactive). Don't render the buffer to prevent showing background combat.
-            if (currentMode is CombatDisplayMode && externalRenderCallback == null)
+            // Use live mode from modeManager — the initial DisplayMode snapshot was never updated after SetMode(Combat).
+            if (modeManager.CurrentMode is CombatDisplayMode && externalRenderCallback == null)
             {
                 ReleaseRenderingAndProcessPending();
                 return;
@@ -141,7 +144,7 @@ namespace RPGGame.UI.Avalonia.Display.Render
                 try
                 {
                     // Resolve layout inputs on the UI thread so action strip uses the same character/context as the live buffer
-                    if (currentMode is CombatDisplayMode && externalRenderCallback == null)
+                    if (modeManager.CurrentMode is CombatDisplayMode && externalRenderCallback == null)
                         return;
 
                     var paintState = stateManager?.CurrentState;
@@ -158,13 +161,35 @@ namespace RPGGame.UI.Avalonia.Display.Render
                     if (!force && !state.NeedsRender)
                         return;
 
-                    bool shouldClearCanvas = renderStateManager.ShouldClearCanvas(state, currentMode);
+                    bool shouldClearCanvas = renderStateManager.ShouldClearCanvas(state, modeManager.CurrentMode);
 
-                    Enemy? enemyToRender = state.CurrentEnemy;
+                    Enemy? enemyToRender;
+                    Character? layoutCharacter;
+                    string title;
 
-                    Character? layoutCharacter = ResolveLayoutCharacter(state, stateManager);
+                    if (paintState == GameState.ActionInteractionLab)
+                    {
+                        var lab = ActionInteractionLabSession.Current;
+                        if (lab != null)
+                        {
+                            layoutCharacter = lab.LabPlayer;
+                            enemyToRender = lab.LabEnemy;
+                            title = "COMBAT";
+                        }
+                        else
+                        {
+                            enemyToRender = state.CurrentEnemy;
+                            layoutCharacter = ResolveLayoutCharacter(state, stateManager);
+                            title = TitleResolver.DetermineTitle(layoutCharacter, enemyToRender);
+                        }
+                    }
+                    else
+                    {
+                        enemyToRender = state.CurrentEnemy;
+                        layoutCharacter = ResolveLayoutCharacter(state, stateManager);
+                        title = TitleResolver.DetermineTitle(layoutCharacter, enemyToRender);
+                    }
 
-                    string title = TitleResolver.DetermineTitle(layoutCharacter, enemyToRender);
                     layoutManager.RenderLayout(
                         layoutCharacter,
                         (x, y, w, h) => { renderer.Render(buffer, x, y, w, h); },

@@ -87,9 +87,48 @@ namespace RPGGame
     /// </summary>
     public class ComboSystemConfig
     {
+        /// <summary>Legacy tuning field; amplifier curve uses flat 1.0 below <see cref="ComboAmplifierFromTechnique.FlatAmpBelowTech"/> then a power curve.</summary>
         public double ComboAmplifierAtTech5 { get; set; }
+
         public double ComboAmplifierMax { get; set; }
+
+        /// <summary>Technique at which <see cref="ComboAmplifierMax"/> is reached (e.g. 100 for 2.0x amp).</summary>
         public int ComboAmplifierMaxTech { get; set; }
+
+        /// <summary>
+        /// Exponent for technique→amp curve above the flat region. &gt;1 keeps amp low until high TECH; default 2.5 when unset or ≤0.
+        /// </summary>
+        public double ComboAmplifierCurveExponent { get; set; }
+    }
+
+    /// <summary>
+    /// Maps Technique to base combo amplifier: 1.0 below a threshold, then <c>1 + (max-1) * t^exponent</c> from threshold to max tech.
+    /// </summary>
+    public static class ComboAmplifierFromTechnique
+    {
+        /// <summary>Technique strictly below this value yields amplifier 1.0.</summary>
+        public const int FlatAmpBelowTech = 5;
+
+        public static double Compute(int technique, ComboSystemConfig combo)
+        {
+            double maxAmp = combo.ComboAmplifierMax;
+            int maxTech = combo.ComboAmplifierMaxTech;
+            int clamped = Math.Max(0, Math.Min(maxTech, technique));
+
+            if (clamped < FlatAmpBelowTech)
+                return 1.0;
+
+            if (maxTech <= FlatAmpBelowTech)
+                return maxAmp;
+
+            double exponent = combo.ComboAmplifierCurveExponent > 0
+                ? combo.ComboAmplifierCurveExponent
+                : 2.5;
+
+            double span = maxTech - FlatAmpBelowTech;
+            double t = (clamped - FlatAmpBelowTech) / span;
+            return 1.0 + (maxAmp - 1.0) * Math.Pow(t, exponent);
+        }
     }
 
     /// <summary>
