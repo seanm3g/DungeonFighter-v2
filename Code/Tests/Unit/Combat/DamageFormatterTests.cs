@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Avalonia.Media;
 using RPGGame.Combat.Formatting;
 using RPGGame.Tests;
@@ -196,6 +197,25 @@ namespace RPGGame.Tests.Unit.Combat
 
             TestBase.AssertTrue(result.Count > 0,
                 "AddAmpInfo should add text to builder",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string text2_5 = string.Concat(result.Select(s => s.Text));
+            TestBase.AssertTrue(text2_5.Contains("2.50x"),
+                "AddAmpInfo should format multiplier with two decimals (2.50x)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var builderSmall = new ColoredTextBuilder();
+            DamageFormatter.AddAmpInfo(builderSmall, 1.02);
+            var smallAmp = string.Concat(builderSmall.Build().Select(s => s.Text));
+            TestBase.AssertTrue(smallAmp.Contains("1.02x"),
+                "AddAmpInfo should not round small combo amps to 1.0x (expect 1.02x)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var builderUnity = new ColoredTextBuilder();
+            DamageFormatter.AddAmpInfo(builderUnity, 1.0);
+            var unity = string.Concat(builderUnity.Build().Select(s => s.Text));
+            TestBase.AssertTrue(unity.Contains("1.00x"),
+                "AddAmpInfo should format unity multiplier as 1.00x",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

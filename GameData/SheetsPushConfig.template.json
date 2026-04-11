@@ -1,0 +1,7 @@
+{
+  "spreadsheetId": "YOUR_SPREADSHEET_ID_FROM_THE_EDIT_URL",
+  "actionsSheetTabName": "Sheet1",
+  "oauthClientSecretsPath": "secrets/client_secret_desktop.json",
+  "oauthTokenStorePath": "SheetsOAuthToken",
+  "previewRowCount": 5
+}

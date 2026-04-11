@@ -35,7 +35,6 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
         {
             if (panel is not TestingSettingsPanel testingPanel || canvasUI == null) return;
 
-            // Create TextBox-based test runner for the settings panel
             var outputTextBox = testingPanel.FindControl<TextBox>("TestOutputTextBox");
             var statusTextBlock = testingPanel.FindControl<TextBlock>("TestOutputProgressText");
             textBoxTestRunner = new TextBoxTestRunner(
@@ -50,12 +49,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 
         public void LoadSettings(UserControl panel)
         {
-            // Testing panel doesn't need to load settings
         }
 
         public void SaveSettings(UserControl panel)
         {
-            // Testing panel has no settings to persist
         }
 
         private void WireUpTestButtons(TestingSettingsPanel panel)
@@ -108,14 +105,6 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 testAllMechanicsButton.Click += async (s, e) => await textBoxTestRunner.RunMechanicsAndReliabilityTestsAsync();
             if (testClearOutputButton != null)
                 testClearOutputButton.Click += (s, e) => textBoxTestRunner.ClearOutput();
-
-            var resyncActionsButton = panel.FindControl<Button>("ResyncActionsButton");
-            if (resyncActionsButton != null)
-                resyncActionsButton.Click += async (s, e) => await ResyncActionsFromGoogleSheets(panel);
-
-            var optimizeActionsButton = panel.FindControl<Button>("OptimizeActionsButton");
-            if (optimizeActionsButton != null)
-                optimizeActionsButton.Click += (s, e) => OptimizeActionsJson(panel);
         }
 
         private void WireUpScriptsSubsection(TestingSettingsPanel panel)
@@ -298,100 +287,5 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                     statusTextBlock.Text = $"Error: {ex.Message}";
             }
         }
-
-        private async System.Threading.Tasks.Task ResyncActionsFromGoogleSheets(TestingSettingsPanel panel)
-        {
-            if (textBoxTestRunner == null) return;
-
-            try
-            {
-                textBoxTestRunner.AppendOutput("=== Resyncing Actions from Google Sheets ===\n");
-                textBoxTestRunner.AppendOutput("Fetching latest actions from Google Sheets...\n");
-                
-                // Update status text if available
-                var statusTextBlock = panel.FindControl<TextBlock>("TestOutputProgressText");
-                if (statusTextBlock != null)
-                {
-                    statusTextBlock.Text = "Resyncing actions...";
-                }
-
-                // Call the update service
-                await RPGGame.Data.ActionUpdateService.UpdateFromGoogleSheetsAsync();
-
-                textBoxTestRunner.AppendOutput("✓ Successfully updated Actions.json from Google Sheets\n");
-                textBoxTestRunner.AppendOutput("Reloading actions...\n");
-
-                // Reload actions
-                RPGGame.ActionLoader.LoadActions();
-                var actionCount = RPGGame.ActionLoader.GetAllActions().Count;
-                
-                textBoxTestRunner.AppendOutput($"✓ Actions reloaded successfully ({actionCount} actions loaded)\n");
-                textBoxTestRunner.AppendOutput("=== Resync Complete ===\n\n");
-
-                if (statusTextBlock != null)
-                {
-                    statusTextBlock.Text = $"Resync complete - {actionCount} actions loaded";
-                }
-            }
-            catch (Exception ex)
-            {
-                textBoxTestRunner.AppendOutput($"✗ Error resyncing actions: {ex.Message}\n");
-                textBoxTestRunner.AppendOutput($"{ex.StackTrace}\n\n");
-                
-                var statusTextBlock = panel.FindControl<TextBlock>("TestOutputProgressText");
-                if (statusTextBlock != null)
-                {
-                    statusTextBlock.Text = $"Error: {ex.Message}";
-                }
-            }
-        }
-
-        private void OptimizeActionsJson(TestingSettingsPanel panel)
-        {
-            if (textBoxTestRunner == null) return;
-
-            try
-            {
-                textBoxTestRunner.AppendOutput("=== Optimizing Actions.json ===\n");
-                textBoxTestRunner.AppendOutput("Removing empty fields to reduce file size...\n");
-                
-                // Update status text if available
-                var statusTextBlock = panel.FindControl<TextBlock>("TestOutputProgressText");
-                if (statusTextBlock != null)
-                {
-                    statusTextBlock.Text = "Optimizing Actions.json...";
-                }
-
-                // Call the optimization service
-                RPGGame.Data.ActionUpdateService.OptimizeActionsJsonFile();
-
-                textBoxTestRunner.AppendOutput("✓ Successfully optimized Actions.json\n");
-                textBoxTestRunner.AppendOutput("Reloading actions...\n");
-
-                // Reload actions
-                RPGGame.ActionLoader.LoadActions();
-                var actionCount = RPGGame.ActionLoader.GetAllActions().Count;
-                
-                textBoxTestRunner.AppendOutput($"✓ Actions reloaded successfully ({actionCount} actions loaded)\n");
-                textBoxTestRunner.AppendOutput("=== Optimization Complete ===\n\n");
-
-                if (statusTextBlock != null)
-                {
-                    statusTextBlock.Text = $"Optimization complete - {actionCount} actions loaded";
-                }
-            }
-            catch (Exception ex)
-            {
-                textBoxTestRunner.AppendOutput($"✗ Error optimizing Actions.json: {ex.Message}\n");
-                textBoxTestRunner.AppendOutput($"{ex.StackTrace}\n\n");
-                
-                var statusTextBlock = panel.FindControl<TextBlock>("TestOutputProgressText");
-                if (statusTextBlock != null)
-                {
-                    statusTextBlock.Text = $"Error: {ex.Message}";
-                }
-            }
-        }
     }
 }
-

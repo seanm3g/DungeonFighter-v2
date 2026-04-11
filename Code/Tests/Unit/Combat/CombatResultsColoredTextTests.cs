@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using RPGGame.Combat.Formatting;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Combat
@@ -118,6 +120,14 @@ namespace RPGGame.Tests.Unit.Combat
 
                 TestBase.AssertTrue(result3 != null && result3.Count > 0,
                     "FormatRollInfoColored with zero speed should return formatted text",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                var comboAction = TestDataBuilders.CreateMockAction("JUKE");
+                comboAction.IsComboAction = true;
+                var rollInfoAmp = RollInfoFormatter.FormatRollInfoColored(14, 0, 18, 2, 8.5, 1.02, comboAction);
+                string ampJoined = string.Concat(rollInfoAmp.Select(c => c.Text));
+                TestBase.AssertTrue(ampJoined.Contains("1.02x"),
+                    "RollInfoFormatter should display small combo amp with two decimals (1.02x)",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             catch (Exception ex)

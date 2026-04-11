@@ -86,6 +86,16 @@ namespace RPGGame.Data
             return row[idx].Trim();
         }
 
+        /// <summary>
+        /// Writes a cell if a matching column exists (inverse of <see cref="GetValue"/>). Used when pushing rows to Google Sheets.
+        /// </summary>
+        public void SetCell(string[] row, string? contextHint, string label, string value, string? rawLabelMustContain = null)
+        {
+            int idx = GetColumnIndex(contextHint, label, rawLabelMustContain);
+            if (idx >= 0 && idx < row.Length)
+                row[idx] = value ?? "";
+        }
+
         /// <summary>Normalizes a header cell for matching: trim, uppercase, collapse whitespace, remove common punctuation in parentheses.</summary>
         public static string NormalizeLabel(string value)
         {

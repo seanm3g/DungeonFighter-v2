@@ -15,15 +15,86 @@
                     CornerRadius="6" 
                     Padding="18">
                 <StackPanel Spacing="10">
-                    <TextBlock Text="Balance Tuning Settings Export/Import" 
+                    <TextBlock Text="Balance Tuning Settings Export" 
                                FontSize="20" 
                                FontWeight="Bold" 
                                Foreground="Black" 
                                Margin="0,0,0,8"/>
-                    <TextBlock Text="Export your balance tuning settings to share with other players, or import settings from other players." 
+                    <TextBlock Text="Export your balance tuning settings to share with other players." 
                                FontSize="14" 
                                Foreground="#FF555555" 
                                TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Actions: Google Sheets (Resync / Push) -->
+            <Border Background="White"
+                    BorderBrush="#FF404040"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="18">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Actions (Google Sheets)"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Foreground="Black"
+                               Margin="0,0,0,4"/>
+                    <TextBlock Text="Actions sheet CSV URL (published or export link the game can GET; used for Resync and Push header alignment)"
+                               FontSize="12"
+                               Foreground="#FF555555"
+                               TextWrapping="Wrap"/>
+                    <TextBox x:Name="ActionsSheetUrlTextBox"
+                             MinHeight="28"
+                             Watermark="https://docs.google.com/spreadsheets/..."
+                             FontSize="14"
+                             Padding="8"
+                             Background="#FFF5F5F5"
+                             Foreground="Black"
+                             BorderBrush="#FFCCCCCC"
+                             BorderThickness="1"/>
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button x:Name="ResyncActionsButton"
+                                Content="Resync Actions from Google Sheets"
+                                Width="280"
+                                Height="35"
+                                FontSize="14"
+                                FontWeight="SemiBold"
+                                Background="#FF0078D4"
+                                Foreground="White"
+                                BorderThickness="0"
+                                CornerRadius="4"/>
+                        <Button x:Name="PushActionsToGoogleSheetsButton"
+                                Content="Push Actions to Google Sheets"
+                                Width="260"
+                                Height="35"
+                                FontSize="14"
+                                FontWeight="SemiBold"
+                                Background="#FFC50E1F"
+                                Foreground="White"
+                                BorderThickness="0"
+                                CornerRadius="4"/>
+                    </StackPanel>
+                    <TextBlock x:Name="SheetsSyncProgressTextBlock"
+                               Text="Ready"
+                               FontSize="13"
+                               Foreground="#FF555555"/>
+                    <ScrollViewer MaxHeight="160"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <TextBox x:Name="SheetsSyncOutputTextBox"
+                                 IsReadOnly="True"
+                                 Focusable="True"
+                                 TextWrapping="Wrap"
+                                 MinHeight="120"
+                                 Background="#FFF5F5F5"
+                                 Foreground="Black"
+                                 BorderBrush="#FFCCCCCC"
+                                 BorderThickness="1"
+                                 Padding="8"
+                                 FontFamily="Consolas"
+                                 FontSize="11"
+                                 AcceptsReturn="True"/>
+                    </ScrollViewer>
                 </StackPanel>
             </Border>
 
@@ -138,91 +209,6 @@
                             FontSize="16"
                             FontWeight="SemiBold"
                             Background="#FF28A745"
-                            Foreground="White"
-                            BorderThickness="0"
-                            CornerRadius="4"
-                            HorizontalAlignment="Left"/>
-                </StackPanel>
-            </Border>
-
-            <!-- Import Section -->
-            <Border Background="White" 
-                    BorderBrush="#FF404040" 
-                    BorderThickness="1" 
-                    CornerRadius="6" 
-                    Padding="18">
-                <StackPanel Spacing="15">
-                    <TextBlock Text="Import Settings" 
-                               FontSize="18" 
-                               FontWeight="SemiBold" 
-                               Foreground="Black" 
-                               Margin="0,0,0,8"/>
-                    
-                    <StackPanel Spacing="10">
-                        <TextBlock Text="Import File Path:" 
-                                   FontSize="14" 
-                                   Foreground="Black"/>
-                        <Grid ColumnDefinitions="*,Auto">
-                            <TextBox x:Name="ImportFilePathTextBox"
-                                     Grid.Column="0"
-                                     Text=""
-                                     FontSize="14"
-                                     Padding="8"
-                                     Background="#FFF5F5F5"
-                                     Foreground="Black"
-                                     BorderBrush="#FFCCCCCC"
-                                     BorderThickness="1"
-                                     Margin="0,0,10,0"/>
-                            <Button x:Name="BrowseImportPathButton"
-                                    Grid.Column="1"
-                                    Content="Browse..."
-                                    Width="100"
-                                    Height="35"
-                                    FontSize="14"
-                                    FontWeight="SemiBold"
-                                    Background="#FF0078D4"
-                                    Foreground="White"
-                                    BorderThickness="0"
-                                    CornerRadius="4"/>
-                        </Grid>
-                    </StackPanel>
-
-                    <!-- Import Preview -->
-                    <Border Background="#FFF5F5F5"
-                            BorderBrush="#FFCCCCCC"
-                            BorderThickness="1"
-                            CornerRadius="4"
-                            Padding="12"
-                            IsVisible="False"
-                            x:Name="ImportPreviewBorder">
-                        <StackPanel Spacing="8">
-                            <TextBlock Text="Import Preview" 
-                                       FontSize="16" 
-                                       FontWeight="SemiBold" 
-                                       Foreground="Black"/>
-                            <TextBlock x:Name="ImportPreviewName"
-                                       FontSize="14" 
-                                       Foreground="Black"/>
-                            <TextBlock x:Name="ImportPreviewDescription"
-                                       FontSize="12" 
-                                       Foreground="#FF555555"
-                                       TextWrapping="Wrap"/>
-                            <TextBlock x:Name="ImportPreviewCreatedBy"
-                                       FontSize="12" 
-                                       Foreground="#FF555555"/>
-                            <TextBlock x:Name="ImportPreviewDate"
-                                       FontSize="12" 
-                                       Foreground="#FF555555"/>
-                        </StackPanel>
-                    </Border>
-
-                    <Button x:Name="ImportButton"
-                            Content="Import Settings"
-                            Width="200"
-                            Height="40"
-                            FontSize="16"
-                            FontWeight="SemiBold"
-                            Background="#FFDC3545"
                             Foreground="White"
                             BorderThickness="0"
                             CornerRadius="4"

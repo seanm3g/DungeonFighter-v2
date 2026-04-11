@@ -117,6 +117,14 @@ namespace RPGGame
                     return;
                 }
 
+                if (args.Length > 0 && args[0].Equals("PUSH_ACTIONS", StringComparison.OrdinalIgnoreCase))
+                {
+                    executionMode = "PUSH_ACTIONS";
+                    BuildExecutionMetrics.RecordLaunchTime("PUSH_ACTIONS");
+                    await RPGGame.Data.ActionSheetsPushService.PushActionsToGoogleSheetsAsync();
+                    return;
+                }
+
                 // Launch Avalonia GUI (execution time tracked until app closes)
                 // Launch time will be recorded when the window is ready
                 BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);

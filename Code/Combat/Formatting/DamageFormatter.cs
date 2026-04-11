@@ -106,14 +106,14 @@ namespace RPGGame.Combat.Formatting
         }
         
         /// <summary>
-        /// Adds "amp: X.Xx" pattern to a ColoredTextBuilder with proper spacing
+        /// Adds "amp: X.XXx" pattern to a ColoredTextBuilder with proper spacing (two decimals, matches hero panel AMP).
         /// </summary>
         public static void AddAmpInfo(ColoredTextBuilder builder, double amp)
         {
             builder.Add(" | ", Colors.Gray);
             builder.Add("amp:", ColorPalette.Info);
             builder.AddSpace();
-            builder.Add($"{amp:F1}x", Colors.White);
+            builder.Add($"{amp:F2}x", Colors.White);
         }
         
         /// <summary>

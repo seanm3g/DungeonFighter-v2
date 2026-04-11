@@ -58,7 +58,7 @@ namespace RPGGame.UI.Avalonia.Handlers
                     e.Handled = true;
                     return;
                 }
-                if (TryScheduleActionLabWeaponEdit(point.Position))
+                if (TryScheduleActionLabGearEdit(point.Position))
                 {
                     e.Handled = true;
                     return;
@@ -360,9 +360,9 @@ namespace RPGGame.UI.Avalonia.Handlers
         }
 
         /// <summary>
-        /// Action Lab: right-click the GEAR weapon row to open the weapon editor (swap base item, prefix, suffix).
+        /// Action Lab: right-click a GEAR row to open the gear editor (swap base item, prefix, suffix).
         /// </summary>
-        private bool TryScheduleActionLabWeaponEdit(Point position)
+        private bool TryScheduleActionLabGearEdit(Point position)
         {
             if (game?.StateManager?.CurrentState != GameState.ActionInteractionLab)
                 return false;
@@ -374,17 +374,43 @@ namespace RPGGame.UI.Avalonia.Handlers
 
             var grid = ScreenToGrid(position);
             var el = canvasUI.GetElementAt(grid.X, grid.Y);
-            if (el == null || el.Value != "lphover:gear:weapon")
+            if (el == null || string.IsNullOrEmpty(el.Value))
+                return false;
+
+            string prefix = LeftPanelHoverState.Prefix + "gear:";
+            if (!el.Value.StartsWith(prefix, StringComparison.Ordinal))
+                return false;
+
+            string slotKey = el.Value.Substring(prefix.Length);
+            if (!TryMapGearHoverToEditSlot(slotKey, out ActionLabGearEditSlot editSlot, out string equipSlot))
                 return false;
 
             var owner = canvasUI.GetMainWindow();
             var player = lab.LabPlayer;
             _ = Dispatcher.UIThread.InvokeAsync(async () =>
             {
-                var weapon = await ActionLabWeaponEditDialog.ShowAsync(owner, player).ConfigureAwait(true);
-                if (weapon != null)
-                    lab.ApplyLabWeapon(weapon);
+                var item = await ActionLabWeaponEditDialog.ShowGearEditAsync(owner, player, editSlot).ConfigureAwait(true);
+                if (item != null)
+                    lab.ApplyLabGear(item, equipSlot);
             });
+            return true;
+        }
+
+        private static bool TryMapGearHoverToEditSlot(string slotKey, out ActionLabGearEditSlot editSlot, out string equipSlot)
+        {
+            switch (slotKey.ToLowerInvariant())
+            {
+                case "weapon": editSlot = ActionLabGearEditSlot.Weapon; break;
+                case "head": editSlot = ActionLabGearEditSlot.Head; break;
+                case "body": editSlot = ActionLabGearEditSlot.Body; break;
+                case "feet": editSlot = ActionLabGearEditSlot.Feet; break;
+                default:
+                    editSlot = default;
+                    equipSlot = "";
+                    return false;
+            }
+
+            equipSlot = ActionLabWeaponEditDialog.GetEquipSlotName(editSlot);
             return true;
         }
 

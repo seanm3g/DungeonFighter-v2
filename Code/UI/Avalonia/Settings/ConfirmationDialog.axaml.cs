@@ -11,22 +11,25 @@ namespace RPGGame.UI.Avalonia.Settings
         public ConfirmationDialog()
         {
             InitializeComponent();
-            
-            YesButton.Click += (s, e) =>
-            {
-                Close(true);
-            };
-            
-            NoButton.Click += (s, e) =>
-            {
-                Close(false);
-            };
+
+            // x:Name fields are not always populated by AvaloniaXamlLoader.Load in this project; resolve explicitly.
+            var yesButton = this.FindControl<Button>("YesButton");
+            var noButton = this.FindControl<Button>("NoButton");
+            if (yesButton == null || noButton == null)
+                throw new InvalidOperationException("ConfirmationDialog: YesButton or NoButton missing from template.");
+
+            yesButton.Click += (_, _) => Close(true);
+            noButton.Click += (_, _) => Close(false);
         }
 
         public ConfirmationDialog(string title, string message) : this()
         {
-            TitleTextBlock.Text = title;
-            MessageTextBlock.Text = message;
+            var titleBlock = this.FindControl<TextBlock>("TitleTextBlock");
+            var messageBlock = this.FindControl<TextBlock>("MessageTextBlock");
+            if (titleBlock != null)
+                titleBlock.Text = title;
+            if (messageBlock != null)
+                messageBlock.Text = message;
         }
 
         private void InitializeComponent()

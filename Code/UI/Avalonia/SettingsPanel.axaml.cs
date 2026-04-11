@@ -146,11 +146,6 @@ namespace RPGGame.UI.Avalonia
                                 ctx.StatusEffectsTabManager.Initialize(listBox, formPanel, createButton, deleteButton, ctx.ShowStatusMessage);
                         }, DispatcherPriority.Loaded);
                 },
-                ["BalanceTuning"] = (panel, ctx) =>
-                {
-                    if (panel is BalanceTuningSettingsPanel balancePanel && ctx.ShowStatusMessage != null)
-                        balancePanel.SetStatusCallback(ctx.ShowStatusMessage);
-                },
                 ["ItemModifiers"] = (panel, ctx) =>
                 {
                     if (panel is ItemModifiersSettingsPanel modPanel && ctx.ItemModifiersTabManager != null)
@@ -390,6 +385,9 @@ namespace RPGGame.UI.Avalonia
                     };
                 }
             }
+
+            if (panelHandlerRegistry != null && !panelHandlerRegistry.HasHandler("BalanceTuning"))
+                panelHandlerRegistry.Register(new BalanceTuningPanelHandler(canvasUI, ShowStatusMessage));
             
             // Set state manager on GameplayPanelHandler so it can clear in-memory player when clearing saved characters
             if (panelHandlerRegistry != null && stateManager != null)

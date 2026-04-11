@@ -388,6 +388,11 @@ Code/GameData123/
 *.log
 GameData/character_save.json
 GameData/gamesettings.json
+GameData/SheetsPushConfig.json
+GameData/secrets/
+GameData/SheetsOAuthToken/
+# Google OAuth Desktop client downloads (contain client_id + client_secret); may sit in repo root after download
+client_secret*.json
 *.backup
 build_execution_metrics.json
 

@@ -30,7 +30,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         private readonly GetPanelForCategoryResolver getPanelForCategory;
 
         /// <summary>Category tags that use ISettingsPanelHandler for save. Add new handler-based panels here so the orchestrator saves them without code change.</summary>
-        private static readonly string[] HandlerSaveCategoryTags = { "TextDelays", "Appearance", "Testing" };
+        private static readonly string[] HandlerSaveCategoryTags = { "TextDelays", "Appearance", "BalanceTuning" };
 
         public SettingsSaveOrchestrator(
             SettingsManager? settingsManager,

@@ -94,12 +94,12 @@ namespace RPGGame
             // Add combo info to rollInfo if present - show amp prominently
             if (comboAmplifier > 1.0)
             {
-                rollInfo.Add($"amp: {comboAmplifier:F1}x");
+                rollInfo.Add($"amp: {comboAmplifier:F2}x");
             }
             else if (action != null && action.IsComboAction)
             {
-                // Show amp:1.0x for first combo action
-                rollInfo.Add("amp: 1.0x");
+                // Show amp for combo action when effective multiplier is 1.0 (matches F2 display)
+                rollInfo.Add("amp: 1.00x");
             }
             
             // Return the roll information as a separate string

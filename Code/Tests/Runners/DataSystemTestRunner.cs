@@ -23,6 +23,12 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             ActionDataToSpreadsheetJsonConverterTests.RunAllTests();
             Console.WriteLine();
+            SpreadsheetActionDataSheetRowSerializerTests.RunAllTests();
+            Console.WriteLine();
+            SheetsPushConfigTests.RunAllTests();
+            Console.WriteLine();
+            GoogleSheetsUrlHelperTests.RunAllTests();
+            Console.WriteLine();
             JsonLoaderTests.RunAllTests();
             Console.WriteLine();
             LootGeneratorTests.RunAllTests();

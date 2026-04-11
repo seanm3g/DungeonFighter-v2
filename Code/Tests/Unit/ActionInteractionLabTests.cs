@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using RPGGame;
 using RPGGame.ActionInteractionLab;
@@ -39,11 +40,15 @@ namespace RPGGame.Tests.Unit
             LabNudgeComboStepWrapsStrip(ref run, ref passed, ref failed);
             AddSelectedCatalogToStripHelperAddsAction(ref run, ref passed, ref failed);
             UndoReplayPreservesComboStripEdits(ref run, ref passed, ref failed);
+            UndoReplayPreservesLabStatEdits(ref run, ref passed, ref failed);
             LeftPanelStatAdjustment_StrArmorAndFloors(ref run, ref passed, ref failed);
             LeftPanelStatAdjustment_HeroLevelClamp(ref run, ref passed, ref failed);
             GetTotalArmorIncludesLabBonus(ref run, ref passed, ref failed);
             ActionLabWeaponFactory_BuildsWithPrefixSuffix(ref run, ref passed, ref failed);
             ActionLabWeaponFactory_FindIndexMatchesTypeAndTier(ref run, ref passed, ref failed);
+            ActionLabArmorFactory_BuildsWithPrefixSuffix(ref run, ref passed, ref failed);
+            ActionLabArmorFactory_FindIndexMatchesSlotAndTier(ref run, ref passed, ref failed);
+            ActionLabArmorFactory_FilterMapsBodyToChest(ref run, ref passed, ref failed);
             WouldNaturalRollSelectComboAction_MatchesSelectActionBasedOnRoll(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("ActionInteractionLabTests", run, passed, failed);
@@ -181,6 +186,60 @@ namespace RPGGame.Tests.Unit
             var equipped = new WeaponItem("Steel Sword", 2, 8, 1.0, WeaponType.Sword);
             int idx = ActionLabWeaponFactory.FindBestWeaponDataIndex(weapons, equipped);
             TestBase.AssertEqual(1, idx, "FindBestWeaponDataIndex matches type+tier", ref run, ref passed, ref failed);
+        }
+
+        private static void ActionLabArmorFactory_BuildsWithPrefixSuffix(ref int run, ref int passed, ref int failed)
+        {
+            var data = new ArmorData
+            {
+                Slot = "head",
+                Name = "Test Helm",
+                Armor = 5,
+                Tier = 2,
+            };
+            var prefix = new Modification
+            {
+                Name = "Sturdy",
+                ItemRank = "Common",
+                Effect = "armor",
+                MinValue = 1,
+                MaxValue = 1,
+                DiceResult = 0,
+            };
+            var suffix = new StatBonus { Name = "of Warding", StatType = "Armor", Value = 1 };
+            var item = ActionLabArmorFactory.CreateArmor(data, prefix, suffix);
+            TestBase.AssertTrue(item.Name.Contains("Sturdy", StringComparison.Ordinal), "prefix in generated name", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(item.Name.Contains("of Warding", StringComparison.Ordinal), "suffix in generated name", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(1, item.Modifications.Count, "one modification", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(1, item.StatBonuses.Count, "one stat bonus", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(item is HeadItem, "head armor type", ref run, ref passed, ref failed);
+        }
+
+        private static void ActionLabArmorFactory_FindIndexMatchesSlotAndTier(ref int run, ref int passed, ref int failed)
+        {
+            var armors = new[]
+            {
+                new ArmorData { Slot = "head", Name = "Cap", Armor = 1, Tier = 1 },
+                new ArmorData { Slot = "head", Name = "Helm", Armor = 3, Tier = 2 },
+            };
+            var equipped = new HeadItem("Helm", 2, 3);
+            int idx = ActionLabArmorFactory.FindBestArmorDataIndex(armors, equipped);
+            TestBase.AssertEqual(1, idx, "FindBestArmorDataIndex matches slot+tier", ref run, ref passed, ref failed);
+        }
+
+        private static void ActionLabArmorFactory_FilterMapsBodyToChest(ref int run, ref int passed, ref int failed)
+        {
+            var all = new List<ArmorData>
+            {
+                new ArmorData { Slot = "head", Name = "H", Armor = 1, Tier = 1 },
+                new ArmorData { Slot = "chest", Name = "C", Armor = 2, Tier = 1 },
+                new ArmorData { Slot = "feet", Name = "F", Armor = 1, Tier = 1 },
+            };
+            var head = ActionLabArmorFactory.FilterArmorDataForEquipSlot(all, "head");
+            TestBase.AssertEqual(1, head.Count, "one head row", ref run, ref passed, ref failed);
+            var body = ActionLabArmorFactory.FilterArmorDataForEquipSlot(all, "body");
+            TestBase.AssertEqual(1, body.Count, "one chest row for body slot", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("chest", body[0].Slot, "body equip maps to chest JSON", ref run, ref passed, ref failed);
         }
 
         private static void ResolveD20ForNextStepUsesSelectedWhenNotRandom(ref int run, ref int passed, ref int failed)
@@ -779,6 +838,53 @@ namespace RPGGame.Tests.Unit
                     $"Undo preserves strip order [{i}]",
                     ref run, ref passed, ref failed);
             }
+
+            ActionInteractionLabSession.EndSession();
+        }
+
+        /// <summary>
+        /// Undo replay must not restore hero from stale <c>_initialPlayerJson</c> for left-panel lab stat edits.
+        /// </summary>
+        private static void UndoReplayPreservesLabStatEdits(ref int run, ref int passed, ref int failed)
+        {
+            ActionLoader.LoadActions();
+            var names = ActionLoader.GetAllActionNames();
+            if (names.Count == 0)
+            {
+                TestBase.AssertTrue(true, "UndoReplayPreservesLabStatEdits skipped (no actions)", ref run, ref passed, ref failed);
+                return;
+            }
+
+            names.Sort(StringComparer.OrdinalIgnoreCase);
+            var hero = TestDataBuilders.Character().WithName("LabUndoStats").Build();
+            var combatManager = new CombatManager();
+            ActionInteractionLabSession.Begin(hero, combatManager, () => { }, null);
+            var lab = ActionInteractionLabSession.Current;
+            if (lab == null)
+            {
+                TestBase.AssertTrue(false, "UndoReplayPreservesLabStatEdits: session null", ref run, ref passed, ref failed);
+                return;
+            }
+
+            string p = ActionLabLeftPanelStatAdjustment.StatHoverPrefix;
+            TestBase.AssertTrue(ActionLabLeftPanelStatAdjustment.TryApply(lab.LabPlayer, p + "str", +4), "str +4 for undo stat test", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(ActionLabLeftPanelStatAdjustment.TryApply(lab.LabPlayer, p + "armor", +3), "armor +3 for undo stat test", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(ActionLabLeftPanelStatAdjustment.TryApply(lab.LabPlayer, ActionLabLeftPanelStatAdjustment.HeroLevelHoverId, +2), "level +2 for undo stat test", ref run, ref passed, ref failed);
+
+            int expectStr = lab.LabPlayer.Stats.Strength;
+            int expectArmorBonus = lab.LabPlayer.ActionLabArmorBonus;
+            int expectLevel = lab.LabPlayer.Level;
+
+            string pick = names[names.Count > 1 ? 1 : 0];
+            lab.SelectedCatalogActionName = pick;
+            lab.AddSelectedCatalogActionToComboStrip();
+
+            lab.StepAsync(lab.ResolveD20ForNextStep(), lab.SelectedCatalogActionName).GetAwaiter().GetResult();
+            lab.UndoLastStepAsync().GetAwaiter().GetResult();
+
+            TestBase.AssertEqual(expectStr, lab.LabPlayer.Stats.Strength, "Undo preserves lab STR", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(expectArmorBonus, lab.LabPlayer.ActionLabArmorBonus, "Undo preserves ActionLabArmorBonus", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(expectLevel, lab.LabPlayer.Level, "Undo preserves lab level", ref run, ref passed, ref failed);
 
             ActionInteractionLabSession.EndSession();
         }

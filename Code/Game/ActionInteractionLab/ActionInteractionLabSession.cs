@@ -51,6 +51,17 @@ namespace RPGGame.ActionInteractionLab
         private ICanvasContextManager? _restoreTarget;
         private CanvasContextSnapshot? _contextSnapshot;
 
+        /// <summary>
+        /// Cumulative left-panel lab tweaks since <see cref="_initialPlayerJson"/> was last written (Begin / ApplyLabGear).
+        /// Undo replay reapplies these on the cloned hero so combat rewind does not reset lab edits.
+        /// </summary>
+        private int _labPanelStrDelta;
+        private int _labPanelAgiDelta;
+        private int _labPanelTecDelta;
+        private int _labPanelIntDelta;
+        private int _labPanelLevelDelta;
+        private int _labPanelArmorDelta;
+
         public Character LabPlayer => _labPlayer;
         public Enemy LabEnemy => _labEnemy;
         public Environment LabRoom => _labRoom;
@@ -155,14 +166,110 @@ namespace RPGGame.ActionInteractionLab
         {
             if (weapon == null)
                 throw new ArgumentNullException(nameof(weapon));
+            ApplyLabGear(weapon, "weapon");
+        }
 
-            _labPlayer.EquipItem(weapon, "weapon");
+        /// <summary>
+        /// Equips lab gear for <paramref name="slot"/> (<c>weapon</c>, <c>head</c>, <c>body</c>, <c>feet</c>), clears step history, and re-bases undo snapshot.
+        /// </summary>
+        public void ApplyLabGear(Item item, string slot)
+        {
+            if (item == null)
+                throw new ArgumentNullException(nameof(item));
+            if (string.IsNullOrWhiteSpace(slot))
+                throw new ArgumentException("Slot is required.", nameof(slot));
+
+            string s = slot.Trim().ToLowerInvariant();
+            switch (s)
+            {
+                case "weapon":
+                    if (item is not WeaponItem)
+                        throw new ArgumentException("Item must be a WeaponItem for weapon slot.", nameof(item));
+                    break;
+                case "head":
+                    if (item is not HeadItem)
+                        throw new ArgumentException("Item must be a HeadItem for head slot.", nameof(item));
+                    break;
+                case "body":
+                    if (item is not ChestItem)
+                        throw new ArgumentException("Item must be a ChestItem for body slot.", nameof(item));
+                    break;
+                case "feet":
+                    if (item is not FeetItem)
+                        throw new ArgumentException("Item must be a FeetItem for feet slot.", nameof(item));
+                    break;
+                default:
+                    throw new ArgumentException("Slot must be weapon, head, body, or feet.", nameof(slot));
+            }
+
+            _labPlayer.EquipItem(item, s);
             _history.Clear();
+            ResetLabPanelDeltas();
             BootstrapCombatState();
             var serializer = new CharacterSerializer();
             _initialPlayerJson = serializer.Serialize(_labPlayer);
             SyncCatalogSelectionToUpcomingActor();
             _refreshCombatUi();
+        }
+
+        private void ResetLabPanelDeltas()
+        {
+            _labPanelStrDelta = 0;
+            _labPanelAgiDelta = 0;
+            _labPanelTecDelta = 0;
+            _labPanelIntDelta = 0;
+            _labPanelLevelDelta = 0;
+            _labPanelArmorDelta = 0;
+        }
+
+        /// <summary>Called from <see cref="ActionLabLeftPanelStatAdjustment"/> when the user changes a stat row.</summary>
+        internal void RecordLabPanelStatDelta(string statKey, int delta)
+        {
+            if (delta == 0) return;
+            switch (statKey)
+            {
+                case "str":
+                case "damage":
+                    _labPanelStrDelta += delta;
+                    break;
+                case "agi":
+                case "speed":
+                    _labPanelAgiDelta += delta;
+                    break;
+                case "tec":
+                    _labPanelTecDelta += delta;
+                    break;
+                case "int":
+                    _labPanelIntDelta += delta;
+                    break;
+                case "armor":
+                    _labPanelArmorDelta += delta;
+                    break;
+            }
+        }
+
+        /// <summary>Called from <see cref="ActionLabLeftPanelStatAdjustment"/> when the user changes hero level.</summary>
+        internal void RecordLabPanelLevelDelta(int delta)
+        {
+            if (delta != 0)
+                _labPanelLevelDelta += delta;
+        }
+
+        /// <summary>Re-applies cumulative left-panel deltas onto the lab hero after cloning from <see cref="_initialPlayerJson"/>.</summary>
+        private void ApplyLabPanelDeltasToLabHero()
+        {
+            if (_labPanelLevelDelta != 0)
+                _labPlayer.Level = Math.Clamp(_labPlayer.Level + _labPanelLevelDelta, 1, 99);
+            if (_labPanelStrDelta != 0)
+                _labPlayer.Stats.Strength = Math.Max(1, _labPlayer.Stats.Strength + _labPanelStrDelta);
+            if (_labPanelAgiDelta != 0)
+                _labPlayer.Stats.Agility = Math.Max(1, _labPlayer.Stats.Agility + _labPanelAgiDelta);
+            if (_labPanelTecDelta != 0)
+                _labPlayer.Stats.Technique = Math.Max(1, _labPlayer.Stats.Technique + _labPanelTecDelta);
+            if (_labPanelIntDelta != 0)
+                _labPlayer.Stats.Intelligence = Math.Max(1, _labPlayer.Stats.Intelligence + _labPanelIntDelta);
+            if (_labPanelArmorDelta != 0)
+                _labPlayer.ActionLabArmorBonus = Math.Max(0, _labPlayer.ActionLabArmorBonus + _labPanelArmorDelta);
         }
 
         /// <summary>Replace the lab enemy from <see cref="EnemyLoader"/> data (level 1 by default). Clears step history.</summary>
@@ -292,7 +399,8 @@ namespace RPGGame.ActionInteractionLab
             return serializer.CreateCharacterFromSaveData(data);
         }
 
-        private void RestoreInitialEntities()
+        /// <summary>Replaces lab entities from <see cref="_initialPlayerJson"/> and enemy baseline; does not bootstrap combat.</summary>
+        private void RestoreLabEntitiesFromInitialBaseline()
         {
             _labPlayer = ClonePlayerFromInitialJson();
             if (!string.IsNullOrEmpty(_sessionEnemyLoaderType))
@@ -304,11 +412,10 @@ namespace RPGGame.ActionInteractionLab
             else
                 _labEnemy = TestCharacterFactory.CreateTestEnemy(LabEnemyConfig, 0);
             _labRoom = TestCharacterFactory.CreateTestEnvironment();
-            BootstrapCombatState();
         }
 
         /// <summary>
-        /// Restores the lab hero combo strip after <see cref="RestoreInitialEntities"/> replays from
+        /// Restores the lab hero combo strip after baseline replay from
         /// <see cref="_initialPlayerJson"/>, which does not include catalog/strip edits made during the session.
         /// Uses action pool entries when present, otherwise <see cref="ActionLoader"/> (same as catalog add).
         /// </summary>
@@ -317,6 +424,7 @@ namespace RPGGame.ActionInteractionLab
             foreach (var a in _labPlayer.GetComboActions().ToList())
                 _labPlayer.RemoveFromCombo(a);
 
+            int nextSlot = 1;
             foreach (var name in orderedActionNames)
             {
                 if (string.IsNullOrWhiteSpace(name))
@@ -330,6 +438,8 @@ namespace RPGGame.ActionInteractionLab
                     continue;
                 if (!act.IsComboAction)
                     act.IsComboAction = true;
+                // Match <see cref="ComboSequenceManager.RestoreComboFromActionNames"/> so opener/middle ordering matches snapshot order.
+                act.ComboOrder = nextSlot++;
                 _labPlayer.AddToCombo(act);
             }
         }
@@ -347,9 +457,11 @@ namespace RPGGame.ActionInteractionLab
             try
             {
                 // Strip edits (catalog add/remove/reorder) live only on the in-memory lab clone; the baseline JSON
-                // is from session start (or weapon swap). Preserve the current strip across entity restore.
+                // is from session start (or gear change). Preserve the current strip across entity restore.
                 var comboSnapshot = _labPlayer.GetComboActions().Select(a => a.Name).ToList();
-                RestoreInitialEntities();
+                RestoreLabEntitiesFromInitialBaseline();
+                ApplyLabPanelDeltasToLabHero();
+                BootstrapCombatState();
                 ReapplyLabHeroComboStrip(comboSnapshot);
                 foreach (var step in steps)
                 {

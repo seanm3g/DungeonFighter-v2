@@ -307,6 +307,29 @@ namespace RPGGame
         }
         
         /// <summary>
+        /// Returns the first absolute path where <paramref name="fileName"/> exists under a candidate GameData folder
+        /// (project root, cwd, executable-relative, etc.). Use for optional files like SheetsPushConfig.json so pushes work
+        /// when <see cref="GetGameDataFilePath"/> would otherwise target a newly created empty GameData folder.
+        /// </summary>
+        public static string? TryGetExistingGameDataFilePath(string fileName)
+        {
+            foreach (var p in GetPossibleGameDataFilePaths(fileName))
+            {
+                try
+                {
+                    string full = Path.GetFullPath(p);
+                    if (File.Exists(full))
+                        return full;
+                }
+                catch
+                {
+                    // ignore invalid path combinations
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
         /// Gets all possible paths for a file in the GameData directory
         /// </summary>
         /// <param name="fileName">The file name</param>

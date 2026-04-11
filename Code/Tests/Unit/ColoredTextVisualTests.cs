@@ -729,7 +729,7 @@ namespace RPGGame.Tests
                 new ColoredText(" | ", Colors.Gray),
                 new ColoredText("amp:", ColorPalette.Info.GetColor()),
                 new ColoredText(" ", Colors.White),
-                new ColoredText("1.0x", Colors.White),
+                new ColoredText("1.00x", Colors.White),
                 new ColoredText(")", Colors.Gray)
             };
             uiCoordinator.WriteLineColoredSegments(rollInfo2);

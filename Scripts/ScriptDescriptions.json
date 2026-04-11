@@ -22,6 +22,8 @@
   "install-dotnet.ps1": "Install or verify .NET SDK.",
   "multi-language-count.ps1": "Count lines across multiple languages in the project.",
   "normalize-actions-json.ps1": "Normalize Actions.json format.",
+  "push-actions-to-sheets.ps1": "Push GameData/Actions.json to Google Sheets (OAuth 2.0 + SheetsPushConfig.json).",
+  "push-actions.bat": "Push Actions.json to Google Sheets via OAuth (batch wrapper).",
   "parse-from-google-sheets.ps1": "Parse action data from Google Sheets.",
   "parse-spreadsheet-actions.ps1": "Parse actions from spreadsheet source.",
   "quick-clean.bat": "Quick clean: remove bin/obj and rebuild. Fastest option when build errors appear but code looks correct.",

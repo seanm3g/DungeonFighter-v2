@@ -54,7 +54,7 @@ namespace RPGGame.Data
         /// <summary>
         /// Parses a CSV line, handling quoted fields and commas within quotes
         /// </summary>
-        private static string[] ParseCsvLine(string line)
+        public static string[] ParseCsvLine(string line)
         {
             var fields = new List<string>();
             var currentField = new StringBuilder();
@@ -184,6 +184,72 @@ namespace RPGGame.Data
             }
 
             return new SpreadsheetParseResult(actions, header);
+        }
+
+        /// <summary>
+        /// Builds header from the top rows of a sheet (same rules as <see cref="ParseCsvLines"/>). Index 0 = sheet row 1.
+        /// </summary>
+        /// <returns>Header and 1-based sheet row number where the first data row should be written.</returns>
+        public static (SpreadsheetHeader? Header, int FirstDataRowOneBased) BuildHeaderFromSheetRows(IReadOnlyList<string[]> rowCells)
+        {
+            if (rowCells == null || rowCells.Count == 0)
+                return (null, 1);
+
+            int labelRowIndex = 0;
+            string[] contextFilled = Array.Empty<string>();
+
+            var firstRow = rowCells[0];
+            string firstCell = firstRow.Length > 0 ? firstRow[0].Trim() : "";
+            bool startsWithAction = firstCell.Equals("ACTION", StringComparison.OrdinalIgnoreCase);
+
+            if (!startsWithAction)
+            {
+                contextFilled = SpreadsheetHeader.FillMergedContext(firstRow);
+                labelRowIndex = 1;
+            }
+            else
+            {
+                for (int i = 0; i < Math.Min(5, rowCells.Count); i++)
+                {
+                    var r = rowCells[i];
+                    string c0 = r.Length > 0 ? r[0].Trim() : "";
+                    if (c0.Equals("ACTION", StringComparison.OrdinalIgnoreCase))
+                    {
+                        labelRowIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            if (labelRowIndex >= rowCells.Count)
+                return (null, 1);
+
+            var labelRow = rowCells[labelRowIndex];
+            if (contextFilled.Length == 0)
+                contextFilled = new string[labelRow.Length];
+            else if (contextFilled.Length < labelRow.Length)
+            {
+                var extended = new string[labelRow.Length];
+                string last = contextFilled.Length > 0 ? contextFilled[^1] : "";
+                for (int i = 0; i < extended.Length; i++)
+                    extended[i] = i < contextFilled.Length ? contextFilled[i] : last;
+                contextFilled = extended;
+            }
+            else if (contextFilled.Length > labelRow.Length)
+            {
+                var trimmed = new string[labelRow.Length];
+                Array.Copy(contextFilled, trimmed, labelRow.Length);
+                contextFilled = trimmed;
+            }
+
+            var header = new SpreadsheetHeader(
+                contextFilled,
+                labelRow.ToList(),
+                labelRowIndex,
+                dataStartRowIndex: labelRowIndex + 1);
+
+            int firstDataRowOneBased = header.DataStartRowIndex + 1;
+            return (header, firstDataRowOneBased);
         }
     }
 }

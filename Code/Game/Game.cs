@@ -219,8 +219,16 @@ namespace RPGGame
             }
         }
 
+        /// <summary>
+        /// When true, <see cref="HandleEscapeKey"/> does nothing. Used while Google Sheets push/OAuth runs so stray Escape
+        /// (e.g. focus returning from the browser) does not exit Settings state or dismiss the settings UI.
+        /// </summary>
+        public bool SuppressEscapeClosingSettings { get; set; }
+
         public Task HandleEscapeKey()
         {
+            if (SuppressEscapeClosingSettings)
+                return Task.CompletedTask;
             if (escapeKeyHandler != null)
             {
                 return escapeKeyHandler.HandleEscapeKey();

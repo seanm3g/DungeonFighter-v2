@@ -65,14 +65,6 @@
                             Background="#FF404040" Foreground="White" BorderThickness="0" CornerRadius="4"
                             FontSize="14" FontWeight="SemiBold"/>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,5,0,0">
-                    <Button x:Name="ResyncActionsButton" Content="Resync Actions from Google Sheets" Width="280" Height="35"
-                            Background="#FF0078D4" Foreground="White" BorderThickness="0" CornerRadius="4"
-                            FontSize="14" FontWeight="SemiBold"/>
-                    <Button x:Name="OptimizeActionsButton" Content="Optimize Actions.json" Width="200" Height="35"
-                            Background="#FF28A745" Foreground="White" BorderThickness="0" CornerRadius="4"
-                            FontSize="14" FontWeight="SemiBold"/>
-                </StackPanel>
                 <!-- Scripts subsection: buttons for each script in Scripts folder -->
                 <StackPanel Spacing="8" Margin="0,20,0,0">
                     <TextBlock Text="SCRIPTS"
