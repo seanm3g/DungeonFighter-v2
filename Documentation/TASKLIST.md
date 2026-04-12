@@ -1,6 +1,6 @@
 # Task List - DungeonFighter v6.2
 
-**Last Updated**: November 20, 2025  
+**Last Updated**: April 11, 2026  
 **Current Status**: Production Ready  
 **Version**: 6.2
 
@@ -27,6 +27,7 @@
 6. ✅ **Action System** - 30+ advanced actions with special mechanics
 7. ✅ **Item System** - Generation, loot, and inventory management
 8. ✅ **Data System** - JSON-driven content management
+9. ✅ **Class presentation tuning** — Settings → Classes edits `classPresentation` in TuningConfig (**tierThresholds**, path display names, default / fallback title, **meaningfulAttributeMinimum**, attribute tier words, duo/trio **display** cores, modifiers, preview). Per-path evolved titles, global tier labels, pre-tier label, hybrid joiner, and hybrid duo/trio/quad matrices remain in JSON and are **preserved** on save (not cleared by the panel). **HUD class title** via `AttributeClassNameComposer` (stats pick shape; **same** `tierThresholds` + primary-path **class points** pick Scarred… / Prophet… bands). **Weapon points** unchanged for unlocks and `GetWeaponPointsClassTitle()`. Unit tests: `AttributeClassNameComposerTests`, `CharacterProgressionClassReferenceTests`, `ClassPresentationConfigTests`.
 
 ### GUI & Visual Features ✅
 1. ✅ **Action-info strip (fixed slots)** — Top center strip always shows at least 5 panels when a character is present (`LayoutConstants.ACTION_INFO_STRIP_FIXED_SLOT_COUNT`, `ActionInfoStripLayout.GetDisplayPanelCount`); empty slots use a dim border; tooltips and strip drag use the same display count (drop on empty slot ignored). See `DungeonRenderer.RenderActionInfoStrip`, `MouseInteractionHandler`.
@@ -411,7 +412,7 @@ In-game: Settings → Tests → [Choose Category]
 
 ---
 
-**Last Updated**: November 20, 2025  
+**Last Updated**: April 11, 2026  
 **Maintained By**: Development Team  
 **Status**: Active Development
 

@@ -13,29 +13,24 @@ using RPGGame.Utils;
 namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 {
     /// <summary>
-    /// Wires Import (Balance Tuning) panel: JSON export/import callbacks plus Google Sheets URL, Resync, and Push.
+    /// Wires Import (Balance Tuning) panel: Google Sheets URL, Resync, and Push.
     /// </summary>
     public class BalanceTuningPanelHandler : ISettingsPanelHandler
     {
         private readonly CanvasUICoordinator? canvasUI;
-        private readonly Action<string, bool>? showStatusMessage;
         private TextBoxTestRunner? sheetsRunner;
 
         public string PanelType => "BalanceTuning";
 
-        public BalanceTuningPanelHandler(CanvasUICoordinator? canvasUI, Action<string, bool>? showStatusMessage)
+        public BalanceTuningPanelHandler(CanvasUICoordinator? canvasUI)
         {
             this.canvasUI = canvasUI;
-            this.showStatusMessage = showStatusMessage;
         }
 
         public void WireUp(UserControl panel)
         {
             if (panel is not BalanceTuningSettingsPanel balancePanel)
                 return;
-
-            if (showStatusMessage != null)
-                balancePanel.SetStatusCallback(showStatusMessage);
 
             var sheetsOutput = balancePanel.FindControl<TextBox>("SheetsSyncOutputTextBox");
             var sheetsProgress = balancePanel.FindControl<TextBlock>("SheetsSyncProgressTextBlock");

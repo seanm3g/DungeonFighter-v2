@@ -69,10 +69,11 @@ namespace RPGGame
             UIManager.WriteLine($"Intelligence: {player.Intelligence}");
             UIManager.WriteBlankLine();
             UIManager.WriteLine("=== CLASS POINTS ===");
-            UIManager.WriteLine($"Barbarian (Mace): {player.BarbarianPoints}");
-            UIManager.WriteLine($"Warrior (Sword): {player.WarriorPoints}");
-            UIManager.WriteLine($"Rogue (Dagger): {player.RoguePoints}");
-            UIManager.WriteLine($"Wizard (Wand): {player.WizardPoints}");
+            var pres2 = GameConfiguration.Instance.ClassPresentation.EnsureNormalized();
+            UIManager.WriteLine($"{pres2.GetDisplayName(WeaponType.Mace)} (Mace): {player.BarbarianPoints}");
+            UIManager.WriteLine($"{pres2.GetDisplayName(WeaponType.Sword)} (Sword): {player.WarriorPoints}");
+            UIManager.WriteLine($"{pres2.GetDisplayName(WeaponType.Dagger)} (Dagger): {player.RoguePoints}");
+            UIManager.WriteLine($"{pres2.GetDisplayName(WeaponType.Wand)} (Wand): {player.WizardPoints}");
             UIManager.WriteBlankLine();
             UIManager.WriteLine("=== EQUIPMENT ===");
             UIManager.WriteLine($"Weapon: {(player.Weapon != null ? ItemDisplayFormatter.GetColoredItemName(player.Weapon) : "None")}");
@@ -120,10 +121,11 @@ namespace RPGGame
             }
             // Show only classes with points > 0
             var classPointsInfo = new List<string>();
-            if (player.BarbarianPoints > 0) classPointsInfo.Add($"Barbarian({player.BarbarianPoints})");
-            if (player.WarriorPoints > 0) classPointsInfo.Add($"Warrior({player.WarriorPoints})");
-            if (player.RoguePoints > 0) classPointsInfo.Add($"Rogue({player.RoguePoints})");
-            if (player.WizardPoints > 0) classPointsInfo.Add($"Wizard({player.WizardPoints})");
+            var pres3 = GameConfiguration.Instance.ClassPresentation.EnsureNormalized();
+            if (player.BarbarianPoints > 0) classPointsInfo.Add($"{pres3.GetDisplayName(WeaponType.Mace)}({player.BarbarianPoints})");
+            if (player.WarriorPoints > 0) classPointsInfo.Add($"{pres3.GetDisplayName(WeaponType.Sword)}({player.WarriorPoints})");
+            if (player.RoguePoints > 0) classPointsInfo.Add($"{pres3.GetDisplayName(WeaponType.Dagger)}({player.RoguePoints})");
+            if (player.WizardPoints > 0) classPointsInfo.Add($"{pres3.GetDisplayName(WeaponType.Wand)}({player.WizardPoints})");
             
             if (classPointsInfo.Count > 0)
             {

@@ -257,8 +257,14 @@ namespace RPGGame
         public bool HasAutoSuccess() => _character.Equipment.HasAutoSuccess();
 
         // === PROGRESSION ===
-        public string GetCurrentClass() => _character.Progression.GetCurrentClass();
-        public string GetFullNameWithQualifier() => _character.Progression.GetFullNameWithQualifier(_character.Name);
+        public string GetCurrentClass() =>
+            AttributeClassNameComposer.ComposeDisplayClass(
+                _character.Stats,
+                _character.Progression,
+                GameConfiguration.Instance.ClassPresentation);
+
+        public string GetFullNameWithQualifier() =>
+            _character.Progression.GetFullNameWithQualifier(_character.Name, _character.Stats);
         public int GetNextClassThreshold(string className) => _character.Progression.GetNextClassThreshold(className);
         public string GetClassUpgradeInfo() => _character.Progression.GetClassUpgradeInfo();
         public void AwardClassPoint(WeaponType weaponType) => _character.Progression.AwardClassPoint(weaponType);

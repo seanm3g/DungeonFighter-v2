@@ -6,8 +6,8 @@ using RPGGame.UI.ColorSystem.Applications;
 namespace RPGGame
 {
     /// <summary>
-    /// Manages level up operations for Character, handling complex level up logic
-    /// Extracts level up logic from the main Character class
+    /// Manages level up for the player character. Level comes from XP (<see cref="CharacterProgression.AddXP"/>).
+    /// Stat growth follows the equipped weapon type; exactly one class point is awarded on that weapon path when a weapon is equipped at level-up (attributes do not award class points).
     /// </summary>
     public class LevelUpManager
     {
@@ -48,31 +48,7 @@ namespace RPGGame
             // Track level up statistics
             _character.RecordLevelUp(newLevel);
             
-            var tuning = GameConfiguration.Instance;
-            
-            // Calculate health increase based on class balance multipliers
-            int healthIncrease = tuning.Character.HealthPerLevel;
-            var classBalance = tuning.ClassBalance;
-            
-            // Apply class balance multipliers if available and valid
-            if (classBalance != null && _character.Equipment.Weapon is WeaponItem weapon)
-            {
-                var classMultipliers = GetClassMultipliers(weapon.WeaponType, classBalance);
-                // If multiplier is greater than 0, use it; otherwise use base health per level
-                if (classMultipliers.HealthMultiplier > 0)
-                {
-                    healthIncrease = (int)(tuning.Character.HealthPerLevel * classMultipliers.HealthMultiplier);
-                }
-            }
-            
-            // Ensure health always increases (defensive check)
-            // If healthPerLevel is 0 or negative, use a minimum of 1
-            if (healthIncrease <= 0)
-            {
-                healthIncrease = tuning.Character.HealthPerLevel > 0 
-                    ? tuning.Character.HealthPerLevel 
-                    : 1; // Fallback to minimum increase
-            }
+            int healthIncrease = GetHealthIncreaseForLevelStep();
             
             // Apply health increase
             _character.Health.MaxHealth += healthIncrease;
@@ -98,6 +74,64 @@ namespace RPGGame
             DamageCalculator.InvalidateCache(_character);
             
             return levelUpInfo;
+        }
+
+        /// <summary>
+        /// Reverses one level gained via <see cref="LevelUpWithInfo"/> (stats, health, class point). No UI output.
+        /// </summary>
+        public void LevelDownWithInfo()
+        {
+            if (_character.Progression.Level <= 1)
+                return;
+
+            var weapon = _character.Equipment.Weapon as WeaponItem;
+            int healthIncrease = GetHealthIncreaseForLevelStep();
+
+            // Mirror LevelUpWithInfo in reverse order (last forward effect undone first).
+            if (weapon != null)
+                _character.Progression.RemoveClassPoint(weapon.WeaponType);
+            else
+                _character.Stats.UndoLevelUpNoWeapon();
+
+            _character.Health.MaxHealth = Math.Max(1, _character.Health.MaxHealth - healthIncrease);
+            int cap = _character.GetEffectiveMaxHealth();
+            if (_character.Health.CurrentHealth > cap)
+                _character.Health.CurrentHealth = cap;
+
+            if (weapon != null)
+                _character.Stats.UndoLevelUp(weapon.WeaponType);
+            else
+                _character.Stats.UndoLevelUp(WeaponType.Mace);
+
+            _character.Progression.Level--;
+
+            _character.RecordLevelUp(_character.Level);
+            _character.Actions.AddClassActions(_character, _character.Progression, weapon?.WeaponType);
+            DamageCalculator.InvalidateCache(_character);
+        }
+
+        private int GetHealthIncreaseForLevelStep()
+        {
+            var tuning = GameConfiguration.Instance;
+
+            int healthIncrease = tuning.Character.HealthPerLevel;
+            var classBalance = tuning.ClassBalance;
+
+            if (classBalance != null && _character.Equipment.Weapon is WeaponItem weapon)
+            {
+                var classMultipliers = GetClassMultipliers(weapon.WeaponType, classBalance);
+                if (classMultipliers.HealthMultiplier > 0)
+                    healthIncrease = (int)(tuning.Character.HealthPerLevel * classMultipliers.HealthMultiplier);
+            }
+
+            if (healthIncrease <= 0)
+            {
+                healthIncrease = tuning.Character.HealthPerLevel > 0
+                    ? tuning.Character.HealthPerLevel
+                    : 1;
+            }
+
+            return healthIncrease;
         }
 
         /// <summary>
@@ -142,17 +176,18 @@ namespace RPGGame
                 NewLevel = newLevel,
                 ClassName = className,
                 StatIncreaseMessage = _character.Stats.GetStatIncreaseMessage(equippedWeapon.WeaponType),
-                CurrentClass = _character.Progression.GetCurrentClass(),
-                FullNameWithQualifier = _character.Progression.GetFullNameWithQualifier(_character.Name),
+                CurrentClass = _character.GetCurrentClass(),
+                FullNameWithQualifier = _character.Progression.GetFullNameWithQualifier(_character.Name, _character.Stats),
                 HasWeapon = true
             };
             
             // Build class points info
             var classPointsInfo = new List<string>();
-            if (_character.Progression.BarbarianPoints > 0) classPointsInfo.Add($"Barbarian({_character.Progression.BarbarianPoints})");
-            if (_character.Progression.WarriorPoints > 0) classPointsInfo.Add($"Warrior({_character.Progression.WarriorPoints})");
-            if (_character.Progression.RoguePoints > 0) classPointsInfo.Add($"Rogue({_character.Progression.RoguePoints})");
-            if (_character.Progression.WizardPoints > 0) classPointsInfo.Add($"Wizard({_character.Progression.WizardPoints})");
+            var pres = GameConfiguration.Instance.ClassPresentation.EnsureNormalized();
+            if (_character.Progression.BarbarianPoints > 0) classPointsInfo.Add($"{pres.GetDisplayName(WeaponType.Mace)}({_character.Progression.BarbarianPoints})");
+            if (_character.Progression.WarriorPoints > 0) classPointsInfo.Add($"{pres.GetDisplayName(WeaponType.Sword)}({_character.Progression.WarriorPoints})");
+            if (_character.Progression.RoguePoints > 0) classPointsInfo.Add($"{pres.GetDisplayName(WeaponType.Dagger)}({_character.Progression.RoguePoints})");
+            if (_character.Progression.WizardPoints > 0) classPointsInfo.Add($"{pres.GetDisplayName(WeaponType.Wand)}({_character.Progression.WizardPoints})");
             
             if (classPointsInfo.Count > 0)
             {
@@ -193,17 +228,8 @@ namespace RPGGame
         /// <summary>
         /// Gets class name from weapon type
         /// </summary>
-        private string GetClassName(WeaponType weaponType)
-        {
-            return weaponType switch
-            {
-                WeaponType.Mace => "Barbarian",
-                WeaponType.Sword => "Warrior",
-                WeaponType.Dagger => "Rogue",
-                WeaponType.Wand => "Wizard",
-                _ => "Unknown"
-            };
-        }
+        private string GetClassName(WeaponType weaponType) =>
+            GameConfiguration.Instance.ClassPresentation.EnsureNormalized().GetDisplayName(weaponType);
 
         /// <summary>
         /// Displays level up message
@@ -214,8 +240,8 @@ namespace RPGGame
             UIManager.WriteLine($"You reached level {_character.Progression.Level}!");
             UIManager.WriteLine($"Gained +1 {className} class point!");
             UIManager.WriteLine($"Stats increased: {_character.Stats.GetStatIncreaseMessage(equippedWeapon.WeaponType)}");
-            UIManager.WriteLine($"Current class: {_character.Progression.GetCurrentClass()}");
-            UIManager.WriteLine($"You are now known as: {_character.Progression.GetFullNameWithQualifier(_character.Name)}");
+            UIManager.WriteLine($"Current class: {_character.GetCurrentClass()}");
+            UIManager.WriteLine($"You are now known as: {_character.Progression.GetFullNameWithQualifier(_character.Name, _character.Stats)}");
         }
 
         /// <summary>
@@ -225,10 +251,11 @@ namespace RPGGame
         {
             // Show only classes with points > 0
             var classPointsInfo = new List<string>();
-            if (_character.Progression.BarbarianPoints > 0) classPointsInfo.Add($"Barbarian({_character.Progression.BarbarianPoints})");
-            if (_character.Progression.WarriorPoints > 0) classPointsInfo.Add($"Warrior({_character.Progression.WarriorPoints})");
-            if (_character.Progression.RoguePoints > 0) classPointsInfo.Add($"Rogue({_character.Progression.RoguePoints})");
-            if (_character.Progression.WizardPoints > 0) classPointsInfo.Add($"Wizard({_character.Progression.WizardPoints})");
+            var pres = GameConfiguration.Instance.ClassPresentation.EnsureNormalized();
+            if (_character.Progression.BarbarianPoints > 0) classPointsInfo.Add($"{pres.GetDisplayName(WeaponType.Mace)}({_character.Progression.BarbarianPoints})");
+            if (_character.Progression.WarriorPoints > 0) classPointsInfo.Add($"{pres.GetDisplayName(WeaponType.Sword)}({_character.Progression.WarriorPoints})");
+            if (_character.Progression.RoguePoints > 0) classPointsInfo.Add($"{pres.GetDisplayName(WeaponType.Dagger)}({_character.Progression.RoguePoints})");
+            if (_character.Progression.WizardPoints > 0) classPointsInfo.Add($"{pres.GetDisplayName(WeaponType.Wand)}({_character.Progression.WizardPoints})");
             
             if (classPointsInfo.Count > 0)
             {

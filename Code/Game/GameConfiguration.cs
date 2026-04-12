@@ -13,6 +13,8 @@ namespace RPGGame
     {
         private static GameConfiguration? _instance;
         private static readonly object _lock = new object();
+        /// <summary>Absolute path to TuningConfig.json once discovered or created; keeps Save and Load on the same file.</summary>
+        private static string? _cachedTuningConfigPath;
         
         // Character-related configurations
         public CharacterConfig Character { get; set; } = new();
@@ -21,6 +23,7 @@ namespace RPGGame
         public XPRewardsConfig XPRewards { get; set; } = new();
         public ExperienceSystemConfig ExperienceSystem { get; set; } = new();
         public ClassBalanceConfig ClassBalance { get; set; } = new();
+        public ClassPresentationConfig ClassPresentation { get; set; } = new();
 
         // Combat-related configurations
         public CombatConfig Combat { get; set; } = new();
@@ -89,40 +92,84 @@ namespace RPGGame
 
         public static bool IsDebugEnabled => Instance.Debug.EnableDebugOutput;
 
+        private static IEnumerable<string> TuningConfigPathCandidates()
+        {
+            string executableDir = AppDomain.CurrentDomain.BaseDirectory;
+            string currentDir = Directory.GetCurrentDirectory();
+            yield return Path.Combine(executableDir, "GameData", "TuningConfig.json");
+            yield return Path.Combine(executableDir, "..", "GameData", "TuningConfig.json");
+            yield return Path.Combine(executableDir, "..", "..", "GameData", "TuningConfig.json");
+            yield return Path.Combine(currentDir, "GameData", "TuningConfig.json");
+            yield return Path.Combine(currentDir, "..", "GameData", "TuningConfig.json");
+            yield return Path.Combine(currentDir, "..", "..", "GameData", "TuningConfig.json");
+            yield return Path.Combine("GameData", "TuningConfig.json");
+            yield return Path.Combine("..", "GameData", "TuningConfig.json");
+            yield return Path.Combine("..", "..", "GameData", "TuningConfig.json");
+        }
+
+        /// <summary>Resolves an existing tuning file (absolute path). Caches so Save writes the same file Load reads.</summary>
+        private static string? ResolveTuningConfigPathForRead()
+        {
+            if (_cachedTuningConfigPath != null && File.Exists(_cachedTuningConfigPath))
+                return _cachedTuningConfigPath;
+            foreach (string rel in TuningConfigPathCandidates())
+            {
+                try
+                {
+                    string full = Path.GetFullPath(rel);
+                    if (File.Exists(full))
+                    {
+                        _cachedTuningConfigPath = full;
+                        return full;
+                    }
+                }
+                catch
+                {
+                    // ignore invalid path
+                }
+            }
+            return null;
+        }
+
+        /// <summary>Path to write when no tuning file exists yet; prefers repo-root GameData next to project when cwd is Code/.</summary>
+        private static string ResolveTuningConfigPathForCreate()
+        {
+            string currentDir = Directory.GetCurrentDirectory();
+            string[] createOrder =
+            {
+                Path.Combine(currentDir, "..", "GameData", "TuningConfig.json"),
+                Path.Combine(currentDir, "GameData", "TuningConfig.json"),
+                Path.Combine("GameData", "TuningConfig.json")
+            };
+            foreach (string rel in createOrder)
+            {
+                try
+                {
+                    string full = Path.GetFullPath(rel);
+                    string? dir = Path.GetDirectoryName(full);
+                    if (dir != null && !Directory.Exists(dir))
+                        Directory.CreateDirectory(dir);
+                    _cachedTuningConfigPath = full;
+                    return full;
+                }
+                catch
+                {
+                    // try next
+                }
+            }
+            string fallback = Path.GetFullPath(Path.Combine("GameData", "TuningConfig.json"));
+            string? d2 = Path.GetDirectoryName(fallback);
+            if (d2 != null && !Directory.Exists(d2))
+                Directory.CreateDirectory(d2);
+            _cachedTuningConfigPath = fallback;
+            return fallback;
+        }
+
         private void LoadFromFile()
         {
             try
             {
-                // Try multiple possible paths for the config file
-                string executableDir = AppDomain.CurrentDomain.BaseDirectory;
-                string currentDir = Directory.GetCurrentDirectory();
-                
-                string[] possiblePaths = {
-                    // Relative to executable directory
-                    Path.Combine(executableDir, "GameData", "TuningConfig.json"),
-                    Path.Combine(executableDir, "..", "GameData", "TuningConfig.json"),
-                    Path.Combine(executableDir, "..", "..", "GameData", "TuningConfig.json"),
-                    
-                    // Relative to current working directory
-                    Path.Combine(currentDir, "GameData", "TuningConfig.json"),
-                    Path.Combine(currentDir, "..", "GameData", "TuningConfig.json"),
-                    Path.Combine(currentDir, "..", "..", "GameData", "TuningConfig.json"),
-                    
-                    // Legacy paths for backward compatibility
-                    Path.Combine("GameData", "TuningConfig.json"),
-                    Path.Combine("..", "GameData", "TuningConfig.json"),
-                    Path.Combine("..", "..", "GameData", "TuningConfig.json")
-                };
-                
-                string? configPath = null;
-                foreach (string path in possiblePaths)
-                {
-                    if (File.Exists(path))
-                    {
-                        configPath = path;
-                        break;
-                    }
-                }
+                string? configPath = ResolveTuningConfigPathForRead();
                 
                 if (configPath != null)
                 {
@@ -141,6 +188,9 @@ namespace RPGGame
                         XPRewards = config.XPRewards;
                         ExperienceSystem = config.ExperienceSystem;
                         ClassBalance = config.ClassBalance;
+                        ClassPresentation = config.ClassPresentation != null
+                            ? config.ClassPresentation.EnsureNormalized()
+                            : new ClassPresentationConfig().EnsureNormalized();
 
                         // Combat-related configurations
                         Combat = config.Combat;
@@ -193,7 +243,7 @@ namespace RPGGame
                 }
                 else
                 {
-                    UIManager.WriteSystemLine($"Warning: TuningConfig.json not found, using default values. Tried paths: {string.Join(", ", possiblePaths)}");
+                    UIManager.WriteSystemLine($"Warning: TuningConfig.json not found, using default values. Tried paths: {string.Join(", ", TuningConfigPathCandidates())}");
                 }
             }
             catch (Exception ex)
@@ -220,30 +270,7 @@ namespace RPGGame
                 // Try to read from raw JSON file to handle old format
                 try
                 {
-                    string executableDir = AppDomain.CurrentDomain.BaseDirectory;
-                    string currentDir = Directory.GetCurrentDirectory();
-                    
-                    string[] possiblePaths = {
-                        Path.Combine(executableDir, "GameData", "TuningConfig.json"),
-                        Path.Combine(executableDir, "..", "GameData", "TuningConfig.json"),
-                        Path.Combine(executableDir, "..", "..", "GameData", "TuningConfig.json"),
-                        Path.Combine(currentDir, "GameData", "TuningConfig.json"),
-                        Path.Combine(currentDir, "..", "GameData", "TuningConfig.json"),
-                        Path.Combine(currentDir, "..", "..", "GameData", "TuningConfig.json"),
-                        Path.Combine("GameData", "TuningConfig.json"),
-                        Path.Combine("..", "GameData", "TuningConfig.json"),
-                        Path.Combine("..", "..", "GameData", "TuningConfig.json")
-                    };
-                    
-                    string? configPath = null;
-                    foreach (string path in possiblePaths)
-                    {
-                        if (File.Exists(path))
-                        {
-                            configPath = path;
-                            break;
-                        }
-                    }
+                    string? configPath = ResolveTuningConfigPathForRead();
                     
                     if (configPath != null)
                     {
@@ -312,6 +339,7 @@ namespace RPGGame
             lock (_lock)
             {
                 _instance = null;
+                _cachedTuningConfigPath = null;
             }
         }
 
@@ -322,43 +350,10 @@ namespace RPGGame
         {
             try
             {
-                string executableDir = AppDomain.CurrentDomain.BaseDirectory;
-                string currentDir = Directory.GetCurrentDirectory();
+                string configPath = ResolveTuningConfigPathForRead() ?? ResolveTuningConfigPathForCreate();
                 
-                string[] possiblePaths = {
-                    Path.Combine(executableDir, "GameData", "TuningConfig.json"),
-                    Path.Combine(executableDir, "..", "GameData", "TuningConfig.json"),
-                    Path.Combine(executableDir, "..", "..", "GameData", "TuningConfig.json"),
-                    Path.Combine(currentDir, "GameData", "TuningConfig.json"),
-                    Path.Combine(currentDir, "..", "GameData", "TuningConfig.json"),
-                    Path.Combine(currentDir, "..", "..", "GameData", "TuningConfig.json"),
-                    Path.Combine("GameData", "TuningConfig.json"),
-                    Path.Combine("..", "GameData", "TuningConfig.json"),
-                    Path.Combine("..", "..", "GameData", "TuningConfig.json")
-                };
-                
-                string? configPath = null;
-                foreach (string path in possiblePaths)
-                {
-                    if (File.Exists(path))
-                    {
-                        configPath = path;
-                        break;
-                    }
-                }
-                
-                // If no existing file found, use default location
-                if (configPath == null)
-                {
-                    configPath = Path.Combine("GameData", "TuningConfig.json");
-                    // Ensure directory exists
-                    string? dir = Path.GetDirectoryName(configPath);
-                    if (dir != null && !Directory.Exists(dir))
-                    {
-                        Directory.CreateDirectory(dir);
-                    }
-                }
-                
+                ClassPresentation = ClassPresentation.EnsureNormalized();
+
                 var options = new JsonSerializerOptions
                 {
                     WriteIndented = true,

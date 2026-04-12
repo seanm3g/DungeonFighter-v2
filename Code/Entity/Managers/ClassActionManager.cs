@@ -55,7 +55,7 @@ namespace RPGGame
         {
             if (progression == null) return;
 
-            if (progression.BarbarianPoints >= 2)
+            if (progression.BarbarianPoints >= GameConfiguration.Instance.ClassPresentation.EnsureNormalized().TierThresholds[0])
             {
                 AddActionIfExists(entity, "FOLLOW THROUGH");
             }
@@ -94,7 +94,7 @@ namespace RPGGame
         {
             if (progression == null) return;
 
-            if (progression.RoguePoints >= 2)
+            if (progression.RoguePoints >= GameConfiguration.Instance.ClassPresentation.EnsureNormalized().TierThresholds[0])
             {
                 AddActionIfExists(entity, "MISDIRECT");
             }
@@ -171,7 +171,7 @@ namespace RPGGame
             var expectedClassActions = new HashSet<string>();
             
             // Barbarian actions
-            if (progression.BarbarianPoints >= 2)
+            if (progression.BarbarianPoints >= GameConfiguration.Instance.ClassPresentation.EnsureNormalized().TierThresholds[0])
             {
                 expectedClassActions.Add("FOLLOW THROUGH");
             }
@@ -192,7 +192,7 @@ namespace RPGGame
             }
             
             // Rogue actions
-            if (progression.RoguePoints >= 2)
+            if (progression.RoguePoints >= GameConfiguration.Instance.ClassPresentation.EnsureNormalized().TierThresholds[0])
             {
                 expectedClassActions.Add("MISDIRECT");
             }

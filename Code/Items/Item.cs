@@ -78,6 +78,11 @@ namespace RPGGame
         public int BonusDamage { get; set; } = 0;
         public int BonusAttackSpeed { get; set; } = 0;
         public List<string> Tags { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Persisted for <see cref="ItemType.Weapon"/> (save/load, inventory). Drives level-up stat spread and class points — same mapping as <see cref="WeaponItem"/> (Mace/Barbarian STR, etc.). Ignored for armor.
+        /// </summary>
+        public WeaponType WeaponType { get; set; } = WeaponType.Sword;
         
         // Attribute requirements for this item (extensible for future secondary attributes)
         public AttributeRequirements AttributeRequirements { get; set; } = new AttributeRequirements();
@@ -248,8 +253,7 @@ namespace RPGGame
     {
         public int BaseDamage { get; set; }
         public double BaseAttackSpeed { get; set; } = 0.05;
-        public WeaponType WeaponType { get; set; } = WeaponType.Sword;
-        
+
         public WeaponItem(string? name = null, int tier = 1, int baseDamage = 10, double baseAttackSpeed = 0.05, WeaponType weaponType = WeaponType.Sword)
             : base(ItemType.Weapon, name, tier)
         {

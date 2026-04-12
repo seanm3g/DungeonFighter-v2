@@ -259,7 +259,7 @@ namespace RPGGame.ActionInteractionLab
         private void ApplyLabPanelDeltasToLabHero()
         {
             if (_labPanelLevelDelta != 0)
-                _labPlayer.Level = Math.Clamp(_labPlayer.Level + _labPanelLevelDelta, 1, 99);
+                _labPlayer.ApplyActionLabLevelDelta(_labPanelLevelDelta);
             if (_labPanelStrDelta != 0)
                 _labPlayer.Stats.Strength = Math.Max(1, _labPlayer.Stats.Strength + _labPanelStrDelta);
             if (_labPanelAgiDelta != 0)

@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace RPGGame
@@ -200,44 +200,53 @@ namespace RPGGame
             return "A mysterious location.";
         }
 
-        public static string GetClassQualifier(string className, int classPoints)
+
+        public static string GetClassQualifier(WeaponType? primaryPath, int classPoints, string? legacyClassTitle = null)
         {
             var data = GetData();
-            
-            // Determine which qualifier array to use based on class
             string[] qualifiers;
-            string lowerClassName = className.ToLower();
-            
-            if (data.ClassQualifiers.ClassNames.Barbarian.Contains(lowerClassName))
+            if (primaryPath != null)
             {
-                qualifiers = data.ClassQualifiers.BarbarianQualifiers;
-            }
-            else if (data.ClassQualifiers.ClassNames.Warrior.Contains(lowerClassName))
-            {
-                qualifiers = data.ClassQualifiers.WarriorQualifiers;
-            }
-            else if (data.ClassQualifiers.ClassNames.Rogue.Contains(lowerClassName))
-            {
-                qualifiers = data.ClassQualifiers.RogueQualifiers;
-            }
-            else if (data.ClassQualifiers.ClassNames.Wizard.Contains(lowerClassName))
-            {
-                qualifiers = data.ClassQualifiers.WizardQualifiers;
+                qualifiers = primaryPath.Value switch
+                {
+                    WeaponType.Mace => data.ClassQualifiers.BarbarianQualifiers,
+                    WeaponType.Sword => data.ClassQualifiers.WarriorQualifiers,
+                    WeaponType.Dagger => data.ClassQualifiers.RogueQualifiers,
+                    WeaponType.Wand => data.ClassQualifiers.WizardQualifiers,
+                    _ => data.ClassQualifiers.FighterQualifiers
+                };
             }
             else
             {
-                qualifiers = data.ClassQualifiers.FighterQualifiers;
+                var cfg = GameConfiguration.Instance.ClassPresentation.EnsureNormalized();
+                if (!string.IsNullOrEmpty(legacyClassTitle)
+                    && string.Equals(legacyClassTitle.Trim(), cfg.DefaultNoPointsClassName, StringComparison.OrdinalIgnoreCase))
+                {
+                    qualifiers = data.ClassQualifiers.FighterQualifiers;
+                }
+                else
+                {
+                    string lower = (legacyClassTitle ?? "").ToLowerInvariant();
+                    if (data.ClassQualifiers.ClassNames.Barbarian.Contains(lower))
+                        qualifiers = data.ClassQualifiers.BarbarianQualifiers;
+                    else if (data.ClassQualifiers.ClassNames.Warrior.Contains(lower))
+                        qualifiers = data.ClassQualifiers.WarriorQualifiers;
+                    else if (data.ClassQualifiers.ClassNames.Rogue.Contains(lower))
+                        qualifiers = data.ClassQualifiers.RogueQualifiers;
+                    else if (data.ClassQualifiers.ClassNames.Wizard.Contains(lower))
+                        qualifiers = data.ClassQualifiers.WizardQualifiers;
+                    else
+                        qualifiers = data.ClassQualifiers.FighterQualifiers;
+                }
             }
 
-            // Select qualifier based on class points for variety
             if (qualifiers.Length == 0)
-            {
-                return ""; // Return empty string if no qualifiers available
-            }
-            
+                return "";
             int index = classPoints % qualifiers.Length;
             return qualifiers[index];
         }
+        public static string GetClassQualifier(string className, int classPoints) =>
+            GetClassQualifier(null, classPoints, className);
 
         public static string GenerateRoomContext(string theme, string roomType)
         {

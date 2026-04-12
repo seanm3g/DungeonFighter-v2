@@ -54,6 +54,12 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             CharacterAttributesTests.RunAllTests();
             Console.WriteLine();
+            CharacterProgressionClassReferenceTests.RunAllTests();
+            Console.WriteLine();
+            AttributeClassNameComposerTests.RunAllTests();
+            Console.WriteLine();
+            ClassPresentationConfigTests.RunAllTests();
+            Console.WriteLine();
 
             // Phase 2: Advanced Systems
             string phase2 = "PHASE 2: ADVANCED SYSTEMS";
@@ -392,6 +398,12 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine("=== CHARACTER SYSTEM TESTS ===\n");
             
             CharacterAttributesTests.RunAllTests();
+            Console.WriteLine();
+            CharacterProgressionClassReferenceTests.RunAllTests();
+            Console.WriteLine();
+            AttributeClassNameComposerTests.RunAllTests();
+            Console.WriteLine();
+            ClassPresentationConfigTests.RunAllTests();
         }
 
         /// <summary>

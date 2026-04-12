@@ -52,9 +52,23 @@ namespace RPGGame
             Intelligence = baseIntelligence + (level - 1) * attributesPerLevel;
         }
 
+        /// <summary>
+        /// Weapon type only (not class title or class points): which base stat receives +3 on <see cref="LevelUp"/>.
+        /// Mace→Barbarian flavor/STR, Sword→Warrior/AGI, Dagger→Rogue/TEC, Wand→Wizard/INT.
+        /// </summary>
+        public static string GetPrimaryStatLabelForWeapon(WeaponType weaponType) =>
+            weaponType switch
+            {
+                WeaponType.Mace => "Strength",
+                WeaponType.Sword => "Agility",
+                WeaponType.Dagger => "Technique",
+                WeaponType.Wand => "Intelligence",
+                _ => ""
+            };
+
         public void LevelUp(WeaponType weaponType)
         {
-            // Increase stats based on weapon class: +3 for weapon class, +1 for others
+            // Increase stats based on weapon type (+3 primary / +1 others); see GetPrimaryStatLabelForWeapon
             switch (weaponType)
             {
                 case WeaponType.Mace: // Barbarian - Strength
@@ -98,6 +112,53 @@ namespace RPGGame
             Agility += 2;
             Technique += 2;
             Intelligence += 2;
+        }
+
+        /// <summary>Reverses one <see cref="LevelUp"/> for the given weapon class (Action Lab level-down).</summary>
+        public void UndoLevelUp(WeaponType weaponType)
+        {
+            switch (weaponType)
+            {
+                case WeaponType.Mace:
+                    Strength -= 3;
+                    Agility -= 1;
+                    Technique -= 1;
+                    Intelligence -= 1;
+                    break;
+                case WeaponType.Sword:
+                    Strength -= 1;
+                    Agility -= 3;
+                    Technique -= 1;
+                    Intelligence -= 1;
+                    break;
+                case WeaponType.Dagger:
+                    Strength -= 1;
+                    Agility -= 1;
+                    Technique -= 3;
+                    Intelligence -= 1;
+                    break;
+                case WeaponType.Wand:
+                    Strength -= 1;
+                    Agility -= 1;
+                    Technique -= 1;
+                    Intelligence -= 3;
+                    break;
+                default:
+                    Strength -= 2;
+                    Agility -= 2;
+                    Technique -= 2;
+                    Intelligence -= 2;
+                    break;
+            }
+        }
+
+        /// <summary>Reverses one <see cref="LevelUpNoWeapon"/> (Action Lab level-down).</summary>
+        public void UndoLevelUpNoWeapon()
+        {
+            Strength -= 2;
+            Agility -= 2;
+            Technique -= 2;
+            Intelligence -= 2;
         }
 
         public void ApplyStatBonus(int bonus, string statType, int duration)

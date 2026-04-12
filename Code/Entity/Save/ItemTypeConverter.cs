@@ -65,7 +65,10 @@ namespace RPGGame
                 // Set reasonable defaults if we can't preserve the original values
                 weapon.BaseDamage = 10 + item.Tier * 2;
                 weapon.BaseAttackSpeed = 0.05;
-                weapon.WeaponType = WeaponType.Sword;
+                weapon.WeaponType = item.WeaponType;
+                // Old saves deserialized weapons as base Item without weaponType; recover from Weapons.json by name.
+                if (WeaponTypeFromCatalog.TryGetByWeaponName(item.Name, out var catalogType))
+                    weapon.WeaponType = catalogType;
             }
             
             return weapon;
@@ -136,6 +139,10 @@ namespace RPGGame
             destination.BonusDamage = source.BonusDamage;
             destination.BonusAttackSpeed = source.BonusAttackSpeed;
             destination.GearAction = source.GearAction;
+            destination.WeaponType = source.WeaponType;
+            destination.Level = source.Level;
+            destination.Tags = source.Tags;
+            destination.AttributeRequirements = source.AttributeRequirements;
         }
     }
 }

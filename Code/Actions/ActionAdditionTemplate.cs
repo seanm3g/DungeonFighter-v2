@@ -62,25 +62,27 @@ namespace RPGGame
         /// <returns>Dictionary of class names to their action configurations</returns>
         public static Dictionary<string, List<ClassActionConfig>> GetStandardClassActionConfigs()
         {
+            var t = GameConfiguration.Instance.ClassPresentation.EnsureNormalized().TierThresholds;
             return new Dictionary<string, List<ClassActionConfig>>
             {
                 ["Barbarian"] = new List<ClassActionConfig>
                 {
-                    new ClassActionConfig("FOLLOW THROUGH", 0.3, 2)
+                    new ClassActionConfig("FOLLOW THROUGH", 0.3, t[0])
                 },
                 ["Warrior"] = new List<ClassActionConfig>
                 {
-                    new ClassActionConfig("TAUNT", 0.4, 2)
+                    new ClassActionConfig("TAUNT", 0.4, t[0])
                 },
                 ["Rogue"] = new List<ClassActionConfig>
                 {
-                    new ClassActionConfig("MISDIRECT", 0.35, 2)
+                    new ClassActionConfig("MISDIRECT", 0.35, t[0])
                 },
                 ["Wizard"] = new List<ClassActionConfig>
                 {
-                    new ClassActionConfig("CHANNEL", 0.4, 2),   // Tier 1
-                    new ClassActionConfig("HEAL", 0.2, 20),            // Tier 2
-                    new ClassActionConfig("BLESS", 0.15, 60)           // Tier 3
+                    new ClassActionConfig("CHANNEL", 0.4, t[0]),
+                    new ClassActionConfig("HEAL", 0.2, t[1]),
+                    new ClassActionConfig("BLESS", 0.15, t[2]),
+                    new ClassActionConfig("CONCENTRATE", 0.12, t[3])
                 }
             };
         }

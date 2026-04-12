@@ -458,32 +458,13 @@ namespace RPGGame.UI.Avalonia.Layout
         }
         
         /// <summary>
-        /// Determines the primary stat for a character based on their class points
+        /// Stat row highlight for +3 level-up target: follows equipped weapon type (same as <see cref="CharacterStats.LevelUp"/>), not class points or display title.
         /// </summary>
-        private string GetPrimaryStatForCharacter(Character character)
+        private static string GetPrimaryStatForCharacter(Character character)
         {
-            // Get the highest class points to determine primary stat
-            int barbarianPoints = character.BarbarianPoints;
-            int warriorPoints = character.WarriorPoints;
-            int roguePoints = character.RoguePoints;
-            int wizardPoints = character.WizardPoints;
-            
-            // Find the class with the most points
-            var classes = new List<(string stat, int points)>
-            {
-                ("Strength", barbarianPoints),  // Barbarian - Strength
-                ("Agility", warriorPoints),    // Warrior - Agility
-                ("Technique", roguePoints),      // Rogue - Technique
-                ("Intelligence", wizardPoints)      // Wizard - Intelligence
-            };
-            
-            classes.Sort((a, b) => b.points.CompareTo(a.points));
-            
-            // If no class points, no primary stat (all white)
-            if (classes[0].points == 0)
-                return "";
-            
-            return classes[0].stat;
+            if (character.Weapon is WeaponItem wi)
+                return CharacterStats.GetPrimaryStatLabelForWeapon(wi.WeaponType);
+            return "";
         }
         
         /// <summary>

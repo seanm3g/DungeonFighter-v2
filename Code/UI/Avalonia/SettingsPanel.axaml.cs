@@ -98,6 +98,7 @@ namespace RPGGame.UI.Avalonia
             panelHandlerRegistry.Register(new GameplayPanelHandler(settings, settingsManager, ShowStatusMessage));
             panelHandlerRegistry.Register(new TextDelaysPanelHandler(settingsManager));
             panelHandlerRegistry.Register(new AppearancePanelHandler(settings, colorManager));
+            panelHandlerRegistry.Register(new Managers.Settings.PanelHandlers.ClassesPanelHandler(ShowStatusMessage));
             // Testing handler will be registered when canvasUI is available
             
             // Initialize save orchestrator (single panel resolution via GetPanelForCategory)
@@ -167,6 +168,8 @@ namespace RPGGame.UI.Avalonia
         public void RefreshSettingsFromFile()
         {
             settings = GameSettings.Instance;
+            // Tuning (class presentation, combat, etc.) must match disk when opening settings — same contract as GameSettings.ReloadFromFile().
+            GameConfiguration.Instance.Reload();
             // Ensure the selected category's panel is loaded (e.g. first open or SelectedIndex was set before items existed)
             if (CategoryListBox.SelectedItem is ListBoxItem selectedItem && selectedItem.Tag is string categoryTag
                 && !loadedPanels.ContainsKey(categoryTag))
@@ -330,6 +333,7 @@ namespace RPGGame.UI.Avalonia
         {
             if (panel == null) return null;
             if (panel is GameplaySettingsPanel) return "Gameplay";
+            if (panel is ClassesSettingsPanel) return "Classes";
             if (panel is GameVariablesSettingsPanel) return "GameVariables";
             if (panel is TextDelaysSettingsPanel) return "TextDelays";
             if (panel is AppearanceSettingsPanel) return "Appearance";
@@ -387,7 +391,7 @@ namespace RPGGame.UI.Avalonia
             }
 
             if (panelHandlerRegistry != null && !panelHandlerRegistry.HasHandler("BalanceTuning"))
-                panelHandlerRegistry.Register(new BalanceTuningPanelHandler(canvasUI, ShowStatusMessage));
+                panelHandlerRegistry.Register(new BalanceTuningPanelHandler(canvasUI));
             
             // Set state manager on GameplayPanelHandler so it can clear in-memory player when clearing saved characters
             if (panelHandlerRegistry != null && stateManager != null)

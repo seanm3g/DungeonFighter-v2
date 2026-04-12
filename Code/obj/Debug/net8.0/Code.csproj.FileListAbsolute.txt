@@ -2812,3 +2812,8 @@ D:\Code Projects\github projects\DungeonFighter-v2\Code\bin\compile_verify_impor
 D:\Code Projects\github projects\DungeonFighter-v2\Code\bin\compile_verify_import\runtimes\win\lib\net8.0\System.Diagnostics.EventLog.dll
 D:\Code Projects\github projects\DungeonFighter-v2\Code\bin\compile_verify_import\runtimes\win\lib\net7.0\System.Management.dll
 D:\Code Projects\github projects\DungeonFighter-v2\Code\bin\compile_verify_import\runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll
+d:\Code Projects\github projects\DungeonFighter-v2\_compilecheck_out\DF.exe
+d:\Code Projects\github projects\DungeonFighter-v2\_compilecheck_out\DF.deps.json
+d:\Code Projects\github projects\DungeonFighter-v2\_compilecheck_out\DF.runtimeconfig.json
+d:\Code Projects\github projects\DungeonFighter-v2\_compilecheck_out\DF.dll
+d:\Code Projects\github projects\DungeonFighter-v2\_compilecheck_out\DF.pdb

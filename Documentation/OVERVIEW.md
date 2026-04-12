@@ -45,6 +45,7 @@ dotnet run
 - **XP & Leveling:** Automatic stat increases and health restoration on level up
 - **Equipment System:** Weapons, armor with tier-based stats and special abilities
 - **Weapon-Based Classes:** Barbarian, Warrior, Rogue, Wizard with unique progression paths
+- **Class naming (two tracks):** **Level** is earned from **XP** only. Each **level up** while holding a weapon awards **+1 class point** on that weapon's path (Mace / Sword / Dagger / Wand); attributes do **not** grant levels or class points. The **on-screen class title** (HUD, menus, tooltips) uses **STR / AGI / TEC / INT** (meaningful-stat floor) to pick solo / duo / trio / quad **shape**, and uses **class points on the highest weapon path** against the **same four `tierThresholds` gates** as weapon tiers for Scarred… / Prophet… **bands** (thresholds + attribute words + path display names in Settings → Classes). **Weapon class points** also control **action unlocks** and optional **weapon-path hybrid titles** (hybrid matrices and per-path evolved titles live in `TuningConfig.json` and are preserved when saving from the Classes panel). Class action templates use weapon point thresholds for unlocks.
 - **Action Pool Management:** Dynamic action selection from equipped gear
 
 ### 👹 Enemy & AI System

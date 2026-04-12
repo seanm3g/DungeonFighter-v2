@@ -43,6 +43,7 @@ namespace RPGGame.Tests.Unit
             UndoReplayPreservesLabStatEdits(ref run, ref passed, ref failed);
             LeftPanelStatAdjustment_StrArmorAndFloors(ref run, ref passed, ref failed);
             LeftPanelStatAdjustment_HeroLevelClamp(ref run, ref passed, ref failed);
+            LeftPanelStatAdjustment_LevelUpMirrorsGameLevelUpForWeapon(ref run, ref passed, ref failed);
             GetTotalArmorIncludesLabBonus(ref run, ref passed, ref failed);
             ActionLabWeaponFactory_BuildsWithPrefixSuffix(ref run, ref passed, ref failed);
             ActionLabWeaponFactory_FindIndexMatchesTypeAndTier(ref run, ref passed, ref failed);
@@ -138,6 +139,38 @@ namespace RPGGame.Tests.Unit
             c.Level = 1;
             TestBase.AssertTrue(ActionLabLeftPanelStatAdjustment.TryApply(c, id, -1), "level at floor still handled", ref run, ref passed, ref failed);
             TestBase.AssertEqual(1, c.Level, "level stays 1", ref run, ref passed, ref failed);
+        }
+
+        private static void LeftPanelStatAdjustment_LevelUpMirrorsGameLevelUpForWeapon(ref int run, ref int passed, ref int failed)
+        {
+            var c = TestDataBuilders.Character().WithName("LabLvlWeapon").WithLevel(1).Build();
+            var sword = TestDataBuilders.Weapon().WithWeaponType(WeaponType.Sword).Build();
+            c.EquipItem(sword, "weapon");
+
+            int str0 = c.Stats.Strength;
+            int agi0 = c.Stats.Agility;
+            int tec0 = c.Stats.Technique;
+            int int0 = c.Stats.Intelligence;
+            int hp0 = c.MaxHealth;
+            int wp0 = c.Progression.WarriorPoints;
+
+            TestBase.AssertTrue(ActionLabLeftPanelStatAdjustment.TryApply(c, ActionLabLeftPanelStatAdjustment.HeroLevelHoverId, +1), "lab level +1", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(2, c.Level, "level becomes 2", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(str0 + 1, c.Stats.Strength, "warrior level-up +1 STR", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(agi0 + 3, c.Stats.Agility, "warrior level-up +3 AGI", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(tec0 + 1, c.Stats.Technique, "warrior level-up +1 TEC", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(int0 + 1, c.Stats.Intelligence, "warrior level-up +1 INT", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(c.MaxHealth > hp0, "max health increased on level-up", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(wp0 + 1, c.Progression.WarriorPoints, "warrior class point awarded", ref run, ref passed, ref failed);
+
+            TestBase.AssertTrue(ActionLabLeftPanelStatAdjustment.TryApply(c, ActionLabLeftPanelStatAdjustment.HeroLevelHoverId, -1), "lab level -1", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(1, c.Level, "level back to 1", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(str0, c.Stats.Strength, "STR restored after level-down", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(agi0, c.Stats.Agility, "AGI restored after level-down", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(tec0, c.Stats.Technique, "TEC restored after level-down", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(int0, c.Stats.Intelligence, "INT restored after level-down", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(hp0, c.MaxHealth, "max health restored after level-down", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(wp0, c.Progression.WarriorPoints, "warrior point removed after level-down", ref run, ref passed, ref failed);
         }
 
         private static void GetTotalArmorIncludesLabBonus(ref int run, ref int passed, ref int failed)

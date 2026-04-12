@@ -119,6 +119,7 @@
                      Foreground="White"
                      SelectionMode="Single">
             <ListBoxItem Content="Gameplay" Tag="Gameplay"/>
+            <ListBoxItem Content="Classes" Tag="Classes"/>
             <ListBoxItem Content="Game Variables" Tag="GameVariables"/>
             <ListBoxItem Content="Actions" Tag="Actions"/>
             <ListBoxItem Content="Status Effects" Tag="StatusEffects"/>

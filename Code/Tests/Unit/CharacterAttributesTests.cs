@@ -34,6 +34,7 @@ namespace RPGGame.Tests.Unit
             TestEquipmentBonuses();
             TestStatDecay();
             TestLevelUp();
+            TestWeaponPrimaryStatLabelMatchesLevelUpWeapon();
             TestStatIncreases();
             TestHealthRestoration();
             TestXPGain();
@@ -207,6 +208,20 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(character.Level > originalLevel, 
                 "Level should increase on level up", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestWeaponPrimaryStatLabelMatchesLevelUpWeapon()
+        {
+            Console.WriteLine("\n--- Testing weapon → primary stat label (level-up inference) ---");
+
+            TestBase.AssertEqual("Strength", CharacterStats.GetPrimaryStatLabelForWeapon(WeaponType.Mace),
+                "Mace primary stat label", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("Agility", CharacterStats.GetPrimaryStatLabelForWeapon(WeaponType.Sword),
+                "Sword primary stat label", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("Technique", CharacterStats.GetPrimaryStatLabelForWeapon(WeaponType.Dagger),
+                "Dagger primary stat label", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("Intelligence", CharacterStats.GetPrimaryStatLabelForWeapon(WeaponType.Wand),
+                "Wand primary stat label", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestStatIncreases()

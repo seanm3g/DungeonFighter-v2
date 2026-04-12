@@ -14,9 +14,6 @@ namespace RPGGame.ActionInteractionLab
         /// <summary>Level line in HERO section (<c>Lvl N Class</c>).</summary>
         public static string HeroLevelHoverId => LeftPanelHoverState.Prefix + "hero:level";
 
-        private const int LabLevelMin = 1;
-        private const int LabLevelMax = 99;
-
         /// <summary>
         /// Returns true if <paramref name="fullHoverValue"/> is a STATS row we adjust in the lab, and applies the delta.
         /// </summary>
@@ -28,7 +25,7 @@ namespace RPGGame.ActionInteractionLab
             if (string.Equals(fullHoverValue, HeroLevelHoverId, System.StringComparison.Ordinal))
             {
                 int before = player.Level;
-                player.Level = System.Math.Clamp(player.Level + delta, LabLevelMin, LabLevelMax);
+                player.ApplyActionLabLevelDelta(delta);
                 ActionInteractionLabSession.Current?.RecordLabPanelLevelDelta(player.Level - before);
                 return true;
             }

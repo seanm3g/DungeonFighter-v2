@@ -122,62 +122,31 @@ namespace RPGGame.UI.ColorSystem
         {
             if (character == null)
                 return ColorPalette.White.GetColor();
-            
+
+            var cfg = GameConfiguration.Instance.ClassPresentation.EnsureNormalized();
             string currentClass = character.GetCurrentClass();
-            
-            // If Fighter (base class with no class points), use white
-            if (string.Equals(currentClass, "Fighter", StringComparison.OrdinalIgnoreCase))
-            {
+            if (string.Equals(currentClass, cfg.DefaultNoPointsClassName, StringComparison.OrdinalIgnoreCase))
                 return ColorPalette.White.GetColor();
-            }
-            
-            // For hybrid classes (e.g., "Barbarian-Warrior"), use the primary class color
-            string primaryClass = currentClass;
-            if (currentClass.Contains('-'))
-            {
-                primaryClass = currentClass.Split('-')[0];
-            }
-            
-            // Map class name to color based on weapon type colors
-            return GetClassColor(primaryClass);
+
+            var wt = character.Progression.GetPrimaryClassWeaponType();
+            if (wt == null)
+                return ColorPalette.White.GetColor();
+            return GetWeaponPathColor(wt.Value);
         }
         
         /// <summary>
-        /// Gets the color for a class name based on weapon type colors
-        /// Barbarian (Mace) -> Cyan, Warrior (Sword) -> Gold/Yellow, Rogue (Dagger) -> Magenta, Wizard (Wand) -> Purple
-        /// Handles tier prefixes like "Adept", "Expert", "Master", "Novice"
+        /// Path color for the character's primary weapon class (Mace/Sword/Dagger/Wand).
+        /// Character panel uses <see cref="Character.Progression"/>'s primary path, not parsed display strings.
         /// </summary>
-        private static Color GetClassColor(string className)
+        private static Color GetWeaponPathColor(WeaponType weaponType) => weaponType switch
         {
-            if (string.IsNullOrEmpty(className))
-                return ColorPalette.White.GetColor();
-            
-            // Normalize class name for comparison
-            string normalizedClass = className.Trim();
-            
-            // Strip tier prefixes (Adept, Expert, Master, Novice) to get base class name
-            string[] tierPrefixes = { "adept ", "expert ", "master ", "novice " };
-            string baseClassName = normalizedClass.ToLowerInvariant();
-            foreach (string prefix in tierPrefixes)
-            {
-                if (baseClassName.StartsWith(prefix))
-                {
-                    baseClassName = baseClassName.Substring(prefix.Length).Trim();
-                    break;
-                }
-            }
-            
-            // Map class to weapon template color
-            // Using the first color from each weapon template
-            return baseClassName switch
-            {
-                "barbarian" => ColorConfigurationLoader.GetColorCode("C"),  // Cyan from mace_weapon
-                "warrior" => ColorConfigurationLoader.GetColorCode("W"),      // Gold/Yellow from sword_weapon
-                "rogue" => ColorConfigurationLoader.GetColorCode("M"),        // Magenta from dagger_weapon
-                "wizard" => ColorConfigurationLoader.GetColorCode("m"),    // Purple from wand_weapon
-                _ => ColorPalette.White.GetColor()  // Unknown class, fallback to white
-            };
-        }
+            WeaponType.Mace => ColorConfigurationLoader.GetColorCode("C"),
+            WeaponType.Sword => ColorConfigurationLoader.GetColorCode("W"),
+            WeaponType.Dagger => ColorConfigurationLoader.GetColorCode("M"),
+            WeaponType.Wand => ColorConfigurationLoader.GetColorCode("m"),
+            _ => ColorPalette.White.GetColor()
+        };
+
         
         /// <summary>
         /// Gets the color for a class name (public method for use in UI rendering)
@@ -186,24 +155,16 @@ namespace RPGGame.UI.ColorSystem
         {
             if (character == null)
                 return ColorPalette.White.GetColor();
-            
+
+            var cfg = GameConfiguration.Instance.ClassPresentation.EnsureNormalized();
             string currentClass = character.GetCurrentClass();
-            
-            // If Fighter (base class with no class points), use white
-            if (string.Equals(currentClass, "Fighter", StringComparison.OrdinalIgnoreCase))
-            {
+            if (string.Equals(currentClass, cfg.DefaultNoPointsClassName, StringComparison.OrdinalIgnoreCase))
                 return ColorPalette.White.GetColor();
-            }
-            
-            // For hybrid classes (e.g., "Barbarian-Warrior"), use the primary class color
-            string primaryClass = currentClass;
-            if (currentClass.Contains('-'))
-            {
-                primaryClass = currentClass.Split('-')[0];
-            }
-            
-            // Map class name to color based on weapon type colors
-            return GetClassColor(primaryClass);
+
+            var wt = character.Progression.GetPrimaryClassWeaponType();
+            if (wt == null)
+                return ColorPalette.White.GetColor();
+            return GetWeaponPathColor(wt.Value);
         }
         
         /// <summary>

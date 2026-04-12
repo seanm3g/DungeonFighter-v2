@@ -1,20 +1,20 @@
 {
   "character": {
-    "playerBaseHealth": 60,
-    "healthPerLevel": 3,
+    "playerBaseHealth": 0,
+    "healthPerLevel": 0,
     "enemyHealthPerLevel": 0
   },
   "attributes": {
     "playerBaseAttributes": {
-      "strength": 3,
-      "agility": 3,
-      "technique": 3,
-      "intelligence": 3
+      "strength": 0,
+      "agility": 0,
+      "technique": 0,
+      "intelligence": 0
     },
-    "playerAttributesPerLevel": 2,
-    "enemyAttributesPerLevel": 2,
-    "enemyPrimaryAttributeBonus": 1,
-    "intelligenceRollBonusPer": 5
+    "playerAttributesPerLevel": 0,
+    "enemyAttributesPerLevel": 0,
+    "enemyPrimaryAttributeBonus": 0,
+    "intelligenceRollBonusPer": 0
   },
   "progression": {
     "baseXPToLevel2": 0,
@@ -67,26 +67,2464 @@
     },
     "description": ""
   },
+  "classPresentation": {
+    "defaultNoPointsClassName": "Fighter",
+    "preTierLabel": "Novice",
+    "hybridJoiner": "-",
+    "maceClassDisplayName": "Barbarian",
+    "swordClassDisplayName": "Warrior",
+    "daggerClassDisplayName": "Rogue",
+    "wandClassDisplayName": "Wizard",
+    "tierNames": [
+      "Adept",
+      "Expert",
+      "Master",
+      "Paragon"
+    ],
+    "maceTierNames": [
+      "Warchief",
+      "Ravager",
+      "Bloodhowler",
+      "Titanborn"
+    ],
+    "swordTierNames": [
+      "Blademaster",
+      "Juggernaut",
+      "Sentinel",
+      "Warmonger"
+    ],
+    "daggerTierNames": [
+      "Shadowblade",
+      "Trickster",
+      "Phantom",
+      "Nightstalker"
+    ],
+    "wandTierNames": [
+      "Archmage",
+      "Voidcaller",
+      "Chronomancer",
+      "Spellweaver"
+    ],
+    "tierThresholds": [
+      2,
+      20,
+      60,
+      100
+    ],
+    "meaningfulAttributeMinimum": 8,
+    "attributeSoloTrioTierPrefixes": [
+      "Scarred",
+      "Blooded",
+      "Dread",
+      "Abyssal"
+    ],
+    "attributeQuadTierNames": [
+      "Prophet",
+      "Godkiller",
+      "Worldbreaker",
+      "Eternal"
+    ],
+    "attributeModifierMace": "of Fury",
+    "attributeModifierSword": "of the Vanguard",
+    "attributeModifierDagger": "of the Veil",
+    "attributeModifierWand": "of the Void",
+    "attributeDuoMaceSword": "Warbrute",
+    "attributeDuoMaceDagger": "Ravager",
+    "attributeDuoMaceWand": "Ragecaller",
+    "attributeDuoSwordDagger": "Duelist",
+    "attributeDuoSwordWand": "Spellblade",
+    "attributeDuoDaggerWand": "Hexblade",
+    "attributeTrioMaceSwordDagger": "Dreadstalker",
+    "attributeTrioMaceSwordWand": "Warmagus",
+    "attributeTrioMaceDaggerWand": "Void Reaver",
+    "attributeTrioSwordDaggerWand": "Spellshadow",
+    "hybridDuoTierRules": [
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Skullreaver",
+          "Ironhowl",
+          "Warbringer",
+          "Berserker King"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Savage Shade",
+          "Bloodreaver",
+          "Beastfang",
+          "Boneclaw"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Mace",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Mace",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Runecrusher",
+          "Hexbrute",
+          "Stormcaller",
+          "Totem Fiend"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Executioner",
+          "Ghostblade",
+          "Blade Dancer",
+          "Steel Viper"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Sword",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Sword",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Spellblade",
+          "Arcane Warden",
+          "Rune Knight",
+          "Warmage"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 1,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 1,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 2,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 2,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 3,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 3,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Dagger",
+        "secondaryPath": "Wand",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      },
+      {
+        "primaryPath": "Wand",
+        "secondaryPath": "Dagger",
+        "primaryTierBand": 4,
+        "secondaryTierBand": 4,
+        "titles": [
+          "Shadowcaster",
+          "Spellthief",
+          "Arcane Trickster",
+          "Wraith"
+        ]
+      }
+    ],
+    "hybridTrioRules": [
+      {
+        "paths": [
+          "Dagger",
+          "Mace",
+          "Sword"
+        ],
+        "titles": [
+          "Apex Predator",
+          "Warshade",
+          "Frenzied Fang",
+          "Deathhowl"
+        ]
+      },
+      {
+        "paths": [
+          "Mace",
+          "Sword",
+          "Wand"
+        ],
+        "titles": [
+          "Runefury",
+          "Arcane Ravager",
+          "Titan Mage",
+          "Warchanter"
+        ]
+      },
+      {
+        "paths": [
+          "Dagger",
+          "Mace",
+          "Wand"
+        ],
+        "titles": [
+          "Hexfang",
+          "Totem Shade",
+          "Curseborn",
+          "Chaos Fang"
+        ]
+      },
+      {
+        "paths": [
+          "Dagger",
+          "Sword",
+          "Wand"
+        ],
+        "titles": [
+          "Spellblade Assassin",
+          "Arcane Slayer",
+          "Warden of Shadows",
+          "Ghost Warlord"
+        ]
+      }
+    ],
+    "quadHybridTitles": [
+      "Godkiller",
+      "Omniblade",
+      "Eclipseborn",
+      "Avatar of Ruin"
+    ]
+  },
   "combat": {
-    "criticalHitThreshold": 20,
-    "criticalHitMultiplier": 2,
-    "minimumDamage": 1,
-    "baseAttackTime": 8,
-    "agilitySpeedReduction": 0.01,
-    "minimumAttackTime": 0.08,
+    "criticalHitThreshold": 0,
+    "criticalHitMultiplier": 0,
+    "minimumDamage": 0,
+    "baseAttackTime": 0,
+    "agilitySpeedReduction": 0,
+    "minimumAttackTime": 0,
     "agilityMin": 1,
     "agilityMax": 100,
     "agilityMinSpeedMultiplier": 0.99,
     "agilityMaxSpeedMultiplier": 0.01
   },
   "combatBalance": {
-    "criticalHitChance": 0.05,
-    "criticalHitDamageMultiplier": 2,
+    "criticalHitChance": 0,
+    "criticalHitDamageMultiplier": 0,
     "rollDamageMultipliers": {
-      "comboRollDamageMultiplier": 1.2,
-      "basicRollDamageMultiplier": 1,
-      "comboAmplificationScalingMultiplier": 1,
-      "tierScalingFallbackMultiplier": 1
+      "comboRollDamageMultiplier": 0,
+      "basicRollDamageMultiplier": 0,
+      "comboAmplificationScalingMultiplier": 0,
+      "tierScalingFallbackMultiplier": 0
     },
     "statusEffectScaling": {
       "bleedDuration": 0,
@@ -106,24 +2544,24 @@
   },
   "rollSystem": {
     "missThreshold": {
-      "min": 1,
-      "max": 5
+      "min": 0,
+      "max": 0
     },
     "basicAttackThreshold": {
-      "min": 6,
-      "max": 13
+      "min": 0,
+      "max": 0
     },
     "comboThreshold": {
-      "min": 14,
-      "max": 19
+      "min": 0,
+      "max": 0
     },
-    "criticalThreshold": 20
+    "criticalThreshold": 0
   },
   "comboSystem": {
-    "comboAmplifierAtTech5": 1.1,
-    "comboAmplifierMax": 2,
-    "comboAmplifierMaxTech": 100,
-    "comboAmplifierCurveExponent": 2.5
+    "comboAmplifierAtTech5": 0,
+    "comboAmplifierMax": 0,
+    "comboAmplifierMaxTech": 0,
+    "comboAmplifierCurveExponent": 0
   },
   "poison": {
     "tickInterval": 0,
@@ -280,7 +2718,7 @@
   },
   "enemySystem": {
     "globalMultipliers": {
-      "healthMultiplier": 1.5,
+      "healthMultiplier": 1,
       "damageMultiplier": 1,
       "armorMultiplier": 1,
       "speedMultiplier": 1,
@@ -398,20 +2836,20 @@
         "description": ""
       },
       "epic": {
-        "minLevel": 5,
+        "minLevel": 0,
         "earlyMultiplier": 0,
         "baseMultiplier": 0,
         "levelBonus": 0,
-        "description": "Epic items require player level 5 or higher"
+        "description": ""
       },
       "legendary": {
-        "minLevel": 10,
+        "minLevel": 0,
         "earlyThreshold": 0,
         "earlyMultiplier": 0,
         "midMultiplier": 0,
         "baseMultiplier": 0,
         "levelBonus": 0,
-        "description": "Legendary items require player level 10 or higher"
+        "description": ""
       }
     }
   },
@@ -442,52 +2880,8 @@
     "description": ""
   },
   "startingGear": {
-    "weapons": [
-      {
-        "name": "Mace",
-        "damage": 7.5,
-        "attackSpeed": 0.8,
-        "weight": 0
-      },
-      {
-        "name": "Sword",
-        "damage": 6.25,
-        "attackSpeed": 1,
-        "weight": 0
-      },
-      {
-        "name": "Dagger",
-        "damage": 3.75,
-        "attackSpeed": 1.2,
-        "weight": 0
-      },
-      {
-        "name": "Wand",
-        "damage": 5,
-        "attackSpeed": 1.1,
-        "weight": 0
-      }
-    ],
-    "armor": [
-      {
-        "slot": "Head",
-        "name": "Leather Helmet",
-        "armor": 0,
-        "weight": 0
-      },
-      {
-        "slot": "Chest",
-        "name": "Leather Armor",
-        "armor": 0,
-        "weight": 0
-      },
-      {
-        "slot": "Feet",
-        "name": "Leather Boots",
-        "armor": 0,
-        "weight": 0
-      }
-    ],
+    "weapons": [],
+    "armor": [],
     "description": "Initial equipment for new characters"
   },
   "dungeonScaling": {

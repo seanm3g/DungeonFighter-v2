@@ -139,6 +139,35 @@ namespace RPGGame
         public List<LevelUpInfo> AddXPWithLevelUpInfo(int amount) => Facade.AddXPWithLevelUpInfo(amount);
         public void LevelUp() => _levelUpManager.LevelUp();
 
+        /// <summary>
+        /// Action Interaction Lab: apply <paramref name="delta"/> level steps with the same stat, health, and class-point rules as normal <see cref="LevelUp"/>.
+        /// Level is clamped to 1–99. Does not print level-up banners.
+        /// </summary>
+        public void ApplyActionLabLevelDelta(int delta)
+        {
+            if (delta == 0)
+                return;
+
+            const int minLevel = 1;
+            const int maxLevel = 99;
+            int start = Level;
+            int target = Math.Clamp(start + delta, minLevel, maxLevel);
+            if (target == start)
+                return;
+
+            int steps = target - start;
+            if (steps > 0)
+            {
+                for (int i = 0; i < steps; i++)
+                    _levelUpManager.LevelUpWithInfo(levelAlreadyIncremented: false);
+            }
+            else
+            {
+                for (int i = 0; i < -steps; i++)
+                    _levelUpManager.LevelDownWithInfo();
+            }
+        }
+
         // Stat accessors (delegated to Facade)
         public int Strength { get => Facade.Strength; set => Facade.Strength = value; }
         public int Agility { get => Facade.Agility; set => Facade.Agility = value; }

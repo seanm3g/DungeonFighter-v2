@@ -197,13 +197,14 @@ namespace RPGGame.UI.Avalonia.Renderers
             // Class points section
             canvas.AddText(indent, currentY, "=== CLASS POINTS ===", AsciiArtAssets.Colors.Gold);
             currentY += 2;
-            canvas.AddText(indent, currentY, $"Barbarian (Mace): {character.BarbarianPoints}", AsciiArtAssets.Colors.White);
+            var presM = GameConfiguration.Instance.ClassPresentation.EnsureNormalized();
+            canvas.AddText(indent, currentY, $"{presM.GetDisplayName(WeaponType.Mace)} (Mace): {character.BarbarianPoints}", AsciiArtAssets.Colors.White);
             currentY++;
-            canvas.AddText(indent, currentY, $"Warrior (Sword): {character.WarriorPoints}", AsciiArtAssets.Colors.White);
+            canvas.AddText(indent, currentY, $"{presM.GetDisplayName(WeaponType.Sword)} (Sword): {character.WarriorPoints}", AsciiArtAssets.Colors.White);
             currentY++;
-            canvas.AddText(indent, currentY, $"Rogue (Dagger): {character.RoguePoints}", AsciiArtAssets.Colors.White);
+            canvas.AddText(indent, currentY, $"{presM.GetDisplayName(WeaponType.Dagger)} (Dagger): {character.RoguePoints}", AsciiArtAssets.Colors.White);
             currentY++;
-            canvas.AddText(indent, currentY, $"Wizard (Wand): {character.WizardPoints}", AsciiArtAssets.Colors.White);
+            canvas.AddText(indent, currentY, $"{presM.GetDisplayName(WeaponType.Wand)} (Wand): {character.WizardPoints}", AsciiArtAssets.Colors.White);
             currentY += 2;
             
             // Equipment section

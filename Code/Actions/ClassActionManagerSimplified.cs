@@ -87,7 +87,7 @@ namespace RPGGame
             ActionAdditionTemplate.AddClassActions(Actor, standardConfigs, progression.WizardPoints, "Wizard");
 
             // Add weapon-specific wizard actions
-            if (progression.WizardPoints >= 2)
+            if (progression.WizardPoints >= GameConfiguration.Instance.ClassPresentation.EnsureNormalized().TierThresholds[0])
             {
                 AddWeaponSpecificWizardActions(Actor, weaponType, progression.WizardPoints);
             }
@@ -104,7 +104,7 @@ namespace RPGGame
                     // Tier 1 actions (2 points) - CHANNEL is already added via standard configs
                     // Additional weapon-specific wizard actions can be added here if needed
                     // Tier 2 actions (20 points)
-                    ActionAdditionTemplate.AddClassAction(Actor, "LIGHTNING BOLT", 0.3, 20, wizardPoints, "Wizard");
+                    ActionAdditionTemplate.AddClassAction(Actor, "LIGHTNING BOLT", 0.3, GameConfiguration.Instance.ClassPresentation.EnsureNormalized().TierThresholds[1], wizardPoints, "Wizard");
                     // Tier 3 actions (60 points) - add when you create them
                     // ActionAdditionTemplate.AddClassAction(Actor, "TIER3_SPELL", 0.3, 60, wizardPoints, "Wizard");
                     break;

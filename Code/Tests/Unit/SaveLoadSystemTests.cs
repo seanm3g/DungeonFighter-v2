@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using RPGGame.Entity.Services;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit
@@ -30,6 +31,7 @@ namespace RPGGame.Tests.Unit
             TestEquipmentPersistence();
             TestProgressionPersistence();
             TestInventoryPersistence();
+            TestWeaponTypeRoundTripInCharacterSerializer();
 
             CharacterSaveManagerMultiFileTests.RunAllTests();
 
@@ -196,6 +198,31 @@ namespace RPGGame.Tests.Unit
                     $"Equipment persistence should not throw exception: {ex.Message}",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
+        }
+
+        private static void TestWeaponTypeRoundTripInCharacterSerializer()
+        {
+            Console.WriteLine("\n--- Testing weapon type survives serializer round-trip (level-up uses equipped weapon) ---");
+
+            _ = GameConfiguration.Instance;
+            var serializer = new CharacterSerializer();
+            var character = TestDataBuilders.Character().WithName("WeaponRoundTrip").WithLevel(1).Build();
+            var mace = TestDataBuilders.Weapon().WithName("LabMaceRoundTrip").WithWeaponType(WeaponType.Mace).Build();
+            character.EquipItem(mace, "weapon");
+
+            string json = serializer.Serialize(character);
+            var data = serializer.Deserialize(json);
+            TestBase.AssertNotNull(data, "deserialize save payload", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (data == null)
+                return;
+
+            var loaded = serializer.CreateCharacterFromSaveData(data);
+            var weapon = loaded.Equipment.Weapon as WeaponItem;
+            TestBase.AssertNotNull(weapon, "weapon slot is WeaponItem after load", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (weapon == null)
+                return;
+            TestBase.AssertTrue(weapon.WeaponType == WeaponType.Mace,
+                "WeaponType.Mace persists so level-ups use Barbarian stat spread", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestProgressionPersistence()
