@@ -1,6 +1,6 @@
 # Task List - DungeonFighter v6.2
 
-**Last Updated**: April 11, 2026  
+**Last Updated**: April 12, 2026  
 **Current Status**: Production Ready  
 **Version**: 6.2
 
@@ -8,6 +8,7 @@
 
 ## 📋 Current Status Summary
 
+- **Recent**: ✅ Action Interaction Lab — **Exit lab** / ESC from lab now returns to **Settings** when no save character is loaded (`ShowGameLoop` previously skipped rendering because the lab hero is not `CurrentPlayer`); with a loaded hero, exit still returns to **GameLoop** (`GameCoordinator.ExitActionInteractionLab`, `EscapeKeyHandler`).
 - **Major Features**: ✅ All Core Systems Complete
 - **Code Quality**: ✅ Well-Organized with Design Patterns
 - **Documentation**: ✅ Comprehensive (90+ documents)
@@ -27,7 +28,7 @@
 6. ✅ **Action System** - 30+ advanced actions with special mechanics
 7. ✅ **Item System** - Generation, loot, and inventory management
 8. ✅ **Data System** - JSON-driven content management
-9. ✅ **Class presentation tuning** — Settings → Classes edits `classPresentation` in TuningConfig (**tierThresholds**, path display names, default / fallback title, **meaningfulAttributeMinimum**, attribute tier words, duo/trio **display** cores, modifiers, preview). Per-path evolved titles, global tier labels, pre-tier label, hybrid joiner, and hybrid duo/trio/quad matrices remain in JSON and are **preserved** on save (not cleared by the panel). **HUD class title** via `AttributeClassNameComposer` (stats pick shape; **same** `tierThresholds` + primary-path **class points** pick Scarred… / Prophet… bands). **Weapon points** unchanged for unlocks and `GetWeaponPointsClassTitle()`. Unit tests: `AttributeClassNameComposerTests`, `CharacterProgressionClassReferenceTests`, `ClassPresentationConfigTests`.
+9. ✅ **Class presentation tuning** — Settings → Classes edits `classPresentation` in TuningConfig. Panel section order: **Starting name**, **Path display names**, **Class point tier thresholds**, **Solo–trio tier words**, **2-class hybrid cores**, **Third-path suffix (per path)** (`attributeModifierMace` / Sword / Dagger / Wand — appended only when 3+ paths are active **and** the third-highest path’s points ≥ **`tierThresholds[0]`**), **Quad tier words**, **Quad hybrid titles** (`quadHybridTitles`), path preview, live summary. `attributeThirdPathSuffix` remains in JSON as **legacy** (preserved on save; not used for HUD composition). `meaningfulAttributeMinimum` is legacy in JSON (unused for shown-class shape). Per-path evolved titles, global tier labels, pre-tier label, hybrid joiner, quad tier strings, and hybrid duo/trio/quad matrices remain in JSON and are **preserved** on save. **HUD class title** via `AttributeClassNameComposer`: solo/duo **prefix + core** only; **four paths** with a non-empty **`quadHybridTitles`** list use `TryPickQuadTitle` (same salt as `GetWeaponPointsClassTitle()`); else **3+ paths** use duo core from **top two**, then third-path phrase only if third-highest pts ≥ first gate. **Weapon points** unchanged for unlocks. Unit tests: `AttributeClassNameComposerTests`, `CharacterProgressionClassReferenceTests`, `ClassPresentationConfigTests`.
 
 ### GUI & Visual Features ✅
 1. ✅ **Action-info strip (fixed slots)** — Top center strip always shows at least 5 panels when a character is present (`LayoutConstants.ACTION_INFO_STRIP_FIXED_SLOT_COUNT`, `ActionInfoStripLayout.GetDisplayPanelCount`); empty slots use a dim border; tooltips and strip drag use the same display count (drop on empty slot ignored). See `DungeonRenderer.RenderActionInfoStrip`, `MouseInteractionHandler`.
@@ -412,7 +413,7 @@ In-game: Settings → Tests → [Choose Category]
 
 ---
 
-**Last Updated**: April 11, 2026  
+**Last Updated**: April 12, 2026  
 **Maintained By**: Development Team  
 **Status**: Active Development
 

@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using RPGGame;
 using RPGGame.GameCore.Input;
 using RPGGame.Tests;
 
@@ -30,6 +31,7 @@ namespace RPGGame.Tests.Unit.Game.Input
             TestHandleEscapeKey_Inventory();
             TestHandleEscapeKey_CharacterInfo();
             TestHandleEscapeKey_DungeonSelection();
+            TestHandleEscapeKey_ActionInteractionLab_InvokesExitDelegate();
             TestHandleEscapeKey_Default();
 
             TestBase.PrintSummary("EscapeKeyHandler Tests", _testsRun, _testsPassed, _testsFailed);
@@ -49,7 +51,8 @@ namespace RPGGame.Tests.Unit.Game.Input
             System.Action showDeveloperMenu = () => { };
             System.Action showActionEditor = () => { };
             
-            var handler = new EscapeKeyHandler(stateManager, handlers, showGameLoop, showMainMenu, showSettings, showDeveloperMenu, showActionEditor);
+            System.Action exitLab = () => { };
+            var handler = new EscapeKeyHandler(stateManager, handlers, showGameLoop, showMainMenu, showSettings, showDeveloperMenu, showActionEditor, exitLab);
             TestBase.AssertNotNull(handler,
                 "EscapeKeyHandler should be created",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -73,7 +76,8 @@ namespace RPGGame.Tests.Unit.Game.Input
             System.Action showDeveloperMenu = () => { };
             System.Action showActionEditor = () => { };
             
-            var handler = new EscapeKeyHandler(stateManager, handlers, showGameLoop, showMainMenu, showSettings, showDeveloperMenu, showActionEditor);
+            System.Action exitLab = () => { };
+            var handler = new EscapeKeyHandler(stateManager, handlers, showGameLoop, showMainMenu, showSettings, showDeveloperMenu, showActionEditor, exitLab);
             
             Task.Run(async () => await handler.HandleEscapeKey()).Wait();
             
@@ -96,7 +100,8 @@ namespace RPGGame.Tests.Unit.Game.Input
             System.Action showDeveloperMenu = () => { };
             System.Action showActionEditor = () => { };
             
-            var handler = new EscapeKeyHandler(stateManager, handlers, showGameLoop, showMainMenu, showSettings, showDeveloperMenu, showActionEditor);
+            System.Action exitLab = () => { };
+            var handler = new EscapeKeyHandler(stateManager, handlers, showGameLoop, showMainMenu, showSettings, showDeveloperMenu, showActionEditor, exitLab);
             
             Task.Run(async () => await handler.HandleEscapeKey()).Wait();
             
@@ -119,12 +124,38 @@ namespace RPGGame.Tests.Unit.Game.Input
             System.Action showDeveloperMenu = () => { };
             System.Action showActionEditor = () => { };
             
-            var handler = new EscapeKeyHandler(stateManager, handlers, showGameLoop, showMainMenu, showSettings, showDeveloperMenu, showActionEditor);
+            System.Action exitLab = () => { };
+            var handler = new EscapeKeyHandler(stateManager, handlers, showGameLoop, showMainMenu, showSettings, showDeveloperMenu, showActionEditor, exitLab);
             
             Task.Run(async () => await handler.HandleEscapeKey()).Wait();
             
             TestBase.AssertEqualEnum(GameState.GameLoop, stateManager.CurrentState,
                 "State should transition to GameLoop from DungeonSelection",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestHandleEscapeKey_ActionInteractionLab_InvokesExitDelegate()
+        {
+            Console.WriteLine("\n--- Testing HandleEscapeKey - ActionInteractionLab invokes exit delegate ---");
+
+            var stateManager = new GameStateManager();
+            stateManager.TransitionToState(GameState.ActionInteractionLab);
+
+            var handlers = new EscapeKeyHandlers();
+            int exitCalls = 0;
+            System.Action showGameLoop = () => { };
+            System.Action showMainMenu = () => { };
+            System.Action showSettings = () => { };
+            System.Action showDeveloperMenu = () => { };
+            System.Action showActionEditor = () => { };
+            System.Action exitLab = () => exitCalls++;
+
+            var handler = new EscapeKeyHandler(stateManager, handlers, showGameLoop, showMainMenu, showSettings, showDeveloperMenu, showActionEditor, exitLab);
+
+            Task.Run(async () => await handler.HandleEscapeKey()).Wait();
+
+            TestBase.AssertEqual(1, exitCalls,
+                "ActionInteractionLab escape should delegate to exitActionInteractionLab once",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -142,7 +173,8 @@ namespace RPGGame.Tests.Unit.Game.Input
             System.Action showDeveloperMenu = () => { };
             System.Action showActionEditor = () => { };
             
-            var handler = new EscapeKeyHandler(stateManager, handlers, showGameLoop, showMainMenu, showSettings, showDeveloperMenu, showActionEditor);
+            System.Action exitLab = () => { };
+            var handler = new EscapeKeyHandler(stateManager, handlers, showGameLoop, showMainMenu, showSettings, showDeveloperMenu, showActionEditor, exitLab);
             
             Task.Run(async () => await handler.HandleEscapeKey()).Wait();
             

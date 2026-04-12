@@ -259,7 +259,6 @@ namespace RPGGame
         // === PROGRESSION ===
         public string GetCurrentClass() =>
             AttributeClassNameComposer.ComposeDisplayClass(
-                _character.Stats,
                 _character.Progression,
                 GameConfiguration.Instance.ClassPresentation);
 

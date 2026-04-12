@@ -1684,7 +1684,6 @@ d:\Code Projects\github projects\DungeonFighter-v2\Code\obj\buildverify2\runtime
 d:\Code Projects\github projects\DungeonFighter-v2\Code\obj\buildverify2\runtimes\win\lib\net8.0\System.Diagnostics.EventLog.Messages.dll
 d:\Code Projects\github projects\DungeonFighter-v2\Code\obj\buildverify2\runtimes\win\lib\net8.0\System.Diagnostics.EventLog.dll
 d:\Code Projects\github projects\DungeonFighter-v2\Code\obj\buildverify2\runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll
-D:\Code Projects\github projects\DungeonFighter-v2\Code\bin\Debug\net8.0\DF.exe
 d:\Code Projects\github projects\DungeonFighter-v2\_build_verify_out\DF.exe
 d:\Code Projects\github projects\DungeonFighter-v2\_build_verify_out\DF.deps.json
 d:\Code Projects\github projects\DungeonFighter-v2\_build_verify_out\DF.runtimeconfig.json
@@ -2817,3 +2816,4 @@ d:\Code Projects\github projects\DungeonFighter-v2\_compilecheck_out\DF.deps.jso
 d:\Code Projects\github projects\DungeonFighter-v2\_compilecheck_out\DF.runtimeconfig.json
 d:\Code Projects\github projects\DungeonFighter-v2\_compilecheck_out\DF.dll
 d:\Code Projects\github projects\DungeonFighter-v2\_compilecheck_out\DF.pdb
+D:\Code Projects\github projects\DungeonFighter-v2\code\bin\Debug\net8.0\DF.exe

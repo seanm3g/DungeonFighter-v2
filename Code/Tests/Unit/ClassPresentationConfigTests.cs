@@ -16,6 +16,7 @@ namespace RPGGame.Tests.Unit
             ParseDuoHybridLines(ref run, ref passed, ref failed);
             DuoRulesDistinctBandPairs(ref run, ref passed, ref failed);
             AttributeDuoCoreNameUsesConfig(ref run, ref passed, ref failed);
+            AttributeThirdPathSuffixUsesConfig(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("ClassPresentationConfigTests", run, passed, failed);
         }
@@ -125,6 +126,12 @@ namespace RPGGame.Tests.Unit
         {
             var cfg = new ClassPresentationConfig { AttributeDuoMaceSword = "Skullsplitter" }.EnsureNormalized();
             TestBase.AssertEqual("Skullsplitter", cfg.GetAttributeDuoCoreName(WeaponType.Mace, WeaponType.Sword), "config duo core", ref run, ref passed, ref failed);
+        }
+
+        private static void AttributeThirdPathSuffixUsesConfig(ref int run, ref int passed, ref int failed)
+        {
+            var cfg = new ClassPresentationConfig { AttributeThirdPathSuffix = " of the Deep " }.EnsureNormalized();
+            TestBase.AssertEqual("of the Deep", cfg.GetAttributeThirdPathSuffix(), "trimmed third-path suffix", ref run, ref passed, ref failed);
         }
     }
 }

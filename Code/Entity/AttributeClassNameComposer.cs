@@ -1,311 +1,125 @@
 using System;
-
 using System.Collections.Generic;
-
 using System.Linq;
 
-
-
 namespace RPGGame
-
 {
-
     /// <summary>
-
-    /// Attribute-driven **display** class title (Steps 1–7). Does not affect XP, level, or class points;
-
-    /// class points are awarded on level-up from the equipped weapon (see <see cref="LevelUpManager"/>).
-
-    /// Uses base stats + temporary bonuses, no equipment (stable build identity) for **which** solo/duo/trio/quad
-
-    /// shape applies; **Scarred / Blooded / … / quad tier words** use the same <see cref="ClassPresentationConfig.TierThresholds"/>
-
-    /// gates as weapon paths, compared to **primary weapon path class points** (highest path by points).
-
+    /// HUD / menu **display** class title from **weapon path class points** only (no STR/AGI/TEC/INT).
+    /// Solo / duo **shape** = one or two paths with ≥1 class point, but the shown title stays
+    /// <see cref="ClassPresentationConfig.DefaultNoPointsClassName"/> until class points on the **highest** path reach
+    /// <see cref="ClassPresentationConfig.TierThresholds"/>[0] (first gate). Prefix tier words then use the same gates vs that path.
+    /// Solo and duo titles are **prefix + core** only (no per-path discipline “of the …” suffix). When **three or
+    /// four** paths have ≥1 point, if <see cref="ClassPresentationConfig.QuadHybridTitles"/> is non-empty the HUD uses
+    /// <see cref="ClassPresentationConfig.TryPickQuadTitle"/> (same salt as <see cref="CharacterProgression.GetWeaponPointsClassTitle"/>).
+    /// Otherwise the core is the **duo hybrid** for the **two highest** paths by points (ties →
+    /// <see cref="ClassPresentationConfig.ClassWeaponOrder"/>), then—if that path’s points are ≥
+    /// <see cref="ClassPresentationConfig.TierThresholds"/>[0]—<see cref="ClassPresentationConfig.GetAttributeDisciplineModifier"/>
+    /// for the **third-highest** path is appended.
     /// </summary>
-
     public static class AttributeClassNameComposer
-
     {
-
+        /// <summary>Builds the shown class string from progression and presentation config.</summary>
         public static string ComposeDisplayClass(
-
-            CharacterStats? stats,
-
             CharacterProgression? progression,
-
             ClassPresentationConfig presentation)
-
         {
-
             var cfg = presentation.EnsureNormalized();
-
-            if (stats == null)
-
+            if (progression == null)
                 return cfg.DefaultNoPointsClassName;
 
-
-
-            int str = stats.GetEffectiveStrength(0, 0);
-
-            int agi = stats.GetEffectiveAgility(0);
-
-            int tec = stats.GetEffectiveTechnique(0);
-
-            int intel = stats.GetEffectiveIntelligence(0);
-
-
-
-            int minMeaningful = Math.Max(1, cfg.MeaningfulAttributeMinimum);
-
-            var allRanked = BuildRankedStats(str, agi, tec, intel);
-
-            var meaningful = allRanked.Where(x => x.Value >= minMeaningful).ToList();
-
-
-
-            if (meaningful.Count == 0)
-
+            var ranked = progression.GetClassPathsSortedByPoints();
+            var active = ranked.Where(x => x.Points >= 1).ToList();
+            if (active.Count == 0)
                 return cfg.DefaultNoPointsClassName;
 
+            int highestPts = GetPrimaryPathClassPointsForDisplayTier(progression);
+            if (highestPts < cfg.TierThresholds[0])
+                return cfg.DefaultNoPointsClassName;
 
+            int band = cfg.GetTierBandIndex(highestPts);
 
-            int tierScore = GetPrimaryPathClassPointsForDisplayTier(progression);
-
-            int band = cfg.GetTierBandIndex(tierScore);
-
-
-
-            return meaningful.Count switch
-
+            return active.Count switch
             {
-
-                1 => BuildSoloTitle(meaningful[0], allRanked, cfg, band),
-
-                2 => BuildDuoTitle(meaningful, allRanked, cfg, band),
-
-                3 => BuildTrioTitle(meaningful, cfg, band),
-
-                _ => BuildQuadTitle(meaningful, cfg, band)
-
+                1 => BuildSoloTitle(active[0].Path, cfg, band),
+                2 => BuildDuoTitle(active[0].Path, active[1].Path, cfg, band),
+                _ => BuildMultiPathTitle(progression, ranked, cfg, band)
             };
-
         }
-
-
 
         /// <summary>Class points on the highest path (0 if none); drives tier band vs <see cref="ClassPresentationConfig.TierThresholds"/>.</summary>
-
         public static int GetPrimaryPathClassPointsForDisplayTier(CharacterProgression? progression)
-
         {
-
             if (progression == null) return 0;
-
             var sorted = progression.GetClassPathsSortedByPoints();
-
             return sorted[0].Points;
-
         }
 
-
-
-        private static List<(WeaponType Path, int Value)> BuildRankedStats(int str, int agi, int tec, int intel)
-
-        {
-
-            var list = new List<(WeaponType Path, int Value)>
-
-            {
-
-                (WeaponType.Mace, str),
-
-                (WeaponType.Sword, agi),
-
-                (WeaponType.Dagger, tec),
-
-                (WeaponType.Wand, intel)
-
-            };
-
-            return list
-
-                .OrderByDescending(x => x.Value)
-
-                .ThenBy(x => Array.IndexOf(ClassPresentationConfig.ClassWeaponOrder, x.Path))
-
-                .ToList();
-
-        }
-
-
-
-        /// <summary>Solo/duo/trio prefix slot 1..4 from <see cref="ClassPresentationConfig.GetTierBandIndex"/> (shifted vs quad names).</summary>
-
-        private static int SoloTrioPrefixSlot1To4FromBand(int band)
-
-        {
-
-            if (band < 0) return 1;
-
-            if (band == 0) return 1;
-
-            return Math.Min(band + 1, ClassPresentationConfig.TierSlotCount);
-
-        }
-
-
-
-        /// <summary>Quad tier slot 1..4: same 0-based band slots as weapon path evolved tiers (band 1..4 → slots 1..4).</summary>
-
-        private static int QuadTierSlot1To4FromBand(int band)
-
-        {
-
-            if (band < 1) return 1;
-
-            return Math.Min(band, ClassPresentationConfig.TierSlotCount);
-
-        }
-
-
+        /// <summary>
+        /// Maps <see cref="ClassPresentationConfig.GetTierBandIndex"/> to solo–trio prefix slot 1..4 (same meaning as
+        /// Settings “Band 1..4” vs <see cref="ClassPresentationConfig.TierThresholds"/>). Band 0 (below first gate) uses band 1’s word.
+        /// </summary>
+        private static int SoloTrioPrefixSlot1To4FromBand(int band) =>
+            Math.Clamp(band < 1 ? 1 : band, 1, ClassPresentationConfig.TierSlotCount);
 
         private static string JoinTitle(string prefix, string core, string? modifierSuffix)
-
         {
-
             string m = string.IsNullOrWhiteSpace(modifierSuffix) ? "" : " " + modifierSuffix.Trim();
-
             return $"{prefix.Trim()} {core.Trim()}{m}".Trim();
-
         }
-
-
 
         private static string BuildSoloTitle(
-
-            (WeaponType Path, int Value) sole,
-
-            List<(WeaponType Path, int Value)> allRanked,
-
+            WeaponType solePath,
             ClassPresentationConfig cfg,
-
             int band)
-
         {
-
             int slot = SoloTrioPrefixSlot1To4FromBand(band);
-
             string prefix = cfg.GetAttributeSoloTrioTierPrefix(slot);
-
-            string core = cfg.GetDisplayName(sole.Path);
-
-            var second = allRanked.First(x => x.Path != sole.Path);
-
-            string mod = cfg.GetAttributeDisciplineModifier(second.Path);
-
-            return JoinTitle(prefix, core, mod);
-
+            string core = cfg.GetDisplayName(solePath);
+            return JoinTitle(prefix, core, null);
         }
-
-
 
         private static string BuildDuoTitle(
-
-            List<(WeaponType Path, int Value)> meaningfulCore,
-
-            List<(WeaponType Path, int Value)> allRanked,
-
+            WeaponType a,
+            WeaponType b,
             ClassPresentationConfig cfg,
-
             int band)
-
         {
-
-            var a = meaningfulCore[0].Path;
-
-            var b = meaningfulCore[1].Path;
-
             int slot = SoloTrioPrefixSlot1To4FromBand(band);
-
             string prefix = cfg.GetAttributeSoloTrioTierPrefix(slot);
-
             string core = cfg.GetAttributeDuoCoreName(a, b);
-
-            var coreSet = new HashSet<WeaponType> { a, b };
-
-            var modPath = allRanked.Where(x => !coreSet.Contains(x.Path))
-
-                .OrderByDescending(x => x.Value)
-
-                .ThenBy(x => Array.IndexOf(ClassPresentationConfig.ClassWeaponOrder, x.Path))
-
-                .First().Path;
-
-            string mod = cfg.GetAttributeDisciplineModifier(modPath);
-
-            return JoinTitle(prefix, core, mod);
-
+            return JoinTitle(prefix, core, null);
         }
 
-
-
-        private static string BuildTrioTitle(
-
-            List<(WeaponType Path, int Value)> meaningfulThree,
-
+        /// <summary>Three or four paths: optional full quad title when all four paths are active and configured; else top-two duo + optional third suffix.</summary>
+        private static string BuildMultiPathTitle(
+            CharacterProgression progression,
+            IReadOnlyList<(WeaponType Path, int Points)> ranked,
             ClassPresentationConfig cfg,
-
             int band)
-
         {
+            int pathsWithPoints = ranked.Count(x => x.Points >= 1);
+            if (pathsWithPoints >= 4 && cfg.TryPickQuadTitle(progression.ComputeWeaponPathTitleSalt(), out string quadTitle))
+                return quadTitle;
+            return BuildMultiPathTopTwoTitle(ranked, cfg, band);
+        }
 
+        /// <summary>Three or four paths with ≥1 point: duo core from the two highest point totals; third-highest path’s suffix only if its points ≥ first tier gate.</summary>
+        private static string BuildMultiPathTopTwoTitle(
+            IReadOnlyList<(WeaponType Path, int Points)> ranked,
+            ClassPresentationConfig cfg,
+            int band)
+        {
             int slot = SoloTrioPrefixSlot1To4FromBand(band);
-
             string prefix = cfg.GetAttributeSoloTrioTierPrefix(slot);
-
-            var set = meaningfulThree.Select(x => x.Path).ToHashSet();
-
-            string? core = cfg.TryGetAttributeTrioCoreName(set);
-
-            if (string.IsNullOrEmpty(core))
-
-                core = string.Join(" / ", meaningfulThree.Select(x => cfg.GetDisplayName(x.Path)));
-
-            var lowest = meaningfulThree
-
-                .OrderBy(x => x.Value)
-
-                .ThenBy(x => Array.IndexOf(ClassPresentationConfig.ClassWeaponOrder, x.Path))
-
-                .First();
-
-            string mod = cfg.GetAttributeDisciplineModifier(lowest.Path);
-
-            return JoinTitle(prefix, core!, mod);
-
+            var a = ranked[0].Path;
+            var b = ranked[1].Path;
+            string core = cfg.GetAttributeDuoCoreName(a, b);
+            int firstGate = cfg.TierThresholds[0];
+            string? thirdPathSuffix = ranked[2].Points >= firstGate
+                ? cfg.GetAttributeDisciplineModifier(ranked[2].Path)
+                : null;
+            return JoinTitle(prefix, core, thirdPathSuffix);
         }
-
-
-
-        private static string BuildQuadTitle(
-
-            List<(WeaponType Path, int Value)> meaningfulFour,
-
-            ClassPresentationConfig cfg,
-
-            int band)
-
-        {
-
-            int slot = QuadTierSlot1To4FromBand(band);
-
-            return cfg.GetAttributeQuadTierName(slot);
-
-        }
-
     }
-
 }
-
-

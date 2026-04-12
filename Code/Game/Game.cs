@@ -158,7 +158,8 @@ namespace RPGGame
                 ShowVariableEditor,
                 ShowActionEditor,
                 ShowTuningParameters,
-                HandleCombatScroll);
+                HandleCombatScroll,
+                ExitActionInteractionLab);
             
             // Assign to instance fields
             mainMenuHandler = result.MainMenuHandler;
@@ -355,6 +356,25 @@ namespace RPGGame
             // Delegate to centralized screen coordinator to keep
             // all GameLoop screen logic in one place.
             screenCoordinator.ShowGameLoop();
+        }
+
+        /// <summary>
+        /// Ends the Action Interaction Lab and refreshes the UI. Uses the game hub when a character is loaded;
+        /// otherwise returns to Settings (the lab hero is only in <see cref="ActionInteractionLabSession"/>, not <see cref="GameStateManager.CurrentPlayer"/>).
+        /// </summary>
+        public void ExitActionInteractionLab()
+        {
+            ActionInteractionLabSession.EndSession();
+            if (stateManager.HasPlayer)
+            {
+                stateManager.TransitionToState(GameState.GameLoop);
+                ShowGameLoop();
+            }
+            else
+            {
+                stateManager.TransitionToState(GameState.Settings);
+                ShowSettings();
+            }
         }
 
         /// <summary>

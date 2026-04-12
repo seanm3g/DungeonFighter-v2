@@ -29,19 +29,25 @@
                     <TextBlock FontSize="14"
                                Foreground="#FF555555"
                                TextWrapping="Wrap"
-                               Text="Shown class name (HUD, menus, tooltips) follows attribute rules on STR / AGI / TEC / INT only — it does not change how you level or earn class points. Leveling is from XP; each level up with a weapon equipped gives +1 class point on that weapon path. Attributes never award class points. Save uses the main Settings Save button."/>
-                    <TextBlock Text="Attribute display (shown class)"
+                               Text="Shown class name (HUD, menus, tooltips) is built from **weapon path class points** only — not from STR / AGI / TEC / INT. Leveling is from XP; each level up with a weapon equipped gives +1 class point on that path. Save uses the main Settings Save button."/>
+                    <TextBlock Text="Starting name"
                                FontWeight="SemiBold" Foreground="Black" Margin="0,8,0,0"/>
                     <TextBlock FontSize="12" Foreground="#FF666666" TextWrapping="Wrap"
-                               Text="Meaningful stat minimum: a stat must reach this value (effective, no equipment) to count toward which duo/trio/quad **shape** you get from STR/AGI/TEC/INT. **Tier words** (Scarred… / Prophet…) use **class points** on your **highest** weapon path vs the four **class point tier thresholds** below (same values the game uses for weapon-path tier bands). They are not driven by raw stats."/>
-                    <Grid ColumnDefinitions="200,*" RowDefinitions="Auto,Auto,Auto" Margin="0,0,0,8">
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Meaningful stat minimum" VerticalAlignment="Center"/>
-                        <TextBox Grid.Row="0" Grid.Column="1" x:Name="MeaningfulAttributeMinimumTextBox"/>
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Preview: class pts (tier)" VerticalAlignment="Center"
-                                   ToolTip.Tip="Simulated class points on one path for the live preview only (your character uses real progression in-game)."/>
-                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="PreviewClassPointsForTierTextBox"/>
-                        <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" FontSize="12" Foreground="#FF666666" TextWrapping="Wrap"
-                                   Text="Shown-class tier gates = the four thresholds below (class points on highest path, not attribute totals)."/>
+                               Text="Default shown label when there is no meaningful build / no class-point shape yet."/>
+                    <TextBox x:Name="DefaultClassTextBox" Margin="0,0,0,8"/>
+                    <TextBlock Text="Path display names"
+                               FontWeight="SemiBold" Foreground="Black"/>
+                    <TextBlock FontSize="12" Foreground="#FF666666" TextWrapping="Wrap"
+                               Text="Used in the composed shown-class title (solo cores, etc.). Does not change how class points are earned."/>
+                    <Grid ColumnDefinitions="140,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,0,0,8">
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Mace" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" x:Name="MaceClassTextBox"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Sword" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="SwordClassTextBox"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Dagger" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" x:Name="DaggerClassTextBox"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Wand" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" x:Name="WandClassTextBox"/>
                     </Grid>
                     <TextBlock Text="Class point tier thresholds"
                                FontWeight="SemiBold" Foreground="Black" Margin="0,4,0,0"/>
@@ -57,26 +63,6 @@
                         <TextBlock Grid.Row="3" Grid.Column="0" Text="Threshold 4" VerticalAlignment="Center"/>
                         <TextBox Grid.Row="3" Grid.Column="1" x:Name="TierThreshold4TextBox"/>
                     </Grid>
-                    <TextBlock Text="Path display names"
-                               FontWeight="SemiBold" Foreground="Black"/>
-                    <TextBlock FontSize="12" Foreground="#FF666666" TextWrapping="Wrap"
-                               Text="Used in the composed shown-class title (solo cores, etc.) and in the live summary. Does not change how class points are earned."/>
-                    <Grid ColumnDefinitions="140,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,0,0,8">
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Mace" VerticalAlignment="Center"/>
-                        <TextBox Grid.Row="0" Grid.Column="1" x:Name="MaceClassTextBox"/>
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Sword" VerticalAlignment="Center"/>
-                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="SwordClassTextBox"/>
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Dagger" VerticalAlignment="Center"/>
-                        <TextBox Grid.Row="2" Grid.Column="1" x:Name="DaggerClassTextBox"/>
-                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Wand" VerticalAlignment="Center"/>
-                        <TextBox Grid.Row="3" Grid.Column="1" x:Name="WandClassTextBox"/>
-                    </Grid>
-                    <TextBlock Text="Default shown label (no meaningful stats / no build)"
-                               FontWeight="SemiBold" Foreground="Black"/>
-                    <Grid ColumnDefinitions="200,*" RowDefinitions="Auto" Margin="0,0,0,8">
-                        <TextBlock Grid.Column="0" Text="Fallback title" VerticalAlignment="Center"/>
-                        <TextBox Grid.Column="1" x:Name="DefaultClassTextBox"/>
-                    </Grid>
                     <TextBlock Text="Solo–trio tier words (bands 1–4)"
                                FontWeight="SemiBold" Foreground="Black"/>
                     <Grid ColumnDefinitions="180,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,0,0,8">
@@ -88,30 +74,6 @@
                         <TextBox Grid.Row="2" Grid.Column="1" x:Name="AttrSoloTrioPrefix3TextBox"/>
                         <TextBlock Grid.Row="3" Grid.Column="0" Text="Band 4" VerticalAlignment="Center"/>
                         <TextBox Grid.Row="3" Grid.Column="1" x:Name="AttrSoloTrioPrefix4TextBox"/>
-                    </Grid>
-                    <TextBlock Text="Quad tier words (all four stats meaningful)"
-                               FontWeight="SemiBold" Foreground="Black"/>
-                    <Grid ColumnDefinitions="180,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,0,0,8">
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Quad band 1" VerticalAlignment="Center"/>
-                        <TextBox Grid.Row="0" Grid.Column="1" x:Name="AttrQuadTier1TextBox"/>
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Quad band 2" VerticalAlignment="Center"/>
-                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="AttrQuadTier2TextBox"/>
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Quad band 3" VerticalAlignment="Center"/>
-                        <TextBox Grid.Row="2" Grid.Column="1" x:Name="AttrQuadTier3TextBox"/>
-                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Quad band 4" VerticalAlignment="Center"/>
-                        <TextBox Grid.Row="3" Grid.Column="1" x:Name="AttrQuadTier4TextBox"/>
-                    </Grid>
-                    <TextBlock Text="Discipline modifiers (solo / duo / trio suffix)"
-                               FontWeight="SemiBold" Foreground="Black"/>
-                    <Grid ColumnDefinitions="140,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,0,0,8">
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Mace path" VerticalAlignment="Center"/>
-                        <TextBox Grid.Row="0" Grid.Column="1" x:Name="AttrModMaceTextBox"/>
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Sword path" VerticalAlignment="Center"/>
-                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="AttrModSwordTextBox"/>
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Dagger path" VerticalAlignment="Center"/>
-                        <TextBox Grid.Row="2" Grid.Column="1" x:Name="AttrModDaggerTextBox"/>
-                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Wand path" VerticalAlignment="Center"/>
-                        <TextBox Grid.Row="3" Grid.Column="1" x:Name="AttrModWandTextBox"/>
                     </Grid>
                     <TextBlock Text="2-class hybrid cores (meaningful pair)"
                                FontWeight="SemiBold" Foreground="Black"/>
@@ -129,39 +91,49 @@
                         <TextBlock Grid.Row="5" Grid.Column="0" Text="Dagger + Wand" VerticalAlignment="Center"/>
                         <TextBox Grid.Row="5" Grid.Column="1" x:Name="AttrDuoDaggerWandTextBox"/>
                     </Grid>
-                    <TextBlock Text="3-class hybrid cores (meaningful triple)"
+                    <TextBlock Text="Third-path suffix (per path)"
                                FontWeight="SemiBold" Foreground="Black"/>
-                    <Grid ColumnDefinitions="220,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,0,0,8">
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Mace + Sword + Dagger" VerticalAlignment="Center"/>
-                        <TextBox Grid.Row="0" Grid.Column="1" x:Name="AttrTrioMaceSwordDaggerTextBox"/>
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Mace + Sword + Wand" VerticalAlignment="Center"/>
-                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="AttrTrioMaceSwordWandTextBox"/>
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Mace + Dagger + Wand" VerticalAlignment="Center"/>
-                        <TextBox Grid.Row="2" Grid.Column="1" x:Name="AttrTrioMaceDaggerWandTextBox"/>
-                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Sword + Dagger + Wand" VerticalAlignment="Center"/>
-                        <TextBox Grid.Row="3" Grid.Column="1" x:Name="AttrTrioSwordDaggerWandTextBox"/>
+                    <TextBlock FontSize="12" Foreground="#FF666666" TextWrapping="Wrap" Margin="0,0,0,4"
+                               Text="When **three or four** paths have ≥1 class point, the shown title can end with the phrase for the **third-highest** path (ties: Mace → Sword → Dagger → Wand) **only if** that path’s class points are ≥ **Threshold 1** in **Class point tier thresholds** above. Otherwise the title stops after the duo hybrid. Solo and duo do not use these rows. Stored as attributeModifierMace / Sword / Dagger / Wand in tuning JSON."/>
+                    <Grid ColumnDefinitions="140,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,0,0,8">
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Mace path" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" x:Name="AttrModMaceTextBox"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Sword path" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="AttrModSwordTextBox"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Dagger path" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" x:Name="AttrModDaggerTextBox"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Wand path" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" x:Name="AttrModWandTextBox"/>
                     </Grid>
-                    <TextBlock Text="Preview (sample stats → composed title)"
+                    <TextBlock Text="Quad tier words (optional tuning)"
                                FontWeight="SemiBold" Foreground="Black"/>
-                    <Grid ColumnDefinitions="56,*,56,*,56,*,56,*" RowDefinitions="Auto,Auto" Margin="0,0,0,8">
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="STR" VerticalAlignment="Center"/>
-                        <TextBox Grid.Row="0" Grid.Column="1" x:Name="PreviewStrTextBox"/>
-                        <TextBlock Grid.Row="0" Grid.Column="2" Text="AGI" VerticalAlignment="Center"/>
-                        <TextBox Grid.Row="0" Grid.Column="3" x:Name="PreviewAgiTextBox"/>
-                        <TextBlock Grid.Row="0" Grid.Column="4" Text="TEC" VerticalAlignment="Center"/>
-                        <TextBox Grid.Row="0" Grid.Column="5" x:Name="PreviewTecTextBox"/>
-                        <TextBlock Grid.Row="0" Grid.Column="6" Text="INT" VerticalAlignment="Center"/>
-                        <TextBox Grid.Row="0" Grid.Column="7" x:Name="PreviewIntTextBox"/>
-                        <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="8"
+                    <TextBlock FontSize="12" Foreground="#FF666666" TextWrapping="Wrap" Margin="0,0,0,4"
+                               Text="Not used for the HUD shown class when all four paths have points (that title uses the top-two duo core plus the third-highest path’s phrase when that path meets **Threshold 1**). Kept for JSON compatibility and other hybrid pickers."/>
+                    <Grid ColumnDefinitions="180,*" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,0,0,8">
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Quad band 1" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" x:Name="AttrQuadTier1TextBox"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Quad band 2" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="AttrQuadTier2TextBox"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Quad band 3" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" x:Name="AttrQuadTier3TextBox"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Quad band 4" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" x:Name="AttrQuadTier4TextBox"/>
+                    </Grid>
+                    <TextBlock Text="Preview (class points per path → composed title)"
+                               FontWeight="SemiBold" Foreground="Black"/>
+                    <Grid ColumnDefinitions="120,*,120,*,120,*" RowDefinitions="Auto,Auto,Auto" Margin="0,0,0,8">
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Mace pts" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" x:Name="PreviewMaceClassPointsTextBox"/>
+                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Sword pts" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="0" Grid.Column="3" x:Name="PreviewSwordClassPointsTextBox"/>
+                        <TextBlock Grid.Row="0" Grid.Column="4" Text="Dagger pts" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="0" Grid.Column="5" x:Name="PreviewDaggerClassPointsTextBox"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Wand pts" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" x:Name="PreviewWandClassPointsTextBox"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="6"
                                    x:Name="AttributeClassPreviewTextBlock"
                                    FontSize="14" Foreground="Black" TextWrapping="Wrap" Margin="0,6,0,0"/>
                     </Grid>
-                    <TextBlock Text="Live summary"
-                               FontWeight="SemiBold" Foreground="Black"/>
-                    <TextBlock x:Name="SummaryTextBlock"
-                               FontSize="15"
-                               Foreground="Black"
-                               TextWrapping="Wrap"/>
                 </StackPanel>
             </Border>
         </StackPanel>

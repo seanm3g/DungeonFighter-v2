@@ -45,22 +45,19 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             hook(p.FindControl<TextBox>("TierThreshold2TextBox"));
             hook(p.FindControl<TextBox>("TierThreshold3TextBox"));
             hook(p.FindControl<TextBox>("TierThreshold4TextBox"));
-            hook(p.FindControl<TextBox>("MeaningfulAttributeMinimumTextBox"));
-            hook(p.FindControl<TextBox>("PreviewClassPointsForTierTextBox"));
+            hook(p.FindControl<TextBox>("PreviewMaceClassPointsTextBox"));
+            hook(p.FindControl<TextBox>("PreviewSwordClassPointsTextBox"));
+            hook(p.FindControl<TextBox>("PreviewDaggerClassPointsTextBox"));
+            hook(p.FindControl<TextBox>("PreviewWandClassPointsTextBox"));
             foreach (var name in new[]
                      {
                          "AttrSoloTrioPrefix1TextBox", "AttrSoloTrioPrefix2TextBox", "AttrSoloTrioPrefix3TextBox", "AttrSoloTrioPrefix4TextBox",
                          "AttrQuadTier1TextBox", "AttrQuadTier2TextBox", "AttrQuadTier3TextBox", "AttrQuadTier4TextBox",
                          "AttrModMaceTextBox", "AttrModSwordTextBox", "AttrModDaggerTextBox", "AttrModWandTextBox",
                          "AttrDuoMaceSwordTextBox", "AttrDuoMaceDaggerTextBox", "AttrDuoMaceWandTextBox",
-                         "AttrDuoSwordDaggerTextBox", "AttrDuoSwordWandTextBox", "AttrDuoDaggerWandTextBox",
-                         "AttrTrioMaceSwordDaggerTextBox", "AttrTrioMaceSwordWandTextBox", "AttrTrioMaceDaggerWandTextBox", "AttrTrioSwordDaggerWandTextBox"
+                         "AttrDuoSwordDaggerTextBox", "AttrDuoSwordWandTextBox", "AttrDuoDaggerWandTextBox"
                      })
                 hook(p.FindControl<TextBox>(name));
-            hook(p.FindControl<TextBox>("PreviewStrTextBox"));
-            hook(p.FindControl<TextBox>("PreviewAgiTextBox"));
-            hook(p.FindControl<TextBox>("PreviewTecTextBox"));
-            hook(p.FindControl<TextBox>("PreviewIntTextBox"));
             hook(p.FindControl<TextBox>("DefaultClassTextBox"));
             LoadSettings(p);
         }
@@ -77,8 +74,10 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             Set(p, "TierThreshold2TextBox", c.TierThresholds[1].ToString());
             Set(p, "TierThreshold3TextBox", c.TierThresholds[2].ToString());
             Set(p, "TierThreshold4TextBox", c.TierThresholds[3].ToString());
-            Set(p, "MeaningfulAttributeMinimumTextBox", c.MeaningfulAttributeMinimum.ToString());
-            Set(p, "PreviewClassPointsForTierTextBox", "30");
+            Set(p, "PreviewMaceClassPointsTextBox", "0");
+            Set(p, "PreviewSwordClassPointsTextBox", "0");
+            Set(p, "PreviewDaggerClassPointsTextBox", "0");
+            Set(p, "PreviewWandClassPointsTextBox", "0");
             var st = c.AttributeSoloTrioTierPrefixes;
             Set(p, "AttrSoloTrioPrefix1TextBox", st[0]);
             Set(p, "AttrSoloTrioPrefix2TextBox", st[1]);
@@ -99,14 +98,6 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             Set(p, "AttrDuoSwordDaggerTextBox", c.AttributeDuoSwordDagger);
             Set(p, "AttrDuoSwordWandTextBox", c.AttributeDuoSwordWand);
             Set(p, "AttrDuoDaggerWandTextBox", c.AttributeDuoDaggerWand);
-            Set(p, "AttrTrioMaceSwordDaggerTextBox", c.AttributeTrioMaceSwordDagger);
-            Set(p, "AttrTrioMaceSwordWandTextBox", c.AttributeTrioMaceSwordWand);
-            Set(p, "AttrTrioMaceDaggerWandTextBox", c.AttributeTrioMaceDaggerWand);
-            Set(p, "AttrTrioSwordDaggerWandTextBox", c.AttributeTrioSwordDaggerWand);
-            Set(p, "PreviewStrTextBox", "14");
-            Set(p, "PreviewAgiTextBox", "12");
-            Set(p, "PreviewTecTextBox", "10");
-            Set(p, "PreviewIntTextBox", "8");
             Set(p, "DefaultClassTextBox", c.DefaultNoPointsClassName);
             RefreshSummary(p);
         }
@@ -213,7 +204,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 || !int.TryParse(T(p, "TierThreshold3TextBox"), out int t3)
                 || !int.TryParse(T(p, "TierThreshold4TextBox"), out int t4))
                 throw new FormatException("Tier thresholds must be integers.");
-            int meaningfulAttr = int.TryParse(T(p, "MeaningfulAttributeMinimumTextBox"), out int mm) ? mm : 8;
+            int meaningfulAttr = cur.MeaningfulAttributeMinimum;
             var duo = DuoMatrixHost(p) != null ? ReadHybridDuoFromMatrix(p) : cur.HybridDuoTierRules;
             var trio = TrioRowsHost(p) != null ? ReadHybridTrioFromRows(p) : cur.HybridTrioRules;
             string[]? quadHybrid;
@@ -263,10 +254,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 AttributeDuoSwordDagger = T(p, "AttrDuoSwordDaggerTextBox"),
                 AttributeDuoSwordWand = T(p, "AttrDuoSwordWandTextBox"),
                 AttributeDuoDaggerWand = T(p, "AttrDuoDaggerWandTextBox"),
-                AttributeTrioMaceSwordDagger = T(p, "AttrTrioMaceSwordDaggerTextBox"),
-                AttributeTrioMaceSwordWand = T(p, "AttrTrioMaceSwordWandTextBox"),
-                AttributeTrioMaceDaggerWand = T(p, "AttrTrioMaceDaggerWandTextBox"),
-                AttributeTrioSwordDaggerWand = T(p, "AttrTrioSwordDaggerWandTextBox")
+                AttributeThirdPathSuffix = cur.AttributeThirdPathSuffix
             };
         }
 
@@ -274,16 +262,6 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
         {
             UpdateEvolvedGridHeaders(p);
             UpdateHybridDynamicLabels(p);
-            if (p.FindControl<TextBlock>("SummaryTextBlock") is not { } tb) return;
-            try
-            {
-                tb.Text = CharacterProgression.BuildClassSystemSettingsSummary(ReadFromPanel(p));
-            }
-            catch
-            {
-                tb.Text = "(Fix invalid values to refresh summary.)";
-            }
-
             RefreshAttributeClassPreview(p);
         }
 
@@ -293,27 +271,21 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             try
             {
                 var cfg = ReadFromPanel(p).EnsureNormalized();
-                int str = int.TryParse(T(p, "PreviewStrTextBox"), out int s) ? s : 14;
-                int agi = int.TryParse(T(p, "PreviewAgiTextBox"), out int a) ? a : 12;
-                int tec = int.TryParse(T(p, "PreviewTecTextBox"), out int t) ? t : 10;
-                int intel = int.TryParse(T(p, "PreviewIntTextBox"), out int i) ? i : 8;
-                var stats = new CharacterStats(1)
-                {
-                    Strength = str,
-                    Agility = agi,
-                    Technique = tec,
-                    Intelligence = intel
-                };
-                int previewPts = int.TryParse(T(p, "PreviewClassPointsForTierTextBox"), out int pp) ? Math.Max(0, pp) : 0;
+                int m = int.TryParse(T(p, "PreviewMaceClassPointsTextBox"), out int mb) ? Math.Max(0, mb) : 0;
+                int w = int.TryParse(T(p, "PreviewSwordClassPointsTextBox"), out int ws) ? Math.Max(0, ws) : 0;
+                int r = int.TryParse(T(p, "PreviewDaggerClassPointsTextBox"), out int rd) ? Math.Max(0, rd) : 0;
+                int z = int.TryParse(T(p, "PreviewWandClassPointsTextBox"), out int zw) ? Math.Max(0, zw) : 0;
                 var previewProg = new CharacterProgression();
-                if (previewPts > 0)
-                    previewProg.WarriorPoints = previewPts;
-                string composed = AttributeClassNameComposer.ComposeDisplayClass(stats, previewProg, cfg);
+                previewProg.BarbarianPoints = m;
+                previewProg.WarriorPoints = w;
+                previewProg.RoguePoints = r;
+                previewProg.WizardPoints = z;
+                string composed = AttributeClassNameComposer.ComposeDisplayClass(previewProg, cfg);
                 tb.Text = $"Preview title: {composed}";
             }
             catch
             {
-                tb.Text = "Preview title: (fix class / attribute numeric fields)";
+                tb.Text = "Preview title: (fix preview / threshold numeric fields)";
             }
         }
 

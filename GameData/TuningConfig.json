@@ -113,7 +113,7 @@
     ],
     "meaningfulAttributeMinimum": 8,
     "attributeSoloTrioTierPrefixes": [
-      "Scarred",
+      "Lesser",
       "Blooded",
       "Dread",
       "Abyssal"
@@ -128,16 +128,13 @@
     "attributeModifierSword": "of the Vanguard",
     "attributeModifierDagger": "of the Veil",
     "attributeModifierWand": "of the Void",
+    "attributeThirdPathSuffix": "of the Veil",
     "attributeDuoMaceSword": "Warbrute",
     "attributeDuoMaceDagger": "Ravager",
     "attributeDuoMaceWand": "Ragecaller",
     "attributeDuoSwordDagger": "Duelist",
     "attributeDuoSwordWand": "Spellblade",
     "attributeDuoDaggerWand": "Hexblade",
-    "attributeTrioMaceSwordDagger": "Dreadstalker",
-    "attributeTrioMaceSwordWand": "Warmagus",
-    "attributeTrioMaceDaggerWand": "Void Reaver",
-    "attributeTrioSwordDaggerWand": "Spellshadow",
     "hybridDuoTierRules": [
       {
         "primaryPath": "Mace",

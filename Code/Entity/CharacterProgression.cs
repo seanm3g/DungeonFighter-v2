@@ -99,6 +99,15 @@ namespace RPGGame
                 .ToList();
         }
 
+        /// <summary>Stable salt for hybrid title picks (quad / trio / duo rules) from current path points.</summary>
+        public int ComputeWeaponPathTitleSalt()
+        {
+            int salt = 0;
+            foreach (var x in GetClassPathsSortedByPoints())
+                salt ^= (x.Points * 13) ^ ((int)x.Path << 3);
+            return salt;
+        }
+
         public WeaponType? GetPrimaryClassWeaponType()
         {
             var sorted = GetClassPathsSortedByPoints();
@@ -116,9 +125,7 @@ namespace RPGGame
             if (sorted[0].Points == 0)
                 return cfg.DefaultNoPointsClassName;
 
-            int salt = 0;
-            foreach (var x in sorted)
-                salt ^= (x.Points * 13) ^ ((int)x.Path << 3);
+            int salt = ComputeWeaponPathTitleSalt();
 
             var activePaths = sorted.Where(x => x.Points >= 1).Select(x => x.Path).ToList();
             int activeCount = activePaths.Count;
@@ -154,7 +161,7 @@ namespace RPGGame
         public string GetFullNameWithQualifier(string characterName, CharacterStats? stats)
         {
             var cfg = Pres;
-            string displayClass = AttributeClassNameComposer.ComposeDisplayClass(stats, this, cfg);
+            string displayClass = AttributeClassNameComposer.ComposeDisplayClass(this, cfg);
             int primaryClassPoints = GetPrimaryWeaponPathPoints();
             var wt = GetPrimaryClassWeaponType();
             string qualifier = FlavorText.GetClassQualifier(wt, primaryClassPoints, displayClass);
@@ -250,51 +257,5 @@ namespace RPGGame
             Console.WriteLine();
         }
 
-        public static string BuildClassSystemSettingsSummary(ClassPresentationConfig? preview = null)
-        {
-            var cfg = (preview ?? GameConfiguration.Instance.ClassPresentation).EnsureNormalized();
-            var nl = System.Environment.NewLine;
-            var t = cfg.TierThresholds;
-            string th = string.Join(", ", t);
-            string SoloLine(WeaponType wt, string weaponLabel)
-            {
-                string d = cfg.GetDisplayName(wt);
-                string? a = cfg.GetPathTierSlotOrNull(wt, 0);
-                string? b = cfg.GetPathTierSlotOrNull(wt, 1);
-                string? c3 = cfg.GetPathTierSlotOrNull(wt, 2);
-                string? d4 = cfg.GetPathTierSlotOrNull(wt, 3);
-                string def(int i) => $"{cfg.TierNames[i]} {d}";
-                return $"  {weaponLabel} — {d}: below {t[0]} pts → {cfg.PreTierLabel}; " +
-                       $"{t[0]}+ → {a ?? def(0)}; {t[1]}+ → {b ?? def(1)}; {t[2]}+ → {c3 ?? def(2)}; {t[3]}+ → {d4 ?? def(3)}";
-            }
-            return
-                "HUD / menus **shown class name** comes from **attributes** (STR, AGI, TEC, INT via AttributeClassNameComposer), " +
-                "not from weapon-point hybrids. Solo paths use path display names; duo/trio cores, discipline modifiers, solo–trio tier words, and quad tier words are **editable** in Settings → Classes (saved in tuning)." + nl +
-                $"  Meaningful stat floor: {cfg.MeaningfulAttributeMinimum} (effective stats, no equipment; below = not counted toward duo/trio/quad shape)." + nl +
-                $"  Display tier bands (Scarred / Blooded / Dread / Abyssal for solo–trio; Prophet / … for quad): same four **class point** gates as weapon paths: {th} (primary path points = highest weapon path)." + nl +
-                "  If no stat reaches the meaningful floor, the shown title is " + cfg.DefaultNoPointsClassName + "." + nl + nl +
-                "**Progression:** Character **level** comes from XP only. Each **level up** with a weapon equipped awards **+1 class point** on that weapon's path (Mace / Sword / Dagger / Wand). Attributes do **not** grant levels or class points." + nl +
-                "**Weapon class points** drive **action unlocks**, optional hybrid title rules in tuning, " +
-                "and ranked weapon-path fragments — they do **not** replace the attribute display title." + nl +
-                "Paths (for reference — points are gained on level-up with that weapon type equipped):" + nl +
-                $"  {cfg.GetDisplayName(WeaponType.Mace)} (Mace)" + nl +
-                $"  {cfg.GetDisplayName(WeaponType.Sword)} (Sword)" + nl +
-                $"  {cfg.GetDisplayName(WeaponType.Dagger)} (Dagger)" + nl +
-                $"  {cfg.GetDisplayName(WeaponType.Wand)} (Wand)" + nl + nl +
-                $"Weapon-path default label when every path has 0 points: {cfg.DefaultNoPointsClassName} (attribute display uses the same string when no meaningful stats)." + nl + nl +
-                $"Weapon point tiers (thresholds: {th} points). Each path can set four evolved titles; " +
-                "if a slot is left blank, the engine uses \"{global tier label} {path display name}\" for that band." + nl +
-                SoloLine(WeaponType.Mace, "Mace") + nl +
-                SoloLine(WeaponType.Sword, "Sword") + nl +
-                SoloLine(WeaponType.Dagger, "Dagger") + nl +
-                SoloLine(WeaponType.Wand, "Wand") + nl + nl +
-                "Optional **weapon-path hybrid** titles (unlock presentation / legacy ranked strings):" + nl +
-                "  • Quad: all four paths have ≥1 point and quad titles are set → pick one of those titles." + nl +
-                "  • Trio: exactly three paths have ≥1 point and a matching trio rule exists → use it." + nl +
-                "  • Duo: top two paths by points; if a duo+tier-band rule matches, use it. Else if tier bands differ, " +
-                $"combine ranked fragments with joiner \"{cfg.HybridJoiner}\" (for example, \"" +
-                $"{cfg.TierNames[0]} {cfg.GetDisplayName(WeaponType.Mace)}{cfg.HybridJoiner}{cfg.TierNames[0]} {cfg.GetDisplayName(WeaponType.Sword)}\"). " +
-                "Otherwise only the primary fragment is used.";
-        }
     }
 }

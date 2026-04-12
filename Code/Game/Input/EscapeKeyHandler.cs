@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using RPGGame;
-using RPGGame.ActionInteractionLab;
 using DungeonFighter.Game.Menu.Core;
 using Action = System.Action;
 
@@ -20,6 +19,7 @@ namespace RPGGame.GameCore.Input
         private readonly System.Action showSettings;
         private readonly System.Action showDeveloperMenu;
         private readonly System.Action showActionEditor;
+        private readonly System.Action exitActionInteractionLab;
 
         public EscapeKeyHandler(
             GameStateManager stateManager,
@@ -28,7 +28,8 @@ namespace RPGGame.GameCore.Input
             System.Action showMainMenu,
             System.Action showSettings,
             System.Action showDeveloperMenu,
-            System.Action showActionEditor)
+            System.Action showActionEditor,
+            System.Action exitActionInteractionLab)
         {
             this.stateManager = stateManager ?? throw new ArgumentNullException(nameof(stateManager));
             this.handlers = handlers ?? throw new ArgumentNullException(nameof(handlers));
@@ -37,6 +38,7 @@ namespace RPGGame.GameCore.Input
             this.showSettings = showSettings ?? throw new ArgumentNullException(nameof(showSettings));
             this.showDeveloperMenu = showDeveloperMenu ?? throw new ArgumentNullException(nameof(showDeveloperMenu));
             this.showActionEditor = showActionEditor ?? throw new ArgumentNullException(nameof(showActionEditor));
+            this.exitActionInteractionLab = exitActionInteractionLab ?? throw new ArgumentNullException(nameof(exitActionInteractionLab));
         }
 
         /// <summary>
@@ -65,9 +67,7 @@ namespace RPGGame.GameCore.Input
                     showGameLoop();
                     break;
                 case GameState.ActionInteractionLab:
-                    ActionInteractionLabSession.EndSession();
-                    stateManager.TransitionToState(GameState.GameLoop);
-                    showGameLoop();
+                    exitActionInteractionLab();
                     break;
                 case GameState.Testing:
                     stateManager.TransitionToState(GameState.Settings);

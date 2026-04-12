@@ -1,4 +1,5 @@
 using System;
+using RPGGame;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Game
@@ -27,6 +28,8 @@ namespace RPGGame.Tests.Unit.Game
             TestConstructor();
             TestConstructorWithUI();
             TestConstructorWithCharacter();
+            TestExitActionInteractionLab_NoActivePlayer_SelectsSettingsState();
+            TestExitActionInteractionLab_WithActivePlayer_SelectsGameLoopState();
 
             TestBase.PrintSummary("GameCoordinator Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -90,6 +93,34 @@ namespace RPGGame.Tests.Unit.Game
                     "GameCoordinator constructor should handle character parameter",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
+        }
+
+        private static void TestExitActionInteractionLab_NoActivePlayer_SelectsSettingsState()
+        {
+            Console.WriteLine("\n--- Testing ExitActionInteractionLab (no save character) ---");
+
+            var game = new GameCoordinator();
+            game.StateManager.TransitionToState(GameState.ActionInteractionLab);
+            game.ExitActionInteractionLab();
+            TestBase.AssertEqualEnum(GameState.Settings, game.StateManager.CurrentState,
+                "Exit lab without a loaded hero should return to Settings (lab clone is not CurrentPlayer)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestExitActionInteractionLab_WithActivePlayer_SelectsGameLoopState()
+        {
+            Console.WriteLine("\n--- Testing ExitActionInteractionLab (with save character) ---");
+
+            var character = TestDataBuilders.Character()
+                .WithName("LabExitTest")
+                .WithLevel(1)
+                .Build();
+            var game = new GameCoordinator(character);
+            game.StateManager.TransitionToState(GameState.ActionInteractionLab);
+            game.ExitActionInteractionLab();
+            TestBase.AssertEqualEnum(GameState.GameLoop, game.StateManager.CurrentState,
+                "Exit lab with a loaded hero should return to GameLoop",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

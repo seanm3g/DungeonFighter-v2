@@ -11,7 +11,6 @@ namespace RPGGame.Tests.Unit
             int run = 0, passed = 0, failed = 0;
 
             ClassPresentationDefaults(ref run, ref passed, ref failed);
-            BuildSummaryContainsBaseClassesAndThresholds(ref run, ref passed, ref failed);
             HybridTitleSameTierBandIsPrimaryOnly(ref run, ref passed, ref failed);
             HybridTitleDifferentTierBandsCombines(ref run, ref passed, ref failed);
             RenamedWandDisplayStillWizardPrimary(ref run, ref passed, ref failed);
@@ -29,19 +28,6 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual(20, t[1], "tier-2 threshold default is 20", ref run, ref passed, ref failed);
             TestBase.AssertEqual(60, t[2], "tier-3 threshold default is 60", ref run, ref passed, ref failed);
             TestBase.AssertEqual(120, t[3], "tier-4 threshold default is 120", ref run, ref passed, ref failed);
-        }
-
-        private static void BuildSummaryContainsBaseClassesAndThresholds(ref int run, ref int passed, ref int failed)
-        {
-            var defaults = new ClassPresentationConfig().EnsureNormalized();
-            string s = CharacterProgression.BuildClassSystemSettingsSummary(defaults);
-            TestBase.AssertTrue(s.Contains("Barbarian"), "summary names Barbarian", ref run, ref passed, ref failed);
-            TestBase.AssertTrue(s.Contains("Warrior"), "summary names Warrior", ref run, ref passed, ref failed);
-            TestBase.AssertTrue(s.Contains("Rogue"), "summary names Rogue", ref run, ref passed, ref failed);
-            TestBase.AssertTrue(s.Contains("Wizard"), "summary names Wizard", ref run, ref passed, ref failed);
-            TestBase.AssertTrue(s.Contains("weapon-path hybrid", StringComparison.OrdinalIgnoreCase), "summary explains weapon hybrids", ref run, ref passed, ref failed);
-            TestBase.AssertTrue(s.Contains("attributes", StringComparison.OrdinalIgnoreCase), "summary mentions attribute display", ref run, ref passed, ref failed);
-            TestBase.AssertTrue(s.Contains("2, 20, 60, 120"), "summary lists four tier thresholds", ref run, ref passed, ref failed);
         }
 
         private static void HybridTitleSameTierBandIsPrimaryOnly(ref int run, ref int passed, ref int failed)
@@ -172,10 +158,7 @@ namespace RPGGame.Tests.Unit
                 AttributeDuoSwordDagger = c.AttributeDuoSwordDagger,
                 AttributeDuoSwordWand = c.AttributeDuoSwordWand,
                 AttributeDuoDaggerWand = c.AttributeDuoDaggerWand,
-                AttributeTrioMaceSwordDagger = c.AttributeTrioMaceSwordDagger,
-                AttributeTrioMaceSwordWand = c.AttributeTrioMaceSwordWand,
-                AttributeTrioMaceDaggerWand = c.AttributeTrioMaceDaggerWand,
-                AttributeTrioSwordDaggerWand = c.AttributeTrioSwordDaggerWand
+                AttributeThirdPathSuffix = c.AttributeThirdPathSuffix
             };
         }
     }

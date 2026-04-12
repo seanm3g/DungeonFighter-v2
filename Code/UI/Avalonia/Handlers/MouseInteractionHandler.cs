@@ -561,9 +561,7 @@ namespace RPGGame.UI.Avalonia.Handlers
 
             if (value == "lab_exit")
             {
-                ActionInteractionLabSession.EndSession();
-                game.StateManager.TransitionToState(GameState.GameLoop);
-                game.ShowGameLoop();
+                game.ExitActionInteractionLab();
                 try { canvasUI.GetMainWindow()?.Activate(); } catch { /* ignore */ }
                 return;
             }

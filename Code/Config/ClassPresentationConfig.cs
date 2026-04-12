@@ -37,7 +37,7 @@ namespace RPGGame
         /// <summary>Four ascending point gates: band 1 starts at threshold[0], …, band 4 at threshold[3].</summary>
         public int[] TierThresholds { get; set; } = { 2, 20, 60, 120 };
 
-        /// <summary>STR/AGI/TEC/INT must be at least this (after temp bonuses, no equipment) to count as &quot;meaningful&quot; for attribute display class.</summary>
+        /// <summary>Legacy tuning field (still loaded/saved). Shown-class shape no longer uses attributes.</summary>
         public int MeaningfulAttributeMinimum { get; set; } = 8;
 
         /// <summary>Four tier words for solo/duo/trio (class point tier slot vs <see cref="TierThresholds"/>).</summary>
@@ -46,11 +46,14 @@ namespace RPGGame
         /// <summary>Four tier words when all four stats are meaningful (quad attribute display).</summary>
         public string[] AttributeQuadTierNames { get; set; } = { "Prophet", "Godkiller", "Worldbreaker", "Eternal" };
 
-        /// <summary>Suffix after solo/duo/trio core from the chosen discipline (Step 3).</summary>
+        /// <summary>Suffix phrase for this path when it is the **third-highest** by class points (HUD shown title, 3+ active paths). Unused for solo/duo.</summary>
         public string AttributeModifierMace { get; set; } = "of Fury";
         public string AttributeModifierSword { get; set; } = "of the Vanguard";
         public string AttributeModifierDagger { get; set; } = "of the Veil";
         public string AttributeModifierWand { get; set; } = "of the Void";
+
+        /// <summary>Legacy JSON field; preserved on save. The HUD uses <see cref="GetAttributeDisciplineModifier"/> for the third-highest path instead.</summary>
+        public string AttributeThirdPathSuffix { get; set; } = "of the Veil";
 
         /// <summary>Step 1 duo cores (unordered path pair → title). Paths are fixed Mace/Sword/Dagger/Wand.</summary>
         public string AttributeDuoMaceSword { get; set; } = "Warbrute";
@@ -59,12 +62,6 @@ namespace RPGGame
         public string AttributeDuoSwordDagger { get; set; } = "Duelist";
         public string AttributeDuoSwordWand { get; set; } = "Spellblade";
         public string AttributeDuoDaggerWand { get; set; } = "Hexblade";
-
-        /// <summary>Step 1 trio cores (three paths present, fourth absent).</summary>
-        public string AttributeTrioMaceSwordDagger { get; set; } = "Dreadstalker";
-        public string AttributeTrioMaceSwordWand { get; set; } = "Warmagus";
-        public string AttributeTrioMaceDaggerWand { get; set; } = "Void Reaver";
-        public string AttributeTrioSwordDaggerWand { get; set; } = "Spellshadow";
 
         /// <summary>Ordered duo rules: primary path, secondary path, tier bands (0–4), title alternatives.</summary>
         public List<HybridDuoTierRule> HybridDuoTierRules { get; set; } = new();
@@ -203,6 +200,7 @@ namespace RPGGame
             return s.Length > 0 ? s : DefaultAttributeQuadTierNames[i];
         }
 
+        /// <summary>Suffix phrase for <paramref name="path"/>; for the HUD shown title with 3+ active paths, used for the third-highest path by class points.</summary>
         public string GetAttributeDisciplineModifier(WeaponType path) =>
             path switch
             {
@@ -212,6 +210,10 @@ namespace RPGGame
                 WeaponType.Wand => NonEmptyTrimOr(EnsureNormalized().AttributeModifierWand, "of the Void"),
                 _ => ""
             };
+
+        /// <summary>Legacy single-field suffix; not used by <c>AttributeClassNameComposer</c> (third-highest path uses <see cref="GetAttributeDisciplineModifier"/>).</summary>
+        public string GetAttributeThirdPathSuffix() =>
+            NonEmptyTrimOr(EnsureNormalized().AttributeThirdPathSuffix, "of the Veil");
 
         /// <summary>Unordered weapon pair → attribute duo display core (Step 1).</summary>
         public string GetAttributeDuoCoreName(WeaponType a, WeaponType b)
@@ -243,24 +245,6 @@ namespace RPGGame
                 (WeaponType.Dagger, WeaponType.Wand) => "Hexblade",
                 _ => "Hybrid"
             };
-        }
-
-        /// <summary>Exactly three paths in the set → trio core title, or null if unrecognized.</summary>
-        public string? TryGetAttributeTrioCoreName(HashSet<WeaponType> pathsThree)
-        {
-            if (pathsThree == null || pathsThree.Count != 3) return null;
-            bool Has(WeaponType w) => pathsThree.Contains(w);
-            var c = EnsureNormalized();
-            string pick(string s, string def) => NonEmptyTrimOr(s, def);
-            if (Has(WeaponType.Mace) && Has(WeaponType.Sword) && Has(WeaponType.Dagger) && !Has(WeaponType.Wand))
-                return pick(c.AttributeTrioMaceSwordDagger, "Dreadstalker");
-            if (Has(WeaponType.Mace) && Has(WeaponType.Sword) && Has(WeaponType.Wand) && !Has(WeaponType.Dagger))
-                return pick(c.AttributeTrioMaceSwordWand, "Warmagus");
-            if (Has(WeaponType.Mace) && Has(WeaponType.Dagger) && Has(WeaponType.Wand) && !Has(WeaponType.Sword))
-                return pick(c.AttributeTrioMaceDaggerWand, "Void Reaver");
-            if (Has(WeaponType.Sword) && Has(WeaponType.Dagger) && Has(WeaponType.Wand) && !Has(WeaponType.Mace))
-                return pick(c.AttributeTrioSwordDaggerWand, "Spellshadow");
-            return null;
         }
 
         private static string NonEmptyTrimOr(string? value, string fallback)
@@ -331,10 +315,7 @@ namespace RPGGame
             AttributeDuoSwordWand = NonEmptyTrimOr(AttributeDuoSwordWand, "Spellblade");
             AttributeDuoDaggerWand = NonEmptyTrimOr(AttributeDuoDaggerWand, "Hexblade");
 
-            AttributeTrioMaceSwordDagger = NonEmptyTrimOr(AttributeTrioMaceSwordDagger, "Dreadstalker");
-            AttributeTrioMaceSwordWand = NonEmptyTrimOr(AttributeTrioMaceSwordWand, "Warmagus");
-            AttributeTrioMaceDaggerWand = NonEmptyTrimOr(AttributeTrioMaceDaggerWand, "Void Reaver");
-            AttributeTrioSwordDaggerWand = NonEmptyTrimOr(AttributeTrioSwordDaggerWand, "Spellshadow");
+            AttributeThirdPathSuffix = NonEmptyTrimOr(AttributeThirdPathSuffix, "of the Veil");
 
             return this;
         }

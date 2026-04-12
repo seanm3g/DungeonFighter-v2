@@ -67,7 +67,8 @@ namespace RPGGame.Game.Services
             System.Action showVariableEditor,
             System.Action showActionEditor,
             System.Action showTuningParameters,
-            System.Action<string> handleCombatScroll)
+            System.Action<string> handleCombatScroll,
+            System.Action exitActionInteractionLab)
         {
             var result = new InitializationResult();
             
@@ -145,11 +146,12 @@ namespace RPGGame.Game.Services
             result.MenuInputValidator = menuInputResult.MenuInputValidator;
             
             // Initialize input handlers
-            InitializeInputHandlers(result, stateManager, showMessage, showGameLoop, showMainMenu, 
+            InitializeInputHandlers(result, stateManager, showMessage, showGameLoop, showMainMenu,
                 showSettings: () => result.SettingsMenuHandler?.ShowSettings(),
                 showDeveloperMenu: () => result.DeveloperMenuHandler?.ShowDeveloperMenu(),
                 showActionEditor: () => result.ActionEditorHandler?.ShowActionEditor(),
-                handleCombatScroll);
+                handleCombatScroll,
+                exitActionInteractionLab);
             
             return result;
         }
@@ -166,7 +168,8 @@ namespace RPGGame.Game.Services
             System.Action showSettings,
             System.Action showDeveloperMenu,
             System.Action showActionEditor,
-            System.Action<string> handleCombatScroll)
+            System.Action<string> handleCombatScroll,
+            System.Action exitActionInteractionLab)
         {
             // Create handler containers
             var inputHandlers = new GameInputHandlers
@@ -212,7 +215,8 @@ namespace RPGGame.Game.Services
                 showMainMenu,
                 showSettings,
                 showDeveloperMenu,
-                showActionEditor);
+                showActionEditor,
+                exitActionInteractionLab);
         }
     }
 }
