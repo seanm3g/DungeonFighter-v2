@@ -25,6 +25,7 @@ namespace RPGGame.Tests.Unit.Config
             _testsFailed = 0;
 
             TestCombatConfig();
+            TestEnsureValidCombatTimingDefaults();
             TestCombatBalanceConfig();
             TestRollDamageMultipliersConfig();
             TestStatusEffectScalingConfig();
@@ -54,6 +55,29 @@ namespace RPGGame.Tests.Unit.Config
 
             TestBase.AssertEqual(2.0, config.CriticalHitMultiplier,
                 "CriticalHitMultiplier should be settable",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestEnsureValidCombatTimingDefaults()
+        {
+            Console.WriteLine("\n--- Testing EnsureValidCombatTimingDefaults ---");
+
+            var zeroed = new CombatConfig { BaseAttackTime = 0, MinimumAttackTime = 0 };
+            zeroed.EnsureValidCombatTimingDefaults();
+            TestBase.AssertEqual(CombatConfig.DefaultBaseAttackTimeSeconds, zeroed.BaseAttackTime,
+                "Zero BaseAttackTime should be replaced with default",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(CombatConfig.DefaultMinimumAttackTimeSeconds, zeroed.MinimumAttackTime,
+                "Zero MinimumAttackTime should be replaced with default",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var valid = new CombatConfig { BaseAttackTime = 2.5, MinimumAttackTime = 0.2 };
+            valid.EnsureValidCombatTimingDefaults();
+            TestBase.AssertEqual(2.5, valid.BaseAttackTime,
+                "Positive BaseAttackTime should be preserved",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0.2, valid.MinimumAttackTime,
+                "Positive MinimumAttackTime should be preserved",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

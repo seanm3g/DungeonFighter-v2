@@ -9,12 +9,29 @@ namespace RPGGame
     /// </summary>
     public class CombatConfig
     {
+        /// <summary>Used when tuning JSON omits or zeroes base attack time (seconds per attack baseline before agility/weapon).</summary>
+        public const double DefaultBaseAttackTimeSeconds = 8.0;
+
+        /// <summary>Floor for final attack time when tuning omits or zeroes <see cref="MinimumAttackTime"/>.</summary>
+        public const double DefaultMinimumAttackTimeSeconds = 0.1;
+
         public int CriticalHitThreshold { get; set; }
         public double CriticalHitMultiplier { get; set; }
         public int MinimumDamage { get; set; }
         public double BaseAttackTime { get; set; }
         public double AgilitySpeedReduction { get; set; }
         public double MinimumAttackTime { get; set; }
+
+        /// <summary>
+        /// Replaces invalid combat timing fields (e.g. <c>baseAttackTime: 0</c> in TuningConfig.json) so attack speed and UI are not stuck at the hard floor.
+        /// </summary>
+        public void EnsureValidCombatTimingDefaults()
+        {
+            if (BaseAttackTime <= 0)
+                BaseAttackTime = DefaultBaseAttackTimeSeconds;
+            if (MinimumAttackTime <= 0)
+                MinimumAttackTime = DefaultMinimumAttackTimeSeconds;
+        }
         
         // Agility speed mapping parameters
         public int AgilityMin { get; set; } = 1;

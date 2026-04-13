@@ -22,13 +22,13 @@
                                HorizontalAlignment="Center"
                                Margin="0,0,0,10"/>
                     
-                    <TextBlock Text="Version 6.2 - Production Ready" 
+                    <TextBlock x:Name="VersionSubtitleTextBlock"
                                FontSize="18" 
                                Foreground="#FFAAAAAA" 
                                HorizontalAlignment="Center"
                                Margin="0,0,0,20"/>
                     
-                    <TextBlock Text="A sophisticated turn-based RPG/dungeon crawler game featuring advanced combat mechanics, intelligent battle narrative generation, and a comprehensive data-driven architecture." 
+                    <TextBlock Text="A turn-based RPG/dungeon crawler with deep combat systems, readable battle narration, and tuning that lives in JSON so content and balance can evolve without rebuilding core code." 
                                FontSize="15" 
                                Foreground="Black" 
                                TextWrapping="Wrap"
@@ -43,19 +43,19 @@
                                Margin="0,0,0,10"/>
                     
                     <StackPanel Spacing="8" Margin="10,0,0,0">
-                        <TextBlock Text="• Advanced turn-based combat system with combo mechanics" 
+                        <TextBlock Text="• Turn-based combat with combos, routing, and rich action interactions" 
                                    FontSize="15" 
                                    Foreground="Black"/>
-                        <TextBlock Text="• Dice-based mechanics with strategic thresholds" 
+                        <TextBlock Text="• Dice-driven resolution with thresholds, modifiers, and conditional triggers" 
                                    FontSize="15" 
                                    Foreground="Black"/>
-                        <TextBlock Text="• Intelligent narrative generation for battle events" 
+                        <TextBlock Text="• Narrative layer for notable moments plus clear summaries for routine play" 
                                    FontSize="15" 
                                    Foreground="Black"/>
-                        <TextBlock Text="• Comprehensive settings and customization options" 
+                        <TextBlock Text="• In-app settings for classes, balance, items, appearance, and import/testing tools" 
                                    FontSize="15" 
                                    Foreground="Black"/>
-                        <TextBlock Text="• Data-driven architecture for easy content expansion" 
+                        <TextBlock Text="• JSON-first game data with optional Google Sheets pull/push workflows" 
                                    FontSize="15" 
                                    Foreground="Black"/>
                     </StackPanel>
@@ -76,16 +76,19 @@
                                Margin="0,0,0,10"/>
                     
                     <StackPanel Spacing="8" Margin="10,0,0,0">
-                        <TextBlock Text="• Built with Avalonia UI framework" 
+                        <TextBlock Text="• Avalonia 11.x desktop UI (Windows, macOS, Linux)" 
                                    FontSize="15" 
                                    Foreground="Black"/>
-                        <TextBlock Text="• C# .NET implementation" 
+                        <TextBlock Text="• C# on .NET 8" 
                                    FontSize="15" 
                                    Foreground="Black"/>
-                        <TextBlock Text="• Modular architecture with clear separation of concerns" 
+                        <TextBlock Text="• Modular architecture: gameplay, data, and UI boundaries stay explicit" 
                                    FontSize="15" 
                                    Foreground="Black"/>
-                        <TextBlock Text="• Comprehensive test coverage" 
+                        <TextBlock Text="• Automated tests across parsers, progression, and data pipelines" 
+                                   FontSize="15" 
+                                   Foreground="Black"/>
+                        <TextBlock Text="• MCP (Model Context Protocol) integration for external agent/tooling workflows" 
                                    FontSize="15" 
                                    Foreground="Black"/>
                     </StackPanel>

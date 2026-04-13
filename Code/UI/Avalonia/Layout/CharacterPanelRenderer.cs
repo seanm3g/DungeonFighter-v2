@@ -162,7 +162,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 canvas.AddCharacterStat(x, y, "Damage", totalDamage, 0, AsciiArtAssets.Colors.White, AsciiArtAssets.Colors.White);
                 y++;
                 int speedRowY = y;
-                canvas.AddText(x, y, $"Speed:   {attackSpeed:F1}s", AsciiArtAssets.Colors.White);
+                canvas.AddText(x, y, $"Speed:   {attackSpeed:F2}s", AsciiArtAssets.Colors.White);
                 y++;
                 int ampRowY = y;
                 double ampBasePerStep = character.GetComboAmplifier();

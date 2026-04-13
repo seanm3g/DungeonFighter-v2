@@ -251,6 +251,8 @@ namespace RPGGame
                 UIManager.WriteSystemLine($"Error loading tuning config: {ex.Message}");
                 UIManager.WriteSystemLine("Using default values");
             }
+
+            Combat.EnsureValidCombatTimingDefaults();
         }
 
         public void Reload()

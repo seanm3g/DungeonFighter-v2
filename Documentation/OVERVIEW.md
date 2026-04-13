@@ -39,6 +39,7 @@ dotnet run
 - **Outcome Handlers:** Conditional effects based on combat results (enemy death, HP thresholds)
 - **Environmental Actions:** Room-specific effects that impact combat
 - **Intelligent Delay System:** Optimized pacing matching action intensity
+- **Combat timing tuning:** `GameData/TuningConfig.json` → `combat.baseAttackTime` is the baseline attack interval in seconds (agility curve and weapon then adjust it). If this or `minimumAttackTime` is missing or non-positive, the game applies safe defaults (**8s** / **0.1s**) after load so the STATS panel and turn pacing do not collapse to a near-zero display.
 
 ### 👤 Character & Progression System
 - **Dynamic Stats:** Strength, Agility, Technique, Intelligence with level-based scaling

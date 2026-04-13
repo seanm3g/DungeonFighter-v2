@@ -1,6 +1,6 @@
 # Task List - DungeonFighter v6.2
 
-**Last Updated**: April 12, 2026  
+**Last Updated**: April 13, 2026  
 **Current Status**: Production Ready  
 **Version**: 6.2
 
@@ -8,6 +8,7 @@
 
 ## 📋 Current Status Summary
 
+- **Recent**: ✅ **STATS Speed stuck at 0.0s** — `TuningConfig.json` had `combat.baseAttackTime` (and `minimumAttackTime`) at **0**, so attack time sat on the hard floor and the left panel showed `0.0s` regardless of weapon/AGI. Fix: defaults **8s** / **0.1s** in JSON; `CombatConfig.EnsureValidCombatTimingDefaults()` after every `GameConfiguration` load; STATS line uses **F2** for seconds. Files: `CombatConfig.cs`, `GameConfiguration.cs`, `TuningConfig.json`, `CharacterPanelRenderer.cs`, `CombatConfigTests.cs`.
 - **Recent**: ✅ **Google Sheets multi-tab push/pull** — `SheetsConfig.json` optional URLs (`weaponsSheetUrl`, `modificationsSheetUrl`, `armorSheetUrl`, `classPresentationSheetUrl`) plus existing `actionsSheetUrl`; `SheetsPushConfig.json` optional tab names (`weaponsSheetTabName`, …). Pull: `GameDataSheetsPullService` / **Resync from Google Sheets**. Push: `GameDataSheetsPushService` / **Push game data to Google Sheets** (clears Actions below the two-row header; other tabs from row 1 with canonical column headers). CLI: `PUSH_SHEETS`, `PULL_SHEETS`; scripts `Scripts/push-sheets.ps1`, `pull-sheets.ps1`. Tests: `JsonArraySheetConverterTests`, `ClassPresentationSheetConverterTests`. Docs: `GOOGLE_SHEETS_INTEGRATION.md`.
 - **Recent (prior)**: ✅ Action Interaction Lab — **Exit lab** / ESC from lab now returns to **Settings** when no save character is loaded (`ShowGameLoop` previously skipped rendering because the lab hero is not `CurrentPlayer`); with a loaded hero, exit still returns to **GameLoop** (`GameCoordinator.ExitActionInteractionLab`, `EscapeKeyHandler`).
 - **Major Features**: ✅ All Core Systems Complete
