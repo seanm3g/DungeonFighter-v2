@@ -330,6 +330,29 @@ namespace RPGGame
             }
         }
 
+        /// <summary>Absolute path to an existing <c>TuningConfig.json</c> (same discovery as load), or null.</summary>
+        public static string? TryGetExistingTuningConfigFilePath()
+        {
+            foreach (string rel in TuningConfigPathCandidates())
+            {
+                try
+                {
+                    string full = Path.GetFullPath(rel);
+                    if (File.Exists(full))
+                        return full;
+                }
+                catch
+                {
+                    // ignore
+                }
+            }
+            return null;
+        }
+
+        /// <summary>Path to use when writing tuning JSON (existing file, or create path).</summary>
+        public static string GetTuningConfigFilePathForWrite() =>
+            TryGetExistingTuningConfigFilePath() ?? ResolveTuningConfigPathForCreate();
+
         /// <summary>
         /// Resets the singleton instance, forcing a reload on next access
         /// Used by tuner to reload configuration after balance adjustments

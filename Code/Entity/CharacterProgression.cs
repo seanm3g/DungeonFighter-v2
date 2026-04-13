@@ -99,15 +99,6 @@ namespace RPGGame
                 .ToList();
         }
 
-        /// <summary>Stable salt for hybrid title picks (quad / trio / duo rules) from current path points.</summary>
-        public int ComputeWeaponPathTitleSalt()
-        {
-            int salt = 0;
-            foreach (var x in GetClassPathsSortedByPoints())
-                salt ^= (x.Points * 13) ^ ((int)x.Path << 3);
-            return salt;
-        }
-
         public WeaponType? GetPrimaryClassWeaponType()
         {
             var sorted = GetClassPathsSortedByPoints();
@@ -125,33 +116,17 @@ namespace RPGGame
             if (sorted[0].Points == 0)
                 return cfg.DefaultNoPointsClassName;
 
-            int salt = ComputeWeaponPathTitleSalt();
-
-            var activePaths = sorted.Where(x => x.Points >= 1).Select(x => x.Path).ToList();
-            int activeCount = activePaths.Count;
-
-            if (activeCount >= 4 && cfg.TryPickQuadTitle(salt, out string quadTitle))
-                return quadTitle;
-
-            if (activeCount == 3)
-            {
-                if (cfg.TryPickTrioTitle(activePaths, salt, out string trioTitle))
-                    return trioTitle;
-            }
-
             var primary = sorted[0];
             var secondary = sorted[1];
             if (secondary.Points > 0)
             {
                 int bandP = cfg.GetTierBandIndex(primary.Points);
                 int bandS = cfg.GetTierBandIndex(secondary.Points);
-                if (cfg.TryPickDuoHybridTitle(primary.Path, bandP, secondary.Path, bandS, salt, out string duoTitle))
-                    return duoTitle;
                 if (bandP != bandS)
                 {
                     string primaryTitle = cfg.FormatRankedTitle(primary.Path, primary.Points);
                     string secondaryTitle = cfg.FormatRankedTitle(secondary.Path, secondary.Points);
-                    return primaryTitle + cfg.HybridJoiner + secondaryTitle;
+                    return primaryTitle + ClassPresentationConfig.DefaultHybridJoiner + secondaryTitle;
                 }
             }
 

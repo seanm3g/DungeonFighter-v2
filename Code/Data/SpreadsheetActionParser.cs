@@ -23,9 +23,13 @@ namespace RPGGame.Data
         public static async Task<SpreadsheetParseResult> ParseCsvAsync(string pathOrUrl)
         {
             string csvContent;
-            if (pathOrUrl.StartsWith("http://") || pathOrUrl.StartsWith("https://"))
+            if (pathOrUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+                || pathOrUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {
-                csvContent = await _httpClient.GetStringAsync(pathOrUrl);
+                string fetchUrl = pathOrUrl;
+                if (GoogleSheetsUrlHelper.TryBuildSpreadsheetCsvExportUrl(pathOrUrl, out string exportUrl))
+                    fetchUrl = exportUrl;
+                csvContent = await _httpClient.GetStringAsync(fetchUrl).ConfigureAwait(false);
             }
             else
             {
@@ -183,7 +187,22 @@ namespace RPGGame.Data
                 }
             }
 
+            if (header != null && !HeaderHasActionColumn(header))
+                return new SpreadsheetParseResult(new List<SpreadsheetActionData>(), null);
+
             return new SpreadsheetParseResult(actions, header);
+        }
+
+        /// <summary>True if the label row contains an ACTION column (same rule as live sheet ingestion).</summary>
+        private static bool HeaderHasActionColumn(SpreadsheetHeader header)
+        {
+            for (int i = 0; i < header.LabelByIndex.Count; i++)
+            {
+                if (SpreadsheetHeader.NormalizeLabel(header.LabelByIndex[i]) == "ACTION")
+                    return true;
+            }
+
+            return false;
         }
 
         /// <summary>

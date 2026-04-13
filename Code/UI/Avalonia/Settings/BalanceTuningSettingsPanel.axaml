@@ -5,6 +5,25 @@
              mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
              x:Class="RPGGame.UI.Avalonia.Settings.BalanceTuningSettingsPanel"
              Background="Transparent">
+    <!-- Fluent theme hover can wash out custom colors on this light panel; keep visible hover states. -->
+    <UserControl.Styles>
+        <Style Selector="Expander /template/ ToggleButton">
+            <Setter Property="Background" Value="#FF2D2D2D"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Expander /template/ ToggleButton:pointerover">
+            <Setter Property="Background" Value="#FF3D3D3D"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Expander /template/ ToggleButton:pressed">
+            <Setter Property="Background" Value="#FF252525"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Expander /template/ ToggleButton:checked">
+            <Setter Property="Background" Value="#FF2D2D2D"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+    </UserControl.Styles>
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                  HorizontalScrollBarVisibility="Disabled">
         <StackPanel Spacing="20" Margin="20">
@@ -20,59 +39,121 @@
                                FontWeight="Bold" 
                                Foreground="Black" 
                                Margin="0,0,0,8"/>
-                    <TextBlock Text="Resync or push Actions data using a published Google Sheets CSV URL." 
+                    <TextBlock Text="Resync or push from one spreadsheet: use the same published CSV base link for Actions, then optional numeric tab gids (from File → Share → Publish to web for each tab). OAuth push needs the browser Edit link so spreadsheetId is valid (publish-only e/2PACX links are not enough)." 
                                FontSize="14" 
                                Foreground="#FF555555" 
                                TextWrapping="Wrap"/>
                 </StackPanel>
             </Border>
 
-            <!-- Actions: Google Sheets (Resync / Push) -->
+            <!-- Google Sheets -->
             <Border Background="White"
                     BorderBrush="#FF404040"
                     BorderThickness="1"
                     CornerRadius="6"
                     Padding="18">
                 <StackPanel Spacing="12">
-                    <TextBlock Text="Actions (Google Sheets)"
+                    <TextBlock Text="Google Sheets"
                                FontSize="18"
                                FontWeight="SemiBold"
                                Foreground="Black"
                                Margin="0,0,0,4"/>
-                    <TextBlock Text="Actions sheet CSV URL (published or export link the game can GET; used for Resync and Push header alignment)"
+                    <TextBlock Text="Spreadsheet edit link (for push / OAuth — copy from the browser address bar; must look like …/spreadsheets/d/&lt;long-id&gt;/edit…)"
                                FontSize="12"
                                Foreground="#FF555555"
                                TextWrapping="Wrap"/>
+                    <TextBox x:Name="SpreadsheetEditUrlTextBox"
+                             MinHeight="28"
+                             Watermark="https://docs.google.com/spreadsheets/d/…/edit…"
+                             FontSize="14"
+                             Padding="8"
+                             Background="#FF2D2D2D"
+                             Foreground="White"
+                             CaretBrush="White"
+                             BorderBrush="#FF666666"
+                             BorderThickness="1"/>
+                    <TextBlock Text="Actions tab — published CSV URL (same link pattern for all tabs; only gid= changes per tab)"
+                               FontSize="12"
+                               Foreground="#FF555555"
+                               TextWrapping="Wrap"
+                               Margin="0,4,0,0"/>
                     <TextBox x:Name="ActionsSheetUrlTextBox"
                              MinHeight="28"
                              Watermark="https://docs.google.com/spreadsheets/..."
                              FontSize="14"
                              Padding="8"
-                             Background="#FFF5F5F5"
-                             Foreground="Black"
-                             BorderBrush="#FFCCCCCC"
+                             Background="#FF2D2D2D"
+                             Foreground="White"
+                             CaretBrush="White"
+                             BorderBrush="#FF666666"
                              BorderThickness="1"/>
+                    <Expander Header="Other tabs (same spreadsheet as Actions URL)" IsExpanded="False">
+                        <StackPanel Spacing="10" Margin="0,8,0,0">
+                            <TextBlock Text="Enter each tab’s numeric gid from Publish to web (same document as Actions). Leave empty to skip that tab. Advanced: set full per-tab URLs in SheetsConfig.json."
+                                       FontSize="12"
+                                       Foreground="#FF555555"
+                                       TextWrapping="Wrap"/>
+                            <TextBlock Text="WEAPONS → Weapons.json" FontSize="12" Foreground="#FF555555"/>
+                            <TextBox x:Name="WeaponsTabGidTextBox" MinHeight="28" Watermark="e.g. 1234567890" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
+                            <TextBlock Text="MODIFICATIONS → Modifications.json" FontSize="12" Foreground="#FF555555"/>
+                            <TextBox x:Name="ModificationsTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
+                            <TextBlock Text="ARMOR → Armor.json" FontSize="12" Foreground="#FF555555"/>
+                            <TextBox x:Name="ArmorTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
+                            <TextBlock Text="CLASSES → classPresentation in TuningConfig.json" FontSize="12" Foreground="#FF555555"/>
+                            <TextBox x:Name="ClassPresentationTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
+                        </StackPanel>
+                    </Expander>
                     <StackPanel Orientation="Horizontal" Spacing="10">
-                        <Button x:Name="ResyncActionsButton"
-                                Content="Resync Actions from Google Sheets"
-                                Width="280"
+                        <Button x:Name="ResyncSheetsButton"
+                                Content="Resync from Google Sheets"
+                                Width="260"
                                 Height="35"
                                 FontSize="14"
                                 FontWeight="SemiBold"
                                 Background="#FF0078D4"
                                 Foreground="White"
                                 BorderThickness="0"
-                                CornerRadius="4"/>
-                        <Button x:Name="PushActionsToGoogleSheetsButton"
-                                Content="Push Actions to Google Sheets"
-                                Width="260"
+                                CornerRadius="4"
+                                Cursor="Hand">
+                            <Button.Styles>
+                                <Style Selector="Button:pointerover">
+                                    <Setter Property="Background" Value="#FF0E6CB5"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Style>
+                                <Style Selector="Button:pressed">
+                                    <Setter Property="Background" Value="#FF0A5590"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Style>
+                                <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Style>
+                            </Button.Styles>
+                        </Button>
+                        <Button x:Name="PushSheetsButton"
+                                Content="Push game data to Google Sheets"
+                                Width="280"
                                 Height="35"
                                 FontSize="14"
                                 FontWeight="SemiBold"
                                 Background="#FFC50E1F"
                                 Foreground="White"
                                 BorderThickness="0"
-                                CornerRadius="4"/>
+                                CornerRadius="4"
+                                Cursor="Hand">
+                            <Button.Styles>
+                                <Style Selector="Button:pointerover">
+                                    <Setter Property="Background" Value="#FFDA1F2F"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Style>
+                                <Style Selector="Button:pressed">
+                                    <Setter Property="Background" Value="#FFA50C18"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Style>
+                                <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Style>
+                            </Button.Styles>
+                        </Button>
                     </StackPanel>
                     <TextBlock x:Name="SheetsSyncProgressTextBlock"
                                Text="Ready"
@@ -86,9 +167,10 @@
                                  Focusable="True"
                                  TextWrapping="Wrap"
                                  MinHeight="120"
-                                 Background="#FFF5F5F5"
-                                 Foreground="Black"
-                                 BorderBrush="#FFCCCCCC"
+                                 Background="#FF2D2D2D"
+                                 Foreground="White"
+                                 CaretBrush="White"
+                                 BorderBrush="#FF666666"
                                  BorderThickness="1"
                                  Padding="8"
                                  FontFamily="Consolas"
@@ -100,4 +182,3 @@
         </StackPanel>
     </ScrollViewer>
 </UserControl>
-

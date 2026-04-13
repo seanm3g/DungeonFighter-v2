@@ -19,6 +19,18 @@ namespace RPGGame.Data
         [JsonPropertyName("actionsSheetTabName")]
         public string ActionsSheetTabName { get; set; } = "Sheet1";
 
+        [JsonPropertyName("weaponsSheetTabName")]
+        public string WeaponsSheetTabName { get; set; } = "";
+
+        [JsonPropertyName("modificationsSheetTabName")]
+        public string ModificationsSheetTabName { get; set; } = "";
+
+        [JsonPropertyName("armorSheetTabName")]
+        public string ArmorSheetTabName { get; set; } = "";
+
+        [JsonPropertyName("classPresentationSheetTabName")]
+        public string ClassPresentationSheetTabName { get; set; } = "";
+
         /// <summary>Path to the OAuth 2.0 Desktop client JSON from Google Cloud Console. Relative paths are resolved from the config file directory.</summary>
         [JsonPropertyName("oauthClientSecretsPath")]
         public string OAuthClientSecretsPath { get; set; } = "";
@@ -30,6 +42,31 @@ namespace RPGGame.Data
         /// <summary>Rows fetched from the top of the sheet to detect context + label headers (min 2).</summary>
         [JsonPropertyName("previewRowCount")]
         public int PreviewRowCount { get; set; } = 5;
+
+        public const string DefaultWeaponsSheetTabName = "WEAPONS";
+        public const string DefaultModificationsSheetTabName = "MODIFICATIONS";
+        public const string DefaultArmorSheetTabName = "ARMOR";
+        public const string DefaultClassPresentationSheetTabName = "CLASSES";
+
+        /// <summary>
+        /// When <b>all</b> optional tab names (weapons / modifications / armor / classes) are blank, assigns the
+        /// conventional names from <c>SheetsPushConfig.template.json</c> so a first push can populate those tabs.
+        /// </summary>
+        /// <returns>True if defaults were applied.</returns>
+        public bool ApplyDefaultOptionalSheetTabNamesWhenAllUnset()
+        {
+            if (!string.IsNullOrWhiteSpace(WeaponsSheetTabName)
+                || !string.IsNullOrWhiteSpace(ModificationsSheetTabName)
+                || !string.IsNullOrWhiteSpace(ArmorSheetTabName)
+                || !string.IsNullOrWhiteSpace(ClassPresentationSheetTabName))
+                return false;
+
+            WeaponsSheetTabName = DefaultWeaponsSheetTabName;
+            ModificationsSheetTabName = DefaultModificationsSheetTabName;
+            ArmorSheetTabName = DefaultArmorSheetTabName;
+            ClassPresentationSheetTabName = DefaultClassPresentationSheetTabName;
+            return true;
+        }
 
         public static SheetsPushConfig Load(string? configPath = null)
         {
@@ -84,6 +121,14 @@ namespace RPGGame.Data
         {
             if (string.IsNullOrWhiteSpace(SpreadsheetId))
                 throw new InvalidOperationException("SheetsPushConfig: spreadsheetId is required.");
+            string sid = SpreadsheetId.Trim();
+            if (sid.StartsWith("e/", StringComparison.OrdinalIgnoreCase)
+                || sid.Contains("PACX", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException(
+                    "SheetsPushConfig: spreadsheetId is a publish-only document key (e/2PACX…). The Sheets API returns 404 for that value. " +
+                    "Use the spreadsheet **Edit** link from the browser (…/spreadsheets/d/<long-id>/edit…): set GameData/SheetsConfig.json → spreadsheetEditUrl and save from Settings → Balance Tuning, or paste the real id into spreadsheetId.");
+            }
             if (string.IsNullOrWhiteSpace(ActionsSheetTabName))
                 throw new InvalidOperationException("SheetsPushConfig: actionsSheetTabName is required.");
             if (string.IsNullOrWhiteSpace(OAuthClientSecretsPath))

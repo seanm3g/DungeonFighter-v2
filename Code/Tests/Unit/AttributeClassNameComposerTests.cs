@@ -14,7 +14,6 @@ namespace RPGGame.Tests.Unit
             MultiPathUsesTopTwoDuoPlusVeil(ref run, ref passed, ref failed);
             MultiPathTopTwoByPointsChoosesDuoCore(ref run, ref passed, ref failed);
             QuadAllPathsUsesTopTwoPlusVeil(ref run, ref passed, ref failed);
-            QuadHudUsesConfiguredTitlesWhenAllFourPaths(ref run, ref passed, ref failed);
             ThirdPathSuffixUsesConfig(ref run, ref passed, ref failed);
             ThirdPathSuffixRequiresFirstGate(ref run, ref passed, ref failed);
             TierPrefixAlignsWithSoloTrioBands(ref run, ref passed, ref failed);
@@ -86,17 +85,6 @@ namespace RPGGame.Tests.Unit
             var p = Prog(75, 75, 75, 75);
             string r = AttributeClassNameComposer.ComposeDisplayClass(p, cfg);
             TestBase.AssertEqual("Abyssal Warbrute of the Veil", r, "4 paths: same rule — top two (Mace+Sword tie-break) + veil suffix", ref run, ref passed, ref failed);
-        }
-
-        private static void QuadHudUsesConfiguredTitlesWhenAllFourPaths(ref int run, ref int passed, ref int failed)
-        {
-            var cfg = TestPresentation();
-            cfg.QuadHybridTitles = new[] { "AlphaQuad", "BetaQuad" };
-            cfg = cfg.EnsureNormalized();
-            var p = Prog(10, 10, 10, 10);
-            string r = AttributeClassNameComposer.ComposeDisplayClass(p, cfg);
-            // Salt for equal 10/10/10/10 (tie order Mace→Sword→Dagger→Wand) is 0 → index 0 → first title.
-            TestBase.AssertEqual("AlphaQuad", r, "4 paths + quadHybridTitles: HUD uses TryPickQuadTitle like unlock track", ref run, ref passed, ref failed);
         }
 
         private static void TierPrefixAlignsWithSoloTrioBands(ref int run, ref int passed, ref int failed)

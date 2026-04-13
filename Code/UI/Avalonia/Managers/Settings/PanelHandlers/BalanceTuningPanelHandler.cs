@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -6,14 +7,13 @@ using Avalonia.Threading;
 using RPGGame;
 using RPGGame.Data;
 using RPGGame.UI.Avalonia;
-using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.Avalonia.Settings;
 using RPGGame.Utils;
 
 namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 {
     /// <summary>
-    /// Wires Import (Balance Tuning) panel: Google Sheets URL, Resync, and Push.
+    /// Wires Import (Balance Tuning) panel: Google Sheets URLs, Resync, and Push.
     /// </summary>
     public class BalanceTuningPanelHandler : ISettingsPanelHandler
     {
@@ -36,13 +36,13 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             var sheetsProgress = balancePanel.FindControl<TextBlock>("SheetsSyncProgressTextBlock");
             sheetsRunner = new TextBoxTestRunner(sheetsOutput, sheetsProgress, null);
 
-            var resync = balancePanel.FindControl<Button>("ResyncActionsButton");
+            var resync = balancePanel.FindControl<Button>("ResyncSheetsButton");
             if (resync != null)
-                resync.Click += async (_, _) => await ResyncActionsFromGoogleSheetsAsync(balancePanel);
+                resync.Click += async (_, _) => await ResyncFromGoogleSheetsAsync(balancePanel);
 
-            var push = balancePanel.FindControl<Button>("PushActionsToGoogleSheetsButton");
+            var push = balancePanel.FindControl<Button>("PushSheetsButton");
             if (push != null)
-                push.Click += async (_, _) => await PushActionsToGoogleSheetsAsync(balancePanel);
+                push.Click += async (_, _) => await PushGameDataToGoogleSheetsAsync(balancePanel);
 
             Dispatcher.UIThread.Post(() => LoadSettings(balancePanel), DispatcherPriority.Loaded);
         }
@@ -51,86 +51,171 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
         {
             if (panel is not BalanceTuningSettingsPanel balancePanel)
                 return;
-            var urlBox = balancePanel.FindControl<TextBox>("ActionsSheetUrlTextBox");
-            if (urlBox == null)
-                return;
             var cfg = SheetsConfig.Load();
-            urlBox.Text = cfg.ActionsSheetUrl ?? "";
+            SetText(balancePanel, "SpreadsheetEditUrlTextBox", cfg.SpreadsheetEditUrl);
+            SetText(balancePanel, "ActionsSheetUrlTextBox", cfg.ActionsSheetUrl);
+
+            SetText(balancePanel, "WeaponsTabGidTextBox",
+                GoogleSheetsUrlHelper.TryGetDerivedTabGidForDisplay(cfg.ActionsSheetUrl, cfg.WeaponsSheetUrl, out string wg) ? wg : "");
+            SetText(balancePanel, "ModificationsTabGidTextBox",
+                GoogleSheetsUrlHelper.TryGetDerivedTabGidForDisplay(cfg.ActionsSheetUrl, cfg.ModificationsSheetUrl, out string mg) ? mg : "");
+            SetText(balancePanel, "ArmorTabGidTextBox",
+                GoogleSheetsUrlHelper.TryGetDerivedTabGidForDisplay(cfg.ActionsSheetUrl, cfg.ArmorSheetUrl, out string ag) ? ag : "");
+            SetText(balancePanel, "ClassPresentationTabGidTextBox",
+                GoogleSheetsUrlHelper.TryGetDerivedTabGidForDisplay(cfg.ActionsSheetUrl, cfg.ClassPresentationSheetUrl, out string cg) ? cg : "");
         }
 
         public void SaveSettings(UserControl panel)
         {
             if (panel is not BalanceTuningSettingsPanel balancePanel)
                 return;
-            var urlBox = balancePanel.FindControl<TextBox>("ActionsSheetUrlTextBox");
-            if (urlBox == null)
-                return;
+            if (!TrySaveSheetsUrlsFromPanel(balancePanel, logErrors: true))
+                ScrollDebugLogger.Log("BalanceTuningPanel: Sheets URLs were not saved due to validation.");
+        }
 
-            string trimmed = (urlBox.Text ?? "").Trim();
-            if (string.IsNullOrEmpty(trimmed))
+        private static void SetText(BalanceTuningSettingsPanel panel, string textBoxName, string value)
+        {
+            var box = panel.FindControl<TextBox>(textBoxName);
+            if (box != null)
+                box.Text = value ?? "";
+        }
+
+        private static bool IsHttpUrl(string u) =>
+            u.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+            || u.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
+
+        private static bool TrySaveSheetsUrlsFromPanel(BalanceTuningSettingsPanel balancePanel, bool logErrors)
+        {
+            static string TrimBox(TextBox? b) => (b?.Text ?? "").Trim();
+
+            string edit = TrimBox(balancePanel.FindControl<TextBox>("SpreadsheetEditUrlTextBox"));
+            string actions = TrimBox(balancePanel.FindControl<TextBox>("ActionsSheetUrlTextBox"));
+            string wGid = TrimBox(balancePanel.FindControl<TextBox>("WeaponsTabGidTextBox"));
+            string mGid = TrimBox(balancePanel.FindControl<TextBox>("ModificationsTabGidTextBox"));
+            string aGid = TrimBox(balancePanel.FindControl<TextBox>("ArmorTabGidTextBox"));
+            string cGid = TrimBox(balancePanel.FindControl<TextBox>("ClassPresentationTabGidTextBox"));
+
+            foreach (string u in new[] { edit, actions })
             {
-                var emptyCfg = SheetsConfig.Load();
-                emptyCfg.ActionsSheetUrl = "";
-                emptyCfg.Save();
-                return;
+                if (string.IsNullOrEmpty(u))
+                    continue;
+                if (!IsHttpUrl(u))
+                {
+                    if (logErrors)
+                        ScrollDebugLogger.Log("BalanceTuningPanel: Spreadsheet / Actions URL must start with http:// or https://.");
+                    return false;
+                }
             }
 
-            if (!trimmed.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
-                && !trimmed.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            foreach (string g in new[] { wGid, mGid, aGid, cGid })
             {
-                ScrollDebugLogger.Log("BalanceTuningPanel: skipped saving actions sheet URL (must start with http:// or https://).");
-                return;
+                if (string.IsNullOrEmpty(g))
+                    continue;
+                if (!Regex.IsMatch(g, @"^\d+$"))
+                {
+                    if (logErrors)
+                        ScrollDebugLogger.Log("BalanceTuningPanel: Tab gids must be numeric (from Publish to web) or empty.");
+                    return false;
+                }
+            }
+
+            bool anyGid = wGid.Length > 0 || mGid.Length > 0 || aGid.Length > 0 || cGid.Length > 0;
+            if (anyGid && !IsHttpUrl(actions))
+            {
+                if (logErrors)
+                    ScrollDebugLogger.Log("BalanceTuningPanel: Set the Actions CSV URL when using tab gids (same spreadsheet).");
+                return false;
             }
 
             var cfg = SheetsConfig.Load();
-            cfg.ActionsSheetUrl = trimmed;
+            cfg.SpreadsheetEditUrl = edit;
+            cfg.ActionsSheetUrl = actions;
+
+            MergeTabUrlFromGid(actions, wGid, cfg, (c, v) => { c.WeaponsSheetUrl = v; }, c => c.WeaponsSheetUrl);
+            MergeTabUrlFromGid(actions, mGid, cfg, (c, v) => { c.ModificationsSheetUrl = v; }, c => c.ModificationsSheetUrl);
+            MergeTabUrlFromGid(actions, aGid, cfg, (c, v) => { c.ArmorSheetUrl = v; }, c => c.ArmorSheetUrl);
+            MergeTabUrlFromGid(actions, cGid, cfg, (c, v) => { c.ClassPresentationSheetUrl = v; }, c => c.ClassPresentationSheetUrl);
+
             cfg.Save();
-            GoogleSheetsUrlHelper.TrySyncSpreadsheetIdToPushConfig(trimmed);
+            GoogleSheetsUrlHelper.TrySyncSpreadsheetIdToPushConfigFromSheetsConfig(cfg);
+            return true;
         }
 
-        private async Task ResyncActionsFromGoogleSheetsAsync(BalanceTuningSettingsPanel panel)
+        private static void MergeTabUrlFromGid(
+            string actionsUrl,
+            string gidText,
+            SheetsConfig cfg,
+            Action<SheetsConfig, string> setUrl,
+            Func<SheetsConfig, string> getUrl)
+        {
+            string gid = gidText.Trim();
+            if (Regex.IsMatch(gid, @"^\d+$") && IsHttpUrl(actionsUrl))
+            {
+                setUrl(cfg, GoogleSheetsUrlHelper.ReplaceGidInPublishedGoogleSheetsUrl(actionsUrl, gid));
+                return;
+            }
+
+            if (string.IsNullOrEmpty(gid)
+                && GoogleSheetsUrlHelper.SamePublishedSheetsUrlIgnoringGid(actionsUrl, getUrl(cfg)))
+                setUrl(cfg, "");
+        }
+
+        private async Task ResyncFromGoogleSheetsAsync(BalanceTuningSettingsPanel panel)
         {
             if (sheetsRunner == null)
                 return;
 
             try
             {
-                sheetsRunner.AppendOutput("=== Resyncing Actions from Google Sheets ===\n");
-                if (!TryApplyActionsSheetUrlFromPanel(panel, out string sheetUrl))
+                sheetsRunner.AppendOutput("=== Resync from Google Sheets ===\n");
+                if (!TrySaveSheetsUrlsFromPanel(panel, logErrors: false))
+                {
+                    sheetsRunner.AppendOutput("✗ Invalid URL or tab gid (see tooltips / documentation).\n\n");
                     return;
+                }
 
-                sheetsRunner.AppendOutput("Fetching latest actions from Google Sheets...\n");
+                var cfg = SheetsConfig.Load();
+                if (string.IsNullOrWhiteSpace(cfg.ActionsSheetUrl)
+                    && string.IsNullOrWhiteSpace(cfg.WeaponsSheetUrl)
+                    && string.IsNullOrWhiteSpace(cfg.ModificationsSheetUrl)
+                    && string.IsNullOrWhiteSpace(cfg.ArmorSheetUrl)
+                    && string.IsNullOrWhiteSpace(cfg.ClassPresentationSheetUrl))
+                {
+                    sheetsRunner.AppendOutput("✗ Set the Actions CSV URL (base for all tabs) and optional tab gids, or full URLs in JSON.\n\n");
+                    var st = panel.FindControl<TextBlock>("SheetsSyncProgressTextBlock");
+                    if (st != null) st.Text = "URL required";
+                    return;
+                }
 
+                sheetsRunner.AppendOutput("Fetching from configured CSV URLs…\n");
                 var statusTextBlock = panel.FindControl<TextBlock>("SheetsSyncProgressTextBlock");
                 if (statusTextBlock != null)
-                    statusTextBlock.Text = "Resyncing actions...";
+                    statusTextBlock.Text = "Resyncing…";
 
-                await ActionUpdateService.UpdateFromGoogleSheetsAsync(sheetUrl);
+                await GameDataSheetsPullService.PullAllFromSheetsConfigAsync().ConfigureAwait(true);
 
-                sheetsRunner.AppendOutput("✓ Successfully updated Actions.json from Google Sheets\n");
-                sheetsRunner.AppendOutput("Reloading actions...\n");
+                sheetsRunner.AppendOutput("✓ Pull steps completed.\n");
+                if (!string.IsNullOrWhiteSpace(cfg.ActionsSheetUrl))
+                {
+                    ActionLoader.LoadActions();
+                    int actionCount = ActionLoader.GetAllActions().Count;
+                    sheetsRunner.AppendOutput($"✓ Actions reloaded ({actionCount} loaded).\n");
+                }
 
-                ActionLoader.LoadActions();
-                var actionCount = ActionLoader.GetAllActions().Count;
-
-                sheetsRunner.AppendOutput($"✓ Actions reloaded successfully ({actionCount} actions loaded)\n");
-                sheetsRunner.AppendOutput("=== Resync Complete ===\n\n");
-
+                sheetsRunner.AppendOutput("=== Resync complete ===\n\n");
                 if (statusTextBlock != null)
-                    statusTextBlock.Text = $"Resync complete - {actionCount} actions loaded";
+                    statusTextBlock.Text = "Resync complete";
             }
             catch (Exception ex)
             {
-                sheetsRunner.AppendOutput($"✗ Error resyncing actions: {ex.Message}\n");
-                sheetsRunner.AppendOutput($"{ex.StackTrace}\n\n");
-
+                sheetsRunner.AppendOutput($"✗ Error: {ex.Message}\n{ex.StackTrace}\n\n");
                 var statusTextBlock = panel.FindControl<TextBlock>("SheetsSyncProgressTextBlock");
                 if (statusTextBlock != null)
                     statusTextBlock.Text = $"Error: {ex.Message}";
             }
         }
 
-        private async Task PushActionsToGoogleSheetsAsync(BalanceTuningSettingsPanel panel)
+        private async Task PushGameDataToGoogleSheetsAsync(BalanceTuningSettingsPanel panel)
         {
             if (sheetsRunner == null)
                 return;
@@ -140,8 +225,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
 
             bool confirmed = await ConfirmationDialog.ShowAsync(
                 dialogOwner,
-                "Push Actions to Google Sheets",
-                "This will clear all data rows below the header on the configured tab and replace them with the current Actions.json. " +
+                "Push game data to Google Sheets",
+                "This will replace data on the configured spreadsheet tabs (Actions below the header block; other tabs from row 1). " +
                 "Google Sheets has no automatic undo—export or back up the sheet first if you are unsure.\n\nContinue?");
             if (!confirmed)
             {
@@ -151,8 +236,7 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 return;
             }
 
-            if (!TryApplyActionsSheetUrlFromPanel(panel, out _))
-                return;
+            TrySaveSheetsUrlsFromPanel(panel, logErrors: false);
 
             var game = canvasUI?.GetGame();
             var settingsWindow = TopLevel.GetTopLevel(panel) as SettingsWindow;
@@ -164,22 +248,30 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 if (settingsWindow != null)
                     settingsWindow.SuppressEscapeClose = true;
 
-                sheetsRunner.AppendOutput("=== Pushing Actions to Google Sheets ===\n");
+                sheetsRunner.AppendOutput("=== Push game data to Google Sheets ===\n");
                 sheetsRunner.AppendOutput("Using GameData/SheetsPushConfig.json (OAuth). Browser may open on first push…\n");
                 if (statusTextBlock != null)
-                    statusTextBlock.Text = "Pushing actions…";
+                    statusTextBlock.Text = "Pushing…";
 
-                await ActionSheetsPushService.PushActionsToGoogleSheetsAsync();
+                var pushResult = await GameDataSheetsPushService.PushAllGameDataSheetsAsync().ConfigureAwait(true);
 
+                foreach (string line in pushResult.SummaryLines)
+                    sheetsRunner.AppendOutput(line + "\n");
                 sheetsRunner.AppendOutput("✓ Push completed successfully.\n");
-                sheetsRunner.AppendOutput("=== Push Complete ===\n\n");
+                sheetsRunner.AppendOutput("=== Push complete ===\n\n");
                 if (statusTextBlock != null)
                     statusTextBlock.Text = "Push complete";
             }
             catch (Exception ex)
             {
-                sheetsRunner.AppendOutput($"✗ Push failed: {ex.Message}\n");
-                sheetsRunner.AppendOutput($"{ex.StackTrace}\n\n");
+                sheetsRunner.AppendOutput($"✗ Push failed: {ex.Message}\n{ex.StackTrace}\n\n");
+                if (ex.Message.Contains("NotFound", StringComparison.OrdinalIgnoreCase)
+                    || ex.Message.Contains("404", StringComparison.Ordinal))
+                {
+                    sheetsRunner.AppendOutput(
+                        "Hint: OAuth push needs the real spreadsheet id from an **Edit** link (…/d/<id>/edit…), not the publish-only e/2PACX id. " +
+                        "Paste that into **Spreadsheet edit link** in this panel and save, or set spreadsheetId in SheetsPushConfig.json.\n\n");
+                }
                 if (statusTextBlock != null)
                     statusTextBlock.Text = $"Error: {ex.Message}";
             }
@@ -190,39 +282,6 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
                 if (settingsWindow != null)
                     settingsWindow.SuppressEscapeClose = false;
             }
-        }
-
-        private bool TryApplyActionsSheetUrlFromPanel(BalanceTuningSettingsPanel panel, out string sheetUrl)
-        {
-            sheetUrl = "";
-            if (sheetsRunner == null)
-                return false;
-
-            var urlBox = panel.FindControl<TextBox>("ActionsSheetUrlTextBox");
-            string trimmed = (urlBox?.Text ?? "").Trim();
-            if (string.IsNullOrEmpty(trimmed))
-            {
-                sheetsRunner.AppendOutput("✗ Actions sheet URL is empty. Enter the published or export CSV URL above.\n\n");
-                var st = panel.FindControl<TextBlock>("SheetsSyncProgressTextBlock");
-                if (st != null) st.Text = "URL required";
-                return false;
-            }
-
-            if (!trimmed.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
-                && !trimmed.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-            {
-                sheetsRunner.AppendOutput("✗ Actions sheet URL must start with http:// or https://\n\n");
-                var st = panel.FindControl<TextBlock>("SheetsSyncProgressTextBlock");
-                if (st != null) st.Text = "Invalid URL";
-                return false;
-            }
-
-            var cfg = SheetsConfig.Load();
-            cfg.ActionsSheetUrl = trimmed;
-            cfg.Save();
-            GoogleSheetsUrlHelper.TrySyncSpreadsheetIdToPushConfig(trimmed);
-            sheetUrl = trimmed;
-            return true;
         }
     }
 }

@@ -10,9 +10,7 @@ namespace RPGGame
     /// <see cref="ClassPresentationConfig.DefaultNoPointsClassName"/> until class points on the **highest** path reach
     /// <see cref="ClassPresentationConfig.TierThresholds"/>[0] (first gate). Prefix tier words then use the same gates vs that path.
     /// Solo and duo titles are **prefix + core** only (no per-path discipline “of the …” suffix). When **three or
-    /// four** paths have ≥1 point, if <see cref="ClassPresentationConfig.QuadHybridTitles"/> is non-empty the HUD uses
-    /// <see cref="ClassPresentationConfig.TryPickQuadTitle"/> (same salt as <see cref="CharacterProgression.GetWeaponPointsClassTitle"/>).
-    /// Otherwise the core is the **duo hybrid** for the **two highest** paths by points (ties →
+    /// four** paths have ≥1 point, the core is the **duo hybrid** for the **two highest** paths by points (ties →
     /// <see cref="ClassPresentationConfig.ClassWeaponOrder"/>), then—if that path’s points are ≥
     /// <see cref="ClassPresentationConfig.TierThresholds"/>[0]—<see cref="ClassPresentationConfig.GetAttributeDisciplineModifier"/>
     /// for the **third-highest** path is appended.
@@ -43,7 +41,7 @@ namespace RPGGame
             {
                 1 => BuildSoloTitle(active[0].Path, cfg, band),
                 2 => BuildDuoTitle(active[0].Path, active[1].Path, cfg, band),
-                _ => BuildMultiPathTitle(progression, ranked, cfg, band)
+                _ => BuildMultiPathTitle(ranked, cfg, band)
             };
         }
 
@@ -91,18 +89,12 @@ namespace RPGGame
             return JoinTitle(prefix, core, null);
         }
 
-        /// <summary>Three or four paths: optional full quad title when all four paths are active and configured; else top-two duo + optional third suffix.</summary>
+        /// <summary>Three or four paths: top-two duo core + optional third-path discipline suffix.</summary>
         private static string BuildMultiPathTitle(
-            CharacterProgression progression,
             IReadOnlyList<(WeaponType Path, int Points)> ranked,
             ClassPresentationConfig cfg,
-            int band)
-        {
-            int pathsWithPoints = ranked.Count(x => x.Points >= 1);
-            if (pathsWithPoints >= 4 && cfg.TryPickQuadTitle(progression.ComputeWeaponPathTitleSalt(), out string quadTitle))
-                return quadTitle;
-            return BuildMultiPathTopTwoTitle(ranked, cfg, band);
-        }
+            int band) =>
+            BuildMultiPathTopTwoTitle(ranked, cfg, band);
 
         /// <summary>Three or four paths with ≥1 point: duo core from the two highest point totals; third-highest path’s suffix only if its points ≥ first tier gate.</summary>
         private static string BuildMultiPathTopTwoTitle(

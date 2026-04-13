@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit
@@ -14,7 +13,6 @@ namespace RPGGame.Tests.Unit
             HybridTitleSameTierBandIsPrimaryOnly(ref run, ref passed, ref failed);
             HybridTitleDifferentTierBandsCombines(ref run, ref passed, ref failed);
             RenamedWandDisplayStillWizardPrimary(ref run, ref passed, ref failed);
-            DuoHybridRuleOverridesJoiner(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("CharacterProgressionClassReferenceTests", run, passed, failed);
         }
@@ -85,67 +83,17 @@ namespace RPGGame.Tests.Unit
             }
         }
 
-        private static void DuoHybridRuleOverridesJoiner(ref int run, ref int passed, ref int failed)
-        {
-            var backup = SnapshotPresentation(GameConfiguration.Instance.ClassPresentation);
-            try
-            {
-                var pres = new ClassPresentationConfig().EnsureNormalized();
-                pres.HybridDuoTierRules = new System.Collections.Generic.List<HybridDuoTierRule>
-                {
-                    new HybridDuoTierRule
-                    {
-                        PrimaryPath = "Wand",
-                        SecondaryPath = "Sword",
-                        PrimaryTierBand = 2,
-                        SecondaryTierBand = 1,
-                        Titles = new[] { "SpellbladeCustom" }
-                    }
-                };
-                GameConfiguration.Instance.ClassPresentation = pres;
-                var p = new CharacterProgression { WizardPoints = 25, WarriorPoints = 3 };
-                string title = p.GetWeaponPointsClassTitle();
-                TestBase.AssertEqual("SpellbladeCustom", title, "duo tier rule replaces composed hybrid", ref run, ref passed, ref failed);
-            }
-            finally
-            {
-                GameConfiguration.Instance.ClassPresentation = backup;
-            }
-        }
-
         private static ClassPresentationConfig SnapshotPresentation(ClassPresentationConfig c)
         {
             c = c.EnsureNormalized();
             return new ClassPresentationConfig
             {
                 DefaultNoPointsClassName = c.DefaultNoPointsClassName,
-                PreTierLabel = c.PreTierLabel,
-                HybridJoiner = c.HybridJoiner,
                 MaceClassDisplayName = c.MaceClassDisplayName,
                 SwordClassDisplayName = c.SwordClassDisplayName,
                 DaggerClassDisplayName = c.DaggerClassDisplayName,
                 WandClassDisplayName = c.WandClassDisplayName,
                 TierThresholds = (int[])c.TierThresholds.Clone(),
-                TierNames = (string[])c.TierNames.Clone(),
-                MaceTierNames = c.MaceTierNames == null ? null : (string[])c.MaceTierNames.Clone(),
-                SwordTierNames = c.SwordTierNames == null ? null : (string[])c.SwordTierNames.Clone(),
-                DaggerTierNames = c.DaggerTierNames == null ? null : (string[])c.DaggerTierNames.Clone(),
-                WandTierNames = c.WandTierNames == null ? null : (string[])c.WandTierNames.Clone(),
-                HybridDuoTierRules = c.HybridDuoTierRules.Select(r => new HybridDuoTierRule
-                {
-                    PrimaryPath = r.PrimaryPath,
-                    SecondaryPath = r.SecondaryPath,
-                    PrimaryTierBand = r.PrimaryTierBand,
-                    SecondaryTierBand = r.SecondaryTierBand,
-                    Titles = r.Titles == null ? System.Array.Empty<string>() : (string[])r.Titles.Clone()
-                }).ToList(),
-                HybridTrioRules = c.HybridTrioRules.Select(r => new HybridPathComboRule
-                {
-                    Paths = r.Paths == null ? System.Array.Empty<string>() : (string[])r.Paths.Clone(),
-                    Titles = r.Titles == null ? System.Array.Empty<string>() : (string[])r.Titles.Clone()
-                }).ToList(),
-                QuadHybridTitles = c.QuadHybridTitles == null ? null : (string[])c.QuadHybridTitles.Clone(),
-                MeaningfulAttributeMinimum = c.MeaningfulAttributeMinimum,
                 AttributeSoloTrioTierPrefixes = (string[])c.AttributeSoloTrioTierPrefixes.Clone(),
                 AttributeQuadTierNames = (string[])c.AttributeQuadTierNames.Clone(),
                 AttributeModifierMace = c.AttributeModifierMace,
@@ -157,8 +105,7 @@ namespace RPGGame.Tests.Unit
                 AttributeDuoMaceWand = c.AttributeDuoMaceWand,
                 AttributeDuoSwordDagger = c.AttributeDuoSwordDagger,
                 AttributeDuoSwordWand = c.AttributeDuoSwordWand,
-                AttributeDuoDaggerWand = c.AttributeDuoDaggerWand,
-                AttributeThirdPathSuffix = c.AttributeThirdPathSuffix
+                AttributeDuoDaggerWand = c.AttributeDuoDaggerWand
             };
         }
     }

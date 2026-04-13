@@ -13,7 +13,23 @@ namespace RPGGame.Data
     {
         [JsonPropertyName("actionsSheetUrl")]
         public string ActionsSheetUrl { get; set; } = "";
-        
+
+        /// <summary>Browser **Edit** link (…/spreadsheets/d/<b>realId</b>/edit) so OAuth push gets a valid API spreadsheet id. Published <c>e/2PACX</c> CSV links alone cannot be used as <c>spreadsheetId</c>.</summary>
+        [JsonPropertyName("spreadsheetEditUrl")]
+        public string SpreadsheetEditUrl { get; set; } = "";
+
+        [JsonPropertyName("weaponsSheetUrl")]
+        public string WeaponsSheetUrl { get; set; } = "";
+
+        [JsonPropertyName("modificationsSheetUrl")]
+        public string ModificationsSheetUrl { get; set; } = "";
+
+        [JsonPropertyName("armorSheetUrl")]
+        public string ArmorSheetUrl { get; set; } = "";
+
+        [JsonPropertyName("classPresentationSheetUrl")]
+        public string ClassPresentationSheetUrl { get; set; } = "";
+
         /// <summary>
         /// Loads configuration from file
         /// </summary>

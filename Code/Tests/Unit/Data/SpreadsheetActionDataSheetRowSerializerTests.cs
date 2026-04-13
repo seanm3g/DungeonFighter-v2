@@ -17,6 +17,7 @@ namespace RPGGame.Tests.Unit.Data
             TestSingleHeaderRow_CoreColumns(ref testsRun, ref testsPassed, ref testsFailed);
             TestEmptyOptionalFields(ref testsRun, ref testsPassed, ref testsFailed);
             TestBuildHeaderFromSheetRows_FirstDataRow(ref testsRun, ref testsPassed, ref testsFailed);
+            TestParseCsvContent_RejectsNonActionHeader(ref testsRun, ref testsPassed, ref testsFailed);
 
             TestBase.PrintSummary("SpreadsheetActionDataSheetRowSerializer Tests", testsRun, testsPassed, testsFailed);
         }
@@ -85,6 +86,14 @@ namespace RPGGame.Tests.Unit.Data
 
             TestBase.AssertEqual("", row[1], "empty description", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertEqual("", row[2], "empty stun with label-only STUN column", ref testsRun, ref testsPassed, ref testsFailed);
+        }
+
+        private static void TestParseCsvContent_RejectsNonActionHeader(ref int testsRun, ref int testsPassed, ref int testsFailed)
+        {
+            TestBase.SetCurrentTestName(nameof(TestParseCsvContent_RejectsNonActionHeader));
+            string fakeHtml = "<!DOCTYPE html>\n<html><head></head><body>not a csv</body></html>";
+            var r = SpreadsheetActionParser.ParseCsvContent(fakeHtml);
+            TestBase.AssertTrue(r.Header == null, "non-CSV must not yield ACTION header", ref testsRun, ref testsPassed, ref testsFailed);
         }
 
         private static void TestBuildHeaderFromSheetRows_FirstDataRow(ref int testsRun, ref int testsPassed, ref int testsFailed)

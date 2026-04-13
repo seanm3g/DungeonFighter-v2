@@ -4,13 +4,19 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using RPGGame;
 
 namespace RPGGame.Data
 {
+    /// <summary>Outcome of pushing action body rows (below the header block).</summary>
+    public readonly record struct ActionSheetsPushOutcome(
+        int DataRowCount,
+        int FirstDataRowOneBased,
+        int? ApiUpdatedRows,
+        int? ApiUpdatedCells);
+
     /// <summary>
     /// Pushes local <c>Actions.json</c> (<see cref="SpreadsheetActionJson"/>) to an editable Google Sheet using OAuth 2.0 (Desktop).
     /// </summary>
@@ -24,52 +30,12 @@ namespace RPGGame.Data
             string? pushConfigPath = null,
             CancellationToken cancellationToken = default)
         {
-            pushConfigPath ??= GameConstants.TryGetExistingGameDataFilePath("SheetsPushConfig.json")
-                ?? GameConstants.GetGameDataFilePath("SheetsPushConfig.json");
+            pushConfigPath = SheetsPushUtilities.EnsurePushConfigExistsOrThrow(pushConfigPath);
             actionsJsonPath ??= GameConstants.TryGetExistingGameDataFilePath("Actions.json")
                 ?? GameConstants.GetGameDataFilePath("Actions.json");
 
-            if (!File.Exists(pushConfigPath))
-            {
-                string? templatePath = GameConstants.TryGetExistingGameDataFilePath("SheetsPushConfig.template.json");
-                if (templatePath == null)
-                {
-                    try
-                    {
-                        string? dir = Path.GetDirectoryName(Path.GetFullPath(pushConfigPath));
-                        if (!string.IsNullOrEmpty(dir))
-                        {
-                            string candidate = Path.Combine(dir, "SheetsPushConfig.template.json");
-                            if (File.Exists(candidate))
-                                templatePath = candidate;
-                        }
-                    }
-                    catch { /* ignore */ }
-                }
-
-                if (templatePath != null && File.Exists(templatePath))
-                {
-                    string? destDir = Path.GetDirectoryName(Path.GetFullPath(pushConfigPath));
-                    if (!string.IsNullOrEmpty(destDir))
-                        Directory.CreateDirectory(destDir);
-                    File.Copy(templatePath, pushConfigPath, overwrite: false);
-                    throw new InvalidOperationException(
-                        "SheetsPushConfig.json was missing; it has been created from SheetsPushConfig.template.json at:\n" +
-                        Path.GetFullPath(pushConfigPath) +
-                        "\n\nEdit that file: set spreadsheetId, actionsSheetTabName, oauthClientSecretsPath (path to your Google OAuth Desktop client JSON), then run Push again.");
-                }
-
-                throw new FileNotFoundException(
-                    "Sheets push config not found. Copy GameData/SheetsPushConfig.template.json to GameData/SheetsPushConfig.json (project root GameData folder), fill in spreadsheetId, tab name, and oauthClientSecretsPath, and oauth paths to your client JSON.",
-                    pushConfigPath);
-            }
-
-            var cfg = SheetsPushConfig.Load(pushConfigPath);
+            var cfg = SheetsPushUtilities.LoadPushConfigWithSheetsIdSync(pushConfigPath);
             cfg.Validate();
-
-            string secretsPath = cfg.ResolveOAuthClientSecretsPath(pushConfigPath);
-            if (!File.Exists(secretsPath))
-                throw new FileNotFoundException("OAuth client secrets file not found.", secretsPath);
 
             if (!File.Exists(actionsJsonPath))
                 throw new FileNotFoundException("Actions.json not found.", actionsJsonPath);
@@ -81,17 +47,43 @@ namespace RPGGame.Data
             if (actions == null || actions.Count == 0)
                 throw new InvalidOperationException("No actions to push (Actions.json empty or invalid).");
 
-            string tokenDir = cfg.ResolveOAuthTokenStoreDirectory(pushConfigPath);
-            var credential = await GoogleSheetsOAuthCredentialProvider.AuthorizeAsync(secretsPath, tokenDir, cancellationToken)
+            var service = await SheetsPushUtilities.CreateAuthorizedSheetsServiceAsync(cfg, pushConfigPath, cancellationToken)
                 .ConfigureAwait(false);
 
-            var service = new SheetsService(new BaseClientService.Initializer
-            {
-                HttpClientInitializer = credential,
-                ApplicationName = "DungeonFighter Actions Push"
-            });
+            await SheetsPushPreflight.EnsureSpreadsheetAccessAndTabsAsync(
+                    service,
+                    cfg.SpreadsheetId,
+                    new[] { cfg.ActionsSheetTabName.Trim() },
+                    cancellationToken)
+                .ConfigureAwait(false);
 
-            string sheet = EscapeSheetName(cfg.ActionsSheetTabName);
+            await PushActionsWithServiceAsync(service, cfg, pushConfigPath, actionsJsonPath, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Pushes actions using an already-authorized <see cref="SheetsService"/> (e.g. multi-tab orchestration).
+        /// </summary>
+        public static async Task<ActionSheetsPushOutcome> PushActionsWithServiceAsync(
+            SheetsService service,
+            SheetsPushConfig cfg,
+            string pushConfigPath,
+            string? actionsJsonPath = null,
+            CancellationToken cancellationToken = default)
+        {
+            actionsJsonPath ??= GameConstants.TryGetExistingGameDataFilePath("Actions.json")
+                ?? GameConstants.GetGameDataFilePath("Actions.json");
+
+            if (!File.Exists(actionsJsonPath))
+                throw new FileNotFoundException("Actions.json not found.", actionsJsonPath);
+
+            var actions = JsonLoader.LoadJson<List<SpreadsheetActionJson>>(
+                actionsJsonPath,
+                useCache: false,
+                fallbackValue: new List<SpreadsheetActionJson>());
+            if (actions == null || actions.Count == 0)
+                throw new InvalidOperationException("No actions to push (Actions.json empty or invalid).");
+
+            string sheet = SheetsPushUtilities.EscapeSheetName(cfg.ActionsSheetTabName);
 
             SpreadsheetHeader? header;
             int firstDataRowOneBased;
@@ -162,7 +154,14 @@ namespace RPGGame.Data
             var updateRequest = service.Spreadsheets.Values.Update(valueRange, cfg.SpreadsheetId, updateRange);
             // RAW keeps values as literal strings (matches CSV export / pull), avoiding Sheets re-interpreting numbers or dates.
             updateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
-            await updateRequest.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+            var updateResponse = await updateRequest.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+            int? updated = updateResponse?.UpdatedRows;
+            int? updatedCells = updateResponse?.UpdatedCells;
+            Console.WriteLine(
+                $"Sheets push: wrote {bodyRows.Count} action row(s) to tab {cfg.ActionsSheetTabName} starting at row {firstDataRowOneBased} " +
+                $"(API reports UpdatedRows={updated}, UpdatedCells={updatedCells}).");
+
+            return new ActionSheetsPushOutcome(bodyRows.Count, firstDataRowOneBased, updated, updatedCells);
         }
 
         private static async Task<(SpreadsheetHeader? Header, int FirstDataRowOneBased)> FetchHeaderFromSheetApiAsync(
@@ -179,43 +178,8 @@ namespace RPGGame.Data
                 .ExecuteAsync(cancellationToken)
                 .ConfigureAwait(false);
 
-            var rowStrings = NormalizeToStringRows(previewResponse.Values);
+            var rowStrings = SheetsPushUtilities.NormalizeToStringRows(previewResponse.Values);
             return SpreadsheetActionParser.BuildHeaderFromSheetRows(rowStrings);
-        }
-
-        private static string EscapeSheetName(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-                return "'Sheet1'";
-            return "'" + name.Replace("'", "''", StringComparison.Ordinal) + "'";
-        }
-
-        private static List<string[]> NormalizeToStringRows(IList<IList<object>>? values)
-        {
-            var rows = new List<string[]>();
-            if (values == null || values.Count == 0)
-                return rows;
-
-            int w = 0;
-            foreach (var r in values)
-                w = Math.Max(w, r?.Count ?? 0);
-            if (w == 0)
-                return rows;
-
-            foreach (var r in values)
-            {
-                var arr = new string[w];
-                for (int i = 0; i < w; i++)
-                {
-                    if (r != null && i < r.Count && r[i] != null)
-                        arr[i] = r[i].ToString() ?? "";
-                    else
-                        arr[i] = "";
-                }
-                rows.Add(arr);
-            }
-
-            return rows;
         }
     }
 }

@@ -143,7 +143,7 @@ namespace RPGGame
                 if (bandP != bandS)
                 {
                     string secondaryTitle = cfg.FormatRankedTitle(secondary.Path, secondary.Points);
-                    return primaryTitle + cfg.HybridJoiner + secondaryTitle;
+                    return primaryTitle + "-" + secondaryTitle;
                 }
             }
 
@@ -261,15 +261,15 @@ namespace RPGGame
                 $"  {cfg.GetDisplayName(WeaponType.Wand)} (Wand)" + nl + nl +
                 $"Default class: if every base class has 0 points, you are shown as {cfg.DefaultNoPointsClassName}." + nl + nl +
                 $"Per-class point tiers (thresholds are {th} points):" + nl +
-                $"  Below {t[0]} (with at least 1 point on that class): {cfg.PreTierLabel}" + nl +
-                $"  {t[0]}+ points: {cfg.TierNames[0]} (class name)" + nl +
-                $"  {t[1]}+ points: {cfg.TierNames[1]} (class name)" + nl +
-                $"  {t[2]}+ points: {cfg.TierNames[2]} (class name)" + nl + nl +
+                $"  Below {t[0]} (with at least 1 point on that class): Novice" + nl +
+                $"  {t[0]}+ points: Adept (class name)" + nl +
+                $"  {t[1]}+ points: Expert (class name)" + nl +
+                $"  {t[2]}+ points: Master (class name)" + nl + nl +
                 "Hybrid classes:" + nl +
                 "  Your two highest classes by points are considered. If the second has at least 1 point and " +
                 "its tier band (pre-first threshold vs each named tier) differs from the primary, your title " +
-                $"combines both with joiner \"{cfg.HybridJoiner}\" (for example, \"" +
-                $"{cfg.TierNames[0]} {cfg.GetDisplayName(WeaponType.Mace)}{cfg.HybridJoiner}{cfg.TierNames[0]} {cfg.GetDisplayName(WeaponType.Sword)}\"). " +
+                "combines both with joiner \"-\" (for example, \"" +
+                $"Adept {cfg.GetDisplayName(WeaponType.Mace)}-Adept {cfg.GetDisplayName(WeaponType.Sword)}\"). " +
                 "Otherwise only the primary tier name is used.";
         }
     }
