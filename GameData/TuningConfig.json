@@ -14,7 +14,7 @@
     "playerAttributesPerLevel": 0,
     "enemyAttributesPerLevel": 0,
     "enemyPrimaryAttributeBonus": 0,
-    "intelligenceRollBonusPer": 0
+    "intelligenceRollBonusPer": 10
   },
   "progression": {
     "baseXPToLevel2": 0,
@@ -156,9 +156,9 @@
   },
   "comboSystem": {
     "comboAmplifierAtTech5": 0,
-    "comboAmplifierMax": 0,
-    "comboAmplifierMaxTech": 0,
-    "comboAmplifierCurveExponent": 0
+    "comboAmplifierMax": 2,
+    "comboAmplifierMaxTech": 20,
+    "comboAmplifierCurveExponent": 2.5
   },
   "poison": {
     "tickInterval": 0,

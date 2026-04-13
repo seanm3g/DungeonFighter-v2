@@ -253,6 +253,8 @@ namespace RPGGame
             }
 
             Combat.EnsureValidCombatTimingDefaults();
+            Attributes.EnsureValidIntelligenceRollBonusDefaults();
+            ComboSystem.EnsureValidComboAmplifierDefaults();
         }
 
         public void Reload()

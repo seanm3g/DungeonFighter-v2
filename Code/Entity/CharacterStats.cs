@@ -163,18 +163,25 @@ namespace RPGGame
 
         public void ApplyStatBonus(int bonus, string statType, int duration)
         {
+            // Match aliases used in action data / spreadsheets (TECH, INTELLIGENCE) and execution flow
+            // (see ActionExecutionFlow stat bonus handling).
             switch (statType.ToUpper())
             {
                 case "STR":
+                case "STRENGTH":
                     TempStrengthBonus = bonus;
                     break;
                 case "AGI":
+                case "AGILITY":
                     TempAgilityBonus = bonus;
                     break;
                 case "TEC":
+                case "TECH":
+                case "TECHNIQUE":
                     TempTechniqueBonus = bonus;
                     break;
                 case "INT":
+                case "INTELLIGENCE":
                     TempIntelligenceBonus = bonus;
                     break;
             }

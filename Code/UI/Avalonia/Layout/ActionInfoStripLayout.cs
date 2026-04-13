@@ -28,15 +28,27 @@ namespace RPGGame.UI.Avalonia.Layout
             stripY = LayoutConstants.ACTION_INFO_Y;
             stripW = LayoutConstants.ACTION_INFO_WIDTH;
             stripH = LayoutConstants.ACTION_INFO_HEIGHT;
-            gap = LayoutConstants.ACTION_INFO_PANEL_GAP;
             topGap = LayoutConstants.ACTION_INFO_PANEL_TOP_GAP;
             int edgeMargin = LayoutConstants.ACTION_INFO_PANEL_EDGE_MARGIN;
             int count = panelCount;
-            int totalGaps = System.Math.Max(0, count - 1) * gap;
-            int insetTotal = edgeMargin * 2;
-            int avail = System.Math.Max(0, stripW - totalGaps - insetTotal);
-            panelWidth = count > 0 ? avail / count : 0;
-            remainder = count > 0 ? avail % count : 0;
+            gap = LayoutConstants.ACTION_INFO_PANEL_GAP;
+            // When the center column is narrow, avail/count can be 0 so remainder pixels go only to leading panels and
+            // trailing slots get zero width (breaks drag/hover for the last cards). Shrink horizontal gap first.
+            while (count > 0 && gap > 0)
+            {
+                int totalGaps = System.Math.Max(0, count - 1) * gap;
+                int insetTotal = edgeMargin * 2;
+                int avail = System.Math.Max(0, stripW - totalGaps - insetTotal);
+                if (avail >= count)
+                    break;
+                gap--;
+            }
+
+            int totalGapsFinal = System.Math.Max(0, count - 1) * gap;
+            int insetTotalFinal = edgeMargin * 2;
+            int availFinal = System.Math.Max(0, stripW - totalGapsFinal - insetTotalFinal);
+            panelWidth = count > 0 ? availFinal / count : 0;
+            remainder = count > 0 ? availFinal % count : 0;
             panelRowY = stripY + topGap;
             panelH = System.Math.Max(1, stripH - topGap - edgeMargin);
         }
@@ -83,14 +95,13 @@ namespace RPGGame.UI.Avalonia.Layout
                 return false;
 
             GetStripLayout(panelCount, out int stripX, out _, out int stripW, out _,
-                out _, out _, out int panelWidth, out int remainder, out int panelRowY, out int panelH);
+                out int gap, out _, out int panelWidth, out int remainder, out int panelRowY, out int panelH);
 
             if (gridY < panelRowY || gridY >= panelRowY + panelH)
                 return false;
             if (gridX < stripX || gridX >= stripX + stripW)
                 return false;
 
-            int gap = LayoutConstants.ACTION_INFO_PANEL_GAP;
             int edgeMargin = LayoutConstants.ACTION_INFO_PANEL_EDGE_MARGIN;
             for (int i = 0; i < panelCount; i++)
             {

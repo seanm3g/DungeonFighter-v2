@@ -23,6 +23,16 @@ namespace RPGGame
         public int EnemyAttributesPerLevel { get; set; }
         public int EnemyPrimaryAttributeBonus { get; set; }
         public int IntelligenceRollBonusPer { get; set; }
+
+        /// <summary>
+        /// When <see cref="IntelligenceRollBonusPer"/> is omitted or zero in tuning JSON, roll bonus from INT is disabled.
+        /// Restores the standard scale (+1 accuracy per N INT, same as <see cref="Enemy.GetIntelligenceRollBonus"/>).
+        /// </summary>
+        public void EnsureValidIntelligenceRollBonusDefaults()
+        {
+            if (IntelligenceRollBonusPer <= 0)
+                IntelligenceRollBonusPer = 10;
+        }
     }
 
     /// <summary>

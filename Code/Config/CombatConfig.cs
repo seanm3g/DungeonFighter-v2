@@ -116,6 +116,19 @@ namespace RPGGame
         /// Exponent for technique→amp curve above the flat region. &gt;1 keeps amp low until high TECH; default 2.5 when unset or ≤0.
         /// </summary>
         public double ComboAmplifierCurveExponent { get; set; }
+
+        /// <summary>
+        /// When <see cref="ComboAmplifierMax"/> or <see cref="ComboAmplifierMaxTech"/> are zero in tuning JSON,
+        /// <see cref="ComboAmplifierFromTechnique.Compute"/> clamps technique to 0, so AMP stays 1.0x regardless of TECH.
+        /// Aligns with <see cref="Utils.GameConstants"/> combat balance defaults.
+        /// </summary>
+        public void EnsureValidComboAmplifierDefaults()
+        {
+            if (ComboAmplifierMax <= 0)
+                ComboAmplifierMax = Utils.GameConstants.COMBO_AMPLIFIER_MAX;
+            if (ComboAmplifierMaxTech <= 0)
+                ComboAmplifierMaxTech = Utils.GameConstants.COMBO_AMPLIFIER_MAX_TECH;
+        }
     }
 
     /// <summary>

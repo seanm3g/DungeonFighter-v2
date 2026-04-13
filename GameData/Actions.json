@@ -995,7 +995,7 @@
     "speed": "0.10",
     "duration": "1",
     "cadence": "Action",
-    "heroCrit": "5",
+    "heroCrit": "4",
     "damageMod": "50",
     "target": "ENEMY",
     "tags": "barbarian, weapon",

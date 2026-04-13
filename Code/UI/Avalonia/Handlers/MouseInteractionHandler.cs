@@ -58,6 +58,11 @@ namespace RPGGame.UI.Avalonia.Handlers
                     e.Handled = true;
                     return;
                 }
+                if (TryApplyActionLabHeroHpRightClick(point.Position))
+                {
+                    e.Handled = true;
+                    return;
+                }
                 if (TryScheduleActionLabGearEdit(point.Position))
                 {
                     e.Handled = true;
@@ -330,7 +335,27 @@ namespace RPGGame.UI.Avalonia.Handlers
         }
 
         /// <summary>
+        /// Action Lab: hero HP bar — right-click heals +5 (capped at max). Left-click damage is handled in <see cref="ProcessElementClick"/>.
+        /// </summary>
+        private bool TryApplyActionLabHeroHpRightClick(Point position)
+        {
+            if (canvasUI == null || game?.StateManager?.CurrentState != GameState.ActionInteractionLab)
+                return false;
+            var session = ActionInteractionLabSession.Current;
+            if (session == null)
+                return false;
+            var grid = ScreenToGrid(position);
+            var el = canvasUI.GetElementAt(grid.X, grid.Y);
+            if (el == null || !string.Equals(el.Value, ActionLabLeftPanelStatAdjustment.HeroHpHoverId, StringComparison.Ordinal))
+                return false;
+            ActionLabLeftPanelStatAdjustment.ApplyHeroHpRightClickHeal(session.LabPlayer);
+            canvasUI.RenderCombat(session.LabPlayer, session.LabEnemy, new List<string>());
+            return true;
+        }
+
+        /// <summary>
         /// Action Lab: left-click increases STATS row values and level (HERO line); right-click decreases (see <see cref="ActionLabLeftPanelStatAdjustment"/>).
+        /// Hero HP bar: left-click applies 5% max HP damage; right-click heals +5 (see <see cref="TryApplyActionLabHeroHpRightClick"/>).
         /// </summary>
         private bool TryApplyActionLabLeftPanelStatFromElement(ClickableElement element, int delta)
         {
@@ -485,6 +510,16 @@ namespace RPGGame.UI.Avalonia.Handlers
                 if (element.Value.StartsWith("lab_", StringComparison.Ordinal))
                 {
                     await HandleActionLabClickAsync(element.Value).ConfigureAwait(true);
+                    return;
+                }
+
+                if (game.StateManager?.CurrentState == GameState.ActionInteractionLab
+                    && ActionInteractionLabSession.Current is { } labHpSession
+                    && string.Equals(element.Value, ActionLabLeftPanelStatAdjustment.HeroHpHoverId, StringComparison.Ordinal))
+                {
+                    ActionLabLeftPanelStatAdjustment.ApplyHeroHpClickDamagePercent(labHpSession.LabPlayer);
+                    if (canvasUI != null)
+                        canvasUI.RenderCombat(labHpSession.LabPlayer, labHpSession.LabEnemy, new List<string>());
                     return;
                 }
 

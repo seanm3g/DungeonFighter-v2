@@ -1,9 +1,11 @@
+using System;
 using RPGGame.UI;
 
 namespace RPGGame.ActionInteractionLab
 {
     /// <summary>
-    /// Action Lab: left panel STATS rows use <c>lphover:stat:*</c> hit targets; HERO level line uses <c>lphover:hero:level</c>.
+    /// Action Lab: left panel STATS rows use <c>lphover:stat:*</c> hit targets; HERO level line uses <c>lphover:hero:level</c>;
+    /// HP bar uses <see cref="HeroHpHoverId"/> (damage/heal clicks, not ±1 stat deltas).
     /// Left-click / right-click deltas are applied by the canvas mouse handler in Action Lab state.
     /// </summary>
     public static class ActionLabLeftPanelStatAdjustment
@@ -13,6 +15,9 @@ namespace RPGGame.ActionInteractionLab
 
         /// <summary>Level line in HERO section (<c>Lvl N Class</c>).</summary>
         public static string HeroLevelHoverId => LeftPanelHoverState.Prefix + "hero:level";
+
+        /// <summary>HP bar + numeric row in HERO section (<c>lphover:hero:hp</c>).</summary>
+        public static string HeroHpHoverId => LeftPanelHoverState.Prefix + "hero:hp";
 
         /// <summary>
         /// Returns true if <paramref name="fullHoverValue"/> is a STATS row we adjust in the lab, and applies the delta.
@@ -76,6 +81,29 @@ namespace RPGGame.ActionInteractionLab
                 default:
                     return false;
             }
+        }
+
+        /// <summary>
+        /// Action Lab: left-click on the hero HP bar — lose 5% of effective max HP per click (at least 1 when max &gt; 0), current HP floored at 0.
+        /// </summary>
+        public static void ApplyHeroHpClickDamagePercent(Character player)
+        {
+            int max = player.GetEffectiveMaxHealth();
+            if (max <= 0)
+                return;
+            int loss = Math.Max(1, (int)Math.Ceiling(max * 0.05));
+            player.CurrentHealth = Math.Max(0, player.CurrentHealth - loss);
+        }
+
+        /// <summary>
+        /// Action Lab: right-click on the hero HP bar — restore 5 HP without exceeding effective max.
+        /// </summary>
+        public static void ApplyHeroHpRightClickHeal(Character player, int healAmount = 5)
+        {
+            if (healAmount <= 0)
+                return;
+            int max = player.GetEffectiveMaxHealth();
+            player.CurrentHealth = Math.Min(max, player.CurrentHealth + healAmount);
         }
     }
 }

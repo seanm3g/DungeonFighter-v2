@@ -1,4 +1,5 @@
 using System;
+using RPGGame;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Config
@@ -26,6 +27,7 @@ namespace RPGGame.Tests.Unit.Config
 
             TestCharacterConfig();
             TestAttributesConfig();
+            TestEnsureValidIntelligenceRollBonusDefaults();
             TestAttributeSet();
             TestProgressionConfig();
             TestExperienceSystemConfig();
@@ -82,6 +84,23 @@ namespace RPGGame.Tests.Unit.Config
 
             TestBase.AssertEqual(2, config.PlayerAttributesPerLevel,
                 "PlayerAttributesPerLevel should be settable",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestEnsureValidIntelligenceRollBonusDefaults()
+        {
+            Console.WriteLine("\n--- Testing EnsureValidIntelligenceRollBonusDefaults ---");
+
+            var zeroed = new AttributesConfig { IntelligenceRollBonusPer = 0 };
+            zeroed.EnsureValidIntelligenceRollBonusDefaults();
+            TestBase.AssertEqual(10, zeroed.IntelligenceRollBonusPer,
+                "Zero IntelligenceRollBonusPer should default to 10",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var custom = new AttributesConfig { IntelligenceRollBonusPer = 7 };
+            custom.EnsureValidIntelligenceRollBonusDefaults();
+            TestBase.AssertEqual(7, custom.IntelligenceRollBonusPer,
+                "Positive IntelligenceRollBonusPer should be preserved",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

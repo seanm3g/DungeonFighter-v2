@@ -23,6 +23,7 @@ namespace RPGGame.Tests.Unit.UI
             TestFiveDisplaySlotsAllHitWhenFilledZero(ref run, ref passed, ref failed);
             TestPanelWidthsEqualWithinOnePixel(ref run, ref passed, ref failed);
             TestStripHitTestUsesDisplaySlotCountNotComboLength(ref run, ref passed, ref failed);
+            TestNarrowCenterColumnAllFiveStripSlotsHittable(ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("ActionInfoStripLayout Tests", run, passed, failed);
         }
@@ -179,6 +180,43 @@ namespace RPGGame.Tests.Unit.UI
                 ActionInfoStripLayout.TryGetPanelIndex(cx, cy, filled, out int wrongIdx) && wrongIdx != 1,
                 "Same cell must not resolve to panel 1 when panelCount is only combo length (misaligned strip math)",
                 ref run, ref passed, ref failed);
+        }
+
+        /// <summary>
+        /// When the center column is only ~10 cells wide, fixed gap (1) used to leave avail &lt; 5 so the last two
+        /// panels got zero width and strip drag/hover missed slots 4–5. Gap must shrink so every slot stays hittable.
+        /// </summary>
+        private static void TestNarrowCenterColumnAllFiveStripSlotsHittable(ref int run, ref int passed, ref int failed)
+        {
+            const double charW = 10.0;
+            LayoutConstants.UpdateGridDimensions(210, 52);
+            LayoutConstants.UpdateEffectiveVisibleWidth(75 * charW, charW);
+
+            try
+            {
+                TestBase.AssertEqual(10, LayoutConstants.ACTION_INFO_WIDTH,
+                    "Regression setup: effective width 75 yields ACTION_INFO_WIDTH 10",
+                    ref run, ref passed, ref failed);
+
+                const int displayCount = 5;
+                for (int i = 0; i < displayCount; i++)
+                {
+                    ActionInfoStripLayout.GetPanelRect(i, displayCount, out int px, out int py, out int pw, out int ph);
+                    TestBase.AssertTrue(pw >= 1,
+                        $"Narrow strip: panel {i} width must be >= 1 for hit-test (got {pw})",
+                        ref run, ref passed, ref failed);
+                    int cx = px + pw / 2;
+                    int cy = py + ph / 2;
+                    TestBase.AssertTrue(
+                        ActionInfoStripLayout.TryGetPanelIndex(cx, cy, displayCount, out int idx) && idx == i,
+                        $"Narrow strip: center of panel {i} hits index {i}",
+                        ref run, ref passed, ref failed);
+                }
+            }
+            finally
+            {
+                LayoutConstants.UpdateEffectiveVisibleWidth(2100, 10);
+            }
         }
 
         private static void TestGapBetweenPanelsMisses(ref int run, ref int passed, ref int failed)

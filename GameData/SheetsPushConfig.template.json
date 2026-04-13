@@ -4,6 +4,8 @@
   "weaponsSheetTabName": "WEAPONS",
   "modificationsSheetTabName": "MODIFICATIONS",
   "armorSheetTabName": "ARMOR",
+  "enemiesSheetTabName": "ENEMIES",
+  "environmentsSheetTabName": "ENVIRONMENTS",
   "classPresentationSheetTabName": "CLASSES",
   "oauthClientSecretsPath": "secrets/client_secret_desktop.json",
   "oauthTokenStorePath": "SheetsOAuthToken",

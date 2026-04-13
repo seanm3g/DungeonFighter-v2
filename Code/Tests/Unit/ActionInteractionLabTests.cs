@@ -42,6 +42,7 @@ namespace RPGGame.Tests.Unit
             UndoReplayPreservesComboStripEdits(ref run, ref passed, ref failed);
             UndoReplayPreservesLabStatEdits(ref run, ref passed, ref failed);
             LeftPanelStatAdjustment_StrArmorAndFloors(ref run, ref passed, ref failed);
+            LeftPanelStatAdjustment_HeroHpDamageAndHeal(ref run, ref passed, ref failed);
             LeftPanelStatAdjustment_HeroLevelClamp(ref run, ref passed, ref failed);
             LeftPanelStatAdjustment_LevelUpMirrorsGameLevelUpForWeapon(ref run, ref passed, ref failed);
             GetTotalArmorIncludesLabBonus(ref run, ref passed, ref failed);
@@ -121,6 +122,26 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual(1, c.Stats.Strength, "STR min 1", ref run, ref passed, ref failed);
             TestBase.AssertTrue(ActionLabLeftPanelStatAdjustment.TryApply(c, p + "armor", -5), "armor toward floor", ref run, ref passed, ref failed);
             TestBase.AssertEqual(0, c.ActionLabArmorBonus, "armor min 0", ref run, ref passed, ref failed);
+        }
+
+        private static void LeftPanelStatAdjustment_HeroHpDamageAndHeal(ref int run, ref int passed, ref int failed)
+        {
+            var c = TestDataBuilders.Character().WithName("LabHpClick").Build();
+            TestBase.AssertEqual(LeftPanelHoverState.Prefix + "hero:hp", ActionLabLeftPanelStatAdjustment.HeroHpHoverId, "HeroHpHoverId matches panel", ref run, ref passed, ref failed);
+            int max = c.GetEffectiveMaxHealth();
+            c.CurrentHealth = max;
+            ActionLabLeftPanelStatAdjustment.ApplyHeroHpClickDamagePercent(c);
+            int loss = System.Math.Max(1, (int)System.Math.Ceiling(max * 0.05));
+            TestBase.AssertEqual(max - loss, c.CurrentHealth, "left-click style 5% max HP damage", ref run, ref passed, ref failed);
+            c.CurrentHealth = 3;
+            ActionLabLeftPanelStatAdjustment.ApplyHeroHpClickDamagePercent(c);
+            TestBase.AssertEqual(0, c.CurrentHealth, "current HP floors at 0", ref run, ref passed, ref failed);
+            c.CurrentHealth = max - 10;
+            ActionLabLeftPanelStatAdjustment.ApplyHeroHpRightClickHeal(c, 5);
+            TestBase.AssertEqual(max - 5, c.CurrentHealth, "right-click +5 heal", ref run, ref passed, ref failed);
+            c.CurrentHealth = max - 3;
+            ActionLabLeftPanelStatAdjustment.ApplyHeroHpRightClickHeal(c, 5);
+            TestBase.AssertEqual(max, c.CurrentHealth, "heal clamps to max", ref run, ref passed, ref failed);
         }
 
         private static void LeftPanelStatAdjustment_HeroLevelClamp(ref int run, ref int passed, ref int failed)

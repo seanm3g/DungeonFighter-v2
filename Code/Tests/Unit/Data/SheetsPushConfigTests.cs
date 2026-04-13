@@ -82,6 +82,8 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertEqual(SheetsPushConfig.DefaultModificationsSheetTabName, cfg.ModificationsSheetTabName, "mods", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertEqual(SheetsPushConfig.DefaultArmorSheetTabName, cfg.ArmorSheetTabName, "armor", ref testsRun, ref testsPassed, ref testsFailed);
             TestBase.AssertEqual(SheetsPushConfig.DefaultClassPresentationSheetTabName, cfg.ClassPresentationSheetTabName, "classes", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual(SheetsPushConfig.DefaultEnemiesSheetTabName, cfg.EnemiesSheetTabName, "enemies", ref testsRun, ref testsPassed, ref testsFailed);
+            TestBase.AssertEqual(SheetsPushConfig.DefaultEnvironmentsSheetTabName, cfg.EnvironmentsSheetTabName, "environments", ref testsRun, ref testsPassed, ref testsFailed);
         }
 
         private static void TestApplyDefaultOptionalTabNamesSkipsWhenAnySet(ref int testsRun, ref int testsPassed, ref int testsFailed)

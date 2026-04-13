@@ -97,10 +97,10 @@ namespace RPGGame.Actions.Execution
                 string statType = nextStatType!.ToUpper();
                 int currentBonus = statType switch
                 {
-                    "STR" => nextAttackStatCharacter.Stats.TempStrengthBonus,
-                    "AGI" => nextAttackStatCharacter.Stats.TempAgilityBonus,
-                    "TEC" => nextAttackStatCharacter.Stats.TempTechniqueBonus,
-                    "INT" => nextAttackStatCharacter.Stats.TempIntelligenceBonus,
+                    "STR" or "STRENGTH" => nextAttackStatCharacter.Stats.TempStrengthBonus,
+                    "AGI" or "AGILITY" => nextAttackStatCharacter.Stats.TempAgilityBonus,
+                    "TEC" or "TECH" or "TECHNIQUE" => nextAttackStatCharacter.Stats.TempTechniqueBonus,
+                    "INT" or "INTELLIGENCE" => nextAttackStatCharacter.Stats.TempIntelligenceBonus,
                     _ => 0
                 };
                 int newBonus = currentBonus + nextBonus;

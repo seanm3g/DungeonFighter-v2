@@ -15,6 +15,8 @@ namespace RPGGame.Tests.Unit.Data
             WeaponsRoundTrip(ref run, ref pass, ref fail);
             WeaponsWithNestedRequirements(ref run, ref pass, ref fail);
             ModificationsRoundTrip(ref run, ref pass, ref fail);
+            EnemiesRoundTrip(ref run, ref pass, ref fail);
+            EnvironmentsRoundTrip(ref run, ref pass, ref fail);
             TestBase.PrintSummary("JsonArraySheetConverter Tests", run, pass, fail);
         }
 
@@ -67,6 +69,37 @@ namespace RPGGame.Tests.Unit.Data
             using var a = JsonDocument.Parse(outJson);
             TestBase.AssertEqual("Worn", a.RootElement[0].GetProperty("Name").GetString(), "Name", ref run, ref pass, ref fail);
             TestBase.AssertEqual(-3, a.RootElement[0].GetProperty("MinValue").GetDouble(), "Min", ref run, ref pass, ref fail);
+        }
+
+        private static void EnemiesRoundTrip(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(EnemiesRoundTrip));
+            const string json = """
+            [{"name":"Goblin","archetype":"Assassin","overrides":{"health":0.85,"agility":1.2},"actions":["JAB","TAUNT"],"isLiving":true,"description":"A goblin"}]
+            """;
+            var rows = JsonArraySheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Enemies);
+            var csv = RowsToCsv(rows);
+            string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Enemies);
+            using var a = JsonDocument.Parse(outJson);
+            var first = a.RootElement[0];
+            TestBase.AssertEqual("Goblin", first.GetProperty("name").GetString(), "name", ref run, ref pass, ref fail);
+            TestBase.AssertEqual(0.85, first.GetProperty("overrides").GetProperty("health").GetDouble(), "override health", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("JAB", first.GetProperty("actions")[0].GetString(), "action0", ref run, ref pass, ref fail);
+        }
+
+        private static void EnvironmentsRoundTrip(ref int run, ref int pass, ref int fail)
+        {
+            TestBase.SetCurrentTestName(nameof(EnvironmentsRoundTrip));
+            const string json = """
+            [{"name":"Entrance","description":"Big door.","theme":"Generic","isHostile":false,"actions":[{"name":"Magical Barrier","weight":1}]}]
+            """;
+            var rows = JsonArraySheetConverter.BuildPushValueRows(json, GameDataTabularSheetKind.Environments);
+            var csv = RowsToCsv(rows);
+            string outJson = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Environments);
+            using var a = JsonDocument.Parse(outJson);
+            var first = a.RootElement[0];
+            TestBase.AssertEqual("Entrance", first.GetProperty("name").GetString(), "name", ref run, ref pass, ref fail);
+            TestBase.AssertEqual("Magical Barrier", first.GetProperty("actions")[0].GetProperty("name").GetString(), "action name", ref run, ref pass, ref fail);
         }
 
         private static string RowsToCsv(System.Collections.Generic.List<System.Collections.Generic.IList<object>> rows)

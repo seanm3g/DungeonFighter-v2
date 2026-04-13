@@ -600,6 +600,7 @@ The game features a comprehensive action system with 30+ advanced actions, each 
 - Comprehensive test suite for all 30 actions
 - Verification of all advanced mechanics
 - Integration with existing test framework
+- **Action Interaction Lab** (Settings → Testing → Action interaction lab): stepped sandbox combat with a cloned hero; the left-panel hero HP bar accepts **left-click** to reduce HP by 5% of effective max per click and **right-click** to restore **+5** HP (capped at max) for quick injury/heal setup
 
 ---
 

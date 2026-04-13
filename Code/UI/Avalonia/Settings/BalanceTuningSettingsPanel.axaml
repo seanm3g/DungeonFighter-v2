@@ -99,6 +99,10 @@
                             <TextBox x:Name="ModificationsTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
                             <TextBlock Text="ARMOR → Armor.json" FontSize="12" Foreground="#FF555555"/>
                             <TextBox x:Name="ArmorTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
+                            <TextBlock Text="ENEMIES → Enemies.json" FontSize="12" Foreground="#FF555555"/>
+                            <TextBox x:Name="EnemiesTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
+                            <TextBlock Text="ENVIRONMENTS → Rooms.json" FontSize="12" Foreground="#FF555555"/>
+                            <TextBox x:Name="EnvironmentsTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
                             <TextBlock Text="CLASSES → classPresentation in TuningConfig.json" FontSize="12" Foreground="#FF555555"/>
                             <TextBox x:Name="ClassPresentationTabGidTextBox" MinHeight="28" Watermark="gid" FontSize="13" Padding="8" Background="#FF2D2D2D" Foreground="White" CaretBrush="White" BorderBrush="#FF666666" BorderThickness="1"/>
                         </StackPanel>

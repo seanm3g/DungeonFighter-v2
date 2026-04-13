@@ -31,6 +31,7 @@ namespace RPGGame.Tests.Unit
             TestTechnique();
             TestIntelligence();
             TestTemporaryBonuses();
+            TestApplyStatBonusAliasesMatchSpreadsheetAndActions();
             TestEquipmentBonuses();
             TestStatDecay();
             TestLevelUp();
@@ -166,6 +167,26 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual(3, character.Stats.TempStatBonusTurns, 
                 "Temporary bonus duration should be set", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// Spreadsheet / JSON use TECH (not only TEC) and may use INTELLIGENCE; ApplyStatBonus must accept them or lab/combat stat bonuses are ignored.
+        /// </summary>
+        private static void TestApplyStatBonusAliasesMatchSpreadsheetAndActions()
+        {
+            Console.WriteLine("\n--- Testing ApplyStatBonus TECH/INT aliases ---");
+
+            var c = TestDataBuilders.Character().WithName("AliasHero").Build();
+            c.Stats.TempStrengthBonus = 0;
+            c.Stats.TempAgilityBonus = 0;
+            c.Stats.TempTechniqueBonus = 0;
+            c.Stats.TempIntelligenceBonus = 0;
+
+            c.Stats.ApplyStatBonus(7, "TECH", 2);
+            TestBase.AssertEqual(7, c.Stats.TempTechniqueBonus, "TECH should set technique temp bonus", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            c.Stats.ApplyStatBonus(4, "INTELLIGENCE", 2);
+            TestBase.AssertEqual(4, c.Stats.TempIntelligenceBonus, "INTELLIGENCE should set intelligence temp bonus", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestEquipmentBonuses()

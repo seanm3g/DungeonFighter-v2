@@ -1,4 +1,5 @@
 using System;
+using RPGGame;
 using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit.Config
@@ -26,6 +27,7 @@ namespace RPGGame.Tests.Unit.Config
 
             TestCombatConfig();
             TestEnsureValidCombatTimingDefaults();
+            TestEnsureValidComboAmplifierDefaults();
             TestCombatBalanceConfig();
             TestRollDamageMultipliersConfig();
             TestStatusEffectScalingConfig();
@@ -78,6 +80,29 @@ namespace RPGGame.Tests.Unit.Config
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(0.2, valid.MinimumAttackTime,
                 "Positive MinimumAttackTime should be preserved",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestEnsureValidComboAmplifierDefaults()
+        {
+            Console.WriteLine("\n--- Testing EnsureValidComboAmplifierDefaults ---");
+
+            var zeroed = new ComboSystemConfig
+            {
+                ComboAmplifierMax = 0,
+                ComboAmplifierMaxTech = 0
+            };
+            zeroed.EnsureValidComboAmplifierDefaults();
+            TestBase.AssertEqual(Utils.GameConstants.COMBO_AMPLIFIER_MAX, zeroed.ComboAmplifierMax,
+                "Zero ComboAmplifierMax should use Utils.GameConstants default",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(Utils.GameConstants.COMBO_AMPLIFIER_MAX_TECH, zeroed.ComboAmplifierMaxTech,
+                "Zero ComboAmplifierMaxTech should use Utils.GameConstants default",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            double ampMid = ComboAmplifierFromTechnique.Compute(10, zeroed);
+            TestBase.AssertTrue(ampMid > 1.01,
+                $"TECH 10 should yield amp above flat 1.0 after defaults, got {ampMid}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

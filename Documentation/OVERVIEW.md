@@ -79,7 +79,7 @@ dotnet run
 
 ### 🔧 Technical Features
 - **Data-Driven Architecture:** All game data stored in JSON for easy modification
-- **Google Sheets multi-tab sync:** Published CSV URLs in `GameData/SheetsConfig.json` can pull **Actions**, **Weapons**, **Modifications**, **Armor**, and **class presentation** (from `TuningConfig.json`) from separate tabs. OAuth push (`SheetsPushConfig.json`) can write the same tabs in one run (Settings → Balance Tuning, or `PUSH_SHEETS` / `PULL_SHEETS` CLI). See `Documentation/02-Development/GOOGLE_SHEETS_INTEGRATION.md`.
+- **Google Sheets multi-tab sync:** Published CSV URLs in `GameData/SheetsConfig.json` can pull **Actions**, **Weapons**, **Modifications**, **Armor**, **Enemies** (`Enemies.json`), **Environments** (`Rooms.json`), and **class presentation** (from `TuningConfig.json`) from separate tabs. OAuth push (`SheetsPushConfig.json`) can write the same tabs in one run (Settings → Balance Tuning, or `PUSH_SHEETS` / `PULL_SHEETS` CLI). See `Documentation/02-Development/GOOGLE_SHEETS_INTEGRATION.md`.
 - **Design Patterns:** Facade, Factory, Registry, Builder, Strategy, Composition, Observer
 - **Advanced Mechanics System:** Roll modification, event-driven triggers, combo routing, tag system
 - **Status Effect System:** 23 total effects (6 basic + 17 advanced) with stacking and duration tracking

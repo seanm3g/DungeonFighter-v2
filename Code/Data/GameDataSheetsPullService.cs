@@ -53,6 +53,26 @@ namespace RPGGame.Data
                 ClearJsonCacheForGameDataFile(GameConstants.ArmorJson);
             }
 
+            if (!string.IsNullOrWhiteSpace(sc.EnemiesSheetUrl))
+            {
+                string csv = await DownloadCsvAsync(sc.EnemiesSheetUrl, cancellationToken).ConfigureAwait(false);
+                string json = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Enemies);
+                string outPath = GameConstants.TryGetExistingGameDataFilePath(GameConstants.EnemiesJson)
+                    ?? GameConstants.GetGameDataFilePath(GameConstants.EnemiesJson);
+                await File.WriteAllTextAsync(outPath, json, cancellationToken).ConfigureAwait(false);
+                ClearJsonCacheForGameDataFile(GameConstants.EnemiesJson);
+            }
+
+            if (!string.IsNullOrWhiteSpace(sc.EnvironmentsSheetUrl))
+            {
+                string csv = await DownloadCsvAsync(sc.EnvironmentsSheetUrl, cancellationToken).ConfigureAwait(false);
+                string json = JsonArraySheetConverter.CsvToJsonArrayText(csv, GameDataTabularSheetKind.Environments);
+                string outPath = GameConstants.TryGetExistingGameDataFilePath(GameConstants.RoomsJson)
+                    ?? GameConstants.GetGameDataFilePath(GameConstants.RoomsJson);
+                await File.WriteAllTextAsync(outPath, json, cancellationToken).ConfigureAwait(false);
+                ClearJsonCacheForGameDataFile(GameConstants.RoomsJson);
+            }
+
             if (!string.IsNullOrWhiteSpace(sc.ClassPresentationSheetUrl))
             {
                 string csv = await DownloadCsvAsync(sc.ClassPresentationSheetUrl, cancellationToken).ConfigureAwait(false);

@@ -31,6 +31,12 @@ namespace RPGGame.Data
         [JsonPropertyName("classPresentationSheetTabName")]
         public string ClassPresentationSheetTabName { get; set; } = "";
 
+        [JsonPropertyName("enemiesSheetTabName")]
+        public string EnemiesSheetTabName { get; set; } = "";
+
+        [JsonPropertyName("environmentsSheetTabName")]
+        public string EnvironmentsSheetTabName { get; set; } = "";
+
         /// <summary>Path to the OAuth 2.0 Desktop client JSON from Google Cloud Console. Relative paths are resolved from the config file directory.</summary>
         [JsonPropertyName("oauthClientSecretsPath")]
         public string OAuthClientSecretsPath { get; set; } = "";
@@ -47,9 +53,11 @@ namespace RPGGame.Data
         public const string DefaultModificationsSheetTabName = "MODIFICATIONS";
         public const string DefaultArmorSheetTabName = "ARMOR";
         public const string DefaultClassPresentationSheetTabName = "CLASSES";
+        public const string DefaultEnemiesSheetTabName = "ENEMIES";
+        public const string DefaultEnvironmentsSheetTabName = "ENVIRONMENTS";
 
         /// <summary>
-        /// When <b>all</b> optional tab names (weapons / modifications / armor / classes) are blank, assigns the
+        /// When <b>all</b> optional tab names (weapons / modifications / armor / classes / enemies / environments) are blank, assigns the
         /// conventional names from <c>SheetsPushConfig.template.json</c> so a first push can populate those tabs.
         /// </summary>
         /// <returns>True if defaults were applied.</returns>
@@ -58,13 +66,17 @@ namespace RPGGame.Data
             if (!string.IsNullOrWhiteSpace(WeaponsSheetTabName)
                 || !string.IsNullOrWhiteSpace(ModificationsSheetTabName)
                 || !string.IsNullOrWhiteSpace(ArmorSheetTabName)
-                || !string.IsNullOrWhiteSpace(ClassPresentationSheetTabName))
+                || !string.IsNullOrWhiteSpace(ClassPresentationSheetTabName)
+                || !string.IsNullOrWhiteSpace(EnemiesSheetTabName)
+                || !string.IsNullOrWhiteSpace(EnvironmentsSheetTabName))
                 return false;
 
             WeaponsSheetTabName = DefaultWeaponsSheetTabName;
             ModificationsSheetTabName = DefaultModificationsSheetTabName;
             ArmorSheetTabName = DefaultArmorSheetTabName;
             ClassPresentationSheetTabName = DefaultClassPresentationSheetTabName;
+            EnemiesSheetTabName = DefaultEnemiesSheetTabName;
+            EnvironmentsSheetTabName = DefaultEnvironmentsSheetTabName;
             return true;
         }
 

@@ -11,7 +11,11 @@ namespace RPGGame.Data
     {
         Weapons,
         Modifications,
-        Armor
+        Armor,
+        /// <summary><c>Enemies.json</c> — enemy archetypes and stat overrides.</summary>
+        Enemies,
+        /// <summary><c>Rooms.json</c> — room / environment definitions (sheet tab often named ENVIRONMENTS).</summary>
+        Environments
     }
 
     public static class JsonArraySheetConverter
@@ -25,12 +29,20 @@ namespace RPGGame.Data
         public static readonly string[] ArmorCanonicalHeaders =
             { "slot", "name", "armor", "tier", "attributeRequirements" };
 
+        public static readonly string[] EnemiesCanonicalHeaders =
+            { "name", "archetype", "overrides", "actions", "isLiving", "description" };
+
+        public static readonly string[] EnvironmentsCanonicalHeaders =
+            { "name", "description", "theme", "isHostile", "actions" };
+
         public static IReadOnlyList<string> GetCanonicalHeaders(GameDataTabularSheetKind kind) =>
             kind switch
             {
                 GameDataTabularSheetKind.Weapons => WeaponsCanonicalHeaders,
                 GameDataTabularSheetKind.Modifications => ModificationsCanonicalHeaders,
                 GameDataTabularSheetKind.Armor => ArmorCanonicalHeaders,
+                GameDataTabularSheetKind.Enemies => EnemiesCanonicalHeaders,
+                GameDataTabularSheetKind.Environments => EnvironmentsCanonicalHeaders,
                 _ => Array.Empty<string>()
             };
 
@@ -114,7 +126,8 @@ namespace RPGGame.Data
         private static JsonSerializerOptions GetSerializerOptions(GameDataTabularSheetKind kind)
         {
             var o = new JsonSerializerOptions { WriteIndented = true };
-            if (kind == GameDataTabularSheetKind.Weapons || kind == GameDataTabularSheetKind.Armor)
+            if (kind == GameDataTabularSheetKind.Weapons || kind == GameDataTabularSheetKind.Armor
+                || kind == GameDataTabularSheetKind.Enemies || kind == GameDataTabularSheetKind.Environments)
                 o.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             else
                 o.PropertyNamingPolicy = null;
